@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -42,42 +42,42 @@ class PostUpdate extends Command
     {
         set_time_limit(0);
 
-        info('running post update');
+        nlog('running post update');
 
         try {
             Artisan::call('migrate', ['--force' => true]);
         } catch (\Exception $e) {
-            info("I wasn't able to migrate the data.");
+            nlog("I wasn't able to migrate the data.");
         }
 
-        info("finished migrating");
+        nlog("finished migrating");
 
         exec('vendor/bin/composer install --no-dev:');
 
-        info("finished running composer install ");
+        nlog("finished running composer install ");
 
 
         try {
             Artisan::call('optimize');
         } catch (\Exception $e) {
-            info("I wasn't able to optimize.");
+            nlog("I wasn't able to optimize.");
         }
 
-        info("optimized");
+        nlog("optimized");
 
         try {
             Artisan::call('view:clear');
         } catch (\Exception $e) {
-            info("I wasn't able to clear the views.");
+            nlog("I wasn't able to clear the views.");
         }
 
-        info("view cleared");
+        nlog("view cleared");
 
         /* For the following to work, the web user (www-data) must own all the directories */
 
         VersionCheck::dispatch();
 
-        info("sent for version check");
+        nlog("sent for version check");
         
         // echo "Done.";
     }

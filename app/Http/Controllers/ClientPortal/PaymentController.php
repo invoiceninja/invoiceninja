@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -231,7 +231,7 @@ class PaymentController extends Controller
 
     public function response(PaymentResponseRequest $request)
     {
-        $gateway = CompanyGateway::find($request->input('company_gateway_id'))->firstOrFail();
+        $gateway = CompanyGateway::findOrFail($request->input('company_gateway_id'));
 
         $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$request->payment_hash])->first();
 

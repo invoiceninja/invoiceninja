@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -29,7 +29,10 @@ class UpdateUserRequest extends Request
     public function rules()
     {
         $input = $this->all();
-        $rules = [];
+
+        $rules = [
+            'password' => 'nullable|string|min:6',
+        ];
 
         if (isset($input['email'])) {
             $rules['email'] = ['email:rfc,dns', 'sometimes', new UniqueUserRule($this->user, $input['email'])];

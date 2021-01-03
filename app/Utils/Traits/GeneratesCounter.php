@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -628,21 +628,24 @@ trait GeneratesCounter
             $replace[] = $entity->id_number;
         }
         
-        if ($entity->client) {
+        if ($entity->client || ($entity instanceof Client)) {
+
+            $client = $entity->client ?: $entity;
+
             $search[] = '{$client_custom1}';
-            $replace[] = $entity->client->custom_value1;
+            $replace[] = $client->custom_value1;
 
             $search[] = '{$client_custom2}';
-            $replace[] = $entity->client->custom_value2;
+            $replace[] = $client->custom_value2;
 
             $search[] = '{$client_custom3}';
-            $replace[] = $entity->client->custom_value3;
+            $replace[] = $client->custom_value3;
 
             $search[] = '{$client_custom4}';
-            $replace[] = $entity->client->custom_value4;
+            $replace[] = $client->custom_value4;
 
             $search[] = '{$client_id_number}';
-            $replace[] = $entity->client->id_number;
+            $replace[] = $client->id_number;
         }
 
         return str_replace($search, $replace, $pattern);

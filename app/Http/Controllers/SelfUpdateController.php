@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -65,12 +65,12 @@ class SelfUpdateController extends BaseController
         /* .git MUST be owned/writable by the webserver user */
         $repo = new GitRepository(base_path());
 
-        info('Are there changes to pull? '.$repo->hasChanges());
+        nlog('Are there changes to pull? '.$repo->hasChanges());
 
         try {
             $res = $repo->pull();
         } catch (GitException $e) {
-            info($e->getMessage());
+            nlog($e->getMessage());
             return response()->json(['message'=>$e->getMessage()], 500);
         }
 

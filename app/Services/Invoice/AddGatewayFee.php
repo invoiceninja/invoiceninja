@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -41,7 +41,7 @@ class AddGatewayFee extends AbstractService
 
     public function run()
     {
-        $gateway_fee = round($this->company_gateway->calcGatewayFee($this->amount, $this->gateway_type_id), $this->invoice->client->currency()->precision);
+        $gateway_fee = round($this->company_gateway->calcGatewayFee($this->amount, $this->invoice->uses_inclusive_taxes, $this->gateway_type_id), $this->invoice->client->currency()->precision);
 
         if ((int)$gateway_fee == 0) {
             return $this->invoice;

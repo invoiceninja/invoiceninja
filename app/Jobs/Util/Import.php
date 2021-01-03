@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -629,6 +629,8 @@ class Import implements ShouldQueue
 
             unset($modified['id']);
 
+            if(array_key_exists('invitations', $resource))
+            {    
                 foreach($resource['invitations'] as $key => $invite)
                 {
 
@@ -638,7 +640,10 @@ class Import implements ShouldQueue
                     unset($resource['invitations'][$key]['recurring_invoice_id']);
 
                 }
-
+            
+                $modified['invitations'] = $resource['invitations'];
+            }
+            
             $invoice = $invoice_repository->save(
                 $modified,
                 RecurringInvoiceFactory::create($this->company->id, $modified['user_id'])
@@ -689,6 +694,8 @@ class Import implements ShouldQueue
 
             unset($modified['id']);
                 
+            if(array_key_exists('invitations', $resource))
+            {
                 foreach($resource['invitations'] as $key => $invite)
                 {
                     $resource['invitations'][$key]['client_contact_id'] = $this->transformId('client_contacts', $invite['client_contact_id']);
@@ -696,11 +703,11 @@ class Import implements ShouldQueue
                     $resource['invitations'][$key]['company_id'] = $this->company->id;
                     unset($resource['invitations'][$key]['invoice_id']);
 
-                    nlog("find a match for " . $invite['client_contact_id'] . " " .$resource['invitations'][$key]['client_contact_id']);
                 }
 
-            $modified['invitations'] = $resource['invitations'];
+                $modified['invitations'] = $resource['invitations'];
 
+            }
             $invoice = $invoice_repository->save(
                 $modified,
                 InvoiceFactory::create($this->company->id, $modified['user_id'])

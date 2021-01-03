@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -40,6 +40,6 @@ class PaymentEmailedActivity implements ShouldQueue
 
         $payment = $event->payment;
         
-        info("i succeeded in emailing payment {$payment->number}");
+        nlog("i succeeded in emailing payment {$payment->number}");
     }
 }

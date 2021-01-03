@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -71,8 +71,8 @@ class PaymentAmountsBalanceRule implements Rule
             return true;
         } // if no invoices are present, then this is an unapplied payment, let this pass validation!
 
-        // info("payment amounts = {$payment_amounts}");
-        // info("invoice amounts = {$invoice_amounts}");
+        // nlog("payment amounts = {$payment_amounts}");
+        // nlog("invoice amounts = {$invoice_amounts}");
 
         return  $payment_amounts >= $invoice_amounts;
     }

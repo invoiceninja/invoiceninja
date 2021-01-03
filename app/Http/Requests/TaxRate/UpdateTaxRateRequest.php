@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -28,7 +28,8 @@ class UpdateTaxRateRequest extends Request
     public function rules()
     {
         return [
-            'name' => 'unique:tax_rates,name,'.$this->tax_rate->name.',id,company_id,'.auth()->user()->companyId(),
+            // 'name' => 'unique:tax_rates,name,'.$this->tax_rate->name.',id,company_id,'.auth()->user()->companyId(),
+            'name' => 'unique:tax_rates,name,'.$this->id.',id,company_id,'.$this->company_id,
             'rate' => 'numeric',
         ];
     }

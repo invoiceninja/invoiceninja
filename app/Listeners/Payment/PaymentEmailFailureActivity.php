@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -40,7 +40,7 @@ class PaymentEmailFailureActivity implements ShouldQueue
 
         $payment = $event->payment;
 
-        info("i failed emailing {$payment->number}");
-        // info(print_r($event->errors,1));
+        nlog("i failed emailing {$payment->number}");
+        // nlog(print_r($event->errors,1));
     }
 }

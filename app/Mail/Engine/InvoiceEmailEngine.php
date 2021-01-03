@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -65,12 +65,12 @@ class InvoiceEmailEngine extends BaseEmailEngine
 
         if (is_array($this->template_data) &&  array_key_exists('subject', $this->template_data) && strlen($this->template_data['subject']) > 0) {
             $subject_template = $this->template_data['subject'];
-            info("subject = template data");
+            nlog("subject = template data");
         } elseif (strlen($this->client->getSetting('email_subject_'.$this->reminder_template)) > 0) {
             $subject_template = $this->client->getSetting('email_subject_'.$this->reminder_template);
-            info("subject = settings var");
+            nlog("subject = settings var");
         } else {
-            info("subject = default template " . 'email_subject_'.$this->reminder_template);
+            nlog("subject = default template " . 'email_subject_'.$this->reminder_template);
             $subject_template = EmailTemplateDefaults::getDefaultTemplate('email_subject_'.$this->reminder_template, $this->client->locale());
             // $subject_template = $this->client->getSetting('email_subject_'.$this->reminder_template);
         }

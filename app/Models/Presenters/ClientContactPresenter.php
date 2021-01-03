@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -20,8 +20,13 @@ class ClientContactPresenter extends EntityPresenter
      * @return string
      */
     public function name()
-    {
-        return $this->entity->first_name.' '.$this->entity->last_name;
+    {   
+        $contact_name = $this->entity->first_name.' '.$this->entity->last_name;
+
+        if(strlen($contact_name) > 1)
+            return $contact_name;
+
+        return $this->entity->client->present()->name(); 
     }
 
     public function first_name()

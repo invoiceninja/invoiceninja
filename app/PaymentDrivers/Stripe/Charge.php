@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -168,7 +168,7 @@ class Charge
         }
 
         $payment_method_type = $response->charges->data[0]->payment_method_details->card->brand;
-        //info($payment_method_type);
+        //nlog($payment_method_type);
 
         $data = [
             'gateway_type_id' => $cgt->gateway_type_id,

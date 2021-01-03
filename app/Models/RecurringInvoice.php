@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -193,6 +193,8 @@ class RecurringInvoice extends BaseModel
         }
 
         switch ($this->frequency_id) {
+            case self::FREQUENCY_DAILY:
+                return Carbon::parse($this->next_send_date)->addDay();
             case self::FREQUENCY_WEEKLY:
                 return Carbon::parse($this->next_send_date)->addWeek();
             case self::FREQUENCY_TWO_WEEKS:
@@ -223,6 +225,8 @@ class RecurringInvoice extends BaseModel
     public function nextDateByFrequency($date)
     {
         switch ($this->frequency_id) {
+            case self::FREQUENCY_DAILY:
+                return Carbon::parse($date)->addDay();
             case self::FREQUENCY_WEEKLY:
                 return Carbon::parse($date)->addWeek();
             case self::FREQUENCY_TWO_WEEKS:
@@ -296,6 +300,9 @@ class RecurringInvoice extends BaseModel
     public static function frequencyForKey(int $frequency_id) :string
     {
         switch ($frequency_id) {
+            case self::FREQUENCY_DAILY:
+                return ctrans('texts.freq_daily');
+                break;
             case self::FREQUENCY_WEEKLY:
                 return ctrans('texts.freq_weekly');
                 break;
@@ -366,10 +373,13 @@ class RecurringInvoice extends BaseModel
         if ($this->remaining_cycles == -1) {
             $iterations = 10;
         }
-            
-        $next_send_date = Carbon::parse($this->next_send_date)->copy();
-
+        
         $data = [];
+            
+        if(!Carbon::parse($this->next_send_date))
+            return $data;
+
+        $next_send_date = Carbon::parse($this->next_send_date)->copy();
 
         for ($x=0; $x<$iterations; $x++) {
             // we don't add the days... we calc the day of the month!!

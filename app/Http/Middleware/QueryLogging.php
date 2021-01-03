@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -51,10 +51,10 @@ class QueryLogging
                 $timeEnd = microtime(true);
                 $time = $timeEnd - $timeStart;
 
-                Log::info($request->method().' - '.$request->url().": $count queries - ".$time);
+                nlog($request->method().' - '.$request->url().": $count queries - ".$time);
 
                 //  if($count > 50)
-                //   Log::info($queries);
+                //   Log::nlog($queries);
             }
         }
 

@@ -14,7 +14,10 @@
                     {{ ctrans('texts.url') }}*
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="text" class="input w-full" name="url" required value="{{ old('url') }}">
+                    <input 
+                        type="url" class="input w-full" name="url" placeholder="https://example.com"
+                        pattern="https?://.*" size="45" value="{{ old('url', 'https://') }}" required>
+                        <small>(including http:// or https://)</small>
                 </dd>
             </div>
             <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">

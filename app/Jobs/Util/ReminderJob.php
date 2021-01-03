@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -62,7 +62,7 @@ class ReminderJob implements ShouldQueue
 
                 $invoice->invitations->each(function ($invitation) use ($invoice, $reminder_template) {
                     EmailEntity::dispatch($invitation, $invitation->company, $reminder_template);
-                    info("Firing email for invoice {$invoice->number}");
+                    nlog("Firing email for invoice {$invoice->number}");
                 });
 
                 if ($invoice->invitations->count() > 0) {

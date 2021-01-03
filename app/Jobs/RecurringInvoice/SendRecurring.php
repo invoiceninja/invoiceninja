@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -65,12 +65,12 @@ class SendRecurring implements ShouldQueue
                            ->createInvitations()
                            ->save();
 
-        info("Invoice {$invoice->number} created");
+        nlog("Invoice {$invoice->number} created");
 
         $invoice->invitations->each(function ($invitation) use ($invoice) {
             if ($invitation->contact && strlen($invitation->contact->email) >=1) {
                 EmailEntity::dispatch($invitation, $invoice->company);
-                info("Firing email for invoice {$invoice->number}");
+                nlog("Firing email for invoice {$invoice->number}");
             }
         });
 
@@ -78,7 +78,7 @@ class SendRecurring implements ShouldQueue
             $invoice->service()->autoBill()->save();
         }
 
-        info("updating recurring invoice dates");
+        nlog("updating recurring invoice dates");
         /* Set next date here to prevent a recurring loop forming */
         $this->recurring_invoice->next_send_date = $this->recurring_invoice->nextSendDate()->format('Y-m-d');
         $this->recurring_invoice->remaining_cycles = $this->recurring_invoice->remainingCycles();
@@ -89,9 +89,9 @@ class SendRecurring implements ShouldQueue
             $this->recurring_invoice->setCompleted();
         }
 
-        info("next send date = " . $this->recurring_invoice->next_send_date);
-        info("remaining cycles = " . $this->recurring_invoice->remaining_cycles);
-        info("last send date = " . $this->recurring_invoice->last_sent_date);
+        nlog("next send date = " . $this->recurring_invoice->next_send_date);
+        nlog("remaining cycles = " . $this->recurring_invoice->remaining_cycles);
+        nlog("last send date = " . $this->recurring_invoice->last_sent_date);
 
         $this->recurring_invoice->save();
 
@@ -102,7 +102,7 @@ class SendRecurring implements ShouldQueue
 
     public function failed($exception = null)
     {
-        info('the job failed');
+        nlog('the job failed');
 
         $job_failure = new SendRecurringFailure();
         $job_failure->string_metric5 = get_class($this);
@@ -111,6 +111,6 @@ class SendRecurring implements ShouldQueue
         LightLogs::create($job_failure)
                  ->batch();
 
-        info(print_r($exception->getMessage(), 1));
+        nlog(print_r($exception->getMessage(), 1));
     }
 }

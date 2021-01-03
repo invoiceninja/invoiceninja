@@ -4,7 +4,7 @@
  *
  * @link https://github.com/paymentninja/paymentninja source repository
  *
- * @copyright Copyright (c) 2020. payment Ninja LLC (https://paymentninja.com)
+ * @copyright Copyright (c) 2021. payment Ninja LLC (https://paymentninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */

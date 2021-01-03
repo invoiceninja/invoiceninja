@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -96,8 +96,8 @@ class BaseMailerJob implements ShouldQueue
 
     public function failed($exception = null)
     {
-        info('the job failed');
-        info($exception->getMessage());
+        nlog('the job failed');
+        nlog($exception->getMessage());
         
         $job_failure = new EmailFailure();
         $job_failure->string_metric5 = get_parent_class($this);

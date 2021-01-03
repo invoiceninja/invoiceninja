@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -49,7 +49,7 @@ class SendReminders implements ShouldQueue
      */
     public function handle()
     {
-        info("Sending reminders ".Carbon::now()->format('Y-m-d h:i:s'));
+        nlog("Sending reminders ".Carbon::now()->format('Y-m-d h:i:s'));
 
         if (! config('ninja.db.multi_db_enabled')) {
             $this->sendReminderEmails();
@@ -79,7 +79,7 @@ class SendReminders implements ShouldQueue
         })->each(function ($invoice) {
             $reminder_template = $invoice->calculateTemplate('invoice');
 
-            info("hitting a reminder for {$invoice->number} with template {$reminder_template}");
+            nlog("hitting a reminder for {$invoice->number} with template {$reminder_template}");
                 
             if (in_array($reminder_template, ['reminder1', 'reminder2', 'reminder3', 'endless_reminder'])) {
                 $this->sendReminder($invoice, $reminder_template);
@@ -208,7 +208,7 @@ class SendReminders implements ShouldQueue
 
             //only send if enable_reminder setting is toggled to yes
             if ($this->checkSendSetting($invoice, $template)) {
-                info("firing email");
+                nlog("firing email");
 
                 EmailEntity::dispatchNow($invitation, $invitation->company, $template);
             }

@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -70,6 +70,7 @@ class InvoiceMigrationRepository extends BaseRepository
         }
 
         $model->fill($tmp_data);
+        $model->status_id = $tmp_data['status_id'];
         $model->save();
 
         if (array_key_exists('documents', $data)) {
@@ -90,6 +91,9 @@ class InvoiceMigrationRepository extends BaseRepository
 
         InvoiceInvitation::unguard();
         RecurringInvoiceInvitation::unguard();
+        
+        if($model instanceof RecurringInvoice)
+            $lcfirst_resource_id = 'recurring_invoice_id';
         
         foreach($data['invitations'] as $invitation)
         {

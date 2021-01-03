@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -58,8 +58,8 @@ class ExportCsvTest extends TestCase
         $merged_values = array_merge($header_invoice_values, (array)$header_item_values);
         $merged_keys = array_merge($header_invoice_keys, (array)$header_item_keys);
 
-        info(print_r($merged_keys, 1));
-        info(print_r($merged_values, 1));
+        nlog(print_r($merged_keys, 1));
+        nlog(print_r($merged_values, 1));
 
 
         foreach ($merged_keys as &$key) {

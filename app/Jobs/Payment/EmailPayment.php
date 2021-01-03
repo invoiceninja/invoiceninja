@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -82,7 +82,7 @@ class EmailPayment extends BaseMailerJob implements ShouldQueue
                 $mail = Mail::to($this->contact->email, $this->contact->present()->name());
                 $mail->send(new TemplateEmail($email_builder, $this->contact->user, $this->contact->client));
             } catch (\Exception $e) {
-                info("mailing failed with message " . $e->getMessage());
+                nlog("mailing failed with message " . $e->getMessage());
                 event(new PaymentWasEmailedAndFailed($this->payment, $this->company, Mail::failures(), Ninja::eventVars()));
                 $this->failed($e);
                 return $this->logMailError($e->getMessage(), $this->payment->client);

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -46,13 +46,13 @@ class AuthorizeTransactions
         $response = $controller->executeWithApiResponse($this->authorize->mode());
 
         if (($response != null) && ($response->getMessages()->getResultCode() == 'Ok')) {
-            info('SUCCESS: Transaction Status:'.$response->getTransaction()->getTransactionStatus());
-            info('                Auth Amount:'.$response->getTransaction()->getAuthAmount());
-            info('                   Trans ID:'.$response->getTransaction()->getTransId());
+            nlog('SUCCESS: Transaction Status:'.$response->getTransaction()->getTransactionStatus());
+            nlog('                Auth Amount:'.$response->getTransaction()->getAuthAmount());
+            nlog('                   Trans ID:'.$response->getTransaction()->getTransId());
         } else {
-            info("ERROR :  Invalid response\n");
+            nlog("ERROR :  Invalid response\n");
             $errorMessages = $response->getMessages()->getMessage();
-            info('Response : '.$errorMessages[0]->getCode().'  '.$errorMessages[0]->getText());
+            nlog('Response : '.$errorMessages[0]->getCode().'  '.$errorMessages[0]->getText());
         }
 
         return $response;

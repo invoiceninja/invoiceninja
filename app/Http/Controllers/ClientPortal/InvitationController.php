@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -32,6 +32,16 @@ class InvitationController extends Controller
     use MakesDates;
 
     public function router(string $entity, string $invitation_key)
+    {
+        return $this->genericRouter($entity, $invitation_key);
+    }
+
+    public function recurringRouter(string $invitation_key)
+    {
+        return $this->genericRouter('recurring_invoice', $invitation_key);
+    }
+
+    private function genericRouter(string $entity, string $invitation_key)
     {
         $key = $entity.'_id';
 

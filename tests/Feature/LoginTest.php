@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -190,12 +190,12 @@ class LoginTest extends TestCase
             ])->post('/api/v1/login', $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
-            info(print_r($message, 1));
+            nlog(print_r($message, 1));
         }
 
         $arr = $response->json();
 
-        info(print_r($arr, 1));
+        nlog(print_r($arr, 1));
         
         $response->assertStatus(200);
     }
