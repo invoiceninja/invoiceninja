@@ -16,7 +16,10 @@ class UpdateCanadianDollarSymbol extends Migration
      */
     public function up()
     {
-        Currency::find(9)->update(['symbol' => '$']);
+        $currency = Currency::find(9);
+
+        if($currency)
+            $currency->update(['symbol' => '$']);
 
         $this->buildCache(true);
     }
