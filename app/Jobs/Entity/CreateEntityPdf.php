@@ -5,7 +5,7 @@
  *
  * @link https://github.com/entityninja/entityninja source repository
  *
- * @copyright Copyright (c) 2020. Entity Ninja LLC (https://entityninja.com)
+ * @copyright Copyright (c) 2021. Entity Ninja LLC (https://entityninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */

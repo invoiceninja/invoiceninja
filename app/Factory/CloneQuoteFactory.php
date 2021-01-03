@@ -4,7 +4,7 @@
  *
  * @link https://github.com/quoteninja/quoteninja source repository
  *
- * @copyright Copyright (c) 2020. quote Ninja LLC (https://quoteninja.com)
+ * @copyright Copyright (c) 2021. quote Ninja LLC (https://quoteninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
