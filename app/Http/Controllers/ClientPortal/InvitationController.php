@@ -33,6 +33,16 @@ class InvitationController extends Controller
 
     public function router(string $entity, string $invitation_key)
     {
+        return $this->genericRouter($entity, $invitation_key);
+    }
+
+    public function recurringRouter(string $invitation_key)
+    {
+        return $this->genericRouter('recurring_invoice', $invitation_key);
+    }
+
+    private function genericRouter(string $entity, string $invitation_key)
+    {
         $key = $entity.'_id';
 
         $entity_obj = 'App\Models\\'.ucfirst(Str::camel($entity)).'Invitation';

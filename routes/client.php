@@ -34,7 +34,7 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'check_client_existence
     Route::get('invoices/{invoice_invitation}', 'ClientPortal\InvoiceController@show')->name('invoice.show_invitation');
 
     Route::get('recurring_invoices', 'ClientPortal\RecurringInvoiceController@index')->name('recurring_invoices.index')->middleware('portal_enabled');
-    Route::get('recurring_invoices/{recurring_invoice}', 'ClientPortal\RecurringInvoiceController@show')->name('recurring_invoices.show');
+    Route::get('recurring_invoices/{recurring_invoice}', 'ClientPortal\RecurringInvoiceController@show')->name('recurring_invoice.show');
     Route::get('recurring_invoices/{recurring_invoice}/request_cancellation', 'ClientPortal\RecurringInvoiceController@requestCancellation')->name('recurring_invoices.request_cancellation');
 
     Route::post('payments/process', 'ClientPortal\PaymentController@process')->name('payments.process');
@@ -78,6 +78,7 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'check_client_existence
 
 Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'client.'], function () {
     /*Invitation catches*/
+    Route::get('recurring_invoice/{invitation_key}', 'ClientPortal\InvitationController@recurringRouter');
     Route::get('{entity}/{invitation_key}', 'ClientPortal\InvitationController@router');
     Route::get('invoice/{invitation_key}/download_pdf', 'InvoiceController@downloadPdf')->name('invoice.download_invitation_key');
     Route::get('quote/{invitation_key}/download_pdf', 'QuoteController@downloadPdf')->name('quote.download_invitation_key');
