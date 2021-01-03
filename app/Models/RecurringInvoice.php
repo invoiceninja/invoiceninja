@@ -300,6 +300,9 @@ class RecurringInvoice extends BaseModel
     public static function frequencyForKey(int $frequency_id) :string
     {
         switch ($frequency_id) {
+            case self::FREQUENCY_DAILY:
+                return ctrans('texts.freq_daily');
+                break;
             case self::FREQUENCY_WEEKLY:
                 return ctrans('texts.freq_weekly');
                 break;
