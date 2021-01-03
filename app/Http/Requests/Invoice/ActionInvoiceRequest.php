@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -47,7 +47,7 @@ class ActionInvoiceRequest extends Request
 
     	$this->invoice = Invoice::find($this->decodePrimary($invoice_id));
 
-		if(!array_key_exists('action', $input) {
+		if(!array_key_exists('action', $input)) {
         	$this->error_msg = 'Action is a required field';	
         }
         elseif(!$this->invoiceDeletable($this->invoice)){
@@ -69,8 +69,8 @@ class ActionInvoiceRequest extends Request
     public function messages()
     {
     	return [
-    		'action' => $this->error_msg;
-    	]
+    		'action' => $this->error_msg,
+    	];
     }
 
 
