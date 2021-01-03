@@ -18,6 +18,7 @@ use App\Models\User;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 /**
  * UserRepository.
@@ -60,6 +61,12 @@ class UserRepository extends BaseRepository
         }
 
         $user->fill($details);
+
+        //allow users to change only their passwords - not others!
+        if(auth()->user()->id == $user->id && array_key_exists('password', $data) && isset($data['password']))
+        {
+            $user->password = Hash::make($data['password']);
+        }
 
         if (!$user->confirmation_code) {
             $user->confirmation_code = $this->createDbHash(config('database.default'));
