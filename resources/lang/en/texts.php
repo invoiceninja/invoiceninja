@@ -3360,4 +3360,6 @@ return [
     'setup_phantomjs_note' => 'Note about Phantom JS. Read more.',
     'currency_armenian_dram' => 'Armenian Dram',
     'currency_albanian_lek' => 'Albanian Lek',
+
+    'endless' => 'Endless',
 ];

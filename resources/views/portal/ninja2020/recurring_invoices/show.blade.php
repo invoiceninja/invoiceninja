@@ -43,7 +43,8 @@
                             {{ ctrans('texts.cycles_remaining') }}
                         </dt>
                         <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                            {{ $invoice->remaining_cycles }}
+                            {{ $invoice->remaining_cycles == '-1' ? ctrans('texts.endless') : $invoice->remaining_cycles }}
+                            @if($invoice->remaining_cycles == '-1') &#8734; @endif
                         </dd>
                     </div>
                     <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
