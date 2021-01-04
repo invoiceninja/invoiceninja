@@ -394,16 +394,6 @@ class Design extends BaseDesign
                         $element['elements'][] = ['element' => 'td', 'content' => $row['$product.quantity'], 'properties' => ['data-ref' => 'product_table-product.quantity-td', 'style' => 'display: none;']];
                     } elseif ($cell == '$task.hours') {
                         $element['elements'][] = ['element' => 'td', 'content' => $row['$task.quantity'], 'properties' => ['data-ref' => 'task_table-task.hours-td']];
-                    } elseif ($cell == '$task.description') {
-                        $_element = ['element' => 'td', 'content' => '', 'elements' => [
-                            ['element' => 'span', 'content' => $row[$cell], 'properties' => ['data-ref' => 'task_table-task.description-td']],
-                        ]];
-
-                        foreach ($this->getTaskTimeLogs($row) as $log) {
-                            $_element['elements'][] = ['element' => 'span', 'content' => $log, 'properties' => ['class' => 'task-duration', 'data-ref' => 'task_table-task.duration']];
-                        }
-
-                        $element['elements'][] = $_element;
                     } else {
                         $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['data-ref' => "{$_type}_table-" . substr($cell, 1) . '-td']];
                     }
