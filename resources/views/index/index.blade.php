@@ -80,7 +80,7 @@
   </style>
 
   <script>
-    @if (request()->clear)
+    @if (request()->clear_local)
       window.onload = function() {
         window.localStorage.clear();
       }
