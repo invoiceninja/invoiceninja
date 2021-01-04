@@ -100,6 +100,7 @@ class SetupController extends Controller
         $env_values = [
             'APP_URL' => $request->input('url'),
             'REQUIRE_HTTPS' => $request->input('https') ? 'true' : 'false',
+            'APP_DEBUG' => 'false',
 
             'DB_HOST1' => $request->input('db_host'),
             'DB_PORT1' => $request->input('db_port'),
