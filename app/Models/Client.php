@@ -46,7 +46,6 @@ class Client extends BaseModel implements HasLocalePreference
 
     protected $fillable = [
         'assigned_user_id',
-        'currency_id',
         'name',
         'website',
         'private_notes',
