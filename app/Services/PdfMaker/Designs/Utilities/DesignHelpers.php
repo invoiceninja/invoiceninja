@@ -230,43 +230,6 @@ trait DesignHelpers
         return $html;
     }
 
-    public function getTaskTimeLogs(array $row)
-    {
-        if (!array_key_exists('task_id', $row)) {
-            return [];
-        }
-
-        $task = Task::find($this->decodePrimaryKey($row['task_id']));
-
-        if (!$task) {
-            return [];
-        }
-
-        $logs = [];
-        $_logs = json_decode($task->time_log);
-
-        if (!$_logs) {
-            $_logs = [];
-        }
-
-        foreach ($_logs as $log) {
-            $start = Carbon::createFromTimestamp($log[0]);
-            $finish = Carbon::createFromTimestamp($log[1]);
-
-            if ($start->isSameDay($finish)) {
-                $logs[] = sprintf('%s: %s - %s', $start->format($this->entity->client->date_format()), $start->format('h:i:s'), $finish->format('h:i:s'));
-            } else {
-                $logs[] = sprintf(
-                    '%s - %s',
-                    $start->format($this->entity->client->date_format() . ' h:i:s'),
-                    $finish->format($this->entity->client->date_format() . ' h:i:s')
-                );
-            }
-        }
-
-        return $logs;
-    }
-
     public function processCustomColumns(string $type): void
     {
         $custom_columns = [];
