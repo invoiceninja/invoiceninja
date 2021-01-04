@@ -12,6 +12,7 @@
 
 namespace App\Http\Controllers;
 
+use \Illuminate\Support\Facades\DB;
 use App\Http\Requests\Setup\CheckDatabaseRequest;
 use App\Http\Requests\Setup\CheckMailRequest;
 use App\Http\Requests\Setup\StoreSetupRequest;
@@ -22,7 +23,6 @@ use App\Utils\CurlUtils;
 use App\Utils\SystemHealth;
 use App\Utils\Traits\AppSetup;
 use Beganovich\Snappdf\Snappdf;
-use \Illuminate\Support\Facades\DB;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;

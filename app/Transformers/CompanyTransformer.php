@@ -211,10 +211,10 @@ class CompanyTransformer extends EntityTransformer
     {
         $transformer = new UserTransformer($this->serializer);
 
-            $users = $company->users->map(function ($user) use ($company){
-                $user->company_id = $company->id;
-                return $user;
-            });
+        $users = $company->users->map(function ($user) use ($company) {
+            $user->company_id = $company->id;
+            return $user;
+        });
 
         return $this->includeCollection($users, $transformer, User::class);
     }

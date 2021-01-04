@@ -629,7 +629,6 @@ trait GeneratesCounter
         }
         
         if ($entity->client || ($entity instanceof Client)) {
-
             $client = $entity->client ?: $entity;
 
             $search[] = '{$client_custom1}';
