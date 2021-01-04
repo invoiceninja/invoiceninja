@@ -16,6 +16,7 @@ use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
 use App\Models\Client;
 use App\Models\Credit;
+use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
@@ -82,7 +83,7 @@ class AutoBillInvoice extends AbstractService
         }
 
         /* $gateway fee */
-        $fee = $gateway_token->gateway->calcGatewayFee($amount, $this->invoice->uses_inclusive_taxes);
+        $fee = $gateway_token->gateway->calcGatewayFee($amount, GatewayType::CREDIT_CARD, $this->invoice->uses_inclusive_taxes);
 
         //todo determine exact fee as per PaymentController
 
