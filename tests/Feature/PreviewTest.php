@@ -37,47 +37,46 @@ class PreviewTest extends TestCase
 
     public function testPreviewRoute()
     {
-    	$data = $this->getData();
+        $data = $this->getData();
 
-    	 $response = $this->withHeaders([
+        $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
             ])->post('/api/v1/preview/', $data);
 
-         $response->assertStatus(200);
+        $response->assertStatus(200);
     }
 
     public function testPreviewHtmlResponse()
     {
-    	$data = $this->getData();
+        $data = $this->getData();
 
-    	 $response = $this->withHeaders([
+        $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
             ])->post('/api/v1/preview?html=true', $data);
 
-         $response->assertStatus(200);
-
+        $response->assertStatus(200);
     }
 
 
     private function getData()
     {
-    	$data =
-    		[
-    	    'entity_type' => 'invoice',
-		    'entity_id' => '', 
-		    'design' => [
-		            'name' => '', 
-		            'design' => [
+        $data =
+            [
+            'entity_type' => 'invoice',
+            'entity_id' => '',
+            'design' => [
+                    'name' => '',
+                    'design' => [
                     'includes' => '</style>',
                     'header' => '<div id="header"></div>',
                     'body' => '<div id="body">',
                     'product' => '',
                     'task' => '',
                     'footer' => '<div id="footer">$entity_footer</div>'
-                   	],
-		        ],
+                       ],
+                ],
             'is_custom' => 1,
         ];
 

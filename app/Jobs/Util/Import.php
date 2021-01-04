@@ -464,19 +464,16 @@ class Import implements ShouldQueue
                 $client->fresh();
                 $new_contacts = $client->contacts;
 
-                foreach($resource['contacts'] as $key => $old_contact)
-                {
+                foreach ($resource['contacts'] as $key => $old_contact) {
                     $contact_match = $new_contacts->where('contact_key', $old_contact['contact_key'])->first();
 
-                    if($contact_match)
-                    {                        
+                    if ($contact_match) {
                         $this->ids['client_contacts']['client_contacts_'.$old_contact['id']] = [
                             'old' => $old_contact['id'],
                             'new' => $contact_match->id,
                         ];
                     }
                 }
-
             }
 
             $key = "clients_{$resource['id']}";
@@ -629,16 +626,12 @@ class Import implements ShouldQueue
 
             unset($modified['id']);
 
-            if(array_key_exists('invitations', $resource))
-            {    
-                foreach($resource['invitations'] as $key => $invite)
-                {
-
+            if (array_key_exists('invitations', $resource)) {
+                foreach ($resource['invitations'] as $key => $invite) {
                     $resource['invitations'][$key]['client_contact_id'] = $this->transformId('client_contacts', $invite['client_contact_id']);
                     $resource['invitations'][$key]['user_id'] = $modified['user_id'];
                     $resource['invitations'][$key]['company_id'] = $this->company->id;
                     unset($resource['invitations'][$key]['recurring_invoice_id']);
-
                 }
             
                 $modified['invitations'] = $resource['invitations'];
@@ -694,19 +687,15 @@ class Import implements ShouldQueue
 
             unset($modified['id']);
                 
-            if(array_key_exists('invitations', $resource))
-            {
-                foreach($resource['invitations'] as $key => $invite)
-                {
+            if (array_key_exists('invitations', $resource)) {
+                foreach ($resource['invitations'] as $key => $invite) {
                     $resource['invitations'][$key]['client_contact_id'] = $this->transformId('client_contacts', $invite['client_contact_id']);
                     $resource['invitations'][$key]['user_id'] = $modified['user_id'];
                     $resource['invitations'][$key]['company_id'] = $this->company->id;
                     unset($resource['invitations'][$key]['invoice_id']);
-
                 }
 
                 $modified['invitations'] = $resource['invitations'];
-
             }
             $invoice = $invoice_repository->save(
                 $modified,
@@ -877,7 +866,7 @@ class Import implements ShouldQueue
                 PaymentFactory::create($this->company->id, $modified['user_id'])
             );
 
-            if($resource['company_gateway_id'] != 'NULL' && $resource['company_gateway_id'] != NULL){
+            if ($resource['company_gateway_id'] != 'NULL' && $resource['company_gateway_id'] != null) {
                 $payment->company_gateway_id = $this->transformId('company_gateways', $resource['company_gateway_id']);
                 $payment->save();
             }

@@ -63,8 +63,7 @@ class UserRepository extends BaseRepository
         $user->fill($details);
 
         //allow users to change only their passwords - not others!
-        if(auth()->user()->id == $user->id && array_key_exists('password', $data) && isset($data['password']))
-        {
+        if (auth()->user()->id == $user->id && array_key_exists('password', $data) && isset($data['password'])) {
             $user->password = Hash::make($data['password']);
         }
 

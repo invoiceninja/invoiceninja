@@ -16,7 +16,6 @@ use App\Libraries\MultiDB;
 use App\Models\RecurringInvoice;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 
 class RecurringInvoicesCron
 {

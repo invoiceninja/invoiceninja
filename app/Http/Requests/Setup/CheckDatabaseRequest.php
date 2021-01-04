@@ -35,6 +35,7 @@ class CheckDatabaseRequest extends Request
     {
         return [
             'db_host' => ['required'],
+            'db_port' => ['required'],
             'db_database' => ['required'],
             'db_username' => ['required'],
         ];
