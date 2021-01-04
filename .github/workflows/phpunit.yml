@@ -1,11 +1,11 @@
-on: 
+on:
   push:
     branches:
       - v5-develop
   pull_request:
-    branches: 
+    branches:
       - v5-develop
-      
+
 name: phpunit
 jobs:
   run:
@@ -24,7 +24,7 @@ jobs:
       DB_DATABASE: ninja
       DB_USERNAME: root
       DB_PASSWORD: ninja
-      DB_HOST: '127.0.0.1'  
+      DB_HOST: '127.0.0.1'
       BROADCAST_DRIVER: log
       CACHE_DRIVER: file
       QUEUE_CONNECTION: sync
@@ -47,12 +47,12 @@ jobs:
           MYSQL_DATABASE: ninja
           MYSQL_ROOT_PASSWORD: ninja
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
-        
+
     steps:
     - name: Start mysql service
       run: |
         sudo /etc/init.d/mysql start
-    
+
     - name: Verify MariaDB connection
       env:
         DB_PORT: ${{ job.services.mariadb.ports[3306] }}
@@ -62,13 +62,13 @@ jobs:
         while ! mysqladmin ping -h"127.0.0.1" -P"$DB_PORT" --silent; do
           sleep 1
         done
-    
+
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php-versions }}
         extensions: mysql, mysqlnd, sqlite3, bcmath, gmp, gd, curl, zip, openssl, mbstring, xml
-        
+
     - uses: actions/checkout@v1
       with:
         ref: v5-develop
@@ -77,7 +77,7 @@ jobs:
     - name: Copy .env
       run: |
         cp .env.ci .env
-        
+
     - name: Install composer dependencies
       run: |
         composer config -g github-oauth.github.com ${{ secrets.GITHUB_TOKEN }}
@@ -89,12 +89,12 @@ jobs:
         php artisan optimize
         php artisan cache:clear
         php artisan config:cache
-        
+
     - name: Create DB and schemas
       run: |
         mkdir -p database
         touch database/database.sqlite
-        
+
     - name: Migrate Database
       run: |
         php artisan migrate:fresh --seed --force && php artisan db:seed --force
@@ -103,11 +103,15 @@ jobs:
       run: |
         npm i
         npm run production
-        
+
     - name: Run Testsuite
       run: |
         cat .env
         vendor/bin/phpunit --testdox
       env:
         DB_PORT: ${{ job.services.mysql.ports[3306] }}
+
+    - name: Run php-cs-fixer
+      run: |
+        vendor/bin/php-cs-fixer fix
 
