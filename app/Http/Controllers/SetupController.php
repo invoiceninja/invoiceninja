@@ -22,7 +22,7 @@ use App\Utils\CurlUtils;
 use App\Utils\SystemHealth;
 use App\Utils\Traits\AppSetup;
 use Beganovich\Snappdf\Snappdf;
-use DB;
+use \Illuminate\Support\Facades\DB;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
@@ -55,7 +55,7 @@ class SetupController extends Controller
     {
         try {
             $check = SystemHealth::check(false);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             nlog(['message' => $e->getMessage(), 'action' => 'SetupController::doSetup()']);
 
             return response()->json(['message' => $e->getMessage()], 400);
@@ -71,9 +71,9 @@ class SetupController extends Controller
             $db = SystemHealth::dbCheck($request);
 
             if ($db['success'] == false) {
-                throw new \Exception($db['message']);
+                throw new Exception($db['message']);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response([
                 'message' => 'Oops, connection to database was not successful.',
                 'error' => $e->getMessage(),
@@ -85,10 +85,10 @@ class SetupController extends Controller
                 $smtp = SystemHealth::testMailServer($request);
 
                 if ($smtp['success'] == false) {
-                    throw new \Exception($smtp['message']);
+                    throw new Exception($smtp['message']);
                 }
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response([
                 'message' => 'Oops, connection to mail server was not successful.',
                 'error' => $e->getMessage(),
@@ -103,6 +103,7 @@ class SetupController extends Controller
             'APP_DEBUG' => $request->input('debug') ? 'true' : 'false',
 
             'DB_HOST1' => $request->input('db_host'),
+            'DB_PORT1' => $request->input('db_port'),
             'DB_DATABASE1' => $request->input('db_database'),
             'DB_USERNAME1' => $request->input('db_username'),
             'DB_PASSWORD1' => $request->input('db_password'),
@@ -173,7 +174,7 @@ class SetupController extends Controller
             }
 
             return response($status, 400);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             nlog(['message' => $e->getMessage(), 'action' => 'SetupController::checkDB()']);
 
             return response()->json(['message' => $e->getMessage()], 400);
@@ -203,17 +204,6 @@ class SetupController extends Controller
         }
     }
 
-    private function failsafeMailCheck($request)
-    {
-        $response = SystemHealth::testMailServer($request);
-
-        if ($response['success']) {
-            true;
-        }
-
-        return false;
-    }
-
     public function checkPdf(Request $request)
     {
         try {
@@ -231,9 +221,10 @@ class SetupController extends Controller
                 ->setHtml('GENERATING PDFs WORKS! Thank you for using Invoice Ninja!')
                 ->generate();
 
-            Storage::put('public/test.pdf', $pdf);
+            Storage::disk(config('filesystems.default'))->put('test.pdf', $pdf);
+            Storage::disk('local')->put('test.pdf', $pdf);
 
-            return response(['url' => asset('test.pdf')], 200);
+            return response(['url' => Storage::disk('local')->url('test.pdf')], 200);
         } catch (Exception $e) {
             nlog($e->getMessage());
 

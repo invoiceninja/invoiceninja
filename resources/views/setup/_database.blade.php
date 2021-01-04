@@ -43,21 +43,29 @@ FLUSH PRIVILEGES;
             </div>
             <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
                 <dt class="text-sm leading-5 font-medium text-gray-500">
+                    {{ ctrans('texts.port') }}*
+                </dt>
+                <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+                    <input type="text" class="input w-full" name="db_port" required value="{{ old('db_port') ?: '3306'}}">
+                </dd>
+            </div>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
+                <dt class="text-sm leading-5 font-medium text-gray-500">
                     {{ ctrans('texts.database') }}*
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
                     <input type="text" class="input w-full" name="db_database" required value="{{ old('database') ?: 'db-ninja-01'}}">
                 </dd>
             </div>
-            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
-                <dt class="text-sm leading-5 font-medium text-gray-500" value="{{ old('username') }}">
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
+                <dt class="text-sm leading-5 font-medium text-gray-500">
                     {{ ctrans('texts.username') }}*
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
                     <input type="text" class="input w-full" name="db_username" required value="{{ old('db_username') ?: 'ninja' }}">
                 </dd>
             </div>
-            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
                 <dt class="text-sm leading-5 font-medium text-gray-500">
                     {{ ctrans('texts.password') }}
                 </dt>
@@ -65,14 +73,14 @@ FLUSH PRIVILEGES;
                     <input type="password" class="input w-full" name="db_password" value="{{ old('db_password') ?: 'ninja' }}">
                 </dd>
             </div>
-            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
                 <dt class="text-sm leading-5 font-medium text-gray-500">
                     <button type="button" class="button button-primary bg-blue-600 py-2 px-3 text-xs" id="test-db-connection">
                         {{ ctrans('texts.test_connection') }}
                     </button>
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <div class="alert py-2 bg-gray-50" id="database-response"></div>
+                    <div class="alert py-2 bg-white" id="database-response"></div>
                 </dd>
             </div>
         </dl>
