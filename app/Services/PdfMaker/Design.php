@@ -127,7 +127,7 @@ class Design extends BaseDesign
         ];
     }
 
-    public function companyDetails()
+    public function companyDetails(): array
     {
         $variables = $this->context['pdf_variables']['company_details'];
 
@@ -309,13 +309,13 @@ class Design extends BaseDesign
 
         foreach ($this->context['pdf_variables']["{$type}_columns"] as $column) {
             if (array_key_exists($column, $aliases)) {
-                $elements[] = ['element' => 'th', 'content' => $aliases[$column] . '_label'];
+                $elements[] = ['element' => 'th', 'content' => $aliases[$column] . '_label', 'properties' => ['hidden' => $this->client->company->hide_empty_columns_on_pdf]];
             } elseif ($column == '$product.discount' && !$this->client->company->enable_product_discount) {
                 $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-" . substr($column, 1) . '-th', 'style' => 'display: none;']];
             } elseif ($column == '$product.quantity' && !$this->client->company->enable_product_quantity) {
                 $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-" . substr($column, 1) . '-th', 'style' => 'display: none;']];
             } else {
-                $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-" . substr($column, 1) . '-th']];
+                $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-" . substr($column, 1) . '-th', 'hidden' => $this->client->company->hide_empty_columns_on_pdf]];
             }
         }
 
@@ -394,16 +394,6 @@ class Design extends BaseDesign
                         $element['elements'][] = ['element' => 'td', 'content' => $row['$product.quantity'], 'properties' => ['data-ref' => 'product_table-product.quantity-td', 'style' => 'display: none;']];
                     } elseif ($cell == '$task.hours') {
                         $element['elements'][] = ['element' => 'td', 'content' => $row['$task.quantity'], 'properties' => ['data-ref' => 'task_table-task.hours-td']];
-                    } elseif ($cell == '$task.description') {
-                        $_element = ['element' => 'td', 'content' => '', 'elements' => [
-                            ['element' => 'span', 'content' => $row[$cell], 'properties' => ['data-ref' => 'task_table-task.description-td']],
-                        ]];
-
-                        foreach ($this->getTaskTimeLogs($row) as $log) {
-                            $_element['elements'][] = ['element' => 'span', 'content' => $log, 'properties' => ['class' => 'task-duration', 'data-ref' => 'task_table-task.duration']];
-                        }
-
-                        $element['elements'][] = $_element;
                     } else {
                         $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['data-ref' => "{$_type}_table-" . substr($cell, 1) . '-td']];
                     }

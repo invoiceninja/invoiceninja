@@ -2459,6 +2459,34 @@ return [
     'currency_bahraini_dinar' => 'Bahraini Dinar',
     'currency_venezuelan_bolivars' => 'Venezuelan Bolivars',
 
+
+    'currency_south_korean_won' => 'South Korean Won',
+    'currency_moroccan_dirham' => 'Moroccan Dirham',
+    'currency_jamaican_dollar' => 'Jamaican Dollar',
+    'currency_angolan_kwanza' => 'Angolan Kwanza',
+    'currency_haitian_gourde' => 'Haitian Gourde',
+    'currency_zambian_kwacha' => 'Zambian Kwacha',
+    'currency_nepalese_rupee' => 'Nepalese Rupee',
+    'currency_cfp_franc' => 'CFP Franc',
+    'currency_mauritian_rupee' => 'Mauritian Rupee',
+    'currency_cape_verdean_escudo' => 'Cape Verdean Escudo',
+    'currency_kuwaiti_dinar' => 'Kuwaiti Dinar',
+    'currency_algerian_dinar' => 'Algerian Dinar',
+    'currency_macedonian_denar' => 'Macedonian Denar',
+    'currency_fijian_dollar' => 'Fijian Dollar',
+    'currency_bolivian_boliviano' => 'Bolivian Boliviano',
+    'currency_albanian_lek' => 'Albanian Lek',
+    'currency_serbian_dinar' => 'Serbian Dinar',
+    'currency_lebanese_pound' => 'Lebanese Pound',
+    'currency_armenian_dram' => 'Armenian Dram',
+    'currency_azerbaijan_manat' => 'Azerbaijan Manat',
+    'currency_bosnia_and_herzegovina_convertible_mark' => 'Bosnia and Herzegovina Convertible Mark',
+    'currency_belarusian_ruble' => 'Belarusian Ruble',
+    'currency_moldovan_leu' => 'Moldovan Leu',
+    'currency_kazakhstani_tenge' => 'Kazakhstani Tenge',
+    'currency_gibraltar_pound' => 'Gibraltar Pound',
+    'currency_ethiopian_birr' => 'Ethiopian Birr',
+
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider :link we\'d greatly appreciate it!',
     'writing_a_review' => 'writing a review',
 
@@ -3332,4 +3360,6 @@ return [
     'setup_phantomjs_note' => 'Note about Phantom JS. Read more.',
     'currency_armenian_dram' => 'Armenian Dram',
     'currency_albanian_lek' => 'Albanian Lek',
+
+    'endless' => 'Endless',
 ];

@@ -34,11 +34,12 @@ class Task extends BaseModel
         'is_running',
         'time_log',
         'status_id',
-        'status_sort_order',
+        'status_sort_order', //deprecated
         'invoice_documents',
         'rate',
         'number',
         'is_date_based',
+        'status_order',
     ];
 
     protected $touches = [];

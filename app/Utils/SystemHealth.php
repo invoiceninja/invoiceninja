@@ -45,7 +45,7 @@ class SystemHealth
      * @param bool $check_database
      * @return     array  Result set of checks
      */
-    public static function check($check_database = true) : array
+    public static function check($check_database = true): array
     {
         $system_health = true;
 
@@ -57,7 +57,7 @@ class SystemHealth
             $system_health = false;
         }
 
-        if (! self::simpleDbCheck() && $check_database) {
+        if (!self::simpleDbCheck() && $check_database) {
             info('db fails');
             $system_health = false;
         }
@@ -66,18 +66,18 @@ class SystemHealth
             'system_health' => $system_health,
             'extensions' => self::extensions(),
             'php_version' => [
-                'minimum_php_version' => (string) self::$php_version,
+                'minimum_php_version' => (string)self::$php_version,
                 'current_php_version' => phpversion(),
-                'current_php_cli_version' => (string) self::checkPhpCli(),
+                'current_php_cli_version' => (string)self::checkPhpCli(),
                 'is_okay' => version_compare(phpversion(), self::$php_version, '>='),
             ],
             'env_writable' => self::checkEnvWritable(),
             //'mail' => self::testMailServer(),
-            'simple_db_check' => (bool) self::simpleDbCheck(),
+            'simple_db_check' => (bool)self::simpleDbCheck(),
             'cache_enabled' => self::checkConfigCache(),
-            'phantom_enabled' => (bool) config('ninja.phantomjs_pdf_generation'),
-            'exec' => (bool) self::checkExecWorks(),
-            'open_basedir' => (bool) self::checkOpenBaseDir(),
+            'phantom_enabled' => (bool)config('ninja.phantomjs_pdf_generation'),
+            'exec' => (bool)self::checkExecWorks(),
+            'open_basedir' => (bool)self::checkOpenBaseDir(),
         ];
     }
 
@@ -108,7 +108,7 @@ class SystemHealth
         return true;
     }
 
-    private static function simpleDbCheck() :bool
+    private static function simpleDbCheck(): bool
     {
         $result = true;
 
@@ -135,7 +135,7 @@ class SystemHealth
         }
     }
 
-    private static function extensions() :array
+    private static function extensions(): array
     {
         $loaded_extensions = [];
 
@@ -151,22 +151,23 @@ class SystemHealth
         $result = ['success' => false];
 
         if ($request) {
-            config(['database.connections.db-ninja-01.host'=> $request->input('db_host')]);
-            config(['database.connections.db-ninja-01.database'=> $request->input('db_database')]);
-            config(['database.connections.db-ninja-01.username'=> $request->input('db_username')]);
-            config(['database.connections.db-ninja-01.password'=> $request->input('db_password')]);
+            config(['database.connections.db-ninja-01.host' => $request->input('db_host')]);
+            config(['database.connections.db-ninja-01.port' => $request->input('db_port')]);
+            config(['database.connections.db-ninja-01.database' => $request->input('db_database')]);
+            config(['database.connections.db-ninja-01.username' => $request->input('db_username')]);
+            config(['database.connections.db-ninja-01.password' => $request->input('db_password')]);
             config(['database.default' => 'db-ninja-01']);
 
             DB::purge('db-ninja-01');
         }
 
-        if (! config('ninja.db.multi_db_enabled')) {
+        if (!config('ninja.db.multi_db_enabled')) {
             try {
                 $pdo = DB::connection()->getPdo();
                 $result[] = [DB::connection()->getDatabaseName() => true];
                 $result['success'] = true;
             } catch (Exception $e) {
-                $result[] = [config('database.connections.'.config('database.default').'.database') => false];
+                $result[] = [config('database.connections.' . config('database.default') . '.database') => false];
                 $result['success'] = false;
                 $result['message'] = $e->getMessage();
             }
@@ -179,7 +180,7 @@ class SystemHealth
                     $result[] = [DB::connection()->getDatabaseName() => true];
                     $result['success'] = true;
                 } catch (Exception $e) {
-                    $result[] = [config('database.connections.'.config('database.default').'.database') => false];
+                    $result[] = [config('database.connections.' . config('database.default') . '.database') => false];
                     $result['success'] = false;
                     $result['message'] = $e->getMessage();
                 }
@@ -222,6 +223,6 @@ class SystemHealth
 
     private static function checkEnvWritable()
     {
-        return is_writable(base_path().'/.env');
+        return is_writable(base_path() . '/.env');
     }
 }

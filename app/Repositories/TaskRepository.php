@@ -42,8 +42,9 @@ class TaskRepository extends BaseRepository
             $task->description = trim($data['description']);
         }
 
-        if (isset($data['status_sort_order'])) {
-            $task->status_sort_order = $data['status_sort_order'];
+        //todo i can't set it - i need to calculate it.
+        if (isset($data['status_order'])) {
+            $task->status_order = $data['status_order'];
         }
 
         if (isset($data['time_log'])) {

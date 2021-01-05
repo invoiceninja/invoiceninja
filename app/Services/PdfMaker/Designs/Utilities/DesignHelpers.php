@@ -118,7 +118,7 @@ trait DesignHelpers
         // This sprintf() will help us convert "task" or "product" into "$task" or "$product" without
         // evaluating the variable.
 
-        if (in_array(sprintf('%s%s.tax', '$', $type), (array) $this->context['pdf_variables']["{$type}_columns"])) {
+        if (in_array(sprintf('%s%s.tax', '$', $type), (array)$this->context['pdf_variables']["{$type}_columns"])) {
             $line_items = collect($this->entity->line_items)->filter(function ($item) use ($type_id) {
                 return $item->type_id = $type_id;
             });
@@ -157,9 +157,9 @@ trait DesignHelpers
      */
     public function calculateColspan(int $taken): int
     {
-        $total = (int) count($this->context['pdf_variables']['product_columns']);
+        $total = (int)count($this->context['pdf_variables']['product_columns']);
 
-        return (int) $total - $taken;
+        return (int)$total - $taken;
     }
 
     /**
@@ -184,11 +184,38 @@ trait DesignHelpers
 
     public function sharedFooterElements()
     {
-        // return ['element' => 'div', 'properties' => ['style' => 'display: flex; justify-content: space-between; margin-top: 1.5rem; page-break-inside: avoid;'], 'elements' => [
-        //     ['element' => 'img', 'properties' => ['src' => '$invoiceninja.whitelabel', 'style' => 'height: 5rem;', 'hidden' => $this->entity->user->account->isPaid() ? 'true' : 'false']],
-        // ]];
+        // Unminified version, just for the reference.
+        // By default all table headers are hidden with HTML `hidden` property.
+        // This will check for table data values & if they're not empty it will remove hidden from the column itself.
 
-        return ['element' => 'img', 'properties' => ['src' => '$invoiceninja.whitelabel', 'style' => 'height: 3rem; position: fixed; bottom: 0; left: 0; padding: 5px; margin: 5px;', 'hidden' => $this->entity->user->account->isPaid() ? 'true' : 'false', 'id' => 'invoiceninja-whitelabel-logo']];
+        /*  document.querySelectorAll("tbody > tr > td").forEach(e => {
+                if ("" !== e.innerText) {
+                    let t = e.getAttribute("data-ref").slice(0, -3);
+                    document.querySelector(`th[data-ref="${t}-th"]`).removeAttribute("hidden");
+                }
+            });
+
+            document.querySelectorAll("tbody > tr > td").forEach(e => {
+                let t = e.getAttribute("data-ref").slice(0, -3);
+                t = document.querySelector(`th[data-ref="${t}-th"]`);
+
+                if (!t.hasAttribute('hidden')) {
+                    return;
+                }
+
+                if ("" == e.innerText) {
+                    e.setAttribute('hidden', 'true');
+                }
+            });
+        */
+
+
+        $javascript = 'document.querySelectorAll("tbody > tr > td").forEach(t=>{if(""!==t.innerText){let e=t.getAttribute("data-ref").slice(0,-3);document.querySelector(`th[data-ref="${e}-th"]`).removeAttribute("hidden")}}),document.querySelectorAll("tbody > tr > td").forEach(t=>{let e=t.getAttribute("data-ref").slice(0,-3);(e=document.querySelector(`th[data-ref="${e}-th"]`)).hasAttribute("hidden")&&""==t.innerText&&t.setAttribute("hidden","true")});';
+
+        return ['element' => 'div', 'elements' => [
+            ['element' => 'img', 'properties' => ['src' => '$invoiceninja.whitelabel', 'style' => 'height: 3rem; position: fixed; bottom: 0; left: 0; padding: 5px; margin: 5px;', 'hidden' => $this->entity->user->account->isPaid() ? 'true' : 'false', 'id' => 'invoiceninja-whitelabel-logo']],
+            ['element' => 'script', 'content' => $javascript],
+        ]];
     }
 
     public function entityVariableCheck(string $variable): bool
@@ -230,48 +257,11 @@ trait DesignHelpers
         return $html;
     }
 
-    public function getTaskTimeLogs(array $row)
-    {
-        if (!array_key_exists('task_id', $row)) {
-            return [];
-        }
-
-        $task = Task::find($this->decodePrimaryKey($row['task_id']));
-
-        if (!$task) {
-            return [];
-        }
-
-        $logs = [];
-        $_logs = json_decode($task->time_log);
-
-        if (!$_logs) {
-            $_logs = [];
-        }
-
-        foreach ($_logs as $log) {
-            $start = Carbon::createFromTimestamp($log[0]);
-            $finish = Carbon::createFromTimestamp($log[1]);
-
-            if ($start->isSameDay($finish)) {
-                $logs[] = sprintf('%s: %s - %s', $start->format($this->entity->client->date_format()), $start->format('h:i:s'), $finish->format('h:i:s'));
-            } else {
-                $logs[] = sprintf(
-                    '%s - %s',
-                    $start->format($this->entity->client->date_format() . ' h:i:s'),
-                    $finish->format($this->entity->client->date_format() . ' h:i:s')
-                );
-            }
-        }
-
-        return $logs;
-    }
-
     public function processCustomColumns(string $type): void
     {
         $custom_columns = [];
 
-        foreach ((array) $this->client->company->custom_fields as $field => $value) {
+        foreach ((array)$this->client->company->custom_fields as $field => $value) {
             info($field);
 
             if (\Illuminate\Support\Str::startsWith($field, $type)) {

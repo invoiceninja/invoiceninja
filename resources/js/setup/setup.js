@@ -25,6 +25,7 @@ class Setup {
     handleDatabaseCheck() {
         let data = {
             db_host: document.querySelector('input[name="db_host"]').value,
+            db_port: document.querySelector('input[name="db_port"]').value,
             db_database: document.querySelector('input[name="db_database"]')
                 .value,
             db_username: document.querySelector('input[name="db_username"]')
@@ -33,13 +34,15 @@ class Setup {
                 .value,
         };
 
+        this.checkDbButton.disabled = true;
+
         Axios.post('/setup/check_db', data)
             .then((response) =>
                 this.handleSuccess(this.checkDbAlert, 'mail-wrapper')
             )
             .catch((e) =>
                 this.handleFailure(this.checkDbAlert, e.response.data.message)
-            );
+            ).finally(() => this.checkDbButton.disabled = false);
     }
 
     handleSmtpCheck() {
@@ -113,7 +116,7 @@ class Setup {
             document.getElementById(nextStep).classList.remove('hidden');
             document
                 .getElementById(nextStep)
-                .scrollIntoView({ behavior: 'smooth', block: 'center' });
+                .scrollIntoView({behavior: 'smooth', block: 'center'});
         }
     }
 

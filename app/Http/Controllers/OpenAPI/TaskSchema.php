@@ -18,7 +18,7 @@
  *       @OA\Property(property="task_status_id", type="string", example="", description="________"),
  *       @OA\Property(property="description", type="string", example="", description="________"),
  *       @OA\Property(property="duration", type="integer", example="", description="________"),
- *       @OA\Property(property="task_status_sort_order", type="integer", example="", description="________"),
+ *       @OA\Property(property="task_status_order", type="integer", example="", description="________"),
  *       @OA\Property(property="custom_value1", type="string", example="", description="________"),
  *       @OA\Property(property="custom_value2", type="string", example="", description="________"),
  *       @OA\Property(property="custom_value3", type="string", example="", description="________"),
