@@ -158,11 +158,11 @@ class CreateEntityPdf implements ShouldQueue
         }
 
         if (config('ninja.log_pdf_html')) {
-            nlog($maker->getCompiledHTML());
+            info($maker->getCompiledHTML());
         }
 
         if ($pdf) {
-            $instance = Storage::disk($this->disk)->put($file_path, $pdf);
+            Storage::disk($this->disk)->put($file_path, $pdf);
         }
 
         return $file_path;
