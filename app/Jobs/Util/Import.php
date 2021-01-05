@@ -390,6 +390,7 @@ class Import implements ShouldQueue
         foreach ($data as $resource) {
             $modified = $resource;
             unset($modified['id']);
+            unset($modified['password']); //cant import passwords.
 
             $user = $user_repository->save($modified, $this->fetchUser($resource['email']), true, true);
 

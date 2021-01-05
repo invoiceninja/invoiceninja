@@ -110,6 +110,11 @@ class ImproveDecimalResolution extends Migration
             $table->integer('status_sort_order')->nullable()->default(null)->change();
         });
 
+        Schema::table('task_statuses', function (Blueprint $table){
+            $table->string('color')->default('#fff');
+            $table->integer('status_sort_order')->nullable()->default(null)->change();
+        });
+
         Schema::table('tax_rates', function (Blueprint $table) {
             $table->decimal('rate', 20, 6)->change();
         });
@@ -117,11 +122,6 @@ class ImproveDecimalResolution extends Migration
         Schema::table('companies', function (Blueprint $table) {
             $table->boolean('calculate_expense_tax_by_amount')->false();
             $table->boolean('hide_empty_columns_on_pdf')->false();
-        });
-
-        Schema::table('task_statuses', function (Blueprint $table){
-            $table->string('color')->default('#fff');
-            $table->integer('status_sort_order')->nullable()->default(null)->change();
         });
 
         Schema::table('expense_categories', function (Blueprint $table){
@@ -135,6 +135,14 @@ class ImproveDecimalResolution extends Migration
 
         Task::query()->update(['status_sort_order' => NULL]);
         TaskStatus::query()->update(['status_sort_order' => NULL]);
+
+        Schema::table('tasks', function (Blueprint $table) {
+            $table->integer('status_order')->nullable();
+        });
+
+        Schema::table('task_statuses', function (Blueprint $table){
+            $table->integer('status_order')->nullable();
+        });
 
     }
 
