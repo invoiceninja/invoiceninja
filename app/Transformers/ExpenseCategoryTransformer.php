@@ -44,6 +44,7 @@ class ExpenseCategoryTransformer extends EntityTransformer
             'id' => $this->encodePrimaryKey($expense_category->id),
             'user_id' => $this->encodePrimaryKey($expense_category->user_id),
             'name' => (string) $expense_category->name ?: '',
+            'color' => (string) $expense_category->color,
             'is_deleted' => (bool) $expense_category->is_deleted,
             'updated_at' => (int) $expense_category->updated_at,
             'archived_at' => (int) $expense_category->deleted_at,
