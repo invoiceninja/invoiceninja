@@ -97,6 +97,11 @@ class ImproveDecimalResolution extends Migration
             $table->decimal('amount', 20, 6)->change();
         });
 
+        Schema::table('clients', function (Blueprint $table) {
+            $table->decimal('balance', 20, 6)->change();
+            $table->decimal('paid_to_date', 20, 6)->change();
+            $table->decimal('credit_balance', 20, 6)->change();
+        });
 
         Schema::table('tasks', function (Blueprint $table) {
             $table->decimal('rate', 20, 6)->change();
@@ -104,6 +109,11 @@ class ImproveDecimalResolution extends Migration
 
         Schema::table('tax_rates', function (Blueprint $table) {
             $table->decimal('rate', 20, 6)->change();
+        });
+
+        Schema::table('companies', function (Blueprint $table) {
+            $table->boolean('calculate_expense_tax_by_amount')->false();
+            $table->boolean('hide_empty_columns_on_pdf')->false();
         });
     }
 
