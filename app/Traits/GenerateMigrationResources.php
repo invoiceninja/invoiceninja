@@ -1067,6 +1067,7 @@ trait GenerateMigrationResources
                 'created_at' => $credit->created_at ? Carbon::parse($credit->created_at)->toDateString() : null,
                 'updated_at' => $credit->updated_at ? Carbon::parse($credit->updated_at)->toDateString() : null,
                 'deleted_at' => $credit->deleted_at ? Carbon::parse($credit->deleted_at)->toDateString() : null,
+                'status_id' => 4,
             ];
         }
 
@@ -1394,7 +1395,7 @@ trait GenerateMigrationResources
                 'id' => $task_status->id,
                 'company_id' => $this->account->id,
                 'user_id' => $task_status->user_id,
-                'status_sort_order' => $task_status->sort_order,
+                'status_order' => $task_status->sort_order,
                 'is_deleted' => false,
                 'created_at' => $task_status->created_at ? Carbon::parse($task_status->created_at)->toDateString() : null,
                 'updated_at' => $task_status->updated_at ? Carbon::parse($task_status->updated_at)->toDateString() : null,
@@ -1493,8 +1494,8 @@ trait GenerateMigrationResources
         foreach ($tasks as $task)
         {
 
-            if(!($task->deleted_at instanceof Carbon))
-                $task->deleted_at = Carbon::parse($task->deleted_at);
+            // if(!($task->deleted_at instanceof Carbon))
+            //     $task->deleted_at = Carbon::parse($task->deleted_at);
 
             $transformed[] = [
                 'id' => $task->id,
@@ -1509,7 +1510,7 @@ trait GenerateMigrationResources
                 'is_running' => $task->is_running,
                 'project_id' => $task->project_id,
                 'status_id' => $task->task_status_id,
-                'status_sort_order' => $task->task_status_sort_order,
+                'status_order' => $task->task_status_sort_order,
                 'time_log' => $task->time_log,
                 'user_id' => $task->user_id,
                 'is_deleted' => $task->is_deleted,
@@ -1533,8 +1534,8 @@ trait GenerateMigrationResources
         foreach ($projects as $project)
         {
 
-            if(!($project->deleted_at instanceof Carbon))
-                $project->deleted_at = Carbon::parse($project->deleted_at);
+            // if(!($project->deleted_at instanceof Carbon))
+            //     $project->deleted_at = Carbon::parse($project->deleted_at);
 
             $transformed[] = [
                 'id' => $project->id,
