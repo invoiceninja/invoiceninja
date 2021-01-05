@@ -9,6 +9,7 @@ return [
     'version_url' => 'https://raw.githubusercontent.com/invoiceninja/invoiceninja/v5-stable/VERSION.txt',
     'app_name' => env('APP_NAME', 'Invoice Ninja'),
     'app_env' => env('APP_ENV', 'selfhosted'),
+    'debug_enabled' => env('APP_DEBUG', false),
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', ''),

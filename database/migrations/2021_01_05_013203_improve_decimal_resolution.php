@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\TaskStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -115,6 +116,24 @@ class ImproveDecimalResolution extends Migration
             $table->boolean('calculate_expense_tax_by_amount')->false();
             $table->boolean('hide_empty_columns_on_pdf')->false();
         });
+
+        Schema::table('task_statuses', function (Blueprint $table){
+            $table->string('color')->default('#fff');
+            $table->integer('status_sort_order')->nullable()->default(null)->change();
+        });
+
+        Schema::table('expense_categories', function (Blueprint $table){
+            $table->string('color')->default('#fff');
+        });
+
+        Schema::table('projects', function (Blueprint $table){
+            $table->string('color')->default('#fff');
+        });
+
+
+        TaskStatus::query()->update(['status_sort_order' => NULL]);
+
+
     }
 
     /**

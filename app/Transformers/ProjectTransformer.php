@@ -62,6 +62,7 @@ class ProjectTransformer extends EntityTransformer
             'custom_value2' => (string) $project->custom_value2 ?: '',
             'custom_value3' => (string) $project->custom_value3 ?: '',
             'custom_value4' => (string) $project->custom_value4 ?: '',
+            'color' => (string) $project->color ?: '',
         ];
     }
 }

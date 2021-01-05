@@ -20,6 +20,7 @@ class ExpenseCategory extends BaseModel
 
     protected $fillable = [
         'name',
+        'color',
     ];
 
     public function getEntityType()
