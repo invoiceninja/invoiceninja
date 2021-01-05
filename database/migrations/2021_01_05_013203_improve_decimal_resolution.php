@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Task;
 use App\Models\TaskStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -106,6 +107,7 @@ class ImproveDecimalResolution extends Migration
 
         Schema::table('tasks', function (Blueprint $table) {
             $table->decimal('rate', 20, 6)->change();
+            $table->integer('status_sort_order')->nullable()->default(null)->change();
         });
 
         Schema::table('tax_rates', function (Blueprint $table) {
@@ -131,8 +133,8 @@ class ImproveDecimalResolution extends Migration
         });
 
 
+        Task::query()->update(['status_sort_order' => NULL]);
         TaskStatus::query()->update(['status_sort_order' => NULL]);
-
 
     }
 
