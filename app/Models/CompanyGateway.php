@@ -268,7 +268,7 @@ class CompanyGateway extends BaseModel
         return $label;
     }
 
-    public function calcGatewayFee($amount, $include_taxes = false, $gateway_type_id = GatewayType::CREDIT_CARD)
+    public function calcGatewayFee($amount, $gateway_type_id, $include_taxes = false)
     {
         $fees_and_limits = $this->getFeesAndLimits($gateway_type_id);
 
