@@ -77,7 +77,9 @@ class InvoiceController extends Controller
             return $this->downloadInvoicePDF((array) $transformed_ids);
         }
 
-        return redirect()->back();
+        return redirect()
+            ->back()
+            ->with('message', ctrans('texts.no_action_provided'));
     }
 
     private function makePayment(array $ids)
@@ -93,7 +95,8 @@ class InvoiceController extends Controller
         });
 
         if ($invoices->count() == 0) {
-            return back()->with(['warning' => 'No payable invoices selected']);
+            return back()
+                ->with('message', ctrans('texts.no_payable_invoices_selected'));
         }
 
         $invoices->map(function ($invoice) {
