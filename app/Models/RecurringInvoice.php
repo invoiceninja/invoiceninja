@@ -376,8 +376,9 @@ class RecurringInvoice extends BaseModel
         
         $data = [];
             
-        if(!Carbon::parse($this->next_send_date))
+        if (!Carbon::parse($this->next_send_date)) {
             return $data;
+        }
 
         $next_send_date = Carbon::parse($this->next_send_date)->copy();
 

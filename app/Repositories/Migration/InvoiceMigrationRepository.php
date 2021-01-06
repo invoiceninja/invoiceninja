@@ -92,11 +92,11 @@ class InvoiceMigrationRepository extends BaseRepository
         InvoiceInvitation::unguard();
         RecurringInvoiceInvitation::unguard();
         
-        if($model instanceof RecurringInvoice)
+        if ($model instanceof RecurringInvoice) {
             $lcfirst_resource_id = 'recurring_invoice_id';
+        }
         
-        foreach($data['invitations'] as $invitation)
-        {
+        foreach ($data['invitations'] as $invitation) {
             nlog($invitation);
             
             $new_invitation = $invitation_factory_class::create($model->company_id, $model->user_id);
@@ -107,35 +107,35 @@ class InvoiceMigrationRepository extends BaseRepository
 
         InvoiceInvitation::reguard();
         RecurringInvoiceInvitation::reguard();
-/*
-        if (isset($data['invitations'])) {
-            $invitations = collect($data['invitations']);
+        /*
+                if (isset($data['invitations'])) {
+                    $invitations = collect($data['invitations']);
 
-            $model->invitations->pluck('key')->diff($invitations->pluck('key'))->each(function ($invitation) use ($resource) {
-                $this->getInvitation($invitation, $resource)->delete();
-            });
+                    $model->invitations->pluck('key')->diff($invitations->pluck('key'))->each(function ($invitation) use ($resource) {
+                        $this->getInvitation($invitation, $resource)->delete();
+                    });
 
-            foreach ($data['invitations'] as $invitation) {
+                    foreach ($data['invitations'] as $invitation) {
 
-                //if no invitations are present - create one.
-                if (! $this->getInvitation($invitation, $resource)) {
-                    if (isset($invitation['id'])) {
-                        unset($invitation['id']);
-                    }
+                        //if no invitations are present - create one.
+                        if (! $this->getInvitation($invitation, $resource)) {
+                            if (isset($invitation['id'])) {
+                                unset($invitation['id']);
+                            }
 
-                    //make sure we are creating an invite for a contact who belongs to the client only!
-                    $contact = ClientContact::find($invitation['client_contact_id']);
+                            //make sure we are creating an invite for a contact who belongs to the client only!
+                            $contact = ClientContact::find($invitation['client_contact_id']);
 
-                    if ($contact && $model->client_id == $contact->client_id) {
-                        $new_invitation = $invitation_factory_class::create($model->company_id, $model->user_id);
-                        $new_invitation->{$lcfirst_resource_id} = $model->id;
-                        $new_invitation->client_contact_id = $contact->id;
-                        $new_invitation->save();
+                            if ($contact && $model->client_id == $contact->client_id) {
+                                $new_invitation = $invitation_factory_class::create($model->company_id, $model->user_id);
+                                $new_invitation->{$lcfirst_resource_id} = $model->id;
+                                $new_invitation->client_contact_id = $contact->id;
+                                $new_invitation->save();
+                            }
+                        }
                     }
                 }
-            }
-        }
-*/
+        */
         $model->load('invitations');
 
         /* If no invitations have been created, this is our fail safe to maintain state*/
