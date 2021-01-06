@@ -213,6 +213,9 @@ class BaseDriver extends AbstractPaymentDriver
 
         $this->attachInvoices($payment, $this->payment_hash);
 
+        if($this->payment_hash->credits_total() > 0)
+            $payment = $payment->service()->applyCredits($this->payment_hash)->save();
+
         $payment->service()->updateInvoicePayment($this->payment_hash);
 
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));

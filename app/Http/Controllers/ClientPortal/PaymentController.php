@@ -108,6 +108,8 @@ class PaymentController extends Controller
 
         $settings = auth()->user()->client->getMergedSettings();
 
+        //nlog($settings);
+
         /* This loop checks for under / over payments and returns the user if a check fails */
 
         foreach($payable_invoices as $payable_invoice)
@@ -220,7 +222,7 @@ class PaymentController extends Controller
 
         $payment_hash = new PaymentHash;
         $payment_hash->hash = Str::random(128);
-        $payment_hash->data = ['invoices' => $payable_invoices->toArray()];
+        $payment_hash->data = ['invoices' => $payable_invoices->toArray() , 'credits' => $credit_totals];
         $payment_hash->fee_total = $fee_totals;
         $payment_hash->fee_invoice_id = $first_invoice->id;
         $payment_hash->save();
@@ -255,6 +257,7 @@ class PaymentController extends Controller
 
     public function response(PaymentResponseRequest $request)
     {
+
         $gateway = CompanyGateway::findOrFail($request->input('company_gateway_id'));
 
         $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$request->payment_hash])->first();
@@ -289,35 +292,7 @@ class PaymentController extends Controller
             $payment_hash->save();
         }
 
-        /* Iterate through the invoices and apply credits to them */
-        collect($payment_hash->invoices())->each(function ($payable_invoice) use ($payment, $payment_hash) {
-            $invoice = Invoice::find($this->decodePrimaryKey($payable_invoice->invoice_id));
-            $amount = $payable_invoice->amount;
-
-            $credits = $payment_hash->fee_invoice
-                                    ->client
-                                    ->service()
-                                    ->getCredits();
-
-            foreach ($credits as $credit) {
-                //starting invoice balance
-                $invoice_balance = $invoice->balance;
-
-                //credit payment applied
-                $credit->service()->applyPayment($invoice, $amount, $payment);
-
-                //amount paid from invoice calculated
-                $remaining_balance = ($invoice_balance - $invoice->fresh()->balance);
-
-                //reduce the amount to be paid on the invoice from the NEXT credit
-                $amount -= $remaining_balance;
-
-                //break if the invoice is no longer PAYABLE OR there is no more amount to be applied
-                if (!$invoice->isPayable() || (int)$amount == 0) {
-                    break;
-                }
-            }
-        });
+        $payment = $payment->service()->applyCredits($payment_hash)->save();
 
         return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
     }
