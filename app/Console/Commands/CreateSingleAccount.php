@@ -227,7 +227,7 @@ class CreateSingleAccount extends Command
 
         $settings = $client->settings;
         $settings->currency_id = "1";
-        $settings->use_credits_payment = "always";
+//        $settings->use_credits_payment = "always";
 
         $client->settings = $settings;
 
