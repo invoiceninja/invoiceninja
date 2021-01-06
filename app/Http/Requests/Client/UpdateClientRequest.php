@@ -90,6 +90,11 @@ class UpdateClientRequest extends Request
             $input['group_settings_id'] = $this->decodePrimaryKey($input['group_settings_id']);
         }
 
+        /* If the user removes the currency we must always set the default */
+        if (array_key_exists('settings', $input)  && ! array_key_exists('currency_id', $input['settings'])) {
+            $input['settings']['currency_id'] = (string) auth()->user()->company()->settings->currency_id;
+        }
+
         $input = $this->decodePrimaryKeys($input);
 
         if (array_key_exists('settings', $input)) {

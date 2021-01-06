@@ -15,9 +15,12 @@ use App\Factory\PaymentFactory;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
+use App\Utils\Traits\MakesHash;
 
 class PaymentService
 {
+    use MakesHash;
+    
     private $payment;
 
     public function __construct($payment)
@@ -95,6 +98,43 @@ class PaymentService
         $this->payment = (new ApplyNumber($this->payment))->run();
 
         return $this;
+    }
+
+    public function applyCredits($payment_hash)
+    {
+        /* Iterate through the invoices and apply credits to them */
+        collect($payment_hash->invoices())->each(function ($payable_invoice) use ($payment_hash) {
+
+            $invoice = Invoice::find($this->decodePrimaryKey($payable_invoice->invoice_id));
+            
+            $amount = $payable_invoice->amount;
+
+            $credits = $payment_hash->fee_invoice
+                                    ->client
+                                    ->service()
+                                    ->getCredits();
+
+            foreach ($credits as $credit) {
+                //starting invoice balance
+                $invoice_balance = $invoice->balance;
+
+                //credit payment applied
+                $credit->service()->applyPayment($invoice, $amount, $this->payment);
+
+                //amount paid from invoice calculated
+                $remaining_balance = ($invoice_balance - $invoice->fresh()->balance);
+
+                //reduce the amount to be paid on the invoice from the NEXT credit
+                $amount -= $remaining_balance;
+
+                //break if the invoice is no longer PAYABLE OR there is no more amount to be applied
+                if (!$invoice->isPayable() || (int)$amount == 0) {
+                    break;
+                }
+            }
+        });
+
+        return $this; 
     }
 
     public function save()

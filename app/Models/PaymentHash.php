@@ -27,6 +27,11 @@ class PaymentHash extends Model
         return $this->data->invoices;
     }
 
+    public function credits_total()
+    {
+        return isset($this->data->credits) ? $this->data->credits : 0;
+    }
+
     public function payment()
     {
         return $this->belongsTo(Payment::class)->withTrashed();

@@ -83,8 +83,6 @@ class PaymentController extends Controller
 
         $gateway = CompanyGateway::find($request->input('company_gateway_id'));
 
-        //refactor from here!
-
         /**
          * find invoices
          *
@@ -95,11 +93,13 @@ class PaymentController extends Controller
         $invoices = Invoice::whereIn('id', $this->transformKeys($payable_invoices->pluck('invoice_id')->toArray()))->get();
 
         /* pop non payable invoice from the $payable_invoices array */
+        
         $payable_invoices = $payable_invoices->filter(function ($payable_invoice) use ($invoices) {
             return $invoices->where('hashed_id', $payable_invoice['invoice_id'])->first()->isPayable();
         });
 
         /*return early if no invoices*/
+        
         if ($payable_invoices->count() == 0) {
             return redirect()
                 ->route('client.invoices.index')
@@ -108,23 +108,34 @@ class PaymentController extends Controller
 
         $settings = auth()->user()->client->getMergedSettings();
 
-        /*iterate through invoices and add gateway fees and other payment metadata*/
-        $payable_invoices = $payable_invoices->map(function ($payable_invoice) use ($invoices, $settings) {
-            $payable_invoice['amount'] = Number::parseFloat($payable_invoice['amount']);
+        // nlog($settings);
+
+        /* This loop checks for under / over payments and returns the user if a check fails */
+
+        foreach($payable_invoices as $payable_invoice)
+        {
+
+            /*Match the payable invoice to the Model Invoice*/
 
             $invoice = $invoices->first(function ($inv) use ($payable_invoice) {
                 return $payable_invoice['invoice_id'] == $inv->hashed_id;
             });
 
-            // Check if company supports over & under payments.
-            // In case it doesn't this is where process should stop.
+            /*
+             * Check if company supports over & under payments.
+             * Determine the payable amount and the max payable. ie either partial or invoice balance
+             */
 
             $payable_amount = Number::roundValue(Number::parseFloat($payable_invoice['amount']), auth()->user()->client->currency()->precision);
-            $invoice_balance = Number::roundValue($invoice->balance, auth()->user()->client->currency()->precision);
+            $invoice_balance = Number::roundValue(($invoice->partial > 0 ? $invoice->partial : $invoice->balance), auth()->user()->client->currency()->precision);
+
+            /*If we don't allow under/over payments force the payable amount - prevents inspect element adjustments in JS*/
 
             if ($settings->client_portal_allow_under_payment == false && $settings->client_portal_allow_over_payment == false) {
                 $payable_invoice['amount'] = Number::roundValue(($invoice->partial > 0 ? $invoice->partial : $invoice->balance), auth()->user()->client->currency()->precision);
-            } // We don't allow either of these, reset the amount to default invoice (to prevent inspect element payments).
+            } 
+
+            /* If we DO allow under payments check the minimum amount is present else return */
 
             if ($settings->client_portal_allow_under_payment) {
                 if ($payable_invoice['amount'] < $settings->client_portal_under_payment_minimum) {
@@ -133,23 +144,38 @@ class PaymentController extends Controller
                         ->with('message', ctrans('texts.minimum_required_payment', ['amount' => $settings->client_portal_under_payment_minimum]));
                 }
             } else {
-                $payable_amount = Number::roundValue(Number::parseFloat($payable_invoice['amount']), auth()->user()->client->currency()->precision);
-                $invoice_balance = Number::roundValue($invoice->balance, auth()->user()->client->currency()->precision);
 
+                /*Double check!!*/
                 if ($payable_amount < $invoice_balance) {
                     return redirect()
                         ->route('client.invoices.index')
                         ->with('message', ctrans('texts.under_payments_disabled'));
                 }
-            } // Make sure 'amount' from form is not lower than 'amount' from invoice.
+            } 
 
-            if ($settings->client_portal_allow_over_payment == false) {
+            /* If we don't allow over payments and the amount exceeds the balance */
+
+            if (!$settings->client_portal_allow_over_payment) {
                 if ($payable_amount > $invoice_balance) {
                     return redirect()
                         ->route('client.invoices.index')
                         ->with('message', ctrans('texts.over_payments_disabled'));
                 }
-            } // Make sure 'amount' from form is not higher than 'amount' from invoice.
+            } 
+
+        }
+
+        /*Iterate through invoices and add gateway fees and other payment metadata*/
+        
+        $payable_invoices = $payable_invoices->map(function ($payable_invoice) use ($invoices, $settings) {
+            $payable_invoice['amount'] = Number::parseFloat($payable_invoice['amount']);
+
+            $invoice = $invoices->first(function ($inv) use ($payable_invoice) {
+                return $payable_invoice['invoice_id'] == $inv->hashed_id;
+            });
+
+            $payable_amount = Number::roundValue(Number::parseFloat($payable_invoice['amount']), auth()->user()->client->currency()->precision);
+            $invoice_balance = Number::roundValue($invoice->balance, auth()->user()->client->currency()->precision);
 
             $payable_invoice['due_date'] = $this->formatDate($invoice->due_date, $invoice->client->date_format());
             $payable_invoice['invoice_number'] = $invoice->number;
@@ -196,7 +222,7 @@ class PaymentController extends Controller
 
         $payment_hash = new PaymentHash;
         $payment_hash->hash = Str::random(128);
-        $payment_hash->data = ['invoices' => $payable_invoices->toArray()];
+        $payment_hash->data = ['invoices' => $payable_invoices->toArray() , 'credits' => $credit_totals];
         $payment_hash->fee_total = $fee_totals;
         $payment_hash->fee_invoice_id = $first_invoice->id;
         $payment_hash->save();
@@ -231,6 +257,7 @@ class PaymentController extends Controller
 
     public function response(PaymentResponseRequest $request)
     {
+
         $gateway = CompanyGateway::findOrFail($request->input('company_gateway_id'));
 
         $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$request->payment_hash])->first();
@@ -265,35 +292,7 @@ class PaymentController extends Controller
             $payment_hash->save();
         }
 
-        /* Iterate through the invoices and apply credits to them */
-        collect($payment_hash->invoices())->each(function ($payable_invoice) use ($payment, $payment_hash) {
-            $invoice = Invoice::find($this->decodePrimaryKey($payable_invoice->invoice_id));
-            $amount = $payable_invoice->amount;
-
-            $credits = $payment_hash->fee_invoice
-                                    ->client
-                                    ->service()
-                                    ->getCredits();
-
-            foreach ($credits as $credit) {
-                //starting invoice balance
-                $invoice_balance = $invoice->balance;
-
-                //credit payment applied
-                $credit->service()->applyPayment($invoice, $amount, $payment);
-
-                //amount paid from invoice calculated
-                $remaining_balance = ($invoice_balance - $invoice->fresh()->balance);
-
-                //reduce the amount to be paid on the invoice from the NEXT credit
-                $amount -= $remaining_balance;
-
-                //break if the invoice is no longer PAYABLE OR there is no more amount to be applied
-                if (!$invoice->isPayable() || (int)$amount == 0) {
-                    break;
-                }
-            }
-        });
+        $payment = $payment->service()->applyCredits($payment_hash)->save();
 
         return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
     }
