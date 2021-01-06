@@ -378,6 +378,11 @@ class Company extends BaseModel
         return $this->hasMany(SystemLog::class)->orderBy('id', 'DESC')->take(50);
     }
 
+    public function system_log_relation()
+    {
+        return $this->hasMany(SystemLog::class)->orderBy('id', 'DESC');
+    }
+
     public function tokens_hashed()
     {
         return $this->hasMany(CompanyToken::class);
