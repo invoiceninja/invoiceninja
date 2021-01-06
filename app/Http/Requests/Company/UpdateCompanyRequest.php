@@ -57,7 +57,7 @@ class UpdateCompanyRequest extends Request
     protected function prepareForValidation()
     {
         $input = $this->all();
-
+// nlog($input);
         if (array_key_exists('settings', $input)) {
             $input['settings'] = $this->filterSaveableSettings($input['settings']);
         }

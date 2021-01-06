@@ -108,7 +108,7 @@ class PaymentController extends Controller
 
         $settings = auth()->user()->client->getMergedSettings();
 
-        //nlog($settings);
+        nlog($settings);
 
         /* This loop checks for under / over payments and returns the user if a check fails */
 
