@@ -3362,4 +3362,5 @@ return [
     'currency_albanian_lek' => 'Albanian Lek',
 
     'endless' => 'Endless',
+    'minimum_payment' => 'Minimum Payment',
 ];
