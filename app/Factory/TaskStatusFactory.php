@@ -21,6 +21,7 @@ class TaskStatusFactory
         $task_status->user_id = $user_id;
         $task_status->company_id = $company_id;
         $task_status->name = '';
+        $task_status->color = '#fff';
         
         return $task_status;
     }

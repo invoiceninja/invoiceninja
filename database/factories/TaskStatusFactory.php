@@ -31,6 +31,7 @@ class TaskStatusFactory extends Factory
     {
         return [
             'name' => $this->faker->text(7),
+            'color' => '#fff',
         ];
     }
 }
