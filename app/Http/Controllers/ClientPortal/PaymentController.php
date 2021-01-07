@@ -167,7 +167,13 @@ class PaymentController extends Controller
 
         /*Iterate through invoices and add gateway fees and other payment metadata*/
         
-        $payable_invoices = $payable_invoices->map(function ($payable_invoice) use ($invoices, $settings) {
+        //$payable_invoices = $payable_invoices->map(function ($payable_invoice) use ($invoices, $settings) {
+        $payable_invoice_collection = collect();
+
+        foreach($payable_invoices as $payable_invoice)
+        {  
+            nlog($payable_invoice);
+
             $payable_invoice['amount'] = Number::parseFloat($payable_invoice['amount']);
 
             $invoice = $invoices->first(function ($inv) use ($payable_invoice) {
@@ -190,8 +196,9 @@ class PaymentController extends Controller
 
             $payable_invoice['additional_info'] = $additional_info;
 
-            return $payable_invoice;
-        });
+            $payable_invoice_collection->push($payable_invoice);
+        }
+        //});
 
         if (request()->has('signature') && !is_null(request()->signature) && !empty(request()->signature)) {
             $invoices->each(function ($invoice) use ($request) {
@@ -199,14 +206,13 @@ class PaymentController extends Controller
             });
         }
 
+        $payable_invoices = $payable_invoice_collection;
+        
         $payment_method_id = $request->input('payment_method_id');
         $invoice_totals = $payable_invoices->sum('amount');
         $first_invoice = $invoices->first();
         $credit_totals = $first_invoice->client->getSetting('use_credits_payment') == 'off' ? 0 : $first_invoice->client->service()->getCreditBalance();
         $starting_invoice_amount = $first_invoice->amount;
-
-nlog($credit_totals);
-nlog($first_invoice->client->getSetting('use_credits_payment'));
 
         if ($gateway) {
             $first_invoice->service()->addGatewayFee($gateway, $payment_method_id, $invoice_totals)->save();
