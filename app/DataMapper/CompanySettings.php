@@ -258,8 +258,10 @@ class CompanySettings extends BaseSettings
     public $client_portal_allow_over_payment = false; //@implemented
 
     public $use_credits_payment = 'off'; //always, option, off //@implemented
+    public $hide_empty_columns_on_pdf = false;
 
     public static $casts = [
+        'hide_empty_columns_on_pdf'          => 'bool',
         'enable_reminder_endless'            => 'bool',
         'use_credits_payment'                => 'string',
         'recurring_invoice_number_pattern'   => 'string',
