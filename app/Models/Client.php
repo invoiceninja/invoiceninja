@@ -509,13 +509,12 @@ class Client extends BaseModel implements HasLocalePreference
                         $payment_methods_intersect->push([$gateway->id => $type]);
                     }
                 } else {
-                    $payment_methods_intersect->push([$gateway->id => $type]);
+                    $payment_methods_intersect->push([$gateway->id => NULL]);
                 }
             }
         }
 
         //handle custom gateways as they are not unique'd()---------------------------------------------------------
-
 
         $payment_urls = [];
 
@@ -525,11 +524,22 @@ class Client extends BaseModel implements HasLocalePreference
 
                 $fee_label = $gateway->calcGatewayFeeLabel($amount, $this);
 
-                $payment_urls[] = [
-                    'label' => $gateway->getTypeAlias($gateway_type_id) . $fee_label,
-                    'company_gateway_id'  => $gateway_id,
-                    'gateway_type_id' => $gateway_type_id,
-                ];
+                if(!$gateway_type_id){
+                    
+                    $payment_urls[] = [
+                        'label' => $gateway->getConfigField('name') . $fee_label,
+                        'company_gateway_id'  => $gateway_id,
+                        'gateway_type_id' => GatewayType::CREDIT_CARD,
+                    ];    
+                }
+                else 
+                {
+                    $payment_urls[] = [
+                        'label' => $gateway->getTypeAlias($gateway_type_id) . $fee_label,
+                        'company_gateway_id'  => $gateway_id,
+                        'gateway_type_id' => $gateway_type_id,
+                    ];
+                }
             }
         }
 
