@@ -45,7 +45,6 @@ class Company extends BaseModel
     protected $presenter = CompanyPresenter::class;
 
     protected $fillable = [
-        'hide_empty_columns_on_pdf',
         'calculate_expense_tax_by_amount',
         'invoice_expense_documents',
         'invoice_task_documents',
@@ -376,6 +375,11 @@ class Company extends BaseModel
     public function system_logs()
     {
         return $this->hasMany(SystemLog::class)->orderBy('id', 'DESC')->take(50);
+    }
+
+    public function system_log_relation()
+    {
+        return $this->hasMany(SystemLog::class)->orderBy('id', 'DESC');
     }
 
     public function tokens_hashed()

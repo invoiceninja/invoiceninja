@@ -144,6 +144,9 @@ class ImproveDecimalResolution extends Migration
             $table->integer('status_order')->nullable();
         });
 
+         Schema::table('companies', function (Blueprint $table) {
+            $table->dropColumn('hide_empty_columns_on_pdf');
+        });
     }
 
     /**

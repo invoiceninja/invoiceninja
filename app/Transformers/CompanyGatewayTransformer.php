@@ -12,6 +12,8 @@
 namespace App\Transformers;
 
 use App\Models\CompanyGateway;
+use App\Models\SystemLog;
+use App\Transformers\SystemLogTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use stdClass;
@@ -33,6 +35,7 @@ class CompanyGatewayTransformer extends EntityTransformer
      * @var array
      */
     protected $availableIncludes = [
+        'system_logs',
         'gateway',
     ];
 
@@ -80,5 +83,12 @@ class CompanyGatewayTransformer extends EntityTransformer
         $transformer = new GatewayTransformer($this->serializer);
 
         return $this->includeItem($company_gateway->gateway, $transformer, Gateway::class);
+    }
+
+    public function includeSystemLogs(CompanyGateway $company_gateway)
+    {
+        $transformer = new SystemLogTransformer($this->serializer);
+
+        return $this->includeCollection($company_gateway->system_logs(), $transformer, SystemLog::class);
     }
 }

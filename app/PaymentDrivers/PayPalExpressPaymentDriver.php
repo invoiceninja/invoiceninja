@@ -161,8 +161,6 @@ class PayPalExpressPaymentDriver extends BaseDriver
 
             $data = $response->getData();
 
-            nlog($data);
-
             PaymentFailureMailer::dispatch($this->client, $response->getMessage(), $this->client->company, $this->payment_hash->data->amount);
 
             $message = [

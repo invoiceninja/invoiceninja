@@ -205,6 +205,9 @@ class PaymentController extends Controller
         $credit_totals = $first_invoice->client->getSetting('use_credits_payment') == 'off' ? 0 : $first_invoice->client->service()->getCreditBalance();
         $starting_invoice_amount = $first_invoice->amount;
 
+nlog($credit_totals);
+nlog($first_invoice->client->getSetting('use_credits_payment'));
+
         if ($gateway) {
             $first_invoice->service()->addGatewayFee($gateway, $payment_method_id, $invoice_totals)->save();
         }

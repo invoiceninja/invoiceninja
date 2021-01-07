@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Models\GatewayType;
 use App\PaymentDrivers\BasePaymentDriver;
 use App\Utils\Number;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -58,16 +59,27 @@ class CompanyGateway extends BaseModel
             16 => ['card' => 'images/credit_cards/Test-Discover-Icon.png', 'text' => 'Discover'],
         ];
 
-    // public function getFeesAndLimitsAttribute()
-    // {
-    //     return json_decode($this->attributes['fees_and_limits']);
-    // }
+    public $gateway_consts = [
+        '38f2c48af60c7dd69e04248cbb24c36e' => 300,
+        'd14dd26a37cecc30fdd65700bfb55b23' => 301,
+        '3758e7f7c6f4cecf0f4f348b9a00f456' => 304,
+        '3b6621f970ab18887c4f6dca78d3f8bb' => 305,
+    ];
 
     protected $touches = [];
 
     public function getEntityType()
     {
         return self::class;
+    }
+
+    public function system_logs()
+    {
+
+        return $this->company
+                    ->system_log_relation
+                    ->where('type_id', $this->gateway_consts[$this->gateway->key])
+                    ->take(50);
     }
 
     public function company()
