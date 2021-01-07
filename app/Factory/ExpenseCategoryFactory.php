@@ -22,7 +22,8 @@ class ExpenseCategoryFactory
         $expense->company_id = $company_id;
         $expense->name = '';
         $expense->is_deleted = false;
-
+        $expense->color = '#fff';
+        
         return $expense;
     }
 }
