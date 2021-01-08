@@ -15,9 +15,9 @@ class ExpensesTableAdditionalFields extends Migration
     {
            
         Schema::table('expenses', function (Blueprint $table) {
-            $table->decimal('tax_amount1', 20, 6)->change();
-            $table->decimal('tax_amount2', 20, 6)->change();
-            $table->decimal('tax_amount3', 20, 6)->change();
+            $table->decimal('tax_amount1', 20, 6)->default();
+            $table->decimal('tax_amount2', 20, 6)->default();
+            $table->decimal('tax_amount3', 20, 6)->default();
             $table->boolean('uses_inclusive_taxes')->default(0);
             $table->boolean('amount_is_pretax')->default(1);
         });

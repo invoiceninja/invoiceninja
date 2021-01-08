@@ -150,6 +150,8 @@ class CompanyTransformer extends EntityTransformer
             'enable_product_discount' => (bool)$company->enable_product_discount,
             'calculate_expense_tax_by_amount' =>(bool)$company->calculate_expense_tax_by_amount,
             'hide_empty_columns_on_pdf' => false, //@deprecate
+            'expense_inclusive_taxes' => (bool)$company->expense_inclusive_taxes,
+            'expense_amount_is_pretax' =>( bool)$company->expense_amount_is_pretax,
         ];
     }
 
