@@ -113,6 +113,11 @@ class HtmlEngine
         $data['$invoice.due_date'] = &$data['$due_date'];
         $data['$invoice.number'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.invoice_number')];
         $data['$invoice.po_number'] = ['value' => $this->entity->po_number ?: '&nbsp;', 'label' => ctrans('texts.po_number')];
+        $data['$entity.datetime'] = ['value' => $this->formatDatetime($this->entity->created_at, $this->entity->client->date_format()), 'label' => ctrans('texts.date')];
+        $data['$invoice.datetime'] = &$data['$entity.datetime'];
+        $data['$quote.datetime'] = &$data['$entity.datetime'];
+        $data['$credit.datetime'] = &$data['$entity.datetime'];
+
         // $data['$line_taxes'] = ['value' => $this->makeLineTaxes() ?: '&nbsp;', 'label' => ctrans('texts.taxes')];
         // $data['$invoice.line_taxes'] = &$data['$line_taxes'];
 
