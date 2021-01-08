@@ -13,6 +13,7 @@ namespace App\Http\Requests\ExpenseCategory;
 
 use App\Http\Requests\Request;
 use App\Utils\Traits\ChecksEntityStatus;
+use Illuminate\Validation\Rule;
 
 class UpdateExpenseCategoryRequest extends Request
 {
@@ -33,9 +34,21 @@ class UpdateExpenseCategoryRequest extends Request
         $rules = [];
 
         if ($this->input('name')) {
-            $rules['name'] = 'unique:expense_categories,name,'.$this->id.',id,company_id,'.$this->expense_category->company_id;
+           // $rules['name'] = 'unique:expense_categories,name,'.$this->id.',id,company_id,'.$this->expense_category->company_id;
+            $rules['name'] = Rule::unique('expense_categories')->where('company_id', auth()->user()->company()->id)->ignore($this->expense_category->id);
+
         }
 
         return $rules;
+    }
+
+    protected function prepareForValidation()
+    {
+        $input = $this->all();
+
+            if(array_key_exists('color', $input) && is_null($input['color']))
+                $input['color'] = '#fff';
+
+        $this->replace($input);
     }
 }

@@ -99,8 +99,8 @@
     
     function invokeServiceWorkerUpdateFlow() {
       // you have a better UI here, reloading is not a great user experince here.
-      const confirmed = confirm('New version of the app is available. Refresh now');
-      if (confirmed) {
+      const confirmed = alert('New version of the app is available. Refresh now');
+      if (confirmed == true) {
         window.location.reload();
       }
     }

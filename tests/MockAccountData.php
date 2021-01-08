@@ -540,7 +540,7 @@ trait MockAccountData
             $data[1]['fee_tax_rate2'] = '';
             $data[1]['fee_tax_name3'] = '';
             $data[1]['fee_tax_rate3'] = 0;
-
+            $data[1]['fee_cap'] = '';
             $cg = new CompanyGateway;
             $cg->company_id = $this->company->id;
             $cg->user_id = $this->user->id;
