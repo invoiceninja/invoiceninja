@@ -62,6 +62,9 @@ class StoreExpenseRequest extends Request
             $input['currency_id'] = (string)auth()->user()->company()->settings->currency_id;
         }
 
+        if(array_key_exists('color', $input) && is_null($input['color']))
+            $input['color'] = '#fff';
+
         $this->replace($input);
     }
 

@@ -58,7 +58,7 @@ class SendRecurring implements ShouldQueue
         $invoice = RecurringInvoiceToInvoiceFactory::create($this->recurring_invoice, $this->recurring_invoice->client);
 
         $invoice->date = now()->format('Y-m-d');
-
+        
         $invoice = $invoice->service()
                            ->markSent()
                            ->applyNumber()

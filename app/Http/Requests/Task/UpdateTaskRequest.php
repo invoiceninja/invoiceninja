@@ -50,6 +50,9 @@ class UpdateTaskRequest extends Request
             $input['status_id'] = $this->decodePrimaryKey($input['status_id']);
         }
         
+        if(array_key_exists('color', $input) && is_null($input['color']))
+            $input['color'] = '#fff';
+
         $this->replace($input);
     }
 }

@@ -508,10 +508,7 @@ class InvoiceController extends BaseController
      */
     public function bulk()
     {
-
-        /*
-         * WIP!
-         */
+        
         $action = request()->input('action');
 
         $ids = request()->input('ids');
