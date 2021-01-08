@@ -266,10 +266,6 @@ class CompanyGateway extends BaseModel
     {
         $label = '';
 
-        if (! $this->feesEnabled()) {
-            return $label;
-        }
-
         $fee = $this->calcGatewayFee($amount, $gateway_type_id);
 
         if ($fee > 0) {
