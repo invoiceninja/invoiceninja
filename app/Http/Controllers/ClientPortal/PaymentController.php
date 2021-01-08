@@ -12,14 +12,17 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
+use App\Exceptions\PaymentFailed;
 use App\Factory\PaymentFactory;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Jobs\Invoice\InjectSignature;
+use App\Jobs\Util\SystemLogger;
 use App\Models\CompanyGateway;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
+use App\Models\SystemLog;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
@@ -93,13 +96,13 @@ class PaymentController extends Controller
         $invoices = Invoice::whereIn('id', $this->transformKeys($payable_invoices->pluck('invoice_id')->toArray()))->get();
 
         /* pop non payable invoice from the $payable_invoices array */
-        
+
         $payable_invoices = $payable_invoices->filter(function ($payable_invoice) use ($invoices) {
             return $invoices->where('hashed_id', $payable_invoice['invoice_id'])->first()->isPayable();
         });
 
         /*return early if no invoices*/
-        
+
         if ($payable_invoices->count() == 0) {
             return redirect()
                 ->route('client.invoices.index')
@@ -133,7 +136,7 @@ class PaymentController extends Controller
 
             if ($settings->client_portal_allow_under_payment == false && $settings->client_portal_allow_over_payment == false) {
                 $payable_invoice['amount'] = Number::roundValue(($invoice->partial > 0 ? $invoice->partial : $invoice->balance), auth()->user()->client->currency()->precision);
-            } 
+            }
 
             /* If we DO allow under payments check the minimum amount is present else return */
 
@@ -151,7 +154,7 @@ class PaymentController extends Controller
                         ->route('client.invoices.index')
                         ->with('message', ctrans('texts.under_payments_disabled'));
                 }
-            } 
+            }
 
             /* If we don't allow over payments and the amount exceeds the balance */
 
@@ -161,17 +164,17 @@ class PaymentController extends Controller
                         ->route('client.invoices.index')
                         ->with('message', ctrans('texts.over_payments_disabled'));
                 }
-            } 
+            }
 
         }
 
         /*Iterate through invoices and add gateway fees and other payment metadata*/
-        
+
         //$payable_invoices = $payable_invoices->map(function ($payable_invoice) use ($invoices, $settings) {
         $payable_invoice_collection = collect();
 
         foreach($payable_invoices as $payable_invoice)
-        {  
+        {
             nlog($payable_invoice);
 
             $payable_invoice['amount'] = Number::parseFloat($payable_invoice['amount']);
@@ -207,7 +210,7 @@ class PaymentController extends Controller
         }
 
         $payable_invoices = $payable_invoice_collection;
-        
+
         $payment_method_id = $request->input('payment_method_id');
         $invoice_totals = $payable_invoices->sum('amount');
         $first_invoice = $invoices->first();
@@ -256,27 +259,50 @@ class PaymentController extends Controller
             return $this->processCreditPayment($request, $data);
         }
 
-        return $gateway
-            ->driver(auth()->user()->client)
-            ->setPaymentMethod($payment_method_id)
-            ->setPaymentHash($payment_hash)
-            ->checkRequirements()
-            ->processPaymentView($data);
+        try {
+            return $gateway
+                ->driver(auth()->user()->client)
+                ->setPaymentMethod($payment_method_id)
+                ->setPaymentHash($payment_hash)
+                ->checkRequirements()
+                ->processPaymentView($data);
+        } catch(\Exception $e) {
+            SystemLogger::dispatch(
+                $e->getMessage(),
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_ERROR,
+                SystemLog::TYPE_FAILURE,
+                auth('contact')->user()->client
+            );
+
+            throw new PaymentFailed($e->getMessage());
+        }
     }
 
     public function response(PaymentResponseRequest $request)
     {
-
         $gateway = CompanyGateway::findOrFail($request->input('company_gateway_id'));
 
         $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$request->payment_hash])->first();
 
-        return $gateway
-            ->driver(auth()->user()->client)
-            ->setPaymentMethod($request->input('payment_method_id'))
-            ->setPaymentHash($payment_hash)
-            ->checkRequirements()
-            ->processPaymentResponse($request);
+        try {
+            return $gateway
+                ->driver(auth()->user()->client)
+                ->setPaymentMethod($request->input('payment_method_id'))
+                ->setPaymentHash($payment_hash)
+                ->checkRequirements()
+                ->processPaymentResponse($request);
+        } catch(\Exception $e) {
+            SystemLogger::dispatch(
+                $e->getMessage(),
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_FAILURE,
+                auth('contact')->user()->client
+            );
+
+            throw new PaymentFailed($e->getMessage());
+        }
     }
 
     /**
