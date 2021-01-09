@@ -3362,4 +3362,8 @@ return [
     'currency_albanian_lek' => 'Albanian Lek',
 
     'endless' => 'Endless',
+    'minimum_payment' => 'Minimum Payment',
+
+    'no_action_provided' => 'No action provided. If you believe this is wrong, please contact the support.',
+    'no_payable_invoices_selected' => 'No payable invoices selected. Make sure you are not trying to pay draft invoice or invoice with zero balance due.',
 ];

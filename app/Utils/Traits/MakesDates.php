@@ -72,6 +72,17 @@ trait MakesDates
     }
 
     /**
+     * Formats a datedate.
+     * @param  Carbon|string $date   Carbon object or date string
+     * @param  string $format The date display format
+     * @return string         The formatted date
+     */
+    public function formatDatetime($date, string $format) :string
+    {
+        return Carbon::createFromTimestamp($date)->format($format . " g:i a");
+    }
+
+    /**
      * Formats a date.
      * @param  Carbon/String $date   Carbon object or date string
      * @param  string $format The date display format

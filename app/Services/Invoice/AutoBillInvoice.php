@@ -14,7 +14,6 @@ namespace App\Services\Invoice;
 use App\DataMapper\InvoiceItem;
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
-use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -82,7 +81,7 @@ class AutoBillInvoice extends AbstractService
         }
 
         /* $gateway fee */
-        $fee = $gateway_token->gateway->calcGatewayFee($amount, $this->invoice->uses_inclusive_taxes);
+        $fee = $gateway_token->gateway->calcGatewayFee($amount, $gateway_token->gateway_type_id, $this->invoice->uses_inclusive_taxes);
 
         //todo determine exact fee as per PaymentController
 

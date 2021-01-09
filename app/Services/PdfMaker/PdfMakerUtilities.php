@@ -88,7 +88,7 @@ trait PdfMakerUtilities
         return $processed;
     }
 
-    public function updateElementProperty($element, string $attribute, string $value)
+    public function updateElementProperty($element, string $attribute, ?string $value)
     {
         // We have exception for "hidden" property.
         // hidden="true" or hidden="false" will both hide the element,

@@ -91,6 +91,11 @@ class ExpenseTransformer extends EntityTransformer
             'archived_at' => (int) $expense->deleted_at,
             'created_at' => (int) $expense->created_at,
             'project_id' => $this->encodePrimaryKey($expense->project_id),
+            'tax_amount1' => (float) $expense->tax_amount1,
+            'tax_amount2' => (float) $expense->tax_amount2,
+            'tax_amount3' => (float) $expense->tax_amount3,
+            'uses_inclusive_taxes' => (bool) $expense->uses_inclusive_taxes,
+            'amount_is_pretax' => (bool) $expense->amount_is_pretax,
         ];
     }
 }

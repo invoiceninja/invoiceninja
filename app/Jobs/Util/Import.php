@@ -11,6 +11,7 @@
 
 namespace App\Jobs\Util;
 
+use Illuminate\Http\UploadedFile;
 use App\DataMapper\Analytics\MigrationFailure;
 use App\DataMapper\CompanySettings;
 use App\Exceptions\MigrationValidatorFailed;
@@ -124,7 +125,7 @@ class Import implements ShouldQueue
         'task_statuses',
         'expenses',
         'tasks',
-        // 'documents',
+        'documents',
     ];
 
     /**
@@ -964,56 +965,41 @@ class Import implements ShouldQueue
                 $entity = Expense::where('id', $expense_id)->withTrashed()->first();
             }
 
-            $this->saveDocument(file_get_contents($resource['url']), $entity, $is_public = true);
+$file_url = $resource['url'];
+$file_name = basename($file_url);
+$file_path = sys_get_temp_dir().'/'.$file_name;
+
+file_put_contents($file_path, file_get_contents($file_url), LOCK_EX);
+$finfo = new \finfo(FILEINFO_MIME_TYPE);
+$file_info = $finfo->file($file_path);
+
+nlog($resource['url']);
+nlog($file_url);
+nlog($file_name);
+nlog($file_path);
+nlog($file_info);
+nlog(filesize($file_path));
+
+$uploaded_file = new UploadedFile(
+                $file_path,
+                $file_name,
+                $file_info,
+                filesize($file_path),
+                0,
+                false
+            );
+
+            $this->saveDocument($uploaded_file, $entity, $is_public = true);
+
+            $uploaded_file = null;
+            $finfo = null;
+            $file_url = null;
+            $file_name = null;
+            $file_path = null;
+            $file_info = null;
         }
 
-        // foreach ($data as $resource) {
-        //     $modified = $resource;
 
-        //     if (array_key_exists('invoice_id', $resource) && $resource['invoice_id'] && ! array_key_exists('invoices', $this->ids)) {
-        //         throw new ResourceDependencyMissing('Processing documents failed, because of missing dependency - invoices.');
-        //     }
-
-        //     if (array_key_exists('expense_id', $resource) && $resource['expense_id'] && ! array_key_exists('expenses', $this->ids)) {
-        //         throw new ResourceDependencyMissing('Processing documents failed, because of missing dependency - expenses.');
-        //     }
-
-        //     /* Remove because of polymorphic joins. */
-        //     unset($modified['invoice_id']);
-        //     unset($modified['expense_id']);
-
-        //     if (array_key_exists('invoice_id', $resource) && $resource['invoice_id'] && array_key_exists('invoices', $this->ids)) {
-        //         $modified['documentable_id'] = $this->transformId('invoices', $resource['invoice_id']);
-        //         $modified['documentable_type'] = Invoice::class;
-        //     }
-
-        //     if (array_key_exists('expense_id', $resource) && $resource['expense_id'] && array_key_exists('expenses', $this->ids)) {
-        //         $modified['documentable_id'] = $this->transformId('expenses', $resource['expense_id']);
-        //         $modified['documentable_type'] = Expense::class;
-        //     }
-
-        //     $modified['user_id'] = $this->processUserId($resource);
-        //     $modified['company_id'] = $this->company->id;
-
-        //     $document = Document::create($modified);
-
-        //     // $entity = $modified['documentable_type']::find($modified['documentable_id']);
-        //     // $entity->documents()->save($modified);
-
-        //     $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
-
-        //     $this->ids['documents'] = [
-        //         "documents_{$old_user_key}" => [
-        //             'old' => $resource['id'],
-        //             'new' => $document->id,
-        //         ],
-        //     ];
-        // }
-
-        // Document::reguard();
-
-        // /*Improve memory handling by setting everything to null when we have finished*/
-        // $data = null;
     }
 
     private function processPaymentTerms(array $data) :void
@@ -1157,12 +1143,11 @@ class Import implements ShouldQueue
 
             $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
 
-
             $key = "expense_categories_{$resource['id']}";
 
             $this->ids['expense_categories'][$key] = [
                 'old' => $resource['id'],
-                    'new' => $expense_category->id,
+                'new' => $expense_category->id,
             ];
 
             // $this->ids['expense_categories'] = [
@@ -1290,12 +1275,13 @@ class Import implements ShouldQueue
 
             $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
 
-            $this->ids['expenses'] = [
-                "expenses_{$old_user_key}" => [
-                    'old' => $resource['id'],
-                    'new' => $expense->id,
-                ],
+            $key = "expenses_{$resource['id']}";
+
+            $this->ids['expenses'][$key] = [
+                'old' => $resource['id'],
+                'new' => $expense->id,
             ];
+
         }
 
         Expense::reguard();

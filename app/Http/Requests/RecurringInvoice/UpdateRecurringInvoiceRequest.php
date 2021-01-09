@@ -91,6 +91,10 @@ class UpdateRecurringInvoiceRequest extends Request
             $input['auto_bill_enabled'] = $this->setAutoBillFlag($input['auto_bill']);
         }
 
+        if (array_key_exists('documents', $input)) {
+            unset($input['documents']);
+        }
+        
         $this->replace($input);
     }
 

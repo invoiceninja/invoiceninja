@@ -604,7 +604,7 @@ trait MakesInvoiceValues
                 if ($item->is_amount_discount) {
                     $data[$key][$table_type.'.discount'] = Number::formatMoney($item->discount, $this->client);
                 } else {
-                    $data[$key][$table_type.'.discount'] = $item->discount.'%';
+                    $data[$key][$table_type.'.discount'] = floatval($item->discount).'%';
                 }
             } else {
                 $data[$key][$table_type.'.discount'] = '';

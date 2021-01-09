@@ -12,6 +12,7 @@ namespace Tests\Feature;
 
 use App\DataMapper\FeesAndLimits;
 use App\Models\CompanyGateway;
+use App\Models\GatewayType;
 use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
@@ -197,7 +198,7 @@ class CompanyGatewayApiTest extends TestCase
 
         $company_gateway = CompanyGateway::find($id);
 
-        $this->assertEquals(10, $company_gateway->calcGatewayFee(10));
+        $this->assertEquals(10, $company_gateway->calcGatewayFee(10, GatewayType::CREDIT_CARD));
     }
 
     public function testFeesAndLimitsFeePercentCalcuation()
@@ -230,7 +231,7 @@ class CompanyGatewayApiTest extends TestCase
 
         $company_gateway = CompanyGateway::find($id);
 
-        $this->assertEquals(0.2, $company_gateway->calcGatewayFee(10));
+        $this->assertEquals(0.2, $company_gateway->calcGatewayFee(10, GatewayType::CREDIT_CARD));
     }
 
     public function testFeesAndLimitsFeePercentAndAmountCalcuation()
@@ -263,7 +264,7 @@ class CompanyGatewayApiTest extends TestCase
 
         $company_gateway = CompanyGateway::find($id);
 
-        $this->assertEquals(10.2, $company_gateway->calcGatewayFee(10));
+        $this->assertEquals(10.2, $company_gateway->calcGatewayFee(10, GatewayType::CREDIT_CARD));
     }
 
     public function testFeesAndLimitsFeePercentAndAmountAndTaxCalcuation()
@@ -296,7 +297,7 @@ class CompanyGatewayApiTest extends TestCase
 
         $company_gateway = CompanyGateway::find($id);
 
-        $this->assertEquals(11, $company_gateway->calcGatewayFee(10, true));
+        $this->assertEquals(11, $company_gateway->calcGatewayFee(10, GatewayType::CREDIT_CARD, true));
     }
 
     public function testFeesAndLimitsFeePercentAndAmountAndTaxCalcuationInclusiveTaxes()
@@ -329,7 +330,7 @@ class CompanyGatewayApiTest extends TestCase
 
         $company_gateway = CompanyGateway::find($id);
 
-        $this->assertEquals(10, $company_gateway->calcGatewayFee(10));
+        $this->assertEquals(10, $company_gateway->calcGatewayFee(10, GatewayType::CREDIT_CARD));
     }
 
     public function testFeesAndLimitsFeePercentAndAmountAndDoubleTaxCalcuation()
@@ -364,7 +365,7 @@ class CompanyGatewayApiTest extends TestCase
 
         $company_gateway = CompanyGateway::find($id);
 
-        $this->assertEquals(12, $company_gateway->calcGatewayFee(10, true));
+        $this->assertEquals(12, $company_gateway->calcGatewayFee(10, GatewayType::CREDIT_CARD, true));
     }
 
     public function testFeesAndLimitsFeePercentAndAmountAndDoubleTaxCalcuationWithFeeCap()
@@ -400,6 +401,6 @@ class CompanyGatewayApiTest extends TestCase
 
         $company_gateway = CompanyGateway::find($id);
 
-        $this->assertEquals(1.2, $company_gateway->calcGatewayFee(10, true));
+        $this->assertEquals(1.2, $company_gateway->calcGatewayFee(10, GatewayType::CREDIT_CARD, true));
     }
 }

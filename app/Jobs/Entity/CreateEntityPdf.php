@@ -168,8 +168,12 @@ class CreateEntityPdf implements ShouldQueue
         return $file_path;
     }
 
-    public function failed(\Exception $exception)
+    public function failed($e)
     {
-        nlog("help!");
+
     }
+    // public function failed(\Exception $exception)
+    // {
+    //     nlog("help!");
+    // }
 }

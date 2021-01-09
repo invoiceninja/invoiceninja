@@ -97,7 +97,7 @@ class InvoiceMigrationRepository extends BaseRepository
         }
         
         foreach ($data['invitations'] as $invitation) {
-            nlog($invitation);
+            // nlog($invitation);
             
             $new_invitation = $invitation_factory_class::create($model->company_id, $model->user_id);
             $new_invitation->{$lcfirst_resource_id} = $model->id;

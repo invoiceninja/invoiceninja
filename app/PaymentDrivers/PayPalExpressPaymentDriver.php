@@ -158,10 +158,13 @@ class PayPalExpressPaymentDriver extends BaseDriver
         }
 
         if (!$response->isSuccessful()) {
-            PaymentFailureMailer::dispatch($this->client, $response->getMessage(), $this->client->company, $response['PAYMENTINFO_0_AMT']);
+
+            $data = $response->getData();
+
+            PaymentFailureMailer::dispatch($this->client, $response->getMessage(), $this->client->company, $this->payment_hash->data->amount);
 
             $message = [
-                'server_response' => $response->getMessage(),
+                'server_response' => $data['L_LONGMESSAGE0'],
                 'data' => $this->payment_hash->data,
             ];
 

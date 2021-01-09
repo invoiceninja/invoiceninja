@@ -98,6 +98,19 @@ class InvoiceEmailEngine extends BaseEmailEngine
 
         if ($this->client->getSetting('pdf_email_attachment') !== false) {
             $this->setAttachments([$this->invoice->pdf_file_path()]);
+            // $this->setAttachments(['path' => $this->invoice->pdf_file_path(), 'name' => basename($this->invoice->pdf_file_path())]);
+
+        }
+
+        //attach third party documents
+        if($this->client->getSetting('document_email_attachment') !== false){
+
+            // Storage::url
+            foreach($this->invoice->documents as $document){
+                // $this->setAttachments(['path'=>$document->filePath(),'name'=>$document->name]);
+                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => $document->type]]);
+            }
+
         }
 
         return $this;

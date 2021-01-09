@@ -51,6 +51,11 @@ class Expense extends BaseModel
         'custom_value3',
         'custom_value4',
         'number',
+        'tax_amount1',
+        'tax_amount2',
+        'tax_amount3',
+        'uses_inclusive_taxes',
+        'amount_is_pretax',
     ];
 
     protected $casts = [
