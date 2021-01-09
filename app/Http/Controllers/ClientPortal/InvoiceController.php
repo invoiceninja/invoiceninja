@@ -88,17 +88,30 @@ class InvoiceController extends Controller
                             ->whereClientId(auth()->user()->client->id)
                             ->get();
 
-        $total = $invoices->sum('balance');
-
+        //filter invoices which are payable
         $invoices = $invoices->filter(function ($invoice) {
             return $invoice->isPayable() && $invoice->balance > 0;
         });
 
+        //return early if no invoices.
         if ($invoices->count() == 0) {
             return back()
                 ->with('message', ctrans('texts.no_payable_invoices_selected'));
         }
 
+        //iterate and sum the payable amounts either partial or balance
+        $total = 0;
+        foreach($invoices as $invoice)
+        {
+
+            if($invoice->partial > 0)
+                $total += $invoice->partial;
+            else
+                $total += $invoice->balance;
+
+        }
+
+        //format data
         $invoices->map(function ($invoice) {
             $invoice->service()->removeUnpaidGatewayFees()->save();
             $invoice->balance = Number::formatValue($invoice->balance, $invoice->client->currency());
@@ -107,6 +120,7 @@ class InvoiceController extends Controller
             return $invoice;
         });
 
+        //format totals
         $formatted_total = Number::formatMoney($total, auth()->user()->client);
 
         $payment_methods = auth()->user()->client->getPaymentMethods($total);

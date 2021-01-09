@@ -29,3 +29,11 @@ function nlog($output, $context = []): void
         \Illuminate\Support\Facades\Log::channel('invoiceninja')->info($output, $context);
     }
 }
+
+if (!function_exists('ray'))   {
+	function ray($payload)
+	{
+		return true;
+	}
+}
+

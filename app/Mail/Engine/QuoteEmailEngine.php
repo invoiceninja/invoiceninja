@@ -88,9 +88,22 @@ class QuoteEmailEngine extends BaseEmailEngine
             ->setViewText(ctrans('texts.view_quote'));
 
         if ($this->client->getSetting('pdf_email_attachment') !== false) {
-            $this->setAttachments([$this->invitation->pdf_file_path()]);
+            // $this->setAttachments([$this->quote->pdf_file_path()]);
+            $this->setAttachments(['path' => $this->quote->pdf_file_path(), 'name' => basename($this->quote->pdf_file_path())]);
+
         }
 
+        //attach third party documents
+        if($this->client->getSetting('document_email_attachment') !== false){
+
+            // Storage::url
+            foreach($this->quote->documents as $document){
+                // $this->setAttachments(['path'=>$document->filePath(),'name'=>$document->name]);
+                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => $document->type]]);
+            }
+
+        }
+        
         return $this;
     }
 }
