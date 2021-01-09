@@ -76,12 +76,15 @@ class InvitationController extends Controller
     {
         switch ($entity_string) {
             case 'invoice':
+                $invitation->invoice->service()->markSent()->save();
                 event(new InvoiceWasViewed($invitation, $invitation->company, Ninja::eventVars()));
                 break;
             case 'quote':
+                $invitation->quote->service()->markSent()->save();
                 event(new QuoteWasViewed($invitation, $invitation->company, Ninja::eventVars()));
                 break;
             case 'credit':
+                $invitation->credit->service()->markSent()->save();
                 event(new CreditWasViewed($invitation, $invitation->company, Ninja::eventVars()));
                 break;
             default:
