@@ -91,6 +91,17 @@ class CreditEmailEngine extends BaseEmailEngine
             $this->setAttachments(['path' => $this->credit->pdf_file_path(), 'name' => basename($this->credit->pdf_file_path())]);
         }
 
+        //attach third party documents
+        if($this->client->getSetting('document_email_attachment') !== false){
+
+            // Storage::url
+            foreach($this->credit->documents as $document){
+                // $this->setAttachments(['path'=>$document->filePath(),'name'=>$document->name]);
+                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => $document->type]]);
+            }
+
+        }
+
         return $this;
     }
 }
