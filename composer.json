@@ -68,6 +68,7 @@
         "webpatser/laravel-countries": "dev-master#75992ad"
     },
     "require-dev": {
+        "php": "^7.4",
         "anahkiasen/former": "^4.2",
         "barryvdh/laravel-debugbar": "^3.4",
         "darkaonline/l5-swagger": "^8.0",
