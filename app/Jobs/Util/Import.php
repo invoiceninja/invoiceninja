@@ -101,6 +101,8 @@ class Import implements ShouldQueue
      */
     private $company;
 
+    private $token;
+
     /**
      * @var array
      */
@@ -229,6 +231,11 @@ class Import implements ShouldQueue
 
     private function processAccount(array $data) :void
     {
+        if(array_key_exists('token', $data)){
+            $this->token = $data['token'];
+            unset($data['token']);
+        }
+
         $account = $this->company->account;
         $account->fill($data);
         $account->save();
@@ -965,40 +972,26 @@ class Import implements ShouldQueue
                 $entity = Expense::where('id', $expense_id)->withTrashed()->first();
             }
 
-$file_url = $resource['url'];
-$file_name = basename($file_url);
-$file_path = sys_get_temp_dir().'/'.$file_name;
+            $file_url = $resource['url'];
+            $file_name = $resource['name'];
+            $file_path = sys_get_temp_dir().'/'.$file_name;
 
-file_put_contents($file_path, file_get_contents($file_url), LOCK_EX);
-$finfo = new \finfo(FILEINFO_MIME_TYPE);
-$file_info = $finfo->file($file_path);
+            file_put_contents($file_path, $this->curlGet($file_url));
+            $finfo = new \finfo(FILEINFO_MIME_TYPE);
+            $file_info = $finfo->file($file_path);
 
-nlog($resource['url']);
-nlog($file_url);
-nlog($file_name);
-nlog($file_path);
-nlog($file_info);
-nlog(filesize($file_path));
-
-$uploaded_file = new UploadedFile(
-                $file_path,
-                $file_name,
-                $file_info,
-                filesize($file_path),
-                0,
-                false
-            );
+            $uploaded_file = new UploadedFile(
+                            $file_path,
+                            $file_name,
+                            $file_info,
+                            filesize($file_path),
+                            0,
+                            false
+                        );
 
             $this->saveDocument($uploaded_file, $entity, $is_public = true);
 
-            $uploaded_file = null;
-            $finfo = null;
-            $file_url = null;
-            $file_name = null;
-            $file_path = null;
-            $file_info = null;
         }
-
 
     }
 
@@ -1380,4 +1373,27 @@ $uploaded_file = new UploadedFile(
 
         info(print_r($exception->getMessage(), 1));
     }
+
+
+    public function curlGet($url, $headers = false)
+    {
+
+        return $this->exec('GET', $url, null);
+    }
+
+    public function exec($method, $url, $data)
+    {
+        nlog($this->token);
+
+        $client =  new \GuzzleHttp\Client(['headers' => 
+            [ 
+            'X-Ninja-Token' => $this->token,        
+            ]
+        ]);
+
+        $response = $client->request('GET', $url);
+
+        return $response->getBody();
+    }
+
 }
