@@ -5,11 +5,13 @@ namespace App\Traits;
 use App\Models\AccountGateway;
 use App\Models\AccountGatewaySettings;
 use App\Models\AccountGatewayToken;
+use App\Models\AccountToken;
 use App\Models\Contact;
 use App\Models\Credit;
 use App\Models\Document;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
+use App\Models\Invitation;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
@@ -28,8 +30,24 @@ trait GenerateMigrationResources
 {
     protected $account;
 
+    protected $token;
+
     protected function getAccount()
     {
+
+        if($this->account->account_tokens()->exists()){
+            $this->token = $this->account->account_tokens->first()->token;
+        }
+        else {
+
+            $mtoken = AccountToken::createNew();
+            $mtoken->name = 'Migration Token';
+            $mtoken->token = strtolower(str_random(RANDOM_KEY_LENGTH));
+            $mtoken->save();
+
+            $this->token = $mtoken->token;
+        }
+
         return [
             'plan' => $this->account->company->plan,
             'plan_term' =>$this->account->company->plan_term,
@@ -45,11 +63,13 @@ trait GenerateMigrationResources
             'utm_campaign' =>$this->account->company->utm_campaign,
             'utm_term' =>$this->account->company->utm_term,
             'utm_content' =>$this->account->company->utm_content,
+            'token' => $this->token,
         ];
     }
 
     protected function getCompany()
     {
+
         return [
             'referral_code' => $this->account->referral_code ?: '',
             'account_id' => $this->account->id,
@@ -883,7 +903,7 @@ trait GenerateMigrationResources
                 'created_at' => $quote->created_at ? Carbon::parse($quote->created_at)->toDateString() : null,
                 'updated_at' => $quote->updated_at ? Carbon::parse($quote->updated_at)->toDateString() : null,
                 'deleted_at' => $quote->deleted_at ? Carbon::parse($quote->deleted_at)->toDateString() : null,
-                //'invitations' => $this->getResourceInvitations($quote->invitations, 'quote_id'),
+                'invitations' => $this->getResourceInvitations($quote->invitations, 'quote_id'),
             ];
         }
 
@@ -1081,6 +1101,7 @@ trait GenerateMigrationResources
         $transformed = [];
 
         foreach ($documents as $document) {
+
             $transformed[] = [
                 'id' => $document->id,
                 'user_id' => $document->user_id,
@@ -1098,7 +1119,7 @@ trait GenerateMigrationResources
                 'height' => $document->height,
                 'created_at' => $document->created_at ? Carbon::parse($document->created_at)->toDateString() : null,
                 'updated_at' => $document->updated_at ? Carbon::parse($document->updated_at)->toDateString() : null,
-                'url' => $document->getUrl(),
+                'url' => url("/api/v1/documents/{$document->public_id}"),
             ];
         }
 
