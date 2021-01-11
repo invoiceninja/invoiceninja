@@ -95,7 +95,7 @@ class ExpenseTransformer extends EntityTransformer
             'tax_amount2' => (float) $expense->tax_amount2,
             'tax_amount3' => (float) $expense->tax_amount3,
             'uses_inclusive_taxes' => (bool) $expense->uses_inclusive_taxes,
-            'amount_is_pretax' => (bool) $expense->amount_is_pretax,
+            'calculate_tax_by_amount' => (bool) $expense->calculate_tax_by_amount,
         ];
     }
 }

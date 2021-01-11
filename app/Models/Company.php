@@ -83,7 +83,6 @@ class Company extends BaseModel
         'default_task_is_date_based',
         'enable_product_discount',
         'expense_inclusive_taxes',
-        'expense_amount_is_pretax',
     ];
 
     protected $hidden = [
