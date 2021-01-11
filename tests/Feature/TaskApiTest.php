@@ -71,7 +71,6 @@ class TaskApiTest extends TestCase
         $arr = $response->json();
         $response->assertStatus(200);
 
-        $this->assertGreaterThan(0, $arr['data']['start_time']);
     }
 
     public function testTaskPut()
