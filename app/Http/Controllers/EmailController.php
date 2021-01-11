@@ -128,7 +128,11 @@ class EmailController extends BaseController
                     'body' => $body
                 ];
                 
-                EmailEntity::dispatchNow($invitation, $invitation->company, $template, $data);
+                $entity_obj->service()->markSent()->save();
+
+                //@TODO why is this dispatchNow instead of just dispatch?
+                //update - changing to dispatch and see if something breaks.
+                EmailEntity::dispatch($invitation, $invitation->company, $template, $data);
             }
         });
 
