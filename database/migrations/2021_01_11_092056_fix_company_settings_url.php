@@ -31,7 +31,7 @@ class FixCompanySettingsUrl extends Migration
 
         Schema::table('companies', function (Blueprint $table) {
             $table->dropColumn('logo');
-            $tbale->dropColumn('expense_amount_is_pretax');
+            $table->dropColumn('expense_amount_is_pretax');
         });
 
         Schema::table('tasks', function (Blueprint $table) {
