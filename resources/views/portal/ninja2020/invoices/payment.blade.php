@@ -8,7 +8,7 @@
 @endpush
 
 @section('body')
-<form action="{{ route('client.payments.process') }}" method="post" id="payment-form">
+<form action="{{ route('client.payments.process') }}" method="post" id="payment-form" onkeypress="return event.keyCode != 13;">
     @csrf
     <input type="hidden" name="company_gateway_id" id="company_gateway_id">
     <input type="hidden" name="payment_method_id" id="payment_method_id">
@@ -118,21 +118,28 @@
                                     <!-- App\Utils\Number::formatMoney($invoice->amount, $invoice->client) -->
                                     <!-- Disabled input field don't send it's value with request. -->
                                     @if(!$settings->client_portal_allow_under_payment && !$settings->client_portal_allow_over_payment)
-                                        <input 
-                                            name="payable_invoices[{{$key}}][amount]" 
-                                            value="{{ $invoice->partial > 0 ? $invoice->partial : $invoice->balance }}"
-                                            class="mt-1 text-sm text-gray-800"
-                                            readonly />
+                                        <label>
+                                            {{ $invoice->client->currency()->code }} ({{ $invoice->client->currency()->symbol }})
+
+                                            <input
+                                                name="payable_invoices[{{$key}}][amount]"
+                                                value="{{ $invoice->partial > 0 ? $invoice->partial : $invoice->balance }}"
+                                                class="mt-1 text-sm text-gray-800"
+                                                readonly />
+                                        </label>
                                     @else
                                         <div class="flex items-center">
-                                            <input 
-                                                type="text" 
-                                                class="input mt-0 mr-4 relative" 
-                                                name="payable_invoices[{{$key}}][amount]" 
-                                                value="{{ $invoice->partial > 0 ? $invoice->partial : $invoice->balance }}"/>
+                                            <label>
                                                 <span class="mt-2">{{ $invoice->client->currency()->code }} ({{ $invoice->client->currency()->symbol }})</span>
+
+                                                <input
+                                                    type="text"
+                                                    class="input mt-0 mr-4 relative"
+                                                    name="payable_invoices[{{$key}}][amount]"
+                                                    value="{{ $invoice->partial > 0 ? $invoice->partial : $invoice->balance }}"/>
+                                            </label>
                                         </div>
-                                    @endif  
+                                    @endif
 
                                     @if($settings->client_portal_allow_under_payment)
                                         <span class="mt-1 text-sm text-gray-800">{{ ctrans('texts.minimum_payment') }}: {{ $settings->client_portal_under_payment_minimum }}</span>
