@@ -39,7 +39,6 @@ class FixCompanySettingsUrl extends Migration
         });
 
         Schema::table('expenses', function (Blueprint $table) {
-            $table->dropColumn('expense_amount_is_pretax');
             $table->dropColumn('amount_is_pretax');
             $table->boolean('calculate_tax_by_amount')->default(false);
         });

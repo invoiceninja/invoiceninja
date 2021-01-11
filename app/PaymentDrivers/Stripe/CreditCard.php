@@ -103,7 +103,7 @@ class CreditCard
         if ($server_response->status == 'succeeded') {
             $this->stripe->confirmGatewayFee($request);
 
-            $this->stripe->logSuccessfulGatewayResponse(['response' => $request->gateway_response, 'data' => $this->stripe->payment_has], SystemLog::TYPE_STRIPE);
+            $this->stripe->logSuccessfulGatewayResponse(['response' => json_decode($request->gateway_response), 'data' => $this->stripe->payment_hash], SystemLog::TYPE_STRIPE);
 
             return $this->processSuccessfulPayment();
         }
