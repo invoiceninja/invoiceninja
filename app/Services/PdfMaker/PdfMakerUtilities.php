@@ -111,7 +111,7 @@ trait PdfMakerUtilities
     {
         foreach ($children as $child) {
             $contains_html = false;
-            
+
             if (isset($child['content'])) {
                 $child['content'] = nl2br($child['content']);
             }
@@ -137,7 +137,10 @@ trait PdfMakerUtilities
                 $_child = $this->document->createElement($child['element'], '');
 
                 $fragment = $this->document->createDocumentFragment();
-                $fragment->appendXML($child['content']);
+
+                $fragment->appendXML(
+                    strtr($child['content'], ['&' => '&amp;'])
+                );
 
                 $_child->appendChild($fragment);
             } else {
