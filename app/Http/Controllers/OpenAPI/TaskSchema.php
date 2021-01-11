@@ -12,7 +12,6 @@
  *       @OA\Property(property="project_id", type="string", example="", description="________"),
  *       @OA\Property(property="number", type="string", example="", description="________"),
  *       @OA\Property(property="time_log", type="string", example="", description="________"),
- *       @OA\Property(property="start_time", type="integer", example="", description="________"),
  *       @OA\Property(property="is_running", type="boolean", example=true, description="________"),
  *       @OA\Property(property="is_deleted", type="boolean", example=true, description="________"),
  *       @OA\Property(property="task_status_id", type="string", example="", description="________"),
