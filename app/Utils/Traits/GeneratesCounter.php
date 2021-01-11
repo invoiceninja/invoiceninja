@@ -49,7 +49,7 @@ trait GeneratesCounter
         //todo handle if we have specific client patterns in the future
         $pattern = $client->getSetting('invoice_number_pattern');
         //Determine if we are using client_counters
-        if (strpos($pattern, 'clientCounter')) {
+        if (strpos($pattern, 'clientCounter') || strpos($pattern, 'client_counter')) {
             if (property_exists($client->settings, 'invoice_number_counter')) {
                 $counter = $client->settings->invoice_number_counter;
             } else {
@@ -57,7 +57,7 @@ trait GeneratesCounter
             }
 
             $counter_entity = $client;
-        } elseif (strpos($pattern, 'groupCounter')) {
+        } elseif (strpos($pattern, 'groupCounter') || strpos($pattern, 'group_counter')) {
             $counter = $client->group_settings->invoice_number_counter;
             $counter_entity = $client->group_settings;
         } else {
@@ -96,10 +96,10 @@ trait GeneratesCounter
         //todo handle if we have specific client patterns in the future
         $pattern = $client->getSetting('credit_number_pattern');
         //Determine if we are using client_counters
-        if (strpos($pattern, 'clientCounter')) {
+        if (strpos($pattern, 'clientCounter') || strpos($pattern, 'client_counter')) {
             $counter = $client->settings->credit_number_counter;
             $counter_entity = $client;
-        } elseif (strpos($pattern, 'groupCounter')) {
+        } elseif (strpos($pattern, 'groupCounter') || strpos($pattern, 'group_counter')) {
             $counter = $client->group_settings->credit_number_counter;
             $counter_entity = $client->group_settings;
         } else {
@@ -132,10 +132,10 @@ trait GeneratesCounter
         //todo handle if we have specific client patterns in the future
         $pattern = $client->getSetting('quote_number_pattern');
         //Determine if we are using client_counters
-        if (strpos($pattern, 'clientCounter')) {
+        if (strpos($pattern, 'clientCounter') || strpos($pattern, 'client_counter')) {
             $counter = $client->settings->{$used_counter};
             $counter_entity = $client;
-        } elseif (strpos($pattern, 'groupCounter')) {
+        } elseif (strpos($pattern, 'groupCounter') || strpos($pattern, 'group_counter')) {
             $counter = $client->group_settings->{$used_counter};
             $counter_entity = $client->group_settings;
         } else {

@@ -65,15 +65,8 @@ class Gateway extends StaticModel
             $link = 'https://dashboard.stripe.com/account/apikeys';
         }
 
-        // $key = 'texts.gateway_help_'.$this->id;
-        // $str = trans($key, [
-        //     'link' => "<a href='$link' >Click here</a>",
-        //     'complete_link' => url('/complete'),
-        // ]);
-
         return $link;
         
-        //return $key != $str ? $str : '';
     }
 
 
@@ -93,7 +86,7 @@ class Gateway extends StaticModel
                 break;
             case 20:
                 return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true],
-                        GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true],
+                        GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable']],
                         GatewayType::ALIPAY => ['refund' => false, 'token_billing' => false],
                         GatewayType::APPLE_PAY => ['refund' => false, 'token_billing' => false]]; //Stripe
                 break;

@@ -36,7 +36,7 @@ class CompanyPresenter extends EntityPresenter
             $settings = $this->entity->settings;
         }
 
-        return (strlen($settings->company_logo) > 0) ? $settings->company_logo : 'https://www.invoiceninja.com/wp-content/uploads/2019/01/InvoiceNinja-Logo-Round-300x300.png';
+        return (strlen($settings->company_logo) > 0) ? url($settings->company_logo) : 'https://www.invoiceninja.com/wp-content/uploads/2019/01/InvoiceNinja-Logo-Round-300x300.png';
     }
 
     public function address($settings = null)

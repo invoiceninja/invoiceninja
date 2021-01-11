@@ -22,14 +22,9 @@ trait Uploadable
 {
     public function removeLogo($company)
     {
-        $company_logo = $company->settings->company_logo;
 
-        $file_name = basename($company_logo);
-
-        $storage_path = $company->company_key . '/' . $file_name;
-
-        if (Storage::exists($storage_path)) {
-            UnlinkFile::dispatchNow(config('filesystems.default'), $storage_path);
+        if (Storage::exists($company->settings->company_logo)) {
+            UnlinkFile::dispatchNow(config('filesystems.default'), $company->settings->company_logo);
         }
     }
 
@@ -37,6 +32,8 @@ trait Uploadable
     {
         if ($file) {
             $path = UploadAvatar::dispatchNow($file, $company->company_key);
+
+            $path = str_replace(config("ninja.app_url"), "", $path);
 
             info("the path {$path}");
 

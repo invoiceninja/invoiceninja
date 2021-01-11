@@ -75,8 +75,8 @@ class TaskRepository extends BaseRepository
         }
 
         $task->time_log = json_encode($time_log);
-        $task->start_time = $task->start_time ?: $task->calcStartTime();
-        $task->duration = $task->calcDuration();
+        // $task->start_time = $task->start_time ?: $task->calcStartTime();
+        // $task->duration = $task->calcDuration();
 
         $task->save();
 
