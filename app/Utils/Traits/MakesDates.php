@@ -95,7 +95,7 @@ trait MakesDates
 
     private function convertToDateObject($date)
     {
-        $dt = DateTime($date);
+        $dt = new DateTime($date);
         $dt->setTimezone(new DateTimeZone('UTC'));
         return $dt;
     }
