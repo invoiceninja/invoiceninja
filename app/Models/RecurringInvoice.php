@@ -91,6 +91,7 @@ class RecurringInvoice extends BaseModel
         'remaining_cycles',
         'auto_bill',
         'auto_bill_enabled',
+        'design_id',
     ];
 
     protected $casts = [

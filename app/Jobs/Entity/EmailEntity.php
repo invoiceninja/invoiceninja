@@ -110,14 +110,10 @@ class EmailEntity extends BaseMailerJob implements ShouldQueue
                     )
                 );
         } catch (\Exception $e) {
-//            $this->failed($e);
+
             $this->entityEmailFailed($e->getMessage());
             $this->logMailError($e->getMessage(), $this->entity->client);
         }
-
-        // if (count(Mail::failures()) == 0) {
-        //     $this->entityEmailSucceeded();
-        // }
 
         /* Mark entity sent */
         $this->entity->service()->markSent()->save();

@@ -142,7 +142,7 @@ class RefundPayment
      */
     private function setStatus()
     {
-        if ($this->refund_data['amount'] == $this->payment->amount) {
+        if ($this->total_refund == $this->payment->amount) {
             $this->payment->status_id = Payment::STATUS_REFUNDED;
         } else {
             $this->payment->status_id = Payment::STATUS_PARTIALLY_REFUNDED;

@@ -484,7 +484,7 @@ class Client extends BaseModel implements HasLocalePreference
         // handle custom gateways as they are not unique'd()---------------------------------------------------------
         // we need to split the query here as we allow multiple custom gateways, so we must show all of them, they query logic
         // above only pulls in unique gateway types.. ie.. we only allow 1 credit card gateway, but many custom gateways.
-        
+
         if ($company_gateways || $company_gateways == '0') {
             $transformed_ids = $this->transformKeys(explode(',', $company_gateways));
             $gateways = $this->company
@@ -525,14 +525,14 @@ class Client extends BaseModel implements HasLocalePreference
                 $fee_label = $gateway->calcGatewayFeeLabel($amount, $this);
 
                 if(!$gateway_type_id){
-                    
+
                     $payment_urls[] = [
                         'label' => $gateway->getConfigField('name') . $fee_label,
                         'company_gateway_id'  => $gateway_id,
                         'gateway_type_id' => GatewayType::CREDIT_CARD,
-                    ];    
+                    ];
                 }
-                else 
+                else
                 {
                     $payment_urls[] = [
                         'label' => $gateway->getTypeAlias($gateway_type_id) . $fee_label,
@@ -544,6 +544,14 @@ class Client extends BaseModel implements HasLocalePreference
         }
 
         if (($this->getSetting('use_credits_payment') == 'option' || $this->getSetting('use_credits_payment') == 'always') && $this->service()->getCreditBalance() > 0) {
+
+            // Show credits as only payment option if both statements are true.
+            if (
+                $this->service()->getCreditBalance() > $amount
+                && $this->getSetting('use_credits_payment') == 'always') {
+                $payment_urls = [];
+            }
+
             $payment_urls[] = [
                     'label' => ctrans('texts.apply_credit'),
                     'company_gateway_id'  => CompanyGateway::GATEWAY_CREDIT,

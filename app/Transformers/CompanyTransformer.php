@@ -131,7 +131,7 @@ class CompanyTransformer extends EntityTransformer
             'archived_at' => (int) $company->deleted_at,
             'created_at' =>(int) $company->created_at,
             'slack_webhook_url' => (string) $company->slack_webhook_url,
-            'google_analytics_url' => (string) $company->google_analytics_key, //@deprecate
+            'google_analytics_url' => (string) $company->google_analytics_key, //@deprecate 1-2-2021
             'google_analytics_key' => (string) $company->google_analytics_key,
             'enabled_item_tax_rates' => (int) $company->enabled_item_tax_rates,
             'client_can_register' => (bool) $company->client_can_register,
@@ -145,13 +145,13 @@ class CompanyTransformer extends EntityTransformer
             'auto_start_tasks' => (bool) $company->auto_start_tasks,
             'invoice_task_documents' => (bool) $company->invoice_task_documents,
             'show_tasks_table' => (bool) $company->show_tasks_table,
-            'use_credits_payment' => 'always', //todo remove
+            'use_credits_payment' => 'always', // @deprecate 1-2-2021
             'default_task_is_date_based' => (bool)$company->default_task_is_date_based,
             'enable_product_discount' => (bool)$company->enable_product_discount,
             'calculate_expense_tax_by_amount' =>(bool)$company->calculate_expense_tax_by_amount,
-            'hide_empty_columns_on_pdf' => false, //@deprecate
+            'hide_empty_columns_on_pdf' => false, // @deprecate 1-2-2021
             'expense_inclusive_taxes' => (bool)$company->expense_inclusive_taxes,
-            'expense_amount_is_pretax' =>( bool)$company->expense_amount_is_pretax,
+            'expense_amount_is_pretax' =>(bool)true, //@deprecate 1-2-2021
         ];
     }
 

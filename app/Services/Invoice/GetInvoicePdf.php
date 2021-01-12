@@ -15,6 +15,7 @@ use App\Jobs\Entity\CreateEntityPdf;
 use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Services\AbstractService;
+use App\Utils\TempFile;
 use Illuminate\Support\Facades\Storage;
 
 class GetInvoicePdf extends AbstractService
@@ -46,6 +47,12 @@ class GetInvoicePdf extends AbstractService
             $file_path = CreateEntityPdf::dispatchNow($invitation);
         }
 
+
+        /* Copy from remote disk to local when using cloud file storage. */
+        if(config('filesystems.default') == 's3')
+            return TempFile::path(Storage::disk($disk)->url($file_path));
+
+        // return Storage::disk($disk)->url($file_path);
         return Storage::disk($disk)->path($file_path);
     }
 }
