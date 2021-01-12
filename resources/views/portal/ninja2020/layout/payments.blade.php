@@ -11,7 +11,7 @@
 @endpush
 
 @section('body')
-    @livewire('required-client-info', ['gateway' => $gateway])
+    @livewire('required-client-info', ['gateway' => $gateway, 'contact' => auth('contact')->user()])
 
     <div class="container mx-auto grid grid-cols-12 hidden" data-ref="gateway-container">
         <div class="col-span-12 lg:col-span-6 lg:col-start-4 overflow-hidden bg-white shadow rounded-lg">
