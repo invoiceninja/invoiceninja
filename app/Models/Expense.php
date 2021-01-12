@@ -55,7 +55,7 @@ class Expense extends BaseModel
         'tax_amount2',
         'tax_amount3',
         'uses_inclusive_taxes',
-        'amount_is_pretax',
+        'calculate_tax_by_amount',
     ];
 
     protected $casts = [

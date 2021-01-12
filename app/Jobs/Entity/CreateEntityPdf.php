@@ -108,7 +108,6 @@ class CreateEntityPdf implements ShouldQueue
             $entity_design_id = 'credit_design_id';
         }
 
-
         $file_path = $path.$this->entity->number.'.pdf';
 
         $entity_design_id = $this->entity->design_id ? $this->entity->design_id : $this->decodePrimaryKey($this->entity->client->getSetting($entity_design_id));
@@ -144,10 +143,6 @@ class CreateEntityPdf implements ShouldQueue
         $maker
             ->design($template)
             ->build();
-
-        //todo - move this to the client creation stage so we don't keep hitting this unnecessarily
-        //nlog("make dir => {$path}");
-        //Storage::makeDirectory($path, 0775);
 
         $pdf = null;
 

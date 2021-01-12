@@ -468,4 +468,16 @@ class BaseDriver extends AbstractPaymentDriver
     {
         return $this->company_gateway->id;
     }
+
+    public function logSuccessfulGatewayResponse($response, $gateway_const)
+    {
+
+        SystemLogger::dispatch(
+            $response,
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_SUCCESS,
+            $gateway_const,
+            $this->client,
+        );
+    }
 }

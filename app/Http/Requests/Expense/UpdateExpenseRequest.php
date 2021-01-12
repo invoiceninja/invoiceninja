@@ -36,7 +36,7 @@ class UpdateExpenseRequest extends Request
         /* Ensure we have a client name, and that all emails are unique*/
 
         $rules['country_id'] = 'integer|nullable';
-        //$rules['id_number'] = 'unique:clients,id_number,,id,company_id,' . auth()->user()->company()->id;
+
         $rules['contacts.*.email'] = 'nullable|distinct';
 
         if (isset($this->number)) {

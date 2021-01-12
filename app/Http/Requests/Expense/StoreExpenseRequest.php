@@ -38,12 +38,9 @@ class StoreExpenseRequest extends Request
         if (isset($this->number)) {
             $rules['number'] = Rule::unique('expenses')->where('company_id', auth()->user()->company()->id);
         }
-        
-        // $rules['number'] = 'unique:expenses,number,'.$this->id.',id,company_id,'.auth()->user()->company()->id;
-        // $rules['contacts.*.email'] = 'nullable|distinct';
-        //$rules['number'] = new UniqueExpenseNumberRule($this->all());
-        $rules['client_id'] = 'bail|sometimes|exists:clients,id,company_id,'.auth()->user()->company()->id;
 
+        if(!empty($this->client_id))
+            $rules['client_id'] = 'bail|sometimes|exists:clients,id,company_id,'.auth()->user()->company()->id;
 
         return $this->globalRules($rules);
     }
