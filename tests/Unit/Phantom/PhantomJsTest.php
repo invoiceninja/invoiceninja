@@ -35,6 +35,7 @@ class PhantomJsTest extends TestCase
 
     public function testInValidPdfMime()
     {
+
     	$pdf = file_get_contents(base_path('/tests/Unit/Phantom/invalid.pdf'));
 
         $finfo = new \finfo(FILEINFO_MIME);
