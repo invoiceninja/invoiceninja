@@ -140,11 +140,6 @@ class AuthorizeCreditCard
     }
 
 
-
-
-
-
-
     private function handleResponse($data, $request)
     {
         $response = $data['response'];
@@ -205,7 +200,12 @@ class AuthorizeCreditCard
             'data' => $this->formatGatewayResponse($data, $vars),
         ];
 
-        SystemLogger::dispatch($logger_message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_AUTHORIZE, $this->authorize->client);
+        SystemLogger::dispatch(
+            $logger_message, 
+            SystemLog::CATEGORY_GATEWAY_RESPONSE, 
+            SystemLog::EVENT_GATEWAY_SUCCESS, 
+            SystemLog::TYPE_AUTHORIZE, 
+            $this->authorize->client);
 
         return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
     }
