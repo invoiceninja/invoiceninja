@@ -47,10 +47,10 @@ class GetInvoicePdf extends AbstractService
             $file_path = CreateEntityPdf::dispatchNow($invitation);
         }
 
-
-        return TempFile::path(Storage::disk($disk)->url($file_path));
+        if(config('filesystems.default') == 's3')
+            return TempFile::path(Storage::disk($disk)->url($file_path));
 
         // return Storage::disk($disk)->url($file_path);
-        // return Storage::disk($disk)->path($file_path);
+        return Storage::disk($disk)->path($file_path);
     }
 }
