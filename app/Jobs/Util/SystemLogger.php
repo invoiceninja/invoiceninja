@@ -33,7 +33,7 @@ class SystemLogger implements ShouldQueue
 
     protected $client;
 
-    public function __construct($log, $category_id, $event_id, $type_id, Client $client)
+    public function __construct($log, $category_id, $event_id, $type_id, ?Client $client)
     {
         $this->log = $log;
         $this->category_id = $category_id;
