@@ -11,7 +11,9 @@
 @endpush
 
 @section('body')
-    <div class="container mx-auto grid grid-cols-12">
+    @livewire('required-client-info', ['gateway' => $gateway])
+
+    <div class="container mx-auto grid grid-cols-12 hidden" data-ref="gateway-container">
         <div class="col-span-12 lg:col-span-6 lg:col-start-4 overflow-hidden bg-white shadow rounded-lg">
             <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
                 @isset($card_title)
@@ -19,6 +21,7 @@
                         {{ $card_title }}
                     </h3>
                 @endisset
+
                 @isset($card_description)
                     <p class="max-w-2xl mt-1 text-sm leading-5 text-gray-500">
                         {{ $card_description }}
@@ -34,4 +37,11 @@
 
 @push('footer')
     @yield('gateway_footer')
+
+    <script>
+        Livewire.on('passed-required-fields-check', () => {
+            document.querySelector('div[data-ref="required-fields-container"]').classList.add('hidden');
+            document.querySelector('div[data-ref="gateway-container"]').classList.remove('hidden');
+        });
+    </script>
 @endpush
