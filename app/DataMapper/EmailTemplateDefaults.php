@@ -223,6 +223,9 @@ class EmailTemplateDefaults
 
     private static function transformText($string)
     {
+        //preformat the string, removing trailing colons.
+        $string = rtrim($string, ":");
+
         return str_replace(':', '$', ctrans('texts.'.$string));
     }
 }
