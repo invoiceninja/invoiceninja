@@ -1,6 +1,6 @@
 <style>
     :root {
-        --primary-color: {{ $settings->primary_color }};
+        --primary-color: {{ isset($settings) ? optional($settings)->primary_color : '#1c64f2' }};
     }
 
     .bg-primary {
@@ -8,7 +8,7 @@
     }
 
     .bg-primary-darken {
-        background-color: vaR(--primary-color);
+        background-color: var(--primary-color);
         filter: brightness(90%);
     }
 

@@ -19,7 +19,11 @@
                             </div>
                         </div>
                         <div class="mt-5 sm:mt-0 sm:ml-6 sm:flex-shrink-0 sm:flex sm:items-center">
-                            <div class="inline-flex rounded-md shadow-sm">
+                            <a href="{{ route('client.invoice.show', $invoice->hashed_id) }}" class="mr-4 text-primary">
+                                &#8592; {{ ctrans('texts.client_portal') }}
+                            </a>
+
+                            <div class="inline-flex items-center rounded-md shadow-sm">
                                 <input type="hidden" name="invoices[]" value="{{ $invoice->hashed_id }}">
                                 <input type="hidden" name="action" value="payment">
                                 <button class="button button-primary bg-primary">{{ ctrans('texts.pay_now') }}</button>

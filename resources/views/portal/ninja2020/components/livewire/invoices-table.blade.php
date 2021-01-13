@@ -104,8 +104,8 @@
                                         </button>
                                     </form>
                                 @endif
-                                <a href="{{ route('client.invoice.show', $invoice->hashed_id) }}" class="button-link text-primary">
-                                    @lang('texts.view')
+                                <a href="{{ route('client.invoice.show', $invoice->hashed_id) }}?mode=fullscreen" class="button-link text-primary">
+                                    {{ ctrans('texts.view') }}
                                 </a>
                             </td>
                         </tr>
