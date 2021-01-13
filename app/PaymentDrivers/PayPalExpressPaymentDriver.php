@@ -80,12 +80,6 @@ class PayPalExpressPaymentDriver extends BaseDriver
 
     public function processPaymentView($data)
     {
-        if (count($this->required_fields) > 0) {
-            return redirect()
-                ->route('client.profile.edit', ['client_contact' => auth()->user()->hashed_id])
-                ->with('missing_required_fields', $this->required_fields);
-        }
-
         $this->initializeOmnipayGateway();
 
         $this->payment_hash->data = array_merge((array) $this->payment_hash->data, ['amount' => $data['total']['amount_with_fee']]);
@@ -120,12 +114,6 @@ class PayPalExpressPaymentDriver extends BaseDriver
 
     public function processPaymentResponse($request)
     {
-        if (count($this->required_fields) > 0) {
-            return redirect()
-                ->route('client.profile.edit', ['client_contact' => auth()->user()->hashed_id])
-                ->with('missing_required_fields', $this->required_fields);
-        }
-
         $this->initializeOmnipayGateway();
 
         $response = $this->omnipay_gateway
