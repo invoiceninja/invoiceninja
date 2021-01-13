@@ -96,9 +96,7 @@ class QuoteService
 
     public function markSent() :self
     {
-        $mark_sent = new MarkSent($this->quote->client, $this->quote);
-
-        $this->quote = $mark_sent->run();
+        $this->quote = (new MarkSent($this->quote->client, $this->quote))->run();
 
         return $this;
     }
