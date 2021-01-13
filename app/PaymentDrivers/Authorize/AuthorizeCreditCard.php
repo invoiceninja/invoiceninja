@@ -75,7 +75,7 @@ class AuthorizeCreditCard
             $client_gateway_token = $authorise_payment_method->createClientGatewayToken($payment_profile, $gateway_customer_reference);
         }
 
-        $data = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($gateway_customer_reference, $payment_profile_id, $data['total']['amount_with_fee']);
+        $data = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($gateway_customer_reference, $payment_profile_id, $data['amount_with_fee']);
 
         return $this->handleResponse($data, $request);
     }
@@ -201,10 +201,10 @@ class AuthorizeCreditCard
         ];
 
         SystemLogger::dispatch(
-            $logger_message, 
-            SystemLog::CATEGORY_GATEWAY_RESPONSE, 
-            SystemLog::EVENT_GATEWAY_SUCCESS, 
-            SystemLog::TYPE_AUTHORIZE, 
+            $logger_message,
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_SUCCESS,
+            SystemLog::TYPE_AUTHORIZE,
             $this->authorize->client);
 
         return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
