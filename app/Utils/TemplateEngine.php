@@ -150,11 +150,8 @@ class TemplateEngine
 
     private function entityValues($contact)
     {
-        //$data = $this->entity_obj->buildLabelsAndValues($contact);
 
         $data = (new HtmlEngine($this->entity_obj->invitations->first()))->generateLabelsAndValues();
-        // $arrKeysLength = array_map('strlen', array_keys($data));
-        // array_multisort($arrKeysLength, SORT_DESC, $data);
 
         $this->body = strtr($this->body, $data['labels']);
         $this->body = strtr($this->body, $data['values']);

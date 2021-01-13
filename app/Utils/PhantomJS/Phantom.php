@@ -11,10 +11,12 @@
 
 namespace App\Utils\PhantomJS;
 
+use App\Jobs\Util\SystemLogger;
 use App\Models\CreditInvitation;
 use App\Models\Design;
 use App\Models\InvoiceInvitation;
 use App\Models\QuoteInvitation;
+use App\Models\SystemLog;
 use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\PdfMaker\PdfMaker as PdfMakerService;
@@ -77,7 +79,7 @@ class Phantom
         $phantom_url = "https://phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$url}%22,renderType:%22pdf%22%7D";
         $pdf = CurlUtils::get($phantom_url);
 
-        // Storage::makeDirectory($path, 0775);
+        $this->checkMime($pdf, $invitation, $entity);
 
         $instance = Storage::disk(config('filesystems.default'))->put($file_path, $pdf);
 
@@ -99,6 +101,36 @@ class Phantom
         $response->header('Content-Type', 'application/pdf');
 
         return $response;
+    }
+
+    /* Check if the returning PDF is valid. */
+    private function checkMime($pdf, $invitation, $entity)
+    {
+
+        $finfo = new \finfo(FILEINFO_MIME);
+
+        if($finfo->buffer($pdf) != 'application/pdf; charset=binary')
+        {
+            SystemLogger::dispatch(
+                $pdf,
+                SystemLog::CATEGORY_PDF,
+                SystemLog::EVENT_PDF_RESPONSE,
+                SystemLog::TYPE_PDF_FAILURE,
+                $invitation->contact->client
+            );
+        }
+        else {
+
+            SystemLogger::dispatch(
+                "Entity PDF generated sucessfully => " . $invitation->{$entity}->number,
+                SystemLog::CATEGORY_PDF,
+                SystemLog::EVENT_PDF_RESPONSE,
+                SystemLog::TYPE_PDF_SUCCESS,
+                $invitation->contact->client
+            );
+
+        }
+
     }
 
     public function displayInvitation(string $entity, string $invitation_key)
