@@ -47,14 +47,10 @@ class InvitationController extends Controller
 
         $entity_obj = 'App\Models\\'.ucfirst(Str::camel($entity)).'Invitation';
 
-nlog($entity);
-nlog($entity_obj);
-
         $invitation = $entity_obj::whereRaw('BINARY `key`= ?', [$invitation_key])
                                     ->with('contact.client')
                                     ->firstOrFail();
 
-nlog($invitation->getLink());
 
         /* Return early if we have the correct client_hash embedded */
 

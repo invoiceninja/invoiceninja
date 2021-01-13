@@ -39,9 +39,9 @@ class StoreUserRequest extends Request
         $rules['last_name'] = 'required|string|max:100';
 
         if (config('ninja.db.multi_db_enabled')) {
-            $rules['email'] = ['email:rfc,dns', new ValidUserForCompany(), Rule::unique('users')];
+            $rules['email'] = ['email', new ValidUserForCompany(), Rule::unique('users')];
         } else {
-            $rules['email'] = ['email:rfc,dns',Rule::unique('users')];
+            $rules['email'] = ['email',Rule::unique('users')];
         }
 
 
