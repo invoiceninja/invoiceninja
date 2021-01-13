@@ -31,7 +31,7 @@ const RESOURCES = {
 "assets/fonts/MaterialIcons-Regular.otf": "1288c9e28052e028aba623321f7826ac",
 "/": "23224b5e03519aaa87594403d54412cf",
 "version.json": "6b7a4ad416a3730ae32b64e007cef7f3",
-"main.dart.js": "6549a663b7a73648e5a67044d668523b",
+"main.dart.js": "ef2ed4cc194dd16d85ab85db7f0e155f",
 "favicon.png": "dca91c54388f52eded692718d5a98b8b"
 };
 
