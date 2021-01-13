@@ -77,7 +77,6 @@ trait GenerateMigrationResources
             'industry_id' => $this->account->industry_id,
             'ip' => $this->account->ip,
             'company_key' => $this->account->account_key,
-            'logo' => $this->account->logo,
             'convert_products' => $this->account->convert_products,
             'fill_products' => $this->account->fill_products,
             'update_products' => $this->account->update_products,
