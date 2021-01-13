@@ -226,6 +226,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         CreditWasUpdated::class => [
             UpdatedCreditActivity::class,
+            CreateInvoicePdf::class,
         ],
         CreditWasEmailedAndFailed::class => [
         ],
@@ -334,6 +335,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         QuoteWasUpdated::class => [
             QuoteUpdatedActivity::class,
+            CreateInvoicePdf::class,
         ],
         QuoteWasEmailed::class => [
             QuoteEmailActivity::class,

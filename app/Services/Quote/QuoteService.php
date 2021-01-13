@@ -58,9 +58,9 @@ class QuoteService
             return $this;
         }
 
-        $convert_quote = new ConvertQuote($this->quote->client);
+        $convert_quote = (new ConvertQuote($this->quote->client))->run($this->quote);
 
-        $this->invoice = $convert_quote->run($this->quote);
+        $this->invoice = $convert_quote;
 
         $this->quote->fresh();
 
