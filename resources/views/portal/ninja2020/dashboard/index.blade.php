@@ -12,5 +12,5 @@
 @endsection
 
 @section('body')
-    This page is empty, sad and alone.
+    Coming soon.
 @endsection
