@@ -39,6 +39,7 @@ class EntitySentMailer extends BaseMailerJob implements ShouldQueue
 
     public $settings;
 
+    public $template;
     /**
      * Create a new job instance.
      *
@@ -47,7 +48,7 @@ class EntitySentMailer extends BaseMailerJob implements ShouldQueue
      * @param $user
      * @param $company
      */
-    public function __construct($invitation, $entity_type, $user, $company)
+    public function __construct($invitation, $entity_type, $user, $company, $template)
     {
         $this->company = $company;
 
@@ -60,6 +61,8 @@ class EntitySentMailer extends BaseMailerJob implements ShouldQueue
         $this->entity_type = $entity_type;
 
         $this->settings = $invitation->contact->client->getMergedSettings();
+    
+        $this->template = $template;
     }
 
     /**
@@ -69,6 +72,8 @@ class EntitySentMailer extends BaseMailerJob implements ShouldQueue
      */
     public function handle()
     {
+        nlog("entity sent mailer");
+        
         /*If we are migrating data we don't want to fire these notification*/
         if ($this->company->is_disabled) {
             return true;
@@ -80,7 +85,7 @@ class EntitySentMailer extends BaseMailerJob implements ShouldQueue
         //if we need to set an email driver do it now
         $this->setMailDriver();
 
-        $mail_obj = (new EntitySentObject($this->invitation, $this->entity_type))->build();
+        $mail_obj = (new EntitySentObject($this->invitation, $this->entity_type, $this->template))->build();
         $mail_obj->from = [config('mail.from.address'), config('mail.from.name')];
 
         try {

@@ -28,17 +28,26 @@ class EntitySentObject
 
     public $settings;
 
-    public function __construct($invitation, $entity_type)
+    public $template;
+
+    private $template_subject;
+
+    private $template_body;
+
+    public function __construct($invitation, $entity_type, $template)
     {
         $this->invitation = $invitation;
         $this->entity_type = $entity_type;
         $this->entity = $invitation->{$entity_type};
         $this->contact = $invitation->contact;
         $this->company = $invitation->company;
+        $this->template = $template;
     }
 
     public function build()
     {
+        $this->setTemplate();
+
         $mail_obj = new stdClass;
         $mail_obj->amount = $this->getAmount();
         $mail_obj->subject = $this->getSubject();
@@ -47,6 +56,47 @@ class EntitySentObject
         $mail_obj->tag = $this->company->company_key;
 
         return $mail_obj;
+    }
+
+    private function setTemplate()
+    {
+        nlog($this->template);
+
+        switch ($this->template) {
+            case 'invoice':
+                $this->template_subject = "texts.notification_invoice_sent_subject";
+                $this->template_body = "texts.notification_invoice_sent";
+                break;
+            case 'reminder1':
+                $this->template_subject = "texts.notification_invoice_reminder1_sent_subject";
+                $this->template_body = "texts.notification_invoice_sent";
+                break;
+            case 'reminder2':
+                $this->template_subject = "texts.notification_invoice_reminder2_sent_subject";
+                $this->template_body = "texts.notification_invoice_sent";
+                break;
+            case 'reminder3':
+                $this->template_subject = "texts.notification_invoice_reminder3_sent_subject";
+                $this->template_body = "texts.notification_invoice_sent";
+                break;
+            case 'reminder_endless':
+                $this->template_subject = "texts.notification_invoice_reminder_endless_sent_subject";
+                $this->template_body = "texts.notification_invoice_sent";
+                break;
+            case 'quote':
+                $this->template_subject = "texts.notification_quote_sent_subject";
+                $this->template_body = "texts.notification_quote_sent";
+                break;
+            case 'credit':
+                $this->template_subject = "texts.notification_credit_sent_subject";
+                $this->template_body = "texts.notification_credit_sent";
+                break;
+
+            default:
+                $this->template_subject = "texts.notification_invoice_sent_subject";
+                $this->template_body = "texts.notification_invoice_sent";
+                break;
+        }
     }
 
     private function getAmount()
@@ -58,7 +108,7 @@ class EntitySentObject
     {
         return
             ctrans(
-                "texts.notification_{$this->entity_type}_sent_subject",
+                $this->template_subject,
                 [
                         'client' => $this->contact->present()->name(),
                         'invoice' => $this->entity->number,
@@ -73,7 +123,7 @@ class EntitySentObject
         return [
             'title' => $this->getSubject(),
             'message' => ctrans(
-                "texts.notification_{$this->entity_type}_sent",
+                $this->template_body,
                 [
                     'amount' => $this->getAmount(),
                     'client' => $this->contact->present()->name(),
