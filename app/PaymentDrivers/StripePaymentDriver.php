@@ -149,6 +149,13 @@ class StripePaymentDriver extends BaseDriver
         }
     }
 
+    public function getClientRequiredFields(): array
+    {
+        return [
+            ['name' => 'client_postal_code', 'label' => ctrans('texts.postal_code'), 'type' => 'text', 'validation' => 'required'],
+        ];
+    }
+
     /**
      * Proxy method to pass the data into payment method authorizeView().
      *
@@ -157,12 +164,6 @@ class StripePaymentDriver extends BaseDriver
      */
     public function authorizeView(array $data)
     {
-        if (count($this->required_fields) > 0) {
-            return redirect()
-                ->route('client.profile.edit', ['client_contact' => auth()->user()->hashed_id])
-                ->with('missing_required_fields', $this->required_fields);
-        }
-
         return $this->payment_method->authorizeView($data);
     }
 
@@ -174,12 +175,6 @@ class StripePaymentDriver extends BaseDriver
      */
     public function authorizeResponse($request)
     {
-        if (count($this->required_fields) > 0) {
-            return redirect()
-                ->route('client.profile.edit', ['client_contact' => auth()->user()->hashed_id])
-                ->with('missing_required_fields', $this->required_fields);
-        }
-
         return $this->payment_method->authorizeResponse($request);
     }
 
@@ -191,23 +186,11 @@ class StripePaymentDriver extends BaseDriver
      */
     public function processPaymentView(array $data)
     {
-        if (count($this->required_fields) > 0) {
-            return redirect()
-                ->route('client.profile.edit', ['client_contact' => auth()->user()->hashed_id])
-                ->with('missing_required_fields', $this->required_fields);
-        }
-
         return $this->payment_method->paymentView($data);
     }
 
     public function processPaymentResponse($request) //We never have to worry about unsuccessful payments as failures are handled at the front end for this driver.
     {
-        if (count($this->required_fields) > 0) {
-            return redirect()
-                ->route('client.profile.edit', ['client_contact' => auth()->user()->hashed_id])
-                ->with('missing_required_fields', $this->required_fields);
-        }
-
         return $this->payment_method->paymentResponse($request);
     }
 

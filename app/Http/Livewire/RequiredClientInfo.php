@@ -27,14 +27,6 @@ class RequiredClientInfo extends Component
      */
     public $contact;
 
-
-    /**
-     * Instance of payment gateway. Used for getting the required fields.
-     *
-     * @var mixed
-     */
-    private $gateway;
-
     /**
      * Mappings for updating the database. Left side is mapping from gateway,
      * right side is column in database.
@@ -65,6 +57,8 @@ class RequiredClientInfo extends Component
         'contact_email' => 'email',
         'contact_phone' => 'phone',
     ];
+
+    public $show_form = true;
 
     public function handleSubmit(array $data): bool
     {
@@ -124,24 +118,28 @@ class RequiredClientInfo extends Component
         return false;
     }
 
+    public function checkFields()
+    {
+        foreach ($this->fields as $field) {
+            $_field = $this->mappings[$field['name']];
+
+            if (Str::startsWith($field['name'], 'client_')) {
+                (empty($this->contact->client->{$_field}) || is_null($this->contact->client->{$_field}))
+                    ? $this->show_form = true
+                    : $this->show_form = false;
+            }
+
+            if (Str::startsWith($field['name'], 'contact_')) {
+                (empty($this->contact->{$_field}) || is_null($this->contact->{$_field}))
+                    ? $this->show_form = true
+                    : $this->show_form = false;
+            }
+        }
+    }
+
     public function render()
     {
-        // This will be coming from the gateway itself. Something like $gateway->getRequiredRules();
-
-        $this->fields = [
-            [
-                'name' => 'client_name',
-                'label' => ctrans('texts.name'),
-                'type' => 'text',
-                'validation_rules' => 'required|min:3'
-            ],
-            [
-                'name' => 'contact_phone',
-                'label' => ctrans('texts.phone'),
-                'type' => 'number',
-                'validation_rules' => 'required|min:2',
-            ],
-        ];
+        $this->checkFields();
 
         return render('components.livewire.required-client-info');
     }
