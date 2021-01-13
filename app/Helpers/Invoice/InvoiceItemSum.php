@@ -88,9 +88,11 @@ class InvoiceItemSum
         return $this;
     }
 
+    /* Don't round the cost x qty - will allow us to use higher precision costs */
     private function sumLineItem()
     {   //todo need to support quantities less than the precision amount
-        $this->setLineTotal($this->formatValue($this->item->cost, $this->currency->precision) * $this->formatValue($this->item->quantity, $this->currency->precision));
+        // $this->setLineTotal($this->formatValue($this->item->cost, $this->currency->precision) * $this->formatValue($this->item->quantity, $this->currency->precision));
+        $this->setLineTotal($this->item->cost * $this->item->quantity);
 
         return $this;
     }
@@ -112,8 +114,8 @@ class InvoiceItemSum
     {
         $item_tax = 0;
 
-        // info(print_r($this->item,1));
-        // info(print_r($this->invoice,1));
+        // nlog(print_r($this->item,1));
+        // nlog(print_r($this->invoice,1));
 
         $amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount / 100));
         $item_tax_rate1_total = $this->calcAmountLineTax($this->item->tax_rate1, $amount);
