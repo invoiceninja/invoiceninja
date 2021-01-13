@@ -139,7 +139,9 @@ class RequiredClientInfo extends Component
 
     public function render()
     {
-        $this->checkFields();
+        count($this->fields) > 0
+            ? $this->checkFields()
+            : $this->show_form = false;
 
         return render('components.livewire.required-client-info');
     }
