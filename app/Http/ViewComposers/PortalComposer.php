@@ -21,6 +21,8 @@ use Illuminate\View\View;
  */
 class PortalComposer
 {
+    public $settings;
+
     /**
      * Bind data to the view.
      *
@@ -45,13 +47,15 @@ class PortalComposer
             return [];
         }
 
+        $this->settings = auth()->user()->client->getMergedSettings();
+
         $data['sidebar'] = $this->sidebarMenu();
         $data['header'] = [];
         $data['footer'] = [];
         $data['countries'] = TranslationHelper::getCountries();
         $data['company'] = auth()->user()->company;
         $data['client'] = auth()->user()->client;
-        $data['settings'] = auth()->user()->client->getMergedSettings();
+        $data['settings'] = $this->settings;
         $data['currencies'] = TranslationHelper::getCurrencies();
 
         $data['multiple_contacts'] = session()->get('multiple_contacts');
@@ -63,7 +67,9 @@ class PortalComposer
     {
         $data = [];
 
-        // $data[] = [ 'title' => ctrans('texts.dashboard'), 'url' => 'client.dashboard', 'icon' => 'activity'];
+        if($this->settings->enable_client_portal_dashboard == TRUE)
+            $data[] = [ 'title' => ctrans('texts.dashboard'), 'url' => 'client.dashboard', 'icon' => 'activity'];
+        
         $data[] = ['title' => ctrans('texts.invoices'), 'url' => 'client.invoices.index', 'icon' => 'file-text'];
         $data[] = ['title' => ctrans('texts.recurring_invoices'), 'url' => 'client.recurring_invoices.index', 'icon' => 'file'];
         $data[] = ['title' => ctrans('texts.payments'), 'url' => 'client.payments.index', 'icon' => 'credit-card'];

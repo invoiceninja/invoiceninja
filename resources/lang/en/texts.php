@@ -3242,7 +3242,7 @@ return [
 
     'checkout_com' => 'Checkout.com',
 
-    'footer_label' => 'Copyright © :year :company. All rights reserved.',
+    'footer_label' => 'Copyright © :year :company.',
 
     'credit_card_invalid' => 'Provided credit card number is not valid.',
     'month_invalid' => 'Provided month is not valid.',

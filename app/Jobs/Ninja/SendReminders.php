@@ -216,7 +216,7 @@ class SendReminders implements ShouldQueue
 
 
         if ($this->checkSendSetting($invoice, $template)) {
-            event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars()));
+            event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars(), $template));
         }
             
         $invoice->last_sent_date = now();

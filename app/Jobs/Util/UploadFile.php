@@ -66,6 +66,9 @@ class UploadFile implements ShouldQueue
      */
     public function handle() : ?Document
     {
+        if(!$this->file)
+            return null;
+
         $path = self::PROPERTIES[$this->type]['path'];
 
         if ($this->company) {

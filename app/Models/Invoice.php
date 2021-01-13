@@ -63,7 +63,6 @@ class Invoice extends BaseModel
         'terms',
         'public_notes',
         'private_notes',
-        'invoice_type_id',
         'tax_name1',
         'tax_rate1',
         'tax_name2',
@@ -434,12 +433,11 @@ class Invoice extends BaseModel
         return $this->calc()->getTotal();
     }
 
-
-    public function entityEmailEvent($invitation, $reminder_template)
+    public function entityEmailEvent($invitation, $reminder_template, $template)
     {
         switch ($reminder_template) {
             case 'invoice':
-                event(new InvoiceWasEmailed($invitation, $invitation->company, Ninja::eventVars()));
+                event(new InvoiceWasEmailed($invitation, $invitation->company, Ninja::eventVars(), $template));
                 break;
             case 'reminder1':
                 event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(), Activity::INVOICE_REMINDER1_SENT));

@@ -51,7 +51,7 @@ class CreditEmailedNotification implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false && $first_notification_sent === true) {
                 unset($methods[$key]);
 
-                EntitySentMailer::dispatch($event->invitation, 'credit', $user, $event->invitation->company);
+                EntitySentMailer::dispatch($event->invitation, 'credit', $user, $event->invitation->company, $event->template);
                 $first_notification_sent = false;
             }
 

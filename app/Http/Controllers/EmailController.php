@@ -140,15 +140,13 @@ class EmailController extends BaseController
         $entity_obj->save();
 
         /*Only notify the admin ONCE, not once per contact/invite*/
-        // $invitation = $entity_obj->invitations->first();
-        // EntitySentMailer::dispatch($invitation, $entity_string, $entity_obj->user, $invitation->company);
 
         if ($entity_obj instanceof Invoice) {
             $this->entity_type = Invoice::class;
             $this->entity_transformer = InvoiceTransformer::class;
 
             if ($entity_obj->invitations->count() >= 1) {
-                $entity_obj->entityEmailEvent($entity_obj->invitations->first(), 'invoice');
+                $entity_obj->entityEmailEvent($entity_obj->invitations->first(), 'invoice', $template);
             }
         }
 
@@ -157,7 +155,7 @@ class EmailController extends BaseController
             $this->entity_transformer = QuoteTransformer::class;
 
             if ($entity_obj->invitations->count() >= 1) {
-                event(new QuoteWasEmailed($entity_obj->invitations->first(), $entity_obj->company, Ninja::eventVars()));
+                event(new QuoteWasEmailed($entity_obj->invitations->first(), $entity_obj->company, Ninja::eventVars(), 'quote'));
             }
         }
 
@@ -166,7 +164,7 @@ class EmailController extends BaseController
             $this->entity_transformer = CreditTransformer::class;
 
             if ($entity_obj->invitations->count() >= 1) {
-                event(new CreditWasEmailed($entity_obj->invitations->first(), $entity_obj->company, Ninja::eventVars()));
+                event(new CreditWasEmailed($entity_obj->invitations->first(), $entity_obj->company, Ninja::eventVars(), 'credit'));
             }
         }
 

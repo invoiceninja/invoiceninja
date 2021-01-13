@@ -32,6 +32,7 @@ use App\Transformers\CompanyTransformer;
 use App\Transformers\CompanyUserTransformer;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SavesDocuments;
 use App\Utils\Traits\Uploadable;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
@@ -47,6 +48,7 @@ class CompanyController extends BaseController
     use DispatchesJobs;
     use MakesHash;
     use Uploadable;
+    use SavesDocuments;
 
     protected $entity_type = Company::class;
 
@@ -402,14 +404,17 @@ class CompanyController extends BaseController
      */
     public function update(UpdateCompanyRequest $request, Company $company)
     {
-        if ($request->hasFile('company_logo') || (is_array($request->input('settings')) && !array_key_exists('company_logo', $request->input('settings')))) {
+        if ($request->hasFile('company_logo') || (is_array($request->input('settings')) && !array_key_exists('company_logo', $request->input('settings')))) 
             $this->removeLogo($company);
-        }
+        
 
         $company = $this->company_repo->save($request->all(), $company);
 
         $company->saveSettings($request->input('settings'), $company);
 
+        if ($request->has('documents')) 
+            $this->saveDocuments($request->input('documents'), $company, false);
+        
         $this->uploadLogo($request->file('company_logo'), $company, $company);
 
         return $this->itemResponse($company);

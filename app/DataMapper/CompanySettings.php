@@ -30,7 +30,7 @@ class CompanySettings extends BaseSettings
     public $enable_client_portal_tasks = false; //@ben to implement
     public $enable_client_portal_password = false; //@implemented
     public $enable_client_portal = true; //@implemented
-    public $enable_client_portal_dashboard = true; // @TODO There currently is no dashboard so this is pending
+    public $enable_client_portal_dashboard = false; // @TODO There currently is no dashboard so this is pending
     public $signature_on_pdf = false; //@implemented
     public $document_email_attachment = false; //@TODO I assume this is 3rd party attachments on the entity to be included
 
@@ -634,6 +634,7 @@ class CompanySettings extends BaseSettings
                 '$product.description',
                 '$product.unit_cost',
                 '$product.quantity',
+                '$product.discount',
                 '$product.tax',
                 '$product.line_total',
             ],
@@ -642,6 +643,7 @@ class CompanySettings extends BaseSettings
                 '$task.description',
                 '$task.rate',
                 '$task.hours',
+                '$task.discount',
                 '$task.tax',
                 '$task.line_total',
             ],

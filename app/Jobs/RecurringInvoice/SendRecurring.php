@@ -94,10 +94,7 @@ class SendRecurring implements ShouldQueue
         nlog("last send date = " . $this->recurring_invoice->last_sent_date);
 
         $this->recurring_invoice->save();
-
-        //this is duplicated!!
-        // if ($invoice->invitations->count() > 0)
-            // event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars()));
+        
     }
 
     public function failed($exception = null)

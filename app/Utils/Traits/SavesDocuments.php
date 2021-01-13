@@ -22,9 +22,11 @@ trait SavesDocuments
         if ($entity instanceof Company) {
             $account = $entity->account;
             $company = $entity;
+            $user = auth()->user();
         } else {
             $account = $entity->company->account;
             $company = $entity->company;
+            $user = $entity->user;
         }
 
         if (! $account->hasFeature(Account::FEATURE_DOCUMENTS)) {
@@ -35,8 +37,8 @@ trait SavesDocuments
             $document = UploadFile::dispatchNow(
                 $document,
                 UploadFile::DOCUMENT,
-                $entity->user,
-                $entity->company,
+                $user,
+                $company,
                 $entity,
                 null,
                 $is_public
@@ -49,9 +51,11 @@ trait SavesDocuments
         if ($entity instanceof Company) {
             $account = $entity->account;
             $company = $entity;
+            $user = auth()->user();
         } else {
             $account = $entity->company->account;
             $company = $entity->company;
+            $user = $entity->user;
         }
 
         if (! $account->hasFeature(Account::FEATURE_DOCUMENTS)) {
@@ -61,8 +65,8 @@ trait SavesDocuments
         $document = UploadFile::dispatchNow(
             $document,
             UploadFile::DOCUMENT,
-            $entity->user,
-            $entity->company,
+            $user,
+            $company,
             $entity,
             null,
             $is_public
