@@ -66,7 +66,7 @@ class UploadFile implements ShouldQueue
      */
     public function handle() : ?Document
     {
-        if(!$this->file)
+        if(is_array($this->file)) //return early if the payload is just JSON
             return null;
 
         $path = self::PROPERTIES[$this->type]['path'];
