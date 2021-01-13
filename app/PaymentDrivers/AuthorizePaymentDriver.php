@@ -63,6 +63,14 @@ class AuthorizePaymentDriver extends BaseDriver
         return $types;
     }
 
+    public function getClientRequiredFields(): array
+    {
+        return [
+            ['name' => 'client_name', 'label' => ctrans('texts.name'), 'type' => 'text', 'validation' => 'required|min:2'],
+            ['name' => 'contact_email', 'label' => ctrans('texts.email'), 'type' => 'text', 'validation' => 'required|email:rfc'],
+        ];
+    }
+
     public function authorizeView($payment_method)
     {
         return (new AuthorizePaymentMethod($this))->authorizeView();
