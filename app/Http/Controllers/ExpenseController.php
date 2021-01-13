@@ -426,10 +426,9 @@ class ExpenseController extends BaseController
      */
     public function destroy(DestroyExpenseRequest $request, Expense $expense)
     {
-        //may not need these destroy routes as we are using actions to 'archive/delete'
-        $expense->delete();
+        $this->expense_repo->delete($expense);
 
-        return response()->json([], 200);
+        return $this->itemResponse($expense->fresh());
     }
 
     /**
