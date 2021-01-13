@@ -59,7 +59,7 @@ class Payment extends BaseModel
         'date',
         'transaction_reference',
         'number',
-        'is_manual',
+        // 'is_manual',
         'private_notes',
         'custom_value1',
         'custom_value2',

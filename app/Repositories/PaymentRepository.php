@@ -95,6 +95,7 @@ class PaymentRepository extends BaseRepository
 
         /*Fill the payment*/
         $payment->fill($data);
+        $payment->is_manual = true;
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->save();
 

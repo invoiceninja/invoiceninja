@@ -54,6 +54,7 @@ class StoreCreditRequest extends Request
         $rules['client_id'] = 'required|exists:clients,id,company_id,'.auth()->user()->company()->id;
 
         $rules['number'] = new UniqueCreditNumberRule($this->all());
+        $rules['line_items'] = 'array';
 
         return $rules;
     }

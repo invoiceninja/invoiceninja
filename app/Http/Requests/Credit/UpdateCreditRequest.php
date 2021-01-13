@@ -56,6 +56,8 @@ class UpdateCreditRequest extends Request
             $rules['number'] = 'unique:credits,number,'.$this->id.',id,company_id,'.$this->credit->company_id;
         }
 
+        $rules['line_items'] = 'array';
+
         return $rules;
     }
 

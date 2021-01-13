@@ -21,7 +21,7 @@ trait CleanLineItems
 {
     public function cleanItems($items) :array
     {
-        if (! isset($items)) {
+        if (! isset($items) || !is_array($items)) {
             return [];
         }
 
