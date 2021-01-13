@@ -43,7 +43,6 @@ class InvoiceTransformer extends EntityTransformer
             'terms' => $invoice->terms ?: '',
             'public_notes' => $invoice->public_notes ?: '',
             'is_deleted' => (bool) $invoice->is_deleted,
-            'invoice_type_id' => (int) $invoice->invoice_type_id,
             'tax_name1' => $invoice->tax_name1 ? $invoice->tax_name1 : '',
             'tax_rate1' => (float) $invoice->tax_rate1,
             'tax_name2' => $invoice->tax_name2 ? $invoice->tax_name2 : '',
