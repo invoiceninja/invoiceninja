@@ -22,7 +22,7 @@
                     <div class="sm:flex sm:items-start sm:justify-between">
                         <div>
                             <h3 class="text-lg leading-6 font-medium text-gray-900">
-                                {{ ctrans('texts.unpaid') }}
+                                {{ ctrans('texts.invoice_number_placeholder', ['invoice' => $invoice->number])}} - {{ ctrans('texts.unpaid') }}
                             </h3>
                             <div class="mt-2 max-w-xl text-sm leading-5 text-gray-500">
                                 <p translate>
@@ -42,6 +42,18 @@
                 </div>
             </div>
         </form>
+    @else
+    <div class="bg-white shadow sm:rounded-lg mb-4" translate>
+    <div class="px-4 py-5 sm:p-6">
+        <div class="sm:flex sm:items-start sm:justify-between">
+            <div>
+                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                    {{ ctrans('texts.invoice_number_placeholder', ['invoice' => $invoice->number])}} - {{ ctrans('texts.unpaid') }}
+                </h3>
+            </div>
+        </div>
+    </div>
+    </div>
     @endif
 
     <div class="flex items-center justify-between">
