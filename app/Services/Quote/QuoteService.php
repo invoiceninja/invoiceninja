@@ -22,7 +22,7 @@ class QuoteService
 {
     use MakesHash;
     
-    protected $quote;
+    public $quote;
 
     public $invoice;
 
@@ -33,9 +33,7 @@ class QuoteService
 
     public function createInvitations()
     {
-        $create_invitation = new CreateInvitations();
-
-        $this->quote = $create_invitation->run($this->quote);
+        $this->quote = (new CreateInvitations($this->quote))->run();
 
         return $this;
     }
@@ -58,9 +56,9 @@ class QuoteService
             return $this;
         }
 
-        $convert_quote = new ConvertQuote($this->quote->client);
+        $convert_quote = (new ConvertQuote($this->quote->client))->run($this->quote);
 
-        $this->invoice = $convert_quote->run($this->quote);
+        $this->invoice = $convert_quote;
 
         $this->quote->fresh();
 
@@ -96,9 +94,7 @@ class QuoteService
 
     public function markSent() :self
     {
-        $mark_sent = new MarkSent($this->quote->client, $this->quote);
-
-        $this->quote = $mark_sent->run();
+        $this->quote = (new MarkSent($this->quote->client, $this->quote))->run();
 
         return $this;
     }

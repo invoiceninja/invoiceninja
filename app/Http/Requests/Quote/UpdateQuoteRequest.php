@@ -50,6 +50,8 @@ class UpdateQuoteRequest extends Request
             $rules['number'] = 'unique:quotes,number,'.$this->id.',id,company_id,'.$this->quote->company_id;
         }
 
+        $rules['line_items'] = 'array';
+
         return $rules;
     }
 

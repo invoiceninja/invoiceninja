@@ -2,7 +2,7 @@
     <div class="flex flex-col w-64">
         <div class="flex items-center h-16 flex-shrink-0 px-4 bg-primary-darken justify-center">
             <a href="{{ route('client.dashboard') }}">
-                <img class="h-8 w-auto" src="{!! $settings->company_logo ?: asset('images/invoiceninja-white-logo.png') !!}" alt="{{ config('app.name') }}" />
+                <img class="h-8 w-auto" src="{!! $settings->company_logo ? url('') . $settings->company_logo : asset('images/invoiceninja-white-logo.png') !!}" alt="{{ config('app.name') }}" />
             </a>
         </div>
         <div class="h-0 flex-1 flex flex-col overflow-y-auto">

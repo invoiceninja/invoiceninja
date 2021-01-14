@@ -11,6 +11,7 @@
 
 namespace App\Services\Invoice;
 
+use App\Factory\ClientContactFactory;
 use App\Factory\InvoiceInvitationFactory;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
@@ -27,7 +28,17 @@ class CreateInvitations extends AbstractService
 
     public function run()
     {
-        $this->invoice->client->contacts->each(function ($contact) {
+
+        $contacts = $this->invoice->client->contacts;
+
+        if($contacts->count() == 0){
+            $this->createBlankContact();
+
+            $this->invoice->refresh();
+            $contacts = $this->invoice->client->contacts;
+        }
+
+        $contacts->each(function ($contact) {
             $invitation = InvoiceInvitation::whereCompanyId($this->invoice->company_id)
                                         ->whereClientContactId($contact->id)
                                         ->whereInvoiceId($this->invoice->id)
@@ -45,5 +56,14 @@ class CreateInvitations extends AbstractService
         });
 
         return $this->invoice;
+    }
+
+    private function createBlankContact()
+    {
+        $new_contact = ClientContactFactory::create($this->invoice->company_id, $this->invoice->user_id);
+        $new_contact->client_id = $this->invoice->client_id;
+        $new_contact->contact_key = Str::random(40);
+        $new_contact->is_primary = true;
+        $new_contact->save();
     }
 }

@@ -94,6 +94,7 @@ class StoreQuoteRequest extends Request
         }
 
         $rules['number'] = new UniqueQuoteNumberRule($this->all());
+        $rules['line_items'] = 'array';
 
         return $rules;
     }

@@ -34,7 +34,7 @@ class GetQuotePdf extends AbstractService
 
         $invitation = $this->quote->invitations->where('client_contact_id', $this->contact->id)->first();
 
-        $path = $this->quote->client->invoice_filepath();
+        $path = $this->quote->client->quote_filepath();
 
         $file_path = $path.$this->quote->number.'.pdf';
 

@@ -52,7 +52,6 @@ class Credit extends BaseModel
         'terms',
         'public_notes',
         'private_notes',
-        'invoice_type_id',
         'tax_name1',
         'tax_rate1',
         'tax_name2',

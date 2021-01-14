@@ -121,23 +121,11 @@ class CheckoutComPaymentDriver extends BaseDriver
 
     public function authorizeView($data)
     {
-        if (count($this->required_fields) > 0) {
-            return redirect()
-                ->route('client.profile.edit', ['client_contact' => auth()->user()->hashed_id])
-                ->with('missing_required_fields', $this->required_fields);
-        }
-
         return $this->payment_method->authorizeView($data);
     }
 
     public function authorizeResponse($data)
     {
-        if (count($this->required_fields) > 0) {
-            return redirect()
-                ->route('client.profile.edit', ['client_contact' => auth()->user()->hashed_id])
-                ->with('missing_required_fields', $this->required_fields);
-        }
-
         return $this->payment_method->authorizeResponse($data);
     }
 
@@ -149,12 +137,6 @@ class CheckoutComPaymentDriver extends BaseDriver
      */
     public function processPaymentView(array $data)
     {
-        if (count($this->required_fields) > 0) {
-            return redirect()
-                ->route('client.profile.edit', ['client_contact' => auth()->user()->hashed_id])
-                ->with('missing_required_fields', $this->required_fields);
-        }
-
         return $this->payment_method->paymentView($data);
     }
 
@@ -166,12 +148,6 @@ class CheckoutComPaymentDriver extends BaseDriver
      */
     public function processPaymentResponse($request)
     {
-        if (count($this->required_fields) > 0) {
-            return redirect()
-                ->route('client.profile.edit', ['client_contact' => auth()->user()->hashed_id])
-                ->with('missing_required_fields', $this->required_fields);
-        }
-
         return $this->payment_method->paymentResponse($request);
     }
 

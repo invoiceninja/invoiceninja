@@ -54,6 +54,8 @@ class UpdateInvoiceRequest extends Request
             $rules['number'] = 'unique:invoices,number,'.$this->id.',id,company_id,'.$this->invoice->company_id;
         }
 
+        $rules['line_items'] = 'array';
+
         return $rules;
     }
 

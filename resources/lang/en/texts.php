@@ -3242,7 +3242,7 @@ return [
 
     'checkout_com' => 'Checkout.com',
 
-    'footer_label' => 'Copyright © :year :company. All rights reserved.',
+    'footer_label' => 'Copyright © :year :company.',
 
     'credit_card_invalid' => 'Provided credit card number is not valid.',
     'month_invalid' => 'Provided month is not valid.',
@@ -3366,4 +3366,7 @@ return [
 
     'no_action_provided' => 'No action provided. If you believe this is wrong, please contact the support.',
     'no_payable_invoices_selected' => 'No payable invoices selected. Make sure you are not trying to pay draft invoice or invoice with zero balance due.',
+
+    'required_payment_information' => 'Required payment details',
+    'required_payment_information_more' => 'To complete a payment we need more details about you.',
 ];

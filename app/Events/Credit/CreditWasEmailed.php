@@ -27,6 +27,7 @@ class CreditWasEmailed
 
     public $event_vars;
 
+    public $template;
     /**
      * Create a new event instance.
      *
@@ -34,10 +35,11 @@ class CreditWasEmailed
      * @param Company $company
      * @param array $event_vars
      */
-    public function __construct(CreditInvitation $invitation, Company $company, array $event_vars)
+    public function __construct(CreditInvitation $invitation, Company $company, array $event_vars, string $template)
     {
         $this->invitation = $invitation;
         $this->company = $company;
         $this->event_vars = $event_vars;
+        $this->template = $template;
     }
 }

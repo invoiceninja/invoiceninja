@@ -10,7 +10,9 @@
  */
 namespace App\Jobs\Util;
 
+use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
+use App\Models\SystemLog;
 use App\Models\Webhook;
 use App\Transformers\ArraySerializer;
 use GuzzleHttp\Client;
@@ -113,6 +115,15 @@ class WebhookHandler implements ShouldQueue
         if ($response->getStatusCode() == 410 || $response->getStatusCode() == 200) {
             $subscription->delete();
         }
+
+        SystemLogger::dispatch(
+                $e->getMessage(),
+                SystemLog::CATEGORY_WEBHOOK,
+                SystemLog::EVENT_WEBHOOK_RESPONSE,
+                SystemLog::TYPE_WEBHOOK_RESPONSE,
+                $this->company->clients->first(),
+            );
+
     }
 
     public function failed($exception)

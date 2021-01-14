@@ -69,7 +69,7 @@ class BaseDriver extends AbstractPaymentDriver
 
     /* Array of payment methods */
     public static $methods = [];
-    
+
     /** @var array */
     public $required_fields = [];
 
@@ -78,6 +78,16 @@ class BaseDriver extends AbstractPaymentDriver
         $this->company_gateway = $company_gateway;
         $this->invitation = $invitation;
         $this->client = $client;
+    }
+
+    /**
+     * Required fields for client to fill, to proceed with gateway actions.
+     *
+     * @return array[]
+     */
+    public function getClientRequiredFields(): array
+    {
+        return [];
     }
 
     /**

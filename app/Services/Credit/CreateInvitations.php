@@ -11,6 +11,7 @@
 
 namespace App\Services\Credit;
 
+use App\Factory\ClientContactFactory;
 use App\Factory\CreditInvitationFactory;
 use App\Models\Credit;
 use App\Models\CreditInvitation;
@@ -29,6 +30,13 @@ class CreateInvitations extends AbstractService
     {
         $contacts = $this->credit->client->contacts;
 
+        if($contacts->count() == 0){
+            $this->createBlankContact();
+
+            $this->credit->refresh();
+            $contacts = $this->credit->client->contacts;
+        }
+
         $contacts->each(function ($contact) {
             $invitation = CreditInvitation::whereCompanyId($this->credit->company_id)
                 ->whereClientContactId($contact->id)
@@ -46,5 +54,14 @@ class CreateInvitations extends AbstractService
         });
 
         return $this->credit;
+    }
+
+    private function createBlankContact()
+    {
+        $new_contact = ClientContactFactory::create($this->credit->company_id, $this->credit->user_id);
+        $new_contact->client_id = $this->credit->client_id;
+        $new_contact->contact_key = Str::random(40);
+        $new_contact->is_primary = true;
+        $new_contact->save();
     }
 }

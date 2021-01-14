@@ -3,7 +3,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -70,9 +70,14 @@ class AuthorizeAuthorizeCard {
 
             document.getElementById("dataDescriptor").value = response.opaqueData.dataDescriptor;
             document.getElementById("dataValue").value = response.opaqueData.dataValue;
-            document.getElementById("store_card").value = document.getElementById("store_card_checkbox").checked;
-            document.getElementById("server_response").submit();
 
+            let store_card_checkbox = document.getElementById("store_card_checkbox");
+
+            if (store_card_checkbox) {
+                document.getElementById("store_card").value = store_card_checkbox.checked;
+            }
+
+            document.getElementById("server_response").submit();
         }
 
         return false;

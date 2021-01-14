@@ -80,7 +80,7 @@ class StorePaymentRequest extends Request
             $input['amount'] = $invoices_total - $credits_total;
         }
 
-        $input['is_manual'] = true;
+        // $input['is_manual'] = true;
 
         if (! isset($input['date'])) {
             $input['date'] = now()->format('Y-m-d');

@@ -66,7 +66,7 @@ class ReminderJob implements ShouldQueue
                 });
 
                 if ($invoice->invitations->count() > 0) {
-                    event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars()));
+                    event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars(), $reminder_template));
                 }
             } else {
                 $invoice->next_send_date = null;

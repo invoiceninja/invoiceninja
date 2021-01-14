@@ -31,6 +31,8 @@ class InvoiceWasEmailed
 
     public $event_vars;
 
+    public $template;
+
     /**
      * Create a new event instance.
      *
@@ -38,10 +40,11 @@ class InvoiceWasEmailed
      * @param Company $company
      * @param array $event_vars
      */
-    public function __construct(InvoiceInvitation $invitation, Company $company, array $event_vars)
+    public function __construct(InvoiceInvitation $invitation, Company $company, array $event_vars, string $template)
     {
         $this->invitation = $invitation;
         $this->company = $company;
         $this->event_vars = $event_vars;
+        $this->template = $template;
     }
 }
