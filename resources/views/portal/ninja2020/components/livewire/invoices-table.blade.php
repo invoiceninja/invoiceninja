@@ -100,11 +100,11 @@
                                         <input type="hidden" name="invoices[]" value="{{ $invoice->hashed_id }}">
                                         <input type="hidden" name="action" value="payment">
                                         <button class="px-2 py-1 mr-3 text-xs uppercase button button-primary bg-primary" data-cy="pay-now">
-                                            @lang('texts.pay_now')
+                                            {{ ctrans('texts.pay_now') }}
                                         </button>
                                     </form>
                                 @endif
-                                <a href="{{ route('client.invoice.show', $invoice->hashed_id) }}?mode=fullscreen" class="button-link text-primary">
+                                <a href="{{ route('client.invoice.show', $invoice->hashed_id) }}" class="button-link text-primary">
                                     {{ ctrans('texts.view') }}
                                 </a>
                             </td>
