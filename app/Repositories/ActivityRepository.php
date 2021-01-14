@@ -70,7 +70,6 @@ class ActivityRepository extends BaseRepository
      */
     public function createBackup($entity, $activity)
     {
-        nlog($entity);
         
         if($entity instanceof User){
             
