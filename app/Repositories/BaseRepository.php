@@ -18,6 +18,7 @@ use App\Models\Company;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Quote;
+use App\Models\RecurringInvoice;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
@@ -162,7 +163,10 @@ class BaseRepository
 
         $state = [];
         $resource = explode('\\', $class->name)[2]; /** This will extract 'Invoice' from App\Models\Invoice */
-        $lcfirst_resource_id = lcfirst($resource).'_id';
+        $lcfirst_resource_id = lcfirst($resource).'_id'; //doesn't work for recurring.
+
+        if($class->name == RecurringInvoice::class)
+            $lcfirst_resource_id = 'recurring_invoice_id';
 
         $state['starting_amount'] = $model->amount;
 
@@ -290,6 +294,10 @@ class BaseRepository
 
         if ($class->name == Quote::class) {
             $model = $model->calc()->getQuote();
+        }
+
+        if($class->name == RecurringInvoice::class) {
+            $model = $model->calc()->getRecurringInvoice();
         }
 
         $model->save();
