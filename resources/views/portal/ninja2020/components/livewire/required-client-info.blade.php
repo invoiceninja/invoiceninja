@@ -1,4 +1,4 @@
-<div class="container mx-auto grid grid-cols-12" data-ref="required-fields-container">
+<div class="container mx-auto grid grid-cols-12 mb-4" data-ref="required-fields-container">
     <div class="col-span-12 lg:col-span-6 lg:col-start-4 overflow-hidden bg-white shadow rounded-lg">
         <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
             <h3 class="text-lg font-medium leading-6 text-gray-900">
@@ -22,10 +22,11 @@
             @endforeach
 
             @component('portal.ninja2020.components.general.card-element-single')
-                <div class="flex justify-end">
+                <div class="flex flex-col items-end">
                     <button class="button button-primary bg-primary">
-                        {{ trans('texts.next_step') }}
+                        {{ trans('texts.continue') }}
                     </button>
+                    <small class="mt-1 text-gray-800">{{ ctrans('texts.required_client_info_save_label') }}</small>
                 </div>
             @endcomponent
         </form>
@@ -35,7 +36,9 @@
         <script>
             document.addEventListener("DOMContentLoaded", function () {
                 document.querySelector('div[data-ref="required-fields-container"]').classList.add('hidden');
-                document.querySelector('div[data-ref="gateway-container"]').classList.remove('hidden');
+
+                document.querySelector('div[data-ref="gateway-container"]').classList.remove('opacity-25');
+                document.querySelector('div[data-ref="gateway-container"]').classList.remove('pointer-events-none');
             });
         </script>
     @endif
