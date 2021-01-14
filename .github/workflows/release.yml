@@ -47,7 +47,7 @@ jobs:
       - name: Cleanup Builds
         run: |
           sudo rm -rf bootstrap/cache/*
-         
+          sudo rm -rf node_modules
       - name: Build project # This would actually build your project, using zip for an example artifact
         run: |
           zip -r ./invoiceninja.zip ./
