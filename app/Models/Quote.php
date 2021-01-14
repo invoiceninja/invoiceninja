@@ -228,6 +228,7 @@ class Quote extends BaseModel
                 break;
             case self::STATUS_CONVERTED:
                 return '<h5><span class="badge badge-light">'.ctrans('texts.converted').'</span></h5>';
+                break;
             default:
                 // code...
                 break;
