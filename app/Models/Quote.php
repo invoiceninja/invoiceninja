@@ -226,6 +226,8 @@ class Quote extends BaseModel
             case self::STATUS_EXPIRED:
                 return '<h5><span class="badge badge-danger">'.ctrans('texts.expired').'</span></h5>';
                 break;
+            case self::STATUS_CONVERTED:
+                return '<h5><span class="badge badge-light">'.ctrans('texts.converted').'</span></h5>';
             default:
                 // code...
                 break;
