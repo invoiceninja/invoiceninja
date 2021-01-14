@@ -415,8 +415,12 @@ class Design extends BaseDesign
         $variables = $this->context['pdf_variables']['total_columns'];
 
         $elements = [
-            ['element' => 'div', 'elements' => [
-                ['element' => 'span', 'content' => '$entity.public_notes', 'properties' => ['data-ref' => 'total_table-public_notes-label', 'style' => 'text-align: left;']],
+            ['element' => 'div', 'properties' => ['style' => 'display: flex; flex-direction: column;'], 'elements' => [
+                ['element' => 'p', 'content' => '$entity.public_notes', 'properties' => ['data-ref' => 'total_table-public_notes', 'style' => 'text-align: left;']],
+                ['element' => 'p', 'content' => '', 'properties' => ['style' => 'text-align: left; display: flex; flex-direction: column;'], 'elements' => [
+                    ['element' => 'span', 'content' => '$entity.terms_label: ', 'properties' => ['data-ref' => 'total_table-terms-label', 'style' => 'font-weight: bold; text-align: left;']],
+                    ['element' => 'span', 'content' => '$entity.terms', 'properties' => ['data-ref' => 'total_table-terms', 'style' => 'text-align: left;']],
+                ]],
             ]],
         ];
 
