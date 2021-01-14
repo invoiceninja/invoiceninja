@@ -65,11 +65,11 @@ class Activity extends StaticModel
     const RESTORE_TASK = 46; //
     const UPDATE_EXPENSE = 47;//
 
-    const CREATE_USER = 48; // only used in CreateUser::job
-    const UPDATE_USER = 49; // not needed?
-    const ARCHIVE_USER = 50; // not needed?
-    const DELETE_USER = 51; // not needed?
-    const RESTORE_USER = 52; // not needed?
+    const CREATE_USER = 48; 
+    const UPDATE_USER = 49;
+    const ARCHIVE_USER = 50; 
+    const DELETE_USER = 51; 
+    const RESTORE_USER = 52; 
     const MARK_SENT_INVOICE = 53; // not needed?
     const PAID_INVOICE = 54; //
     const EMAIL_INVOICE_FAILED = 57;

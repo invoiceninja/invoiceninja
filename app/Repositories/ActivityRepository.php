@@ -19,6 +19,7 @@ use App\Models\Design;
 use App\Models\Invoice;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
+use App\Models\User;
 use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\PdfMaker\PdfMaker as PdfMakerService;
@@ -69,7 +70,12 @@ class ActivityRepository extends BaseRepository
      */
     public function createBackup($entity, $activity)
     {
-        if ($entity->company->is_disabled) {
+        nlog($entity);
+        
+        if($entity instanceof User){
+            
+        }
+        else if ($entity->company->is_disabled) {
             return;
         }
 

@@ -12,7 +12,9 @@
 namespace App\Repositories;
 
 use App\DataMapper\CompanySettings;
+use App\Events\User\UserWasArchived;
 use App\Events\User\UserWasDeleted;
+use App\Events\User\UserWasRestored;
 use App\Models\CompanyUser;
 use App\Models\User;
 use App\Utils\Ninja;
@@ -137,7 +139,7 @@ class UserRepository extends BaseRepository
             $cu->delete();
         }
 
-        event(new UserWasDeleted($user, $company, Ninja::eventVars()));
+        event(new UserWasDeleted($user, auth()->user(), $company, Ninja::eventVars()));
 
         $user->is_deleted = true;
         $user->save();
@@ -145,5 +147,32 @@ class UserRepository extends BaseRepository
 
 
         return $user->fresh();
+    }
+
+    public function archive($user)
+    {
+        if ($user->trashed()) {
+            return;
+        }
+
+        $user->delete();
+
+        event(new UserWasArchived($user, auth()->user(), auth()->user()->company, Ninja::eventVars()));
+
+    }
+
+        /**
+     * @param $entity
+     */
+    public function restore($user)
+    {
+        if (! $user->trashed()) {
+            return;
+        }
+
+        $user->restore();
+
+        event(new UserWasRestored($user, auth()->user(), auth()->user()->company, Ninja::eventVars()));
+
     }
 }
