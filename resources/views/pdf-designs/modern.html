@@ -4,16 +4,17 @@
         --secondary-color: $secondary_color;
     }
 
-    * {
-        font-size: "$font_size";
-    }
-
     body {
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         font-family: Arial, Helvetica, sans-serif;
+        font-size: "$font_size";
         margin: 0;
         padding: 0;
+    }
+
+    @page {
+        margin: -0.22cm;
     }
 
     p {
@@ -82,6 +83,7 @@
     #delivery-note-table > thead,
     #task-table > thead {
         text-align: left;
+        width: 100%;
     }
 
     #product-table > thead > tr > th,
@@ -90,6 +92,7 @@
         padding: 0.8rem;
         background-color: var(--secondary-color);
         color: white;
+        width: 100%;
     }
 
     #product-table > thead > tr > th:last-child,
@@ -188,6 +191,7 @@
 
     table.page-container {
         page-break-after: always;
+        min-width: 100%;
     }
 
     thead.page-header {
