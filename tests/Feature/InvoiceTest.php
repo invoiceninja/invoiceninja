@@ -184,8 +184,8 @@ class InvoiceTest extends TestCase
             ->assertStatus(302);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
-            nlog('inside update invoice validator');
-            nlog($message);
+            // nlog('inside update invoice validator');
+            // nlog($message);
             $this->assertNotNull($message);
         }
 

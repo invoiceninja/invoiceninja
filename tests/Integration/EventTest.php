@@ -46,14 +46,23 @@ use App\Events\Task\TaskWasCreated;
 use App\Events\Task\TaskWasDeleted;
 use App\Events\Task\TaskWasRestored;
 use App\Events\Task\TaskWasUpdated;
+use App\Events\User\UserWasArchived;
+use App\Events\User\UserWasCreated;
+use App\Events\User\UserWasDeleted;
+use App\Events\User\UserWasRestored;
+use App\Events\User\UserWasUpdated;
 use App\Events\Vendor\VendorWasArchived;
 use App\Events\Vendor\VendorWasCreated;
 use App\Events\Vendor\VendorWasDeleted;
 use App\Events\Vendor\VendorWasRestored;
 use App\Events\Vendor\VendorWasUpdated;
+use App\Http\Middleware\PasswordProtection;
 use App\Models\Invoice;
 use App\Models\Quote;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -64,6 +73,7 @@ class EventTest extends TestCase
 {
     use MockAccountData;
     use MakesHash;
+    use DatabaseTransactions;
 
     public function setUp() :void
     {
@@ -72,6 +82,13 @@ class EventTest extends TestCase
         $this->faker = \Faker\Factory::create();
 
         $this->makeTestData();
+
+        Model::reguard();
+
+        $this->withoutMiddleware(
+            ThrottleRequests::class,
+            PasswordProtection::class
+        );
     }
 
     public function testExpenseEvents()
@@ -134,6 +151,7 @@ class EventTest extends TestCase
 
     public function testVendorEvents()
     {
+        
         $this->expectsEvents([
             VendorWasCreated::class,
             VendorWasUpdated::class,
@@ -456,7 +474,6 @@ class EventTest extends TestCase
 
     public function testInvoiceEvents()
     {
-
         /* Test fire new invoice */
         $data = [
             'client_id' => $this->client->hashed_id,
@@ -573,4 +590,85 @@ class EventTest extends TestCase
         ])->post('/api/v1/clients/bulk?action=delete', $data)
         ->assertStatus(200);
     }
+
+
+    public function testUserEvents()
+    {
+        $this->withoutMiddleware(PasswordProtection::class);
+
+
+        $this->expectsEvents([
+            UserWasCreated::class,
+            UserWasUpdated::class,
+            UserWasArchived::class,
+            UserWasRestored::class,
+            UserWasDeleted::class,
+        ]);
+
+        $data = [
+            'first_name' => 'hey',
+            'last_name' => 'you',
+            'email' => 'bob1@good.ole.boys.com',
+            'company_user' => [
+                    'is_admin' => false,
+                    'is_owner' => false,
+                    'permissions' => 'create_client,create_invoice',
+                ],
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+                'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+        ])->post('/api/v1/users?include=company_user', $data)
+          ->assertStatus(200);
+       
+        $arr = $response->json();
+
+        $data = [
+            'first_name' => 'hasdasdy',
+            'last_name' => 'you',
+            'email' => 'bob1@good.ole.boys.com',
+            'company_user' => [
+                    'is_admin' => false,
+                    'is_owner' => false,
+                    'permissions' => 'create_client,create_invoice',
+                ],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+        ])->put('/api/v1/users/' . $arr['data']['id'], $data)
+        ->assertStatus(200);
+
+
+        $data = [
+            'ids' => [$arr['data']['id']],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+        ])->post('/api/v1/users/bulk?action=archive', $data)
+        ->assertStatus(200);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+        ])->post('/api/v1/users/bulk?action=restore', $data)
+        ->assertStatus(200);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+        ])->post('/api/v1/users/bulk?action=delete', $data)
+        ->assertStatus(200);
+    }
+
+
 }
