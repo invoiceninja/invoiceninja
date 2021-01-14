@@ -70,7 +70,6 @@ class Invoice extends BaseModel
         'tax_name3',
         'tax_rate3',
         'is_amount_discount',
-        'footer',
         'partial',
         'partial_due_date',
         'project_id',
