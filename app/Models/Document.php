@@ -44,6 +44,9 @@ class Document extends BaseModel
         'jpeg' => [
             'mime' => 'image/jpeg',
         ],
+        'jpg' => [
+            'mime' => 'image/jpeg',
+        ],
         'tiff' => [
             'mime' => 'image/tiff',
         ],
