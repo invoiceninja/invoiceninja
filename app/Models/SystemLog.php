@@ -34,7 +34,8 @@ class SystemLog extends Model
     const CATEGORY_GATEWAY_RESPONSE = 1;
     const CATEGORY_MAIL = 2;
     const CATEGORY_WEBHOOK = 3;
-    const CATEGORY_PDF = 3;
+    const CATEGORY_PDF = 4;
+    const CATEGORY_SECURITY = 5;
 
     /* Event IDs*/
     const EVENT_PAYMENT_RECONCILIATION_FAILURE = 10;
@@ -50,6 +51,9 @@ class SystemLog extends Model
     const EVENT_WEBHOOK_RESPONSE = 40;
     const EVENT_PDF_RESPONSE = 50;
 
+    const EVENT_AUTHENTICATION_FAILURE = 60;
+    const EVENT_USER = 61;
+
     /*Type IDs*/
     const TYPE_PAYPAL = 300;
     const TYPE_STRIPE = 301;
@@ -62,8 +66,12 @@ class SystemLog extends Model
     const TYPE_UPSTREAM_FAILURE = 401;
 
     const TYPE_WEBHOOK_RESPONSE = 500;
+
     const TYPE_PDF_FAILURE = 600;
     const TYPE_PDF_SUCCESS = 601;
+
+    const TYPE_MODIFIED = 701;
+    const TYPE_DELETED = 702;
 
     protected $fillable = [
         'client_id',

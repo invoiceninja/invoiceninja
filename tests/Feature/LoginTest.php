@@ -195,7 +195,7 @@ class LoginTest extends TestCase
 
         $arr = $response->json();
 
-        nlog(print_r($arr, 1));
+        // nlog(print_r($arr, 1));
         
         $response->assertStatus(200);
     }

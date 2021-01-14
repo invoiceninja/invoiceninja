@@ -13,6 +13,8 @@ namespace App\Http\Controllers;
 
 use App\DataMapper\CompanySettings;
 use App\Events\User\UserWasCreated;
+use App\Events\User\UserWasDeleted;
+use App\Events\User\UserWasUpdated;
 use App\Factory\UserFactory;
 use App\Filters\UserFilters;
 use App\Http\Controllers\Traits\VerifiesUserEmail;
@@ -202,7 +204,7 @@ class UserController extends BaseController
 
         $ct = CreateCompanyToken::dispatchNow($company, $user, $user_agent);
 
-        event(new UserWasCreated($user, $company, Ninja::eventVars()));
+        event(new UserWasCreated($user, auth()->user(), $company, Ninja::eventVars()));
 
         return $this->itemResponse($user->fresh());
     }
@@ -376,6 +378,8 @@ class UserController extends BaseController
             UserEmailChanged::dispatch($new_email, $old_email, auth()->user()->company());
         }
 
+        event(new UserWasUpdated($user, auth()->user(), auth()->user()->company, Ninja::eventVars()));
+
         return $this->itemResponse($user);
     }
 
@@ -443,6 +447,8 @@ class UserController extends BaseController
     {
         /* If the user passes the company user we archive the company user */
         $user = $this->user_repo->destroy($request->all(), $user);
+
+        event(new UserWasDeleted($user, auth()->user(), auth()->user()->company, Ninja::eventVars()));
 
         return $this->itemResponse($user->fresh());
     }

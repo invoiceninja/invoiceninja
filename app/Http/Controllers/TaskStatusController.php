@@ -174,7 +174,7 @@ class TaskStatusController extends BaseController
      */
     public function store(StoreTaskStatusRequest $request)
     {
-        nlog($request->all());
+        // nlog($request->all());
         
         $task_status = TaskStatusFactory::create(auth()->user()->company()->id, auth()->user()->id);
         $task_status->fill($request->all());

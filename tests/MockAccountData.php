@@ -189,6 +189,7 @@ trait MockAccountData
             $this->user = User::factory()->create([
                                 'account_id' => $this->account->id,
                                 'confirmation_code' => $this->createDbHash(config('database.default')),
+                                'email' => 'user@example.com',
                             ]);
         }
 
