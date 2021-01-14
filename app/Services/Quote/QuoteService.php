@@ -22,7 +22,7 @@ class QuoteService
 {
     use MakesHash;
     
-    protected $quote;
+    public $quote;
 
     public $invoice;
 
@@ -33,9 +33,7 @@ class QuoteService
 
     public function createInvitations()
     {
-        $create_invitation = new CreateInvitations();
-
-        $this->quote = $create_invitation->run($this->quote);
+        $this->quote = (new CreateInvitations($this->quote))->run();
 
         return $this;
     }

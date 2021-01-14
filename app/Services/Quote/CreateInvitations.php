@@ -11,26 +11,41 @@
 
 namespace App\Services\Quote;
 
+use App\Factory\ClientContactFactory;
 use App\Factory\QuoteInvitationFactory;
+use App\Models\Quote;
 use App\Models\QuoteInvitation;
 
 class CreateInvitations
 {
-    public function __construct()
+    public $quote;
+
+    public function __construct(Quote $quote)
     {
+        $this->quote = $quote;
     }
 
-    public function run($quote)
+    public function run()
     {
-        $quote->client->contacts->each(function ($contact) use ($quote) {
-            $invitation = QuoteInvitation::whereCompanyId($quote->company_id)
+
+       $contacts = $this->quote->client->contacts;
+
+        if($contacts->count() == 0){
+            $this->createBlankContact();
+
+            $this->quote->refresh();
+            $contacts = $this->quote->client->contacts;
+        }
+
+        $contacts->each(function ($contact){
+            $invitation = QuoteInvitation::whereCompanyId($this->quote->company_id)
                 ->whereClientContactId($contact->id)
-                ->whereQuoteId($quote->id)
+                ->whereQuoteId($this->quote->id)
                 ->first();
 
             if (! $invitation && $contact->send_email) {
-                $ii = QuoteInvitationFactory::create($quote->company_id, $quote->user_id);
-                $ii->quote_id = $quote->id;
+                $ii = QuoteInvitationFactory::create($this->quote->company_id, $this->quote->user_id);
+                $ii->quote_id = $this->quote->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();
             } elseif ($invitation && ! $contact->send_email) {
@@ -38,6 +53,16 @@ class CreateInvitations
             }
         });
 
-        return $quote->fresh();
+        return $this->quote->fresh();
     }
+
+    private function createBlankContact()
+    {
+        $new_contact = ClientContacstFactory::create($this->quote->company_id, $this->quote->user_id);
+        $new_contact->client_id = $this->quote->client_id;
+        $new_contact->contact_key = Str::random(40);
+        $new_contact->is_primary = true;
+        $new_contact->save();
+    }
+
 }

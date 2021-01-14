@@ -62,7 +62,7 @@ class SendRemindersCron extends Command
         $invoices = Invoice::where('is_deleted', 0)
                           ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                           ->where('balance', '>', 0)
-                          ->whereDate('due_date', now()->subDays(1)->startOfDay())
+                          ->whereDate('due_date', '<=', now()->subDays(1)->startOfDay())
                           ->cursor();
     
         $invoices->each(function ($invoice) {
@@ -74,7 +74,7 @@ class SendRemindersCron extends Command
     {
         $quotes = Quote::where('is_deleted', 0)
                           ->where('status_id', Quote::STATUS_SENT)
-                          ->whereDate('due_date', now()->subDays(1)->startOfDay())
+                          ->whereDate('due_date', '<=', now()->subDays(1)->startOfDay())
                           ->cursor();
     
         $quotes->each(function ($quote) {

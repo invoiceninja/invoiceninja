@@ -85,10 +85,12 @@ class StoreClientRequest extends Request
 
         $input = $this->decodePrimaryKeys($input);
 
+        if(isset($input['group_settings_id']))
+            $input['group_settings_id'] = $this->decodePrimaryKey($input['group_settings_id']);
 
         //is no settings->currency_id is set then lets dive in and find either a group or company currency all the below may be redundant!!
         if (! property_exists($settings, 'currency_id') && isset($input['group_settings_id'])) {
-            $input['group_settings_id'] = $this->decodePrimaryKey($input['group_settings_id']);
+
             $group_settings = GroupSetting::find($input['group_settings_id']);
 
             if ($group_settings && property_exists($group_settings->settings, 'currency_id') && isset($group_settings->settings->currency_id)) {
