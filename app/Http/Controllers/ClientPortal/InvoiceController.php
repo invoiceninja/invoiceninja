@@ -54,11 +54,11 @@ class InvoiceController extends Controller
             'invoice' => $invoice,
         ];
 
-        if ($request->query('mode') === 'fullscreen') {
-            return $this->render('invoices.show.fullscreen', $data);
+        if ($request->query('mode') === 'portal') {
+            return $this->render('invoices.show', $data);
         }
 
-        return $this->render('invoices.show', $data);
+        return $this->render('invoices.show.fullscreen', $data);
     }
 
     /**
@@ -135,7 +135,7 @@ class InvoiceController extends Controller
         ];
 
 // nlog($data);
-   
+
         return $this->render('invoices.payment', $data);
     }
 
