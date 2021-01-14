@@ -474,6 +474,14 @@ class Design extends BaseDesign
             }
         }
 
+        if (!is_null($this->entity->partial) && $this->entity->partial > 0) {
+            $elements[] = ['element' => 'div', 'elements' => [
+                ['element' => 'span', 'content' => 'This is placeholder for the 3rd fraction of element.', 'properties' => ['style' => 'opacity: 0%']], // Placeholder for fraction of element (3fr)
+                ['element' => 'span', 'content' => '$partial_due_label', 'properties' => ['data-ref' => 'totals_table-partial_due-label']],
+                ['element' => 'span', 'content' => '$partial_due'],
+            ]];
+        }
+
         return $elements;
     }
 }
