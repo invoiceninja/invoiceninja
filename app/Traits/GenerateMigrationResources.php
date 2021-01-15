@@ -232,7 +232,7 @@ trait GenerateMigrationResources
                 'shipping_state' => $client->shipping_state,
                 'shipping_postal_code' => $client->shipping_postal_code,
                 'shipping_country_id' => $client->shipping_country_id,
-                'contacts' => $this->getClientContacts($client->contacts),
+                'contacts' => $this->getClientContacts($client->contacts()->withTrashed()),
                 'settings' => $this->getClientSettings($client),
                 'created_at' => $client->created_at ? Carbon::parse($client->created_at)->toDateString() : null,
                 'updated_at' => $client->updated_at ? Carbon::parse($client->updated_at)->toDateString() : null,
