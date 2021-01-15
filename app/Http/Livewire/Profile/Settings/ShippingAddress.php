@@ -20,12 +20,12 @@ class ShippingAddress extends Component
     public $saved;
 
     protected $rules = [
-        'shipping_address1' => ['required'],
-        'shipping_address2' => ['required'],
-        'shipping_city' => ['required'],
-        'shipping_state' => ['required'],
-        'shipping_postal_code' => ['required'],
-        'shipping_country_id' => ['required'],
+        'shipping_address1' => ['sometimes'],
+        'shipping_address2' => ['sometimes'],
+        'shipping_city' => ['sometimes'],
+        'shipping_state' => ['sometimes'],
+        'shipping_postal_code' => ['sometimes'],
+        'shipping_country_id' => ['sometimes'],
     ];
 
     public function mount($countries)
