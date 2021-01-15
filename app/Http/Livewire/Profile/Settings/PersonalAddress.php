@@ -24,7 +24,7 @@ class PersonalAddress extends Component
         'address2' => ['sometimes'],
         'city' => ['sometimes'],
         'state' => ['sometimes'],
-        'postal_code' => ['required'],
+        'postal_code' => ['sometimes'],
         'country_id' => ['sometimes'],
     ];
 
