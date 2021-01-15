@@ -12,6 +12,7 @@
 namespace App\Services\Recurring;
 
 use App\Models\RecurringInvoice;
+use App\Services\Recurring\GetInvoicePdf;
 use Illuminate\Support\Carbon;
 
 class RecurringService
@@ -75,6 +76,11 @@ class RecurringService
         $this->recurring_entity = (new ApplyNumber($this->recurring_entity->client, $this->recurring_entity))->run();
 
         return $this;
+    }
+
+    public function getInvoicePdf($contact = null)
+    {
+        return (new GetInvoicePdf($this->recurring_entity, $contact))->run();
     }
 
     public function save()
