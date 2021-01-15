@@ -118,7 +118,7 @@ class HtmlEngine
         $data['$quote.datetime'] = &$data['$entity.datetime'];
         $data['$credit.datetime'] = &$data['$entity.datetime'];
 
-        if ($this->entity_string == 'invoice') {
+        if ($this->entity_string == 'invoice' || $this->entity_string == 'recurring_invoice') {
             $data['$entity'] = ['value' => '', 'label' => ctrans('texts.invoice')];
             $data['$number'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.invoice_number')];
             $data['$entity.terms'] = ['value' => $this->entity->terms ?: '&nbsp;', 'label' => ctrans('texts.invoice_terms')];

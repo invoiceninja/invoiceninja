@@ -80,6 +80,7 @@ Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'clie
     /*Invitation catches*/
     Route::get('recurring_invoice/{invitation_key}', 'ClientPortal\InvitationController@recurringRouter');
     Route::get('{entity}/{invitation_key}', 'ClientPortal\InvitationController@router');
+    Route::get('recurring_invoice/{invitation_key}/download_pdf', 'RecurringInvoiceController@downloadPdf')->name('recurring_invoice.download_invitation_key');
     Route::get('invoice/{invitation_key}/download_pdf', 'InvoiceController@downloadPdf')->name('invoice.download_invitation_key');
     Route::get('quote/{invitation_key}/download_pdf', 'QuoteController@downloadPdf')->name('quote.download_invitation_key');
     Route::get('credit/{invitation_key}/download_pdf', 'CreditController@downloadPdf')->name('credit.download_invitation_key');

@@ -13,6 +13,7 @@ namespace App\Repositories;
 
 use App\Helpers\Invoice\InvoiceSum;
 use App\Models\RecurringInvoice;
+use App\Models\RecurringInvoiceInvitation;
 
 /**
  * RecurringInvoiceRepository.
@@ -37,5 +38,10 @@ class RecurringInvoiceRepository extends BaseRepository
         // $invoice = $invoice_calc->build()->getRecurringInvoice();
 
         return $invoice;
+    }
+
+    public function getInvitationByKey($key) :?RecurringInvoiceInvitation
+    {
+        return RecurringInvoiceInvitation::whereRaw('BINARY `key`= ?', [$key])->first();
     }
 }

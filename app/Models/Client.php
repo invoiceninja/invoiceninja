@@ -605,6 +605,11 @@ class Client extends BaseModel implements HasLocalePreference
         return $this->company->company_key.'/'.$this->client_hash.'/credits/';
     }
 
+    public function recurring_invoice_filepath()
+    {
+        return $this->company->company_key.'/'.$this->client_hash.'/recurring_invoices/';        
+    }
+
     public function company_filepath()
     {
         return $this->company->company_key.'/';

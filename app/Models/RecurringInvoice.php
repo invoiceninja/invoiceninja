@@ -13,12 +13,14 @@ namespace App\Models;
 
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
+use App\Models\Presenters\RecurringInvoicePresenter;
 use App\Services\Recurring\RecurringService;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Recurring\HasRecurrence;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Laracasts\Presenter\PresentableTrait;
 
 /**
  * Class for Recurring Invoices.
@@ -30,6 +32,9 @@ class RecurringInvoice extends BaseModel
     use Filterable;
     use MakesDates;
     use HasRecurrence;
+    use PresentableTrait;
+
+    protected $presenter = RecurringInvoicePresenter::class;
 
     /**
      * Invoice Statuses.

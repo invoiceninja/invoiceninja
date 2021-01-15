@@ -67,8 +67,9 @@ class PortalComposer
     {
         $data = [];
 
-        if($this->settings->enable_client_portal_dashboard == TRUE)
-            $data[] = [ 'title' => ctrans('texts.dashboard'), 'url' => 'client.dashboard', 'icon' => 'activity'];
+        //@todo wire this back in when we are happy with dashboard.
+        // if($this->settings->enable_client_portal_dashboard == TRUE)
+        //     $data[] = [ 'title' => ctrans('texts.dashboard'), 'url' => 'client.dashboard', 'icon' => 'activity'];
         
         $data[] = ['title' => ctrans('texts.invoices'), 'url' => 'client.invoices.index', 'icon' => 'file-text'];
         $data[] = ['title' => ctrans('texts.recurring_invoices'), 'url' => 'client.recurring_invoices.index', 'icon' => 'file'];
