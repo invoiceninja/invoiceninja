@@ -16,7 +16,7 @@ class NameWebsiteLogo extends Component
 
     public $rules = [
         'name' => ['required', 'min:3'],
-        'website' => ['required', 'url'],
+        'website' => ['required'],
         'phone' => ['required', 'string', 'max:255'],
     ];
 

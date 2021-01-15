@@ -21,18 +21,20 @@ class RecurringInvoiceRepository extends BaseRepository
 {
     public function save($data, RecurringInvoice $invoice) : ?RecurringInvoice
     {
-        $invoice->fill($data);
 
-        $invoice->save();
+        $invoice = $this->alternativeSave($data, $invoice);
+        // $invoice->fill($data);
 
-        $invoice_calc = new InvoiceSum($invoice);
+        // $invoice->save();
 
-        $invoice->service()
-                ->applyNumber()
-                ->createInvitations()
-                ->save();
+        // $invoice_calc = new InvoiceSum($invoice);
+
+        // $invoice->service()
+        //         ->applyNumber()
+        //         ->createInvitations()
+        //         ->save();
         
-        $invoice = $invoice_calc->build()->getRecurringInvoice();
+        // $invoice = $invoice_calc->build()->getRecurringInvoice();
 
         return $invoice;
     }

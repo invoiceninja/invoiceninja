@@ -42,14 +42,9 @@ class UpdatedUserActivity implements ShouldQueue
         MultiDB::setDb($event->company->db);
 
         $fields = new stdClass;
-
-        if (auth()->user()->id) {
-            $fields->user_id = auth()->user()->id;
-        } else {
-            $fields->user_id = $event->user->id;
-        }
-
-        $fields->company_id = $event->user->company_id;
+        $fields->user_id = $event->user->id;    
+        $fields->notes = $event->creating_user->present()->name . " Updated user";
+        $fields->company_id = $event->company->id;
         $fields->activity_type_id = Activity::UPDATE_USER;
 
         $this->activityRepo->save($fields, $event->user, $event->event_vars);

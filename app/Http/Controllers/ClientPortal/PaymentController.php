@@ -175,7 +175,7 @@ class PaymentController extends Controller
 
         foreach($payable_invoices as $payable_invoice)
         {
-            nlog($payable_invoice);
+            // nlog($payable_invoice);
 
             $payable_invoice['amount'] = Number::parseFloat($payable_invoice['amount']);
 

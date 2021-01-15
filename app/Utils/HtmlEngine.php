@@ -96,7 +96,7 @@ class HtmlEngine
         }
 
         $data = [];
-        $data['$global_margin'] = ['value' => '0cm', 'label' => ''];
+        $data['$global_margin'] = ['value' => '6.35mm', 'label' => ''];
         $data['$tax'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$app_url'] = ['value' => $this->generateAppUrl(), 'label' => ''];
         $data['$from'] = ['value' => '', 'label' => ctrans('texts.from')];
@@ -106,7 +106,7 @@ class HtmlEngine
         $data['$line_tax_labels'] = ['value' => $this->lineTaxLabels(), 'label' => ctrans('texts.taxes')];
         $data['$line_tax_values'] = ['value' => $this->lineTaxValues(), 'label' => ctrans('texts.taxes')];
         $data['$date'] = ['value' => $this->formatDate($this->entity->date, $this->entity->client->date_format()) ?: '&nbsp;', 'label' => ctrans('texts.date')];
-        //$data['$invoice_date']           = ['value' => $this->date ?: '&nbsp;', 'label' => ctrans('texts.invoice_date')];
+
         $data['$invoice.date'] = &$data['$date'];
         $data['$due_date'] = ['value' => $this->formatDate($this->entity->due_date, $this->entity->client->date_format()) ?: '&nbsp;', 'label' => ctrans('texts.'.$this->entity_string.'_due_date')];
         $data['$payment_due'] = ['value' => $this->formatDate($this->entity->due_date, $this->entity->client->date_format()) ?: '&nbsp;', 'label' => ctrans('texts.payment_due')];
@@ -117,12 +117,6 @@ class HtmlEngine
         $data['$invoice.datetime'] = &$data['$entity.datetime'];
         $data['$quote.datetime'] = &$data['$entity.datetime'];
         $data['$credit.datetime'] = &$data['$entity.datetime'];
-
-        // $data['$line_taxes'] = ['value' => $this->makeLineTaxes() ?: '&nbsp;', 'label' => ctrans('texts.taxes')];
-        // $data['$invoice.line_taxes'] = &$data['$line_taxes'];
-
-        // $data['$total_taxes'] = ['value' => $this->makeTotalTaxes() ?: '&nbsp;', 'label' => ctrans('texts.taxes')];
-        // $data['$invoice.total_taxes'] = &$data['$total_taxes'];
 
         if ($this->entity_string == 'invoice') {
             $data['$entity'] = ['value' => '', 'label' => ctrans('texts.invoice')];
@@ -159,14 +153,14 @@ class HtmlEngine
         $data['$invoice.subtotal'] = &$data['$subtotal'];
 
         if ($this->entity->partial > 0) {
-            $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->partial, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.balance_due')];
+            $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->partial, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.partial_due')];
         } else {
             $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->balance, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.balance_due')];
         }
 
         $data['$quote.balance_due'] = $data['$balance_due'];
         $data['$invoice.balance_due'] = $data['$balance_due'];
-        $data['$balance_due'] = $data['$balance_due'];
+        // $data['$balance_due'] = $data['$balance_due'];
         $data['$outstanding'] = $data['$balance_due'];
         $data['$partial_due'] = ['value' => Number::formatMoney($this->entity->partial, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.partial_due')];
         $data['$total'] = ['value' => Number::formatMoney($this->entity_calc->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.total')];
@@ -212,15 +206,6 @@ class HtmlEngine
         $data['$credit_no'] = &$data['$number'];
         $data['$credit.credit_no'] = &$data['$number'];
 
-        // $data['$invoice_issued_to'] = ;
-        // $data['$quote_issued_to'] = ;
-        // $data['$rate'] = ;
-        // $data['$hours'] = ;
-        // $data['$from'] = ;
-        // $data['$to'] = ;
-        // $data['$invoice_to'] = ;
-        // $data['$quote_to'] = ;
-        // $data['$details'] = ;
         $data['$invoice_no'] = &$data['$number'];
         $data['$invoice.invoice_no'] = &$data['$number'];
         $data['$client1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'client1', $this->client->custom_value1, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'client1')];
@@ -361,44 +346,6 @@ class HtmlEngine
         $data['$description'] = ['value' => '', 'label' => ctrans('texts.description')];
 
         $data['$entity_footer'] = ['value' => $this->client->getSetting("{$this->entity_string}_footer"), 'label' => ''];
-
-        // $data['custom_label1']              = ['value' => '', 'label' => ctrans('texts.')];
-        // $data['custom_label2']              = ['value' => '', 'label' => ctrans('texts.')];
-        // $data['custom_label3']              = ['value' => '', 'label' => ctrans('texts.')];
-        // $data['custom_label4']              = ['value' => '', 'label' => ctrans('texts.')];
-        //$data['$blank'] = ;
-        //$data['$surcharge'] = ;
-        /*
-        $data['$tax_invoice'] =
-        $data['$tax_quote'] =
-        $data['$statement'] = ;
-        $data['$statement_date'] = ;
-        $data['$your_statement'] = ;
-        $data['$statement_issued_to'] = ;
-        $data['$statement_to'] = ;
-        $data['$credit_note'] = ;
-        $data['$credit_date'] = ;
-        $data['$credit_issued_to'] = ;
-        $data['$credit_to'] = ;
-        $data['$your_credit'] = ;
-        $data['$phone'] = ;
-
-        $data['$outstanding'] = ;
-        $data['$invoice_due_date'] = ;
-        $data['$quote_due_date'] = ;
-        $data['$service'] = ;
-        $data['$product_key'] = ;
-        $data['$unit_cost'] = ;
-        $data['$custom_value1'] = ;
-        $data['$custom_value2'] = ;
-        $data['$delivery_note'] = ;
-        $data['$date'] = ;
-        $data['$method'] = ;
-        $data['$payment_date'] = ;
-        $data['$reference'] = ;
-        $data['$amount'] = ;
-        $data['$amount_paid'] =;
-            */
 
         $arrKeysLength = array_map('strlen', array_keys($data));
         array_multisort($arrKeysLength, SORT_DESC, $data);

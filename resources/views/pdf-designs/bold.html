@@ -1,33 +1,24 @@
 <style id="style">
     :root {
-        --primary-color: $primary_color;
-        --secondary-color: $secondary_color;
-    }
-
-    * {
-        margin: 0;
-        padding: 0;
-        font-size: "$font_size";
+        --primary-color: $ primary_color;
+        --secondary-color: $ secondary_color;
     }
 
     body {
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         font-family: Arial, Helvetica, sans-serif;
-        margin: $global_margin;
+        font-size: "$font_size";
+    }
+
+    @page {
+        margin: -0.25cm !important;
     }
 
     p {
         margin: 0;
         padding: 0;
         page-break-after: always;
-    }
-
-    @media print {
-        body {
-            margin-top: 0;
-            margin-right: 0;
-        }
     }
 
     .header-wrapper {
@@ -93,7 +84,7 @@
         /* margin-bottom: 200px; */
     }
 
-    .task-duration {
+    .task-time-details {
         display: block;
         margin-top: 5px;
         color: grey;
@@ -108,7 +99,7 @@
     #product-table > thead > tr > th,
     #delivery-note-table > thead > tr > th,
     #task-table > thead > tr > th {
-        padding: 2rem;
+        padding: 1.5rem;
         font-size: 1.5rem;
     }
 
@@ -175,6 +166,7 @@
         padding-right: 1.5rem;
     }
 </style>
+
 
 <div class="header-wrapper" id="header">
     <div></div>

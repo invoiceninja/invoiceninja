@@ -415,8 +415,12 @@ class Design extends BaseDesign
         $variables = $this->context['pdf_variables']['total_columns'];
 
         $elements = [
-            ['element' => 'div', 'elements' => [
-                ['element' => 'span', 'content' => '$entity.public_notes', 'properties' => ['data-ref' => 'total_table-public_notes-label', 'style' => 'text-align: left;']],
+            ['element' => 'div', 'properties' => ['style' => 'display: flex; flex-direction: column;'], 'elements' => [
+                ['element' => 'p', 'content' => '$entity.public_notes', 'properties' => ['data-ref' => 'total_table-public_notes', 'style' => 'text-align: left;']],
+                ['element' => 'p', 'content' => '', 'properties' => ['style' => 'text-align: left; display: flex; flex-direction: column;'], 'elements' => [
+                    ['element' => 'span', 'content' => '$entity.terms_label: ', 'properties' => ['data-ref' => 'total_table-terms-label', 'style' => 'font-weight: bold; text-align: left;']],
+                    ['element' => 'span', 'content' => '$entity.terms', 'properties' => ['data-ref' => 'total_table-terms', 'style' => 'text-align: left;']],
+                ]],
             ]],
         ];
 
@@ -472,6 +476,14 @@ class Design extends BaseDesign
                     ['element' => 'span', 'content' => $variable],
                 ]];
             }
+        }
+
+        if (!is_null($this->entity->partial) && $this->entity->partial > 0) {
+            $elements[] = ['element' => 'div', 'elements' => [
+                ['element' => 'span', 'content' => 'This is placeholder for the 3rd fraction of element.', 'properties' => ['style' => 'opacity: 0%']], // Placeholder for fraction of element (3fr)
+                ['element' => 'span', 'content' => '$partial_due_label', 'properties' => ['data-ref' => 'totals_table-partial_due-label']],
+                ['element' => 'span', 'content' => '$partial_due'],
+            ]];
         }
 
         return $elements;
