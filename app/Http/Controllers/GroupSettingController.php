@@ -414,7 +414,7 @@ class GroupSettingController extends BaseController
     {
         $group_setting->delete();
 
-        return response()->json([], 200);
+        return $this->itemResponse($group_setting->fresh());
     }
 
     /**

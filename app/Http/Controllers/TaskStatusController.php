@@ -400,7 +400,7 @@ class TaskStatusController extends BaseController
     {
         $task_status->delete();
 
-        return response()->json([], 200);
+        return $this->itemResponse($task_status->fresh());
     }
 
     /**

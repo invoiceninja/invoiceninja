@@ -428,9 +428,9 @@ class RecurringQuoteController extends BaseController
      */
     public function destroy(DestroyRecurringQuoteRequest $request, RecurringQuote $recurring_quote)
     {
-        $recurring_quote->delete();
+        $this->recurring_quote_repo->delete($recurring_quote);
 
-        return response()->json([], 200);
+        return $this->itemResponse($recurring_quote->fresh());
     }
 
     /**

@@ -432,10 +432,11 @@ class ClientController extends BaseController
      */
     public function destroy(DestroyClientRequest $request, Client $client)
     {
-        //may not need these destroy routes as we are using actions to 'archive/delete'
-        $client->delete();
 
-        return response()->json([], 200);
+       $this->client_repo->delete($client);
+
+       return $this->itemResponse($client->fresh());
+
     }
 
     /**

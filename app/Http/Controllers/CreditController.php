@@ -420,9 +420,9 @@ class CreditController extends BaseController
      */
     public function destroy(DestroyCreditRequest $request, Credit $credit)
     {
-        $credit->delete();
+        $this->credit_repository->delete($credit);
 
-        return response()->json([], 200);
+        return $this->itemResponse($credit->fresh());
     }
 
     /**

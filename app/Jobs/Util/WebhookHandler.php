@@ -112,6 +112,8 @@ class WebhookHandler implements ShouldQueue
                         RequestOptions::JSON => $data, // or 'json' => [...]
                     ]);
 
+        nlog($response);
+        
         if ($response->getStatusCode() == 410 || $response->getStatusCode() == 200) {
             $subscription->delete();
         }

@@ -432,7 +432,7 @@ class VendorController extends BaseController
         //may not need these destroy routes as we are using actions to 'archive/delete'
         $vendor->delete();
 
-        return response()->json([], 200);
+        return $this->itemResponse($vendor->fresh());
     }
 
     /**

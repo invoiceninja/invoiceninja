@@ -421,7 +421,7 @@ class CompanyGatewayController extends BaseController
     {
         $company_gateway->delete();
 
-        return response()->json([], 200);
+        return $this->itemResponse($company_gateway->fresh());
     }
 
     /**
