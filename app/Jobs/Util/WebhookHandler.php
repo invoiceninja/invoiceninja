@@ -108,23 +108,39 @@ class WebhookHandler implements ShouldQueue
 
         $client = new Client(['headers' => array_merge($base_headers, $headers)]);
 
+        try {
+
         $response = $client->post($subscription->target_url, [
                         RequestOptions::JSON => $data, // or 'json' => [...]
                     ]);
 
-        nlog($response);
-        
-        if ($response->getStatusCode() == 410 || $response->getStatusCode() == 200) {
-            $subscription->delete();
-        }
+            if ($response->getStatusCode() == 410 || $response->getStatusCode() == 200)
+                $subscription->delete();
 
-        SystemLogger::dispatch(
+            SystemLogger::dispatch(
+                $response,
+                SystemLog::CATEGORY_WEBHOOK,
+                SystemLog::EVENT_WEBHOOK_RESPONSE,
+                SystemLog::TYPE_WEBHOOK_RESPONSE,
+                $this->company->clients->first(),
+            );
+
+        }
+        catch(\Exception $e){
+
+        // nlog($e->getMessage());
+
+                SystemLogger::dispatch(
                 $e->getMessage(),
                 SystemLog::CATEGORY_WEBHOOK,
                 SystemLog::EVENT_WEBHOOK_RESPONSE,
                 SystemLog::TYPE_WEBHOOK_RESPONSE,
                 $this->company->clients->first(),
             );
+
+        }
+
+
 
     }
 
