@@ -375,11 +375,6 @@ class InvoiceService
         if (!isset($this->invoice->terms)) {
             $this->invoice->terms = $settings->invoice_terms;
         }
-
-        if(!isset($this->invoice->public_notes)) {
-            $this->invoice->public_notes = $settings->public_notes;
-        }
-
         
         return $this;
     }

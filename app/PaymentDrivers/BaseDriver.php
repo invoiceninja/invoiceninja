@@ -228,6 +228,9 @@ class BaseDriver extends AbstractPaymentDriver
 
         $payment->service()->updateInvoicePayment($this->payment_hash);
 
+        if ($this->client->getSetting('client_online_payment_notification')) 
+            $payment->service()->sendEmail();
+
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
         return $payment->service()->applyNumber()->save();
