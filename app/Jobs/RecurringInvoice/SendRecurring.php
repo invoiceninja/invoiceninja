@@ -74,6 +74,11 @@ class SendRecurring implements ShouldQueue
             }
         });
 
+        //Admin notification for recurring invoice sent. 
+        if ($invoice->invitations->count() >= 1) {
+            $invoice->entityEmailEvent($invoice->invitations->first(), 'invoice', 'email_template_invoice');
+        }
+    
         if ($invoice->client->getSetting('auto_bill_date') == 'on_send_date' && $this->recurring_invoice->auto_bill_enabled) {
             $invoice->service()->autoBill()->save();
         }

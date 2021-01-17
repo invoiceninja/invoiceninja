@@ -441,9 +441,9 @@ class QuoteController extends BaseController
      */
     public function destroy(DestroyQuoteRequest $request, Quote $quote)
     {
-        $quote->delete();
+        $this->quote_repo->delete($quote);
 
-        return response()->json([], 200);
+        return $this->itemResponse($quote->fresh());
     }
 
     /**

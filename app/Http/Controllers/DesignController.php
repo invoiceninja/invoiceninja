@@ -415,7 +415,7 @@ class DesignController extends BaseController
         $design->delete();
         $design->save();
 
-        return response()->json([], 200);
+        return $this->itemResponse($design->fresh());
     }
 
     /**

@@ -425,9 +425,9 @@ class TaskController extends BaseController
     public function destroy(DestroyTaskRequest $request, Task $task)
     {
         //may not need these destroy routes as we are using actions to 'archive/delete'
-        $task->delete();
+        $this->task_repo->delete($task);
 
-        return response()->json([], 200);
+        return $this->itemResponse($task->fresh());
     }
 
     /**

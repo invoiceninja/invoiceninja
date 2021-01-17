@@ -426,9 +426,9 @@ class RecurringInvoiceController extends BaseController
      */
     public function destroy(DestroyRecurringInvoiceRequest $request, RecurringInvoice $recurring_invoice)
     {
-        $recurring_invoice->delete();
+        $this->recurring_invoice_repo->delete($recurring_invoice);
 
-        return response()->json([], 200);
+        return $this->itemResponse($recurring_invoice->fresh());
     }
 
 

@@ -397,7 +397,7 @@ class PaymentTermController extends BaseController
     {
         $payment_term->delete();
 
-        return response()->json([], 200);
+        return $this->itemResponse($payment_term->fresh());
     }
 
     /**
