@@ -51,6 +51,11 @@ class GroupSetting extends StaticModel
         return $this->hasMany(Client::class, 'id', 'group_settings_id');
     }
 
+    public function documents()
+    {
+        return $this->morphMany(Document::class, 'documentable');
+    }
+    
     /**
      * Retrieve the model for a bound value.
      *
