@@ -11,11 +11,8 @@
 
 namespace App\Services\Client;
 
-use App\DataMapper\InvoiceItem;
-use App\Events\Invoice\InvoiceWasPaid;
-use App\Events\Invoice\InvoiceWasUpdated;
+use App\Models\Client;
 use App\Models\CompanyGateway;
-use App\Models\Credit;
 use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -36,18 +33,21 @@ class PaymentMethod
 
     private $payment_urls = [];
 
-    public function __construct(Credit $client, float $amount)
+    public function __construct(Client $client, float $amount)
     {
         $this->client = $client;
         $this->amount = $amount;
     }
 
-    public function run() :Credit
+    public function run() 
     {
 
         $this->getGateways()
              ->getMethods()
              ->buildUrls();
+
+
+        return $this->getPaymentUrls();
     }
 
     public function getPaymentUrls()
@@ -59,7 +59,7 @@ class PaymentMethod
     {
         return $this->payment_methods;
     }
-    
+
     private function getGateways()
     {
     
@@ -131,12 +131,12 @@ class PaymentMethod
     {
         // we should prefilter $gateway->driver($this)->gatewayTypes() 
         // and only include the enabled payment methods on the gateway
-        $this->$this->payment_methods = [];
+        $this->payment_methods = [];
 
         foreach ($this->gateways as $gateway) {
-            foreach ($gateway->driver($this)->gatewayTypes() as $type) {
+            foreach ($gateway->driver($this->client)->gatewayTypes() as $type) {
                 if (isset($gateway->fees_and_limits) && property_exists($gateway->fees_and_limits, $type)) {
-                    if ($this->validGatewayForAmount($gateway->fees_and_limits->{$type}, $amount)) {
+                    if ($this->validGatewayForAmount($gateway->fees_and_limits->{$type}, $this->amount)) {
                         $this->payment_methods[] = [$gateway->id => $type];
                     }
                 } else {
@@ -156,9 +156,9 @@ class PaymentMethod
 
         //note we have to use GatewayType::CREDIT_CARD as alias for CUSTOM
         foreach ($this->gateways as $gateway) {
-            foreach ($gateway->driver($this)->gatewayTypes() as $type) {
+            foreach ($gateway->driver($this->client)->gatewayTypes() as $type) {
                 if (isset($gateway->fees_and_limits) && property_exists($gateway->fees_and_limits, $type)) {
-                    if ($this->validGatewayForAmount($gateway->fees_and_limits->{GatewayType::CREDIT_CARD}, $amount)) {
+                    if ($this->validGatewayForAmount($gateway->fees_and_limits->{GatewayType::CREDIT_CARD}, $this->amount)) {
                         $this->payment_methods->push([$gateway->id => $type]);
                     }
                 } else {
@@ -167,16 +167,17 @@ class PaymentMethod
             }
         }
 
+        return $this;
     }
 
     private function buildUrls()
     {
 
-        foreach ($payment_methods_intersect as $key => $child_array) {
+        foreach ($this->payment_methods as $key => $child_array) {
             foreach ($child_array as $gateway_id => $gateway_type_id) {
                 $gateway = CompanyGateway::find($gateway_id);
 
-                $fee_label = $gateway->calcGatewayFeeLabel($amount, $this);
+                $fee_label = $gateway->calcGatewayFeeLabel($this->amount, $this->client);
 
                 if(!$gateway_type_id){
 
@@ -201,7 +202,7 @@ class PaymentMethod
 
             // Show credits as only payment option if both statements are true.
             if (
-                $this->client->service()->getCreditBalance() > $amount
+                $this->client->service()->getCreditBalance() > $this->amount
                 && $this->client->getSetting('use_credits_payment') == 'always') {
                 $payment_urls = [];
             }
@@ -225,11 +226,11 @@ class PaymentMethod
             return true;
         }
 
-        if ((property_exists($fees_and_limits, 'min_limit')) && $fees_and_limits->min_limit !== null && $fees_and_limits->min_limit != -1 && $amount < $fees_and_limits->min_limit) {
+        if ((property_exists($fees_and_limits, 'min_limit')) && $fees_and_limits->min_limit !== null && $fees_and_limits->min_limit != -1 && $this->amount < $fees_and_limits->min_limit) {
             return false;
         }
 
-        if ((property_exists($fees_and_limits, 'max_limit')) && $fees_and_limits->max_limit !== null && $fees_and_limits->max_limit != -1 && $amount > $fees_and_limits->max_limit) {
+        if ((property_exists($fees_and_limits, 'max_limit')) && $fees_and_limits->max_limit !== null && $fees_and_limits->max_limit != -1 && $this->amount > $fees_and_limits->max_limit) {
             return false;
         }
 
