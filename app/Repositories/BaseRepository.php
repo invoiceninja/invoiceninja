@@ -202,6 +202,11 @@ class BaseRepository
 
         /* Model now persisted, now lets do some child tasks */
 
+        /* If client currency differs from the company default currency, then insert the client exchange rate on the model.*/
+        if($client->currency()->id != (int) $model->company->settings->currency_id)
+            $model->exchange_rate = $client->currency()->exchange_rate;
+
+        /* Save any documents */
         if (array_key_exists('documents', $data)) 
             $this->saveDocuments($data['documents'], $model);
 
