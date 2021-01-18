@@ -78,7 +78,7 @@ class CreateUser
             'settings' => null,
         ]);
 
-        event(new UserWasCreated($user, $this->company, Ninja::eventVars()));
+        event(new UserWasCreated($user, $user, $this->company, Ninja::eventVars()));
 
         return $user;
     }

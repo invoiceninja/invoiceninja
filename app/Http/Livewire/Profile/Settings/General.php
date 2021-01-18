@@ -29,8 +29,8 @@ class General extends Component
     public $saved;
 
     protected $rules = [
-        'first_name' => ['required'],
-        'last_name' => ['required'],
+        'first_name' => ['sometimes'],
+        'last_name' => ['sometimes'],
         'email' => ['required', 'email'],
     ];
 

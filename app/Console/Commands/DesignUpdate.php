@@ -49,8 +49,7 @@ class DesignUpdate extends Command
     public function handle()
     {
         foreach (Design::whereIsCustom(false)->get() as $design) {
-            $class = 'App\Services\PdfMaker\Designs\\'.$design->name;
-            $invoice_design = new $class();
+            $invoice_design = new \App\Services\PdfMaker\Design(strtolower($design->name));
             $invoice_design->document();
 
             $design_object = new stdClass;

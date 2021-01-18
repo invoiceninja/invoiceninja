@@ -75,6 +75,7 @@ class AccountTransformer extends EntityTransformer
             'archived_at' => (int) $account->deleted_at,
             'report_errors' => (bool) $account->report_errors,
             'debug_enabled' => (bool) config('ninja.debug_enabled'),
+            'is_docker' => (bool) config('ninja.is_docker'),
         ];
     }
 

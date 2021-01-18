@@ -43,11 +43,11 @@ class QuoteController extends Controller
             'quote' => $quote,
         ];
 
-        if ($request->query('mode') === 'fullscreen') {
-            return $this->render('quotes.show.fullscreen', $data);
+        if ($request->query('mode') === 'portal') {
+            return $this->render('quotes.show', $data);
         }
 
-        return $this->render('quotes.show', $data);
+        return $this->render('quotes.show.fullscreen', $data);
     }
 
     public function bulk(ProcessQuotesInBulkRequest $request)
@@ -111,7 +111,7 @@ class QuoteController extends Controller
             foreach ($quotes as $quote) {
                 $quote->service()->approve(auth()->user())->save();
                 event(new QuoteWasApproved(auth('contact')->user(), $quote, $quote->company, Ninja::eventVars()));
-                
+
                 if (request()->has('signature') && !is_null(request()->signature) && !empty(request()->signature)) {
                     InjectSignature::dispatch($quote, request()->signature);
                 }

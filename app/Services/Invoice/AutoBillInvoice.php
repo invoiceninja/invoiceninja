@@ -88,7 +88,7 @@ class AutoBillInvoice extends AbstractService
         /* Build payment hash */
         $payment_hash = PaymentHash::create([
             'hash' => Str::random(128),
-            'data' => [['invoice_id' => $this->invoice->hashed_id, 'amount' => $amount]],
+            'data' => ['invoices' => [['invoice_id' => $this->invoice->hashed_id, 'amount' => $amount]]],
             'fee_total' => $fee,
             'fee_invoice_id' => $this->invoice->id,
         ]);
@@ -252,16 +252,50 @@ class AutoBillInvoice extends AbstractService
      * @param  float              $amount The amount to charge
      * @return ClientGatewayToken         The client gateway token
      */
-    private function getGateway($amount)
-    {
-        $gateway_tokens = $this->client->gateway_tokens()->orderBy('is_default', 'DESC')->get();
+    // private function 
+    // {
+    //     $gateway_tokens = $this->client->gateway_tokens()->orderBy('is_default', 'DESC')->get();
 
-        foreach ($gateway_tokens as $gateway_token) {
-            if ($this->validGatewayLimits($gateway_token, $amount)) {
-                return $gateway_token;
+    //     foreach ($gateway_tokens as $gateway_token) {
+    //         if ($this->validGatewayLimits($gateway_token, $amount)) {
+    //             return $gateway_token;
+    //         }
+    //     }
+    // }
+
+    public function getGateway($amount)
+    {
+
+        //get all client gateway tokens and set the is_default one to the first record
+        //$gateway_tokens = $this->client->gateway_tokens()->orderBy('is_default', 'DESC');
+        $gateway_tokens = $this->client->gateway_tokens;
+
+        $filtered_gateways = $gateway_tokens->filter(function ($gateway_token) use($amount) {
+            
+            $company_gateway = $gateway_token->gateway;
+
+            //check if fees and limits are set
+            if (isset($company_gateway->fees_and_limits) && property_exists($company_gateway->fees_and_limits, $gateway_token->gateway_type_id)) 
+            {
+                //if valid we keep this gateway_token
+                if ($this->invoice->client->validGatewayForAmount($company_gateway->fees_and_limits->{$gateway_token->gateway_type_id}, $amount)) 
+                    return true;
+                else
+                    return false;
+            
             }
-        }
+            return true; //if no fees_and_limits set then we automatically must add this gateway
+
+        });
+
+        if($filtered_gateways->count() >= 1)
+            return $filtered_gateways->first();
+
+        return false;
     }
+
+
+
 
     /**
      * Adds a gateway fee to the invoice.
@@ -332,33 +366,33 @@ class AutoBillInvoice extends AbstractService
     //     return $this;
     // }
 
-    /**
-     * Checks whether a given gateway token is able
-     * to process the payment after passing through the
-     * fees and limits check.
-     *
-     * @param  CompanyGateway $cg     The CompanyGateway instance
-     * @param  float          $amount The amount to be paid
-     * @return bool
-     */
-    public function validGatewayLimits($cg, $amount) : bool
-    {
-        if (isset($cg->fees_and_limits)) {
-            $fees_and_limits = $cg->fees_and_limits->{'1'};
-        } else {
-            return true;
-        }
+    // /**
+    //  * Checks whether a given gateway token is able
+    //  * to process the payment after passing through the
+    //  * fees and limits check.
+    //  *
+    //  * @param  CompanyGateway $cg     The CompanyGateway instance
+    //  * @param  float          $amount The amount to be paid
+    //  * @return bool
+    //  */
+    // public function validGatewayLimits($cg, $amount) : bool
+    // {
+    //     if (isset($cg->fees_and_limits)) {
+    //         $fees_and_limits = $cg->fees_and_limits->{'1'};
+    //     } else {
+    //         return true;
+    //     }
 
-        if ((property_exists($fees_and_limits, 'min_limit')) && $fees_and_limits->min_limit !== null && $amount < $fees_and_limits->min_limit) {
-            info("amount {$amount} less than ".$fees_and_limits->min_limit);
-            $passes = false;
-        } elseif ((property_exists($fees_and_limits, 'max_limit')) && $fees_and_limits->max_limit !== null && $amount > $fees_and_limits->max_limit) {
-            info("amount {$amount} greater than ".$fees_and_limits->max_limit);
-            $passes = false;
-        } else {
-            $passes = true;
-        }
+    //     if ((property_exists($fees_and_limits, 'min_limit')) && $fees_and_limits->min_limit !== null && $amount < $fees_and_limits->min_limit) {
+    //         info("amount {$amount} less than ".$fees_and_limits->min_limit);
+    //         $passes = false;
+    //     } elseif ((property_exists($fees_and_limits, 'max_limit')) && $fees_and_limits->max_limit !== null && $amount > $fees_and_limits->max_limit) {
+    //         info("amount {$amount} greater than ".$fees_and_limits->max_limit);
+    //         $passes = false;
+    //     } else {
+    //         $passes = true;
+    //     }
 
-        return $passes;
-    }
+    //     return $passes;
+    // }
 }

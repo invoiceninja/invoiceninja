@@ -21,13 +21,18 @@
  */
 function nlog($output, $context = []): void
 {
-    if (config('ninja.expanded_logging')) {
+    
+    if (!config('ninja.expanded_logging')) 
+        return;
+
         if (gettype($output) == 'object') {
             $output = print_r($output, 1);
         }
 
+        $trace = debug_backtrace();
+        \Illuminate\Support\Facades\Log::channel('invoiceninja')->info(print_r($trace[1]['class'],1), []);
         \Illuminate\Support\Facades\Log::channel('invoiceninja')->info($output, $context);
-    }
+    
 }
 
 if (!function_exists('ray'))   {

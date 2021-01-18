@@ -3259,7 +3259,7 @@ return [
     'enable_only_for_development' => 'Enable only for development',
 
     'test_pdf' => 'Test PDF',
-    'status_cancelled' => 'Cancelled',
+    'cancelled' => 'Cancelled',
 
     'checkout_authorize_label' => 'Checkout.com can be can saved as payment method for future use, once you complete your first transaction. Don\'t forget to check "Store credit card details" during payment process.',
 
@@ -3369,4 +3369,6 @@ return [
 
     'required_payment_information' => 'Required payment details',
     'required_payment_information_more' => 'To complete a payment we need more details about you.',
+
+    'required_client_info_save_label' => 'We will save this, so you don\'t have to enter it next time.',
 ];

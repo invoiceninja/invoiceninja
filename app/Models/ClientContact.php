@@ -87,6 +87,12 @@ class ClientContact extends Authenticatable implements HasLocalePreference
         'client_id',
     ];
 
+    /* Changing the username to id allows us to login() a contact that doesn't have an email address set*/
+    public function username()
+    {
+        return 'id';
+    }
+
     public function getEntityType()
     {
         return self::class;

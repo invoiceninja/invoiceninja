@@ -11,9 +11,9 @@
 @endpush
 
 @section('body')
-    @livewire('required-client-info', ['fields' => $gateway->getClientRequiredFields(), 'contact' => auth('contact')->user()])
+    @livewire('required-client-info', ['fields' => method_exists($gateway, 'getClientRequiredFields') ? $gateway->getClientRequiredFields() : [], 'contact' => auth('contact')->user()])
 
-    <div class="container mx-auto grid grid-cols-12 hidden" data-ref="gateway-container">
+    <div class="container mx-auto grid grid-cols-12 opacity-25 pointer-events-none" data-ref="gateway-container">
         <div class="col-span-12 lg:col-span-6 lg:col-start-4 overflow-hidden bg-white shadow rounded-lg">
             <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
                 @isset($card_title)
@@ -40,8 +40,15 @@
 
     <script>
         Livewire.on('passed-required-fields-check', () => {
-            document.querySelector('div[data-ref="required-fields-container"]').classList.add('hidden');
-            document.querySelector('div[data-ref="gateway-container"]').classList.remove('hidden');
+            document.querySelector('div[data-ref="required-fields-container"]').classList.add('opacity-25');
+            document.querySelector('div[data-ref="required-fields-container"]').classList.add('pointer-events-none');
+
+            document.querySelector('div[data-ref="gateway-container"]').classList.remove('opacity-25');
+            document.querySelector('div[data-ref="gateway-container"]').classList.remove('pointer-events-none');
+
+            document
+                .querySelector('div[data-ref="gateway-container"]')
+                .scrollIntoView({ behavior: "smooth" });
         });
     </script>
 @endpush

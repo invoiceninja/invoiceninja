@@ -43,13 +43,10 @@ class RestoredUserActivity implements ShouldQueue
 
         $fields = new stdClass;
 
-        if (auth()->user()->id) {
-            $fields->user_id = auth()->user()->id;
-        } else {
-            $fields->user_id = $event->user->id;
-        }
+        $fields->user_id = $event->user->id;
+        $fields->notes = $event->creating_user->present()->name() . " Restored user";        
 
-        $fields->company_id = $event->user->company_id;
+        $fields->company_id = $event->company->id;
         $fields->activity_type_id = Activity::RESTORE_USER;
 
         $this->activityRepo->save($fields, $event->user, $event->event_vars);

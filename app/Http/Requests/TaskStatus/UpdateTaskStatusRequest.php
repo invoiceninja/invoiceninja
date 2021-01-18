@@ -34,7 +34,6 @@ class UpdateTaskStatusRequest extends Request
         $rules = [];
 
         if ($this->input('name')) {
-            //$rules['name'] = 'unique:task_statuses,name,'.$this->id.',id,company_id,'.$this->task_status->company_id;
             $rules['name'] = Rule::unique('task_statuses')->where('company_id', auth()->user()->company()->id)->ignore($this->task_status->id);
         }
 

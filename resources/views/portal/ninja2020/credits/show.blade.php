@@ -1,5 +1,5 @@
 @extends('portal.ninja2020.layout.app')
-@section('meta_title', ctrans('texts.credit'))
+@section('meta_title', ctrans('texts.entity_number_placeholder', ['entity' => ctrans('texts.credit'), 'entity_number' => $credit->number]))
 
 @push('head')
     <meta name="pdf-url" content="{{ $credit->pdf_file_path() }}">

@@ -15,9 +15,9 @@ class NameWebsiteLogo extends Component
     public $saved;
 
     public $rules = [
-        'name' => ['required', 'min:3'],
-        'website' => ['required', 'url'],
-        'phone' => ['required', 'string', 'max:255'],
+        'name' => ['sometimes', 'min:3'],
+        'website' => ['sometimes'],
+        'phone' => ['sometimes', 'string', 'max:255'],
     ];
 
     public function mount()

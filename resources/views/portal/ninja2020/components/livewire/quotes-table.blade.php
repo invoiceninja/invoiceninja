@@ -91,7 +91,7 @@
                             </td>
                             <td class="flex items-center justify-end px-6 py-4 text-sm font-medium leading-5 whitespace-no-wrap">
                                 <a href="{{ route('client.quote.show', $quote->hashed_id) }}" class="button-link text-primary">
-                                    @lang('texts.view')
+                                    {{ ctrans('texts.view') }}
                                 </a>
                             </td>
                         </tr>

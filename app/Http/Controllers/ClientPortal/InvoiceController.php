@@ -54,11 +54,11 @@ class InvoiceController extends Controller
             'invoice' => $invoice,
         ];
 
-        if ($request->query('mode') === 'fullscreen') {
-            return $this->render('invoices.show.fullscreen', $data);
+        if ($request->query('mode') === 'portal') {
+            return $this->render('invoices.show', $data);
         }
 
-        return $this->render('invoices.show', $data);
+        return $this->render('invoices.show.fullscreen', $data);
     }
 
     /**
@@ -123,7 +123,7 @@ class InvoiceController extends Controller
         //format totals
         $formatted_total = Number::formatMoney($total, auth()->user()->client);
 
-        $payment_methods = auth()->user()->client->getPaymentMethods($total);
+        $payment_methods = auth()->user()->client->service()->getPaymentMethods($total);
 
         $data = [
             'settings' => auth()->user()->client->getMergedSettings(),
@@ -135,7 +135,7 @@ class InvoiceController extends Controller
         ];
 
 // nlog($data);
-   
+
         return $this->render('invoices.payment', $data);
     }
 

@@ -60,7 +60,7 @@ class BaseTransformer
         if ($code) {
             $currency = $this->maps['currencies']->where('code', $code)->first();
 
-            if ($currency_id) {
+            if ($currency) {
                 return $currency->id;
             }
         }

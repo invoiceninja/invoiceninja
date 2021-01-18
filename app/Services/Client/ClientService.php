@@ -12,6 +12,7 @@
 namespace App\Services\Client;
 
 use App\Models\Client;
+use App\Services\Client\PaymentMethod;
 use App\Utils\Number;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -63,6 +64,10 @@ class ClientService
                   ->sortBy('created_at');
     }
 
+    public function getPaymentMethods(float $amount)
+    {
+        return (new PaymentMethod($this->client, $amount))->run();
+    }
 
     public function save() :Client
     {

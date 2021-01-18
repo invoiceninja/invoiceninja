@@ -31,6 +31,8 @@ class UserWasDeleted
      */
     public $user;
 
+    public $creating_user;
+
     public $company;
 
     public $event_vars;
@@ -42,9 +44,10 @@ class UserWasDeleted
      * @param Company $company
      * @param array $event_vars
      */
-    public function __construct(User $user, Company $company, array $event_vars)
+    public function __construct(User $user, User $creating_user, Company $company, array $event_vars)
     {
         $this->user = $user;
+        $this->creating_user = $creating_user;
         $this->company = $company;
         $this->event_vars = $event_vars;
     }

@@ -59,7 +59,6 @@ class Quote extends BaseModel
         'tax_name3',
         'tax_rate3',
         'is_amount_discount',
-        'footer',
         'partial',
         'partial_due_date',
         'custom_value1',
@@ -225,6 +224,9 @@ class Quote extends BaseModel
                 break;
             case self::STATUS_EXPIRED:
                 return '<h5><span class="badge badge-danger">'.ctrans('texts.expired').'</span></h5>';
+                break;
+            case self::STATUS_CONVERTED:
+                return '<h5><span class="badge badge-light">'.ctrans('texts.converted').'</span></h5>';
                 break;
             default:
                 // code...

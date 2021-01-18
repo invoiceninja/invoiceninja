@@ -20,12 +20,12 @@ class PersonalAddress extends Component
     public $saved;
 
     protected $rules = [
-        'address1' => ['required'],
-        'address2' => ['required'],
-        'city' => ['required'],
-        'state' => ['required'],
-        'postal_code' => ['required'],
-        'country_id' => ['required'],
+        'address1' => ['sometimes'],
+        'address2' => ['sometimes'],
+        'city' => ['sometimes'],
+        'state' => ['sometimes'],
+        'postal_code' => ['sometimes'],
+        'country_id' => ['sometimes'],
     ];
 
     public function mount($countries)

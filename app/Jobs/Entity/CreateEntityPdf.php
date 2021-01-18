@@ -19,6 +19,7 @@ use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Models\Quote;
 use App\Models\QuoteInvitation;
+use App\Models\RecurringInvoice;
 use App\Models\RecurringInvoiceInvitation;
 use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
@@ -106,6 +107,9 @@ class CreateEntityPdf implements ShouldQueue
         } elseif ($this->entity instanceof Credit) {
             $path = $this->entity->client->credit_filepath();
             $entity_design_id = 'credit_design_id';
+        } elseif ($this->entity instanceof RecurringInvoice) {
+            $path = $this->entity->client->recurring_invoice_filepath();
+            $entity_design_id = 'invoice_design_id';
         }
 
         $file_path = $path.$this->entity->number.'.pdf';

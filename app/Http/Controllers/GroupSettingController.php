@@ -22,6 +22,7 @@ use App\Models\GroupSetting;
 use App\Repositories\GroupSettingRepository;
 use App\Transformers\GroupSettingTransformer;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SavesDocuments;
 use App\Utils\Traits\Uploadable;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
@@ -32,6 +33,7 @@ class GroupSettingController extends BaseController
     use DispatchesJobs;
     use Uploadable;
     use MakesHash;
+    use SavesDocuments;
 
     protected $entity_type = GroupSetting::class;
 
@@ -357,6 +359,9 @@ class GroupSettingController extends BaseController
 
         $this->uploadLogo($request->file('company_logo'), $group_setting->company, $group_setting);
 
+        if ($request->has('documents')) 
+            $this->saveDocuments($request->input('documents'), $group_setting, false);
+
         return $this->itemResponse($group_setting);
     }
 
@@ -414,7 +419,7 @@ class GroupSettingController extends BaseController
     {
         $group_setting->delete();
 
-        return response()->json([], 200);
+        return $this->itemResponse($group_setting->fresh());
     }
 
     /**

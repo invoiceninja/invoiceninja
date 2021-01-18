@@ -433,6 +433,7 @@ class Client extends BaseModel implements HasLocalePreference
      *
      * @param  float $amount The amount to be charged
      * @return array         Array of payment labels and urls
+     * @deprecated 5.0.38 - see service()->getPaymentMethods($amount);
      */
     public function getPaymentMethods($amount) :array
     {
@@ -603,6 +604,11 @@ class Client extends BaseModel implements HasLocalePreference
     public function credit_filepath()
     {
         return $this->company->company_key.'/'.$this->client_hash.'/credits/';
+    }
+
+    public function recurring_invoice_filepath()
+    {
+        return $this->company->company_key.'/'.$this->client_hash.'/recurring_invoices/';        
     }
 
     public function company_filepath()

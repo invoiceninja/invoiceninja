@@ -72,8 +72,11 @@ use App\Events\Task\TaskWasDeleted;
 use App\Events\Task\TaskWasRestored;
 use App\Events\Task\TaskWasUpdated;
 use App\Events\User\UserLoggedIn;
+use App\Events\User\UserWasArchived;
 use App\Events\User\UserWasCreated;
 use App\Events\User\UserWasDeleted;
+use App\Events\User\UserWasRestored;
+use App\Events\User\UserWasUpdated;
 use App\Events\Vendor\VendorWasArchived;
 use App\Events\Vendor\VendorWasCreated;
 use App\Events\Vendor\VendorWasDeleted;
@@ -123,8 +126,8 @@ use App\Listeners\Invoice\InvoiceArchivedActivity;
 use App\Listeners\Invoice\InvoiceCancelledActivity;
 use App\Listeners\Invoice\InvoiceDeletedActivity;
 use App\Listeners\Invoice\InvoiceEmailActivity;
-use App\Listeners\Invoice\InvoiceEmailedNotification;
 use App\Listeners\Invoice\InvoiceEmailFailedActivity;
+use App\Listeners\Invoice\InvoiceEmailedNotification;
 use App\Listeners\Invoice\InvoicePaidActivity;
 use App\Listeners\Invoice\InvoiceReminderEmailActivity;
 use App\Listeners\Invoice\InvoiceRestoredActivity;
@@ -132,8 +135,8 @@ use App\Listeners\Invoice\InvoiceReversedActivity;
 use App\Listeners\Invoice\InvoiceViewedActivity;
 use App\Listeners\Invoice\UpdateInvoiceActivity;
 use App\Listeners\Misc\InvitationViewedListener;
-use App\Listeners\Payment\PaymentEmailedActivity;
 use App\Listeners\Payment\PaymentEmailFailureActivity;
+use App\Listeners\Payment\PaymentEmailedActivity;
 use App\Listeners\Payment\PaymentNotification;
 use App\Listeners\Payment\PaymentRestoredActivity;
 use App\Listeners\Quote\QuoteApprovedActivity;
@@ -145,8 +148,12 @@ use App\Listeners\Quote\QuoteRestoredActivity;
 use App\Listeners\Quote\QuoteViewedActivity;
 use App\Listeners\Quote\ReachWorkflowSettings;
 use App\Listeners\SendVerificationNotification;
+use App\Listeners\User\ArchivedUserActivity;
+use App\Listeners\User\CreatedUserActivity;
 use App\Listeners\User\DeletedUserActivity;
+use App\Listeners\User\RestoredUserActivity;
 use App\Listeners\User\UpdateUserLastLogin;
+use App\Listeners\User\UpdatedUserActivity;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider
@@ -158,13 +165,23 @@ class EventServiceProvider extends ServiceProvider
      */
     protected $listen = [
         UserWasCreated::class => [
+            CreatedUserActivity::class,
             SendVerificationNotification::class,
         ],
         UserWasDeleted::class => [
             DeletedUserActivity::class,
         ],
+        UserWasArchived::class => [
+            ArchivedUserActivity::class,
+        ],
         UserLoggedIn::class => [
             UpdateUserLastLogin::class,
+        ],
+        UserWasUpdated::class => [
+            UpdatedUserActivity::class,
+        ],
+        UserWasRestored::class => [
+            RestoredUserActivity::class,
         ],
         ContactLoggedIn::class => [
             UpdateContactLastLogin::class,

@@ -13,6 +13,7 @@ namespace App\Repositories;
 
 use App\Helpers\Invoice\InvoiceSum;
 use App\Models\RecurringInvoice;
+use App\Models\RecurringInvoiceInvitation;
 
 /**
  * RecurringInvoiceRepository.
@@ -21,19 +22,26 @@ class RecurringInvoiceRepository extends BaseRepository
 {
     public function save($data, RecurringInvoice $invoice) : ?RecurringInvoice
     {
-        $invoice->fill($data);
 
-        $invoice->save();
+        $invoice = $this->alternativeSave($data, $invoice);
+        // $invoice->fill($data);
 
-        $invoice_calc = new InvoiceSum($invoice);
+        // $invoice->save();
 
-        $invoice->service()
-                ->applyNumber()
-                ->createInvitations()
-                ->save();
+        // $invoice_calc = new InvoiceSum($invoice);
+
+        // $invoice->service()
+        //         ->applyNumber()
+        //         ->createInvitations()
+        //         ->save();
         
-        $invoice = $invoice_calc->build()->getRecurringInvoice();
+        // $invoice = $invoice_calc->build()->getRecurringInvoice();
 
         return $invoice;
+    }
+
+    public function getInvitationByKey($key) :?RecurringInvoiceInvitation
+    {
+        return RecurringInvoiceInvitation::whereRaw('BINARY `key`= ?', [$key])->first();
     }
 }

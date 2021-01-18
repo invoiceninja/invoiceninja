@@ -429,7 +429,7 @@ class ProjectController extends BaseController
         $project->delete();
         $project->save();
 
-        return response()->json([], 200);
+        return $this->itemResponse($project->fresh());
     }
 
     /**

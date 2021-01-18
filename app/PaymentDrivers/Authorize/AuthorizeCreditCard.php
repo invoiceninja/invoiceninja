@@ -98,28 +98,7 @@ class AuthorizeCreditCard
         /*Refactor and push to BaseDriver*/
         if ($data['response'] != null && $data['response']->getMessages()->getResultCode() == 'Ok') {
 
-            // $response = $data['response'];
-
-            // $payment_record = [];
-            // $payment_record['amount'] = $amount;
-            // $payment_record['payment_type'] = PaymentType::CREDIT_CARD_OTHER;;
-            // $payment_record['transaction_reference'] = $response->getTransactionResponse()->getTransId();
-
-            // $this->authorize->createPayment($payment_record);
-
             $this->storePayment($payment_hash, $data);
-
-            // $payment = $this->createPaymentRecord($data, $amount);
-            // $payment->meta = $cgt->meta;
-            // $payment->save();
-
-            // $payment_hash->payment_id = $payment->id;
-            // $payment_hash->save();
-
-            // $this->authorize->attachInvoices($payment, $payment_hash);
-            // $payment->service()->updateInvoicePayment($payment_hash);
-
-            // event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
             $vars = [
                 'hashed_ids' => $invoice->hashed_id,
@@ -212,8 +191,7 @@ class AuthorizeCreditCard
 
     private function processFailedResponse($data, $request)
     {
-        //dd($data);
-//        nlog(print_r($data, 1));
+        throw new \Exception(ctrans('texts.error_title'));
     }
 
     private function formatGatewayResponse($data, $vars)

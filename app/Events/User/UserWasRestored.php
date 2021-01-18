@@ -35,7 +35,7 @@ class UserWasRestored
 
     public $event_vars;
 
-    public $fromDeleted;
+    public $creating_user;
 
     /**
      * Create a new event instance.
@@ -44,12 +44,12 @@ class UserWasRestored
      * @param Company $company
      * @param array $event_vars
      */
-    public function __construct(User $user, bool $fromDeleted, Company $company, array $event_vars)
+    public function __construct(User $user, User $creating_user, Company $company, array $event_vars)
     {
         $this->user = $user;
         $this->company = $company;
         $this->event_vars = $event_vars;
-        $this->fromDeleted = $fromDeleted;
+        $this->creating_user = $creating_user;
     }
 
     /**
