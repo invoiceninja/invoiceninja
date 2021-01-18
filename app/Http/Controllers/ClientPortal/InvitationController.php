@@ -55,13 +55,10 @@ class InvitationController extends Controller
         /* Return early if we have the correct client_hash embedded */
 
         if (request()->has('client_hash') && request()->input('client_hash') == $invitation->contact->client->client_hash) {
-            nlog("scenario 1");
             auth()->guard('contact')->login($invitation->contact, true);
         } elseif ((bool) $invitation->contact->client->getSetting('enable_client_portal_password') !== false) {
-            nlog("scenario 2");
             $this->middleware('auth:contact');
         } else {
-            nlog("scenario 3");
             auth()->guard('contact')->login($invitation->contact, true);
         }
 

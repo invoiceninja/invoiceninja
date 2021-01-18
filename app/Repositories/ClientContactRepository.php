@@ -76,6 +76,7 @@ class ClientContactRepository extends BaseRepository
             $new_contact->client_id = $client->id;
             $new_contact->contact_key = Str::random(40);
             $new_contact->is_primary = true;
+            $new_contact->confirmed = true;
             $new_contact->save();
         }
     }
