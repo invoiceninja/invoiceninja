@@ -433,6 +433,7 @@ class Client extends BaseModel implements HasLocalePreference
      *
      * @param  float $amount The amount to be charged
      * @return array         Array of payment labels and urls
+     * @deprecated 5.0.38 - see service()->getPaymentMethods($amount);
      */
     public function getPaymentMethods($amount) :array
     {
