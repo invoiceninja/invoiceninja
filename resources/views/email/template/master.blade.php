@@ -1,78 +1,91 @@
 @php
-if(!isset($design)) $design = 'light';
+    if(!isset($design)) {
+        $design = 'light';
+    }
 @endphp
 
-<!DOCTYPE html>
-<html lang="en">
+    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title')</title>
-  </head>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
 
 <style>
-  :root {
-    @isset($settings)
-    --primary-color: {{ $settings->primary_color }};
-    @else
-    --primary-color: #4caf50;
-    @endisset
-  }
+    :root {
+        --primary-color: {{ isset($settings) ? $settings->primary_color : '#4caf50' }};
+    }
 
-  .border-primary {
-    border-color: var(--primary-color);
-  }
+    .primary-color-bg {
+        background-color: var(--primary-color);
+    }
+
+    #email-content h1 {
+        display: block;
+        color: {{ $design == 'light' ? 'black' : 'white' }};
+    }
+
+    #email-content p {
+        display: block;
+        color: {{ $design == 'light' ? 'black' : 'white' }};
+    }
+
+    .button {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 10px 16px;
+        text-decoration: none;
+    }
+
+    #email-content a, .link {
+        word-break: break-all;
+    }
 </style>
 
-@if($design == 'dark')
-<style>
-  * {
-    color: #cbd5e0 !important;
-  }
-</style>
-@endif
-
-<body class="{{ $design == 'light' ? 'bg-gray-200' : 'bg-gray-800' }} my-10 font-sans {{ $design == 'light' ? 'text-gray-700' : 'text-gray-400' }}">
-  <div class="grid grid-cols-6">
-    <div class="col-span-4 col-start-2">
-      <div class="{{ $design == 'light' ? 'bg-white' : 'bg-gray-900' }} shadow border-t-2 {{ $design == 'light' ? 'border-primary' : 'border-gray-800' }}">
-        <div class="px-10 break-all">
-          {{ $header }}
-        </div>
-        <div id="text" class="flex flex-col px-10 py-6">
-          @isset($greeting)
-          {{ $greeting }}
-          @endisset
-
-          <div class="break-all">
-            {{ $slot}}
-          </div>
-
-          @isset($signature)
-          {{ $signature }}
-          @endisset
-        </div>
-      </div>
-
-      @isset($below_card)
-      <div id="bottomText" class="px-10 my-4 text-center">
-        {{ $below_card }}
-      </div>
-      @endisset
-
-    </div>
-  </div>
-
-  <!-- Whitelabel -->
-  @isset($whitelabel)
-    @if(!$whitelabel)
-      <div style="display: flex; flex-direction: row; justify-content: center; margin-top: 1rem; margin-bottom: 1rem;">
-          <a href="https://invoiceninja.com" target="_blank">
-            <img style="height: 4rem; {{ $design == 'dark' ? 'filter: invert(100%);' : '' }}" src="{{ asset('images/created-by-invoiceninja-new.png') }}" alt="Invoice Ninja">
-          </a>
-      </div>
-    @endif
-  @endif
+<body style="margin: 0; padding: 0; background-color: {{ $design == 'light' ? '#F9FAFB' : '#111827' }};">
+<table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+    <tr>
+        <td style="padding: 20px; font-family: Arial, sans-serif, 'Open Sans'">
+            <table align="center" cellpadding="0" cellspacing="0" width="600"
+                   style="box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06)">
+                <tr>
+                    <td align="center" bgcolor="#4caf50" class="primary-color-bg" style="padding: 40px 0 30px 0;">
+                        {{ $header }}
+                    </td>
+                </tr>
+                <tr>
+                    <td bgcolor="{{ $design == 'light' ? '#ffffff' : '#1F2937'}}" style="padding: 40px 30px 40px 30px;">
+                        <table cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse;">
+                            <tr>
+                                <td align="center" id="email-content">
+                                    {{ $slot }}
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    @isset($whitelabel)
+                        @if(!$whitelabel)
+                            <td bgcolor="{{ $design == 'light' ? '#ffffff' : '#1F2937'}}" style="padding-top: 20px; padding-bottom: 20px;" align="center">
+                                <p style="margin: 0; border-top: 1px solid {{ $design == 'light' ? '#F3F4F6' : '#374151' }}; padding-top: 20px;">
+                                    <a href="https://invoiceninja.com" target="_blank">
+                                        <img
+                                            style="height: 4rem; {{ $design == 'dark' ? 'filter: invert(100%);' : '' }}"
+                                            src="{{ asset('images/created-by-invoiceninja-new.png') }}"
+                                            alt="Invoice Ninja">
+                                    </a>
+                                </p>
+                            </td>
+                        @endif
+                    @endif
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
 </body>
+
 </html>
