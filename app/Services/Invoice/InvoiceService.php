@@ -364,18 +364,19 @@ class InvoiceService
     {
         $settings = $this->invoice->client->getMergedSettings();
 
-        if (! $this->invoice->design_id) {
+        if (! $this->invoice->design_id) 
             $this->invoice->design_id = $this->decodePrimaryKey($settings->invoice_design_id);
-        }
-            
-        if (!isset($this->invoice->footer)) {
-            $this->invoice->footer = $settings->invoice_footer;
-        }
-
-        if (!isset($this->invoice->terms)) {
-            $this->invoice->terms = $settings->invoice_terms;
-        }
         
+        if (!isset($this->invoice->footer)) 
+            $this->invoice->footer = $settings->invoice_footer;
+
+        if (!isset($this->invoice->terms)) 
+            $this->invoice->terms = $settings->invoice_terms;
+        
+        /* If client currency differs from the company default currency, then insert the client exchange rate on the model.*/
+        if(!isset($this->invoice->exchange_rate) && $this->invoice->client->currency()->id != (int) $this->invoice->company->settings->currency_id)
+            $this->invoice->exchange_rate = $this->invoice->client->currency()->exchange_rate;
+
         return $this;
     }
     

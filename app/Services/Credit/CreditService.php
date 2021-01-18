@@ -102,18 +102,18 @@ class CreditService
     {
         $settings = $this->credit->client->getMergedSettings();
 
-        if (! $this->credit->design_id) {
+        if (! $this->credit->design_id) 
             $this->credit->design_id = $this->decodePrimaryKey($settings->credit_design_id);
-        }
-            
-        if (!isset($this->credit->footer)) {
+        
+        if (!isset($this->credit->footer)) 
             $this->credit->footer = $settings->credit_footer;
-        }
 
-        if (!isset($this->credit->terms)) {
+        if (!isset($this->credit->terms)) 
             $this->credit->terms = $settings->credit_terms;
-        }
 
+        /* If client currency differs from the company default currency, then insert the client exchange rate on the model.*/
+        if(!isset($this->credit->exchange_rate) && $this->credit->client->currency()->id != (int) $this->credit->company->settings->currency_id)
+            $this->credit->exchange_rate = $this->credit->client->currency()->exchange_rate;
         
         return $this;
     }
