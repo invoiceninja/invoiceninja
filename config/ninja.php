@@ -33,7 +33,7 @@ return [
     'phantomjs_secret' => env('PHANTOMJS_SECRET', false),
     'phantomjs_pdf_generation' => env('PHANTOMJS_PDF_GENERATION', true),
     'trusted_proxies' => env('TRUSTED_PROXIES', false),
-
+    'is_docker' => env('IS_DOCKER', false),
     'sentry_dsn' => env('SENTRY_LARAVEL_DSN', 'https://9b4e15e575214354a7d666489783904a@sentry.invoicing.co/6'),
     'environment' => env('NINJA_ENVIRONMENT', 'selfhost'), // 'hosted', 'development', 'selfhost', 'reseller'
 
