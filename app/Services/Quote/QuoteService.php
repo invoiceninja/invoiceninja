@@ -171,6 +171,9 @@ class QuoteService
             $this->quote->terms = $settings->quote_terms;
         }
 
+        if (!isset($this->quote->public_notes)) {
+            $this->quote->public_notes = $this->quote->client->public_notes;
+        }
         
         return $this;
     }

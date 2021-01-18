@@ -114,6 +114,9 @@ class CreditService
             $this->credit->terms = $settings->credit_terms;
         }
 
+        if (!isset($this->credit->public_notes)) {
+            $this->credit->public_notes = $this->credit->client->public_notes;
+        }
         
         return $this;
     }
