@@ -171,6 +171,9 @@ class QuoteService
         /* If client currency differs from the company default currency, then insert the client exchange rate on the model.*/
         if(!isset($this->quote->exchange_rate) && $this->quote->client->currency()->id != (int) $this->quote->company->settings->currency_id)
             $this->quote->exchange_rate = $this->quote->client->currency()->exchange_rate;
+
+        if (!isset($this->quote->public_notes)) 
+            $this->quote->public_notes = $this->quote->client->public_notes;
         
         return $this;
     }

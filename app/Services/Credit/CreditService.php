@@ -114,6 +114,10 @@ class CreditService
         /* If client currency differs from the company default currency, then insert the client exchange rate on the model.*/
         if(!isset($this->credit->exchange_rate) && $this->credit->client->currency()->id != (int) $this->credit->company->settings->currency_id)
             $this->credit->exchange_rate = $this->credit->client->currency()->exchange_rate;
+
+        if (!isset($this->credit->public_notes)) 
+            $this->credit->public_notes = $this->credit->client->public_notes;
+
         
         return $this;
     }

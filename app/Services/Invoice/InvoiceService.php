@@ -372,6 +372,9 @@ class InvoiceService
 
         if (!isset($this->invoice->terms)) 
             $this->invoice->terms = $settings->invoice_terms;
+
+        if (!isset($this->invoice->public_notes)) 
+            $this->invoice->public_notes = $this->invoice->client->public_notes;
         
         /* If client currency differs from the company default currency, then insert the client exchange rate on the model.*/
         if(!isset($this->invoice->exchange_rate) && $this->invoice->client->currency()->id != (int) $this->invoice->company->settings->currency_id)
