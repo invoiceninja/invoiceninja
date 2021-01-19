@@ -24,7 +24,7 @@ class CloneInvoiceFactory
         $clone_invoice->due_date = null;
         $clone_invoice->partial_due_date = null;
         $clone_invoice->user_id = $user_id;
-        $clone_invoice->balance = $invoice->amount;
+        //$clone_invoice->balance = $invoice->amount;
         $clone_invoice->amount = $invoice->amount;
         $clone_invoice->line_items = $invoice->line_items;
 
