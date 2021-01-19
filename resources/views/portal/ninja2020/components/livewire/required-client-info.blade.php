@@ -12,13 +12,27 @@
 
         <form wire:submit.prevent="handleSubmit(Object.fromEntries(new FormData($event.target)))">
             @foreach($fields as $field)
-                @component('portal.ninja2020.components.general.card-element', ['title' => $field['label']])
-                    <input class="input w-full" type="{{ $field['type'] }}" name="{{ $field['name'] }}">
+                @if(!array_key_exists('filled', $field))
+                    @component('portal.ninja2020.components.general.card-element', ['title' => $field['label']])
+                        @if($field['name'] == 'client_country_id' || $field['name'] == 'client_shipping_country_id')
+                            <select id="country" class="input w-full form-select" name="{{ $field['name'] }}">
+                                <option value="none"></option>
 
-                    @if(session()->has('validation_errors') && array_key_exists($field['name'], session('validation_errors')))
-                        <p class="mt-2 text-gray-900 border-red-300 px-2 py-1 bg-gray-100">{{ session('validation_errors')[$field['name']][0] }}</p>
-                    @endif
-                @endcomponent
+                                @foreach($countries as $country)
+                                    <option value="{{ $country->id }}">
+                                        {{ $country->iso_3166_2 }} ({{ $country->name }})
+                                    </option>
+                                @endforeach
+                            </select>
+                        @else
+                            <input class="input w-full" type="{{ $field['type'] }}" name="{{ $field['name'] }}">
+                        @endif
+
+                        @if(session()->has('validation_errors') && array_key_exists($field['name'], session('validation_errors')))
+                            <p class="mt-2 text-gray-900 border-red-300 px-2 py-1 bg-gray-100">{{ session('validation_errors')[$field['name']][0] }}</p>
+                        @endif
+                    @endcomponent
+                @endif
             @endforeach
 
             @component('portal.ninja2020.components.general.card-element-single')

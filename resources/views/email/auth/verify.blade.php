@@ -1,35 +1,12 @@
-@component('mail::layout')
+@component('email.template.master', ['design' => 'light', 'whitelabel' => false])
 
-{{-- Header --}}
-@slot('header')
-@component('mail::header', ['url' => config('app.url')])
-Header Title
-@endcomponent
-@endslot
+    @slot('header')
+        @include('email.components.header', ['logo' => 'https://www.invoiceninja.com/wp-content/uploads/2015/10/logo-white-horizontal-1.png'])
+    @endslot
 
-{{-- Body --}}
-{{ $user }}
-trans('texts.confirmation_message')
+    <p>{{ ctrans('texts.confirmation_message') }}</p>
 
-@component('mail::button', ['url' => url("/user/confirm/{$user->confirmation_code}")])
-trans('texts.confirm')
-@endcomponent
-
-{{-- Subcopy --}}
-@isset($subcopy)
-@slot('subcopy')
-@component('mail::subcopy')
-{{ $subcopy }}
-@endcomponent
-@endslot
-@endisset
-
-
-{{-- Footer --}}
-@slot('footer')
-@component('mail::footer')
-© {{ date('Y') }} {{ config('ninja.app_name') }}.
-@endcomponent
-@endslot
-
+    <a href="{{ url("/user/confirm/{$user->confirmation_code}") }}" target="_blank" class="button">
+        {{ ctrans('texts.confirm') }}
+    </a>
 @endcomponent

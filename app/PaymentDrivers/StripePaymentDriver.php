@@ -21,6 +21,7 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\SystemLog;
+use App\PaymentDrivers\Stripe\ACH;
 use App\PaymentDrivers\Stripe\Alipay;
 use App\PaymentDrivers\Stripe\Charge;
 use App\PaymentDrivers\Stripe\CreditCard;
@@ -56,7 +57,7 @@ class StripePaymentDriver extends BaseDriver
 
     public static $methods = [
         GatewayType::CREDIT_CARD => CreditCard::class,
-        GatewayType::BANK_TRANSFER => SOFORT::class,
+        GatewayType::BANK_TRANSFER => ACH::class,
         GatewayType::ALIPAY => Alipay::class,
         GatewayType::SOFORT => SOFORT::class,
         GatewayType::APPLE_PAY => 1, // TODO
