@@ -12,7 +12,6 @@
 
 namespace App\PaymentDrivers\Authorize;
 
-use App\Events\Payment\PaymentWasCreated;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
@@ -21,7 +20,6 @@ use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\AuthorizePaymentDriver;
-use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 
 /**
@@ -50,7 +48,7 @@ class AuthorizeCreditCard
         $data['public_client_id'] = $this->authorize->init()->getPublicClientKey();
         $data['api_login_id'] = $this->authorize->company_gateway->getConfigField('apiLoginId');
 
-        return render('gateways.authorize.credit_card_payment', $data);
+        return render('gateways.authorize.credit_card.pay', $data);
     }
 
     public function processPaymentResponse($request)
@@ -97,7 +95,6 @@ class AuthorizeCreditCard
 
         /*Refactor and push to BaseDriver*/
         if ($data['response'] != null && $data['response']->getMessages()->getResultCode() == 'Ok') {
-
             $this->storePayment($payment_hash, $data);
 
             $vars = [
@@ -184,7 +181,8 @@ class AuthorizeCreditCard
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_SUCCESS,
             SystemLog::TYPE_AUTHORIZE,
-            $this->authorize->client);
+            $this->authorize->client
+        );
 
         return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
     }
