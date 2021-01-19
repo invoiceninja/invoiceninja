@@ -31,6 +31,11 @@ class SOFORT
         $this->stripe = $stripe;
     }
 
+    public function authorizeView($data)
+    {
+        return render('gateways.stripe.sofort.authorize', $data);
+    }
+
     public function paymentView(array $data)
     {
         $data['gateway'] = $this->stripe;

@@ -38,7 +38,6 @@
         "composer/composer": "^2",
         "czproject/git-php": "^3.17",
         "doctrine/dbal": "^2.10",
-        "fedeisas/laravel-mail-css-inliner": "^3",
         "fideloper/proxy": "^4.2",
         "fzaninotto/faker": "^1.4",
         "google/apiclient": "^2.7",
