@@ -49,7 +49,7 @@ class AuthorizePaymentMethod
             return $this->authorizeCreditCard();
         }
 
-        
+
         // case GatewayType::BANK_TRANSFER:
         //     return $this->authorizeBankTransfer();
         //     break;
@@ -58,7 +58,7 @@ class AuthorizePaymentMethod
     public function authorizeResponseView($request)
     {
         $data = $request->all();
-        
+
         $this->payment_method_id = $data['method'];
 
         switch ($this->payment_method_id) {
@@ -81,7 +81,7 @@ class AuthorizePaymentMethod
         $data['public_client_id'] = $this->authorize->init()->getPublicClientKey();
         $data['api_login_id'] = $this->authorize->company_gateway->getConfigField('apiLoginId');
 
-        return render('gateways.authorize.add_credit_card', $data);
+        return render('gateways.authorize.credit_card.authorize', $data);
     }
 
     public function authorizeBankTransfer()

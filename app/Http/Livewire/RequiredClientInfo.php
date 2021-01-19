@@ -28,6 +28,11 @@ class RequiredClientInfo extends Component
     public $contact;
 
     /**
+     * @var array
+     */
+    public $countries;
+
+    /**
      * Mappings for updating the database. Left side is mapping from gateway,
      * right side is column in database.
      *
@@ -58,16 +63,18 @@ class RequiredClientInfo extends Component
         'contact_phone' => 'phone',
     ];
 
-    public $show_form = true;
+    public $show_form = false;
 
     public function handleSubmit(array $data): bool
     {
         $rules = [];
 
         collect($this->fields)->map(function ($field) use (&$rules) {
-            $rules[$field['name']] = array_key_exists('validation_rules', $field)
-                ? $field['validation_rules']
-                : 'required';
+            if (!array_key_exists('filled', $field)) {
+                $rules[$field['name']] = array_key_exists('validation_rules', $field)
+                    ? $field['validation_rules']
+                    : 'required';
+            }
         });
 
         $validator = Validator::make($data, $rules);
@@ -120,19 +127,23 @@ class RequiredClientInfo extends Component
 
     public function checkFields()
     {
-        foreach ($this->fields as $field) {
+        foreach ($this->fields as $index => $field) {
             $_field = $this->mappings[$field['name']];
 
             if (Str::startsWith($field['name'], 'client_')) {
-                (empty($this->contact->client->{$_field}) || is_null($this->contact->client->{$_field}))
-                    ? $this->show_form = true
-                    : $this->show_form = false;
+                if (empty($this->contact->client->{$_field}) || is_null($this->contact->client->{$_field})) {
+                    $this->show_form = true;
+                } else {
+                    $this->fields[$index]['filled'] = true;
+                }
             }
 
             if (Str::startsWith($field['name'], 'contact_')) {
-                (empty($this->contact->{$_field}) || is_null($this->contact->{$_field}))
-                    ? $this->show_form = true
-                    : $this->show_form = false;
+                if ((empty($this->contact->{$_field}) || is_null($this->contact->{$_field}))) {
+                    $this->show_form = true;
+                } else {
+                    $this->fields[$index]['filled'] = true;
+                }
             }
         }
     }
