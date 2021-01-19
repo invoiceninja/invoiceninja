@@ -1,31 +1,13 @@
-@component('email.template.master', ['design' => 'light', 'settings' =>$settings])
+@component('email.template.master', ['design' => 'light', 'settings' => $settings])
 
-@slot('header')
-    @component('email.components.header')
-        Migration completed
-    @endcomponent
-@endslot
+    @slot('header')
+        @include('email.components.header', ['logo' => 'https://www.invoiceninja.com/wp-content/uploads/2015/10/logo-white-horizontal-1.png'])
+    @endslot
 
-@slot('greeting')
-	Hello,
-@endslot
+    <h1>Migration completed</h1>
+    <p>We're happy to inform you that migration has been completed successfully. It is ready for you to review it.</p>
 
-We're happy to inform you that migration has been completed successfully. It is ready for you to review it.
+    <a href="{{ url('/') }}" target="_blank" class="button">Visit portal</a>
 
-@component('email.components.button', ['url' => url('/')])
-    Visit portal
-@endcomponent
-
-
-@slot('signature')
-Thank you, <br>
-Invoice Ninja    
-@endslot
-
-@slot('footer')
-    @component('email.components.footer', ['url' => 'https://invoiceninja.com', 'url_text' => '&copy; InvoiceNinja'])
-        For any info, please visit InvoiceNinja.
-    @endcomponent
-@endslot
-
+    <p>Thank you, <br/> Invoice Ninja</p>
 @endcomponent

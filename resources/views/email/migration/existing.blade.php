@@ -1,4 +1,4 @@
-@component('email.template.master', ['design' => 'light', 'settings' =>$settings])
+@component('email.template.master', ['design' => 'light', 'settings' => $settings])
 
 @slot('header')
     @component('email.components.header')
@@ -19,7 +19,7 @@ Looks like you already migrated your data to V2 version of the Invoice Ninja. In
 
 @slot('signature')
 Thank you, <br>
-Invoice Ninja    
+Invoice Ninja
 @endslot
 
 @slot('footer')

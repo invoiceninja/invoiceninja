@@ -22,14 +22,18 @@
         background-color: var(--primary-color);
     }
 
-    #email-content h1 {
+    #email-content h1, h2, h3, h4 {
         display: block;
         color: {{ $design == 'light' ? 'black' : 'white' }};
+        padding-bottom: 20px;
+        padding-top: 20px;
     }
 
     #email-content p {
         display: block;
         color: {{ $design == 'light' ? 'black' : 'white' }};
+        padding-bottom: 20px;
+        padding-top: 20px;
     }
 
     .button {
