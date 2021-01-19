@@ -36,7 +36,6 @@ jobs:
           php artisan optimize
           php artisan storage:link
           sudo php artisan cache:clear
-          sudo find ./ -type f -exec chmod 644 {} \;
           sudo find ./vendor/bin/ -type f -exec chmod +x {} \;
           sudo find ./ -type d -exec chmod 755 {} \;
           

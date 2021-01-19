@@ -120,6 +120,12 @@ class ActivityRepository extends BaseRepository
         $entity_design_id = $entity->design_id ? $entity->design_id : $this->decodePrimaryKey($entity->client->getSetting($entity_design_id));
 
         $design = Design::find($entity_design_id);
+
+        if(!$entity->invitations()->exists()){
+            nlog("No invitations for entity {$entity->id} - {$entity->number}");
+            return;
+        }
+
         $html = new HtmlEngine($entity->invitations->first());
 
         if ($design->is_custom) {

@@ -40,8 +40,8 @@ class ConvertQuote
         $invoice->fresh();
 
         $invoice->service()
-                ->markSent()
-                ->createInvitations()
+                // ->markSent()
+                // ->createInvitations()
                 ->save();
 
         $quote->invoice_id = $invoice->id;

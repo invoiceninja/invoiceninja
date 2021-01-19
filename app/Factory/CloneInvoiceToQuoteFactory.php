@@ -38,7 +38,7 @@ class CloneInvoiceToQuoteFactory
         $quote->custom_value3 = $invoice->custom_value3;
         $quote->custom_value4 = $invoice->custom_value4;
         $quote->amount = $invoice->amount;
-        $quote->balance = $invoice->amount;
+        //$quote->balance = $invoice->amount;
         $quote->partial = $invoice->partial;
         $quote->partial_due_date = $invoice->partial_due_date;
         $quote->last_viewed = $invoice->last_viewed;

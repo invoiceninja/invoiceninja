@@ -25,7 +25,7 @@ class CloneCreditFactory
         $clone_credit->due_date = null;
         $clone_credit->partial_due_date = null;
         $clone_credit->user_id = $user_id;
-        $clone_credit->balance = $credit->amount;
+        //$clone_credit->balance = $credit->amount;
         $clone_credit->line_items = $credit->line_items;
 
         return $clone_credit;

@@ -11,7 +11,6 @@
 
 namespace App\Jobs\Util;
 
-use Illuminate\Http\UploadedFile;
 use App\DataMapper\Analytics\MigrationFailure;
 use App\DataMapper\CompanySettings;
 use App\Exceptions\MigrationValidatorFailed;
@@ -37,6 +36,7 @@ use App\Libraries\MultiDB;
 use App\Mail\MigrationCompleted;
 use App\Models\Activity;
 use App\Models\Client;
+use App\Models\ClientContact;
 use App\Models\ClientGatewayToken;
 use App\Models\Company;
 use App\Models\CompanyGateway;
@@ -76,6 +76,7 @@ use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
@@ -470,17 +471,22 @@ class Import implements ShouldQueue
                 $contact_repository->save($saveable_contacts, $client);
 
                 //link contact ids
-                $client->fresh();
-                $new_contacts = $client->contacts;
 
                 foreach ($resource['contacts'] as $key => $old_contact) {
-                    $contact_match = $new_contacts->where('contact_key', $old_contact['contact_key'])->first();
+                    
+                    $contact_match = ClientContact::where('contact_key', $old_contact['contact_key'])
+                                                 ->where('company_id', $this->company->id)
+                                                 ->where('client_id', $client->id)
+                                                 ->withTrashed()
+                                                 ->first();
 
                     if ($contact_match) {
+                        
                         $this->ids['client_contacts']['client_contacts_'.$old_contact['id']] = [
                             'old' => $old_contact['id'],
                             'new' => $contact_match->id,
                         ];
+                        
                     }
                 }
             }
@@ -875,7 +881,7 @@ class Import implements ShouldQueue
                 PaymentFactory::create($this->company->id, $modified['user_id'])
             );
 
-            if ($resource['company_gateway_id'] != 'NULL' && $resource['company_gateway_id'] != null) {
+            if (array_key_exists('company_gateway_id', $resource) && isset($resource['company_gateway_id']) && $resource['company_gateway_id'] != 'NULL') {
                 $payment->company_gateway_id = $this->transformId('company_gateways', $resource['company_gateway_id']);
                 $payment->save();
             }

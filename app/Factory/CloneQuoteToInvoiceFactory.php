@@ -38,6 +38,7 @@ class CloneQuoteToInvoiceFactory
         $invoice->partial_due_date = null;
         $invoice->number = null;
         $invoice->date = now()->format('Y-m-d');
+        $invoice->balance = 0;
         return $invoice;
     }
 }

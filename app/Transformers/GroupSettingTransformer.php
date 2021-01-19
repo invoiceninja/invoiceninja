@@ -11,7 +11,9 @@
 
 namespace App\Transformers;
 
+use App\Models\Document;
 use App\Models\GroupSetting;
+use App\Transformers\DocumentTransformer;
 use App\Utils\Traits\MakesHash;
 use stdClass;
 
@@ -23,6 +25,7 @@ class GroupSettingTransformer extends EntityTransformer
     use MakesHash;
 
     protected $defaultIncludes = [
+        'documents'
     ];
 
     /**
@@ -47,4 +50,12 @@ class GroupSettingTransformer extends EntityTransformer
             'is_deleted' => (bool) $group_setting->is_deleted,
         ];
     }
+
+    public function includeDocuments(GroupSetting $group_setting)
+    {
+        $transformer = new DocumentTransformer($this->serializer);
+
+        return $this->includeCollection($group_setting->documents, $transformer, Document::class);
+    }
+
 }

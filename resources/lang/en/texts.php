@@ -3372,4 +3372,6 @@ return [
     'required_payment_information_more' => 'To complete a payment we need more details about you.',
 
     'required_client_info_save_label' => 'We will save this, so you don\'t have to enter it next time.',
+    'notification_credit_bounced' => 'We were unable to deliver Credit :invoice to :contact.',
+    'notification_credit_bounced_subject' => 'Unable to deliver Credit :invoice',
 ];

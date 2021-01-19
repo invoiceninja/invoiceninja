@@ -38,17 +38,20 @@ class QuoteService
         return $this;
     }
 
-    public function markApproved()
-    {
-        $mark_approved = new MarkApproved($this->quote->client);
-        $this->quote = $mark_approved->run($this->quote);
+    // public function markApproved()
+    // {
+    //     $mark_approved = new MarkApproved($this->quote->client);
+    //     $this->quote = $mark_approved->run($this->quote);
 
-        if ($this->quote->client->getSetting('auto_convert_quote') === true) {
-            $this->convert();
-        }
+    //     if ($this->quote->client->getSetting('auto_convert_quote') == true) {
+    //         $this->convert();
+    //     }
 
-        return $this;
-    }
+    //     $this->markSent()
+    //          ->createInvitations();
+
+    //     return $this;
+    // }
 
     public function convert() :self
     {
@@ -116,11 +119,17 @@ class QuoteService
 
         event(new QuoteWasApproved($contact, $this->quote, $this->quote->company, Ninja::eventVars()));
 
-        $invoice = null;
-
         if ($this->quote->client->getSetting('auto_convert_quote')) {
             $this->convert();
+
+            $this->invoice
+                 ->service()
+                 ->markSent()
+                 ->createInvitations()
+                 ->save();
+
         }
+
 
         if ($this->quote->client->getSetting('auto_archive_quote')) {
             $quote_repo = new QuoteRepository();
@@ -134,10 +143,12 @@ class QuoteService
     {
 
         //to prevent circular references we need to explicit call this here.
-        $mark_approved = new MarkApproved($this->quote->client);
-        $this->quote = $mark_approved->run($this->quote);
+        // $mark_approved = new MarkApproved($this->quote->client);
+        // $this->quote = $mark_approved->run($this->quote);
 
         $this->convert();
+
+        $this->invoice->service()->createInvitations();
 
         return $this->invoice;
     }
