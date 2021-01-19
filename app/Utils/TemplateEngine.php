@@ -44,6 +44,10 @@ class TemplateEngine
 
     private $settings;
 
+    private $raw_body;
+
+    private $raw_subject;
+
     public function __construct($body, $subject, $entity, $entity_id, $template)
     {
         $this->body = $body;
@@ -121,6 +125,9 @@ class TemplateEngine
 
     private function replaceValues()
     {
+        $this->raw_body = $this->body;
+        $this->raw_subject  = $this->subject;
+
         if ($this->entity_obj) {
             $this->entityValues($this->entity_obj->client->primary_contact()->first());
         } else {
@@ -156,6 +163,7 @@ class TemplateEngine
         $this->body = strtr($this->body, $data['labels']);
         $this->body = strtr($this->body, $data['values']);
         $this->body = str_replace("\n", "<br>", $this->body);
+
 
         $this->subject = strtr($this->subject, $data['labels']);
         $this->subject = strtr($this->subject, $data['values']);
@@ -197,9 +205,10 @@ class TemplateEngine
             'subject' => $this->subject,
             'body' => $this->body,
             'wrapper' => $wrapper,
+            'raw_body' => $this->raw_body,
+            'raw_subject' => $this->raw_subject
         ];
-
-
+        
         $this->tearDown();
 
         return $data;
