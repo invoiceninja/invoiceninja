@@ -232,7 +232,7 @@ trait GenerateMigrationResources
                 'shipping_state' => $client->shipping_state,
                 'shipping_postal_code' => $client->shipping_postal_code,
                 'shipping_country_id' => $client->shipping_country_id,
-                'contacts' => $this->getClientContacts($client->contacts()->withTrashed()),
+                'contacts' => $this->getClientContacts($client),
                 'settings' => $this->getClientSettings($client),
                 'created_at' => $client->created_at ? Carbon::parse($client->created_at)->toDateString() : null,
                 'updated_at' => $client->updated_at ? Carbon::parse($client->updated_at)->toDateString() : null,
@@ -255,8 +255,10 @@ trait GenerateMigrationResources
         return $settings;
     }
 
-    protected function getClientContacts($contacts)
+    protected function getClientContacts($client)
     {
+        $contacts = Contact::where('client_id', $client->id)->withTrashed()->get();
+
         $transformed = [];
 
         foreach ($contacts as $contact) {
