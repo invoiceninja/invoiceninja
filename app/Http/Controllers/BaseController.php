@@ -75,7 +75,7 @@ class BaseController extends Controller
           'company.credits.invitations.company',
           'company.credits.documents',
           'company.expenses.documents',
-          'company.groups',
+          'company.groups.documents',
           'company.invoices.invitations.contact',
           'company.invoices.invitations.company',
           'company.invoices.documents',

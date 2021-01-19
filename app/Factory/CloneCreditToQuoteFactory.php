@@ -39,7 +39,7 @@ class CloneCreditToQuoteFactory
         $quote->custom_value3 = $credit->custom_value3;
         $quote->custom_value4 = $credit->custom_value4;
         $quote->amount = $credit->amount;
-        $quote->balance = $credit->balance;
+        //$quote->balance = $credit->balance;
         $quote->partial = $credit->partial;
         $quote->partial_due_date = $credit->partial_due_date;
         $quote->last_viewed = $credit->last_viewed;
@@ -49,7 +49,7 @@ class CloneCreditToQuoteFactory
         $quote->date = null;
         $quote->due_date = null;
         $quote->partial_due_date = null;
-        $quote->balance = $credit->amount;
+        // $quote->balance = $credit->amount;
         $quote->line_items = $credit->line_items;
 
         return $quote;
