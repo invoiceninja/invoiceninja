@@ -64,8 +64,8 @@ class EntityFailedSendObject
 
         switch ($this->template) {
             case 'invoice':
-                $this->template_subject = "texts.notification_invoice_sent_subject";
-                $this->template_body = "texts.notification_invoice_sent";
+                $this->template_subject = "texts.notification_invoice_bounced_subject";
+                $this->template_body = "texts.notification_invoice_bounced";
                 break;
             case 'reminder1':
                 $this->template_subject = "texts.notification_invoice_reminder1_sent_subject";
@@ -84,12 +84,12 @@ class EntityFailedSendObject
                 $this->template_body = "texts.notification_invoice_sent";
                 break;
             case 'quote':
-                $this->template_subject = "texts.notification_quote_sent_subject";
+                $this->template_subject = "texts.notification_quote_bounced_subject";
                 $this->template_body = "texts.notification_quote_sent";
                 break;
             case 'credit':
-                $this->template_subject = "texts.notification_credit_sent_subject";
-                $this->template_body = "texts.notification_credit_sent";
+                $this->template_subject = "texts.notification_credit_bounced_subject";
+                $this->template_body = "texts.notification_credit_bounced";
                 break;
             default:
                 $this->template_subject = "texts.notification_invoice_sent_subject";
