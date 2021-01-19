@@ -3262,6 +3262,7 @@ return [
     'cancelled' => 'Cancelled',
 
     'checkout_authorize_label' => 'Checkout.com can be can saved as payment method for future use, once you complete your first transaction. Don\'t forget to check "Store credit card details" during payment process.',
+    'sofort_authorize_label' => 'Bank account (SOFORT) can be can saved as payment method for future use, once you complete your first transaction. Don\'t forget to check "Store payment details" during payment process.',
 
     'node_status' => 'Node status',
     'npm_status' => 'NPM status',
