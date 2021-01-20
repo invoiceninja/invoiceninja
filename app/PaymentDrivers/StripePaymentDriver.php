@@ -25,6 +25,7 @@ use App\PaymentDrivers\Stripe\ACH;
 use App\PaymentDrivers\Stripe\Alipay;
 use App\PaymentDrivers\Stripe\Charge;
 use App\PaymentDrivers\Stripe\CreditCard;
+use App\PaymentDrivers\Stripe\Mobile;
 use App\PaymentDrivers\Stripe\SOFORT;
 use App\PaymentDrivers\Stripe\Utilities;
 use App\Utils\Traits\MakesHash;
@@ -60,7 +61,7 @@ class StripePaymentDriver extends BaseDriver
         GatewayType::BANK_TRANSFER => ACH::class,
         GatewayType::ALIPAY => Alipay::class,
         GatewayType::SOFORT => SOFORT::class,
-        GatewayType::APPLE_PAY => 1, // TODO
+        GatewayType::APPLE_PAY => Mobile::class,
         GatewayType::SEPA => 1, // TODO
     ];
 
