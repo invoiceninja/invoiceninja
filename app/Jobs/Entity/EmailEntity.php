@@ -15,6 +15,7 @@ use App\Events\Invoice\InvoiceReminderWasEmailed;
 use App\Events\Invoice\InvoiceWasEmailed;
 use App\Events\Invoice\InvoiceWasEmailedAndFailed;
 use App\Jobs\Mail\BaseMailerJob;
+use App\Jobs\Mail\EntityFailedSendMailer;
 use App\Libraries\MultiDB;
 use App\Mail\TemplateEmail;
 use App\Models\Activity;
@@ -110,7 +111,6 @@ class EmailEntity extends BaseMailerJob implements ShouldQueue
                     )
                 );
         } catch (\Exception $e) {
-
             $this->entityEmailFailed($e->getMessage());
             $this->logMailError($e->getMessage(), $this->entity->client);
         }
@@ -136,7 +136,7 @@ class EmailEntity extends BaseMailerJob implements ShouldQueue
     {
         switch ($this->entity_string) {
             case 'invoice':
-                event(new InvoiceWasEmailedAndFailed($this->invitation->invoice, $this->company, $message, Ninja::eventVars()));
+                event(new InvoiceWasEmailedAndFailed($this->invitation, $this->company, $message, $this->reminder_template, Ninja::eventVars()));
                 break;
 
             default:

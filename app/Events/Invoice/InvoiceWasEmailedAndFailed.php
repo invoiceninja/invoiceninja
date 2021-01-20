@@ -12,7 +12,7 @@
 namespace App\Events\Invoice;
 
 use App\Models\Company;
-use App\Models\Invoice;
+use App\Models\InvoiceInvitation;
 use Illuminate\Queue\SerializesModels;
 
 /**
@@ -22,36 +22,34 @@ class InvoiceWasEmailedAndFailed
 {
     use SerializesModels;
 
-    /**
-     * @var Invoice
-     */
-    public $invoice;
+    public $invitation;
 
-    /**
-     * @var array
-     */
-    public $errors;
+    public $message;
 
     public $company;
 
     public $event_vars;
 
+    public $template;
+
     /**
      * Create a new event instance.
      *
-     * @param Invoice $invoice
+     * @param InvoiceInvitation $invitation
      * @param Company $company
      * @param string $errors
      * @param array $event_vars
      */
-    public function __construct(Invoice $invoice, Company $company, string $errors, array $event_vars)
+    public function __construct(InvoiceInvitation $invitation, Company $company, string $message, string $template, array $event_vars)
     {
-        $this->invoice = $invoice;
+        $this->invitation = $invitation;
 
         $this->company = $company;
 
-        $this->errors = $errors;
+        $this->message = $message;
 
         $this->event_vars = $event_vars;
+
+        $this->template = $template;
     }
 }

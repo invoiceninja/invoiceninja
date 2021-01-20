@@ -129,9 +129,6 @@ class EmailController extends BaseController
                 ];
                 
                 $entity_obj->service()->markSent()->save();
-
-                //@TODO why is this dispatchNow instead of just dispatch?
-                //update - changing to dispatch and see if something breaks.
                 EmailEntity::dispatch($invitation, $invitation->company, $template, $data)->delay(now()->addSeconds(5));
             }
         });

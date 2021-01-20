@@ -711,6 +711,7 @@ class InvoiceController extends BaseController
                 break;
             case 'email':
                 //check query parameter for email_type and set the template else use calculateTemplate
+
                 if (request()->has('email_type') && property_exists($invoice->company->settings, request()->input('email_type'))) {
                     $this->reminder_template = $invoice->client->getSetting(request()->input('email_type'));
                 } else {
@@ -725,7 +726,7 @@ class InvoiceController extends BaseController
                 });
 
                 if ($invoice->invitations->count() >= 1) {
-                    $invoice->entityEmailEvent($invoice->invitations->first(), $this->reminder_template);
+                    $invoice->entityEmailEvent($invoice->invitations->first(), 'invoice', $this->reminder_template);
                 }
 
                 if (! $bulk) {
