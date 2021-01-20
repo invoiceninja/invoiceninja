@@ -155,10 +155,5 @@ class SendTestEmails extends Command
                       ->setSubject($message['subject'])
                       ->setBody($message['body']);
 
-        // Mail::to(config('ninja.testvars.test_email'), 'Mr Test')
-        //     ->cc($cc_emails)
-        //     ->bcc($bcc_emails)
-            //->replyTo(also_available_if_needed)
-            //->send(new TemplateEmail($email_builder, $user, $client));
     }
 }

@@ -1,5 +1,6 @@
 @component('email.template.master', ['design' => 'light', 'settings' => $settings])
 
+
     @slot('header')
         @include('email.components.header', ['logo' => $logo])
     @endslot

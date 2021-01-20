@@ -42,6 +42,7 @@ use App\Events\Invoice\InvoiceWasCancelled;
 use App\Events\Invoice\InvoiceWasCreated;
 use App\Events\Invoice\InvoiceWasDeleted;
 use App\Events\Invoice\InvoiceWasEmailed;
+use App\Events\Invoice\InvoiceWasEmailedAndFailed;
 use App\Events\Invoice\InvoiceWasMarkedSent;
 use App\Events\Invoice\InvoiceWasPaid;
 use App\Events\Invoice\InvoiceWasRestored;
@@ -128,6 +129,7 @@ use App\Listeners\Invoice\InvoiceDeletedActivity;
 use App\Listeners\Invoice\InvoiceEmailActivity;
 use App\Listeners\Invoice\InvoiceEmailFailedActivity;
 use App\Listeners\Invoice\InvoiceEmailedNotification;
+use App\Listeners\Invoice\InvoiceFailedEmailNotification;
 use App\Listeners\Invoice\InvoicePaidActivity;
 use App\Listeners\Invoice\InvoiceReminderEmailActivity;
 use App\Listeners\Invoice\InvoiceRestoredActivity;
@@ -310,6 +312,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         InvoiceWasEmailedAndFailed::class => [
             InvoiceEmailFailedActivity::class,
+            InvoiceFailedEmailNotification::class,
         ],
         InvoiceReminderWasEmailed::class => [
             InvoiceReminderEmailActivity::class,

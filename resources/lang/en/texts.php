@@ -728,9 +728,9 @@ return [
     'disable' => 'Disable',
     'invoice_quote_number' => 'Invoice and Quote Numbers',
     'invoice_charges' => 'Invoice Surcharges',
-    'notification_invoice_bounced' => 'We were unable to deliver Invoice :invoice to :contact.',
+    'notification_invoice_bounced' => 'We were unable to deliver Invoice :invoice to :contact. \n :error',
     'notification_invoice_bounced_subject' => 'Unable to deliver Invoice :invoice',
-    'notification_quote_bounced' => 'We were unable to deliver Quote :invoice to :contact.',
+    'notification_quote_bounced' => 'We were unable to deliver Quote :invoice to :contact. \n :error',
     'notification_quote_bounced_subject' => 'Unable to deliver Quote :invoice',
     'custom_invoice_link' => 'Custom Invoice Link',
     'total_invoiced' => 'Total Invoiced',
@@ -3372,6 +3372,6 @@ return [
     'required_payment_information_more' => 'To complete a payment we need more details about you.',
 
     'required_client_info_save_label' => 'We will save this, so you don\'t have to enter it next time.',
-    'notification_credit_bounced' => 'We were unable to deliver Credit :invoice to :contact.',
+    'notification_credit_bounced' => 'We were unable to deliver Credit :invoice to :contact. \n :error',
     'notification_credit_bounced_subject' => 'Unable to deliver Credit :invoice',
 ];

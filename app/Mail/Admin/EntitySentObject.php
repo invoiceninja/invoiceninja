@@ -91,6 +91,7 @@ class EntitySentObject
                 $this->template_subject = "texts.notification_credit_sent_subject";
                 $this->template_body = "texts.notification_credit_sent";
                 break;
+
             default:
                 $this->template_subject = "texts.notification_invoice_sent_subject";
                 $this->template_body = "texts.notification_invoice_sent";
@@ -115,20 +116,25 @@ class EntitySentObject
             );
     }
 
-    private function getData()
+    private function getMessage()
     {
-        $settings = $this->entity->client->getMergedSettings();
-
-        return [
-            'title' => $this->getSubject(),
-            'message' => ctrans(
+        return ctrans(
                 $this->template_body,
                 [
                     'amount' => $this->getAmount(),
                     'client' => $this->contact->present()->name(),
                     'invoice' => $this->entity->number,
                 ]
-            ),
+            );
+    }
+
+    private function getData()
+    {
+        $settings = $this->entity->client->getMergedSettings();
+
+        return [
+            'title' => $this->getSubject(),
+            'message' => $this->getMessage(),
             'url' => $this->invitation->getAdminLink(),
             'button' => ctrans("texts.view_{$this->entity_type}"),
             'signature' => $settings->email_signature,

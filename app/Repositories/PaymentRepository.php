@@ -64,6 +64,8 @@ class PaymentRepository extends BaseRepository
      */
     private function applyPayment(array $data, Payment $payment): ?Payment
     {
+nlog($data);
+
         $is_existing_payment = true;
 
         //check currencies here and fill the exchange rate data if necessary
@@ -117,6 +119,8 @@ class PaymentRepository extends BaseRepository
         if (array_key_exists('invoices', $data) && is_array($data['invoices']) && count($data['invoices']) > 0) {
             $invoice_totals = array_sum(array_column($data['invoices'], 'amount'));
 
+nlog("invoice totals = {$invoice_totals}");
+
             $invoices = Invoice::whereIn('id', array_column($data['invoices'], 'invoice_id'))->get();
 
             $payment->invoices()->saveMany($invoices);
@@ -154,6 +158,11 @@ class PaymentRepository extends BaseRepository
         if (!$is_existing_payment) {
             event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
         }
+
+        nlog("payment amount = {$payment->amount}");
+        nlog("payment applied = {$payment->applied}");
+        nlog("invoice totals = {$invoice_totals}");
+        nlog("credit totals = {$credit_totals}");
 
         $payment->applied += ($invoice_totals - $credit_totals); //wont work because - check tests
         // $payment->applied += $invoice_totals; //wont work because - check tests
