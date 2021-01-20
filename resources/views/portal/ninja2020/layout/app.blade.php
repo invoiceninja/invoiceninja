@@ -72,8 +72,10 @@
         {{-- Feel free to push anything to header using @push('header') --}}
         @stack('head')
 
-        @if((bool) \App\Utils\Ninja::isSelfHost())
-            {!! $client->getSetting('portal_custom_head') !!}
+        @if((bool) \App\Utils\Ninja::isSelfHost() && !empty($client->getSetting('portal_custom_head')))
+            <div class="py-1 text-sm text-center text-white bg-primary">
+                {!! $client->getSetting('portal_custom_head') !!}
+            </div>
         @endif
 
         <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css" />
@@ -125,7 +127,9 @@
         @stack('footer')
 
         @if((bool) \App\Utils\Ninja::isSelfHost())
-            {!! $client->getSetting('portal_custom_footer') !!}
+            <div class="py-1 text-sm text-center text-white bg-primary">
+                {!! $client->getSetting('portal_custom_footer') !!}
+            </div>
         @endif
     </footer>
 
