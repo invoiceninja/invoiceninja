@@ -68,8 +68,8 @@
                 </dt>
                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
                     <select name="encryption" class="input w-full form-select">
-                        <option value="tls">TLS</option>
-                        <option value="ssl">SSL</option>
+                        <option value="tls">STARTTLS</option>
+                        <option value="ssl">SSL/TLS</option>
                     </select>
                 </dd>
             </div>
