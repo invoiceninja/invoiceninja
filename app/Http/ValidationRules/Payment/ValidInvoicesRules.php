@@ -72,7 +72,7 @@ class ValidInvoicesRules implements Rule
                 return false;
             }
 
-            if($inv->status_id == Invoice::STATUS_DRAFT && $invoice['amount'] == $inv->amount){
+            if($inv->status_id == Invoice::STATUS_DRAFT && $invoice['amount'] <= $inv->amount){
                 //catch here nothing to do - we need this to prevent the last elseif triggering
             }
             else if($inv->status_id == Invoice::STATUS_DRAFT && $invoice['amount'] > $inv->amount){
