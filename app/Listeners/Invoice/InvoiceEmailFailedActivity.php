@@ -39,17 +39,19 @@ class InvoiceEmailFailedActivity implements ShouldQueue
      */
     public function handle($event)
     {
+        nlog("inside activity_repo");
+        
         MultiDB::setDb($event->company->db);
 
         $fields = new stdClass;
 
-        $fields->invoice_id = $event->invoice->id;
-        $fields->client_id = $event->invoice->client_id;
-        $fields->user_id = $event->invoice->user_id;
-        $fields->company_id = $event->invoice->company_id;
+        $fields->invoice_id = $event->invitation->invoice->id;
+        $fields->client_id = $event->invitation->invoice->client_id;
+        $fields->user_id = $event->invitation->invoice->user_id;
+        $fields->company_id = $event->invitation->invoice->company_id;
         $fields->activity_type_id = Activity::EMAIL_INVOICE_FAILED;
-        $fields->notes = $event->errors;
+        $fields->notes = $event->message;
 
-        $this->activity_repo->save($fields, $event->invoice, $event->event_vars);
+        $this->activity_repo->save($fields, $event->invitation->invoice, $event->event_vars);
     }
 }
