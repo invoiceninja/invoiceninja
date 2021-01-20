@@ -3374,4 +3374,6 @@ return [
     'required_client_info_save_label' => 'We will save this, so you don\'t have to enter it next time.',
     'notification_credit_bounced' => 'We were unable to deliver Credit :invoice to :contact.',
     'notification_credit_bounced_subject' => 'Unable to deliver Credit :invoice',
+
+    'save_payment_method_details' => 'Save payment method details',
 ];

@@ -31,8 +31,8 @@ mix.js("resources/js/app.js", "public/js")
         "public/js/clients/payments/stripe-alipay.js"
     )
     .js(
-        "resources/js/clients/payments/checkout.com.js",
-        "public/js/clients/payments/checkout.com.js"
+        "resources/js/clients/payments/checkout-credit-card.js",
+        "public/js/clients/payments/checkout-credit-card.js"
     )
     .js(
         "resources/js/clients/quotes/action-selectors.js",
@@ -47,7 +47,7 @@ mix.js("resources/js/app.js", "public/js")
         "public/js/clients/payments/stripe-credit-card.js"
     )
     .js(
-        "resources/js/setup/setup.js", 
+        "resources/js/setup/setup.js",
         "public/js/setup/setup.js"
     )
     .js(

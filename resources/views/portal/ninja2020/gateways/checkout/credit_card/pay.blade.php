@@ -7,7 +7,109 @@
     <meta name="currency" content="{{ $currency }}">
     <meta name="reference" content="{{ $payment_hash }}">
 
-    <style>*,*::after,*::before{box-sizing:border-box}html{background-color:#FFF;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif}#payment-form{width:31.5rem;margin:0 auto}iframe{width:100%}.one-liner{display:flex;flex-direction:column}#pay-button{border:none;border-radius:3px;color:#FFF;font-weight:500;height:40px;width:100%;background-color:#13395E;box-shadow:0 1px 3px 0 rgba(19,57,94,0.4)}#pay-button:active{background-color:#0B2A49;box-shadow:0 1px 3px 0 rgba(19,57,94,0.4)}#pay-button:hover{background-color:#15406B;box-shadow:0 2px 5px 0 rgba(19,57,94,0.4)}#pay-button:disabled{background-color:#697887;box-shadow:none}#pay-button:not(:disabled){cursor:pointer}.card-frame{border:solid 1px #13395E;border-radius:3px;width:100%;margin-bottom:8px;height:40px;box-shadow:0 1px 3px 0 rgba(19,57,94,0.2)}.card-frame.frame--rendered{opacity:1}.card-frame.frame--rendered.frame--focus{border:solid 1px #13395E;box-shadow:0 2px 5px 0 rgba(19,57,94,0.15)}.card-frame.frame--rendered.frame--invalid{border:solid 1px #D96830;box-shadow:0 2px 5px 0 rgba(217,104,48,0.15)}.success-payment-message{color:#13395E;line-height:1.4}.token{color:#b35e14;font-size:0.9rem;font-family:monospace}@media screen and (min-width: 31rem){.one-liner{flex-direction:row}.card-frame{width:318px;margin-bottom:0}#pay-button{width:175px;margin-left:8px}}</style>
+    <style>*, *::after, *::before {
+            box-sizing: border-box
+        }
+
+        html {
+            background-color: #FFF;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif
+        }
+
+        #payment-form {
+            width: 31.5rem;
+            margin: 0 auto
+        }
+
+        iframe {
+            width: 100%
+        }
+
+        .one-liner {
+            display: flex;
+            flex-direction: column
+        }
+
+        #pay-button {
+            border: none;
+            border-radius: 3px;
+            color: #FFF;
+            font-weight: 500;
+            height: 40px;
+            width: 100%;
+            background-color: #13395E;
+            box-shadow: 0 1px 3px 0 rgba(19, 57, 94, 0.4)
+        }
+
+        #pay-button:active {
+            background-color: #0B2A49;
+            box-shadow: 0 1px 3px 0 rgba(19, 57, 94, 0.4)
+        }
+
+        #pay-button:hover {
+            background-color: #15406B;
+            box-shadow: 0 2px 5px 0 rgba(19, 57, 94, 0.4)
+        }
+
+        #pay-button:disabled {
+            background-color: #697887;
+            box-shadow: none
+        }
+
+        #pay-button:not(:disabled) {
+            cursor: pointer
+        }
+
+        .card-frame {
+            border: solid 1px #13395E;
+            border-radius: 3px;
+            width: 100%;
+            margin-bottom: 8px;
+            height: 40px;
+            box-shadow: 0 1px 3px 0 rgba(19, 57, 94, 0.2)
+        }
+
+        .card-frame.frame--rendered {
+            opacity: 1
+        }
+
+        .card-frame.frame--rendered.frame--focus {
+            border: solid 1px #13395E;
+            box-shadow: 0 2px 5px 0 rgba(19, 57, 94, 0.15)
+        }
+
+        .card-frame.frame--rendered.frame--invalid {
+            border: solid 1px #D96830;
+            box-shadow: 0 2px 5px 0 rgba(217, 104, 48, 0.15)
+        }
+
+        .success-payment-message {
+            color: #13395E;
+            line-height: 1.4
+        }
+
+        .token {
+            color: #b35e14;
+            font-size: 0.9rem;
+            font-family: monospace
+        }
+
+        @media screen and (min-width: 31rem) {
+            .one-liner {
+                flex-direction: row
+            }
+
+            .card-frame {
+                width: 318px;
+                margin-bottom: 0
+            }
+
+            #pay-button {
+                width: 175px;
+                margin-left: 8px
+            }
+        }</style>
+
     <script src="https://cdn.checkout.com/js/framesv2.min.js"></script>
 @endsection
 
@@ -24,10 +126,7 @@
         <input type="hidden" name="raw_value" value="{{ $raw_value }}">
         <input type="hidden" name="currency" value="{{ $currency }}">
         <input type="hidden" name="pay_with_token" value="false">
-        
-        @isset($token)
-            <input type="hidden" name="token" value="{{ $token->token }}">
-        @endisset
+        <input type="hidden" name="token" value="">
     </form>
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.payment_type')])
@@ -37,22 +136,25 @@
     @include('portal.ninja2020.gateways.includes.payment_details')
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
-        @isset($token)
-            <label class="mr-4">
-                <input 
-                    type="radio" 
-                    id="toggle-payment-with-token" 
-                    class="form-radio cursor-pointer" name="payment-type" />
-                <span class="ml-1 cursor-pointer">**** {{ $token->meta->last4 }}</span>
-            </label>
+        @if(count($tokens) > 0)
+            @foreach($tokens as $token)
+                <label class="mr-4">
+                    <input
+                        type="radio"
+                        data-token="{{ $token->token }}"
+                        name="payment-type"
+                        class="form-radio cursor-pointer toggle-payment-with-token"/>
+                    <span class="ml-1 cursor-pointer">**** {{ optional($token->meta)->last4 }}</span>
+                </label>
+            @endforeach
         @endisset
-        
+
         <label>
-            <input 
+            <input
                 type="radio"
                 id="toggle-payment-with-credit-card"
                 class="form-radio cursor-pointer"
-                name="payment-type" 
+                name="payment-type"
                 checked/>
             <span class="ml-1 cursor-pointer">{{ __('texts.credit_card') }}</span>
         </label>
@@ -78,12 +180,12 @@
     @endcomponent
 
     @component('portal.ninja2020.components.general.card-element-single')
-       <div class="hidden" id="pay-now-with-token--container">
+        <div class="hidden" id="pay-now-with-token--container">
             @include('portal.ninja2020.gateways.includes.pay_now', ['id' => 'pay-now-with-token'])
-       </div>
+        </div>
     @endcomponent
 @endsection
 
 @section('gateway_footer')
-    <script src="{{ asset('js/clients/payments/checkout.com.js') }}"></script>
+    <script src="{{ asset('js/clients/payments/checkout-credit-card.js') }}"></script>
 @endsection

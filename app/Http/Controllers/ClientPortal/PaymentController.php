@@ -78,7 +78,7 @@ class PaymentController extends Controller
     public function process(Request $request)
     {
         $is_credit_payment = false;
-        $token = false;
+        $tokens = [];
 
         if ($request->input('company_gateway_id') == CompanyGateway::GATEWAY_CREDIT) {
             $is_credit_payment = true;
@@ -229,7 +229,10 @@ class PaymentController extends Controller
         $fee_totals = $first_invoice->amount - $starting_invoice_amount;
 
         if ($gateway) {
-            $token = auth()->user()->client->gateway_token($gateway->id, $payment_method_id);
+            $tokens = auth()->user()->client->gateway_tokens()
+                ->whereCompanyGatewayId($gateway->id)
+                ->whereGatewayTypeId($payment_method_id)
+                ->get();
         }
 
         $payment_hash = new PaymentHash;
@@ -250,7 +253,7 @@ class PaymentController extends Controller
             'payment_hash' => $payment_hash->hash,
             'total' => $totals,
             'invoices' => $payable_invoices,
-            'token' => $token,
+            'tokens' => $tokens,
             'payment_method_id' => $payment_method_id,
             'amount_with_fee' => $invoice_totals + $fee_totals,
         ];
@@ -285,24 +288,21 @@ class PaymentController extends Controller
 
         $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$request->payment_hash])->first();
 
-        try {
             return $gateway
                 ->driver(auth()->user()->client)
                 ->setPaymentMethod($request->input('payment_method_id'))
                 ->setPaymentHash($payment_hash)
                 ->checkRequirements()
                 ->processPaymentResponse($request);
-        } catch(\Exception $e) {
-            SystemLogger::dispatch(
+
+
+            /*SystemLogger::dispatch(
                 $e->getMessage(),
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_FAILURE,
                 SystemLog::TYPE_FAILURE,
                 auth('contact')->user()->client
-            );
-
-            throw new PaymentFailed($e->getMessage());
-        }
+            );*/
     }
 
     /**
