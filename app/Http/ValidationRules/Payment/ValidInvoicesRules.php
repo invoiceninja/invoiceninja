@@ -53,18 +53,37 @@ class ValidInvoicesRules implements Rule
         
         //todo optimize this into a single query
         foreach ($this->input['invoices'] as $invoice) {
+
             $unique_array[] = $invoice['invoice_id'];
 
             $inv = Invoice::whereId($invoice['invoice_id'])->first();
 
             if (! $inv) {
+
                 $this->error_msg = 'Invoice not found ';
 
                 return false;
             }
 
             if ($inv->client_id != $this->input['client_id']) {
+
                 $this->error_msg = 'Selected invoices are not from a single client';
+
+                return false;
+            }
+
+            if($inv->status_id == Invoice::STATUS_DRAFT && $invoice['amount'] == $inv->amount){
+                //catch here nothing to do - we need this to prevent the last elseif triggering
+            }
+            else if($inv->status_id == Invoice::STATUS_DRAFT && $invoice['amount'] > $inv->amount){
+
+                $this->error_msg = 'Amount cannot be greater than invoice balance';
+
+                return false;
+            }
+            else if($invoice['amount'] > $inv->balance) {
+
+                $this->error_msg = 'Amount cannot be greater than invoice balance';
 
                 return false;
             }
