@@ -77,7 +77,6 @@ class EntityFailedSendMailer extends BaseMailerJob implements ShouldQueue
      */
     public function handle()
     {
-        nlog("failed entity sent mailer");
         
         /*If we are migrating data we don't want to fire these notification*/
         if ($this->company->is_disabled) 
