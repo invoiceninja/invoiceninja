@@ -96,7 +96,7 @@ class EntityFailedSendMailer extends BaseMailerJob implements ShouldQueue
                 ->send(new EntityNotificationMailer($mail_obj));
         } catch (\Exception $e) {
             nlog("failing in EntityFailedSendMailer");
-            $this->failed($e);
+            //$this->failed($e);
             $this->logMailError($e->getMessage(), $this->entity->client);
         }
     }
