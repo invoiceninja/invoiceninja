@@ -5,7 +5,7 @@
         @include('email.components.header', ['logo' => $logo])
     @endslot
 
-    <h1>{{ $title }}</h1>
+    <p>{{ $title }}</p>
 
     @slot('greeting')
         @lang($message)

@@ -58,6 +58,10 @@ class ClientContactRepository extends BaseRepository
                 $update_contact->client_id = $client->id;
             }
 
+            /* We need to set NULL email addresses to blank strings to pass authentication*/
+            if(array_key_exists('email', $contact) && is_null($contact['email']))
+                $contact['email'] = '';
+
             $update_contact->fill($contact);
 
             if (array_key_exists('password', $contact) && strlen($contact['password']) > 1) {
@@ -77,6 +81,7 @@ class ClientContactRepository extends BaseRepository
             $new_contact->contact_key = Str::random(40);
             $new_contact->is_primary = true;
             $new_contact->confirmed = true;
+            $new_contact->email = ' ';
             $new_contact->save();
         }
     }
