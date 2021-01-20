@@ -64,7 +64,12 @@
                         <table cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse;">
                             <tr>
                                 <td align="center" id="email-content">
+                                    @yield('greeting')
+
                                     {{ $slot }}
+
+                                    @yield('signature')
+                                    @yield('footer')
                                 </td>
                             </tr>
                         </table>

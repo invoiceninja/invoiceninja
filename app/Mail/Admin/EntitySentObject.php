@@ -14,7 +14,7 @@ namespace App\Mail\Admin;
 use App\Utils\Number;
 use stdClass;
 
-class EntityFailedSendObject
+class EntitySentObject
 {
     public $invitation;
 
