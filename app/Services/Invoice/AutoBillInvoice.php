@@ -147,8 +147,8 @@ class AutoBillInvoice extends AbstractService
                                   ->save();
 
         $this->invoice->ledger()
-                          ->updateInvoiceBalance($amount * -1, 'Invoice payment using Credit')
-                          ->updateCreditBalance($amount * -1, 'Credits used to pay down Invoice ' . $this->invoice->number)
+                          ->updateInvoiceBalance($amount * -1, "Invoice {$this->invoice->number} payment using Credit {$current_credit->number}")
+                          ->updateCreditBalance($amount * -1, "Credit {$current_credit->number} used to pay down Invoice {$this->invoice->number}")
                           ->save();
 
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
@@ -325,7 +325,7 @@ class AutoBillInvoice extends AbstractService
 
         if ($starting_amount != $this->invoice->amount && $this->invoice->status_id != Invoice::STATUS_DRAFT) {
             $this->invoice->client->service()->updateBalance($this->invoice->amount - $starting_amount)->save();
-            $this->invoice->ledger()->updateInvoiceBalance($this->invoice->amount - $starting_amount, 'Invoice balance updated after stale gateway fee removed')->save();
+            $this->invoice->ledger()->updateInvoiceBalance($this->invoice->amount - $starting_amount, "Invoice {$this->invoice->number} balance updated after stale gateway fee removed")->save();
         }
 
         return $this;

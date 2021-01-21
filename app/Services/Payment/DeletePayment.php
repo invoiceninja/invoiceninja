@@ -80,7 +80,7 @@ class DeletePayment
         if ($this->payment->invoices()->exists()) {
             $this->payment->invoices()->each(function ($paymentable_invoice) {
                 $paymentable_invoice->service()->updateBalance($paymentable_invoice->pivot->amount)->save();
-                $paymentable_invoice->ledger()->updateInvoiceBalance($paymentable_invoice->pivot->amount)->save();
+                $paymentable_invoice->ledger()->updateInvoiceBalance($paymentable_invoice->pivot->amount, "Adjusting invoice {$paymentable_invoice->number} due to deletion of Payment {$this->payment->number}")->save();
                 $paymentable_invoice->client->service()->updateBalance($paymentable_invoice->pivot->amount)->save();
 
                 if ($paymentable_invoice->balance == $paymentable_invoice->amount) {
