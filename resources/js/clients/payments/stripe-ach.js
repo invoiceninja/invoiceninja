@@ -58,7 +58,7 @@ class AuthorizeACH {
         document.getElementById('save-button').disabled = true;
         document.querySelector('#save-button > svg').classList.remove('hidden');
         document.querySelector('#save-button > span').classList.add('hidden');
-        
+
         e.preventDefault();
 
         this.errors.textContent = '';

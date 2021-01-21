@@ -1,7 +1,7 @@
 @extends('portal.ninja2020.layout.payments', ['gateway_title' => 'ACH', 'card_title' => 'ACH'])
 
 @section('gateway_head')
-    <meta name="stripe-publishable-key" content="{{ $gateway->getPublishableKey() }}">
+    <meta name="stripe-publishable-key" content="{{ $gateway->company_gateway->getPublishableKey() }}">
 @endsection
 
 @section('gateway_content')
@@ -13,8 +13,8 @@
 
     <form action="{{ route('client.payment_methods.store', ['method' => App\Models\GatewayType::BANK_TRANSFER]) }}" method="post" id="server_response">
         @csrf
-       
-        <input type="hidden" name="company_gateway_id" value="{{ $gateway->id }}">
+
+        <input type="hidden" name="company_gateway_id" value="{{ $gateway->company_gateway->id }}">
         <input type="hidden" name="gateway_type_id" value="2">
         <input type="hidden" name="gateway_response" id="gateway_response">
         <input type="hidden" name="is_default" id="is_default">
@@ -56,7 +56,7 @@
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.routing_number')])
         <input class="input w-full" id="routing-number" type="text" required>
     @endcomponent
-    
+
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.account_number')])
         <input class="input w-full" id="account-number" type="text" required>
     @endcomponent
