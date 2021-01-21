@@ -71,14 +71,15 @@ class HandleRestore extends AbstractService
         }
 
         //adjust ledger balance
-        $this->invoice->ledger()->updateInvoiceBalance($this->invoice->balance, 'Restored invoice {$this->invoice->number}')->save();
+        $this->invoice->ledger()->updateInvoiceBalance($this->invoice->balance, "Restored invoice {$this->invoice->number}")->save();
 
         //adjust paid to dates
         $this->invoice->client->service()->updatePaidToDate($this->payment_total)->save();
 
         $this->invoice->client->service()->updateBalance($this->invoice->balance)->save();
 
-        $this->invoice->ledger()->updatePaymentBalance($this->payment_total, 'Restored payment for invoice {$this->invoice->number}')->save();
+        // you only need to touch the ledger ONCE per transaction.
+        // $this->invoice->ledger()->updatePaymentBalance($this->payment_total*-1, "Restored payment for invoice {$this->invoice->number}")->save();
 
         $this->windBackInvoiceNumber();
 
