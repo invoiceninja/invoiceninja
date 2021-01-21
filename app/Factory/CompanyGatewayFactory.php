@@ -11,6 +11,7 @@
 
 namespace App\Factory;
 
+use App\DataMapper\FeesAndLimits;
 use App\Models\CompanyGateway;
 
 class CompanyGatewayFactory
@@ -20,7 +21,8 @@ class CompanyGatewayFactory
         $company_gateway = new CompanyGateway;
         $company_gateway->company_id = $company_id;
         $company_gateway->user_id = $user_id;
-
+        // $company_gateway->fees_and_limits = new FeesAndLimits;
+        
         return $company_gateway;
     }
 }
