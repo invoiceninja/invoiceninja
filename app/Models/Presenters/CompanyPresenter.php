@@ -90,4 +90,14 @@ class CompanyPresenter extends EntityPresenter
             return false;
         }
     }
+
+    public function getSpcQrCode($client_custom, $invoice_number, $balance)
+    {
+        $settings = $this->entity->settings;
+
+        return 
+
+        "SPC\n0200\n1\nCH860021421411198240K\nK\n{$this->name}\n{$settings->address1}\n{$settings->postal_code} {$settings->city}\n\n\nCH\n\n\n\n\n\n\n\n{$balance}\n{$client_custom}\n\n\n\n\n\n\n\nNON\n\n{$invoice_number}\nEPD\n";
+    }
+
 }
