@@ -88,7 +88,7 @@ class EntityViewedMailer extends BaseMailerJob implements ShouldQueue
             Mail::to($this->user->email)
                 ->send(new EntityNotificationMailer($mail_obj));
         } catch (\Exception $e) {
-            $this->failed($e);
+            //$this->failed($e);
             $this->logMailError($e->getMessage(), $this->entity->client);
         }
     }

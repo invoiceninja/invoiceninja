@@ -100,11 +100,6 @@ class ApplyPayment extends AbstractService
             }
         }
 
-        // $this->payment
-        //      ->ledger()
-        //      ->updatePaymentBalance($this->payment_amount * -1);
-
-
         $this->payment
              ->ledger()
              ->updatePaymentBalance($amount_paid);

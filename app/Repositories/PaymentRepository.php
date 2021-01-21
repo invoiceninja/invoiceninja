@@ -64,7 +64,6 @@ class PaymentRepository extends BaseRepository
      */
     private function applyPayment(array $data, Payment $payment): ?Payment
     {
-nlog($data);
 
         $is_existing_payment = true;
 

@@ -73,7 +73,7 @@ class MailRouter extends BaseMailerJob implements ShouldQueue
             Mail::to($this->to_user->email)
                 ->send($this->mailable);
         } catch (\Exception $e) {
-            $this->failed($e);
+            //$this->failed($e);
             
             if ($this->to_user instanceof ClientContact) {
                 $this->logMailError($e->getMessage(), $this->to_user->client);
