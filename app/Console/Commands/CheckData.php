@@ -298,7 +298,7 @@ class CheckData extends Command
             $invoice_balance = $client->invoices->where('is_deleted', false)->where('status_id', '>', 1)->sum('balance');
             $credit_balance = $client->credits->where('is_deleted', false)->sum('balance');
 
-            $invoice_balance -= $credit_balance;
+            // $invoice_balance -= $credit_balance;//doesn't make sense to remove the credit amount
 
             $ledger = CompanyLedger::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
 
@@ -388,9 +388,9 @@ class CheckData extends Command
         foreach (Client::cursor()->where('is_deleted', 0) as $client) {
             //$invoice_balance = $client->invoices->where('is_deleted', false)->where('status_id', '>', 1)->sum('balance');
             $invoice_balance = Invoice::where('client_id', $client->id)->where('is_deleted', false)->where('status_id', '>', 1)->withTrashed()->sum('balance');
-            $client_balance = Credit::where('client_id', $client->id)->where('is_deleted', false)->withTrashed()->sum('balance');
+            $credit_balance = Credit::where('client_id', $client->id)->where('is_deleted', false)->withTrashed()->sum('balance');
 
-            $invoice_balance -= $client_balance;
+            // $invoice_balance -= $credit_balance;
 
             $ledger = CompanyLedger::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
 
