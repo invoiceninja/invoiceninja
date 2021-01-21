@@ -9,9 +9,8 @@
  */
 
 class StripeCreditCard {
-    constructor(key, token, secret, onlyAuthorization) {
+    constructor(key, secret, onlyAuthorization) {
         this.key = key;
-        this.token = token;
         this.secret = secret;
         this.onlyAuthorization = onlyAuthorization;
     }
@@ -36,9 +35,11 @@ class StripeCreditCard {
     }
 
     completePaymentUsingToken() {
-        let payNowButton = document.getElementById('pay-now-with-token');
+        let token = document.querySelector('input[name=token]').value;
 
+        let payNowButton = document.getElementById('pay-now');
         this.payNowButton = payNowButton;
+
         this.payNowButton.disabled = true;
 
         this.payNowButton.querySelector('svg').classList.remove('hidden');
@@ -46,7 +47,7 @@ class StripeCreditCard {
 
         this.stripe
             .handleCardPayment(this.secret, {
-                payment_method: this.token,
+                payment_method: token,
             })
             .then((result) => {
                 if (result.error) {
@@ -71,7 +72,7 @@ class StripeCreditCard {
         this.stripe
             .handleCardPayment(this.secret, this.cardElement, {
                 payment_method_data: {
-                    billing_details: { name: cardHolderName.value },
+                    billing_details: {name: cardHolderName.value},
                 },
             })
             .then((result) => {
@@ -126,7 +127,7 @@ class StripeCreditCard {
         this.stripe
             .handleCardSetup(this.secret, this.cardElement, {
                 payment_method_data: {
-                    billing_details: { name: cardHolderName.value },
+                    billing_details: {name: cardHolderName.value},
                 },
             })
             .then((result) => {
@@ -158,23 +159,33 @@ class StripeCreditCard {
                     return this.handleAuthorization();
                 });
         } else {
-            if (this.token) {
-                document
-                    .getElementById('pay-now-with-token')
-                    .addEventListener('click', () => {
+            Array
+                .from(document.getElementsByClassName('toggle-payment-with-token'))
+                .forEach((element) => element.addEventListener('click', (element) => {
+                    document.getElementById('stripe--payment-container').classList.add('hidden');
+                    document.querySelector('input[name=token]').value = element.target.dataset.token;
+                }));
+
+            document
+                .getElementById('toggle-payment-with-credit-card')
+                .addEventListener('click', (element) => {
+                    document.getElementById('stripe--payment-container').classList.remove('hidden');
+                    document.querySelector('input[name=token]').value = "";
+                });
+
+            this.createElement().mountCardElement();
+
+            document
+                .getElementById('pay-now')
+                .addEventListener('click', () => {
+                    let tokenInput = document.querySelector('input[name=token]');
+
+                    if (tokenInput.value) {
                         return this.completePaymentUsingToken();
-                    });
-            }
+                    }
 
-            if (!this.token) {
-                this.createElement().mountCardElement();
-
-                document
-                    .getElementById('pay-now')
-                    .addEventListener('click', () => {
-                        return this.completePaymentWithoutToken();
-                    });
-            }
+                    return this.completePaymentWithoutToken();
+                });
         }
     }
 }
@@ -182,12 +193,10 @@ class StripeCreditCard {
 const publishableKey =
     document.querySelector('meta[name="stripe-publishable-key"]').content ?? '';
 
-const token = document.querySelector('meta[name="stripe-token"]').content ?? '';
-
 const secret =
     document.querySelector('meta[name="stripe-secret"]').content ?? '';
 
 const onlyAuthorization =
     document.querySelector('meta[name="only-authorization"]').content ?? '';
 
-new StripeCreditCard(publishableKey, token, secret, onlyAuthorization).handle();
+new StripeCreditCard(publishableKey, secret, onlyAuthorization).handle();
