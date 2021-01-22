@@ -108,7 +108,6 @@ class CompanyGateway extends BaseModel
     private function driver_class()
     {
         $class = 'App\\PaymentDrivers\\'.$this->gateway->provider.'PaymentDriver';
-        //$class = str_replace('\\', '', $class);
         $class = str_replace('_', '', $class);
 
         if (class_exists($class)) {
