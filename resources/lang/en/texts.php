@@ -3376,4 +3376,7 @@ return [
     'notification_credit_bounced_subject' => 'Unable to deliver Credit :invoice',
 
     'save_payment_method_details' => 'Save payment method details',
+
+    'new_card' => 'New card',
+    'new_bank_account' => 'New bank account',
 ];
