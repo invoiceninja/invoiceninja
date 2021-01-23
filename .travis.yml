@@ -38,7 +38,7 @@ env:
 before_install:
   # set GitHub token and update composer
   - if [ -n "$GH_TOKEN" ]; then composer config github-oauth.github.com ${GH_TOKEN}; fi;
-  - composer self-update && composer -V
+  - composer self-update 1.10.19 && composer -V
 #  - export USE_ZEND_ALLOC=0
   - rvm use 1.9.3 --install --fuzzy
   - cp .env.travis .env
