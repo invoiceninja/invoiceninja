@@ -16,9 +16,14 @@ class RemoveCyberSourceGateway extends Migration
     {
 
         /* No longer supported for V2 Omnipay */
-        $cyber = Gateway::where('provider', 'Cybersource')->first();
-        $cyber->payment_library_id = 2;
-        $cyber->save();
+        
+        if(Gatway::count() > 0)
+        {
+            $cyber = Gateway::where('provider', 'Cybersource')->first();
+            $cyber->payment_library_id = 2;
+            $cyber->save();
+        }
+
     }
 
     /**
