@@ -17,6 +17,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Artisan;
 
 class SchedulerCheck implements ShouldQueue
 {
@@ -33,6 +34,37 @@ class SchedulerCheck implements ShouldQueue
      */
     public function handle()
     {
+        set_time_limit(0);
+
         Account::whereNotNull('id')->update(['is_scheduler_running' => true]);
+
+        if(config('ninja.app_version') != base_path('VERSION.txt'))
+        {
+
+             try {
+                Artisan::call('migrate', ['--force' => true]);
+            } catch (\Exception $e) {
+                nlog("I wasn't able to migrate the data.");
+            }
+
+
+            try {
+                Artisan::call('optimize');
+            } catch (\Exception $e) {
+                nlog("I wasn't able to optimize.");
+            }
+
+
+            try {
+                Artisan::call('view:clear');
+            } catch (\Exception $e) {
+                nlog("I wasn't able to clear the views.");
+            }
+
+
+        VersionCheck::dispatch();
+
+        }
+
     }
 }
