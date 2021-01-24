@@ -3408,6 +3408,16 @@ return [
     'attempted_refund_failed' => 'Attempting to refund :amount only :refundable_amount available for refund',
     'user_not_associated_with_this_account' => 'This user is unable to be attached to this company. Perhaps they have already registered a user on another account?',
     'migration_completed' => 'Migration completed',
-    'migration_completed_description' => 'Your migration has completed, please review your data after logging in.'
+    'migration_completed_description' => 'Your migration has completed, please review your data after logging in.',
+    'api_404' => '404 | Nothing to see here!',
+    'large_account_update_parameter' => 'Cannot load a large account without a updated_at parameter',
+    'no_backup_exists' => 'No backup exists for this activity',
+    'company_user_not_found' => 'Company User record not found',
+    'no_credits_found' => 'No credits found.',
+    'action_unavailable' => 'The requested action :action is not available.',
+    'no_documents_found' => 'No Documents Found',
+    'no_group_settings_found' => 'No group settings found',
+    'access_denied' => 'Insufficient privileges to access/modify this resource',
+    'invoice_cannot_be_marked_paid' => 'Invoice cannot be marked as paid',
 
 ];
