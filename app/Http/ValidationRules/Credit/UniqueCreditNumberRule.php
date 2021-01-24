@@ -41,7 +41,7 @@ class UniqueCreditNumberRule implements Rule
      */
     public function message()
     {
-        return 'Credit number already taken';
+        return ctrans('texts.credit_number_taken');
     }
 
     /**

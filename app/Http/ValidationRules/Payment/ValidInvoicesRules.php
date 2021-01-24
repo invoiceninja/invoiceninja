@@ -44,7 +44,8 @@ class ValidInvoicesRules implements Rule
     private function checkInvoicesAreHomogenous()
     {
         if (! array_key_exists('client_id', $this->input)) {
-            $this->error_msg = 'Client id is required';
+
+            $this->error_msg = ctrans('texts.client_id_required');
 
             return false;
         }
@@ -60,14 +61,14 @@ class ValidInvoicesRules implements Rule
 
             if (! $inv) {
 
-                $this->error_msg = 'Invoice not found ';
+                $this->error_msg = ctrans('texts.invoice_not_found');
 
                 return false;
             }
 
             if ($inv->client_id != $this->input['client_id']) {
 
-                $this->error_msg = 'Selected invoices are not from a single client';
+                $this->error_msg = ctrans('texts.invoices_dont_match_client');
 
                 return false;
             }
@@ -83,14 +84,14 @@ class ValidInvoicesRules implements Rule
             }
             else if($invoice['amount'] > $inv->balance) {
 
-                $this->error_msg = 'Amount cannot be greater than invoice balance';
+                $this->error_msg = ctrans('texts.amount_greater_than_balance');
 
                 return false;
             }
         }
 
         if (! (array_unique($unique_array) == $unique_array)) {
-            $this->error_msg = 'Duplicate invoices submitted.';
+            $this->error_msg = ctrans('texts.duplicate_invoices_submitted');
 
             return false;
         }

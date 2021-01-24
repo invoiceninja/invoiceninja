@@ -44,7 +44,8 @@ class ValidCreditsRules implements Rule
     private function checkCreditsAreHomogenous()
     {
         if (! array_key_exists('client_id', $this->input)) {
-            $this->error_msg = 'Client id is required';
+
+            $this->error_msg = ctrans('texts.client_id_required');
 
             return false;
         }
@@ -57,44 +58,32 @@ class ValidCreditsRules implements Rule
             $cred = Credit::find($this->decodePrimaryKey($credit['credit_id']));
 
             if (! $cred) {
-                $this->error_msg = 'Credit not found ';
+                $this->error_msg = ctrans('texts.credit_not_found');
 
                 return false;
             }
 
             if ($cred->client_id != $this->input['client_id']) {
-                $this->error_msg = 'Selected invoices are not from a single client';
+                $this->error_msg = ctrans('texts.invoices_dont_match_client');
 
                 return false;
             }
         }
 
         if (! (array_unique($unique_array) == $unique_array)) {
-            $this->error_msg = 'Duplicate credits submitted.';
+            $this->error_msg = ctrans('texts.duplicate_credits_submitted');
 
             return false;
         }
 
         if (count($this->input['credits']) >= 1 && count($this->input['invoices']) == 0) {
-            $this->error_msg = 'You must have an invoice set when using a credit in a payment';
+            $this->error_msg = ctrans('texts.credit_with_no_invoice');
 
             return false;
         }
 
         if (count($this->input['credits']) >= 1) {
 
-        //    $total_payments = $this->input['amount'] + array_sum(array_column($this->input['credits'], 'amount'));
-
-// nlog(print_r($this->input,1));
-// nlog("total payments = {$total_payments}");
-// nlog("total credits available = " . array_sum(array_column($this->input['credits'], 'amount')));
-// nlog("total invoices payable = " . array_sum(array_column($this->input['invoices'], 'amount')));
-
-            // if($total_payments > array_sum(array_column($this->input['invoices'], 'amount'))){
-
-            //     $this->error_msg = "Sum of total payments and credits is greater than the total of invoices";
-            //     return false;
-            // }
         }
 
         return true;
