@@ -63,7 +63,38 @@ class EntityPaidToDateTest extends TestCase
     public function testPaidToDateWithMarkPaidAction()
     {
 
-        //create new client
+        $invoice = $this->bootNewInvoice();
+
+        $this->assertEquals($invoice->balance, 0);
+        $this->assertEquals($invoice->paid_to_date, 0);
+
+        $invoice->service()->markSent()->save();
+
+        $this->assertEquals($invoice->balance, 20);
+
+        $invoice->service()->markPaid()->save();
+
+        $this->assertEquals($invoice->paid_to_date, 20);
+    }
+
+    public function testPaidToDateWithInvoiceCancellation()
+    {
+
+        $invoice = $this->bootNewInvoice();
+
+        $invoice->service()->markPaid()->save();
+
+        $this->assertEquals(20, $invoice->paid_to_date);
+
+        $invoice->service()->handleReversal()->save();
+
+        $this->assertEquals(0, $invoice->paid_to_date);
+
+
+    }
+
+    private function bootNewInvoice()
+    {
         
         $data = [
             'name' => 'A Nice Client',
@@ -125,17 +156,6 @@ class EntityPaidToDateTest extends TestCase
     
         $invoice_one_hashed_id = $arr['data']['id'];
 
-        $invoice = Invoice::find($this->decodePrimaryKey($invoice_one_hashed_id));
-
-        $this->assertEquals($invoice->balance, 0);
-        $this->assertEquals($invoice->paid_to_date, 0);
-
-        $invoice->service()->markSent()->save();
-
-        $this->assertEquals($invoice->balance, 20);
-
-        $invoice->service()->markPaid()->save();
-
-        $this->assertEquals($invoice->paid_to_date, 20);
+        return Invoice::find($this->decodePrimaryKey($invoice_one_hashed_id));
     }
 }
