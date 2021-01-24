@@ -13,6 +13,7 @@ namespace App\Events\Invoice;
 
 use App\Models\Company;
 use App\Models\Invoice;
+use App\Models\Payment;
 use Illuminate\Queue\SerializesModels;
 
 /**
@@ -27,6 +28,8 @@ class InvoiceWasPaid
      */
     public $invoice;
 
+    public $payment;
+
     public $company;
 
     public $event_vars;
@@ -38,9 +41,10 @@ class InvoiceWasPaid
      * @param Company $company
      * @param array $event_vars
      */
-    public function __construct(Invoice $invoice, Company $company, array $event_vars)
+    public function __construct(Invoice $invoice, Payment $payment, Company $company, array $event_vars)
     {
         $this->invoice = $invoice;
+        $this->payment = $payment;
         $this->company = $company;
         $this->event_vars = $event_vars;
     }
