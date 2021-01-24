@@ -687,8 +687,8 @@ class InvoiceController extends BaseController
                 break;
             case 'delete':
                 //need to make sure the invoice is cancelled first!!
-                //$invoice->service()->handleCancellation()->save();
-
+                //$invoice->service()->handleCancellation()s->save();
+nlog("inside delete");
                 $this->invoice_repo->delete($invoice);
 
                 if (! $bulk) {

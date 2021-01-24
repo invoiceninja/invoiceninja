@@ -3,36 +3,36 @@ const MANIFEST = 'flutter-app-manifest';
 const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 const RESOURCES = {
-  "assets/assets/images/payment_types/paypal.png": "8e06c094c1871376dfea1da8088c29d1",
-"assets/assets/images/payment_types/ach.png": "7433f0aff779dc98a649b7a2daf777cf",
-"assets/assets/images/payment_types/switch.png": "4fa11c45327f5fdc20205821b2cfd9cc",
-"assets/assets/images/payment_types/amex.png": "c49a4247984b3732a4af50a3390aa978",
-"assets/assets/images/payment_types/dinerscard.png": "06d85186ba858c18ab7c9caa42c92024",
-"assets/assets/images/payment_types/solo.png": "2030c3ccaccf5d5e87916a62f5b084d6",
-"assets/assets/images/payment_types/unionpay.png": "7002f52004e0ab8cc0b7450b0208ccb2",
-"assets/assets/images/payment_types/other.png": "d936e11fa3884b8c9f1bd5c914be8629",
-"assets/assets/images/payment_types/jcb.png": "07e0942d16c5592118b72e74f2f7198c",
-"assets/assets/images/payment_types/maestro.png": "e533b92bfb50339fdbfa79e3dfe81f08",
-"assets/assets/images/payment_types/mastercard.png": "6f6cdc29ee2e22e06b1ac029cb52ef71",
-"assets/assets/images/payment_types/discover.png": "6c0a386a00307f87db7bea366cca35f5",
-"assets/assets/images/payment_types/visa.png": "3ddc4a4d25c946e8ad7e6998f30fd4e3",
-"assets/assets/images/payment_types/carteblanche.png": "d936e11fa3884b8c9f1bd5c914be8629",
-"assets/assets/images/payment_types/laser.png": "b4e6e93dd35517ac429301119ff05868",
+  "icons/Icon-512.png": "0f9aff01367f0a0c69773d25ca16ef35",
+"icons/Icon-192.png": "bb1cf5f6982006952211c7c8404ffbed",
+"favicon.ico": "51636d3a390451561744c42188ccd628",
+"manifest.json": "77215c1737c7639764e64a192be2f7b8",
+"assets/packages/material_design_icons_flutter/lib/fonts/materialdesignicons-webfont.ttf": "3e722fd57a6db80ee119f0e2c230ccff",
+"assets/NOTICES": "c3e1cbfaeb1a4f54fadae1bd6558d91b",
 "assets/assets/images/logo.png": "090f69e23311a4b6d851b3880ae52541",
+"assets/assets/images/payment_types/mastercard.png": "6f6cdc29ee2e22e06b1ac029cb52ef71",
+"assets/assets/images/payment_types/amex.png": "c49a4247984b3732a4af50a3390aa978",
+"assets/assets/images/payment_types/unionpay.png": "7002f52004e0ab8cc0b7450b0208ccb2",
+"assets/assets/images/payment_types/switch.png": "4fa11c45327f5fdc20205821b2cfd9cc",
+"assets/assets/images/payment_types/paypal.png": "8e06c094c1871376dfea1da8088c29d1",
+"assets/assets/images/payment_types/visa.png": "3ddc4a4d25c946e8ad7e6998f30fd4e3",
+"assets/assets/images/payment_types/laser.png": "b4e6e93dd35517ac429301119ff05868",
+"assets/assets/images/payment_types/other.png": "d936e11fa3884b8c9f1bd5c914be8629",
+"assets/assets/images/payment_types/dinerscard.png": "06d85186ba858c18ab7c9caa42c92024",
+"assets/assets/images/payment_types/carteblanche.png": "d936e11fa3884b8c9f1bd5c914be8629",
+"assets/assets/images/payment_types/ach.png": "7433f0aff779dc98a649b7a2daf777cf",
+"assets/assets/images/payment_types/solo.png": "2030c3ccaccf5d5e87916a62f5b084d6",
+"assets/assets/images/payment_types/discover.png": "6c0a386a00307f87db7bea366cca35f5",
+"assets/assets/images/payment_types/maestro.png": "e533b92bfb50339fdbfa79e3dfe81f08",
+"assets/assets/images/payment_types/jcb.png": "07e0942d16c5592118b72e74f2f7198c",
 "assets/assets/images/google-icon.png": "0f118259ce403274f407f5e982e681c3",
-"assets/packages/material_design_icons_flutter/lib/fonts/materialdesignicons-webfont.ttf": "c1242726c7eac4eb5e843d826f78fb1b",
+"assets/AssetManifest.json": "659dcf9d1baf3aed3ab1b9c42112bf8f",
 "assets/FontManifest.json": "cf3c681641169319e61b61bd0277378f",
 "assets/fonts/MaterialIcons-Regular.otf": "1288c9e28052e028aba623321f7826ac",
-"assets/NOTICES": "1965e076d9705b3500fedcfad4bebcdf",
-"assets/AssetManifest.json": "659dcf9d1baf3aed3ab1b9c42112bf8f",
-"version.json": "6b7a4ad416a3730ae32b64e007cef7f3",
-"favicon.png": "dca91c54388f52eded692718d5a98b8b",
-"main.dart.js": "970638cb2278a4390edc11bc44e7adf8",
-"manifest.json": "77215c1737c7639764e64a192be2f7b8",
 "/": "23224b5e03519aaa87594403d54412cf",
-"icons/Icon-512.png": "0f9aff01367f0a0c69773d25ca16ef35",
-"icons/Icon-192.png": "bb1cf5f6982006952211c7c8404ffbed",
-"favicon.ico": "51636d3a390451561744c42188ccd628"
+"version.json": "7e4c19c87f9676a83714d8b531ea766f",
+"main.dart.js": "02890c9cc903cb49fedeb25707c8416f",
+"favicon.png": "dca91c54388f52eded692718d5a98b8b"
 };
 
 // The application shell files that are downloaded before a service worker can
@@ -173,7 +173,7 @@ async function downloadOffline() {
     }
     currentContent[key] = true;
   }
-  for (var resourceKey in Object.keys(RESOURCES)) {
+  for (var resourceKey of Object.keys(RESOURCES)) {
     if (!currentContent[resourceKey]) {
       resources.push(resourceKey);
     }

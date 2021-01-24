@@ -11,6 +11,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DataMapper\FeesAndLimits;
 use App\Factory\CompanyGatewayFactory;
 use App\Http\Requests\CompanyGateway\CreateCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\DestroyCompanyGatewayRequest;
@@ -18,6 +19,7 @@ use App\Http\Requests\CompanyGateway\EditCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\ShowCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\StoreCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\UpdateCompanyGatewayRequest;
+use App\Models\Client;
 use App\Models\CompanyGateway;
 use App\Repositories\CompanyRepository;
 use App\Transformers\CompanyGatewayTransformer;
@@ -190,6 +192,18 @@ class CompanyGatewayController extends BaseController
         $company_gateway = CompanyGatewayFactory::create(auth()->user()->company()->id, auth()->user()->id);
         $company_gateway->fill($request->all());
         $company_gateway->save();
+
+        /*Always ensure at least one fees and limits object is set per gateway*/
+        if(!isset($company_gateway->fees_and_limits)) {
+
+            $gateway_types = $company_gateway->driver(new Client)->gatewayTypes();
+
+            $fees_and_limits = new \stdClass;
+            $fees_and_limits->{$gateway_types[0]} = new FeesAndLimits;
+
+            $company_gateway->fees_and_limits = $fees_and_limits;
+            $company_gateway->save();
+        }
 
         return $this->itemResponse($company_gateway);
     }

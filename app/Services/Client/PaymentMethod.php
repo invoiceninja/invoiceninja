@@ -136,11 +136,13 @@ class PaymentMethod
         foreach ($this->gateways as $gateway) {
             foreach ($gateway->driver($this->client)->gatewayTypes() as $type) {
                 if (isset($gateway->fees_and_limits) && property_exists($gateway->fees_and_limits, $type)) {
-                    if ($this->validGatewayForAmount($gateway->fees_and_limits->{$type}, $this->amount)) {
+
+                    if ($this->validGatewayForAmount($gateway->fees_and_limits->{$type}, $this->amount) && $gateway->fees_and_limits->{$type}->is_enabled) {
                         $this->payment_methods[] = [$gateway->id => $type];
                     }
+
                 } else {
-                    $this->payment_methods[] = [$gateway->id => $type];
+                    //$this->payment_methods[] = [$gateway->id => $type];
                 }
             }
         }

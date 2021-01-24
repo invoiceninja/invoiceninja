@@ -78,24 +78,6 @@ trait CompanyGatewayFeesAndLimitsSaver
         }
     }
 
-    // public function cleanFeesAndLimits($fees_and_limits)
-    // {
-    //     $new_arr = [];
-
-    //     foreach ($fees_and_limits as $key => $value) {
-    //         $fal = new FeesAndLimits;
-
-    //         foreach ($value as $k => $v) {
-    //             $fal->{$k} = $v;
-    //             $fal->{$k} = BaseSettings::castAttribute(FeesAndLimits::$casts[$k], $v);
-    //         }
-
-    //         $new_arr[$key] = (array)$fal;
-    //     }
-
-    //     return $new_arr;
-    // }
-    //
     public function cleanFeesAndLimits($fees_and_limits)
     {
         $new_arr = [];

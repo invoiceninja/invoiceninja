@@ -306,7 +306,7 @@ class BasePaymentDriver
             if (collect($invoice->line_items)->contains('type_id', '3')) {
                 $invoice->service()->toggleFeesPaid()->save();
                 $invoice->client->service()->updateBalance($fee_total)->save();
-                $invoice->ledger()->updateInvoiceBalance($fee_total, $notes = 'Gateway fee adjustment');
+                $invoice->ledger()->updateInvoiceBalance($fee_total, "Gateway fee adjustment for Invoice {$invoice->number}");
             }
         });
     }

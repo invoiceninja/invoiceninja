@@ -49,10 +49,7 @@ class ClientContact extends Authenticatable implements HasLocalePreference
         'hashed_id',
     ];
 
-    protected $with = [
-//        'client',
-//        'company'
-    ];
+    protected $with = [];
 
     protected $casts = [
         'updated_at' => 'timestamp',
@@ -86,12 +83,6 @@ class ClientContact extends Authenticatable implements HasLocalePreference
         'is_primary',
         'client_id',
     ];
-
-    /* Changing the username to id allows us to login() a contact that doesn't have an email address set*/
-    public function username()
-    {
-        return 'id';
-    }
 
     public function getEntityType()
     {

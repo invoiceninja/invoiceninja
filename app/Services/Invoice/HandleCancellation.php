@@ -42,7 +42,7 @@ class HandleCancellation extends AbstractService
         $this->backupCancellation($adjustment);
 
         //set invoice balance to 0
-        $this->invoice->ledger()->updateInvoiceBalance($adjustment, 'Invoice cancellation');
+        $this->invoice->ledger()->updateInvoiceBalance($adjustment, "Invoice {$this->invoice->number} cancellation");
 
         $this->invoice->balance = 0;
         $this->invoice = $this->invoice->service()->setStatus(Invoice::STATUS_CANCELLED)->save();
@@ -57,11 +57,13 @@ class HandleCancellation extends AbstractService
 
     public function reverse()
     {
+        /* The stored cancelled object - contains the adjustment and status*/
         $cancellation = $this->invoice->backup->cancellation;
 
+        /* Will turn the negative cancellation amount to a positive adjustment*/
         $adjustment = $cancellation->adjustment * -1;
 
-        $this->invoice->ledger()->updateInvoiceBalance($adjustment, 'Invoice cancellation REVERSAL');
+        $this->invoice->ledger()->updateInvoiceBalance($adjustment, "Invoice {$this->invoice->number} reversal");
 
         /* Reverse the invoice status and balance */
         $this->invoice->balance += $adjustment;

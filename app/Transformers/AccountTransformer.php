@@ -76,6 +76,7 @@ class AccountTransformer extends EntityTransformer
             'report_errors' => (bool) $account->report_errors,
             'debug_enabled' => (bool) config('ninja.debug_enabled'),
             'is_docker' => (bool) config('ninja.is_docker'),
+            'is_scheduler_running' => (bool) $account->is_scheduler_running,
         ];
     }
 

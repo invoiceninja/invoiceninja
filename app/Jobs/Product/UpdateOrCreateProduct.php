@@ -54,7 +54,18 @@ class UpdateOrCreateProduct implements ShouldQueue
     public function handle()
     {
         MultiDB::setDB($this->company->db);
-        
+
+        /* 
+         * If the invoice was generated from a Task or Expense then
+         * we do NOT update the product details this short block we
+         * check for the presence of a task_id and/or expense_id
+         */        
+        $expense_count = count(array_column((array)$this->products, 'expense_id'));
+        $task_count = count(array_column((array)$this->products, 'task_id'));
+
+        if($task_count >= 1 || $expense_count >= 1)
+            return;
+
         //only update / create products - not tasks or gateway fees
         $updateable_products = collect($this->products)->filter(function ($item) {
             return $item->type_id == 1;

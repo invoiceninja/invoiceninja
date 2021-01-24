@@ -197,7 +197,7 @@ class TemplateEngine
             }
         } else {
             $wrapper = view($this->getTemplatePath($email_style), $data)->render();
-            $injection = '<head><link rel="stylesheet" type="text/css" property="stylesheet" href="'.config('ninja.app_url').'/css/tailwind-1.2.0.css">';
+            $injection = '';
             $wrapper = str_replace('<head>', $injection, $wrapper);
         }
 
@@ -208,7 +208,7 @@ class TemplateEngine
             'raw_body' => $this->raw_body,
             'raw_subject' => $this->raw_subject
         ];
-        
+
         $this->tearDown();
 
         return $data;

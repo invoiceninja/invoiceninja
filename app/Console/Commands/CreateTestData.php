@@ -331,7 +331,7 @@ class CreateTestData extends Command
 
         $this->info('Creating '.$this->count.' clients');
 
-        for ($x = 0; $x < $this->count * 500; $x++) {
+        for ($x = 0; $x < $this->count * 200; $x++) {
             $z = $x + 1;
             $this->info('Creating client # '.$z);
 
