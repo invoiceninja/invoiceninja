@@ -136,6 +136,7 @@ class ApplyPayment
         $this->invoice
                  ->service()
                  ->updateBalance($this->amount_applied * -1)
+                 ->updatePaidToDate($this->amount_applied)
                  ->updateStatus()
                  ->save();
 

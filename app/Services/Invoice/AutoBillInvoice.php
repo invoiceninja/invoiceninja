@@ -49,15 +49,12 @@ class AutoBillInvoice extends AbstractService
         $this->invoice = $this->invoice->service()->markSent()->save();
 
         /* Mark the invoice as paid if there is no balance */
-        if ((int)$this->invoice->balance == 0) {
+        if ((int)$this->invoice->balance == 0) 
             return $this->invoice->service()->markPaid()->save();
-        }
-
+        
         //if the credits cover the payments, we stop here, build the payment with credits and exit early
-
-        if ($this->client->getSetting('use_credits_payment') != 'off') {
+        if ($this->client->getSetting('use_credits_payment') != 'off') 
             $this->applyCreditPayment();
-        }
 
         /* Determine $amount */
         if ($this->invoice->partial > 0) {
@@ -73,14 +70,11 @@ class AutoBillInvoice extends AbstractService
         $gateway_token = $this->getGateway($amount);
 
         /* Bail out if no payment methods available */
-        if (! $gateway_token || ! $gateway_token->gateway->driver($this->client)->token_billing) {
+        if (! $gateway_token || ! $gateway_token->gateway->driver($this->client)->token_billing) 
             return $this->invoice;
-        }
-
+        
         /* $gateway fee */
         $fee = $gateway_token->gateway->calcGatewayFee($amount, $gateway_token->gateway_type_id, $this->invoice->uses_inclusive_taxes);
-
-        //todo determine exact fee as per PaymentController
 
         /* Build payment hash */
         $payment_hash = PaymentHash::create([
@@ -196,7 +190,7 @@ class AutoBillInvoice extends AbstractService
             if ($is_partial_amount) {
 
                 //more credit than needed
-                if ($credit->balance >= $this->invoice->partial) {
+                if ($credit->balance > $this->invoice->partial) {
                     $this->used_credit[$key]['credit_id'] = $credit->id;
                     $this->used_credit[$key]['amount'] = $this->invoice->partial;
                     $this->invoice->balance -= $this->invoice->partial;
@@ -213,7 +207,7 @@ class AutoBillInvoice extends AbstractService
             } else {
 
                 //more credit than needed
-                if ($credit->balance >= $this->invoice->balance) {
+                if ($credit->balance > $this->invoice->balance) {
                     $this->used_credit[$key]['credit_id'] = $credit->id;
                     $this->used_credit[$key]['amount'] = $this->invoice->balance;
                     $this->invoice->paid_to_date += $this->invoice->balance;

@@ -70,7 +70,7 @@ class ApplyCreditPayment implements ShouldQueue
             $this->credit
                 ->service()
                 ->setStatus(Credit::STATUS_APPLIED)
-                ->updateBalance($this->amount * -1)
+                ->adjustBalance($this->amount * -1)
                 ->updatePaidToDate($this->amount)
                 ->save();
 
@@ -79,7 +79,7 @@ class ApplyCreditPayment implements ShouldQueue
             $this->credit
                 ->service()
                 ->setStatus(Credit::STATUS_PARTIAL)
-                ->updateBalance($this->amount * -1)
+                ->adjustBalance($this->amount * -1)
                 ->updatePaidToDate($this->amount)
                 ->save();
         }
