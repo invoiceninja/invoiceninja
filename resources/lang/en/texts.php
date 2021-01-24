@@ -3407,4 +3407,7 @@ return [
     'invoice_cannot_be_refunded' => 'Invoice id :number cannot be refunded',
     'attempted_refund_failed' => 'Attempting to refund :amount only :refundable_amount available for refund',
     'user_not_associated_with_this_account' => 'This user is unable to be attached to this company. Perhaps they have already registered a user on another account?',
+    'migration_completed' => 'Migration completed',
+    'migration_completed_description' => 'Your migration has completed, please review your data after logging in.'
+
 ];
