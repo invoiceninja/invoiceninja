@@ -59,9 +59,6 @@ class AutoBillInvoice extends AbstractService
             $this->applyCreditPayment();
         }
 
-        // info("partial = {$this->invoice->partial}");
-        // info("balance = {$this->invoice->balance}");
-
         /* Determine $amount */
         if ($this->invoice->partial > 0) {
             $amount = $this->invoice->partial;
@@ -122,18 +119,24 @@ class AutoBillInvoice extends AbstractService
 
         $payment->invoices()->attach($this->invoice->id, ['amount' => $amount]);
 
-        $this->invoice->service()->setStatus(Invoice::STATUS_PAID)->save();
+        $this->invoice
+             ->service()
+             ->setStatus(Invoice::STATUS_PAID)
+             ->save();
 
         foreach ($this->used_credit as $credit) {
             $current_credit = Credit::find($credit['credit_id']);
-            $payment->credits()->attach($current_credit->id, ['amount' => $credit['amount']]);
+            $payment->credits()
+                    ->attach($current_credit->id, ['amount' => $credit['amount']]);
 
             info("adjusting credit balance {$current_credit->balance} by this amount ". $credit['amount']);
 
-            $current_credit->balance -= $credit['amount'];
+            $current_credit->service()
+                           ->updateBalance($credit['amount']*-1)
+                           ->updatePaidToDate($credit['amount'])
+                           ->setCalculatedStatus()
+                           ->save();
 
-            $current_credit->service()->setCalculatedStatus()->save();
-            // $this->applyPaymentToCredit($current_credit, $credit['amount']);
         }
 
         $payment->ledger()
@@ -153,7 +156,10 @@ class AutoBillInvoice extends AbstractService
 
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
-        return $this->invoice->service()->setCalculatedStatus()->save();
+        return $this->invoice
+                    ->service()
+                    ->setCalculatedStatus()
+                    ->save();
     }
 
     /**
@@ -194,6 +200,7 @@ class AutoBillInvoice extends AbstractService
                     $this->used_credit[$key]['credit_id'] = $credit->id;
                     $this->used_credit[$key]['amount'] = $this->invoice->partial;
                     $this->invoice->balance -= $this->invoice->partial;
+                    $this->invoice->paid_to_date += $this->invoice->partial;
                     $this->invoice->partial = 0;
                     break;
                 } else {
@@ -201,6 +208,7 @@ class AutoBillInvoice extends AbstractService
                     $this->used_credit[$key]['amount'] = $credit->balance;
                     $this->invoice->partial -= $credit->balance;
                     $this->invoice->balance -= $credit->balance;
+                    $this->invoice->paid_to_date += $credit->balance;
                 }
             } else {
 
@@ -208,12 +216,15 @@ class AutoBillInvoice extends AbstractService
                 if ($credit->balance >= $this->invoice->balance) {
                     $this->used_credit[$key]['credit_id'] = $credit->id;
                     $this->used_credit[$key]['amount'] = $this->invoice->balance;
+                    $this->invoice->paid_to_date += $this->invoice->balance;
                     $this->invoice->balance = 0;
+
                     break;
                 } else {
                     $this->used_credit[$key]['credit_id'] = $credit->id;
                     $this->used_credit[$key]['amount'] = $credit->balance;
                     $this->invoice->balance -= $credit->balance;
+                    $this->invoice->paid_to_date += $credit->balance;
                 }
             }
         }

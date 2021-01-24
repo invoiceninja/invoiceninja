@@ -136,6 +136,7 @@ class CreditTransformer extends EntityTransformer
             'line_items' => $credit->line_items ?: (array) [],
             'entity_type' => 'credit',
             'exchange_rate' => (float) $credit->exchange_rate,
+            'paid_to_date' => (float) $credit->paid_to_date,
         ];
     }
 }

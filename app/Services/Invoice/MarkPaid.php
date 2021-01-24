@@ -70,6 +70,7 @@ class MarkPaid extends AbstractService
         
         $this->invoice->service()
                 ->updateBalance($payment->amount * -1)
+                ->updatePaidToDate($payment->amount)
                 ->setStatus(Invoice::STATUS_PAID)
                 ->applyNumber()
                 ->save();

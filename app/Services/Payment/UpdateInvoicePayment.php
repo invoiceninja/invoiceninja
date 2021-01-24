@@ -79,6 +79,7 @@ class UpdateInvoicePayment
             $invoice->service() //caution what if we amount paid was less than partial - we wipe it!
                 ->clearPartial()
                 ->updateBalance($paid_amount * -1)
+                ->updatePaidToDate($paid_amount)
                 ->updateStatus()
                 ->save();
 

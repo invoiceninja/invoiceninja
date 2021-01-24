@@ -105,6 +105,9 @@ class HandleReversal extends AbstractService
             //harvest the credit record and add in the amount for the credit.
             $paymentable_credit->pivot->amount = $total_paid;
             $paymentable_credit->pivot->save();
+
+            $paymentable_credit->paid_to_date += $total_paid;
+            $paymentable_credit->save();
         }
 
         /* Set invoice balance to 0 */
