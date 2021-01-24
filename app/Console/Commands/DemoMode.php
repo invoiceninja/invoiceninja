@@ -307,6 +307,14 @@ class DemoMode extends Command
                 'client_id' => $client->id,
                 'company_id' => $client->company_id,
             ]);
+
+        Expense::all()->each(function ($expense){
+
+            $expense->number = $this->getNextExpenseNumber($expense);
+            $expense->save();
+
+        });
+        
     }
 
     private function createVendor($client, $assigned_user_id = null)
@@ -329,15 +337,23 @@ class DemoMode extends Command
                 'company_id' => $client->company_id,
                 'is_primary' => 0,
             ]);
+
+
+        $vendor->id_number = $this->getNextVendorNumber($vendor);
+        $vendor->save();
     }
 
     private function createTask($client, $assigned_user_id = null)
     {
-        $vendor = Task::factory()->create([
+        $task = Task::factory()->create([
                 'user_id' => $client->user->id,
                 'company_id' => $client->company_id,
                 'client_id' => $client->id
             ]);
+
+        $task->number = $this->getNextTaskNumber($task);
+        $task->save();
+
     }
 
     private function createProject($client, $assigned_user_id = null)
