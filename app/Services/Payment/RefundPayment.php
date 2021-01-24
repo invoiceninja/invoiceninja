@@ -205,7 +205,7 @@ class RefundPayment
                     $paymentable_credit->balance += $available_credit;
                     $paymentable_credit->service()
                                       ->setStatus(Credit::STATUS_SENT)
-                                       ->updateBalance($available_credit)
+                                       ->adjustBalance($available_credit)
                                        ->updatePaidToDate($available_credit*-1)
                                       ->save();
 
