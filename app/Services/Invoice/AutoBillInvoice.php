@@ -132,7 +132,7 @@ class AutoBillInvoice extends AbstractService
             info("adjusting credit balance {$current_credit->balance} by this amount ". $credit['amount']);
 
             $current_credit->service()
-                           ->updateBalance($credit['amount']*-1)
+                           ->adjustBalance($credit['amount']*-1)
                            ->updatePaidToDate($credit['amount'])
                            ->setCalculatedStatus()
                            ->save();
