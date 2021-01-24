@@ -3419,5 +3419,9 @@ return [
     'no_group_settings_found' => 'No group settings found',
     'access_denied' => 'Insufficient privileges to access/modify this resource',
     'invoice_cannot_be_marked_paid' => 'Invoice cannot be marked as paid',
-
+    'invoice_license_or_environment' => 'Invalid license, or invalid environment :environment',
+    'route_not_available' => 'Route not available',
+    'invalid_design_object' => 'Invalid custom design object',
+    'quote_not_found' => 'Quote/s not found',
+    'quote_unapprovable' => 'Unable to approve this quote as it has expired.',
 ];
