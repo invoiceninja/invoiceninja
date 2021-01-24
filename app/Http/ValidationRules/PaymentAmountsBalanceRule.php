@@ -33,7 +33,7 @@ class PaymentAmountsBalanceRule implements Rule
      */
     public function message()
     {
-        return 'Amounts do not balance correctly.';
+        return ctrans('texts.amounts_do_not_balance');
     }
 
     private function calculateAmounts() :bool
@@ -69,10 +69,8 @@ class PaymentAmountsBalanceRule implements Rule
             }
         } else {
             return true;
-        } // if no invoices are present, then this is an unapplied payment, let this pass validation!
-
-        // nlog("payment amounts = {$payment_amounts}");
-        // nlog("invoice amounts = {$invoice_amounts}");
+        } 
+        
 
         return  $payment_amounts >= $invoice_amounts;
     }

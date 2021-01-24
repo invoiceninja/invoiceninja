@@ -29,6 +29,7 @@
  *       @OA\Property(property="line_items", type="object", example="", description="_________"),
  *       @OA\Property(property="amount", type="number", format="float", example="10.00", description="_________"),
  *       @OA\Property(property="balance", type="number", format="float", example="10.00", description="_________"),
+ *       @OA\Property(property="paid_to_date", type="number", format="float", example="10.00", description="_________"),
  *       @OA\Property(property="discount", type="number", format="float", example="10.00", description="_________"),
  *       @OA\Property(property="partial", type="number", format="float", example="10.00", description="_________"),
  *       @OA\Property(property="is_amount_discount", type="boolean", example=true, description="_________"),

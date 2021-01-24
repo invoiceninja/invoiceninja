@@ -40,7 +40,7 @@ class RelatedUserRule implements Rule
      */
     public function message()
     {
-        return 'User not associated with this account';
+        return ctrans('texts.user_not_associated_with_account');
     }
 
     /**

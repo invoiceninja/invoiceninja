@@ -49,6 +49,7 @@ class RecurringInvoiceFactory
         $invoice->last_sent_date = null;
         $invoice->next_send_date = null;
         $invoice->remaining_cycles = 0;
+        $invoice->paid_to_date = 0;
 
         return $invoice;
     }

@@ -49,6 +49,6 @@ class CreditArchivedActivity implements ShouldQueue
         $fields->company_id = $event->credit->company_id;
         $fields->activity_type_id = Activity::ARCHIVE_CREDIT;
 
-        $this->activity_repo->save($fields, $$event->credit, $event->event_vars);
+        $this->activity_repo->save($fields, $event->credit, $event->event_vars);
     }
 }

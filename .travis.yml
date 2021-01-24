@@ -12,7 +12,7 @@ services:
 group: deprecated-2017Q4
 
 php:
-  - 7.3
+#  - 7.3
   - 7.4
 #  - nightly
 
@@ -38,7 +38,7 @@ env:
 before_install:
   # set GitHub token and update composer
   - if [ -n "$GH_TOKEN" ]; then composer config github-oauth.github.com ${GH_TOKEN}; fi;
-  - composer self-update && composer -V
+  - composer self-update 1.10.19 && composer -V
 #  - export USE_ZEND_ALLOC=0
   - rvm use 1.9.3 --install --fuzzy
   - cp .env.travis .env
@@ -77,7 +77,7 @@ before_script:
 
 script:
   - php ./vendor/bin/phpunit --debug --verbose --coverage-clover=coverage.xml
-  - php artisan dusk
+  #- php artisan dusk
   #- npm test
 after_success:
     - bash <(curl -s https://codecov.io/bash)

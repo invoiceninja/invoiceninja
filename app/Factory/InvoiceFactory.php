@@ -44,6 +44,7 @@ class InvoiceFactory
         $invoice->custom_value4 = 0;
         $invoice->amount = 0;
         $invoice->balance = 0;
+        $invoice->paid_to_date = 0;
         $invoice->partial = 0;
         $invoice->user_id = $user_id;
         $invoice->company_id = $company_id;

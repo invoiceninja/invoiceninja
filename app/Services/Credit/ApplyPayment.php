@@ -70,6 +70,7 @@ class ApplyPayment
         }
 
         $this->credit->balance -= $this->amount_applied;
+        $this->credit->paid_to_date += $this->amount_applied;
 
         if ((int)$this->credit->balance == 0) {
             $this->credit->status_id = Credit::STATUS_APPLIED;
@@ -110,6 +111,8 @@ class ApplyPayment
         $this->payment->currency_id = $this->credit->client->getSetting('currency_id');
         $this->payment->save();
 
+        $this->payment->service()->applyNumber()->save();
+        
         $this->payment
              ->invoices()
              ->attach($this->invoice->id, ['amount' => $this->amount_applied]);
@@ -133,6 +136,7 @@ class ApplyPayment
         $this->invoice
                  ->service()
                  ->updateBalance($this->amount_applied * -1)
+                 ->updatePaidToDate($this->amount_applied)
                  ->updateStatus()
                  ->save();
 

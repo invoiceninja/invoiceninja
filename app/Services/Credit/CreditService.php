@@ -97,6 +97,12 @@ class CreditService
         return $this;
     }
 
+    public function updatePaidToDate($adjustment)
+    {
+        $this->credit->paid_to_date += $adjustment;
+        
+        return $this;
+    }
 
     public function fillDefaults()
     {

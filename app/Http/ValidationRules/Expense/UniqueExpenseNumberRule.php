@@ -41,7 +41,7 @@ class UniqueExpenseNumberRule implements Rule
      */
     public function message()
     {
-        return 'Expense number already taken';
+        return ctrans('texts.expense_number_taken');
     }
 
     /**
@@ -57,20 +57,7 @@ class UniqueExpenseNumberRule implements Rule
                           ->where('number', $this->input['number'])
                           ->withTrashed();
 
-        // if(isset($this->input['client_id']))
-        //     $expense->where('client_id', $this->input['client_id']);
-
         return $expense->exists();
 
-        // $expense = Expense::where('client_id', $this->input['client_id'])
-        //                 ->where('number', $this->input['number'])
-        //                 ->withTrashed()
-        //                 ->exists();
-
-        // if ($expense) {
-        //     return false;
-        // }
-
-        // return true;
     }
 }

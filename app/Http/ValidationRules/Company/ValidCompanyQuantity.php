@@ -33,6 +33,6 @@ class ValidCompanyQuantity implements Rule
      */
     public function message()
     {
-        return 'Limit of 10 companies per account.';
+        return ctrans('texts.company_limit_reached');
     }
 }

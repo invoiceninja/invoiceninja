@@ -37,7 +37,7 @@ class PaymentAppliedValidAmount implements Rule
      */
     public function message()
     {
-        return 'Insufficient applied amount remaining to cover payment.';
+        return ctrans('texts.insufficient_applied_amount_remaining');
     }
 
     private function calculateAmounts() :bool

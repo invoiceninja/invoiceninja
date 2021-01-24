@@ -53,6 +53,6 @@ class ValidProjectForClient implements Rule
      */
     public function message()
     {
-        return "Project client does not match entity client";
+        return ctrans('texts.project_client_do_not_match');
     }
 }

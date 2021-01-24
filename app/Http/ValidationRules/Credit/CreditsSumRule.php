@@ -48,6 +48,6 @@ class CreditsSumRule implements Rule
      */
     public function message()
     {
-        return "Total credits applied cannot be MORE than total of invoices";
+        return ctrans('texts.credits_applied_validation');
     }
 }
