@@ -151,7 +151,8 @@ class PaymentMethodController extends Controller
             event(new MethodDeleted($payment_method, auth('contact')->user()->company, Ninja::eventVars()));
             $payment_method->delete();
         } catch (Exception $e) {
-            Log::error(json_encode($e));
+            
+            nlog($e->getMessage());
 
             return back();
         }

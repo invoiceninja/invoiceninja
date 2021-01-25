@@ -18,10 +18,12 @@ use App\PaymentDrivers\AuthorizePaymentDriver;
 use net\authorize\api\contract\v1\CreateCustomerPaymentProfileRequest;
 use net\authorize\api\contract\v1\CustomerAddressType;
 use net\authorize\api\contract\v1\CustomerPaymentProfileType;
+use net\authorize\api\contract\v1\DeleteCustomerPaymentProfileRequest;
 use net\authorize\api\contract\v1\GetCustomerPaymentProfileRequest;
 use net\authorize\api\contract\v1\OpaqueDataType;
 use net\authorize\api\contract\v1\PaymentType;
 use net\authorize\api\controller\CreateCustomerPaymentProfileController;
+use net\authorize\api\controller\DeleteCustomerPaymentProfileController;
 use net\authorize\api\controller\GetCustomerPaymentProfileController;
 use stdClass;
 
@@ -246,4 +248,37 @@ class AuthorizePaymentMethod
             throw new GenericPaymentDriverFailure('Error communicating with Authorize.net');
         }
     }
+
+    public function deletePaymentProfile($gateway_customer_reference, $payment_profile_id) {
+
+        error_reporting(E_ALL & ~E_DEPRECATED);
+
+        $this->authorize->init();
+
+        // Set the transaction's refId
+        $refId = 'ref' . time();
+        
+          // Use an existing payment profile ID for this Merchant name and Transaction key
+          
+          $request = new DeleteCustomerPaymentProfileRequest();
+          $request->setMerchantAuthentication($this->authorize->merchant_authentication);
+          $request->setCustomerProfileId($gateway_customer_reference);
+          $request->setCustomerPaymentProfileId($payment_profile_id);
+          $controller = new DeleteCustomerPaymentProfileController($request);
+
+          $response = $controller->executeWithApiResponse($this->authorize->mode());
+          if (($response != null) && ($response->getMessages()->getResultCode() == "Ok") )
+          {
+              nlog("SUCCESS: Delete Customer Payment Profile  SUCCESS  :");
+           }
+          else
+          {
+              nlog("ERROR :  Delete Customer Payment Profile: Invalid response\n");
+              $errorMessages = $response->getMessages()->getMessage();
+              nlog("Response : " . $errorMessages[0]->getCode() . "  " .$errorMessages[0]->getText() . "\n");
+          }
+
+          return $response;
+  }
+
 }

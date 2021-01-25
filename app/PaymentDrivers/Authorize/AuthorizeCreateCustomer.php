@@ -87,6 +87,7 @@ class AuthorizeCreateCustomer
         $request = new GetCustomerProfileRequest();
         $request->setMerchantAuthentication($this->authorize->merchant_authentication);
         $request->setCustomerProfileId($profileIdRequested);
+        
         $controller = new GetCustomerProfileController($request);
         $response = $controller->executeWithApiResponse($this->authorize->merchant_authentication);
 
@@ -105,7 +106,7 @@ class AuthorizeCreateCustomer
                         echo "List of subscriptions:";
                         foreach($response->getSubscriptionIds() as $subscriptionid)
                             echo $subscriptionid . "\n";
-                        
+
                     }
                 }
         }
