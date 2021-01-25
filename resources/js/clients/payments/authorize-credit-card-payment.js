@@ -15,7 +15,6 @@ class AuthorizeAuthorizeCard {
         this.loginId = loginId;
         this.cardHolderName = document.getElementById("cardholder_name");
         this.cardButton = document.getElementById("card_button");
-        this.payNowButton = document.getElementsByClassName("pay_now_button");
     }
 
     handleAuthorization = () => {
@@ -39,9 +38,13 @@ class AuthorizeAuthorizeCard {
         // send the bankData object instead of the cardData object.
         //
         // secureData.bankData = bankData;
-        document.getElementById('card_button').disabled = true;
-        document.querySelector('#card_button > svg').classList.remove('hidden');
-        document.querySelector('#card_button > span').classList.add('hidden');
+        let payNowButton = document.getElementById('pay-now');
+
+        if (payNowButton) {
+            document.getElementById('pay-now').disabled = true;
+            document.querySelector('#pay-now > svg').classList.remove('hidden');
+            document.querySelector('#pay-now > span').classList.add('hidden');
+        }
 
         Accept.dispatchData(secureData, this.responseHandler);
 
@@ -50,10 +53,12 @@ class AuthorizeAuthorizeCard {
     }
 
     handlePayNowAction(token_hashed_id) {
+        document.getElementById('pay-now').disabled = true;
+        document.querySelector('#pay-now > svg').classList.remove('hidden');
+        document.querySelector('#pay-now > span').classList.add('hidden');
 
         document.getElementById("token").value = token_hashed_id;
         document.getElementById("server_response").submit();
-
     }
 
     responseHandler = (response) => {
@@ -71,10 +76,10 @@ class AuthorizeAuthorizeCard {
             document.getElementById("dataDescriptor").value = response.opaqueData.dataDescriptor;
             document.getElementById("dataValue").value = response.opaqueData.dataValue;
 
-            let store_card_checkbox = document.getElementById("store_card_checkbox");
+            let storeCard = document.querySelector('input[name=token-billing-checkbox]:checked');
 
-            if (store_card_checkbox) {
-                document.getElementById("store_card").value = store_card_checkbox.checked;
+            if (storeCard) {
+                document.getElementById("store_card").value = storeCard.value;
             }
 
             document.getElementById("server_response").submit();
@@ -85,6 +90,33 @@ class AuthorizeAuthorizeCard {
 
 
     handle = () => {
+        Array
+            .from(document.getElementsByClassName('toggle-payment-with-token'))
+            .forEach((element) => element.addEventListener('click', (e) => {
+                document
+                    .getElementById('save-card--container').style.display = 'none';
+                document
+                    .getElementById('authorize--credit-card-container').style.display = 'none';
+
+                document
+                    .getElementById('token').value = e.target.dataset.token;
+            }));
+
+        let payWithCreditCardToggle = document.getElementById('toggle-payment-with-credit-card');
+
+        if (payWithCreditCardToggle) {
+            payWithCreditCardToggle
+                .addEventListener('click', () => {
+                    document
+                        .getElementById('save-card--container').style.display = 'grid';
+                    document
+                        .getElementById('authorize--credit-card-container').style.display = 'flex';
+
+                    document
+                        .getElementById('token').value = null;
+                });
+        }
+
         if (this.cardButton) {
             this.cardButton.addEventListener("click", () => {
 
@@ -95,18 +127,17 @@ class AuthorizeAuthorizeCard {
             });
         }
 
-        if (this.payNowButton) {
+        let payNowButton = document.getElementById('pay-now');
 
-            for (let item of this.payNowButton) {
+        if (payNowButton) {
+            payNowButton
+                .addEventListener('click', (e) => {
+                    let token = document.getElementById('token');
 
-                item.addEventListener('click', () => {
-                    item.disabled = true;
-                    this.handlePayNowAction(item.dataset.id);
-
+                    token.value
+                        ? this.handlePayNowAction(token.value)
+                        : this.handleAuthorization();
                 });
-
-            }
-
         }
 
         return this;

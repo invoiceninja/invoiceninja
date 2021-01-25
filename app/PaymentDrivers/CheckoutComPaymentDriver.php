@@ -208,4 +208,9 @@ class CheckoutComPaymentDriver extends BaseDriver
             return $this->processInternallyFailedPayment($this, $e);
         }
     }
+
+    public function detach(ClientGatewayToken $clientGatewayToken)
+    {
+        // Gateway doesn't support this feature.
+    }
 }

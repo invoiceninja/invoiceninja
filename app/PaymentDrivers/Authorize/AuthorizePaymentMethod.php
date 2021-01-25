@@ -100,9 +100,10 @@ class AuthorizePaymentMethod
         } else {
             $gateway_customer_reference = (new AuthorizeCreateCustomer($this->authorize, $this->authorize->client))->create($data);
             $payment_profile = $this->addPaymentMethodToClient($gateway_customer_reference, $data);
+
+            $this->createClientGatewayToken($payment_profile, $gateway_customer_reference);
         }
 
-        $this->createClientGatewayToken($payment_profile, $gateway_customer_reference);
 
         return redirect()->route('client.payment_methods.index');
     }
@@ -119,6 +120,7 @@ class AuthorizePaymentMethod
         $data['token'] = $payment_profile->getPaymentProfile()->getCustomerPaymentProfileId();
         $data['payment_method_id'] = $this->payment_method_id;
         $data['payment_meta'] = $this->buildPaymentMethod($payment_profile);
+        $data['payment_method_id'] = GatewayType::CREDIT_CARD;
 
         $additional['gateway_customer_reference'] = $gateway_customer_reference;
 

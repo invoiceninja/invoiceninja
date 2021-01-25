@@ -39,6 +39,8 @@ class ACH
 
     public function authorizeView(array $data)
     {
+        $data['gateway'] = $this->stripe;
+
         return render('gateways.stripe.ach.authorize', array_merge($data));
     }
 
@@ -63,7 +65,12 @@ class ACH
 
     public function verificationView(ClientGatewayToken $token)
     {
-        return render('gateways.stripe.ach.verify', compact('token'));
+        $data = [
+            'token' => $token,
+            'gateway' => $this->stripe,
+        ];
+
+        return render('gateways.stripe.ach.verify', $data);
     }
 
     public function processVerification(Request $request, ClientGatewayToken $token)
