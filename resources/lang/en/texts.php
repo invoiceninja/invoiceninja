@@ -3424,4 +3424,9 @@ return [
     'invalid_design_object' => 'Invalid custom design object',
     'quote_not_found' => 'Quote/s not found',
     'quote_unapprovable' => 'Unable to approve this quote as it has expired.',
+    'scheduler_has_run' => 'Scheduler has run',
+    'scheduler_has_never_run' => 'Scheduler has never run',
+    'self_update_not_available' => 'Self update not available on this system.',
+    'user_detached' => 'User detached from company',
+    'create_webhook_failure' => 'Failed to create Webhook',
 ];
