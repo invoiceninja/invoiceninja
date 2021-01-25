@@ -355,9 +355,9 @@ trait GeneratesCounter
      * @param int $counter The counter
      * @param int $padding The padding
      *
-     * @param $pattern
-     * @param string $prefix
-     * @return     string   The padded and prefixed entity number
+     * @param      string $pattern
+     * @param      string $prefix
+     * @return     string The padded and prefixed entity number
      */
     private function checkEntityNumber($class, $entity, $counter, $padding, $pattern, $prefix = '')
     {
@@ -370,13 +370,7 @@ trait GeneratesCounter
 
             $number = $this->prefixCounter($number, $prefix);
 
-            if ($class == Invoice::class || $class == RecurringInvoice::class) {
-                $check = $class::whereCompanyId($entity->company_id)->whereNumber($number)->withTrashed()->first();
-            } elseif ($class == Client::class || $class == Vendor::class) {
-                $check = $class::whereCompanyId($entity->company_id)->whereIdNumber($number)->withTrashed()->first();
-            } else {
-                $check = $class::whereCompanyId($entity->company_id)->whereNumber($number)->withTrashed()->first();
-            }
+            $check = $class::whereCompanyId($entity->company_id)->whereNumber($number)->withTrashed()->first();
 
             $counter++;
         } while ($check);
@@ -388,11 +382,12 @@ trait GeneratesCounter
     /*Check if a number is available for use. */
     public function checkNumberAvailable($class, $entity, $number) :bool
     {
-        if ($entity = $class::whereCompanyId($entity->company_id)->whereNumber($number)->withTrashed()->first()) {
-            return false;
-        }
 
+        if ($entity = $class::whereCompanyId($entity->company_id)->whereNumber($number)->withTrashed()->first()) 
+            return false;
+        
         return true;
+
     }
 
     /**
@@ -611,6 +606,9 @@ trait GeneratesCounter
                 $search[] = '{$vendor_id_number}';
                 $replace[] = $entity->vendor->id_number;
 
+                $search[] = '{$vendor_number}';
+                $replace[] = $entity->vendor->number;
+
                 $search[] = '{$vendor_custom1}';
                 $replace[] = $entity->vendor->custom_value1;
 
@@ -642,6 +640,9 @@ trait GeneratesCounter
 
             $search[] = '{$client_custom4}';
             $replace[] = $client->custom_value4;
+
+            $search[] = '{$client_number}';
+            $replace[] = $client->number;
 
             $search[] = '{$client_id_number}';
             $replace[] = $client->id_number;

@@ -47,8 +47,8 @@ class VendorRepository extends BaseRepository
 
         $vendor->save();
 
-        if ($vendor->id_number == '' || ! $vendor->id_number) {
-            $vendor->id_number = $this->getNextVendorNumber($vendor);
+        if ($vendor->number == '' || ! $vendor->number) {
+            $vendor->number = $this->getNextVendorNumber($vendor);
         } //todo write tests for this and make sure that custom vendor numbers also works as expected from here
 
         $vendor->save();

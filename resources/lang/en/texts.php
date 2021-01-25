@@ -3210,7 +3210,6 @@ return [
     'waiting_for_approval' => 'Waiting for approval',
     'quote_still_not_approved' => 'This quote is still not approved',
     'list_of_credits' => 'Credits',
-
     'required_extensions' => 'Required extensions',
     'php_version' => 'PHP version',
     'writable_env_file' => 'Writable .env file',
@@ -3218,11 +3217,9 @@ return [
     'minumum_php_version' => 'Minimum PHP version',
     'satisfy_requirements' => 'Make sure all requirements are satisfied.',
     'oops_issues' => 'Oops, something doesn\'t look right!',
-
     'open_in_new_tab' => 'Open in new tab',
     'complete_your_payment' => 'Complete payment',
     'authorize_for_future_use' => 'Authorize payment method for future use',
-
     'page' => 'Page',
     'per_page' => 'Per page',
     'of' => 'Of',
@@ -3230,122 +3227,81 @@ return [
     'to_view_entity_password' => 'To view the :entity you need to enter password.',
     'showing_x_of' => 'Showing :first to :last out of :total results',
     'no_results' => 'No results found.',
-
     'payment_failed_subject' => 'Payment failed for Client :client',
     'payment_failed_body' => 'A payment made by client :client failed with message :message',
-
     'register' => 'Register',
     'register_label' => 'Create your account in seconds',
     'password_confirmation' => 'Confirm your password',
     'verification' => 'Verification',
-    'complete_your_bank_account_verification' => 'Before using bank account they must be verified.',
-
+    'complete_your_bank_account_verification' => 'Before using a bank account it must be verified.',
     'checkout_com' => 'Checkout.com',
-
     'footer_label' => 'Copyright © :year :company.',
-
     'credit_card_invalid' => 'Provided credit card number is not valid.',
     'month_invalid' => 'Provided month is not valid.',
     'year_invalid' => 'Provided year is not valid.',
-
     'https_required' => 'HTTPS is required, form will fail',
     'if_you_need_help' => 'If you need help you can post to our',
     'reversed' => 'Reversed',
     'update_password_on_confirm' => 'After updating password, your account will be confirmed.',
-    'bank_account_not_linked' => 'To pay with bank account, first you have to add it as payment method.',
-
+    'bank_account_not_linked' => 'To pay with a bank account, first you have to add it as payment method.',
     'application_settings_label' => 'Let\'s store basic information about your Invoice Ninja!',
     'recommended_in_production' => 'Highly recommended in production',
     'enable_only_for_development' => 'Enable only for development',
-
     'test_pdf' => 'Test PDF',
     'cancelled' => 'Cancelled',
-
     'checkout_authorize_label' => 'Checkout.com can be can saved as payment method for future use, once you complete your first transaction. Don\'t forget to check "Store credit card details" during payment process.',
     'sofort_authorize_label' => 'Bank account (SOFORT) can be can saved as payment method for future use, once you complete your first transaction. Don\'t forget to check "Store payment details" during payment process.',
-
     'node_status' => 'Node status',
     'npm_status' => 'NPM status',
     'node_status_not_found' => 'I could not find Node anywhere. Is it installed?',
     'npm_status_not_found' => 'I could not find NPM anywhere. Is it installed?',
     'locked_invoice'    => 'This invoice is locked and unable to be modified',
-
     'downloads' => 'Downloads',
     'resource' => 'Resource',
-
     'document_details' => 'Details about the document.',
-
     'width' => 'Width',
     'height' => 'Height',
-
     'document_details' => 'Details about the document',
-
     'hash' => 'Hash',
-
     'resources' => 'Resources',
-
     'allowed_file_types' => 'Allowed file types:',
     'common_codes' => 'Common codes and their meanings',
-
     'payment_error_code_20087' => '20087: Bad Track Data (invalid CVV and/or expiry date)',
-
     'download_selected' => 'Download selected',
-
     'to_pay_invoices' => 'To pay invoices, you have to',
     'add_payment_method_first' => 'add payment method',
-
     'no_items_selected' => 'No items selected.',
-
     'payment_due' => 'Payment due',
     'account_balance' => 'Account balance',
     'password_strength' => 'Password strength too weak',
-
     'thanks' => 'Thanks',
-
     'minimum_required_payment' => 'Minimum required payment is :amount',
-
     'under_payments_disabled' => 'Company doesn\'t support under payments.',
     'over_payments_disabled' => 'Company doesn\'t support over payments.',
-
     'paused' => 'Paused',
-
     'saved_at' => 'Saved at :time',
     'credit_payment' => 'Credit applied to Invoice :invoice_number',
-
     'credit_subject' => 'New credit :number from :account',
     'credit_message' => 'To view your credit for :amount, click the link below.',
     'payment_type_Crypto' => 'Cryptocurrency',
     'payment_type_Credit' => 'Credit',
-
     'store_for_future_use' => 'Store for future use',
-
     'pay_with_credit' => 'Pay with credit',
     'payment_method_saving_failed' => 'Payment method can\'t be saved for future use.',
-
     'pay_with' => 'Pay with',
-
     'n/a' => 'N/A',
     'payment_number' => 'Payment Number',
-
     'activity_63' => ':user emailed reminder 1 for invoice :invoice to :contact',
     'activity_64' => ':user emailed reminder 2 for invoice :invoice to :contact',
     'activity_65' => ':user emailed reminder 3 for invoice :invoice to :contact',
     'activity_66' => ':user emailed reminder endless for invoice :invoice to :contact',
-
     'by_clicking_next_you_accept_terms' => 'By clicking "Next step" you accept terms.',
     'not_specified' => 'Not specified',
-
     'before_proceeding_with_payment_warning' => 'Before proceeding with payment, you have to fill following fields',
     'after_completing_go_back_to_previous_page' => 'After completing, go back to previous page.',
-
-    'billing_country' => 'Billing Country',
-    'shipping_country' => 'Shipping Country',
-
     'service' => 'Service',
     'pay' => 'Pay',
-
     'instructions' => 'Instructions',
-
     'notification_invoice_reminder1_sent_subject' => 'Reminder 1 for Invoice :invoice was sent to :client',
     'notification_invoice_reminder2_sent_subject' => 'Reminder 2 for Invoice :invoice was sent to :client',
     'notification_invoice_reminder3_sent_subject' => 'Reminder 3 for Invoice :invoice was sent to :client',
@@ -3355,26 +3311,19 @@ return [
     'custom_value4' => 'Custom Value',
     'inclusive_taxes' => 'Include taxes',
     'sort_order' => 'Sort Order',
-
     'setup_steps_notice' => 'To proceed to next step, make sure you test each section.',
-
     'setup_phantomjs_note' => 'Note about Phantom JS. Read more.',
     'currency_armenian_dram' => 'Armenian Dram',
     'currency_albanian_lek' => 'Albanian Lek',
-
     'endless' => 'Endless',
     'minimum_payment' => 'Minimum Payment',
-
     'no_action_provided' => 'No action provided. If you believe this is wrong, please contact the support.',
     'no_payable_invoices_selected' => 'No payable invoices selected. Make sure you are not trying to pay draft invoice or invoice with zero balance due.',
-
     'required_payment_information' => 'Required payment details',
     'required_payment_information_more' => 'To complete a payment we need more details about you.',
-
     'required_client_info_save_label' => 'We will save this, so you don\'t have to enter it next time.',
     'notification_credit_bounced' => 'We were unable to deliver Credit :invoice to :contact. \n :error',
     'notification_credit_bounced_subject' => 'Unable to deliver Credit :invoice',
-
     'company_limit_reached' => 'Limit of 10 companies per account.',
     'credits_applied_validation' => 'Total credits applied cannot be MORE than total of invoices',
     'credit_number_taken' => 'Credit number already taken',
@@ -3429,4 +3378,5 @@ return [
     'self_update_not_available' => 'Self update not available on this system.',
     'user_detached' => 'User detached from company',
     'create_webhook_failure' => 'Failed to create Webhook',
+    'number' => 'Number',
 ];

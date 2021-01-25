@@ -35,6 +35,7 @@
  *       @OA\Property(property="custom_value4", type="string", example="", description="________"),
  *       @OA\Property(property="vat_number", type="string", example="", description="________"),
  *       @OA\Property(property="id_number", type="string", example="", description="________"),
+ *       @OA\Property(property="number", type="string", example="", description="________"),
  *       @OA\Property(property="is_deleted", type="boolean", example=true, description="________"),
  *       @OA\Property(property="last_login", type="number", format="integer", example="134341234234", description="Timestamp"),
  *       @OA\Property(property="created_at", type="number", format="integer", example="134341234234", description="Timestamp"),

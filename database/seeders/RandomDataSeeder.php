@@ -294,7 +294,7 @@ class RandomDataSeeder extends Seeder
 
         foreach ($clients as $client) {
             //$client->getNextClientNumber($client);
-            $client->id_number = $client->getNextClientNumber($client);
+            $client->number = $client->getNextClientNumber($client);
             $client->save();
         }
 
