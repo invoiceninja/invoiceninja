@@ -74,7 +74,7 @@ class PingController extends BaseController
     public function health()
     {
         if (Ninja::isNinja()) {
-            return response()->json(['message' => 'Route not available', 'errors'=>[]], 403);
+            return response()->json(['message' => ctrans('texts.route_not_available'), 'errors'=>[]], 403);
         }
 
         return response()->json(SystemHealth::check(), 200);

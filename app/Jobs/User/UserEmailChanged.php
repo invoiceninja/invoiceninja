@@ -79,7 +79,7 @@ class UserEmailChanged extends BaseMailerJob implements ShouldQueue
             Mail::to($this->new_email)
             ->send(new UserNotificationMailer($mail_obj));
         } catch (\Exception $e) {
-            $this->failed($e);
+            //$this->failed($e);
             $this->logMailError($e->getMessage(), $this->company->owner());
         }
     }

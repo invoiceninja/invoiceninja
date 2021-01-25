@@ -40,7 +40,7 @@ class ValidRefundableInvoices implements Rule
     public function passes($attribute, $value)
     {
         if (! array_key_exists('id', $this->input)) {
-            $this->error_msg = 'Payment `id` required.';
+            $this->error_msg = ctrans('texts.payment_id_required');
 
             return false;
         }
@@ -48,16 +48,10 @@ class ValidRefundableInvoices implements Rule
         $payment = Payment::whereId($this->input['id'])->first();
 
         if (! $payment) {
-            $this->error_msg = "Payment couldn't be retrieved cannot be refunded ";
+            $this->error_msg = ctrans('texts.unable_to_retrieve_payment');
 
             return false;
         }
-
-        /*We are not sending the Refunded amount in the 'amount field, this is the Payment->amount, need to skip this check. */
-        // if (request()->has('amount') && (request()->input('amount') > ($payment->amount - $payment->refunded))) {
-        //     $this->error_msg = "Attempting to refund more than payment amount, enter a value equal to or lower than the payment amount of ". $payment->amount;
-        //     return false;
-        // }
 
         /*If no invoices has been sent, then we apply the payment to the client account*/
         $invoices = [];
@@ -70,7 +64,7 @@ class ValidRefundableInvoices implements Rule
 
         foreach ($invoices as $invoice) {
             if (! $invoice->isRefundable()) {
-                $this->error_msg = 'Invoice id '.$invoice->hashed_id.' cannot be refunded';
+                $this->error_msg = ctrans('texts.invoice_cannot_be_refunded', ['invoice' => $invoice->hashed_id]);
 
                 return false;
             }
@@ -82,7 +76,7 @@ class ValidRefundableInvoices implements Rule
                     $pivot_record = $payment->paymentables->where('paymentable_id', $invoice->id)->first();
 
                     if ($val['amount'] > ($pivot_record->amount - $pivot_record->refunded)) {
-                        $this->error_msg = 'Attempting to refund '.$val['amount'].' only '.($pivot_record->amount - $pivot_record->refunded).' available for refund';
+                        $this->error_msg = ctrans('texts.attempted_refund_failed', ['amount' => $val['amount'], 'refundable_amount' => ($pivot_record->amount - $pivot_record->refunded)]);
 
                         return false;
                     }

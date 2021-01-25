@@ -15,6 +15,7 @@ use App\Jobs\Cron\RecurringInvoicesCron;
 use App\Jobs\Ninja\AdjustEmailQuota;
 use App\Jobs\Ninja\CompanySizeCheck;
 use App\Jobs\Util\ReminderJob;
+use App\Jobs\Util\SchedulerCheck;
 use App\Jobs\Util\SendFailedEmails;
 use App\Jobs\Util\UpdateExchangeRates;
 use App\Jobs\Util\VersionCheck;
@@ -42,7 +43,6 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
 
-        //$schedule->job(new RecurringInvoicesCron)->hourly();
         $schedule->job(new VersionCheck)->daily()->withoutOverlapping();
 
         $schedule->command('ninja:check-data')->daily()->withoutOverlapping();
@@ -57,13 +57,20 @@ class Kernel extends ConsoleKernel
 
         /* Run hosted specific jobs */
         if (Ninja::isHosted()) {
+
             $schedule->job(new AdjustEmailQuota())->daily()->withoutOverlapping();
             $schedule->job(new SendFailedEmails())->daily()->withoutOverlapping();
+
         }
-        /* Run queue's in shared hosting with this*/
+        /* Run queue's with this*/
         if (Ninja::isSelfHost()) {
+
             $schedule->command('queue:work')->everyMinute()->withoutOverlapping();
-            $schedule->command('queue:restart')->everyFiveMinutes()->withoutOverlapping(); //we need to add this as we are seeing cached queues mess up the system on first load.
+            
+            //we need to add this as we are seeing cached queues mess up the system on first load.
+            $schedule->command('queue:restart')->everyFiveMinutes()->withoutOverlapping();
+            $schedule->job(new SchedulerCheck)->everyFiveMinutes()->withoutOverlapping();
+        
         }
     }
 

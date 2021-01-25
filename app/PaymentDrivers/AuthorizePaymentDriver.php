@@ -156,6 +156,6 @@ class AuthorizePaymentDriver extends BaseDriver
      */
     public function detach(ClientGatewayToken $token)
     {
-        // Authorize.net doesn't support this feature.
+        return (new AuthorizePaymentMethod($this))->deletePaymentProfile($token->gateway_customer_reference, $token->token);
     }
 }

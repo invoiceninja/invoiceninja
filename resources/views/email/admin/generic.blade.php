@@ -1,10 +1,11 @@
 @component('email.template.master', ['design' => 'light', 'settings' => $settings])
 
+
     @slot('header')
         @include('email.components.header', ['logo' => $logo])
     @endslot
 
-    <h1>{{ $title }}</h1>
+    <p>{{ $title }}</p>
 
     @slot('greeting')
         @lang($message)

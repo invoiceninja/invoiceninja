@@ -59,20 +59,10 @@ class UpdateQuoteRequest extends Request
     {
         $input = $this->all();
 
-        if (array_key_exists('design_id', $input) && is_string($input['design_id'])) {
-            $input['design_id'] = $this->decodePrimaryKey($input['design_id']);
-        }
-
-        if (isset($input['client_id'])) {
-            $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
-        }
+        $input = $this->decodePrimaryKeys($input);
 
         if (isset($input['line_items'])) {
             $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
-        }
-
-        if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
-            $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
         }
 
         if (array_key_exists('documents', $input)) {

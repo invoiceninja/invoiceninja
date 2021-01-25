@@ -50,6 +50,7 @@ class InvoiceToRecurringInvoiceFactory
         $recurring_invoice->last_sent_date = null;
         $recurring_invoice->next_send_date = null;
         $recurring_invoice->remaining_cycles = 0;
+        $recurring_invoice->paid_to_date = 0;
 
         return $recurring_invoice;
     }

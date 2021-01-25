@@ -51,7 +51,7 @@ class MarkSent extends AbstractService
 
         $this->client->service()->updateBalance($this->invoice->balance)->save();
 
-        $this->invoice->ledger()->updateInvoiceBalance($this->invoice->balance);
+        $this->invoice->ledger()->updateInvoiceBalance($this->invoice->balance, "Invoice {$this->invoice->number} marked as sent.");
 
         event(new InvoiceWasUpdated($this->invoice, $this->invoice->company, Ninja::eventVars()));
 

@@ -136,7 +136,7 @@ class ActivityController extends BaseController
         $backup = $activity->backup;
 
         if (! $backup || ! $backup->html_backup) {
-            return response()->json(['message'=> 'No backup exists for this activity', 'errors' => new stdClass], 404);
+            return response()->json(['message'=> ctrans('texts.no_backup_exists'), 'errors' => new stdClass], 404);
         }
 
         $pdf = $this->makePdf(null, null, $backup->html_backup);

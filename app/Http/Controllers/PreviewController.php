@@ -81,7 +81,7 @@ class PreviewController extends BaseController
             $design_object = json_decode(json_encode(request()->input('design')));
 
             if (! is_object($design_object)) {
-                return response()->json(['message' => 'Invalid custom design object'], 400);
+                return response()->json(['message' => ctrans('texts.invalid_design_object')], 400);
             }
 
             $entity = ucfirst(request()->input('entity'));

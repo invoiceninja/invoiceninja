@@ -47,7 +47,7 @@ class LedgerService
         return $this;
     }
 
-    public function updatePaymentBalance($adjustment)
+    public function updatePaymentBalance($adjustment, $notes = '')
     {
         $balance = 0;
 
@@ -63,6 +63,7 @@ class LedgerService
         $company_ledger->adjustment = $adjustment;
         $company_ledger->balance = $balance + $adjustment;
         $company_ledger->activity_id = Activity::UPDATE_PAYMENT;
+        $company_ledger->notes = $notes;
         $company_ledger->save();
 
         $this->entity->company_ledger()->save($company_ledger);

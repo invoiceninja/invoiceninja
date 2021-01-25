@@ -23,17 +23,11 @@ class TemplateEmail extends Mailable
 
     private $build_email;
 
-    private $user; //the user the email will be sent from
-
     private $client;
 
-    private $footer;
-
-    public function __construct($build_email, User $user, Client $client)
+    public function __construct($build_email, Client $client)
     {
         $this->build_email = $build_email;
-
-        $this->user = $user; //this is inappropriate here, need to refactor 'user' in this context the 'user' could also be the 'system'
 
         $this->client = $client;
     }

@@ -80,11 +80,11 @@ class EmailPayment extends BaseMailerJob implements ShouldQueue
 
             try {
                 $mail = Mail::to($this->contact->email, $this->contact->present()->name());
-                $mail->send(new TemplateEmail($email_builder, $this->contact->user, $this->contact->client));
+                $mail->send(new TemplateEmail($email_builder, $this->contact->client));
             } catch (\Exception $e) {
                 nlog("mailing failed with message " . $e->getMessage());
                 event(new PaymentWasEmailedAndFailed($this->payment, $this->company, Mail::failures(), Ninja::eventVars()));
-                $this->failed($e);
+                //$this->failed($e);
                 return $this->logMailError($e->getMessage(), $this->payment->client);
             }
 

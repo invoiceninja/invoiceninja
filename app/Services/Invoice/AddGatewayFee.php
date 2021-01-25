@@ -93,10 +93,6 @@ class AddGatewayFee extends AbstractService
         /**Refresh Invoice values*/
         $this->invoice = $this->invoice->calc()->getInvoice();
 
-        /*Update client balance*/ // don't increment until we have process the payment!
-        //$this->invoice->client->service()->updateBalance($gateway_fee)->save();
-        //$this->invoice->ledger()->updateInvoiceBalance($gateway_fee, $notes = 'Gateway fee adjustment');
-
         return $this->invoice;
     }
 
@@ -121,10 +117,6 @@ class AddGatewayFee extends AbstractService
         $this->invoice->line_items = $invoice_items;
 
         $this->invoice = $this->invoice->calc()->getInvoice();
-
-        // $this->invoice->client->service()->updateBalance($gateway_fee)->save();
-
-        // $this->invoice->ledger()->updateInvoiceBalance($gateway_fee, $notes = 'Discount fee adjustment');
 
         return $this->invoice;
     }

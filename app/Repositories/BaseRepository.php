@@ -293,7 +293,7 @@ class BaseRepository
 
             if (($state['finished_amount'] != $state['starting_amount']) && ($model->status_id != Invoice::STATUS_DRAFT)) {
 
-                $model->ledger()->updateInvoiceBalance(($state['finished_amount'] - $state['starting_amount']));
+                $model->ledger()->updateInvoiceBalance(($state['finished_amount'] - $state['starting_amount']), "Update adjustment for invoice {$model->number}");
                 $model->client->service()->updateBalance(($state['finished_amount'] - $state['starting_amount']))->save();
 
             }

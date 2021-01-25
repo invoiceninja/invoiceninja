@@ -33,7 +33,7 @@ class UpdateBalance extends AbstractService
         }
 
         $this->invoice->balance += floatval($this->balance_adjustment);
-
+        
         if ($this->invoice->balance == 0) {
             $this->invoice->status_id = Invoice::STATUS_PAID;
         }

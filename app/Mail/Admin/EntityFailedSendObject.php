@@ -34,7 +34,9 @@ class EntityFailedSendObject
 
     private $template_body;
 
-    public function __construct($invitation, $entity_type, $template)
+    private $message;
+
+    public function __construct($invitation, $entity_type, $template, $message)
     {
         $this->invitation = $invitation;
         $this->entity_type = $entity_type;
@@ -42,6 +44,7 @@ class EntityFailedSendObject
         $this->contact = $invitation->contact;
         $this->company = $invitation->company;
         $this->template = $template;
+        $this->message = $message;
     }
 
     public function build()
@@ -127,6 +130,7 @@ class EntityFailedSendObject
                     'amount' => $this->getAmount(),
                     'client' => $this->contact->present()->name(),
                     'invoice' => $this->entity->number,
+                    'error' => $this->message,
                 ]
             ),
             'url' => $this->invitation->getAdminLink(),

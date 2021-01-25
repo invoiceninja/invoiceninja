@@ -41,7 +41,7 @@ class UniqueInvoiceNumberRule implements Rule
      */
     public function message()
     {
-        return 'Invoice number already taken';
+        return ctrans('texts.invoice_number_taken');
     }
 
     /**

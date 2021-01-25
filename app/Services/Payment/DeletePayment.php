@@ -55,7 +55,6 @@ class DeletePayment
     private function cleanupPayment()
     {
         $this->payment->is_deleted = true;
-        // $entity->save();
         $this->payment->delete();
         
         return $this;
@@ -78,10 +77,22 @@ class DeletePayment
     private function adjustInvoices()
     {
         if ($this->payment->invoices()->exists()) {
+
             $this->payment->invoices()->each(function ($paymentable_invoice) {
-                $paymentable_invoice->service()->updateBalance($paymentable_invoice->pivot->amount)->save();
-                $paymentable_invoice->ledger()->updateInvoiceBalance($paymentable_invoice->pivot->amount)->save();
-                $paymentable_invoice->client->service()->updateBalance($paymentable_invoice->pivot->amount)->save();
+
+                $paymentable_invoice->service()
+                                    ->updateBalance($paymentable_invoice->pivot->amount)
+                                    ->updatePaidToDate($paymentable_invoice->pivot->amount * -1)
+                                    ->save();
+
+                $paymentable_invoice->ledger()
+                                    ->updateInvoiceBalance($paymentable_invoice->pivot->amount, "Adjusting invoice {$paymentable_invoice->number} due to deletion of Payment {$this->payment->number}")
+                                    ->save();
+
+                $paymentable_invoice->client
+                                    ->service()
+                                    ->updateBalance($paymentable_invoice->pivot->amount)
+                                    ->save();
 
                 if ($paymentable_invoice->balance == $paymentable_invoice->amount) {
                     $paymentable_invoice->service()->setStatus(Invoice::STATUS_SENT)->save();
@@ -101,10 +112,12 @@ class DeletePayment
     {
         if ($this->payment->credits()->exists()) {
             $this->payment->credits()->each(function ($paymentable_credit) {
-                $paymentable_credit->balance += $paymentable_credit->pivot->amount;
-                $paymentable_credit->setStatus(Credit::STATUS_SENT);
-                //fire event for this credit
-                //
+                
+                $paymentable_credit->service()
+                                   ->updateBalance($paymentable_credit->pivot->amount)
+                                   ->updatePaidToDate($paymentable_credit->pivot->amount*-1)
+                                   ->setStatus(Credit::STATUS_SENT)
+                                   ->save();
             });
         }
 

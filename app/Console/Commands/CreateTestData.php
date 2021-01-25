@@ -331,7 +331,7 @@ class CreateTestData extends Command
 
         $this->info('Creating '.$this->count.' clients');
 
-        for ($x = 0; $x < $this->count * 500; $x++) {
+        for ($x = 0; $x < $this->count * 200; $x++) {
             $z = $x + 1;
             $this->info('Creating client # '.$z);
 
@@ -400,7 +400,7 @@ class CreateTestData extends Command
                     'company_id' => $company->id,
                 ]);
 
-        $client->id_number = $this->getNextClientNumber($client);
+        $client->number = $this->getNextClientNumber($client);
 
         $settings = $client->settings;
         $settings->currency_id = (string) rand(1, 79);

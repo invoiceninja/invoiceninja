@@ -12,6 +12,7 @@
 namespace App\Jobs\Mail;
 
 use App\Libraries\MultiDB;
+use App\Mail\Admin\EntityFailedSendObject;
 use App\Mail\Admin\EntityNotificationMailer;
 use App\Mail\Admin\EntitySentObject;
 use Illuminate\Bus\Queueable;
@@ -40,6 +41,8 @@ class EntityFailedSendMailer extends BaseMailerJob implements ShouldQueue
     public $settings;
 
     public $template;
+
+    public $message;
     /**
      * Create a new job instance.
      *
@@ -48,7 +51,7 @@ class EntityFailedSendMailer extends BaseMailerJob implements ShouldQueue
      * @param $user
      * @param $company
      */
-    public function __construct($invitation, $entity_type, $user, $company, $template)
+    public function __construct($invitation, $entity_type, $user, $company, $template, $message)
     {
         $this->company = $company;
 
@@ -63,6 +66,8 @@ class EntityFailedSendMailer extends BaseMailerJob implements ShouldQueue
         $this->settings = $invitation->contact->client->getMergedSettings();
     
         $this->template = $template;
+
+        $this->message = $message;
     }
 
     /**
@@ -72,12 +77,10 @@ class EntityFailedSendMailer extends BaseMailerJob implements ShouldQueue
      */
     public function handle()
     {
-        nlog("entity sent mailer");
         
         /*If we are migrating data we don't want to fire these notification*/
-        if ($this->company->is_disabled) {
+        if ($this->company->is_disabled) 
             return true;
-        }
         
         //Set DB
         MultiDB::setDb($this->company->db);
@@ -85,14 +88,15 @@ class EntityFailedSendMailer extends BaseMailerJob implements ShouldQueue
         //if we need to set an email driver do it now
         $this->setMailDriver();
 
-        $mail_obj = (new EntitySentObject($this->invitation, $this->entity_type, $this->template))->build();
+        $mail_obj = (new EntityFailedSendObject($this->invitation, $this->entity_type, $this->template, $this->message))->build();
         $mail_obj->from = [config('mail.from.address'), config('mail.from.name')];
 
         try {
             Mail::to($this->user->email)
                 ->send(new EntityNotificationMailer($mail_obj));
         } catch (\Exception $e) {
-            $this->failed($e);
+            nlog("failing in EntityFailedSendMailer");
+            //$this->failed($e);
             $this->logMailError($e->getMessage(), $this->entity->client);
         }
     }

@@ -73,7 +73,8 @@ class Client extends BaseModel implements HasLocalePreference
         'id_number',
         'group_settings_id',
         'public_notes',
-        'phone'
+        'phone',
+        'number',
     ];
 
     protected $with = [

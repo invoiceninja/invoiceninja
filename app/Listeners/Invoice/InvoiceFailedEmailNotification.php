@@ -11,6 +11,7 @@
 
 namespace App\Listeners\Invoice;
 
+use App\Jobs\Mail\EntityFailedSendMailer;
 use App\Jobs\Mail\EntitySentMailer;
 use App\Libraries\MultiDB;
 use App\Notifications\Admin\EntitySentNotification;
@@ -33,6 +34,8 @@ class InvoiceFailedEmailNotification implements ShouldQueue
      */
     public function handle($event)
     {
+        nlog("inside a failed notification");
+        
         MultiDB::setDb($event->company->db);
 
         $first_notification_sent = true;
@@ -51,7 +54,7 @@ class InvoiceFailedEmailNotification implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false && $first_notification_sent === true) {
                 unset($methods[$key]);
 
-                EntitySentMailer::dispatch($event->invitation, 'invoice', $user, $event->invitation->company, $event->template);
+                EntityFailedSendMailer::dispatch($event->invitation, 'invoice', $user, $event->invitation->company, $event->template, $event->message);
                 $first_notification_sent = false;
             }
 

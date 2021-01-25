@@ -188,6 +188,7 @@ class HtmlEngine
         $data['$invoice.custom4'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice4', $this->entity->custom_value4, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice4')];
         $data['$invoice.public_notes'] = ['value' => nl2br($this->entity->public_notes) ?: '&nbsp;', 'label' => ctrans('texts.public_notes')];
         $data['$entity.public_notes'] = &$data['$invoice.public_notes'];
+        $data['$public_notes'] = &$data['$invoice.public_notes'];
 
         $data['$entity_issued_to'] = ['value' => '', 'label' => ctrans("texts.{$this->entity_string}_issued_to")];
         $data['$your_entity'] = ['value' => '', 'label' => ctrans("texts.your_{$this->entity_string}")];
@@ -215,6 +216,7 @@ class HtmlEngine
         $data['$address1'] = ['value' => $this->client->address1 ?: '&nbsp;', 'label' => ctrans('texts.address1')];
         $data['$address2'] = ['value' => $this->client->address2 ?: '&nbsp;', 'label' => ctrans('texts.address2')];
         $data['$id_number'] = ['value' => $this->client->id_number ?: '&nbsp;', 'label' => ctrans('texts.id_number')];
+        $data['$client.number'] = ['value' => $this->client->number ?: '&nbsp;', 'label' => ctrans('texts.number')];
         $data['$vat_number'] = ['value' => $this->client->vat_number ?: '&nbsp;', 'label' => ctrans('texts.vat_number')];
         $data['$website'] = ['value' => $this->client->present()->website() ?: '&nbsp;', 'label' => ctrans('texts.website')];
         $data['$phone'] = ['value' => $this->client->present()->phone() ?: '&nbsp;', 'label' => ctrans('texts.phone')];
@@ -273,6 +275,8 @@ class HtmlEngine
         $data['$company.id_number'] = ['value' => $this->settings->id_number ?: '&nbsp;', 'label' => ctrans('texts.id_number')];
         $data['$company.website'] = ['value' => $this->settings->website ?: '&nbsp;', 'label' => ctrans('texts.website')];
         $data['$company.address'] = ['value' => $this->company->present()->address($this->settings) ?: '&nbsp;', 'label' => ctrans('texts.address')];
+
+        $data['$spc_qr_code'] = ['value' => $this->company->present()->getSpcQrCode($this->client->custom1, $this->entity->number, $this->entity->balance), 'label' => ''];
 
         $logo = $this->company->present()->logo($this->settings);
 

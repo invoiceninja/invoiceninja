@@ -32,51 +32,6 @@ class StoreQuoteRequest extends Request
         return auth()->user()->can('create', Quote::class);
     }
 
-    protected function prepareForValidation()
-    {
-        $input = $this->all();
-
-        if (array_key_exists('design_id', $input) && is_string($input['design_id'])) {
-            $input['design_id'] = $this->decodePrimaryKey($input['design_id']);
-        }
-
-        if ($input['client_id']) {
-            $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
-        }
-
-        if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
-            $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
-        }
-
-        if (isset($input['client_contacts'])) {
-            foreach ($input['client_contacts'] as $key => $contact) {
-                if (! array_key_exists('send_email', $contact) || ! array_key_exists('id', $contact)) {
-                    unset($input['client_contacts'][$key]);
-                }
-            }
-        }
-
-        if (isset($input['invitations'])) {
-            foreach ($input['invitations'] as $key => $value) {
-                if (isset($input['invitations'][$key]['id']) && is_numeric($input['invitations'][$key]['id'])) {
-                    unset($input['invitations'][$key]['id']);
-                }
-
-                if (isset($input['invitations'][$key]['id']) && is_string($input['invitations'][$key]['id'])) {
-                    $input['invitations'][$key]['id'] = $this->decodePrimaryKey($input['invitations'][$key]['id']);
-                }
-
-                if (is_string($input['invitations'][$key]['client_contact_id'])) {
-                    $input['invitations'][$key]['client_contact_id'] = $this->decodePrimaryKey($input['invitations'][$key]['client_contact_id']);
-                }
-            }
-        }
-
-        $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
-        //$input['line_items'] = json_encode($input['line_items']);
-        $this->replace($input);
-    }
-
     public function rules()
     {
         $rules = [];
@@ -97,5 +52,18 @@ class StoreQuoteRequest extends Request
         $rules['line_items'] = 'array';
 
         return $rules;
+    }
+
+    protected function prepareForValidation()
+    {
+        $input = $this->all();
+
+        $input = $this->decodePrimaryKeys($input);
+
+        $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
+        $input['amount'] = 0;
+        $input['balance'] = 0;
+        
+        $this->replace($input);
     }
 }

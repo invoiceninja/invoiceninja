@@ -47,7 +47,8 @@ class InvoicePaidActivity implements ShouldQueue
         $fields->user_id = $event->invoice->user_id;
         $fields->company_id = $event->invoice->company_id;
         $fields->activity_type_id = Activity::PAID_INVOICE;
-
+        $fields->payment_id = $event->payment->id;
+        
         $this->activity_repo->save($fields, $event->invoice, $event->event_vars);
 
         try {

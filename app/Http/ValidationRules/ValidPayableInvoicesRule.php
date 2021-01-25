@@ -40,7 +40,7 @@ class ValidPayableInvoicesRule implements Rule
 
         foreach ($invoices as $invoice) {
             if (! $invoice->isPayable()) {
-                $this->error_msg = 'One or more of these invoices have been paid';
+                $this->error_msg = ctrans('texts.one_or_more_invoices_paid');
 
                 return false;
             }

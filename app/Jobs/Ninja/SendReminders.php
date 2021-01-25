@@ -308,7 +308,7 @@ class SendReminders implements ShouldQueue
         $invoice = $invoice->calc()->getInvoice();
 
         $this->invoice->client->service()->updateBalance($this->invoice->balance - $temp_invoice_balance)->save();
-        $this->invoice->ledger()->updateInvoiceBalance($this->invoice->balance - $temp_invoice_balance);
+        $this->invoice->ledger()->updateInvoiceBalance($this->invoice->balance - $temp_invoice_balance, "Late Fee Adjustment for invoice {$this->invoice->number}");
 
         return $invoice;
     }

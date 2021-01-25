@@ -112,6 +112,13 @@ class InvoiceService
         return $this;
     }
 
+    public function updatePaidToDate($adjustment)
+    {
+        $this->invoice->paid_to_date += $adjustment;
+
+        return $this;
+    }
+
     public function createInvitations()
     {
         $this->invoice = (new CreateInvitations($this->invoice))->run();

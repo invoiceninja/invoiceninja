@@ -59,11 +59,16 @@ class PaymentService
         $client = $this->payment->client;
 
         $invoices->each(function ($invoice) {
+            
             if ($invoice->pivot->amount > 0) {
-                $invoice->status_id = Invoice::STATUS_SENT;
-                $invoice->balance = $invoice->pivot->amount;
-                $invoice->save();
+
+                $invoice->service()
+                        ->updateBalance($invoice->pivot->amount)
+                        ->updatePaidToDate($invoice->pivot->amount*-1)
+                        ->setStatus(Invoice::STATUS_SENT)
+                        ->save();
             }
+
         });
 
         $this->payment

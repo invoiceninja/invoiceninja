@@ -72,12 +72,10 @@ class EntitySentMailer extends BaseMailerJob implements ShouldQueue
      */
     public function handle()
     {
-        nlog("entity sent mailer");
         
         /*If we are migrating data we don't want to fire these notification*/
-        if ($this->company->is_disabled) {
+        if ($this->company->is_disabled) 
             return true;
-        }
         
         //Set DB
         MultiDB::setDb($this->company->db);
@@ -92,7 +90,7 @@ class EntitySentMailer extends BaseMailerJob implements ShouldQueue
             Mail::to($this->user->email)
                 ->send(new EntityNotificationMailer($mail_obj));
         } catch (\Exception $e) {
-            $this->failed($e);
+            // //$this->failed($e);
             $this->logMailError($e->getMessage(), $this->entity->client);
         }
     }
