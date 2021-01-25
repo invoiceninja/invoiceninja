@@ -387,7 +387,7 @@ class InvoiceController extends BaseController
         }
 
         if ($invoice->isLocked()) {
-            return response()->json(['message' => 'Invoice is locked, no modifications allowed']);
+            return response()->json(['message' => ctrans('texts.locked_invoice')]);
         }
 
         $invoice = $this->invoice_repo->save($request->all(), $invoice);
@@ -526,13 +526,13 @@ class InvoiceController extends BaseController
         if ($action == 'download' && $invoices->count() > 1) {
             $invoices->each(function ($invoice) {
                 if (auth()->user()->cannot('view', $invoice)) {
-                    return response()->json(['message' => 'Insufficient privileges to access invoice '.$invoice->number]);
+                    return response()->json(['message' => ctrans('text.access_denied')]);
                 }
             });
 
             ZipInvoices::dispatch($invoices, $invoices->first()->company, auth()->user()->email);
 
-            return response()->json(['message' => 'Email Sent!'], 200);
+            return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }
 
         /*
@@ -649,7 +649,7 @@ class InvoiceController extends BaseController
                 break;
             case 'mark_paid':
                 if ($invoice->balance < 0 || $invoice->status_id == Invoice::STATUS_PAID || $invoice->is_deleted === true) {
-                    return $this->errorResponse(['message' => 'Invoice cannot be marked as paid'], 400);
+                    return $this->errorResponse(['message' => ctrans('texts.invoice_cannot_be_marked_paid')], 400);
                 }
 
                 $invoice = $invoice->service()->markPaid();
@@ -686,9 +686,7 @@ class InvoiceController extends BaseController
                 }
                 break;
             case 'delete':
-                //need to make sure the invoice is cancelled first!!
-                //$invoice->service()->handleCancellation()s->save();
-nlog("inside delete");
+
                 $this->invoice_repo->delete($invoice);
 
                 if (! $bulk) {
@@ -735,7 +733,7 @@ nlog("inside delete");
                 break;
 
             default:
-                return response()->json(['message' => "The requested action `{$action}` is not available."], 400);
+                return response()->json(['message' => ctrans('texts.action_unavailable', ['action' => $action])], 400);
                 break;
         }
     }

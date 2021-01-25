@@ -150,7 +150,7 @@ class BaseController extends Controller
      */
     public function notFound()
     {
-        return response()->json(['message' => '404 | Nothing to see here!'], 404)
+        return response()->json(['message' => ctrans('texts.api_404')], 404)
                          ->header('X-API-VERSION', config('ninja.minimum_client_version'))
                          ->header('X-APP-VERSION', config('ninja.app_version'));
     }
@@ -198,7 +198,7 @@ class BaseController extends Controller
         $updated_at = request()->has('updated_at') ? request()->input('updated_at') : 0;
 
         if (auth()->user()->getCompany()->is_large && ! request()->has('updated_at')) {
-            return response()->json(['message' => 'Cannot load a large account without a updated_at parameter', 'errors' =>[]], 401);
+            return response()->json(['message' => ctrans('texts.large_account_update_parameter'), 'errors' =>[]], 401);
         }
 
         $updated_at = date('Y-m-d H:i:s', $updated_at);

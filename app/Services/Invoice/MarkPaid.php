@@ -80,7 +80,7 @@ class MarkPaid extends AbstractService
         
         /* Update Invoice balance */
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
-        event(new InvoiceWasPaid($this->invoice, $payment->company, Ninja::eventVars()));
+        event(new InvoiceWasPaid($this->invoice, $payment, $payment->company, Ninja::eventVars()));
 
         $payment->ledger()
                 ->updatePaymentBalance($payment->amount * -1);

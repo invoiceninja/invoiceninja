@@ -668,6 +668,6 @@ class UserController extends BaseController
             $company_user->delete();
         }
 
-        return response()->json(['message' => 'User detached from company'], 200);
+        return response()->json(['message' => ctrans('texts.user_detached')], 200);
     }
 }

@@ -481,7 +481,7 @@ class GroupSettingController extends BaseController
         $group_settings = GroupSetting::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
         if (! $group_settings) {
-            return response()->json(['message' => 'No Group Settings Found']);
+            return response()->json(['message' => ctrans('texts.no_group_settings_found')]);
         }
 
         /*

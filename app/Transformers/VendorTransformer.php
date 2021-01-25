@@ -98,12 +98,12 @@ class VendorTransformer extends EntityTransformer
             'custom_value3' => $vendor->custom_value3 ?: '',
             'custom_value4' => $vendor->custom_value4 ?: '',
             'is_deleted' => (bool) $vendor->is_deleted,
-            'vat_number' => $vendor->vat_number ?: '',
-            'id_number' => $vendor->id_number ?: '',
+            'vat_number' => (string) $vendor->vat_number ?: '',
+            'id_number' => (string) $vendor->id_number ?: '',
             'updated_at' => (int) $vendor->updated_at,
             'archived_at' => (int) $vendor->deleted_at,
             'created_at' => (int) $vendor->created_at,
-            'number' => (string)$vendor->number ?: '',
+            'number' => (string) $vendor->number ?: '',
         ];
     }
 }
