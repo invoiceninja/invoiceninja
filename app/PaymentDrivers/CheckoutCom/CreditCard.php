@@ -43,7 +43,9 @@ class CreditCard
      */
     public function authorizeView($data)
     {
-        return render('gateways.checkout.credit_card.authorize');
+        $data['gateway'] = $this->checkout;
+
+        return render('gateways.checkout.credit_card.authorize', $data);
     }
 
     /**

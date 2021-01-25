@@ -115,8 +115,7 @@ class PaymentController extends Controller
 
         /* This loop checks for under / over payments and returns the user if a check fails */
 
-        foreach($payable_invoices as $payable_invoice)
-        {
+        foreach ($payable_invoices as $payable_invoice) {
 
             /*Match the payable invoice to the Model Invoice*/
 
@@ -173,8 +172,7 @@ class PaymentController extends Controller
         //$payable_invoices = $payable_invoices->map(function ($payable_invoice) use ($invoices, $settings) {
         $payable_invoice_collection = collect();
 
-        foreach($payable_invoices as $payable_invoice)
-        {
+        foreach ($payable_invoices as $payable_invoice) {
             // nlog($payable_invoice);
 
             $payable_invoice['amount'] = Number::parseFloat($payable_invoice['amount']);
@@ -237,7 +235,7 @@ class PaymentController extends Controller
 
         $payment_hash = new PaymentHash;
         $payment_hash->hash = Str::random(128);
-        $payment_hash->data = ['invoices' => $payable_invoices->toArray() , 'credits' => $credit_totals];
+        $payment_hash->data = ['invoices' => $payable_invoices->toArray(), 'credits' => $credit_totals];
         $payment_hash->fee_total = $fee_totals;
         $payment_hash->fee_invoice_id = $first_invoice->id;
         $payment_hash->save();
@@ -269,7 +267,7 @@ class PaymentController extends Controller
                 ->setPaymentHash($payment_hash)
                 ->checkRequirements()
                 ->processPaymentView($data);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             SystemLogger::dispatch(
                 $e->getMessage(),
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
@@ -288,27 +286,28 @@ class PaymentController extends Controller
 
         $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$request->payment_hash])->first();
 
+        try {
             return $gateway
                 ->driver(auth()->user()->client)
                 ->setPaymentMethod($request->input('payment_method_id'))
                 ->setPaymentHash($payment_hash)
                 ->checkRequirements()
                 ->processPaymentResponse($request);
-
-
-            /*SystemLogger::dispatch(
+        } catch (\Exception $e) {
+            SystemLogger::dispatch(
                 $e->getMessage(),
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_FAILURE,
                 SystemLog::TYPE_FAILURE,
                 auth('contact')->user()->client
-            );*/
+            );
+        }
     }
 
     /**
      * Pay for invoice/s using credits only.
      *
-     * @param  Request $request The request object
+     * @param Request $request The request object
      * @return Response         The response view
      */
     public function credit_response(Request $request)

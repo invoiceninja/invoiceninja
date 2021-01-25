@@ -48,7 +48,7 @@
                 class="form-radio cursor-pointer"
                 name="payment-type"
                 checked/>
-            <span class="ml-1 cursor-pointer">{{ __('texts.credit_card') }}</span>
+            <span class="ml-1 cursor-pointer">{{ __('texts.new_card') }}</span>
         </label>
     @endcomponent
 
