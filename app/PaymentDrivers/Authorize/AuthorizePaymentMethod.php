@@ -116,6 +116,7 @@ class AuthorizePaymentMethod
         $data['token'] = $payment_profile->getPaymentProfile()->getCustomerPaymentProfileId();
         $data['payment_method_id'] = $this->payment_method_id;
         $data['payment_meta'] = $this->buildPaymentMethod($payment_profile);
+        $data['payment_method_id'] = GatewayType::CREDIT_CARD;
 
         $additional['gateway_customer_reference'] = $gateway_customer_reference;
 
