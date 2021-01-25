@@ -65,6 +65,8 @@ class RequiredClientInfo extends Component
 
     public $show_form = false;
 
+    public function mount() {}
+
     public function handleSubmit(array $data): bool
     {
         $rules = [];
