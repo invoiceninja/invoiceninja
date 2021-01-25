@@ -147,6 +147,7 @@ class ClientTransformer extends EntityTransformer
             'archived_at' => (int) $client->deleted_at,
             'created_at' => (int) $client->created_at,
             'display_name' => $client->present()->name(),
+            'number' => (string) $client->number ?: '',
         ];
     }
 }

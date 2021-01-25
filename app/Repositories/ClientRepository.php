@@ -60,8 +60,8 @@ class ClientRepository extends BaseRepository
 
         $client->fill($data);
 
-        if (!isset($client->id_number) || empty($client->id_number)) {
-            $client->id_number = $this->getNextClientNumber($client);
+        if (!isset($client->number) || empty($client->number)) {
+            $client->number = $this->getNextClientNumber($client);
         }
 
         if (empty($data['name'])) {

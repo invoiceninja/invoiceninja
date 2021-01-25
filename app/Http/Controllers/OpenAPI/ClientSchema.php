@@ -33,6 +33,7 @@
  *       @OA\Property(property="custom_value4", type="string", example="", description="________"),
  *       @OA\Property(property="vat_number", type="string", example="", description="________"),
  *       @OA\Property(property="id_number", type="string", example="", description="________"),
+ *       @OA\Property(property="number", type="string", example="", description="________"),
  *       @OA\Property(property="shipping_address1", type="string", example="", description="________"),
  *       @OA\Property(property="shipping_address2", type="string", example="", description="________"),
  *       @OA\Property(property="shipping_city", type="string", example="", description="________"),
