@@ -17,7 +17,9 @@ use App\Models\Client;
 use App\PaymentDrivers\AuthorizePaymentDriver;
 use net\authorize\api\contract\v1\CreateCustomerProfileRequest;
 use net\authorize\api\contract\v1\CustomerProfileType;
+use net\authorize\api\contract\v1\GetCustomerProfileRequest;
 use net\authorize\api\controller\CreateCustomerProfileController;
+use net\authorize\api\controller\GetCustomerProfileController;
 
 /**
  * Class BaseDriver.
@@ -74,5 +76,47 @@ class AuthorizeCreateCustomer
 
             throw new GenericPaymentDriverFailure($message);
         }
+    }
+
+    public function get($profileIdRequested)
+    {
+
+        error_reporting(E_ALL & ~E_DEPRECATED);
+
+        $this->authorize->init();
+        $request = new GetCustomerProfileRequest();
+        $request->setMerchantAuthentication($this->authorize->merchant_authentication);
+        $request->setCustomerProfileId($profileIdRequested);
+        
+        $controller = new GetCustomerProfileController($request);
+        $response = $controller->executeWithApiResponse($this->authorize->merchant_authentication);
+
+        if (($response != null) && ($response->getMessages()->getResultCode() == "Ok") )
+        {
+            echo "GetCustomerProfile SUCCESS : " .  "\n";
+            $profileSelected = $response->getProfile();
+            $paymentProfilesSelected = $profileSelected->getPaymentProfiles();
+            echo "Profile Has " . count($paymentProfilesSelected). " Payment Profiles" . "\n";
+
+                if($response->getSubscriptionIds() != null) 
+                {
+                    if($response->getSubscriptionIds() != null)
+                    {
+
+                        echo "List of subscriptions:";
+                        foreach($response->getSubscriptionIds() as $subscriptionid)
+                            echo $subscriptionid . "\n";
+
+                    }
+                }
+        }
+        else
+        {
+            echo "ERROR :  GetCustomerProfile: Invalid response\n";
+            $errorMessages = $response->getMessages()->getMessage();
+            echo "Response : " . $errorMessages[0]->getCode() . "  " .$errorMessages[0]->getText() . "\n";
+        }
+
+        return $response;
     }
 }
