@@ -12,6 +12,7 @@
 
 namespace App\PaymentDrivers\Authorize;
 
+use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
@@ -125,6 +126,8 @@ class AuthorizeCreditCard
                 'data' => $this->formatGatewayResponse($data, $vars),
             ];
 
+            PaymentFailureMailer::dispatch($this->authorize->client, $response->getTransactionResponse()->getTransId(), $this->authorize->client->company, $amount);
+
             SystemLogger::dispatch($logger_message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_AUTHORIZE, $this->authorize->client);
                 
             return false;
@@ -205,6 +208,10 @@ class AuthorizeCreditCard
 
     private function processFailedResponse($data, $request)
     {
+        $response = $data['response'];
+
+        PaymentFailureMailer::dispatch($this->authorize->client, $response->getTransactionResponse()->getTransId(), $this->authorize->client->company, $data['amount_with_fee']);
+
         throw new \Exception(ctrans('texts.error_title'));
     }
 
