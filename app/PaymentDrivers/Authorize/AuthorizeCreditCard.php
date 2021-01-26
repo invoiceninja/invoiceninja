@@ -138,7 +138,7 @@ class AuthorizeCreditCard
         $payment_record = [];
         $payment_record['amount'] = $amount;
         $payment_record['payment_type'] = PaymentType::CREDIT_CARD_OTHER;
-        ;
+        
         $payment_record['transaction_reference'] = $response->getTransactionResponse()->getTransId();
 
         $payment = $this->authorize->createPayment($payment_record);
