@@ -123,8 +123,7 @@ class InvoiceController extends Controller
         //format totals
         $formatted_total = Number::formatMoney($total, auth()->user()->client);
 
-//        $payment_methods = auth()->user()->client->service()->getPaymentMethods($total);
-        $payment_methods = auth()->user()->client->getPaymentMethods($total);
+        $payment_methods = auth()->user()->client->service()->getPaymentMethods($total);
 
         $data = [
             'settings' => auth()->user()->client->getMergedSettings(),
