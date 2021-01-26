@@ -80,7 +80,7 @@ class AuthorizePaymentMethod
 
     public function authorizeCreditCard()
     {
-        $data['gateway'] = $this->authorize->company_gateway;
+        $data['gateway'] = $this->authorize;
         $data['public_client_id'] = $this->authorize->init()->getPublicClientKey();
         $data['api_login_id'] = $this->authorize->company_gateway->getConfigField('apiLoginId');
 
@@ -261,9 +261,9 @@ class AuthorizePaymentMethod
 
         // Set the transaction's refId
         $refId = 'ref' . time();
-        
+
           // Use an existing payment profile ID for this Merchant name and Transaction key
-          
+
           $request = new DeleteCustomerPaymentProfileRequest();
           $request->setMerchantAuthentication($this->authorize->merchant_authentication);
           $request->setCustomerProfileId($gateway_customer_reference);
