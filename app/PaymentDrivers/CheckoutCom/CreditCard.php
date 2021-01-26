@@ -13,6 +13,7 @@
 namespace App\PaymentDrivers\CheckoutCom;
 
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Jobs\Mail\PaymentFailureMailer;
 use App\PaymentDrivers\CheckoutComPaymentDriver;
 use Checkout\Library\Exceptions\CheckoutHttpException;
 use Checkout\Models\Payments\IdSource;
@@ -155,11 +156,14 @@ class CreditCard
             if ($response->status == 'Declined') {
                 $this->checkout->unWindGatewayFees($this->checkout->payment_hash);
 
+            PaymentFailureMailer::dispatch($this->checkout->client, $response->response_summary, $this->checkout->client->company, $this->checkout->payment_hash->data->value);
+
+
                 return $this->processUnsuccessfulPayment($response);
             }
         } catch (CheckoutHttpException $e) {
-            $this->checkout->unWindGatewayFees($this->checkout->payment_hash);
 
+            $this->checkout->unWindGatewayFees($this->checkout->payment_hash);
             return $this->checkout->processInternallyFailedPayment($this->checkout, $e);
         }
     }
