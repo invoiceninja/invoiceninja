@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Models\ClientGatewayToken;
 use App\Models\CompanyGateway;
 
 class CompanyGatewayObserver
@@ -41,7 +42,8 @@ class CompanyGatewayObserver
      */
     public function deleted(CompanyGateway $company_gateway)
     {
-        //
+        //when we soft delete a gateway - we also soft delete the tokens
+        $company_gateway->client_gateway_tokens()->delete();
     }
 
     /**
@@ -52,7 +54,8 @@ class CompanyGatewayObserver
      */
     public function restored(CompanyGateway $company_gateway)
     {
-        //
+        //When we restore the gateway, bring back the tokens!
+        ClientGatewayToken::where('company_gateway_id', $company_gateway->id)->withTrashed()->get()->restore();
     }
 
     /**
