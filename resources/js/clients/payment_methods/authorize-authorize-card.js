@@ -18,13 +18,13 @@ class AuthorizeAuthorizeCard {
     }
 
     handleAuthorization() {
-        
+
         var myCard = $('#my-card');
 
         var authData = {};
         authData.clientKey = this.publicKey;
         authData.apiLoginID = this.loginId;
-    
+
         var cardData = {};
         cardData.cardNumber = myCard.CardJs('cardNumber');
         cardData.month = myCard.CardJs('expiryMonth');
@@ -47,20 +47,16 @@ class AuthorizeAuthorizeCard {
     responseHandler(response) {
 	    if (response.messages.resultCode === "Error") {
 	        var i = 0;
-	        while (i < response.messages.message.length) {
-	            console.log(
-	                response.messages.message[i].code + ": " +
-	                response.messages.message[i].text
-	            );
-	            i = i + 1;
-            }
-            
+
+            var $errors = $('#errors'); // get the reference of the div
+            $errors.show().html("<p>" + response.messages.message[i].code + ": " + response.messages.message[i].text + "</p>");
+
             document.getElementById('card_button').disabled = false;
             document.querySelector('#card_button > svg').classList.add('hidden');
             document.querySelector('#card_button > span').classList.remove('hidden');
 	    }
 	    else if(response.messages.resultCode === "Ok"){
-            
+
             document.getElementById("dataDescriptor").value = response.opaqueData.dataDescriptor;
             document.getElementById("dataValue").value = response.opaqueData.dataValue;
             document.getElementById("server_response").submit();
