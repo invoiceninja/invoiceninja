@@ -13,6 +13,7 @@
 namespace App\PaymentDrivers\Authorize;
 
 use App\Exceptions\GenericPaymentDriverFailure;
+use App\Exceptions\PaymentFailed;
 use App\Models\GatewayType;
 use App\PaymentDrivers\AuthorizePaymentDriver;
 use net\authorize\api\contract\v1\CreateCustomerPaymentProfileRequest;
@@ -211,7 +212,8 @@ class AuthorizePaymentMethod
                 $message = $errorMessages[0]->getCode().'  '.$errorMessages[0]->getText();
             }
 
-            throw new GenericPaymentDriverFailure($message);
+            throw new PaymentFailed($message, 500);
+
         }
     }
 
