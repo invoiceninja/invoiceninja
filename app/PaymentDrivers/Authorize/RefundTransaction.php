@@ -12,7 +12,9 @@
 
 namespace App\PaymentDrivers\Authorize;
 
+use App\Jobs\Util\SystemLogger;
 use App\Models\Payment;
+use App\Models\SystemLog;
 use App\PaymentDrivers\AuthorizePaymentDriver;
 use net\authorize\api\contract\v1\CreateTransactionRequest;
 use net\authorize\api\contract\v1\CustomerProfilePaymentType;
