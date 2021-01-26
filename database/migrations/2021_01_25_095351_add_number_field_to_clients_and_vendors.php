@@ -14,12 +14,21 @@ class AddNumberFieldToClientsAndVendors extends Migration
     public function up()
     {
         Schema::table('clients', function (Blueprint $table) {
-            $table->string('number')->nullable();
+            $table->renameColumn('id_number', 'number');
         });
 
         Schema::table('vendors', function (Blueprint $table) {
-            $table->string('number')->nullable();
+            $table->renameColumn('id_number', 'number');
         });
+
+        Schema::table('clients', function (Blueprint $table) {
+            $table->string('id_number')->nullable();
+        });
+
+        Schema::table('vendors', function (Blueprint $table) {
+            $table->string('id_number')->nullable();
+        });
+
     }
 
     /**
