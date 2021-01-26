@@ -223,7 +223,7 @@ class CreateSingleAccount extends Command
                     'company_id' => $company->id,
                 ]);
 
-        $client->id_number = $this->getNextClientNumber($client);
+        $client->number = $this->getNextClientNumber($client);
 
         $settings = $client->settings;
         $settings->currency_id = "1";

@@ -507,7 +507,7 @@ class QuoteController extends BaseController
         $quotes = Quote::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
         if (! $quotes) {
-            return response()->json(['message' => 'No Quote/s Found']);
+            return response()->json(['message' => ctrans('texts.quote_not_found')]);
         }
 
         /*
@@ -517,13 +517,13 @@ class QuoteController extends BaseController
         if ($action == 'download' && $quotes->count() >= 1) {
             $quotes->each(function ($quote) {
                 if (auth()->user()->cannot('view', $quote)) {
-                    return response()->json(['message'=>'Insufficient privileges to access quote '.$quote->number]);
+                    return response()->json(['message'=> ctrans('texts.access_denied')]);
                 }
             });
 
             ZipInvoices::dispatch($quotes, $quotes->first()->company, auth()->user()->email);
 
-            return response()->json(['message' => 'Email Sent!'], 200);
+            return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }
 
         if ($action == 'convert') {
@@ -651,7 +651,7 @@ class QuoteController extends BaseController
             case 'approve':
             //make sure it hasn't already been approved!!
                 if ($quote->status_id != Quote::STATUS_SENT) {
-                    return response()->json(['message' => 'Unable to approve this quote as it has expired.'], 400);
+                    return response()->json(['message' => ctrans('texts.quote_unapprovable')], 400);
                 }
 
                 return $this->itemResponse($quote->service()->approve()->save());
@@ -692,7 +692,7 @@ class QuoteController extends BaseController
             case 'email':
                 $quote->service()->sendEmail();
 
-                return response()->json(['message'=>'email sent'], 200);
+                return response()->json(['message'=> ctrans('texts.sent_message')], 200);
                 break;
             case 'mark_sent':
                 $quote->service()->markSent()->save();
@@ -702,7 +702,7 @@ class QuoteController extends BaseController
                 }
                 break;
             default:
-                return response()->json(['message' => "The requested action `{$action}` is not available."], 400);
+                return response()->json(['message' => ctrans('texts.action_unavailable',['action' => $action])], 400);
                 break;
         }
     }

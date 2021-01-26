@@ -4,10 +4,10 @@
         @include('email.components.header', ['logo' => 'https://www.invoiceninja.com/wp-content/uploads/2015/10/logo-white-horizontal-1.png'])
     @endslot
 
-    <h1>Migration completed</h1>
-    <p>We're happy to inform you that migration has been completed successfully. It is ready for you to review it.</p>
+    <h1>{{ ctrans('texts.migration_completed')}}</h1>
+    <p>{{ ctrans('texts.migration_completed_description')}}</p>
 
-    <a href="{{ url('/') }}" target="_blank" class="button">Visit portal</a>
+    <a href="{{ url('/') }}" target="_blank" class="button">{{ ctrans('texts.account_login')}}</a>
 
-    <p>Thank you, <br/> Invoice Ninja</p>
+    <p>{{ ctrans('texts.email_signature')}}<br/> {{ ctrans('texts.email_from') }}</p>
 @endcomponent

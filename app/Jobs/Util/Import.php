@@ -896,14 +896,6 @@ class Import implements ShouldQueue
                 ],
             ];
 
-            //depending on the status, we do a final action.
-           //s$payment = $this->updatePaymentForStatus($payment, $modified['status_id']);
-
-            // if($modified['is_deleted'])
-            //     $payment->service()->deletePayment();
-
-            // if(isset($modified['deleted_at']))
-            //     $payment->delete();
         }
 
         Payment::reguard();

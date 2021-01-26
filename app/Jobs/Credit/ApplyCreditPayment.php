@@ -57,17 +57,31 @@ class ApplyCreditPayment implements ShouldQueue
             if ($cred->id == $this->credit->id) {
                 $cred->pivot->amount = $this->amount;
                 $cred->pivot->save();
+
+                $cred->paid_to_date += $this->amount;
+                $cred->save();
             }
         });
 
         $credit_balance = $this->credit->balance;
 
         if ($this->amount == $credit_balance) { //total credit applied.
-            $this->credit->setStatus(Credit::STATUS_APPLIED);
-            $this->credit->updateBalance($this->amount * -1);
+
+            $this->credit
+                ->service()
+                ->setStatus(Credit::STATUS_APPLIED)
+                ->adjustBalance($this->amount * -1)
+                ->updatePaidToDate($this->amount)
+                ->save();
+
         } elseif ($this->amount < $credit_balance) { //compare number appropriately
-            $this->credit->setStatus(Credit::STATUS_PARTIAL);
-            $this->credit->updateBalance($this->amount * -1);
+
+            $this->credit
+                ->service()
+                ->setStatus(Credit::STATUS_PARTIAL)
+                ->adjustBalance($this->amount * -1)
+                ->updatePaidToDate($this->amount)
+                ->save();
         }
 
         /* Update Payment Applied Amount*/

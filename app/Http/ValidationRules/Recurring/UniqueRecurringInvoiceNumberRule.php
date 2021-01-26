@@ -41,7 +41,7 @@ class UniqueRecurringInvoiceNumberRule implements Rule
      */
     public function message()
     {
-        return "Recurring Invoice number {$this->input['number']} already taken";
+        return ctrans('texts.recurring_invoice_number_taken', ['number' => $this->input['number']]);
     }
 
     /**

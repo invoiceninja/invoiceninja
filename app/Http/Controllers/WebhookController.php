@@ -364,7 +364,7 @@ class WebhookController extends BaseController
         $webhook->save();
 
         if (! $webhook->id) {
-            return response()->json('Failed to create Webhook', 400);
+            return response()->json(ctrans('texts.create_webhook_failure'), 400);
         }
 
         return $this->itemResponse($webhook);

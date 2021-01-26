@@ -187,7 +187,7 @@ class BaseDriver extends AbstractPaymentDriver
         $payment->invoices()->sync($invoices);
 
         $invoices->each(function ($invoice) use ($payment) {
-            event(new InvoiceWasPaid($invoice, $payment->company, Ninja::eventVars()));
+            event(new InvoiceWasPaid($invoice, $payment, $payment->company, Ninja::eventVars()));
         });
 
         return $payment->service()->applyNumber()->save();

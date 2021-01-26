@@ -13,15 +13,18 @@
 namespace App\PaymentDrivers\Authorize;
 
 use App\Exceptions\GenericPaymentDriverFailure;
+use App\Exceptions\PaymentFailed;
 use App\Models\GatewayType;
 use App\PaymentDrivers\AuthorizePaymentDriver;
 use net\authorize\api\contract\v1\CreateCustomerPaymentProfileRequest;
 use net\authorize\api\contract\v1\CustomerAddressType;
 use net\authorize\api\contract\v1\CustomerPaymentProfileType;
+use net\authorize\api\contract\v1\DeleteCustomerPaymentProfileRequest;
 use net\authorize\api\contract\v1\GetCustomerPaymentProfileRequest;
 use net\authorize\api\contract\v1\OpaqueDataType;
 use net\authorize\api\contract\v1\PaymentType;
 use net\authorize\api\controller\CreateCustomerPaymentProfileController;
+use net\authorize\api\controller\DeleteCustomerPaymentProfileController;
 use net\authorize\api\controller\GetCustomerPaymentProfileController;
 use stdClass;
 
@@ -94,12 +97,14 @@ class AuthorizePaymentMethod
 
         if ($client_gateway_token = $this->authorize->findClientGatewayRecord()) {
             $payment_profile = $this->addPaymentMethodToClient($client_gateway_token->gateway_customer_reference, $data);
+            $gateway_customer_reference = $client_gateway_token->gateway_customer_reference;
         } else {
             $gateway_customer_reference = (new AuthorizeCreateCustomer($this->authorize, $this->authorize->client))->create($data);
             $payment_profile = $this->addPaymentMethodToClient($gateway_customer_reference, $data);
+
+            $this->createClientGatewayToken($payment_profile, $gateway_customer_reference);
         }
 
-        $this->createClientGatewayToken($payment_profile, $gateway_customer_reference);
 
         return redirect()->route('client.payment_methods.index');
     }
@@ -116,6 +121,7 @@ class AuthorizePaymentMethod
         $data['token'] = $payment_profile->getPaymentProfile()->getCustomerPaymentProfileId();
         $data['payment_method_id'] = $this->payment_method_id;
         $data['payment_meta'] = $this->buildPaymentMethod($payment_profile);
+        $data['payment_method_id'] = GatewayType::CREDIT_CARD;
 
         $additional['gateway_customer_reference'] = $gateway_customer_reference;
 
@@ -206,7 +212,8 @@ class AuthorizePaymentMethod
                 $message = $errorMessages[0]->getCode().'  '.$errorMessages[0]->getText();
             }
 
-            throw new GenericPaymentDriverFailure($message);
+            throw new PaymentFailed($message, 500);
+
         }
     }
 
@@ -245,4 +252,37 @@ class AuthorizePaymentMethod
             throw new GenericPaymentDriverFailure('Error communicating with Authorize.net');
         }
     }
+
+    public function deletePaymentProfile($gateway_customer_reference, $payment_profile_id) {
+
+        error_reporting(E_ALL & ~E_DEPRECATED);
+
+        $this->authorize->init();
+
+        // Set the transaction's refId
+        $refId = 'ref' . time();
+        
+          // Use an existing payment profile ID for this Merchant name and Transaction key
+          
+          $request = new DeleteCustomerPaymentProfileRequest();
+          $request->setMerchantAuthentication($this->authorize->merchant_authentication);
+          $request->setCustomerProfileId($gateway_customer_reference);
+          $request->setCustomerPaymentProfileId($payment_profile_id);
+          $controller = new DeleteCustomerPaymentProfileController($request);
+
+          $response = $controller->executeWithApiResponse($this->authorize->mode());
+          if (($response != null) && ($response->getMessages()->getResultCode() == "Ok") )
+          {
+              nlog("SUCCESS: Delete Customer Payment Profile  SUCCESS  :");
+           }
+          else
+          {
+              nlog("ERROR :  Delete Customer Payment Profile: Invalid response\n");
+              $errorMessages = $response->getMessages()->getMessage();
+              nlog("Response : " . $errorMessages[0]->getCode() . "  " .$errorMessages[0]->getText() . "\n");
+          }
+
+          return $response;
+  }
+
 }

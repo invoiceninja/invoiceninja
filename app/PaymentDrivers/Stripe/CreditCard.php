@@ -66,13 +66,7 @@ class CreditCard
             'description' => collect($data['invoices'])->pluck('id'), // TODO: More meaningful description.
         ];
 
-        if ($data['token']) {
-            $payment_intent_data['payment_method'] = $data['token']->token;
-        } else {
-            $payment_intent_data['setup_future_usage'] = 'off_session';
-            // $payment_intent_data['save_payment_method'] = true;
-            // $payment_intent_data['confirm'] = true;
-        }
+        $payment_intent_data['setup_future_usage'] = 'off_session';
 
         $data['intent'] = $this->stripe->createPaymentIntent($payment_intent_data);
         $data['gateway'] = $this->stripe;

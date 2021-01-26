@@ -34,7 +34,6 @@ class ValidUserForCompany implements Rule
      */
     public function message()
     {
-        return 'This user is unable to be attached to this company. Perhaps they have already registered a user on another account?';
-        //return ctrans('texts.email_already_register');
+        return ctrans('texts.user_not_associated_with_this_account');
     }
 }

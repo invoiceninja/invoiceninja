@@ -484,7 +484,7 @@ class CreditController extends BaseController
         $credits = Credit::withTrashed()->whereIn('id', $this->transformKeys($ids));
 
         if (! $credits) {
-            return response()->json(['message' => 'No Credits Found']);
+            return response()->json(['message' => ctrans('texts.no_credits_found')]);
         }
 
         $credits->each(function ($credit, $key) use ($action) {
@@ -561,7 +561,7 @@ class CreditController extends BaseController
                 break;
 
             default:
-                return response()->json(['message' => "The requested action `{$action}` is not available."], 400);
+                return response()->json(['message' => ctrans('texts.action_unavailable', ['action' => $action])], 400);
                 break;
         }
     }

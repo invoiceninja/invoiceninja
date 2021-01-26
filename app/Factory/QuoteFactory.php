@@ -45,6 +45,7 @@ class QuoteFactory
         $quote->partial = 0;
         $quote->user_id = $user_id;
         $quote->company_id = $company_id;
+        $quote->paid_to_date = 0;
 
         return $quote;
     }

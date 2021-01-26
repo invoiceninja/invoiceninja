@@ -41,7 +41,7 @@ class UniqueQuoteNumberRule implements Rule
      */
     public function message()
     {
-        return 'Quote number already taken';
+        return ctrans('texts.quote_number_taken');
     }
 
     /**

@@ -209,7 +209,7 @@ class PaymentMethod
                 $payment_urls = [];
             }
 
-            $payment_urls[] = [
+            $this->payment_urls[] = [
                     'label' => ctrans('texts.apply_credit'),
                     'company_gateway_id'  => CompanyGateway::GATEWAY_CREDIT,
                     'gateway_type_id' => GatewayType::CREDIT,
@@ -238,6 +238,5 @@ class PaymentMethod
 
         return true;
     }
+
 }
-
-

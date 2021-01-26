@@ -59,7 +59,7 @@ class SelfUpdateController extends BaseController
         define('STDIN', fopen('php://stdin', 'r'));
 
         if (Ninja::isNinja()) {
-            return response()->json(['message' => 'Self update not available on this system.'], 403);
+            return response()->json(['message' => ctrans('texts.self_update_not_available')], 403);
         }
 
         /* .git MUST be owned/writable by the webserver user */

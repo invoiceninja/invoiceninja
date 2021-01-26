@@ -124,7 +124,7 @@ class DocumentController extends BaseController
     {
         $this->document_repo->delete($document);
 
-        return response()->json(['message'=>'success']);
+        return response()->json(['message'=> ctrans('texts.success')]);
     }
 
     public function bulk()
@@ -136,7 +136,7 @@ class DocumentController extends BaseController
         $documents = Document::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
         if (! $invoices) {
-            return response()->json(['message' => 'No Documents Found']);
+            return response()->json(['message' => ctrans('texts.no_documents_found')]);
         }
 
         /*

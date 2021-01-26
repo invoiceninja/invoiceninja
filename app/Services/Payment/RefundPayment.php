@@ -188,18 +188,26 @@ class RefundPayment
                 if ($available_credit > $this->total_refund) {
                     $paymentable_credit->pivot->refunded += $this->total_refund;
                     $paymentable_credit->pivot->save();
-                    $paymentable_credit->balance += $this->total_refund;
-                    $paymentable_credit->service()->setStatus(Credit::STATUS_SENT)->save();
-                    //$paymentable_credit->save();
+                    
+                    $paymentable_credit->service()
+                                       ->setStatus(Credit::STATUS_SENT)
+                                       ->updateBalance($this->total_refund)
+                                       ->updatePaidToDate($this->total_refund*-1)
+                                       ->save();
 
                     $this->total_refund = 0;
+
                 } else {
+
                     $paymentable_credit->pivot->refunded += $available_credit;
                     $paymentable_credit->pivot->save();
 
                     $paymentable_credit->balance += $available_credit;
-                    $paymentable_credit->service()->setStatus(Credit::STATUS_SENT)->save();
-//                    $paymentable_credit->save();
+                    $paymentable_credit->service()
+                                      ->setStatus(Credit::STATUS_SENT)
+                                       ->adjustBalance($available_credit)
+                                       ->updatePaidToDate($available_credit*-1)
+                                      ->save();
 
                     $this->total_refund -= $available_credit;
                 }

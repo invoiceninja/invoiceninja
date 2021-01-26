@@ -435,11 +435,6 @@ class PaymentController extends BaseController
      */
     public function destroy(DestroyPaymentRequest $request, Payment $payment)
     {
-        // $payment->service()->deletePayment();
-
-        // $payment->is_deleted = true;
-        // $payment->save();
-        // $payment->delete();
 
         $this->payment_repo->delete($payment);
 

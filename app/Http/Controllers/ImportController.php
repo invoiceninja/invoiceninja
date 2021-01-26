@@ -95,7 +95,7 @@ class ImportController extends Controller
     {
         CSVImport::dispatch($request->all(), auth()->user()->company());
         
-        return response()->json(['message' => 'Importing data, email will be sent on completion'], 200);
+        return response()->json(['message' => ctrans('texts.import_started')], 200);
     }
 
     private function getEntityMap($entity_type)

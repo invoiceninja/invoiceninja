@@ -115,7 +115,7 @@ class CompanyUserController extends BaseController
         $company_user = CompanyUser::whereUserId($user->id)->whereCompanyId($company->id)->first();
 
         if (! $company_user) {
-            throw new ModelNotFoundException('Company User record not found');
+            throw new ModelNotFoundException(ctrans('texts.company_user_not_found'));
 
             return;
         }

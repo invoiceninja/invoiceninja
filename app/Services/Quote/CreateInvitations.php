@@ -41,6 +41,7 @@ class CreateInvitations
             $invitation = QuoteInvitation::whereCompanyId($this->quote->company_id)
                 ->whereClientContactId($contact->id)
                 ->whereQuoteId($this->quote->id)
+                ->withTrashed()
                 ->first();
 
             if (! $invitation && $contact->send_email) {

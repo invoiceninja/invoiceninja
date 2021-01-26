@@ -32,16 +32,35 @@
 
     @include('portal.ninja2020.gateways.includes.payment_details')
 
-    @if($token)
-        @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.credit_card')])
-            {{ strtoupper($token->meta->brand) }} - **** {{ $token->meta->last4 }}
-        @endcomponent
+    @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
+        @if(count($tokens) > 0)
+            @foreach($tokens as $token)
+                <label class="mr-4">
+                    <input
+                        type="radio"
+                        data-token="{{ $token->token }}"
+                        name="payment-type"
+                        class="form-radio cursor-pointer toggle-payment-with-token"/>
+                    <span class="ml-1 cursor-pointer">**** {{ optional($token->meta)->last4 }}</span>
+                </label>
+            @endforeach
+        @endisset
 
-        @include('portal.ninja2020.gateways.includes.pay_now', ['id' => 'card_button', 'class' => 'pay_now_button', 'data' => ['id' => $token->hashed_id]])
-    @else
-        @include('portal.ninja2020.gateways.authorize.includes.credit_card')
-        @include('portal.ninja2020.gateways.includes.pay_now', ['id' => 'card_button'])
-    @endif
+        <label>
+            <input
+                type="radio"
+                id="toggle-payment-with-credit-card"
+                class="form-radio cursor-pointer"
+                name="payment-type"
+                checked/>
+            <span class="ml-1 cursor-pointer">{{ __('texts.new_card') }}</span>
+        </label>
+    @endcomponent
+
+    @include('portal.ninja2020.gateways.includes.save_card')
+
+    @include('portal.ninja2020.gateways.authorize.includes.credit_card')
+    @include('portal.ninja2020.gateways.includes.pay_now')
 @endsection
 
 @section('gateway_footer')

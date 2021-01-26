@@ -37,25 +37,12 @@ class ValidCreditsPresentRule implements Rule
      */
     public function message()
     {
-        return 'Insufficient balance on credit.';
+        return ctrans('texts.insufficient_credit_balance');
     }
 
     private function validCreditsPresent() :bool
     {
         //todo need to ensure the clients credits are here not random ones!
-
-        // if (request()->input('credits') && is_array(request()->input('credits'))) {
-        //     foreach (request()->input('credits') as $credit) {
-        //         $cred = Credit::find($this->decodePrimaryKey($credit['credit_id']));
-
-        //         if (! $cred || $cred->balance == 0) {
-        //             return false;
-        //         }
-        //     }
-        // }
-
-        // return  true;
-
 
         if (request()->input('credits') && is_array(request()->input('credits'))) {
             $credit_collection = Credit::whereIn('id', $this->transformKeys(array_column(request()->input('credits'), 'credit_id')))

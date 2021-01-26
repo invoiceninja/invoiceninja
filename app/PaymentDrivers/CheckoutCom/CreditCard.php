@@ -43,7 +43,9 @@ class CreditCard
      */
     public function authorizeView($data)
     {
-        return render('gateways.checkout.credit_card.authorize');
+        $data['gateway'] = $this->checkout;
+
+        return render('gateways.checkout.credit_card.authorize', $data);
     }
 
     /**
@@ -91,7 +93,7 @@ class CreditCard
         $this->checkout->payment_hash->data = array_merge((array) $this->checkout->payment_hash->data, $state);
         $this->checkout->payment_hash->save();
 
-        if ($request->has('token') && !is_null($request->token) && $request->pay_with_token) {
+        if ($request->has('token') && !is_null($request->token) && !empty($request->token)) {
             return $this->attemptPaymentUsingToken($request);
         }
 

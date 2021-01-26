@@ -140,6 +140,8 @@ class InvoiceTransformer extends EntityTransformer
             'reminder2_sent' => $invoice->reminder2_sent ?: '',
             'reminder3_sent' => $invoice->reminder3_sent ?: '',
             'reminder_last_sent' => $invoice->reminder_last_sent ?: '',
+            'paid_to_date' => (float) $invoice->paid_to_date,
+
         ];
     }
 }
