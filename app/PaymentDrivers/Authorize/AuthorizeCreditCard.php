@@ -87,7 +87,7 @@ class AuthorizeCreditCard
         return $this->handleResponse($data, $request);
     }
 
-    private function tokenBilling($cgt, $payment_hash)
+    public function tokenBilling($cgt, $payment_hash)
     {
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
 
@@ -95,10 +95,13 @@ class AuthorizeCreditCard
 
         /*Refactor and push to BaseDriver*/
         if ($data['response'] != null && $data['response']->getMessages()->getResultCode() == 'Ok') {
+
+            $response = $data['response'];
+
             $this->storePayment($payment_hash, $data);
 
             $vars = [
-                'hashed_ids' => $invoice->hashed_id,
+                'invoices' => $payment_hash->invoices(),
                 'amount' => $amount,
             ];
 
@@ -111,6 +114,19 @@ class AuthorizeCreditCard
 
             return true;
         } else {
+
+            $vars = [
+                'invoices' => $payment_hash->invoices(),
+                'amount' => $amount,
+            ];
+
+            $logger_message = [
+                'server_response' => $response->getTransactionResponse()->getTransId(),
+                'data' => $this->formatGatewayResponse($data, $vars),
+            ];
+
+            SystemLogger::dispatch($logger_message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_AUTHORIZE, $this->authorize->client);
+                
             return false;
         }
     }
@@ -138,7 +154,7 @@ class AuthorizeCreditCard
         $payment_record = [];
         $payment_record['amount'] = $amount;
         $payment_record['payment_type'] = PaymentType::CREDIT_CARD_OTHER;
-        ;
+        
         $payment_record['transaction_reference'] = $response->getTransactionResponse()->getTransId();
 
         $payment = $this->authorize->createPayment($payment_record);
