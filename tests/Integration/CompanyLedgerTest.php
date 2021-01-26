@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
+use Tests\MockAccountData;
 use Tests\TestCase;
 
 /** @test*/
@@ -50,6 +51,7 @@ class CompanyLedgerTest extends TestCase
 
         $this->withoutExceptionHandling();
 
+        $this->artisan('db:seed');
 
         /* Warm up the cache !*/
         $cached_tables = config('ninja.cached_tables');
@@ -94,6 +96,7 @@ class CompanyLedgerTest extends TestCase
         $settings->country_id = '840';
         $settings->vat_number = 'vat number';
         $settings->id_number = 'id number';
+        $settings->timezone_id = '1';
 
         $this->company->settings = $settings;
         $this->company->save();
@@ -101,17 +104,17 @@ class CompanyLedgerTest extends TestCase
         $this->account->default_company_id = $this->company->id;
         $this->account->save();
 
-        $this->user = User::whereEmail('user@example.com')->first();
+        $user = User::whereEmail('user@example.com')->first();
 
-        if (! $this->user) {
-            $this->user = User::factory()->create([
+        if (! $user) {
+            $user = User::factory()->create([
                 'account_id' => $this->account->id,
                 'password' => Hash::make('ALongAndBriliantPassword'),
                 'confirmation_code' => $this->createDbHash(config('database.default')),
             ]);
         }
 
-        $cu = CompanyUserFactory::create($this->user->id, $this->company->id, $this->account->id);
+        $cu = CompanyUserFactory::create($user->id, $this->company->id, $this->account->id);
         $cu->is_owner = true;
         $cu->is_admin = true;
         $cu->save();
@@ -119,7 +122,7 @@ class CompanyLedgerTest extends TestCase
         $this->token = \Illuminate\Support\Str::random(64);
 
         $company_token = new CompanyToken;
-        $company_token->user_id = $this->user->id;
+        $company_token->user_id = $user->id;
         $company_token->company_id = $this->company->id;
         $company_token->account_id = $this->account->id;
         $company_token->name = 'test token';
@@ -127,12 +130,12 @@ class CompanyLedgerTest extends TestCase
         $company_token->save();
 
         $this->client = Client::factory()->create([
-                'user_id' => $this->user->id,
+                'user_id' => $user->id,
                 'company_id' => $this->company->id,
             ]);
 
         ClientContact::factory()->create([
-                'user_id' => $this->user->id,
+                'user_id' => $user->id,
                 'client_id' => $this->client->id,
                 'company_id' => $this->company->id,
                 'is_primary' => 1,
@@ -266,5 +269,6 @@ class CompanyLedgerTest extends TestCase
         $invoice = Invoice::find($invoice->id);
 
         $this->assertEquals($refund, $invoice->balance);
+
     }
 }
