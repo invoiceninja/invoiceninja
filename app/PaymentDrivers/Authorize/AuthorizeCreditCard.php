@@ -97,7 +97,7 @@ class AuthorizeCreditCard
         if ($data['response'] != null && $data['response']->getMessages()->getResultCode() == 'Ok') {
 
             $response = $data['response'];
-            
+
             $this->storePayment($payment_hash, $data);
 
             $vars = [
@@ -114,6 +114,19 @@ class AuthorizeCreditCard
 
             return true;
         } else {
+
+            $vars = [
+                'invoices' => $payment_hash->invoices(),
+                'amount' => $amount,
+            ];
+
+            $logger_message = [
+                'server_response' => $response->getTransactionResponse()->getTransId(),
+                'data' => $this->formatGatewayResponse($data, $vars),
+            ];
+
+            SystemLogger::dispatch($logger_message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_AUTHORIZE, $this->authorize->client);
+                
             return false;
         }
     }
