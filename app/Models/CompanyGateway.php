@@ -87,6 +87,11 @@ class CompanyGateway extends BaseModel
         return $this->belongsTo(Company::class);
     }
 
+    public function client_gateway_tokens()
+    {
+        return $this->hasMany(ClientGatewayToken::class);
+    }
+
     public function gateway()
     {
         return $this->belongsTo(Gateway::class, 'gateway_key', 'key');
