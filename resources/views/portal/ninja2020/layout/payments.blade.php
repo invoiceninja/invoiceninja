@@ -48,7 +48,7 @@
 
             document
                 .querySelector('div[data-ref="gateway-container"]')
-                .scrollIntoView({ behavior: "smooth" });
+                .scrollIntoView({behavior: "smooth"});
         });
     </script>
 @endpush

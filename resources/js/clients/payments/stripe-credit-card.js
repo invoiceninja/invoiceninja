@@ -90,7 +90,7 @@ class StripeCreditCard {
         ).value = JSON.stringify(result.paymentIntent);
 
         let tokenBillingCheckbox = document.querySelector(
-            'input[name="token-billing-checkbox"]'
+            'input[name="token-billing-checkbox"]:checked'
         );
 
         if (tokenBillingCheckbox) {

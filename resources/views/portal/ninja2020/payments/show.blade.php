@@ -70,14 +70,16 @@
                             </div>
                         </div>
 
-                        <div class="px-4 py-5 bg-white sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                            <dt class="text-sm font-medium leading-5 text-gray-500">
-                                {{ ctrans('texts.refunded') }}
-                            </dt>
-                            <div class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                                {{ \App\Utils\Number::formatMoney($payment->refunded, $payment->client) }}
+                        @if($payment->refunded > 0)
+                            <div class="px-4 py-5 bg-white sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium leading-5 text-gray-500">
+                                    {{ ctrans('texts.refunded') }}
+                                </dt>
+                                <div class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+                                    {{ \App\Utils\Number::formatMoney($payment->refunded, $payment->client) }}
+                                </div>
                             </div>
-                        </div>
+                        @endif
                     @endif
                 </dl>
             </div>
