@@ -204,15 +204,9 @@ trait GenerateMigrationResources
 
         foreach ($this->account->clients()->withTrashed()->get() as $client) {
             
-        if($this->account->client_number_counter > 0){
             $number = $client->id_number;
             $id_number = '';
-        }
-        else{
-            $id_number = $client->id_number;
-            $number = NULL;
-        }
-
+  
             $clients[] = [
                 'id' => $client->id,
                 'company_id' => $client->account_id,
@@ -1623,8 +1617,8 @@ trait GenerateMigrationResources
                 //'size_id' => $vendor->size_id,
                 'is_deleted' => $vendor->is_deleted,
                 'vat_number' => $vendor->vat_number,
-                'id_number' => $vendor->id_number,
-                'number' => NULL,
+                'id_number' => null,
+                'number' => $vendor->id_number,
                 'custom_value1' => $vendor->custom_value1,
                 'custom_value2' => $vendor->custom_value2,
                 'custom_value3' => '',
