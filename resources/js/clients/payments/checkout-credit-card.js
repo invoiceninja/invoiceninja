@@ -20,6 +20,7 @@ class CheckoutCreditCard {
     handlePaymentUsingToken(e) {
         document.getElementById('checkout--container').classList.add('hidden');
         document.getElementById('pay-now-with-token--container').classList.remove('hidden');
+        document.getElementById('save-card--container').style.display = 'none';
 
         document
             .querySelector('input[name=token]')
@@ -29,6 +30,7 @@ class CheckoutCreditCard {
     handlePaymentUsingCreditCard(e) {
         document.getElementById('checkout--container').classList.remove('hidden');
         document.getElementById('pay-now-with-token--container').classList.add('hidden');
+        document.getElementById('save-card--container').style.display = 'grid';
 
         const payButton = document.getElementById('pay-button');
         const publicKey = document.querySelector('meta[name="public-key"]').content ?? '';
