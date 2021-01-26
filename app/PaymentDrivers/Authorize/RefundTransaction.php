@@ -73,61 +73,105 @@ class RefundTransaction
                 $tresponse = $response->getTransactionResponse();
 
                 if ($tresponse != null && $tresponse->getMessages() != null) {
-                    return [
-                    'transaction_reference' => $tresponse->getTransId(),
-                    'success' => true,
-                    'description' => $tresponse->getMessages()[0]->getDescription(),
-                    'code' => $tresponse->getMessages()[0]->getCode(),
-                    'transaction_response' => $tresponse->getResponseCode(),
-                ];
+                
+                    $data = [
+                        'transaction_reference' => $tresponse->getTransId(),
+                        'success' => true,
+                        'description' => $tresponse->getMessages()[0]->getDescription(),
+                        'code' => $tresponse->getMessages()[0]->getCode(),
+                        'transaction_response' => $tresponse->getResponseCode(),
+                        'payment_id' => $payment->id,
+                        'amount' => $amount,
+                    ];
+
+                    SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_AUTHORIZE, $this->authorize->client);
+
+
+                return $data;
+
                 } else {
+
                     if ($tresponse->getErrors() != null) {
-                        return [
-                    'transaction_reference' => '',
-                    'transaction_response' => '',
-                    'success' => false,
-                    'description' => $tresponse->getErrors()[0]->getErrorText(),
-                    'code' => $tresponse->getErrors()[0]->getErrorCode(),
-                ];
+
+                        $data = [
+                            'transaction_reference' => '',
+                            'transaction_response' => '',
+                            'success' => false,
+                            'description' => $tresponse->getErrors()[0]->getErrorText(),
+                            'code' => $tresponse->getErrors()[0]->getErrorCode(),
+                            'payment_id' => $payment->id,
+                            'amount' => $amount,
+                        ];
+
+                        SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_AUTHORIZE, $this->authorize->client);
+
+                        return $data;
                     }
                 }
             } else {
                 echo "Transaction Failed \n";
                 $tresponse = $response->getTransactionResponse();
                 if ($tresponse != null && $tresponse->getErrors() != null) {
-                    return [
-                    'transaction_reference' => '',
-                    'transaction_response' => '',
-                    'success' => false,
-                    'description' => $tresponse->getErrors()[0]->getErrorText(),
-                    'code' => $tresponse->getErrors()[0]->getErrorCode(),
-                ];
+
+                    $data = [
+                        'transaction_reference' => '',
+                        'transaction_response' => '',
+                        'success' => false,
+                        'description' => $tresponse->getErrors()[0]->getErrorText(),
+                        'code' => $tresponse->getErrors()[0]->getErrorCode(),
+                        'payment_id' => $payment->id,
+                        'amount' => $amount,
+                    ];
+
+                    SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_AUTHORIZE, $this->authorize->client);
+
+                    return $data;
+
                 } else {
-                    return [
-                    'transaction_reference' => '',
-                    'transaction_response' => '',
-                    'success' => false,
-                    'description' => $response->getMessages()->getMessage()[0]->getText(),
-                    'code' => $response->getMessages()->getMessage()[0]->getCode(),
-                ];
+
+                    $data = [
+                        'transaction_reference' => '',
+                        'transaction_response' => '',
+                        'success' => false,
+                        'description' => $response->getMessages()->getMessage()[0]->getText(),
+                        'code' => $response->getMessages()->getMessage()[0]->getCode(),
+                        'payment_id' => $payment->id,
+                        'amount' => $amount,
+                    ];
+
+                    SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_AUTHORIZE, $this->authorize->client);
+
+                    return $data;
                 }
             }
         } else {
-            return [
+
+                $data = [
                     'transaction_reference' => '',
                     'transaction_response' => '',
                     'success' => false,
                     'description' => 'No response returned',
                     'code' => 'No response returned',
+                    'payment_id' => $payment->id,
+                    'amount' => $amount,
                 ];
+                
+                SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_AUTHORIZE, $this->authorize->client);
+
+                return $data;
         }
 
-        return [
-                    'transaction_reference' => '',
-                    'transaction_response' => '',
-                    'success' => false,
-                    'description' => 'No response returned',
-                    'code' => 'No response returned',
-                ];
+        $data = [
+            'transaction_reference' => '',
+            'transaction_response' => '',
+            'success' => false,
+            'description' => 'No response returned',
+            'code' => 'No response returned',
+            'payment_id' => $payment->id,
+            'amount' => $amount,
+        ];
+
+        SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_AUTHORIZE, $this->authorize->client);
+
     }
 }
