@@ -87,7 +87,7 @@ class AuthorizeCreditCard
         return $this->handleResponse($data, $request);
     }
 
-    private function tokenBilling($cgt, $payment_hash)
+    public function tokenBilling($cgt, $payment_hash)
     {
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
 
