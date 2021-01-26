@@ -96,6 +96,8 @@ class AuthorizeCreditCard
         /*Refactor and push to BaseDriver*/
         if ($data['response'] != null && $data['response']->getMessages()->getResultCode() == 'Ok') {
 
+            $response = $data['response'];
+            
             $this->storePayment($payment_hash, $data);
 
             $vars = [
