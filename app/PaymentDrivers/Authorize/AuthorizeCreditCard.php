@@ -95,11 +95,11 @@ class AuthorizeCreditCard
 
         /*Refactor and push to BaseDriver*/
         if ($data['response'] != null && $data['response']->getMessages()->getResultCode() == 'Ok') {
-            
+
             $this->storePayment($payment_hash, $data);
 
             $vars = [
-                'hashed_ids' => $invoice->hashed_id,
+                'invoices' => $payment_hash->invoices(),
                 'amount' => $amount,
             ];
 
