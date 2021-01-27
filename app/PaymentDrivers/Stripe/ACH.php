@@ -174,7 +174,6 @@ class ACH
 
     public function processUnsuccessfulPayment($state)
     {
-        PaymentFailureMailer::dispatch($this->stripe->client, $state['charge']->failure_message, $this->stripe->client->company, $state['amount']);
 
         PaymentFailureMailer::dispatch(
             $this->stripe->client,
