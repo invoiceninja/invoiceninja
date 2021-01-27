@@ -12,9 +12,12 @@
 
 namespace App\PaymentDrivers\CheckoutCom;
 
+use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Jobs\Mail\PaymentFailureMailer;
+use App\Models\ClientGatewayToken;
 use App\PaymentDrivers\CheckoutComPaymentDriver;
+use App\Utils\Traits\MakesHash;
 use Checkout\Library\Exceptions\CheckoutHttpException;
 use Checkout\Models\Payments\IdSource;
 use Checkout\Models\Payments\Payment;
@@ -25,6 +28,7 @@ use Illuminate\View\View;
 class CreditCard
 {
     use Utilities;
+    use MakesHash;
 
     /**
      * @var CheckoutComPaymentDriver
@@ -78,6 +82,15 @@ class CreditCard
     {
         $this->checkout->init();
 
+        $cgt = ClientGatewayToken::query()
+            ->where('id', $this->decodePrimaryKey($request->input('token')))
+            ->where('company_id', auth('contact')->user()->client->company->id)
+            ->first();
+
+        if (!$cgt) {
+            throw new PaymentFailed(ctrans('texts.payment_token_not_found'), 401);
+        }
+
         $state = [
             'server_response' => json_decode($request->gateway_response),
             'value' => $request->value,
@@ -90,11 +103,12 @@ class CreditCard
 
         $state = array_merge($state, $request->all());
         $state['store_card'] = boolval($state['store_card']);
+        $state['token'] = $cgt;
 
-        $this->checkout->payment_hash->data = array_merge((array) $this->checkout->payment_hash->data, $state);
+        $this->checkout->payment_hash->data = array_merge((array)$this->checkout->payment_hash->data, $state);
         $this->checkout->payment_hash->save();
 
-        if ($request->has('token') && !is_null($request->token) && !empty($request->token)) {
+        if ($request->has('token')) {
             return $this->attemptPaymentUsingToken($request);
         }
 
@@ -103,7 +117,7 @@ class CreditCard
 
     private function attemptPaymentUsingToken(PaymentResponseRequest $request)
     {
-        $method = new IdSource($this->checkout->payment_hash->data->token);
+        $method = new IdSource($this->checkout->payment_hash->data->token->token);
 
         return $this->completePayment($method, $request);
     }
@@ -125,7 +139,7 @@ class CreditCard
         $payment->amount = $this->checkout->payment_hash->data->value;
         $payment->reference = $this->checkout->payment_hash->data->reference;
 
-        $this->checkout->payment_hash->data = array_merge((array) $this->checkout->payment_hash->data, ['checkout_payment_ref' => $payment]);
+        $this->checkout->payment_hash->data = array_merge((array)$this->checkout->payment_hash->data, ['checkout_payment_ref' => $payment]);
         $this->checkout->payment_hash->save();
 
         if ($this->checkout->client->currency()->code === 'EUR') {
@@ -156,7 +170,7 @@ class CreditCard
             if ($response->status == 'Declined') {
                 $this->checkout->unWindGatewayFees($this->checkout->payment_hash);
 
-            PaymentFailureMailer::dispatch($this->checkout->client, $response->response_summary, $this->checkout->client->company, $this->checkout->payment_hash->data->value);
+                PaymentFailureMailer::dispatch($this->checkout->client, $response->response_summary, $this->checkout->client->company, $this->checkout->payment_hash->data->value);
 
 
                 return $this->processUnsuccessfulPayment($response);
