@@ -334,6 +334,8 @@ class Design extends BaseDesign
 
         $items = $this->transformLineItems($this->entity->line_items, $type);
 
+        info($items);
+
         if (count($items) == 0) {
             return [];
         }

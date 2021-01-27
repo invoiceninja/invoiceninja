@@ -17,6 +17,7 @@ use App\Models\Invoice;
 use App\Models\Quote;
 use App\Utils\Helpers;
 use App\Utils\Number;
+use Illuminate\Support\Str;
 
 /**
  * Class MakesInvoiceValues.
@@ -584,8 +585,9 @@ trait MakesInvoiceValues
             $data[$key][$table_type.'.product_key'] = is_null(optional($item)->product_key) ? $item->item : $item->product_key;
             $data[$key][$table_type.'.item'] = is_null(optional($item)->item) ? $item->product_key : $item->item;
             $data[$key][$table_type.'.service'] = is_null(optional($item)->service) ? $item->product_key : $item->service;
-            $data[$key][$table_type.'.notes'] = $item->notes;
-            $data[$key][$table_type.'.description'] = $item->notes;
+
+            $data[$key][$table_type.'.notes'] = $this->processReservedKeywords($item->notes);
+            $data[$key][$table_type.'.description'] = $this->processReservedKeywords($item->notes);
 
 
             $data[$key][$table_type . ".{$_table_type}1"] = $helpers->formatCustomFieldValue($this->client->company->custom_fields, "{$_table_type}1", $item->custom_value1, $this->client);
@@ -644,6 +646,74 @@ trait MakesInvoiceValues
         }
 
         return $data;
+    }
+
+    /**
+     * Process reserved words like :MONTH :YEAR :QUARTER
+     * as well as their operations.
+     *
+     * @param string $value
+     * @return string|null
+     */
+    private function processReservedKeywords(string $value): ?string
+    {
+
+        $replacements = [
+            'literal' => [
+                ':MONTH' => now()->localeMonth,
+                ':YEAR' => now()->year,
+                ':QUARTER' => 'Q' . now()->quarter,
+            ],
+            'raw' => [
+                ':MONTH' => now()->month,
+                ':YEAR' => now()->year,
+                ':QUARTER' => now()->quarter,
+            ],
+        ];
+
+        preg_match_all('/:([^:\s]+)/', $value, $m);
+
+        $matches = array_shift($m);
+
+        foreach ($matches as $match) {
+            if (!Str::contains($match, ['-', '+', '/', '*'])) {
+                $value = substr_replace($value, $replacements['literal'][$match], strpos($value, $match), strlen($match));
+            }
+
+            if (Str::contains($match, ['-', '+', '/', '*'])) {
+                $operation = preg_match_all('/(?!^-)[+*\/-](\s?-)?/', $match, $_matches);
+                $_operation = array_shift($_matches)[0];
+
+                $_value = explode($_operation, $match); // [:MONTH, 4]
+
+                $raw = strtr($_value[0], $replacements['raw']); // :MONTH => 1
+
+                if ($_operation == '+') {
+                    $calculated = (int)$raw + (int)$_value[1]; // 1 (:MONTH) + 4
+                }
+
+                if ($_operation == '-') {
+                    $calculated = (int)$raw - (int)$_value[1]; // 1 (:MONTH) + 4
+                }
+
+                if ($_operation == '/') {
+                    $calculated = (int)$raw / (int)$_value[1]; // 1 (:MONTH) + 4
+                }
+
+                if ($_operation == '*') {
+                    $calculated = (int)$raw * (int)$_value[1]; // 1 (:MONTH) + 4
+                }
+
+                try {
+                    $value = substr_replace($value, 'REPLACED', strpos($value, $match), strlen($_value[0]));
+                }
+                catch(\Exception $e) {
+                    return $value;
+                }
+            }
+        }
+
+        return $value;
     }
 
     /**
