@@ -55,11 +55,16 @@ class PaymentEmailEngine extends BaseEmailEngine
             $body_template = EmailTemplateDefaults::getDefaultTemplate('email_template_payment', $this->client->locale());
         }
 
+        //this will never get hit.
+
+
         /* Use default translations if a custom message has not been set*/
         if (iconv_strlen($body_template) == 0) {
 
                 if ($payment->invoices()->exists()) 
                 {
+                    nlog("invoices attached to payments");
+                    
                     $invoice_texts = ctrans('texts.invoice_number_short');
 
                     foreach ($this->payment->invoices as $invoice) {
@@ -77,6 +82,7 @@ class PaymentEmailEngine extends BaseEmailEngine
                 }
                 else
                 {
+                    nlog("no invoices attached to payments");
 
                     $body_template = trans(
                         'texts.payment_message',
@@ -221,7 +227,7 @@ class PaymentEmailEngine extends BaseEmailEngine
 
     private function formatInvoices()
     {
-        $invoice_list = '';
+        $invoice_list = '<br><br>';
 
         foreach ($this->payment->invoices as $invoice) {
             $invoice_list .= ctrans('texts.invoice_number_short') . " {$invoice->number} - " . Number::formatMoney($invoice->pivot->amount, $this->client) . "<br>";
