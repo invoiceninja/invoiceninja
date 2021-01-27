@@ -322,8 +322,6 @@ class StripePaymentDriver extends BaseDriver
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
-        $this->setPaymentHash($payment_hash);
-
         return (new Charge($this))->tokenBilling($cgt, $payment_hash);
     }
 
