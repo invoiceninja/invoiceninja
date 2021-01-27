@@ -11,12 +11,14 @@
 
 namespace App\Models;
 
+use App\Models\Filterable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 
 class Document extends BaseModel
 {
     use SoftDeletes;
+    use Filterable;
 
     const DOCUMENT_PREVIEW_SIZE = 300; // pixels
 

@@ -114,6 +114,7 @@ class CreditCard
             'payment_type' => PaymentType::parseCardType(strtolower($stripe_method->card->brand)),
             'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->server_response->amount, $this->stripe->client->currency()->precision),
             'transaction_reference' => optional($this->stripe->payment_hash->data->payment_intent->charges->data[0])->id,
+            'gateway_type_id' => GatewayType::CREDIT_CARD,
         ];
 
 

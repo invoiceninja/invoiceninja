@@ -65,7 +65,6 @@ class BaseController extends Controller
           'company.task_statuses',
           'company.expense_categories',
           'company.documents',
-          //'company.users',
           'company.users.company_user',
           'company.clients.contacts.company',
           'company.clients.gateway_tokens',

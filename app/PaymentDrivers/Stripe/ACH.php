@@ -157,6 +157,7 @@ class ACH
             'payment_type' => PaymentType::ACH,
             'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->amount, $this->stripe->client->currency()->precision),
             'transaction_reference' => $state['charge']->id,
+            'gateway_type_id' => GatewayType::BANK_TRANSFER,
         ];
 
         $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);

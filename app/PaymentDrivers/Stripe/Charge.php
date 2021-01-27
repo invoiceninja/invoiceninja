@@ -172,22 +172,17 @@ class Charge
 
         $data = [
             'gateway_type_id' => $cgt->gateway_type_id,
-            'type_id' => $this->transformPaymentTypeToConstant($payment_method_type),
+            'payment_type' => $this->transformPaymentTypeToConstant($payment_method_type),
             'transaction_reference' => $response->charges->data[0]->id,
+            'amount' => $amount,
         ];
 
-        $payment = $this->stripe->createPaymentRecord($data, $amount);
+        $payment = $this->stripe->createPayment($data);
         $payment->meta = $cgt->meta;
         $payment->save();
 
         $payment_hash->payment_id = $payment->id;
         $payment_hash->save();
-
-        $this->stripe->attachInvoices($payment, $payment_hash);
-
-        $payment->service()->updateInvoicePayment($payment_hash);
-
-        event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
         return $payment;
     }
