@@ -57,12 +57,35 @@ class PaymentEmailEngine extends BaseEmailEngine
 
         /* Use default translations if a custom message has not been set*/
         if (iconv_strlen($body_template) == 0) {
-            $body_template = trans(
-                'texts.payment_message',
-                ['amount' => $payment->amount, 'company' => $payment->company->present()->name()],
-                null,
-                $this->client->locale()
-            );
+
+                if ($payment->invoices()->exists()) 
+                {
+                    $invoice_texts = ctrans('texts.invoice_number_short');
+
+                    foreach ($this->payment->invoices as $invoice) {
+                        $invoice_texts .= $invoice->number.',';
+                    }
+
+                    $invoice_texts = substr($invoice_texts, 0, -1);
+
+                    $body_template = trans(
+                        'texts.payment_message_extended',
+                        ['amount' => $payment->amount, 'company' => $payment->company->present()->name(), 'invoice' => $invoice_texts],
+                        null,
+                        $this->client->locale()
+                    );
+                }
+                else
+                {
+
+                    $body_template = trans(
+                        'texts.payment_message',
+                        ['amount' => $payment->amount, 'company' => $payment->company->present()->name()],
+                        null,
+                        $this->client->locale()
+                    );
+                }   
+
         }
 
         if (is_array($this->template_data) &&  array_key_exists('subject', $this->template_data) && strlen($this->template_data['subject']) > 0) {

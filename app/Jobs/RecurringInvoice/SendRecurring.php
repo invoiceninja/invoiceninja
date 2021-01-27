@@ -80,6 +80,7 @@ class SendRecurring implements ShouldQueue
         }
     
         if ($invoice->client->getSetting('auto_bill_date') == 'on_send_date' && $this->recurring_invoice->auto_bill_enabled) {
+            nlog("attempting to autobill {$invoice->number}");
             $invoice->service()->autoBill()->save();
         }
 

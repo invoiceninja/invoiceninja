@@ -157,25 +157,10 @@ class AuthorizeCreditCard
         $payment_record = [];
         $payment_record['amount'] = $amount;
         $payment_record['payment_type'] = PaymentType::CREDIT_CARD_OTHER;
-        
+        $payment_record['gateway_type_id'] = GatewayType::CREDIT_CARD;        
         $payment_record['transaction_reference'] = $response->getTransactionResponse()->getTransId();
 
         $payment = $this->authorize->createPayment($payment_record);
-
-        return $payment;
-    }
-
-    private function createPaymentRecord($data, $amount) :?Payment
-    {
-        $response = $data['response'];
-        //create a payment record
-
-        $payment = $this->authorize->createPayment($data['response']);
-        $payment->gateway_type_id = GatewayType::CREDIT_CARD;
-        $payment->type_id = PaymentType::CREDIT_CARD_OTHER;
-        $payment->transaction_reference = $response->getTransactionResponse()->getTransId();
-        $payment->amount = $amount;
-        $payment->save();
 
         return $payment;
     }

@@ -130,6 +130,7 @@ class PayPalExpressPaymentDriver extends BaseDriver
                 'payment_type' => PaymentType::PAYPAL,
                 'amount' => $this->payment_hash->data->amount,
                 'transaction_reference' => $response->getTransactionReference(),
+                'gateway_type_id' => GatewayType::PAYPAL,
             ];
 
             $payment = $this->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);

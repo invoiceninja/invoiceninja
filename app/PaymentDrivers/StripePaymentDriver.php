@@ -175,7 +175,7 @@ class StripePaymentDriver extends BaseDriver
         return $this->payment_method->paymentView($data);
     }
 
-    public function processPaymentResponse($request) //We never have to worry about unsuccessful payments as failures are handled at the front end for this driver.
+    public function processPaymentResponse($request) 
     {
         return $this->payment_method->paymentResponse($request);
     }
@@ -322,32 +322,9 @@ class StripePaymentDriver extends BaseDriver
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
+        $this->setPaymentHash($payment_hash);
+
         return (new Charge($this))->tokenBilling($cgt, $payment_hash);
-    }
-
-    /**
-     * Creates a payment record for the given
-     * data array.
-     *
-     * @param  array $data   An array of payment attributes
-     * @param  float $amount The amount of the payment
-     * @return Payment       The payment object
-     */
-    public function createPaymentRecord($data, $amount): ?Payment
-    {
-        $payment = PaymentFactory::create($this->client->company_id, $this->client->user_id);
-        $payment->client_id = $this->client->id;
-        $payment->company_gateway_id = $this->company_gateway->id;
-        $payment->status_id = Payment::STATUS_COMPLETED;
-        $payment->gateway_type_id = $data['gateway_type_id'];
-        $payment->type_id = $data['type_id'];
-        $payment->currency_id = $this->client->getSetting('currency_id');
-        $payment->date = Carbon::now();
-        $payment->transaction_reference = $data['transaction_reference'];
-        $payment->amount = $amount;
-        $payment->save();
-
-        return $payment->service()->applyNumber()->save();
     }
 
     /**

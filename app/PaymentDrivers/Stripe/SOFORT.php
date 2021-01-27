@@ -82,6 +82,7 @@ class SOFORT
             'payment_type' => PaymentType::SOFORT,
             'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision),
             'transaction_reference' => $source,
+            'gateway_type_id' => GatewayType::SOFORT,
         ];
 
         $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);

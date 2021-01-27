@@ -65,7 +65,6 @@ class BaseController extends Controller
           'company.task_statuses',
           'company.expense_categories',
           'company.documents',
-          //'company.users',
           'company.users.company_user',
           'company.clients.contacts.company',
           'company.clients.gateway_tokens',
@@ -105,6 +104,7 @@ class BaseController extends Controller
           'user.company_user',
           'token',
           'company.activities',
+          'company.documents',
           //'company.users.company_user',
           'company.tax_rates',
           'company.groups',
@@ -184,7 +184,10 @@ class BaseController extends Controller
 
     protected function refreshResponse($query)
     {
-        $this->manager->parseIncludes($this->first_load);
+        if (auth()->user()->getCompany()->is_large)
+          $this->manager->parseIncludes($this->mini_load);
+        else
+          $this->manager->parseIncludes($this->first_load);
 
         $this->serializer = request()->input('serializer') ?: EntityTransformer::API_SERIALIZER_ARRAY;
 
@@ -197,9 +200,9 @@ class BaseController extends Controller
         $transformer = new $this->entity_transformer($this->serializer);
         $updated_at = request()->has('updated_at') ? request()->input('updated_at') : 0;
 
-        if (auth()->user()->getCompany()->is_large && ! request()->has('updated_at')) {
-            return response()->json(['message' => ctrans('texts.large_account_update_parameter'), 'errors' =>[]], 401);
-        }
+        // if (auth()->user()->getCompany()->is_large && ! request()->has('updated_at')) {
+        //     return response()->json(['message' => ctrans('texts.large_account_update_parameter'), 'errors' =>[]], 401);
+        // }
 
         $updated_at = date('Y-m-d H:i:s', $updated_at);
 
