@@ -64,6 +64,7 @@ class CompanyGateway extends BaseModel
         'd14dd26a37cecc30fdd65700bfb55b23' => 301,
         '3758e7f7c6f4cecf0f4f348b9a00f456' => 304,
         '3b6621f970ab18887c4f6dca78d3f8bb' => 305,
+        '54faab2ab6e3223dbe848b1686490baa' => 306,
     ];
 
     protected $touches = [];
@@ -247,7 +248,7 @@ class CompanyGateway extends BaseModel
 
     public function getFeesAndLimits($gateway_type_id)
     {
-        if (is_null($this->fees_and_limits) || empty($this->fees_and_limits)) {
+        if (is_null($this->fees_and_limits) || empty($this->fees_and_limits) || !property_exists($this->fees_and_limits, $gateway_type_id)) {
             return false;
         }
 

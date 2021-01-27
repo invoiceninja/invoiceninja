@@ -61,7 +61,8 @@ class SystemLog extends Model
     const TYPE_FAILURE = 303;
     const TYPE_CHECKOUT = 304;
     const TYPE_AUTHORIZE = 305;
-
+    const TYPE_CUSTOM = 306;
+    
     const TYPE_QUOTA_EXCEEDED = 400;
     const TYPE_UPSTREAM_FAILURE = 401;
 

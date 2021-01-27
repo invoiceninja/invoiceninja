@@ -95,30 +95,15 @@ class StripePaymentDriver extends BaseDriver
     {
         $types = [
             GatewayType::CREDIT_CARD,
+            GatewayType::BANK_TRANSFER,
+            GatewayType::SEPA,
+            GatewayType::CRYPTO,
+            GatewayType::ALIPAY,
+            GatewayType::APPLE_PAY,
         ];
 
         if ($this->company_gateway->getSofortEnabled() && $this->invitation && $this->client() && isset($this->client()->country) && in_array($this->client()->country, ['AUT', 'BEL', 'DEU', 'ITA', 'NLD', 'ESP'])) {
             $types[] = GatewayType::SOFORT;
-        }
-
-        if ($this->company_gateway->getAchEnabled()) {
-            $types[] = GatewayType::BANK_TRANSFER;
-        }
-
-        if ($this->company_gateway->getSepaEnabled()) {
-            $types[] = GatewayType::SEPA;
-        }
-
-        if ($this->company_gateway->getBitcoinEnabled()) {
-            $types[] = GatewayType::CRYPTO;
-        }
-
-        if ($this->company_gateway->getAlipayEnabled()) {
-            $types[] = GatewayType::ALIPAY;
-        }
-
-        if ($this->company_gateway->getApplePayEnabled()) {
-            $types[] = GatewayType::APPLE_PAY;
         }
 
         return $types;
