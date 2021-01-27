@@ -247,7 +247,7 @@ class CompanyGateway extends BaseModel
 
     public function getFeesAndLimits($gateway_type_id)
     {
-        if (is_null($this->fees_and_limits) || empty($this->fees_and_limits)) {
+        if (is_null($this->fees_and_limits) || empty($this->fees_and_limits) || !property_exists($this->fees_and_limits, $gateway_type_id)) {
             return false;
         }
 

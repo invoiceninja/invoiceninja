@@ -39,74 +39,14 @@ class ClientModelTest extends TestCase
         }
     }
 
-    public function testPaymentMethods()
+    public function testPaymentMethodsWithCreditsEnforced()
     {
         $amount = 40;
 
-        $company_gateways = $this->client->getSetting('company_gateway_ids');
+        $payment_methods = $this->client->service()->getPaymentMethods(40);
 
-        //todo create a test where we actually SET a value in the settings->company_gateways object and test if we can harvest.
+        $this->assertEquals(1, count($payment_methods));
 
-        if ($company_gateways) {
-            $gateways = $this->company->company_gateways->whereIn('id', $payment_gateways);
-        } else {
-            $gateways = $this->company->company_gateways;
-        }
-
-        $this->assertNotNull($gateways);
-
-        $pre_count = $gateways->count();
-
-        $gateways->filter(function ($method) use ($amount) {
-            if ($method->min_limit !== null && $amount < $method->min_limit) {
-                return false;
-            }
-
-            if ($method->max_limit !== null && $amount > $method->min_limit) {
-                return false;
-            }
-        });
-
-        $post_count = $gateways->count();
-
-        $this->assertEquals($pre_count, $post_count);
-
-        $payment_methods = [];
-
-        foreach ($gateways as $gateway) {
-            foreach ($gateway->driver($this->client)->gatewayTypes() as $type) {
-                $payment_methods[] = [$gateway->id => $type];
-            }
-        }
-
-        $this->assertEquals(8, count($payment_methods));
-
-        $payment_methods_collections = collect($payment_methods);
-
-        //** Plucks the remaining keys into its own collection
-        $payment_methods_intersect = $payment_methods_collections->intersectByKeys($payment_methods_collections->flatten(1)->unique());
-
-        $this->assertEquals(4, $payment_methods_intersect->count());
-
-        $payment_urls = [];
-
-        foreach ($payment_methods_intersect as $key => $child_array) {
-            foreach ($child_array as $gateway_id => $gateway_type_id) {
-                $gateway = $gateways->where('id', $gateway_id)->first();
-
-                $this->assertNotNull($gateway);
-
-                $fee_label = $gateway->calcGatewayFeeLabel($amount, $this->client);
-
-                $payment_urls[] = [
-                'label' => ctrans('texts.'.$gateway->getTypeAlias($gateway_type_id)).$fee_label,
-                'url'   =>  URL::signedRoute('client.payments.process', [
-                                            'company_gateway_id' => $gateway_id,
-                                            'gateway_type_id' => $gateway_type_id, ]),
-                            ];
-            }
-        }
-
-        $this->assertEquals(4, count($payment_urls));
     }
+
 }

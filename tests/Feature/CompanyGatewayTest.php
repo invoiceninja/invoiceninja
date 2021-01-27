@@ -57,6 +57,7 @@ class CompanyGatewayTest extends TestCase
         $data[1]['fee_tax_rate3'] = 0;
         $data[1]['adjust_fee_percent'] = true;
         $data[1]['fee_cap'] = 0;
+        $data[1]['is_enabled'] = true;
 
         $cg = new CompanyGateway;
         $cg->company_id = $this->company->id;
@@ -128,6 +129,7 @@ class CompanyGatewayTest extends TestCase
         $data[1]['fee_tax_rate3'] = 0;
         $data[1]['adjust_fee_percent'] = true;
         $data[1]['fee_cap'] = 0;
+        $data[1]['is_enabled'] = true;
 
         $cg = new CompanyGateway;
         $cg->company_id = $this->company->id;
@@ -166,6 +168,7 @@ class CompanyGatewayTest extends TestCase
         $data[1]['fee_tax_rate3'] = 10;
         $data[1]['adjust_fee_percent'] = true;
         $data[1]['fee_cap'] = 0;
+        $data[1]['is_enabled'] = true;
 
         $cg = new CompanyGateway;
         $cg->company_id = $this->company->id;
@@ -188,41 +191,5 @@ class CompanyGatewayTest extends TestCase
         /*simple pro rata*/
         $fees_and_limits = $cg->getFeesAndLimits(GatewayType::CREDIT_CARD);
 
-        /*Calculate all subcomponents of the fee*/
-
-        // $fee_component_amount  = $fees_and_limits->fee_amount ?: 0;
-        // $fee_component_percent = $fees_and_limits->fee_percent ? ($total * $fees_and_limits->fee_percent / 100) : 0;
-
-        // $combined_fee_component = $fee_component_amount + $fee_component_percent;
-
-        // $fee_component_tax_name1 = $fees_and_limits->fee_tax_name1 ?: '';
-        // $fee_component_tax_rate1 = $fees_and_limits->fee_tax_rate1 ? ($combined_fee_component * $fees_and_limits->fee_tax_rate1 / 100) : 0;
-
-        // $fee_component_tax_name2 = $fees_and_limits->fee_tax_name2 ?: '';
-        // $fee_component_tax_rate2 = $fees_and_limits->fee_tax_rate2 ? ($combined_fee_component * $fees_and_limits->fee_tax_rate2 / 100) : 0;
-
-        // $fee_component_tax_name3 = $fees_and_limits->fee_tax_name3 ?: '';
-        // $fee_component_tax_rate3 = $fees_and_limits->fee_tax_rate3 ? ($combined_fee_component * $fees_and_limits->fee_tax_rate3 / 100) : 0;
-
-        // $pro_rata_fee = round($total_gateway_fee / $total_invoice_count,2);
-
-        // while($pro_rata_fee * $total_invoice_count != $total_gateway_fee) {
-
-        //     //nudge one pro rata fee until we get the desired amount
-        //     $sub_total_fees = ($pro_rata_fee*($total_invoice_count--));
-
-        //     //work out if we have to nudge up or down
-
-        //     if($pro_rata_fee*$total_invoice_count  > $total_gateway_fee) {
-        //         //nudge DOWN
-        //         $pro_rata_fee - 0.01; //this will break if the currency doesn't have decimals
-        //     }
-        //     else {
-        //         //nudge UP
-        //     }
-
-        // }
-
-        // $this->assertEquals(1.56, $pro_rata_fee*$total_invoice_count);
     }
 }
