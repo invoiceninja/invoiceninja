@@ -175,10 +175,8 @@ class StripePaymentDriver extends BaseDriver
         return $this->payment_method->paymentView($data);
     }
 
-    public function processPaymentResponse($request) //We never have to worry about unsuccessful payments as failures are handled at the front end for this driver.
+    public function processPaymentResponse($request) 
     {
-        $this->setPaymentHash($request->payment_hash);
-
         return $this->payment_method->paymentResponse($request);
     }
 

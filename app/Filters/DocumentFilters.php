@@ -19,20 +19,6 @@ use Illuminate\Database\Eloquent\Builder;
  */
 class DocumentFilters extends QueryFilters
 {
-    public function type_id(int $type_id) :Builder
-    {
-        return $this->builder->where('type_id', $type_id);
-    }
-
-    public function category_id(int $category_id) :Builder
-    {
-        return $this->builder->where('category_id', $category_id);
-    }
-
-    public function event_id(int $event_id) :Builder
-    {
-        return $this->builder->where('event_id', $event_id);
-    }
 
     public function client_id(int $client_id) :Builder
     {
