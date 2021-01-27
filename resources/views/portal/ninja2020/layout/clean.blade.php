@@ -69,6 +69,12 @@
     @include('portal.ninja2020.components.primary-color')
 
     <body class="antialiased {{ $custom_body_class ?? '' }}">
+        @if(session()->has('message'))
+            <div class="py-1 text-sm text-center text-white bg-primary disposable-alert">
+                {{ session('message') }}
+            </div>
+        @endif
+
         @yield('body')
 
         <script src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js" data-cfasync="false"></script>

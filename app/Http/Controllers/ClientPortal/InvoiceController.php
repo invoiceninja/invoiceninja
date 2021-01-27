@@ -90,7 +90,7 @@ class InvoiceController extends Controller
 
         //filter invoices which are payable
         $invoices = $invoices->filter(function ($invoice) {
-            return $invoice->isPayable() && $invoice->balance > 0;
+            return $invoice->isPayable();
         });
 
         //return early if no invoices.
