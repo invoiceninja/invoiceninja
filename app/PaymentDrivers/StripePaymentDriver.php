@@ -95,15 +95,35 @@ class StripePaymentDriver extends BaseDriver
     {
         $types = [
             GatewayType::CREDIT_CARD,
-            GatewayType::BANK_TRANSFER,
             GatewayType::CRYPTO,
-            GatewayType::ALIPAY,
 //            GatewayType::SEPA, // TODO: Missing implementation
 //            GatewayType::APPLE_PAY, // TODO:: Missing implementation
         ];
 
-        if ($this->company_gateway->getSofortEnabled() && $this->invitation && $this->client() && isset($this->client()->country) && in_array($this->client()->country, ['AUT', 'BEL', 'DEU', 'ITA', 'NLD', 'ESP'])) {
+        // $this->invitation = false
+        // $this->client doesn't exist
+        // $this->client->country is relationship?
+        // Missing Slovenia for Alipay
+
+        if ($this->company_gateway->getSofortEnabled()
+            && $this->client
+            && isset($this->client->country)
+            && in_array($this->client->country->iso_3166_3, ['AUT', 'BEL', 'DEU', 'ITA', 'NLD', 'ESP'])) {
             $types[] = GatewayType::SOFORT;
+        }
+
+        if ($this->company_gateway->getAchEnabled()
+            && $this->client
+            && isset($this->client->country)
+            && in_array($this->client->country->iso_3166_3, ['USA'])) {
+            $types[] = GatewayType::BANK_TRANSFER;
+        }
+
+        if ($this->company_gateway->getAchEnabled()
+            && $this->client
+            && isset($this->client->country)
+            && in_array($this->client->country->iso_3166_3, ['AUS', 'DNK', 'DEU', 'ITA', 'LUX', 'NOR', 'SVN', 'GBR', 'AUT', 'EST', 'GRC', 'JPN', 'MYS', 'PRT', 'ESP', 'USA', 'BEL', 'FIN', 'HKG', 'LVA', 'NLD', 'SGP', 'SWE', 'CAN', 'FRA', 'IRL', 'LTU', 'NZL', 'SVK', 'CHE'])) {
+            $types[] = GatewayType::ALIPAY;
         }
 
         return $types;
@@ -175,7 +195,7 @@ class StripePaymentDriver extends BaseDriver
         return $this->payment_method->paymentView($data);
     }
 
-    public function processPaymentResponse($request) 
+    public function processPaymentResponse($request)
     {
         return $this->payment_method->paymentResponse($request);
     }
