@@ -55,7 +55,7 @@ trait Utilities
         return round($amount * 100);
     }
 
-    private function processSuccessfulPayment(Payment $_payment, $return_payment = false)
+    private function processSuccessfulPayment(Payment $_payment)
     {
         if ($this->getParent()->payment_hash->data->store_card) {
             $this->storePaymentMethod($_payment);
@@ -77,10 +77,6 @@ trait Utilities
             SystemLog::TYPE_CHECKOUT,
             $this->getParent()->client
         );
-
-        if ($return_payment) {
-            return $payment;
-        }
 
         return redirect()->route('client.payments.show', ['payment' => $this->getParent()->encodePrimaryKey($payment->id)]);
     }

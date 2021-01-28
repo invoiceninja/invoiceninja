@@ -213,7 +213,9 @@ class CheckoutComPaymentDriver extends BaseDriver
 
         $request = new PaymentResponseRequest();
         $request->setMethod('POST');
-        $request->request->add(['payment_hash' => $payment_hash]);
+        $request->request->add(['payment_hash' => $payment_hash->hash]);
+
+        $this->setPaymentHash($payment_hash);
 
         try {
             $response = $this->gateway->payments()->request($payment);
@@ -221,7 +223,24 @@ class CheckoutComPaymentDriver extends BaseDriver
             if ($response->status == 'Authorized') {
                 $this->confirmGatewayFee($request);
 
-                return $this->processSuccessfulPayment($response, true);
+                $data = [
+                    'payment_method' => $response->source['id'],
+                    'payment_type' => PaymentType::parseCardType(strtolower($response->source['scheme'])),
+                    'amount' => $amount,
+                    'transaction_reference' => $response->id,
+                ];
+
+                $payment = $this->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);
+
+                SystemLogger::dispatch(
+                    ['response' => $response, 'data' => $data],
+                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                    SystemLog::EVENT_GATEWAY_SUCCESS,
+                    SystemLog::TYPE_CHECKOUT,
+                    $this->client
+                );
+
+                return $payment;
             }
 
             if ($response->status == 'Declined') {
@@ -230,17 +249,46 @@ class CheckoutComPaymentDriver extends BaseDriver
                 PaymentFailureMailer::dispatch(
                     $this->client, $response->response_summary,
                     $this->client->company,
-                    $this->payment_hash->data->value
+                    $amount
                 );
 
-                $this->processUnsuccessfulPayment($response, false);
+                PaymentFailureMailer::dispatch(
+                    $this->client,
+                    $response,
+                    $this->client->company,
+                    $amount
+                );
+
+                $message = [
+                    'server_response' => $response,
+                    'data' => $payment_hash->data,
+                ];
+
+                SystemLogger::dispatch(
+                    $message,
+                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                    SystemLog::EVENT_GATEWAY_FAILURE,
+                    SystemLog::TYPE_CHECKOUT,
+                    $this->client
+                );
 
                 return false;
             }
         } catch (\Exception | CheckoutHttpException $e) {
             $this->unWindGatewayFees($payment_hash);
+            $message = $e instanceof CheckoutHttpException
+                    ? $e->getBody()
+                    : $e->getMessage();
 
-            // ..
+            $data = [
+                'status' => '',
+                'error_type' => '',
+                'error_code' => $e->getCode(),
+                'param' => '',
+                'message' => $message,
+            ];
+
+            SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_CHECKOUT, $this->client);
         }
     }
 
