@@ -183,6 +183,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/davidbankes/omnipay-firstdata.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/hillelcoren/omnipay-authorizenet"  
         }
     ]
 }
