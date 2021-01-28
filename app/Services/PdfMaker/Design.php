@@ -337,7 +337,6 @@ class Design extends BaseDesign
         if (count($items) == 0) {
             return [];
         }
-
         if ($type == 'delivery_note') {
             foreach ($items as $row) {
                 $element = ['element' => 'tr', 'elements' => []];
