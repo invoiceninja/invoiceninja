@@ -55,54 +55,12 @@ class PaymentEmailEngine extends BaseEmailEngine
             $body_template = EmailTemplateDefaults::getDefaultTemplate('email_template_payment', $this->client->locale());
         }
 
-        /* Use default translations if a custom message has not been set*/
-        if (iconv_strlen($body_template) == 0) {
-
-                if ($payment->invoices()->exists()) 
-                {
-                    $invoice_texts = ctrans('texts.invoice_number_short');
-
-                    foreach ($this->payment->invoices as $invoice) {
-                        $invoice_texts .= $invoice->number.',';
-                    }
-
-                    $invoice_texts = substr($invoice_texts, 0, -1);
-
-                    $body_template = trans(
-                        'texts.payment_message_extended',
-                        ['amount' => $payment->amount, 'company' => $payment->company->present()->name(), 'invoice' => $invoice_texts],
-                        null,
-                        $this->client->locale()
-                    );
-                }
-                else
-                {
-
-                    $body_template = trans(
-                        'texts.payment_message',
-                        ['amount' => $payment->amount, 'company' => $payment->company->present()->name()],
-                        null,
-                        $this->client->locale()
-                    );
-                }   
-
-        }
-
         if (is_array($this->template_data) &&  array_key_exists('subject', $this->template_data) && strlen($this->template_data['subject']) > 0) {
             $subject_template = $this->template_data['subject'];
         } elseif (strlen($this->client->getSetting('email_subject_payment')) > 0) {
             $subject_template = $this->client->getSetting('email_subject_payment');
         } else {
             $subject_template = EmailTemplateDefaults::getDefaultTemplate('email_subject_payment', $this->client->locale());
-        }
-
-        if (iconv_strlen($subject_template) == 0) {
-            $subject_template = trans(
-                'texts.payment_subject',
-                ['number' => $payment->number, 'company' => $payment->company->present()->name()],
-                null,
-                $this->client->locale()
-            );
         }
 
         $this->setTemplate($this->client->getSetting('email_style'))
@@ -221,7 +179,7 @@ class PaymentEmailEngine extends BaseEmailEngine
 
     private function formatInvoices()
     {
-        $invoice_list = '';
+        $invoice_list = '<br><br>';
 
         foreach ($this->payment->invoices as $invoice) {
             $invoice_list .= ctrans('texts.invoice_number_short') . " {$invoice->number} - " . Number::formatMoney($invoice->pivot->amount, $this->client) . "<br>";

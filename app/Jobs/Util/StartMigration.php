@@ -73,6 +73,8 @@ class StartMigration implements ShouldQueue
      */
     public function handle()
     {
+        nlog("Inside Migration Job");
+        
         set_time_limit(0);
 
         MultiDB::setDb($this->company->db);

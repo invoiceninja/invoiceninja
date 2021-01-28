@@ -41,9 +41,8 @@ class AutoBillInvoice extends AbstractService
     public function run()
     {
         /* Is the invoice payable? */
-        if (! $this->invoice->isPayable()) {
+        if (! $this->invoice->isPayable()) 
             return $this->invoice;
-        }
 
         /* Mark the invoice as sent */
         $this->invoice = $this->invoice->service()->markSent()->save();
@@ -67,6 +66,7 @@ class AutoBillInvoice extends AbstractService
 
         info("balance remains to be paid!!");
 
+        /* Retrieve the Client Gateway Token */
         $gateway_token = $this->getGateway($amount);
 
         /* Bail out if no payment methods available */
@@ -74,7 +74,10 @@ class AutoBillInvoice extends AbstractService
             return $this->invoice;
         
         /* $gateway fee */
-        $fee = $gateway_token->gateway->calcGatewayFee($amount, $gateway_token->gateway_type_id, $this->invoice->uses_inclusive_taxes);
+        //$fee = $gateway_token->gateway->calcGatewayFee($amount, $gateway_token->gateway_type_id, $this->invoice->uses_inclusive_taxes);
+        $this->invoice = $this->invoice->service()->addGatewayFee($gateway_token->gateway, $gateway_token->gateway_type_id, $amount)->save();
+
+        $fee = $this->invoice->amount - $amount;
 
         /* Build payment hash */
         $payment_hash = PaymentHash::create([
@@ -86,6 +89,7 @@ class AutoBillInvoice extends AbstractService
 
         $payment = $gateway_token->gateway
                                  ->driver($this->client)
+                                 ->setPaymentHash($payment_hash)
                                  ->tokenBilling($gateway_token, $payment_hash);
 
         return $this->invoice;

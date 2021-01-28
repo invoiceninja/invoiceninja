@@ -69,7 +69,7 @@ class AuthorizePaymentDriver extends BaseDriver
             ['name' => 'client_name', 'label' => ctrans('texts.name'), 'type' => 'text', 'validation' => 'required|min:2'],
             ['name' => 'contact_email', 'label' => ctrans('texts.email'), 'type' => 'text', 'validation' => 'required|email:rfc'],
             ['name' => 'client_address_line_1', 'label' => ctrans('texts.address1'), 'type' => 'text', 'validation' => 'required'],
-            ['name' => 'client_address_line_2', 'label' => ctrans('texts.address1'), 'type' => 'text', 'validation' => 'sometimes'],
+            ['name' => 'client_address_line_2', 'label' => ctrans('texts.address2'), 'type' => 'text', 'validation' => 'sometimes'],
             ['name' => 'client_city', 'label' => ctrans('texts.city'), 'type' => 'text', 'validation' => 'required'],
             ['name' => 'client_state', 'label' => ctrans('texts.state'), 'type' => 'text', 'validation' => 'required'],
             ['name' => 'client_postal_code', 'label' => ctrans('texts.postal_code'), 'type' => 'text', 'validation' => 'required'],
@@ -104,8 +104,6 @@ class AuthorizePaymentDriver extends BaseDriver
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
-        $this->setPaymentHash($payment_hash);
-        
         $this->setPaymentMethod($cgt->gateway_type_id);
 
         return $this->payment_method->tokenBilling($cgt, $payment_hash);

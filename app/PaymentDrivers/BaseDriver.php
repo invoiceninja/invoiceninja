@@ -202,14 +202,15 @@ class BaseDriver extends AbstractPaymentDriver
      */
     public function createPayment($data, $status = Payment::STATUS_COMPLETED): Payment
     {
+        $this->confirmGatewayFee();
+        
         $payment = PaymentFactory::create($this->client->company->id, $this->client->user->id);
         $payment->client_id = $this->client->id;
         $payment->company_gateway_id = $this->company_gateway->id;
         $payment->status_id = $status;
         $payment->currency_id = $this->client->getSetting('currency_id');
         $payment->date = Carbon::now();
-
-        //$payment->gateway_type_id = $data['gateway_type_id'];
+        $payment->gateway_type_id = $data['gateway_type_id'];
 
         $client_contact = $this->getContact();
         $client_contact_id = $client_contact ? $client_contact->id : null;
@@ -245,19 +246,14 @@ class BaseDriver extends AbstractPaymentDriver
      * @param  PaymentResponseRequest $request The incoming payment request
      * @return void                            Success/Failure
      */
-    public function confirmGatewayFee(PaymentResponseRequest $request) :void
+    public function confirmGatewayFee() :void
     {
-        /*Payment meta data*/
-        $payment_hash = $request->getPaymentHash();
 
         /*Payment invoices*/
-        $payment_invoices = $payment_hash->invoices();
+        $payment_invoices = $this->payment_hash->invoices();
 
         /*Fee charged at gateway*/
-        $fee_total = $payment_hash->fee_total;
-
-        // Sum of invoice amounts
-        // $invoice_totals = array_sum(array_column($payment_invoices,'amount'));
+        $fee_total = $this->payment_hash->fee_total;
 
         /*Hydrate invoices*/
         $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($payment_invoices, 'invoice_id')))->get();
