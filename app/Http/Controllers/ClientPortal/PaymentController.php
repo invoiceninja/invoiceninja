@@ -106,7 +106,7 @@ class PaymentController extends Controller
         if ($payable_invoices->count() == 0) {
             return redirect()
                 ->route('client.invoices.index')
-                ->with(['warning' => 'No payable invoices selected.']);
+                ->with(['message' => 'No payable invoices selected.']);
         }
 
         $settings = auth()->user()->client->getMergedSettings();

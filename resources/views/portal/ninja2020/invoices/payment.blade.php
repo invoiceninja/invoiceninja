@@ -40,7 +40,7 @@
                                                 <a href="#" @click="{ open = false }" data-company-gateway-id="{{ $payment_method['company_gateway_id'] }}" data-gateway-type-id="{{ $payment_method['gateway_type_id'] }}" class="block px-4 py-2 text-sm leading-5 text-gray-700 dropdown-gateway-button hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900" data-cy="payment-method">
                                                     {{ \App\Models\CompanyGateway::find($payment_method['company_gateway_id'])->firstOrFail()->getConfigField('name') }}
                                                 </a>
-                                            @else
+                                            @elseif($total > 0)
                                                 <a href="#" @click="{ open = false }" data-company-gateway-id="{{ $payment_method['company_gateway_id'] }}" data-gateway-type-id="{{ $payment_method['gateway_type_id'] }}" class="block px-4 py-2 text-sm leading-5 text-gray-700 dropdown-gateway-button hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900" data-cy="payment-method">
                                                     {{ $payment_method['label'] }}
                                                 </a>
@@ -151,6 +151,10 @@
                     </div>
                 </div>
                 @endforeach
+
+                @if(intval($total) == 0)
+                    <small>* {{ ctrans('texts.online_payments_minimum_note') }}</small>
+                @endif
             </div>
         </div>
     </div>

@@ -3383,5 +3383,6 @@ return [
     'create_webhook_failure' => 'Failed to create Webhook',
     'number' => 'Number',
     'payment_message_extended' => 'Thank you for your payment of :amount for :invoice',
+    'online_payments_minimum_note' => 'Note: Online payments are supported only if amount is bigger than $1 or currency equivalent.',
     'payment_token_not_found' => 'Payment token not found, please try again. If an issue still persist, try with another payment method',
 ];
