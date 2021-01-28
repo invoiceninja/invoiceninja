@@ -1711,6 +1711,7 @@ trait GenerateMigrationResources
         $fees_and_limits->fee_tax_rate2 = $ags->tax_rate2;
         $fees_and_limits->fee_tax_name3 = '';
         $fees_and_limits->fee_tax_rate3 = 0;
+        $fees_and_limits->is_enabled = true;
 
         return $fees_and_limits;
        // $data = [];
