@@ -40,6 +40,5 @@ class PaymentEmailedActivity implements ShouldQueue
 
         $payment = $event->payment;
         
-        nlog("i succeeded in emailing payment {$payment->number}");
     }
 }

@@ -218,6 +218,8 @@ class MigrationController extends BaseController
      */
     public function startMigration(Request $request)
     {
+        nlog("Starting Migration");
+
         $companies = json_decode($request->companies);
 
         if (app()->environment() === 'local') {
@@ -290,6 +292,9 @@ class MigrationController extends BaseController
 
             // If there's no existing company migrate just normally.
             if ($checks['existing_company'] == false) {
+
+                nlog("creating fresh company");
+                
                 $account = auth()->user()->account;
                 $fresh_company = (new ImportMigrations())->getCompany($account);
 
@@ -325,11 +330,13 @@ class MigrationController extends BaseController
                 );
 
             if (app()->environment() == 'testing') {
+                nlog("environment is testing = bailing out now");
                 return;
             }
 
             try {
                 // StartMigration::dispatch(base_path("storage/app/public/$migration_file"), $user, $fresh_company)->delay(now()->addSeconds(5));
+                nlog("starting migration job");
                 nlog($migration_file);
                 StartMigration::dispatch($migration_file, $user, $fresh_company);
             } catch (\Exception $e) {

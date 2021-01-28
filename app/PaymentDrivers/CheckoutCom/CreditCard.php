@@ -142,7 +142,6 @@ class CreditCard
             $response = $this->checkout->gateway->payments()->request($payment);
 
             if ($response->status == 'Authorized') {
-                $this->checkout->confirmGatewayFee($request);
 
                 return $this->processSuccessfulPayment($response);
             }
