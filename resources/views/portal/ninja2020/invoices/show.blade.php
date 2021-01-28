@@ -48,7 +48,8 @@
         <div class="sm:flex sm:items-start sm:justify-between">
             <div>
                 <h3 class="text-lg leading-6 font-medium text-gray-900">
-                    {{ ctrans('texts.invoice_number_placeholder', ['invoice' => $invoice->number])}} - {{ ctrans('texts.unpaid') }}
+                    {{ ctrans('texts.invoice_number_placeholder', ['invoice' => $invoice->number])}}
+                    - {{ ctrans('texts.paid') }}
                 </h3>
             </div>
         </div>
@@ -70,7 +71,7 @@
                     </svg>
                 </button>
             </div>
-            <span class="text-sm text-gray-700 ml-2">{{ ctrans('texts.page') }}: 
+            <span class="text-sm text-gray-700 ml-2">{{ ctrans('texts.page') }}:
                 <span id="current-page-container"></span>
                 <span>{{ strtolower(ctrans('texts.of')) }}</span>
                 <span id="total-page-container"></span>

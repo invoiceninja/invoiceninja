@@ -21,7 +21,8 @@
                             </div>
                         </div>
                         <div class="mt-5 sm:mt-0 sm:ml-6 sm:flex-shrink-0 sm:flex sm:items-center">
-                            <a href="{{ route('client.invoice.show', $invoice->hashed_id) }}?mode=portal" class="mr-4 text-primary">
+                            <a href="{{ route('client.invoice.show', $invoice->hashed_id) }}?mode=portal"
+                               class="mr-4 text-primary">
                                 &#8592; {{ ctrans('texts.client_portal') }}
                             </a>
 
@@ -36,15 +37,17 @@
             </div>
         </form>
     @else
-        <div class="bg-white shadow sm:rounded-lg mb-4" translate>
+        <div class="bg-white shadow sm:rounded-lg mb-4">
             <div class="px-4 py-5 sm:p-6">
                 <div class="sm:flex sm:items-start sm:justify-between">
-                    <div>
-                        <h3 class="text-lg leading-6 font-medium text-gray-900">
-                            {{ ctrans('texts.invoice_number_placeholder', ['invoice' => $invoice->number])}}
-                            - {{ ctrans('texts.unpaid') }}
-                        </h3>
-                    </div>
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">
+                        {{ ctrans('texts.invoice_number_placeholder', ['invoice' => $invoice->number])}}
+                        - {{ ctrans('texts.paid') }}
+                    </h3>
+                    <a href="{{ route('client.invoice.show', $invoice->hashed_id) }}?mode=portal"
+                       class="mr-4 text-primary">
+                        &#8592; {{ ctrans('texts.client_portal') }}
+                    </a>
                 </div>
             </div>
         </div>
