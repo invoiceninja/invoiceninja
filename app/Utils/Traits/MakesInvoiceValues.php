@@ -676,40 +676,58 @@ trait MakesInvoiceValues
         $matches = array_shift($m);
 
         foreach ($matches as $match) {
+            $matches = collect($replacements['literal'])->filter(function ($value, $key) use ($match) {
+                return Str::startsWith($match, $key);
+            });
+
+            if ($matches->count() === 0) {
+                continue;
+            }
+
             if (!Str::contains($match, ['-', '+', '/', '*'])) {
-                $value = substr_replace($value, $replacements['literal'][$match], strpos($value, $match), strlen($match));
+                $value = preg_replace(
+                    sprintf('/%s/', $matches->keys()->first()), $replacements['literal'][$matches->keys()->first()], $value, 1
+                );
             }
 
             if (Str::contains($match, ['-', '+', '/', '*'])) {
                 $operation = preg_match_all('/(?!^-)[+*\/-](\s?-)?/', $match, $_matches);
+
                 $_operation = array_shift($_matches)[0];
 
                 $_value = explode($_operation, $match); // [:MONTH, 4]
 
-                $raw = strtr($_value[0], $replacements['raw']); // :MONTH => 1
+                $raw = strtr($matches->keys()->first(), $replacements['raw']); // :MONTH => 1
 
-                if ($_operation == '+') {
-                    $calculated = (int)$raw + (int)$_value[1]; // 1 (:MONTH) + 4
+                $number = $res = preg_replace("/[^0-9]/", '', $_value[1]); // :MONTH+1. || :MONTH+2! => 1 || 2
+
+                $target = "/{$matches->keys()->first()}\\{$_operation}{$number}/"; // /:$KEYWORD\\$OPERATION$VALUE => /:MONTH\\+1
+
+                $output = (int) $raw + (int)$_value[1];
+
+                if ($operation == '+') {
+                    $output = (int) $raw + (int)$_value[1]; // 1 (:MONTH) + 4
                 }
 
                 if ($_operation == '-') {
-                    $calculated = (int)$raw - (int)$_value[1]; // 1 (:MONTH) + 4
+                    $output = (int)$raw - (int)$_value[1]; // 1 (:MONTH) - 4
                 }
 
                 if ($_operation == '/') {
-                    $calculated = (int)$raw / (int)$_value[1]; // 1 (:MONTH) + 4
+                    $output = (int)$raw / (int)$_value[1]; // 1 (:MONTH) / 4
                 }
 
                 if ($_operation == '*') {
-                    $calculated = (int)$raw * (int)$_value[1]; // 1 (:MONTH) + 4
+                    $output = (int)$raw * (int)$_value[1]; // 1 (:MONTH) * 4
                 }
 
-                try {
-                    $value = substr_replace($value, 'REPLACED', strpos($value, $match), strlen($_value[0]));
+                if ($matches->keys()->first() == ':MONTH') {
+                    $output = \Carbon\Carbon::create()->month($output)->localeMonth;
                 }
-                catch(\Exception $e) {
-                    return $value;
-                }
+
+                $value = preg_replace(
+                    $target, $output, $value, 1
+                );
             }
         }
 
