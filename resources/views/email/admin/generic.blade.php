@@ -7,9 +7,7 @@
 
     <p>{{ $title }}</p>
 
-    @slot('greeting')
-        @lang($message)
-    @endslot
+    <p>{{ $message }}</p>
 
     @component('email.components.button', ['url' => $url])
         @lang($button)

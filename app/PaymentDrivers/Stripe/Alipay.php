@@ -76,6 +76,8 @@ class Alipay
             'payment_type' => PaymentType::ALIPAY,
             'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision),
             'transaction_reference' => $source,
+            'gateway_type_id' => GatewayType::ALIPAY,
+
         ];
 
         $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);

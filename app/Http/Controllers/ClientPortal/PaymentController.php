@@ -301,6 +301,8 @@ class PaymentController extends Controller
                 SystemLog::TYPE_FAILURE,
                 auth('contact')->user()->client
             );
+
+            throw new PaymentFailed($e->getMessage());
         }
     }
 

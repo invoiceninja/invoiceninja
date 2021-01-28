@@ -131,6 +131,8 @@ trait MockAccountData
         /* Warm up the cache !*/
         $cached_tables = config('ninja.cached_tables');
 
+        $this->artisan('db:seed');
+
         foreach ($cached_tables as $name => $class) {
 
             // check that the table exists in case the migration is pending
@@ -176,6 +178,7 @@ trait MockAccountData
         $settings->vat_number = 'vat number';
         $settings->id_number = 'id number';
         $settings->use_credits_payment = 'always';
+        $settings->timezone_id = '1';
 
         $this->company->settings = $settings;
         $this->company->save();
@@ -183,19 +186,22 @@ trait MockAccountData
         $this->account->default_company_id = $this->company->id;
         $this->account->save();
 
-        $this->user = User::whereEmail('user@example.com')->first();
+        $user = User::whereEmail('user@example.com')->first();
 
-        if (! $this->user) {
-            $this->user = User::factory()->create([
+        if (! $user) {
+            $user = User::factory()->create([
                                 'account_id' => $this->account->id,
                                 'confirmation_code' => $this->createDbHash(config('database.default')),
                                 'email' => 'user@example.com',
                             ]);
         }
 
-        $this->user->password = Hash::make('ALongAndBriliantPassword');
+        $user->password = Hash::make('ALongAndBriliantPassword');
+        
+        $user_id = $user->id;
+        $this->user = $user;
 
-        $this->cu = CompanyUserFactory::create($this->user->id, $this->company->id, $this->account->id);
+        $this->cu = CompanyUserFactory::create($user->id, $this->company->id, $this->account->id);
         $this->cu->is_owner = true;
         $this->cu->is_admin = true;
         $this->cu->save();
@@ -203,7 +209,7 @@ trait MockAccountData
         $this->token = \Illuminate\Support\Str::random(64);
 
         $company_token = new CompanyToken;
-        $company_token->user_id = $this->user->id;
+        $company_token->user_id = $user->id;
         $company_token->company_id = $this->company->id;
         $company_token->account_id = $this->account->id;
         $company_token->name = 'test token';
@@ -212,15 +218,15 @@ trait MockAccountData
 
         $company_token->save();
 
-        //todo create one token withe token name TOKEN - use firstOrCreate
+        //todo create one token with token name TOKEN - use firstOrCreate
 
         Product::factory()->create([
-                'user_id' => $this->user->id,
+                'user_id' => $user_id,
                 'company_id' => $this->company->id,
         ]);
 
         $this->client = Client::factory()->create([
-                'user_id' => $this->user->id,
+                'user_id' => $user_id,
                 'company_id' => $this->company->id,
         ]);
 
@@ -229,7 +235,7 @@ trait MockAccountData
         Storage::makeDirectory($this->company->company_key.'/'.$this->client->client_hash.'/quotes', 0755, true);
 
         $contact = ClientContact::factory()->create([
-                'user_id' => $this->user->id,
+                'user_id' => $user_id,
                 'client_id' => $this->client->id,
                 'company_id' => $this->company->id,
                 'is_primary' => 1,
@@ -238,20 +244,20 @@ trait MockAccountData
 
 
         $contact2 = ClientContact::factory()->create([
-                'user_id' => $this->user->id,
+                'user_id' => $user_id,
                 'client_id' => $this->client->id,
                 'company_id' => $this->company->id,
                 'send_email' => true,
         ]);
 
         $this->vendor = Vendor::factory()->create([
-            'user_id' => $this->user->id,
+            'user_id' => $user_id,
             'company_id' => $this->company->id,
         ]);
 
 
         $vendor_contact = VendorContact::factory()->create([
-                'user_id' => $this->user->id,
+                'user_id' => $user_id,
                 'vendor_id' => $this->vendor->id,
                 'company_id' => $this->company->id,
                 'is_primary' => 1,
@@ -259,34 +265,34 @@ trait MockAccountData
         ]);
 
         $vendor_contact2 = VendorContact::factory()->create([
-                'user_id' => $this->user->id,
+                'user_id' => $user_id,
                 'vendor_id' => $this->vendor->id,
                 'company_id' => $this->company->id,
                 'send_email' => true,
         ]);
 
         $this->project = Project::factory()->create([
-                'user_id' => $this->user->id,
+                'user_id' => $user_id,
                 'company_id' => $this->company->id,
         ]);
 
         $this->expense = Expense::factory()->create([
-            'user_id' => $this->user->id,
+            'user_id' => $user_id,
             'company_id' => $this->company->id,
         ]);
 
         $this->task = Task::factory()->create([
-            'user_id' => $this->user->id,
+            'user_id' => $user_id,
             'company_id' => $this->company->id,
         ]);
 
         $this->expense_category = ExpenseCategory::factory()->create([
-            'user_id' => $this->user->id,
+            'user_id' => $user_id,
             'company_id' => $this->company->id,
         ]);
 
         $this->task_status = TaskStatus::factory()->create([
-            'user_id' => $this->user->id,
+            'user_id' => $user_id,
             'company_id' => $this->company->id,
         ]);
 
@@ -303,7 +309,7 @@ trait MockAccountData
         $this->client->group_settings_id = $gs->id;
         $this->client->save();
 
-        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
+        $this->invoice = InvoiceFactory::create($this->company->id, $user_id); //stub the company and user_id
         $this->invoice->client_id = $this->client->id;
 
         $this->invoice->line_items = $this->buildLineItems();
@@ -321,17 +327,15 @@ trait MockAccountData
 
         $this->invoice->save();
 
-        //$this->invoice->service()->createInvitations()->markSent();
-        //$this->invoice->service()->createInvitations();
         InvoiceInvitation::factory()->create([
-                'user_id' => $this->user->id,
+                'user_id' => $this->invoice->user_id,
                 'company_id' => $this->company->id,
                 'client_contact_id' => $contact->id,
                 'invoice_id' => $this->invoice->id,
             ]);
 
         InvoiceInvitation::factory()->create([
-                'user_id' => $this->user->id,
+                'user_id' => $this->invoice->user_id,
                 'company_id' => $this->company->id,
                 'client_contact_id' => $contact2->id,
                 'invoice_id' => $this->invoice->id,
@@ -340,7 +344,7 @@ trait MockAccountData
         $this->invoice->service()->markSent();
 
         $this->quote = Quote::factory()->create([
-                'user_id' => $this->user->id,
+                'user_id' => $user_id,
                 'client_id' => $this->client->id,
                 'company_id' => $this->company->id,
             ]);
@@ -361,14 +365,14 @@ trait MockAccountData
         //$this->quote->service()->createInvitations()->markSent();
 
         QuoteInvitation::factory()->create([
-                'user_id' => $this->user->id,
+                'user_id' => $user_id,
                 'company_id' => $this->company->id,
                 'client_contact_id' => $contact->id,
                 'quote_id' => $this->quote->id,
             ]);
 
         QuoteInvitation::factory()->create([
-                'user_id' => $this->user->id,
+                'user_id' => $user_id,
                 'company_id' => $this->company->id,
                 'client_contact_id' => $contact2->id,
                 'quote_id' => $this->quote->id,
@@ -379,7 +383,7 @@ trait MockAccountData
 
         $this->quote->save();
 
-        $this->credit = CreditFactory::create($this->company->id, $this->user->id);
+        $this->credit = CreditFactory::create($this->company->id, $user_id);
         $this->credit->client_id = $this->client->id;
 
         $this->credit->line_items = $this->buildLineItems();
@@ -409,14 +413,14 @@ trait MockAccountData
 
 
         CreditInvitation::factory()->create([
-                'user_id' => $this->user->id,
+                'user_id' => $user_id,
                 'company_id' => $this->company->id,
                 'client_contact_id' => $contact->id,
                 'credit_id' => $this->credit->id,
             ]);
 
         CreditInvitation::factory()->create([
-                'user_id' => $this->user->id,
+                'user_id' => $user_id,
                 'company_id' => $this->company->id,
                 'client_contact_id' => $contact2->id,
                 'credit_id' => $this->credit->id,
@@ -524,7 +528,7 @@ trait MockAccountData
 
         $gs = new GroupSetting;
         $gs->company_id = $this->company->id;
-        $gs->user_id = $this->user->id;
+        $gs->user_id = $user_id;
         $gs->settings = ClientSettings::buildClientSettings(CompanySettings::defaults(), ClientSettings::defaults());
         $gs->name = 'Default Client Settings';
         $gs->save();
@@ -542,9 +546,11 @@ trait MockAccountData
             $data[1]['fee_tax_name3'] = '';
             $data[1]['fee_tax_rate3'] = 0;
             $data[1]['fee_cap'] = '';
+            $data[1]['is_enabled'] = true;
+            
             $cg = new CompanyGateway;
             $cg->company_id = $this->company->id;
-            $cg->user_id = $this->user->id;
+            $cg->user_id = $user_id;
             $cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
             $cg->require_cvv = true;
             $cg->require_billing_address = true;
@@ -556,7 +562,7 @@ trait MockAccountData
 
             $cg = new CompanyGateway;
             $cg->company_id = $this->company->id;
-            $cg->user_id = $this->user->id;
+            $cg->user_id = $user_id;
             $cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
             $cg->require_cvv = true;
             $cg->require_billing_address = true;

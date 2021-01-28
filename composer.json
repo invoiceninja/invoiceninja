@@ -70,6 +70,7 @@
         "php": "^7.4",
         "anahkiasen/former": "^4.2",
         "barryvdh/laravel-debugbar": "^3.4",
+        "brianium/paratest": "^6.1",
         "darkaonline/l5-swagger": "^8.0",
         "facade/ignition": "^2.3.6",
         "filp/whoops": "^2.7",

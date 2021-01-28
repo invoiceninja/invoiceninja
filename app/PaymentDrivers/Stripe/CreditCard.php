@@ -95,7 +95,6 @@ class CreditCard
         $server_response = $this->stripe->payment_hash->data->server_response;
 
         if ($server_response->status == 'succeeded') {
-            $this->stripe->confirmGatewayFee($request);
 
             $this->stripe->logSuccessfulGatewayResponse(['response' => json_decode($request->gateway_response), 'data' => $this->stripe->payment_hash], SystemLog::TYPE_STRIPE);
 
@@ -114,6 +113,7 @@ class CreditCard
             'payment_type' => PaymentType::parseCardType(strtolower($stripe_method->card->brand)),
             'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->server_response->amount, $this->stripe->client->currency()->precision),
             'transaction_reference' => optional($this->stripe->payment_hash->data->payment_intent->charges->data[0])->id,
+            'gateway_type_id' => GatewayType::CREDIT_CARD,
         ];
 
 

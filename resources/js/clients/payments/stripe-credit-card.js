@@ -90,7 +90,7 @@ class StripeCreditCard {
         ).value = JSON.stringify(result.paymentIntent);
 
         let tokenBillingCheckbox = document.querySelector(
-            'input[name="token-billing-checkbox"]'
+            'input[name="token-billing-checkbox"]:checked'
         );
 
         if (tokenBillingCheckbox) {
@@ -163,6 +163,7 @@ class StripeCreditCard {
                 .from(document.getElementsByClassName('toggle-payment-with-token'))
                 .forEach((element) => element.addEventListener('click', (element) => {
                     document.getElementById('stripe--payment-container').classList.add('hidden');
+                    document.getElementById('save-card--container').style.display = 'none';
                     document.querySelector('input[name=token]').value = element.target.dataset.token;
                 }));
 
@@ -170,6 +171,7 @@ class StripeCreditCard {
                 .getElementById('toggle-payment-with-credit-card')
                 .addEventListener('click', (element) => {
                     document.getElementById('stripe--payment-container').classList.remove('hidden');
+                    document.getElementById('save-card--container').style.display = 'grid';
                     document.querySelector('input[name=token]').value = "";
                 });
 

@@ -14,7 +14,6 @@ class AuthorizeAuthorizeCard {
         this.publicKey = publicKey;
         this.loginId = loginId;
         this.cardHolderName = document.getElementById("cardholder_name");
-        this.cardButton = document.getElementById("card_button");
     }
 
     handleAuthorization = () => {
@@ -68,9 +67,9 @@ class AuthorizeAuthorizeCard {
             var $errors = $('#errors'); // get the reference of the div
             $errors.show().html("<p>" + response.messages.message[i].code + ": " + response.messages.message[i].text + "</p>");
 
-            document.getElementById('card_button').disabled = false;
-            document.querySelector('#card_button > svg').classList.add('hidden');
-            document.querySelector('#card_button > span').classList.remove('hidden');
+            document.getElementById('pay-now').disabled = false;
+            document.querySelector('#pay-now > svg').classList.add('hidden');
+            document.querySelector('#pay-now > span').classList.remove('hidden');
         } else if (response.messages.resultCode === "Ok") {
 
             document.getElementById("dataDescriptor").value = response.opaqueData.dataDescriptor;
@@ -115,16 +114,6 @@ class AuthorizeAuthorizeCard {
                     document
                         .getElementById('token').value = null;
                 });
-        }
-
-        if (this.cardButton) {
-            this.cardButton.addEventListener("click", () => {
-
-                this.cardButton.disabled = true;
-
-                this.handleAuthorization();
-
-            });
         }
 
         let payNowButton = document.getElementById('pay-now');

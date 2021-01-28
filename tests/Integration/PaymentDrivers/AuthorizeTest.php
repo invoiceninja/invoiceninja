@@ -51,7 +51,6 @@ class AuthorizeTest extends TestCase
             $this->markTestSkipped('authorize.net not configured');
         }
 
-        $this->makeTestData();
     }
 
     public function testUnpackingVars()

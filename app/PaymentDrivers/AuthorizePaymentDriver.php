@@ -103,7 +103,7 @@ class AuthorizePaymentDriver extends BaseDriver
     }
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
-    {
+    {        
         $this->setPaymentMethod($cgt->gateway_type_id);
 
         return $this->payment_method->tokenBilling($cgt, $payment_hash);

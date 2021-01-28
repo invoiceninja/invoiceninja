@@ -89,7 +89,6 @@ class PaymentMethod
 
         }
         
-
         return $this;
     }
 
@@ -108,7 +107,7 @@ class PaymentMethod
                              ->company
                              ->company_gateways
                              ->whereIn('id', $transformed_ids)
-                             ->where('gateway_key', '=', '54faab2ab6e3223dbe848b1686490baa')
+                             ->where('gateway_key', '54faab2ab6e3223dbe848b1686490baa')
                              ->sortby(function ($model) use ($transformed_ids) { //company gateways are sorted in order of priority
                                  return array_search($model->id, $transformed_ids);// this closure sorts for us
                              });
@@ -118,7 +117,7 @@ class PaymentMethod
              $this->gateways = $this->client
                              ->company
                              ->company_gateways
-                             ->where('gateway_key', '=', '54faab2ab6e3223dbe848b1686490baa')
+                             ->where('gateway_key', '54faab2ab6e3223dbe848b1686490baa')
                              ->where('is_deleted', false);
 
         }
@@ -134,10 +133,15 @@ class PaymentMethod
         $this->payment_methods = [];
 
         foreach ($this->gateways as $gateway) {
+
             foreach ($gateway->driver($this->client)->gatewayTypes() as $type) {
+
                 if (isset($gateway->fees_and_limits) && property_exists($gateway->fees_and_limits, $type)) {
 
                     if ($this->validGatewayForAmount($gateway->fees_and_limits->{$type}, $this->amount) && $gateway->fees_and_limits->{$type}->is_enabled) {
+                    
+                        if($type == GatewayType::BANK_TRANSFER);
+
                         $this->payment_methods[] = [$gateway->id => $type];
                     }
 
@@ -158,13 +162,16 @@ class PaymentMethod
 
         //note we have to use GatewayType::CREDIT_CARD as alias for CUSTOM
         foreach ($this->gateways as $gateway) {
+
             foreach ($gateway->driver($this->client)->gatewayTypes() as $type) {
+
                 if (isset($gateway->fees_and_limits) && property_exists($gateway->fees_and_limits, $type)) {
-                    if ($this->validGatewayForAmount($gateway->fees_and_limits->{GatewayType::CREDIT_CARD}, $this->amount)) {
-                        $this->payment_methods->push([$gateway->id => $type]);
-                    }
+
+                    if ($this->validGatewayForAmount($gateway->fees_and_limits->{GatewayType::CREDIT_CARD}, $this->amount)) 
+                        $this->payment_methods[] = [$gateway->id => $type];
+                    
                 } else {
-                    $this->payment_methods->push([$gateway->id => NULL]);
+                    $this->payment_methods[] = [$gateway->id => NULL];
                 }
             }
         }

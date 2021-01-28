@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Filters\DocumentFilters;
 use App\Http\Requests\Document\DestroyDocumentRequest;
 use App\Http\Requests\Document\ShowDocumentRequest;
 use App\Http\Requests\Document\StoreDocumentRequest;
@@ -26,10 +27,6 @@ class DocumentController extends BaseController
      */
     protected $document_repo;
 
-    /**
-     * DocumentController constructor.
-     * @param DocumentRepository $document_repo
-     */
     public function __construct(DocumentRepository $document_repo)
     {
         parent::__construct();
@@ -40,13 +37,46 @@ class DocumentController extends BaseController
     }
 
     /**
-     * Display a listing of the resource.
-     *
-     * @return void
+     * @OA\Get(
+     *      path="/api/v1/documents",
+     *      operationId="getDocuments",
+     *      tags={"documents"},
+     *      summary="Gets a list of documents",
+     *      description="Lists documents, search and filters allow fine grained lists to be generated.
+
+    Query parameters can be added to performed more fine grained filtering of the documents, these are handled by the DocumentsFilters class which defines the methods available",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(ref="#/components/parameters/index"),
+     *      @OA\Response(
+     *          response=200,
+     *          description="A list of documents",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Document"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     * @param DocumentsFilters $filters
+     * @return Response|mixed
      */
-    public function index()
+    public function index(DocumentFilters $filters)
     {
-        //
+        $documents = Document::filter($filters);
+
+        return $this->listResponse($documents);
     }
 
     /**
