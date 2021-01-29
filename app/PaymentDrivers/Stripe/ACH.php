@@ -22,6 +22,7 @@ use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
+use App\Utils\Traits\MakesHash;
 use Exception;
 use Stripe\Customer;
 use Stripe\Exception\CardException;
@@ -29,6 +30,8 @@ use Stripe\Exception\InvalidRequestException;
 
 class ACH
 {
+    use MakesHash;
+
     /** @var StripePaymentDriver */
     public $stripe;
 
@@ -109,18 +112,27 @@ class ACH
     {
         $this->stripe->init();
 
+        $source = ClientGatewayToken::query()
+            ->where('id', $this->decodePrimaryKey($request->source))
+            ->where('company_id', auth('contact')->user()->client->company->id)
+            ->first();
+
+        if (!$source) {
+            throw new PaymentFailed(ctrans('texts.payment_token_not_found'), 401);
+        }
+
         $state = [
             'payment_method' => $request->payment_method_id,
             'gateway_type_id' => $request->company_gateway_id,
             'amount' => $this->stripe->convertToStripeAmount($request->amount, $this->stripe->client->currency()->precision),
             'currency' => $request->currency,
-            'source' => $request->source,
             'customer' => $request->customer,
         ];
 
         $state = array_merge($state, $request->all());
+        $state['source'] = $source->token;
 
-        $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, $state);
+        $this->stripe->payment_hash->data = array_merge((array)$this->stripe->payment_hash->data, $state);
         $this->stripe->payment_hash->save();
 
         try {
@@ -133,7 +145,7 @@ class ACH
 
             $state = array_merge($state, $request->all());
 
-            $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, $state);
+            $this->stripe->payment_hash->data = array_merge((array)$this->stripe->payment_hash->data, $state);
             $this->stripe->payment_hash->save();
 
             if ($state['charge']->status === 'pending' && is_null($state['charge']->failure_message)) {
@@ -145,6 +157,8 @@ class ACH
             if ($e instanceof CardException) {
                 return redirect()->route('client.payment_methods.verification', ['id' => ClientGatewayToken::first()->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
             }
+
+            throw new PaymentFailed($e->getMessage(), $e->getCode());
         }
     }
 
@@ -203,8 +217,8 @@ class ACH
     {
         try {
             $payment_meta = new \stdClass;
-            $payment_meta->brand = (string) sprintf('%s (%s)', $method->bank_name, ctrans('texts.ach'));
-            $payment_meta->last4 = (string) $method->last4;
+            $payment_meta->brand = (string)sprintf('%s (%s)', $method->bank_name, ctrans('texts.ach'));
+            $payment_meta->last4 = (string)$method->last4;
             $payment_meta->type = GatewayType::BANK_TRANSFER;
 
             $data = [

@@ -232,11 +232,11 @@ class CompanySettings extends BaseSettings
     public $id_number = ''; //@implemented
 
     public $page_size = 'A4';  //Letter, Legal, Tabloid, Ledger, A0, A1, A2, A3, A4, A5, A6
-    public $font_size = 9; //@implemented
+    public $font_size = 7; //@implemented
     public $primary_font = 'Roboto';
     public $secondary_font = 'Roboto';
-    public $primary_color = '#4caf50';
-    public $secondary_color = '#2196f3';
+    public $primary_color = '#142cb5';
+    public $secondary_color = '#7081e0';
 
     public $hide_paid_to_date = false; //@TODO where?
     public $embed_documents = false; //@TODO where?

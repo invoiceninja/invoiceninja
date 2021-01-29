@@ -81,7 +81,7 @@ trait Utilities
         return redirect()->route('client.payments.show', ['payment' => $this->getParent()->encodePrimaryKey($payment->id)]);
     }
 
-    public function processUnsuccessfulPayment(Payment $_payment)
+    public function processUnsuccessfulPayment(Payment $_payment, $throw_exception = true)
     {
         PaymentFailureMailer::dispatch(
             $this->getParent()->client,
@@ -103,7 +103,9 @@ trait Utilities
             $this->getParent()->client
         );
 
-        throw new PaymentFailed($_payment->status, $_payment->http_code);
+        if ($throw_exception) {
+            throw new PaymentFailed($_payment->status, $_payment->http_code);
+        }
     }
 
     private function processPendingPayment(Payment $_payment)

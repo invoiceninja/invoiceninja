@@ -28,6 +28,7 @@ class CompanyUser extends Pivot
      * @var array
      */
     protected $casts = [
+        'permissions_updated_at' => 'timestamp',
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
