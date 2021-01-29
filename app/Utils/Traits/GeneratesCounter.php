@@ -33,6 +33,119 @@ trait GeneratesCounter
     //todo in the form validation, we need to ensure that if a prefix and pattern is set we throw a validation error,
     //only one type is allow else this will cause confusion to the end user
 
+
+
+    private function getNextEntityNumber($entity, Client $client)
+    {
+        $prefix = '';
+
+        $this->resetCounters($client);
+
+        $is_client_counter = false;
+
+        $counter_string = $this->getEntityCounter($entity, $client);  
+        $pattern = $this->getNumberPattern($entity, $client);  
+
+        if (strpos($pattern, 'clientCounter') || strpos($pattern, 'client_counter')) {
+
+            if (property_exists($client->settings, $counter_string)) {
+                $counter = $client->settings->{$counter_string};
+            } else {
+                $counter = 1;
+            }
+
+            $counter_entity = $client;
+        } elseif (strpos($pattern, 'groupCounter') || strpos($pattern, 'group_counter')) {
+
+            if (property_exists($client->group_settings, $counter_string)) {
+            $counter = $client->group_settings->{$counter_string};
+            } else {
+                $counter = 1;
+            }
+
+            $counter_entity = $client->group_settings;
+
+        } else {
+            $counter = $client->company->settings->{$counter_string};
+            $counter_entity = $client->company;
+        }
+
+        //If it is a quote - we need to 
+        $pattern = $this->getNumberPattern($entity, $client);
+        
+        $padding = $client->getSetting('counter_padding');
+
+        if($entity instanceof Invoice && $entity && $entity->recurring_id)
+            $prefix = $client->getSetting('recurring_number_prefix');
+
+        $entity_number = $this->checkEntityNumber($entity, $client, $counter, $padding, $pattern, $prefix);
+
+        $this->incrementCounter($counter_entity, $counter_string);
+
+        return $entity_number;
+
+    }
+
+    private function getNumberPattern($entity, Client $client)
+    {
+        $pattern_string = '';
+
+        switch ($entity) {
+            case Invoice::class:
+                $pattern_string = 'invoice_number_pattern';
+                break;
+            case Quote::class:
+                $pattern_string = 'quote_number_pattern';
+                break;
+            case RecurringInvoice::class:
+                $pattern_string = 'recurring_invoice_number_pattern';
+                break;
+            case Payment::class:
+                $pattern_string = 'payment_number_pattern';
+                break;
+            case Credit::class:
+                $pattern_string = 'credit_number_pattern';
+                break;
+            case Project::class:
+                $pattern_string = 'project_number_pattern';
+                break;
+        }
+
+        return $client->getSetting($pattern_string);
+    }
+
+    private function getEntityCounter($entity, $client)
+    {
+        switch ($entity) {
+            case Invoice::class:
+                return 'invoice_number_counter';
+                break;
+            case Quote::class:
+
+                if ($this->hasSharedCounter($client)) 
+                    return 'invoice_number_counter';
+                
+                return 'quote_number_counter';
+                break;
+            case RecurringInvoice::class:
+                return 'recurring_invoice_number_counter';
+                break;
+            case Payment::class:
+                return 'payment_number_counter';
+                break;
+            case Credit::class:
+                return 'credit_number_counter';
+                break;
+            case Project::class:
+                return 'project_number_counter';
+                break;
+
+            default:
+                return 'default_number_counter';
+                break;
+        }
+    }
+
     /**
      * Gets the next invoice number.
      *
@@ -43,42 +156,7 @@ trait GeneratesCounter
      */
     public function getNextInvoiceNumber(Client $client, ?Invoice $invoice) :string
     {
-        //Reset counters if enabled
-        $this->resetCounters($client);
-
-        //todo handle if we have specific client patterns in the future
-        $pattern = $client->getSetting('invoice_number_pattern');
-        //Determine if we are using client_counters
-        if (strpos($pattern, 'clientCounter') || strpos($pattern, 'client_counter')) {
-            if (property_exists($client->settings, 'invoice_number_counter')) {
-                $counter = $client->settings->invoice_number_counter;
-            } else {
-                $counter = 1;
-            }
-
-            $counter_entity = $client;
-        } elseif (strpos($pattern, 'groupCounter') || strpos($pattern, 'group_counter')) {
-            $counter = $client->group_settings->invoice_number_counter;
-            $counter_entity = $client->group_settings;
-        } else {
-            $counter = $client->company->settings->invoice_number_counter;
-            $counter_entity = $client->company;
-        }
-
-        //Return a valid counter
-        $pattern = $client->getSetting('invoice_number_pattern');
-        $padding = $client->getSetting('counter_padding');
-        $prefix = '';
-
-        if ($invoice && $invoice->recurring_id) {
-            $prefix = $client->getSetting('recurring_number_prefix');
-        }
-
-        $invoice_number = $this->checkEntityNumber(Invoice::class, $client, $counter, $padding, $pattern, $prefix);
-
-        $this->incrementCounter($counter_entity, 'invoice_number_counter');
-
-        return $invoice_number;
+        return $this->getNextEntityNumber(Invoice::class, $client);
     }
 
     /**
@@ -90,145 +168,36 @@ trait GeneratesCounter
      */
     public function getNextCreditNumber(Client $client) :string
     {
-        //Reset counters if enabled
-        $this->resetCounters($client);
-
-        //todo handle if we have specific client patterns in the future
-        $pattern = $client->getSetting('credit_number_pattern');
-        //Determine if we are using client_counters
-        if (strpos($pattern, 'clientCounter') || strpos($pattern, 'client_counter')) {
-            $counter = $client->settings->credit_number_counter;
-            $counter_entity = $client;
-        } elseif (strpos($pattern, 'groupCounter') || strpos($pattern, 'group_counter')) {
-            $counter = $client->group_settings->credit_number_counter;
-            $counter_entity = $client->group_settings;
-        } else {
-            $counter = $client->company->settings->credit_number_counter;
-            $counter_entity = $client->company;
-        }
-
-        //Return a valid counter
-        $pattern = $client->getSetting('credit_number_pattern');
-        $padding = $client->getSetting('counter_padding');
-
-        $credit_number = $this->checkEntityNumber(Credit::class, $client, $counter, $padding, $pattern);
-
-        $this->incrementCounter($counter_entity, 'credit_number_counter');
-
-        return $credit_number;
+        return $this->getNextEntityNumber(Credit::class, $client);
     }
 
+    /**
+     * Gets the next quote number.
+     *
+     * @param Client $client  The client
+     *
+     * @return     string              The next credit number.
+     */
     public function getNextQuoteNumber(Client $client)
     {
-        //Reset counters if enabled
-        $this->resetCounters($client);
-
-        $used_counter = 'quote_number_counter';
-
-        if ($this->hasSharedCounter($client)) {
-            $used_counter = 'invoice_number_counter';
-        }
-
-        //todo handle if we have specific client patterns in the future
-        $pattern = $client->getSetting('quote_number_pattern');
-        //Determine if we are using client_counters
-        if (strpos($pattern, 'clientCounter') || strpos($pattern, 'client_counter')) {
-            $counter = $client->settings->{$used_counter};
-            $counter_entity = $client;
-        } elseif (strpos($pattern, 'groupCounter') || strpos($pattern, 'group_counter')) {
-            $counter = $client->group_settings->{$used_counter};
-            $counter_entity = $client->group_settings;
-        } else {
-            $counter = $client->company->settings->{$used_counter};
-            $counter_entity = $client->company;
-        }
-
-        //Return a valid counter
-        $pattern = $client->getSetting('quote_number_pattern');
-        $padding = $client->getSetting('counter_padding');
-
-        $quote_number = $this->checkEntityNumber(Quote::class, $client, $counter, $padding, $pattern);
-
-        // if($this->recurring_id)
-        //     $quote_number = $this->prefixCounter($quote_number, $client->getSetting('recurring_number_prefix'));
-
-        $this->incrementCounter($counter_entity, $used_counter);
-
-        return $quote_number;
+        return $this->getNextEntityNumber(Quote::class, $client);
     }
 
     public function getNextRecurringInvoiceNumber(Client $client)
     {
-
-        //Reset counters if enabled
-        $this->resetCounters($client);
-
-        $is_client_counter = false;
-
-        //todo handle if we have specific client patterns in the future
-        $pattern = $client->company->settings->recurring_invoice_number_pattern;
-
-        //Determine if we are using client_counters
-        if (strpos($pattern, 'client_counter') === false) {
-            $counter = $client->company->settings->recurring_invoice_number_counter;
-        } else {
-            $counter = $client->settings->recurring_invoice_number_counter;
-            $is_client_counter = true;
-        }
-
-        //Return a valid counter
-        $pattern = '';
-        $padding = $client->getSetting('counter_padding');
-        $invoice_number = $this->checkEntityNumber(RecurringInvoice::class, $client, $counter, $padding, $pattern);
-        //$invoice_number = $this->prefixCounter($invoice_number, $client->getSetting('recurring_number_prefix'));
-
-        //increment the correct invoice_number Counter (company vs client)
-        if ($is_client_counter) {
-            $this->incrementCounter($client, 'recurring_invoice_number_counter');
-        } else {
-            $this->incrementCounter($client->company, 'recurring_invoice_number_counter');
-        }
-
-        return $invoice_number;
+        return $this->getNextEntityNumber(RecurringInvoice::class, $client);
     }
 
     /**
-     * Payment Number Generator.
-     * @param Client $client
-     * @return string The payment number
+     * Gets the next Payment number.
+     *
+     * @param Client $client  The client
+     *
+     * @return     string              The next payment number.
      */
     public function getNextPaymentNumber(Client $client) :string
     {
-
-        //Reset counters if enabled
-        $this->resetCounters($client);
-
-        $is_client_counter = false;
-
-        //todo handle if we have specific client patterns in the future
-        $pattern = $client->company->settings->payment_number_pattern;
-
-        //Determine if we are using client_counters
-        if (strpos($pattern, 'client_counter') === false) {
-            $counter = $client->company->settings->payment_number_counter;
-        } else {
-            $counter = $client->settings->payment_number_counter;
-            $is_client_counter = true;
-        }
-
-        //Return a valid counter
-        $pattern = '';
-        $padding = $client->getSetting('counter_padding');
-        $payment_number = $this->checkEntityNumber(Payment::class, $client, $counter, $padding, $pattern);
-
-        //increment the correct invoice_number Counter (company vs client)
-        if ($is_client_counter) {
-            $this->incrementCounter($client, 'payment_number_counter');
-        } else {
-            $this->incrementCounter($client->company, 'payment_number_counter');
-        }
-
-        return (string) $payment_number;
+        return $this->getNextEntityNumber(Payment::class, $client);
     }
 
     /**
@@ -342,7 +311,7 @@ trait GeneratesCounter
      *
      * @return     bool             True if has shared counter, False otherwise.
      */
-    public function hasSharedCounter(Client $client) : bool
+    public function hasSharedCounter(Client $client) : bool 
     {
         return (bool) $client->getSetting('shared_invoice_quote_counter');
     }
@@ -403,6 +372,9 @@ trait GeneratesCounter
         if ($counter_name == 'invoice_number_counter' && ! property_exists($entity->settings, 'invoice_number_counter')) {
             $settings->invoice_number_counter = 0;
         }
+
+        if(!property_exists($settings, $counter_name))
+            $settings->{$counter_name} = 1;
 
         $settings->{$counter_name} = $settings->{$counter_name} + 1;
 

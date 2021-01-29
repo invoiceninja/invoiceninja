@@ -370,12 +370,23 @@ class UserController extends BaseController
     public function update(UpdateUserRequest $request, User $user)
     {
         $old_email = $user->email;
+        $old_company_user = $user->company_user;
+        $old_user = $user;
+
         $new_email = $request->input('email');
 
         $user = $this->user_repo->save($request->all(), $user);
+        $user = $user->fresh();
 
         if ($old_email != $new_email) {
             UserEmailChanged::dispatch($new_email, $old_email, auth()->user()->company());
+        }
+
+        if(
+            strcasecmp($old_company_user->permissions, $user->company_user->permissions) != 0 ||
+            $old_company_user->is_admin != $user->company_user->is_admin
+          ){
+            $user->company_user()->update(["permissions_updated_at" => now()]);
         }
 
         event(new UserWasUpdated($user, auth()->user(), auth()->user()->company, Ninja::eventVars()));

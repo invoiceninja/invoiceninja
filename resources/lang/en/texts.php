@@ -286,7 +286,7 @@ return [
     'password' => 'Password',
     'pro_plan_product' => 'Pro Plan',
     'pro_plan_success' => 'Thanks for choosing Invoice Ninja\'s Pro plan!&nbsp;<br/>
-                          Next StepsA payable invoice has been sent to the email
+                          Next Steps. A payable invoice has been sent to the email
                           address associated with your account. To unlock all of the awesome
                           Pro features, please follow the instructions on the invoice to pay
                           for a year of Pro-level invoicing.
@@ -1091,7 +1091,7 @@ return [
     'invoice_item_fields' => 'Invoice Item Fields',
     'custom_invoice_item_fields_help' => 'Add a field when creating an invoice item and display the label and value on the PDF.',
     'recurring_invoice_number' => 'Recurring Number',
-    'recurring_invoice_number_prefix_help' => 'Speciy a prefix to be added to the invoice number for recurring invoices.',
+    'recurring_invoice_number_prefix_help' => 'Specify a prefix to be added to the invoice number for recurring invoices.',
 
     // Client Passwords
     'enable_portal_password' => 'Password Protect Invoices',
