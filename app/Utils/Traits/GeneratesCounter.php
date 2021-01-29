@@ -97,10 +97,23 @@ trait GeneratesCounter
         $pattern = $client->getSetting('credit_number_pattern');
         //Determine if we are using client_counters
         if (strpos($pattern, 'clientCounter') || strpos($pattern, 'client_counter')) {
-            $counter = $client->settings->credit_number_counter;
+
+            if (property_exists($client->settings, 'credit_number_counter')) {
+                $counter = $client->settings->credit_number_counter;
+            } else {
+                $counter = 1;
+            }
+
             $counter_entity = $client;
+
         } elseif (strpos($pattern, 'groupCounter') || strpos($pattern, 'group_counter')) {
-            $counter = $client->group_settings->credit_number_counter;
+
+            if (property_exists($client->group_settings, 'credit_number_counter')) {
+                $counter = $client->group_settings->credit_number_counter;
+            } else {
+                $counter = 1;
+            }
+
             $counter_entity = $client->group_settings;
         } else {
             $counter = $client->company->settings->credit_number_counter;
@@ -133,11 +146,24 @@ trait GeneratesCounter
         $pattern = $client->getSetting('quote_number_pattern');
         //Determine if we are using client_counters
         if (strpos($pattern, 'clientCounter') || strpos($pattern, 'client_counter')) {
-            $counter = $client->settings->{$used_counter};
+
+            if (property_exists($client->settings, $used_counter)) {
+                $counter = $client->settings->{$used_counter};
+            } else {
+                $counter = 1;
+            }
+
             $counter_entity = $client;
         } elseif (strpos($pattern, 'groupCounter') || strpos($pattern, 'group_counter')) {
+
+            if (property_exists($client->group_settings, $used_counter)) {
             $counter = $client->group_settings->{$used_counter};
+            } else {
+                $counter = 1;
+            }
+
             $counter_entity = $client->group_settings;
+
         } else {
             $counter = $client->company->settings->{$used_counter};
             $counter_entity = $client->company;
@@ -172,7 +198,13 @@ trait GeneratesCounter
         if (strpos($pattern, 'client_counter') === false) {
             $counter = $client->company->settings->recurring_invoice_number_counter;
         } else {
-            $counter = $client->settings->recurring_invoice_number_counter;
+
+            if (property_exists($client->settings, 'recurring_invoice_number_counter')) {
+                $counter = $client->settings->recurring_invoice_number_counter;
+            } else {
+                $counter = 1;
+            }
+
             $is_client_counter = true;
         }
 
@@ -212,7 +244,13 @@ trait GeneratesCounter
         if (strpos($pattern, 'client_counter') === false) {
             $counter = $client->company->settings->payment_number_counter;
         } else {
-            $counter = $client->settings->payment_number_counter;
+
+            if (property_exists($client->settings, 'payment_number_counter')) {
+                $counter = $client->settings->payment_number_counter;
+            } else {
+                $counter = 1;
+            }
+
             $is_client_counter = true;
         }
 
