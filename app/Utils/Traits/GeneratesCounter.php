@@ -90,45 +90,7 @@ trait GeneratesCounter
      */
     public function getNextCreditNumber(Client $client) :string
     {
-        //Reset counters if enabled
-        $this->resetCounters($client);
-
-        //todo handle if we have specific client patterns in the future
-        $pattern = $client->getSetting('credit_number_pattern');
-        //Determine if we are using client_counters
-        if (strpos($pattern, 'clientCounter') || strpos($pattern, 'client_counter')) {
-
-            if (property_exists($client->settings, 'credit_number_counter')) {
-                $counter = $client->settings->credit_number_counter;
-            } else {
-                $counter = 1;
-            }
-
-            $counter_entity = $client;
-
-        } elseif (strpos($pattern, 'groupCounter') || strpos($pattern, 'group_counter')) {
-
-            if (property_exists($client->group_settings, 'credit_number_counter')) {
-                $counter = $client->group_settings->credit_number_counter;
-            } else {
-                $counter = 1;
-            }
-
-            $counter_entity = $client->group_settings;
-        } else {
-            $counter = $client->company->settings->credit_number_counter;
-            $counter_entity = $client->company;
-        }
-
-        //Return a valid counter
-        $pattern = $client->getSetting('credit_number_pattern');
-        $padding = $client->getSetting('counter_padding');
-
-        $credit_number = $this->checkEntityNumber(Credit::class, $client, $counter, $padding, $pattern);
-
-        $this->incrementCounter($counter_entity, 'credit_number_counter');
-
-        return $credit_number;
+        return $this->getNextEntityNumber(Credit::class, $client);
     }
 
     public function getNextQuoteNumber(Client $client)
@@ -143,14 +105,11 @@ trait GeneratesCounter
 
         $is_client_counter = false;
 
-        $counter_pattern = $this->getNumberPattern($entity, $client);  
         $counter_string = $this->getEntityCounter($entity, $client);  
+        $pattern = $this->getNumberPattern($entity, $client);  
 
-        $pattern = $client->getSetting($counter_pattern);      
-
-        nlog($counter_pattern);
-        nlog($counter_string);
-        nlog($pattern);
+nlog("counter string = {$counter_string}");
+nlog("pattern = {$pattern}");
 
         if (strpos($pattern, 'clientCounter') || strpos($pattern, 'client_counter')) {
 
@@ -176,6 +135,7 @@ trait GeneratesCounter
             $counter_entity = $client->company;
         }
 
+nlog($counter_entity->toArray());
 
         //If it is a quote - we need to 
         $pattern = $this->getNumberPattern($entity, $client);
