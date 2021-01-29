@@ -48,7 +48,7 @@ class CompanyUserTransformer extends EntityTransformer
             'updated_at' => (int) $company_user->updated_at,
             'archived_at' => (int) $company_user->deleted_at,
             'created_at' => (int) $company_user->created_at,
-
+            'permissions_updated_at' => (int) $company_user->permissions_updated_at,
         ];
     }
 
