@@ -4,12 +4,18 @@
 
 ![v5-develop phpunit](https://github.com/invoiceninja/invoiceninja/workflows/phpunit/badge.svg?branch=v5-develop)
 ![v5-stable phpunit](https://github.com/invoiceninja/invoiceninja/workflows/phpunit/badge.svg?branch=v5-stable)
-[![codecov](https://codecov.io/gh/invoiceninja/invoiceninja/branch/v2/graph/badge.svg)](https://codecov.io/gh/invoiceninja/invoiceninja)
+
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/d39acb4bf0f74a0698dc77f382769ba5)](https://www.codacy.com/app/turbo124/invoiceninja?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=invoiceninja/invoiceninja&amp;utm_campaign=Badge_Grade)
 
-# Invoice Ninja version 5 is in Beta! 
+# Invoice Ninja version 5.1 RC2! 
 
-We will be using the lessons learnt in Invoice Ninja 4.0 to build a bigger better platform to work from. If you would like to contribute to the project we will gladly accept contributions for code, user guides, bug tracking and feedback! Please consider the following guidelines prior to submitting a pull request:
+Invoice Ninja version 5.1 has now reached Release Candidate 2! 
+
+What does this mean exactly? We consider this version _almost_ stable. There may be some remaining small issues which we would love to get feedback on. We would really appreciate the community booting up this version and attempting the migration from their Invoice Ninja V4 application and inspect the migrated data.
+
+We'd also like feedback on any issues that you can see, and help us nail down the few remaining issues before Version 5 graduates to Stable Gold Release.
+
+Please note we do not consider this version ready for production use, please stick with your V4 installation for your production clients!
 
 ## Quick Start
 
@@ -17,13 +23,10 @@ Currently the client portal and API are of alpha quality, to get started:
 
 ```bash
 git clone https://github.com/invoiceninja/invoiceninja.git
-git checkout v2
+git checkout v5-stable
 cp .env.example .env
-cp .env.dusk.example .env.dusk.local
 php artisan key:generate
 composer update
-npm i
-npm run production
 ```
 
 Please Note: Your APP_KEY in the .env file is used to encrypt data, if you lose this you will not be able to run the application.
@@ -33,7 +36,7 @@ Run if you want to load sample data, remember to configure .env
 php artisan migrate:fresh --seed && php artisan db:seed && php artisan ninja:create-test-data
 ```
 
-To Run the web server
+To run the web server
 ```
 php artisan serve 
 ```

@@ -33,83 +33,18 @@ trait GeneratesCounter
     //todo in the form validation, we need to ensure that if a prefix and pattern is set we throw a validation error,
     //only one type is allow else this will cause confusion to the end user
 
-    /**
-     * Gets the next invoice number.
-     *
-     * @param Client $client The client
-     *
-     * @param Invoice|null $invoice
-     * @return     string              The next invoice number.
-     */
-    public function getNextInvoiceNumber(Client $client, ?Invoice $invoice) :string
-    {
-        //Reset counters if enabled
-        $this->resetCounters($client);
 
-        //todo handle if we have specific client patterns in the future
-        $pattern = $client->getSetting('invoice_number_pattern');
-        //Determine if we are using client_counters
-        if (strpos($pattern, 'clientCounter') || strpos($pattern, 'client_counter')) {
-            if (property_exists($client->settings, 'invoice_number_counter')) {
-                $counter = $client->settings->invoice_number_counter;
-            } else {
-                $counter = 1;
-            }
-
-            $counter_entity = $client;
-        } elseif (strpos($pattern, 'groupCounter') || strpos($pattern, 'group_counter')) {
-            $counter = $client->group_settings->invoice_number_counter;
-            $counter_entity = $client->group_settings;
-        } else {
-            $counter = $client->company->settings->invoice_number_counter;
-            $counter_entity = $client->company;
-        }
-
-        //Return a valid counter
-        $pattern = $client->getSetting('invoice_number_pattern');
-        $padding = $client->getSetting('counter_padding');
-        $prefix = '';
-
-        if ($invoice && $invoice->recurring_id) {
-            $prefix = $client->getSetting('recurring_number_prefix');
-        }
-
-        $invoice_number = $this->checkEntityNumber(Invoice::class, $client, $counter, $padding, $pattern, $prefix);
-
-        $this->incrementCounter($counter_entity, 'invoice_number_counter');
-
-        return $invoice_number;
-    }
-
-    /**
-     * Gets the next credit number.
-     *
-     * @param Client $client  The client
-     *
-     * @return     string              The next credit number.
-     */
-    public function getNextCreditNumber(Client $client) :string
-    {
-        return $this->getNextEntityNumber(Credit::class, $client);
-    }
-
-    public function getNextQuoteNumber(Client $client)
-    {
-        return $this->getNextEntityNumber(Quote::class, $client);
-    }
 
     private function getNextEntityNumber($entity, Client $client)
     {
-        //Reset counters if enabled
+        $prefix = '';
+
         $this->resetCounters($client);
 
         $is_client_counter = false;
 
         $counter_string = $this->getEntityCounter($entity, $client);  
         $pattern = $this->getNumberPattern($entity, $client);  
-
-nlog("counter string = {$counter_string}");
-nlog("pattern = {$pattern}");
 
         if (strpos($pattern, 'clientCounter') || strpos($pattern, 'client_counter')) {
 
@@ -135,14 +70,15 @@ nlog("pattern = {$pattern}");
             $counter_entity = $client->company;
         }
 
-nlog($counter_entity->toArray());
-
         //If it is a quote - we need to 
         $pattern = $this->getNumberPattern($entity, $client);
         
         $padding = $client->getSetting('counter_padding');
 
-        $entity_number = $this->checkEntityNumber($entity, $client, $counter, $padding, $pattern);
+        if($entity instanceof Invoice && $entity && $entity->recurring_id)
+            $prefix = $client->getSetting('recurring_number_prefix');
+
+        $entity_number = $this->checkEntityNumber($entity, $client, $counter, $padding, $pattern, $prefix);
 
         $this->incrementCounter($counter_entity, $counter_string);
 
@@ -210,97 +146,58 @@ nlog($counter_entity->toArray());
         }
     }
 
-    public function getNextRecurringInvoiceNumber(Client $client)
+    /**
+     * Gets the next invoice number.
+     *
+     * @param Client $client The client
+     *
+     * @param Invoice|null $invoice
+     * @return     string              The next invoice number.
+     */
+    public function getNextInvoiceNumber(Client $client, ?Invoice $invoice) :string
     {
-
-        //Reset counters if enabled
-        $this->resetCounters($client);
-
-        $is_client_counter = false;
-
-        //todo handle if we have specific client patterns in the future
-        $pattern = $client->company->settings->recurring_invoice_number_pattern;
-
-        if (strpos($pattern, 'clientCounter') || strpos($pattern, 'client_counter')) {
-
-            if (property_exists($client->settings, 'recurring_invoice_number_counter')) {
-                $counter = $client->settings->recurring_invoice_number_counter;
-            } else {
-                $counter = 1;
-            }
-
-            $counter_entity = $client;
-
-        } elseif (strpos($pattern, 'groupCounter') || strpos($pattern, 'group_counter')) {
-
-            if (property_exists($client->group_settings, 'recurring_invoice_number_counter')) {
-                $counter = $client->group_settings->recurring_invoice_number_counter;
-            } else {
-                $counter = 1;
-            }
-
-            $counter_entity = $client->group_settings;
-        } else {
-            $counter = $client->company->settings->recurring_invoice_number_counter;
-            $counter_entity = $client->company;
-        }
-
-        $padding = $client->getSetting('counter_padding');
-        $invoice_number = $this->checkEntityNumber(RecurringInvoice::class, $client, $counter, $padding, $pattern);
-
-        //increment the correct invoice_number Counter (company vs client)
-        if ($is_client_counter) {
-            $this->incrementCounter($client, 'recurring_invoice_number_counter');
-        } else {
-            $this->incrementCounter($client->company, 'recurring_invoice_number_counter');
-        }
-
-        return $invoice_number;
+        return $this->getNextEntityNumber(Invoice::class, $client);
     }
 
     /**
-     * Payment Number Generator.
-     * @param Client $client
-     * @return string The payment number
+     * Gets the next credit number.
+     *
+     * @param Client $client  The client
+     *
+     * @return     string              The next credit number.
+     */
+    public function getNextCreditNumber(Client $client) :string
+    {
+        return $this->getNextEntityNumber(Credit::class, $client);
+    }
+
+    /**
+     * Gets the next quote number.
+     *
+     * @param Client $client  The client
+     *
+     * @return     string              The next credit number.
+     */
+    public function getNextQuoteNumber(Client $client)
+    {
+        return $this->getNextEntityNumber(Quote::class, $client);
+    }
+
+    public function getNextRecurringInvoiceNumber(Client $client)
+    {
+        return $this->getNextEntityNumber(RecurringInvoice::class, $client);
+    }
+
+    /**
+     * Gets the next Payment number.
+     *
+     * @param Client $client  The client
+     *
+     * @return     string              The next payment number.
      */
     public function getNextPaymentNumber(Client $client) :string
     {
-
-        //Reset counters if enabled
-        $this->resetCounters($client);
-
-        $is_client_counter = false;
-
-        //todo handle if we have specific client patterns in the future
-        $pattern = $client->company->settings->payment_number_pattern;
-
-        //Determine if we are using client_counters
-        if (strpos($pattern, 'client_counter') === false) {
-            $counter = $client->company->settings->payment_number_counter;
-        } else {
-
-            if (property_exists($client->settings, 'payment_number_counter')) {
-                $counter = $client->settings->payment_number_counter;
-            } else {
-                $counter = 1;
-            }
-
-            $is_client_counter = true;
-        }
-
-        //Return a valid counter
-        $pattern = '';
-        $padding = $client->getSetting('counter_padding');
-        $payment_number = $this->checkEntityNumber(Payment::class, $client, $counter, $padding, $pattern);
-
-        //increment the correct invoice_number Counter (company vs client)
-        if ($is_client_counter) {
-            $this->incrementCounter($client, 'payment_number_counter');
-        } else {
-            $this->incrementCounter($client->company, 'payment_number_counter');
-        }
-
-        return (string) $payment_number;
+        return $this->getNextEntityNumber(Payment::class, $client);
     }
 
     /**
