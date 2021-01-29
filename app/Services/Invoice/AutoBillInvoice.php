@@ -49,11 +49,11 @@ class AutoBillInvoice extends AbstractService
         $this->invoice = $this->invoice->service()->markSent()->save();
 
         /* Mark the invoice as paid if there is no balance */
-        if ((int)$this->invoice->balance == 0) 
+        if ((int)$this->invoice->balance == 0)
             return $this->invoice->service()->markPaid()->save();
-        
+
         //if the credits cover the payments, we stop here, build the payment with credits and exit early
-        if ($this->client->getSetting('use_credits_payment') != 'off') 
+        if ($this->client->getSetting('use_credits_payment') != 'off')
             $this->applyCreditPayment();
 
         /* Determine $amount */
@@ -70,9 +70,9 @@ class AutoBillInvoice extends AbstractService
         $gateway_token = $this->getGateway($amount);
 
         /* Bail out if no payment methods available */
-        if (! $gateway_token || ! $gateway_token->gateway->driver($this->client)->token_billing) 
+        if (! $gateway_token || ! $gateway_token->gateway->driver($this->client)->token_billing)
             return $this->invoice;
-        
+
         /* $gateway fee */
         $fee = $gateway_token->gateway->calcGatewayFee($amount, $gateway_token->gateway_type_id, $this->invoice->uses_inclusive_taxes);
 
@@ -86,6 +86,7 @@ class AutoBillInvoice extends AbstractService
 
         $payment = $gateway_token->gateway
                                  ->driver($this->client)
+                                 ->setPaymentHash($payment_hash)
                                  ->tokenBilling($gateway_token, $payment_hash);
 
         return $this->invoice;
@@ -257,7 +258,7 @@ class AutoBillInvoice extends AbstractService
      * @param  float              $amount The amount to charge
      * @return ClientGatewayToken         The client gateway token
      */
-    // private function 
+    // private function
     // {
     //     $gateway_tokens = $this->client->gateway_tokens()->orderBy('is_default', 'DESC')->get();
 
@@ -276,18 +277,18 @@ class AutoBillInvoice extends AbstractService
         $gateway_tokens = $this->client->gateway_tokens;
 
         $filtered_gateways = $gateway_tokens->filter(function ($gateway_token) use($amount) {
-            
+
             $company_gateway = $gateway_token->gateway;
 
             //check if fees and limits are set
-            if (isset($company_gateway->fees_and_limits) && property_exists($company_gateway->fees_and_limits, $gateway_token->gateway_type_id)) 
+            if (isset($company_gateway->fees_and_limits) && property_exists($company_gateway->fees_and_limits, $gateway_token->gateway_type_id))
             {
                 //if valid we keep this gateway_token
-                if ($this->invoice->client->validGatewayForAmount($company_gateway->fees_and_limits->{$gateway_token->gateway_type_id}, $amount)) 
+                if ($this->invoice->client->validGatewayForAmount($company_gateway->fees_and_limits->{$gateway_token->gateway_type_id}, $amount))
                     return true;
                 else
                     return false;
-            
+
             }
             return true; //if no fees_and_limits set then we automatically must add this gateway
 

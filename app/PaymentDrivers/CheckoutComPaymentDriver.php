@@ -215,7 +215,7 @@ class CheckoutComPaymentDriver extends BaseDriver
         $request->setMethod('POST');
         $request->request->add(['payment_hash' => $payment_hash->hash]);
 
-        $this->setPaymentHash($payment_hash);
+        //$this->setPaymentHash($payment_hash);
 
         try {
             $response = $this->gateway->payments()->request($payment);
@@ -248,13 +248,6 @@ class CheckoutComPaymentDriver extends BaseDriver
 
                 PaymentFailureMailer::dispatch(
                     $this->client, $response->response_summary,
-                    $this->client->company,
-                    $amount
-                );
-
-                PaymentFailureMailer::dispatch(
-                    $this->client,
-                    $response,
                     $this->client->company,
                     $amount
                 );
