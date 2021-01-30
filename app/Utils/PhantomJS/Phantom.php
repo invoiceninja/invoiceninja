@@ -53,7 +53,7 @@ class Phantom
         } elseif ($invitation instanceof QuoteInvitation) {
             $entity = 'quote';
             $entity_design_id = 'quote_design_id';
-        } elseif ($inviation instanceof RecurringInvoiceInvitation) {
+        } elseif ($invitation instanceof RecurringInvoiceInvitation) {
             $entity = 'recurring_invoice';
             $entity_design_id = 'invoice_design_id';
         }
@@ -155,6 +155,10 @@ class Phantom
         App::setLocale($invitation->contact->preferredLocale());
 
         $entity_design_id = $entity . '_design_id';
+
+        if($entity == 'recurring_invoice')
+            $entity_design_id = 'invoice_design_id';
+
         $design_id = $entity_obj->design_id ? $entity_obj->design_id : $this->decodePrimaryKey($entity_obj->client->getSetting($entity_design_id));
 
         $design = Design::find($design_id);
