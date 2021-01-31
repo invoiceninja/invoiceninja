@@ -35,10 +35,10 @@ function nlog($output, $context = []): void
     
 }
 
-if (!function_exists('ray'))   {
-	function ray($payload)
-	{
-		return true;
-	}
-}
+// if (!function_exists('ray'))   {
+// 	function ray($payload)
+// 	{
+// 		return true;
+// 	}
+// }
 

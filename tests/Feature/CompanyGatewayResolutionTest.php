@@ -128,7 +128,7 @@ class CompanyGatewayResolutionTest extends TestCase
 
         $payment_methods = $this->client->service()->getPaymentMethods($amount);
 
-        $this->assertEquals(3, count($payment_methods));
+        $this->assertEquals(2, count($payment_methods));
     }
 
     public function testRemoveMethods()
