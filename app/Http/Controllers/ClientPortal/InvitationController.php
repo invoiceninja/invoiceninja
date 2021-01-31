@@ -54,8 +54,6 @@ class InvitationController extends Controller
                                     ->with('contact.client')
                                     ->firstOrFail();
 
-        nlog($invitation->contact->client->id);
-        nlog($invitation->invoice->client_id);
         /* Return early if we have the correct client_hash embedded */
 
         if (request()->has('client_hash') && request()->input('client_hash') == $invitation->contact->client->client_hash) {
