@@ -203,6 +203,10 @@ trait GenerateMigrationResources
         $clients = [];
 
         foreach ($this->account->clients()->withTrashed()->get() as $client) {
+            
+            $number = $client->id_number;
+            $id_number = '';
+  
             $clients[] = [
                 'id' => $client->id,
                 'company_id' => $client->account_id,
@@ -223,7 +227,8 @@ trait GenerateMigrationResources
                 'size_id' => $client->size_id,
                 'is_deleted' => $client->is_deleted,
                 'vat_number' => $client->vat_number,
-                'id_number' => $client->id_number,
+                'id_number' => $id_number,
+                'number' => $number,
                 'custom_value1' => $client->custom_value1,
                 'custom_value2' => $client->custom_value2,
                 'shipping_address1' => $client->shipping_address1,
@@ -1612,7 +1617,8 @@ trait GenerateMigrationResources
                 //'size_id' => $vendor->size_id,
                 'is_deleted' => $vendor->is_deleted,
                 'vat_number' => $vendor->vat_number,
-                'id_number' => $vendor->id_number,
+                'id_number' => null,
+                'number' => $vendor->id_number,
                 'custom_value1' => $vendor->custom_value1,
                 'custom_value2' => $vendor->custom_value2,
                 'custom_value3' => '',
@@ -1711,6 +1717,7 @@ trait GenerateMigrationResources
         $fees_and_limits->fee_tax_rate2 = $ags->tax_rate2;
         $fees_and_limits->fee_tax_name3 = '';
         $fees_and_limits->fee_tax_rate3 = 0;
+        $fees_and_limits->is_enabled = true;
 
         return $fees_and_limits;
        // $data = [];
