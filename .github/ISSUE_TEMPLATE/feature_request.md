@@ -9,8 +9,7 @@ assignees: ''
 
 **What version of Invoice Ninja are you running? ie v4.5 / v5**
 
-**What environment are you running?
-
+**What environment are you running?**
 Docker
 Shared Hosting
 ZIP
