@@ -3913,6 +3913,11 @@ $LANG = array(
     'show' => 'Show',
     'empty_columns' => 'Empty Columns',
     'project_name' => 'Project Name',
+    'counter_pattern_error' => 'To use :client_counter please add either :number or :id_number to prevent conflicts',
+    'this_quarter' => 'This Quarter',
+    'to_update_run' => 'To update run',
+    'registration_url' => 'Registration URL',
+    'show_product_cost' => 'Show Product Cost',
 );
 
 return $LANG;
