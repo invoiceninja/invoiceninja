@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Models\Company;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -10,14 +11,16 @@ class MigrationCompleted extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public $company;
+
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(Company $company)
     {
-        //
+        $this->company = $company;
     }
 
     /**
@@ -27,9 +30,11 @@ class MigrationCompleted extends Mailable
      */
     public function build()
     {
-        $data['settings'] = auth()->user()->company()->settings;
+        $data['settings'] = $this->company->settings;
+        $data['company'] = $this->company;
 
         return $this->from(config('mail.from.address'), config('mail.from.name'))
-                    ->view('email.migration.completed', $data);
+                    ->view('email.import.completed', $data)
+                    ->attach($this->company->invoices->first()->pdf_file_path());
     }
 }

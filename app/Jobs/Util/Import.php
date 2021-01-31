@@ -206,7 +206,7 @@ class Import implements ShouldQueue
         $this->setInitialCompanyLedgerBalances();
         
         Mail::to($this->user)
-            ->send(new MigrationCompleted());
+            ->send(new MigrationCompleted($this->company));
 
         /*After a migration first some basic jobs to ensure the system is up to date*/
         VersionCheck::dispatch();
