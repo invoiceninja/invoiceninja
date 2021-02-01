@@ -333,13 +333,15 @@ class BaseDriver extends AbstractPaymentDriver
 
     public function processInternallyFailedPayment($gateway, $e)
     {
-        if ($e instanceof Exception) {
-            $error = $e->getMessage();
-        }
 
         if ($e instanceof CheckoutHttpException) {
             $error = $e->getBody();
         }
+        else if ($e instanceof Exception) {
+            $error = $e->getMessage();
+        }   
+        else 
+            $error = $e->getMessage();
 
         $amount = optional($this->payment_hash->data)->value ?? optional($this->payment_hash->data)->amount;
 

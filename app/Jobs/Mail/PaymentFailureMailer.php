@@ -69,6 +69,8 @@ class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
      */
     public function handle()
     {
+        nlog("payment failure mailer ");
+
         /*If we are migrating data we don't want to fire these notification*/
         if ($this->company->is_disabled) {
             return true;
@@ -81,10 +83,11 @@ class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
         $this->setMailDriver();
 
         //iterate through company_users
-        $this->company->company_users->each(function ($company_user) {
+        $this->company->company_users->each(function ($company_user) {        
 
             //determine if this user has the right permissions
             $methods = $this->findCompanyUserNotificationType($company_user, ['payment_failure']);
+
 
             //if mail is a method type -fire mail!!
             if (($key = array_search('mail', $methods)) !== false) {
