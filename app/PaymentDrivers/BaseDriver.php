@@ -335,6 +335,8 @@ class BaseDriver extends AbstractPaymentDriver
     public function processInternallyFailedPayment($gateway, $e)
     {
 
+        $this->unWindGatewayFees($this->payment_hash);
+
         if ($e instanceof CheckoutHttpException) {
             $error = $e->getBody();
         }
@@ -344,7 +346,7 @@ class BaseDriver extends AbstractPaymentDriver
         else 
             $error = $e->getMessage();
 
-        AutoBillingFailureMailer::dispatch(
+        PaymentFailureMailer::dispatch(
             $gateway->client,
             $error,
             $gateway->client->company,
@@ -364,31 +366,7 @@ class BaseDriver extends AbstractPaymentDriver
 
     public function tokenBillingFailed($gateway, $e)
     {
-        $this->unWindGatewayFees($this->payment_hash);
 
-        if ($e instanceof CheckoutHttpException) {
-            $error = $e->getBody();
-        }
-        else if ($e instanceof Exception) {
-            $error = $e->getMessage();
-        }   
-        else 
-            $error = $e->getMessage();
-
-        AutoBillingFailureMailer::dispatch(
-            $gateway->client,
-            $error,
-            $gateway->client->company,
-            $this->payment_hash
-        );
-
-        SystemLogger::dispatch(
-            $gateway->payment_hash,
-            SystemLog::CATEGORY_GATEWAY_RESPONSE,
-            SystemLog::EVENT_GATEWAY_ERROR,
-            $gateway::SYSTEM_LOG_TYPE,
-            $gateway->client,
-        );
 
     }
 

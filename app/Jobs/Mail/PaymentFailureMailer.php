@@ -35,7 +35,7 @@ class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
 
     public $company;
 
-    public $amount;
+    public $payment_hash;
 
     public $settings;
 
@@ -47,7 +47,7 @@ class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
      * @param $company
      * @param $amount
      */
-    public function __construct($client, $message, $company, $amount)
+    public function __construct($client, $message, $company, $payment_hash)
     {
         $this->company = $company;
 
@@ -55,7 +55,7 @@ class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
 
         $this->client = $client;
 
-        $this->amount = $amount;
+        $this->payment_hash = $payment_hash;
 
         $this->company = $company;
 
