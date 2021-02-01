@@ -16,6 +16,7 @@ use App\Events\Payment\PaymentWasCreated;
 use App\Exceptions\PaymentFailed;
 use App\Factory\PaymentFactory;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Jobs\Mail\AutoBillingFailureMailer;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\Client;
@@ -345,11 +346,11 @@ class BaseDriver extends AbstractPaymentDriver
 
         $amount = optional($this->payment_hash->data)->value ?? optional($this->payment_hash->data)->amount;
 
-        PaymentFailureMailer::dispatch(
+        AutoBillingFailureMailer::dispatch(
             $gateway->client,
             $error,
             $gateway->client->company,
-            $amount
+            $this->payment_hash
         );
 
         SystemLogger::dispatch(

@@ -11,29 +11,52 @@
 
 namespace App\Mail\Admin;
 
+use App\Models\Invoice;
 use App\Utils\Number;
+use App\Utils\Traits\MakesHash;
 use stdClass;
 
-class PaymentFailureObject
+class AutoBillingFailureObject
 {
+    use MakesHash;
+
     public $client;
 
-    public $message;
+    public $error;
 
     public $company;
 
-    public $amount;
+    public $payment_hash;
 
-    public function __construct($client, $message, $amount, $company)
+    private $invoice;
+
+    /**
+     * Create a new job instance.
+     *
+     * @param $client
+     * @param $message
+     * @param $company
+     * @param $amount
+     */
+    public function __construct($client, $error, $company, $payment_hash)
     {
         $this->client = $client;
-        $this->message = $message;
-        $this->amount = $amount;
+
+        $this->error = $error;
+
         $this->company = $company;
+
+        $this->payment_hash = $payment_hash;
+
+        $this->company = $company;
+
     }
 
     public function build()
     {
+
+        $this->invoice = Invoice::where('id', $this->decodePrimarykey($this->payment_hash->invoices()[0]->invoice_id))->first();
+
         $mail_obj = new stdClass;
         $mail_obj->amount = $this->getAmount();
         $mail_obj->subject = $this->getSubject();
@@ -46,15 +69,16 @@ class PaymentFailureObject
 
     private function getAmount()
     {
-        return Number::formatMoney($this->amount, $this->client);
+       return array_sum(array_column($this->payment_hash->invoices(), 'amount')) + $this->payment_hash->fee_total;
     }
 
     private function getSubject()
     {
+
         return
             ctrans(
-                'texts.payment_failed_subject',
-                ['client' => $this->client->present()->name()]
+                'texts.auto_bill_failed',
+                ['invoice_number' => $this->invoice->number]
             );
     }
 
@@ -64,16 +88,10 @@ class PaymentFailureObject
 
         $data = [
             'title' => ctrans(
-                'texts.payment_failed_subject',
-                ['client' => $this->client->present()->name()]
+                'texts.auto_bill_failed',
+                ['invoice_number' => $this->invoice->number]
             ),
-            'message' => ctrans(
-                'texts.notification_payment_paid',
-                ['amount' => $this->getAmount(),
-                'client' => $this->client->present()->name(),
-                'message' => $this->message,
-            ]
-            ),
+            'message' => $this->error,
             'signature' => $signature,
             'logo' => $this->company->present()->logo(),
             'settings' => $this->client->getMergedSettings(),
