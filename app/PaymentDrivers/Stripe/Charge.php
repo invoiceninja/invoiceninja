@@ -89,6 +89,7 @@ class Charge
             'param' => $e->getError()->param,
             'message' => $e->getError()->message,
           ];
+            $this->stripe->tokenBillingFailed($this->stripe, $e);
 
             SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);
         } catch (RateLimitException $e) {
@@ -101,7 +102,9 @@ class Charge
             'param' => '',
             'message' => 'Too many requests made to the API too quickly',
           ];
-
+            
+            $this->stripe->tokenBillingFailed($this->stripe, $e);
+            
             SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);
         } catch (InvalidRequestException $e) {
             // Invalid parameters were supplied to Stripe's API
@@ -114,6 +117,8 @@ class Charge
             'message' => 'Invalid parameters were supplied to Stripe\'s API',
           ];
 
+            $this->stripe->tokenBillingFailed($this->stripe, $e);
+            
             SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);
         } catch (AuthenticationException $e) {
             // Authentication with Stripe's API failed
@@ -126,6 +131,8 @@ class Charge
             'message' => 'Authentication with Stripe\'s API failed',
           ];
 
+            $this->stripe->tokenBillingFailed($this->stripe, $e);
+            
             SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);
         } catch (ApiConnectionException $e) {
             // Network communication with Stripe failed
@@ -138,6 +145,8 @@ class Charge
             'message' => 'Network communication with Stripe failed',
           ];
 
+            $this->stripe->tokenBillingFailed($this->stripe, $e);
+            
             SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);
         } catch (ApiErrorException $e) {
             $data = [
@@ -148,6 +157,8 @@ class Charge
             'message' => 'API Error',
           ];
 
+            $this->stripe->tokenBillingFailed($this->stripe, $e);
+            
             SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);
         } catch (Exception $e) {
             // Something else happened, completely unrelated to Stripe
@@ -160,6 +171,8 @@ class Charge
             'message' => $e->getMessage(),
           ];
 
+            $this->stripe->tokenBillingFailed($this->stripe, $e);
+            
             SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->stripe->client);
         }
 

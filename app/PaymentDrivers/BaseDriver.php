@@ -16,6 +16,7 @@ use App\Events\Payment\PaymentWasCreated;
 use App\Exceptions\PaymentFailed;
 use App\Factory\PaymentFactory;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Jobs\Mail\AutoBillingFailureMailer;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\Client;
@@ -333,21 +334,21 @@ class BaseDriver extends AbstractPaymentDriver
 
     public function processInternallyFailedPayment($gateway, $e)
     {
-        if ($e instanceof Exception) {
-            $error = $e->getMessage();
-        }
 
         if ($e instanceof CheckoutHttpException) {
             $error = $e->getBody();
         }
+        else if ($e instanceof Exception) {
+            $error = $e->getMessage();
+        }   
+        else 
+            $error = $e->getMessage();
 
-        $amount = optional($this->payment_hash->data)->value ?? optional($this->payment_hash->data)->amount;
-
-        PaymentFailureMailer::dispatch(
+        AutoBillingFailureMailer::dispatch(
             $gateway->client,
             $error,
             $gateway->client->company,
-            $amount
+            $this->payment_hash
         );
 
         SystemLogger::dispatch(
@@ -359,6 +360,36 @@ class BaseDriver extends AbstractPaymentDriver
         );
 
         throw new PaymentFailed($error, $e->getCode());
+    }
+
+    public function tokenBillingFailed($gateway, $e)
+    {
+        $this->unWindGatewayFees($this->payment_hash);
+
+        if ($e instanceof CheckoutHttpException) {
+            $error = $e->getBody();
+        }
+        else if ($e instanceof Exception) {
+            $error = $e->getMessage();
+        }   
+        else 
+            $error = $e->getMessage();
+
+        AutoBillingFailureMailer::dispatch(
+            $gateway->client,
+            $error,
+            $gateway->client->company,
+            $this->payment_hash
+        );
+
+        SystemLogger::dispatch(
+            $gateway->payment_hash,
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_ERROR,
+            $gateway::SYSTEM_LOG_TYPE,
+            $gateway->client,
+        );
+
     }
 
     /**

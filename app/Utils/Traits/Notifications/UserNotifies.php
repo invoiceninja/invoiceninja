@@ -25,6 +25,7 @@ trait UserNotifies
         $notifiable_methods = [];
         $notifications = $company_user->notifications;
 
+        //if a user owns this record or is assigned to it, they are attached the permission for notification.
         if ($invitation->{$entity_name}->user_id == $company_user->_user_id || $invitation->{$entity_name}->assigned_user_id == $company_user->user_id) {
             array_push($required_permissions, 'all_user_notifications');
         }
@@ -65,6 +66,7 @@ trait UserNotifies
 
     public function findCompanyUserNotificationType($company_user, $required_permissions) :array
     {
+
         if ($company_user->company->is_disabled) {
             return [];
         }

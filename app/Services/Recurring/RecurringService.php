@@ -33,7 +33,8 @@ class RecurringService
      */
     public function stop()
     {
-        $this->status_id = RecurringInvoice::STATUS_PAUSED;
+        if($this->recurring_entity->status_id < RecurringInvoice::STATUS_PAUSED)
+            $this->recurring_entity->status_id = RecurringInvoice::STATUS_PAUSED;
 
         return $this;
     }

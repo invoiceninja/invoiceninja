@@ -12,6 +12,7 @@
 namespace App\Jobs\Mail;
 
 use App\Libraries\MultiDB;
+use App\Mail\Admin\AutoBillingFailureObject;
 use App\Mail\Admin\EntityNotificationMailer;
 use App\Mail\Admin\PaymentFailureObject;
 use App\Models\User;
@@ -25,17 +26,17 @@ use Illuminate\Support\Facades\Mail;
 
 /*Multi Mailer implemented*/
 
-class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
+class AutoBillingFailureMailer extends BaseMailerJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, UserNotifies;
 
     public $client;
 
-    public $message;
+    public $error;
 
     public $company;
 
-    public $amount;
+    public $payment_hash;
 
     public $settings;
 
@@ -47,15 +48,15 @@ class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
      * @param $company
      * @param $amount
      */
-    public function __construct($client, $message, $company, $amount)
+    public function __construct($client, $error, $company, $payment_hash)
     {
-        $this->company = $company;
-
-        $this->message = $message;
-
         $this->client = $client;
 
-        $this->amount = $amount;
+        $this->error = $error;
+
+        $this->company = $company;
+
+        $this->payment_hash = $payment_hash;
 
         $this->company = $company;
 
@@ -87,12 +88,11 @@ class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
             //determine if this user has the right permissions
             $methods = $this->findCompanyUserNotificationType($company_user, ['payment_failure','all_notifications']);
 
-
             //if mail is a method type -fire mail!!
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
-                $mail_obj = (new PaymentFailureObject($this->client, $this->message, $this->amount, $this->company))->build();
+                $mail_obj = (new AutoBillingFailureObject($this->client, $this->error, $this->company, $this->payment_hash))->build();
                 $mail_obj->from = [config('mail.from.address'), config('mail.from.name')];
 
                 //send email
