@@ -66,7 +66,6 @@ trait UserNotifies
 
     public function findCompanyUserNotificationType($company_user, $required_permissions) :array
     {
-        nlog("find company user notification type");
 
         if ($company_user->company->is_disabled) {
             return [];
