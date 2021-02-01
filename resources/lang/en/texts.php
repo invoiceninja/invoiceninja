@@ -3968,14 +3968,8 @@ $LANG = array(
      "list_of_recurring_invoices" => "List of recurring invoices",
      "details_of_recurring_invoice" => "Here are some details about recurring invoice",
      "cancellation" => "Cancellation",
-     "about_cancellation" => """
-       In case you want to stop the recurring invoice,\n
-                                    please click the request the cancellation.
-       """,
-     "cancellation_warning" => """
-       Warning! You are requesting a cancellation of this service.\n
-                                   Your service may be cancelled with no further notification to you.
-       """,
+     "about_cancellation" => "In case you want to stop the recurring invoice,\n please click the request the cancellation.",
+     "cancellation_warning" => "Warning! You are requesting a cancellation of this service.\n Your service may be cancelled with no further notification to you.",
      "cancellation_pending" => "Cancellation pending, we'll be in touch!",
      "list_of_payments" => "List of payments",
      "payment_details" => "Details of the payment",
@@ -4141,7 +4135,6 @@ $LANG = array(
      "payment_message_extended" => "Thank you for your payment of :amount for :invoice",
      "online_payments_minimum_note" => "Note: Online payments are supported only if amount is bigger than $1 or currency equivalent.",
      "payment_token_not_found" => "Payment token not found, please try again. If an issue still persist, try with another payment method",
-
 
 );
 
