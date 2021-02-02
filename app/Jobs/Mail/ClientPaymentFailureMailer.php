@@ -12,9 +12,12 @@
 namespace App\Jobs\Mail;
 
 use App\Libraries\MultiDB;
+use App\Mail\Admin\ClientPaymentFailureObject;
 use App\Mail\Admin\EntityNotificationMailer;
 use App\Mail\Admin\PaymentFailureObject;
+use App\Models\Invoice;
 use App\Models\User;
+use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -25,9 +28,9 @@ use Illuminate\Support\Facades\Mail;
 
 /*Multi Mailer implemented*/
 
-class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
+class ClientPaymentFailureMailer extends BaseMailerJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, UserNotifies;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, UserNotifies, MakesHash;
 
     public $client;
 
@@ -81,29 +84,28 @@ class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
         //if we need to set an email driver do it now
         $this->setMailDriver();
 
-        //iterate through company_users
-        $this->company->company_users->each(function ($company_user) {        
+        $this->invoices = Invoice::whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->get();
 
-            //determine if this user has the right permissions
-            $methods = $this->findCompanyUserNotificationType($company_user, ['payment_failure','all_notifications']);
+        $this->invoices->first()->invitations->each(function ($invitation) {
 
+            if ($invitation->contact->send_email && $invitation->contact->email) {
 
-            //if mail is a method type -fire mail!!
-            if (($key = array_search('mail', $methods)) !== false) {
-                unset($methods[$key]);
-
-                $mail_obj = (new PaymentFailureObject($this->client, $this->error, $this->company, $this->payment_hash))->build();
+                $mail_obj = (new ClientPaymentFailureObject($this->client, $this->error, $this->company, $this->payment_hash))->build();
                 $mail_obj->from = [config('mail.from.address'), config('mail.from.name')];
 
                 //send email
                 try {
-                    Mail::to($company_user->user->email)
+                    Mail::to($invitation->contact->email)
                         ->send(new EntityNotificationMailer($mail_obj));
                 } catch (\Exception $e) {
-                    //$this->failed($e);
+
                     $this->logMailError($e->getMessage(), $this->client);
                 }
+
             }
+
         });
+
+
     }
 }

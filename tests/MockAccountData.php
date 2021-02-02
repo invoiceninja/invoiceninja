@@ -131,7 +131,7 @@ trait MockAccountData
         /* Warm up the cache !*/
         $cached_tables = config('ninja.cached_tables');
 
-        $this->artisan('db:seed');
+        $this->artisan('db:seed --force');
 
         foreach ($cached_tables as $name => $class) {
 

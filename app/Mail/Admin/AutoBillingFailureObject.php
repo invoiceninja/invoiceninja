@@ -28,7 +28,7 @@ class AutoBillingFailureObject
 
     public $payment_hash;
 
-    private $invoice;
+    private $invoices;
 
     /**
      * Create a new job instance.
@@ -54,8 +54,7 @@ class AutoBillingFailureObject
 
     public function build()
     {
-
-        $this->invoice = Invoice::where('id', $this->decodePrimarykey($this->payment_hash->invoices()[0]->invoice_id))->first();
+        $this->$invoices = Invoice::whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->get();
 
         $mail_obj = new stdClass;
         $mail_obj->amount = $this->getAmount();
@@ -78,7 +77,7 @@ class AutoBillingFailureObject
         return
             ctrans(
                 'texts.auto_bill_failed',
-                ['invoice_number' => $this->invoice->number]
+                ['invoice_number' => $this->invoices->first()->number]
             );
     }
 
@@ -89,7 +88,7 @@ class AutoBillingFailureObject
         $data = [
             'title' => ctrans(
                 'texts.auto_bill_failed',
-                ['invoice_number' => $this->invoice->number]
+                ['invoice_number' => $this->invoices->first()->number]
             ),
             'message' => $this->error,
             'signature' => $signature,

@@ -193,6 +193,9 @@ class Phantom
                               ->build()
                               ->getCompiledHTML(true);
 
+        if (config('ninja.log_pdf_html')) {
+            info($data['html']);
+        }
 
         return view('pdf.html', $data);
     }
