@@ -51,7 +51,7 @@ class CompanyLedgerTest extends TestCase
 
         $this->withoutExceptionHandling();
 
-        $this->artisan('db:seed');
+        $this->artisan('db:seed --force');
 
         /* Warm up the cache !*/
         $cached_tables = config('ninja.cached_tables');

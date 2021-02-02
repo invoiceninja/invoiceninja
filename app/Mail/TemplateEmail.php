@@ -12,6 +12,7 @@
 namespace App\Mail;
 
 use App\Models\Client;
+use App\Models\ClientContact;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
