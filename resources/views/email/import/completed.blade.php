@@ -76,4 +76,12 @@
     <a href="{{ url('/') }}" target="_blank" class="button">{{ ctrans('texts.account_login')}}</a>
 
     <p>{{ ctrans('texts.email_signature')}}<br/> {{ ctrans('texts.email_from') }}</p>
+
+@if(!$whitelabel)
+    @slot('footer')
+        @component('email.components.footer', ['url' => 'https://invoiceninja.com', 'url_text' => '&copy; InvoiceNinja'])
+            For any info, please visit InvoiceNinja.
+        @endcomponent
+    @endslot
+@endif
 @endcomponent

@@ -17,6 +17,7 @@ use App\Exceptions\PaymentFailed;
 use App\Factory\PaymentFactory;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Jobs\Mail\AutoBillingFailureMailer;
+use App\Jobs\Mail\ClientPaymentFailureMailer;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\Client;
@@ -353,6 +354,13 @@ class BaseDriver extends AbstractPaymentDriver
             $this->payment_hash
         );
 
+        ClientPaymentFailureMailer::dispatch(
+            $gateway->client,
+            $error,
+            $gateway->client->company,
+            $this->payment_hash
+        );
+
         SystemLogger::dispatch(
             $gateway->payment_hash,
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
@@ -362,12 +370,6 @@ class BaseDriver extends AbstractPaymentDriver
         );
 
         throw new PaymentFailed($error, $e->getCode());
-    }
-
-    public function tokenBillingFailed($gateway, $e)
-    {
-
-
     }
 
     /**

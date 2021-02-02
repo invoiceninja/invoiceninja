@@ -25,11 +25,15 @@ class TemplateEmail extends Mailable
 
     private $client;
 
-    public function __construct($build_email, Client $client)
+    private $contact;
+
+    public function __construct($build_email, ClientContact $contact)
     {
         $this->build_email = $build_email;
 
-        $this->client = $client;
+        $this->contact = $contact;
+
+        $this->client = $contact->client;
     }
 
     /**
@@ -64,12 +68,12 @@ class TemplateEmail extends Mailable
                 'settings' => $settings,
             ])
             ->view($template_name, [
+                'greeting' => ctrans('texts.email_salutation', ['name' => $this->contact->present()->name()]),
                 'body' => $this->build_email->getBody(),
                 'footer' => $this->build_email->getFooter(),
                 'view_link' => $this->build_email->getViewLink(),
                 'view_text' => $this->build_email->getViewText(),
                 'title' => '',
-                // 'title' => $this->build_email->getSubject(),
                 'signature' => $settings->email_signature,
                 'settings' => $settings,
                 'company' => $company,

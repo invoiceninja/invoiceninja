@@ -111,7 +111,7 @@ class EmailEntity extends BaseMailerJob implements ShouldQueue
                 ->send(
                     new TemplateEmail(
                         $this->email_entity_builder,
-                        $this->invitation->contact->client
+                        $this->invitation->contact
                     )
                 );
         } catch (\Exception $e) {

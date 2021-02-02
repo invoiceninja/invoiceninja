@@ -1,9 +1,12 @@
 @component('email.template.master', ['design' => 'light', 'settings' => $settings])
 
-
     @slot('header')
         @include('email.components.header', ['logo' => $logo])
     @endslot
+
+    @if($greeting)
+    <p>{{ $greeting }}</p>
+    @endif
 
     <p>{{ $title }}</p>
 
@@ -23,9 +26,11 @@
         {{ $signature }}
     @endslot
 
-    @slot('footer')
-        @component('email.components.footer', ['url' => 'https://invoiceninja.com', 'url_text' => '&copy; InvoiceNinja'])
-            For any info, please visit InvoiceNinja.
-        @endcomponent
-    @endslot
+    @if(!$whitelabel)
+        @slot('footer')
+            @component('email.components.footer', ['url' => 'https://invoiceninja.com', 'url_text' => '&copy; InvoiceNinja'])
+                For any info, please visit InvoiceNinja.
+            @endcomponent
+        @endslot
+    @endif
 @endcomponent

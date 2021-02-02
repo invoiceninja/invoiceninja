@@ -16,9 +16,9 @@ use App\Utils\Number;
 use App\Utils\Traits\MakesHash;
 use stdClass;
 
-class PaymentFailureObject
+class ClientPaymentFailureObject
 {
-    use MakesHash;
+     use MakesHash;
 
     public $client;
 
@@ -79,8 +79,8 @@ class PaymentFailureObject
 
         return
             ctrans(
-                'texts.payment_failed_subject',
-                ['client' => $this->client->present()->name()]
+                'texts.notification_invoice_payment_failed_subject',
+                ['invoice' => $this->client->present()->name()]
             );
 
     }
@@ -91,37 +91,24 @@ class PaymentFailureObject
 
         $data = [
             'title' => ctrans(
-                'texts.payment_failed_subject',
+                'texts.notification_invoice_payment_failed_subject',
                 [
-                    'client' => $this->client->present()->name()
+                    'invoice' => $this->invoices->first()->number
                 ]
             ),
+            'greeting' => ctrans('texts.email_salutation', ['name' => $this->client->present()->name]),
             'message' => $this->error,
             'signature' => $signature,
             'logo' => $this->company->present()->logo(),
             'settings' => $this->client->getMergedSettings(),
             'whitelabel' => $this->company->account->isPaid() ? true : false,
-            'url' => config('ninja.app_url'),
+            'url' => route('client.login'),
             'button' => ctrans('texts.login'),
-            'additional_info' => $this->buildFailedInvoices()
+            'additional_info' => false
         ];
 
         return $data;
     }
 
-    private function buildFailedInvoices()
-    {
 
-        $text = '';
-
-        foreach($this->invoices as $invoice)
-        {
-
-            $text .= ctrans('texts.notification_invoice_payment_failed_subject', ['invoice' => $invoice->number]) . "\n";
-
-        }
-
-        return $text;
-
-    }
 }
