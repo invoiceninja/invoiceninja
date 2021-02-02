@@ -56,7 +56,8 @@
                                 {{ $invoice->formatDate($invoice->next_send_date, $invoice->client->date_format()) }}
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                {{ $invoice->remaining_cycles }}
+                                {{ $invoice->remaining_cycles == '-1' ? ctrans('texts.endless') : $invoice->remaining_cycles }}
+                                @if($invoice->remaining_cycles == '-1') &#8734; @endif
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
                                 {{ \App\Utils\Number::formatMoney($invoice->amount, $invoice->client) }}
