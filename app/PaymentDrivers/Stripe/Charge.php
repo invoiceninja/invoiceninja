@@ -91,27 +91,27 @@ class Charge
 
             switch ($e) {
                 case ($e instanceof CardException):
-                    $data['status'] => $e->getHttpStatus();
-                    $data['error_type'] => $e->getError()->type;
-                    $data['error_code'] => $e->getError()->code;
-                    $data['param'] => $e->getError()->param;
-                    $data['message'] => $e->getError()->message;
+                    $data['status'] = $e->getHttpStatus();
+                    $data['error_type'] = $e->getError()->type;
+                    $data['error_code'] = $e->getError()->code;
+                    $data['param'] = $e->getError()->param;
+                    $data['message'] = $e->getError()->message;
                 break;
                 case ($e instanceof RateLimitException):
-                    $data['message'] => 'Too many requests made to the API too quickly';
+                    $data['message'] = 'Too many requests made to the API too quickly';
                 break;
                 case ($e instanceof InvalidRequestException):
-                    $data['message'] => 'Invalid parameters were supplied to Stripe\'s API';
+                    $data['message'] = 'Invalid parameters were supplied to Stripe\'s API';
                 break;
                 case ($e instanceof AuthenticationException):
-                    $data['message'] => 'Authentication with Stripe\'s API failed';
+                    $data['message'] = 'Authentication with Stripe\'s API failed';
                 break;
                 case ($e instanceof ApiErrorException):
-                    $data['message'] => 'Network communication with Stripe failed';
+                    $data['message'] = 'Network communication with Stripe failed';
                 break;
 
                 default:
-                    $data['message'] => $e->getMessage();
+                    $data['message'] = $e->getMessage();
                 break;
             }
                 

@@ -9,6 +9,12 @@
 
     <p>{{ $message }}</p>
 
+    @if(isset($additional_info))
+
+        <p> {{ $additional_info }}</p>
+
+    @endif
+
     @component('email.components.button', ['url' => $url])
         @lang($button)
     @endcomponent
