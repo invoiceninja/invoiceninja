@@ -4,7 +4,7 @@
         @include('email.components.header', ['logo' => $logo])
     @endslot
 
-    @if($greeting)
+    @if(isset($greeting))
     <p>{{ $greeting }}</p>
     @endif
 
