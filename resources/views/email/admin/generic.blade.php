@@ -26,7 +26,7 @@
         {{ $signature }}
     @endslot
 
-    @if(!$whitelabel)
+    @if(isset($whitelabel) && !$whitelabel)
         @slot('footer')
             @component('email.components.footer', ['url' => 'https://invoiceninja.com', 'url_text' => '&copy; InvoiceNinja'])
                 For any info, please visit InvoiceNinja.
