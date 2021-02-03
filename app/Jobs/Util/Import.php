@@ -649,7 +649,8 @@ class Import implements ShouldQueue
                     unset($resource['invitations'][$key]['recurring_invoice_id']);
                 }
             
-                $modified['invitations'] = $resource['invitations'];
+                $modified['invitations'] = $this->deDuplicateInvitations($resource['invitations']);
+
             }
             
             $invoice = $invoice_repository->save(
@@ -710,8 +711,10 @@ class Import implements ShouldQueue
                     unset($resource['invitations'][$key]['invoice_id']);
                 }
 
-                $modified['invitations'] = $resource['invitations'];
+                $modified['invitations'] = $this->deDuplicateInvitations($resource['invitations']);
+
             }
+
             $invoice = $invoice_repository->save(
                 $modified,
                 InvoiceFactory::create($this->company->id, $modified['user_id'])
@@ -730,6 +733,13 @@ class Import implements ShouldQueue
         /*Improve memory handling by setting everything to null when we have finished*/
         $data = null;
         $invoice_repository = null;
+    }
+
+
+    /* Prevent edge case where V4 has inserted multiple invitations for a resource for a client contact */
+    private function deDuplicateInvitations($invitations)
+    {        
+        return  array_intersect_key($invitations, array_unique(array_column($invitations, 'client_contact_id')));
     }
 
     private function processCredits(array $data): void
@@ -810,6 +820,19 @@ class Import implements ShouldQueue
             $modified['company_id'] = $this->company->id;
 
             unset($modified['id']);
+
+
+            if (array_key_exists('invitations', $resource)) {
+                foreach ($resource['invitations'] as $key => $invite) {
+                    $resource['invitations'][$key]['client_contact_id'] = $this->transformId('client_contacts', $invite['client_contact_id']);
+                    $resource['invitations'][$key]['user_id'] = $modified['user_id'];
+                    $resource['invitations'][$key]['company_id'] = $this->company->id;
+                    unset($resource['invitations'][$key]['invoice_id']);
+                }
+
+                $modified['invitations'] = $this->deDuplicateInvitations($resource['invitations']);
+
+            }
 
             $quote = $quote_repository->save(
                 $modified,
@@ -950,6 +973,7 @@ class Import implements ShouldQueue
         /* No validators since data provided by database is already valid. */
 
         foreach ($data as $resource) {
+
             $modified = $resource;
 
             if (array_key_exists('invoice_id', $resource) && $resource['invoice_id'] && ! array_key_exists('invoices', $this->ids)) {
@@ -974,20 +998,27 @@ class Import implements ShouldQueue
             $file_name = $resource['name'];
             $file_path = sys_get_temp_dir().'/'.$file_name;
 
-            file_put_contents($file_path, $this->curlGet($file_url));
-            $finfo = new \finfo(FILEINFO_MIME_TYPE);
-            $file_info = $finfo->file($file_path);
+            try {
+                file_put_contents($file_path, $this->curlGet($file_url));
+                $finfo = new \finfo(FILEINFO_MIME_TYPE);
+                $file_info = $finfo->file($file_path);
 
-            $uploaded_file = new UploadedFile(
-                            $file_path,
-                            $file_name,
-                            $file_info,
-                            filesize($file_path),
-                            0,
-                            false
-                        );
+                $uploaded_file = new UploadedFile(
+                                $file_path,
+                                $file_name,
+                                $file_info,
+                                filesize($file_path),
+                                0,
+                                false
+                            );
 
-            $this->saveDocument($uploaded_file, $entity, $is_public = true);
+                $this->saveDocument($uploaded_file, $entity, $is_public = true);
+            }
+            catch(\Exception $e) {
+
+                //do nothing, gracefully :)
+                
+            }
 
         }
 

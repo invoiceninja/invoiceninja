@@ -188,7 +188,7 @@ trait Refundable
 
         $client_balance_adjustment = $this->adjustInvoices($data);
 
-        $credit_note->ledger()->updateCreditBalance($client_balance_adjustment, $ledger_string);
+        // $credit_note->ledger()->updateCreditBalance($client_balance_adjustment, $ledger_string);
 
         $this->client->paid_to_date -= $data['amount'];
         $this->client->save();
