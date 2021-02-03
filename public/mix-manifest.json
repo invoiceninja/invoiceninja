@@ -9,7 +9,7 @@
     "/js/clients/payments/checkout-credit-card.js": "/js/clients/payments/checkout-credit-card.js?id=98e406fa8e4db0e93427",
     "/js/clients/payments/stripe-ach.js": "/js/clients/payments/stripe-ach.js?id=c4012ad90f17d60432ad",
     "/js/clients/payments/stripe-alipay.js": "/js/clients/payments/stripe-alipay.js?id=6dbe9316b98deea55421",
-    "/js/clients/payments/stripe-credit-card.js": "/js/clients/payments/stripe-credit-card.js?id=9418a9c5c137994c4bd8",
+    "/js/clients/payments/stripe-credit-card.js": "/js/clients/payments/stripe-credit-card.js?id=c37c3892d35c50d82521",
     "/js/clients/payments/stripe-sofort.js": "/js/clients/payments/stripe-sofort.js?id=9b9fd56d655ad238f149",
     "/js/clients/quotes/action-selectors.js": "/js/clients/quotes/action-selectors.js?id=1b8f9325aa6e8595e7fa",
     "/js/clients/quotes/approve.js": "/js/clients/quotes/approve.js?id=85bcae0a646882e56b12",

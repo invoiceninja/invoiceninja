@@ -95,7 +95,7 @@ class StripeCreditCard {
 
         if (tokenBillingCheckbox) {
             document.querySelector('input[name="store_card"]').value =
-                tokenBillingCheckbox.checked;
+                tokenBillingCheckbox.value;
         }
 
         document.getElementById('server-response').submit();

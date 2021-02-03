@@ -1,8 +1,8 @@
 {
     "video": false,
-    "baseUrl": "http://localhost:8080/",
+    "baseUrl": "https://localhost:8000/",
     "chromeWebSecurity": false,
     "env": {
-        "runningEnvironment": "docker"
+        "runningEnvironment": "native"
     }
 }
