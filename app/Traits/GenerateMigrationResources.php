@@ -857,6 +857,8 @@ info("get company");
                 'date' => Carbon::parse($item->created_at)->toDateString(),
                 'custom_value1' => $item->custom_value1,
                 'custom_value2' => $item->custom_value2,
+                'custom_value3' => '',
+                'custom_value4' => '',
                 'type_id' => (string)$item->invoice_item_type_id,
             ];
         }
@@ -887,6 +889,8 @@ info("get company");
                 'date' => Carbon::parse($item->created_at)->toDateString(),
                 'custom_value1' => $item->custom_value1,
                 'custom_value2' => $item->custom_value2,
+                'custom_value3' => '',
+                'custom_value4' => '',
                 'type_id' => (string)$item->invoice_item_type_id,
             ];
         }
