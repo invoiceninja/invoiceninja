@@ -260,24 +260,12 @@ class PaymentController extends Controller
             return $this->processCreditPayment($request, $data);
         }
 
-        try {
             return $gateway
                 ->driver(auth()->user()->client)
                 ->setPaymentMethod($payment_method_id)
                 ->setPaymentHash($payment_hash)
                 ->checkRequirements()
                 ->processPaymentView($data);
-        } catch (\Exception $e) {
-            SystemLogger::dispatch(
-                $e->getMessage(),
-                SystemLog::CATEGORY_GATEWAY_RESPONSE,
-                SystemLog::EVENT_GATEWAY_ERROR,
-                SystemLog::TYPE_FAILURE,
-                auth('contact')->user()->client
-            );
-
-            throw new PaymentFailed($e->getMessage());
-        }
     }
 
     public function response(PaymentResponseRequest $request)
@@ -286,24 +274,12 @@ class PaymentController extends Controller
 
         $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$request->payment_hash])->first();
 
-        try {
             return $gateway
                 ->driver(auth()->user()->client)
                 ->setPaymentMethod($request->input('payment_method_id'))
                 ->setPaymentHash($payment_hash)
                 ->checkRequirements()
                 ->processPaymentResponse($request);
-        } catch (\Exception $e) {
-            SystemLogger::dispatch(
-                $e->getMessage(),
-                SystemLog::CATEGORY_GATEWAY_RESPONSE,
-                SystemLog::EVENT_GATEWAY_FAILURE,
-                SystemLog::TYPE_FAILURE,
-                auth('contact')->user()->client
-            );
-
-            throw new PaymentFailed($e->getMessage());
-        }
     }
 
     /**

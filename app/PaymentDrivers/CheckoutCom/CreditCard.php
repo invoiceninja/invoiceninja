@@ -82,15 +82,6 @@ class CreditCard
     {
         $this->checkout->init();
 
-        $cgt = ClientGatewayToken::query()
-            ->where('id', $this->decodePrimaryKey($request->input('token')))
-            ->where('company_id', auth('contact')->user()->client->company->id)
-            ->first();
-
-        if (!$cgt) {
-            throw new PaymentFailed(ctrans('texts.payment_token_not_found'), 401);
-        }
-
         $state = [
             'server_response' => json_decode($request->gateway_response),
             'value' => $request->value,
@@ -103,12 +94,11 @@ class CreditCard
 
         $state = array_merge($state, $request->all());
         $state['store_card'] = boolval($state['store_card']);
-        $state['token'] = $cgt;
 
         $this->checkout->payment_hash->data = array_merge((array)$this->checkout->payment_hash->data, $state);
         $this->checkout->payment_hash->save();
 
-        if ($request->has('token')) {
+        if ($request->has('token') && !is_null($request->token) && !empty($request->token)) {
             return $this->attemptPaymentUsingToken($request);
         }
 
@@ -117,7 +107,16 @@ class CreditCard
 
     private function attemptPaymentUsingToken(PaymentResponseRequest $request)
     {
-        $method = new IdSource($this->checkout->payment_hash->data->token->token);
+        $cgt = ClientGatewayToken::query()
+            ->where('id', $this->decodePrimaryKey($request->input('token')))
+            ->where('company_id', auth('contact')->user()->client->company->id)
+            ->first();
+
+        if (!$cgt) {
+            throw new PaymentFailed(ctrans('texts.payment_token_not_found'), 401);
+        }
+
+        $method = new IdSource($cgt->token);
 
         return $this->completePayment($method, $request);
     }
@@ -161,7 +160,7 @@ class CreditCard
             }
 
             if ($response->status == 'Pending') {
-                $this->checkout->confirmGatewayFee($request);
+                $this->checkout->confirmGatewayFee();
 
                 return $this->processPendingPayment($response);
             }
@@ -170,7 +169,6 @@ class CreditCard
                 $this->checkout->unWindGatewayFees($this->checkout->payment_hash);
 
                 PaymentFailureMailer::dispatch($this->checkout->client, $response->response_summary, $this->checkout->client->company, $this->checkout->payment_hash->data->value);
-
 
                 return $this->processUnsuccessfulPayment($response);
             }
