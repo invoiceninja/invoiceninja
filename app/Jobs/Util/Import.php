@@ -205,6 +205,8 @@ class Import implements ShouldQueue
 
         $this->setInitialCompanyLedgerBalances();
         
+        $this->fixClientBalances();
+
         Mail::to($this->user)
             ->send(new MigrationCompleted($this->company));
 
@@ -789,6 +791,7 @@ class Import implements ShouldQueue
         /*Improve memory handling by setting everything to null when we have finished*/
         $data = null;
         $credit_repository = null;
+
     }
 
     private function processQuotes(array $data): void
@@ -1425,4 +1428,23 @@ class Import implements ShouldQueue
         return $response->getBody();
     }
 
+
+    /* In V4 we use negative invoices (credits) and add then into the client balance. In V5, these sit off ledger and are applied later.
+     This next section will check for credit balances and reduce the client balance so that the V5 balances are correct
+    */
+    private function fixClientBalances()
+    {
+       
+        Client::cursor()->each(function ($client) {
+
+            $credit_balance = $client->credits->where('is_deleted', false)->sum('balance');
+
+            if($credit_balance > 0){
+                $client->balance += $credit_balance;
+                $client->save();
+            }
+
+        });
+
+    }
 }
