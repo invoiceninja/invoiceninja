@@ -1,7 +1,7 @@
-describe('Stripe: Credit card testing', () => {
+context('Checkout.com: Credit card testing', () => {
     before(() => {
         cy.artisan('migrate:fresh --seed');
-        cy.artisan('ninja:create-single-account stripe');
+        cy.artisan('ninja:create-single-account checkout');
     });
 
     beforeEach(() => {
@@ -13,6 +13,16 @@ describe('Stripe: Credit card testing', () => {
         cy.visit('/client/logout');
     });
 
+    it('should not be able to add payment method', function () {
+        cy.visit('/client/payment_methods');
+
+        cy.get('[data-cy=add-payment-method]').click();
+        cy.get('[data-cy=add-credit-card-link]').click();
+
+        cy.get('[data-ref=gateway-container]')
+            .contains('Checkout.com can be can saved as payment method for future use, once you complete your first transaction. Don\'t forget to check "Store credit card details" during payment process.');
+    });
+
     it('should pay with new card', function () {
         cy.visit('/client/invoices');
 
@@ -20,13 +30,11 @@ describe('Stripe: Credit card testing', () => {
         cy.get('[data-cy=pay-now-dropdown]').click();
         cy.get('[data-cy=pay-with-0]').click();
 
-        cy.get('#cardholder-name').type('Invoice Ninja Rocks');
-        cy.getWithinIframe('[name=cardnumber]').type('4242424242424242');
-        cy.getWithinIframe('[name=exp-date]').type('04/24');
-        cy.getWithinIframe('[name=cvc]').type('242');
-        cy.getWithinIframe('[name=postal]').type('42424');
+        cy.getWithinIframe('#checkout-frames-card-number').type('4658584090000001');
+        cy.getWithinIframe('#checkout-frames-expiry-date').type('12/22');
+        cy.getWithinIframe('#checkout-frames-cvv').type('257');
 
-        cy.get('#pay-now').click();
+        cy.get('#pay-button').click();
 
         cy.url().should('contain', '/client/payments/VolejRejNm');
     });
@@ -38,15 +46,13 @@ describe('Stripe: Credit card testing', () => {
         cy.get('[data-cy=pay-now-dropdown]').click();
         cy.get('[data-cy=pay-with-0]').click();
 
-        cy.get('#cardholder-name').type('Invoice Ninja Rocks');
-        cy.getWithinIframe('[name=cardnumber]').type('4242424242424242');
-        cy.getWithinIframe('[name=exp-date]').type('04/24');
-        cy.getWithinIframe('[name=cvc]').type('242');
-        cy.getWithinIframe('[name=postal]').type('42424');
-
         cy.get('[name=token-billing-checkbox]').first().check();
 
-        cy.get('#pay-now').click();
+        cy.getWithinIframe('#checkout-frames-card-number').type('4543474002249996');
+        cy.getWithinIframe('#checkout-frames-expiry-date').type('12/22');
+        cy.getWithinIframe('#checkout-frames-cvv').type('956');
+
+        cy.get('#pay-button').click();
 
         cy.url().should('contain', '/client/payments/Wpmbk5ezJn');
     });
@@ -60,7 +66,7 @@ describe('Stripe: Credit card testing', () => {
 
         cy.get('[name=payment-type]').first().check();
 
-        cy.get('#pay-now').click();
+        cy.get('#pay-now-with-token').click();
 
         cy.url().should('contain', '/client/payments/Opnel5aKBz');
     });
@@ -77,22 +83,5 @@ describe('Stripe: Credit card testing', () => {
         cy.url().should('contain', '/client/payment_methods');
 
         cy.get('body').contains('Payment method has been successfully removed.');
-    });
-
-    it('should be able to add credit card (standalone)', function () {
-        cy.visit('/client/payment_methods');
-
-        cy.get('[data-cy=add-payment-method]').click();
-        cy.get('[data-cy=add-credit-card-link]').click();
-
-        cy.get('#cardholder-name').type('Invoice Ninja Rocks');
-        cy.getWithinIframe('[name=cardnumber]').type('4242424242424242');
-        cy.getWithinIframe('[name=exp-date]').type('04/24');
-        cy.getWithinIframe('[name=cvc]').type('242');
-        cy.getWithinIframe('[name=postal]').type('42424');
-
-        cy.get('#authorize-card').click();
-
-        cy.url().should('contain', '/client/payment_methods');
     });
 });
