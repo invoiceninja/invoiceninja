@@ -20,18 +20,18 @@ const RESOURCES = {
 "assets/assets/images/payment_types/carteblanche.png": "d936e11fa3884b8c9f1bd5c914be8629",
 "assets/assets/images/payment_types/dinerscard.png": "06d85186ba858c18ab7c9caa42c92024",
 "assets/assets/images/logo.png": "090f69e23311a4b6d851b3880ae52541",
-"assets/NOTICES": "c3e1cbfaeb1a4f54fadae1bd6558d91b",
+"assets/NOTICES": "6f1d482736ec8b2a4aad78b5c5c69235",
 "assets/FontManifest.json": "cf3c681641169319e61b61bd0277378f",
 "assets/AssetManifest.json": "659dcf9d1baf3aed3ab1b9c42112bf8f",
 "assets/packages/material_design_icons_flutter/lib/fonts/materialdesignicons-webfont.ttf": "3e722fd57a6db80ee119f0e2c230ccff",
 "assets/fonts/MaterialIcons-Regular.otf": "1288c9e28052e028aba623321f7826ac",
 "/": "23224b5e03519aaa87594403d54412cf",
-"main.dart.js": "419ce42069c50ba32d64d01d76373c60",
+"main.dart.js": "de56853e220a15bb1f361a7bcc8e396a",
 "icons/Icon-512.png": "0f9aff01367f0a0c69773d25ca16ef35",
 "icons/Icon-192.png": "bb1cf5f6982006952211c7c8404ffbed",
 "manifest.json": "77215c1737c7639764e64a192be2f7b8",
 "favicon.ico": "51636d3a390451561744c42188ccd628",
-"version.json": "24380404aa64649901a0878a4f6aae18",
+"version.json": "661ce90abb75e6e3549b3204793a7e38",
 "favicon.png": "dca91c54388f52eded692718d5a98b8b"
 };
 

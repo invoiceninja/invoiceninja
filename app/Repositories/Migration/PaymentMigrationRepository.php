@@ -114,11 +114,18 @@ class PaymentMigrationRepository extends BaseRepository
             $payment->invoices()->saveMany($invoices);
 
             $payment->invoices->each(function ($inv) use ($invoice_totals, $refund_totals) {
+
                 $inv->pivot->amount = $invoice_totals;
                 $inv->pivot->refunded = $refund_totals;
                 $inv->pivot->save();
 
                 $inv->paid_to_date += $invoice_totals;
+
+                if($inv->balance > 0)
+                    $inv->balance -= $invoice_totals;
+                
+                $inv->balance = max(0, $inv->balance);
+
                 $inv->save();
 
             });
@@ -135,7 +142,8 @@ class PaymentMigrationRepository extends BaseRepository
                 $cre->pivot->amount = $credit_totals;
                 $cre->pivot->save();
 
-                $cre->paid_to_date += $invoice_totals;
+                $cre->paid_to_date += $credit_totals;
+                $cre->balance -= $credit_totals;
                 $cre->save();
             });
         }

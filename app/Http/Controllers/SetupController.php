@@ -122,7 +122,7 @@ class SetupController extends Controller
         ];
 
         try {
-            
+
             foreach ($env_values as $property => $value) {
                 $this->updateEnvironmentProperty($property, $value);
             }

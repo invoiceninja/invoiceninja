@@ -31,11 +31,11 @@ class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
 
     public $client;
 
-    public $message;
+    public $error;
 
     public $company;
 
-    public $amount;
+    public $payment_hash;
 
     public $settings;
 
@@ -47,15 +47,15 @@ class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
      * @param $company
      * @param $amount
      */
-    public function __construct($client, $message, $company, $amount)
+    public function __construct($client, $error, $company, $payment_hash)
     {
         $this->company = $company;
 
-        $this->message = $message;
+        $this->error = $error;
 
         $this->client = $client;
 
-        $this->amount = $amount;
+        $this->payment_hash = $payment_hash;
 
         $this->company = $company;
 
@@ -69,6 +69,7 @@ class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
      */
     public function handle()
     {
+
         /*If we are migrating data we don't want to fire these notification*/
         if ($this->company->is_disabled) {
             return true;
@@ -81,16 +82,17 @@ class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
         $this->setMailDriver();
 
         //iterate through company_users
-        $this->company->company_users->each(function ($company_user) {
+        $this->company->company_users->each(function ($company_user) {        
 
             //determine if this user has the right permissions
-            $methods = $this->findCompanyUserNotificationType($company_user, ['payment_failure']);
+            $methods = $this->findCompanyUserNotificationType($company_user, ['payment_failure','all_notifications']);
+
 
             //if mail is a method type -fire mail!!
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
-                $mail_obj = (new PaymentFailureObject($this->client, $this->message, $this->amount, $this->company))->build();
+                $mail_obj = (new PaymentFailureObject($this->client, $this->error, $this->company, $this->payment_hash))->build();
                 $mail_obj->from = [config('mail.from.address'), config('mail.from.name')];
 
                 //send email

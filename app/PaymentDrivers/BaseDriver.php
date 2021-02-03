@@ -16,6 +16,8 @@ use App\Events\Payment\PaymentWasCreated;
 use App\Exceptions\PaymentFailed;
 use App\Factory\PaymentFactory;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Jobs\Mail\AutoBillingFailureMailer;
+use App\Jobs\Mail\ClientPaymentFailureMailer;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\Client;
@@ -333,21 +335,30 @@ class BaseDriver extends AbstractPaymentDriver
 
     public function processInternallyFailedPayment($gateway, $e)
     {
-        if ($e instanceof Exception) {
-            $error = $e->getMessage();
-        }
+
+        $this->unWindGatewayFees($this->payment_hash);
 
         if ($e instanceof CheckoutHttpException) {
             $error = $e->getBody();
         }
-
-        $amount = optional($this->payment_hash->data)->value ?? optional($this->payment_hash->data)->amount;
+        else if ($e instanceof Exception) {
+            $error = $e->getMessage();
+        }   
+        else 
+            $error = $e->getMessage();
 
         PaymentFailureMailer::dispatch(
             $gateway->client,
             $error,
             $gateway->client->company,
-            $amount
+            $this->payment_hash
+        );
+
+        ClientPaymentFailureMailer::dispatch(
+            $gateway->client,
+            $error,
+            $gateway->client->company,
+            $this->payment_hash
         );
 
         SystemLogger::dispatch(

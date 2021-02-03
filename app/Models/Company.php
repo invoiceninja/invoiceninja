@@ -373,6 +373,11 @@ class Company extends BaseModel
         return $this->hasMany(CompanyToken::class);
     }
 
+    public function client_gateway_tokens()
+    {
+        return $this->hasMany(ClientGatewayToken::class);
+    }
+
     public function system_logs()
     {
         return $this->hasMany(SystemLog::class)->orderBy('id', 'DESC')->take(50);
