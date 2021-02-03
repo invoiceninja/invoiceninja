@@ -34,7 +34,8 @@ trait GenerateMigrationResources
 
     protected function getAccount()
     {
-info("get account");
+        info("get account");
+        
         if($this->account->account_tokens()->exists()){
             $this->token = $this->account->account_tokens->first()->token;
         }
@@ -72,6 +73,7 @@ info("get account");
 info("get company");
 
         return [
+            'version' => NINJA_VERSION,
             'referral_code' => $this->account->referral_code ?: '',
             'account_id' => $this->account->id,
             'google_analytics_key' => $this->account->analytics_key ?: '',
@@ -383,7 +385,7 @@ info("get company");
         $credits = [];
 
         $export_credits = Invoice::where('account_id', $this->account->id)
-            ->where('amount', '<', '0')
+            ->where('balance', '<', '0')
             ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
             ->where('is_public', true)
             ->withTrashed()

@@ -82,7 +82,6 @@ class CheckData extends Command
         }
 
         //$this->checkInvoices();
-        $this->checkTranslations();
         $this->checkInvoiceBalances();
         $this->checkClientBalances();
         $this->checkContacts();
@@ -97,6 +96,7 @@ class CheckData extends Command
             $this->checkFailedJobs();
         }
 
+        $this->checkTranslations();
         $this->logMessage('Done: ' . strtoupper($this->isValid ? RESULT_SUCCESS : RESULT_FAILURE));
         $errorEmail = env('ERROR_EMAIL');
 
