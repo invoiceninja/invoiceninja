@@ -266,6 +266,10 @@ class ProjectController extends BaseController
         $project->number = empty($project->number) ? $this->getNextProjectNumber($project) : $project->number;
         $project->save();
 
+        if ($request->has('documents')) {
+            $this->saveDocuments($request->input('documents'), $project);
+        }
+        
         return $this->itemResponse($project->fresh());
     }
 
