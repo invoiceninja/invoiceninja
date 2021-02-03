@@ -26,12 +26,12 @@ const RESOURCES = {
 "assets/packages/material_design_icons_flutter/lib/fonts/materialdesignicons-webfont.ttf": "3e722fd57a6db80ee119f0e2c230ccff",
 "assets/fonts/MaterialIcons-Regular.otf": "1288c9e28052e028aba623321f7826ac",
 "/": "23224b5e03519aaa87594403d54412cf",
-"main.dart.js": "78cfce271cc56679f4856067b809dc66",
+"main.dart.js": "bdb0ed381e848655b07faad16d03f766",
 "icons/Icon-512.png": "0f9aff01367f0a0c69773d25ca16ef35",
 "icons/Icon-192.png": "bb1cf5f6982006952211c7c8404ffbed",
 "manifest.json": "77215c1737c7639764e64a192be2f7b8",
 "favicon.ico": "51636d3a390451561744c42188ccd628",
-"version.json": "24380404aa64649901a0878a4f6aae18",
+"version.json": "661ce90abb75e6e3549b3204793a7e38",
 "favicon.png": "dca91c54388f52eded692718d5a98b8b"
 };
 
