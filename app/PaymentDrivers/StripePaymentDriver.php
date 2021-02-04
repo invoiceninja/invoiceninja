@@ -119,7 +119,7 @@ class StripePaymentDriver extends BaseDriver
             $types[] = GatewayType::BANK_TRANSFER;
         }
 
-        if ($this->company_gateway->getAchEnabled()
+        if ($this->company_gateway->getAlipayEnabled()
             && $this->client
             && isset($this->client->country)
             && in_array($this->client->country->iso_3166_3, ['AUS', 'DNK', 'DEU', 'ITA', 'LUX', 'NOR', 'SVN', 'GBR', 'AUT', 'EST', 'GRC', 'JPN', 'MYS', 'PRT', 'ESP', 'USA', 'BEL', 'FIN', 'HKG', 'LVA', 'NLD', 'SGP', 'SWE', 'CAN', 'FRA', 'IRL', 'LTU', 'NZL', 'SVK', 'CHE'])) {
