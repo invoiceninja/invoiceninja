@@ -20,11 +20,11 @@ jobs:
       DB_DATABASE1: ninja
       DB_USERNAME1: root
       DB_PASSWORD1: ninja
-      DB_HOST1: '127.0.0.1'
+      DB_HOST1: 'localhost'
       DB_DATABASE: ninja
       DB_USERNAME: root
       DB_PASSWORD: ninja
-      DB_HOST: '127.0.0.1'
+      DB_HOST: 'localhost'
       BROADCAST_DRIVER: log
       CACHE_DRIVER: file
       QUEUE_CONNECTION: sync
@@ -67,7 +67,7 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php-versions }}
-        extensions: mysql, sqlite3, bcmath, gmp, gd, curl, zip, openssl, mbstring, xml
+        extensions: mysql, mysqlnd, sqlite3, bcmath, gmp, gd, curl, zip, openssl, mbstring, xml
 
     - uses: actions/checkout@v1
       with:
