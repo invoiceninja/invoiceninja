@@ -20,11 +20,11 @@ jobs:
       DB_DATABASE1: ninja
       DB_USERNAME1: ninja
       DB_PASSWORD1: ninja
-      DB_HOST1: '127.0.0.1'
+      DB_HOST1: 'localhost'
       DB_DATABASE: ninja
       DB_USERNAME: ninja
       DB_PASSWORD: ninja
-      DB_HOST: '127.0.0.1'
+      DB_HOST: 'localhost'
       BROADCAST_DRIVER: log
       CACHE_DRIVER: file
       QUEUE_CONNECTION: sync
@@ -93,7 +93,6 @@ jobs:
     
     - name: Migrate Database
       run: |
-        echo 'config("database.connections")' | php artisan tinker
         php artisan migrate:fresh --seed --force && php artisan db:seed --force
     - name: Prepare JS/CSS assets
       run: |
