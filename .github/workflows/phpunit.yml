@@ -18,7 +18,7 @@ jobs:
 
     env:
       DB_DATABASE1: ninja
-      DB_USERNAME1: root
+      DB_USERNAME1: ninja
       DB_PASSWORD1: ninja
       DB_HOST1: '127.0.0.1'
       DB_DATABASE: ninja
