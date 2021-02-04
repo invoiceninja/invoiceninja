@@ -18,10 +18,10 @@ jobs:
 
     env:
       DB_DATABASE1: ninja
-      DB_USERNAME1: root
+      DB_USERNAME1: ninja
       DB_PASSWORD1: ninja
       DB_DATABASE: ninja
-      DB_USERNAME: root
+      DB_USERNAME: ninja
       DB_PASSWORD: ninja
       BROADCAST_DRIVER: log
       CACHE_DRIVER: file
@@ -64,7 +64,7 @@ jobs:
 
     - name: Verify MySQL connection from container
       run: |
-        mysql -uroot -pninja -e "SHOW DATABASES"
+        mysql -uninja -pninja -e "SHOW DATABASES"
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
