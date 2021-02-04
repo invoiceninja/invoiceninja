@@ -265,13 +265,14 @@ class Import implements ShouldQueue
 
         $validator = Validator::make($data, $rules);
 
-        if ($validator->fails()) {
+        if ($validator->fails()) 
             throw new MigrationValidatorFailed(json_encode($validator->errors()));
-        }
-
-        if (isset($data['account_id'])) {
+        
+        if (isset($data['account_id'])) 
             unset($data['account_id']);
-        }
+        
+        if(isset($data['version']))
+            unset($data['version']);
 
         if (isset($data['referral_code'])) {
             $account = $this->company->account;
