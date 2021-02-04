@@ -18,11 +18,11 @@ jobs:
 
     env:
       DB_DATABASE1: ninja
-      DB_USERNAME1: root
+      DB_USERNAME1: ninja
       DB_PASSWORD1: ninja
       DB_HOST1: '127.0.0.1'
       DB_DATABASE: ninja
-      DB_USERNAME: root
+      DB_USERNAME: ninja
       DB_PASSWORD: ninja
       DB_HOST: '127.0.0.1'
       BROADCAST_DRIVER: log
@@ -52,7 +52,7 @@ jobs:
     - name: Start mysql service
       run: |
         sudo /etc/init.d/mysql start
-        
+
     - name: Verify MariaDB connection
       env:
         DB_PORT: ${{ job.services.mariadb.ports[3306] }}
