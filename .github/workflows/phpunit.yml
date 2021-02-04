@@ -46,10 +46,10 @@ jobs:
           MYSQL_PASSWORD: ninja
           MYSQL_DATABASE: ninja
           MYSQL_ROOT_PASSWORD: ninja
-          MYSQL_HOST: 127.0.0.1
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
     steps:
+    
     - name: Start mysql service
       run: |
         sudo /etc/init.d/mysql start
@@ -63,6 +63,7 @@ jobs:
         while ! mysqladmin ping -h"127.0.0.1" -P"$DB_PORT" --silent; do
           sleep 1
         done
+    
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
@@ -77,22 +78,22 @@ jobs:
     - name: Copy .env
       run: |
         cp .env.ci .env
+    
     - name: Install composer dependencies
       run: |
         composer config -g github-oauth.github.com ${{ secrets.GITHUB_TOKEN }}
         composer install
+    
     - name: Prepare Laravel Application
       run: |
         php artisan key:generate
         php artisan optimize
         php artisan cache:clear
         php artisan config:cache
-    - name: Create DB and schemas
-      run: |
-        mkdir -p database
-        touch database/database.sqlite
+    
     - name: Migrate Database
       run: |
+        echo 'config("database.connections")' | php artisan tinker
         php artisan migrate:fresh --seed --force && php artisan db:seed --force
     - name: Prepare JS/CSS assets
       run: |
