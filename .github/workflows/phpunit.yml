@@ -23,6 +23,7 @@ jobs:
       DB_DATABASE: ninja
       DB_USERNAME: ninja
       DB_PASSWORD: ninja
+      DB_PORT: 32574
       BROADCAST_DRIVER: log
       CACHE_DRIVER: file
       QUEUE_CONNECTION: sync
@@ -37,7 +38,7 @@ jobs:
       mariadb:
         image: mariadb:latest
         ports:
-          - 3306/tcp
+          - 32574:3306
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
           MYSQL_USER: ninja
@@ -64,7 +65,7 @@ jobs:
 
     - name: Verify MySQL connection from container
       run: |
-        mysql -h"localhost" -uninja -pninja -e "SHOW DATABASES"
+        mysql -h"localhost" --port 32574 -uninja -pninja -e "SHOW DATABASES"
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
