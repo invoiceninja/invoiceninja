@@ -39,7 +39,7 @@ jobs:
       mariadb:
         image: mariadb:latest
         ports:
-          - 3306
+          - 32768:3306
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
           MYSQL_USER: ninja
