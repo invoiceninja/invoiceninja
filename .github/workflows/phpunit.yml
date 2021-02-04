@@ -53,6 +53,11 @@ jobs:
       run: |
         sudo /etc/init.d/mysql start
     
+    - name: Sleep for 30 seconds //allows time for MySQL to start
+      uses: jakejarvis/wait-action@master
+      with:
+        time: '30s'
+
     - name: Verify MariaDB connection
       env:
         DB_PORT: ${{ job.services.mariadb.ports[3306] }}
