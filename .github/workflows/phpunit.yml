@@ -20,11 +20,11 @@ jobs:
       DB_DATABASE1: ninja
       DB_USERNAME1: ninja
       DB_PASSWORD1: ninja
-      DB_HOST1: 'localhost'
+      DB_HOST1: '127.0.0.1'
       DB_DATABASE: ninja
       DB_USERNAME: ninja
       DB_PASSWORD: ninja
-      DB_HOST: 'localhost'
+      DB_HOST: '127.0.0.1'
       BROADCAST_DRIVER: log
       CACHE_DRIVER: file
       QUEUE_CONNECTION: sync
