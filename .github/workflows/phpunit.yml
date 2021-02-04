@@ -64,7 +64,7 @@ jobs:
 
     - name: Verify MySQL connection from container
       run: |
-        mysql --host mysql -uroot -pninja -e "SHOW DATABASES"
+        mysql -uroot -pninja -e "SHOW DATABASES"
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
