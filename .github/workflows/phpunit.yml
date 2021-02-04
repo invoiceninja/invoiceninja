@@ -51,7 +51,7 @@ jobs:
     steps:
     - name: Start mysql service
       run: |
-        sudo /etc/init.d/mysql start
+        sudo /etc/init.d/mysql -h 127.0.0.1 start
 
     - name: Verify MariaDB connection
       env:
