@@ -46,6 +46,7 @@ jobs:
           MYSQL_PASSWORD: ninja
           MYSQL_DATABASE: ninja
           MYSQL_ROOT_PASSWORD: ninja
+          MYSQL_HOST: 127.0.0.1
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
     steps:
