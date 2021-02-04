@@ -47,9 +47,11 @@ jobs:
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
     steps:
+
     - name: Start mysql service
       run: |
         sudo /etc/init.d/mysql start
+
     - name: Verify MariaDB connection
       env:
         DB_PORT: ${{ job.services.mariadb.ports[3306] }}
@@ -59,6 +61,11 @@ jobs:
         while ! mysqladmin ping -h"127.0.0.1" -P"$DB_PORT" --silent; do
           sleep 1
         done
+
+    - name: Verify MySQL connection from container
+      run: |
+        mysql --host mysql -uroot -pninja -e "SHOW DATABASES"
+
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
