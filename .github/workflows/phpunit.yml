@@ -18,12 +18,13 @@ jobs:
 
     env:
       DB_DATABASE1: ninja
-      DB_USERNAME1: ninja
+      DB_USERNAME1: root
       DB_PASSWORD1: ninja
+      DB_HOST1: '127.0.0.1'
       DB_DATABASE: ninja
-      DB_USERNAME: ninja
+      DB_USERNAME: root
       DB_PASSWORD: ninja
-      DB_PORT: 32574
+      DB_HOST: '127.0.0.1'
       BROADCAST_DRIVER: log
       CACHE_DRIVER: file
       QUEUE_CONNECTION: sync
@@ -38,7 +39,7 @@ jobs:
       mariadb:
         image: mariadb:latest
         ports:
-          - 32574:3306
+          - 3306
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
           MYSQL_USER: ninja
@@ -48,11 +49,9 @@ jobs:
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
     steps:
-
     - name: Start mysql service
       run: |
         sudo /etc/init.d/mysql start
-
     - name: Verify MariaDB connection
       env:
         DB_PORT: ${{ job.services.mariadb.ports[3306] }}
@@ -62,11 +61,6 @@ jobs:
         while ! mysqladmin ping -h"127.0.0.1" -P"$DB_PORT" --silent; do
           sleep 1
         done
-
-    - name: Verify MySQL connection from container
-      run: |
-        mysql -h"localhost" --port 32574 -uninja -pninja -e "SHOW DATABASES"
-
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
@@ -88,10 +82,13 @@ jobs:
     - name: Prepare Laravel Application
       run: |
         php artisan key:generate
+        php artisan optimize
         php artisan cache:clear
         php artisan config:cache
-        php artisan optimize
-
+    - name: Create DB and schemas
+      run: |
+        mkdir -p database
+        touch database/database.sqlite
     - name: Migrate Database
       run: |
         php artisan migrate:fresh --seed --force && php artisan db:seed --force
