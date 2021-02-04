@@ -20,11 +20,11 @@ jobs:
       DB_DATABASE1: ninja
       DB_USERNAME1: root
       DB_PASSWORD1: ninja
-      DB_HOST1: '127.0.0.1'
+      DB_HOST1: localhost
       DB_DATABASE: ninja
       DB_USERNAME: root
       DB_PASSWORD: ninja
-      DB_HOST: '127.0.0.1'
+      DB_HOST: localhost
       BROADCAST_DRIVER: log
       CACHE_DRIVER: file
       QUEUE_CONNECTION: sync
@@ -82,9 +82,9 @@ jobs:
     - name: Prepare Laravel Application
       run: |
         php artisan key:generate
-        php artisan optimize
         php artisan cache:clear
         php artisan config:cache
+        php artisan optimize
 
     - name: Migrate Database
       run: |
