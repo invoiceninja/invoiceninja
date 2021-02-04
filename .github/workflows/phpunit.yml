@@ -39,7 +39,7 @@ jobs:
       mariadb:
         image: mariadb:latest
         ports:
-          - 3306
+          - 32768:3306
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
           MYSQL_USER: ninja
@@ -52,7 +52,6 @@ jobs:
     - name: Start mysql service
       run: |
         sudo /etc/init.d/mysql start
-
     - name: Verify MariaDB connection
       env:
         DB_PORT: ${{ job.services.mariadb.ports[3306] }}
@@ -62,12 +61,11 @@ jobs:
         while ! mysqladmin ping -h"127.0.0.1" -P"$DB_PORT" --silent; do
           sleep 1
         done
-
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php-versions }}
-        extensions: mysql, sqlite3, bcmath, gmp, gd, curl, zip, openssl, mbstring, xml
+        extensions: mysql, mysqlnd, sqlite3, bcmath, gmp, gd, curl, zip, openssl, mbstring, xml
 
     - uses: actions/checkout@v1
       with:
@@ -77,33 +75,27 @@ jobs:
     - name: Copy .env
       run: |
         cp .env.ci .env
-
     - name: Install composer dependencies
       run: |
         composer config -g github-oauth.github.com ${{ secrets.GITHUB_TOKEN }}
         composer install
-
     - name: Prepare Laravel Application
       run: |
         php artisan key:generate
         php artisan optimize
         php artisan cache:clear
         php artisan config:cache
-
     - name: Create DB and schemas
       run: |
         mkdir -p database
         touch database/database.sqlite
-
     - name: Migrate Database
       run: |
         php artisan migrate:fresh --seed --force && php artisan db:seed --force
-
     - name: Prepare JS/CSS assets
       run: |
         npm i
         npm run production
-
     - name: Run Testsuite
       run: |
         cat .env
@@ -114,4 +106,3 @@ jobs:
     - name: Run php-cs-fixer
       run: |
         vendor/bin/php-cs-fixer fix
-
