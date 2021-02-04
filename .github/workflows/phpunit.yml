@@ -18,11 +18,11 @@ jobs:
 
     env:
       DB_DATABASE1: ninja
-      DB_USERNAME1: ninja
+      DB_USERNAME1: root
       DB_PASSWORD1: ninja
       DB_HOST1: 'localhost'
       DB_DATABASE: ninja
-      DB_USERNAME: ninja
+      DB_USERNAME: root
       DB_PASSWORD: ninja
       DB_HOST: 'localhost'
       BROADCAST_DRIVER: log
@@ -42,7 +42,7 @@ jobs:
           - 3306
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
-          MYSQL_USER: ninja
+          MYSQL_USER: root
           MYSQL_PASSWORD: ninja
           MYSQL_DATABASE: ninja
           MYSQL_ROOT_PASSWORD: ninja
