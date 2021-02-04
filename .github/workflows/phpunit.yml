@@ -64,7 +64,7 @@ jobs:
 
     - name: Verify MySQL connection from container
       run: |
-        mysql -uninja -pninja -e "SHOW DATABASES"
+        mysql -h"127.0.0.1" -uninja -pninja -e "SHOW DATABASES"
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
