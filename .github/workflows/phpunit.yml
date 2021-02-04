@@ -20,11 +20,9 @@ jobs:
       DB_DATABASE1: ninja
       DB_USERNAME1: root
       DB_PASSWORD1: ninja
-      DB_HOST1: localhost
       DB_DATABASE: ninja
       DB_USERNAME: root
       DB_PASSWORD: ninja
-      DB_HOST: localhost
       BROADCAST_DRIVER: log
       CACHE_DRIVER: file
       QUEUE_CONNECTION: sync
@@ -39,7 +37,7 @@ jobs:
       mariadb:
         image: mariadb:latest
         ports:
-          - 3306
+          - 3306/tcp
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
           MYSQL_USER: ninja
