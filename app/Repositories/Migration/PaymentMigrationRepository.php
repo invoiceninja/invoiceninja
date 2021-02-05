@@ -120,11 +120,15 @@ class PaymentMigrationRepository extends BaseRepository
                 $inv->pivot->save();
 
                 $inv->paid_to_date += $invoice_totals;
+                $inv->balance -= $invoice_totals;
 
-                if($inv->balance > 0)
-                    $inv->balance -= $invoice_totals;
+                if($inv->status_id == Invoice::STATUS_PAID)
+                    $inv->balance = 0;
                 
-                $inv->balance = max(0, $inv->balance);
+                // if($inv->balance > 0)
+                //     
+                
+                // $inv->balance = max(0, $inv->balance);
 
                 $inv->save();
 
