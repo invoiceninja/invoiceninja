@@ -12,6 +12,7 @@
 namespace App\Services\Invoice;
 
 use App\Jobs\Entity\CreateEntityPdf;
+use App\Jobs\Invoice\InvoiceWorkflowSettings;
 use App\Jobs\Util\UnlinkFile;
 use App\Models\CompanyGateway;
 use App\Models\Expense;
@@ -239,6 +240,9 @@ class InvoiceService
     public function updateStatus()
     {
         if ((int)$this->invoice->balance == 0) {
+            
+            InvoiceWorkflowSettings::dispatch($this->invoice);
+
             $this->setStatus(Invoice::STATUS_PAID);
         }
 
