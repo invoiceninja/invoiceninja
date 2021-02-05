@@ -1,6 +1,6 @@
 {
     "video": false,
-    "baseUrl": "http://localhost:8080/",
+    "baseUrl": "https://localhost:8080/",
     "chromeWebSecurity": false,
     "env": {
         "runningEnvironment": "docker"
