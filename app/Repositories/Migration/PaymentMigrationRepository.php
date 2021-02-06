@@ -120,7 +120,7 @@ class PaymentMigrationRepository extends BaseRepository
             $payment->invoices->each(function ($inv) use ($invoice_totals, $refund_totals, $payment) {
 
 
-                if($payment->status_id != Payment::STATUS_CANCELLED)
+                if($payment->status_id != Payment::STATUS_CANCELLED || !$payment->is_deleted)
                 {
                     $inv->pivot->amount = $invoice_totals;
                     $inv->pivot->refunded = $refund_totals;
@@ -133,8 +133,6 @@ class PaymentMigrationRepository extends BaseRepository
                         $inv->balance = 0;
 
                     // if($inv->balance > 0)
-                    //     
-                    
                     // $inv->balance = max(0, $inv->balance);
 
                     $inv->save();
