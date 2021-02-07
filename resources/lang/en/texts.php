@@ -4138,6 +4138,8 @@ $LANG = array(
      'vendor_address1' => 'Vendor Street',
      'vendor_address2' => 'Vendor Apt/Suite',
 
+     //////////////////////////////////////
+     'start_migration' => 'Start Migration',
 );
 
 return $LANG;
