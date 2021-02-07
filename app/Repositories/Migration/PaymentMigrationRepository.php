@@ -92,6 +92,10 @@ class PaymentMigrationRepository extends BaseRepository
         }
 
         $payment->status_id = $data['status_id'];
+
+        if($payment->status_id == Payment::STATUS_CANCELLED)
+            $payment->is_deleted = true;
+
         $payment->deleted_at = $data['deleted_at'] ?: null;
         $payment->save();
 
@@ -113,20 +117,26 @@ class PaymentMigrationRepository extends BaseRepository
 
             $payment->invoices()->saveMany($invoices);
 
-            $payment->invoices->each(function ($inv) use ($invoice_totals, $refund_totals) {
+            $payment->invoices->each(function ($inv) use ($invoice_totals, $refund_totals, $payment) {
 
-                $inv->pivot->amount = $invoice_totals;
-                $inv->pivot->refunded = $refund_totals;
-                $inv->pivot->save();
 
-                $inv->paid_to_date += $invoice_totals;
+                if($payment->status_id != Payment::STATUS_CANCELLED || !$payment->is_deleted)
+                {
+                    $inv->pivot->amount = $invoice_totals;
+                    $inv->pivot->refunded = $refund_totals;
+                    $inv->pivot->save();
 
-                if($inv->balance > 0)
+                    $inv->paid_to_date += $invoice_totals;
                     $inv->balance -= $invoice_totals;
-                
-                $inv->balance = max(0, $inv->balance);
 
-                $inv->save();
+                    if($inv->status_id == Invoice::STATUS_PAID)
+                        $inv->balance = 0;
+
+                    // if($inv->balance > 0)
+                    // $inv->balance = max(0, $inv->balance);
+
+                    $inv->save();
+                }
 
             });
         }

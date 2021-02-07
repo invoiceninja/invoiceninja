@@ -205,7 +205,7 @@ class Import implements ShouldQueue
 
         $this->setInitialCompanyLedgerBalances();
         
-        $this->fixClientBalances();
+        // $this->fixClientBalances();
 
         Mail::to($this->user)
             ->send(new MigrationCompleted($this->company));
@@ -779,6 +779,14 @@ class Import implements ShouldQueue
                 CreditFactory::create($this->company->id, $modified['user_id'])
             );
 
+            //remove credit balance from ledger
+            if($credit->balance > 0 && $credit->client->balance > 0){
+                $client = $credit->client;
+                $client->balance -= $credit->balance;
+                $client->save();
+            }
+
+
             $key = "credits_{$resource['id']}";
 
             $this->ids['credits'][$key] = [
@@ -897,8 +905,9 @@ class Import implements ShouldQueue
                     if ($this->tryTransformingId('invoices', $invoice['invoice_id'])) {
                         $modified['invoices'][$key]['invoice_id'] = $this->transformId('invoices', $invoice['invoice_id']);
                     } else {
-                        $modified['credits'][$key]['credit_id'] = $this->transformId('credits', $invoice['invoice_id']);
-                        $modified['credits'][$key]['amount'] = $modified['invoices'][$key]['amount'];
+                       nlog($modified['invoices']);
+                        // $modified['credits'][$key]['credit_id'] = $this->transformId('credits', $invoice['invoice_id']);
+                        // $modified['credits'][$key]['amount'] = $modified['invoices'][$key]['amount'];
                     }
                 }
             }
@@ -1433,19 +1442,19 @@ class Import implements ShouldQueue
     /* In V4 we use negative invoices (credits) and add then into the client balance. In V5, these sit off ledger and are applied later.
      This next section will check for credit balances and reduce the client balance so that the V5 balances are correct
     */
-    private function fixClientBalances()
-    {
+    // private function fixClientBalances()
+    // {
        
-        Client::cursor()->each(function ($client) {
+    //     Client::cursor()->each(function ($client) {
 
-            $credit_balance = $client->credits->where('is_deleted', false)->sum('balance');
+    //         $credit_balance = $client->credits->where('is_deleted', false)->sum('balance');
 
-            if($credit_balance > 0){
-                $client->balance += $credit_balance;
-                $client->save();
-            }
+    //         if($credit_balance > 0){
+    //             $client->balance += $credit_balance;
+    //             $client->save();
+    //         }
 
-        });
+    //     });
 
-    }
+    // }
 }
