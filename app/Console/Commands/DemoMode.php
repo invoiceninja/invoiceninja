@@ -339,7 +339,7 @@ class DemoMode extends Command
             ]);
 
 
-        $vendor->id_number = $this->getNextVendorNumber($vendor);
+        $vendor->number = $this->getNextVendorNumber($vendor);
         $vendor->save();
     }
 

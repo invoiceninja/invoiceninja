@@ -932,6 +932,11 @@ class Import implements ShouldQueue
                 ],
             ];
 
+            if(in_array($payment->status_id, [Payment::STATUS_REFUNDED, Payment::STATUS_PARTIALLY_REFUNDED])) {
+                $this->processPaymentRefund($payment);
+            }
+
+
         }
 
         Payment::reguard();
@@ -939,6 +944,24 @@ class Import implements ShouldQueue
         /*Improve memory handling by setting everything to null when we have finished*/
         $data = null;
         $payment_repository = null;
+    }
+
+    private function processPaymentRefund($payment)
+    {
+        $invoices = $payment->invoices()->get();
+
+        $invoices->each(function ($invoice) use($payment) {
+            
+            if ($payment->refunded > 0 && in_array($invoice->status_id, [Invoice::STATUS_SENT])) {
+
+                $invoice->service()
+                        ->updateBalance($payment->refunded)
+                        ->updatePaidToDate($payment->refunded*-1)
+                        ->updateStatus()
+                        ->save();
+            }
+
+        });
     }
 
     private function updatePaymentForStatus($payment, $status_id) :Payment
