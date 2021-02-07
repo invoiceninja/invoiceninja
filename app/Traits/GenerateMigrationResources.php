@@ -73,6 +73,8 @@ trait GenerateMigrationResources
 info("get company");
 
         return [
+            'first_day_of_week' => $this->account->start_of_week,
+            'first_month_of_year' => $this->account->financial_year_start,
             'version' => NINJA_VERSION,
             'referral_code' => $this->account->referral_code ?: '',
             'account_id' => $this->account->id,
