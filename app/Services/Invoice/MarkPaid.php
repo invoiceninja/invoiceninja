@@ -14,6 +14,7 @@ namespace App\Services\Invoice;
 use App\Events\Invoice\InvoiceWasPaid;
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
+use App\Jobs\Invoice\InvoiceWorkflowSettings;
 use App\Jobs\Payment\EmailPayment;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -89,6 +90,8 @@ class MarkPaid extends AbstractService
             ->updateBalance($payment->amount * -1)
             ->updatePaidToDate($payment->amount)
             ->save();
+
+        InvoiceWorkflowSettings::dispatchNow($this->invoice);
 
         return $this->invoice;
     }
