@@ -27,10 +27,24 @@ const axios = require('axios');
 const fixture = require('../fixtures/example.json');
 
 Cypress.Commands.add('clientLogin', () => {
-    cy.visit('/client/login')
-        .get('#email').type('user@example.com')
-        .get('#password').type('password')
-        .get('#loginBtn').click();
+    cy.visit('/client/login');
+    cy.get('#test_email')
+        .invoke('val')
+        .then((emailValue) => {
+            cy.get('#test_password')
+                .invoke('val')
+                .then((passwordValue) => {
+                    cy.get('#email')
+                        .type(emailValue)
+                        .should('have.value', emailValue);
+                    cy.get('#password')
+                        .type(passwordValue)
+                        .should('have.value', passwordValue);
+                    cy.get('#loginBtn')
+                        .contains('Login')
+                        .click();
+                });
+        });
 });
 
 Cypress.Commands.add('iframeLoaded', {prevSubject: 'element'}, ($iframe) => {

@@ -100,11 +100,6 @@ class StripePaymentDriver extends BaseDriver
 //            GatewayType::APPLE_PAY, // TODO:: Missing implementation
         ];
 
-        // $this->invitation = false
-        // $this->client doesn't exist
-        // $this->client->country is relationship?
-        // Missing Slovenia for Alipay
-
         if ($this->company_gateway->getSofortEnabled()
             && $this->client
             && isset($this->client->country)

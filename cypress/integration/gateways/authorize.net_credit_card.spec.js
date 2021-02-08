@@ -8,7 +8,7 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-describe.skip('Authorize.net: Credit card test', () => {
+describe('Authorize.net: Credit card test', () => {
     before(() => {
         cy.artisan('migrate:fresh --seed');
         cy.artisan('ninja:create-single-account authorizenet');
@@ -101,6 +101,6 @@ describe.skip('Authorize.net: Credit card test', () => {
 
         cy.get('#card_button').click();
 
-        cy.location('pathname', {timeout: 60000}.should('include', '/client/payment_methods'));
+        cy.location('pathname', {timeout: 60000}).should('include', '/client/payment_methods');
     });
 });
