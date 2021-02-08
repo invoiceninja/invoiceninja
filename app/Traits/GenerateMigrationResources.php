@@ -749,6 +749,34 @@ info("get company");
 
     }
 
+    private function transformQuoteStatusId($quote)
+    {
+        if(!$quote->is_public)
+            return 1;
+
+        if($quote->quote_invoice_id)
+            return 4;
+
+        switch ($quote->invoice_status_id) {
+            case 1:
+                return 1;
+                break;
+            case 2:
+                return 2;
+                break;
+            case 3:
+                return 2;
+                break;
+            case 4:
+              return 3;
+                break;
+
+            default:
+                return 2;
+                break;
+        }
+    }
+
     /*
     define('INVOICE_STATUS_DRAFT', 1);
     define('INVOICE_STATUS_SENT', 2);
@@ -918,7 +946,7 @@ info("get company");
                 'client_id' => $quote->client_id,
                 'user_id' => $quote->user_id,
                 'company_id' => $quote->account_id,
-                'status_id' => $quote->invoice_status_id,
+                'status_id' => $this->transformQuoteStatusId($quote),
                 'design_id' => $this->getDesignId($quote->invoice_design_id),
                 'number' => $quote->invoice_number,
                 'discount' => $quote->discount,
