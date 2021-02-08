@@ -37,10 +37,12 @@ use App\Observers\ProposalObserver;
 use App\Observers\QuoteObserver;
 use App\Observers\TaskObserver;
 use App\Observers\UserObserver;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
@@ -53,6 +55,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+
+        /* Limits the number of parallel jobs fired per minute when checking data*/
+        RateLimiter::for('checkdata', function ($job) {
+            return  Limit::perMinute(100);
+        });
+
         Relation::morphMap([
             'invoices'  => Invoice::class,
           //  'credits'   => \App\Models\Credit::class,
