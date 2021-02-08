@@ -57,7 +57,7 @@ class ParallelCheckData extends Command
 
     	Company::cursor()->each(function ($company) use ($hash){
 
-    		CheckCompanyData::dispatch($company, $hash);
+    		CheckCompanyData::dispatch($company, $hash)->onQueue('checkdata');
     		
     	});
 
