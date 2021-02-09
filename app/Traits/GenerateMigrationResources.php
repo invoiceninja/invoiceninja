@@ -713,7 +713,7 @@ info("get company");
 
 
             default:
-                # code...
+               return 5;
                 break;
         }
     }
@@ -981,6 +981,7 @@ info("get company");
         $transformed = [];
 
         $payments = Payment::where('account_id', $this->account->id)
+            ->where('payment_status_id', '!=', PAYMENT_STATUS_VOIDED)
             ->withTrashed()
             ->get();
 

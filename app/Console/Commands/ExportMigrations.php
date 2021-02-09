@@ -62,6 +62,7 @@ class ExportMigrations extends Command
         $users = User::all();
 
         foreach($users as $user) {
+            Auth::login($user);
             $this->export($user);
         }
     }
@@ -78,18 +79,28 @@ class ExportMigrations extends Command
         $fileName = "{$accountKey}-{$date}-invoiceninja";
 
         $data['data'] = [
+            'account' => $this->getAccount(),
             'company' => $this->getCompany(),
             'users' => $this->getUsers(),
             'tax_rates' => $this->getTaxRates(),
+            'payment_terms' => $this->getPaymentTerms(),
             'clients' => $this->getClients(),
-            'products' => $this->getProducts(),
-            'invoices' => $this->getInvoices(),
-            'quotes' => $this->getQuotes(),
-            'payments' => array_merge($this->getPayments(), $this->getCredits()),
-            'credits' => $this->getCreditsNotes(),
-            'documents' => $this->getDocuments(),
             'company_gateways' => $this->getCompanyGateways(),
             'client_gateway_tokens' => $this->getClientGatewayTokens(),
+            'vendors' => $this->getVendors(),
+            'projects' => $this->getProjects(),
+            'products' => $this->getProducts(),
+            'credits' => $this->getCreditsNotes(),
+            'invoices' => $this->getInvoices(),
+            'recurring_invoices' => $this->getRecurringInvoices(),
+            'quotes' => $this->getQuotes(),
+            'payments' => array_merge($this->getPayments(), $this->getCredits()),
+            'documents' => $this->getDocuments(),
+            'expense_categories' => $this->getExpenseCategories(),
+            'task_statuses' => $this->getTaskStatuses(),
+            'expenses' => $this->getExpenses(),
+            'tasks' => $this->getTasks(),
+            'documents' => $this->getDocuments(),
         ];
 
         $file = storage_path("migrations/{$fileName}.zip");
