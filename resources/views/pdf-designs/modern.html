@@ -11,6 +11,7 @@
         font-size: "$font_size";
         margin: 0;
         padding: 0;
+        zoom: 80%;
     }
 
     @page {
@@ -161,12 +162,26 @@
         page-break-inside: avoid;
     }
 
-    #table-totals > * {
+    #table-totals {
         display: grid;
-        grid-template-columns: 3fr 1fr 1fr;
+        grid-template-columns: 2fr 1fr;
         margin-top: 0.5rem;
         margin-right: 1.5rem;
         margin-left: 1.5rem;
+        gap: 80px;
+    }
+
+    #table-totals .totals-table-right-side>* {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    #table-totals>.totals-table-right-side>*> :nth-child(1) {
+        text-align: left;
+    }
+
+    #table-totals>.totals-table-right-side>*> :nth-child(2) {
+        text-align: right;
     }
 
     #table-totals

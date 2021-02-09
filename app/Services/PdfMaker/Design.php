@@ -434,6 +434,7 @@ class Design extends BaseDesign
                     ['element' => 'span', 'content' => '$entity.terms', 'properties' => ['data-ref' => 'total_table-terms', 'style' => 'text-align: left;']],
                 ]],
             ]],
+            ['element' => 'div', 'properties' => ['class' => 'totals-table-right-side'], 'elements' => []],
         ];
 
         foreach (['discount', 'custom_surcharge1', 'custom_surcharge2', 'custom_surcharge3', 'custom_surcharge4'] as $property) {
@@ -461,8 +462,7 @@ class Design extends BaseDesign
                 }
 
                 foreach ($taxes as $i => $tax) {
-                    $elements[] = ['element' => 'div', 'elements' => [
-                        ['element' => 'span', 'content' => 'This is placeholder for the 3rd fraction of element.', 'properties' => ['style' => 'opacity: 0%']], // Placeholder for fraction of element (3fr)
+                    $elements[1]['elements'][] = ['element' => 'div', 'elements' => [
                         ['element' => 'span', 'content', 'content' => $tax['name'], 'properties' => ['data-ref' => 'totals-table-total_tax_' . $i . '-label']],
                         ['element' => 'span', 'content', 'content' => Number::formatMoney($tax['total'], $this->context['client']), 'properties' => ['data-ref' => 'totals-table-total_tax_' . $i]],
                     ]];
@@ -475,15 +475,13 @@ class Design extends BaseDesign
                 }
 
                 foreach ($taxes as $i => $tax) {
-                    $elements[] = ['element' => 'div', 'elements' => [
-                        ['element' => 'span', 'content' => 'This is placeholder for the 3rd fraction of element.', 'properties' => ['style' => 'opacity: 0%']], // Placeholder for fraction of element (3fr)
+                    $elements[1]['elements'][] = ['element' => 'div', 'elements' => [
                         ['element' => 'span', 'content', 'content' => $tax['name'], 'properties' => ['data-ref' => 'totals-table-line_tax_' . $i . '-label']],
                         ['element' => 'span', 'content', 'content' => Number::formatMoney($tax['total'], $this->context['client']), 'properties' => ['data-ref' => 'totals-table-line_tax_' . $i]],
                     ]];
                 }
             } else {
-                $elements[] = ['element' => 'div', 'elements' => [
-                    ['element' => 'span', 'content' => 'This is placeholder for the 3rd fraction of element.', 'properties' => ['style' => 'opacity: 0%']], // Placeholder for fraction of element (3fr)
+                $elements[1]['elements'][] = ['element' => 'div', 'elements' => [
                     ['element' => 'span', 'content' => $variable . '_label', 'properties' => ['data-ref' => 'totals_table-' . substr($variable, 1) . '-label']],
                     ['element' => 'span', 'content' => $variable, 'properties' => ['data-ref' => 'totals_table-' . substr($variable, 1)]],
                 ]];
@@ -491,12 +489,16 @@ class Design extends BaseDesign
         }
 
         if (!is_null($this->entity->partial) && $this->entity->partial > 0) {
-            $elements[] = ['element' => 'div', 'elements' => [
-                ['element' => 'span', 'content' => 'This is placeholder for the 3rd fraction of element.', 'properties' => ['style' => 'opacity: 0%']], // Placeholder for fraction of element (3fr)
+            $elements[1]['elements'][] = ['element' => 'div', 'elements' => [
                 ['element' => 'span', 'content' => '$partial_due_label', 'properties' => ['data-ref' => 'totals_table-partial_due-label']],
                 ['element' => 'span', 'content' => '$partial_due'],
             ]];
         }
+
+        $elements[1]['elements'][] = ['element' => 'div', 'elements' => [
+            ['element' => 'span', 'content' => '',],
+            ['element' => 'span', 'content' => ''],
+        ]];
 
         return $elements;
     }
