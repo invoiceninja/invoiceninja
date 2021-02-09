@@ -70,7 +70,7 @@
                                         {{ ctrans('texts.amount') }}
                                     </dt>
                                     <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                                        {{ App\Utils\Number::formatMoney($quote->balance, $quote->client) }}
+                                        {{ App\Utils\Number::formatMoney($quote->amount, $quote->client) }}
                                     </dd>
                                 </div>
                             </dl>
