@@ -81,7 +81,7 @@
                                 {{ $quote->formatDate($quote->date, $quote->client->date_format()) }}
                             </td>
                             <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap">
-                                {{ App\Utils\Number::formatMoney($quote->balance, $quote->client) }}
+                                {{ App\Utils\Number::formatMoney($quote->amount, $quote->client) }}
                             </td>
                             <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap">
                                 {{ $quote->formatDate($quote->due_date, $quote->client->date_format()) }}
