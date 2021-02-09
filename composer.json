@@ -65,7 +65,7 @@
         "turbo124/beacon": "^1",
         "turbo124/laravel-gmail": "^5.0",
         "webpatser/laravel-countries": "dev-master#75992ad",
-        "wildbit/postmark-php": "^4.0"
+        "wildbit/swiftmailer-postmark": "^3.3"
     },
     "require-dev": {
         "php": "^7.4",
