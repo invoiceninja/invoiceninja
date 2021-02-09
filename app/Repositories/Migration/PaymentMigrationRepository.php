@@ -92,6 +92,7 @@ class PaymentMigrationRepository extends BaseRepository
         }
 
         $payment->status_id = $data['status_id'];
+        $payment->refunded = $data['refunded'];
 
         if($payment->status_id == Payment::STATUS_CANCELLED)
             $payment->is_deleted = true;

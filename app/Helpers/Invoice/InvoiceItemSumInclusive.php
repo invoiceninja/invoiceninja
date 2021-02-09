@@ -233,7 +233,7 @@ class InvoiceItemSumInclusive
 
             $item_tax += $item_tax_rate1_total;
 
-            if ($item_tax_rate1_total > 0) {
+            if ($item_tax_rate1_total != 0) {
                 $this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total);
             }
 
@@ -241,7 +241,7 @@ class InvoiceItemSumInclusive
 
             $item_tax += $item_tax_rate2_total;
 
-            if ($item_tax_rate2_total > 0) {
+            if ($item_tax_rate2_total != 0) {
                 $this->groupTax($this->item->tax_name2, $this->item->tax_rate2, $item_tax_rate2_total);
             }
 
@@ -249,7 +249,7 @@ class InvoiceItemSumInclusive
 
             $item_tax += $item_tax_rate3_total;
 
-            if ($item_tax_rate3_total > 0) {
+            if ($item_tax_rate3_total != 0) {
                 $this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total);
             }
         }
