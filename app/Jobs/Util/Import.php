@@ -1013,11 +1013,13 @@ class Import implements ShouldQueue
             $modified = $resource;
 
             if (array_key_exists('invoice_id', $resource) && $resource['invoice_id'] && ! array_key_exists('invoices', $this->ids)) {
-                throw new ResourceDependencyMissing('Processing documents failed, because of missing dependency - invoices.');
+                return;
+                //throw new ResourceDependencyMissing('Processing documents failed, because of missing dependency - invoices.');
             }
 
             if (array_key_exists('expense_id', $resource) && $resource['expense_id'] && ! array_key_exists('expenses', $this->ids)) {
-                throw new ResourceDependencyMissing('Processing documents failed, because of missing dependency - expenses.');
+                return;
+                //throw new ResourceDependencyMissing('Processing documents failed, because of missing dependency - expenses.');
             }
 
             if (array_key_exists('invoice_id', $resource) && $resource['invoice_id'] && array_key_exists('invoices', $this->ids)) {
