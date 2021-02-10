@@ -160,7 +160,8 @@ class MultiDB
     public static function userFindAndSetDb($email) : bool
     {
 
-            //multi-db active
+        //multi-db active
+        
         foreach (self::$dbs as $db) {
             if (User::on($db)->where(['email' => $email])->get()->count() >= 1) { // if user already exists, validation will fail
                 return true;
@@ -172,6 +173,8 @@ class MultiDB
 
     public static function findAndSetDb($token) :bool
     {
+        nlog($token);
+        
         foreach (self::$dbs as $db) {
             if ($ct = CompanyToken::on($db)->whereRaw('BINARY `token`= ?', [$token])->first()) {
                 self::setDb($ct->company->db);

@@ -34,6 +34,7 @@ class InvitationTest extends TestCase
 
     public function testInvitationSanity()
     {
+        
         $this->assertEquals($this->invoice->invitations->count(), 2);
 
         $invitations = $this->invoice->invitations()->get();
@@ -46,11 +47,20 @@ class InvitationTest extends TestCase
 
         $this->invoice->line_items = [];
 
+        $response = null;
+
+        try {
+
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/invoices/'.$this->encodePrimaryKey($this->invoice->id), $this->invoice->toArray())
-        ->assertStatus(200);
+        ])->put('/api/v1/invoices/'.$this->encodePrimaryKey($this->invoice->id), $this->invoice->toArray());
+        } catch (\Exception $e) {
+
+            nlog($e->getMessage());
+        }
+
+        $response->assertStatus(200);
 
         $arr = $response->json();
 
