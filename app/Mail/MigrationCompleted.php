@@ -20,7 +20,7 @@ class MigrationCompleted extends Mailable
      *
      * @return void
      */
-    public function __construct(Company $company, $check_data)
+    public function __construct(Company $company, $check_data = '')
     {
         $this->company = $company;
         $this->check_data = $check_data;

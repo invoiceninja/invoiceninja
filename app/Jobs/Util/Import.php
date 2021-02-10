@@ -208,7 +208,7 @@ class Import implements ShouldQueue
         $this->setInitialCompanyLedgerBalances();
         
         // $this->fixClientBalances();
-        $check_data = CheckCompanyData::dispatchNow($this->company);
+        $check_data = CheckCompanyData::dispatchNow($this->company, md5(time()));
 
 
         if($check_data['status'] == 'errors')

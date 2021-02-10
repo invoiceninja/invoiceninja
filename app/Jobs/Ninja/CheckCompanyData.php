@@ -41,7 +41,7 @@ class CheckCompanyData implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(Company $company, string $hash)
+    public function __construct(Company $company, string $hash = '')
     {
         $this->company = $company;
         $this->hash = $hash;
@@ -80,7 +80,7 @@ class CheckCompanyData implements ShouldQueue
             $this->company_data['status'] = 'errors';
         else
             $this->company_data['status'] = 'success';
-        
+
         return $this->company_data;
         
     }
@@ -96,7 +96,7 @@ class CheckCompanyData implements ShouldQueue
         $wrong_balances = 0;
         $wrong_paid_to_dates = 0;
 
-        foreach ($this->company->clients->where('is_deleted', 0)->cursor() as $client) {
+        foreach ($this->company->clients->where('is_deleted', 0) as $client) {
             $invoice_balance = $client->invoices->where('is_deleted', false)->where('status_id', '>', 1)->sum('balance');
             //$credit_balance = $client->credits->where('is_deleted', false)->sum('balance');
 
@@ -115,7 +115,7 @@ class CheckCompanyData implements ShouldQueue
             }
         }
 
-        $this->logMessage("{$wrong_balances} clients with incorrect balances");
+        $this->company_data[] = "{$wrong_balances} clients with incorrect balances\n";
     }
 
     private function checkInvoicePayments()
@@ -123,7 +123,7 @@ class CheckCompanyData implements ShouldQueue
         $wrong_balances = 0;
         $wrong_paid_to_dates = 0;
 
-        $this->company->clients->where('is_deleted', 0)->cursor()->each(function ($client) use ($wrong_balances) {
+        $this->company->clients->where('is_deleted', 0)->each(function ($client) use ($wrong_balances) {
             $client->invoices->where('is_deleted', false)->whereIn('status_id', '!=', Invoice::STATUS_DRAFT)->each(function ($invoice) use ($wrong_balances, $client) {
                 $total_amount = $invoice->payments->whereIn('status_id', [Payment::STATUS_PAID, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED])->sum('pivot.amount');
                 $total_refund = $invoice->payments->whereIn('status_id', [Payment::STATUS_PAID, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED])->sum('pivot.refunded');
@@ -150,7 +150,7 @@ class CheckCompanyData implements ShouldQueue
         $wrong_paid_to_dates = 0;
         $credit_total_applied = 0;
 
-        $this->company->clients->where('is_deleted', 0)->cursor()->each(function ($client) use ($wrong_paid_to_dates, $credit_total_applied) {
+        $this->company->clients->where('is_deleted', 0)->each(function ($client) use ($wrong_paid_to_dates, $credit_total_applied) {
             $total_invoice_payments = 0;
 
             foreach ($client->invoices->where('is_deleted', false)->where('status_id', '>', 1) as $invoice) {
@@ -191,7 +191,7 @@ class CheckCompanyData implements ShouldQueue
         $wrong_balances = 0;
         $wrong_paid_to_dates = 0;
 
-        foreach ($this->company->clients->where('is_deleted', 0)->cursor() as $client) {
+        foreach ($this->company->clients->where('is_deleted', 0) as $client) {
             //$invoice_balance = $client->invoices->where('is_deleted', false)->where('status_id', '>', 1)->sum('balance');
             $invoice_balance = Invoice::where('client_id', $client->id)->where('is_deleted', false)->where('status_id', '>', 1)->withTrashed()->sum('balance');
             $credit_balance = Credit::where('client_id', $client->id)->where('is_deleted', false)->withTrashed()->sum('balance');
@@ -219,7 +219,7 @@ class CheckCompanyData implements ShouldQueue
     {
         // check for contacts with the contact_key value set
         $contacts = DB::table('client_contacts')
-                        ->where('company_id', $this->company_id)
+                        ->where('company_id', $this->company->id)
                         ->whereNull('contact_key')
                         ->orderBy('id')
                         ->get(['id']);
@@ -230,17 +230,17 @@ class CheckCompanyData implements ShouldQueue
             $this->isValid = false;
         }
 
-        if ($this->option('fix') == 'true') {
-            foreach ($contacts as $contact) {
-                DB::table('client_contacts')
-                    ->where('company_id', $this->company->id)
-                    ->where('id', '=', $contact->id)
-                    ->whereNull('contact_key')
-                    ->update([
-                        'contact_key' => str_random(config('ninja.key_length')),
-                    ]);
-            }
-        }
+        // if ($this->option('fix') == 'true') {
+        //     foreach ($contacts as $contact) {
+        //         DB::table('client_contacts')
+        //             ->where('company_id', $this->company->id)
+        //             ->where('id', '=', $contact->id)
+        //             ->whereNull('contact_key')
+        //             ->update([
+        //                 'contact_key' => str_random(config('ninja.key_length')),
+        //             ]);
+        //     }
+        // }
 
         // check for missing contacts
         $clients = DB::table('clients')
@@ -252,9 +252,9 @@ class CheckCompanyData implements ShouldQueue
                     ->groupBy('clients.id', 'clients.user_id', 'clients.company_id')
                     ->havingRaw('count(client_contacts.id) = 0');
 
-        if ($this->option('client_id')) {
-            $clients->where('clients.id', '=', $this->option('client_id'));
-        }
+        // if ($this->option('client_id')) {
+        //     $clients->where('clients.id', '=', $this->option('client_id'));
+        // }
 
         $clients = $clients->get(['clients.id', 'clients.user_id', 'clients.company_id']);
         
@@ -264,22 +264,22 @@ class CheckCompanyData implements ShouldQueue
             $this->isValid = false;
         }
 
-        if ($this->option('fix') == 'true') {
-            foreach ($clients as $client) {
-                $contact = new ClientContact();
-                $contact->company_id = $client->company_id;
-                $contact->user_id = $client->user_id;
-                $contact->client_id = $client->id;
-                $contact->is_primary = true;
-                $contact->send_invoice = true;
-                $contact->contact_key = str_random(config('ninja.key_length'));
-                $contact->save();
-            }
-        }
+        // if ($this->option('fix') == 'true') {
+        //     foreach ($clients as $client) {
+        //         $contact = new ClientContact();
+        //         $contact->company_id = $client->company_id;
+        //         $contact->user_id = $client->user_id;
+        //         $contact->client_id = $client->id;
+        //         $contact->is_primary = true;
+        //         $contact->send_invoice = true;
+        //         $contact->contact_key = str_random(config('ninja.key_length'));
+        //         $contact->save();
+        //     }
+        // }
 
         // check for more than one primary contact
         $clients = DB::table('clients')
-                    ->where('company_id', $this->company->id)
+                    ->where('clients.company_id', $this->company->id)
                     ->leftJoin('client_contacts', function ($join) {
                         $join->on('client_contacts.client_id', '=', 'clients.id')
                             ->where('client_contacts.is_primary', '=', true)
@@ -288,9 +288,9 @@ class CheckCompanyData implements ShouldQueue
                     ->groupBy('clients.id')
                     ->havingRaw('count(client_contacts.id) != 1');
 
-        if ($this->option('client_id')) {
-            $clients->where('clients.id', '=', $this->option('client_id'));
-        }
+        // if ($this->option('client_id')) {
+        //     $clients->where('clients.id', '=', $this->option('client_id'));
+        // }
 
         $clients = $clients->get(['clients.id', DB::raw('count(client_contacts.id)')]);
         $this->company_data[] = $clients->count().' clients without a single primary contact\n';
