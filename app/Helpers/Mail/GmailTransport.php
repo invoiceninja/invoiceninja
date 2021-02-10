@@ -64,7 +64,7 @@ class GmailTransport extends Transport
             nlog("trying to attach");
             nlog($child->getContentType());
             
-            if($child->getContentType() == 'multipart/related')
+            if($child->getContentType() != 'text/plain')
                 $this->gmail->attach($child);
 
 
