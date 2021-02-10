@@ -11,6 +11,8 @@ class MailServiceProvider extends MailProvider
     public function register()
     {
         $this->registerSwiftTransport();
+        $this->registerIlluminateMailer();
+        $this->registerMarkdownRenderer();
     }
 
     protected function registerSwiftTransport()
