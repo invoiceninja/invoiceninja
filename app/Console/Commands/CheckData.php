@@ -73,6 +73,7 @@ class CheckData extends Command
     protected $description = 'Check/fix data';
 
     protected $log = '';
+
     protected $isValid = true;
 
     public function handle()
@@ -90,13 +91,10 @@ class CheckData extends Command
         $this->checkContacts();
         $this->checkCompanyData();
 
-        //$this->checkLogoFiles();
 
         if (! $this->option('client_id')) {
             $this->checkOAuth();
-            //$this->checkInvitations();
-
-            $this->checkFailedJobs();
+            //$this->checkFailedJobs();
         }
 
         $this->logMessage('Done: '.strtoupper($this->isValid ? Account::RESULT_SUCCESS : Account::RESULT_FAILURE));
@@ -298,8 +296,6 @@ class CheckData extends Command
             $total_invoice_payments = 0;
 
             foreach ($client->invoices->where('is_deleted', false)->where('status_id', '>', 1) as $invoice) {
-                // $total_amount = $invoice->payments->whereNull('deleted_at')->sum('pivot.amount');
-                // $total_refund = $invoice->payments->whereNull('deleted_at')->sum('pivot.refunded');
 
                 $total_amount = $invoice->payments->where('is_deleted', false)->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])->sum('pivot.amount');
                 $total_refund = $invoice->payments->where('is_deleted', false)->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])->sum('pivot.refunded');
@@ -307,15 +303,15 @@ class CheckData extends Command
                 $total_invoice_payments += ($total_amount - $total_refund);
             }
 
-            foreach ($client->payments as $payment) {
-                $credit_total_applied += $payment->paymentables->where('paymentable_type', App\Models\Credit::class)->sum(DB::raw('amount'));
-            }
+            //10/02/21
+            // foreach ($client->payments as $payment) {
+            //     $credit_total_applied += $payment->paymentables->where('paymentable_type', App\Models\Credit::class)->sum(DB::raw('amount'));
+            // }
 
-            if ($credit_total_applied < 0) {
-                $total_invoice_payments += $credit_total_applied;
-            } //todo this is contentious
+            // if ($credit_total_applied < 0) {
+            //     $total_invoice_payments += $credit_total_applied;
+            // } 
 
-            // nlog("total invoice payments = {$total_invoice_payments} with client paid to date of of {$client->paid_to_date}");
 
             if (round($total_invoice_payments, 2) != round($client->paid_to_date, 2)) {
                 $wrong_paid_to_dates++;

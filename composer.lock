@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "49484c0e046a5663433fef2353ee6ee8",
+    "content-hash": "7b93ec16ae5791e0767c92eaf7061cc7",
     "packages": [
         {
             "name": "asgrim/ofxparser",
@@ -9735,6 +9735,50 @@
                 "source": "https://github.com/webpatser/laravel-countries"
             },
             "time": "2019-07-12T14:06:05+00:00"
+        },
+        {
+            "name": "wildbit/swiftmailer-postmark",
+            "version": "3.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/wildbit/swiftmailer-postmark.git",
+                "reference": "44ccab7834de8b220d292647ecb2cb683f9962ee"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wildbit/swiftmailer-postmark/zipball/44ccab7834de8b220d292647ecb2cb683f9962ee",
+                "reference": "44ccab7834de8b220d292647ecb2cb683f9962ee",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^6.0|^7.0",
+                "swiftmailer/swiftmailer": "^6.0.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^6.0.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Postmark\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Postmark",
+                    "email": "support@postmarkapp.com"
+                }
+            ],
+            "description": "A Swiftmailer Transport for Postmark.",
+            "support": {
+                "issues": "https://github.com/wildbit/swiftmailer-postmark/issues",
+                "source": "https://github.com/wildbit/swiftmailer-postmark/tree/3.3.0"
+            },
+            "time": "2020-09-10T10:54:20+00:00"
         }
     ],
     "packages-dev": [
@@ -13628,44 +13672,6 @@
                 "source": "https://github.com/webmozart/path-util/tree/2.3.0"
             },
             "time": "2015-12-17T08:42:14+00:00"
-        },
-        {
-            "name": "wildbit/postmark-php",
-            "version": "4.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/wildbit/postmark-php.git",
-                "reference": "136e3d0884411ca23d0bac02470cfa1d14be676c"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/wildbit/postmark-php/zipball/136e3d0884411ca23d0bac02470cfa1d14be676c",
-                "reference": "136e3d0884411ca23d0bac02470cfa1d14be676c",
-                "shasum": ""
-            },
-            "require": {
-                "guzzlehttp/guzzle": "^6.0|^7.0",
-                "php": ">=7.0.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^6.0.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Postmark\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "The officially supported client for Postmark (http://postmarkapp.com)",
-            "support": {
-                "issues": "https://github.com/wildbit/postmark-php/issues",
-                "source": "https://github.com/wildbit/postmark-php/tree/4.0.0"
-            },
-            "time": "2020-09-10T16:36:51+00:00"
         },
         {
             "name": "zircote/swagger-php",

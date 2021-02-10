@@ -42,7 +42,10 @@ class BaseMailerJob implements ShouldQueue
 
     public function setMailDriver()
     {
+        /* Singletons need to be rebooted each time just in case our Locale is changing*/
         App::forgetInstance('translator');
+
+        /* Inject custom translations if any exist */
         Lang::replace(Ninja::transformTranslations($this->settings));
 
         switch ($this->settings->email_sending_method) {
@@ -96,7 +99,7 @@ class BaseMailerJob implements ShouldQueue
 
     public function failed($exception = null)
     {
-        nlog('the job failed');
+        nlog('mailer job failed');
         nlog($exception->getMessage());
         
         $job_failure = new EmailFailure();
