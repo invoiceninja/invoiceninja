@@ -45,6 +45,7 @@ class BaseMailerJob implements ShouldQueue
     {
         /* Singletons need to be rebooted each time just in case our Locale is changing*/
         App::forgetInstance('translator');
+        App::forgetInstance('mail.manager'); //singletons must be destroyed!
 
         /* Inject custom translations if any exist */
         Lang::replace(Ninja::transformTranslations($this->settings));

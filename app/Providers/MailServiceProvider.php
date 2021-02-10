@@ -20,7 +20,7 @@ class MailServiceProvider extends MailProvider
             return  new GmailTransportManager($app);
         });
 
-        // Copied from Illuminate\Mail\MailServiceProvider
+
         $this->app->bind('mailer', function ($app) {
             return $app->make('mail.manager')->mailer();
         });
