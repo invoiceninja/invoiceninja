@@ -73,6 +73,10 @@
         <p><b>Documents Imported:</b> {{ count($company->documents) }} </p>
     @endif
 
+    <p><b>Data Quality:</b></p>
+    
+    <p> {{ $check_data }} </p>
+
     <a href="{{ url('/') }}" target="_blank" class="button">{{ ctrans('texts.account_login')}}</a>
 
     <p>{{ ctrans('texts.email_signature')}}<br/> {{ ctrans('texts.email_from') }}</p>

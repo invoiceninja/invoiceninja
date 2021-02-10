@@ -14,6 +14,7 @@ namespace App\Jobs\Util;
 use App\DataMapper\Analytics\MigrationFailure;
 use App\DataMapper\CompanySettings;
 use App\Exceptions\MigrationValidatorFailed;
+use App\Exceptions\ProcessingMigrationArchiveFailed;
 use App\Exceptions\ResourceDependencyMissing;
 use App\Exceptions\ResourceNotAvailableForMigration;
 use App\Factory\ClientFactory;
@@ -31,6 +32,7 @@ use App\Http\Requests\Company\UpdateCompanyRequest;
 use App\Http\ValidationRules\ValidCompanyGatewayFeesAndLimitsRule;
 use App\Http\ValidationRules\ValidUserForCompany;
 use App\Jobs\Company\CreateCompanyToken;
+use App\Jobs\Ninja\CheckCompanyData;
 use App\Jobs\Ninja\CompanySizeCheck;
 use App\Libraries\MultiDB;
 use App\Mail\MigrationCompleted;
@@ -206,9 +208,14 @@ class Import implements ShouldQueue
         $this->setInitialCompanyLedgerBalances();
         
         // $this->fixClientBalances();
+        $check_data = CheckCompanyData::dispatchNow($this->company);
+
+
+        if($check_data['status'] == 'errors')
+            throw new ProcessingMigrationArchiveFailed($check_data);
 
         Mail::to($this->user)
-            ->send(new MigrationCompleted($this->company));
+            ->send(new MigrationCompleted($this->company, $check_data));
 
         /*After a migration first some basic jobs to ensure the system is up to date*/
         VersionCheck::dispatch();
