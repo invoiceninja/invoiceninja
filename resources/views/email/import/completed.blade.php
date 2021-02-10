@@ -10,8 +10,8 @@
 
     <p><img src="{{ $company->present()->logo() }}"></p>
 
-    @if(isset($company) && count($company->clients) >=1)
-        <p><b>Clients Imported:</b> {{ count($company->clients) }} </p>
+    @if(isset($company) && $company->clients->count() >=1)
+        <p><b>Clients Imported:</b> {{ $company->clients->count() }} </p>
     @endif
 
     @if(isset($company) && count($company->products) >=1)
@@ -75,7 +75,7 @@
 
     <p><b>Data Quality:</b></p>
     
-    <p> {{ $check_data }} </p>
+    <p> {!! $check_data !!} </p>
 
     <a href="{{ url('/') }}" target="_blank" class="button">{{ ctrans('texts.account_login')}}</a>
 

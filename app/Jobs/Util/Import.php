@@ -210,12 +210,11 @@ class Import implements ShouldQueue
         // $this->fixClientBalances();
         $check_data = CheckCompanyData::dispatchNow($this->company, md5(time()));
 
-
-        if($check_data['status'] == 'errors')
-            throw new ProcessingMigrationArchiveFailed($check_data);
+        // if($check_data['status'] == 'errors')
+        //     throw new ProcessingMigrationArchiveFailed(implode("\n", $check_data));
 
         Mail::to($this->user)
-            ->send(new MigrationCompleted($this->company, $check_data));
+            ->send(new MigrationCompleted($this->company, implode("<br>",$check_data)));
 
         /*After a migration first some basic jobs to ensure the system is up to date*/
         VersionCheck::dispatch();

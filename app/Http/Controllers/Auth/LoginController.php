@@ -289,7 +289,7 @@ class LoginController extends BaseController
             $client = new Google_Client();
             $client->setClientId(config('ninja.auth.google.client_id'));
             $client->setClientSecret(config('ninja.auth.google.client_secret'));
-
+            $client->setRedirectUri(config('ninja.app_url'));
             $token = $client->authenticate(request()->input('server_auth_code'));
 
             $refresh_token = '';
