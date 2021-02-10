@@ -9,6 +9,7 @@
         -moz-osx-font-smoothing: grayscale;
         font-family: Arial, Helvetica, sans-serif;
         font-size: "$font_size";
+        zoom: 80%;
     }
 
     @page {
@@ -37,7 +38,7 @@
     #company-details {
         display: flex;
         flex-direction: column;
-        color: #b1b1b1;
+        color: #AAA9A9;
     }
 
     #company-details > * {
@@ -68,20 +69,20 @@
     #client-details {
         display: flex;
         flex-direction: column;
-        color: var(--primary-color);
+        margin-top: 1rem;
     }
 
     #client-details > * {
         margin-bottom: 0.5rem;
     }
 
-    #client-details > span:nth-child(1) {
-        font-weight: bold;
+    #client-details > p:nth-child(1) {
+        color: var(--primary-color);
     }
 
     #entity-details {
         background-color: var(--primary-color);
-        padding: 0.8rem;
+        padding: 1.2rem;
         border-radius: 1rem;
         width: 100%;
         color: white;
@@ -90,6 +91,11 @@
 
     #entity-details th {
         font-weight: normal;
+        padding-bottom: .5rem;
+    }
+
+    #entity-details > tbody > tr > th:nth-child(2) {
+        text-align: right;
     }
 
     #product-table,
@@ -151,7 +157,7 @@
     #product-table > tbody > tr:nth-child(odd) > td,
     #delivery-note-table > tbody > tr:nth-child(odd) > td,
     #task-table > tbody > tr:nth-child(odd) > td {
-        background: #e8e8e8;
+        background: #F7F7F7;
     }
 
     #product-table > tbody > tr:nth-child(even) > td,
@@ -177,14 +183,26 @@
         border-bottom-right-radius: 1rem;
     }
 
-    #table-totals > * {
-        background-color: #f7f7f7;
+    #table-totals {
         display: grid;
-        grid-template-columns: 3fr 1fr 1fr;
-        gap: 20px;
+        grid-template-columns: 2fr 1fr;
+        gap: 80px;
         padding-left: 1rem;
         padding-top: 0.5rem;
         padding-bottom: 0.8rem;
+    }
+
+    #table-totals .totals-table-right-side>* {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    #table-totals>.totals-table-right-side>*> :nth-child(1) {
+        text-align: left;
+    }
+
+    #table-totals>.totals-table-right-side>*> :nth-child(2) {
+        text-align: right;
     }
 
     #table-totals

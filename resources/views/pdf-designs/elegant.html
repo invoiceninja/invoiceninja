@@ -9,6 +9,7 @@
         -moz-osx-font-smoothing: grayscale;
         font-family: Arial, Helvetica, sans-serif;
         font-size: "$font_size";
+        zoom: 80%;
     }
 
     @page {
@@ -30,11 +31,6 @@
 
     .company-logo-wrapper .company-logo {
         height: 5rem;
-    }
-
-    .double-border {
-        margin-top: 3px;
-        border-color: black;
     }
 
     .client-entity-wrapper {
@@ -121,6 +117,7 @@
     #delivery-note-table > tbody > tr > td,
     #task-table > tbody > tr > td {
         border-bottom: 1px solid;
+        border-top: 1px solid;
         padding: 1rem;
     }
 
@@ -130,25 +127,29 @@
         text-align: right;
     }
 
-    .thanks-label {
-        text-align: center;
-        margin-top: 6rem;
-        font-size: 1.5rem;
-        font-weight: bold;
-        padding-bottom: 1rem;
-        border-bottom: 4px solid;
-    }
-
     #table-totals {
         page-break-inside: avoid;
     }
 
-    #table-totals > * {
+    #table-totals {
         display: grid;
-        grid-template-columns: 3fr 1fr 1fr;
+        grid-template-columns: 2fr 1fr;
         padding-top: 0.5rem;
         padding-left: 1rem;
-        gap: 20px;
+        gap: 80px;
+    }
+
+    #table-totals .totals-table-right-side>* {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    #table-totals>.totals-table-right-side>*> :nth-child(1) {
+        text-align: left;
+    }
+
+    #table-totals>.totals-table-right-side>*> :nth-child(2) {
+        text-align: right;
     }
 
     #table-totals
@@ -213,9 +214,6 @@
 
     <table id="delivery-note-table" cellspacing="0"></table>
 </div>
-
-<p class="thanks-label">$thanks_label!</p>
-<hr class="double-border"/>
 
 <div id="footer">$entity_footer</div>
 

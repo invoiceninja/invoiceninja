@@ -9,10 +9,11 @@
         -moz-osx-font-smoothing: grayscale;
         font-family: Arial, Helvetica, sans-serif;
         font-size: "$font_size";
+        zoom: 80%;
     }
 
     @page {
-        margin: $global_margin;
+        margin: -0.25cm !important;
     }
 
     p {
@@ -21,8 +22,10 @@
     }
 
     .header-wrapper {
+        margin-top: 2rem;
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
+        padding: 2rem 3rem;
     }
 
     .header-wrapper .company-logo {
@@ -47,10 +50,10 @@
     }
 
     .contacts-wrapper {
-        margin-top: 3rem;
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 40px;
+        padding: 3rem;
     }
 
     .contacts-wrapper .contact-label {
@@ -90,7 +93,7 @@
     #product-table,
     #delivery-note-table,
     #task-table {
-        margin-top: 3rem;
+        padding: 3rem;
         /* margin-bottom: 200px; */
         min-width: 100%;
         table-layout: fixed;
@@ -141,6 +144,7 @@
     #product-table > tbody > tr > td,
     #delivery-note-table > tbody > tr > td,
     #task-table > tbody > tr > td {
+        background-color: #F7F7F7;
         border-bottom: 1px solid var(--primary-color);
         padding: 1rem;
     }
@@ -161,12 +165,25 @@
         page-break-inside: avoid;
     }
 
-    #table-totals > * {
+    #table-totals {
         display: grid;
-        grid-template-columns: 3fr 1fr 1fr;
-        padding-top: 0.5rem;
-        padding-left: 1rem;
-        gap: 20px;
+        grid-template-columns: 2fr 1fr;
+        gap: 80px;
+        padding-left: 3rem;
+        padding-right: 3rem;
+    }
+
+    #table-totals .totals-table-right-side>* {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    #table-totals>.totals-table-right-side>*> :nth-child(1) {
+        text-align: left;
+    }
+
+    #table-totals>.totals-table-right-side>*> :nth-child(2) {
+        text-align: right;
     }
 
     #table-totals
@@ -188,9 +205,45 @@
         text-align: right;
         padding-right: 1rem;
     }
+
+    #header {
+        position: fixed;
+        top: 0;
+        min-width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+        margin-left: -10px;
+    }
+
+    #header > * {
+        padding: 10px;
+    }
+
+    #footer {
+        position: fixed;
+        bottom: 0;
+        min-width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+        margin-left: -10px;
+    }
+
+    #footer > * {
+        padding: 5px;
+    }
 </style>
 
-<div id="header"></div>
+
+<div id="header">
+    <div style="background-color: #00968B"><!-- 1 --></div>
+    <div style="background-color: #1D756E"><!-- 2 --></div>
+    <div style="background-color: #FCB600"><!-- 3 --></div>
+    <div style="background-color: #BA932F"><!-- 4 --></div>
+    <div style="background-color: #A72A4E"><!-- 5 --></div>
+    <div style="background-color: #E20041"><!-- 6 --></div>
+    <div style="background-color: #F8B300"><!-- 7 --></div>
+    <div style="background-color: #009B8F"><!-- 8 --></div>
+</div>
 
 <div id="body">
     <div class="header-wrapper">
@@ -231,5 +284,16 @@
     <table id="delivery-note-table" cellspacing="0"></table>
 </div>
 
-<div id="footer">$entity_footer</div>
+<div id="footer">
+    $entity_footer
+
+    <div style="background-color: #00968B"><!-- 1 --></div>
+    <div style="background-color: #1D756E"><!-- 2 --></div>
+    <div style="background-color: #FCB600"><!-- 3 --></div>
+    <div style="background-color: #BA932F"><!-- 4 --></div>
+    <div style="background-color: #A72A4E"><!-- 5 --></div>
+    <div style="background-color: #E20041"><!-- 6 --></div>
+    <div style="background-color: #F8B300"><!-- 7 --></div>
+    <div style="background-color: #009B8F"><!-- 8 --></div>
+</div>
 
