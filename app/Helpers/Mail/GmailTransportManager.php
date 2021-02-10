@@ -9,6 +9,7 @@ class GmailTransportManager extends TransportManager
 {
     protected function createGmailDriver()
     {
+    	info('ping pong');
         $token = $this->app['config']->get('services.gmail.token', []);
         $mail = new Mail;
 
