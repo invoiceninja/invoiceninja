@@ -29,9 +29,13 @@
         color: white;
         display: grid;
         grid-template-columns: 1.5fr 1fr;
-        padding: 1.5rem;
-        width: 100%;
+        padding: 3rem;
+        min-width: 100%;
         height: 160px;
+    }
+
+    .company-name {
+        text-align: left;
     }
 
     .header-container .company-name {
@@ -54,7 +58,7 @@
     }
 
     .logo-client-wrapper {
-        margin: 3rem 1.5rem;
+        margin: 3rem 2rem;
         display: grid;
         grid-template-columns: 1.5fr 1fr;
     }
@@ -69,7 +73,7 @@
     }
 
     .table-wrapper {
-        margin: 3rem 1.5rem;
+        margin: 3rem 2rem;
     }
 
     #product-table,
@@ -99,7 +103,6 @@
         padding: 0.8rem;
         background-color: var(--secondary-color);
         color: white;
-        width: 100%;
     }
 
     #product-table > thead > tr > th:last-child,
@@ -130,8 +133,9 @@
     .footer-wrapper {
         margin-top: 1rem;
         background-color: var(--primary-color);
-        padding: 1rem;
-        height: 160px;
+        padding-left: 3rem;
+        padding-right: 3rem;
+        height: 220px;
         width: 100%;
         position: fixed;
         bottom: 0;
@@ -143,6 +147,7 @@
         width: 100%;
         grid-template-columns: 1fr 1fr 1fr;
         color: #fff4e9;
+        max-height: 140px;
     }
 
     #company-address,
@@ -165,9 +170,9 @@
     #table-totals {
         display: grid;
         grid-template-columns: 2fr 1fr;
-        margin-top: 0.5rem;
-        margin-right: 1.5rem;
-        margin-left: 1.5rem;
+        padding-top: .5rem;
+        padding-left: 3rem;
+        padding-right: 3rem;
         gap: 80px;
     }
 
@@ -194,22 +199,6 @@
         font-size: 1.3rem;
     }
 
-    #table-totals > * > * {
-        padding-left: 1.5rem;
-    }
-
-    #table-totals > * > :last-child {
-        text-align: right;
-        padding-right: 1rem;
-    }
-
-    #table-totals > *:last-child {
-        background-color: var(--secondary-color);
-        color: white;
-        padding-top: 0.7rem;
-        padding-bottom: 0.7rem;
-    }
-
     table.page-container {
         page-break-after: always;
         min-width: 100%;
@@ -221,6 +210,10 @@
 
     tfoot.page-footer {
         display: table-footer-group;
+    }
+
+    .page-content-cell {
+        padding: 1rem;
     }
 </style>
 

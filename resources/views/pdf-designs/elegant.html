@@ -33,11 +33,6 @@
         height: 5rem;
     }
 
-    .double-border {
-        margin-top: 3px;
-        border-color: black;
-    }
-
     .client-entity-wrapper {
         display: grid;
         grid-template-columns: 1.8fr 1.2fr;
@@ -122,6 +117,7 @@
     #delivery-note-table > tbody > tr > td,
     #task-table > tbody > tr > td {
         border-bottom: 1px solid;
+        border-top: 1px solid;
         padding: 1rem;
     }
 
@@ -129,15 +125,6 @@
     #delivery-note-table > tbody > tr > td:last-child,
     #task-table > tbody > tr > td:last-child {
         text-align: right;
-    }
-
-    .thanks-label {
-        text-align: center;
-        margin-top: 6rem;
-        font-size: 1.5rem;
-        font-weight: bold;
-        padding-bottom: 1rem;
-        border-bottom: 4px solid;
     }
 
     #table-totals {
@@ -227,9 +214,6 @@
 
     <table id="delivery-note-table" cellspacing="0"></table>
 </div>
-
-<p class="thanks-label">$thanks_label!</p>
-<hr class="double-border"/>
 
 <div id="footer">$entity_footer</div>
 

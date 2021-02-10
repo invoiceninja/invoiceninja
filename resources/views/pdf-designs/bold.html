@@ -28,6 +28,7 @@
         background-color: #2d2c2a;
         padding: 3rem;
         color: white;
+        min-width: 100%;
     }
 
     .company-logo {
@@ -186,37 +187,83 @@
         padding-left: 2rem;
         font-size: 1.5rem;
     }
+
+    table.page-container {
+        page-break-after: always;
+        min-width: 100%;
+    }
+
+    thead.page-header {
+        display: table-header-group;
+    }
+
+    tfoot.page-footer {
+        display: table-footer-group;
+    }
+
+    .footer-wrapper {
+        margin-top: 1rem;
+        background-color: #2d2c2a;
+        height: 160px;
+        min-width: 100%;
+        position: fixed;
+        bottom: 0;
+        padding: 1rem 3rem;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 15px;
+    }
 </style>
 
-
-<div class="header-wrapper" id="header">
-    <img class="company-logo" src="$company.logo" alt="$company.name logo"/>
-    <div id="company-details"></div>
-    <div id="company-address"></div>
-</div>
-
-<div id="body">
-
-    <div class="client-entity-wrapper">
-        <div class="client-wrapper-left-side">
-            <h4 class="entity-label">$entity_label</h4>
-            <div id="client-details" cellspacing="0"></div>
-        </div>
-
-        <div class="entity-details-wrapper-right-side">
-            <div class="entity-details-wrapper">
-                <table id="entity-details"></table>
+<table class="page-container">
+    <thead class="page-header">
+    <tr>
+        <th class="page-header-cell">
+            <div class="header-wrapper" id="header">
+                <img class="company-logo" src="$company.logo" alt="$company.name logo"/>
+                <div id="company-details"></div>
+                <div id="company-address"></div>
             </div>
-        </div>
-    </div>
+        </th>
+    </tr>
+    </thead>
 
-    <table id="product-table" cellspacing="0"></table>
+    <tfoot class="page-footer">
+    <tr>
+        <td class="page-footer-cell">
+            <div class="footer-wrapper" id="footer">
+                <div> <!-- #1 column --> </div>
+                <div> <!-- #2 column --> </div>
+                <div> <!-- #3 column --> </div>
+            </div>
+        </td>
+    </tr>
+    </tfoot>
 
-    <table id="task-table" cellspacing="0"></table>
+    <tbody class="page-content">
+    <tr>
+        <td class="page-content-cell" id="body">
+            <div class="client-entity-wrapper">
+                <div class="client-wrapper-left-side">
+                    <h4 class="entity-label">$entity_label</h4>
+                    <div id="client-details" cellspacing="0"></div>
+                </div>
 
-    <div id="table-totals" cellspacing="0"></div>
+                <div class="entity-details-wrapper-right-side">
+                    <div class="entity-details-wrapper">
+                        <table id="entity-details"></table>
+                    </div>
+                </div>
+            </div>
 
-    <table id="delivery-note-table" cellspacing="0"></table>
-</div>
+            <table id="product-table" cellspacing="0"></table>
 
-<div id="footer">$entity_footer</div>
+            <table id="task-table" cellspacing="0"></table>
+
+            <div id="table-totals" cellspacing="0"></div>
+
+            <table id="delivery-note-table" cellspacing="0"></table>
+        </td>
+    </tr>
+    </tbody>
+</table>
