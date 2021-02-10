@@ -2,12 +2,14 @@
 
 namespace App\Helpers\Mail;
 
+use Illuminate\Mail\MailManager;
+use App\CustomMailDriver\CustomTransport;
 use Dacastro4\LaravelGmail\Services\Message\Mail;
-use Illuminate\Mail\TransportManager;
 
-class GmailTransportManager extends TransportManager
+
+class GmailTransportManager extends MailManager
 {
-    protected function createGmailDriver()
+    protected function createGmailTransport()
     {
     	info('ping pong');
         $token = $this->app['config']->get('services.gmail.token', []);
