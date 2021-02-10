@@ -49,18 +49,25 @@ class DesignUpdate extends Command
      */
     public function handle()
     {
+        //always return state to first DB
 
+        $current_db = config('database.default');
 
         if (! config('ninja.db.multi_db_enabled')) {
             $this->handleOnDb();
         } else {
+
             //multiDB environment, need to
             foreach (MultiDB::$dbs as $db) {
                 MultiDB::setDB($db);
 
                 $this->handleOnDb($db);
             }
+
+        MultiDB::setDB($current_db);
+        
         }
+
 
     }
 
