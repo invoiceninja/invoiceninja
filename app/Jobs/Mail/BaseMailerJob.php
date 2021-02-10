@@ -18,6 +18,7 @@ use App\Models\SystemLog;
 use App\Models\User;
 use App\Providers\MailServiceProvider;
 use App\Utils\Ninja;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -32,7 +33,7 @@ use Turbo124\Beacon\Facades\LightLogs;
 
 class BaseMailerJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash;
 
     public $tries = 5; //number of retries
 
@@ -63,7 +64,7 @@ class BaseMailerJob implements ShouldQueue
     {
         $sending_user = $this->settings->gmail_sending_user_id;
 
-        $user = User::find($sending_user);
+        $user = User::find($this->decodePrimaryKey($sending_user));
 
         $google = (new Google())->init();
         $google->getClient()->setAccessToken(json_encode($user->oauth_user_token));
