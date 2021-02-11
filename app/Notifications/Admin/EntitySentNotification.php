@@ -23,7 +23,7 @@ use Illuminate\Queue\SerializesModels;
 
 class EntitySentNotification extends Notification implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    //use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * Create a new notification instance.
