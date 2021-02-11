@@ -148,6 +148,7 @@ class CompanySettings extends BaseSettings
     public $gmail_sending_user_id = '0'; //@implemented
 
     public $reply_to_email = ''; //@TODO
+    public $reply_to_name = ''; //@TODO
     public $bcc_email = ''; //@TODO
     public $pdf_email_attachment = false; //@implemented
     public $ubl_email_attachment = false; //@implemented
@@ -261,6 +262,7 @@ class CompanySettings extends BaseSettings
     public $hide_empty_columns_on_pdf = false;
 
     public static $casts = [
+        'reply_to_name'                      => 'string',
         'hide_empty_columns_on_pdf'          => 'bool',
         'enable_reminder_endless'            => 'bool',
         'use_credits_payment'                => 'string',
