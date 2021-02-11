@@ -8,7 +8,7 @@ use Illuminate\Queue\SerializesModels;
 
 class MigrationFailed extends Mailable
 {
-    use Queueable, SerializesModels;
+    // use Queueable, SerializesModels;
 
     public $exception;
     public $content;

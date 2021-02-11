@@ -9,7 +9,7 @@ use Illuminate\Queue\SerializesModels;
 
 class DownloadInvoices extends Mailable
 {
-    use Queueable, SerializesModels;
+    // use Queueable, SerializesModels;
 
     public $file_path;
 

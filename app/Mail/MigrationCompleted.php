@@ -9,7 +9,7 @@ use Illuminate\Queue\SerializesModels;
 
 class MigrationCompleted extends Mailable
 {
-    use Queueable, SerializesModels;
+    // use Queueable, SerializesModels;
 
     public $company;
 

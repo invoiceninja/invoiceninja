@@ -80,15 +80,15 @@ class BaseMailerJob implements ShouldQueue
          *  just for this request.
         */
 
-        Config::set('mail.driver', 'gmail');
-        Config::set('services.gmail.token', $user->oauth_user_token->access_token);
-        Config::set('mail.from.address', $user->email);
-        Config::set('mail.from.name', $user->present()->name());
+        config(['mail.driver' => 'gmail']);
+        config(['services.gmail.token' => $user->oauth_user_token->access_token]);
+        config(['mail.from.address' => $user->email]);
+        config(['mail.from.name' => $user->present()->name()]);
 
-        (new MailServiceProvider(app()))->register();
+        //(new MailServiceProvider(app()))->register();
 
         nlog("after registering mail service provider");
-        nlog(Config::set('services.gmail.token'));
+        nlog(config('services.gmail.token'));
     }
 
     public function logMailError($errors, $recipient_object)
