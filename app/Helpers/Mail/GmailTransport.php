@@ -61,41 +61,21 @@ class GmailTransport extends Transport
         $this->gmail->cc($message->getCc());
         $this->gmail->bcc($message->getBcc());
 
-        foreach ($message->getChildren() as $child) {
-            nlog("trying to attach");
-            nlog($child->getContentType());
-            
+        foreach ($message->getChildren() as $child) 
+        {
 
-            if($child->getContentType() != 'text/plain'){
-
-                nlog($child->getHeaders());
-                
-                $this->gmail->attach(TempFile::filePath($child));
-
-            }
-
-
-        foreach ($message->getChildren() as $child) {
             nlog("trying to attach");
 
-            if($child->getContentType() != 'text/plain'){
+            if($child->getContentType() != 'text/plain')
+            {
 
-// $attachment = (new Swift_Attachment())
-//   ->setFilename($child->getHeaders()->get('Content-Type')->getParameter('name'))
-//   ->setContentType($child->getContentType())
-//   ->setBody($child->getBody());
-
-            $this->gmail->attach(new Swift_Attachment($child));
+            $this->gmail->attach(TempFile::filePath($child->getBody(), $child->getHeaders()->get('Content-Type')->getParameter('name') ));
             
             }
 
 
-        } //todo this should 'just work'
+        } 
 
-
-
-
-        } //todo this should 'just work'
 
         $this->gmail->send();
 
