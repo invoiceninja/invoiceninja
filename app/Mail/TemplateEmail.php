@@ -20,7 +20,7 @@ use Illuminate\Queue\SerializesModels;
 
 class TemplateEmail extends Mailable
 {
-    use Queueable, SerializesModels;
+    //use Queueable, SerializesModels;
 
     private $build_email;
 
