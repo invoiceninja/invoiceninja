@@ -65,11 +65,34 @@ class GmailTransport extends Transport
             nlog("trying to attach");
             nlog($child->getContentType());
             
+
             if($child->getContentType() != 'text/plain'){
 
-                $this->gmail->attach(TempFile::filePath($child));
+                nlog($child->getHeaders());
                 
+                $this->gmail->attach(TempFile::filePath($child));
+
             }
+
+
+        foreach ($message->getChildren() as $child) {
+            nlog("trying to attach");
+
+            if($child->getContentType() != 'text/plain'){
+
+// $attachment = (new Swift_Attachment())
+//   ->setFilename($child->getHeaders()->get('Content-Type')->getParameter('name'))
+//   ->setContentType($child->getContentType())
+//   ->setBody($child->getBody());
+
+            $this->gmail->attach(new Swift_Attachment($child));
+            
+            }
+
+
+        } //todo this should 'just work'
+
+
 
 
         } //todo this should 'just work'
