@@ -21,7 +21,7 @@ use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Queue\SerializesModels;
 
-class SendGenericNotification extends BaseNotification implements ShouldQueue
+class SendGenericNotification extends BaseNotification 
 {
    // use Queueable;
    // use Dispatchable;

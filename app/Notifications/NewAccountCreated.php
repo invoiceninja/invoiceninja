@@ -20,7 +20,7 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class NewAccountCreated extends Notification implements ShouldQueue
+class NewAccountCreated extends Notification
 {
     //use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
