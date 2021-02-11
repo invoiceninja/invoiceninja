@@ -20,7 +20,7 @@ use Illuminate\Notifications\Notification;
 
 class BaseNotification extends Notification implements ShouldQueue
 {
-    use Queueable;
+  //  use Queueable;
     use MakesInvoiceHtml;
 
     /**

@@ -23,9 +23,9 @@ use Illuminate\Queue\SerializesModels;
 
 class SendGenericNotification extends BaseNotification implements ShouldQueue
 {
-    use Queueable;
-    use Dispatchable;
-    use SerializesModels;
+   // use Queueable;
+   // use Dispatchable;
+   // use SerializesModels;
 
     /**
      * Create a new notification instance.

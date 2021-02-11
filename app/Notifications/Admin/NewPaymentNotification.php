@@ -23,7 +23,7 @@ use Illuminate\Queue\SerializesModels;
 
 class NewPaymentNotification extends Notification implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+  //  use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * Create a new notification instance.
