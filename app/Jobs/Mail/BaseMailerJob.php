@@ -86,6 +86,9 @@ class BaseMailerJob implements ShouldQueue
         Config::set('mail.from.name', $user->present()->name());
 
         (new MailServiceProvider(app()))->register();
+
+        nlog("after registering mail service provider");
+        nlog(Config::set('services.gmail.token'));
     }
 
     public function logMailError($errors, $recipient_object)

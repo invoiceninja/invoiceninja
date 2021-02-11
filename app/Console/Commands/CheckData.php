@@ -303,14 +303,14 @@ class CheckData extends Command
                 $total_invoice_payments += ($total_amount - $total_refund);
             }
 
-            //10/02/21
-            // foreach ($client->payments as $payment) {
-            //     $credit_total_applied += $payment->paymentables->where('paymentable_type', App\Models\Credit::class)->sum(DB::raw('amount'));
-            // }
+            // 10/02/21
+            foreach ($client->payments as $payment) {
+                $credit_total_applied += $payment->paymentables->where('paymentable_type', App\Models\Credit::class)->sum(DB::raw('amount'));
+            }
 
-            // if ($credit_total_applied < 0) {
-            //     $total_invoice_payments += $credit_total_applied;
-            // } 
+            if ($credit_total_applied < 0) {
+                $total_invoice_payments += $credit_total_applied;
+            } 
 
 
             if (round($total_invoice_payments, 2) != round($client->paid_to_date, 2)) {
