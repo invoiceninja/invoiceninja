@@ -22,7 +22,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
 
-class ClientContactRequestCancellation extends Notification implements ShouldQueue
+class ClientContactRequestCancellation extends Notification 
 {
   //  use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 

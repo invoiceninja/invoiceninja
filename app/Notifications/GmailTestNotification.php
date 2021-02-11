@@ -19,7 +19,7 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class GmailTestNotification extends Notification implements ShouldQueue
+class GmailTestNotification extends Notification 
 {
  //   use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 

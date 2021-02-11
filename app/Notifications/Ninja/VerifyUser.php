@@ -19,7 +19,7 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class VerifyUser extends Notification implements ShouldQueue
+class VerifyUser extends Notification 
 {
   //  use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
