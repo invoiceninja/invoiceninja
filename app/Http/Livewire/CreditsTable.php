@@ -28,6 +28,7 @@ class CreditsTable extends Component
     {
         $query = Credit::query()
             ->where('client_id', auth('contact')->user()->client->id)
+            ->where('status_id', '<>', Credit::STATUS_DRAFT)
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
             ->paginate($this->per_page);
 
