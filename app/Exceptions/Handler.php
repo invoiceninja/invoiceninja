@@ -111,6 +111,10 @@ class Handler extends ExceptionHandler
             return false;
         }
 
+        if (strpos($exception->getMessage(), 'expects parameter 1 to be resource') !== false) {
+            return false;
+        }
+
         return true;
     }
 

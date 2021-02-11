@@ -11,6 +11,7 @@
 
 namespace App\Helpers\Mail;
 
+use App\Utils\TempFile;
 use Dacastro4\LaravelGmail\Services\Message\Mail;
 use Illuminate\Mail\Transport\Transport;
 use Swift_Mime_SimpleMessage;
@@ -64,8 +65,11 @@ class GmailTransport extends Transport
             nlog("trying to attach");
             nlog($child->getContentType());
             
-            if($child->getContentType() != 'text/plain')
-                $this->gmail->attach($child);
+            if($child->getContentType() != 'text/plain'){
+
+                $this->gmail->attach(TempFile::filePath($child));
+                
+            }
 
 
         } //todo this should 'just work'
