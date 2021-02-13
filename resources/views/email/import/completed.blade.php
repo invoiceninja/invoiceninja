@@ -1,4 +1,4 @@
-@component('email.template.master', ['design' => 'light', 'settings' => $settings])
+@component('email.template.master', ['design' => 'light', 'settings' => $company->settings])
     @slot('header')
         @include('email.components.header', ['logo' => 'https://www.invoiceninja.com/wp-content/uploads/2015/10/logo-white-horizontal-1.png'])
     @endslot
@@ -73,15 +73,32 @@
         <p><b>Documents Imported:</b> {{ count($company->documents) }} </p>
     @endif
 
+    @if(!empty($errors) )
+        <p>The following import errors occurred:</p>
+        <table>
+            <thead>
+            <tr>
+                <th>Type</th>
+                <th>Data</th>
+                <th>Error</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach($errors as $entityType=>$entityErrors)
+                @foreach($entityErrors as $error)
+                    <tr>
+                        <td>{{$entityType}}</td>
+                        <td>{{json_encode($error[$entityType]??null)}}</td>
+                        <td>{{json_encode($error['error'])}}</td>
+                    </tr>
+                @endforeach
+                @endforeach
+            </tbody>
+        </table>
+    @endif
+
     <a href="{{ url('/') }}" target="_blank" class="button">{{ ctrans('texts.account_login')}}</a>
 
     <p>{{ ctrans('texts.email_signature')}}<br/> {{ ctrans('texts.email_from') }}</p>
 
-@if(!$whitelabel)
-    @slot('footer')
-        @component('email.components.footer', ['url' => 'https://invoiceninja.com', 'url_text' => '&copy; InvoiceNinja'])
-            For any info, please visit InvoiceNinja.
-        @endcomponent
-    @endslot
-@endif
 @endcomponent

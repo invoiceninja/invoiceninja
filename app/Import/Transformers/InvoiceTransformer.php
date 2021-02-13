@@ -19,7 +19,7 @@ class InvoiceTransformer extends BaseTransformer
     /**
      * @param $data
      *
-     * @return bool|Item
+     * @return array
      */
     public function transform($data)
     {
@@ -27,8 +27,8 @@ class InvoiceTransformer extends BaseTransformer
                 'company_id' => $this->maps['company']->id,
                 'number' => $this->getString($data, 'invoice.number'),
                 'user_id' => $this->getString($data, 'invoice.user_id'),
-                'amount' => $this->getFloat($data, 'invoice.amount'),
-                'balance' => $this->getFloat($data, 'invoice.balance'),
+                'amount' => $amount = $this->getFloat($data, 'invoice.amount'),
+				'balance' => isset( $data['invoice.balance'] ) ? $this->getFloat( $data, 'invoice.balance' ) : $amount,
                 'client_id' => $this->getClient($this->getString($data, 'client.name'), $this->getString($data, 'client.email')),
                 'discount' => $this->getFloat($data, 'invoice.discount'),
                 'po_number' => $this->getString($data, 'invoice.po_number'),
