@@ -4140,6 +4140,8 @@ $LANG = array(
 
      //////////////////////////////////////
      'start_migration' => 'Start Migration',
+     'recurring_cancellation_request' => 'Request for recurring invoice cancellation from :contact',
+     
 );
 
 return $LANG;
