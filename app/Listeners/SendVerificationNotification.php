@@ -51,7 +51,7 @@ class SendVerificationNotification implements ShouldQueue
         try {
 
             $nmo = new NinjaMailerObject;
-            $nmo->mailable = new NinjaMailer(new VerifyUserObject($event->user, $event->company));
+            $nmo->mailable = new NinjaMailer((new VerifyUserObject($event->user, $event->company))->build());
             $nmo->company = $event->company;
             $nmo->to_user = $event->user;
             $nmo->settings = $event->company->settings;

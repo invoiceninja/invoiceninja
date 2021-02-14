@@ -67,11 +67,12 @@ class NinjaMailerJob implements ShouldQueue
 
         //send email
         try {
+            nlog("trying to send");
             Mail::to($this->nmo->to_user->email)
                 ->send($this->nmo->mailable);
         } catch (\Exception $e) {
             //$this->failed($e);
-            
+            nlog("error failed with {$e->getMessage()}");
             if ($this->nmo->to_user instanceof ClientContact) {
                 $this->logMailError($e->getMessage(), $this->nmo->to_user->client);
             }

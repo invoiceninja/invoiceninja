@@ -11,12 +11,8 @@
 
 namespace App\Mail\Admin;
 
-use App\Utils\Traits\MakesHash;
-
-class VerifyUserObject
+class AccountCreatedObject
 {
-
-    use MakesHash;
 
     public $user;
 
@@ -33,22 +29,20 @@ class VerifyUserObject
 
     public function build()
     {
-    	$this->user->confirmation_code = $this->createDbHash($this->company->db);
-    	$this->user->save();
 
         $data = [
-            'title' => ctrans('texts.confirmation_subject'),
-            'message' => ctrans('texts.confirmation_message'),
-            'url' => url("/user/confirm/{$this->user->confirmation_code}"),
-            'button' => ctrans('texts.button_confirmation_message'),
+            'title' => ctrans('texts.new_signup'),
+            'message' => ctrans('texts.new_signup_text', ['user' => $this->user->present()->name(), 'email' => $this->user->email, 'ip' => $this->user->ip]),
+            'url' => config('ninja.web_url'),
+            'button' => ctrans('texts.account_login'),
+            'signature' => $this->company->settings->email_signature,
             'settings' => $this->company->settings,
             'logo' => $this->company->present()->logo(),
-			'signature' => $this->company->settings->email_signature,
         ];
 
 
         $mail_obj = new \stdClass;
-        $mail_obj->subject = ctrans('texts.confirmation_subject');
+        $mail_obj->subject = ctrans('texts.new_signup');
         $mail_obj->data = $data;
         $mail_obj->markdown = 'email.admin.generic';
         $mail_obj->tag = $this->company->company_key;
