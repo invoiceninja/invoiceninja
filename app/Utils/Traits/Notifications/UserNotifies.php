@@ -97,7 +97,7 @@ trait UserNotifies
 
         return $company_users->filter(function($company_user) use($required_notification, $entity){
 
-            return $this->checkNotificationExists($company_user, $entity, $required_notification)
+            return $this->checkNotificationExists($company_user, $entity, $required_notification);
 
         });
 

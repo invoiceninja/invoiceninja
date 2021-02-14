@@ -18,6 +18,8 @@ class ClientContactRequestCancellationObject
 
     public $client_contact;
 
+    private $company;
+
     /**
      *
      */
@@ -25,13 +27,14 @@ class ClientContactRequestCancellationObject
     {
         $this->recurring_invoice = $recurring_invoice;
         $this->client_contact = $client_contact;
+        $this->company = $recurring_invoice->company;
     }
 
     public function build()
     {
 
         $data = [
-            'title' => ctrans('texts.new_signup'),
+            'title' => ctrans('texts.recurring_cancellation_request', ['contact' => $this->client_contact->present()->name()]),
             'message' => ctrans('texts.recurring_cancellation_request_body', ['contact' => $this->client_contact->present()->name(), 'client' => $this->client_contact->client->present()->name(), 'invoice' => $this->recurring_invoice->number]),
             'url' => config('ninja.web_url'),
             'button' => ctrans('texts.account_login'),
