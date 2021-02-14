@@ -29,7 +29,10 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Lang;
 use Turbo124\Beacon\Facades\LightLogs;
 
-/*Multi Mailer implemented*/
+/*
+Multi Mailer implemented
+@Deprecated 14/02/2021
+*/
 
 class BaseMailerJob implements ShouldQueue
 {

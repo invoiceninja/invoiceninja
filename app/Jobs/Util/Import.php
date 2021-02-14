@@ -34,6 +34,7 @@ use App\Http\ValidationRules\ValidUserForCompany;
 use App\Jobs\Company\CreateCompanyToken;
 use App\Jobs\Ninja\CheckCompanyData;
 use App\Jobs\Ninja\CompanySizeCheck;
+use App\Jobs\Util\VersionCheck;
 use App\Libraries\MultiDB;
 use App\Mail\MigrationCompleted;
 use App\Models\Activity;
@@ -74,6 +75,7 @@ use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
 use App\Utils\Traits\Uploadable;
+use Dacastro4\LaravelGmail\Services\Message\Mail;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -81,7 +83,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Turbo124\Beacon\Facades\LightLogs;
@@ -226,15 +227,22 @@ class Import implements ShouldQueue
     private function setInitialCompanyLedgerBalances()
     {
         Client::cursor()->each(function ($client) {
+
+            $invoice_balances = $client->invoices->where('is_deleted', false)->where('status_id', '>', 1)->sum('balance');
+
             $company_ledger = CompanyLedgerFactory::create($client->company_id, $client->user_id);
             $company_ledger->client_id = $client->id;
-            $company_ledger->adjustment = $client->balance;
+            $company_ledger->adjustment = $invoice_balances;
             $company_ledger->notes = 'Migrated Client Balance';
-            $company_ledger->balance = $client->balance;
+            $company_ledger->balance = $invoice_balances;
             $company_ledger->activity_id = Activity::CREATE_CLIENT;
             $company_ledger->save();
 
             $client->company_ledger()->save($company_ledger);
+
+            $client->balance = $invoice_balances;
+            $client->save();
+            
         });
     }
 
@@ -1031,17 +1039,20 @@ class Import implements ShouldQueue
             if (array_key_exists('invoice_id', $resource) && $resource['invoice_id'] && array_key_exists('invoices', $this->ids)) {
 
                 $try_quote = false;
-                $exception = null;
+                $exception = false;
+
                 try{
                     $invoice_id = $this->transformId('invoices', $resource['invoice_id']);
                     $entity = Invoice::where('id', $invoice_id)->withTrashed()->first();
                 }
                 catch(\Exception $e){
+                    nlog("i couldn't find the invoice document {$resource['invoice_id']}, perhaps it is a quote?");
+                    nlog($e->getMessage());
 
                     $try_quote = true;
                 }
 
-                if($try_quote) {
+                if($try_quote && array_key_exists('quotes', $this->ids) ) {
                     
                     $quote_id = $this->transformId('quotes', $resource['invoice_id']);
                     $entity = Quote::where('id', $quote_id)->withTrashed()->first();
@@ -1049,7 +1060,7 @@ class Import implements ShouldQueue
 
                 }
                 
-                if($exception)
+                if(!$entity)
                     throw new Exception("Resource invoice/quote document not available.");
 
 
