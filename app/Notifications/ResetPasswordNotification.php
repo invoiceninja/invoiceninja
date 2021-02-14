@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
+//@deprecated
 class ResetPasswordNotification extends Notification
 {
 //    use Queueable;
@@ -30,7 +31,7 @@ class ResetPasswordNotification extends Notification
      */
     public function via($notifiable)
     {
-        return ['mail'];
+        return [];
     }
 
     /**

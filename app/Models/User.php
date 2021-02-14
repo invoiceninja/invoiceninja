@@ -11,6 +11,10 @@
 
 namespace App\Models;
 
+use App\Jobs\Mail\NinjaMailer;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
+use App\Mail\Admin\ResetPasswordObject;
 use App\Models\Presenters\UserPresenter;
 use App\Notifications\ResetPasswordNotification;
 use App\Utils\Traits\MakesHash;
@@ -371,6 +375,15 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function sendPasswordResetNotification($token)
     {
-        $this->notify(new ResetPasswordNotification($token));
+
+        $nmo = new NinjaMailerObject;
+        $nmo->mailable = new NinjaMailer( (new ResetPasswordObject($token, $this, $this->account->default_company))->build());
+        $nmo->to_user = $this;
+        $nmo->settings = $this->account->default_company->settings;
+        $nmo->company = $this->account->default_company;
+
+        NinjaMailerJob::dispatch($nmo);
+
+        //$this->notify(new ResetPasswordNotification($token));
     }
 }
