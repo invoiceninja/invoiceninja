@@ -11,9 +11,12 @@
 
 namespace App\Jobs\Mail;
 
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
 use App\Mail\Admin\EntityNotificationMailer;
 use App\Mail\Admin\PaymentFailureObject;
+use App\Mail\NinjaMailer;
 use App\Models\User;
 use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Bus\Queueable;
@@ -70,16 +73,8 @@ class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
     public function handle()
     {
 
-        /*If we are migrating data we don't want to fire these notification*/
-        if ($this->company->is_disabled) {
-            return true;
-        }
-        
         //Set DB
         MultiDB::setDb($this->company->db);
-
-        //if we need to set an email driver do it now
-        $this->setMailDriver();
 
         //iterate through company_users
         $this->company->company_users->each(function ($company_user) {        
@@ -93,16 +88,15 @@ class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
                 unset($methods[$key]);
 
                 $mail_obj = (new PaymentFailureObject($this->client, $this->error, $this->company, $this->payment_hash))->build();
-                $mail_obj->from = [config('mail.from.address'), config('mail.from.name')];
 
-                //send email
-                try {
-                    Mail::to($company_user->user->email)
-                        ->send(new EntityNotificationMailer($mail_obj));
-                } catch (\Exception $e) {
-                    //$this->failed($e);
-                    $this->logMailError($e->getMessage(), $this->client);
-                }
+                $nmo = new NinjaMailerObject;
+                $nmo->mailable = new NinjaMailer($mail_obj);
+                $nmo->company = $this->companyl;
+                $nmo->to_user = $company_user->user;
+                $nmo->settings = $this->settings;
+
+                NinjaMailerJob::dispatch($nmo);
+
             }
         });
     }
