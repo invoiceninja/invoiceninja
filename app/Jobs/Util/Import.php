@@ -1029,9 +1029,32 @@ class Import implements ShouldQueue
             }
 
             if (array_key_exists('invoice_id', $resource) && $resource['invoice_id'] && array_key_exists('invoices', $this->ids)) {
-                $invoice_id = $this->transformId('invoices', $resource['invoice_id']);
-                $entity = Invoice::where('id', $invoice_id)->withTrashed()->first();
+
+                $try_quote = false;
+                $exception = null;
+                try{
+                    $invoice_id = $this->transformId('invoices', $resource['invoice_id']);
+                    $entity = Invoice::where('id', $invoice_id)->withTrashed()->first();
+                }
+                catch(\Exception $e){
+
+                    $try_quote = true;
+                }
+
+                if($try_quote) {
+                    
+                    $quote_id = $this->transformId('quotes', $resource['invoice_id']);
+                    $entity = Quote::where('id', $quote_id)->withTrashed()->first();
+                    $exception = $e;
+
+                }
+                
+                if($exception)
+                    throw new Exception("Resource invoice/quote document not available.");
+
+
             }
+
 
             if (array_key_exists('expense_id', $resource) && $resource['expense_id'] && array_key_exists('expenses', $this->ids)) {
                 $expense_id = $this->transformId('expenses', $resource['expense_id']);

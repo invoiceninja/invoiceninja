@@ -389,8 +389,8 @@ class CheckData extends Command
             $invoice_balance = $client->invoices->where('is_deleted', false)->where('status_id', '>', 1)->sum('balance');
             $credit_balance = $client->credits->where('is_deleted', false)->sum('balance');
 
-            if($client->balance != $invoice_balance)
-                $invoice_balance -= $credit_balance;//doesn't make sense to remove the credit amount
+            // if($client->balance != $invoice_balance)
+            //     $invoice_balance -= $credit_balance;//doesn't make sense to remove the credit amount
 
             $ledger = CompanyLedger::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
 
