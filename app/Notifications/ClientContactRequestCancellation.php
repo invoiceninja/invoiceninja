@@ -56,7 +56,7 @@ class ClientContactRequestCancellation extends Notification
      */
     public function via($notifiable)
     {
-        return ['mail', 'slack'];
+        return ['slack'];
     }
 
     /**

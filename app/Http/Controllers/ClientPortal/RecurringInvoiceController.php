@@ -13,6 +13,9 @@ namespace App\Http\Controllers\ClientPortal;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\ShowRecurringInvoiceRequest;
+use App\Jobs\Mail\NinjaMailer;
+use App\Jobs\Mail\NinjaMailerObject;
+use App\Mail\RecurringInvoice\ClientContactRequestCancellationObject;
 use App\Models\RecurringInvoice;
 use App\Notifications\ClientContactRequestCancellation;
 use App\Utils\Traits\MakesDates;
@@ -57,7 +60,11 @@ class RecurringInvoiceController extends Controller
     {
         //todo double check the user is able to request a cancellation
         //can add locale specific by chaining ->locale();
-        $recurring_invoice->user->notify(new ClientContactRequestCancellation($recurring_invoice, auth()->user()));
+        
+        $nmo = new NinjaMailerObject;
+        $nmo->mailable = (new NinjaMailer((new ClientContactRequestCancellationObject($recurring_invoice, auth()->user()))->build()));
+
+        //$recurring_invoice->user->notify(new ClientContactRequestCancellation($recurring_invoice, auth()->user()));
 
         return $this->render('recurring_invoices.cancellation.index', [
             'invoice' => $recurring_invoice,

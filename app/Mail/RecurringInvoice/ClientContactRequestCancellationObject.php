@@ -32,7 +32,7 @@ class ClientContactRequestCancellationObject
 
         $data = [
             'title' => ctrans('texts.new_signup'),
-            'message' => ctrans('texts.new_signup_text', ['user' => $this->user->present()->name(), 'email' => $this->user->email, 'ip' => $this->user->ip]),
+            'message' => ctrans('texts.recurring_cancellation_request_body', ['contact' => $this->client_contact->present()->name(), 'client' => $this->client_contact->client->present()->name(), 'invoice' => $this->recurring_invoice->number]),
             'url' => config('ninja.web_url'),
             'button' => ctrans('texts.account_login'),
             'signature' => $this->company->settings->email_signature,
@@ -42,7 +42,7 @@ class ClientContactRequestCancellationObject
 
 
         $mail_obj = new \stdClass;
-        $mail_obj->subject = ctrans('texts.new_signup');
+        $mail_obj->subject = ctrans('texts.recurring_cancellation_request', ['contact' => $this->client_contact->present()->name()]);
         $mail_obj->data = $data;
         $mail_obj->markdown = 'email.admin.generic';
         $mail_obj->tag = $this->company->company_key;
