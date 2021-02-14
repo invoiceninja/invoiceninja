@@ -91,7 +91,7 @@ class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
 
                 $nmo = new NinjaMailerObject;
                 $nmo->mailable = new NinjaMailer($mail_obj);
-                $nmo->company = $this->companyl;
+                $nmo->company = $this->company;
                 $nmo->to_user = $company_user->user;
                 $nmo->settings = $this->settings;
 

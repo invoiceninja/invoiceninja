@@ -11,7 +11,11 @@
 
 namespace App\Listeners;
 
+use App\Jobs\Mail\NinjaMailer;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
+use App\Mail\Admin\VerifyUserObject;
 use App\Notifications\Ninja\VerifyUser;
 use App\Utils\Ninja;
 use Exception;
@@ -45,7 +49,16 @@ class SendVerificationNotification implements ShouldQueue
         MultiDB::setDB($event->company->db);
 
         try {
-            $event->user->notify(new VerifyUser($event->user, $event->company));
+
+            $nmo = new NinjaMailerObject;
+            $nmo->mailable = new NinjaMailer(new VerifyUserObject($event->user, $event->company));
+            $nmo->company = $event->company;
+            $nmo->to_user = $event->user;
+            $nmo->settings = $event->company->settings;
+
+            NinjaMailerJob::dispatch($nmo);
+
+            // $event->user->notify(new VerifyUser($event->user, $event->company));
 
             Ninja::registerNinjaUser($event->user);
         } catch (Exception $e) {

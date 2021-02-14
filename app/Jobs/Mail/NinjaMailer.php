@@ -9,7 +9,7 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Mail;
+namespace App\Jobs\Mail;
 
 use Illuminate\Mail\Mailable;
 
