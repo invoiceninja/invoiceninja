@@ -75,7 +75,6 @@ use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
 use App\Utils\Traits\Uploadable;
-use Dacastro4\LaravelGmail\Services\Message\Mail;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -86,6 +85,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Turbo124\Beacon\Facades\LightLogs;
+use Illuminate\Support\Facades\Mail;
 
 class Import implements ShouldQueue
 {
@@ -242,7 +242,7 @@ class Import implements ShouldQueue
 
             $client->balance = $invoice_balances;
             $client->save();
-            
+
         });
     }
 
