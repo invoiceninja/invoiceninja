@@ -24,6 +24,7 @@ use App\Http\Requests\Quote\EditQuoteRequest;
 use App\Http\Requests\Quote\ShowQuoteRequest;
 use App\Http\Requests\Quote\StoreQuoteRequest;
 use App\Http\Requests\Quote\UpdateQuoteRequest;
+use App\Http\Requests\Quote\UploadQuoteRequest;
 use App\Jobs\Invoice\ZipInvoices;
 use App\Models\Client;
 use App\Models\Invoice;
@@ -34,6 +35,7 @@ use App\Transformers\QuoteTransformer;
 use App\Utils\Ninja;
 use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SavesDocuments;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -43,6 +45,7 @@ use Illuminate\Http\Response;
 class QuoteController extends BaseController
 {
     use MakesHash;
+    use SavesDocuments;
 
     protected $entity_type = Quote::class;
 
@@ -717,4 +720,65 @@ class QuoteController extends BaseController
 
         return response()->download($file_path);
     }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param UploadQuoteRequest $request
+     * @param Quote $quote
+     * @return Response
+     *
+     *
+     *
+     * @OA\Put(
+     *      path="/api/v1/quotes/{id}/upload",
+     *      operationId="uploadQuote",
+     *      tags={"quotes"},
+     *      summary="Uploads a document to a quote",
+     *      description="Handles the uploading of a document to a quote",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Quote Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the Quote object",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Quote"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
+    public function upload(UploadQuoteRequest $request, Quote $quote)
+    {
+
+        if ($request->has('documents')) 
+            $this->saveDocuments($request->file('documents'), $quote);
+
+        return $this->itemResponse($quote->fresh());
+
+    }  
 }

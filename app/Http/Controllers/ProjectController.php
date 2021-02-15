@@ -19,6 +19,7 @@ use App\Http\Requests\Project\EditProjectRequest;
 use App\Http\Requests\Project\ShowProjectRequest;
 use App\Http\Requests\Project\StoreProjectRequest;
 use App\Http\Requests\Project\UpdateProjectRequest;
+use App\Http\Requests\Project\UploadProjectRequest;
 use App\Models\Project;
 use App\Repositories\ProjectRepository;
 use App\Transformers\ProjectTransformer;
@@ -503,4 +504,65 @@ class ProjectController extends BaseController
 
         return $this->listResponse(Project::withTrashed()->whereIn('id', $this->transformKeys($ids)));
     }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param UploadProductRequest $request
+     * @param Product $project
+     * @return Response
+     *
+     *
+     *
+     * @OA\Put(
+     *      path="/api/v1/projects/{id}/upload",
+     *      operationId="uploadProject",
+     *      tags={"projects"},
+     *      summary="Uploads a document to a project",
+     *      description="Handles the uploading of a document to a project",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Project Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the Project object",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Project"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
+    public function upload(UploadProjectRequest $request, Product $project)
+    {
+
+        if ($request->has('documents')) 
+            $this->saveDocuments($request->file('documents'), $project);
+
+        return $this->itemResponse($project->fresh());
+
+    }  
 }
