@@ -57,11 +57,14 @@ class CustomPaymentDriver extends BaseDriver
      */
     public function processPaymentView($data)
     {
-        $invitation = Invoice::findOrFail(
-            $this->decodePrimaryKey($data['invoices']['0']['invoice_id'])
-        )->invitations->first();
+        $variables = [];
 
-        $variables = (new HtmlEngine($invitation))->generateLabelsAndValues();
+        if (count($this->payment_hash->invoices()) > 0) {
+            $invoice_id = $this->decodePrimaryKey($this->payment_hash->invoices()[0]->invoice_id);
+            $invoice = Invoice::findOrFail($invoice_id);
+
+            $variables = (new HtmlEngine($invoice->invitations->first()))->generateLabelsAndValues();
+        }
 
         $data['title'] = $this->company_gateway->getConfigField('name');
         $data['instructions'] = strtr($this->company_gateway->getConfigField('text'), $variables['values']);
