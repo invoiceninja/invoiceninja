@@ -15,16 +15,6 @@
                 <svg class="md:hidden" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 17 12 21 16 17"></polyline><line x1="12" y1="12" x2="12" y2="21"></line><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"></path></svg>
             </button>
         </div>
-        <div class="flex items-center">
-            <div class="mr-3">
-                <input wire:click="statusChange('resources')" type="checkbox" class="form-checkbox cursor-pointer" id="resources-checkbox" checked>
-                <label for="resources-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.resources') }}</label>
-            </div>
-            <div class="mr-3">
-                <input wire:click="statusChange('client')" type="checkbox" class="form-checkbox cursor-pointer" id="client-checkbox">
-                <label for="client-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.client') }}</label>
-            </div>
-        </div>
     </div>
     <div class="-my-2 py-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
         <div class="align-middle inline-block min-w-full overflow-hidden rounded">
