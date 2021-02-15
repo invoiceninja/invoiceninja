@@ -14,6 +14,7 @@ use App\Http\Requests\Credit\EditCreditRequest;
 use App\Http\Requests\Credit\ShowCreditRequest;
 use App\Http\Requests\Credit\StoreCreditRequest;
 use App\Http\Requests\Credit\UpdateCreditRequest;
+use App\Http\Requests\Credit\UploadCreditRequest;
 use App\Jobs\Entity\EmailEntity;
 use App\Jobs\Invoice\EmailCredit;
 use App\Models\Client;
@@ -24,6 +25,7 @@ use App\Transformers\CreditTransformer;
 use App\Utils\Ninja;
 use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SavesDocuments;
 use Illuminate\Http\Response;
 
 /**
@@ -32,7 +34,8 @@ use Illuminate\Http\Response;
 class CreditController extends BaseController
 {
     use MakesHash;
-
+    use SavesDocuments;
+    
     protected $entity_type = Credit::class;
 
     protected $entity_transformer = CreditTransformer::class;
@@ -56,7 +59,7 @@ class CreditController extends BaseController
      * @OA\Get(
      *      path="/api/v1/credits",
      *      operationId="getCredits",
-     *      tags={"invoices"},
+     *      tags={"credits"},
      *      summary="Gets a list of credits",
      *      description="Lists credits, search and filters allow fine grained lists to be generated.
      *
@@ -576,4 +579,66 @@ class CreditController extends BaseController
 
         return response()->download($file_path);
     }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param UploadCreditRequest $request
+     * @param Credit $client
+     * @return Response
+     *
+     *
+     *
+     * @OA\Put(
+     *      path="/api/v1/credits/{id}/upload",
+     *      operationId="uploadCredits",
+     *      tags={"credits"},
+     *      summary="Uploads a document to a credit",
+     *      description="Handles the uploading of a document to a credit",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Credit Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the Credit object",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Credit"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
+    public function upload(UploadCreditRequest $request, Credit $credit)
+    {
+
+        if ($request->has('documents')) 
+            $this->saveDocuments($request->file('documents'), $credit);
+
+        return $this->itemResponse($credit->fresh());
+
+    }
+
 }

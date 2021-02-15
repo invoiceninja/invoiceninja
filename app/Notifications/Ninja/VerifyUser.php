@@ -19,6 +19,7 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
+//@deprecated
 class VerifyUser extends Notification 
 {
   //  use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -46,7 +47,7 @@ class VerifyUser extends Notification
      */
     public function via($notifiable)
     {
-        return ['mail'];
+        return [''];
     }
 
     /**
@@ -57,19 +58,6 @@ class VerifyUser extends Notification
      */
     public function toMail($notifiable)
     {
-        $data = [
-            'title' => ctrans('texts.confirmation_subject'),
-            'message' => ctrans('texts.confirmation_message'),
-            'url' => url("/user/confirm/{$this->user->confirmation_code}"),
-            'button' => ctrans('texts.button_confirmation_message'),
-            'signature' => '',
-            'logo' => 'https://www.invoiceninja.com/wp-content/uploads/2019/01/InvoiceNinja-Logo-Round-300x300.png',
-            'settings' => $this->company->settings,
-        ];
-
-        return (new MailMessage)
-                    ->subject(ctrans('texts.confirmation_subject'))
-                    ->markdown('email.admin.generic', $data);
     }
 
     /**

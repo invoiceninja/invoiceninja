@@ -22,6 +22,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
 
+//@deprecated for mail
 class ClientContactRequestCancellation extends Notification 
 {
   //  use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -56,7 +57,7 @@ class ClientContactRequestCancellation extends Notification
      */
     public function via($notifiable)
     {
-        return ['mail', 'slack'];
+        return ['slack'];
     }
 
     /**
@@ -67,19 +68,6 @@ class ClientContactRequestCancellation extends Notification
      */
     public function toMail($notifiable)
     {
-        if (static::$toMailCallback) {
-            return call_user_func(static::$toMailCallback, $notifiable, $this->client_contact);
-        }
-
-        $client_contact_name = $this->client_contact->present()->name();
-        $client_name = $this->client_contact->client->present()->name();
-        $recurring_invoice_number = $this->recurring_invoice->number;
-
-        return (new MailMessage)
-            ->subject('Request for recurring invoice cancellation from '.$client_contact_name)
-            ->markdown('email.support.cancellation', [
-                'message' => "Contact [{$client_contact_name}] from Client [{$client_name}] requested to cancel Recurring Invoice [#{$recurring_invoice_number}]",
-            ]);
     }
 
     /**

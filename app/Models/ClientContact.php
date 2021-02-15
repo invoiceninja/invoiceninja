@@ -11,6 +11,10 @@
 
 namespace App\Models;
 
+use App\Jobs\Mail\NinjaMailer;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
+use App\Mail\ClientContact\ClientContactResetPasswordObject;
 use App\Models\Presenters\ClientContactPresenter;
 use App\Notifications\ClientContactResetPassword;
 use App\Utils\Traits\MakesHash;
@@ -151,7 +155,15 @@ class ClientContact extends Authenticatable implements HasLocalePreference
 
     public function sendPasswordResetNotification($token)
     {
-        $this->notify(new ClientContactResetPassword($token));
+        $nmo = new NinjaMailerObject;
+        $nmo->mailable = new NinjaMailer((new ClientContactResetPasswordObject($token, $this))->build());
+        $nmo->to_user = $this;
+        $nmo->company = $this->company;
+        $nmo->settings = $this->company->settings;
+
+        NinjaMailerJob::dispatch($nmo);
+
+        //$this->notify(new ClientContactResetPassword($token));
     }
 
     public function preferredLocale()

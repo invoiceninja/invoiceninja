@@ -104,6 +104,13 @@ class CreditService
         return $this;
     }
 
+    public function updateBalance($adjustment)
+    {
+        $this->credit->balance -= $adjustment;
+
+        return $this;
+    }
+
     public function fillDefaults()
     {
         $settings = $this->credit->client->getMergedSettings();

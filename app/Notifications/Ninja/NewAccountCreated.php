@@ -20,6 +20,8 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
+
+//@deprecated
 class NewAccountCreated extends Notification 
 {
    // use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -50,7 +52,7 @@ class NewAccountCreated extends Notification
      */
     public function via($notifiable)
     {
-        return ['slack', 'mail'];
+        return ['slack'];
     }
 
     /**
@@ -61,26 +63,6 @@ class NewAccountCreated extends Notification
      */
     public function toMail($notifiable)
     {
-        $user_name = $this->user->first_name.' '.$this->user->last_name;
-        $email = $this->user->email;
-        $ip = $this->user->ip;
-
-        $data = [
-            'title' => ctrans('texts.new_signup'),
-            'message' => ctrans('texts.new_signup_text', ['user' => $user_name, 'email' => $email, 'ip' => $ip]),
-            'url' => config('ninja.web_url'),
-            'button' => ctrans('texts.account_login'),
-            'signature' => $this->company->settings->email_signature,
-            'logo' => $this->company->present()->logo(),
-            'settings' => $this->company->settings,
-        ];
-
-        return (new MailMessage)
-                    ->subject(ctrans('texts.new_signup'))
-                    ->markdown('email.admin.generic', $data)
-                    ->withSwiftMessage(function ($message) {
-                        $message->getHeaders()->addTextHeader('Tag', $this->company->company_key);
-                    });
     }
 
     /**

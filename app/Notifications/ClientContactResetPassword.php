@@ -19,6 +19,7 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
+//@deprecated
 class ClientContactResetPassword extends Notification
 {
    // use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -55,7 +56,7 @@ class ClientContactResetPassword extends Notification
      */
     public function via($notifiable)
     {
-        return ['mail'];
+        return [];
     }
 
     /**

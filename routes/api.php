@@ -32,6 +32,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::get('activities/download_entity/{activity}', 'ActivityController@downloadHistoricalEntity');
 
     Route::resource('clients', 'ClientController'); // name = (clients. index / create / show / update / destroy / edit
+    Route::put('clients/{client}/upload', 'ClientController@upload')->name('clients.upload');
 
     Route::post('clients/bulk', 'ClientController@bulk')->name('clients.bulk');
 
@@ -40,12 +41,14 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::get('invoices/{invoice}/delivery_note', 'InvoiceController@deliveryNote')->name('invoices.delivery_note');
 
     Route::get('invoices/{invoice}/{action}', 'InvoiceController@action')->name('invoices.action');
+    Route::put('invoices/{invoice}/upload', 'InvoiceController@upload')->name('invoices.upload');
 
     Route::get('invoice/{invitation_key}/download', 'InvoiceController@downloadPdf')->name('invoices.downloadPdf');
 
     Route::post('invoices/bulk', 'InvoiceController@bulk')->name('invoices.bulk');
 
     Route::resource('credits', 'CreditController'); // name = (credits. index / create / show / update / destroy / edit
+    Route::put('credits/{credit}/upload', 'CreditController@upload')->name('credits.upload');
 
     Route::get('credits/{credit}/{action}', 'CreditController@action')->name('credits.action');
 
@@ -70,6 +73,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::post('recurring_quotes/bulk', 'RecurringQuoteController@bulk')->name('recurring_quotes.bulk');
 
     Route::resource('expenses', 'ExpenseController'); // name = (expenses. index / create / show / update / destroy / edit
+    Route::put('expenses/{expense}/upload', 'ExpenseController@upload'); 
 
     Route::post('expenses/bulk', 'ExpenseController@bulk')->name('expenses.bulk');
 
@@ -128,6 +132,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::post('migration/start', 'MigrationController@startMigration');
 
     Route::resource('companies', 'CompanyController'); // name = (companies. index / create / show / update / destroy / edit
+    Route::put('companies/{company}/upload', 'CompanyController@upload');
 
     Route::resource('tokens', 'TokenController')->middleware('password_protected'); // name = (tokens. index / create / show / update / destroy / edit
     Route::post('tokens/bulk', 'TokenController@bulk')->name('tokens.bulk')->middleware('password_protected');

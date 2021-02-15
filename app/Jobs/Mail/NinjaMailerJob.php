@@ -12,8 +12,11 @@
 namespace App\Jobs\Mail;
 
 use App\DataMapper\Analytics\EmailFailure;
+use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Util\SystemLogger;
 use App\Libraries\Google\Google;
+use App\Libraries\MultiDB;
+use App\Models\ClientContact;
 use App\Models\SystemLog;
 use App\Models\User;
 use App\Providers\MailServiceProvider;
@@ -27,14 +30,12 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Facades\Mail;
 use Turbo124\Beacon\Facades\LightLogs;
 
-/*
-Multi Mailer implemented
-@Deprecated 14/02/2021
-*/
+/*Multi Mailer implemented*/
 
-class BaseMailerJob implements ShouldQueue
+class NinjaMailerJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash;
 
@@ -44,16 +45,50 @@ class BaseMailerJob implements ShouldQueue
 
     public $deleteWhenMissingModels = true;
 
-    public function setMailDriver()
+    public $nmo;
+
+    public function __construct(NinjaMailerObject $nmo)
+    {
+
+        $this->nmo = $nmo;
+
+    }
+
+    public function handle()
+    {
+        /*If we are migrating data we don't want to fire any emails*/
+        if ($this->nmo->company->is_disabled) 
+            return true;
+        
+        MultiDB::setDb($this->nmo->company->db);
+
+        //if we need to set an email driver do it now
+        $this->setMailDriver();
+
+        //send email
+        try {
+            nlog("trying to send");
+            Mail::to($this->nmo->to_user->email)
+                ->send($this->nmo->mailable);
+        } catch (\Exception $e) {
+            //$this->failed($e);
+            nlog("error failed with {$e->getMessage()}");
+            if ($this->nmo->to_user instanceof ClientContact) {
+                $this->logMailError($e->getMessage(), $this->nmo->to_user->client);
+            }
+        }
+    }
+
+    private function setMailDriver()
     {
         /* Singletons need to be rebooted each time just in case our Locale is changing*/
         App::forgetInstance('translator');
         App::forgetInstance('mail.manager'); //singletons must be destroyed!
 
         /* Inject custom translations if any exist */
-        Lang::replace(Ninja::transformTranslations($this->settings));
+        Lang::replace(Ninja::transformTranslations($this->nmo->settings));
 
-        switch ($this->settings->email_sending_method) {
+        switch ($this->nmo->settings->email_sending_method) {
             case 'default':
                 break;
             case 'gmail':
@@ -64,7 +99,7 @@ class BaseMailerJob implements ShouldQueue
         }
     }
 
-    public function setGmailMailer()
+    private function setGmailMailer()
     {
         $sending_user = $this->settings->gmail_sending_user_id;
 
@@ -94,7 +129,7 @@ class BaseMailerJob implements ShouldQueue
         nlog(config('services.gmail.token'));
     }
 
-    public function logMailError($errors, $recipient_object)
+    private function logMailError($errors, $recipient_object)
     {
         SystemLogger::dispatch(
             $errors,
@@ -105,7 +140,7 @@ class BaseMailerJob implements ShouldQueue
         );
     }
 
-    public function failed($exception = null)
+    private function failed($exception = null)
     {
         nlog('mailer job failed');
         nlog($exception->getMessage());
