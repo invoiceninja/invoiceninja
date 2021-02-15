@@ -47,6 +47,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::post('invoices/bulk', 'InvoiceController@bulk')->name('invoices.bulk');
 
     Route::resource('credits', 'CreditController'); // name = (credits. index / create / show / update / destroy / edit
+    Route::put('credits/{credit}/upload', 'CreditController@upload')->name('credits.upload');
 
     Route::get('credits/{credit}/{action}', 'CreditController@action')->name('credits.action');
 
