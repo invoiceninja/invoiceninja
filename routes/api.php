@@ -32,6 +32,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::get('activities/download_entity/{activity}', 'ActivityController@downloadHistoricalEntity');
 
     Route::resource('clients', 'ClientController'); // name = (clients. index / create / show / update / destroy / edit
+    Route::put('clients/{client}/upload', 'ClientController@upload')->name('clients.upload');
 
     Route::post('clients/bulk', 'ClientController@bulk')->name('clients.bulk');
 
@@ -128,6 +129,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::post('migration/start', 'MigrationController@startMigration');
 
     Route::resource('companies', 'CompanyController'); // name = (companies. index / create / show / update / destroy / edit
+    Route::put('companies/{company}/upload', 'CompanyController@upload');
 
     Route::resource('tokens', 'TokenController')->middleware('password_protected'); // name = (tokens. index / create / show / update / destroy / edit
     Route::post('tokens/bulk', 'TokenController@bulk')->name('tokens.bulk')->middleware('password_protected');

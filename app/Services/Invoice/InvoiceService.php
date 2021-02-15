@@ -266,7 +266,7 @@ class InvoiceService
 
         //$this->invoice = $this->invoice->calc()->getInvoice();
 
-        $this->deletePdf();
+        // $this->deletePdf();
 
         return $this;
     }

@@ -88,9 +88,7 @@ class EntitySentNotification extends Notification implements ShouldQueue
      */
     public function toArray($notifiable)
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public function toSlack($notifiable)

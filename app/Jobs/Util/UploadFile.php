@@ -78,7 +78,7 @@ class UploadFile implements ShouldQueue
         $instance = Storage::disk($this->disk)->putFileAs(
             $path,
             $this->file,
-            $this->file->hashName()
+            $this->file->hashName() 
         );
 
         if (in_array($this->file->extension(), ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'psd'])) {

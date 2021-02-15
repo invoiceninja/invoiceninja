@@ -393,8 +393,6 @@ class InvoiceController extends BaseController
 
         $invoice = $this->invoice_repo->save($request->all(), $invoice);
 
-        UnlinkFile::dispatchNow(config('filesystems.default'), $invoice->client->invoice_filepath().$invoice->number.'.pdf');
-
         event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars()));
 
         return $this->itemResponse($invoice);
