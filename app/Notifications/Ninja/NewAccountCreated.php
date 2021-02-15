@@ -20,6 +20,8 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
+
+//@deprecated
 class NewAccountCreated extends Notification 
 {
    // use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
