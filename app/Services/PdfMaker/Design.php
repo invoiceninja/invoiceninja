@@ -305,6 +305,7 @@ class Design extends BaseDesign
         // Some of column can be aliased. This is simple workaround for these.
         $aliases = [
             '$product.product_key' => '$product.item',
+            '$task.product_key' => '$task.service',
         ];
 
         foreach ($this->context['pdf_variables']["{$type}_columns"] as $column) {
