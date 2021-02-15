@@ -14,13 +14,18 @@ namespace App\PaymentDrivers;
 
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
+use App\Models\Invoice;
 use App\Models\Payment;
+use App\Utils\HtmlEngine;
+use App\Utils\Traits\MakesHash;
 
 /**
  * Class CustomPaymentDriver.
  */
 class CustomPaymentDriver extends BaseDriver
 {
+    use MakesHash;
+
     public $token_billing = false;
 
     public $can_authorise_credit_card = false;
@@ -52,12 +57,18 @@ class CustomPaymentDriver extends BaseDriver
      */
     public function processPaymentView($data)
     {
+        $invitation = Invoice::findOrFail(
+            $this->decodePrimaryKey($data['invoices']['0']['invoice_id'])
+        )->invitations->first();
+
+        $variables = (new HtmlEngine($invitation))->generateLabelsAndValues();
+
         $data['title'] = $this->company_gateway->getConfigField('name');
-        $data['instructions'] = $this->company_gateway->getConfigField('text');
-        
+        $data['instructions'] = strtr($this->company_gateway->getConfigField('text'), $variables['values']);
+
         $this->payment_hash->data = array_merge((array) $this->payment_hash->data, $data);
         $this->payment_hash->save();
-        
+
         $data['gateway'] = $this;
 
         return render('gateways.custom.payment', $data);
