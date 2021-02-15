@@ -72,6 +72,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::post('recurring_quotes/bulk', 'RecurringQuoteController@bulk')->name('recurring_quotes.bulk');
 
     Route::resource('expenses', 'ExpenseController'); // name = (expenses. index / create / show / update / destroy / edit
+    Route::put('expenses/{expense}/upload', 'ExpenseController@upload'); 
 
     Route::post('expenses/bulk', 'ExpenseController@bulk')->name('expenses.bulk');
 

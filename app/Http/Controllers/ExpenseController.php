@@ -21,12 +21,14 @@ use App\Http\Requests\Expense\EditExpenseRequest;
 use App\Http\Requests\Expense\ShowExpenseRequest;
 use App\Http\Requests\Expense\StoreExpenseRequest;
 use App\Http\Requests\Expense\UpdateExpenseRequest;
+use App\Http\Requests\Expense\UploadExpenseRequest;
 use App\Models\Expense;
 use App\Repositories\ExpenseRepository;
 use App\Transformers\ExpenseTransformer;
 use App\Utils\Ninja;
 use App\Utils\Traits\BulkOptions;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SavesDocuments;
 use App\Utils\Traits\Uploadable;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -40,7 +42,8 @@ class ExpenseController extends BaseController
     use MakesHash;
     use Uploadable;
     use BulkOptions;
-
+    use SavesDocuments;
+    
     protected $entity_type = Expense::class;
 
     protected $entity_transformer = ExpenseTransformer::class;
@@ -507,4 +510,65 @@ class ExpenseController extends BaseController
     {
         //todo
     }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param UploadExpenseRequest $request
+     * @param Expense $expense
+     * @return Response
+     *
+     *
+     *
+     * @OA\Put(
+     *      path="/api/v1/expenses/{id}/upload",
+     *      operationId="uploadExpense",
+     *      tags={"expense"},
+     *      summary="Uploads a document to a expense",
+     *      description="Handles the uploading of a document to a expense",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Expense Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the Expense object",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Expense"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
+    public function upload(UploadExpenseRequest $request, Expense $expense)
+    {
+
+        if ($request->has('documents')) 
+            $this->saveDocuments($request->file('documents'), $expense);
+
+        return $this->itemResponse($expense->fresh());
+
+    }    
 }

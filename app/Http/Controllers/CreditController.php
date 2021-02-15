@@ -59,7 +59,7 @@ class CreditController extends BaseController
      * @OA\Get(
      *      path="/api/v1/credits",
      *      operationId="getCredits",
-     *      tags={"invoices"},
+     *      tags={"credits"},
      *      summary="Gets a list of credits",
      *      description="Lists credits, search and filters allow fine grained lists to be generated.
      *
