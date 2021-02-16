@@ -83,6 +83,8 @@ class Company extends BaseModel
         'default_task_is_date_based',
         'enable_product_discount',
         'expense_inclusive_taxes',
+        'session_timeout',
+        'oauth_password_required',
     ];
 
     protected $hidden = [
