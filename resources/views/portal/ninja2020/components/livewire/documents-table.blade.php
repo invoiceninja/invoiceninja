@@ -28,11 +28,6 @@
                             </span>
                         </th>
                         <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white uppercase tracking-wider">
-                            <span role="button" wire:click="sortBy('documentable_type')" class="cursor-pointer">
-                                {{ ctrans('texts.resource') }}
-                            </span>
-                        </th>
-                        <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white uppercase tracking-wider">
                             <span role="button" wire:click="sortBy('type')" class="cursor-pointer">
                                 {{ ctrans('texts.type') }}
                             </span>
@@ -45,7 +40,7 @@
                         <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white uppercase tracking-wider">
                             {{ ctrans('texts.download') }}
                         </th>
-                        <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white uppercase tracking-wider" />
+                        <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white uppercase tracking-wider"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -56,9 +51,6 @@
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
                                 {{ Illuminate\Support\Str::limit($document->name, 20) }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                {{ ((new \ReflectionClass($document->documentable))->getShortName()) }}
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
                                 {{ App\Models\Document::$types[$document->type]['mime'] }}
