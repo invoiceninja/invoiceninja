@@ -16,10 +16,12 @@ use App\Events\Payment\PaymentWasCreated;
 use App\Exceptions\PaymentFailed;
 use App\Factory\PaymentFactory;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use App\Jobs\Mail\AutoBillingFailureMailer;
-use App\Jobs\Mail\ClientPaymentFailureMailer;
+use App\Jobs\Mail\NinjaMailer;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
+use App\Mail\Admin\ClientPaymentFailureObject;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\ClientGatewayToken;
@@ -354,12 +356,24 @@ class BaseDriver extends AbstractPaymentDriver
             $this->payment_hash
         );
 
-        ClientPaymentFailureMailer::dispatch(
-            $gateway->client,
-            $error,
-            $gateway->client->company,
-            $this->payment_hash
-        );
+        $nmo = new NinjaMailerObject;
+        $nmo->mailable = new NinjaMailer( (new ClientPaymentFailureObject($gateway->client, $error, $gateway->client->company, $this->payment_hash))->build() );
+        $nmo->company = $gateway->client->company;
+        $nmo->settings = $gateway->client->company->settings;
+
+        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->get();
+
+        $invoices->first()->invitations->each(function ($invitation) {
+
+            if ($invitation->contact->send_email && $invitation->contact->email) {
+
+                $nmo->to_user = $invitation->contact;
+                NinjaMailerJob::dispatch($nmo);
+
+            }
+
+        });
+
 
         SystemLogger::dispatch(
             $gateway->payment_hash,

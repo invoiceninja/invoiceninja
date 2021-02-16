@@ -11,7 +11,6 @@
 
 namespace App\Listeners\Credit;
 
-use App\Jobs\Mail\EntitySentMailer;
 use App\Jobs\Mail\NinjaMailer;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
@@ -64,7 +63,6 @@ class CreditEmailedNotification implements ShouldQueue
 
                 NinjaMailerJob::dispatch($nmo);
 
-                //EntitySentMailer::dispatch($event->invitation, 'credit', $user, $event->invitation->company, $event->template);
                 $first_notification_sent = false;
             }
 
