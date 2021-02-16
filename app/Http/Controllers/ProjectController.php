@@ -556,7 +556,7 @@ class ProjectController extends BaseController
      *       ),
      *     )
      */
-    public function upload(UploadProjectRequest $request, Product $project)
+    public function upload(UploadProjectRequest $request, Project $project)
     {
 
         if ($request->has('documents')) 

@@ -107,6 +107,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 
     Route::resource('projects', 'ProjectController'); // name = (projects. index / create / show / update / destroy / edit
     Route::post('projects/bulk', 'ProjectController@bulk')->name('projects.bulk');
+    Route::put('projects/{project}/upload', 'ProjectController@upload')->name('projects.upload');
     
     Route::resource('quotes', 'QuoteController'); // name = (quotes. index / create / show / update / destroy / edit
     Route::get('quotes/{quote}/{action}', 'QuoteController@action')->name('quotes.action');
