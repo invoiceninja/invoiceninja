@@ -76,8 +76,8 @@ class InvitationViewedListener implements ShouldQueue
         if (isset($invitation->company->slack_webhook_url)) {
             $notification->method = ['slack'];
 
-            Notification::route('slack', $invitation->company->slack_webhook_url)
-                        ->notify($notification);
+            // Notification::route('slack', $invitation->company->slack_webhook_url)
+            //             ->notify($notification);
         }
     }
 }

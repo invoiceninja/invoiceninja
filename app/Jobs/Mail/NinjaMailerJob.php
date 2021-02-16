@@ -105,6 +105,8 @@ class NinjaMailerJob implements ShouldQueue
 
         $user = User::find($this->decodePrimaryKey($sending_user));
 
+        nlog("Sending via {$user->present()->name()}");
+
         $google = (new Google())->init();
         $google->getClient()->setAccessToken(json_encode($user->oauth_user_token));
 
