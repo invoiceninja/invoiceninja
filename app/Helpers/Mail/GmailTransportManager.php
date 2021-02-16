@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
 namespace App\Helpers\Mail;
 
 use Illuminate\Mail\MailManager;
@@ -12,12 +20,6 @@ class GmailTransportManager extends MailManager
 {
     protected function createGmailTransport()
     {
-    	info("booting gmail transport");
-        // $token = $this->app['config']->get('services.gmail.token', []);
-        $token = config('services.gmail.token');
-
-        $mail = new Mail;
-
-        return new GmailTransport($mail, $token);
+        return new GmailTransport(new Mail);
     }
 }
