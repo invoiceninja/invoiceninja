@@ -50,6 +50,8 @@ class GmailTransport extends Transport
     {
         /*We should nest the token in the message and then discard it as needed*/
 
+        nlog("inside gmail sender with token {$this->token}");
+
         $this->beforeSendPerformed($message);
 
         $this->gmail->using($this->token);
