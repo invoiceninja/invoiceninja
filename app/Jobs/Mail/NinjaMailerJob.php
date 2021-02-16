@@ -47,11 +47,14 @@ class NinjaMailerJob implements ShouldQueue
 
     public $nmo;
 
+    public $settings;
+
     public function __construct(NinjaMailerObject $nmo)
     {
 
         $this->nmo = $nmo;
 
+        $this->settings = $nmo->settings;
     }
 
     public function handle()
