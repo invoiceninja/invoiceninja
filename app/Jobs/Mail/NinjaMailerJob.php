@@ -125,7 +125,7 @@ class NinjaMailerJob implements ShouldQueue
         config(['mail.from.address' => $user->email]);
         config(['mail.from.name' => $user->present()->name()]);
 
-        //(new MailServiceProvider(app()))->register();
+        (new MailServiceProvider(app()))->register();
 
         nlog("after registering mail service provider");
         nlog(config('services.gmail.token'));
