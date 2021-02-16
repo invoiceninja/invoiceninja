@@ -84,6 +84,7 @@ class NinjaMailerJob implements ShouldQueue
         /* Singletons need to be rebooted each time just in case our Locale is changing*/
         App::forgetInstance('translator');
         App::forgetInstance('mail.manager'); //singletons must be destroyed!
+        App::forgetInstance('mailer');
 
         /* Inject custom translations if any exist */
         Lang::replace(Ninja::transformTranslations($this->nmo->settings));
@@ -120,15 +121,24 @@ class NinjaMailerJob implements ShouldQueue
          *  just for this request.
         */
 
-        config(['mail.driver' => 'gmail']);
-        config(['services.gmail.token' => $user->oauth_user_token->access_token]);
-        config(['mail.from.address' => $user->email]);
-        config(['mail.from.name' => $user->present()->name()]);
+        // config(['mail.driver' => 'gmail']);
+        // config(['services.gmail.token' => $user->oauth_user_token->access_token]);
+        // config(['mail.from.address' => $user->email]);
+        // config(['mail.from.name' => $user->present()->name()]);
 
-        (new MailServiceProvider(app()))->register();
+        // (new MailServiceProvider(app()))->register();
 
-        nlog("after registering mail service provider");
-        nlog(config('services.gmail.token'));
+        // nlog("after registering mail service provider");
+        // nlog(config('services.gmail.token'));
+
+        $token = $user->oauth_user_token->access_token;
+        $this->nmo
+             ->mailable
+             ->from($user->email, $user->present()->name())
+             ->withSwiftMessage(function ($message) use($token) {
+                $message->getHeaders()->addTextHeader('GmailToken', $token);                 
+             });
+
     }
 
     private function logMailError($errors, $recipient_object)

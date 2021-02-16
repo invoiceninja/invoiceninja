@@ -29,26 +29,25 @@ class GmailTransport extends Transport
     protected $gmail;
 
     /**
-     * The GMail OAuth Token.
-     * @var string token
-     */
-    protected $token;
-
-    /**
      * Create a new Gmail transport instance.
      *
      * @param Mail $gmail
      * @param string $token
      */
-    public function __construct(Mail $gmail, string $token)
+    public function __construct(Mail $gmail)
     {
         $this->gmail = $gmail;
-        $this->token = $token;
     }
 
     public function send(Swift_Mime_SimpleMessage $message, &$failedRecipients = null)
     {
         /*We should nest the token in the message and then discard it as needed*/
+
+        $token = $message->get('GmailToken');
+
+        nlog("gmail transporter token = {$token}");
+        
+        $message->remove('GmailToken');
 
         nlog("inside gmail sender with token {$this->token}");
 
