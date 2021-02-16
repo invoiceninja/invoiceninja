@@ -47,14 +47,11 @@ class NinjaMailerJob implements ShouldQueue
 
     public $nmo;
 
-    public $settings;
-
     public function __construct(NinjaMailerObject $nmo)
     {
 
         $this->nmo = $nmo;
 
-        $this->settings = $nmo->settings;
     }
 
     public function handle()
@@ -104,7 +101,7 @@ class NinjaMailerJob implements ShouldQueue
 
     private function setGmailMailer()
     {
-        $sending_user = $this->settings->gmail_sending_user_id;
+        $sending_user = $this->nmo->settings->gmail_sending_user_id;
 
         $user = User::find($this->decodePrimaryKey($sending_user));
 
@@ -143,7 +140,7 @@ class NinjaMailerJob implements ShouldQueue
         );
     }
 
-    private function failed($exception = null)
+    public function failed($exception = null)
     {
         nlog('mailer job failed');
         nlog($exception->getMessage());
