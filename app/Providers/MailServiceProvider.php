@@ -4,13 +4,27 @@ namespace App\Providers;
 
 use App\Helpers\Mail\GmailTransportManager;
 use Illuminate\Mail\MailServiceProvider as MailProvider;
+use Illuminate\Mail\TransportManager;
 
 class MailServiceProvider extends MailProvider
 {
-    protected function registerSwiftTransport()
+
+    public function register()
     {
-        $this->app->singleton('swift.transport', function ($app) {
-            return new GmailTransportManager($app);
+        $this->registerIlluminateMailer();
+    }
+
+    protected function registerIlluminateMailer()
+    {
+        $this->app->singleton('mail.manager', function($app) {
+            return  new GmailTransportManager($app);
+        });
+
+
+        $this->app->bind('mailer', function ($app) {
+            return $app->make('mail.manager')->mailer();
         });
     }
+
 }
+

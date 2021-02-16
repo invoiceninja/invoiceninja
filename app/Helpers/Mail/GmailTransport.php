@@ -11,6 +11,7 @@
 
 namespace App\Helpers\Mail;
 
+use App\Utils\TempFile;
 use Dacastro4\LaravelGmail\Services\Message\Mail;
 use Illuminate\Mail\Transport\Transport;
 use Swift_Mime_SimpleMessage;
@@ -28,26 +29,27 @@ class GmailTransport extends Transport
     protected $gmail;
 
     /**
-     * The GMail OAuth Token.
-     * @var string token
-     */
-    protected $token;
-
-    /**
      * Create a new Gmail transport instance.
      *
      * @param Mail $gmail
      * @param string $token
      */
-    public function __construct(Mail $gmail, string $token)
+    public function __construct(Mail $gmail)
     {
         $this->gmail = $gmail;
-        $this->token = $token;
     }
 
     public function send(Swift_Mime_SimpleMessage $message, &$failedRecipients = null)
     {
         /*We should nest the token in the message and then discard it as needed*/
+
+        $token = $message->getHeaders()->get('GmailToken');
+
+        nlog("gmail transporter token = {$token}");
+        
+        $message->getHeaders()->remove('GmailToken');
+
+        nlog("inside gmail sender with token {$token}");
 
         $this->beforeSendPerformed($message);
 
@@ -60,11 +62,21 @@ class GmailTransport extends Transport
         $this->gmail->cc($message->getCc());
         $this->gmail->bcc($message->getBcc());
 
-        nlog(print_r($message->getChildren(), 1));
+        foreach ($message->getChildren() as $child) 
+        {
 
-        foreach ($message->getChildren() as $child) {
-            $this->gmail->attach($child);
-        } //todo this should 'just work'
+            nlog("trying to attach");
+
+            if($child->getContentType() != 'text/plain')
+            {
+
+            $this->gmail->attach(TempFile::filePath($child->getBody(), $child->getHeaders()->get('Content-Type')->getParameter('name') ));
+            
+            }
+
+
+        } 
+
 
         $this->gmail->send();
 

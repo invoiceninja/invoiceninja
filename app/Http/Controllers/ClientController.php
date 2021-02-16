@@ -21,6 +21,7 @@ use App\Http\Requests\Client\EditClientRequest;
 use App\Http\Requests\Client\ShowClientRequest;
 use App\Http\Requests\Client\StoreClientRequest;
 use App\Http\Requests\Client\UpdateClientRequest;
+use App\Http\Requests\Client\UploadClientRequest;
 use App\Jobs\Client\StoreClient;
 use App\Jobs\Client\UpdateClient;
 use App\Models\Client;
@@ -29,6 +30,7 @@ use App\Transformers\ClientTransformer;
 use App\Utils\Ninja;
 use App\Utils\Traits\BulkOptions;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SavesDocuments;
 use App\Utils\Traits\Uploadable;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -42,6 +44,7 @@ class ClientController extends BaseController
     use MakesHash;
     use Uploadable;
     use BulkOptions;
+    use SavesDocuments;
 
     protected $entity_type = Client::class;
 
@@ -269,6 +272,7 @@ class ClientController extends BaseController
      */
     public function update(UpdateClientRequest $request, Client $client)
     {
+
         if ($request->entityIsDeleted($client)) {
             return $request->disallowUpdate();
         }
@@ -515,4 +519,66 @@ class ClientController extends BaseController
     {
         //todo
     }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param UploadClientRequest $request
+     * @param Client $client
+     * @return Response
+     *
+     *
+     *
+     * @OA\Put(
+     *      path="/api/v1/clients/{id}/upload",
+     *      operationId="uploadClient",
+     *      tags={"clients"},
+     *      summary="Uploads a document to a client",
+     *      description="Handles the uploading of a document to a client",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Client Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the client object",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Client"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
+    public function upload(UploadClientRequest $request, Client $client)
+    {
+
+        if ($request->has('documents')) 
+            $this->saveDocuments($request->file('documents'), $client);
+
+        return $this->itemResponse($client->fresh());
+
+    }
+
 }

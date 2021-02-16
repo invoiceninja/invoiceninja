@@ -14,6 +14,7 @@ namespace App\Jobs\Util;
 use App\DataMapper\Analytics\MigrationFailure;
 use App\DataMapper\CompanySettings;
 use App\Exceptions\MigrationValidatorFailed;
+use App\Exceptions\ProcessingMigrationArchiveFailed;
 use App\Exceptions\ResourceDependencyMissing;
 use App\Exceptions\ResourceNotAvailableForMigration;
 use App\Factory\ClientFactory;
@@ -31,7 +32,9 @@ use App\Http\Requests\Company\UpdateCompanyRequest;
 use App\Http\ValidationRules\ValidCompanyGatewayFeesAndLimitsRule;
 use App\Http\ValidationRules\ValidUserForCompany;
 use App\Jobs\Company\CreateCompanyToken;
+use App\Jobs\Ninja\CheckCompanyData;
 use App\Jobs\Ninja\CompanySizeCheck;
+use App\Jobs\Util\VersionCheck;
 use App\Libraries\MultiDB;
 use App\Mail\MigrationCompleted;
 use App\Models\Activity;
@@ -79,10 +82,10 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Turbo124\Beacon\Facades\LightLogs;
+use Illuminate\Support\Facades\Mail;
 
 class Import implements ShouldQueue
 {
@@ -205,10 +208,14 @@ class Import implements ShouldQueue
 
         $this->setInitialCompanyLedgerBalances();
         
-        $this->fixClientBalances();
+        // $this->fixClientBalances();
+        $check_data = CheckCompanyData::dispatchNow($this->company, md5(time()));
+
+        // if($check_data['status'] == 'errors')
+        //     throw new ProcessingMigrationArchiveFailed(implode("\n", $check_data));
 
         Mail::to($this->user)
-            ->send(new MigrationCompleted($this->company));
+            ->send(new MigrationCompleted($this->company, implode("<br>",$check_data)));
 
         /*After a migration first some basic jobs to ensure the system is up to date*/
         VersionCheck::dispatch();
@@ -220,15 +227,22 @@ class Import implements ShouldQueue
     private function setInitialCompanyLedgerBalances()
     {
         Client::cursor()->each(function ($client) {
+
+            $invoice_balances = $client->invoices->where('is_deleted', false)->where('status_id', '>', 1)->sum('balance');
+
             $company_ledger = CompanyLedgerFactory::create($client->company_id, $client->user_id);
             $company_ledger->client_id = $client->id;
-            $company_ledger->adjustment = $client->balance;
+            $company_ledger->adjustment = $invoice_balances;
             $company_ledger->notes = 'Migrated Client Balance';
-            $company_ledger->balance = $client->balance;
+            $company_ledger->balance = $invoice_balances;
             $company_ledger->activity_id = Activity::CREATE_CLIENT;
             $company_ledger->save();
 
             $client->company_ledger()->save($company_ledger);
+
+            $client->balance = $invoice_balances;
+            $client->save();
+
         });
     }
 
@@ -779,6 +793,14 @@ class Import implements ShouldQueue
                 CreditFactory::create($this->company->id, $modified['user_id'])
             );
 
+            //remove credit balance from ledger
+            if($credit->balance > 0 && $credit->client->balance > 0){
+                $client = $credit->client;
+                $client->balance -= $credit->balance;
+                $client->save();
+            }
+
+
             $key = "credits_{$resource['id']}";
 
             $this->ids['credits'][$key] = [
@@ -924,6 +946,11 @@ class Import implements ShouldQueue
                 ],
             ];
 
+            if(in_array($payment->status_id, [Payment::STATUS_REFUNDED, Payment::STATUS_PARTIALLY_REFUNDED])) {
+                $this->processPaymentRefund($payment);
+            }
+
+
         }
 
         Payment::reguard();
@@ -931,6 +958,24 @@ class Import implements ShouldQueue
         /*Improve memory handling by setting everything to null when we have finished*/
         $data = null;
         $payment_repository = null;
+    }
+
+    private function processPaymentRefund($payment)
+    {
+        $invoices = $payment->invoices()->get();
+
+        $invoices->each(function ($invoice) use($payment) {
+            
+            if ($payment->refunded > 0 && in_array($invoice->status_id, [Invoice::STATUS_SENT])) {
+
+                $invoice->service()
+                        ->updateBalance($payment->refunded)
+                        ->updatePaidToDate($payment->refunded*-1)
+                        ->updateStatus()
+                        ->save();
+            }
+
+        });
     }
 
     private function updatePaymentForStatus($payment, $status_id) :Payment
@@ -982,17 +1027,45 @@ class Import implements ShouldQueue
             $modified = $resource;
 
             if (array_key_exists('invoice_id', $resource) && $resource['invoice_id'] && ! array_key_exists('invoices', $this->ids)) {
-                throw new ResourceDependencyMissing('Processing documents failed, because of missing dependency - invoices.');
+                return;
+                //throw new ResourceDependencyMissing('Processing documents failed, because of missing dependency - invoices.');
             }
 
             if (array_key_exists('expense_id', $resource) && $resource['expense_id'] && ! array_key_exists('expenses', $this->ids)) {
-                throw new ResourceDependencyMissing('Processing documents failed, because of missing dependency - expenses.');
+                return;
+                //throw new ResourceDependencyMissing('Processing documents failed, because of missing dependency - expenses.');
             }
 
             if (array_key_exists('invoice_id', $resource) && $resource['invoice_id'] && array_key_exists('invoices', $this->ids)) {
-                $invoice_id = $this->transformId('invoices', $resource['invoice_id']);
-                $entity = Invoice::where('id', $invoice_id)->withTrashed()->first();
+
+                $try_quote = false;
+                $exception = false;
+
+                try{
+                    $invoice_id = $this->transformId('invoices', $resource['invoice_id']);
+                    $entity = Invoice::where('id', $invoice_id)->withTrashed()->first();
+                }
+                catch(\Exception $e){
+                    nlog("i couldn't find the invoice document {$resource['invoice_id']}, perhaps it is a quote?");
+                    nlog($e->getMessage());
+
+                    $try_quote = true;
+                }
+
+                if($try_quote && array_key_exists('quotes', $this->ids) ) {
+                    
+                    $quote_id = $this->transformId('quotes', $resource['invoice_id']);
+                    $entity = Quote::where('id', $quote_id)->withTrashed()->first();
+                    $exception = $e;
+
+                }
+                
+                if(!$entity)
+                    throw new Exception("Resource invoice/quote document not available.");
+
+
             }
+
 
             if (array_key_exists('expense_id', $resource) && $resource['expense_id'] && array_key_exists('expenses', $this->ids)) {
                 $expense_id = $this->transformId('expenses', $resource['expense_id']);
@@ -1434,19 +1507,19 @@ class Import implements ShouldQueue
     /* In V4 we use negative invoices (credits) and add then into the client balance. In V5, these sit off ledger and are applied later.
      This next section will check for credit balances and reduce the client balance so that the V5 balances are correct
     */
-    private function fixClientBalances()
-    {
+    // private function fixClientBalances()
+    // {
        
-        Client::cursor()->each(function ($client) {
+    //     Client::cursor()->each(function ($client) {
 
-            $credit_balance = $client->credits->where('is_deleted', false)->sum('balance');
+    //         $credit_balance = $client->credits->where('is_deleted', false)->sum('balance');
 
-            if($credit_balance > 0){
-                $client->balance += $credit_balance;
-                $client->save();
-            }
+    //         if($credit_balance > 0){
+    //             $client->balance += $credit_balance;
+    //             $client->save();
+    //         }
 
-        });
+    //     });
 
-    }
+    // }
 }

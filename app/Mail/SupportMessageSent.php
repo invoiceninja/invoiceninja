@@ -11,7 +11,7 @@ use SplFileObject;
 
 class SupportMessageSent extends Mailable
 {
-    use Queueable, SerializesModels;
+ //   use Queueable, SerializesModels;
 
     public $message;
 

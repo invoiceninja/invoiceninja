@@ -11,8 +11,11 @@
 
 namespace App\Listeners\Credit;
 
-use App\Jobs\Mail\EntitySentMailer;
+use App\Jobs\Mail\NinjaMailer;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
+use App\Mail\Admin\EntitySentObject;
 use App\Notifications\Admin\EntitySentNotification;
 use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -41,6 +44,11 @@ class CreditEmailedNotification implements ShouldQueue
         $credit->last_sent_date = now();
         $credit->save();
 
+        $nmo = new NinjaMailerObject;
+        $nmo->mailable = new NinjaMailer( (new EntitySentObject($event->invitation, 'credit', $event->template))->build() );
+        $nmo->company = $credit->company;
+        $nmo->settings = $credit->company->settings;
+
         foreach ($event->invitation->company->company_users as $company_user) {
             $user = $company_user->user;
 
@@ -51,7 +59,10 @@ class CreditEmailedNotification implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false && $first_notification_sent === true) {
                 unset($methods[$key]);
 
-                EntitySentMailer::dispatch($event->invitation, 'credit', $user, $event->invitation->company, $event->template);
+                $nmo->to_user = $user;
+
+                NinjaMailerJob::dispatch($nmo);
+
                 $first_notification_sent = false;
             }
 

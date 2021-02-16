@@ -341,7 +341,7 @@ class HtmlEngine
 
         $data['$font_size'] = ['value' => $this->settings->font_size . 'px', 'label' => ''];
 
-        $data['$invoiceninja.whitelabel'] = ['value' => asset('images/created-by-invoiceninja-new.png'), 'label' => ''];
+        $data['$invoiceninja.whitelabel'] = ['value' => 'https://raw.githubusercontent.com/invoiceninja/invoiceninja/v5-develop/public/images/created-by-invoiceninja-new.png', 'label' => ''];
 
         $data['$primary_color'] = ['value' => $this->settings->primary_color, 'label' => ''];
         $data['$secondary_color'] = ['value' => $this->settings->secondary_color, 'label' => ''];
@@ -349,7 +349,8 @@ class HtmlEngine
         $data['$item'] = ['value' => '', 'label' => ctrans('texts.item')];
         $data['$description'] = ['value' => '', 'label' => ctrans('texts.description')];
 
-        $data['$entity_footer'] = ['value' => $this->client->getSetting("{$this->entity_string}_footer"), 'label' => ''];
+        //$data['$entity_footer'] = ['value' => $this->client->getSetting("{$this->entity_string}_footer"), 'label' => ''];
+        $data['$entity_footer'] = ['value' => $this->entity->footer, 'label' => ''];
 
         $arrKeysLength = array_map('strlen', array_keys($data));
         array_multisort($arrKeysLength, SORT_DESC, $data);

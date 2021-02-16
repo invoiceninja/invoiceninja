@@ -11,6 +11,7 @@
 
 namespace App\Console\Commands;
 
+use App\Libraries\MultiDB;
 use App\Models\Design;
 use Illuminate\Console\Command;
 use stdClass;
@@ -47,6 +48,30 @@ class DesignUpdate extends Command
      * @return mixed
      */
     public function handle()
+    {
+        //always return state to first DB
+
+        $current_db = config('database.default');
+
+        if (! config('ninja.db.multi_db_enabled')) {
+            $this->handleOnDb();
+        } else {
+
+            //multiDB environment, need to
+            foreach (MultiDB::$dbs as $db) {
+                MultiDB::setDB($db);
+
+                $this->handleOnDb($db);
+            }
+
+        MultiDB::setDB($current_db);
+        
+        }
+
+
+    }
+
+    private function handleOnDb()
     {
         foreach (Design::whereIsCustom(false)->get() as $design) {
             $invoice_design = new \App\Services\PdfMaker\Design(strtolower($design->name));

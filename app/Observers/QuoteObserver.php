@@ -11,6 +11,7 @@
 
 namespace App\Observers;
 
+use App\Jobs\Util\UnlinkFile;
 use App\Jobs\Util\WebhookHandler;
 use App\Models\Quote;
 use App\Models\Webhook;
@@ -49,6 +50,9 @@ class QuoteObserver
         if ($subscriptions) {
             WebhookHandler::dispatch(Webhook::EVENT_UPDATE_QUOTE, $quote, $quote->company);
         }
+
+        UnlinkFile::dispatchNow(config('filesystems.default'), $quote->client->quote_filepath() . $quote->number.'.pdf');
+
     }
 
     /**

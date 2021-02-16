@@ -209,11 +209,9 @@ trait DesignHelpers
             });
         */
 
-
         $javascript = 'document.querySelectorAll("tbody > tr > td").forEach(t=>{if(""!==t.innerText){let e=t.getAttribute("data-ref").slice(0,-3);document.querySelector(`th[data-ref="${e}-th"]`).removeAttribute("hidden")}}),document.querySelectorAll("tbody > tr > td").forEach(t=>{let e=t.getAttribute("data-ref").slice(0,-3);(e=document.querySelector(`th[data-ref="${e}-th"]`)).hasAttribute("hidden")&&""==t.innerText&&t.setAttribute("hidden","true")});';
 
         return ['element' => 'div', 'elements' => [
-            ['element' => 'img', 'properties' => ['src' => '$invoiceninja.whitelabel', 'style' => 'height: 3rem; position: fixed; bottom: 0; left: 0; padding: 5px; margin: 5px;', 'hidden' => $this->entity->user->account->isPaid() ? 'true' : 'false', 'id' => 'invoiceninja-whitelabel-logo']],
             ['element' => 'script', 'content' => $javascript],
         ]];
     }

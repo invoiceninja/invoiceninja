@@ -20,7 +20,6 @@ use Illuminate\Queue\SerializesModels;
 
 class TemplateEmail extends Mailable
 {
-    use Queueable, SerializesModels;
 
     private $build_email;
 
@@ -37,12 +36,6 @@ class TemplateEmail extends Mailable
         $this->client = $contact->client;
     }
 
-    /**
-     * Build the message.
-     *
-     * @return $this
-     * @throws \Laracasts\Presenter\Exceptions\PresenterException
-     */
     public function build()
     {
         $template_name = 'email.template.'.$this->build_email->getTemplate();
@@ -79,7 +72,10 @@ class TemplateEmail extends Mailable
                 'settings' => $settings,
                 'company' => $company,
                 'whitelabel' => $this->client->user->account->isPaid() ? true : false,
-            ]);
+            ])
+            ->withSwiftMessage(function ($message) use($company){
+                $message->getHeaders()->addTextHeader('Tag', $company->company_key);
+            });;
 
         //conditionally attach files
         if ($settings->pdf_email_attachment !== false && ! empty($this->build_email->getAttachments())) {

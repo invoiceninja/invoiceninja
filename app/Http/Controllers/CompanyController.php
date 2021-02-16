@@ -20,6 +20,7 @@ use App\Http\Requests\Company\EditCompanyRequest;
 use App\Http\Requests\Company\ShowCompanyRequest;
 use App\Http\Requests\Company\StoreCompanyRequest;
 use App\Http\Requests\Company\UpdateCompanyRequest;
+use App\Http\Requests\Company\UploadCompanyRequest;
 use App\Jobs\Company\CreateCompany;
 use App\Jobs\Company\CreateCompanyPaymentTerms;
 use App\Jobs\Company\CreateCompanyTaskStatuses;
@@ -502,5 +503,66 @@ class CompanyController extends BaseController
         }
 
         return response()->json(['message' => ctrans('texts.success')], 200);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param UploadCompanyRequest $request
+     * @param Company $client
+     * @return Response
+     *
+     *
+     *
+     * @OA\Put(
+     *      path="/api/v1/companies/{id}/upload",
+     *      operationId="uploadCompanies",
+     *      tags={"companies"},
+     *      summary="Uploads a document to a company",
+     *      description="Handles the uploading of a document to a company",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Company Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the client object",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Company"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
+    public function upload(UploadCompanyRequest $request, Company $company)
+    {
+
+        if ($request->has('documents')) 
+            $this->saveDocuments($request->file('documents'), $company);
+
+        return $this->itemResponse($company->fresh());
+
     }
 }

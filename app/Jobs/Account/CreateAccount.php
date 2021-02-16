@@ -17,8 +17,12 @@ use App\Jobs\Company\CreateCompany;
 use App\Jobs\Company\CreateCompanyPaymentTerms;
 use App\Jobs\Company\CreateCompanyTaskStatuses;
 use App\Jobs\Company\CreateCompanyToken;
+use App\Jobs\Mail\NinjaMailer;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\User\CreateUser;
 use App\Jobs\Util\VersionCheck;
+use App\Mail\Admin\AccountCreatedObject;
 use App\Models\Account;
 use App\Notifications\Ninja\NewAccountCreated;
 use App\Utils\Ninja;
@@ -88,7 +92,16 @@ class CreateAccount
 
         $spaa9f78->fresh();
 
-        $sp035a66->notification(new NewAccountCreated($spaa9f78, $sp035a66))->ninja();
+        //todo implement SLACK notifications
+        //$sp035a66->notification(new NewAccountCreated($spaa9f78, $sp035a66))->ninja();
+
+        $nmo = new NinjaMailerObject;
+        $nmo->mailable = new NinjaMailer((new AccountCreatedObject($spaa9f78, $sp035a66))->build());
+        $nmo->company = $sp035a66;
+        $nmo->to_user = $spaa9f78;
+        $nmo->settings = $sp035a66->settings;
+
+        NinjaMailerJob::dispatchNow($nmo);
 
         VersionCheck::dispatchNow();
 

@@ -17,9 +17,10 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class BouncedEmail extends Mailable implements ShouldQueue
+// class BouncedEmail extends Mailable implements ShouldQueue
+class BouncedEmail extends Mailable 
 {
-    use Queueable, SerializesModels;
+    //use Queueable, SerializesModels;
 
     public $invitation;
 

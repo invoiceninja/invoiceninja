@@ -16,6 +16,7 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\CompanyToken;
+use App\Models\Credit;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -29,6 +30,7 @@ use App\Observers\ClientObserver;
 use App\Observers\CompanyGatewayObserver;
 use App\Observers\CompanyObserver;
 use App\Observers\CompanyTokenObserver;
+use App\Observers\CreditObserver;
 use App\Observers\ExpenseObserver;
 use App\Observers\InvoiceObserver;
 use App\Observers\PaymentObserver;
@@ -37,10 +39,12 @@ use App\Observers\ProposalObserver;
 use App\Observers\QuoteObserver;
 use App\Observers\TaskObserver;
 use App\Observers\UserObserver;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
@@ -53,6 +57,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+
+        /* Limits the number of parallel jobs fired per minute when checking data*/
+        RateLimiter::for('checkdata', function ($job) {
+            return  Limit::perMinute(100);
+        });
+
         Relation::morphMap([
             'invoices'  => Invoice::class,
           //  'credits'   => \App\Models\Credit::class,
@@ -71,6 +81,7 @@ class AppServiceProvider extends ServiceProvider
         Company::observe(CompanyObserver::class);
         CompanyGateway::observe(CompanyGatewayObserver::class);
         CompanyToken::observe(CompanyTokenObserver::class);
+        Credit::observe(CreditObserver::class);
         Expense::observe(ExpenseObserver::class);
         Invoice::observe(InvoiceObserver::class);
         Payment::observe(PaymentObserver::class);

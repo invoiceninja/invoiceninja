@@ -69,7 +69,7 @@ class DeletePayment
 
     private function updateClient()
     {
-        $this->payment->client->service()->updatePaidToDate(-1 * $this->payment->amount)->save();
+        //$this->payment->client->service()->updatePaidToDate(-1 * $this->payment->amount)->save();
 
         return $this;
     }
@@ -92,6 +92,7 @@ class DeletePayment
                 $paymentable_invoice->client
                                     ->service()
                                     ->updateBalance($paymentable_invoice->pivot->amount)
+                                    ->updatePaidToDate($paymentable_invoice->pivot->amount * -1)
                                     ->save();
 
                 if ($paymentable_invoice->balance == $paymentable_invoice->amount) {

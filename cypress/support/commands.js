@@ -47,7 +47,7 @@ Cypress.Commands.add('clientLogin', () => {
         });
 });
 
-Cypress.Commands.add('iframeLoaded', { prevSubject: 'element' }, ($iframe) => {
+Cypress.Commands.add('iframeLoaded', {prevSubject: 'element'}, ($iframe) => {
     const contentWindow = $iframe.prop('contentWindow');
     return new Promise((resolve) => {
         if (contentWindow) {

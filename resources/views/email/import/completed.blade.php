@@ -10,8 +10,8 @@
 
     <p><img src="{{ $company->present()->logo() }}"></p>
 
-    @if(isset($company) && count($company->clients) >=1)
-        <p><b>Clients Imported:</b> {{ count($company->clients) }} </p>
+    @if(isset($company) && $company->clients->count() >=1)
+        <p><b>Clients Imported:</b> {{ $company->clients->count() }} </p>
     @endif
 
     @if(isset($company) && count($company->products) >=1)
@@ -72,6 +72,9 @@
     @if(isset($company) && count($company->documents) >=1)
         <p><b>Documents Imported:</b> {{ count($company->documents) }} </p>
     @endif
+
+    <p><b>Data Quality:</b></p>
+    <p> {!! $check_data !!} </p>
 
     @if(!empty($errors) )
         <p>The following import errors occurred:</p>

@@ -12,8 +12,10 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Libraries\MultiDB;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Password;
 use Illuminate\View\View;
@@ -65,4 +67,31 @@ class ContactForgotPasswordController extends Controller
     {
         return Password::broker('contacts');
     }
+
+    public function sendResetLinkEmail(Request $request)
+    {
+        //MultiDB::userFindAndSetDb($request->input('email'));
+        
+        $user = MultiDB::hasContact(['email' => $request->input('email')]);
+
+        $this->validateEmail($request);
+
+        // We will send the password reset link to this user. Once we have attempted
+        // to send the link, we will examine the response then see the message we
+        // need to show to the user. Finally, we'll send out a proper response.
+        $response = $this->broker()->sendResetLink(
+            $this->credentials($request)
+        );
+
+        if ($request->ajax()) {
+            return $response == Password::RESET_LINK_SENT
+                ? response()->json(['message' => 'Reset link sent to your email.', 'status' => true], 201)
+                : response()->json(['message' => 'Email not found', 'status' => false], 401);
+        }
+
+        return $response == Password::RESET_LINK_SENT
+            ? $this->sendResetLinkResponse($request, $response)
+            : $this->sendResetLinkFailedResponse($request, $response);
+    }
+
 }

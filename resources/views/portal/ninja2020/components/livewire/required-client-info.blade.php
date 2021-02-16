@@ -25,7 +25,7 @@
                                 @endforeach
                             </select>
                         @else
-                            <input class="input w-full" type="{{ $field['type'] }}" name="{{ $field['name'] }}">
+                            <input class="input w-full" type="{{ $field['type'] ?? 'text' }}" name="{{ $field['name'] }}">
                         @endif
 
                         @if(session()->has('validation_errors') && array_key_exists($field['name'], session('validation_errors')))

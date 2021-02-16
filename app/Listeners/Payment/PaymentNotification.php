@@ -11,8 +11,11 @@
 
 namespace App\Listeners\Payment;
 
-use App\Jobs\Mail\EntityPaidMailer;
+use App\Jobs\Mail\NinjaMailer;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
+use App\Mail\Admin\EntityPaidObject;
 use App\Notifications\Admin\NewPaymentNotification;
 use App\Utils\Ninja;
 use App\Utils\Traits\Notifications\UserNotifies;
@@ -41,12 +44,16 @@ class PaymentNotification implements ShouldQueue
     public function handle($event)
     {
         MultiDB::setDb($event->company->db);
+        
+        if ($event->company->is_disabled)
+            return true;
 
         $payment = $event->payment;
-        
-        if ($event->company->is_disabled) {
-            return true;
-        }
+
+        $nmo = new NinjaMailerObject;
+        $nmo->mailable = new NinjaMailer( (new EntityPaidObject($payment))->build() );
+        $nmo->company = $event->company;
+        $nmo->settings = $event->company->settings;
 
         /*User notifications*/
         foreach ($payment->company->company_users as $company_user) {
@@ -57,7 +64,9 @@ class PaymentNotification implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
-                EntityPaidMailer::dispatch($payment, $payment->company, $user);
+                $nmo->to_user = $user;
+
+                NinjaMailerJob::dispatch($nmo);
             }
 
             $notification = new NewPaymentNotification($payment, $payment->company);

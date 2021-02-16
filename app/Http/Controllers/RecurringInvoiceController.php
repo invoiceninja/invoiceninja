@@ -20,10 +20,12 @@ use App\Http\Requests\RecurringInvoice\EditRecurringInvoiceRequest;
 use App\Http\Requests\RecurringInvoice\ShowRecurringInvoiceRequest;
 use App\Http\Requests\RecurringInvoice\StoreRecurringInvoiceRequest;
 use App\Http\Requests\RecurringInvoice\UpdateRecurringInvoiceRequest;
+use App\Http\Requests\RecurringInvoice\UploadRecurringInvoiceRequest;
 use App\Models\RecurringInvoice;
 use App\Repositories\RecurringInvoiceRepository;
 use App\Transformers\RecurringInvoiceTransformer;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SavesDocuments;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -33,6 +35,7 @@ use Illuminate\Http\Response;
 class RecurringInvoiceController extends BaseController
 {
     use MakesHash;
+    use SavesDocuments;
 
     protected $entity_type = RecurringInvoice::class;
 
@@ -680,4 +683,65 @@ class RecurringInvoiceController extends BaseController
                 break;
         }
     }
+
+/**
+     * Update the specified resource in storage.
+     *
+     * @param UploadRecurringInvoiceRequest $request
+     * @param RecurringInvoice $recurring_invoice
+     * @return Response
+     *
+     *
+     *
+     * @OA\Put(
+     *      path="/api/v1/recurring_invoices/{id}/upload",
+     *      operationId="uploadRecurringInvoice",
+     *      tags={"recurring_invoices"},
+     *      summary="Uploads a document to a recurring_invoice",
+     *      description="Handles the uploading of a document to a recurring_invoice",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The RecurringInvoice Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the RecurringInvoice object",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/RecurringInvoice"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
+    public function upload(UploadRecurringInvoiceRequest $request, RecurringInvoice $recurring_invoice)
+    {
+
+        if ($request->has('documents')) 
+            $this->saveDocuments($request->file('documents'), $recurring_invoice);
+
+        return $this->itemResponse($recurring_invoice->fresh());
+
+    }  
 }

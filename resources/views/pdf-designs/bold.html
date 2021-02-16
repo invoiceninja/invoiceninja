@@ -9,6 +9,7 @@
         -moz-osx-font-smoothing: grayscale;
         font-family: Arial, Helvetica, sans-serif;
         font-size: "$font_size";
+        zoom: 80%;
     }
 
     @page {
@@ -27,13 +28,11 @@
         background-color: #2d2c2a;
         padding: 3rem;
         color: white;
+        min-width: 100%;
     }
 
     .company-logo {
         height: 6rem;
-        padding: 2rem;
-        background-color: white;
-        margin: -4rem 2rem 2rem;
     }
 
     #company-details,
@@ -55,6 +54,8 @@
     .client-entity-wrapper {
         display: grid;
         grid-template-columns: 1.5fr 1fr;
+        padding-left: 1rem;
+        padding-top: 3rem;
     }
 
     .entity-details-wrapper {
@@ -99,8 +100,8 @@
     #product-table > thead > tr > th,
     #delivery-note-table > thead > tr > th,
     #task-table > thead > tr > th {
-        padding: 1.5rem;
-        font-size: 1.5rem;
+        padding: 1.5rem 3rem;
+        font-size: 1rem;
     }
 
     #product-table > thead > tr > th:last-child,
@@ -112,7 +113,7 @@
     #product-table > tbody > tr > td,
     #delivery-note-table > tbody > tr > td,
     #task-table > tbody > tr > td {
-        padding: 1.5rem;
+        padding: 1.5rem 3rem;
     }
 
     #product-table > tbody > tr > td:last-child,
@@ -137,12 +138,26 @@
         page-break-inside: avoid;
     }
 
-    #table-totals > * {
+    #table-totals {
         display: grid;
-        grid-template-columns: 3fr 1fr 1fr;
+        grid-template-columns: 2fr 1fr;
         padding-top: .5rem;
-        padding-left: 1.2rem;
-        gap: 20px;
+        padding-left: 3rem;
+        padding-right: 3rem;
+        gap: 80px;
+    }
+
+    #table-totals .totals-table-right-side>* {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    #table-totals>.totals-table-right-side>*> :nth-child(1) {
+        text-align: left;
+    }
+
+    #table-totals>.totals-table-right-side>*> :nth-child(2) {
+        text-align: right;
     }
 
     #table-totals
@@ -165,38 +180,90 @@
         text-align: right;
         padding-right: 1.5rem;
     }
+
+    .entity-label {
+        text-transform: uppercase;
+        color: var(--primary-color);
+        padding-left: 2rem;
+        font-size: 1.5rem;
+    }
+
+    table.page-container {
+        page-break-after: always;
+        min-width: 100%;
+    }
+
+    thead.page-header {
+        display: table-header-group;
+    }
+
+    tfoot.page-footer {
+        display: table-footer-group;
+    }
+
+    .footer-wrapper {
+        margin-top: 1rem;
+        background-color: #2d2c2a;
+        height: 160px;
+        min-width: 100%;
+        position: fixed;
+        bottom: 0;
+        padding: 1rem 3rem;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 15px;
+    }
 </style>
 
+<table class="page-container">
+    <thead class="page-header">
+    <tr>
+        <th class="page-header-cell">
+            <div class="header-wrapper" id="header">
+                <img class="company-logo" src="$company.logo" alt="$company.name logo"/>
+                <div id="company-details"></div>
+                <div id="company-address"></div>
+            </div>
+        </th>
+    </tr>
+    </thead>
 
-<div class="header-wrapper" id="header">
-    <div></div>
+    <tfoot class="page-footer">
+    <tr>
+        <td class="page-footer-cell">
+            <div class="footer-wrapper" id="footer">
+                <div> <!-- #1 column --> </div>
+                <div> <!-- #2 column --> </div>
+                <div> <!-- #3 column --> </div>
+            </div>
+        </td>
+    </tr>
+    </tfoot>
 
-    <div id="company-details"></div>
-    <div id="company-address"></div>
-</div>
+    <tbody class="page-content">
+    <tr>
+        <td class="page-content-cell" id="body">
+            <div class="client-entity-wrapper">
+                <div class="client-wrapper-left-side">
+                    <h4 class="entity-label">$entity_label</h4>
+                    <div id="client-details" cellspacing="0"></div>
+                </div>
 
-<div id="body">
-    <img
-        class="company-logo"
-        src="$company.logo"
-        alt="$company.name logo"
-    />
+                <div class="entity-details-wrapper-right-side">
+                    <div class="entity-details-wrapper">
+                        <table id="entity-details"></table>
+                    </div>
+                </div>
+            </div>
 
-    <div class="client-entity-wrapper">
-        <div id="client-details" cellspacing="0"></div>
+            <table id="product-table" cellspacing="0"></table>
 
-        <div class="entity-details-wrapper">
-            <table id="entity-details"></table>
-        </div>
-    </div>
+            <table id="task-table" cellspacing="0"></table>
 
-    <table id="product-table" cellspacing="0"></table>
+            <div id="table-totals" cellspacing="0"></div>
 
-    <table id="task-table" cellspacing="0"></table>
-
-    <div id="table-totals" cellspacing="0"></div>
-
-    <table id="delivery-note-table" cellspacing="0"></table>
-</div>
-
-<div id="footer">$entity_footer</div>
+            <table id="delivery-note-table" cellspacing="0"></table>
+        </td>
+    </tr>
+    </tbody>
+</table>

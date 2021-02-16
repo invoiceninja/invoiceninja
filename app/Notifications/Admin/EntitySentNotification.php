@@ -21,9 +21,10 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
+//@deprecated
 class EntitySentNotification extends Notification implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    //use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * Create a new notification instance.
@@ -77,39 +78,6 @@ class EntitySentNotification extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        //@TODO THESE ARE @DEPRECATED NOW we are now using app/Mail/Admin/*
-        $amount = Number::formatMoney($this->entity->amount, $this->entity->client);
-        $subject = ctrans(
-            "texts.notification_{$this->entity_name}_sent_subject",
-            [
-                    'client' => $this->contact->present()->name(),
-                    'invoice' => $this->entity->number,
-                ]
-        );
-
-        $data = [
-            'title' => $subject,
-            'message' => ctrans(
-                "texts.notification_{$this->entity_name}_sent",
-                [
-                    'amount' => $amount,
-                    'client' => $this->contact->present()->name(),
-                    'invoice' => $this->entity->number,
-                ]
-            ),
-            'url' => $this->invitation->getAdminLink(),
-            'button' => ctrans("texts.view_{$this->entity_name}"),
-            'signature' => $this->settings->email_signature,
-            'logo' => $this->company->present()->logo(),
-            'settings' => $this->settings,
-        ];
-
-        return (new MailMessage)
-                    ->subject($subject)
-                    ->markdown('email.admin.generic', $data)
-                    ->withSwiftMessage(function ($message) {
-                        $message->getHeaders()->addTextHeader('Tag', $this->company->company_key);
-                    });
     }
 
     /**
@@ -120,9 +88,7 @@ class EntitySentNotification extends Notification implements ShouldQueue
      */
     public function toArray($notifiable)
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public function toSlack($notifiable)

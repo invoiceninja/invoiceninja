@@ -13,6 +13,7 @@ namespace App\Console\Commands;
 
 use App\Jobs\Ninja\SendReminders;
 use App\Jobs\Util\WebHookHandler;
+use App\Libraries\MultiDB;
 use App\Models\Invoice;
 use App\Models\Quote;
 use App\Models\Webhook;
@@ -59,6 +60,24 @@ class SendRemindersCron extends Command
 
     private function webHookOverdueInvoices()
     {
+
+
+        if (! config('ninja.db.multi_db_enabled')) {
+            $this->executeWebhooks();
+        } else {
+            //multiDB environment, need to
+            foreach (MultiDB::$dbs as $db) {
+                MultiDB::setDB($db);
+
+                $this->executeWebhooks();
+            }
+        }
+
+    }
+
+
+    private function executeWebhooks()
+    {
         $invoices = Invoice::where('is_deleted', 0)
                           ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                           ->where('balance', '>', 0)
@@ -68,10 +87,7 @@ class SendRemindersCron extends Command
         $invoices->each(function ($invoice) {
             WebHookHandler::dispatch(Webhook::EVENT_LATE_INVOICE, $invoice, $invoice->company);
         });
-    }
 
-    private function webHookExpiredQuotes()
-    {
         $quotes = Quote::where('is_deleted', 0)
                           ->where('status_id', Quote::STATUS_SENT)
                           ->whereDate('due_date', '<=', now()->subDays(1)->startOfDay())
@@ -81,4 +97,6 @@ class SendRemindersCron extends Command
             WebHookHandler::dispatch(Webhook::EVENT_EXPIRED_QUOTE, $quote, $quote->company);
         });
     }
+
+
 }
