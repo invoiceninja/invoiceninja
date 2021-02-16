@@ -4137,12 +4137,21 @@ $LANG = array(
      'payment_token_not_found' => 'Payment token not found, please try again. If an issue still persist, try with another payment method',
      'vendor_address1' => 'Vendor Street',
      'vendor_address2' => 'Vendor Apt/Suite',
-
-     /////////////////////////////////////////////////
+     'partially_unapplied' => 'Partially Unapplied',
+     'select_a_gmail_user' => 'Please select a user authenticated with Gmail',
+     'list_long_press' => 'List Long Press',
+     'show_actions' => 'Show Actions',
+     'start_multiselect' => 'Start Multiselect',
+     'email_sent_to_confirm_email' => 'An email has been sent to confirm the email address',
+     'converted_paid_to_date' => 'Converted Paid to Date',
+     'converted_credit_balance' => 'Converted Credit Balance',
+     'converted_total' => 'Converted Total',
+     'reply_to_name' => 'Reply-To Name',
+     'payment_status_-2' => 'Partially Unapplied',
+     'color_theme' => 'Color Theme',
      'start_migration' => 'Start Migration',
      'recurring_cancellation_request' => 'Request for recurring invoice cancellation from :contact',
      'recurring_cancellation_request_body' => ':contact from Client :client requested to cancel Recurring Invoice :invoice',
-    
      'hello' => 'Hello',
      'group_documents' => 'Group documents',
 );
