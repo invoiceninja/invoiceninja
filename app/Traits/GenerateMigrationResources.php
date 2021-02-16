@@ -73,6 +73,8 @@ trait GenerateMigrationResources
 info("get company");
 
         return [
+            'first_day_of_week' => $this->account->start_of_week,
+            'first_month_of_year' => $this->account->financial_year_start,
             'version' => NINJA_VERSION,
             'referral_code' => $this->account->referral_code ?: '',
             'account_id' => $this->account->id,
@@ -713,7 +715,7 @@ info("get company");
 
 
             default:
-                # code...
+               return 5;
                 break;
         }
     }
@@ -745,6 +747,34 @@ info("get company");
         if($invoice->end_date < now())
             return 4;
 
+    }
+
+    private function transformQuoteStatusId($quote)
+    {
+        if(!$quote->is_public)
+            return 1;
+
+        if($quote->quote_invoice_id)
+            return 4;
+
+        switch ($quote->invoice_status_id) {
+            case 1:
+                return 1;
+                break;
+            case 2:
+                return 2;
+                break;
+            case 3:
+                return 2;
+                break;
+            case 4:
+              return 3;
+                break;
+
+            default:
+                return 2;
+                break;
+        }
     }
 
     /*
@@ -916,7 +946,7 @@ info("get company");
                 'client_id' => $quote->client_id,
                 'user_id' => $quote->user_id,
                 'company_id' => $quote->account_id,
-                'status_id' => $quote->invoice_status_id,
+                'status_id' => $this->transformQuoteStatusId($quote),
                 'design_id' => $this->getDesignId($quote->invoice_design_id),
                 'number' => $quote->invoice_number,
                 'discount' => $quote->discount,
@@ -985,6 +1015,7 @@ info("get company");
         $transformed = [];
 
         $payments = Payment::where('account_id', $this->account->id)
+            ->where('payment_status_id', '!=', PAYMENT_STATUS_VOIDED)
             ->withTrashed()
             ->get();
 
