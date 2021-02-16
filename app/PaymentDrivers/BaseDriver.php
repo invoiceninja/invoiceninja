@@ -16,8 +16,6 @@ use App\Events\Payment\PaymentWasCreated;
 use App\Exceptions\PaymentFailed;
 use App\Factory\PaymentFactory;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use App\Jobs\Mail\AutoBillingFailureMailer;
-use App\Jobs\Mail\ClientPaymentFailureMailer;
 use App\Jobs\Mail\NinjaMailer;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;

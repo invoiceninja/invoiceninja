@@ -466,7 +466,10 @@ trait MockAccountData
         $this->invoice->ledger()->updateInvoiceBalance($this->invoice->amount);
         // UpdateCompanyLedgerWithInvoice::dispatchNow($this->invoice, $this->invoice->amount, $this->invoice->company);
 
+        $user_id = $this->invoice->user_id;
+
         $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
+        $recurring_invoice->user_id = $user_id;
         $recurring_invoice->next_send_date = Carbon::now();
         $recurring_invoice->status_id = RecurringInvoice::STATUS_ACTIVE;
         $recurring_invoice->remaining_cycles = 2;
@@ -477,6 +480,7 @@ trait MockAccountData
         $recurring_invoice->save();
 
         $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
+        $recurring_invoice->user_id = $user_id;
         $recurring_invoice->next_send_date = Carbon::now()->addMinutes(2);
         $recurring_invoice->status_id = RecurringInvoice::STATUS_ACTIVE;
         $recurring_invoice->remaining_cycles = 2;
@@ -487,6 +491,7 @@ trait MockAccountData
         $recurring_invoice->save();
 
         $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
+        $recurring_invoice->user_id = $user_id;
         $recurring_invoice->next_send_date = Carbon::now()->addMinutes(10);
         $recurring_invoice->status_id = RecurringInvoice::STATUS_ACTIVE;
         $recurring_invoice->remaining_cycles = 2;
@@ -497,6 +502,7 @@ trait MockAccountData
         $recurring_invoice->save();
 
         $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
+        $recurring_invoice->user_id = $user_id;
         $recurring_invoice->next_send_date = Carbon::now()->addMinutes(15);
         $recurring_invoice->status_id = RecurringInvoice::STATUS_ACTIVE;
         $recurring_invoice->remaining_cycles = 2;
@@ -507,6 +513,7 @@ trait MockAccountData
         $recurring_invoice->save();
 
         $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
+        $recurring_invoice->user_id = $user_id;
         $recurring_invoice->next_send_date = Carbon::now()->addMinutes(20);
         $recurring_invoice->status_id = RecurringInvoice::STATUS_ACTIVE;
         $recurring_invoice->remaining_cycles = 2;
@@ -517,6 +524,7 @@ trait MockAccountData
         $recurring_invoice->save();
 
         $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
+        $recurring_invoice->user_id = $user_id;
         $recurring_invoice->next_send_date = Carbon::now()->addDays(10);
         $recurring_invoice->status_id = RecurringInvoice::STATUS_ACTIVE;
         $recurring_invoice->remaining_cycles = 2;

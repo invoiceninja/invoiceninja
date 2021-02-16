@@ -42,8 +42,6 @@ class ResetPasswordNotification extends Notification
      */
     public function toMail($notifiable)
     {
-        return (new MailMessage)
-                    ->view('email.auth.password-reset', ['link' => route('password.reset', $this->token)]);
     }
 
     /**
