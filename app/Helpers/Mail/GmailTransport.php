@@ -43,13 +43,13 @@ class GmailTransport extends Transport
     {
         /*We should nest the token in the message and then discard it as needed*/
 
-        $token = $message->get('GmailToken');
+        $token = $message->getHeaders()->get('GmailToken');
 
         nlog("gmail transporter token = {$token}");
         
-        $message->remove('GmailToken');
+        $message->getHeaders()->remove('GmailToken');
 
-        nlog("inside gmail sender with token {$this->token}");
+        nlog("inside gmail sender with token {$token}");
 
         $this->beforeSendPerformed($message);
 

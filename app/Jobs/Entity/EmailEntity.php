@@ -16,6 +16,8 @@ use App\Events\Invoice\InvoiceWasEmailed;
 use App\Events\Invoice\InvoiceWasEmailedAndFailed;
 use App\Jobs\Mail\BaseMailerJob;
 use App\Jobs\Mail\EntityFailedSendMailer;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
 use App\Mail\TemplateEmail;
 use App\Models\Activity;
@@ -106,18 +108,29 @@ class EmailEntity extends BaseMailerJob implements ShouldQueue
         /* Set the correct mail driver */
         $this->setMailDriver();
 
-        try {
-            Mail::to($this->invitation->contact->email, $this->invitation->contact->present()->name())
-                ->send(
-                    new TemplateEmail(
-                        $this->email_entity_builder,
-                        $this->invitation->contact
-                    )
-                );
-        } catch (\Exception $e) {
-            $this->entityEmailFailed($e->getMessage());
-            $this->logMailError($e->getMessage(), $this->entity->client);
-        }
+        $nmo = new NinjaMailerObject;
+        $nmo->mailable = new TemplateEmail($this->email_entity_builder,$this->invitation->contact);
+        $nmo->company = $this->company;
+        $nmo->settings = $this->settings;
+        $nmo->to_user = $this->invitation->contact;
+        $nmo->entity_string = $this->entity_string;
+        $nmo->invitation = $this->invitation;
+        $nmo->reminder_template = $this->reminder_template;
+
+        NinjaMailerJob::dispatch($nmo);
+
+        // try {
+        //     Mail::to($this->invitation->contact->email, $this->invitation->contact->present()->name())
+        //         ->send(
+        //             new TemplateEmail(
+        //                 $this->email_entity_builder,
+        //                 $this->invitation->contact
+        //             )
+        //         );
+        // } catch (\Exception $e) {
+        //     $this->entityEmailFailed($e->getMessage());
+        //     $this->logMailError($e->getMessage(), $this->entity->client);
+        // }
 
         /* Mark entity sent */
         $this->entity->service()->markSent()->save();
@@ -136,7 +149,7 @@ class EmailEntity extends BaseMailerJob implements ShouldQueue
         }
     }
 
-    /* Switch statement to handling failure notifications */
+    /* Switch statement to handle failure notifications */
     private function entityEmailFailed($message)
     {
         switch ($this->entity_string) {

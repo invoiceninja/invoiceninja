@@ -12,10 +12,12 @@
 namespace App\Jobs\Mail;
 
 use App\DataMapper\Analytics\EmailFailure;
+use App\Events\Invoice\InvoiceWasEmailedAndFailed;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Util\SystemLogger;
 use App\Libraries\Google\Google;
 use App\Libraries\MultiDB;
+use App\Mail\TemplateEmail;
 use App\Models\ClientContact;
 use App\Models\SystemLog;
 use App\Models\User;
@@ -60,9 +62,10 @@ class NinjaMailerJob implements ShouldQueue
         if ($this->nmo->company->is_disabled) 
             return true;
         
+        /*Set the correct database*/
         MultiDB::setDb($this->nmo->company->db);
 
-        //if we need to set an email driver do it now
+        /* Set the email driver */
         $this->setMailDriver();
 
         //send email
@@ -71,11 +74,28 @@ class NinjaMailerJob implements ShouldQueue
             Mail::to($this->nmo->to_user->email)
                 ->send($this->nmo->mailable);
         } catch (\Exception $e) {
-            //$this->failed($e);
+
             nlog("error failed with {$e->getMessage()}");
-            if ($this->nmo->to_user instanceof ClientContact) {
+
+            if ($this->nmo->to_user instanceof ClientContact) 
                 $this->logMailError($e->getMessage(), $this->nmo->to_user->client);
-            }
+
+            if($this->nmo->entity_string)
+                $this->entityEmailFailed($e->getMessage());
+        }
+    }
+
+    /* Switch statement to handle failure notifications */
+    private function entityEmailFailed($message)
+    {
+        switch ($this->nmo->entity_string) {
+            case 'invoice':
+                event(new InvoiceWasEmailedAndFailed($this->nmo->invitation, $this->nmo->company, $message, $this->nmo->reminder_template, Ninja::eventVars()));
+                break;
+
+            default:
+                # code...
+                break;
         }
     }
 

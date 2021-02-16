@@ -29,4 +29,10 @@ class NinjaMailerObject
 
     public $transport; //not yet used
 
+    /* Variable for cascading notifications */
+    public $entity_string = FALSE;
+
+    public $invitation = FALSE;
+
+    public $template = FALSE;
 }
