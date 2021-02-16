@@ -115,7 +115,7 @@ class ImportController extends Controller {
 			}
 		}
 
-		CSVImport::dispatchNow( $data, auth()->user()->company() );
+		CSVImport::dispatch( $data, auth()->user()->company() );
 
 		return response()->json( [ 'message' => ctrans( 'texts.import_started' ) ], 200 );
 	}

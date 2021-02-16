@@ -126,7 +126,7 @@ class CSVImport implements ShouldQueue {
 			'company' => $this->company,
 		];
 
-		MailRouter::dispatchNow( new ImportCompleted( $data ), $this->company, auth()->user() );
+		MailRouter::dispatch( new ImportCompleted( $data ), $this->company, auth()->user() );
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
