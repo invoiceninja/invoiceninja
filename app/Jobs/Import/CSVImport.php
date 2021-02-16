@@ -14,16 +14,9 @@ namespace App\Jobs\Import;
 use App\Factory\ClientFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\PaymentFactory;
-use App\Factory\ProductFactory;
-use App\Http\Requests\Client\StoreClientRequest;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
-use App\Http\Requests\Product\StoreProductRequest;
+use App\Import\ImportException;
 use App\Import\Transformers\BaseTransformer;
-use App\Import\Transformers\ClientTransformer;
-use App\Import\Transformers\InvoiceItemTransformer;
-use App\Import\Transformers\InvoiceTransformer;
-use App\Import\Transformers\PaymentTransformer;
-use App\Import\Transformers\ProductTransformer;
 use App\Jobs\Mail\MailRouter;
 use App\Libraries\MultiDB;
 use App\Mail\Import\ImportCompleted;
@@ -32,14 +25,15 @@ use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Country;
 use App\Models\Currency;
-use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\Invoice;
-use App\Models\Payment;
+use App\Models\PaymentType;
 use App\Models\Product;
+use App\Models\Project;
 use App\Models\TaxRate;
 use App\Models\User;
 use App\Models\Vendor;
+use App\Repositories\ClientRepository;
 use App\Repositories\InvoiceRepository;
 use App\Repositories\PaymentRepository;
 use App\Utils\Traits\CleanLineItems;
@@ -54,6 +48,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use League\Csv\Reader;
 use League\Csv\Statement;
+use Symfony\Component\HttpFoundation\ParameterBag;
+use Symfony\Component\HttpFoundation\Request;
 
 class CSVImport implements ShouldQueue {
 	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, CleanLineItems;
@@ -77,15 +73,11 @@ class CSVImport implements ShouldQueue {
 	public $maps;
 
 	public function __construct( array $request, Company $company ) {
-		$this->company = $company;
-
-		$this->hash = $request['hash'];
-
+		$this->company     = $company;
+		$this->hash        = $request['hash'];
 		$this->import_type = $request['import_type'];
-
 		$this->skip_header = $request['skip_header'] ?? null;
-
-		$this->column_map = $request['column_map'] ?? null;
+		$this->column_map  = $request['column_map'] ?? null;
 	}
 
 	/**
@@ -103,35 +95,21 @@ class CSVImport implements ShouldQueue {
 
 		$this->buildMaps();
 
-		//sort the array by key
-		foreach ( $this->column_map as $entityType => &$map ) {
-			ksort( $map );
-		}
-
-		nlog( "import" . ucfirst( $this->import_type ) );
-		$this->{"import" . ucfirst( $this->import_type )}();
-
-		$data = [
-			'errors'   => $this->error_array,
-			'company'=>$this->company,
-		];
-
-
-		MailRouter::dispatchNow( new ImportCompleted( $data ), $this->company, auth()->user() );
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	private function importCsv() {
+		nlog( "import " . $this->import_type );
 		foreach ( [ 'client', 'product', 'invoice', 'payment', 'vendor', 'expense' ] as $entityType ) {
-			if ( empty( $this->column_map[ $entityType ] ) ) {
-				continue;
-			}
-
 			$csvData = $this->getCsvData( $entityType );
 
 			if ( ! empty( $csvData ) ) {
-				$importFunction = "import" . Str::plural( Str::title( $entityType ) );
+				$importFunction       = "import" . Str::plural( Str::title( $entityType ) );
+				$preTransformFunction = "preTransform" . Str::title( $this->import_type );
+
+				if ( method_exists( $this, $preTransformFunction ) ) {
+					$csvData = $this->$preTransformFunction( $csvData, $entityType );
+				}
+
+				if ( empty( $csvData ) ) {
+					continue;
+				}
 
 				if ( method_exists( $this, $importFunction ) ) {
 					// If there's an entity-specific import function, use that.
@@ -142,113 +120,204 @@ class CSVImport implements ShouldQueue {
 				}
 			}
 		}
+
+		$data = [
+			'errors'  => $this->error_array,
+			'company' => $this->company,
+		];
+
+		MailRouter::dispatchNow( new ImportCompleted( $data ), $this->company, auth()->user() );
 	}
 
-	private function importInvoices( $records ) {
-		$invoice_transformer = new InvoiceTransformer( $this->maps );
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function preTransformCsv( $csvData, $entityType ) {
+		if ( empty( $this->column_map[ $entityType ] ) ) {
+			return false;
+		}
 
 		if ( $this->skip_header ) {
-			array_shift( $records );
+			array_shift( $csvData );
 		}
 
-		$keys               = $this->column_map['invoice'];
-		$invoice_number_key = array_search( 'invoice.number', $keys );
-		if ( $invoice_number_key === false ) {
-			nlog( "no invoice number to use as key - returning" );
+		//sort the array by key
+		$keys = $this->column_map[ $entityType ];
+		ksort( $keys );
 
-			return;
+		$csvData = array_map( function ( $row ) use ( $keys ) {
+			return array_combine( $keys, array_intersect_key( $row, $keys ) );
+		}, $csvData );
+
+		if ( $entityType === 'invoice' ) {
+			$csvData = $this->groupInvoices( $csvData, 'invoice.number' );
 		}
 
-		$items_by_invoice = [];
-
-		// Group line items by invoice and map columns to keys.
-		foreach ( $records as $key => $value ) {
-			$items_by_invoice[ $value[ $invoice_number_key ] ][] = array_combine( $keys,array_intersect_key(  $value , $keys ));
-		}
-
-		foreach ( $items_by_invoice as $invoice_number => $line_items ) {
-			$invoice_data = array_combine( $keys, reset( $line_items ) );
-
-			$invoice = $invoice_transformer->transform( $invoice_data );
-
-			$this->processInvoice( $line_items, $invoice );
-		}
+		return $csvData;
 	}
 
-	private function processInvoice( $line_items, $invoice ) {
-		$invoice_repository = new InvoiceRepository();
-		$item_transformer   = new InvoiceItemTransformer( $this->maps );
-		$items              = [];
+	private function preTransformFreshbooks( $csvData, $entityType ) {
+		$csvData = $this->mapCSVHeaderToKeys( $csvData );
 
-		foreach ( $line_items as $record ) {
-			$items[] = $item_transformer->transform( $record );
+		if ( $entityType === 'invoice' ) {
+			$csvData = $this->groupInvoices( $csvData, 'Invoice #' );
 		}
 
-		$invoice['line_items'] = $this->cleanItems( $items );
+		return $csvData;
+	}
 
-		$validator = Validator::make( $invoice, ( new StoreInvoiceRequest() )->rules() );
+	private function preTransformInvoicely( $csvData, $entityType ) {
+		$csvData = $this->mapCSVHeaderToKeys( $csvData );
 
-		if ( $validator->fails() ) {
-			$this->error_array['invoice'][] = [ 'invoice' => $invoice, 'error' => $validator->errors()->all() ];
-		} else {
-			$invoice =
-				$invoice_repository->save( $invoice, InvoiceFactory::create( $this->company->id, $this->getUserIDForRecord( $record ) ) );
+		return $csvData;
+	}
 
-			$this->addInvoiceToMaps( $invoice );
+	private function preTransformInvoice2go( $csvData, $entityType ) {
+		$csvData = $this->mapCSVHeaderToKeys( $csvData );
 
-			// If there's no payment import, try importing payment data from the invoices CSV.
-			if ( empty( $this->column_map['payment'] ) ) {
-				$payment_data = reset( $line_items );
-				// Check for payment columns
-				if ( ! empty( $payment_data['payment.amount'] ) ) {
-					// Transform the payment to be saved
-					$payment_transformer = new PaymentTransformer( $this->maps );
+		return $csvData;
+	}
 
-					/** @var PaymentRepository $payment_repository */
-					$payment_repository               = app()->make( PaymentRepository::class );
-					$transformed_payment              = $payment_transformer->transform( $payment_data );
-					$transformed_payment['user_id']   = $invoice->user_id;
-					$transformed_payment['client_id'] = $invoice->client_id;
-					$transformed_payment['invoices']  = [
-						[
-							'invoice_id' => $invoice->id,
-							'amount'     => $transformed_payment['amount'],
-						],
-					];
+	private function preTransformZoho( $csvData, $entityType ) {
+		$csvData = $this->mapCSVHeaderToKeys( $csvData );
 
-					$payment_repository->save(
-						$transformed_payment,
-						PaymentFactory::create( $this->company->id, $invoice->user_id, $invoice->client_id )
-					);
-				}
+		if ( $entityType === 'invoice' ) {
+			$csvData = $this->groupInvoices( $csvData, 'Invoice Number' );
+		}
+
+		return $csvData;
+	}
+
+	private function preTransformWaveaccounting( $csvData, $entityType ) {
+		$csvData = $this->mapCSVHeaderToKeys( $csvData );
+
+		if ( $entityType === 'invoice' ) {
+			$csvData = $this->groupInvoices( $csvData, 'Invoice Number' );
+		}
+
+		return $csvData;
+	}
+
+	private function groupInvoices( $csvData, $key ) {
+		// Group by invoice.
+		$grouped = [];
+
+		foreach ( $csvData as $line_item ) {
+			if ( empty( $line_item[ $key ] ) ) {
+				$this->error_array['invoice'][] = [ 'invoice' => $line_item, 'error' => 'No invoice number' ];
+			} else {
+				$grouped[ $line_item[ $key ] ][] = $line_item;
 			}
+		}
 
-			$this->actionInvoiceStatus( $invoice, $record['invoice.status']??null, $invoice_repository );
+		return $grouped;
+	}
+
+	private function mapCSVHeaderToKeys( $csvData ) {
+		$keys = array_shift( $csvData );
+
+		return array_map( function ( $values ) use ( $keys ) {
+			return array_combine( $keys, $values );
+		}, $csvData );
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	private function importInvoices( $invoices ) {
+		$invoice_transformer = $this->getTransformer( 'invoice' );
+
+		/** @var PaymentRepository $payment_repository */
+		$payment_repository = app()->make( PaymentRepository::class );
+		/** @var ClientRepository $client_repository */
+		$client_repository = app()->make( ClientRepository::class );
+
+		foreach ( $invoices as $raw_invoice ) {
+			try {
+				$invoice_data       = $invoice_transformer->transform( $raw_invoice );
+				$invoice_repository = new InvoiceRepository();
+
+				$invoice_data['line_items'] = $this->cleanItems( $invoice_data['line_items'] ?? [] );
+
+
+				// If we don't have a client ID, but we do have client data, go ahead and create the client.
+				if ( empty( $invoice_data['client_id'] ) && ! empty( $invoice_data['client'] ) ) {
+					$client_data            = $invoice_data['client'];
+					$client_data['user_id'] = $this->getUserIDForRecord( $invoice_data );
+
+					$client_repository->save(
+						$client_data,
+						$client = ClientFactory::create( $this->company->id, $client_data['user_id'] )
+					);
+					$invoice_data['client_id'] = $client->id;
+					unset( $invoice_data['client'] );
+				}
+
+				$validator = Validator::make( $invoice_data, ( new StoreInvoiceRequest() )->rules() );
+				if ( $validator->fails() ) {
+					$this->error_array['invoice'][] =
+						[ 'invoice' => $invoice_data, 'error' => $validator->errors()->all() ];
+				} else {
+					$invoice = InvoiceFactory::create( $this->company->id, $this->getUserIDForRecord( $invoice_data ) );
+					if ( ! empty( $invoice_data['status_id'] ) ) {
+						$invoice->status_id = $invoice_data['status_id'];
+					}
+					$invoice_repository->save( $invoice_data, $invoice );
+					$this->addInvoiceToMaps( $invoice );
+
+					// If we're doing a generic CSV import, only import payment data if we're not importing a payment CSV.
+					// If we're doing a platform-specific import, trust the platform to only return payment info if there's not a separate payment CSV.
+					if ( $this->import_type !== 'csv' || empty( $this->column_map['payment'] ) ) {
+						// Check for payment columns
+						if ( ! empty( $invoice_data['payments'] ) ) {
+							foreach ( $invoice_data['payments'] as $payment_data ) {
+								$payment_data['user_id']   = $invoice->user_id;
+								$payment_data['client_id'] = $invoice->client_id;
+								$payment_data['invoices']  = [
+									[
+										'invoice_id' => $invoice->id,
+										'amount'     => $payment_data['amount'] ?? null,
+									],
+								];
+
+								$payment_repository->save(
+									$payment_data,
+									PaymentFactory::create( $this->company->id, $invoice->user_id, $invoice->client_id )
+								);
+							}
+						}
+					}
+
+					$this->actionInvoiceStatus( $invoice, $invoice_data, $invoice_repository );
+				}
+			} catch ( \Exception $ex ) {
+				if ( $ex instanceof ImportException ) {
+					$message = $ex->getMessage();
+				} else {
+					report( $ex );
+					$message = 'Unknown error';
+				}
+
+				$this->error_array['invoice'][] = [ 'invoice' => $raw_invoice, 'error' => $message ];
+			}
 		}
 	}
 
-	private function actionInvoiceStatus( $invoice, $status, $invoice_repository ) {
-		switch ( $status ) {
-			case 'Archived':
-				$invoice_repository->archive( $invoice );
-				$invoice->fresh();
-				break;
-			case 'Sent':
-				$invoice = $invoice->service()->markSent()->save();
-				break;
-			case 'Viewed':
-				$invoice = $invoice->service()->markSent()->save();
-				break;
-			default:
-				# code...
-				break;
+	private function actionInvoiceStatus( $invoice, $invoice_data, $invoice_repository ) {
+		if ( ! empty( $invoice_data['archived'] ) ) {
+			$invoice_repository->archive( $invoice );
+			$invoice->fresh();
 		}
 
-		if($invoice->status_id <= Invoice::STATUS_SENT){
-			if ( $invoice->balance < $invoice->amount) {
+		if ( ! empty( $invoice_data['viewed'] ) ) {
+			$invoice = $invoice->service()->markViewed()->save();
+		}
+
+		if ( $invoice->status_id === Invoice::STATUS_SENT ) {
+			$invoice = $invoice->service()->markSent()->save();
+		}
+
+		if ( $invoice->status_id <= Invoice::STATUS_SENT && $invoice->amount > 0 ) {
+			if ( $invoice->balance < $invoice->amount ) {
 				$invoice->status_id = Invoice::STATUS_PARTIAL;
 				$invoice->save();
-			} elseif($invoice->balance <=0){
+			} elseif ( $invoice->balance <= 0 ) {
 				$invoice->status_id = Invoice::STATUS_PAID;
 				$invoice->save();
 			}
@@ -262,39 +331,63 @@ class CSVImport implements ShouldQueue {
 		$entity_type           = Str::slug( $entity_type, '_' );
 		$formatted_entity_type = Str::title( $entity_type );
 
-		$request          = "\\App\\Http\\Requests\\${formatted_entity_type}\\Store${formatted_entity_type}Request";
-		$repository_name  = '\\App\\Repositories\\'.$formatted_entity_type . 'Repository';
-		$transformer_name = '\\App\\Import\\Transformers\\'.$formatted_entity_type . 'Transformer';
-		$factoryName      = '\\App\\Factory\\'.$formatted_entity_type . 'Factory';
+		$request_name    = "\\App\\Http\\Requests\\${formatted_entity_type}\\Store${formatted_entity_type}Request";
+		$repository_name = '\\App\\Repositories\\' . $formatted_entity_type . 'Repository';
+		$factoryName     = '\\App\\Factory\\' . $formatted_entity_type . 'Factory';
 
-		$repository  = app()->make($repository_name);
-		$transformer = new $transformer_name( $this->maps );
-
-		if ( $this->skip_header ) {
-			array_shift( $records );
-		}
+		$repository  = app()->make( $repository_name );
+		$transformer = $this->getTransformer( $entity_type );
 
 		foreach ( $records as $record ) {
-			$keys   = $this->column_map[ $entity_type ];
-			$values = array_intersect_key( $record, $keys );
+			try {
+				$entity = $transformer->transform( $record );
 
-			$data = array_combine( $keys, $values );
+				/** @var \App\Http\Requests\Request $request */
+				$request        = new $request_name();
 
-			$entity = $transformer->transform( $data );
+				// Pass entity data to request so it can be validated
+				$request->query = $request->request = new ParameterBag( $entity );
+				$validator = Validator::make( $entity, $request->rules() );
 
-			$validator = Validator::make( $entity, ( new $request() )->rules() );
+				if ( $validator->fails() ) {
+					$this->error_array[ $entity_type ][] =
+						[ $entity_type => $record, 'error' => $validator->errors()->all() ];
+				} else {
+					$entity =
+						$repository->save(
+							array_diff_key( $entity, [ 'user_id' => false ] ),
+							$factoryName::create( $this->company->id, $this->getUserIDForRecord( $entity ) ) );
 
-			if ( $validator->fails() ) {
-				$this->error_array[ $entity_type ][] =
-					[ $entity_type => $entity, 'error' => $validator->errors()->all()  ];
-			} else {
-				$entity =
-					$repository->save( $entity, $factoryName::create( $this->company->id, $this->getUserIDForRecord( $data) ) );
+					$entity->save();
+					if ( method_exists( $this, 'add' . $formatted_entity_type . 'ToMaps' ) ) {
+						$this->{'add' . $formatted_entity_type . 'ToMaps'}( $entity );
+					}
+				}
+			} catch ( \Exception $ex ) {
+				if ( $ex instanceof ImportException ) {
+					$message = $ex->getMessage();
+				} else {
+					report( $ex );
+					$message = 'Unknown error';
+				}
 
-				$entity->save();
-				$this->{'add' . $formatted_entity_type . 'ToMaps'}( $entity );
+				$this->error_array[ $entity_type ][] = [ $entity_type => $record, 'error' => $message ];
 			}
 		}
+	}
+
+	/**
+	 * @param $entity_type
+	 *
+	 * @return BaseTransformer
+	 */
+	private function getTransformer( $entity_type ) {
+		$formatted_entity_type = Str::title( $entity_type );
+		$formatted_import_type = Str::title( $this->import_type );
+		$transformer_name      =
+			'\\App\\Import\\Transformers\\' . $formatted_import_type . '\\' . $formatted_entity_type . 'Transformer';
+
+		return new $transformer_name( $this->maps );
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -313,6 +406,7 @@ class CSVImport implements ShouldQueue {
 			'invoice_ids'        => [],
 			'vendors'            => [],
 			'expense_categories' => [],
+			'payment_types'      => [],
 			'tax_rates'          => [],
 			'tax_names'          => [],
 		];
@@ -337,6 +431,11 @@ class CSVImport implements ShouldQueue {
 			$this->addProductToMaps( $product );
 		}
 
+		$projects = Project::scope()->get();
+		foreach ( $projects as $project ) {
+			$this->addProjectToMaps( $projects );
+		}
+
 		$countries = Country::all();
 		foreach ( $countries as $country ) {
 			$this->maps['countries'][ strtolower( $country->name ) ]        = $country->id;
@@ -346,6 +445,11 @@ class CSVImport implements ShouldQueue {
 		$currencies = Currency::all();
 		foreach ( $currencies as $currency ) {
 			$this->maps['currencies'][ strtolower( $currency->code ) ] = $currency->id;
+		}
+
+		$payment_types = PaymentType::all();
+		foreach ( $payment_types as $payment_type ) {
+			$this->maps['payment_types'][ strtolower( $payment_type->name ) ] = $payment_type->id;
 		}
 
 		$vendors = Vendor::scope()->get();
@@ -370,7 +474,7 @@ class CSVImport implements ShouldQueue {
 	 * @param Invoice $invoice
 	 */
 	private function addInvoiceToMaps( Invoice $invoice ) {
-		if ( $number = strtolower( trim( $invoice->invoice_number ) ) ) {
+		if ( $number = strtolower( trim( $invoice->number ) ) ) {
 			$this->maps['invoices'][ $number ]                = $invoice;
 			$this->maps['invoice'][ $number ]                 = $invoice->id;
 			$this->maps['invoice_client'][ $number ]          = $invoice->client_id;
@@ -391,7 +495,7 @@ class CSVImport implements ShouldQueue {
 			if ( $email = strtolower( trim( $contact->email ) ) ) {
 				$this->maps['client'][ $email ] = $client->id;
 			}
-			if ( $name = strtolower( trim($contact->first_name.' '.$contact->last_name) ) ) {
+			if ( $name = strtolower( trim( $contact->first_name . ' ' . $contact->last_name ) ) ) {
 				$this->maps['client'][ $name ] = $client->id;
 			}
 			$this->maps['client_ids'][ $client->public_id ] = $client->id;
@@ -416,6 +520,15 @@ class CSVImport implements ShouldQueue {
 		}
 	}
 
+	/**
+	 * @param Project $project
+	 */
+	private function addProjectToMaps( Project $project ) {
+		if ( $key = strtolower( trim( $project->name ) ) ) {
+			$this->maps['project'][ $key ] = $project;
+		}
+	}
+
 	private function addVendorToMaps( Vendor $vendor ) {
 		$this->maps['vendor'][ strtolower( $vendor->name ) ] = $vendor->id;
 	}
@@ -428,8 +541,8 @@ class CSVImport implements ShouldQueue {
 
 
 	private function getUserIDForRecord( $record ) {
-		if ( !empty($record['client.user_id']) ) {
-			return $this->findUser( $record[ 'client.user_id' ] );
+		if ( ! empty( $record['user_id'] ) ) {
+			return $this->findUser( $record['user_id'] );
 		} else {
 			return $this->company->owner()->id;
 		}
@@ -473,6 +586,6 @@ class CSVImport implements ShouldQueue {
 			}
 		}
 
-        return $data;
-    }
+		return $data;
+	}
 }

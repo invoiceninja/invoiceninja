@@ -9,8 +9,9 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Import\Transformers;
-
+namespace App\Import\Transformers\Csv;
+use App\Import\ImportException;
+use App\Import\Transformers\BaseTransformer;
 use Illuminate\Support\Str;
 
 /**
@@ -21,18 +22,18 @@ class ClientTransformer extends BaseTransformer
     /**
 	 * @param $data
 	 *
-	 * @return array
+	 * @return array|bool
 	 */
     public function transform($data)
     {
         if (isset($data->name) && $this->hasClient($data->name)) {
-            return false;
+            throw new ImportException('Client already exists');
         }
 
         $settings = new \stdClass;
-        $settings->currency_id = (string)$this->getCurrencyByCode($data);
+		$settings->currency_id = (string)$this->getCurrencyByCode($data);
 
-        return [
+		return [
 			'company_id'           => $this->maps['company']->id,
 			'name'                 => $this->getString( $data, 'client.name' ),
 			'work_phone'           => $this->getString( $data, 'client.phone' ),
@@ -71,8 +72,8 @@ class ClientTransformer extends BaseTransformer
 					'custom_value4' => $this->getString( $data, 'contact.custom4' ),
 				],
 			],
-			'country_id'           => isset( $data->country_id ) ? $this->getCountryId( $data->country_id ) : null,
-			'shipping_country_id'  => isset( $data->shipping_country_id ) ? $this->getCountryId( $data->shipping_country_id ) : null,
+			'country_id'           => isset( $data['client.country'] ) ? $this->getCountryId( $data['client.country']) : null,
+			'shipping_country_id'  => isset($data['client.shipping_country'] ) ? $this->getCountryId( $data['client.shipping_country']  ) : null,
 		];
     }
 }
