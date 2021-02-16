@@ -12,9 +12,9 @@ class GmailTransportManager extends MailManager
 {
     protected function createGmailTransport()
     {
-
-        //$token = $this->app['config']->get('services.gmail.token', []);
-        $token = config('services.gmail.token');
+    	info("booting gmail transport");
+        // $token = $this->app['config']->get('services.gmail.token', []);
+        //$token = config('services.gmail.token');
 
         $mail = new Mail;
 
