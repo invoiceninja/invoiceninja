@@ -6,9 +6,10 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
+//@deprecated
 class ResetPasswordNotification extends Notification
 {
-    use Queueable;
+//    use Queueable;
 
     public $token;
 
@@ -30,7 +31,7 @@ class ResetPasswordNotification extends Notification
      */
     public function via($notifiable)
     {
-        return ['mail'];
+        return [];
     }
 
     /**
@@ -41,8 +42,6 @@ class ResetPasswordNotification extends Notification
      */
     public function toMail($notifiable)
     {
-        return (new MailMessage)
-                    ->view('email.auth.password-reset', ['link' => route('password.reset', $this->token)]);
     }
 
     /**

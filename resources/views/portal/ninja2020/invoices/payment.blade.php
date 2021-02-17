@@ -50,11 +50,6 @@
                                 </div>
                             </div>
                         </div>
-                        @else
-                        <span class="inline-flex items-center text-sm">
-                            <span>{{ ctrans('texts.to_pay_invoices') }} &nbsp;</span>
-                            <a class="button-link text-primary" href="{{ route('client.payment_methods.index') }}">{{ ctrans('texts.add_payment_method_first') }}.</a>
-                        </span>
                         @endif
                     </div>
                 </div>

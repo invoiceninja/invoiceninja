@@ -67,6 +67,10 @@ class Project extends BaseModel
         return $this->morphMany(Document::class, 'documentable');
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class)->withTrashed();
+    }
     // /**
     //  * @return \Illuminate\Database\Eloquent\Relations\HasMany
     //  */

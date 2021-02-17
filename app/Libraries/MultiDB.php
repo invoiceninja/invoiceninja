@@ -142,6 +142,31 @@ class MultiDB
         return null;
     }
 
+    /**
+     * @param array $data
+     * @return User|null
+     */
+    public static function hasContact(array $data) : ?ClientContact
+    {
+        if (! config('ninja.db.multi_db_enabled')) {
+            return ClientContact::where($data)->withTrashed()->first();
+        }
+
+        foreach (self::$dbs as $db) {
+            self::setDB($db);
+
+            $user = ClientContacts::where($data)->withTrashed()->first();
+
+            if ($user) {
+                return $user;
+            }
+        }
+
+        self::setDefaultDatabase();
+
+        return null;
+    }
+
     public static function contactFindAndSetDb($token) :bool
     {
         foreach (self::$dbs as $db) {
@@ -160,7 +185,7 @@ class MultiDB
     public static function userFindAndSetDb($email) : bool
     {
 
-            //multi-db active
+        //multi-db active
         foreach (self::$dbs as $db) {
             if (User::on($db)->where(['email' => $email])->get()->count() >= 1) { // if user already exists, validation will fail
                 return true;

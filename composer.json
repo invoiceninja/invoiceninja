@@ -64,7 +64,8 @@
         "stripe/stripe-php": "^7.50",
         "turbo124/beacon": "^1",
         "turbo124/laravel-gmail": "^5.0",
-        "webpatser/laravel-countries": "dev-master#75992ad"
+        "webpatser/laravel-countries": "dev-master#75992ad",
+        "wildbit/swiftmailer-postmark": "^3.3"
     },
     "require-dev": {
         "php": "^7.4",
@@ -79,8 +80,7 @@
         "mockery/mockery": "^1.3.1",
         "nunomaduro/collision": "^5.0",
         "phpunit/phpunit": "^9.0",
-        "vimeo/psalm": "^4.0",
-        "wildbit/postmark-php": "^4.0"
+        "vimeo/psalm": "^4.0"
     },
     "autoload": {
         "psr-4": {
