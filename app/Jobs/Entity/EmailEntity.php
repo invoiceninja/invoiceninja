@@ -38,7 +38,7 @@ use Illuminate\Support\Str;
 
 /*Multi Mailer implemented*/
 
-class EmailEntity extends BaseMailerJob implements ShouldQueue
+class EmailEntity implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -104,9 +104,6 @@ class EmailEntity extends BaseMailerJob implements ShouldQueue
         
         /* Set DB */
         MultiDB::setDB($this->company->db);
-
-        /* Set the correct mail driver */
-        $this->setMailDriver();
 
         $nmo = new NinjaMailerObject;
         $nmo->mailable = new TemplateEmail($this->email_entity_builder,$this->invitation->contact);

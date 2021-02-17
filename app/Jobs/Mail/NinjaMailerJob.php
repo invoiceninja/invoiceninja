@@ -34,6 +34,7 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Mail;
 use Turbo124\Beacon\Facades\LightLogs;
+use Dacastro4\LaravelGmail\Facade\LaravelGmail;
 
 /*Multi Mailer implemented*/
 
@@ -105,12 +106,14 @@ class NinjaMailerJob implements ShouldQueue
         App::forgetInstance('translator');
         App::forgetInstance('mail.manager'); //singletons must be destroyed!
         App::forgetInstance('mailer');
+        App::forgetInstance('laravelgmail');
 
         /* Inject custom translations if any exist */
         Lang::replace(Ninja::transformTranslations($this->nmo->settings));
 
         switch ($this->nmo->settings->email_sending_method) {
             case 'default':
+                config(['mail.driver' => config('mail.default')]);
                 break;
             case 'gmail':
                 $this->setGmailMailer();
@@ -118,10 +121,15 @@ class NinjaMailerJob implements ShouldQueue
             default:
                 break;
         }
+
+        (new MailServiceProvider(app()))->register();
     }
 
     private function setGmailMailer()
     {
+        if(LaravelGmail::check())
+            LaravelGmail::logout();
+
         $sending_user = $this->nmo->settings->gmail_sending_user_id;
 
         $user = User::find($this->decodePrimaryKey($sending_user));
@@ -141,22 +149,18 @@ class NinjaMailerJob implements ShouldQueue
          *  just for this request.
         */
 
-        // config(['mail.driver' => 'gmail']);
-        // config(['services.gmail.token' => $user->oauth_user_token->access_token]);
-        // config(['mail.from.address' => $user->email]);
-        // config(['mail.from.name' => $user->present()->name()]);
-
-        // (new MailServiceProvider(app()))->register();
-
-        // nlog("after registering mail service provider");
-        // nlog(config('services.gmail.token'));
+        config(['mail.driver' => 'gmail']);
+        (new MailServiceProvider(app()))->register();
 
         $token = $user->oauth_user_token->access_token;
+        $user_id = $user->oauth_user_id;
+
         $this->nmo
              ->mailable
              ->from($user->email, $user->present()->name())
-             ->withSwiftMessage(function ($message) use($token) {
-                $message->getHeaders()->addTextHeader('GmailToken', $token);                 
+             ->withSwiftMessage(function ($message) use($token, $user_id) {
+                $message->getHeaders()->addTextHeader('GmailToken', $token);     
+                $message->getHeaders()->addTextHeader('UserId', $user_id);            
              });
 
     }
