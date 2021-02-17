@@ -75,7 +75,7 @@ class TemplateEmail extends Mailable
             ])
             ->withSwiftMessage(function ($message) use($company){
                 $message->getHeaders()->addTextHeader('Tag', $company->company_key);
-            });;
+            });
 
         //conditionally attach files
         if ($settings->pdf_email_attachment !== false && ! empty($this->build_email->getAttachments())) {

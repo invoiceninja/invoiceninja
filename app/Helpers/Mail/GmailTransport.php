@@ -12,6 +12,7 @@
 namespace App\Helpers\Mail;
 
 use App\Utils\TempFile;
+use Dacastro4\LaravelGmail\Facade\LaravelGmail;
 use Dacastro4\LaravelGmail\Services\Message\Mail;
 use Illuminate\Mail\Transport\Transport;
 use Swift_Mime_SimpleMessage;
@@ -43,17 +44,21 @@ class GmailTransport extends Transport
     {
         /*We should nest the token in the message and then discard it as needed*/
 
-        $token = $message->getHeaders()->get('GmailToken');
+        $token = $message->getHeaders()->get('GmailToken')->getValue();
+        $user_id = $message->getHeaders()->get('UserId')->getValue();
+
+        LaravelGmail::setUserId($user_id);
 
         nlog("gmail transporter token = {$token}");
         
         $message->getHeaders()->remove('GmailToken');
+        $message->getHeaders()->remove('UserId');
 
         nlog("inside gmail sender with token {$token}");
 
         $this->beforeSendPerformed($message);
 
-        $this->gmail->using($this->token);
+        $this->gmail->using($token);
         $this->gmail->to($message->getTo());
         $this->gmail->from($message->getFrom());
         $this->gmail->subject($message->getSubject());
@@ -81,6 +86,7 @@ class GmailTransport extends Transport
         $this->gmail->send();
 
         $this->sendPerformed($message);
+
 
         return $this->numberOfRecipients($message);
     }
