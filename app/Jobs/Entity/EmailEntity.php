@@ -116,19 +116,6 @@ class EmailEntity implements ShouldQueue
 
         NinjaMailerJob::dispatch($nmo);
 
-        // try {
-        //     Mail::to($this->invitation->contact->email, $this->invitation->contact->present()->name())
-        //         ->send(
-        //             new TemplateEmail(
-        //                 $this->email_entity_builder,
-        //                 $this->invitation->contact
-        //             )
-        //         );
-        // } catch (\Exception $e) {
-        //     $this->entityEmailFailed($e->getMessage());
-        //     $this->logMailError($e->getMessage(), $this->entity->client);
-        // }
-
         /* Mark entity sent */
         $this->entity->service()->markSent()->save();
     }

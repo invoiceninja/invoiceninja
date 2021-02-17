@@ -153,14 +153,12 @@ class NinjaMailerJob implements ShouldQueue
         (new MailServiceProvider(app()))->register();
 
         $token = $user->oauth_user_token->access_token;
-        $user_id = $user->oauth_user_id;
 
         $this->nmo
              ->mailable
              ->from($user->email, $user->present()->name())
-             ->withSwiftMessage(function ($message) use($token, $user_id) {
+             ->withSwiftMessage(function ($message) use($token) {
                 $message->getHeaders()->addTextHeader('GmailToken', $token);     
-                $message->getHeaders()->addTextHeader('UserId', $user_id);            
              });
 
     }
