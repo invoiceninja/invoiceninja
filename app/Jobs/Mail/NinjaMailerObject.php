@@ -35,4 +35,7 @@ class NinjaMailerObject
     public $invitation = FALSE;
 
     public $template = FALSE;
+
+    public $entity = FALSE;
+    
 }

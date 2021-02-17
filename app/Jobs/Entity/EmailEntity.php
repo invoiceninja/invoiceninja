@@ -14,7 +14,6 @@ namespace App\Jobs\Entity;
 use App\Events\Invoice\InvoiceReminderWasEmailed;
 use App\Events\Invoice\InvoiceWasEmailed;
 use App\Events\Invoice\InvoiceWasEmailedAndFailed;
-use App\Jobs\Mail\BaseMailerJob;
 use App\Jobs\Mail\EntityFailedSendMailer;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
@@ -113,7 +112,8 @@ class EmailEntity implements ShouldQueue
         $nmo->entity_string = $this->entity_string;
         $nmo->invitation = $this->invitation;
         $nmo->reminder_template = $this->reminder_template;
-
+        $nmo->entity = $this->entity;
+        
         NinjaMailerJob::dispatch($nmo);
 
         /* Mark entity sent */
