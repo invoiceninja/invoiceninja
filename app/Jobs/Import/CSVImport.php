@@ -88,6 +88,8 @@ class CSVImport implements ShouldQueue
      */
     public function handle()
     {
+        nlog("starting import");
+
         MultiDB::setDb($this->company->db);
 
         $this->company->owner()->setCompany($this->company);
@@ -112,6 +114,8 @@ class CSVImport implements ShouldQueue
 
         //nlog(print_r($data, 1));
 
+        nlog("finished import - firing mailer");
+        
         MailRouter::dispatch(new ImportCompleted($data), $this->company, auth()->user());
     }
 
