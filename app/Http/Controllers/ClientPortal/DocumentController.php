@@ -76,10 +76,10 @@ class DocumentController extends Controller
 
         $options->setSendHttpHeaders(true);
 
-        $zip = new ZipStream('files.zip', $options);
+        $zip = new ZipStream(now() . '-documents.zip', $options);
 
         foreach ($documents as $document) {
-            $zip->addFileFromPath(basename($document->filePath()), TempFile::path($document->filePath()));
+            $zip->addFileFromPath(basename($document->diskPath()), TempFile::path($document->diskPath()));
         }
 
         $zip->finish();

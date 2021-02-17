@@ -13,5 +13,6 @@
     <form action="{{ route('client.documents.download_multiple') }}" method="post" id="multiple-downloads">
         @csrf
     </form>
+    
     @livewire('documents-table', ['client' => $client])
 @endsection

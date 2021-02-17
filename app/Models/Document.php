@@ -131,4 +131,9 @@ class Document extends BaseModel
     {
         return Storage::disk($this->disk)->url($this->url);
     }
+
+    public function diskPath(): string
+    {
+        return Storage::disk($this->disk)->path($this->url);
+    }
 }

@@ -57,6 +57,7 @@ class PortalComposer
         $data['client'] = auth()->user()->client;
         $data['settings'] = $this->settings;
         $data['currencies'] = TranslationHelper::getCurrencies();
+        $data['contact'] = auth('contact')->user();
 
         $data['multiple_contacts'] = session()->get('multiple_contacts');
 
@@ -69,8 +70,8 @@ class PortalComposer
 
         //@todo wire this back in when we are happy with dashboard.
         // if($this->settings->enable_client_portal_dashboard == TRUE)
-        //     $data[] = [ 'title' => ctrans('texts.dashboard'), 'url' => 'client.dashboard', 'icon' => 'activity'];
-        
+
+//        $data[] = [ 'title' => ctrans('texts.dashboard'), 'url' => 'client.dashboard', 'icon' => 'activity'];
         $data[] = ['title' => ctrans('texts.invoices'), 'url' => 'client.invoices.index', 'icon' => 'file-text'];
         $data[] = ['title' => ctrans('texts.recurring_invoices'), 'url' => 'client.recurring_invoices.index', 'icon' => 'file'];
         $data[] = ['title' => ctrans('texts.payments'), 'url' => 'client.payments.index', 'icon' => 'credit-card'];
@@ -81,7 +82,7 @@ class PortalComposer
 
         if (auth()->user('contact')->client->getSetting('enable_client_portal_tasks')) {
             $data[] = ['title' => ctrans('texts.tasks'), 'url' => 'client.dashboard', 'icon' => 'clock'];
-            
+
             // TODO: Update when 'tasks' module is available in client portal.
         }
 
