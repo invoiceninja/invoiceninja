@@ -128,14 +128,17 @@ class CreateEntityPdf implements ShouldQueue
             $template = new PdfMakerDesign(strtolower($design->name));
         }
 
+        $variables = $html->generateLabelsAndValues();
+
         $state = [
             'template' => $template->elements([
                 'client' => $this->entity->client,
                 'entity' => $this->entity,
                 'pdf_variables' => (array) $this->entity->company->settings->pdf_variables,
                 '$product' => $design->design->product,
+                'variables' => $variables,
             ]),
-            'variables' => $html->generateLabelsAndValues(),
+            'variables' => $variables,
             'options' => [
                 'all_pages_header' => $this->entity->client->getSetting('all_pages_header'),
                 'all_pages_footer' => $this->entity->client->getSetting('all_pages_footer'),
