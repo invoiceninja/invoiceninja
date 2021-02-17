@@ -42,12 +42,14 @@ class GmailTransport extends Transport
 
     public function send(Swift_Mime_SimpleMessage $message, &$failedRecipients = null)
     {
-        /*We should nest the token in the message and then discard it as needed*/
+        /* For some reason the Injected Mail class carries cached tokens, so we need to reinit the Mail class*/
+        $this->gmail = null;
+        $this->gmail = new Mail;
 
+        /*We should nest the token in the message and then discard it as needed*/
         $token = $message->getHeaders()->get('GmailToken')->getValue();
         
         $message->getHeaders()->remove('GmailToken');
-        $message->getHeaders()->remove('UserId');
 
         $this->beforeSendPerformed($message);
 
