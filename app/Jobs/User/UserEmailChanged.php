@@ -11,10 +11,12 @@
 
 namespace App\Jobs\User;
 
-use App\Jobs\Mail\BaseMailerJob;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
 use App\Mail\User\UserNotificationMailer;
 use App\Models\Company;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -23,13 +25,13 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
 use stdClass;
 
-class UserEmailChanged extends BaseMailerJob implements ShouldQueue
+class UserEmailChanged implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $new_email;
+    protected $new_user;
 
-    protected $old_email;
+    protected $old_user;
 
     protected $company;
 
@@ -42,10 +44,10 @@ class UserEmailChanged extends BaseMailerJob implements ShouldQueue
      * @param string $old_email
      * @param Company $company
      */
-    public function __construct(string $new_email, string $old_email, Company $company)
+    public function __construct(User $new_user, User $old_user, Company $company)
     {
-        $this->new_email = $new_email;
-        $this->old_email = $old_email;
+        $this->new_user = $new_user;
+        $this->old_user = $old_user;
         $this->company = $company;
         $this->settings = $this->company->settings;
     }
@@ -59,9 +61,6 @@ class UserEmailChanged extends BaseMailerJob implements ShouldQueue
         //Set DB
         MultiDB::setDb($this->company->db);
 
-        //If we need to set an email driver do it now
-        $this->setMailDriver();
-
         /*Build the object*/
         $mail_obj = new stdClass;
         $mail_obj->subject = ctrans('texts.email_address_changed');
@@ -71,17 +70,19 @@ class UserEmailChanged extends BaseMailerJob implements ShouldQueue
         $mail_obj->data = $this->getData();
 
         //Send email via a Mailable class
-        //
-        try {
-            Mail::to($this->old_email)
-            ->send(new UserNotificationMailer($mail_obj));
+        
+        $nmo = new NinjaMailerObject;
+        $nmo->mailable = new UserNotificationMailer($mail_obj);
+        $nmo->settings = $this->settings;
+        $nmo->company = $this->company;
+        $nmo->to_user = $this->old_user;
 
-            Mail::to($this->new_email)
-            ->send(new UserNotificationMailer($mail_obj));
-        } catch (\Exception $e) {
-            //$this->failed($e);
-            $this->logMailError($e->getMessage(), $this->company->owner());
-        }
+        NinjaMailerJob::dispatch($nmo);
+
+        $nmo->to_user = $this->new_user;
+        
+        NinjaMailerJob::dispatch($nmo);
+
     }
 
     private function getData()
