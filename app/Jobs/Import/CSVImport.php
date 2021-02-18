@@ -96,18 +96,6 @@ class CSVImport implements ShouldQueue {
 
 		$this->buildMaps();
 
-    /**
-     * Execute the job.
-     *
-     *
-     * @return void
-     */
-    public function handle()
-    {
-        nlog("starting import");
-
-        MultiDB::setDb($this->company->db);
-
 		nlog( "import " . $this->import_type );
 		foreach ( [ 'client', 'product', 'invoice', 'payment', 'vendor', 'expense' ] as $entityType ) {
 			$csvData = $this->getCsvData( $entityType );
@@ -141,7 +129,6 @@ class CSVImport implements ShouldQueue {
 
 		MailRouter::dispatch( new ImportCompleted( $data ), $this->company, auth()->user() );
 	}
-
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	private function preTransformCsv( $csvData, $entityType ) {
