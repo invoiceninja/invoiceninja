@@ -54,11 +54,11 @@ class InvoiceController extends Controller
             'invoice' => $invoice,
         ];
 
-        if ($request->query('mode') === 'portal') {
-            return $this->render('invoices.show', $data);
+        if ($request->query('mode') === 'fullscreen') {
+            return response()->file($invoice->pdf_file_path(null, 'path'));
         }
 
-        return $this->render('invoices.show.fullscreen', $data);
+        return $this->render('invoices.show', $data);
     }
 
     /**

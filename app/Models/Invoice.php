@@ -367,13 +367,13 @@ class Invoice extends BaseModel
         return $invoice_calc->build();
     }
 
-    public function pdf_file_path($invitation = null)
+    public function pdf_file_path($invitation = null, string $type = 'url')
     {
         if (! $invitation) {
             $invitation = $this->invitations->first();
         }
 
-        $storage_path = Storage::url($this->client->invoice_filepath().$this->number.'.pdf');
+        $storage_path = Storage::$type($this->client->invoice_filepath().$this->number.'.pdf');
 
         if (! Storage::exists($this->client->invoice_filepath().$this->number.'.pdf')) {
             event(new InvoiceWasUpdated($this, $this->company, Ninja::eventVars()));
