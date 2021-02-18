@@ -33,6 +33,7 @@ use App\Models\Project;
 use App\Models\TaxRate;
 use App\Models\User;
 use App\Models\Vendor;
+use App\Repositories\BaseRepository;
 use App\Repositories\ClientRepository;
 use App\Repositories\InvoiceRepository;
 use App\Repositories\PaymentRepository;
@@ -224,14 +225,19 @@ class CSVImport implements ShouldQueue {
 		$invoice_transformer = $this->getTransformer( 'invoice' );
 
 		/** @var PaymentRepository $payment_repository */
-		$payment_repository = app()->make( PaymentRepository::class );
+		$payment_repository              = app()->make( PaymentRepository::class );
+		$payment_repository->import_mode = true;
+
 		/** @var ClientRepository $client_repository */
-		$client_repository = app()->make( ClientRepository::class );
+		$client_repository              = app()->make( ClientRepository::class );
+		$client_repository->import_mode = true;
+
+		$invoice_repository              = new InvoiceRepository();
+		$invoice_repository->import_mode = true;
 
 		foreach ( $invoices as $raw_invoice ) {
 			try {
-				$invoice_data       = $invoice_transformer->transform( $raw_invoice );
-				$invoice_repository = new InvoiceRepository();
+				$invoice_data = $invoice_transformer->transform( $raw_invoice );
 
 				$invoice_data['line_items'] = $this->cleanItems( $invoice_data['line_items'] ?? [] );
 
@@ -335,7 +341,10 @@ class CSVImport implements ShouldQueue {
 		$repository_name = '\\App\\Repositories\\' . $formatted_entity_type . 'Repository';
 		$factoryName     = '\\App\\Factory\\' . $formatted_entity_type . 'Factory';
 
-		$repository  = app()->make( $repository_name );
+		/** @var BaseRepository $repository */
+		$repository              = app()->make( $repository_name );
+		$repository->import_mode = true;
+
 		$transformer = $this->getTransformer( $entity_type );
 
 		foreach ( $records as $record ) {
@@ -343,7 +352,7 @@ class CSVImport implements ShouldQueue {
 				$entity = $transformer->transform( $record );
 
 				/** @var \App\Http\Requests\Request $request */
-				$request        = new $request_name();
+				$request = new $request_name();
 
 				// Pass entity data to request so it can be validated
 				$request->query = $request->request = new ParameterBag( $entity );
@@ -433,7 +442,7 @@ class CSVImport implements ShouldQueue {
 
 		$projects = Project::scope()->get();
 		foreach ( $projects as $project ) {
-			$this->addProjectToMaps( $projects );
+			$this->addProjectToMaps( $project );
 		}
 
 		$countries = Country::all();
