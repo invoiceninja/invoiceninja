@@ -17,7 +17,8 @@ use App\Factory\PaymentFactory;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Import\ImportException;
 use App\Import\Transformers\BaseTransformer;
-use App\Jobs\Mail\MailRouter;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
 use App\Mail\Import\ImportCompleted;
 use App\Models\Client;
@@ -91,8 +92,9 @@ class CSVImport implements ShouldQueue {
 
 		MultiDB::setDb( $this->company->db );
 
-		$this->company->owner()->setCompany( $this->company );
 		Auth::login( $this->company->owner(), true );
+
+		$this->company->owner()->setCompany( $this->company );
 
 		$this->buildMaps();
 
@@ -127,7 +129,13 @@ class CSVImport implements ShouldQueue {
 			'company' => $this->company,
 		];
 
-		MailRouter::dispatch( new ImportCompleted( $data ), $this->company, auth()->user() );
+		$nmo = new NinjaMailerObject;
+		$nmo->mailable = new ImportCompleted( $data );
+		$nmo->company = $this->company;
+		$nmo->settings = $this->company->settings;
+		$nmo->to_user = $this->company->owner();
+
+		NinjaMailerJob::dispatch($nmo);
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
