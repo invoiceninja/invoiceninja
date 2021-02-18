@@ -27,6 +27,8 @@ class TemplateEmail extends Mailable
 
     private $contact;
 
+    private $company;
+
     public function __construct($build_email, ClientContact $contact)
     {
         $this->build_email = $build_email;
@@ -34,6 +36,8 @@ class TemplateEmail extends Mailable
         $this->contact = $contact;
 
         $this->client = $contact->client;
+
+        $this->company = $contact->company;
     }
 
     public function build()
@@ -44,7 +48,7 @@ class TemplateEmail extends Mailable
 
         $company = $this->client->company;
 
-        $this->from(config('mail.from.address'), config('mail.from.name'));
+        $this->from(config('mail.from.address'), $this->company->present()->name());
 
         if (strlen($settings->reply_to_email) > 1) {
             $this->replyTo($settings->reply_to_email, $settings->reply_to_email);
