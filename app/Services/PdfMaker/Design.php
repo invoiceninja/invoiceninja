@@ -423,7 +423,7 @@ class Design extends BaseDesign
     {
         $_variables = array_key_exists('variables', $this->context)
             ? $this->context['variables']
-            : [];
+            : ['values' => ['$entity.public_notes' => nl2br($this->entity->public_notes), '$entity.terms' => $this->entity->terms, '$entity_footer' => $this->entity->footer], 'labels' => []];
 
         if ($this->type == 'delivery_note') {
             return [];
