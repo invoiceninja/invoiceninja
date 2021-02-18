@@ -21,9 +21,8 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class EntityViewedNotification extends Notification implements ShouldQueue
+class EntityViewedNotification extends Notification
 {
-    //use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * Create a new notification instance.

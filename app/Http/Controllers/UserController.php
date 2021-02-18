@@ -369,16 +369,21 @@ class UserController extends BaseController
      */
     public function update(UpdateUserRequest $request, User $user)
     {
+
         $old_company_user = $user->company_user;
-        $old_user = $user;
+        $old_user = json_encode($user);
+        $old_user_email = $user->getOriginal('email');
 
         $new_email = $request->input('email');
+        $new_user = $this->user_repo->save($request->all(), $user);
+        $new_user = $user->fresh();
 
-        $user = $this->user_repo->save($request->all(), $user);
-        $user = $user->fresh();
 
-        if ($old_user->email != $new_email) 
-            UserEmailChanged::dispatch($new_user, $old_user, auth()->user()->company());
+        nlog($old_user);
+
+        if ($old_user_email != $new_email) 
+            UserEmailChanged::dispatch($new_user, json_decode($old_user), auth()->user()->company());
+        
         
         if(
             strcasecmp($old_company_user->permissions, $user->company_user->permissions) != 0 ||

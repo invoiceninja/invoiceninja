@@ -80,6 +80,7 @@ class NinjaMailerJob implements ShouldQueue
         } catch (\Exception $e) {
 
             nlog("error failed with {$e->getMessage()}");
+            nlog($e);
 
             if($this->nmo->entity)
                 $this->entityEmailFailed($e->getMessage());
@@ -120,7 +121,7 @@ class NinjaMailerJob implements ShouldQueue
 
         switch ($this->nmo->settings->email_sending_method) {
             case 'default':
-                config(['mail.driver' => config('mail.default')]);
+                //config(['mail.driver' => config('mail.default')]);
                 break;
             case 'gmail':
                 $this->setGmailMailer();
