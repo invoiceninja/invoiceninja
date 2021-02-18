@@ -104,7 +104,7 @@ class NinjaMailerJob implements ShouldQueue
         }
 
         if ($this->nmo->to_user instanceof ClientContact) 
-            $this->logMailError($e->getMessage(), $this->nmo->to_user->client);
+            $this->logMailError($message, $this->nmo->to_user->client);
     }
 
     private function setMailDriver()
