@@ -44,7 +44,7 @@ class UserEmailChanged implements ShouldQueue
      * @param string $old_email
      * @param Company $company
      */
-    public function __construct(User $new_user, User $old_user, Company $company)
+    public function __construct(User $new_user, $old_user, Company $company)
     {
         $this->new_user = $new_user;
         $this->old_user = $old_user;
@@ -54,9 +54,10 @@ class UserEmailChanged implements ShouldQueue
 
     public function handle()
     {
-        if ($this->company->is_disabled) {
+        nlog("notifying user of email change");
+
+        if ($this->company->is_disabled) 
             return true;
-        }
         
         //Set DB
         MultiDB::setDb($this->company->db);
@@ -91,8 +92,8 @@ class UserEmailChanged implements ShouldQueue
             'title' => ctrans('texts.email_address_changed'),
             'message' => ctrans(
                 'texts.email_address_changed_message',
-                ['old_email' => $this->old_email,
-                'new_email' => $this->new_email,
+                ['old_email' => $this->old_user->email,
+                'new_email' => $this->new_user->email,
             ]
             ),
             'url' => config('ninja.app_url'),

@@ -28,7 +28,7 @@ use Illuminate\Support\Facades\Mail;
 
 /*Multi Mailer implemented*/
 
-class PaymentFailureMailer extends BaseMailerJob implements ShouldQueue
+class PaymentFailureMailer implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, UserNotifies;
 
