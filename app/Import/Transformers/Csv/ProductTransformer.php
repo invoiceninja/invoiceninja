@@ -9,8 +9,8 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Import\Transformers;
-
+namespace App\Import\Transformers\Csv;
+use App\Import\Transformers\BaseTransformer;
 /**
  * Class ProductTransformer.
  */
@@ -19,7 +19,7 @@ class ProductTransformer extends BaseTransformer
     /**
      * @param $data
      *
-     * @return bool|Item
+     * @return array
      */
     public function transform($data)
     {

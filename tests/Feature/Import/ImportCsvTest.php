@@ -12,8 +12,11 @@ namespace Tests\Feature\Import;
 
 use App\Jobs\Import\CSVImport;
 use App\Models\Client;
+use App\Models\Expense;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\Product;
+use App\Models\Vendor;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Cache;
@@ -54,9 +57,39 @@ class ImportCsvTest extends TestCase
         $this->assertTrue(is_array($this->getCsvData($csv)));
     }
 
+	public function testClientCsvImport()
+	{
+		$csv = file_get_contents(base_path().'/tests/Feature/Import/clients.csv');
+		$hash = Str::random(32);
+		$column_map = [
+			1 => 'client.balance',
+			2 => 'client.paid_to_date',
+			0 => 'client.name',
+			19 => 'client.currency_id',
+			20 => 'client.public_notes',
+			21 => 'client.private_notes',
+			22 => 'contact.first_name',
+			23 => 'contact.last_name',
+		];
+
+		$data = [
+			'hash'        => $hash,
+			'column_map'  => [ 'client' => $column_map ],
+			'skip_header' => true,
+			'import_type' => 'csv',
+		];
+
+		$pre_import = Client::count();
+
+		Cache::put( $hash . '-client', base64_encode( $csv ), 360 );
+
+		CSVImport::dispatchNow( $data, $this->company );
+
+		$this->assertGreaterThan( $pre_import, Client::count() );
+	}
+
     public function testInvoiceCsvImport()
     {
-        // $this->markTestSkipped();
 
         $csv = file_get_contents(base_path().'/tests/Feature/Import/invoice.csv');
         $hash = Str::random(32);
@@ -79,85 +112,131 @@ class ImportCsvTest extends TestCase
             17 => 'item.quantity',
         ];
 
-        $data = [
-            'hash' => $hash,
-            'column_map' => $column_map,
-            'skip_header' => true,
-            'entity_type'=> 'invoice',
-        ];
+		$data = [
+			'hash'        => $hash,
+			'column_map'  => [ 'invoice' => $column_map ],
+			'skip_header' => true,
+			'import_type' => 'csv',
+		];
 
-        $pre_import = Invoice::count();
+		$pre_import = Invoice::count();
 
-        Cache::put($hash, base64_encode($csv), 360);
+		Cache::put( $hash . '-invoice', base64_encode( $csv ), 360 );
 
-        CSVImport::dispatchNow($data, $this->company);
+		CSVImport::dispatchNow( $data, $this->company );
 
-        $this->assertGreaterThan($pre_import, Client::count());
-    }
+		$this->assertGreaterThan( $pre_import, Invoice::count() );
+	}
+
+	public function testVendorCsvImport() {
+
+		$csv        = file_get_contents( base_path() . '/tests/Feature/Import/vendors.csv' );
+		$hash       = Str::random( 32 );
+		$column_map = [
+			0  => 'vendor.name',
+			19 => 'vendor.currency_id',
+			20 => 'vendor.public_notes',
+			21 => 'vendor.private_notes',
+			22 => 'vendor.first_name',
+			23 => 'vendor.last_name',
+		];
 
 
-    public function testClientCsvImport()
-    {
-        // $this->markTestSkipped();
+		$data = [
+			'hash'        => $hash,
+			'column_map'  => [ 'vendor' => $column_map ],
+			'skip_header' => true,
+			'import_type' => 'csv',
+		];
 
-        $csv = file_get_contents(base_path().'/tests/Feature/Import/clients.csv');
-        $hash = Str::random(32);
-        $column_map = [
-            1 => 'client.balance',
-            2 => 'client.paid_to_date',
-            0 => 'client.name',
-            19 => 'client.currency_id',
-            20 => 'client.public_notes',
-            21 => 'client.private_notes',
-            22 => 'contact.first_name',
-            23 => 'contact.last_name',
-        ];
+		$pre_import = Vendor::count();
 
-        $data = [
-            'hash' => $hash,
-            'column_map' => $column_map,
-            'skip_header' => true,
-            'entity_type'=> 'client',
-        ];
+		Cache::put( $hash . '-vendor', base64_encode( $csv ), 360 );
 
-        $pre_import = Client::count();
+		CSVImport::dispatchNow( $data, $this->company );
 
-        Cache::put($hash, base64_encode($csv), 360);
+		$this->assertGreaterThan( $pre_import, Vendor::count() );
+	}
 
-        CSVImport::dispatchNow($data, $this->company);
+	public function testProductCsvImport() {
+		$csv  = file_get_contents( base_path() . '/tests/Feature/Import/products.csv' );
+		$hash = Str::random( 32 );
 
-        $this->assertGreaterThan($pre_import, Client::count());
-    }
+		$column_map = [
+			2 => 'product.notes',
+			3 => 'product.cost',
+		];
 
+		$data = [
+			'hash'        => $hash,
+			'column_map'  => [ 'product' => $column_map ],
+			'skip_header' => true,
+			'import_type' => 'csv',
+		];
 
     public function testProductCsvImport()
     {
-        // $this->markTestSkipped();
 
+		$pre_import = Product::count();
 
-        $csv = file_get_contents(base_path().'/tests/Feature/Import/products.csv');
-        $hash = Str::random(32);
+		Cache::put( $hash . '-product', base64_encode( $csv ), 360 );
 
-        $column_map = [
-            2 => 'product.notes',
-            3 => 'product.cost',
-        ];
+		CSVImport::dispatchNow( $data, $this->company );
 
-        $data = [
-            'hash' => $hash,
-            'column_map' => $column_map,
-            'skip_header' => true,
-            'entity_type'=> 'product',
-        ];
+		$this->assertGreaterThan( $pre_import, Product::count() );
+	}
 
-        $pre_import = Product::count();
-        
-        Cache::put($hash, base64_encode($csv), 360);
+	public function testExpenseCsvImport() {
+		$csv  = file_get_contents( base_path() . '/tests/Feature/Import/expenses.csv' );
+		$hash = Str::random( 32 );
 
-        CSVImport::dispatchNow($data, $this->company);
+		$column_map = [
+			2 => 'expense.public_notes',
+			3 => 'expense.amount',
+		];
 
-        $this->assertGreaterThan($pre_import, Product::count());
-    }
+		$data = [
+			'hash'        => $hash,
+			'column_map'  => [ 'expense' => $column_map ],
+			'skip_header' => true,
+			'import_type' => 'csv',
+		];
+
+		$pre_import = Expense::count();
+
+		Cache::put( $hash . '-expense', base64_encode( $csv ), 360 );
+
+		CSVImport::dispatchNow( $data, $this->company );
+
+		$this->assertGreaterThan( $pre_import, Expense::count() );
+	}
+
+	public function testPaymentCsvImport() {
+		$csv  = file_get_contents( base_path() . '/tests/Feature/Import/payments.csv' );
+		$hash = Str::random( 32 );
+
+		$column_map = [
+			0 => 'payment.client_id',
+			1 => 'payment.invoice_number',
+			2 => 'payment.amount',
+			3 => 'payment.date',
+		];
+
+		$data = [
+			'hash'        => $hash,
+			'column_map'  => [ 'payment' => $column_map ],
+			'skip_header' => true,
+			'import_type' => 'csv',
+		];
+
+		$pre_import = Payment::count();
+
+		Cache::put( $hash . '-payment', base64_encode( $csv ), 360 );
+
+		CSVImport::dispatchNow( $data, $this->company );
+
+		$this->assertGreaterThan( $pre_import, Payment::count() );
+	}
 
     private function getCsvData($csvfile)
     {

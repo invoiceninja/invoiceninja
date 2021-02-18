@@ -20,6 +20,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 use Illuminate\Support\Carbon;
 
+
+/**
+ * Class BaseModel
+ *
+ * @method scope() static
+ *
+ * @package App\Models
+ */
 class BaseModel extends Model
 {
     use MakesHash;
