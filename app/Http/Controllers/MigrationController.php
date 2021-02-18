@@ -14,7 +14,8 @@ namespace App\Http\Controllers;
 
 use App\Console\Commands\ImportMigrations;
 use App\DataMapper\CompanySettings;
-use App\Jobs\Mail\MailRouter;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Util\StartMigration;
 use App\Mail\ExistingMigration;
 use App\Models\Company;
@@ -248,7 +249,13 @@ class MigrationController extends BaseController
             if ($checks['existing_company'] == true && $checks['force'] == false) {
                 nlog('Migrating: Existing company without force. (CASE_01)');
 
-                MailRouter::dispatch(new ExistingMigration(), $existing_company, $user);
+                $nmo = new NinjaMailerObject;
+                $nmo->mailable = new ExistingMigration();
+                $nmo->company = $existing_company;
+                $nmo->settings = $existing_company->settings;
+                $nmo->to_user = $user;
+
+                NinjaMailerJob::dispatch($nmo);
 
                 return response()->json([
                     '_id' => Str::uuid(),

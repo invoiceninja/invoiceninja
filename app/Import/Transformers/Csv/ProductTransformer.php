@@ -1,16 +1,16 @@
 <?php
 /**
- * client Ninja (https://clientninja.com).
+ * Invoice Ninja (https://invoiceninja.com).
  *
- * @link https://github.com/clientninja/clientninja source repository
+ * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. client Ninja LLC (https://clientninja.com)
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Import\Transformers;
-
+namespace App\Import\Transformers\Csv;
+use App\Import\Transformers\BaseTransformer;
 /**
  * Class ProductTransformer.
  */
@@ -19,7 +19,7 @@ class ProductTransformer extends BaseTransformer
     /**
      * @param $data
      *
-     * @return bool|Item
+     * @return array
      */
     public function transform($data)
     {

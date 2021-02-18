@@ -3,7 +3,7 @@
 
 @section('body')
     <div class="grid lg:grid-cols-12 py-8">
-        <div class="col-span-4 col-start-5">
+        <div class="lg:col-span-4 lg:col-start-5 px-6">
             <div class="flex justify-center">
                 <img class="h-32 w-auto" src="{{ $company->present()->logo() }}" alt="{{ ctrans('texts.logo') }}">
             </div>
@@ -21,7 +21,7 @@
                     @include('portal.ninja2020.auth.includes.register.personal_address')
                     @include('portal.ninja2020.auth.includes.register.shipping_address')
                 </div>
-                
+
                 <div class="flex justify-between items-center mt-8">
                     <span class="inline-flex items-center" x-data="{ terms_of_service: false, privacy_policy: false }">
                             @if(!empty($company->settings->client_portal_terms) || !empty($company->settings->client_portal_privacy_policy))
@@ -36,7 +36,7 @@
                         </span>
                     </span>
 
-                    <button class="button button-primary bg-blue-600">{{ ctrans('texts.save') }}</button>
+                    <button class="button button-primary bg-blue-600">{{ ctrans('texts.register') }}</button>
                 </div>
             </form>
         </div>

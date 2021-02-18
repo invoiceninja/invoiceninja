@@ -69,19 +69,19 @@ class PaymentNotification implements ShouldQueue
                 NinjaMailerJob::dispatch($nmo);
             }
 
-            $notification = new NewPaymentNotification($payment, $payment->company);
-            $notification->method = $methods;
+            // $notification = new NewPaymentNotification($payment, $payment->company);
+            // $notification->method = $methods;
 
-            if ($user) {
-                $user->notify($notification);
-            }
+            // if ($user) {
+            //     $user->notify($notification);
+            // }
         }
 
         /*Company Notifications*/
-        if (isset($payment->company->slack_webhook_url)) {
-            Notification::route('slack', $payment->company->slack_webhook_url)
-                ->notify(new NewPaymentNotification($payment, $payment->company, true));
-        }
+        // if (isset($payment->company->slack_webhook_url)) {
+        //     Notification::route('slack', $payment->company->slack_webhook_url)
+        //         ->notify(new NewPaymentNotification($payment, $payment->company, true));
+        // }
 
         /*Google Analytics Track Revenue*/
         if (isset($payment->company->google_analytics_key)) {

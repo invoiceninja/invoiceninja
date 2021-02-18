@@ -27,6 +27,13 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Cache;
 use Laracasts\Presenter\PresentableTrait;
 
+/**
+ * Class ClientContact
+ *
+ * @method scope() static
+ *
+ * @package App\Models
+ */
 class ClientContact extends Authenticatable implements HasLocalePreference
 {
     use Notifiable;
@@ -87,6 +94,27 @@ class ClientContact extends Authenticatable implements HasLocalePreference
         'is_primary',
         'client_id',
     ];
+
+
+	/*
+	V2 type of scope
+	 */
+	public function scopeCompany($query)
+	{
+		$query->where('company_id', auth()->user()->companyId());
+
+		return $query;
+	}
+
+	/*
+	 V1 type of scope
+	 */
+	public function scopeScope($query)
+	{
+		$query->where($this->getTable().'.company_id', '=', auth()->user()->company()->id);
+
+		return $query;
+	}
 
     public function getEntityType()
     {

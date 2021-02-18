@@ -532,7 +532,7 @@ class InvoiceController extends BaseController
                 }
             });
 
-            ZipInvoices::dispatch($invoices, $invoices->first()->company, auth()->user()->email);
+            ZipInvoices::dispatch($invoices, $invoices->first()->company, auth()->user());
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }

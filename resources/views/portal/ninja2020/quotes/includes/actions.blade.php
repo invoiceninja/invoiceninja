@@ -1,6 +1,7 @@
-<form action="{{ route('client.quotes.bulk') }}" method="post">
+<form action="{{ route('client.quotes.bulk') }}" method="post" onsubmit="return confirm('{{ ctrans('texts.quote_approval_confirmation_label') }}')">
     @csrf
     <input type="hidden" name="action" value="approve">
+    <input type="hidden" name="process" value="true">
     <input type="hidden" name="quotes[]" value="{{ $quote->hashed_id }}">
 
     <div class="bg-white shadow sm:rounded-lg">
@@ -11,7 +12,7 @@
                         {{ ctrans('texts.waiting_for_approval') }}
                     </h3>
                     <div class="mt-2 max-w-xl text-sm leading-5 text-gray-500">
-                        <p translate>
+                        <p>
                             {{ ctrans('texts.quote_still_not_approved') }}
                         </p>
                     </div>

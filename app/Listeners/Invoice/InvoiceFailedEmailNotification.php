@@ -20,7 +20,7 @@ use App\Notifications\Admin\EntitySentNotification;
 use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class InvoiceFailedEmailNotification implements ShouldQueue
+class InvoiceFailedEmailNotification
 {
     use UserNotifies;
 
@@ -54,7 +54,7 @@ class InvoiceFailedEmailNotification implements ShouldQueue
         foreach ($event->invitation->company->company_users as $company_user) {
             $user = $company_user->user;
 
-            $notification = new EntitySentNotification($event->invitation, 'invoice');
+            // $notification = new EntitySentNotification($event->invitation, 'invoice');
 
             $methods = $this->findUserNotificationTypes($event->invitation, $company_user, 'invoice', ['all_notifications', 'invoice_sent']);
 
@@ -68,9 +68,9 @@ class InvoiceFailedEmailNotification implements ShouldQueue
                 $first_notification_sent = false;
             }
 
-            $notification->method = $methods;
+            // $notification->method = $methods;
 
-            $user->notify($notification);
+            // $user->notify($notification);
         }
     }
 }

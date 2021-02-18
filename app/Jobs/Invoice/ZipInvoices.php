@@ -11,10 +11,12 @@
 
 namespace App\Jobs\Invoice;
 
-use App\Jobs\Mail\BaseMailerJob;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Util\UnlinkFile;
 use App\Mail\DownloadInvoices;
 use App\Models\Company;
+use App\Models\User;
 use App\Utils\TempFile;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -26,7 +28,7 @@ use Illuminate\Support\Facades\Storage;
 use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
 
-class ZipInvoices extends BaseMailerJob implements ShouldQueue
+class ZipInvoices implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -34,7 +36,7 @@ class ZipInvoices extends BaseMailerJob implements ShouldQueue
 
     private $company;
 
-    private $email;
+    private $user;
 
     public $settings;
 
@@ -46,13 +48,13 @@ class ZipInvoices extends BaseMailerJob implements ShouldQueue
      * Create a new job instance.
      *
      */
-    public function __construct($invoices, Company $company, $email)
+    public function __construct($invoices, Company $company, User $user)
     {
         $this->invoices = $invoices;
 
         $this->company = $company;
 
-        $this->email = $email;
+        $this->user = $user;
 
         $this->settings = $company->settings;
     }
@@ -90,14 +92,13 @@ class ZipInvoices extends BaseMailerJob implements ShouldQueue
 
         fclose($tempStream);
 
-        $this->setMailDriver();
-
-        try {
-            Mail::to($this->email)
-                ->send(new DownloadInvoices(Storage::disk(config('filesystems.default'))->url($path.$file_name), $this->company));
-        } catch (\Exception $e) {
-            // //$this->failed($e);
-        }
+        $nmo = new NinjaMailerObject;
+        $nmo->mailable = new DownloadInvoices(Storage::disk(config('filesystems.default'))->url($path.$file_name), $this->company);
+        $nmo->to_user = $this->user;
+        $nmo->settings = $this->settings;
+        $nmo->company = $this->company;
+        
+        NinjaMailerJob::dispatch($nmo);
         
         UnlinkFile::dispatch(config('filesystems.default'), $path.$file_name)->delay(now()->addHours(1));
     }

@@ -13,17 +13,21 @@ namespace App\Jobs\Mail;
 
 use App\DataMapper\Analytics\EmailFailure;
 use App\Events\Invoice\InvoiceWasEmailedAndFailed;
+use App\Events\Payment\PaymentWasEmailedAndFailed;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Util\SystemLogger;
 use App\Libraries\Google\Google;
 use App\Libraries\MultiDB;
 use App\Mail\TemplateEmail;
 use App\Models\ClientContact;
+use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\SystemLog;
 use App\Models\User;
 use App\Providers\MailServiceProvider;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
+use Dacastro4\LaravelGmail\Facade\LaravelGmail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -34,7 +38,6 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Mail;
 use Turbo124\Beacon\Facades\LightLogs;
-use Dacastro4\LaravelGmail\Facade\LaravelGmail;
 
 /*Multi Mailer implemented*/
 
@@ -77,11 +80,9 @@ class NinjaMailerJob implements ShouldQueue
         } catch (\Exception $e) {
 
             nlog("error failed with {$e->getMessage()}");
+            nlog($e);
 
-            if ($this->nmo->to_user instanceof ClientContact) 
-                $this->logMailError($e->getMessage(), $this->nmo->to_user->client);
-
-            if($this->nmo->entity_string)
+            if($this->nmo->entity)
                 $this->entityEmailFailed($e->getMessage());
         }
     }
@@ -89,15 +90,22 @@ class NinjaMailerJob implements ShouldQueue
     /* Switch statement to handle failure notifications */
     private function entityEmailFailed($message)
     {
-        switch ($this->nmo->entity_string) {
-            case 'invoice':
+        $class = get_class($this->nmo->entity);
+
+        switch ($class) {
+            case Invoice::class:
                 event(new InvoiceWasEmailedAndFailed($this->nmo->invitation, $this->nmo->company, $message, $this->nmo->reminder_template, Ninja::eventVars()));
                 break;
-
+            case Payment::class:
+                event(new PaymentWasEmailedAndFailed($this->nmo->entity, $this->nmo->company, $message, Ninja::eventVars()));
+                break;
             default:
                 # code...
                 break;
         }
+
+        if ($this->nmo->to_user instanceof ClientContact) 
+            $this->logMailError($message, $this->nmo->to_user->client);
     }
 
     private function setMailDriver()
@@ -113,7 +121,7 @@ class NinjaMailerJob implements ShouldQueue
 
         switch ($this->nmo->settings->email_sending_method) {
             case 'default':
-                config(['mail.driver' => config('mail.default')]);
+                //config(['mail.driver' => config('mail.default')]);
                 break;
             case 'gmail':
                 $this->setGmailMailer();

@@ -524,7 +524,7 @@ class QuoteController extends BaseController
                 }
             });
 
-            ZipInvoices::dispatch($quotes, $quotes->first()->company, auth()->user()->email);
+            ZipInvoices::dispatch($quotes, $quotes->first()->company, auth()->user());
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }

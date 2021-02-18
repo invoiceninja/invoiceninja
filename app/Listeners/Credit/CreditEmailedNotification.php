@@ -52,7 +52,7 @@ class CreditEmailedNotification implements ShouldQueue
         foreach ($event->invitation->company->company_users as $company_user) {
             $user = $company_user->user;
 
-            $notification = new EntitySentNotification($event->invitation, 'credit');
+            // $notification = new EntitySentNotification($event->invitation, 'credit');
 
             $methods = $this->findUserNotificationTypes($event->invitation, $company_user, 'credit', ['all_notifications', 'credit_sent']);
 
@@ -66,9 +66,9 @@ class CreditEmailedNotification implements ShouldQueue
                 $first_notification_sent = false;
             }
 
-            $notification->method = $methods;
+            // $notification->method = $methods;
 
-            $user->notify($notification);
+            // $user->notify($notification);
         }
     }
 }
