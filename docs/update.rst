@@ -28,6 +28,11 @@ A common error with shared hosting is "open_basedir restriction in effect", if y
 
 .. TIP:: You can see the detailed changes for each release on our `GitHub release notes <https://github.com/invoiceninja/invoiceninja/releases>`_.
 
+Version 5.4.33
+"""""""""""
+
+The minimum PHP version is now 7.1.0
+
 Version 4.3
 """""""""""
 

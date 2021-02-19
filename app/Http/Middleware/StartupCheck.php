@@ -71,8 +71,8 @@ class StartupCheck
             $file = storage_path() . '/version.txt';
             $version = @file_get_contents($file);
             if ($version != NINJA_VERSION) {
-                if (version_compare(phpversion(), '7.0.0', '<')) {
-                    dd('Please update PHP to >= 7.0.0');
+                if (version_compare(phpversion(), '7.1.0', '<')) {
+                    dd('Please update PHP to >= 7.1.0');
                 }
                 $handle = fopen($file, 'w');
                 fwrite($handle, NINJA_VERSION);
