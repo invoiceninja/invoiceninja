@@ -19,38 +19,7 @@
             <div class="col-span-6 md:col-start-2 md:col-span-4">
                 <div class="flex justify-end">
                     <div class="flex justify-end mb-2">
-                        <!-- Pay now button -->
-                        @if(count($payment_methods) > 0)
-                        <div x-data="{ open: false }" @keydown.window.escape="open = false" @click.away="open = false" class="relative inline-block text-left" data-cy="payment-methods-dropdown">
-                            <div>
-                                <div class="rounded-md shadow-sm">
-                                    <button data-cy="pay-now-dropdown" @click="open = !open" type="button" class="inline-flex justify-center w-full px-4 py-2 text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out bg-white border border-gray-300 rounded-md hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:bg-gray-50 active:text-gray-800">
-                                        {{ ctrans('texts.pay_now') }}
-                                        <svg class="w-5 h-5 ml-2 -mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                            <div x-show="open" class="absolute right-0 w-56 mt-2 origin-top-right rounded-md shadow-lg">
-                                <div class="bg-white rounded-md shadow-xs">
-                                    <div class="py-1">
-                                        @foreach($payment_methods as $index => $payment_method)
-                                            @if($payment_method['label'] == 'Custom')
-                                                <a href="#" @click="{ open = false }" data-cy="pay-with-custom" data-company-gateway-id="{{ $payment_method['company_gateway_id'] }}" data-gateway-type-id="{{ $payment_method['gateway_type_id'] }}" class="block px-4 py-2 text-sm leading-5 text-gray-700 dropdown-gateway-button hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900" data-cy="payment-method">
-                                                    {{ \App\Models\CompanyGateway::find($payment_method['company_gateway_id'])->firstOrFail()->getConfigField('name') }}
-                                                </a>
-                                            @elseif($total > 0)
-                                                <a href="#" @click="{ open = false }" data-cy="pay-with-{{ $index }}" data-company-gateway-id="{{ $payment_method['company_gateway_id'] }}" data-gateway-type-id="{{ $payment_method['gateway_type_id'] }}" class="block px-4 py-2 text-sm leading-5 text-gray-700 dropdown-gateway-button hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900" data-cy="payment-method">
-                                                    {{ $payment_method['label'] }}
-                                                </a>
-                                            @endif
-                                        @endforeach
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        @endif
+                        @livewire('pay-now-dropdown', ['total' => $total])
                     </div>
                 </div>
 
