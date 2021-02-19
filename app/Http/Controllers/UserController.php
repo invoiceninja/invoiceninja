@@ -378,11 +378,12 @@ class UserController extends BaseController
         $new_user = $this->user_repo->save($request->all(), $user);
         $new_user = $user->fresh();
 
-
-        nlog($old_user);
-
-        if ($old_user_email != $new_email) 
+        /* When changing email address we store the former email in case we need to rollback */
+        if ($old_user_email != $new_email) {
+            $user->last_confirmed_email_address = $old_user_email;
+            $user->save();
             UserEmailChanged::dispatch($new_user, json_decode($old_user), auth()->user()->company());
+        }
         
         
         if(
