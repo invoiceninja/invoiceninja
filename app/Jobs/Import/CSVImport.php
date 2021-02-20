@@ -54,6 +54,7 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 
 class CSVImport implements ShouldQueue {
+	
 	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, CleanLineItems;
 
 	public $invoice;
