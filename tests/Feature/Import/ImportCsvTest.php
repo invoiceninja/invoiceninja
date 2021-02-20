@@ -106,7 +106,7 @@ class ImportCsvTest extends TestCase
 
 		$data = [
 			'hash'        => $hash,
-			'column_map'  => [ 'client' => $column_map ],
+			'column_map'  => [ 'client' => [ 'mapping' => $column_map ] ],
 			'skip_header' => true,
 			'import_type' => 'csv',
 		];
