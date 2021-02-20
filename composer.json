@@ -30,7 +30,6 @@
         "ext-dom": "*",
         "ext-json": "*",
         "ext-libxml": "*",
-        "asgrim/ofxparser": "^1.2",
         "authorizenet/authorizenet": "^2.0",
         "bacon/bacon-qr-code": "^2.0",
         "beganovich/snappdf": "^1.0",
@@ -43,7 +42,7 @@
         "fzaninotto/faker": "^1.4",
         "google/apiclient": "^2.7",
         "guzzlehttp/guzzle": "^7.0.1",
-        "hashids/hashids": "^3.0",
+        "hashids/hashids": "^4.0",
         "intervention/image": "^2.5",
         "laracasts/presenter": "^0.2.1",
         "laravel/framework": "^8.0",
@@ -65,7 +64,7 @@
         "sentry/sentry-laravel": "^2",
         "stripe/stripe-php": "^7.50",
         "turbo124/beacon": "^1",
-        "turbo124/laravel-gmail": "^5.0",
+        "dacastro4/laravel-gmail": "dev-master",
         "webpatser/laravel-countries": "dev-master#75992ad",
         "wildbit/swiftmailer-postmark": "^3.3"
     },
@@ -91,7 +90,6 @@
             "Database\\Seeders\\": "database/seeders/"
         },
         "files": [
-            "app/Libraries/OFX.php"
         ]
     },
     "autoload-dev": {
