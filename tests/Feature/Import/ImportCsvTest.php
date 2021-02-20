@@ -74,7 +74,7 @@ class ImportCsvTest extends TestCase
 
 		$data = [
 			'hash'        => $hash,
-			'column_map'  => [ 'client' => $column_map ],
+			'column_map'  => [ 'client' => [ 'mapping' => $column_map ] ],
 			'skip_header' => true,
 			'import_type' => 'csv',
 		];
@@ -139,7 +139,7 @@ class ImportCsvTest extends TestCase
 
 		$data = [
 			'hash'        => $hash,
-			'column_map'  => [ 'invoice' => $column_map ],
+			'column_map'  => [ 'invoice' => [ 'mapping' => $column_map ] ],
 			'skip_header' => true,
 			'import_type' => 'csv',
 		];
@@ -167,7 +167,7 @@ class ImportCsvTest extends TestCase
 
 		$data = [
 			'hash'        => $hash,
-			'column_map'  => [ 'vendor' => $column_map ],
+			'column_map'  => [ 'vendor' => [ 'mapping' => $column_map ] ],
 			'skip_header' => true,
 			'import_type' => 'csv',
 		];
@@ -192,7 +192,7 @@ class ImportCsvTest extends TestCase
 
 		$data = [
 			'hash'        => $hash,
-			'column_map'  => [ 'product' => $column_map ],
+			'column_map'  => [ 'product' => [ 'mapping' => $column_map ] ],
 			'skip_header' => true,
 			'import_type' => 'csv',
 		];
@@ -217,7 +217,7 @@ class ImportCsvTest extends TestCase
 
 		$data = [
 			'hash'        => $hash,
-			'column_map'  => [ 'expense' => $column_map ],
+			'column_map'  => [ 'expense' => [ 'mapping' => $column_map ] ],
 			'skip_header' => true,
 			'import_type' => 'csv',
 		];
@@ -308,7 +308,7 @@ class ImportCsvTest extends TestCase
 
 		$data = [
 			'hash'        => $hash,
-			'column_map'  => [ 'payment' => $column_map ],
+			'column_map'  => [ 'payment' => [ 'mapping' => $column_map ] ],
 			'skip_header' => true,
 			'import_type' => 'csv',
 		];
