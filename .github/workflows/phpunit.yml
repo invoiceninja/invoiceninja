@@ -69,7 +69,6 @@ jobs:
 
     - uses: actions/checkout@v1
       with:
-        ref: v5-develop
         fetch-depth: 1
 
     - name: Copy .env
