@@ -78,7 +78,9 @@ class CSVImport implements ShouldQueue {
 		$this->hash        = $request['hash'];
 		$this->import_type = $request['import_type'];
 		$this->skip_header = $request['skip_header'] ?? null;
-		$this->column_map  = $request['column_map'] ?? null;
+		$this->column_map  =
+			! empty( $request['column_map'] ) ?
+				array_combine( array_keys( $request['column_map'] ), array_column( $request['column_map'], 'mapping' ) ) : null;
 	}
 
 	/**
