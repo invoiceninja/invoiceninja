@@ -199,6 +199,12 @@ class BaseRepository
             unset($tmp_data['client_contacts']);
         
         $model->fill($tmp_data);
+
+        $model->custom_surcharge_tax1 = $client->company->custom_surcharge_taxes1;
+        $model->custom_surcharge_tax2 = $client->company->custom_surcharge_taxes2;
+        $model->custom_surcharge_tax3 = $client->company->custom_surcharge_taxes3;
+        $model->custom_surcharge_tax4 = $client->company->custom_surcharge_taxes4;
+
         $model->save();
 
         /* Model now persisted, now lets do some child tasks */
