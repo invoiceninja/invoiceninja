@@ -48,6 +48,9 @@
  *       @OA\Property(property="custom_surcharge2", type="number", format="float", example="10.00", description="Second Custom Surcharge"),
  *       @OA\Property(property="custom_surcharge3", type="number", format="float", example="10.00", description="Third Custom Surcharge"),
  *       @OA\Property(property="custom_surcharge4", type="number", format="float", example="10.00", description="Fourth Custom Surcharge"),
- *       @OA\Property(property="custom_surcharge_taxes", type="boolean", example=true, description="Toggles charging taxes on custom surcharge amounts"),
+ *       @OA\Property(property="custom_surcharge_tax1", type="boolean", example=true, description="Toggles charging taxes on custom surcharge amounts"),
+ *       @OA\Property(property="custom_surcharge_tax2", type="boolean", example=true, description="Toggles charging taxes on custom surcharge amounts"),
+ *       @OA\Property(property="custom_surcharge_tax3", type="boolean", example=true, description="Toggles charging taxes on custom surcharge amounts"),
+ *       @OA\Property(property="custom_surcharge_tax4", type="boolean", example=true, description="Toggles charging taxes on custom surcharge amounts"),
  * )
  */

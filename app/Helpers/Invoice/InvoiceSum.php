@@ -57,8 +57,8 @@ class InvoiceSum
     {
         $this->calculateLineItems()
              ->calculateDiscount()
-             ->calculateCustomValues()
              ->calculateInvoiceTaxes()
+             ->calculateCustomValues()
              ->setTaxMap()
              ->calculateTotals()
              ->calculateBalance()
@@ -89,16 +89,17 @@ class InvoiceSum
 
     private function calculateCustomValues()
     {
-        $this->total_taxes += $this->valuerTax($this->invoice->custom_surcharge1, $this->invoice->custom_surcharge_taxes1);
+
+        $this->total_taxes += $this->valuerTax($this->invoice->custom_surcharge1, $this->invoice->custom_surcharge_tax1);
         $this->total_custom_values += $this->valuer($this->invoice->custom_surcharge1);
 
-        $this->total_taxes += $this->valuerTax($this->invoice->custom_surcharge2, $this->invoice->custom_surcharge_taxes2);
+        $this->total_taxes += $this->valuerTax($this->invoice->custom_surcharge2, $this->invoice->custom_surcharge_tax2);
         $this->total_custom_values += $this->valuer($this->invoice->custom_surcharge2);
 
-        $this->total_taxes += $this->valuerTax($this->invoice->custom_surcharge3, $this->invoice->custom_surcharge_taxes3);
+        $this->total_taxes += $this->valuerTax($this->invoice->custom_surcharge3, $this->invoice->custom_surcharge_tax3);
         $this->total_custom_values += $this->valuer($this->invoice->custom_surcharge3);
 
-        $this->total_taxes += $this->valuerTax($this->invoice->custom_surcharge4, $this->invoice->custom_surcharge_taxes4);
+        $this->total_taxes += $this->valuerTax($this->invoice->custom_surcharge4, $this->invoice->custom_surcharge_tax4);
         $this->total_custom_values += $this->valuer($this->invoice->custom_surcharge4);
 
         $this->total += $this->total_custom_values;
@@ -108,24 +109,25 @@ class InvoiceSum
 
     private function calculateInvoiceTaxes()
     {
-        if ($this->invoice->tax_rate1 > 0) {
+
+        if (strlen($this->invoice->tax_name1) > 1) {
             $tax = $this->taxer($this->total, $this->invoice->tax_rate1);
             $this->total_taxes += $tax;
             $this->total_tax_map[] = ['name' => $this->invoice->tax_name1.' '.floatval($this->invoice->tax_rate1).'%', 'total' => $tax];
         }
 
-        if ($this->invoice->tax_rate2 > 0) {
+        if (strlen($this->invoice->tax_name2) > 1) {
             $tax = $this->taxer($this->total, $this->invoice->tax_rate2);
             $this->total_taxes += $tax;
             $this->total_tax_map[] = ['name' => $this->invoice->tax_name2.' '.floatval($this->invoice->tax_rate2).'%', 'total' => $tax];
         }
 
-        if ($this->invoice->tax_rate3 > 0) {
+        if (strlen($this->invoice->tax_name3) > 1) {
             $tax = $this->taxer($this->total, $this->invoice->tax_rate3);
             $this->total_taxes += $tax;
             $this->total_tax_map[] = ['name' => $this->invoice->tax_name3.' '.floatval($this->invoice->tax_rate3).'%', 'total' => $tax];
         }
-
+        
         return $this;
     }
 
@@ -299,7 +301,7 @@ class InvoiceSum
     }
 
     public function getTaxMap()
-    {
+    {        
         return $this->tax_map;
     }
 
