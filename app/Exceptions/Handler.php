@@ -112,7 +112,7 @@ class Handler extends ExceptionHandler
             return false;
 
         if (strpos($exception->getMessage(), 'fwrite()') !== false)
-            return false
+            return false;
         
 
         return true;
