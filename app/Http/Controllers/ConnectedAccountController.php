@@ -23,8 +23,8 @@ class ConnectedAccountController extends BaseController
         parent::__construct();
     }
 
-/**
-     * Refreshes the data feed with the current Company User.
+    /**
+     * Connect an OAuth account to a regular email/password combination account
      *
      * @param Request $request
      * @return User Refresh Feed.

@@ -31,6 +31,8 @@ class BaseEmailEngine implements EngineInterface
 
     public $text;
 
+    public $invitation;
+    
     public function setFooter($footer)
     {
         $this->footer = $footer;
@@ -141,4 +143,15 @@ class BaseEmailEngine implements EngineInterface
     public function build()
     {
     }
+
+    public function setInvitation($invitation)
+    {
+        $this->invitation = $invitation;
+    }
+
+    public function getInvitation()
+    {
+        return $this->invitation;
+    }
 }
+

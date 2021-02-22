@@ -29,7 +29,9 @@ class TemplateEmail extends Mailable
 
     private $company;
 
-    public function __construct($build_email, ClientContact $contact)
+    private $invitation;
+
+    public function __construct($build_email, ClientContact $contact, $invitation = null)
     {
         $this->build_email = $build_email;
 
@@ -38,6 +40,8 @@ class TemplateEmail extends Mailable
         $this->client = $contact->client;
 
         $this->company = $contact->company;
+
+        $this->invitation = $invitation;
     }
 
     public function build()
@@ -77,6 +81,7 @@ class TemplateEmail extends Mailable
             ])
             ->withSwiftMessage(function ($message) use($company){
                 $message->getHeaders()->addTextHeader('Tag', $company->company_key);
+                $message->invitation = $this->invitation;
             });
 
         //conditionally attach files

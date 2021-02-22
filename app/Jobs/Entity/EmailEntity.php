@@ -105,7 +105,7 @@ class EmailEntity implements ShouldQueue
         MultiDB::setDB($this->company->db);
 
         $nmo = new NinjaMailerObject;
-        $nmo->mailable = new TemplateEmail($this->email_entity_builder,$this->invitation->contact);
+        $nmo->mailable = new TemplateEmail($this->email_entity_builder,$this->invitation->contact, $this->invitation);
         $nmo->company = $this->company;
         $nmo->settings = $this->settings;
         $nmo->to_user = $this->invitation->contact;
