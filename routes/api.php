@@ -36,6 +36,8 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::put('clients/{client}/upload', 'ClientController@upload')->name('clients.upload');
     Route::post('clients/bulk', 'ClientController@bulk')->name('clients.bulk');
 
+    Route::post('connected_account', 'ConnectedAccountController@index');
+
     Route::resource('client_statement', 'ClientStatementController@statement'); // name = (client_statement. index / create / show / update / destroy / edit
 
     Route::post('companies/purge/{company}', 'MigrationController@purgeCompany')->middleware('password_protected');

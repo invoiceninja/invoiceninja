@@ -99,21 +99,21 @@ class Handler extends ExceptionHandler
 
     private function validException($exception)
     {
-        if (strpos($exception->getMessage(), 'file_put_contents') !== false) {
+        if (strpos($exception->getMessage(), 'file_put_contents') !== false) 
             return false;
-        }
 
-        if (strpos($exception->getMessage(), 'Permission denied') !== false) {
+        if (strpos($exception->getMessage(), 'Permission denied') !== false) 
             return false;
-        }
         
-        if (strpos($exception->getMessage(), 'flock()') !== false) {
+        if (strpos($exception->getMessage(), 'flock()') !== false) 
             return false;
-        }
 
-        if (strpos($exception->getMessage(), 'expects parameter 1 to be resource') !== false) {
+        if (strpos($exception->getMessage(), 'expects parameter 1 to be resource') !== false) 
             return false;
-        }
+
+        if (strpos($exception->getMessage(), 'fwrite()') !== false)
+            return false;
+        
 
         return true;
     }
