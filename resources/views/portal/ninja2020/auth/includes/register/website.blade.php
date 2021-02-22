@@ -20,7 +20,7 @@
 
             <div class="col-span-6 sm:col-span-3">
                 <label for="website" class="input-label">{{ ctrans('texts.website') }}</label>
-                <input id="website" class="input w-full" name="last_name" />
+                <input id="website" class="input w-full" name="website" />
                 @error('website')
                     <div class="validation validation-fail">
                         {{ $message }}

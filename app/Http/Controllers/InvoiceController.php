@@ -25,6 +25,7 @@ use App\Http\Requests\Invoice\EditInvoiceRequest;
 use App\Http\Requests\Invoice\ShowInvoiceRequest;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Http\Requests\Invoice\UpdateInvoiceRequest;
+use App\Http\Requests\Invoice\UploadInvoiceRequest;
 use App\Jobs\Entity\EmailEntity;
 use App\Jobs\Invoice\StoreInvoice;
 use App\Jobs\Invoice\ZipInvoices;
@@ -38,6 +39,7 @@ use App\Transformers\QuoteTransformer;
 use App\Utils\Ninja;
 use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SavesDocuments;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\File;
@@ -49,7 +51,8 @@ use Illuminate\Support\Facades\Storage;
 class InvoiceController extends BaseController
 {
     use MakesHash;
-
+    use SavesDocuments;
+    
     protected $entity_type = Invoice::class;
 
     protected $entity_transformer = InvoiceTransformer::class;
@@ -204,6 +207,7 @@ class InvoiceController extends BaseController
      */
     public function store(StoreInvoiceRequest $request)
     {
+
         $client = Client::find($request->input('client_id'));
 
         $invoice = $this->invoice_repo->save($request->all(), InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id));
@@ -392,8 +396,6 @@ class InvoiceController extends BaseController
 
         $invoice = $this->invoice_repo->save($request->all(), $invoice);
 
-        UnlinkFile::dispatchNow(config('filesystems.default'), $invoice->client->invoice_filepath().$invoice->number.'.pdf');
-
         event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars()));
 
         return $this->itemResponse($invoice);
@@ -530,7 +532,7 @@ class InvoiceController extends BaseController
                 }
             });
 
-            ZipInvoices::dispatch($invoices, $invoices->first()->company, auth()->user()->email);
+            ZipInvoices::dispatch($invoices, $invoices->first()->company, auth()->user());
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }
@@ -850,4 +852,65 @@ class InvoiceController extends BaseController
             return response(['message' => 'Oops, something went wrong. Make sure you have symlink to storage/ in public/ directory.'], 500);
         }
     }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param UploadInvoiceRequest $request
+     * @param Invoice $invoice
+     * @return Response
+     *
+     *
+     *
+     * @OA\Put(
+     *      path="/api/v1/invoices/{id}/upload",
+     *      operationId="uploadInvoice",
+     *      tags={"invoices"},
+     *      summary="Uploads a document to a invoice",
+     *      description="Handles the uploading of a document to a invoice",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Invoice Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the Invoice object",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Invoice"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
+    public function upload(UploadInvoiceRequest $request, Invoice $invoice)
+    {
+
+        if ($request->has('documents')) 
+            $this->saveDocuments($request->file('documents'), $invoice);
+
+        return $this->itemResponse($invoice->fresh());
+
+    }    
 }

@@ -73,6 +73,8 @@ class StartMigration implements ShouldQueue
      */
     public function handle()
     {
+        nlog("Inside Migration Job");
+        
         set_time_limit(0);
 
         MultiDB::setDb($this->company->db);
@@ -106,15 +108,16 @@ class StartMigration implements ShouldQueue
                 throw new NonExistingMigrationFile('Migration file does not exist, or it is corrupted.');
             }
 
-            //$data = json_decode(file_get_contents($file), 1);
-            //Import::dispatchNow($data['data'], $this->company, $this->user);
             Import::dispatchNow($file, $this->company, $this->user);
+
         } catch (NonExistingMigrationFile | ProcessingMigrationArchiveFailed | ResourceNotAvailableForMigration | MigrationValidatorFailed | ResourceDependencyMissing $e) {
+
             Mail::to($this->user)->send(new MigrationFailed($e, $e->getMessage()));
 
             if (app()->environment() !== 'production') {
                 info($e->getMessage());
             }
+            
         }
 
         //always make sure we unset the migration as running

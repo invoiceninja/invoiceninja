@@ -17,9 +17,10 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class BouncedEmail extends Mailable implements ShouldQueue
+// class BouncedEmail extends Mailable implements ShouldQueue
+class BouncedEmail extends Mailable 
 {
-    use Queueable, SerializesModels;
+    //use Queueable, SerializesModels;
 
     public $invitation;
 
@@ -49,21 +50,5 @@ class BouncedEmail extends Mailable implements ShouldQueue
                 ->text()
                 ->subject($subject);
 
-        //todo
-/*
-
-
-            //todo determine WHO is notified!! In this instance the _user_ is notified
-
-            Mail::to($invitation->user->email)
-            //->cc('')
-            //->bcc('')
-            ->queue(new BouncedEmail($invitation));
-
-        return $this->from('x@gmail.com') //todo
-            ->subject(ctrans('texts.confirmation_subject'))
-            ->markdown('email.auth.verify', ['user' => $this->user])
-            ->text('email.auth.verify_text');
-*/
     }
 }

@@ -39,10 +39,10 @@ class PaymentWasEmailedAndFailed
      * PaymentWasEmailedAndFailed constructor.
      * @param Payment $payment
      * @param $company
-     * @param array $errors
+     * @param string $errors
      * @param array $event_vars
      */
-    public function __construct(Payment $payment, Company $company, array $errors, array $event_vars)
+    public function __construct(Payment $payment, Company $company, string $errors, array $event_vars)
     {
         $this->payment = $payment;
 

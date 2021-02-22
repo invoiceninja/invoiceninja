@@ -13,7 +13,8 @@ namespace App\Jobs\Payment;
 
 use App\Events\Payment\PaymentWasEmailed;
 use App\Events\Payment\PaymentWasEmailedAndFailed;
-use App\Jobs\Mail\BaseMailerJob;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
 use App\Mail\Engine\PaymentEmailEngine;
 use App\Mail\TemplateEmail;
@@ -28,7 +29,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
 
-class EmailPayment extends BaseMailerJob implements ShouldQueue
+class EmailPayment implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -66,27 +67,24 @@ class EmailPayment extends BaseMailerJob implements ShouldQueue
      */
     public function handle()
     {
-        if ($this->company->is_disabled) {
+        if ($this->company->is_disabled) 
             return true;
-        }
+        
         
         if ($this->contact->email) {
-            MultiDB::setDb($this->company->db);
 
-            //if we need to set an email driver do it now
-            $this->setMailDriver();
+            MultiDB::setDb($this->company->db);
 
             $email_builder = (new PaymentEmailEngine($this->payment, $this->contact))->build();
 
-            try {
-                $mail = Mail::to($this->contact->email, $this->contact->present()->name());
-                $mail->send(new TemplateEmail($email_builder, $this->contact->client));
-            } catch (\Exception $e) {
-                nlog("mailing failed with message " . $e->getMessage());
-                event(new PaymentWasEmailedAndFailed($this->payment, $this->company, Mail::failures(), Ninja::eventVars()));
-                //$this->failed($e);
-                return $this->logMailError($e->getMessage(), $this->payment->client);
-            }
+            $nmo = new NinjaMailerObject;
+            $nmo->mailable = new TemplateEmail($email_builder, $this->contact);
+            $nmo->to_user = $this->contact;
+            $nmo->settings = $this->settings;
+            $nmo->company = $this->company;
+            $nmo->entity = $this->payment;
+
+            NinjaMailerJob::dispatch($nmo);
 
             event(new PaymentWasEmailed($this->payment, $this->payment->company, Ninja::eventVars()));
         }

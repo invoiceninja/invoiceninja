@@ -35,10 +35,9 @@ class InvoiceWorkflowSettings implements ShouldQueue
      * @param Invoice $invoice
      * @param Client|null $client
      */
-    public function __construct(Invoice $invoice, Client $client = null)
+    public function __construct(Invoice $invoice)
     {
         $this->invoice = $invoice;
-        $this->client = $client ?? $invoice->client;
         $this->base_repository = new BaseRepository();
     }
 
@@ -49,6 +48,8 @@ class InvoiceWorkflowSettings implements ShouldQueue
      */
     public function handle()
     {
+        $this->client = $this->invoice->client;
+
         if ($this->client->getSetting('auto_archive_invoice')) {
             /* Throws: Payment amount xxx does not match invoice totals. */
             $this->base_repository->archive($this->invoice);

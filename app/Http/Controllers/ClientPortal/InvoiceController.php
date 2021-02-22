@@ -54,11 +54,11 @@ class InvoiceController extends Controller
             'invoice' => $invoice,
         ];
 
-        if ($request->query('mode') === 'portal') {
-            return $this->render('invoices.show', $data);
+        if ($request->query('mode') === 'fullscreen') {
+            return response()->file($invoice->pdf_file_path(null, 'path'));
         }
 
-        return $this->render('invoices.show.fullscreen', $data);
+        return $this->render('invoices.show', $data);
     }
 
     /**
@@ -90,7 +90,7 @@ class InvoiceController extends Controller
 
         //filter invoices which are payable
         $invoices = $invoices->filter(function ($invoice) {
-            return $invoice->isPayable() && $invoice->balance > 0;
+            return $invoice->isPayable();
         });
 
         //return early if no invoices.

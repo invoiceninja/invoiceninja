@@ -35,7 +35,7 @@ class QuoteController extends Controller
      *
      * @param ShowQuoteRequest $request
      * @param Quote $quote
-     * @return Factory|View
+     * @return Factory|View|\Symfony\Component\HttpFoundation\BinaryFileResponse
      */
     public function show(ShowQuoteRequest $request, Quote $quote)
     {
@@ -43,11 +43,11 @@ class QuoteController extends Controller
             'quote' => $quote,
         ];
 
-        if ($request->query('mode') === 'portal') {
-            return $this->render('quotes.show', $data);
+        if ($request->query('mode') === 'fullscreen') {
+            return response()->file($quote->pdf_file_path(null, 'path'));
         }
 
-        return $this->render('quotes.show.fullscreen', $data);
+        return $this->render('quotes.show', $data);
     }
 
     public function bulk(ProcessQuotesInBulkRequest $request)

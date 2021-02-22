@@ -17,7 +17,7 @@ use Illuminate\Queue\SerializesModels;
 
 class TestMailServer extends Mailable
 {
-    use Queueable, SerializesModels;
+ //   use Queueable, SerializesModels;
 
     public $message;
 

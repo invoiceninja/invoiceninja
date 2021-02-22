@@ -77,7 +77,7 @@
                                 {{ $payment_method->meta->exp_month}} / {{ $payment_method->meta->exp_year }}
                             @endif
                         </td>
-                        <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                        <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500" data-cy="pm-last4">
                             @isset($payment_method->meta->last4)
                                 **** {{ $payment_method->meta->last4 }}
                             @endisset

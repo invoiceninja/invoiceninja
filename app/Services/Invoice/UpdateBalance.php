@@ -16,9 +16,9 @@ use App\Services\AbstractService;
 
 class UpdateBalance extends AbstractService
 {
-    private $invoice;
+    public $invoice;
 
-    private $balance_adjustment;
+    public $balance_adjustment;
 
     public function __construct($invoice, $balance_adjustment)
     {
@@ -29,7 +29,7 @@ class UpdateBalance extends AbstractService
     public function run()
     {
         if ($this->invoice->is_deleted) {
-            return;
+            return $this->invoice;
         }
 
         $this->invoice->balance += floatval($this->balance_adjustment);

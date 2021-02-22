@@ -28,6 +28,7 @@ class BaseRepository
 {
     use MakesHash;
     use SavesDocuments;
+	public    $import_mode = false;
 
     /**
      * @param $entity
@@ -198,6 +199,12 @@ class BaseRepository
             unset($tmp_data['client_contacts']);
         
         $model->fill($tmp_data);
+
+        $model->custom_surcharge_tax1 = $client->company->custom_surcharge_taxes1;
+        $model->custom_surcharge_tax2 = $client->company->custom_surcharge_taxes2;
+        $model->custom_surcharge_tax3 = $client->company->custom_surcharge_taxes3;
+        $model->custom_surcharge_tax4 = $client->company->custom_surcharge_taxes4;
+
         $model->save();
 
         /* Model now persisted, now lets do some child tasks */
@@ -310,7 +317,7 @@ class BaseRepository
 
             $model = $model->calc()->getCredit();
 
-            $model->ledger()->updateCreditBalance(($state['finished_amount'] - $state['starting_amount']));
+            // $model->ledger()->updateCreditBalance(-1*($state['finished_amount'] - $state['starting_amount']));
 
             if (! $model->design_id) 
                 $model->design_id = $this->decodePrimaryKey($client->getSetting('credit_design_id'));

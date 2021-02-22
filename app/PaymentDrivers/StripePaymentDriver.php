@@ -95,15 +95,30 @@ class StripePaymentDriver extends BaseDriver
     {
         $types = [
             GatewayType::CREDIT_CARD,
-            GatewayType::BANK_TRANSFER,
             GatewayType::CRYPTO,
-            GatewayType::ALIPAY,
 //            GatewayType::SEPA, // TODO: Missing implementation
 //            GatewayType::APPLE_PAY, // TODO:: Missing implementation
         ];
 
-        if ($this->company_gateway->getSofortEnabled() && $this->invitation && $this->client() && isset($this->client()->country) && in_array($this->client()->country, ['AUT', 'BEL', 'DEU', 'ITA', 'NLD', 'ESP'])) {
+        if ($this->company_gateway->getSofortEnabled()
+            && $this->client
+            && isset($this->client->country)
+            && in_array($this->client->country->iso_3166_3, ['AUT', 'BEL', 'DEU', 'ITA', 'NLD', 'ESP'])) {
             $types[] = GatewayType::SOFORT;
+        }
+
+        if ($this->company_gateway->getAchEnabled()
+            && $this->client
+            && isset($this->client->country)
+            && in_array($this->client->country->iso_3166_3, ['USA'])) {
+            $types[] = GatewayType::BANK_TRANSFER;
+        }
+
+        if ($this->company_gateway->getAlipayEnabled()
+            && $this->client
+            && isset($this->client->country)
+            && in_array($this->client->country->iso_3166_3, ['AUS', 'DNK', 'DEU', 'ITA', 'LUX', 'NOR', 'SVN', 'GBR', 'AUT', 'EST', 'GRC', 'JPN', 'MYS', 'PRT', 'ESP', 'USA', 'BEL', 'FIN', 'HKG', 'LVA', 'NLD', 'SGP', 'SWE', 'CAN', 'FRA', 'IRL', 'LTU', 'NZL', 'SVK', 'CHE'])) {
+            $types[] = GatewayType::ALIPAY;
         }
 
         return $types;
@@ -137,9 +152,46 @@ class StripePaymentDriver extends BaseDriver
 
     public function getClientRequiredFields(): array
     {
-        return [
+        $fields = [
             ['name' => 'client_postal_code', 'label' => ctrans('texts.postal_code'), 'type' => 'text', 'validation' => 'required'],
         ];
+
+        if ($this->company_gateway->require_client_name) {
+            $fields[] = ['name' => 'client_name', 'label' => ctrans('texts.client_name'), 'type' => 'text', 'validation' => 'required'];
+        }
+
+        if ($this->company_gateway->require_client_phone) {
+            $fields[] = ['name' => 'client_phone', 'label' => ctrans('texts.client_phone'), 'type' => 'tel', 'validation' => 'required'];
+        }
+
+        if ($this->company_gateway->require_contact_name) {
+            $fields[] = ['name' => 'contact_first_name', 'label' => ctrans('texts.first_name'), 'type' => 'text', 'validation' => 'required'];
+            $fields[] = ['name' => 'contact_last_name', 'label' => ctrans('texts.last_name'), 'type' => 'text', 'validation' => 'required'];
+        }
+
+        if ($this->company_gateway->require_contact_email) {
+            $fields[] = ['name' => 'contact_email', 'label' => ctrans('texts.email'), 'type' => 'text', 'validation' => 'required,email:rfc'];
+        }
+
+        if ($this->company_gateway->require_billing_address) {
+            $fields[] = ['name' => 'client_address_line_1', 'label' => ctrans('texts.address1'), 'type' => 'text', 'validation' => 'required'];
+            $fields[] = ['name' => 'client_address_line_2', 'label' => ctrans('texts.address2'), 'type' => 'text', 'validation' => 'required'];
+            $fields[] = ['name' => 'client_city', 'label' => ctrans('texts.city'), 'type' => 'text', 'validation' => 'required'];
+            $fields[] = ['name' => 'client_state', 'label' => ctrans('texts.state'), 'type' => 'text', 'validation' => 'required'];
+            $fields[] = ['name' => 'client_postal_code', 'label' => ctrans('texts.postal_code'), 'type' => 'text', 'validation' => 'required'];
+            $fields[] = ['name' => 'client_country_id', 'label' => ctrans('texts.country'), 'type' => 'text', 'validation' => 'required'];
+        }
+
+        if ($this->company_gateway->require_shipping_address) {
+            $fields[] = ['name' => 'client_shipping_address_line_1', 'label' => ctrans('texts.shipping_address1'), 'type' => 'text', 'validation' => 'required'];
+            $fields[] = ['name' => 'client_shipping_address_line_2', 'label' => ctrans('texts.shipping_address2'), 'type' => 'text', 'validation' => 'required'];
+            $fields[] = ['name' => 'client_shipping_city', 'label' => ctrans('texts.shipping_city'), 'type' => 'text', 'validation' => 'required'];
+            $fields[] = ['name' => 'client_shipping_state', 'label' => ctrans('texts.shipping_state'), 'type' => 'text', 'validation' => 'required'];
+            $fields[] = ['name' => 'client_shipping_postal_code', 'label' => ctrans('texts.shipping_postal_code'), 'type' => 'text', 'validation' => 'required'];
+            $fields[] = ['name' => 'client_shipping_country_id', 'label' => ctrans('texts.shipping_country'), 'type' => 'text', 'validation' => 'required'];
+        }
+
+        return $fields;
     }
 
     /**
@@ -175,7 +227,7 @@ class StripePaymentDriver extends BaseDriver
         return $this->payment_method->paymentView($data);
     }
 
-    public function processPaymentResponse($request) 
+    public function processPaymentResponse($request)
     {
         return $this->payment_method->paymentResponse($request);
     }
@@ -322,8 +374,6 @@ class StripePaymentDriver extends BaseDriver
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
-        $this->setPaymentHash($payment_hash);
-
         return (new Charge($this))->tokenBilling($cgt, $payment_hash);
     }
 

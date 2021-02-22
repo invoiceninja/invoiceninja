@@ -66,6 +66,7 @@ trait Utilities
             'payment_type' => PaymentType::parseCardType(strtolower($_payment->source['scheme'])),
             'amount' => $this->getParent()->payment_hash->data->raw_value,
             'transaction_reference' => $_payment->id,
+            'gateway_type_id' => GatewayType::CREDIT_CARD,
         ];
 
         $payment = $this->getParent()->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);
@@ -81,7 +82,7 @@ trait Utilities
         return redirect()->route('client.payments.show', ['payment' => $this->getParent()->encodePrimaryKey($payment->id)]);
     }
 
-    public function processUnsuccessfulPayment(Payment $_payment)
+    public function processUnsuccessfulPayment(Payment $_payment, $throw_exception = true)
     {
         PaymentFailureMailer::dispatch(
             $this->getParent()->client,
@@ -103,7 +104,9 @@ trait Utilities
             $this->getParent()->client
         );
 
-        throw new PaymentFailed($_payment->status, $_payment->http_code);
+        if ($throw_exception) {
+            throw new PaymentFailed($_payment->status, $_payment->http_code);
+        }
     }
 
     private function processPendingPayment(Payment $_payment)

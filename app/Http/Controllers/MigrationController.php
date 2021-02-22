@@ -14,7 +14,8 @@ namespace App\Http\Controllers;
 
 use App\Console\Commands\ImportMigrations;
 use App\DataMapper\CompanySettings;
-use App\Jobs\Mail\MailRouter;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Util\StartMigration;
 use App\Mail\ExistingMigration;
 use App\Models\Company;
@@ -218,6 +219,8 @@ class MigrationController extends BaseController
      */
     public function startMigration(Request $request)
     {
+        nlog("Starting Migration");
+
         $companies = json_decode($request->companies);
 
         if (app()->environment() === 'local') {
@@ -246,7 +249,13 @@ class MigrationController extends BaseController
             if ($checks['existing_company'] == true && $checks['force'] == false) {
                 nlog('Migrating: Existing company without force. (CASE_01)');
 
-                MailRouter::dispatch(new ExistingMigration(), $existing_company, $user);
+                $nmo = new NinjaMailerObject;
+                $nmo->mailable = new ExistingMigration();
+                $nmo->company = $existing_company;
+                $nmo->settings = $existing_company->settings;
+                $nmo->to_user = $user;
+
+                NinjaMailerJob::dispatch($nmo);
 
                 return response()->json([
                     '_id' => Str::uuid(),
@@ -290,6 +299,9 @@ class MigrationController extends BaseController
 
             // If there's no existing company migrate just normally.
             if ($checks['existing_company'] == false) {
+
+                nlog("creating fresh company");
+                
                 $account = auth()->user()->account;
                 $fresh_company = (new ImportMigrations())->getCompany($account);
 
@@ -325,11 +337,13 @@ class MigrationController extends BaseController
                 );
 
             if (app()->environment() == 'testing') {
+                nlog("environment is testing = bailing out now");
                 return;
             }
 
             try {
                 // StartMigration::dispatch(base_path("storage/app/public/$migration_file"), $user, $fresh_company)->delay(now()->addSeconds(5));
+                nlog("starting migration job");
                 nlog($migration_file);
                 StartMigration::dispatch($migration_file, $user, $fresh_company);
             } catch (\Exception $e) {

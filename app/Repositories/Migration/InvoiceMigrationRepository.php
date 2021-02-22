@@ -182,6 +182,14 @@ class InvoiceMigrationRepository extends BaseRepository
             }
         }
 
+        if($data['is_deleted']){
+            $model->is_deleted = true;
+            $model->save();
+        }
+
+        if($data['deleted_at'])
+            $model->delete();
+
         $model->save();
 
         return $model->fresh();

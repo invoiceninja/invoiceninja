@@ -86,6 +86,10 @@ class CreditCard
         $state = array_merge($state, $request->all());
         $state['store_card'] = boolval($state['store_card']);
 
+        if ($request->has('token') && !is_null($request->token)) {
+            $state['store_card'] = false;
+        }
+
         $state['payment_intent'] = PaymentIntent::retrieve($state['server_response']->id);
         $state['customer'] = $state['payment_intent']->customer;
 
@@ -95,7 +99,6 @@ class CreditCard
         $server_response = $this->stripe->payment_hash->data->server_response;
 
         if ($server_response->status == 'succeeded') {
-            $this->stripe->confirmGatewayFee($request);
 
             $this->stripe->logSuccessfulGatewayResponse(['response' => json_decode($request->gateway_response), 'data' => $this->stripe->payment_hash], SystemLog::TYPE_STRIPE);
 
@@ -116,7 +119,6 @@ class CreditCard
             'transaction_reference' => optional($this->stripe->payment_hash->data->payment_intent->charges->data[0])->id,
             'gateway_type_id' => GatewayType::CREDIT_CARD,
         ];
-
 
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['amount' => $data['amount']]);
         $this->stripe->payment_hash->save();

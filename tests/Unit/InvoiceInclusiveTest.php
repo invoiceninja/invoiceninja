@@ -275,6 +275,7 @@ class InvoiceInclusiveTest extends TestCase
         $this->assertEquals($this->invoice_calc->getSubTotal(), 19);
         $this->assertEquals($this->invoice_calc->getTotalDiscount(), 0.95);
         $this->assertEquals($this->invoice_calc->getTotalTaxes(), 4.92);
+        nlog($this->invoice_calc->getTaxMap());
         $this->assertEquals(count($this->invoice_calc->getTaxMap()), 1);
         $this->assertEquals($this->invoice_calc->getTotal(), 18.05);
         $this->assertEquals($this->invoice_calc->getBalance(), 18.05);

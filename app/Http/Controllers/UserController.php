@@ -23,11 +23,16 @@ use App\Http\Requests\User\CreateUserRequest;
 use App\Http\Requests\User\DestroyUserRequest;
 use App\Http\Requests\User\DetachCompanyUserRequest;
 use App\Http\Requests\User\EditUserRequest;
+use App\Http\Requests\User\ReconfirmUserRequest;
 use App\Http\Requests\User\ShowUserRequest;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Jobs\Company\CreateCompanyToken;
+use App\Jobs\Mail\NinjaMailer;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\User\UserEmailChanged;
+use App\Mail\Admin\VerifyUserObject;
 use App\Models\CompanyUser;
 use App\Models\User;
 use App\Repositories\UserRepository;
@@ -369,13 +374,28 @@ class UserController extends BaseController
      */
     public function update(UpdateUserRequest $request, User $user)
     {
-        $old_email = $user->email;
+
+        $old_company_user = $user->company_user;
+        $old_user = json_encode($user);
+        $old_user_email = $user->getOriginal('email');
+
         $new_email = $request->input('email');
+        $new_user = $this->user_repo->save($request->all(), $user);
+        $new_user = $user->fresh();
 
-        $user = $this->user_repo->save($request->all(), $user);
-
-        if ($old_email != $new_email) {
-            UserEmailChanged::dispatch($new_email, $old_email, auth()->user()->company());
+        /* When changing email address we store the former email in case we need to rollback */
+        if ($old_user_email != $new_email) {
+            $user->last_confirmed_email_address = $old_user_email;
+            $user->save();
+            UserEmailChanged::dispatch($new_user, json_decode($old_user), auth()->user()->company());
+        }
+        
+        
+        if(
+            strcasecmp($old_company_user->permissions, $user->company_user->permissions) != 0 ||
+            $old_company_user->is_admin != $user->company_user->is_admin
+          ){
+            $user->company_user()->update(["permissions_updated_at" => now()]);
         }
 
         event(new UserWasUpdated($user, auth()->user(), auth()->user()->company, Ninja::eventVars()));
@@ -670,4 +690,70 @@ class UserController extends BaseController
 
         return response()->json(['message' => ctrans('texts.user_detached')], 200);
     }
+
+    /**
+     * Detach an existing user to a company.
+     *
+     * @OA\Post(
+     *      path="/api/v1/users/{user}/reconfirm",
+     *      operationId="reconfirmUser",
+     *      tags={"users"},
+     *      summary="Reconfirm an existing user to a company",
+     *      description="Reconfirm an existing user from a company",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="user",
+     *          in="path",
+     *          description="The user hashed_id",
+     *          example="FD767dfd7",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success response",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     * @param ReconfirmUserRequest $request
+     * @param User $user
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function reconfirm(ReconfirmUserRequest $request, User $user)
+    {
+        $user->confirmation_code = $this->createDbHash($user->company()->db);
+        $user->save();
+
+        $nmo = new NinjaMailerObject;
+        $nmo->mailable = new NinjaMailer((new VerifyUserObject($user, $user->company()))->build());
+        $nmo->company = $user->company();
+        $nmo->to_user = $user;
+        $nmo->settings = $user->company->settings;
+
+        NinjaMailerJob::dispatch($nmo);
+
+        return response()->json(['message' => ctrans('texts.confirmation_resent')], 200);
+
+    }
+
+
 }

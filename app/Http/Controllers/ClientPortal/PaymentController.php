@@ -106,7 +106,7 @@ class PaymentController extends Controller
         if ($payable_invoices->count() == 0) {
             return redirect()
                 ->route('client.invoices.index')
-                ->with(['warning' => 'No payable invoices selected.']);
+                ->with(['message' => 'No payable invoices selected.']);
         }
 
         $settings = auth()->user()->client->getMergedSettings();
@@ -137,32 +137,36 @@ class PaymentController extends Controller
                 $payable_invoice['amount'] = Number::roundValue(($invoice->partial > 0 ? $invoice->partial : $invoice->balance), auth()->user()->client->currency()->precision);
             }
 
-            /* If we DO allow under payments check the minimum amount is present else return */
+            if (!$settings->client_portal_allow_under_payment && $payable_amount < $invoice_balance) {
+                return redirect()
+                    ->route('client.invoices.index')
+                    ->with('message', ctrans('texts.minimum_required_payment', ['amount' => $invoice_balance]));
+            }
 
             if ($settings->client_portal_allow_under_payment) {
-                if ($payable_invoice['amount'] < $settings->client_portal_under_payment_minimum) {
+                if ($invoice_balance < $settings->client_portal_under_payment_minimum && $payable_amount < $invoice_balance) {
+                    return redirect()
+                        ->route('client.invoices.index')
+                        ->with('message', ctrans('texts.minimum_required_payment', ['amount' => $invoice_balance]));
+                }
+
+                if ($invoice_balance < $settings->client_portal_under_payment_minimum) {
+                    // Skip the under payment rule.
+                }
+
+                if ($invoice_balance >= $settings->client_portal_under_payment_minimum && $payable_amount < $settings->client_portal_under_payment_minimum) {
                     return redirect()
                         ->route('client.invoices.index')
                         ->with('message', ctrans('texts.minimum_required_payment', ['amount' => $settings->client_portal_under_payment_minimum]));
-                }
-            } else {
-
-                /*Double check!!*/
-                if ($payable_amount < $invoice_balance) {
-                    return redirect()
-                        ->route('client.invoices.index')
-                        ->with('message', ctrans('texts.under_payments_disabled'));
                 }
             }
 
             /* If we don't allow over payments and the amount exceeds the balance */
 
-            if (!$settings->client_portal_allow_over_payment) {
-                if ($payable_amount > $invoice_balance) {
-                    return redirect()
-                        ->route('client.invoices.index')
-                        ->with('message', ctrans('texts.over_payments_disabled'));
-                }
+            if (!$settings->client_portal_allow_over_payment && $payable_amount > $invoice_balance) {
+                return redirect()
+                    ->route('client.invoices.index')
+                    ->with('message', ctrans('texts.over_payments_disabled'));
             }
 
         }

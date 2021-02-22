@@ -11,6 +11,10 @@
 
 namespace App\Models;
 
+use App\Jobs\Mail\NinjaMailer;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
+use App\Mail\ClientContact\ClientContactResetPasswordObject;
 use App\Models\Presenters\ClientContactPresenter;
 use App\Notifications\ClientContactResetPassword;
 use App\Utils\Traits\MakesHash;
@@ -23,6 +27,13 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Cache;
 use Laracasts\Presenter\PresentableTrait;
 
+/**
+ * Class ClientContact
+ *
+ * @method scope() static
+ *
+ * @package App\Models
+ */
 class ClientContact extends Authenticatable implements HasLocalePreference
 {
     use Notifiable;
@@ -83,6 +94,27 @@ class ClientContact extends Authenticatable implements HasLocalePreference
         'is_primary',
         'client_id',
     ];
+
+
+	/*
+	V2 type of scope
+	 */
+	public function scopeCompany($query)
+	{
+		$query->where('company_id', auth()->user()->companyId());
+
+		return $query;
+	}
+
+	/*
+	 V1 type of scope
+	 */
+	public function scopeScope($query)
+	{
+		$query->where($this->getTable().'.company_id', '=', auth()->user()->company()->id);
+
+		return $query;
+	}
 
     public function getEntityType()
     {
@@ -151,7 +183,15 @@ class ClientContact extends Authenticatable implements HasLocalePreference
 
     public function sendPasswordResetNotification($token)
     {
-        $this->notify(new ClientContactResetPassword($token));
+        $nmo = new NinjaMailerObject;
+        $nmo->mailable = new NinjaMailer((new ClientContactResetPasswordObject($token, $this))->build());
+        $nmo->to_user = $this;
+        $nmo->company = $this->company;
+        $nmo->settings = $this->company->settings;
+
+        NinjaMailerJob::dispatch($nmo);
+
+        //$this->notify(new ClientContactResetPassword($token));
     }
 
     public function preferredLocale()

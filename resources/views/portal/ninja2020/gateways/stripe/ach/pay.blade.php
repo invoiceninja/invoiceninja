@@ -23,7 +23,7 @@
                     <label class="mr-4">
                         <input
                             type="radio"
-                            data-token="{{ $token->token }}"
+                            data-token="{{ $token->hashed_id }}"
                             name="payment-type"
                             class="form-radio cursor-pointer toggle-payment-with-token"/>
                         <span class="ml-1 cursor-pointer">{{ ctrans('texts.bank_transfer') }} (*{{ $token->meta->last4 }})</span>

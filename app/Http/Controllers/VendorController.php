@@ -21,12 +21,14 @@ use App\Http\Requests\Vendor\EditVendorRequest;
 use App\Http\Requests\Vendor\ShowVendorRequest;
 use App\Http\Requests\Vendor\StoreVendorRequest;
 use App\Http\Requests\Vendor\UpdateVendorRequest;
+use App\Http\Requests\Vendor\UploadVendorRequest;
 use App\Models\Vendor;
 use App\Repositories\VendorRepository;
 use App\Transformers\VendorTransformer;
 use App\Utils\Ninja;
 use App\Utils\Traits\BulkOptions;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SavesDocuments;
 use App\Utils\Traits\Uploadable;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -39,6 +41,7 @@ class VendorController extends BaseController
     use MakesHash;
     use Uploadable;
     use BulkOptions;
+    use SavesDocuments;
 
     protected $entity_type = Vendor::class;
 
@@ -511,4 +514,65 @@ class VendorController extends BaseController
     {
         //todo
     }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param UploadVendorRequest $request
+     * @param Vendor $vendor
+     * @return Response
+     *
+     *
+     *
+     * @OA\Put(
+     *      path="/api/v1/vendors/{id}/upload",
+     *      operationId="uploadVendor",
+     *      tags={"vendors"},
+     *      summary="Uploads a document to a vendor",
+     *      description="Handles the uploading of a document to a vendor",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Vendor Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the Vendor object",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Vendor"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
+    public function upload(UploadVendorRequest $request, Vendor $vendor)
+    {
+
+        if ($request->has('documents')) 
+            $this->saveDocuments($request->file('documents'), $vendor);
+
+        return $this->itemResponse($vendor->fresh());
+
+    }  
 }

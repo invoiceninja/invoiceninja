@@ -42,7 +42,13 @@ class CheckoutCreditCard {
             payButton.disabled = !Frames.isCardValid();
         });
 
+        Frames.addEventHandler(Frames.Events.CARD_TOKENIZATION_FAILED, function (event) {
+            pay.button.disabled = false;
+        });
+
         Frames.addEventHandler(Frames.Events.CARD_TOKENIZED, function (event) {
+            payButton.disabled = true;
+
             document.querySelector(
                 'input[name="gateway_response"]'
             ).value = JSON.stringify(event);

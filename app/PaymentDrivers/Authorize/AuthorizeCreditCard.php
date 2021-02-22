@@ -12,6 +12,7 @@
 
 namespace App\PaymentDrivers\Authorize;
 
+use App\Exceptions\PaymentFailed;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
@@ -81,7 +82,14 @@ class AuthorizeCreditCard
 
     private function processTokenPayment($request)
     {
-        $client_gateway_token =ClientGatewayToken::where('token', $request->token)->firstOrFail();
+        $client_gateway_token = ClientGatewayToken::query()
+            ->where('id', $this->decodePrimaryKey($request->token))
+            ->where('company_id', auth('contact')->user()->client->company->id)
+            ->first();
+
+        if (!$client_gateway_token) {
+            throw new PaymentFailed(ctrans('texts.payment_token_not_found'), 401);
+        }
 
         $data = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($client_gateway_token->gateway_customer_reference, $client_gateway_token->token, $request->input('amount_with_fee'));
 
@@ -129,7 +137,7 @@ class AuthorizeCreditCard
             PaymentFailureMailer::dispatch($this->authorize->client, $response->getTransactionResponse()->getTransId(), $this->authorize->client->company, $amount);
 
             SystemLogger::dispatch($logger_message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_AUTHORIZE, $this->authorize->client);
-                
+
             return false;
         }
     }
@@ -140,7 +148,6 @@ class AuthorizeCreditCard
         $response = $data['response'];
 
         if ($response != null && $response->getMessages()->getResultCode() == 'Ok') {
-            $this->authorize->confirmGatewayFee($request);
 
             return $this->processSuccessfulResponse($data, $request);
         }
@@ -157,7 +164,7 @@ class AuthorizeCreditCard
         $payment_record = [];
         $payment_record['amount'] = $amount;
         $payment_record['payment_type'] = PaymentType::CREDIT_CARD_OTHER;
-        $payment_record['gateway_type_id'] = GatewayType::CREDIT_CARD;        
+        $payment_record['gateway_type_id'] = GatewayType::CREDIT_CARD;
         $payment_record['transaction_reference'] = $response->getTransactionResponse()->getTransId();
 
         $payment = $this->authorize->createPayment($payment_record);

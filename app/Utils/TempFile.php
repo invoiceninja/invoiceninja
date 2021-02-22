@@ -20,4 +20,20 @@ class TempFile
 
         return $temp_path;
     }
+
+    /* Downloads a file to temp storage and returns the path - used for mailers */
+    public static function filePath($data, $filename) :string
+    {
+
+        $dir_hash = sys_get_temp_dir().'/'.sha1(microtime());
+
+        mkdir($dir_hash);
+        
+        $file_path = $dir_hash . '/' . $filename;
+
+        file_put_contents($file_path, $data);
+
+        return $file_path;
+
+    }
 }

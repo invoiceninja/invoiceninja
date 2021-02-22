@@ -118,6 +118,10 @@ trait AppSetup
 
     private function updateEnvironmentProperty(string $property, $value): void
     {
+        if (Str::contains($value, '#')) {
+            $value = sprintf('"%s"', $value);
+        }
+
         $env = file(base_path('.env'));
 
         $position = null;
@@ -135,7 +139,7 @@ trait AppSetup
         } elseif ($words_count > 1) {
             $env[$position] = "{$property}=" . '"' . $value . '"' . "\n"; // If value of variable is more than one word, surround with quotes.
         } else {
-            $env[$position] = "{$property}=" . $value . "\n"; // Just a normal variable update, with prexisting keys.
+            $env[$position] = "{$property}=" . $value . "\n"; // Just a normal variable update, with pre-existing keys.
         }
 
         try {

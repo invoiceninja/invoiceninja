@@ -8,7 +8,7 @@ use Illuminate\Queue\SerializesModels;
 
 class MigrationFailed extends Mailable
 {
-    use Queueable, SerializesModels;
+    // use Queueable, SerializesModels;
 
     public $exception;
     public $content;
@@ -22,6 +22,7 @@ class MigrationFailed extends Mailable
     public function __construct($exception, $content = null)
     {
         $this->exception = $exception;
+        $this->content = $content;
     }
 
     /**
@@ -32,7 +33,6 @@ class MigrationFailed extends Mailable
     public function build()
     {
         return $this->from(config('mail.from.address'), config('mail.from.name'))
-
                     ->view('email.migration.failed');
     }
 }

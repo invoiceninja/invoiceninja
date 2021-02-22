@@ -9,7 +9,7 @@ use Illuminate\Queue\SerializesModels;
 
 class DownloadInvoices extends Mailable
 {
-    use Queueable, SerializesModels;
+    // use Queueable, SerializesModels;
 
     public $file_path;
 
@@ -24,21 +24,18 @@ class DownloadInvoices extends Mailable
 
     /**
      * Build the message.
-     *
-     * @return $this
-     * @throws \Laracasts\Presenter\Exceptions\PresenterException
      */
     public function build()
     {
         return $this->from(config('mail.from.address'), config('mail.from.name'))
-
-            ->subject(ctrans('texts.download_files'))
-            ->markdown(
-                'email.admin.download_files',
-                [
-                    'url' => $this->file_path,
-                    'logo' => $this->company->present()->logo,
-                ]
-            );
+                    ->subject(ctrans('texts.download_files'))
+                    ->markdown(
+                        'email.admin.download_files',
+                        [
+                            'url' => $this->file_path,
+                            'logo' => $this->company->present()->logo,
+                            'whitelabel' => $this->company->account->isPaid() ? true : false,
+                        ]
+                    );
     }
 }

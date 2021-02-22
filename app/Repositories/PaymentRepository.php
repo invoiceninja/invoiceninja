@@ -28,22 +28,20 @@ use Illuminate\Support\Carbon;
 /**
  * PaymentRepository.
  */
-class PaymentRepository extends BaseRepository
-{
-    use MakesHash;
-    use SavesDocuments;
+class PaymentRepository extends BaseRepository {
+	use MakesHash;
+	use SavesDocuments;
 
-    protected $credit_repo;
+	protected $credit_repo;
 
-    public function __construct(CreditRepository $credit_repo)
-    {
-        $this->credit_repo = $credit_repo;
-    }
+	public function __construct( CreditRepository $credit_repo ) {
+		$this->credit_repo = $credit_repo;
+	}
 
-    /**
-     * Saves and updates a payment. //todo refactor to handle refunds and payments.
-     *
-     * @param array $data the request object
+	/**
+	 * Saves and updates a payment. //todo refactor to handle refunds and payments.
+	 *
+	 * @param array   $data the request object
      * @param Payment $payment The Payment object
      * @return Payment|null Payment $payment
      */
@@ -152,9 +150,9 @@ class PaymentRepository extends BaseRepository
             }
         }
 
-        if (!$is_existing_payment) {
-            event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
-        }
+		if ( ! $is_existing_payment && ! $this->import_mode ) {
+			event( new PaymentWasCreated( $payment, $payment->company, Ninja::eventVars() ) );
+		}
 
         nlog("payment amount = {$payment->amount}");
         nlog("payment applied = {$payment->applied}");

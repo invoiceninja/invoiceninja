@@ -92,6 +92,11 @@ class PaymentMigrationRepository extends BaseRepository
         }
 
         $payment->status_id = $data['status_id'];
+        $payment->refunded = $data['refunded'];
+
+        if($payment->status_id == Payment::STATUS_CANCELLED)
+            $payment->is_deleted = true;
+
         $payment->deleted_at = $data['deleted_at'] ?: null;
         $payment->save();
 
@@ -113,13 +118,26 @@ class PaymentMigrationRepository extends BaseRepository
 
             $payment->invoices()->saveMany($invoices);
 
-            $payment->invoices->each(function ($inv) use ($invoice_totals, $refund_totals) {
-                $inv->pivot->amount = $invoice_totals;
-                $inv->pivot->refunded = $refund_totals;
-                $inv->pivot->save();
+            $payment->invoices->each(function ($inv) use ($invoice_totals, $refund_totals, $payment) {
 
-                $inv->paid_to_date += $invoice_totals;
-                $inv->save();
+
+                if($payment->status_id != Payment::STATUS_CANCELLED || !$payment->is_deleted)
+                {
+                    $inv->pivot->amount = $invoice_totals;
+                    $inv->pivot->refunded = $refund_totals;
+                    $inv->pivot->save();
+
+                    $inv->paid_to_date += $invoice_totals;
+                    $inv->balance -= $invoice_totals;
+
+                    if($inv->status_id == Invoice::STATUS_PAID)
+                        $inv->balance = 0;
+
+                    // if($inv->balance > 0)
+                    // $inv->balance = max(0, $inv->balance);
+
+                    $inv->save();
+                }
 
             });
         }
@@ -135,7 +153,8 @@ class PaymentMigrationRepository extends BaseRepository
                 $cre->pivot->amount = $credit_totals;
                 $cre->pivot->save();
 
-                $cre->paid_to_date += $invoice_totals;
+                $cre->paid_to_date += $credit_totals;
+                $cre->balance -= $credit_totals;
                 $cre->save();
             });
         }

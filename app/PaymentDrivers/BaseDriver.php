@@ -16,8 +16,12 @@ use App\Events\Payment\PaymentWasCreated;
 use App\Exceptions\PaymentFailed;
 use App\Factory\PaymentFactory;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Jobs\Mail\NinjaMailer;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
+use App\Mail\Admin\ClientPaymentFailureObject;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\ClientGatewayToken;
@@ -202,14 +206,15 @@ class BaseDriver extends AbstractPaymentDriver
      */
     public function createPayment($data, $status = Payment::STATUS_COMPLETED): Payment
     {
+        $this->confirmGatewayFee();
+        
         $payment = PaymentFactory::create($this->client->company->id, $this->client->user->id);
         $payment->client_id = $this->client->id;
         $payment->company_gateway_id = $this->company_gateway->id;
         $payment->status_id = $status;
         $payment->currency_id = $this->client->getSetting('currency_id');
         $payment->date = Carbon::now();
-
-        //$payment->gateway_type_id = $data['gateway_type_id'];
+        $payment->gateway_type_id = $data['gateway_type_id'];
 
         $client_contact = $this->getContact();
         $client_contact_id = $client_contact ? $client_contact->id : null;
@@ -230,7 +235,7 @@ class BaseDriver extends AbstractPaymentDriver
 
         $payment->service()->updateInvoicePayment($this->payment_hash);
 
-        if ($this->client->getSetting('client_online_payment_notification')) 
+        if ($this->client->getSetting('client_online_payment_notification'))
             $payment->service()->sendEmail();
 
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
@@ -245,19 +250,14 @@ class BaseDriver extends AbstractPaymentDriver
      * @param  PaymentResponseRequest $request The incoming payment request
      * @return void                            Success/Failure
      */
-    public function confirmGatewayFee(PaymentResponseRequest $request) :void
+    public function confirmGatewayFee() :void
     {
-        /*Payment meta data*/
-        $payment_hash = $request->getPaymentHash();
 
         /*Payment invoices*/
-        $payment_invoices = $payment_hash->invoices();
+        $payment_invoices = $this->payment_hash->invoices();
 
         /*Fee charged at gateway*/
-        $fee_total = $payment_hash->fee_total;
-
-        // Sum of invoice amounts
-        // $invoice_totals = array_sum(array_column($payment_invoices,'amount'));
+        $fee_total = $this->payment_hash->fee_total;
 
         /*Hydrate invoices*/
         $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($payment_invoices, 'invoice_id')))->get();
@@ -337,22 +337,43 @@ class BaseDriver extends AbstractPaymentDriver
 
     public function processInternallyFailedPayment($gateway, $e)
     {
-        if ($e instanceof Exception) {
-            $error = $e->getMessage();
-        }
+
+        $this->unWindGatewayFees($this->payment_hash);
 
         if ($e instanceof CheckoutHttpException) {
             $error = $e->getBody();
         }
-
-        $amount = optional($this->payment_hash->data)->value ?? optional($this->payment_hash->data)->amount;
+        else if ($e instanceof Exception) {
+            $error = $e->getMessage();
+        }   
+        else 
+            $error = $e->getMessage();
 
         PaymentFailureMailer::dispatch(
             $gateway->client,
             $error,
             $gateway->client->company,
-            $amount
+            $this->payment_hash
         );
+
+        $nmo = new NinjaMailerObject;
+        $nmo->mailable = new NinjaMailer( (new ClientPaymentFailureObject($gateway->client, $error, $gateway->client->company, $this->payment_hash))->build() );
+        $nmo->company = $gateway->client->company;
+        $nmo->settings = $gateway->client->company->settings;
+
+        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->get();
+
+        $invoices->first()->invitations->each(function ($invitation) {
+
+            if ($invitation->contact->send_email && $invitation->contact->email) {
+
+                $nmo->to_user = $invitation->contact;
+                NinjaMailerJob::dispatch($nmo);
+
+            }
+
+        });
+
 
         SystemLogger::dispatch(
             $gateway->payment_hash,

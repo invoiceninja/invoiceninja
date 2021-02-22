@@ -21,9 +21,8 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class EntityViewedNotification extends Notification implements ShouldQueue
+class EntityViewedNotification extends Notification
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * Create a new notification instance.
@@ -76,17 +75,6 @@ class EntityViewedNotification extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        //@TODO THESE ARE @DEPRECATED NOW we are now using app/Mail/Admin/*
-
-        $data = $this->buildDataArray();
-        $subject = $this->buildSubject();
-
-        return (new MailMessage)
-                    ->subject($subject)
-                    ->markdown('email.admin.generic', $data)
-                    ->withSwiftMessage(function ($message) {
-                        $message->getHeaders()->addTextHeader('Tag', $this->company->company_key);
-                    });
     }
 
     /**

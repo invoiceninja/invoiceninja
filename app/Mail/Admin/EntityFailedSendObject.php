@@ -131,6 +131,7 @@ class EntityFailedSendObject
                     'client' => $this->contact->present()->name(),
                     'invoice' => $this->entity->number,
                     'error' => $this->message,
+                    'contact' => $this->contact->present()->name(),
                 ]
             ),
             'url' => $this->invitation->getAdminLink(),

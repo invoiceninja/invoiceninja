@@ -11,6 +11,10 @@
 
 namespace App\Models;
 
+use App\Jobs\Mail\NinjaMailer;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
+use App\Mail\Admin\ResetPasswordObject;
 use App\Models\Presenters\UserPresenter;
 use App\Notifications\ResetPasswordNotification;
 use App\Utils\Traits\MakesHash;
@@ -98,6 +102,12 @@ class User extends Authenticatable implements MustVerifyEmail
         'created_at'       => 'timestamp',
         'deleted_at'       => 'timestamp',
     ];
+
+
+    public function name()
+    {
+        return $this->first_name . ' ' . $this->last_name;
+    }
 
     public function getEntityType()
     {
@@ -202,15 +212,22 @@ class User extends Authenticatable implements MustVerifyEmail
             $this->id = auth()->user()->id;
         }
 
-        if (request()->header('X-API-TOKEN')) {
-            return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'company_id', 'id', 'company_id')
-            ->where('company_tokens.token', request()->header('X-API-TOKEN'))
-            ->withTrashed();
-        } else {
-            return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'company_id', 'id', 'company_id')
-            ->where('company_user.user_id', $this->id)
-            ->withTrashed();
-        }
+        return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'user_id', 'id', 'user_id')
+        ->withTrashed();
+
+        // if (request()->header('X-API-TOKEN')) {
+
+        //     nlog("with an API token");
+        //     nlog(request()->header('X-API-TOKEN'));
+
+        //     return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'company_id', 'id', 'company_id')
+        //     ->where('company_tokens.token', request()->header('X-API-TOKEN'))
+        //     ->withTrashed();
+        // } else {
+        //     return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'company_id', 'id', 'company_id')
+        //     ->where('company_user.user_id', $this->id)
+        //     ->withTrashed();
+        // }
     }
 
     /**
@@ -364,6 +381,15 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function sendPasswordResetNotification($token)
     {
-        $this->notify(new ResetPasswordNotification($token));
+
+        $nmo = new NinjaMailerObject;
+        $nmo->mailable = new NinjaMailer( (new ResetPasswordObject($token, $this, $this->account->default_company))->build());
+        $nmo->to_user = $this;
+        $nmo->settings = $this->account->default_company->settings;
+        $nmo->company = $this->account->default_company;
+
+        NinjaMailerJob::dispatch($nmo);
+
+        //$this->notify(new ResetPasswordNotification($token));
     }
 }

@@ -18,11 +18,13 @@ class ContactRegisterController extends Controller
         $this->middleware(['guest', 'contact.register']);
     }
 
-    public function showRegisterForm(string $company_key)
+    public function showRegisterForm(string $company_key = '')
     {
-        $company = Company::where('company_key', $company_key)->firstOrFail();
+        $key = request()->has('key') ? request('key') : $company_key;
 
-        return render('auth.register', compact(['company']));
+        $company = Company::where('company_key', $key)->firstOrFail();
+
+        return render('auth.register', ['company' => $company]);
     }
 
     public function register(RegisterRequest $request)

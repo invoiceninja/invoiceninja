@@ -136,6 +136,7 @@ use App\Listeners\Invoice\InvoiceRestoredActivity;
 use App\Listeners\Invoice\InvoiceReversedActivity;
 use App\Listeners\Invoice\InvoiceViewedActivity;
 use App\Listeners\Invoice\UpdateInvoiceActivity;
+use App\Listeners\Mail\MailSentListener;
 use App\Listeners\Misc\InvitationViewedListener;
 use App\Listeners\Payment\PaymentEmailFailureActivity;
 use App\Listeners\Payment\PaymentEmailedActivity;
@@ -157,6 +158,8 @@ use App\Listeners\User\RestoredUserActivity;
 use App\Listeners\User\UpdateUserLastLogin;
 use App\Listeners\User\UpdatedUserActivity;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use Illuminate\Mail\Events\MessageSending;
+use Illuminate\Mail\Events\MessageSent;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -166,6 +169,11 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
+        MessageSending::class =>[
+        ],
+        MessageSent::class => [
+            MailSentListener::class,
+        ],
         UserWasCreated::class => [
             CreatedUserActivity::class,
             SendVerificationNotification::class,

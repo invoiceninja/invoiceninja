@@ -9,6 +9,7 @@
         -moz-osx-font-smoothing: grayscale;
         font-family: Arial, Helvetica, sans-serif;
         font-size: "$font_size";
+        zoom: 80%;
     }
 
     @page {
@@ -33,7 +34,6 @@
     #company-details {
         display: flex;
         flex-direction: column;
-        color: #9f9f9f;
     }
 
     #company-details > span:first-child {
@@ -43,12 +43,12 @@
     #company-address {
         display: flex;
         flex-direction: column;
-        color: #9f9f9f;
     }
 
     .entity-label {
         text-transform: uppercase;
         margin-top: 3.5rem;
+        padding-left: 1rem;
         margin-bottom: 1rem;
         font-weight: bold;
         color: var(--primary-color);
@@ -58,8 +58,8 @@
         display: grid;
         grid-template-columns: 1fr 1fr;
         padding: 1rem;
-        border-top: 1px solid #9f9f9f;
-        border-bottom: 1px solid #9f9f9f;
+        border-top: 1px solid #d8d8d8;
+        border-bottom: 1px solid #d8d8d8;
     }
 
     #entity-details {
@@ -110,10 +110,17 @@
         padding-left: 1rem;
     }
 
+    #product-table > thead > tr > th:nth-last-child(1),
+    #delivery-note-table > thead > tr > th:nth-last-child(1),
+    #task-table > thead > tr > th:nth-last-child(1) {
+        text-align: right;
+    }
+
     #product-table > tbody > tr > td,
     #delivery-note-table > tbody > tr > td,
     #task-table > tbody > tr > td {
-        border-bottom: 1px solid #9f9f9f;
+        border-top: 1px solid #d8d8d8;
+        border-bottom: 1px solid #d8d8d8;
         padding: 1rem;
     }
 
@@ -121,6 +128,12 @@
     #delivery-note-table > tbody > tr > td:first-child,
     #task-table > tbody > tr > td:first-child {
         color: var(--primary-color);
+    }
+
+    #product-table > tbody > tr > td:last-child,
+    #delivery-note-table > tbody > tr > td:last-child,
+    #task-table > tbody > tr > td:last-child {
+        text-align: right;
     }
 
     #product-table > tbody > tr:nth-child(odd),
@@ -133,12 +146,24 @@
         page-break-inside: avoid;
     }
 
-    #table-totals > * {
+    #table-totals {
         display: grid;
-        grid-template-columns: 3fr 1fr 1fr;
+        grid-template-columns: 2fr 1fr;
         padding-top: .5rem;
-        padding-left: 1rem;
-        gap: 20px;
+        gap: 80px;
+    }
+
+    #table-totals .totals-table-right-side>* {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    #table-totals>.totals-table-right-side>*> :nth-child(1) {
+        text-align: left;
+    }
+
+    #table-totals>.totals-table-right-side>*> :nth-child(2) {
+        text-align: right;
     }
 
     #table-totals
@@ -192,4 +217,4 @@
     <table id="delivery-note-table" cellspacing="0"></table>
 </div>
 
-<div id="footer">$entity_footer</div>
+<div id="footer"></div>

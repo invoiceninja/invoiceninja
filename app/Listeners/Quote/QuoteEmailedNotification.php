@@ -11,8 +11,11 @@
 
 namespace App\Listeners\Quote;
 
-use App\Jobs\Mail\EntitySentMailer;
+use App\Jobs\Mail\NinjaMailer;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
+use App\Mail\Admin\EntitySentObject;
 use App\Notifications\Admin\EntitySentNotification;
 use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -41,23 +44,33 @@ class QuoteEmailedNotification implements ShouldQueue
         $quote->last_sent_date = now();
         $quote->save();
 
+        $nmo = new NinjaMailerObject;
+        $nmo->mailable = new NinjaMailer( (new EntitySentObject($event->invitation, 'quote', $event->template))->build() );
+        $nmo->company = $quote->company;
+        $nmo->settings = $quote->company->settings;
+
+
         foreach ($event->invitation->company->company_users as $company_user) {
             $user = $company_user->user;
 
-            $notification = new EntitySentNotification($event->invitation, 'quote');
+            // $notification = new EntitySentNotification($event->invitation, 'quote');
 
             $methods = $this->findUserNotificationTypes($event->invitation, $company_user, 'quote', ['all_notifications', 'quote_sent']);
 
             if (($key = array_search('mail', $methods)) !== false && $first_notification_sent === true) {
                 unset($methods[$key]);
 
-                EntitySentMailer::dispatch($event->invitation, 'quote', $user, $event->invitation->company, $event->template);
+                
+                $nmo->to_user = $user;
+
+                NinjaMailerJob::dispatch($nmo);
+                
                 $first_notification_sent = false;
             }
 
-            $notification->method = $methods;
+            // $notification->method = $methods;
 
-            $user->notify($notification);
+            // $user->notify($notification);
         }
     }
 }

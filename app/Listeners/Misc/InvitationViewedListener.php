@@ -11,8 +11,11 @@
 
 namespace App\Listeners\Misc;
 
-use App\Jobs\Mail\EntityViewedMailer;
+use App\Jobs\Mail\NinjaMailer;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
+use App\Mail\Admin\EntityViewedObject;
 use App\Notifications\Admin\EntityViewedNotification;
 use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -44,7 +47,13 @@ class InvitationViewedListener implements ShouldQueue
         $entity_name = lcfirst(class_basename($event->entity));
         $invitation = $event->invitation;
 
-        $notification = new EntityViewedNotification($invitation, $entity_name);
+        // $notification = new EntityViewedNotification($invitation, $entity_name);
+
+        $nmo = new NinjaMailerObject;
+        $nmo->mailable = new NinjaMailer( (new EntityViewedObject($invitation, $entity_name))->build() );
+        $nmo->company = $invitation->company;
+        $nmo->settings = $invitation->company->settings;
+
 
         foreach ($invitation->company->company_users as $company_user) {
             $entity_viewed = "{$entity_name}_viewed";
@@ -54,19 +63,21 @@ class InvitationViewedListener implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
-                EntityViewedMailer::dispatch($invitation, $entity_name, $company_user->user, $invitation->company);
+                $nmo->to_user = $company_user->user;
+                NinjaMailerJob::dispatch($nmo);
+
             }
 
-            $notification->method = $methods;
+            // $notification->method = $methods;
 
-            $company_user->user->notify($notification);
+            // $company_user->user->notify($notification);
         }
 
-        if (isset($invitation->company->slack_webhook_url)) {
-            $notification->method = ['slack'];
+        // if (isset($invitation->company->slack_webhook_url)) {
+        //     $notification->method = ['slack'];
 
-            Notification::route('slack', $invitation->company->slack_webhook_url)
-                        ->notify($notification);
-        }
+            // Notification::route('slack', $invitation->company->slack_webhook_url)
+            //             ->notify($notification);
+        // }
     }
 }

@@ -49,7 +49,7 @@ class Helpers
      *
      * @return null|string
      */
-    public function formatCustomFieldValue($custom_fields = null, $field, $value, Client $client = null): ?string
+    public function formatCustomFieldValue($custom_fields, $field, $value, Client $client = null): ?string
     {
         $custom_field = '';
 
@@ -84,7 +84,7 @@ class Helpers
      *
      * @return string
      */
-    public function makeCustomField($custom_fields = null, $field): string
+    public function makeCustomField($custom_fields, $field): string
     {
         if ($custom_fields && property_exists($custom_fields, $field)) {
             $custom_field = $custom_fields->{$field};

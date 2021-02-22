@@ -21,8 +21,8 @@ use Tests\TestCase;
  */
 class AutoBillInvoiceTest extends TestCase
 {
-    use MockAccountData;
     use DatabaseTransactions;
+    use MockAccountData;
 
     public function setUp() :void
     {
