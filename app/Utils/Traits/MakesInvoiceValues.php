@@ -655,9 +655,8 @@ trait MakesInvoiceValues
      * @param string $value
      * @return string|null
      */
-    private function processReservedKeywords(string $value): ?string
+    private function    processReservedKeywords(string $value): ?string
     {
-
         $replacements = [
             'literal' => [
                 ':MONTH' => now()->localeMonth,
@@ -671,9 +670,33 @@ trait MakesInvoiceValues
             ],
         ];
 
-        preg_match_all('/:([^:\s]+)/', $value, $m);
+        // First case, with ranges.
+        preg_match_all('/\[(.*?)]/', $value, $ranges);
 
-        $matches = array_shift($m);
+        $matches = array_shift($ranges);
+
+        foreach ($matches as $match) {
+            if (!Str::contains($match, '|')) {
+                continue;
+            }
+
+            if (Str::contains($match, '|')) {
+                $replacement = 'PLACEHOLDER FOR REPLACEMENT!';
+                $parts = explode('|', $match);
+
+                info($parts);
+                info($parts[0]);
+
+                $value = preg_replace(
+                    sprintf('/%s/', preg_quote($match)), $replacement, $value, 1
+                );
+            }
+        }
+
+        // Second case with more common calculations.
+        preg_match_all('/:([^:\s]+)/', $value, $common);
+
+        $matches = array_shift($common);
 
         foreach ($matches as $match) {
             $matches = collect($replacements['literal'])->filter(function ($value, $key) use ($match) {
