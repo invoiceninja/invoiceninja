@@ -103,6 +103,12 @@ class User extends Authenticatable implements MustVerifyEmail
         'deleted_at'       => 'timestamp',
     ];
 
+
+    public function name()
+    {
+        return $this->first_name . ' ' . $this->last_name;
+    }
+
     public function getEntityType()
     {
         return self::class;

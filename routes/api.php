@@ -177,4 +177,6 @@ Route::match(['get', 'post'], 'payment_webhook/{company_key}/{company_gateway_id
     ->middleware(['guest', 'api_db'])
     ->name('payment_webhook');
 
+Route::post('postmark_webhook', 'PostMarkController@webhook');
+
 Route::fallback('BaseController@notFound');
