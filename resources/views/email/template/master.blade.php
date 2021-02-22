@@ -19,7 +19,7 @@
     }
 
     .primary-color-bg {
-        background-color: var(--primary-color);
+        background-color: {{ isset($settings) ? $settings->primary_color : '#4caf50' }};
     }
 
     #email-content h1, h2, h3, h4 {
@@ -33,11 +33,11 @@
         display: block;
         color: {{ $design == 'light' ? 'black' : 'white' }};
         padding-bottom: 20px;
-        padding-top: 20px;
+        /*padding-top: 20px;*/
     }
 
     .button {
-        background-color: var(--primary-color);
+        background-color: {{ isset($settings) ? $settings->primary_color : '#4caf50' }};
         color: white;
         padding: 10px 16px;
         text-decoration: none;
