@@ -74,7 +74,6 @@ class RecurringInvoice extends BaseModel
         'due_date',
         'due_date_days',
         'line_items',
-        'settings',
         'footer',
         'public_notes',
         'private_notes',
