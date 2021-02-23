@@ -82,6 +82,8 @@ class PostMarkController extends BaseController
                 $this->invitation->email_error = $request->input('Details');
                 $this->invitation->save();
             }
+            else
+                return response()->json(['message' => 'Message not found']);
 
             switch ($request->input('RecordType')) 
             {
