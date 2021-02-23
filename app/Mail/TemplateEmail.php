@@ -53,10 +53,7 @@ class TemplateEmail extends Mailable
         $company = $this->client->company;
 
         $this->from(config('mail.from.address'), $this->company->present()->name());
-
-        if (strlen($settings->reply_to_email) > 1) 
-            $this->replyTo($settings->reply_to_email, $settings->reply_to_email);
-
+        
         if (strlen($settings->bcc_email) > 1) 
             $this->bcc($settings->bcc_email, $settings->bcc_email);
 
