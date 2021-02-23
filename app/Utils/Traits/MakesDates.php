@@ -60,9 +60,6 @@ trait MakesDates
         if (!isset($date)) {
             return '';
         }
-        // if (!$date || strlen($date) < 1) {
-        //     return '';
-        // }
 
         if (is_string($date)) {
             $date = $this->convertToDateObject($date);
@@ -99,4 +96,13 @@ trait MakesDates
         $dt->setTimezone(new DateTimeZone('UTC'));
         return $dt;
     }
+
+    public function translateDate($date, $format, $locale)
+    {
+        
+        Carbon::setLocale($locale);
+        return Carbon::parse($date)->translatedFormat($format);
+
+    }
+
 }

@@ -7,6 +7,9 @@ namespace App\Models;
  */
 class DateFormat extends StaticModel
 {
+    
+    protected $fillable = ['translated_format'];
+
     public static $days_of_the_week = [
       0 => 'sunday',
       1 => 'monday',

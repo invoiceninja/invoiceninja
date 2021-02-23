@@ -220,10 +220,8 @@ trait CompanySettingsSaver
         switch ($key) {
             case 'int':
             case 'integer':
-                if(is_string($value))
-                    return false;
-
-                return is_int($value) || ctype_digit(strval(abs($value)));
+                return ctype_digit(strval(abs($value)));
+                // return is_int($value) || ctype_digit(strval(abs($value)));
             case 'real':
             case 'float':
             case 'double':
