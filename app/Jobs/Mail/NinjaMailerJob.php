@@ -79,10 +79,9 @@ class NinjaMailerJob implements ShouldQueue
 
         }
 
-        if (strlen($settings->bcc_email) > 1) {
-            $this->nmo->mailable->bcc($settings->bcc_email, $settings->bcc_email);
-        }
-
+        if (strlen($this->nmo->settings->bcc_email) > 1) 
+            $this->nmo->mailable->bcc($this->nmo->settings->bcc_email, $this->nmo->settings->bcc_email);
+        
 
         //send email
         try {
