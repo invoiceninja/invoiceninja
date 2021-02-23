@@ -20,48 +20,52 @@ class AddTranslatedDateColumn extends Migration
 
 
         //add multi DB support
-        $date_format = DateFormat::where('format', 'd/M/Y')->first();
-        $date_format->update(['translated_format' => '%d/%b/%Y']);
+        
+        if(DateFormat::count() > 0 )
+        {
+            $date_format = DateFormat::where('format', 'd/M/Y')->first();
+            $date_format->update(['translated_format' => '%d/%b/%Y']);
 
-        $date_format = DateFormat::where('format', 'd-M-Y')->first();
-        $date_format->update(['translated_format' => '%d-%b-%Y']);
+            $date_format = DateFormat::where('format', 'd-M-Y')->first();
+            $date_format->update(['translated_format' => '%d-%b-%Y']);
 
-        $date_format = DateFormat::where('format', 'd/F/Y')->first();
-        $date_format->update(['translated_format' => '%d/%B/%Y']);
+            $date_format = DateFormat::where('format', 'd/F/Y')->first();
+            $date_format->update(['translated_format' => '%d/%B/%Y']);
 
-        $date_format = DateFormat::where('format', 'd-F-Y')->first();
-        $date_format->update(['translated_format' => '%d-%B-%Y']);
+            $date_format = DateFormat::where('format', 'd-F-Y')->first();
+            $date_format->update(['translated_format' => '%d-%B-%Y']);
 
-        $date_format = DateFormat::where('format', 'M j, Y')->first();
-        $date_format->update(['translated_format' => '%b %d, %Y']);
+            $date_format = DateFormat::where('format', 'M j, Y')->first();
+            $date_format->update(['translated_format' => '%b %d, %Y']);
 
-        $date_format = DateFormat::where('format', 'F j, Y')->first();
-        $date_format->update(['translated_format' => '%B %d, %Y']);
+            $date_format = DateFormat::where('format', 'F j, Y')->first();
+            $date_format->update(['translated_format' => '%B %d, %Y']);
 
-        $date_format = DateFormat::where('format', 'D M j, Y')->first();
-        $date_format->update(['translated_format' => '%a %b %d, %Y']);
+            $date_format = DateFormat::where('format', 'D M j, Y')->first();
+            $date_format->update(['translated_format' => '%a %b %d, %Y']);
 
-        $date_format = DateFormat::where('format', 'Y-m-d')->first();
-        $date_format->update(['translated_format' => '%Y-%m-%d']);
+            $date_format = DateFormat::where('format', 'Y-m-d')->first();
+            $date_format->update(['translated_format' => '%Y-%m-%d']);
 
-        $date_format = DateFormat::where('format', 'd-m-Y')->first();
-        $date_format->update(['translated_format' => '%d-%m-%Y']);
+            $date_format = DateFormat::where('format', 'd-m-Y')->first();
+            $date_format->update(['translated_format' => '%d-%m-%Y']);
 
-        $date_format = DateFormat::where('format', 'm/d/Y')->first();
-        $date_format->update(['translated_format' => '%m/%d/%Y']);
+            $date_format = DateFormat::where('format', 'm/d/Y')->first();
+            $date_format->update(['translated_format' => '%m/%d/%Y']);
 
-        $date_format = DateFormat::where('format', 'd.m.Y')->first();
-        $date_format->update(['translated_format' => '%d.%m.%Y']);
+            $date_format = DateFormat::where('format', 'd.m.Y')->first();
+            $date_format->update(['translated_format' => '%d.%m.%Y']);
 
-        $date_format = DateFormat::where('format', 'j. m. Y')->first();
-        $date_format->update(['translated_format' => '%d. %m. %Y']);
+            $date_format = DateFormat::where('format', 'j. m. Y')->first();
+            $date_format->update(['translated_format' => '%d. %m. %Y']);
 
-        $date_format = DateFormat::where('format', 'j. F Y')->first();
-        $date_format->update(['translated_format' => '%d. %B %Y']);
+            $date_format = DateFormat::where('format', 'j. F Y')->first();
+            $date_format->update(['translated_format' => '%d. %B %Y']);
 
-        $date_format = DateFormat::where('format', 'd/m/Y')->first();
-        $date_format->update(['translated_format' => '%d/%m/%Y']);
-
+            $date_format = DateFormat::where('format', 'd/m/Y')->first();
+            $date_format->update(['translated_format' => '%d/%m/%Y']);
+        }
+        
     }
 
     /**
