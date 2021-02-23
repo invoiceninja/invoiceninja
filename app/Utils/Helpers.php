@@ -64,7 +64,7 @@ class Helpers
 
         switch ($custom_field) {
             case 'date':
-                return is_null($client) ? $value : $this->formatDate($value, $client->date_format());
+                return is_null($client) ? $value : $this->translateDate($value, $client->date_format(), $client->locale());
                 break;
 
             case 'switch':

@@ -223,6 +223,16 @@ class Client extends BaseModel implements HasLocalePreference
         })->first()->format;
     }
 
+    public function translated_date_format()
+    {
+        $date_formats = Cache::get('date_formats');
+
+        return $date_formats->filter(function ($item) {
+            return $item->id == $this->getSetting('date_format_id');
+        })->first()->translated_format;
+
+    }
+
     public function currency()
     {
         $currencies = Cache::get('currencies');
