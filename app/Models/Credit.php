@@ -41,14 +41,11 @@ class Credit extends BaseModel
     protected $presenter = CreditPresenter::class;
 
     protected $fillable = [
-        'assigned_user_id',
-        'project_id',
         'number',
         'discount',
         'po_number',
         'date',
         'due_date',
-        'partial_due_date',
         'terms',
         'public_notes',
         'private_notes',
@@ -59,8 +56,9 @@ class Credit extends BaseModel
         'tax_name3',
         'tax_rate3',
         'is_amount_discount',
-        'footer',
         'partial',
+        'partial_due_date',
+        'project_id',
         'custom_value1',
         'custom_value2',
         'custom_value3',
@@ -68,7 +66,16 @@ class Credit extends BaseModel
         'line_items',
         'client_id',
         'footer',
+        'custom_surcharge1',
+        'custom_surcharge2',
+        'custom_surcharge3',
+        'custom_surcharge4',
+        'custom_surcharge_tax1',
+        'custom_surcharge_tax2',
+        'custom_surcharge_tax3',
+        'custom_surcharge_tax4',
         'design_id',
+        'assigned_user_id',
         'exchange_rate',
     ];
 

@@ -136,7 +136,7 @@ class CompanySettings extends BaseSettings
     public $tax_name3 = ''; //@TODO where do we use this?
     public $tax_rate3 = 0; //@TODO where do we use this?
     public $payment_type_id = '0'; //@TODO where do we use this?
-    public $invoice_fields = ''; //@TODO is this redundant, we store this in the custom_fields on the company?
+    // public $invoice_fields = ''; //@TODO is this redundant, we store this in the custom_fields on the company?
 
     public $show_accept_invoice_terms = false; //@TODO ben to confirm
     public $show_accept_quote_terms = false;  //@TODO ben to confirm
@@ -392,7 +392,7 @@ class CompanySettings extends BaseSettings
         'invoice_number_pattern'             => 'string',
         'invoice_number_counter'             => 'integer',
         'invoice_design_id'                  => 'string',
-        'invoice_fields'                     => 'string',
+        // 'invoice_fields'                     => 'string',
         'invoice_taxes'                      => 'int',
         //'enabled_item_tax_rates'             => 'int',
         'invoice_footer'                     => 'string',

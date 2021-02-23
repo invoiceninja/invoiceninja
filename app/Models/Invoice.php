@@ -150,6 +150,16 @@ class Invoice extends BaseModel
         return $this->belongsTo(Company::class);
     }
 
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
+    }
+
+    public function design()
+    {
+        return $this->belongsTo(Design::class);
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class)->withTrashed();

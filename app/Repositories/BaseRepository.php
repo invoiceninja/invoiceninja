@@ -292,7 +292,7 @@ class BaseRepository
         $model = $model->service()->applyNumber()->save();
 
         /* Update product details if necessary */
-        if ($model->company->update_products !== false) 
+        if ($model->company->update_products) 
             UpdateOrCreateProduct::dispatch($model->line_items, $model, $model->company);
 
         /* Perform model specific tasks */
