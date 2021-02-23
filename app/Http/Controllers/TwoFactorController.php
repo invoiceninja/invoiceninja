@@ -31,7 +31,7 @@ class TwoFactorController extends BaseController
         $secret = $google2fa->generateSecretKey();
          
         $qr_code = $google2fa->getQRCodeGoogleUrl(
-            config('ninja.app_name')
+            config('ninja.app_name'),
             $user->email,
             $secret
         );
