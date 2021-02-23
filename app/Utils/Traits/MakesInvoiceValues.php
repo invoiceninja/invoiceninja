@@ -17,6 +17,7 @@ use App\Models\Invoice;
 use App\Models\Quote;
 use App\Utils\Helpers;
 use App\Utils\Number;
+use Carbon\Carbon;
 use Illuminate\Support\Str;
 
 /**
@@ -668,6 +669,13 @@ trait MakesInvoiceValues
                 ':YEAR' => now()->year,
                 ':QUARTER' => now()->quarter,
             ],
+            'ranges' => [
+              'MONTHYEAR' => Carbon::createFromDate(now()->year, now()->month),
+            ],
+            'ranges_raw' => [
+                'MONTH' => now()->month,
+                'YEAR' => now()->year,
+            ],
         ];
 
         // First case, with ranges.
@@ -682,16 +690,43 @@ trait MakesInvoiceValues
 
             if (Str::contains($match, '|')) {
                 $replacement = 'PLACEHOLDER FOR REPLACEMENT!';
-                $parts = explode('|', $match);
+                $parts = explode('|', $match); // [ '[MONTH', 'MONTH+2]' ]
 
-                info($parts);
-                info($parts[0]);
+                $left = substr($parts[0], 1); // 'MONTH'
+                $right = substr($parts[1], 0, -1); // MONTH+2
+
+                // If left side is not part of replacements, skip.
+                if (!array_key_exists($left, $replacements['ranges'])) {
+                    continue;
+                }
+
+                $_left = Carbon::createFromDate(now()->year, now()->month)->format('F Y');
+                $_right = '';
+
+                // If right side doesn't have any calculations, replace with raw ranges keyword.
+                if (!Str::contains($right, ['-', '+', '/', '*'])) {
+                    $_right = Carbon::createFromDate(now()->year, now()->month)->format('F Y');
+                }
+
+                // If right side contains one of math operations, calculate.
+                if (Str::contains($right, ['+'])) {
+                    $operation = preg_match_all('/(?!^-)[+*\/-](\s?-)?/', $right, $_matches);
+
+                    $_operation = array_shift($_matches)[0]; // + -
+
+                    $_value = explode($_operation, $right); // [MONTHYEAR, 4]
+
+                    $_right = Carbon::createFromDate(now()->year, now()->month)->addMonths($_value[1])->format('F Y');
+                }
+
+                $replacement = sprintf('%s to %s', $_left, $_right);
 
                 $value = preg_replace(
                     sprintf('/%s/', preg_quote($match)), $replacement, $value, 1
                 );
             }
         }
+
 
         // Second case with more common calculations.
         preg_match_all('/:([^:\s]+)/', $value, $common);
