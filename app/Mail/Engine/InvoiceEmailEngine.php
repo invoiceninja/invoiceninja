@@ -94,7 +94,8 @@ class InvoiceEmailEngine extends BaseEmailEngine
             ->setBody($body_template)
             ->setFooter("<a href='{$this->invitation->getLink()}'>".ctrans('texts.view_invoice').'</a>')
             ->setViewLink($this->invitation->getLink())
-            ->setViewText(ctrans('texts.view_invoice'));
+            ->setViewText(ctrans('texts.view_invoice'))
+            ->setInvitation($this->invitation);
 
         if ($this->client->getSetting('pdf_email_attachment') !== false) {
             $this->setAttachments([$this->invoice->pdf_file_path()]);

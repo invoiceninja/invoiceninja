@@ -169,6 +169,9 @@ trait CompanySettingsSaver
             if (substr($key, -3) == '_id' || substr($key, -14) == 'number_counter') {
                 $value = 'integer';
 
+                if($key == 'gmail_sending_user_id')
+                    $value = 'string';
+
                 if (! property_exists($settings, $key)) {
                     continue;
                 } elseif ($this->checkAttribute($value, $settings->{$key})) {
@@ -218,12 +221,14 @@ trait CompanySettingsSaver
             case 'int':
             case 'integer':
                 return ctype_digit(strval(abs($value)));
+                // return is_int($value) || ctype_digit(strval(abs($value)));
             case 'real':
             case 'float':
             case 'double':
                 return is_float($value) || is_numeric(strval($value));
             case 'string':
                 return method_exists($value, '__toString') || is_null($value) || is_string($value);
+                //return is_null($value) || is_string($value);
             case 'bool':
             case 'boolean':
                 return is_bool($value) || (int) filter_var($value, FILTER_VALIDATE_BOOLEAN);

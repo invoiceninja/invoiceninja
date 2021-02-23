@@ -406,9 +406,9 @@ class ProductController extends BaseController
      */
     public function destroy(DestroyProductRequest $request, Product $product)
     {
-        $product->delete();
+        $this->product_repo->delete($product);
 
-        return $this->itemResponse($product);
+        return $this->itemResponse($product->fresh());
     }
 
     /**

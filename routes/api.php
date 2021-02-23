@@ -36,6 +36,8 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::put('clients/{client}/upload', 'ClientController@upload')->name('clients.upload');
     Route::post('clients/bulk', 'ClientController@bulk')->name('clients.bulk');
 
+    Route::post('connected_account', 'ConnectedAccountController@index');
+
     Route::resource('client_statement', 'ClientStatementController@statement'); // name = (client_statement. index / create / show / update / destroy / edit
 
     Route::post('companies/purge/{company}', 'MigrationController@purgeCompany')->middleware('password_protected');
@@ -146,6 +148,9 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::resource('tokens', 'TokenController')->middleware('password_protected'); // name = (tokens. index / create / show / update / destroy / edit
     Route::post('tokens/bulk', 'TokenController@bulk')->name('tokens.bulk')->middleware('password_protected');
 
+    Route::get('settings/enable_two_factor', 'TwoFactorController@setupTwoFactor');
+    Route::post('settings/enable_two_factor', 'TwoFactorController@enableTwoFactor');
+
     Route::resource('vendors', 'VendorController'); // name = (vendors. index / create / show / update / destroy / edit
     Route::post('vendors/bulk', 'VendorController@bulk')->name('vendors.bulk');
     Route::put('vendors/{vendor}/upload', 'VendorController@upload'); 
@@ -156,6 +161,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::post('users/{user}/attach_to_company', 'UserController@attach')->middleware('password_protected');
     Route::delete('users/{user}/detach_from_company', 'UserController@detach')->middleware('password_protected');
     Route::post('users/bulk', 'UserController@bulk')->name('users.bulk')->middleware('password_protected');
+    Route::post('/user/{user}/reconfirm', 'UserController@reconfirm')->middleware('password_protected');
 
     Route::resource('webhooks', 'WebhookController');
     Route::post('webhooks/bulk', 'WebhookController@bulk')->name('webhooks.bulk');
@@ -170,5 +176,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 Route::match(['get', 'post'], 'payment_webhook/{company_key}/{company_gateway_id}', 'PaymentWebhookController')
     ->middleware(['guest', 'api_db'])
     ->name('payment_webhook');
+
+Route::post('postmark_webhook', 'PostMarkController@webhook');
 
 Route::fallback('BaseController@notFound');

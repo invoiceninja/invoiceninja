@@ -85,7 +85,8 @@ class CreditEmailEngine extends BaseEmailEngine
             ->setBody($body_template)
             ->setFooter("<a href='{$this->invitation->getLink()}'>".ctrans('texts.view_credit').'</a>')
             ->setViewLink($this->invitation->getLink())
-            ->setViewText(ctrans('texts.view_credit'));
+            ->setViewText(ctrans('texts.view_credit'))
+            ->setInvitation($this->invitation);
 
         if ($this->client->getSetting('pdf_email_attachment') !== false) {
             $this->setAttachments(['path' => $this->credit->pdf_file_path(), 'name' => basename($this->credit->pdf_file_path())]);

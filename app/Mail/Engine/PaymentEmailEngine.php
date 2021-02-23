@@ -87,7 +87,7 @@ class PaymentEmailEngine extends BaseEmailEngine
         $data['$entity'] = ['value' => '', 'label' => ctrans('texts.payment')];
         $data['$payment.amount'] = ['value' => Number::formatMoney($this->payment->amount, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.amount')];
         $data['$amount'] = &$data['$payment.amount'];
-        $data['$payment.date'] = ['value' => $this->formatDate($this->payment->date, $this->client->date_format()), 'label' => ctrans('texts.payment_date')];
+        $data['$payment.date'] = ['value' => $this->translateDate($this->payment->date, $this->client->date_format(), $this->client->locale()), 'label' => ctrans('texts.payment_date')];
         $data['$transaction_reference'] = ['value' => $this->payment->transaction_reference, 'label' => ctrans('texts.transaction_reference')];
         $data['$public_notes'] = ['value' => $this->payment->public_notes, 'label' => ctrans('texts.notes')];
 

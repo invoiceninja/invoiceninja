@@ -8,7 +8,7 @@
     <p>{{ $greeting }}</p>
     @endif
 
-    <p>{{ $title }}</p>
+    <h2>{{ $title }}</h2>
 
     <p>{{ $message }}</p>
 

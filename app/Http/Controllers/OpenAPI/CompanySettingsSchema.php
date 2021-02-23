@@ -78,7 +78,6 @@
  *       @OA\Property(property="tax_name3", type="string", example="GST", description="The tax name"),
  *       @OA\Property(property="payment_type_id", type="string", example="1", description="The default payment type id"),
  *       @OA\Property(property="custom_fields", type="string", example="{}", description="JSON string of custom fields"),
- *       @OA\Property(property="invoice_fields", type="string", example="{}", description="JSON string of invoice fields"),
  *       @OA\Property(property="email_footer", type="string", example="A default email footer", description="The default email footer"),
  *       @OA\Property(property="email_sending_method", type="string", example="default", description="The email driver to use to send email, options include default, gmail"),
  *       @OA\Property(property="gmail_sending_user_id", type="string", example="F76sd34D", description="The hashed_id of the user account to send email from"),

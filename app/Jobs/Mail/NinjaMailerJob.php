@@ -142,7 +142,7 @@ class NinjaMailerJob implements ShouldQueue
 
         $user = User::find($this->decodePrimaryKey($sending_user));
 
-        nlog("Sending via {$user->present()->name()}");
+        nlog("Sending via {$user->name()}");
 
         $google = (new Google())->init();
         $google->getClient()->setAccessToken(json_encode($user->oauth_user_token));
@@ -164,7 +164,7 @@ class NinjaMailerJob implements ShouldQueue
 
         $this->nmo
              ->mailable
-             ->from($user->email, $user->present()->name())
+             ->from($user->email, $user->name())
              ->withSwiftMessage(function ($message) use($token) {
                 $message->getHeaders()->addTextHeader('GmailToken', $token);     
              });

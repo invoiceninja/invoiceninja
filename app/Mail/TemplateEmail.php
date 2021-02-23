@@ -27,13 +27,21 @@ class TemplateEmail extends Mailable
 
     private $contact;
 
-    public function __construct($build_email, ClientContact $contact)
+    private $company;
+
+    private $invitation;
+
+    public function __construct($build_email, ClientContact $contact, $invitation = null)
     {
         $this->build_email = $build_email;
 
         $this->contact = $contact;
 
         $this->client = $contact->client;
+
+        $this->company = $contact->company;
+
+        $this->invitation = $invitation;
     }
 
     public function build()
@@ -44,15 +52,13 @@ class TemplateEmail extends Mailable
 
         $company = $this->client->company;
 
-        $this->from(config('mail.from.address'), config('mail.from.name'));
+        $this->from(config('mail.from.address'), $this->company->present()->name());
 
-        if (strlen($settings->reply_to_email) > 1) {
+        if (strlen($settings->reply_to_email) > 1) 
             $this->replyTo($settings->reply_to_email, $settings->reply_to_email);
-        }
 
-        if (strlen($settings->bcc_email) > 1) {
+        if (strlen($settings->bcc_email) > 1) 
             $this->bcc($settings->bcc_email, $settings->bcc_email);
-        }
 
         $this->subject($this->build_email->getSubject())
             ->text('email.template.plain', [
@@ -75,6 +81,7 @@ class TemplateEmail extends Mailable
             ])
             ->withSwiftMessage(function ($message) use($company){
                 $message->getHeaders()->addTextHeader('Tag', $company->company_key);
+                $message->invitation = $this->invitation;
             });
 
         //conditionally attach files

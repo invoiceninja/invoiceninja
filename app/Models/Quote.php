@@ -42,7 +42,6 @@ class Quote extends BaseModel
     protected $touches = [];
 
     protected $fillable = [
-        'assigned_user_id',
         'number',
         'discount',
         'po_number',
@@ -51,7 +50,6 @@ class Quote extends BaseModel
         'terms',
         'public_notes',
         'private_notes',
-        'project_id',
         'tax_name1',
         'tax_rate1',
         'tax_name2',
@@ -61,6 +59,7 @@ class Quote extends BaseModel
         'is_amount_discount',
         'partial',
         'partial_due_date',
+        'project_id',
         'custom_value1',
         'custom_value2',
         'custom_value3',
@@ -68,7 +67,16 @@ class Quote extends BaseModel
         'line_items',
         'client_id',
         'footer',
+        'custom_surcharge1',
+        'custom_surcharge2',
+        'custom_surcharge3',
+        'custom_surcharge4',
+        'custom_surcharge_tax1',
+        'custom_surcharge_tax2',
+        'custom_surcharge_tax3',
+        'custom_surcharge_tax4',
         'design_id',
+        'assigned_user_id',
         'exchange_rate',
     ];
 
@@ -187,13 +195,13 @@ class Quote extends BaseModel
         return new QuoteService($this);
     }
 
-    public function pdf_file_path($invitation = null)
+    public function pdf_file_path($invitation = null, string $type = 'url')
     {
         if (! $invitation) {
             $invitation = $this->invitations->where('client_contact_id', $this->client->primary_contact()->first()->id)->first();
         }
 
-        $storage_path = Storage::url($this->client->quote_filepath().$this->number.'.pdf');
+        $storage_path = Storage::$type($this->client->quote_filepath().$this->number.'.pdf');
 
         if (Storage::exists($this->client->quote_filepath().$this->number.'.pdf')) {
             return $storage_path;

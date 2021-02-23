@@ -36,9 +36,6 @@ return [
     'gmail' => [
         'token' => '',
     ],
-    'postmark' => [
-        'token' => env('POSTMARK_API_TOKEN', ''),
-    ],
     'stripe' => [
         'model'  => App\Models\User::class,
         'key'    => env('STRIPE_KEY'),

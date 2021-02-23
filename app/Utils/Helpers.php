@@ -49,7 +49,7 @@ class Helpers
      *
      * @return null|string
      */
-    public function formatCustomFieldValue($custom_fields = null, $field, $value, Client $client = null): ?string
+    public function formatCustomFieldValue($custom_fields, $field, $value, Client $client = null): ?string
     {
         $custom_field = '';
 
@@ -64,7 +64,7 @@ class Helpers
 
         switch ($custom_field) {
             case 'date':
-                return is_null($client) ? $value : $this->formatDate($value, $client->date_format());
+                return is_null($client) ? $value : $this->translateDate($value, $client->date_format(), $client->locale());
                 break;
 
             case 'switch':
@@ -84,7 +84,7 @@ class Helpers
      *
      * @return string
      */
-    public function makeCustomField($custom_fields = null, $field): string
+    public function makeCustomField($custom_fields, $field): string
     {
         if ($custom_fields && property_exists($custom_fields, $field)) {
             $custom_field = $custom_fields->{$field};
