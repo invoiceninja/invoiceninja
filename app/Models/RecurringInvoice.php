@@ -96,6 +96,17 @@ class RecurringInvoice extends BaseModel
         'auto_bill',
         'auto_bill_enabled',
         'design_id',
+        'custom_surcharge1',
+        'custom_surcharge2',
+        'custom_surcharge3',
+        'custom_surcharge4',
+        'custom_surcharge_tax1',
+        'custom_surcharge_tax2',
+        'custom_surcharge_tax3',
+        'custom_surcharge_tax4',
+        'design_id',
+        'assigned_user_id',
+        'exchange_rate',
     ];
 
     protected $casts = [
