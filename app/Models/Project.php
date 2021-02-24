@@ -71,11 +71,10 @@ class Project extends BaseModel
     {
         return $this->belongsTo(User::class)->withTrashed();
     }
-    // /**
-    //  * @return \Illuminate\Database\Eloquent\Relations\HasMany
-    //  */
-    // public function tasks()
-    // {
-    //     return $this->hasMany('App\Models\Task');
-    // }
+
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);
+    }
+    
 }

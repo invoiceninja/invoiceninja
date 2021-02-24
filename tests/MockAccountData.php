@@ -20,6 +20,7 @@ use App\Factory\InvoiceInvitationFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Factory\InvoiceToRecurringInvoiceFactory;
 use App\Helpers\Invoice\InvoiceSum;
+use App\Jobs\Company\CreateCompanyTaskStatuses;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -201,6 +202,8 @@ trait MockAccountData
         $user_id = $user->id;
         $this->user = $user;
 
+        CreateCompanyTaskStatuses::dispatchNow($this->company, $this->user);
+
         $this->cu = CompanyUserFactory::create($user->id, $this->company->id, $this->account->id);
         $this->cu->is_owner = true;
         $this->cu->is_admin = true;
@@ -286,6 +289,9 @@ trait MockAccountData
             'company_id' => $this->company->id,
         ]);
 
+        $this->task->status_id = TaskStatus::where('company_id', $this->company->id)->first()->id;
+        $this->task->save();
+        
         $this->expense_category = ExpenseCategory::factory()->create([
             'user_id' => $user_id,
             'company_id' => $this->company->id,
