@@ -274,7 +274,12 @@ class TaskController extends BaseController
             return $request->disallowUpdate();
         }
 
+        $old_task = json_decode(json_encode($task));
+        
         $task = $this->task_repo->save($request->all(), $task);
+
+        if($task->status_order != $old_task->status_order)
+            $this->task_repo->sortStatuses($old_task, $task);
 
         event(new TaskWasUpdated($task, $task->company, Ninja::eventVars()));
 

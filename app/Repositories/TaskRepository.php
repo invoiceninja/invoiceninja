@@ -33,6 +33,7 @@ class TaskRepository extends BaseRepository
      */
     public function save(array $data, Task $task) : ?Task
     {
+
         $task->fill($data);
         $task->save();
 
@@ -99,5 +100,36 @@ class TaskRepository extends BaseRepository
             $task,
             TaskFactory::create(auth()->user()->company()->id, auth()->user()->id)
         );
+
+    }
+
+    /**
+     * Sorts the task status order IF the old status has changed between requests
+     *     
+     * @param  stdCLass $old_task The old task object
+     * @param  Task     $new_task The new Task model
+     * @return void
+     */
+    public function sortStatuses($old_task, $new_task)
+    {
+
+        if(!$new_task->project()->exists())
+            return;
+
+        $index = $new_task->status_order;
+
+        $tasks = $new_task->project->tasks->reject(function ($task)use($new_task){
+            return $task->id == $new_task->id;
+        });
+
+        $sorted_tasks = $tasks->filter(function($task, $key)use($index){
+            return $key < $index;
+        })->push($new_task)->merge($tasks->filter(function($task, $key)use($index){
+            return $key >= $index;
+        }))->each(function ($item,$key){
+            $item->status_order = $key;
+            $item->save();
+        });
+
     }
 }
