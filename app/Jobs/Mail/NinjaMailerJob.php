@@ -74,7 +74,7 @@ class NinjaMailerJob implements ShouldQueue
 
         if (strlen($this->nmo->settings->reply_to_email) > 1) {
             
-            $reply_to_name = strlen($this->nmo->settings->reply_to_email) > 1 ? $this->nmo->settings->reply_to_email : $this->nmo->company->present()->name();
+            $reply_to_name = strlen($this->nmo->settings->reply_to_name) > 1 ? $this->nmo->settings->reply_to_name : $this->nmo->company->present()->name();
             $this->nmo->mailable->replyTo($this->nmo->settings->reply_to_email, $reply_to_name);
 
         }
