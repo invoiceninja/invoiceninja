@@ -339,6 +339,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->morphMany(Document::class, 'documentable');
     }
 
+    public function isVerified()
+    {
+        return is_null($this->email_verified_at) ? false : true;
+    }
+
     public function getEmailVerifiedAt()
     {
         if ($this->email_verified_at) {

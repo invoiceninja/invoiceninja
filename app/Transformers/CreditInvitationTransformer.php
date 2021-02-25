@@ -31,6 +31,8 @@ class CreditInvitationTransformer extends EntityTransformer
             'updated_at'        => (int) $invitation->updated_at,
             'archived_at'       => (int) $invitation->deleted_at,
             'created_at'		=> (int) $invitation->created_at,
+            'email_status'      => $invitation->email_status,
+            'email_error'       => (string)$invitation->email_error,
         ];
     }
 }

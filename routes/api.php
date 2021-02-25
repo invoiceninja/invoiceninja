@@ -65,7 +65,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::get('documents/{document}/download', 'DocumentController@download')->name('documents.download');
     Route::post('documents/bulk', 'DocumentController@bulk')->name('documents.bulk');
 
-    Route::post('emails', 'EmailController@send')->name('email.send');
+    Route::post('emails', 'EmailController@send')->name('email.send')->middleware('user_verified');
 
     Route::resource('expenses', 'ExpenseController'); // name = (expenses. index / create / show / update / destroy / edit
     Route::put('expenses/{expense}/upload', 'ExpenseController@upload'); 

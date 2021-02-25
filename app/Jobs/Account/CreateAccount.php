@@ -110,8 +110,7 @@ class CreateAccount
 
         NinjaMailerJob::dispatch($nmo);
 
-
-        NinjaMailerJob::dispatchNow($nmo);
+        // NinjaMailerJob::dispatchNow($nmo);
 
         VersionCheck::dispatchNow();
 

@@ -38,6 +38,7 @@ use App\Http\Middleware\TokenAuth;
 use App\Http\Middleware\TrimStrings;
 use App\Http\Middleware\TrustProxies;
 use App\Http\Middleware\UrlSetDb;
+use App\Http\Middleware\UserVerified;
 use App\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Auth\Middleware\AuthenticateWithBasicAuth;
 use Illuminate\Auth\Middleware\Authorize;
@@ -157,5 +158,6 @@ class Kernel extends HttpKernel
         'phantom_secret' => PhantomSecret::class,
         'contact_key_login' => ContactKeyLogin::class,
         'check_client_existence' => CheckClientExistence::class,
+        'user_verified' => UserVerified::class,
     ];
 }
