@@ -50,7 +50,7 @@ jobs:
           sudo rm -rf node_modules
       - name: Build project # This would actually build your project, using zip for an example artifact
         run: |
-          zip -r ./invoiceninja.zip ./
+          zip -r ./invoiceninja.zip .* -x "../*"
       
       - name: Get tag name
         id: get_tag_name
