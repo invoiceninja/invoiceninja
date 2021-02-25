@@ -77,6 +77,7 @@ class AccountTransformer extends EntityTransformer
             'debug_enabled' => (bool) config('ninja.debug_enabled'),
             'is_docker' => (bool) config('ninja.is_docker'),
             'is_scheduler_running' => (bool) $account->is_scheduler_running,
+            'default_company_id' => (string) $this->encodePrimaryKey($account->default_company_id),
         ];
     }
 
