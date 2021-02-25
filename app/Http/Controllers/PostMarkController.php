@@ -78,10 +78,8 @@ class PostMarkController extends BaseController
             
             $this->invitation = $this->discoverInvitation($request->input('MessageID'));
 
-            if($this->invitation){
+            if($this->invitation)
                 $this->invitation->email_error = $request->input('Details');
-                $this->invitation->save();
-            }
             else
                 return response()->json(['message' => 'Message not found']);
 
@@ -122,6 +120,9 @@ class PostMarkController extends BaseController
 // }
     private function processDelivery($request)
     {
+        $this->invitation->email_status = 'delivered';
+        $this->invitation->save();
+
         SystemLogger::dispatch($request->all(), SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_DELIVERY, SystemLog::TYPE_WEBHOOK_RESPONSE, $this->invitation->contact->client);
     }
 
@@ -153,6 +154,9 @@ class PostMarkController extends BaseController
 
     private function processBounce($request)
     {
+        $this->invitation->email_status = 'bounced';
+        $this->invitation->save();
+
         SystemLogger::dispatch($request->all(), SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_BOUNCED, SystemLog::TYPE_WEBHOOK_RESPONSE, $this->invitation->contact->client);
     }
 
@@ -183,6 +187,10 @@ class PostMarkController extends BaseController
 // }
     private function processSpamComplaint($request)
     {
+
+        $this->invitation->email_status = 'spam';
+        $this->invitation->save();
+
         SystemLogger::dispatch($request->all(), SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_SPAM_COMPLAINT, SystemLog::TYPE_WEBHOOK_RESPONSE, $this->invitation->contact->client);
     }
 

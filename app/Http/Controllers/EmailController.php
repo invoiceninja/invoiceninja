@@ -13,6 +13,7 @@ namespace App\Http\Controllers;
 
 use App\Events\Credit\CreditWasEmailed;
 use App\Events\Quote\QuoteWasEmailed;
+use App\Http\Middleware\UserVerified;
 use App\Http\Requests\Email\SendEmailRequest;
 use App\Jobs\Entity\EmailEntity;
 use App\Jobs\Mail\EntitySentMailer;
@@ -130,7 +131,8 @@ class EmailController extends BaseController
                 
                 $entity_obj->service()->markSent()->save();
 
-                EmailEntity::dispatch($invitation, $invitation->company, $template, $data)->delay(now()->addSeconds(5));
+                EmailEntity::dispatch($invitation, $invitation->company, $template, $data)
+                            ->delay(now()->addSeconds(5));
                 
             }
 

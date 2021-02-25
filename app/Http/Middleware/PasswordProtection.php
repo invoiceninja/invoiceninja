@@ -53,6 +53,7 @@ class PasswordProtection
 
                 /* Cannot allow duplicates! */
                 if ($existing_user = MultiDB::hasUser($query)) {
+                    Cache::add(auth()->user()->email.'_logged_in', Str::random(64), now()->addMinutes(30));
                     return $next($request);
                 }
             }
