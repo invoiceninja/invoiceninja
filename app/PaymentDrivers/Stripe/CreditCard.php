@@ -63,7 +63,7 @@ class CreditCard
             'amount' => $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision),
             'currency' => $this->stripe->client->getCurrencyCode(),
             'customer' => $this->stripe->findOrCreateCustomer(),
-            'description' => collect($data['invoices'])->pluck('id'), // TODO: More meaningful description.
+            'description' => ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number'), // TODO: More meaningful description.
         ];
 
         $payment_intent_data['setup_future_usage'] = 'off_session';
