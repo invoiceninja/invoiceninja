@@ -656,8 +656,10 @@ trait MakesInvoiceValues
      * @param string $value
      * @return string|null
      */
-    private function    processReservedKeywords(string $value): ?string
+    private function processReservedKeywords(string $value): ?string
     {
+        Carbon::setLocale($this->client->locale());
+
         $replacements = [
             'literal' => [
                 ':MONTH' => now()->localeMonth,
@@ -689,7 +691,6 @@ trait MakesInvoiceValues
             }
 
             if (Str::contains($match, '|')) {
-                $replacement = 'PLACEHOLDER FOR REPLACEMENT!';
                 $parts = explode('|', $match); // [ '[MONTH', 'MONTH+2]' ]
 
                 $left = substr($parts[0], 1); // 'MONTH'
@@ -700,12 +701,12 @@ trait MakesInvoiceValues
                     continue;
                 }
 
-                $_left = Carbon::createFromDate(now()->year, now()->month)->format('F Y');
+                $_left = Carbon::createFromDate(now()->year, now()->month)->translatedFormat('F Y');
                 $_right = '';
 
                 // If right side doesn't have any calculations, replace with raw ranges keyword.
                 if (!Str::contains($right, ['-', '+', '/', '*'])) {
-                    $_right = Carbon::createFromDate(now()->year, now()->month)->format('F Y');
+                    $_right = Carbon::createFromDate(now()->year, now()->month)->translatedFormat('F Y');
                 }
 
                 // If right side contains one of math operations, calculate.
@@ -716,7 +717,7 @@ trait MakesInvoiceValues
 
                     $_value = explode($_operation, $right); // [MONTHYEAR, 4]
 
-                    $_right = Carbon::createFromDate(now()->year, now()->month)->addMonths($_value[1])->format('F Y');
+                    $_right = Carbon::createFromDate(now()->year, now()->month)->addMonths($_value[1])->translatedFormat('F Y');
                 }
 
                 $replacement = sprintf('%s to %s', $_left, $_right);
