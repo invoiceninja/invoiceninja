@@ -72,6 +72,17 @@ class NinjaMailerJob implements ShouldQueue
         /* Set the email driver */
         $this->setMailDriver();
 
+        if (strlen($this->nmo->settings->reply_to_email) > 1) {
+            
+            $reply_to_name = strlen($this->nmo->settings->reply_to_name) > 1 ? $this->nmo->settings->reply_to_name : $this->nmo->company->present()->name();
+            $this->nmo->mailable->replyTo($this->nmo->settings->reply_to_email, $reply_to_name);
+
+        }
+
+        if (strlen($this->nmo->settings->bcc_email) > 1) 
+            $this->nmo->mailable->bcc($this->nmo->settings->bcc_email, $this->nmo->settings->bcc_email);
+        
+
         //send email
         try {
             nlog("trying to send");

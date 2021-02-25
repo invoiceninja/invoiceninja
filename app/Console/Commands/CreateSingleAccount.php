@@ -17,6 +17,7 @@ use App\Events\Invoice\InvoiceWasCreated;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Helpers\Invoice\InvoiceSum;
+use App\Jobs\Company\CreateCompanyTaskStatuses;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -147,6 +148,8 @@ class CreateSingleAccount extends Command
 
             $this->createClient($company, $user);
         }
+
+        CreateCompanyTaskStatuses::dispatchNow($company, $user);
 
         for ($x = 0; $x < $this->count; $x++) {
             $client = $company->clients->random();

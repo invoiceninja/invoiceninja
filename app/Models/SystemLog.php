@@ -47,6 +47,9 @@ class SystemLog extends Model
 
     const EVENT_MAIL_SEND = 30;
     const EVENT_MAIL_RETRY_QUEUE = 31; //we use this to queue emails that are spooled and not sent due to the email queue quota being exceeded.
+    const EVENT_MAIL_BOUNCED = 32;
+    const EVENT_MAIL_SPAM_COMPLAINT = 33;
+    const EVENT_MAIL_DELIVERY = 34;
 
     const EVENT_WEBHOOK_RESPONSE = 40;
     const EVENT_PDF_RESPONSE = 50;
