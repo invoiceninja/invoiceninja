@@ -149,6 +149,11 @@ class Quote extends BaseModel
         return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
     }
 
+    public function project()
+    {
+        return $this->belongsTo(Project::class)->withTrashed();
+    }
+
     public function invitations()
     {
         return $this->hasMany(QuoteInvitation::class);
