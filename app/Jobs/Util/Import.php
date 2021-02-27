@@ -214,7 +214,7 @@ class Import implements ShouldQueue
         // if($check_data['status'] == 'errors')
         //     throw new ProcessingMigrationArchiveFailed(implode("\n", $check_data));
 
-        Mail::to($this->user)
+        Mail::to($this->user->email, $this->user->name())
             ->send(new MigrationCompleted($this->company, implode("<br>",$check_data)));
 
         /*After a migration first some basic jobs to ensure the system is up to date*/

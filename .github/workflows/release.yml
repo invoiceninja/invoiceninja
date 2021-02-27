@@ -48,6 +48,11 @@ jobs:
         run: |
           sudo rm -rf bootstrap/cache/*
           sudo rm -rf node_modules
+      - name: Prune Git History
+        run: |
+          sudo git gc
+          sudo git gc --aggressive
+          sudo git prune
       - name: Build project # This would actually build your project, using zip for an example artifact
         run: |
           zip -r ./invoiceninja.zip .* -x "../*"
