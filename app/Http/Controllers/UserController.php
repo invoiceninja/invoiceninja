@@ -386,6 +386,7 @@ class UserController extends BaseController
         /* When changing email address we store the former email in case we need to rollback */
         if ($old_user_email != $new_email) {
             $user->last_confirmed_email_address = $old_user_email;
+            $user->email_verified_at = null;
             $user->save();
             UserEmailChanged::dispatch($new_user, json_decode($old_user), auth()->user()->company());
         }

@@ -39,9 +39,9 @@ class StoreUserRequest extends Request
         $rules['last_name'] = 'required|string|max:100';
 
         if (config('ninja.db.multi_db_enabled')) {
-            $rules['email'] = ['email', new ValidUserForCompany(), Rule::unique('users')];
+            $rules['email'] = ['email', new ValidUserForCompany(), Rule::unique('users')->ignore($this->input('company_user.account.id'), 'account_id')];
         } else {
-            $rules['email'] = ['email',Rule::unique('users')];
+            $rules['email'] = ['email',Rule::unique('users')->ignore($this->input('company_user.account.id'), 'account_id')];
         }
 
 
@@ -55,6 +55,10 @@ class StoreUserRequest extends Request
     protected function prepareForValidation()
     {
         $input = $this->all();
+
+nlog($this->input('company_user.account'));
+// nlog($this->input('company_user.account.id'));
+// nlog($this->input('company_user.account.id'));
 
         if (isset($input['company_user'])) {
             if (! isset($input['company_user']['is_admin'])) {

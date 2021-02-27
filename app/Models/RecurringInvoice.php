@@ -167,6 +167,11 @@ class RecurringInvoice extends BaseModel
         return $this->belongsTo(Client::class)->withTrashed();
     }
 
+    public function project()
+    {
+        return $this->belongsTo(Project::class)->withTrashed();
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class)->withTrashed();
