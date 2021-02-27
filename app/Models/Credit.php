@@ -152,6 +152,11 @@ class Credit extends BaseModel
         return $this->hasMany(CreditInvitation::class);
     }
 
+    public function project()
+    {
+        return $this->belongsTo(Project::class)->withTrashed();
+    }
+
     /**
      * The invoice which the credit has been created from.
      */
