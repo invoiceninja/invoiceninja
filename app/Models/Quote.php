@@ -200,24 +200,26 @@ class Quote extends BaseModel
         return new QuoteService($this);
     }
 
+
     public function pdf_file_path($invitation = null, string $type = 'url')
     {
         if (! $invitation) {
-            $invitation = $this->invitations->where('client_contact_id', $this->client->primary_contact()->first()->id)->first();
+            $invitation = $this->invitations->first();
         }
 
         $storage_path = Storage::$type($this->client->quote_filepath().$this->number.'.pdf');
 
-        if (Storage::exists($this->client->quote_filepath().$this->number.'.pdf')) {
-            return $storage_path;
+        nlog($storage_path);
+
+        if (! Storage::exists($this->client->quote_filepath().$this->number.'.pdf')) {
+            event(new QuoteWasUpdated($this, $this->company, Ninja::eventVars()));
+            CreateEntityPdf::dispatchNow($invitation);
         }
-
-        event(new QuoteWasUpdated($this, $this->company, Ninja::eventVars()));
-
-        CreateEntityPdf::dispatchNow($invitation);
 
         return $storage_path;
     }
+
+
 
     /**
      * @param int $status

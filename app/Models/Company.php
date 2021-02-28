@@ -85,6 +85,7 @@ class Company extends BaseModel
         'expense_inclusive_taxes',
         'session_timeout',
         'oauth_password_required',
+        'invoice_task_datelog',
     ];
 
     protected $hidden = [

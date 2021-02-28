@@ -26,7 +26,7 @@ class UserVerified
 
     public function __construct(?User $user)
     {
-        $this->user = $user ?: auth()->user();
+        $this->user = property_exists($user, 'id') ? $user : auth()->user();
     }
 
     /**
@@ -43,6 +43,10 @@ class UserVerified
             'message' => 'Email confirmation required.',
             'errors' => new \stdClass,
         ];
+
+        // nlog(auth()->user()->toArray());
+        // nlog($this->user->toArray());
+        // nlog((bool)$this->user->isVerified());
 
         if ($this->user && !$this->user->isVerified()) 
             return response()->json($error, 403);
