@@ -286,11 +286,25 @@ class LoginController extends BaseController
         }
 
         if ($user) {
+
             $client = new Google_Client();
             $client->setClientId(config('ninja.auth.google.client_id'));
             $client->setClientSecret(config('ninja.auth.google.client_secret'));
             $client->setRedirectUri(config('ninja.app_url'));
-            $token = $client->authenticate(request()->input('server_auth_code'));
+
+            $token = false;
+
+            try{
+                $token = $client->authenticate(request()->input('server_auth_code'));
+            }
+            catch(\Exception $e) {
+
+                return response()
+                ->json(['message' => ctrans('texts.invalid_credentials')], 401)
+                ->header('X-App-Version', config('ninja.app_version'))
+                ->header('X-Api-Version', config('ninja.minimum_client_version'));
+
+            }
 
             $refresh_token = '';
 
