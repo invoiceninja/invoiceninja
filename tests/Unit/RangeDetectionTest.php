@@ -45,7 +45,7 @@ class RangeDetectionTest extends TestCase
 
     }
 
-    private function makeRanges(array $ranges)
+    private function makeRanges(array $range)
     {
 
         return range($range[0], $range[1]);

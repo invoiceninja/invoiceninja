@@ -90,8 +90,8 @@ class QuoteEmailEngine extends BaseEmailEngine
 
 
         if ($this->client->getSetting('pdf_email_attachment') !== false) {
-            // $this->setAttachments([$this->quote->pdf_file_path()]);
-            $this->setAttachments(['path' => $this->quote->pdf_file_path(), 'name' => basename($this->quote->pdf_file_path())]);
+            $this->setAttachments([$this->quote->pdf_file_path()]);
+            //$this->setAttachments(['path' => $this->quote->pdf_file_path(), 'name' => basename($this->quote->pdf_file_path())]);
 
         }
 
