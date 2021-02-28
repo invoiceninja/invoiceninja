@@ -11,6 +11,7 @@
 
 namespace App\Services\Credit;
 
+use App\Jobs\Util\UnlinkFile;
 use App\Models\Credit;
 use App\Utils\Traits\MakesHash;
 
@@ -134,7 +135,14 @@ class CreditService
         
         return $this;
     }
-    
+
+    public function deletePdf()
+    {
+        UnlinkFile::dispatchNow(config('filesystems.default'), $this->credit->client->credit_filepath() . $this->credit->number.'.pdf');
+
+        return $this;
+    }
+
     /**
      * Saves the credit.
      * @return Credit object
