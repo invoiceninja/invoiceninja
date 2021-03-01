@@ -14,6 +14,7 @@ namespace App\Http\Requests\User;
 use App\DataMapper\DefaultSettings;
 use App\Factory\UserFactory;
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\User\AttachableUser;
 use App\Http\ValidationRules\ValidUserForCompany;
 use App\Libraries\MultiDB;
 use App\Models\User;
@@ -39,9 +40,9 @@ class StoreUserRequest extends Request
         $rules['last_name'] = 'required|string|max:100';
 
         if (config('ninja.db.multi_db_enabled')) {
-            $rules['email'] = ['email', new ValidUserForCompany(), Rule::unique('users')->ignore(auth()->user()->company()->account_id, 'account_id')];
+            $rules['email'] = ['email', new ValidUserForCompany(), new AttachableUser()];
         } else {
-            $rules['email'] = ['email',Rule::unique('users')->ignore(auth()->user()->company()->account_id, 'account_id')];
+            $rules['email'] = ['email', new AttachableUser()];
         }
 
 
