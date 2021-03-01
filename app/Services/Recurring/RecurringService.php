@@ -11,6 +11,7 @@
 
 namespace App\Services\Recurring;
 
+use App\Jobs\Util\UnlinkFile;
 use App\Models\RecurringInvoice;
 use App\Services\Recurring\GetInvoicePdf;
 use Illuminate\Support\Carbon;
@@ -84,6 +85,13 @@ class RecurringService
         return (new GetInvoicePdf($this->recurring_entity, $contact))->run();
     }
 
+    public function deletePdf()
+    {
+        UnlinkFile::dispatchNow(config('filesystems.default'), $this->recurring_entity->client->recurring_invoice_filepath() . $this->recurring_entity->number.'.pdf');
+
+        return $this;
+    }
+    
     public function save()
     {
         $this->recurring_entity->save();

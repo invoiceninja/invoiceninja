@@ -36,7 +36,11 @@ class CompanyPresenter extends EntityPresenter
             $settings = $this->entity->settings;
         }
 
-        return (strlen($settings->company_logo) > 0) ? url('') . $settings->company_logo : 'https://www.invoiceninja.com/wp-content/uploads/2019/01/InvoiceNinja-Logo-Round-300x300.png';
+        if(strlen($settings->company_logo))
+            return asset($settings->company_logo);
+        else
+            return 'https://www.invoiceninja.com/wp-content/uploads/2019/01/InvoiceNinja-Logo-Round-300x300.png';
+
     }
 
     public function address($settings = null)
@@ -91,13 +95,13 @@ class CompanyPresenter extends EntityPresenter
         }
     }
 
-    public function getSpcQrCode($client_currency, $invoice_number, $balance)
+    public function getSpcQrCode($client_currency, $invoice_number, $balance_due_raw)
     {
         $settings = $this->entity->settings;
 
         return 
 
-        "SPC\n0200\n1\nCH860021421411198240K\nK\n{$this->name}\n{$settings->address1}\n{$settings->postal_code} {$settings->city}\n\n\nCH\n\n\n\n\n\n\n\n{$balance}\n{$client_currency}\n\n\n\n\n\n\n\nNON\n\n{$invoice_number}\nEPD\n";
+        "SPC\n0200\n1\nCH860021421411198240K\nK\n{$this->name}\n{$settings->address1}\n{$settings->postal_code} {$settings->city}\n\n\nCH\n\n\n\n\n\n\n\n{$balance_due_raw}\n{$client_currency}\n\n\n\n\n\n\n\nNON\n\n{$invoice_number}\nEPD\n";
     }
 
 }

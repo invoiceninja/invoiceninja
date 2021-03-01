@@ -12,6 +12,7 @@
 namespace App\Services\Quote;
 
 use App\Events\Quote\QuoteWasApproved;
+use App\Jobs\Util\UnlinkFile;
 use App\Models\Invoice;
 use App\Models\Quote;
 use App\Repositories\QuoteRepository;
@@ -186,6 +187,13 @@ class QuoteService
         if (!isset($this->quote->public_notes)) 
             $this->quote->public_notes = $this->quote->client->public_notes;
         
+        return $this;
+    }
+
+    public function deletePdf()
+    {
+        UnlinkFile::dispatchNow(config('filesystems.default'), $this->quote->client->quote_filepath() . $this->quote->number.'.pdf');
+
         return $this;
     }
 

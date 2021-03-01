@@ -37,7 +37,7 @@ class CreditObserver
      */
     public function updated(Credit $credit)
     {
-        UnlinkFile::dispatchNow(config('filesystems.default'), $credit->client->credit_filepath() . $credit->number.'.pdf');
+
     }
 
     /**

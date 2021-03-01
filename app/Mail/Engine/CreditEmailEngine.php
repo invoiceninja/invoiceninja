@@ -89,7 +89,9 @@ class CreditEmailEngine extends BaseEmailEngine
             ->setInvitation($this->invitation);
 
         if ($this->client->getSetting('pdf_email_attachment') !== false) {
-            $this->setAttachments(['path' => $this->credit->pdf_file_path(), 'name' => basename($this->credit->pdf_file_path())]);
+            $this->setAttachments([$this->credit->pdf_file_path()]);
+
+            // $this->setAttachments(['path' => $this->credit->pdf_file_path(), 'name' => basename($this->credit->pdf_file_path())]);
         }
 
         //attach third party documents

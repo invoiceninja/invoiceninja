@@ -13,6 +13,7 @@ namespace App\Http\Middleware;
 
 use App\Libraries\MultiDB;
 use App\Models\User;
+use App\Utils\Ninja;
 use Closure;
 use Hashids\Hashids;
 use Illuminate\Http\Request;
@@ -26,7 +27,7 @@ class UserVerified
 
     public function __construct(?User $user)
     {
-        $this->user = $user ?: auth()->user();
+        $this->user = property_exists($user, 'id') ? $user : auth()->user();
     }
 
     /**
@@ -38,6 +39,8 @@ class UserVerified
      */
     public function handle($request, Closure $next)
     {
+        if(Ninja::isSelfHost())
+            return $next($request);
 
         $error = [
             'message' => 'Email confirmation required.',
