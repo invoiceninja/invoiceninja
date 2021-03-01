@@ -36,8 +36,10 @@ class CompanyPresenter extends EntityPresenter
             $settings = $this->entity->settings;
         }
 
-        if(strlen($settings->company_logo))
-            return asset($settings->company_logo);
+        if(strlen($settings->company_logo) >= 1 && strpos($settings->company_logo, 'http'))
+            return $settings->company_logo;
+        else if(strlen($settings->company_logo) >= 1)
+            return url('') . $settings->company_logo;
         else
             return 'https://www.invoiceninja.com/wp-content/uploads/2019/01/InvoiceNinja-Logo-Round-300x300.png';
 
