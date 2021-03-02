@@ -12,9 +12,9 @@
                 <div class="mt-4">
                     @foreach($entities as $entity)
                         <div class="mb-4">
-                            <h4 class="leading-6 font-medium text-gray-900">{{ $entity_type }} {{ $entity->number }}:</h4>
+                            <p class="text-sm leading-6 font-medium text-gray-500">{{ $entity_type }} {{ $entity->number }}:</p>
                             @if($entity->terms)
-                                <p class="text-sm leading-5 text-gray-500">{!! $entity->terms !!}</p>
+                                <h5 data-ref="entity-terms" class="text-sm leading-5 text-gray-900">{!! $entity->terms !!}</h5>
                             @else
                                 <i class="text-sm leading-5 text-gray-500">{{ ctrans('texts.not_specified') }}</i>
                             @endif
@@ -39,3 +39,7 @@
         </div>
     </div>
 </div>
+
+@push('footer')
+    <script src="{{ asset('js/clients/linkify-urls.js') }}" defer></script>
+@endpush
