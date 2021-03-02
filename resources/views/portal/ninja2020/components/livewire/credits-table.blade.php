@@ -15,6 +15,11 @@
             <table class="min-w-full shadow rounded border border-gray-200 mt-4 credits-table">
                 <thead>
                     <tr>
+                        <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary">
+                            <span role="button" wire:click="sortBy('number')" class="cursor-pointer">
+                                {{ ctrans('texts.credit_number') }}
+                            </span>
+                        </th>
                         <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white uppercase tracking-wider">
                             <span role="button" wire:click="sortBy('amount')" class="cursor-pointer">
                                 {{ ctrans('texts.amount') }}
@@ -41,6 +46,9 @@
                 <tbody>
                     @forelse($credits as $credit)
                         <tr class="bg-white group hover:bg-gray-100">
+                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                                {{ $credit->number }}
+                            </td>
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
                                 {{ App\Utils\Number::formatMoney($credit->amount, $credit->client) }}
                             </td>
