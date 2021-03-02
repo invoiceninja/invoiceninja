@@ -31,7 +31,10 @@
                                 @enderror
                             </div>
                             <div class="col-span-6 sm:col-span-3">
-                                <label for="website" class="input-label">{{ ctrans('texts.website') }}</label>
+                                <div class="inline-flex items-center">
+                                    <label for="website" class="input-label">{{ ctrans('texts.website') }}</label>
+                                    <span class="text-xs ml-2 text-gray-600">E.g. https://invoiceninja.com</span>
+                                </div>
                                 <input id="website" class="input w-full" name="website" wire:model.defer="website" />
                                 @error('website')
                                 <div class="validation validation-fail">
