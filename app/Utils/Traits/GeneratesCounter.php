@@ -35,7 +35,7 @@ trait GeneratesCounter
 
 
 
-    private function getNextEntityNumber($entity, Client $client)
+    private function getNextEntityNumber($entity, Client $client, $is_recurring = false)
     {
         $prefix = '';
 
@@ -75,7 +75,7 @@ trait GeneratesCounter
         
         $padding = $client->getSetting('counter_padding');
 
-        if($entity instanceof Invoice && $entity && $entity->recurring_id)
+        if($is_recurring)
             $prefix = $client->getSetting('recurring_number_prefix');
 
         $entity_number = $this->checkEntityNumber($entity, $client, $counter, $padding, $pattern, $prefix);
@@ -154,9 +154,9 @@ trait GeneratesCounter
      * @param Invoice|null $invoice
      * @return     string              The next invoice number.
      */
-    public function getNextInvoiceNumber(Client $client, ?Invoice $invoice) :string
+    public function getNextInvoiceNumber(Client $client, ?Invoice $invoice, $is_recurring = false) :string
     {
-        return $this->getNextEntityNumber(Invoice::class, $client);
+        return $this->getNextEntityNumber(Invoice::class, $client, $is_recurring);
     }
 
     /**
