@@ -11,14 +11,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\OneTimeToken\OneTimeRouterRequest;
 use App\Http\Requests\OneTimeToken\OneTimeTokenRequest;
+use App\Models\User;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class OneTimeTokenController extends BaseController
 {
-    use DispatchesJobs;
 
     public function __construct()
     {
@@ -73,5 +75,28 @@ class OneTimeTokenController extends BaseController
 
         return response()->json(['hash' => $hash], 200);
     
+    }
+
+    public function router(OneTimeRouterRequest $request)
+    {
+        $data = Cache::get($request->input('hash'));
+
+        MultiDB::findAndSetDbByCompanyKey($data['company_key']);
+
+        $user = User::findOrFail($data['user_id']);
+
+        Auth::login($user, true);
+
+        Cache::forget($request->input('hash'));
+
+        $this->sendTo($data['context']);
+
+    }
+
+    /* We need to merge all contexts here and redirect to the correct location */
+    private function sendTo($context)
+    {
+
+        return redirect();
     }
 }
