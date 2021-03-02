@@ -92,6 +92,8 @@ class CreateEntityPdf implements ShouldQueue
         App::forgetInstance('translator');
         Lang::replace(Ninja::transformTranslations($this->entity->client->getMergedSettings()));
 
+        $this->entity->service()->deletePdf();
+
         if (config('ninja.phantomjs_pdf_generation')) {
             return (new Phantom)->generate($this->invitation);
         }

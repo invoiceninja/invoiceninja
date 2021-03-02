@@ -14,6 +14,7 @@ namespace App\Http\Requests\User;
 use App\DataMapper\DefaultSettings;
 use App\Factory\UserFactory;
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\User\AttachableUser;
 use App\Http\ValidationRules\ValidUserForCompany;
 use App\Libraries\MultiDB;
 use App\Models\User;
@@ -39,9 +40,9 @@ class StoreUserRequest extends Request
         $rules['last_name'] = 'required|string|max:100';
 
         if (config('ninja.db.multi_db_enabled')) {
-            $rules['email'] = ['email', new ValidUserForCompany(), Rule::unique('users')->ignore($this->input('company_user.account.id'), 'account_id')];
+            $rules['email'] = ['email', new ValidUserForCompany(), new AttachableUser()];
         } else {
-            $rules['email'] = ['email',Rule::unique('users')->ignore($this->input('company_user.account.id'), 'account_id')];
+            $rules['email'] = ['email', new AttachableUser()];
         }
 
 
@@ -56,7 +57,10 @@ class StoreUserRequest extends Request
     {
         $input = $this->all();
 
-nlog($this->input('company_user.account'));
+//unique user rule - check company_user table for user_id / company_id  / account_id if none exist we can add the user. ELSE return false
+
+//nlog($this->all());
+//nlog($this->input('company_user.account'));
 // nlog($this->input('company_user.account.id'));
 // nlog($this->input('company_user.account.id'));
 

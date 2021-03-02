@@ -187,9 +187,10 @@ class MultiDB
 
         //multi-db active
         foreach (self::$dbs as $db) {
-            if (User::on($db)->where(['email' => $email])->get()->count() >= 1) { // if user already exists, validation will fail
+            
+            if (User::on($db)->where(['email' => $email])->count() >= 1) 
                 return true;
-            }
+            
         }
 
         return false;
