@@ -61,6 +61,10 @@ mix.js("resources/js/app.js", "public/js")
     .js(
         "resources/js/clients/shared/multiple-downloads.js",
         "public/js/clients/shared/multiple-downloads.js"
+    )
+    .js(
+        "resources/js/clients/linkify-urls.js",
+        "public/js/clients/linkify-urls.js"
     );
 
 mix.copyDirectory('node_modules/card-js/card-js.min.css', 'public/css/card-js.min.css');

@@ -12,23 +12,23 @@
                 <div class="mt-4">
                     @foreach($entities as $entity)
                         <div class="mb-4">
-                            <h4 class="leading-6 font-medium text-gray-900">{{ $entity_type }} {{ $entity->number }}:</h4>
+                            <p class="text-sm leading-6 font-medium text-gray-500">{{ $entity_type }} {{ $entity->number }}:</p>
                             @if($entity->terms)
-                                <p class="text-sm leading-5 text-gray-500">{!! $entity->terms !!}</p>
+                                <h5 data-ref="entity-terms" class="text-sm leading-5 text-gray-900">{!! $entity->terms !!}</h5>
                             @else
                                 <i class="text-sm leading-5 text-gray-500">{{ ctrans('texts.not_specified') }}</i>
                             @endif
                         </div>
                     @endforeach
 
-                    <p class="mt-4 block text-sm text-gray-900">{{ ctrans('texts.by_clicking_next_you_accept_terms') }}</p>
+                    <p class="mt-4 block text-sm text-gray-900">{{ ctrans('texts.click_agree_to_accept_terms') }}</p>
                 </div>
             </div>
         </div>
         <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
             <div class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto">
                 <button type="button" id="accept-terms-button" class="button button-primary bg-primary">
-                    {{ ctrans('texts.next_step') }}
+                    {{ ctrans('texts.agree') }}
                 </button>
             </div>
             <div class="mt-3 flex w-full rounded-md shadow-sm sm:mt-0 sm:w-auto">
@@ -39,3 +39,7 @@
         </div>
     </div>
 </div>
+
+@push('footer')
+    <script src="{{ asset('js/clients/linkify-urls.js') }}" defer></script>
+@endpush

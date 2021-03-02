@@ -11,10 +11,6 @@
         </div>
         <div class="flex items-center">
             <div class="mr-3">
-                <input wire:model="status" value="{{ App\Models\Quote::STATUS_DRAFT }}" type="checkbox" class="cursor-pointer form-checkbox" id="draft-checkbox">
-                <label for="draft-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.status_draft') }}</label>
-            </div>
-            <div class="mr-3">
                 <input wire:model="status" value="{{ App\Models\Quote::STATUS_SENT }}" value="sent" type="checkbox" class="cursor-pointer form-checkbox" id="sent-checkbox">
                 <label for="sent-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.status_pending') }}</label>
             </div>

@@ -4143,6 +4143,11 @@ $LANG = array(
      'hello' => 'Hello',
      'group_documents' => 'Group documents',
      'quote_approval_confirmation_label' => 'Are you sure you want to approve this quote?',
+
+    'click_agree_to_accept_terms' => 'Click "Agree" to Accept Terms.',
+    'agree' => 'Agree',
+
+    'pending_approval' => 'Pending Approval',
 );
 
 return $LANG;

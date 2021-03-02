@@ -2,10 +2,7 @@
     <div class="md:grid md:grid-cols-3 md:gap-6">
         <div class="md:col-span-1">
             <div class="sm:px-0">
-                <h3 class="text-lg font-medium leading-6 text-gray-900">{{ ctrans('texts.personal_address') }}</h3>
-                <p class="mt-1 text-sm leading-5 text-gray-500">
-                    {{ ctrans('texts.enter_your_personal_address') }}
-                </p>
+                <h3 class="text-lg font-medium leading-6 text-gray-900">{{ ctrans('texts.billing_address') }}</h3>
             </div>
         </div>
         <div class="mt-5 md:mt-0 md:col-span-2">

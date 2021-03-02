@@ -20,7 +20,7 @@
             </div>
             <div class="mr-3">
                 <input wire:model="status" value="overdue" type="checkbox" class="cursor-pointer form-checkbox" id="overdue-checkbox">
-                <label for="overdue-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.overdue') }}</label>
+                <label for="overdue-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.past_due') }}</label>
             </div>
         </div>
     </div>

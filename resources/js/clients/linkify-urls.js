@@ -1,0 +1,19 @@
+/**
+ * Invoice Ninja (https://invoiceninja.com)
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
+
+const linkifyUrls = require('linkify-urls');
+
+document
+    .querySelectorAll('[data-ref=entity-terms]')
+    .forEach((text) => {
+        text.innerHTML = linkifyUrls(text.innerText, {
+            attributes: {target: '_blank', class: 'text-primary'}
+        });
+    });
