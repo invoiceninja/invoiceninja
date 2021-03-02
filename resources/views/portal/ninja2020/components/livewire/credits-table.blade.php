@@ -32,7 +32,7 @@
                         </th>
                         <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white uppercase tracking-wider">
                             <span role="button" wire:click="sortBy('public_notes')" class="cursor-pointer">
-                                {{ ctrans('texts.public_notes') }}
+                                {{ ctrans('texts.notes') }}
                             </span>
                         </th>
                         <th class="px-6 py-3 border-b border-gray-200 bg-primary"></th>
