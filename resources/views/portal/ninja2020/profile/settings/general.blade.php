@@ -3,9 +3,6 @@
             <div class="md:col-span-1">
                 <div class="sm:px-0">
                     <h3 class="text-lg font-medium leading-6 text-gray-900">{{ ctrans('texts.profile') }}</h3>
-                    <p class="mt-1 text-sm leading-5 text-gray-500">
-                        {{ ctrans('texts.client_information_text') }}
-                    </p>
                 </div>
             </div>  <!-- End of left-side -->
 

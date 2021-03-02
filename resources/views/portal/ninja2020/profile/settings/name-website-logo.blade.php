@@ -3,9 +3,6 @@
         <div class="md:col-span-1">
             <div class="sm:px-0">
                 <h3 class="text-lg font-medium leading-6 text-gray-900">{{ ctrans('texts.name_website_logo') }}</h3>
-                <p class="mt-1 text-sm leading-5 text-gray-500">
-                    {{ ctrans('texts.make_sure_use_full_link') }}
-                </p>
             </div>
         </div> <!-- End of left side -->
 
