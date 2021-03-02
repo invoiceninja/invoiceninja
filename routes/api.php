@@ -93,6 +93,8 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::post('migration/purge_save_settings/{company}', 'MigrationController@purgeCompanySaveSettings')->middleware('password_protected');
     Route::post('migration/start', 'MigrationController@startMigration');
 
+    Route::post('one_time_token', 'OneTimeTokenController@create');
+
     Route::resource('payments', 'PaymentController'); // name = (payments. index / create / show / update / destroy / edit
     Route::post('payments/refund', 'PaymentController@refund')->name('payments.refund');
     Route::post('payments/bulk', 'PaymentController@bulk')->name('payments.bulk');

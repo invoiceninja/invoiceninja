@@ -1,0 +1,77 @@
+<?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\OneTimeToken\OneTimeTokenRequest;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
+
+class OneTimeTokenController extends BaseController
+{
+    use DispatchesJobs;
+
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param CreateOneTimeTokenRequest $request
+     * @return Response
+     *
+     * @OA\Post(
+     *      path="/api/v1/one_time_token",
+     *      operationId="oneTimeToken",
+     *      tags={"one_time_token"},
+     *      summary="Attempts to create a one time token",
+     *      description="Attempts to create a one time token",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Response(
+     *          response=200,
+     *          description="The Company User response",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit")
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
+    public function create(OneTimeTokenRequest $request)
+    {
+
+        $hash = Str::random(64);
+
+        $data = [
+            'user_id' => auth()->user()->id,
+            'company_key'=> auth()->company()->company_key,
+            'context' => $requst->input('context'),
+        ];
+
+        Cache::put( $hash, $data, 3600 );
+
+        return response()->json(['hash' => $hash], 200);
+    
+    }
+}
