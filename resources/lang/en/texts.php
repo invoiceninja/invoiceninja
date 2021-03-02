@@ -4146,6 +4146,8 @@ $LANG = array(
 
     'click_agree_to_accept_terms' => 'Click "Agree" to Accept Terms.',
     'agree' => 'Agree',
+
+    'pending_approval' => 'Pending Approval',
 );
 
 return $LANG;
