@@ -21,14 +21,14 @@
                         </div>
                     @endforeach
 
-                    <p class="mt-4 block text-sm text-gray-900">{{ ctrans('texts.by_clicking_next_you_accept_terms') }}</p>
+                    <p class="mt-4 block text-sm text-gray-900">{{ ctrans('texts.click_agree_to_accept_terms') }}</p>
                 </div>
             </div>
         </div>
         <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
             <div class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto">
                 <button type="button" id="accept-terms-button" class="button button-primary bg-primary">
-                    {{ ctrans('texts.next_step') }}
+                    {{ ctrans('texts.agree') }}
                 </button>
             </div>
             <div class="mt-3 flex w-full rounded-md shadow-sm sm:mt-0 sm:w-auto">
