@@ -33,7 +33,7 @@ class UserService
     {
         try {
 
-            $nmo = new NinjaMailerO5bject;
+            $nmo = new NinjaMailerObject;
             $nmo->mailable = new NinjaMailer((new VerifyUserObject($this->user, $company))->build());
             $nmo->company = $company;
             $nmo->to_user = $this->user;
