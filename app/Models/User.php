@@ -17,6 +17,7 @@ use App\Jobs\Mail\NinjaMailerObject;
 use App\Mail\Admin\ResetPasswordObject;
 use App\Models\Presenters\UserPresenter;
 use App\Notifications\ResetPasswordNotification;
+use App\Services\User\UserService;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\UserSessionAttributes;
 use App\Utils\Traits\UserSettings;
@@ -397,5 +398,10 @@ class User extends Authenticatable implements MustVerifyEmail
         NinjaMailerJob::dispatch($nmo);
 
         //$this->notify(new ResetPasswordNotification($token));
+    }
+
+    public function service() :User
+    {
+        return new UserService($this);
     }
 }

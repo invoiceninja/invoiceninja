@@ -623,8 +623,8 @@ class UserController extends BaseController
      * Detach an existing user to a company.
      *
      * @OA\Post(
-     *      path="/api/v1/users/{user}/reconfirm",
-     *      operationId="reconfirmUser",
+     *      path="/api/v1/users/{user}/invite",
+     *      operationId="inviteUser",
      *      tags={"users"},
      *      summary="Reconfirm an existing user to a company",
      *      description="Reconfirm an existing user from a company",
@@ -666,18 +666,10 @@ class UserController extends BaseController
      * @param User $user
      * @return \Illuminate\Http\JsonResponse
      */
-    public function reconfirm(ReconfirmUserRequest $request, User $user)
+    public function invite(ReconfirmUserRequest $request, User $user)
     {
-        $user->confirmation_code = $this->createDbHash($user->company()->db);
-        $user->save();
 
-        $nmo = new NinjaMailerObject;
-        $nmo->mailable = new NinjaMailer((new VerifyUserObject($user, $user->company()))->build());
-        $nmo->company = $user->company();
-        $nmo->to_user = $user;
-        $nmo->settings = $user->company->settings;
-
-        NinjaMailerJob::dispatch($nmo);
+        $user->service()->invite($user->company());
 
         return response()->json(['message' => ctrans('texts.confirmation_resent')], 200);
 
