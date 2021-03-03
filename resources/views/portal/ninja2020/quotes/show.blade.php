@@ -69,11 +69,11 @@
         </section>
     </div>
 
-    <div class="flex justify-center lg:hidden">
-        <canvas id="pdf-placeholder" class="shadow rounded-lg bg-white mt-4 p-4"></canvas>
+    <div class="flex justify-center">
+        <canvas id="pdf-placeholder" class="shadow rounded-lg bg-white lg:hidden mt-4 p-4"></canvas>
     </div>
 
-    <iframe src="{{ $quote->pdf_file_path() }}" class="h-screen w-full border-0 mt-4"></iframe>
+    <iframe src="{{ $quote->pdf_file_path() }}" class="h-screen w-full border-0 hidden lg:block mt-4"></iframe>
 @endsection
 
 @section('footer')

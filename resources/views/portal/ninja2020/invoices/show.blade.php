@@ -174,7 +174,7 @@
         </section>
     </div>
 
-    <iframe src="{{ $invoice->pdf_file_path() }}" class="h-screen w-full border-0 sm:hidden lg:block mt-4"></iframe>
+    <iframe src="{{ $invoice->pdf_file_path() }}" class="h-screen w-full border-0 hidden lg:block mt-4"></iframe>
 
     <div class="flex justify-center">
         <canvas id="pdf-placeholder" class="shadow rounded-lg bg-white lg:hidden mt-4 p-4"></canvas>
