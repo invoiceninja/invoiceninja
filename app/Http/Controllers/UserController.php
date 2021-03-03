@@ -467,7 +467,7 @@ class UserController extends BaseController
     public function destroy(DestroyUserRequest $request, User $user)
     {
         /* If the user passes the company user we archive the company user */
-        $user = $this->user_repo->destroy($request->all(), $user);
+        $user = $this->user_repo->delete($request->all(), $user);
 
         event(new UserWasDeleted($user, auth()->user(), auth()->user()->company, Ninja::eventVars()));
 

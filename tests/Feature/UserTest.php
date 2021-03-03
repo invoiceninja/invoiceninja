@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Validation\ValidationException;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -33,6 +34,8 @@ class UserTest extends TestCase
     use MockAccountData;
     use DatabaseTransactions;
 
+    private $default_email = 'attach@gmail.com';
+
     public function setUp() :void
     {
         parent::setUp();
@@ -44,6 +47,8 @@ class UserTest extends TestCase
         $this->makeTestData();
 
         Model::reguard();
+
+        $this->withoutExceptionHandling();
 
         $this->withoutMiddleware(
             ThrottleRequests::class,
@@ -97,13 +102,23 @@ class UserTest extends TestCase
         $user = UserFactory::create($this->account->id);
         $user->first_name = 'Test';
         $user->last_name = 'Palloni';
+        $user->email = $this->default_email;
         $user->save();
 
+        $data = $user->toArray();
+
+        try {
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
                 'X-API-PASSWORD' => 'ALongAndBriliantPassword',
-        ])->post('/api/v1/users/'.$this->encodePrimaryKey($user->id).'/attach_to_company?include=company_user');
+        ])->post('/api/v1/users?include=company_user', $data);
+
+        } catch (ValidationException $e) {
+            $message = json_decode($e->validator->getMessageBag(), 1);
+            nlog($message);
+            $this->assertNotNull($message);
+        }
 
         $response->assertStatus(200);
 
@@ -114,7 +129,7 @@ class UserTest extends TestCase
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
                     'X-API-PASSWORD' => 'ALongAndBriliantPassword',
-        ])->delete('/api/v1/users/'.$this->encodePrimaryKey($user->id).'/detach_from_company?include=company_user');
+        ])->delete('/api/v1/users/'.$this->encodePrimaryKey($user->id).'?include=company_user');
 
         $response->assertStatus(200);
 
@@ -153,12 +168,15 @@ class UserTest extends TestCase
         $new_user = UserFactory::create($this->account->id);
         $new_user->first_name = 'Test';
         $new_user->last_name = 'Palloni';
+        $new_user->email = $this->default_email;
         $new_user->save();
+
+        $data = $new_user->toArray();
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $company_token->token,
-        ])->post('/api/v1/users/'.$this->encodePrimaryKey($new_user->id).'/attach_to_company?include=company_user');
+        ])->post('/api/v1/users?include=company_user', $data);
 
         $response->assertStatus(200);
 

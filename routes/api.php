@@ -160,8 +160,8 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::get('users', 'UserController@index');
     Route::put('users/{user}', 'UserController@update')->middleware('password_protected');
     Route::post('users', 'UserController@store')->middleware('password_protected');
-    Route::post('users/{user}/attach_to_company', 'UserController@attach')->middleware('password_protected');
-    Route::delete('users/{user}/detach_from_company', 'UserController@detach')->middleware('password_protected');
+    //Route::post('users/{user}/attach_to_company', 'UserController@attach')->middleware('password_protected');
+    Route::delete('users/{user}/', 'UserController@detach')->middleware('password_protected');
     Route::post('users/bulk', 'UserController@bulk')->name('users.bulk')->middleware('password_protected');
     Route::post('/user/{user}/reconfirm', 'UserController@reconfirm')->middleware('password_protected');
 
