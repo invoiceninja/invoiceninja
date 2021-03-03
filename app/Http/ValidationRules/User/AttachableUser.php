@@ -61,7 +61,6 @@ class AttachableUser implements Rule
                                     ->where('user_id', $user->id)
                                     ->where('account_id',$user->account_id)
                                     ->where('company_id', auth()->user()->company()->id)
-                                    ->withTrashed()
                                     ->exists();
 
         if($user_already_attached)
