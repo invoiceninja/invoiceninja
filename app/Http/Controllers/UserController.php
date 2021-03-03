@@ -467,7 +467,7 @@ class UserController extends BaseController
     public function destroy(DestroyUserRequest $request, User $user)
     {
         /* If the user passes the company user we archive the company user */
-        $user = $this->user_repo->destroy($request->all(), $user);
+        $user = $this->user_repo->delete($request->all(), $user);
 
         event(new UserWasDeleted($user, auth()->user(), auth()->user()->company, Ninja::eventVars()));
 
@@ -552,79 +552,6 @@ class UserController extends BaseController
         });
 
         return $this->listResponse(User::withTrashed()->whereIn('id', $return_user_collection));
-    }
-
-    /**
-     * Attach an existing user to a company.
-     *
-     * @OA\Post(
-     *      path="/api/v1/users/{user}/attach_to_company",
-     *      operationId="attachUser",
-     *      tags={"users"},
-     *      summary="Attach an existing user to a company",
-     *      description="Attach an existing user to a company",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Parameter(
-     *          name="user",
-     *          in="path",
-     *          description="The user hashed_id",
-     *          example="FD767dfd7",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string",
-     *              format="string",
-     *          ),
-     *      ),
-     *      @OA\RequestBody(
-     *         description="The company user object",
-     *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/CompanyUser"),
-     *     ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Returns the saved User object",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/CompanyUser"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
-     * @param AttachCompanyUserRequest $request
-     * @param User $user
-     * @return Response|mixed
-     */
-    public function attach(AttachCompanyUserRequest $request, User $user)
-    {
-        $company = auth()->user()->company();
-
-        $user->companies()->attach(
-            $company->id,
-            array_merge(
-                $request->all(),
-                [
-                    'account_id' => $company->account->id,
-                    'notifications' => CompanySettings::notificationDefaults(),
-            ]
-            )
-        );
-
-        $ct = CreateCompanyToken::dispatchNow($company, $user, 'User token created by'.auth()->user()->present()->name());
-
-        return $this->itemResponse($user->fresh());
     }
 
     /**

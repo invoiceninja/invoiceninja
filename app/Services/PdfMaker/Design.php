@@ -445,7 +445,7 @@ class Design extends BaseDesign
                 ]],
                 ['element' => 'img', 'properties' => ['hidden' => $this->client->getSetting('signature_on_pdf'), 'style' => 'max-width: 50%; height: auto;', 'src' => '$contact.signature']],
                 ['element' => 'div', 'properties' => ['style' => 'margin-top: 1.5rem; display: flex; align-items: flex-start;'], 'elements' => [
-                    ['element' => 'img', 'properties' => ['src' => '$invoiceninja.whitelabel', 'style' => 'height: 4rem;', 'hidden' => $this->entity->user->account->isPaid() ? 'true' : 'false', 'id' => 'invoiceninja-whitelabel-logo']],
+                    ['element' => 'img', 'properties' => ['src' => '$invoiceninja.whitelabel', 'style' => 'height: 2.5rem;', 'hidden' => $this->entity->user->account->isPaid() ? 'true' : 'false', 'id' => 'invoiceninja-whitelabel-logo']],
                 ]],
             ]],
             ['element' => 'div', 'properties' => ['class' => 'totals-table-right-side'], 'elements' => []],

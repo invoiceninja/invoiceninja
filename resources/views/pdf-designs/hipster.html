@@ -65,8 +65,13 @@
         margin-top: 0.8rem;
     }
 
+    .header-right-side-wrapper-right {
+        display: flex;
+    }
+
     .header-wrapper .company-logo {
         height: 5rem;
+        margin-left: auto;
     }
 
     .entity-label {
@@ -199,16 +204,18 @@
         </div>
 
         <div class="header-right-side-wrapper">
-            <div>
+            <div class="header-right-side-wrapper-left">
                 <p class="header-text-label">$to_label:</p>
                 <div id="client-details"></div>
             </div>
 
-            <img
-                class="company-logo"
-                src="$company.logo"
-                alt="$company.name logo"
-            />
+            <div class="header-right-side-wrapper-right">
+                <img
+                    class="company-logo"
+                    src="$company.logo"
+                    alt="$company.name logo"
+                />
+            </div>
         </div>
     </div>
 

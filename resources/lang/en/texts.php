@@ -3968,8 +3968,8 @@ $LANG = array(
      'list_of_recurring_invoices' => 'List of recurring invoices',
      'details_of_recurring_invoice' => 'Here are some details about recurring invoice',
      'cancellation' => 'Cancellation',
-     'about_cancellation' => 'In case you want to stop the recurring invoice,\n please click the request the cancellation.',
-     'cancellation_warning' => 'Warning! You are requesting a cancellation of this service.\n Your service may be cancelled with no further notification to you.',
+     'about_cancellation' => 'In case you want to stop the recurring invoice, please click the request the cancellation.',
+     'cancellation_warning' => 'Warning! You are requesting a cancellation of this service. Your service may be cancelled with no further notification to you.',
      'cancellation_pending' => 'Cancellation pending, we\'ll be in touch!',
      'list_of_payments' => 'List of payments',
      'payment_details' => 'Details of the payment',
@@ -4143,6 +4143,11 @@ $LANG = array(
      'hello' => 'Hello',
      'group_documents' => 'Group documents',
      'quote_approval_confirmation_label' => 'Are you sure you want to approve this quote?',
+
+    'click_agree_to_accept_terms' => 'Click "Agree" to Accept Terms.',
+    'agree' => 'Agree',
+
+    'pending_approval' => 'Pending Approval',
 );
 
 return $LANG;

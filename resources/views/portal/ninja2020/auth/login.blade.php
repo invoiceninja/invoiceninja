@@ -8,11 +8,13 @@
 
 @section('body')
     <div class="grid lg:grid-cols-3">
+        @if(\App\Models\Account::count() > 0 && !\App\Models\Account::first()->isPaid())
         <div class="hidden lg:block col-span-1 bg-red-100 h-screen">
             <img src="https://www.invoiceninja.com/wp-content/uploads/2018/04/bg-home2018b.jpg"
                  class="w-full h-screen object-cover"
                  alt="Background image">
         </div>
+        @endif
         <div class="col-span-2 h-screen flex">
             <div class="m-auto md:w-1/2 lg:w-1/4">
                 <div class="flex flex-col">

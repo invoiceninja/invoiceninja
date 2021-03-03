@@ -141,9 +141,9 @@ class UserRepository extends BaseRepository
 
         event(new UserWasDeleted($user, auth()->user(), $company, Ninja::eventVars()));
 
-        $user->is_deleted = true;
-        $user->save();
-        $user->delete();
+        // $user->is_deleted = true;
+        // $user->save();
+        // $user->delete();
 
 
         return $user->fresh();
