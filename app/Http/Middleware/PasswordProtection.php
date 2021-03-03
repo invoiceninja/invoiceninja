@@ -36,7 +36,7 @@ class PasswordProtection
             'errors' => new stdClass,
         ];
 
-        if($request->header('X-API-OAUTH-PASSWORD')){
+        if( $request->header('X-API-OAUTH-PASSWORD') && strlen($request->header('X-API-OAUTH-PASSWORD')) >=1 ){
 
             //user is attempting to reauth with OAuth - check the token value
             //todo expand this to include all OAuth providers
