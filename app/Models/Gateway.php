@@ -66,7 +66,7 @@ class Gateway extends StaticModel
         }
 
         return $link;
-        
+
     }
 
 
@@ -86,9 +86,10 @@ class Gateway extends StaticModel
                 break;
             case 20:
                 return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true],
-                        GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable']],
-                        GatewayType::ALIPAY => ['refund' => false, 'token_billing' => false],
-                        GatewayType::APPLE_PAY => ['refund' => false, 'token_billing' => false]]; //Stripe
+                    GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable']],
+                    GatewayType::ALIPAY => ['refund' => false, 'token_billing' => false],
+                    GatewayType::APPLE_PAY => ['refund' => false, 'token_billing' => false],
+                    GatewayType::SOFORT => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable']]]; //Stripe
                 break;
             case 39:
                 return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true]]; //Checkout
