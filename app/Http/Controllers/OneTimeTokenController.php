@@ -23,8 +23,7 @@ class OneTimeTokenController extends BaseController
 {
 
     private $contexts = [
-        'stripe_connect_test' => 'https://connect.stripe.com/oauth/authorize?response_type=code&client_id=ca_J2FhIhcf9GT5BlWUNeQ1FhnZACaYZrOI&scope=read_write
-',
+        'stripe_connect_test' => 'https://connect.stripe.com/oauth/authorize?response_type=code&client_id=ca_J2FhIhcf9GT5BlWUNeQ1FhnZACaYZrOI&scope=read_write',
         'stripe_connect' => 'https://connect.stripe.com/oauth/authorize?response_type=code&client_id=ca_J2Fh2tZfMlaaItUfbUwBBx4JPss8jCz9&scope=read_write'
     ];
 
@@ -93,7 +92,7 @@ class OneTimeTokenController extends BaseController
 
         Auth::login($user, true);
 
-        Cache::forget($request->input('hash'));
+        // Cache::forget($request->input('hash'));
 
         $this->sendTo($data['context']);
 

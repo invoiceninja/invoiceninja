@@ -614,8 +614,8 @@ class CompanySettings extends BaseSettings
                 '$invoice.po_number',
                 '$invoice.date',
                 '$invoice.due_date',
-                '$invoice.balance_due',
                 '$invoice.total',
+                '$invoice.balance_due',
             ],
             'quote_details' => [
                 '$quote.number',

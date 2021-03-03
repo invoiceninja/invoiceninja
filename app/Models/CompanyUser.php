@@ -49,7 +49,7 @@ class CompanyUser extends Pivot
         'shop_restricted',
     ];
 
-    protected $touches = [];
+    protected $touches = ['user'];
 
     public function getEntityType()
     {
