@@ -140,7 +140,7 @@ class PaymentMethod
 
                     if ($this->validGatewayForAmount($gateway->fees_and_limits->{$type}, $this->amount) && $gateway->fees_and_limits->{$type}->is_enabled) {
                     
-                        if($type == GatewayType::BANK_TRANSFER);
+                        // if($type == GatewayType::BANK_TRANSFER);
 
                         $this->payment_methods[] = [$gateway->id => $type];
                     }
