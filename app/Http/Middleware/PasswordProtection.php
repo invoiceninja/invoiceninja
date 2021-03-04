@@ -53,7 +53,7 @@ class PasswordProtection
 
                 /* Cannot allow duplicates! */
                 if ($existing_user = MultiDB::hasUser($query)) {
-                    Cache::add(auth()->user()->email.'_logged_in', Str::random(64), now()->addMinutes(30));
+                    Cache::add(auth()->user()->hashed_id.'_logged_in', Str::random(64), now()->addMinutes(30));
                     return $next($request);
                 }
             }
@@ -74,10 +74,10 @@ class PasswordProtection
                 return response()->json($error, 403);
             }
 
-        } elseif (Cache::get(auth()->user()->email.'_logged_in')) {
+        } elseif (Cache::get(auth()->user()->hashed_id.'_logged_in')) {
 
-            Cache::pull(auth()->user()->email.'_logged_in');
-            Cache::add(auth()->user()->email.'_logged_in', Str::random(64), now()->addMinutes(30));
+            Cache::pull(auth()->user()->hashed_id.'_logged_in');
+            Cache::add(auth()->user()->hashed_id.'_logged_in', Str::random(64), now()->addMinutes(30));
 
             return $next($request);
 
