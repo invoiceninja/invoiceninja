@@ -46,24 +46,10 @@ class SendVerificationNotification implements ShouldQueue
      */
     public function handle($event)
     {
+
         MultiDB::setDB($event->company->db);
 
-        try {
+        $event->user->service()->invite($event->company);
 
-            $nmo = new NinjaMailerObject;
-            $nmo->mailable = new NinjaMailer((new VerifyUserObject($event->user, $event->company))->build());
-            $nmo->company = $event->company;
-            $nmo->to_user = $event->user;
-            $nmo->settings = $event->company->settings;
-
-            NinjaMailerJob::dispatch($nmo);
-
-            // $event->user->notify(new VerifyUser($event->user, $event->company));
-
-            Ninja::registerNinjaUser($event->user);
-            
-        } catch (Exception $e) {
-            nlog("I couldn't send the email " . $e->getMessage());
-        }
     }
 }
