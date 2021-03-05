@@ -4152,6 +4152,8 @@ $LANG = array(
      'start_migration' => 'Start Migration',
      'recurring_cancellation_request' => 'Request for recurring invoice cancellation from :contact',
      'recurring_cancellation_request_body' => ':contact from Client :client requested to cancel Recurring Invoice :invoice',
+     'migration_select_company_label' => 'Select companies to migrate',
+     'force_migration' => 'Force migration',
      'hello' => 'Hello',
      'group_documents' => 'Group documents',
      'quote_approval_confirmation_label' => 'Are you sure you want to approve this quote?',
@@ -4172,6 +4174,7 @@ $LANG = array(
      'zoho' => 'Zoho',
      'accounting' => 'Accounting',
      'required_files_missing' => 'Please provide all CSVs.',
+
 );
 
 return $LANG;
