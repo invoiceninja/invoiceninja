@@ -74,6 +74,10 @@ class UserRepository extends BaseRepository
         }
 
         $user->account_id = $account->id;
+
+        if(strlen($user->password) >=1)
+            $user->has_password = true;
+        
         $user->save();
 
         if (isset($data['company_user'])) {

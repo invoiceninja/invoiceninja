@@ -4144,10 +4144,29 @@ $LANG = array(
      'group_documents' => 'Group documents',
      'quote_approval_confirmation_label' => 'Are you sure you want to approve this quote?',
 
-    'click_agree_to_accept_terms' => 'Click "Agree" to Accept Terms.',
-    'agree' => 'Agree',
+     'click_agree_to_accept_terms' => 'Click "Agree" to Accept Terms.',
+     'agree' => 'Agree',
 
-    'pending_approval' => 'Pending Approval',
+     'pending_approval' => 'Pending Approval',
+     'migration_select_company_label' => 'Select companies to migrate',
+     'force_migration' => 'Force migration',
+     'require_password_with_social_login' => 'Require Password with Social Login',
+     'stay_logged_in' => 'Stay Logged In',
+     'session_about_to_expire' => 'Warning: Your session is about to expire',
+     'count_hours' => ':count Hours',
+     'count_day' => '1 Day',
+     'count_days' => ':count Days',
+     'web_session_timeout' => 'Web Session Timeout',
+     'security_settings' => 'Security Settings',
+     'resend_email' => 'Resend Email',
+     'confirm_your_email_address' => 'Please confirm your email address',
+     'freshbooks' => 'FreshBooks',
+     'invoice2go' => 'Invoice2go',
+     'invoicely' => 'Invoicely',
+     'waveaccounting' => 'Wave Accounting',
+     'zoho' => 'Zoho',
+     'accounting' => 'Accounting',
+     'required_files_missing' => 'Please provide all CSVs.',
 );
 
 return $LANG;

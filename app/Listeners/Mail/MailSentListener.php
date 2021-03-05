@@ -37,7 +37,7 @@ class MailSentListener implements ShouldQueue
     public function handle(MessageSent $event)
     {
         
-        if(property_exists($event->message, 'invitation')){
+        if(property_exists($event->message, 'invitation') && $event->message->invitation){
 
             MultiDB::setDb($event->message->invitation->company->db);
 
