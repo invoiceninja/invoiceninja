@@ -12,6 +12,7 @@
 namespace App\Providers;
 
 use App\Models\Activity;
+use App\Models\BillingSubscription;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyGateway;
@@ -37,6 +38,7 @@ use App\Models\User;
 use App\Models\Vendor;
 use App\Models\Webhook;
 use App\Policies\ActivityPolicy;
+use App\Policies\BillingSubscriptionPolicy;
 use App\Policies\ClientPolicy;
 use App\Policies\CompanyGatewayPolicy;
 use App\Policies\CompanyPolicy;
@@ -73,6 +75,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         Activity::class => ActivityPolicy::class,
+        BillingSubscription::class => BillingSubscriptionPolicy::class,
         Client::class => ClientPolicy::class,
         Company::class => CompanyPolicy::class,
         CompanyToken::class => CompanyTokenPolicy::class,
