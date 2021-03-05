@@ -4155,6 +4155,8 @@ $LANG = array(
      'hello' => 'Hello',
      'group_documents' => 'Group documents',
      'quote_approval_confirmation_label' => 'Are you sure you want to approve this quote?',
+     'migration_select_company_label' => 'Select companies to migrate',
+     'force_migration' => 'Force migration',
 );
 
 return $LANG;
