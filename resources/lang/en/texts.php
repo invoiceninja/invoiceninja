@@ -4148,6 +4148,8 @@ $LANG = array(
     'agree' => 'Agree',
 
     'pending_approval' => 'Pending Approval',
+     'migration_select_company_label' => 'Select companies to migrate',
+     'force_migration' => 'Force migration',
 );
 
 return $LANG;
