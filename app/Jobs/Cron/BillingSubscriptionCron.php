@@ -49,4 +49,14 @@ class BillingSubscriptionCron
             }
         }
     }
+
+    /* Our daily cron should check
+
+        1. Is the subscription still in trial phase?
+        2. Check the recurring invoice and its remaining_cycles to see whether we need to cancel or perform any other function.
+    */
+    private function processSubscription($client_subscription)
+    {
+
+    }
 }
