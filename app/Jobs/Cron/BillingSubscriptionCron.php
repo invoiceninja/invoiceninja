@@ -35,25 +35,34 @@ class BillingSubscriptionCron
      */
     public function handle() : void
     {
-        /* Get all invoices where the send date is less than NOW + 30 minutes() */
 
         if (! config('ninja.db.multi_db_enabled')) {
-
+            $this->loopSubscriptions();
         } else {
             //multiDB environment, need to
             foreach (MultiDB::$dbs as $db) {
 
                 MultiDB::setDB($db);
-
+                $this->loopSubscriptions();
 
             }
         }
+    }
+
+    private function loopSubscriptions()
+    {
+        $client_subs = ClientSubscription::whereNull('deleted_at')
+                                           ->cursor()
+                                           ->each(function ($cs){
+                                                $this->processSubscription($cs);
+                                            });
     }
 
     /* Our daily cron should check
 
         1. Is the subscription still in trial phase?
         2. Check the recurring invoice and its remaining_cycles to see whether we need to cancel or perform any other function.
+        3. Any notifications that need to fire?
     */
     private function processSubscription($client_subscription)
     {
