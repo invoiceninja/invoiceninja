@@ -466,6 +466,9 @@ class UserController extends BaseController
      */
     public function destroy(DestroyUserRequest $request, User $user)
     {
+        if($user->isOwner())
+            return response()->json(['message', 'Cannot detach owner.'],400);
+
         /* If the user passes the company user we archive the company user */
         $user = $this->user_repo->delete($request->all(), $user);
 
@@ -603,6 +606,9 @@ class UserController extends BaseController
      */
     public function detach(DetachCompanyUserRequest $request, User $user)
     {
+        if($user->isOwner())
+            return response()->json(['message', 'Cannot detach owner.'],400);
+
         $company_user = CompanyUser::whereUserId($user->id)
                                     ->whereCompanyId(auth()->user()->companyId())->first();
 

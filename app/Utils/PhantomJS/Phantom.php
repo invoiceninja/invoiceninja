@@ -88,9 +88,11 @@ class Phantom
         $pdf = CurlUtils::get($phantom_url);
 
         $this->checkMime($pdf, $invitation, $entity);
-
+        
         $instance = Storage::disk(config('filesystems.default'))->put($file_path, $pdf);
 
+nlog($instance);
+nlog($file_path);
         return $file_path;
     }
 
