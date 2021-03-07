@@ -141,4 +141,5 @@ return [
     'snappdf_chromium_path' => env('SNAPPDF_CHROMIUM_PATH', false),
     'v4_migration_version' => '4.5.31',
     'flutter_canvas_kit' => env('FLUTTER_CANVAS_KIT', false),
+    'webcron_secret' => env('WEBCRON_SECRET', false),
 ];
