@@ -24,6 +24,7 @@ use App\Http\Requests\Client\UpdateClientRequest;
 use App\Http\Requests\Client\UploadClientRequest;
 use App\Jobs\Client\StoreClient;
 use App\Jobs\Client\UpdateClient;
+use App\Models\Account;
 use App\Models\Client;
 use App\Repositories\ClientRepository;
 use App\Transformers\ClientTransformer;
@@ -574,6 +575,9 @@ class ClientController extends BaseController
     public function upload(UploadClientRequest $request, Client $client)
     {
 
+        if(!$this->checkFeature(Account::FEATURE_DOCUMENTS))
+            return $this->featureFailure();
+        
         if ($request->has('documents')) 
             $this->saveDocuments($request->file('documents'), $client);
 
