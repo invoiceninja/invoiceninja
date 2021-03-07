@@ -167,17 +167,17 @@ class Account extends BaseModel
 
             // Enterprise; No Trial allowed; grandfathered for old pro users
             case self::FEATURE_USERS:// Grandfathered for old Pro users
-                if ($planDetails && $planDetails['trial']) {
+                if ($plan_details && $plan_details['trial']) {
                     // Do they have a non-trial plan?
-                    $planDetails = $this->getPlanDetails(false, false);
+                    $plan_details = $this->getPlanDetails(false, false);
                 }
 
-                return $self_host || ! empty($planDetails) && ($planDetails['plan'] == self::PLAN_ENTERPRISE);
+                return $self_host || ! empty($plan_details) && ($plan_details['plan'] == self::PLAN_ENTERPRISE);
 
             // Enterprise; No Trial allowed
             case self::FEATURE_DOCUMENTS:
             case self::FEATURE_USER_PERMISSIONS:
-                return $self_host || ! empty($planDetails) && $planDetails['plan'] == self::PLAN_ENTERPRISE && ! $planDetails['trial'];
+                return $self_host || ! empty($plan_details) && $plan_details['plan'] == self::PLAN_ENTERPRISE && ! $plan_details['trial'];
 
             default:
                 return false;
