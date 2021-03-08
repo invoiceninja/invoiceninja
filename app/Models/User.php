@@ -82,6 +82,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'custom_value4',
         'is_deleted',
         'google_2fa_secret',
+        'default_password_timeout',
     ];
 
     /**
