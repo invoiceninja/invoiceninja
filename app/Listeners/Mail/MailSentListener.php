@@ -45,7 +45,7 @@ class MailSentListener implements ShouldQueue
 
                 $postmark_id = $event->message->getHeaders()->get('x-pm-message-id')->getValue();
 
-                nlog($postmark_id);
+                // nlog($postmark_id);
                 $invitation = $event->message->invitation;
                 $invitation->message_id = $postmark_id;
                 $invitation->save();

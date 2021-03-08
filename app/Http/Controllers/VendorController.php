@@ -22,6 +22,7 @@ use App\Http\Requests\Vendor\ShowVendorRequest;
 use App\Http\Requests\Vendor\StoreVendorRequest;
 use App\Http\Requests\Vendor\UpdateVendorRequest;
 use App\Http\Requests\Vendor\UploadVendorRequest;
+use App\Models\Account;
 use App\Models\Vendor;
 use App\Repositories\VendorRepository;
 use App\Transformers\VendorTransformer;
@@ -569,6 +570,9 @@ class VendorController extends BaseController
     public function upload(UploadVendorRequest $request, Vendor $vendor)
     {
 
+        if(!$this->checkFeature(Account::FEATURE_DOCUMENTS))
+            return $this->featureFailure();
+        
         if ($request->has('documents')) 
             $this->saveDocuments($request->file('documents'), $vendor);
 

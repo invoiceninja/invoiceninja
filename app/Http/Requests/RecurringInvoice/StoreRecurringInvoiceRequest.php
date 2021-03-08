@@ -17,6 +17,7 @@ use App\Models\Client;
 use App\Models\RecurringInvoice;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Http\UploadedFile;
 
 class StoreRecurringInvoiceRequest extends Request
 {
@@ -43,6 +44,7 @@ class StoreRecurringInvoiceRequest extends Request
             foreach (range(0, $documents) as $index) {
                 $rules['documents.'.$index] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
             }
+
         } elseif ($this->input('documents')) {
             $rules['documents'] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
         }
@@ -51,7 +53,7 @@ class StoreRecurringInvoiceRequest extends Request
 
         $rules['invitations.*.client_contact_id'] = 'distinct';
 
-        $rules['frequency_id'] = 'required|integer';
+        $rules['frequency_id'] = 'required|integer|digits_between:1,12';
 
         $rules['number'] = new UniqueRecurringInvoiceNumberRule($this->all());
 
@@ -61,6 +63,16 @@ class StoreRecurringInvoiceRequest extends Request
     protected function prepareForValidation()
     {
         $input = $this->all();
+
+        // foreach($this->input('documents') as $document)
+        // {
+        //     if($document instanceof UploadedFile){
+        //         nlog("i am an uploaded file");
+        //         nlog($document);
+        //     }
+        //     else
+        //         nlog($document);
+        // }
 
         if (array_key_exists('design_id', $input) && is_string($input['design_id'])) {
             $input['design_id'] = $this->decodePrimaryKey($input['design_id']);

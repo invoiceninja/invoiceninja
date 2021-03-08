@@ -236,7 +236,7 @@ class HtmlEngine
         $data['$client.name'] = &$data['$client_name'];
         $data['$client.address1'] = &$data['$address1'];
         $data['$client.address2'] = &$data['$address2'];
-        $data['$client_address'] = ['value' => $this->entity->present()->address() ?: '&nbsp;', 'label' => ctrans('texts.address')];
+        $data['$client_address'] = ['value' => $this->client->present()->address() ?: '&nbsp;', 'label' => ctrans('texts.address')];
         $data['$client.address'] = &$data['$client_address'];
         $data['$client.id_number'] = &$data['$id_number'];
         $data['$client.vat_number'] = &$data['$vat_number'];
@@ -271,7 +271,7 @@ class HtmlEngine
 
         $data['$company.city_state_postal'] = ['value' => $this->company->present()->cityStateZip($this->settings->city, $this->settings->state, $this->settings->postal_code, false) ?: '&nbsp;', 'label' => ctrans('texts.city_state_postal')];
         $data['$company.postal_city_state'] = ['value' => $this->company->present()->cityStateZip($this->settings->city, $this->settings->state, $this->settings->postal_code, true) ?: '&nbsp;', 'label' => ctrans('texts.postal_city_state')];
-        $data['$company.name'] = ['value' => $this->settings->name ?: '&nbsp;', 'label' => ctrans('texts.company_name')];
+        $data['$company.name'] = ['value' => $this->settings->name ?: ctrans('texts.untitled_account'), 'label' => ctrans('texts.company_name')];
         $data['$company.address1'] = ['value' => $this->settings->address1 ?: '&nbsp;', 'label' => ctrans('texts.address1')];
         $data['$company.address2'] = ['value' => $this->settings->address2 ?: '&nbsp;', 'label' => ctrans('texts.address2')];
         $data['$company.city'] = ['value' => $this->settings->city ?: '&nbsp;', 'label' => ctrans('texts.city')];

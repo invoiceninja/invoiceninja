@@ -71,7 +71,7 @@ class PasswordProtection
                     Cache::add(auth()->user()->hashed_id.'_logged_in', Str::random(64), now()->addMinutes(30));
                     return $next($request);
                 }
-                elseif($existing_user = MultiDB::hasUser($query) && !auth()->uer()->has_password){
+                elseif($existing_user = MultiDB::hasUser($query) && !auth()->user()->has_password){
 
                     Cache::add(auth()->user()->hashed_id.'_logged_in', Str::random(64), now()->addMinutes(30));
                     return $next($request);                    

@@ -12,8 +12,50 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class BillingSubscription extends BaseModel
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
+
+    protected $fillable = [
+        'user_id',
+        'product_id',
+        'company_id',
+        'product_id',
+        'is_recurring',
+        'frequency_id',
+        'auto_bill',
+        'promo_code',
+        'promo_discount',
+        'is_amount_discount',
+        'allow_cancellation',
+        'per_set_enabled',
+        'min_seats_limit',
+        'max_seats_limit',
+        'trial_enabled',
+        'trial_duration',
+        'allow_query_overrides',
+        'allow_plan_changes',
+        'plan_map',
+        'refund_period',
+        'webhook_configuration',
+    ];
+
+    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Company::class);
+    }
+
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function product(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Product::class);
+    }
+
 }
