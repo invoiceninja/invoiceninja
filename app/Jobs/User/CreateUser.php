@@ -65,6 +65,10 @@ class CreateUser
         $user->email = $this->request['email']; //todo need to remove this in production
         $user->last_login = now();
         $user->ip = request()->ip();
+
+        if(Ninja::isSelfHost())
+            $user->email_verified_at = now();
+
         $user->save();
 
         $user->companies()->attach($this->company->id, [
@@ -78,7 +82,8 @@ class CreateUser
             'settings' => null,
         ]);
 
-        event(new UserWasCreated($user, $user, $this->company, Ninja::eventVars()));
+        if(!Ninja::isSelfHost())
+            event(new UserWasCreated($user, $user, $this->company, Ninja::eventVars()));
 
         return $user;
     }
