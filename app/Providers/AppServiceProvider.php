@@ -12,7 +12,9 @@
 namespace App\Providers;
 
 use App\Models\Account;
+use App\Models\BillingSubscription;
 use App\Models\Client;
+use App\Models\ClientSubscription;
 use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\CompanyToken;
@@ -26,7 +28,9 @@ use App\Models\Quote;
 use App\Models\Task;
 use App\Models\User;
 use App\Observers\AccountObserver;
+use App\Observers\BillingSubscriptionObserver;
 use App\Observers\ClientObserver;
+use App\Observers\ClientSubscriptionObserver;
 use App\Observers\CompanyGatewayObserver;
 use App\Observers\CompanyObserver;
 use App\Observers\CompanyTokenObserver;
@@ -75,9 +79,10 @@ class AppServiceProvider extends ServiceProvider
 
         Schema::defaultStringLength(191);
 
-        User::observe(UserObserver::class);
         Account::observe(AccountObserver::class);
+        BillingSubscription::observe(BillingSubscriptionObserver::class);
         Client::observe(ClientObserver::class);
+        ClientSubscription::observe(ClientSubscriptionObserver::class);
         Company::observe(CompanyObserver::class);
         CompanyGateway::observe(CompanyGatewayObserver::class);
         CompanyToken::observe(CompanyTokenObserver::class);
@@ -89,6 +94,7 @@ class AppServiceProvider extends ServiceProvider
         Proposal::observe(ProposalObserver::class);
         Quote::observe(QuoteObserver::class);
         Task::observe(TaskObserver::class);
+        User::observe(UserObserver::class);
 
         // Queue::before(function (JobProcessing $event) {
         //     // \Log::info('Event Job '.$event->connectionName);

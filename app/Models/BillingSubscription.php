@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -58,4 +57,5 @@ class BillingSubscription extends BaseModel
     {
         return $this->belongsTo(Product::class);
     }
+
 }

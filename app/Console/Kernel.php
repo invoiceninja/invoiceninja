@@ -11,6 +11,7 @@
 
 namespace App\Console;
 
+use App\Jobs\Cron\BillingSubscriptionCron;
 use App\Jobs\Cron\RecurringInvoicesCron;
 use App\Jobs\Ninja\AdjustEmailQuota;
 use App\Jobs\Ninja\CompanySizeCheck;
@@ -52,6 +53,8 @@ class Kernel extends ConsoleKernel
         $schedule->job(new CompanySizeCheck)->daily()->withoutOverlapping();
 
         $schedule->job(new UpdateExchangeRates)->daily()->withoutOverlapping();
+
+        $schedule->job(new BillingSubscriptionCron)->daily()->withoutOverlapping();
 
         $schedule->job(new RecurringInvoicesCron)->hourly()->withoutOverlapping();
 
