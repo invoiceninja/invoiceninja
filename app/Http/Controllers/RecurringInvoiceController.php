@@ -21,6 +21,7 @@ use App\Http\Requests\RecurringInvoice\ShowRecurringInvoiceRequest;
 use App\Http\Requests\RecurringInvoice\StoreRecurringInvoiceRequest;
 use App\Http\Requests\RecurringInvoice\UpdateRecurringInvoiceRequest;
 use App\Http\Requests\RecurringInvoice\UploadRecurringInvoiceRequest;
+use App\Models\Account;
 use App\Models\RecurringInvoice;
 use App\Repositories\RecurringInvoiceRepository;
 use App\Transformers\RecurringInvoiceTransformer;
@@ -738,6 +739,9 @@ class RecurringInvoiceController extends BaseController
     public function upload(UploadRecurringInvoiceRequest $request, RecurringInvoice $recurring_invoice)
     {
 
+        if(!$this->checkFeature(Account::FEATURE_DOCUMENTS))
+            return $this->featureFailure();
+        
         if ($request->has('documents')) 
             $this->saveDocuments($request->file('documents'), $recurring_invoice);
 

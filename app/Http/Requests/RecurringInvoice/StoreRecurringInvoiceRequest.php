@@ -53,7 +53,7 @@ class StoreRecurringInvoiceRequest extends Request
 
         $rules['invitations.*.client_contact_id'] = 'distinct';
 
-        $rules['frequency_id'] = 'required|integer';
+        $rules['frequency_id'] = 'required|integer|digits_between:1,12';
 
         $rules['number'] = new UniqueRecurringInvoiceNumberRule($this->all());
 
