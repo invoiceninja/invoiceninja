@@ -22,6 +22,7 @@ use App\Http\Requests\Expense\ShowExpenseRequest;
 use App\Http\Requests\Expense\StoreExpenseRequest;
 use App\Http\Requests\Expense\UpdateExpenseRequest;
 use App\Http\Requests\Expense\UploadExpenseRequest;
+use App\Models\Account;
 use App\Models\Expense;
 use App\Repositories\ExpenseRepository;
 use App\Transformers\ExpenseTransformer;
@@ -565,6 +566,9 @@ class ExpenseController extends BaseController
     public function upload(UploadExpenseRequest $request, Expense $expense)
     {
 
+        if(!$this->checkFeature(Account::FEATURE_DOCUMENTS))
+            return $this->featureFailure();
+        
         if ($request->has('documents')) 
             $this->saveDocuments($request->file('documents'), $expense);
 

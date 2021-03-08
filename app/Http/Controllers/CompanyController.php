@@ -26,6 +26,7 @@ use App\Jobs\Company\CreateCompanyPaymentTerms;
 use App\Jobs\Company\CreateCompanyTaskStatuses;
 use App\Jobs\Company\CreateCompanyToken;
 use App\Jobs\Ninja\RefundCancelledAccount;
+use App\Models\Account;
 use App\Models\Company;
 use App\Models\CompanyUser;
 use App\Repositories\CompanyRepository;
@@ -559,6 +560,9 @@ class CompanyController extends BaseController
     public function upload(UploadCompanyRequest $request, Company $company)
     {
 
+        if(!$this->checkFeature(Account::FEATURE_DOCUMENTS))
+            return $this->featureFailure();
+        
         if ($request->has('documents')) 
             $this->saveDocuments($request->file('documents'), $company);
 

@@ -182,5 +182,5 @@ Route::match(['get', 'post'], 'payment_webhook/{company_key}/{company_gateway_id
 
 Route::post('api/v1/postmark_webhook', 'PostMarkController@webhook');
 Route::get('token_hash_router', 'OneTimeTokenController@router');
-
+Route::get('webcron', 'WebCronController@index');
 Route::fallback('BaseController@notFound');

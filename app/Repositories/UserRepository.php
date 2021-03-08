@@ -107,6 +107,9 @@ class UserRepository extends BaseRepository
 
     public function destroy(array $data, User $user)
     {
+        if($user->isOwner())
+            return $user;
+
         if (array_key_exists('company_user', $data)) {
             $this->forced_includes = 'company_users';
 

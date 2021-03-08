@@ -20,6 +20,7 @@ use App\Http\Requests\Product\ShowProductRequest;
 use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
 use App\Http\Requests\Product\UploadProductRequest;
+use App\Models\Account;
 use App\Models\Product;
 use App\Repositories\ProductRepository;
 use App\Transformers\ProductTransformer;
@@ -534,6 +535,9 @@ class ProductController extends BaseController
     public function upload(UploadProductRequest $request, Product $product)
     {
 
+        if(!$this->checkFeature(Account::FEATURE_DOCUMENTS))
+            return $this->featureFailure();
+        
         if ($request->has('documents')) 
             $this->saveDocuments($request->file('documents'), $product);
 

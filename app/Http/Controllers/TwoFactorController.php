@@ -24,7 +24,7 @@ class TwoFactorController extends BaseController
             return response()->json(['message' => '2FA already enabled'], 400);
         elseif(! $user->phone)
             return response()->json(['message' => ctrans('texts.set_phone_for_two_factor')], 400);
-        elseif(! $user->confirmed)
+        elseif(! $user->isVerified())
             return response()->json(['message' => 'Please confirm your account first'], 400);
 
         $google2fa = new Google2FA();

@@ -212,7 +212,7 @@ class SetupController extends Controller
     public function checkPdf(Request $request)
     {
         try {
-            if (config('ninja.phantomjs_key')) {
+            if (config('ninja.phantomjs_pdf_generation')) {
                 return $this->testPhantom();
             }
 
@@ -240,7 +240,7 @@ class SetupController extends Controller
     private function testPhantom()
     {
         try {
-            $key = config('ninja.phantomjs_key');
+            $key = config('ninja.phantomjs_pdf_generation');
             $url = 'https://www.invoiceninja.org/';
 
             $phantom_url = "https://phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$url}%22,renderType:%22pdf%22%7D";
