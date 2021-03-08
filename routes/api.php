@@ -68,7 +68,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::post('emails', 'EmailController@send')->name('email.send')->middleware('user_verified');
 
     Route::resource('expenses', 'ExpenseController'); // name = (expenses. index / create / show / update / destroy / edit
-    Route::put('expenses/{expense}/upload', 'ExpenseController@upload'); 
+    Route::put('expenses/{expense}/upload', 'ExpenseController@upload');
     Route::post('expenses/bulk', 'ExpenseController@bulk')->name('expenses.bulk');
 
     Route::resource('expense_categories', 'ExpenseCategoryController'); // name = (expense_categories. index / create / show / update / destroy / edit
@@ -98,7 +98,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::resource('payments', 'PaymentController'); // name = (payments. index / create / show / update / destroy / edit
     Route::post('payments/refund', 'PaymentController@refund')->name('payments.refund');
     Route::post('payments/bulk', 'PaymentController@bulk')->name('payments.bulk');
-    Route::put('payments/{payment}/upload', 'PaymentController@upload'); 
+    Route::put('payments/{payment}/upload', 'PaymentController@upload');
 
     Route::resource('payment_terms', 'PaymentTermController'); // name = (payments. index / create / show / update / destroy / edit
     Route::post('payment_terms/bulk', 'PaymentTermController@bulk')->name('payment_terms.bulk');
@@ -107,20 +107,20 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 
     Route::resource('products', 'ProductController'); // name = (products. index / create / show / update / destroy / edit
     Route::post('products/bulk', 'ProductController@bulk')->name('products.bulk');
-    Route::put('products/{product}/upload', 'ProductController@upload'); 
+    Route::put('products/{product}/upload', 'ProductController@upload');
 
     Route::resource('projects', 'ProjectController'); // name = (projects. index / create / show / update / destroy / edit
     Route::post('projects/bulk', 'ProjectController@bulk')->name('projects.bulk');
     Route::put('projects/{project}/upload', 'ProjectController@upload')->name('projects.upload');
-    
+
     Route::resource('quotes', 'QuoteController'); // name = (quotes. index / create / show / update / destroy / edit
     Route::get('quotes/{quote}/{action}', 'QuoteController@action')->name('quotes.action');
     Route::post('quotes/bulk', 'QuoteController@bulk')->name('quotes.bulk');
-    Route::put('quotes/{quote}/upload', 'QuoteController@upload'); 
+    Route::put('quotes/{quote}/upload', 'QuoteController@upload');
 
     Route::resource('recurring_invoices', 'RecurringInvoiceController'); // name = (recurring_invoices. index / create / show / update / destroy / edit
     Route::post('recurring_invoices/bulk', 'RecurringInvoiceController@bulk')->name('recurring_invoices.bulk');
-    Route::put('recurring_invoices/{recurring_invoice}/upload', 'RecurringInvoiceController@upload'); 
+    Route::put('recurring_invoices/{recurring_invoice}/upload', 'RecurringInvoiceController@upload');
     Route::resource('recurring_quotes', 'RecurringQuoteController'); // name = (recurring_invoices. index / create / show / update / destroy / edit
 
     Route::post('recurring_quotes/bulk', 'RecurringQuoteController@bulk')->name('recurring_quotes.bulk');
@@ -137,7 +137,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 
     Route::resource('tasks', 'TaskController'); // name = (tasks. index / create / show / update / destroy / edit
     Route::post('tasks/bulk', 'TaskController@bulk')->name('tasks.bulk');
-    Route::put('tasks/{task}/upload', 'TaskController@upload'); 
+    Route::put('tasks/{task}/upload', 'TaskController@upload');
 
     Route::resource('task_statuses', 'TaskStatusController'); // name = (task_statuses. index / create / show / update / destroy / edit
     Route::post('task_statuses/bulk', 'TaskStatusController@bulk')->name('task_statuses.bulk');
@@ -155,7 +155,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 
     Route::resource('vendors', 'VendorController'); // name = (vendors. index / create / show / update / destroy / edit
     Route::post('vendors/bulk', 'VendorController@bulk')->name('vendors.bulk');
-    Route::put('vendors/{vendor}/upload', 'VendorController@upload'); 
+    Route::put('vendors/{vendor}/upload', 'VendorController@upload');
 
     Route::get('users', 'UserController@index');
     Route::put('users/{user}', 'UserController@update')->middleware('password_protected');
@@ -173,7 +173,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     // Route::post('hooks', 'SubscriptionController@subscribe')->name('hooks.subscribe');
     // Route::delete('hooks/{subscription_id}', 'SubscriptionController@unsubscribe')->name('hooks.unsubscribe');
 
-
+    Route::resource('billing/subscriptions', 'BillingSubscriptionController');
 });
 
 Route::match(['get', 'post'], 'payment_webhook/{company_key}/{company_gateway_id}', 'PaymentWebhookController')
