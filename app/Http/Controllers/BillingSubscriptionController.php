@@ -40,6 +40,43 @@ class BillingSubscriptionController extends BaseController
         $this->billing_subscription_repo = $billing_subscription_repo;
     }
 
+    /**
+     * Show the list of BillingSubscriptions.
+     *     *
+     * @return Response
+     *
+     * @OA\Get(
+     *      path="/api/v1/billing_subscriptions",
+     *      operationId="getBillingSubscriptions",
+     *      tags={"billing_subscriptions"},
+     *      summary="Gets a list of billing_subscriptions",
+     *      description="Lists billing_subscriptions.",
+     *      
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Response(
+     *          response=200,
+     *          description="A list of billing_subscriptions",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/BillingSubscription"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
+    
     public function index(): \Illuminate\Http\Response
     {
         $billing_subscriptions = BillingSubscription::query()->company();

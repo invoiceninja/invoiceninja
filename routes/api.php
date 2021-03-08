@@ -173,7 +173,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     // Route::post('hooks', 'SubscriptionController@subscribe')->name('hooks.subscribe');
     // Route::delete('hooks/{subscription_id}', 'SubscriptionController@unsubscribe')->name('hooks.unsubscribe');
 
-    Route::resource('billing/subscriptions', 'BillingSubscriptionController');
+    Route::resource('billing_subscriptions', 'BillingSubscriptionController');
 });
 
 Route::match(['get', 'post'], 'payment_webhook/{company_key}/{company_gateway_id}', 'PaymentWebhookController')

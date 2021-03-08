@@ -26,7 +26,7 @@ class CreateBillingSubscriptionsTable extends Migration
             $table->float('promo_discount')->default(0);
             $table->boolean('is_amount_discount')->default(false);
             $table->boolean('allow_cancellation')->default(true);
-            $table->boolean('per_set_enabled')->default(false);
+            $table->boolean('per_seat_enabled')->default(false);
             $table->unsignedInteger('min_seats_limit');
             $table->unsignedInteger('max_seats_limit');
             $table->boolean('trial_enabled')->default(false);

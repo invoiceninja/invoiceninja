@@ -29,7 +29,7 @@ class BillingSubscriptionTransformer extends EntityTransformer
      * @var array
      */
     protected $availableIncludes = [
-        'products',
+        'product',
     ];
 
     public function transform(BillingSubscription $billing_subscription): array
@@ -44,24 +44,27 @@ class BillingSubscriptionTransformer extends EntityTransformer
             'frequency_id' => (string)$billing_subscription->frequency_id,
             'auto_bill' => (string)$billing_subscription->auto_bill,
             'promo_code' => (string)$billing_subscription->promo_code,
-            'promo_discount' => (string)$billing_subscription->promo_discount,
+            'promo_discount' => (float)$billing_subscription->promo_discount,
             'is_amount_discount' => (bool)$billing_subscription->is_amount_discount,
             'allow_cancellation' => (bool)$billing_subscription->allow_cancellation,
-            'per_set_enabled' => (bool)$billing_subscription->per_set_enabled,
+            'per_seat_enabled' => (bool)$billing_subscription->per_set_enabled,
             'min_seats_limit' => (int)$billing_subscription->min_seats_limit,
             'max_seats_limit' => (int)$billing_subscription->max_seats_limit,
             'trial_enabled' => (bool)$billing_subscription->trial_enabled,
-            'trial_duration' => (string)$billing_subscription->trial_duration,
+            'trial_duration' => (int)$billing_subscription->trial_duration,
             'allow_query_overrides' => (bool)$billing_subscription->allow_query_overrides,
             'allow_plan_changes' => (bool)$billing_subscription->allow_plan_changes,
             'plan_map' => (string)$billing_subscription->plan_map,
-            'refund_period' => (string)$billing_subscription->refund_period,
+            'refund_period' => (int)$billing_subscription->refund_period,
             'webhook_configuration' => (string)$billing_subscription->webhook_configuration,
             'is_deleted' => (bool)$billing_subscription->is_deleted,
+            'created_at' => (int) $credit->created_at,
+            'updated_at' => (int) $credit->updated_at,
+            'archived_at' => (int) $credit->deleted_at,
         ];
     }
 
-    public function includeProducts(BillingSubscription $billing_subscription): \League\Fractal\Resource\Item
+    public function includeProduct(BillingSubscription $billing_subscription): \League\Fractal\Resource\Item
     {
         $transformer = new ProductTransformer($this->serializer);
 

@@ -43,6 +43,15 @@ class BillingSubscription extends BaseModel
         'webhook_configuration',
     ];
 
+    protected $casts = [
+        'is_deleted' => 'boolean',
+        'plan_map' => 'object',
+        'webhook_configuration' => 'object',
+        'updated_at' => 'timestamp',
+        'created_at' => 'timestamp',
+        'deleted_at' => 'timestamp',
+    ];
+
     public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Company::class);
