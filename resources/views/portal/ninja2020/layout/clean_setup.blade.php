@@ -60,9 +60,9 @@
 
         <!-- Styles -->
         @if(strpos(Request::url(),'setup') === false)
-        <link href="{{ mix('css/app.css') }}" rel="stylesheet">
+            <link href="{{ mix('css/app.css') }}" rel="stylesheet">
         @else
-        <link href="{{ str_replace("setup", "", Request::url())}}css/app.css" rel="stylesheet">
+            <link href="{{ str_replace("setup", "", Request::url())}}css/app.css" rel="stylesheet">
         @endif
         {{-- <link href="{{ mix('favicon.png') }}" rel="shortcut icon" type="image/png"> --}}
 
@@ -70,6 +70,12 @@
 
         {{-- Feel free to push anything to header using @push('header') --}}
         @stack('head')
+
+        @if(strpos(Request::url(),'setup'))
+            <meta name="setup-pdf-check" content="{{ str_replace("setup", "", Request::url())}}setup/check_pdf">
+            <meta name="setup-db-check" content="{{ str_replace("setup", "", Request::url())}}setup/check_db">
+            <meta name="setup-email-check" content="{{ str_replace("setup", "", Request::url())}}setup/check_mail">
+        @endif
 
         <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css" />
     </head>
