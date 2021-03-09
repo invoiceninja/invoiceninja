@@ -58,9 +58,9 @@ class BillingSubscriptionTransformer extends EntityTransformer
             'refund_period' => (int)$billing_subscription->refund_period,
             'webhook_configuration' => (string)$billing_subscription->webhook_configuration,
             'is_deleted' => (bool)$billing_subscription->is_deleted,
-            'created_at' => (int) $credit->created_at,
-            'updated_at' => (int) $credit->updated_at,
-            'archived_at' => (int) $credit->deleted_at,
+            'created_at' => (int)$billing_subscription->created_at,
+            'updated_at' => (int)$billing_subscription->updated_at,
+            'archived_at' => (int)$billing_subscription->deleted_at,
         ];
     }
 
