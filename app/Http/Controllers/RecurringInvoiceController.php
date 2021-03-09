@@ -439,7 +439,7 @@ class RecurringInvoiceController extends BaseController
     /**
      * @OA\Get(
      *      path="/api/v1/recurring_invoice/{invitation_key}/download",
-     *      operationId="downloadInvoice",
+     *      operationId="downloadRecurringInvoice",
      *      tags={"invoices"},
      *      summary="Download a specific invoice by invitation key",
      *      description="Downloads a specific invoice",

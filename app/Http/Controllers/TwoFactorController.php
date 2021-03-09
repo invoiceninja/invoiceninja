@@ -38,7 +38,7 @@ class TwoFactorController extends BaseController
 
         $data = [
             'secret' => $secret,
-            'qrCode' => $qrCode,
+            'qrCode' => $qr_code,
         ];
 
         return response()->json(['data' => $data], 200);
