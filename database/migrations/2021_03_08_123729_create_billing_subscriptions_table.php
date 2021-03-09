@@ -39,7 +39,7 @@ class CreateBillingSubscriptionsTable extends Migration
             $table->softDeletes('deleted_at', 6);
             $table->boolean('is_deleted')->default(false);
             $table->timestamps();
-            $table->foreign('product_id')->references('id')->on('products');
+
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             $table->index(['company_id', 'deleted_at']);
         });

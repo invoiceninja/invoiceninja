@@ -16,6 +16,7 @@
  *       @OA\Property(property="is_amount_discount", type="boolean", example="true", description="______"),
  *       @OA\Property(property="allow_cancellation", type="boolean", example="true", description="______"),
  *       @OA\Property(property="per_seat_enabled", type="boolean", example="true", description="______"),
+ *       @OA\Property(property="currency_id", type="integer", example="1", description="______"),
  *       @OA\Property(property="min_seats_limit", type="integer", example="1", description="______"),
  *       @OA\Property(property="max_seats_limit", type="integer", example="100", description="______"),
  *       @OA\Property(property="trial_enabled", type="boolean", example="true", description="______"),
