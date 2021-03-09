@@ -42,7 +42,7 @@ class BillingSubscriptionController extends BaseController
 
     /**
      * Show the list of BillingSubscriptions.
-     *     *
+     *     
      * @return Response
      *
      * @OA\Get(
