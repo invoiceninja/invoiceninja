@@ -3,6 +3,7 @@
 namespace App\Http\Requests\BillingSubscription;
 
 use App\Http\Requests\Request;
+use App\Models\BillingSubscription;
 
 class StoreBillingSubscriptionRequest extends Request
 {
@@ -13,7 +14,7 @@ class StoreBillingSubscriptionRequest extends Request
      */
     public function authorize()
     {
-        return true; // TODO
+        return auth()->user()->can('create', BillingSubscription::class);
     }
 
     /**

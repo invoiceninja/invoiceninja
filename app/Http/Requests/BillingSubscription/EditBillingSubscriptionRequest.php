@@ -14,9 +14,7 @@ class EditBillingSubscriptionRequest extends Request
      */
     public function authorize()
     {
-        return true;
-
-        // return auth()->user()->can('view', $this->billing_subscription); // TODO
+        return auth()->user()->can('edit', $this->billing_subscription);
     }
 
     /**

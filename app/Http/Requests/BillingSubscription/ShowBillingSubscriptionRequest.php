@@ -14,8 +14,7 @@ class ShowBillingSubscriptionRequest extends Request
      */
     public function authorize() : bool
     {
-        return true;
-//        return auth()->user()->can('view', $this->billing_subscription); // TODO
+        return auth()->user()->can('view', $this->billing_subscription);
     }
 
     /**

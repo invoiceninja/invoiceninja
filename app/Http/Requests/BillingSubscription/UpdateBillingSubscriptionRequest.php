@@ -16,7 +16,7 @@ class UpdateBillingSubscriptionRequest extends Request
      */
     public function authorize()
     {
-        return true; // TODO
+        return auth()->user()->can('edit', $this->billing_subscription);
     }
 
     /**
