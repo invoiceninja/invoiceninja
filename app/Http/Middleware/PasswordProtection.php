@@ -31,17 +31,11 @@ class PasswordProtection
      */
     public function handle($request, Closure $next)
     {
-    // {nlog($request->headers->all());
-    //  nlog($request->all());
     
         $error = [
             'message' => 'Invalid Password',
             'errors' => new stdClass,
         ];
-
-        nlog(Cache::get(auth()->user()->hashed_id.'_logged_in'));
-        nlog($request->header('X-API-OAUTH-PASSWORD'));
-
 
         if (Cache::get(auth()->user()->hashed_id.'_logged_in')) {
 
