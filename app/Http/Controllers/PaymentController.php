@@ -23,6 +23,7 @@ use App\Http\Requests\Payment\ShowPaymentRequest;
 use App\Http\Requests\Payment\StorePaymentRequest;
 use App\Http\Requests\Payment\UpdatePaymentRequest;
 use App\Http\Requests\Payment\UploadPaymentRequest;
+use App\Models\Account;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Repositories\PaymentRepository;
@@ -728,6 +729,9 @@ class PaymentController extends BaseController
      */
     public function upload(UploadPaymentRequest $request, Payment $payment)
     {
+
+        if(!$this->checkFeature(Account::FEATURE_DOCUMENTS))
+            return $this->featureFailure();
 
         if ($request->has('documents')) 
             $this->saveDocuments($request->file('documents'), $payment);

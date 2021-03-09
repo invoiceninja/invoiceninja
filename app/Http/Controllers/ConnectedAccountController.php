@@ -14,6 +14,7 @@ namespace App\Http\Controllers;
 use App\Libraries\MultiDB;
 use App\Libraries\OAuth\Providers\Google;
 use Illuminate\Http\Request;
+use Google_Client;
 
 class ConnectedAccountController extends BaseController
 {

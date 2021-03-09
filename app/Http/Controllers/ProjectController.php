@@ -20,6 +20,7 @@ use App\Http\Requests\Project\ShowProjectRequest;
 use App\Http\Requests\Project\StoreProjectRequest;
 use App\Http\Requests\Project\UpdateProjectRequest;
 use App\Http\Requests\Project\UploadProjectRequest;
+use App\Models\Account;
 use App\Models\Project;
 use App\Repositories\ProjectRepository;
 use App\Transformers\ProjectTransformer;
@@ -559,6 +560,9 @@ class ProjectController extends BaseController
     public function upload(UploadProjectRequest $request, Project $project)
     {
 
+        if(!$this->checkFeature(Account::FEATURE_DOCUMENTS))
+            return $this->featureFailure();
+        
         if ($request->has('documents')) 
             $this->saveDocuments($request->file('documents'), $project);
 

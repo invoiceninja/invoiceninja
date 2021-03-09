@@ -22,6 +22,7 @@ use App\Http\Requests\Task\ShowTaskRequest;
 use App\Http\Requests\Task\StoreTaskRequest;
 use App\Http\Requests\Task\UpdateTaskRequest;
 use App\Http\Requests\Task\UploadTaskRequest;
+use App\Models\Account;
 use App\Models\Task;
 use App\Repositories\TaskRepository;
 use App\Transformers\TaskTransformer;
@@ -35,8 +36,8 @@ use Illuminate\Http\Response;
 
 /**
  * Class TaskController.
- * @covers App\Http\Controllers\TaskController
  */
+
 class TaskController extends BaseController
 {
     use MakesHash;
@@ -569,6 +570,9 @@ class TaskController extends BaseController
     public function upload(UploadTaskRequest $request, Task $task)
     {
 
+        if(!$this->checkFeature(Account::FEATURE_DOCUMENTS))
+            return $this->featureFailure();
+        
         if ($request->has('documents')) 
             $this->saveDocuments($request->file('documents'), $task);
 

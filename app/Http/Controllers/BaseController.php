@@ -504,4 +504,18 @@ class BaseController extends Controller
 
         return redirect('/setup');
     }
+
+    public function checkFeature($feature)
+    {
+
+      if(auth()->user()->account->hasFeature($feature))
+        return true;
+
+      return false;
+    }
+
+    public function featureFailure()
+    {
+      return response()->json(['message' => 'Upgrade to a paid plan for this feature.'], 403);
+    }
 }

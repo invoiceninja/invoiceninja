@@ -103,7 +103,7 @@ class CheckData extends Command
         if ($errorEmail) {
             Mail::raw($this->log, function ($message) use ($errorEmail, $database) {
                 $message->to($errorEmail)
-                        ->from(config('ninja.error_email'))
+                        ->from(config('mail.from.address'), config('mail.from.name'))
                         ->subject('Check-Data: '.strtoupper($this->isValid ? Account::RESULT_SUCCESS : Account::RESULT_FAILURE)." [{$database}]");
             });
         } elseif (! $this->isValid) {

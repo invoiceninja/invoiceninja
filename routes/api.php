@@ -164,7 +164,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::delete('users/{user}/detach_from_company', 'UserController@detach')->middleware('password_protected');
 
     Route::post('users/bulk', 'UserController@bulk')->name('users.bulk')->middleware('password_protected');
-    Route::post('/user/{user}/reconfirm', 'UserController@reconfirm')->middleware('password_protected');
+    Route::post('/users/{user}/invite', 'UserController@invite')->middleware('password_protected');
 
     Route::resource('webhooks', 'WebhookController');
     Route::post('webhooks/bulk', 'WebhookController@bulk')->name('webhooks.bulk');
@@ -182,5 +182,5 @@ Route::match(['get', 'post'], 'payment_webhook/{company_key}/{company_gateway_id
 
 Route::post('api/v1/postmark_webhook', 'PostMarkController@webhook');
 Route::get('token_hash_router', 'OneTimeTokenController@router');
-
+Route::get('webcron', 'WebCronController@index');
 Route::fallback('BaseController@notFound');

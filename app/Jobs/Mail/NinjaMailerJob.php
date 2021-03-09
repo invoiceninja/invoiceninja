@@ -91,7 +91,7 @@ class NinjaMailerJob implements ShouldQueue
         } catch (\Exception $e) {
 
             nlog("error failed with {$e->getMessage()}");
-            nlog($e);
+            // nlog($e);
 
             if($this->nmo->entity)
                 $this->entityEmailFailed($e->getMessage());

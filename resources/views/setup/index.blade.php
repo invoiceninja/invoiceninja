@@ -1,4 +1,4 @@
-@extends('portal.ninja2020.layout.clean')
+@extends('portal.ninja2020.layout.clean_setup')
 @section('meta_title', ctrans('texts.setup'))
 
 @section('body')

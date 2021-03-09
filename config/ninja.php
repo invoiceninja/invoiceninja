@@ -13,7 +13,7 @@ return [
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', ''),
-    'app_version' => '5.1.14',
+    'app_version' => '5.1.16',
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', false),
@@ -29,7 +29,7 @@ return [
     'hash_salt' => env('HASH_SALT', ''),
     'currency_converter_api_key' => env('OPENEXCHANGE_APP_ID', ''),
     'enabled_modules' => 32767,
-    'phantomjs_key' => env('PHANTOMJS_KEY', false),
+    'phantomjs_key' => env('PHANTOMJS_KEY', 'a-demo-key-with-low-quota-per-ip-address'),
     'phantomjs_secret' => env('PHANTOMJS_SECRET', false),
     'phantomjs_pdf_generation' => env('PHANTOMJS_PDF_GENERATION', true),
     'trusted_proxies' => env('TRUSTED_PROXIES', false),
@@ -141,4 +141,5 @@ return [
     'snappdf_chromium_path' => env('SNAPPDF_CHROMIUM_PATH', false),
     'v4_migration_version' => '4.5.31',
     'flutter_canvas_kit' => env('FLUTTER_CANVAS_KIT', false),
+    'webcron_secret' => env('WEBCRON_SECRET', false),
 ];

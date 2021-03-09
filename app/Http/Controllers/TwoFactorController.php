@@ -24,13 +24,13 @@ class TwoFactorController extends BaseController
             return response()->json(['message' => '2FA already enabled'], 400);
         elseif(! $user->phone)
             return response()->json(['message' => ctrans('texts.set_phone_for_two_factor')], 400);
-        elseif(! $user->confirmed)
+        elseif(! $user->isVerified())
             return response()->json(['message' => 'Please confirm your account first'], 400);
 
         $google2fa = new Google2FA();
         $secret = $google2fa->generateSecretKey();
          
-        $qr_code = $google2fa->getQRCodeGoogleUrl(
+        $qr_code = $google2fa->getQRCodeUrl(
             config('ninja.app_name'),
             $user->email,
             $secret
@@ -38,7 +38,7 @@ class TwoFactorController extends BaseController
 
         $data = [
             'secret' => $secret,
-            'qrCode' => $qrCode,
+            'qrCode' => $qr_code,
         ];
 
         return response()->json(['data' => $data], 200);

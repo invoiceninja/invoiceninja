@@ -31,12 +31,27 @@ class PasswordProtection
      */
     public function handle($request, Closure $next)
     {
+    
         $error = [
             'message' => 'Invalid Password',
             'errors' => new stdClass,
         ];
 
-        if($request->header('X-API-OAUTH-PASSWORD')){
+        $timeout = auth()->user()->company()->default_password_timeout;
+
+        if($timeout == 0)
+            $timeout = null;
+        else
+            $timeout = now()->addMinutes($timeout);
+
+        if (Cache::get(auth()->user()->hashed_id.'_logged_in')) {
+
+            Cache::pull(auth()->user()->hashed_id.'_logged_in');
+            Cache::add(auth()->user()->hashed_id.'_logged_in', Str::random(64), $timeout);
+
+            return $next($request);
+
+        }elseif( $request->header('X-API-OAUTH-PASSWORD') && strlen($request->header('X-API-OAUTH-PASSWORD')) >=1){
 
             //user is attempting to reauth with OAuth - check the token value
             //todo expand this to include all OAuth providers
@@ -48,51 +63,36 @@ class PasswordProtection
                 
                 $query = [
                     'oauth_user_id' => $google->harvestSubField($user),
-                    'oauth_provider_id'=> 'google',
+                    'oauth_provider_id'=> 'google'
                 ];
 
-                /* Cannot allow duplicates! */
-                if ($existing_user = MultiDB::hasUser($query)) {
-                    Cache::add(auth()->user()->email.'_logged_in', Str::random(64), now()->addMinutes(30));
+                //If OAuth and user also has a password set  - check both
+                if ($existing_user = MultiDB::hasUser($query)  && auth()->user()->has_password && Hash::check(auth()->user()->password, $request->header('X-API-PASSWORD'))) {
+
+                    Cache::add(auth()->user()->hashed_id.'_logged_in', Str::random(64), $timeout);
                     return $next($request);
                 }
-            }
+                elseif($existing_user = MultiDB::hasUser($query) && !auth()->user()->has_password){
 
-            $error = [
-                'message' => 'Access denied',
-                'errors' => new stdClass,
-            ];
+                    Cache::add(auth()->user()->hashed_id.'_logged_in', Str::random(64), $timeout);
+                    return $next($request);                    
+                }
+            }
 
             return response()->json($error, 412);
 
 
-        }elseif ($request->header('X-API-PASSWORD')) {
+        }elseif ($request->header('X-API-PASSWORD') && Hash::check($request->header('X-API-PASSWORD'), auth()->user()->password))  {
 
-            //user is attempting to reauth with regular password
-            //
-            if (! Hash::check($request->header('X-API-PASSWORD'), auth()->user()->password)) {
-                return response()->json($error, 403);
-            }
-
-        } elseif (Cache::get(auth()->user()->email.'_logged_in')) {
-
-            Cache::pull(auth()->user()->email.'_logged_in');
-            Cache::add(auth()->user()->email.'_logged_in', Str::random(64), now()->addMinutes(30));
+            Cache::add(auth()->user()->hashed_id.'_logged_in', Str::random(64), $timeout);
 
             return $next($request);
 
         } else {
 
-            $error = [
-                'message' => 'Access denied',
-                'errors' => new stdClass,
-            ];
-
             return response()->json($error, 412);
         }
 
-        Cache::add(auth()->user()->email.'_logged_in', Str::random(64), now()->addMinutes(30));
 
-        return $next($request);
     }
 }
