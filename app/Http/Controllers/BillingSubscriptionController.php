@@ -84,6 +84,45 @@ class BillingSubscriptionController extends BaseController
         return $this->listResponse($billing_subscriptions);
     }
 
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @param CreateBillingSubscriptionRequest $request  The request
+     *
+     * @return Response
+     *
+     *
+     * @OA\Get(
+     *      path="/api/v1/billing_subscriptions/create",
+     *      operationId="getBillingSubscriptionsCreate",
+     *      tags={"billing_subscriptions"},
+     *      summary="Gets a new blank billing_subscriptions object",
+     *      description="Returns a blank object with default values",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Response(
+     *          response=200,
+     *          description="A blank billing_subscriptions object",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/BillingSubscription"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
     public function create(CreateBillingSubscriptionRequest $request): \Illuminate\Http\Response
     {
         $billing_subscription = BillingSubscriptionFactory::create(auth()->user()->company()->id, auth()->user()->id);
