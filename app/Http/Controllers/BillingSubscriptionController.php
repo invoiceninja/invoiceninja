@@ -405,6 +405,6 @@ class BillingSubscriptionController extends BaseController
     {
         $this->billing_subscription_repo->delete($billing_subscription);
 
-        return $this->listResponse($billing_subscription->fresh());
+        return $this->itemResponse($billing_subscription->fresh());
     }
 }
