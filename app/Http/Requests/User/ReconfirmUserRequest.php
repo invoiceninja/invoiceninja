@@ -23,6 +23,6 @@ class ReconfirmUserRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->Admin();
+        return auth()->user()->isAdmin();
     }
 }

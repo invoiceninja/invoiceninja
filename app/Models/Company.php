@@ -86,6 +86,7 @@ class Company extends BaseModel
         'session_timeout',
         'oauth_password_required',
         'invoice_task_datelog',
+        'default_password_timeout',
     ];
 
     protected $hidden = [

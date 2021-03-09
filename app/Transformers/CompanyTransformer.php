@@ -154,6 +154,7 @@ class CompanyTransformer extends EntityTransformer
             'expense_amount_is_pretax' =>(bool)true, //@deprecate 1-2-2021
             'oauth_password_required' => (bool)$company->oauth_password_required,
             'session_timeout' => (int)$company->session_timeout,
+            'default_password_timeout' => (int) $company->default_password_timeout,
         ];
     }
 
