@@ -51,8 +51,6 @@ class TokenAuth
             */
             $user->setCompany($company_token->company);
 
-            config(['ninja.company_id' => $company_token->company->id]);
-
             app('queue')->createPayloadUsing(function () use ($company_token) {
                 return ['db' => $company_token->company->db];
             });
@@ -71,6 +69,7 @@ class TokenAuth
             auth()->login($user, false);
 
             event(new UserLoggedIn($user, $company_token->company, Ninja::eventVars()));
+
         } else {
             $error = [
                 'message' => 'Invalid token',
