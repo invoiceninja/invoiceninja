@@ -28,7 +28,6 @@ class UserFactory
         $user->failed_logins = 0;
         $user->signature = '';
         $user->theme_id = 0;
-        $user->default_password_timeout = 30;
         
         return $user;
     }

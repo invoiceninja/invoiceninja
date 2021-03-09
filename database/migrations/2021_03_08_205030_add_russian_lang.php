@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Company;
 use App\Models\Language;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
@@ -21,11 +22,11 @@ class AddRussianLang extends Migration
         Language::unguard();
         Language::create($russian);
 
-        Schema::table('users', function (Blueprint $table) {
+        Schema::table('companies', function (Blueprint $table) {
             $table->integer('default_password_timeout')->default(30);
         });
 
-        User::whereNotNull('id')->update(['default_password_timeout' => 30]);
+        Company::whereNotNull('id')->update(['default_password_timeout' => 30]);
 
     }
 
