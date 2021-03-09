@@ -41,6 +41,7 @@ class BillingSubscription extends BaseModel
         'plan_map',
         'refund_period',
         'webhook_configuration',
+        'currency_id',
     ];
 
     protected $casts = [
