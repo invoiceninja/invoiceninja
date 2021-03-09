@@ -36,7 +36,7 @@ class CompanyPresenter extends EntityPresenter
             $settings = $this->entity->settings;
         }
 
-        if(strlen($settings->company_logo) >= 1 && strpos($settings->company_logo, 'http'))
+        if(strlen($settings->company_logo) >= 1 && (strpos($settings->company_logo, 'http') !== false))
             return $settings->company_logo;
         else if(strlen($settings->company_logo) >= 1)
             return url('') . $settings->company_logo;
