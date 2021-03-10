@@ -26,7 +26,7 @@ class Helpers
             $elements['signature'] = '';
             $elements['settings'] = new stdClass;
             $elements['whitelabel'] = true;
-
+            $elements['company'] = '';
             return $elements;
         }
 
@@ -35,7 +35,8 @@ class Helpers
         $elements['signature'] = $_settings->email_signature;
         $elements['settings'] = $_settings;
         $elements['whitelabel'] = $client->user->account->isPaid() ? true : false;
-
+        $elements['company'] = $client->company;
+        
         return $elements;
     }
 

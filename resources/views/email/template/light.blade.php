@@ -1,7 +1,7 @@
 @component('email.template.master', ['design' => 'light', 'settings' => $settings, 'whitelabel' => $whitelabel])
 
 @slot('header')
-    @include('email.components.header', ['logo' => (strlen($settings->company_logo) > 1) ? url('') . $settings->company_logo : 'https://www.invoiceninja.com/wp-content/uploads/2015/10/logo-white-horizontal-1.png'])
+    @include('email.components.header', ['logo' => $company->present()->logo($settings)])
 @endslot
 
 {!! $body !!}
