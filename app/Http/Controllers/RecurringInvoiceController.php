@@ -374,6 +374,8 @@ class RecurringInvoiceController extends BaseController
 
         $recurring_invoice = $this->recurring_invoice_repo->save($request->all(), $recurring_invoice);
 
+        $recurring_invoice->service()->deletePdf()->save();
+
         return $this->itemResponse($recurring_invoice);
     }
 

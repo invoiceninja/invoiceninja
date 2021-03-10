@@ -209,6 +209,8 @@ class UserController extends BaseController
 
         $ct = CreateCompanyToken::dispatchNow($company, $user, $user_agent);
 
+            nlog("in the store method of the usercontroller class");
+
         event(new UserWasCreated($user, auth()->user(), $company, Ninja::eventVars()));
 
         return $this->itemResponse($user->fresh());
@@ -626,7 +628,7 @@ class UserController extends BaseController
     }
 
     /**
-     * Detach an existing user to a company.
+     * Invite an existing user to a company.
      *
      * @OA\Post(
      *      path="/api/v1/users/{user}/invite",
@@ -682,4 +684,59 @@ class UserController extends BaseController
     }
 
 
+    /**
+     * Invite an existing user to a company.
+     *
+     * @OA\Post(
+     *      path="/api/v1/users/{user}/reconfirm",
+     *      operationId="inviteUserReconfirm",
+     *      tags={"users"},
+     *      summary="Reconfirm an existing user to a company",
+     *      description="Reconfirm an existing user from a company",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="user",
+     *          in="path",
+     *          description="The user hashed_id",
+     *          example="FD767dfd7",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success response",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     * @param ReconfirmUserRequest $request
+     * @param User $user
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function reconfirm(ReconfirmUserRequest $request, User $user)
+    {
+
+        $user->service()->invite($user->company());
+
+        return response()->json(['message' => ctrans('texts.confirmation_resent')], 200);
+
+    }
 }

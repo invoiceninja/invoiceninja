@@ -376,6 +376,8 @@ class CreditController extends BaseController
 
         $credit = $this->credit_repository->save($request->all(), $credit);
 
+        $credit->service()->deletePdf();
+        
         event(new CreditWasUpdated($credit, $credit->company, Ninja::eventVars()));
 
         return $this->itemResponse($credit);
