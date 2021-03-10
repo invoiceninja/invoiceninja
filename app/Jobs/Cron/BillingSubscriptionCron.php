@@ -12,6 +12,7 @@
 namespace App\Jobs\Cron;
 
 use App\Libraries\MultiDB;
+use App\Models\ClientSubscription;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Carbon;
 
