@@ -137,6 +137,7 @@ class CreditTransformer extends EntityTransformer
             'entity_type' => 'credit',
             'exchange_rate' => (float) $credit->exchange_rate,
             'paid_to_date' => (float) $credit->paid_to_date,
+            'subscription_id' => $this->encodePrimaryKey($credit->subscription_id),
         ];
     }
 }

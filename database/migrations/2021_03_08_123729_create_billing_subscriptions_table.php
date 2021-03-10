@@ -46,15 +46,20 @@ class CreateBillingSubscriptionsTable extends Migration
 
         Schema::create('client_subscriptions', function (Blueprint $table) {
             $table->increments('id');
+            $table->unsignedInteger('company_id');
             $table->unsignedInteger('subscription_id');
             $table->unsignedInteger('recurring_invoice_id');
             $table->unsignedInteger('client_id');
             $table->unsignedInteger('trial_started')->nullable();
             $table->unsignedInteger('trial_ends')->nullable();
+            $table->boolean('is_deleted')->default(false);
+            $table->softDeletes('deleted_at', 6);
             $table->timestamps();
             $table->foreign('subscription_id')->references('id')->on('billing_subscriptions');
             $table->foreign('recurring_invoice_id')->references('id')->on('recurring_invoices');
             $table->foreign('client_id')->references('id')->on('clients');
+            $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
+            $table->index(['company_id', 'deleted_at']);
         });
     }
 

@@ -26,7 +26,10 @@
  *       @OA\Property(property="plan_map", type="string", example="1", description="map describing the available upgrade/downgrade plans for this subscription"),
  *       @OA\Property(property="refund_period", type="integer", example="2", description="______"),
  *       @OA\Property(property="webhook_configuration", type="string", example="2", description="______"),
- *       @OA\Property(property="is_deleted", type="boolean", example="2", description="______"),
+ *       @OA\Property(property="is_deleted", type="boolean", example="true", description="______"),
+ *       @OA\Property(property="archived_at", type="number", format="integer", example="1434342123", description="Timestamp"),
+ *       @OA\Property(property="created_at", type="number", format="integer", example="134341234234", description="Timestamp"),
+ *       @OA\Property(property="updated_at", type="number", format="integer", example="134341234234", description="Timestamp"),
  * )
  */
             

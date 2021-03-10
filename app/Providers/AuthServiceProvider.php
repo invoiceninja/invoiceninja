@@ -14,6 +14,7 @@ namespace App\Providers;
 use App\Models\Activity;
 use App\Models\BillingSubscription;
 use App\Models\Client;
+use App\Models\ClientSubscription;
 use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\CompanyToken;
@@ -40,6 +41,7 @@ use App\Models\Webhook;
 use App\Policies\ActivityPolicy;
 use App\Policies\BillingSubscriptionPolicy;
 use App\Policies\ClientPolicy;
+use App\Policies\ClientSubscriptionPolicy;
 use App\Policies\CompanyGatewayPolicy;
 use App\Policies\CompanyPolicy;
 use App\Policies\CompanyTokenPolicy;
@@ -77,6 +79,7 @@ class AuthServiceProvider extends ServiceProvider
         Activity::class => ActivityPolicy::class,
         BillingSubscription::class => BillingSubscriptionPolicy::class,
         Client::class => ClientPolicy::class,
+        ClientSubscription::class => ClientSubscriptionPolicy::class,
         Company::class => CompanyPolicy::class,
         CompanyToken::class => CompanyTokenPolicy::class,
         CompanyGateway::class => CompanyGatewayPolicy::class,
