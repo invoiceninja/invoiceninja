@@ -22,6 +22,7 @@ use App\Models\Task;
 use App\Services\Client\ClientService;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class InvoiceService
 {
@@ -273,8 +274,9 @@ class InvoiceService
 
     public function deletePdf()
     {
-        UnlinkFile::dispatchNow(config('filesystems.default'), $this->invoice->client->invoice_filepath() . $this->invoice->number.'.pdf');
-
+        //UnlinkFile::dispatchNow(config('filesystems.default'), $this->invoice->client->invoice_filepath() . $this->invoice->number.'.pdf');
+        Storage::disk(config('filesystems.default'))->delete($this->invoice->client->invoice_filepath() . $this->invoice->number.'.pdf');
+        
         return $this;
     }
 

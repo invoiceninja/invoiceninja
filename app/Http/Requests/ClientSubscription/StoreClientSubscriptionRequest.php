@@ -9,21 +9,21 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Http\Requests\BillingSubscription;
+namespace App\Http\Requests\ClientSubscription;
 
 use App\Http\Requests\Request;
-use Illuminate\Foundation\Http\FormRequest;
+use App\Models\ClientSubscription;
 
-class ShowBillingSubscriptionRequest extends Request
+class StoreClientSubscriptionRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize()
     {
-        return auth()->user()->can('view', $this->billing_subscription);
+        return auth()->user()->can('create', ClientSubscription::class);
     }
 
     /**
@@ -33,8 +33,6 @@ class ShowBillingSubscriptionRequest extends Request
      */
     public function rules()
     {
-        return [
-            //
-        ];
+        return [];
     }
 }

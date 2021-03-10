@@ -16,6 +16,18 @@ class AddCurrencyIdToBillingSubscriptionsTable extends Migration
         Schema::table('billing_subscriptions', function (Blueprint $table) {
             $table->unsignedInteger('currency_id')->nullable();
         });
+
+        Schema::table('invoices', function (Blueprint $table) {
+            $table->unsignedInteger('subscription_id')->nullable();
+        });
+
+        Schema::table('quotes', function (Blueprint $table) {
+            $table->unsignedInteger('subscription_id')->nullable();
+        });
+
+        Schema::table('credits', function (Blueprint $table) {
+            $table->unsignedInteger('subscription_id')->nullable();
+        });
     }
 
     /**
