@@ -13,12 +13,18 @@ namespace App\Http\Controllers;
 
 use App\Libraries\MultiDB;
 use App\Libraries\OAuth\Providers\Google;
-use Illuminate\Http\Request;
+use App\Models\CompanyUser;
+use App\Transformers\CompanyUserTransformer;
 use Google_Client;
+use Illuminate\Http\Request;
 
 class ConnectedAccountController extends BaseController
 {
 
+    protected $entity_type = CompanyUser::class;
+
+    protected $entity_transformer = CompanyUserTransformer::class;
+    
     public function __construct()
     {
         parent::__construct();
@@ -128,8 +134,10 @@ class ConnectedAccountController extends BaseController
             auth()->user()->save();
 
             //$ct = CompanyUser::whereUserId(auth()->user()->id);
+            $ct = CompanyUser::whereUserId(auth()->user()->id);
 
-            return $this->listResponse(auth()->user());
+            return $this->listResponse($ct);
+            // return $this->listResponse(auth()->user());
         }
 
         return response()

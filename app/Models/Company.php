@@ -159,6 +159,16 @@ class Company extends BaseModel
         return $this->hasMany(ExpenseCategory::class)->withTrashed();
     }
 
+    public function client_subscriptions()
+    {
+        return $this->hasMany(ClientSubscription::class)->withTrashed();
+    }
+
+    public function billing_subscriptions()
+    {
+        return $this->hasMany(BillingSubscription::class)->withTrashed();
+    }
+
     public function task_statuses()
     {
         return $this->hasMany(TaskStatus::class)->withTrashed();

@@ -77,6 +77,7 @@ class Credit extends BaseModel
         'design_id',
         'assigned_user_id',
         'exchange_rate',
+        'subscription_id',
     ];
 
     protected $casts = [

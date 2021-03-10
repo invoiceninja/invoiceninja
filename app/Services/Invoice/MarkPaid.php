@@ -74,6 +74,7 @@ class MarkPaid extends AbstractService
                 ->updatePaidToDate($payment->amount)
                 ->setStatus(Invoice::STATUS_PAID)
                 ->applyNumber()
+                ->deletePdf()
                 ->save();
 
         if ($this->invoice->client->getSetting('client_manual_payment_notification')) 

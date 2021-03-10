@@ -70,6 +70,10 @@ class Request extends FormRequest
 
     public function decodePrimaryKeys($input)
     {
+        if (array_key_exists('subscription_id', $input) && is_string($input['subscription_id'])) {
+            $input['subscription_id'] = $this->decodePrimaryKey($input['subscription_id']);
+        }
+
         if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
             $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
         }
