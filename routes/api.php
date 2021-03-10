@@ -165,7 +165,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 
     Route::post('users/bulk', 'UserController@bulk')->name('users.bulk')->middleware('password_protected');
     Route::post('/users/{user}/invite', 'UserController@invite')->middleware('password_protected');
-    Route::post('/users/{user}/reconfirm', 'UserController@reconfirm');
+    Route::post('/user/{user}/reconfirm', 'UserController@reconfirm');
 
     Route::resource('webhooks', 'WebhookController');
     Route::post('webhooks/bulk', 'WebhookController@bulk')->name('webhooks.bulk');
