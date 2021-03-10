@@ -96,22 +96,6 @@ class CreateAccount
         //todo implement SLACK notifications
         //$sp035a66->notification(new NewAccountCreated($spaa9f78, $sp035a66))->ninja();
 
-        // $nmo = new NinjaMailerObject;
-        // $nmo->mailable = new NinjaMailer((new AccountCreatedObject($spaa9f78, $sp035a66))->build());
-        // $nmo->company = $sp035a66;
-        // $nmo->to_user = $spaa9f78;
-        // $nmo->settings = $sp035a66->settings;
-
-        // $nmo = new NinjaMailerObject;
-        // $nmo->mailable = new NinjaMailer((new VerifyUserObject($spaa9f78, $sp035a66))->build());
-        // $nmo->company = $sp035a66;
-        // $nmo->to_user = $spaa9f78;
-        // $nmo->settings = $sp035a66->settings;
-
-        // NinjaMailerJob::dispatch($nmo);
-
-        // NinjaMailerJob::dispatchNow($nmo);
-
         VersionCheck::dispatchNow();
 
         LightLogs::create(new AnalyticsAccountCreated())
