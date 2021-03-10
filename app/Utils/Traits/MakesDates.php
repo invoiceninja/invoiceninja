@@ -99,10 +99,13 @@ trait MakesDates
 
     public function translateDate($date, $format, $locale)
     {
-        
         Carbon::setLocale($locale);
-        return Carbon::parse($date)->translatedFormat($format);
 
+        try {
+            return Carbon::parse($date)->translatedFormat($format);
+        } catch(\Exception $e) {
+            return 'Invalid date!';
+        }
     }
 
 }
