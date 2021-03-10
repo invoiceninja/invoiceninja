@@ -43,6 +43,7 @@ class MarkSent
              ->service()
              ->setStatus(Quote::STATUS_SENT)
              ->applyNumber()
+             ->deletePdf()
              ->save();
 
         return $this->quote;
