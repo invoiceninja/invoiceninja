@@ -396,6 +396,8 @@ class InvoiceController extends BaseController
         }
 
         $invoice = $this->invoice_repo->save($request->all(), $invoice);
+        
+        $invoice->service()->deletePdf();
 
         event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars()));
 
@@ -697,14 +699,14 @@ class InvoiceController extends BaseController
                 }
                 break;
             case 'cancel':
-                $invoice = $invoice->service()->handleCancellation()->save();
+                $invoice = $invoice->service()->handleCancellation()->deletePdf()->save();
 
                 if (! $bulk) {
                     $this->itemResponse($invoice);
                 }
                 break;
             case 'reverse':
-                $invoice = $invoice->service()->handleReversal()->save();
+                $invoice = $invoice->service()->handleReversal()->deletePdf()->save();
 
                 if (! $bulk) {
                     $this->itemResponse($invoice);
@@ -720,7 +722,7 @@ class InvoiceController extends BaseController
                 }
 
                 //touch reminder1,2,3_sent + last_sent here if the email is a reminder.
-                $invoice->service()->touchReminder($this->reminder_template)->save();
+                $invoice->service()->touchReminder($this->reminder_template)->deletePdf()->save();
 
                 $invoice->invitations->load('contact.client.country', 'invoice.client.country', 'invoice.company')->each(function ($invitation) use ($invoice) {
                     EmailEntity::dispatch($invitation, $invoice->company, $this->reminder_template);
