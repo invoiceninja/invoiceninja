@@ -59,7 +59,7 @@ class PaymentNotification implements ShouldQueue
         foreach ($payment->company->company_users as $company_user) {
             $user = $company_user->user;
 
-            $methods = $this->findUserEntityNotificationType($payment, $company_user, ['all_notifications']);
+            $methods = $this->findUserEntityNotificationType($payment, $company_user, ['payment_success_all', 'all_notifications']);
 
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
@@ -69,19 +69,8 @@ class PaymentNotification implements ShouldQueue
                 NinjaMailerJob::dispatch($nmo);
             }
 
-            // $notification = new NewPaymentNotification($payment, $payment->company);
-            // $notification->method = $methods;
-
-            // if ($user) {
-            //     $user->notify($notification);
-            // }
         }
 
-        /*Company Notifications*/
-        // if (isset($payment->company->slack_webhook_url)) {
-        //     Notification::route('slack', $payment->company->slack_webhook_url)
-        //         ->notify(new NewPaymentNotification($payment, $payment->company, true));
-        // }
 
         /*Google Analytics Track Revenue*/
         if (isset($payment->company->google_analytics_key)) {
