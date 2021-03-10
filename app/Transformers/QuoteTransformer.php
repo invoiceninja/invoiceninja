@@ -139,6 +139,8 @@ class QuoteTransformer extends EntityTransformer
             'exchange_rate' => (float) $quote->exchange_rate,
             'paid_to_date' => (float) $quote->paid_to_date,
             'project_id' => $this->encodePrimaryKey($quote->project_id),
+            'subscription_id' => $this->encodePrimaryKey($quote->subscription_id),
+
         ];
     }
 }

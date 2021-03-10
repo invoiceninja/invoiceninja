@@ -374,6 +374,8 @@ class RecurringInvoiceController extends BaseController
 
         $recurring_invoice = $this->recurring_invoice_repo->save($request->all(), $recurring_invoice);
 
+        $recurring_invoice->service()->deletePdf()->save();
+
         return $this->itemResponse($recurring_invoice);
     }
 
@@ -439,7 +441,7 @@ class RecurringInvoiceController extends BaseController
     /**
      * @OA\Get(
      *      path="/api/v1/recurring_invoice/{invitation_key}/download",
-     *      operationId="downloadInvoice",
+     *      operationId="downloadRecurringInvoice",
      *      tags={"invoices"},
      *      summary="Download a specific invoice by invitation key",
      *      description="Downloads a specific invoice",

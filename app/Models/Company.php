@@ -86,6 +86,7 @@ class Company extends BaseModel
         'session_timeout',
         'oauth_password_required',
         'invoice_task_datelog',
+        'default_password_timeout',
     ];
 
     protected $hidden = [
@@ -156,6 +157,16 @@ class Company extends BaseModel
     public function expense_categories()
     {
         return $this->hasMany(ExpenseCategory::class)->withTrashed();
+    }
+
+    public function client_subscriptions()
+    {
+        return $this->hasMany(ClientSubscription::class)->withTrashed();
+    }
+
+    public function billing_subscriptions()
+    {
+        return $this->hasMany(BillingSubscription::class)->withTrashed();
     }
 
     public function task_statuses()

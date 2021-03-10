@@ -387,6 +387,8 @@ class QuoteController extends BaseController
 
         $quote = $this->quote_repo->save($request->all(), $quote);
 
+        $quote->service()->deletePdf();
+        
         event(new QuoteWasUpdated($quote, $quote->company, Ninja::eventVars()));
 
         return $this->itemResponse($quote);

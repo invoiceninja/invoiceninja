@@ -13,7 +13,9 @@ namespace App\Transformers;
 
 use App\Models\Account;
 use App\Models\Activity;
+use App\Models\BillingSubscription;
 use App\Models\Client;
+use App\Models\ClientSubscription;
 use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\CompanyLedger;
@@ -90,6 +92,7 @@ class CompanyTransformer extends EntityTransformer
         'system_logs',
         'expense_categories',
         'task_statuses',
+        'client_subscriptions',
     ];
 
     /**
@@ -154,6 +157,7 @@ class CompanyTransformer extends EntityTransformer
             'expense_amount_is_pretax' =>(bool)true, //@deprecate 1-2-2021
             'oauth_password_required' => (bool)$company->oauth_password_required,
             'session_timeout' => (int)$company->session_timeout,
+            'default_password_timeout' => (int) $company->default_password_timeout,
         ];
     }
 
@@ -356,5 +360,19 @@ class CompanyTransformer extends EntityTransformer
         $transformer = new SystemLogTransformer($this->serializer);
 
         return $this->includeCollection($company->system_logs, $transformer, SystemLog::class);
+    }
+
+    public function includeClientSubscriptions(Company $company)
+    {
+        $transformer = new ClientSubscriptionTransformer($this->serializer);
+
+        return $this->includeCollection($company->client_subscriptions, $transformer, ClientSubscription::class);
+    }
+
+    public function includeBillingSubscriptions(Company $company)
+    {
+        $transformer = new BillingSubscriptionTransformer($this->serializer);
+
+        return $this->includeCollection($company->billing_subscriptions, $transformer, BillingSubscription::class);
     }
 }

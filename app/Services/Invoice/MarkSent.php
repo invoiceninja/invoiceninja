@@ -47,6 +47,7 @@ class MarkSent extends AbstractService
              ->applyNumber()
              ->setDueDate()
              ->updateBalance($this->invoice->amount)
+             ->deletePdf()
              ->save();
 
         $this->client->service()->updateBalance($this->invoice->balance)->save();

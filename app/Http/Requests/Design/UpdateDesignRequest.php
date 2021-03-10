@@ -53,6 +53,10 @@ class UpdateDesignRequest extends Request
             $input['design']['footer'] = '';
         }
 
+        if (! array_key_exists('header', $input['design']) || is_null($input['design']['header'])) {
+            $input['design']['header'] = '';
+        }
+
         $this->replace($input);
     }
 }

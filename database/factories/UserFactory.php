@@ -37,7 +37,6 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password'          => bcrypt(config('ninja.testvars.password')), // secret
             'remember_token'    => \Illuminate\Support\Str::random(10),
-            'default_password_timeout' => 30,
         ];
     }
 }

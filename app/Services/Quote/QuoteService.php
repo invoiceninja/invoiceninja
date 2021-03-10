@@ -39,21 +39,6 @@ class QuoteService
         return $this;
     }
 
-    // public function markApproved()
-    // {
-    //     $mark_approved = new MarkApproved($this->quote->client);
-    //     $this->quote = $mark_approved->run($this->quote);
-
-    //     if ($this->quote->client->getSetting('auto_convert_quote') == true) {
-    //         $this->convert();
-    //     }
-
-    //     $this->markSent()
-    //          ->createInvitations();
-
-    //     return $this;
-    // }
-
     public function convert() :self
     {
         if ($this->quote->invoice_id) {
@@ -127,6 +112,7 @@ class QuoteService
                  ->service()
                  ->markSent()
                  ->createInvitations()
+                 ->deletePdf()
                  ->save();
 
         }

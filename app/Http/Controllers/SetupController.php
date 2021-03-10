@@ -155,6 +155,7 @@ class SetupController extends Controller
 
             return redirect('/');
         } catch (Exception $e) {
+            
             nlog($e->getMessage());
 
             return redirect()
