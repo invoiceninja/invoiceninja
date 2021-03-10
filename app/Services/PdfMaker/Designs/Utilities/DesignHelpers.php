@@ -12,9 +12,7 @@
 
 namespace App\Services\PdfMaker\Designs\Utilities;
 
-use App\Models\Task;
 use App\Utils\Traits\MakesHash;
-use Carbon\Carbon;
 use DOMDocument;
 use DOMXPath;
 use Exception;
@@ -272,5 +270,36 @@ trait DesignHelpers
         if ($key) {
             array_splice($this->context['pdf_variables']["{$type}_columns"], $key + 1, 0, $custom_columns);
         }
+    }
+
+    public function getCustomFieldValue(string $field): string
+    {
+        // In custom_fields column we store fields like: company1-4,
+        // while in settings, they're stored in custom_value1-4 format.
+        // That's why we need this mapping.
+
+        $fields = [
+            'company1' => 'custom_value1',
+            'company2' => 'custom_value2',
+            'company3' => 'custom_value3',
+            'company4' => 'custom_value4',
+        ];
+
+        if (!array_key_exists($field, $fields)) {
+            return '';
+        }
+
+        if (!property_exists($this->client->company->custom_fields, $field)) {
+            return '';
+        }
+
+        $value = $this->client->company->getSetting($fields[$field]);
+
+        return (new \App\Utils\Helpers)->formatCustomFieldValue(
+            $this->client->company->custom_fields,
+            $field,
+            $value,
+            $this->client
+        );
     }
 }
