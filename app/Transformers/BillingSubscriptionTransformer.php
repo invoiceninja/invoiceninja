@@ -57,6 +57,7 @@ class BillingSubscriptionTransformer extends EntityTransformer
             'plan_map' => (string)$billing_subscription->plan_map,
             'refund_period' => (int)$billing_subscription->refund_period,
             'webhook_configuration' => (string)$billing_subscription->webhook_configuration,
+            'purchase_page' => (string)route('client.subscription.purchase', $billing_subscription->hashed_id),
             'is_deleted' => (bool)$billing_subscription->is_deleted,
             'created_at' => (int)$billing_subscription->created_at,
             'updated_at' => (int)$billing_subscription->updated_at,
