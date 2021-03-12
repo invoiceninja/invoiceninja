@@ -134,10 +134,9 @@ class ConnectedAccountController extends BaseController
             auth()->user()->save();
 
             //$ct = CompanyUser::whereUserId(auth()->user()->id);
-            $ct = CompanyUser::whereUserId(auth()->user()->id);
-
-            return $this->listResponse($ct);
-            // return $this->listResponse(auth()->user());
+            //return $this->listResponse($ct);
+            
+            return $this->listResponse(auth()->user());
         }
 
         return response()

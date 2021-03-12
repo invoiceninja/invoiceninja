@@ -11,9 +11,10 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title></title>
 </head>
 
-<style>
+<style type="text/css">
     :root {
         --primary-color: {{ isset($settings) ? $settings->primary_color : '#4caf50' }};
     }
@@ -46,6 +47,18 @@
     #email-content a, .link {
         word-break: break-all;
     }
+
+    #email-content .button {
+        position: center;
+    }
+
+    .center {
+        text-align: center;
+    }
+
+    p {
+        padding-bottom: 5px;
+    }
 </style>
 
 <body style="margin: 0; padding: 0; background-color: {{ $design == 'light' ? '#F9FAFB' : '#111827' }};">
@@ -63,7 +76,7 @@
                     <td bgcolor="{{ $design == 'light' ? '#ffffff' : '#1F2937'}}" style="padding: 40px 30px 40px 30px;">
                         <table cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse;">
                             <tr>
-                                <td align="center" id="email-content">
+                                <td id="email-content">
                                     @yield('greeting')
 
                                     {{ $slot }}
