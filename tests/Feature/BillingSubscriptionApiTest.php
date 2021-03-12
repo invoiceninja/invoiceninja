@@ -45,7 +45,7 @@ class BillingSubscriptionApiTest extends TestCase
         Model::reguard();
     }
 
-    public function testExpenseGet()
+    public function testBillingSubscriptionsGet()
     {
         $product = Product::factory()->create([
             'company_id' => $this->company->id,
