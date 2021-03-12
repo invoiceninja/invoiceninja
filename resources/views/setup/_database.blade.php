@@ -8,6 +8,7 @@
     </div>
     <div>
         <dl>
+            @if (! config('ninja.preconfigured_install'))
             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
                 <dt class="text-sm leading-5 font-medium text-gray-500">
                     You can use following commands to create user & database.
@@ -73,6 +74,7 @@ FLUSH PRIVILEGES;
                     <input type="password" class="input w-full" name="db_password" value="{{ old('db_password') ?: 'ninja' }}">
                 </dd>
             </div>
+            @endif
             <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
                 <dt class="text-sm leading-5 font-medium text-gray-500">
                     <button type="button" class="button button-primary bg-blue-600 py-2 px-3 text-xs" id="test-db-connection">
