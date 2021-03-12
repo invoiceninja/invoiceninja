@@ -20,6 +20,6 @@ class BillingSubscriptionPurchaseController extends Controller
 {
     public function index(BillingSubscription $billing_subscription)
     {
-        return view('billing-portal.purchase');
+        return view('billing-portal.purchase', ['billing_subscription' => $billing_subscription]);
     }
 }

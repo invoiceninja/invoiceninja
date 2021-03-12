@@ -37,11 +37,12 @@
                     @endcomponent
                 @endif
 
-                @if($authenticated)
+                @if($this->steps['fetched_payment_methods'])
                     <div class="flex items-center space-x-4 mt-4 text-sm">
-                        <button class="pb-2 border-b-2 border-blue-600">Credit card</button>
-                        <button class="pb-2 border-b-2 border-transparent hover:border-blue-600">Bank transfer</button>
-                        <button class="pb-2 border-b-2 border-transparent hover:border-blue-600">PayPal</button>
+                        @foreach($this->methods as $method)
+                            <button
+                                class="pb-2 border-b-2 border-transparent hover:border-blue-600">{{ $method['label'] }}</button>
+                        @endforeach
                     </div>
                 @endif
 
@@ -53,21 +54,21 @@
                         <input wire:model="email" type="email" class="input w-full"/>
 
                         @error('email')
-                            <p class="validation validation-fail block w-full" role="alert">
-                                {{ $message }}
-                            </p>
+                        <p class="validation validation-fail block w-full" role="alert">
+                            {{ $message }}
+                        </p>
                         @enderror
                     </label>
 
                     @if($steps['existing_user'])
                         <label for="password" class="block mt-2">
                             <span class="input-label">Password</span>
-                            <input wire:model="password" type="password" class="input w-full"/>
+                            <input wire:model="password" type="password" class="input w-full" autofocus/>
 
                             @error('password')
-                                <p class="validation validation-fail block w-full" role="alert">
-                                    {{ $message }}
-                                </p>
+                            <p class="validation validation-fail block w-full" role="alert">
+                                {{ $message }}
+                            </p>
                             @enderror
                         </label>
                     @endif
