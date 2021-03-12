@@ -150,7 +150,7 @@ class SystemHealth
     {
         $result = ['success' => false];
 
-        if ($request) {
+        if ($request && !config('ninja.preconfigured_install')) {
             config(['database.connections.db-ninja-01.host' => $request->input('db_host')]);
             config(['database.connections.db-ninja-01.port' => $request->input('db_port')]);
             config(['database.connections.db-ninja-01.database' => $request->input('db_database')]);

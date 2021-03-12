@@ -23,18 +23,21 @@ class Setup {
     }
 
     handleDatabaseCheck() {
-        let url = document.querySelector('meta[name=setup-db-check]').content;
+        let url = document.querySelector('meta[name=setup-db-check]').content,
+            data = {};
 
-        let data = {
-            db_host: document.querySelector('input[name="db_host"]').value,
-            db_port: document.querySelector('input[name="db_port"]').value,
-            db_database: document.querySelector('input[name="db_database"]')
-                .value,
-            db_username: document.querySelector('input[name="db_username"]')
-                .value,
-            db_password: document.querySelector('input[name="db_password"]')
-                .value,
-        };
+        if (document.querySelector('input[name="db_host"]')) {
+            data = {
+                db_host: document.querySelector('input[name="db_host"]').value,
+                db_port: document.querySelector('input[name="db_port"]').value,
+                db_database: document.querySelector('input[name="db_database"]')
+                    .value,
+                db_username: document.querySelector('input[name="db_username"]')
+                    .value,
+                db_password: document.querySelector('input[name="db_password"]')
+                    .value,
+            };
+        }
 
         this.checkDbButton.disabled = true;
 
