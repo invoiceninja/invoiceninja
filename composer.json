@@ -65,7 +65,7 @@
         "predis/predis": "^1.1",
         "sentry/sentry-laravel": "^2",
         "stripe/stripe-php": "^7.50",
-        "turbo124/beacon": "^1",
+        "turbo124/beacon": "^1.0",
         "webpatser/laravel-countries": "dev-master#75992ad",
         "wildbit/swiftmailer-postmark": "^3.3"
     },

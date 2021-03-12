@@ -166,21 +166,21 @@ class InvoiceSumInclusive
     {
         //$this->total += $this->total_taxes;
 
-        if (is_numeric($this->invoice->custom_value1)) {
-            $this->total += $this->invoice->custom_value1;
-        }
+        // if (is_numeric($this->invoice->custom_value1)) {
+        //     $this->total += $this->invoice->custom_value1;
+        // }
 
-        if (is_numeric($this->invoice->custom_value2)) {
-            $this->total += $this->invoice->custom_value2;
-        }
+        // if (is_numeric($this->invoice->custom_value2)) {
+        //     $this->total += $this->invoice->custom_value2;
+        // }
 
-        if (is_numeric($this->invoice->custom_value3)) {
-            $this->total += $this->invoice->custom_value3;
-        }
+        // if (is_numeric($this->invoice->custom_value3)) {
+        //     $this->total += $this->invoice->custom_value3;
+        // }
 
-        if (is_numeric($this->invoice->custom_value4)) {
-            $this->total += $this->invoice->custom_value4;
-        }
+        // if (is_numeric($this->invoice->custom_value4)) {
+        //     $this->total += $this->invoice->custom_value4;
+        // }
 
         return $this;
     }
