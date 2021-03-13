@@ -213,13 +213,13 @@ class InvoiceController extends BaseController
 
         $invoice = $this->invoice_repo->save($request->all(), InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
-        event(new InvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars()));
-
         $invoice = $invoice->service()
                            ->fillDefaults()
                            ->triggeredActions($request)
                            ->save();
 
+        event(new InvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars()));
+        
         return $this->itemResponse($invoice);
     }
 

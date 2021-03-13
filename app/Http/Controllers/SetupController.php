@@ -145,12 +145,12 @@ class SetupController extends Controller
 
             /* Make sure no stale connections are cached */
             DB::purge('db-ninja-01');
-
+            
             /* Run migrations */
             Artisan::call('optimize');
             Artisan::call('migrate', ['--force' => true]);
             Artisan::call('db:seed', ['--force' => true]);
-
+            
             Storage::disk('local')->delete('test.pdf');
 
             /* Create the first account. */
@@ -166,6 +166,7 @@ class SetupController extends Controller
         } catch (Exception $e) {
             
             nlog($e->getMessage());
+            info($e->getMessage());
 
             return redirect()
                 ->back()

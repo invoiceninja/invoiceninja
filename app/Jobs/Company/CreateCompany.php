@@ -58,6 +58,7 @@ class CreateCompany
         $company->db = config('database.default');
         $company->enabled_modules = config('ninja.enabled_modules');
         $company->subdomain = isset($this->request['subdomain']) ? $this->request['subdomain'] : '';
+        $company->custom_fields = new \stdClass;
         $company->save();
 
         return $company;
