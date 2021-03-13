@@ -57,9 +57,8 @@ class BillingPortalPurchase extends Component
 
         $this->steps['existing_user'] = false;
 
-        $this
-            ->createBlankClient()
-            ->getPaymentMethods();
+        $contact = $this->createBlankClient();
+        $this->getPaymentMethods($contact);
     }
 
     protected function createBlankClient()
@@ -77,7 +76,7 @@ class BillingPortalPurchase extends Component
 
 //        dd($response->toArray());
 
-        return $this;
+        return ClientContact::where('email', $this->email)->first();
     }
 
     protected function getPaymentMethods(ClientContact $contact): self
