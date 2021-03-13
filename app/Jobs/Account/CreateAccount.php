@@ -60,7 +60,10 @@ class CreateAccount
 
     private function create()
     {
-        $sp794f3f = Account::create($this->request);
+        Account::reguard();
+        $sp794f3f = new Account();
+        $sp794f3f->fill($this->request);
+
         $sp794f3f->referral_code = Str::random(32);
 
         if (! $sp794f3f->key) {

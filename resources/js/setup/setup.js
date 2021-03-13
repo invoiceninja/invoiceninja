@@ -96,8 +96,8 @@ class Setup {
         Axios.post(url, {})
             .then((response) => {
                 try {
-                    let win = window.open(response.data.url, '_blank');
-                    win.focus();
+                    //let win = window.open(response.data.url, '_blank');
+                    //win.focus();
 
                     return this.handleSuccess(
                         this.checkPdfAlert,
@@ -105,7 +105,7 @@ class Setup {
                     );
                 } catch (error) {
                     this.handleSuccess(this.checkPdfAlert, 'database-wrapper');
-                    this.checkPdfAlert.textContent = `Success! You can preview test PDF here: ${response.data.url}`;
+                    this.checkPdfAlert.textContent = `Success! PDF was generated succesfully.`;
                 }
             })
             .catch((error) => {
