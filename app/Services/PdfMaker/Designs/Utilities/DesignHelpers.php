@@ -288,7 +288,6 @@ trait DesignHelpers
         if (!array_key_exists($field, $fields)) {
             return '';
         }
-nlog($this->client->company);
 
         if (!property_exists($this->client->company->custom_fields, $field)) {
             return '';
