@@ -22,10 +22,6 @@
         @lang($button)
     @endcomponent
 
-    @slot('signature')
-        {{ $signature }}
-    @endslot
-
     @if(isset($whitelabel) && !$whitelabel)
         @slot('footer')
             @component('email.components.footer', ['url' => 'https://invoiceninja.com', 'url_text' => '&copy; InvoiceNinja'])
