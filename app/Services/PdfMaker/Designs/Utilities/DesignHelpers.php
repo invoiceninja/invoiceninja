@@ -289,7 +289,7 @@ trait DesignHelpers
             return '';
         }
 
-        if (!property_exists($this->client->company->custom_fields, $field)) {
+        if ($this->client->company->custom_fields && !property_exists($this->client->company->custom_fields, $field)) {
             return '';
         }
 
