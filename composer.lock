@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f051c9703768368f9a74e9b2c57f2b80",
+    "content-hash": "750f06b1412d6b779f433886a4770d21",
     "packages": [
         {
             "name": "authorizenet/authorizenet",
@@ -9502,16 +9502,16 @@
         },
         {
             "name": "turbo124/beacon",
-            "version": "1.0.4",
+            "version": "1.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/turbo124/beacon.git",
-                "reference": "ae328ad12364186dd07d893d35f6991880b97f18"
+                "reference": "2f38612c1bb4c292d154c8fba478bdf8c019fcd9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/turbo124/beacon/zipball/ae328ad12364186dd07d893d35f6991880b97f18",
-                "reference": "ae328ad12364186dd07d893d35f6991880b97f18",
+                "url": "https://api.github.com/repos/turbo124/beacon/zipball/2f38612c1bb4c292d154c8fba478bdf8c019fcd9",
+                "reference": "2f38612c1bb4c292d154c8fba478bdf8c019fcd9",
                 "shasum": ""
             },
             "require": {
@@ -9559,9 +9559,9 @@
                 "turbo124"
             ],
             "support": {
-                "source": "https://github.com/turbo124/beacon/tree/1.0.4"
+                "source": "https://github.com/turbo124/beacon/tree/1.0.6"
             },
-            "time": "2020-12-15T20:56:25+00:00"
+            "time": "2021-03-09T09:25:50+00:00"
         },
         {
             "name": "vlucas/phpdotenv",

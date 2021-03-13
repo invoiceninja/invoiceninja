@@ -66,7 +66,7 @@
         "sentry/sentry-laravel": "^2",
         "stripe/stripe-php": "^7.50",
         "symfony/http-client": "^5.2",
-        "turbo124/beacon": "^1",
+        "turbo124/beacon": "^1.0",
         "webpatser/laravel-countries": "dev-master#75992ad",
         "wildbit/swiftmailer-postmark": "^3.3"
     },

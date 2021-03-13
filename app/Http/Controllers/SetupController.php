@@ -125,6 +125,15 @@ class SetupController extends Controller
             'DB_CONNECTION' => 'db-ninja-01',
         ];
 
+        if(config('ninja.preconfigured_install')){
+        	// Database connection was already configured. Don't let the user override it.
+        	unset($env_values['DB_HOST1']);
+			unset($env_values['DB_PORT1']);
+			unset($env_values['DB_DATABASE1']);
+			unset($env_values['DB_USERNAME1']);
+			unset($env_values['DB_PASSWORD1']);
+		}
+
         try {
 
             foreach ($env_values as $property => $value) {
@@ -136,12 +145,12 @@ class SetupController extends Controller
 
             /* Make sure no stale connections are cached */
             DB::purge('db-ninja-01');
-
+            
             /* Run migrations */
             Artisan::call('optimize');
             Artisan::call('migrate', ['--force' => true]);
             Artisan::call('db:seed', ['--force' => true]);
-
+            
             Storage::disk('local')->delete('test.pdf');
 
             /* Create the first account. */
@@ -157,6 +166,7 @@ class SetupController extends Controller
         } catch (Exception $e) {
             
             nlog($e->getMessage());
+            info($e->getMessage());
 
             return redirect()
                 ->back()

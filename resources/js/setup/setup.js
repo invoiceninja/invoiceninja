@@ -23,18 +23,21 @@ class Setup {
     }
 
     handleDatabaseCheck() {
-        let url = document.querySelector('meta[name=setup-db-check]').content;
+        let url = document.querySelector('meta[name=setup-db-check]').content,
+            data = {};
 
-        let data = {
-            db_host: document.querySelector('input[name="db_host"]').value,
-            db_port: document.querySelector('input[name="db_port"]').value,
-            db_database: document.querySelector('input[name="db_database"]')
-                .value,
-            db_username: document.querySelector('input[name="db_username"]')
-                .value,
-            db_password: document.querySelector('input[name="db_password"]')
-                .value,
-        };
+        if (document.querySelector('input[name="db_host"]')) {
+            data = {
+                db_host: document.querySelector('input[name="db_host"]').value,
+                db_port: document.querySelector('input[name="db_port"]').value,
+                db_database: document.querySelector('input[name="db_database"]')
+                    .value,
+                db_username: document.querySelector('input[name="db_username"]')
+                    .value,
+                db_password: document.querySelector('input[name="db_password"]')
+                    .value,
+            };
+        }
 
         this.checkDbButton.disabled = true;
 
@@ -93,8 +96,8 @@ class Setup {
         Axios.post(url, {})
             .then((response) => {
                 try {
-                    let win = window.open(response.data.url, '_blank');
-                    win.focus();
+                    //let win = window.open(response.data.url, '_blank');
+                    //win.focus();
 
                     return this.handleSuccess(
                         this.checkPdfAlert,
@@ -102,7 +105,7 @@ class Setup {
                     );
                 } catch (error) {
                     this.handleSuccess(this.checkPdfAlert, 'database-wrapper');
-                    this.checkPdfAlert.textContent = `Success! You can preview test PDF here: ${response.data.url}`;
+                    this.checkPdfAlert.textContent = `Success! PDF was generated succesfully.`;
                 }
             })
             .catch((error) => {

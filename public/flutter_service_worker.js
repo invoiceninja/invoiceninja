@@ -7,7 +7,7 @@ const RESOURCES = {
 "manifest.json": "77215c1737c7639764e64a192be2f7b8",
 "icons/Icon-192.png": "bb1cf5f6982006952211c7c8404ffbed",
 "icons/Icon-512.png": "0f9aff01367f0a0c69773d25ca16ef35",
-"assets/NOTICES": "a5e9ede1dfb62a7ca46881980b5a0798",
+"assets/NOTICES": "e80e999afd09f0f14597c78d582d9c7c",
 "assets/assets/images/logo.png": "090f69e23311a4b6d851b3880ae52541",
 "assets/assets/images/payment_types/discover.png": "6c0a386a00307f87db7bea366cca35f5",
 "assets/assets/images/payment_types/carteblanche.png": "d936e11fa3884b8c9f1bd5c914be8629",
@@ -30,7 +30,7 @@ const RESOURCES = {
 "assets/packages/material_design_icons_flutter/lib/fonts/materialdesignicons-webfont.ttf": "3e722fd57a6db80ee119f0e2c230ccff",
 "assets/FontManifest.json": "cf3c681641169319e61b61bd0277378f",
 "/": "23224b5e03519aaa87594403d54412cf",
-"main.dart.js": "e8bf48c946bec2ef549453166318a7be",
+"main.dart.js": "c11c4d2efa9e671a88eb792d18c2296e",
 "version.json": "b7c8971e1ab5b627fd2a4317c52b843e",
 "favicon.png": "dca91c54388f52eded692718d5a98b8b"
 };

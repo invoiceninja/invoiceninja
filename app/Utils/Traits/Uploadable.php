@@ -33,7 +33,7 @@ trait Uploadable
         if ($file) {
             $path = UploadAvatar::dispatchNow($file, $company->company_key);
 
-            $path = str_replace(config("ninja.app_url"), "", $path);
+            //$path = str_replace(config("ninja.app_url"), "", $path);
 
             info("the path {$path}");
 
