@@ -96,8 +96,8 @@ class Setup {
         Axios.post(url, {})
             .then((response) => {
                 try {
-                    let win = window.open(response.data.url, '_blank');
-                    win.focus();
+                    //let win = window.open(response.data.url, '_blank');
+                    //win.focus();
 
                     return this.handleSuccess(
                         this.checkPdfAlert,
