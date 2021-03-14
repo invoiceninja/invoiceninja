@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Services\BillingSubscription\BillingSubscriptionService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -52,6 +53,11 @@ class BillingSubscription extends BaseModel
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
     ];
+
+    public function service()
+    {
+        return new BillingSubscriptionService($this);
+    }
 
     public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
