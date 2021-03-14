@@ -24,6 +24,13 @@
                         </table>
                     </td>
                 </tr>
+                @if($signature)
+                    <tr>
+                        <td>
+                            <p>{{ $signature }}</p>
+                        </td>
+                    </tr>
+                @endif
                 <tr>
                     @isset($whitelabel)
                         @if(!$whitelabel)
