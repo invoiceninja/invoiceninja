@@ -4174,7 +4174,9 @@ $LANG = array(
      'zoho' => 'Zoho',
      'accounting' => 'Accounting',
      'required_files_missing' => 'Please provide all CSVs.',
-
+     'migration_auth_label' => 'Let\'s continue by authenticating.',
+     'api_secret' => 'API secret',
+     'migration_api_secret_notice' => 'You can find API_SECRET in the .env file or Invoice Ninja v5. If property is missing, leave field blank.',
 );
 
 return $LANG;
