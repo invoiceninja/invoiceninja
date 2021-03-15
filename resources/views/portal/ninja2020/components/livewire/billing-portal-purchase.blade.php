@@ -29,8 +29,7 @@
     <div class="col-span-12 lg:col-span-6 bg-white lg:shadow-lg lg:h-screen">
         <div class="grid grid-cols-12 flex flex-col p-10 lg:mt-48 lg:ml-16">
             <div class="col-span-12 w-full lg:col-span-6">
-                <h2 class="text-2xl font-bold tracking-wide">Payment details</h2>
-
+                <h2 class="text-2xl font-bold tracking-wide">{{ $heading_text }}</h2>
                 @if (session()->has('message'))
                     @component('portal.ninja2020.components.message')
                         {{ session('message') }}
@@ -38,43 +37,56 @@
                 @endif
 
                 @if($this->steps['fetched_payment_methods'])
-                    <div class="flex items-center space-x-4 mt-4 text-sm">
+                    <div class="flex items-center mt-4 text-sm">
+                        <form action="{{ route('client.payments.process', ['hash' => $hash, 'sidebar' => 'hidden']) }}" method="post"
+                              id="payment-method-form">
+                            @csrf
+                            <input type="hidden" name="action" value="payment">
+                            <input type="hidden" name="company_gateway_id" id="company_gateway_id">
+                            <input type="hidden" name="payment_method_id" id="payment_method_id">
+                        </form>
+
                         @foreach($this->methods as $method)
                             <button
-                                class="pb-2 border-b-2 border-transparent hover:border-blue-600">{{ $method['label'] }}</button>
+                                data-company-gateway-id="{{ $method['company_gateway_id'] }}"
+                                data-payment-method-id="{{ $method['gateway_type_id'] }}"
+                                onclick="updateGatewayFields(this.dataset.companyGatewayId, this.dataset.paymentMethodId);"
+                                class="p-4 border rounded mr-4 hover:border-blue-600">
+                                {{ $method['label'] }}
+                            </button>
                         @endforeach
                     </div>
-                @endif
+                @else
+                    <form wire:submit.prevent="authenticate" class="mt-8">
+                        @csrf
 
-                <form wire:submit.prevent="authenticate" class="mt-8">
-                    @csrf
+                        <label for="email_address">
+                            <span class="input-label">E-mail address</span>
+                            <input wire:model.defer="email" type="email" class="input w-full"/>
 
-                    <label for="email_address">
-                        <span class="input-label">E-mail address</span>
-                        <input wire:model="email" type="email" class="input w-full"/>
-
-                        @error('email')
-                        <p class="validation validation-fail block w-full" role="alert">
-                            {{ $message }}
-                        </p>
-                        @enderror
-                    </label>
-
-                    @if($steps['existing_user'])
-                        <label for="password" class="block mt-2">
-                            <span class="input-label">Password</span>
-                            <input wire:model="password" type="password" class="input w-full" autofocus/>
-
-                            @error('password')
+                            @error('email')
                             <p class="validation validation-fail block w-full" role="alert">
                                 {{ $message }}
                             </p>
                             @enderror
                         </label>
-                    @endif
 
-                    <button type="submit" class="button button-block bg-primary text-white mt-4">Next</button>
-                </form>
+                        @if($steps['existing_user'])
+                            <label for="password" class="block mt-2">
+                                <span class="input-label">Password</span>
+                                <input wire:model.defer="password" type="password" class="input w-full" autofocus/>
+
+                                @error('password')
+                                <p class="validation validation-fail block w-full" role="alert">
+                                    {{ $message }}
+                                </p>
+                                @enderror
+                            </label>
+                        @endif
+
+                        <button type="submit" class="button button-block bg-primary text-white mt-4">Next</button>
+                    </form>
+                @endif
             </div>
         </div>
     </div>

@@ -2,16 +2,21 @@
 
 namespace App\Http\Livewire;
 
-use App\Models\BillingSubscription;
+use App\Factory\ClientFactory;
 use App\Models\ClientContact;
 use App\Models\Company;
+use App\Models\User;
+use App\Repositories\ClientContactRepository;
+use App\Repositories\ClientRepository;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Livewire\Component;
-use Symfony\Component\HttpClient\HttpClient;
 
 class BillingPortalPurchase extends Component
 {
-    public $authenticated = false;
+    public $hash;
+
+    public $heading_text = 'Log in';
 
     public $email;
 
@@ -19,14 +24,21 @@ class BillingPortalPurchase extends Component
 
     public $billing_subscription;
 
+    public $contact;
+
     protected $rules = [
         'email' => ['required', 'email'],
     ];
+
+    public $company_gateway_id;
+
+    public $payment_method_id;
 
     public $steps = [
         'passed_email' => false,
         'existing_user' => false,
         'fetched_payment_methods' => false,
+        'fetched_client' => false,
     ];
 
     public $methods = [];
@@ -34,10 +46,6 @@ class BillingPortalPurchase extends Component
     public function authenticate()
     {
         $this->validate();
-
-        // Search for existing e-mail (note on multiple databases).
-        // If existing e-mail found, offer to login with password.
-        // If not, create a new contact e-mail.
 
         $contact = ClientContact::where('email', $this->email)->first();
 
@@ -48,48 +56,61 @@ class BillingPortalPurchase extends Component
         if ($contact && $this->steps['existing_user']) {
             $attempt = Auth::guard('contact')->attempt(['email' => $this->email, 'password' => $this->password]);
 
-            if ($attempt) {
-                return $this->getPaymentMethods($contact);
-            } else {
-                session()->flash('message', 'These credentials do not match our records.');
-            }
+            return $attempt
+                ? $this->getPaymentMethods($contact)
+                : session()->flash('message', 'These credentials do not match our records.');
         }
 
         $this->steps['existing_user'] = false;
 
         $contact = $this->createBlankClient();
-        $this->getPaymentMethods($contact);
+
+        if ($contact && $contact instanceof ClientContact) {
+            $this->getPaymentMethods($contact);
+        }
     }
 
     protected function createBlankClient()
     {
-        $company = Company::find($this->billing_subscription->company_id);
+        $company = Company::first();
+        $user = User::first();
 
-        $http_client = HttpClient::create();
+        $client_repo = new ClientRepository(new ClientContactRepository());
+        $client_data = [
+            'name' => 'Client Name',
+            'contacts' => [
+                ['email' => $this->email],
+            ]
+        ];
 
-//        $response = $http_client->request('GET', '/api/v1/contacts', [
-//            'headers' => [
-//                'X-Api-Token' => 'company-test-token',
-//                'X-Requested-With' => 'XmlHttpRequest',
-//            ],
-//        ]);
+        $client = $client_repo->save($client_data, ClientFactory::create($company->id, $user->id));
 
-//        dd($response->toArray());
-
-        return ClientContact::where('email', $this->email)->first();
+        return $client->contacts->first();
     }
 
     protected function getPaymentMethods(ClientContact $contact): self
     {
+        Cache::put($this->hash, ['email' => $this->email ?? $this->contact->email, 'url' => url()->current()]);
+
         $this->steps['fetched_payment_methods'] = true;
 
         $this->methods = $contact->client->service()->getPaymentMethods(1000);
+
+        $this->heading_text = 'Pick a payment method';
+
+        Auth::guard('contact')->login($contact);
+
+        $this->contact = $contact;
 
         return $this;
     }
 
     public function render()
     {
+        if ($this->contact instanceof ClientContact) {
+            $this->getPaymentMethods($this->contact);
+        }
+
         return render('components.livewire.billing-portal-purchase');
     }
 }
