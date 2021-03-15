@@ -159,7 +159,8 @@ info("get company");
             'payment_number_pattern' => '',
             'payment_number_counter' => 0,
             'payment_terms' => $this->account->payment_terms ?: '',
-            'reset_counter_frequency_id' => $this->account->reset_counter_frequency_id ? (string) $this->account->reset_counter_frequency_id : '0',
+            'reset_counter_frequency_id' => $this->account->reset_counter_frequency_id ? (string) $this->transformFrequencyId
+            ($this->account->reset_counter_frequency_id) : '0',
             'payment_type_id' => $this->account->payment_type_id ? (string) $this->account->payment_type_id : '1',
             'reset_counter_date' => $this->account->reset_counter_date ?: '',
             'tax_name1' => $this->account->tax_name1 ?: '',
@@ -555,7 +556,7 @@ info("get company");
                 'updated_at' => $invoice->updated_at ? Carbon::parse($invoice->updated_at)->toDateString() : null,
                 'deleted_at' => $invoice->deleted_at ? Carbon::parse($invoice->deleted_at)->toDateString() : null,
                 'next_send_date' => $this->getNextSendDateForMigration($invoice),
-                'frequency_id' => $this->transformFrequencyId($invoice),
+                'frequency_id' => $this->transformFrequencyId($invoice->frequency_id),
                 'due_date_days' => $this->transformDueDate($invoice),
                 'remaining_cycles' => $this->getRemainingCycles($invoice),
                 'invitations' => $this->getResourceInvitations($invoice->invitations, 'recurring_invoice_id'),
@@ -679,9 +680,9 @@ info("get company");
     // const FREQUENCY_THREE_YEARS = 12;
 
 
-    private function transformFrequencyId($invoice)
+    private function transformFrequencyId($frequency_id)
     {
-        switch ($invoice->frequency_id) {
+        switch ($frequency_id) {
             case 1:
                 return 2;
                 break;
