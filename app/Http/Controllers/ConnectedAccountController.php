@@ -136,7 +136,8 @@ class ConnectedAccountController extends BaseController
             //$ct = CompanyUser::whereUserId(auth()->user()->id);
             //return $this->listResponse($ct);
             
-            return $this->listResponse(auth()->user());
+            return $this->itemResponse(auth()->user());
+            // return $this->listResponse(auth()->user());
         }
 
         return response()

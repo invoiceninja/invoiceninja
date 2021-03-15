@@ -6,10 +6,12 @@
 
 {!! $body !!}
 
-@slot('below_card')
-    @if($signature)
-        {{ $signature }}
-    @endif
-@endslot
+@if($signature)
+<br>
+<br>
+<p>
+    {{ $signature }}
+</p>
+@endif
 
 @endcomponent
