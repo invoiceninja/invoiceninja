@@ -53,13 +53,21 @@ class TwoFactorController extends BaseController
         $secret = request()->input('secret');
         $oneTimePassword = request()->input('one_time_password');
 
-        if (! $secret || ! $google2fa->verifyKey($secret, $oneTimePassword)) {
-            return response()->json('message' > ctrans('texts.invalid_one_time_password'));
-        } elseif (! $user->google_2fa_secret && $user->phone && $user->confirmed) {
+        if($google2fa->verifyKey($secret, $oneTimePassword) && $user->phone && $user->confirmed){
+
             $user->google_2fa_secret = encrypt($secret);
             $user->save();
-        }
+        
+            return response()->json(['message' => ctrans('texts.enabled_two_factor')], 200);
 
-        return response()->json(['message' => ctrans('texts.enabled_two_factor')], 200);
+        } elseif (! $secret || ! $google2fa->verifyKey($secret, $oneTimePassword)) {
+
+            return response()->json(['message' => ctrans('texts.invalid_one_time_password')]);
+
+        } 
+            
+        return response()->json(['message' => 'No phone record or user is not confirmed']);
+        
     }
+    
 }
