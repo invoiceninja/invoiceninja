@@ -136,7 +136,7 @@ class PayPalExpressPaymentDriver extends BaseDriver
             $payment = $this->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);
 
             SystemLogger::dispatch(
-                ['response' => $response, 'data' => $data],
+                ['response' => (array)$response->getData(), 'data' => $data],
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_SUCCESS,
                 SystemLog::TYPE_PAYPAL,
