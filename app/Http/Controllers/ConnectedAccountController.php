@@ -87,8 +87,8 @@ class ConnectedAccountController extends BaseController
 
         $google = new Google();
 
-        if($request->header('X-API-OAUTH-PASSWORD') && strlen($request->header('X-API-OAUTH-PASSWORD')) >=1){
-            $user = $google->getTokenResponse($request->header('X-API-OAUTH-PASSWORD'));
+        if(request()->header('X-API-OAUTH-PASSWORD') && strlen(request()->header('X-API-OAUTH-PASSWORD')) >=1){
+            $user = $google->getTokenResponse(request()->header('X-API-OAUTH-PASSWORD'));
         }
         else {
             return response()
