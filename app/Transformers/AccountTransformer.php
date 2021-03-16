@@ -78,6 +78,7 @@ class AccountTransformer extends EntityTransformer
             'is_docker' => (bool) config('ninja.is_docker'),
             'is_scheduler_running' => (bool) $account->is_scheduler_running,
             'default_company_id' => (string) $this->encodePrimaryKey($account->default_company_id),
+            'disable_auto_update' => (bool) config('ninja.disable_auto_update'),
         ];
     }
 
