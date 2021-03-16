@@ -38,19 +38,27 @@
 
                 @if($this->steps['fetched_payment_methods'])
                     <div class="flex items-center mt-4 text-sm">
-                        <form action="{{ route('client.payments.process', ['hash' => $hash, 'sidebar' => 'hidden']) }}" method="post"
+                        <form action="{{ route('client.payments.process', ['hash' => $hash, 'sidebar' => 'hidden']) }}"
+                              method="post"
                               id="payment-method-form">
                             @csrf
+
+                            @if($invoice instanceof \App\Models\Invoice)
+                                <input type="hidden" name="invoices[]" value="{{ $invoice->hashed_id }}">
+                                <input type="hidden" name="payable_invoices[0][amount]"
+                                       value="{{ $invoice->partial > 0 ?  \App\Utils\Number::formatValue($invoice->partial, $invoice->client->currency()) : \App\Utils\Number::formatValue($invoice->balance, $invoice->client->currency()) }}">
+                                <input type="hidden" name="payable_invoices[0][invoice_id]"
+                                       value="{{ $invoice->hashed_id }}">
+                            @endif
+
                             <input type="hidden" name="action" value="payment">
-                            <input type="hidden" name="company_gateway_id" id="company_gateway_id">
-                            <input type="hidden" name="payment_method_id" id="payment_method_id">
+                            <input type="hidden" name="company_gateway_id" value="{{ $company_gateway_id }}"/>
+                            <input type="hidden" name="payment_method_id" value="{{ $payment_method_id }}"/>
                         </form>
 
                         @foreach($this->methods as $method)
                             <button
-                                data-company-gateway-id="{{ $method['company_gateway_id'] }}"
-                                data-payment-method-id="{{ $method['gateway_type_id'] }}"
-                                onclick="updateGatewayFields(this.dataset.companyGatewayId, this.dataset.paymentMethodId);"
+                                wire:click="handleMethodSelectingEvent('{{ $method['company_gateway_id'] }}', '{{ $method['gateway_type_id'] }}')"
                                 class="p-4 border rounded mr-4 hover:border-blue-600">
                                 {{ $method['label'] }}
                             </button>

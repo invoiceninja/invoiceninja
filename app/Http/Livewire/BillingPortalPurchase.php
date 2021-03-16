@@ -4,7 +4,7 @@ namespace App\Http\Livewire;
 
 use App\Factory\ClientFactory;
 use App\Models\ClientContact;
-use App\Models\Company;
+use App\Models\Invoice;
 use App\Models\User;
 use App\Repositories\ClientContactRepository;
 use App\Repositories\ClientRepository;
@@ -43,6 +43,8 @@ class BillingPortalPurchase extends Component
 
     public $methods = [];
 
+    public $invoice;
+
     public function authenticate()
     {
         $this->validate();
@@ -72,18 +74,17 @@ class BillingPortalPurchase extends Component
 
     protected function createBlankClient()
     {
-        $company = Company::first();
-        $user = User::first();
+        $company = $this->billing_subscription->company;
+        $user = User::first(); // TODO: What should be a value of $user?
 
         $client_repo = new ClientRepository(new ClientContactRepository());
-        $client_data = [
+
+        $client = $client_repo->save([
             'name' => 'Client Name',
             'contacts' => [
                 ['email' => $this->email],
             ]
-        ];
-
-        $client = $client_repo->save($client_data, ClientFactory::create($company->id, $user->id));
+        ], ClientFactory::create($company->id, $user->id));
 
         return $client->contacts->first();
     }
@@ -103,6 +104,52 @@ class BillingPortalPurchase extends Component
         $this->contact = $contact;
 
         return $this;
+    }
+
+    public function handleMethodSelectingEvent($company_gateway_id, $gateway_type_id)
+    {
+        $this->company_gateway_id = $company_gateway_id;
+        $this->payment_method_id = $gateway_type_id;
+
+        $this->handleBeforePaymentEvents();
+    }
+
+    public function handleBeforePaymentEvents()
+    {
+        $company = $this->billing_subscription->company;
+        $user = User::first(); // TODO: What should be a value of $user?
+
+        $invoice = [
+            'client_id' => $this->contact->client->id,
+            'line_items' => [[
+                'quantity' => 1,
+                'cost' => 10,
+                'product_key' => 'example',
+                'notes' => 'example',
+                'discount' => 0,
+                'is_amount_discount' => true,
+                'tax_rate1' => 0,
+                'tax_rate2' => 0,
+                'tax_rate3' => 0,
+                'tax_name1' => '',
+                'tax_name2' => '',
+                'tax_name3' => '',
+                'sort_id' => 0,
+                'line_total' => 1,
+                'custom_value1' => 'example',
+                'custom_value2' => 'example',
+                'custom_value3' => 'example',
+                'custom_value4' => 'example',
+                'type_id' => 1,
+                'date' => '',
+            ]],
+        ];
+
+        // TODO: Only for testing.
+        $this->invoice = Invoice::where('status_id', Invoice::STATUS_SENT)->first();
+//        $this->invoice = (new \App\Repositories\InvoiceRepository)->save($invoice, InvoiceFactory::create($company->id, $user->id));
+
+        $this->emit('beforePaymentEventsCompleted');
     }
 
     public function render()
