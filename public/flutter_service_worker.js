@@ -30,7 +30,7 @@ const RESOURCES = {
 "assets/packages/material_design_icons_flutter/lib/fonts/materialdesignicons-webfont.ttf": "3e722fd57a6db80ee119f0e2c230ccff",
 "assets/FontManifest.json": "cf3c681641169319e61b61bd0277378f",
 "/": "23224b5e03519aaa87594403d54412cf",
-"main.dart.js": "43c9d26380bd488d02877d76264fdda8",
+"main.dart.js": "f14fe32826153d78fdaaac24aefc9341",
 "version.json": "b7c8971e1ab5b627fd2a4317c52b843e",
 "favicon.png": "dca91c54388f52eded692718d5a98b8b"
 };
