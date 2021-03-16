@@ -62,11 +62,11 @@ class TwoFactorController extends BaseController
 
         } elseif (! $secret || ! $google2fa->verifyKey($secret, $oneTimePassword)) {
 
-            return response()->json(['message' => ctrans('texts.invalid_one_time_password')]);
+            return response()->json(['message' => ctrans('texts.invalid_one_time_password')], 400);
 
         } 
             
-        return response()->json(['message' => 'No phone record or user is not confirmed']);
+        return response()->json(['message' => 'No phone record or user is not confirmed'], 400);
         
     }
     
