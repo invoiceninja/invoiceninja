@@ -89,23 +89,8 @@ class ConnectedAccountController extends BaseController
 
         $user = $google->getTokenResponse(request()->input('id_token'));
 
-        if (is_array($user)) {
-            
-            $query = [
-                'oauth_user_id' => $google->harvestSubField($user),
-                'oauth_provider_id'=> 'google',
-            ];
-
-            /* Cannot allow duplicates! */
-            if ($existing_user = MultiDB::hasUser($query)) {
-                return response()
-                ->json(['message' => 'User already exists in system.'], 401)
-                ->header('X-App-Version', config('ninja.app_version'))
-                ->header('X-Api-Version', config('ninja.minimum_client_version'));
-            }
-        }
-
         if ($user) {
+            
             $client = new Google_Client();
             $client->setClientId(config('ninja.auth.google.client_id'));
             $client->setClientSecret(config('ninja.auth.google.client_secret'));
@@ -117,7 +102,6 @@ class ConnectedAccountController extends BaseController
             if (array_key_exists('refresh_token', $token)) {
                 $refresh_token = $token['refresh_token'];
             }
-
 
             $connected_account = [
                 'password' => '',
