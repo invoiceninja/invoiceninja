@@ -53,7 +53,7 @@ class TwoFactorController extends BaseController
         $secret = request()->input('secret');
         $oneTimePassword = request()->input('one_time_password');
 
-        if($google2fa->verifyKey($secret, $oneTimePassword) && $user->phone && $user->confirmed){
+        if($google2fa->verifyKey($secret, $oneTimePassword) && $user->phone && $user->email_verified_at){
 
             $user->google_2fa_secret = encrypt($secret);
             $user->save();
