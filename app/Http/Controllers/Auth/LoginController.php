@@ -269,12 +269,14 @@ class LoginController extends BaseController
         $user = $google->getTokenResponse(request()->input('id_token'));
 
         if (is_array($user)) {
+
             $query = [
                 'oauth_user_id' => $google->harvestSubField($user),
                 'oauth_provider_id'=> 'google',
             ];
 
             if ($existing_user = MultiDB::hasUser($query)) {
+
                 Auth::login($existing_user, true);
                 $existing_user->setCompany($existing_user->account->default_company);
 
@@ -282,6 +284,7 @@ class LoginController extends BaseController
                                   ->where('user_id', auth()->user()->id);
 
                 return $this->listResponse($cu);
+                
             }
         }
 
