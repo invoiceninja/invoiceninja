@@ -87,7 +87,16 @@ class ConnectedAccountController extends BaseController
 
         $google = new Google();
 
-        $user = $google->getTokenResponse(request()->input('id_token'));
+        if($request->header('X-API-OAUTH-PASSWORD') && strlen($request->header('X-API-OAUTH-PASSWORD')) >=1){
+            $user = $google->getTokenResponse($request->header('X-API-OAUTH-PASSWORD'));
+        }
+        else {
+            return response()
+                ->json(['message' => 'No valid oauth parameter sent.'], 401)
+                ->header('X-App-Version', config('ninja.app_version'))
+                ->header('X-Api-Version', config('ninja.minimum_client_version'));
+        }
+
 
         if (is_array($user)) {
             
