@@ -4,12 +4,9 @@ namespace App\Http\Livewire;
 
 use App\Factory\ClientFactory;
 use App\Models\ClientContact;
-use App\Models\Invoice;
-use App\Models\User;
 use App\Repositories\ClientContactRepository;
 use App\Repositories\ClientRepository;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 use Livewire\Component;
 
 class BillingPortalPurchase extends Component
@@ -75,7 +72,7 @@ class BillingPortalPurchase extends Component
     protected function createBlankClient()
     {
         $company = $this->billing_subscription->company;
-        $user = User::first(); // TODO: What should be a value of $user?
+        $user = $this->billing_subscription->user;
 
         $client_repo = new ClientRepository(new ClientContactRepository());
 
@@ -91,7 +88,7 @@ class BillingPortalPurchase extends Component
 
     protected function getPaymentMethods(ClientContact $contact): self
     {
-        Cache::put($this->hash, ['email' => $this->email ?? $this->contact->email, 'url' => url()->current()]);
+//        Cache::put($this->hash, ['email' => $this->email ?? $this->contact->email, 'url' => url()->current()]);
 
         $this->steps['fetched_payment_methods'] = true;
 
@@ -116,38 +113,23 @@ class BillingPortalPurchase extends Component
 
     public function handleBeforePaymentEvents()
     {
-        $company = $this->billing_subscription->company;
-        $user = User::first(); // TODO: What should be a value of $user?
-
-        $invoice = [
+        $data = [
             'client_id' => $this->contact->client->id,
-            'line_items' => [[
-                'quantity' => 1,
-                'cost' => 10,
-                'product_key' => 'example',
-                'notes' => 'example',
-                'discount' => 0,
-                'is_amount_discount' => true,
-                'tax_rate1' => 0,
-                'tax_rate2' => 0,
-                'tax_rate3' => 0,
-                'tax_name1' => '',
-                'tax_name2' => '',
-                'tax_name3' => '',
-                'sort_id' => 0,
-                'line_total' => 1,
-                'custom_value1' => 'example',
-                'custom_value2' => 'example',
-                'custom_value3' => 'example',
-                'custom_value4' => 'example',
-                'type_id' => 1,
-                'date' => '',
+            'date' => now()->format('Y-m-d'),
+            'invitations' => [[
+                'key' => '',
+                'client_contact_id' => $this->contact->hashed_id,
             ]],
+            'user_input_promo_code' => '', // Field to input the promo code,
+            'quantity' => 1, // Option to increase quantity
         ];
 
-        // TODO: Only for testing.
-        $this->invoice = Invoice::where('status_id', Invoice::STATUS_SENT)->first();
-//        $this->invoice = (new \App\Repositories\InvoiceRepository)->save($invoice, InvoiceFactory::create($company->id, $user->id));
+        $this->invoice = $this->billing_subscription
+            ->service()
+            ->createInvoice($data)
+            ->service()
+            ->markSent()
+            ->save();
 
         $this->emit('beforePaymentEventsCompleted');
     }
