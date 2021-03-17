@@ -73,5 +73,4 @@ class BillingSubscription extends BaseModel
     {
         return $this->belongsTo(Product::class);
     }
-
 }

@@ -23,7 +23,7 @@ use Illuminate\Support\Str;
 class ClientContactRepository extends BaseRepository
 {
     public $is_primary;
-    
+
     public function save(array $data, Client $client) : void
     {
         if (isset($data['contacts'])) {
@@ -37,6 +37,7 @@ class ClientContactRepository extends BaseRepository
         });
 
         $this->is_primary = true;
+
         /* Set first record to primary - always */
         $contacts = $contacts->sortByDesc('is_primary')->map(function ($contact) {
             $contact['is_primary'] = $this->is_primary;
