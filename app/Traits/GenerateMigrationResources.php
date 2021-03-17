@@ -132,6 +132,7 @@ info("get company");
             'font_size' => $this->account->font_size ?: 9,
             'invoice_labels' => $this->account->invoice_labels ?: '',
             'military_time' => $this->account->military_time ? (bool) $this->account->military_time : false,
+            'invoice_number_counter' => $this->account->invoice_number_counter ?: 0,
             'invoice_number_pattern' => $this->account->invoice_number_pattern ?: '',
             'quote_number_pattern' => $this->account->quote_number_pattern ?: '',
             'quote_terms' => $this->account->quote_terms ?: '',
