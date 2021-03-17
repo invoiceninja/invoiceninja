@@ -12,6 +12,7 @@
 
 namespace App\Jobs\Entity;
 
+use App\Models\Account;
 use App\Models\Credit;
 use App\Models\CreditInvitation;
 use App\Models\Design;
@@ -117,6 +118,9 @@ class CreateEntityPdf implements ShouldQueue
         $file_path = $path.$this->entity->number.'.pdf';
 
         $entity_design_id = $this->entity->design_id ? $this->entity->design_id : $this->decodePrimaryKey($this->entity->client->getSetting($entity_design_id));
+
+        if(!$this->company->account->hasFeature(Account::FEATURE_DIFFERENT_DESIGNS))
+            $entity_design_id = 2;
 
         $design = Design::find($entity_design_id);
         $html = new HtmlEngine($this->invitation);

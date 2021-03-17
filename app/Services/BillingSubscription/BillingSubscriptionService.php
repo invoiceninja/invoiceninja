@@ -11,7 +11,11 @@
 
 namespace App\Services\BillingSubscription;
 
+use App\DataMapper\InvoiceItem;
+use App\Factory\InvoiceFactory;
 use App\Models\ClientSubscription;
+use App\Models\Product;
+use App\Repositories\InvoiceRepository;
 
 class BillingSubscriptionService
 {
@@ -23,10 +27,21 @@ class BillingSubscriptionService
         $this->billing_subscription = $billing_subscription;
     }
 
-    public function createInvoice($payment_hash)
+    public function createInvoice($data)
     {
-        //create the invoice if necessary ie. only is a payment was actually processed 
-        
+       
+        $invoice_repo = new InvoiceRepository();
+
+        // $data = [
+        //     'client_id' =>,
+        //     'date' => Y-m-d,
+        //     'invitations' => [
+        //                         'client_contact_id' => hashed_id
+        //                      ],
+        //      'line_items' => [],        
+        // ];
+
+        $invoice = $invoice_repo->save($data, InvoiceFactory::create($billing_subscription->company_id, $billing_subscription->user_id));
         /*
         
         If trial_enabled -> return early
@@ -39,6 +54,30 @@ class BillingSubscriptionService
             1. Is this a recurring product?
             2. What is the quantity? ie is this a multi seat product ( does this mean we need this value stored in the client sub?)
         */
+       
+       return $invoice;
+
+    }
+
+    private function createLineItems($quantity)
+    {
+        $line_items = [];
+        
+        $product = $this->billing_subscription->product;
+
+        $item = new InvoiceItem;
+        $item->quantity = $quantity;
+        $item->product_key = $product->product_key;
+        $item->notes = $product->notes;
+        $item->cost = $product->price;
+        //$item->type_id need to switch whether the subscription is a service or product
+
+        $line_items[] = $item;
+
+
+        //do we have a promocode? enter this as a line item.
+
+        return $line_items;
     }
 
     private function convertInvoiceToRecurring()
