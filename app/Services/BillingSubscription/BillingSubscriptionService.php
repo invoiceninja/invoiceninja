@@ -15,6 +15,7 @@ use App\DataMapper\InvoiceItem;
 use App\Factory\InvoiceFactory;
 use App\Models\BillingSubscription;
 use App\Models\ClientSubscription;
+use App\Models\PaymentHash;
 use App\Models\Product;
 use App\Repositories\InvoiceRepository;
 
@@ -106,5 +107,15 @@ class BillingSubscriptionService
     public function fireNotifications()
     {
         //scan for any notification we are required to send
+    }
+
+    public static function completePurchase(PaymentHash $payment_hash)
+    {
+        if (!property_exists($payment_hash, 'billing_context')) {
+            return;
+        }
+
+        // At this point we have some state carried from the billing page
+        // to this, available as $payment_hash->data->billing_context. Make something awesome ⭐
     }
 }

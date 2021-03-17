@@ -7,6 +7,7 @@ use App\Models\ClientContact;
 use App\Repositories\ClientContactRepository;
 use App\Repositories\ClientRepository;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Livewire\Component;
 
 class BillingPortalPurchase extends Component
@@ -41,6 +42,8 @@ class BillingPortalPurchase extends Component
     public $methods = [];
 
     public $invoice;
+
+    public $coupon;
 
     public function authenticate()
     {
@@ -88,8 +91,6 @@ class BillingPortalPurchase extends Component
 
     protected function getPaymentMethods(ClientContact $contact): self
     {
-//        Cache::put($this->hash, ['email' => $this->email ?? $this->contact->email, 'url' => url()->current()]);
-
         $this->steps['fetched_payment_methods'] = true;
 
         $this->methods = $contact->client->service()->getPaymentMethods(1000);
@@ -120,7 +121,7 @@ class BillingPortalPurchase extends Component
                 'key' => '',
                 'client_contact_id' => $this->contact->hashed_id,
             ]],
-            'user_input_promo_code' => '', // Field to input the promo code,
+            'user_input_promo_code' => $this->coupon,
             'quantity' => 1, // Option to increase quantity
         ];
 
@@ -131,7 +132,19 @@ class BillingPortalPurchase extends Component
             ->markSent()
             ->save();
 
+        Cache::put($this->hash, [
+            'email' => $this->email ?? $this->contact->email,
+            'client_id' => $this->contact->client->id,
+            'invoice_id' => $this->invoice->id],
+            now()->addMinutes(60)
+        );
+
         $this->emit('beforePaymentEventsCompleted');
+    }
+
+    public function applyCouponCode()
+    {
+        dd('Applying coupon code: ' . $this->coupon);
     }
 
     public function render()
