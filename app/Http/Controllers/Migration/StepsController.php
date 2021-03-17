@@ -94,7 +94,7 @@ class StepsController extends BaseController
             );
         }
 
-        session()->put('MIGRATION_ENDPOINT', $request->endpoint);
+        session()->put('MIGRATION_ENDPOINT', rtrim($request->endpoint,'/'));
 
         return redirect(
             url('/migration/auth')
