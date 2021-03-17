@@ -68,7 +68,7 @@ class Kernel extends ConsoleKernel
         /* Run queue's with this*/
         if (Ninja::isSelfHost()) {
 
-            $schedule->command('queue:work')->everyMinute()->withoutOverlapping();
+            $schedule->command('queue:work --daemon')->everyMinute()->withoutOverlapping();
             
             //we need to add this as we are seeing cached queues mess up the system on first load.
             $schedule->command('queue:restart')->everyFiveMinutes()->withoutOverlapping();
