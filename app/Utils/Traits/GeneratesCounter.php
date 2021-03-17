@@ -313,7 +313,7 @@ trait GeneratesCounter
      */
     public function hasSharedCounter(Client $client) : bool 
     {
-        return (bool) $client->getSetting('shared_invoice_quote_counter');
+        return (bool) $client->getSetting('shared_invoice_quote_counter') || (bool) $client->getSetting('shared_invoice_credit_counter');
     }
 
     /**

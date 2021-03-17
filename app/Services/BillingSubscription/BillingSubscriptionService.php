@@ -13,6 +13,7 @@ namespace App\Services\BillingSubscription;
 
 use App\DataMapper\InvoiceItem;
 use App\Factory\InvoiceFactory;
+use App\Models\BillingSubscription;
 use App\Models\ClientSubscription;
 use App\Models\Product;
 use App\Repositories\InvoiceRepository;
@@ -41,7 +42,7 @@ class BillingSubscriptionService
         //      'line_items' => [],        
         // ];
 
-        $invoice = $invoice_repo->save($data, InvoiceFactory::create($billing_subscription->company_id, $billing_subscription->user_id));
+        $invoice = $invoice_repo->save($data, InvoiceFactory::create($this->billing_subscription->company_id, $this->billing_subscription->user_id));
         /*
         
         If trial_enabled -> return early
