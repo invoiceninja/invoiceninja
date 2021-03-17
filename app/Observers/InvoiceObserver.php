@@ -52,7 +52,7 @@ class InvoiceObserver
             WebhookHandler::dispatch(Webhook::EVENT_UPDATE_INVOICE, $invoice, $invoice->company);
         }
     
-        // UnlinkFile::dispatchNow(config('filesystems.default'), $invoice->client->invoice_filepath() . $invoice->number.'.pdf');
+        // UnlinkFile::dispatchNow(config('filesystems.default'), $invoice->client->invoice_filepath() . $invoice->numberFormatter().'.pdf');
 
     }
 

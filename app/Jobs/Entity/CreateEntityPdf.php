@@ -115,7 +115,7 @@ class CreateEntityPdf implements ShouldQueue
             $entity_design_id = 'invoice_design_id';
         }
 
-        $file_path = $path.$this->entity->number.'.pdf';
+        $file_path = $path.$this->entity->numberFormatter().'.pdf';
 
         $entity_design_id = $this->entity->design_id ? $this->entity->design_id : $this->decodePrimaryKey($this->entity->client->getSetting($entity_design_id));
 

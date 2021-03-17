@@ -36,7 +36,7 @@ class GetQuotePdf extends AbstractService
 
         $path = $this->quote->client->quote_filepath();
 
-        $file_path = $path.$this->quote->number.'.pdf';
+        $file_path = $path.$this->quote->numberFormatter().'.pdf';
 
         $disk = config('filesystems.default');
 

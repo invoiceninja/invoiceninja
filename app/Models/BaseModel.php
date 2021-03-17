@@ -186,6 +186,15 @@ class BaseModel extends Model
      */
     public function getFileName($extension = 'pdf')
     {
-        return $this->number.'.'.$extension;
+        return $this->numberFormatter().'.'.$extension;
+    }
+
+    public function numberFormatter()
+    {
+        $formatted_number =  mb_ereg_replace("([^\w\s\d\-_~,;\[\]\(\).])", '', $this->number);
+        // Remove any runs of periods (thanks falstro!)
+        $formatted_number = mb_ereg_replace("([\.]{2,})", '', $formatted_number);
+
+        return $formatted_number;
     }
 }
