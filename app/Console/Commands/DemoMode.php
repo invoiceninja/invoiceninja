@@ -165,6 +165,7 @@ class DemoMode extends Command
                 'account_id' => $account->id,
                 'email' => 'small@example.com',
                 'confirmation_code' => $this->createDbHash(config('database.default')),
+                'email_verified_at' => now(),
             ]);
         }
 
@@ -199,6 +200,7 @@ class DemoMode extends Command
                 'password'          => Hash::make('Password0'),
                 'account_id' => $account->id,
                 'confirmation_code' => $this->createDbHash(config('database.default')),
+                'email_verified_at' => now(),
             ]);
 
             $company_token = new CompanyToken;
