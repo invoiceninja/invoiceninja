@@ -71,7 +71,7 @@
         "wildbit/swiftmailer-postmark": "^3.3"
     },
     "require-dev": {
-        "php": "^7.4",
+        "php": "^7.3|^7.4",
         "anahkiasen/former": "^4.2",
         "barryvdh/laravel-debugbar": "^3.4",
         "brianium/paratest": "^6.1",

@@ -74,7 +74,7 @@ class Gateway extends StaticModel
      * Returns an array of methods and the gatewaytypes possible
      *
      * @return array
-     *///todo remove methods replace with gatewaytype:: and then nest refund / token billing
+     */
     public function getMethods()
     {
         switch ($this->id) {

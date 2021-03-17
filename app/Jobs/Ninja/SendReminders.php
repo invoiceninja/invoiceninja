@@ -16,6 +16,7 @@ use App\Events\Invoice\InvoiceWasEmailed;
 use App\Jobs\Entity\EmailEntity;
 use App\Jobs\Util\WebHookHandler;
 use App\Libraries\MultiDB;
+use App\Models\Account;
 use App\Models\Invoice;
 use App\Models\Webhook;
 use App\Utils\Ninja;
@@ -207,7 +208,7 @@ class SendReminders implements ShouldQueue
         $invoice->invitations->each(function ($invitation) use ($template, $invoice) {
 
             //only send if enable_reminder setting is toggled to yes
-            if ($this->checkSendSetting($invoice, $template)) {
+            if ($this->checkSendSetting($invoice, $template) && $invoice->company->account->hasFeature(Account::FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
                 nlog("firing email");
 
                 EmailEntity::dispatchNow($invitation, $invitation->company, $template);

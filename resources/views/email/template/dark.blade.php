@@ -10,7 +10,7 @@
 <br>
 <br>
 <p>
-    {{ $signature }}
+    {!! $signature !!}
 </p>
 @endif
 

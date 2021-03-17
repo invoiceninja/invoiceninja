@@ -12,6 +12,7 @@
 namespace App\Mail\Engine;
 
 use App\DataMapper\EmailTemplateDefaults;
+use App\Models\Account;
 use App\Utils\HtmlEngine;
 use App\Utils\Number;
 
@@ -97,14 +98,14 @@ class InvoiceEmailEngine extends BaseEmailEngine
             ->setViewText(ctrans('texts.view_invoice'))
             ->setInvitation($this->invitation);
 
-        if ($this->client->getSetting('pdf_email_attachment') !== false) {
+        if ($this->client->getSetting('pdf_email_attachment') !== false && $this->invoice->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
             $this->setAttachments([$this->invoice->pdf_file_path()]);
             // $this->setAttachments(['path' => $this->invoice->pdf_file_path(), 'name' => basename($this->invoice->pdf_file_path())]);
 
         }
 
         //attach third party documents
-        if($this->client->getSetting('document_email_attachment') !== false){
+        if($this->client->getSetting('document_email_attachment') !== false && $this->invoice->company->account->hasFeature(Account::FEATURE_DOCUMENTS)){
 
             // Storage::url
             foreach($this->invoice->documents as $document){
