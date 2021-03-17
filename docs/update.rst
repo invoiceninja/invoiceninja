@@ -1,7 +1,7 @@
 Update
 ======
 
-.. NOTE:: We recommend backing up your database with mysqldump before updating the app.
+.. NOTE:: Note: v5 is now in beta. To upgrade from v4 you need to `install v5 <https://invoiceninja.github.io/docs/self-host-installation/>`_ as a separate app and then use the migration tool in the latest version of v4 on Settings > Account Management.
 
 To update the app you just need to copy over the latest code. Do not be afraid to overwrite the files, the configuration file for connections such as mysql are stored in the .env file. The app tracks the current version in a file called version.txt, if it notices a change it loads ``/update`` to run the database migrations.
 

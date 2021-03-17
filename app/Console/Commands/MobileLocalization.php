@@ -83,6 +83,11 @@ class MobileLocalization extends Command
                 if (substr($text, 0, 6) == 'texts.') {
                     $text = $resources->$key;
                 }
+
+                $text = str_replace(array('<b>', '</b>'), '', $text);
+                $text = str_replace(array('<i>', '</i>'), '', $text);
+                $text = str_replace(array('<strong>', '</strong>'), '', $text);
+
                 echo "'$key': '$text',\n";
             }
 
