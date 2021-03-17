@@ -80,9 +80,10 @@ class UserEmailChanged implements ShouldQueue
 
         NinjaMailerJob::dispatch($nmo);
 
-        $nmo->to_user = $this->new_user;
-        
-        NinjaMailerJob::dispatch($nmo);
+        // $nmo->to_user = $this->new_user;
+        // NinjaMailerJob::dispatch($nmo);
+
+        $this->new_user->service()->invite($this->company);
 
     }
 

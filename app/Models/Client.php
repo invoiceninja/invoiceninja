@@ -304,6 +304,10 @@ class Client extends BaseModel implements HasLocalePreference
             return $this->company->settings->{$setting};
         }
 
+        elseif( property_exists(CompanySettings::defaults(), $setting) ) {
+            return CompanySettings::defaults()->{$setting};
+        }
+
         return '';
 
 //        throw new \Exception("Settings corrupted", 1);

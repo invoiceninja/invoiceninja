@@ -20,7 +20,7 @@
 -- Commands to create a MySQL database and user
 CREATE SCHEMA `db-ninja-01` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 CREATE USER 'ninja'@'localhost' IDENTIFIED BY 'ninja';
-GRANT ALL PRIVILEGES ON `ninja`.* TO 'ninja'@'localhost';
+GRANT ALL PRIVILEGES ON `db-ninja-01`.* TO 'ninja'@'localhost';
 FLUSH PRIVILEGES;
                         </pre>
                     </details>

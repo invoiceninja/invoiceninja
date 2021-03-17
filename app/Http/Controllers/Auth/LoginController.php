@@ -28,6 +28,9 @@ use Google_Client;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
+use PragmaRX\Google2FA\Google2FA;
 use Turbo124\Beacon\Facades\LightLogs;
 
 class LoginController extends BaseController
@@ -159,19 +162,40 @@ class LoginController extends BaseController
         }
 
         if ($this->attemptLogin($request)) {
+
             LightLogs::create(new LoginSuccess())
                 ->increment()
                 ->batch();
 
             $user = $this->guard()->user();
 
+            //if user has 2fa enabled - lets check this now:
+
+            if($user->google_2fa_secret)
+            {
+                $google2fa = new Google2FA();
+
+                if(!$google2fa->verifyKey(decrypt($user->google_2fa_secret), $request->input('one_time_password')))
+                {
+                    return response()
+                    ->json(['message' => ctrans('texts.invalid_one_time_password')], 401)
+                    ->header('X-App-Version', config('ninja.app_version'))
+                    ->header('X-Api-Version', config('ninja.minimum_client_version'));
+                }
+
+            }
+
             $user->setCompany($user->account->default_company);
+            $timeout = auth()->user()->company()->default_password_timeout;
+            Cache::put(auth()->user()->hashed_id.'_logged_in', Str::random(64), $timeout);
 
             $cu = CompanyUser::query()
                   ->where('user_id', auth()->user()->id);
 
             return $this->listResponse($cu);
+
         } else {
+
             LightLogs::create(new LoginFailure())
                 ->increment()
                 ->batch();
@@ -182,6 +206,7 @@ class LoginController extends BaseController
             ->json(['message' => ctrans('texts.invalid_credentials')], 401)
             ->header('X-App-Version', config('ninja.app_version'))
             ->header('X-Api-Version', config('ninja.minimum_client_version'));
+
         }
     }
 
@@ -269,12 +294,14 @@ class LoginController extends BaseController
         $user = $google->getTokenResponse(request()->input('id_token'));
 
         if (is_array($user)) {
+
             $query = [
                 'oauth_user_id' => $google->harvestSubField($user),
                 'oauth_provider_id'=> 'google',
             ];
 
             if ($existing_user = MultiDB::hasUser($query)) {
+
                 Auth::login($existing_user, true);
                 $existing_user->setCompany($existing_user->account->default_company);
 
@@ -282,6 +309,7 @@ class LoginController extends BaseController
                                   ->where('user_id', auth()->user()->id);
 
                 return $this->listResponse($cu);
+                
             }
         }
 
