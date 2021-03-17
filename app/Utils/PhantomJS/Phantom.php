@@ -76,7 +76,7 @@ class Phantom
             $path = $entity_obj->client->recurring_invoice_filepath();
         }
 
-        $file_path = $path.$entity_obj->number.'.pdf';
+        $file_path = $path.$entity_obj->numberFormatter().'.pdf';
 
         $url = config('ninja.app_url').'/phantom/'.$entity.'/'.$invitation->key.'?phantomjs_secret='.config('ninja.phantomjs_secret');
         info($url);
@@ -91,8 +91,8 @@ class Phantom
         
         $instance = Storage::disk(config('filesystems.default'))->put($file_path, $pdf);
 
-nlog($instance);
-nlog($file_path);
+// nlog($instance);
+// nlog($file_path);
         return $file_path;
     }
 

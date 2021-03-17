@@ -388,9 +388,9 @@ class Invoice extends BaseModel
             $invitation = $this->invitations->first();
         }
 
-        $storage_path = Storage::$type($this->client->invoice_filepath().$this->number.'.pdf');
+        $storage_path = Storage::$type($this->client->invoice_filepath().$this->numberFormatter().'.pdf');
 
-        if (! Storage::exists($this->client->invoice_filepath().$this->number.'.pdf')) {
+        if (! Storage::exists($this->client->invoice_filepath().$this->numberFormatter().'.pdf')) {
             event(new InvoiceWasUpdated($this, $this->company, Ninja::eventVars()));
             CreateEntityPdf::dispatchNow($invitation);
         }

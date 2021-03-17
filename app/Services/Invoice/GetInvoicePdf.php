@@ -37,7 +37,7 @@ class GetInvoicePdf extends AbstractService
 
         $path = $this->invoice->client->invoice_filepath();
 
-        $file_path = $path.$this->invoice->number.'.pdf';
+        $file_path = $path.$this->invoice->numberFormatter().'.pdf';
 
         $disk = config('filesystems.default');
 
