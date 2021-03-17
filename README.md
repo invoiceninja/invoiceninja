@@ -13,7 +13,7 @@
 
 Just make sure to add the `invoice-ninja` tag to your question.
 
-#### Note: v5 is now in beta. To upgrade from v4 you need to [install v5](https://invoiceninja.github.io/docs/self-host/) as a separate app and then use the migration tool in the latest version of v4 on Settings > Account Management.
+#### Note: v5 is now in beta. To upgrade from v4 you need to [install v5](https://invoiceninja.github.io/docs/self-host-installation/) as a separate app and then use the migration tool in the latest version of v4 on Settings > Account Management.
 
 All Pro and Enterprise features from the hosted app are included in the open-source code. We offer a $30 per year white-label license to remove the Invoice Ninja branding from client facing parts of the app.
 
