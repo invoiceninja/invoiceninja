@@ -134,6 +134,9 @@ trait GeneratesCounter
                 return 'payment_number_counter';
                 break;
             case Credit::class:
+                if ($this->hasSharedCounter($client)) 
+                    return 'invoice_number_counter';
+            
                 return 'credit_number_counter';
                 break;
             case Project::class:
