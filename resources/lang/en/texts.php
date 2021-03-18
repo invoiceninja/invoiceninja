@@ -4160,7 +4160,7 @@ $LANG = array(
      'security_settings' => 'Security Settings',
      'resend_email' => 'Resend Email',
      'confirm_your_email_address' => 'Please confirm your email address',
-     'freshbooks' => 'FreshBooks', 
+     'freshbooks' => 'FreshBooks',
      'invoice2go' => 'Invoice2go',
      'invoicely' => 'Invoicely',
      'waveaccounting' => 'Wave Accounting',
@@ -4170,6 +4170,7 @@ $LANG = array(
      'migration_auth_label' => 'Let\'s continue by authenticating.',
      'api_secret' => 'API secret',
      'migration_api_secret_notice' => 'You can find API_SECRET in the .env file or Invoice Ninja v5. If property is missing, leave field blank.',
+     'billing_coupon_notice' => 'Your discount will be applied on the checkout.',
 );
 
 return $LANG;

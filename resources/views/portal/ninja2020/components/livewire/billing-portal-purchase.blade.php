@@ -110,17 +110,12 @@
                     </div>
                 </div>
 
-                <form wire:submit.prevent="applyCouponCode" class="mt-4">
-                    @csrf
-
-                    <div class="flex items-center">
-                        <label class="w-full mr-2">
-                            <input type="text" wire:model.defer="coupon" class="input w-full m-0" />
-                        </label>
-
-                        <button class="button bg-primary m-0 text-white">{{ ctrans('texts.apply') }}</button>
-                    </div>
-                </form>
+                <div class="flex items-center mt-4">
+                    <label class="w-full mr-2">
+                        <input type="text" wire:model.lazy="coupon" class="input w-full m-0"/>
+                        <small class="block text-gray-900 mt-2">{{ ctrans('texts.billing_coupon_notice') }}</small>
+                    </label>
+                </div>
             </div>
         </div>
     </div>

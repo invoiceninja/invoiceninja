@@ -123,8 +123,6 @@ class BillingPortalPurchase extends Component
 
     public function handleBeforePaymentEvents()
     {
-
-        //stubs
         $data = [
             'client_id' => $this->contact->client->id,
             'date' => now()->format('Y-m-d'),
@@ -151,13 +149,6 @@ class BillingPortalPurchase extends Component
         );
 
         $this->emit('beforePaymentEventsCompleted');
-    }
-
-
-    //this isn't managed here - this is taken care of in the BS
-    public function applyCouponCode()
-    {
-        dd('Applying coupon code: ' . $this->coupon);
     }
 
     public function render()
