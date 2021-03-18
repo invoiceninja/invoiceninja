@@ -124,6 +124,13 @@ class BillingPortalPurchase extends Component
     public $coupon;
 
     /**
+     * Quantity for seats
+     *
+     * @var int
+     */
+    public $quantity = 1;
+
+    /**
      * Handle user authentication
      *
      * @return $this|bool|void
@@ -236,8 +243,10 @@ class BillingPortalPurchase extends Component
                 'client_contact_id' => $this->contact->hashed_id,
             ]],
             'user_input_promo_code' => $this->coupon,
-            'quantity' => 1, // Option to increase quantity
+            'quantity' => $this->quantity,
         ];
+
+        dd($data);
 
         $this->invoice = $this->billing_subscription
             ->service()
@@ -267,6 +276,28 @@ class BillingPortalPurchase extends Component
         return $this->billing_subscription->service()->startTrial([
             'email' => $this->email ?? $this->contact->email,
         ]);
+    }
+
+    /**
+     * Update quantity property.
+     *
+     * @param string $option
+     * @return int
+     */
+    public function updateQuantity(string $option): int
+    {
+        if ($this->quantity == 1 && $option == 'decrement') {
+            return $this->quantity;
+        }
+
+        // TODO: David for review.
+        if ($this->quantity >= $this->billing_subscription->max_seats_limit) {
+            return $this->quantity;
+        }
+
+        return $option == 'increment'
+            ? $this->quantity++
+            : $this->quantity--;
     }
 
     public function render()
