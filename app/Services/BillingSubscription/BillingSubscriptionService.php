@@ -32,11 +32,17 @@ class BillingSubscriptionService
     public function completePurchase(PaymentHash $payment_hash)
     {
 
+        if (!property_exists($payment_hash, 'billing_context')) {
+            return;
+        }
+
+        // At this point we have some state carried from the billing page
+        // to this, available as $payment_hash->data->billing_context. Make something awesome ⭐
+        
         // create client subscription record 
         //
         // create recurring invoice if is_recurring
         // 
-        // s
 
 
     }
@@ -53,7 +59,6 @@ class BillingSubscriptionService
         $data['line_items'] = $this->createLineItems($data['quantity']);
 
         /*
-
         If trial_enabled -> return early
 
             -- what we need to know that we don't already
@@ -118,13 +123,5 @@ class BillingSubscriptionService
         //scan for any notification we are required to send
     }
 
-    public static function completePurchase(PaymentHash $payment_hash)
-    {
-        if (!property_exists($payment_hash, 'billing_context')) {
-            return;
-        }
 
-        // At this point we have some state carried from the billing page
-        // to this, available as $payment_hash->data->billing_context. Make something awesome ⭐
-    }
 }
