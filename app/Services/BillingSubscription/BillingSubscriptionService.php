@@ -29,18 +29,27 @@ class BillingSubscriptionService
         $this->billing_subscription = $billing_subscription;
     }
 
+    public function completePurchase(PaymentHash $payment_hash)
+    {
+
+        // create client subscription record 
+        //
+        // create recurring invoice if is_recurring
+        // 
+        // s
+
+
+    }
+
+    public function startTrial(array $data)
+    {
+
+    }
+
     public function createInvoice($data): ?\App\Models\Invoice
     {
         $invoice_repo = new InvoiceRepository();
 
-        // $data = [
-        //     'client_id' =>,
-        //     'date' => Y-m-d,
-        //     'invitations' => [
-        //                         'client_contact_id' => hashed_id
-        //                      ],
-        //      'line_items' => [],
-        // ];
         $data['line_items'] = $this->createLineItems($data['quantity']);
 
         /*

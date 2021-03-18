@@ -25,6 +25,7 @@ use App\Models\RecurringInvoiceInvitation;
 use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\PdfMaker\PdfMaker as PdfMakerService;
+use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\HtmlEngine;
 use App\Utils\Ninja;
 use App\Utils\PhantomJS\Phantom;
@@ -160,7 +161,13 @@ class CreateEntityPdf implements ShouldQueue
         $pdf = null;
 
         try {
-            $pdf = $this->makePdf(null, null, $maker->getCompiledHTML(true));
+
+            if(config('ninja.invoiceninja_hosted_pdf_generation')){
+                $pdf = (new NinjaPdf())->build($maker->getCompiledHTML(true));
+            }
+            else {
+                $pdf = $this->makePdf(null, null, $maker->getCompiledHTML(true));
+            }
         } catch (\Exception $e) {
             nlog(print_r($e->getMessage(), 1));
         }
