@@ -32,14 +32,14 @@
     <div class="col-span-12 lg:col-span-6 bg-white lg:shadow-lg lg:h-screen">
         <div class="grid grid-cols-12 flex flex-col p-10 lg:mt-48 lg:ml-16">
             <div class="col-span-12 w-full lg:col-span-6">
-                <h2 class="text-2xl font-bold tracking-wide">{{ $heading_text }}</h2>
+                <h2 class="text-2xl font-bold tracking-wide">{{ $heading_text ?? ctrans('texts.login') }}</h2>
                 @if (session()->has('message'))
                     @component('portal.ninja2020.components.message')
                         {{ session('message') }}
                     @endcomponent
                 @endif
 
-                @if($this->steps['fetched_payment_methods'])
+                @if($steps['fetched_payment_methods'])
                     <div class="flex items-center mt-4 text-sm">
                         <form action="{{ route('client.payments.process', ['hash' => $hash, 'sidebar' => 'hidden']) }}"
                               method="post"
@@ -67,6 +67,17 @@
                             </button>
                         @endforeach
                     </div>
+                @elseif($steps['show_start_trial'])
+                    <form wire:submit.prevent="handleTrial" class="mt-8">
+                        @csrf
+                        <p class="mb-4">Some text about the trial goes here. Details about the days, etc.</p>
+
+
+                        <button class="px-3 py-2 border rounded mr-4 hover:border-blue-600">
+                            {{ ctrans('texts.trial_call_to_action') }}
+                        </button>
+                    </form>
+
                 @else
                     <form wire:submit.prevent="authenticate" class="mt-8">
                         @csrf
