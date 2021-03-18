@@ -21,9 +21,6 @@ class NinjaPdf
     public function build($html)
     {
 
-nlog("building remotely");
-
-
         $client =  new \GuzzleHttp\Client(['headers' => 
             [ 
             'X-Ninja-Token' => 'test_token_for_now',        
