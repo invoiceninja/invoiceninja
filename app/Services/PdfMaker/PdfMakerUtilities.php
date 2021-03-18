@@ -213,6 +213,7 @@ trait PdfMakerUtilities
         $css = <<<'EOT'
         table.page-container {
             page-break-after: always;
+            min-width: 100%;
         }
 
         thead.page-header {
