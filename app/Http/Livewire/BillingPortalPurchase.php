@@ -19,6 +19,7 @@ use App\Repositories\ClientContactRepository;
 use App\Repositories\ClientRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 class BillingPortalPurchase extends Component
@@ -182,12 +183,23 @@ class BillingPortalPurchase extends Component
 
         $client_repo = new ClientRepository(new ClientContactRepository());
 
-        $client = $client_repo->save([
+        $data = [
             'name' => 'Client Name',
             'contacts' => [
                 ['email' => $this->email],
-            ]
-        ], ClientFactory::create($company->id, $user->id));
+            ],
+            'settings' => [],
+        ];
+
+        if (array_key_exists('locale', $this->request_data)) {
+            $record = DB::table('languages')->where('locale', $this->request_data['locale'])->first();
+
+            if ($record) {
+                $data['settings']['language_id'] = (string)$record->id;
+            }
+        }
+
+        $client = $client_repo->save($data, ClientFactory::create($company->id, $user->id));
 
         return $client->contacts->first();
     }
