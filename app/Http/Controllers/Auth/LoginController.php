@@ -171,7 +171,7 @@ class LoginController extends BaseController
 
             //if user has 2fa enabled - lets check this now:
 
-            if($user->google_2fa_secret)
+            if($user->google_2fa_secret && $request->has('one_time_password'))
             {
                 $google2fa = new Google2FA();
 
@@ -183,6 +183,13 @@ class LoginController extends BaseController
                     ->header('X-Api-Version', config('ninja.minimum_client_version'));
                 }
 
+            }
+            elseif($user->google_2fa_secret && !$request->has('one_time_password')) {
+                
+                    return response()
+                    ->json(['message' => ctrans('texts.invalid_one_time_password')], 401)
+                    ->header('X-App-Version', config('ninja.app_version'))
+                    ->header('X-Api-Version', config('ninja.minimum_client_version'));
             }
 
             $user->setCompany($user->account->default_company);

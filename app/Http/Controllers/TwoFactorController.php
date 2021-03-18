@@ -56,6 +56,7 @@ class TwoFactorController extends BaseController
         if($google2fa->verifyKey($secret, $oneTimePassword) && $user->phone && $user->email_verified_at){
 
             $user->google_2fa_secret = encrypt($secret);
+
             $user->save();
         
             return response()->json(['message' => ctrans('texts.enabled_two_factor')], 200);
