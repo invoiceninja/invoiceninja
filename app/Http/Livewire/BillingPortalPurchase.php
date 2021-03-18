@@ -131,6 +131,13 @@ class BillingPortalPurchase extends Component
     public $quantity = 1;
 
     /**
+     * First-hit request data (queries, locales...).
+     *
+     * @var array
+     */
+    public $request_data;
+
+    /**
      * Handle user authentication
      *
      * @return $this|bool|void
@@ -246,8 +253,6 @@ class BillingPortalPurchase extends Component
             'quantity' => $this->quantity,
         ];
 
-        dd($data);
-
         $this->invoice = $this->billing_subscription
             ->service()
             ->createInvoice($data)
@@ -290,7 +295,7 @@ class BillingPortalPurchase extends Component
             return $this->quantity;
         }
 
-        // TODO: David for review.
+        // TODO: Dave review.
         if ($this->quantity >= $this->billing_subscription->max_seats_limit) {
             return $this->quantity;
         }
