@@ -76,6 +76,8 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'check_client_existence
     Route::get('logout', 'Auth\ContactLoginController@logout')->name('logout');
 });
 
+Route::get('client/subscription/{billing_subscription}/purchase', 'ClientPortal\BillingSubscriptionPurchaseController@index')->name('client.subscription.purchase');
+
 Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'client.'], function () {
     /*Invitation catches*/
     Route::get('recurring_invoice/{invitation_key}', 'ClientPortal\InvitationController@recurringRouter');

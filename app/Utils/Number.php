@@ -11,6 +11,7 @@
 
 namespace App\Utils;
 
+use App\Models\Company;
 use App\Models\Currency;
 
 /**
@@ -83,17 +84,17 @@ class Number
 
         return floatval($value);
     }
-    
+
     /**
      * Formats a given value based on the clients currency AND country.
      *
      * @param floatval $value The number to be formatted
-     * @param $client
+     * @param $entity
      * @return string           The formatted value
      */
-    public static function formatMoney($value, $client) :string
+    public static function formatMoney($value, $entity) :string
     {
-        $currency = $client->currency();
+        $currency = $entity->currency();
 
         $thousand = $currency->thousand_separator;
         $decimal = $currency->decimal_separator;
@@ -101,29 +102,38 @@ class Number
         $code = $currency->code;
         $swapSymbol = $currency->swap_currency_symbol;
 
+        // App\Models\Client::country() returns instance of BelongsTo.
+        // App\Models\Company::country() returns record for the country, that's why we check for the instance.
+
+        if ($entity instanceof Company) {
+            $country = $entity->country();
+        } else {
+            $country = $entity->country;
+        }
+
         /* Country settings override client settings */
-        if (isset($client->country->thousand_separator) && strlen($client->country->thousand_separator) >= 1) {
-            $thousand = $client->country->thousand_separator;
+        if (isset($country->thousand_separator) && strlen($country->thousand_separator) >= 1) {
+            $thousand = $country->thousand_separator;
         }
 
-        if (isset($client->country->decimal_separator) && strlen($client->country->decimal_separator) >= 1) {
-            $decimal = $client->country->decimal_separator;
+        if (isset($country->decimal_separator) && strlen($country->decimal_separator) >= 1) {
+            $decimal = $country->decimal_separator;
         }
 
-        if (isset($client->country->swap_currency_symbol) && strlen($client->country->swap_currency_symbol) >= 1) {
-            $swapSymbol = $client->country->swap_currency_symbol;
+        if (isset($country->swap_currency_symbol) && strlen($country->swap_currency_symbol) >= 1) {
+            $swapSymbol = $country->swap_currency_symbol;
         }
 
         $value = number_format($value, $precision, $decimal, $thousand);
         $symbol = $currency->symbol;
 
-        if ($client->getSetting('show_currency_code') === true && $currency->code == 'CHF') {
+        if ($entity->getSetting('show_currency_code') === true && $currency->code == 'CHF') {
             return "{$code} {$value}";
-        } elseif ($client->getSetting('show_currency_code') === true) {
+        } elseif ($entity->getSetting('show_currency_code') === true) {
             return "{$value} {$code}";
         } elseif ($swapSymbol) {
             return "{$value} ".trim($symbol);
-        } elseif ($client->getSetting('show_currency_code') === false) {
+        } elseif ($entity->getSetting('show_currency_code') === false) {
             return "{$symbol}{$value}";
         } else {
             return self::formatValue($value, $currency);

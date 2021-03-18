@@ -15,12 +15,13 @@ use App\DataMapper\InvoiceItem;
 use App\Factory\InvoiceFactory;
 use App\Models\BillingSubscription;
 use App\Models\ClientSubscription;
+use App\Models\PaymentHash;
 use App\Models\Product;
 use App\Repositories\InvoiceRepository;
 
 class BillingSubscriptionService
 {
-
+    /** @var BillingSubscription */
     private $billing_subscription;
 
     public function __construct(BillingSubscription $billing_subscription)
@@ -28,42 +29,50 @@ class BillingSubscriptionService
         $this->billing_subscription = $billing_subscription;
     }
 
-    public function createInvoice($data)
+    public function completePurchase(PaymentHash $payment_hash)
     {
-       
+
+        // create client subscription record 
+        //
+        // create recurring invoice if is_recurring
+        // 
+        // s
+
+
+    }
+
+    public function startTrial(array $data)
+    {
+
+    }
+
+    public function createInvoice($data): ?\App\Models\Invoice
+    {
         $invoice_repo = new InvoiceRepository();
 
-        // $data = [
-        //     'client_id' =>,
-        //     'date' => Y-m-d,
-        //     'invitations' => [
-        //                         'client_contact_id' => hashed_id
-        //                      ],
-        //      'line_items' => [],        
-        // ];
+        $data['line_items'] = $this->createLineItems($data['quantity']);
 
-        $invoice = $invoice_repo->save($data, InvoiceFactory::create($this->billing_subscription->company_id, $this->billing_subscription->user_id));
         /*
-        
+
         If trial_enabled -> return early
 
             -- what we need to know that we don't already
             -- Has a promo code been entered, and does it match
             -- Is this a recurring subscription
-            -- 
+            --
 
             1. Is this a recurring product?
             2. What is the quantity? ie is this a multi seat product ( does this mean we need this value stored in the client sub?)
         */
-       
-       return $invoice;
+
+        return $invoice_repo->save($data, InvoiceFactory::create($this->billing_subscription->company_id, $this->billing_subscription->user_id));
 
     }
 
-    private function createLineItems($quantity)
+    private function createLineItems($quantity): array
     {
         $line_items = [];
-        
+
         $product = $this->billing_subscription->product;
 
         $item = new InvoiceItem;
@@ -89,7 +98,7 @@ class BillingSubscriptionService
     public function createClientSubscription($payment_hash, $recurring_invoice_id = null)
     {
         //create the client sub record
-        
+
         //?trial enabled?
         $cs = new ClientSubscription();
         $cs->subscription_id = $this->billing_subscription->id;
@@ -107,5 +116,15 @@ class BillingSubscriptionService
     public function fireNotifications()
     {
         //scan for any notification we are required to send
+    }
+
+    public static function completePurchase(PaymentHash $payment_hash)
+    {
+        if (!property_exists($payment_hash, 'billing_context')) {
+            return;
+        }
+
+        // At this point we have some state carried from the billing page
+        // to this, available as $payment_hash->data->billing_context. Make something awesome ⭐
     }
 }

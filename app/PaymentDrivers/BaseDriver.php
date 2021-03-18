@@ -30,6 +30,7 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\SystemLog;
+use App\Services\BillingSubscription\BillingSubscriptionService;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SystemLogTrait;
@@ -207,7 +208,7 @@ class BaseDriver extends AbstractPaymentDriver
     public function createPayment($data, $status = Payment::STATUS_COMPLETED): Payment
     {
         $this->confirmGatewayFee();
-        
+
         $payment = PaymentFactory::create($this->client->company->id, $this->client->user->id);
         $payment->client_id = $this->client->id;
         $payment->company_gateway_id = $this->company_gateway->id;
@@ -239,6 +240,8 @@ class BaseDriver extends AbstractPaymentDriver
             $payment->service()->sendEmail();
 
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
+
+        BillingSubscriptionService::completePurchase($this->payment_hash);
 
         return $payment->service()->applyNumber()->save();
     }
@@ -345,8 +348,8 @@ class BaseDriver extends AbstractPaymentDriver
         }
         else if ($e instanceof Exception) {
             $error = $e->getMessage();
-        }   
-        else 
+        }
+        else
             $error = $e->getMessage();
 
         PaymentFailureMailer::dispatch(
