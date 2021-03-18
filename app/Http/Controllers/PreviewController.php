@@ -18,6 +18,7 @@ use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Services\PdfMaker\Design;
 use App\Services\PdfMaker\PdfMaker;
+use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\HtmlEngine;
 use App\Utils\Ninja;
 use App\Utils\PhantomJS\Phantom;
@@ -133,6 +134,10 @@ class PreviewController extends BaseController
             if (config('ninja.phantomjs_pdf_generation')) {
                 return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
             }
+            
+            if(config('ninja.invoiceninja_hosted_pdf_generation')){
+                return (new NinjaPdf())->build($maker->getCompiledHTML(true));
+            }
 
             //else
             $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), auth()->user()->company());
@@ -215,6 +220,10 @@ class PreviewController extends BaseController
 
         if (config('ninja.phantomjs_pdf_generation')) {
             return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
+        }
+
+        if(config('ninja.invoiceninja_hosted_pdf_generation')){
+            return (new NinjaPdf())->build($maker->getCompiledHTML(true));
         }
             
         $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), auth()->user()->company());
