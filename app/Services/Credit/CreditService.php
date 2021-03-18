@@ -140,7 +140,7 @@ class CreditService
 
     public function deletePdf()
     {
-        UnlinkFile::dispatchNow(config('filesystems.default'), $this->credit->client->credit_filepath() . $this->credit->number.'.pdf');
+        UnlinkFile::dispatchNow(config('filesystems.default'), $this->credit->client->credit_filepath() . $this->credit->numberFormatter().'.pdf');
 
         return $this;
     }

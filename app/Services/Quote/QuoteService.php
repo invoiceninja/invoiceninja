@@ -178,7 +178,7 @@ class QuoteService
 
     public function deletePdf()
     {
-        UnlinkFile::dispatchNow(config('filesystems.default'), $this->quote->client->quote_filepath() . $this->quote->number.'.pdf');
+        UnlinkFile::dispatchNow(config('filesystems.default'), $this->quote->client->quote_filepath() . $this->quote->numberFormatter().'.pdf');
 
         return $this;
     }

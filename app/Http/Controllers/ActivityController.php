@@ -142,11 +142,11 @@ class ActivityController extends BaseController
         $pdf = $this->makePdf(null, null, $backup->html_backup);
 
         if (isset($activity->invoice_id)) {
-            $filename = $activity->invoice->number.'.pdf';
+            $filename = $activity->invoice->numberFormatter().'.pdf';
         } elseif (isset($activity->quote_id)) {
-            $filename = $activity->quote->number.'.pdf';
+            $filename = $activity->quote->numberFormatter().'.pdf';
         } elseif (isset($activity->credit_id)) {
-            $filename = $activity->credit->number.'.pdf';
+            $filename = $activity->credit->numberFormatter().'.pdf';
         } else {
             $filename = 'backup.pdf';
         }

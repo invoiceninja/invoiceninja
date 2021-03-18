@@ -8,7 +8,9 @@
     @include('portal.ninja2020.components.general.sidebar.mobile')
 
     <!-- Static sidebar for desktop -->
-    @include('portal.ninja2020.components.general.sidebar.desktop')
+    @unless(request()->query('sidebar') === 'hidden')
+        @include('portal.ninja2020.components.general.sidebar.desktop')
+    @endunless
 
     <div class="flex flex-col w-0 flex-1 overflow-hidden">
         @include('portal.ninja2020.components.general.sidebar.header')

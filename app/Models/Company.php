@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notification;
 use Laracasts\Presenter\PresentableTrait;
+use Illuminate\Support\Facades\Cache;
 
 class Company extends BaseModel
 {
@@ -286,7 +287,7 @@ class Company extends BaseModel
      */
     public function country()
     {
-        //return $this->belongsTo(Country::class);
+//        return $this->belongsTo(Country::class);
         return Country::find($this->settings->country_id);
     }
 
@@ -342,12 +343,13 @@ class Company extends BaseModel
         return null;
     }
 
-    /**
-     * @return BelongsTo
-     */
     public function currency()
     {
-        return $this->belongsTo(Currency::class);
+        $currencies = Cache::get('currencies');
+
+        return $currencies->filter(function ($item) {
+            return $item->id == $this->settings->currency_id;
+        })->first();
     }
 
     /**

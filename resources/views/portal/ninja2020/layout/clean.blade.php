@@ -63,6 +63,8 @@
         {{-- Feel free to push anything to header using @push('header') --}}
         @stack('head')
 
+        @livewireStyles
+
         <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css" />
     </head>
 
@@ -76,6 +78,8 @@
         @endif
 
         @yield('body')
+
+        @livewireScripts
 
         <script src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js" data-cfasync="false"></script>
         <script>
