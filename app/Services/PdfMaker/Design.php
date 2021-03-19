@@ -302,7 +302,7 @@ class Design extends BaseDesign
     public function buildTableHeader(string $type): array
     {
         $this->processTaxColumns($type);
-        $this->processCustomColumns($type);
+        // $this->processCustomColumns($type);
 
         $elements = [];
 

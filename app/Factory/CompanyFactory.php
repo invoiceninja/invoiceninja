@@ -35,7 +35,7 @@ class CompanyFactory
         $company->custom_fields = (object) [];
         $company->subdomain = '';
         $company->enabled_modules = config('ninja.enabled_modules'); //32767;//8191; //4095
-        $company->default_password_timeout = 30;
+        $company->default_password_timeout = 30 * 60000;
 
         return $company;
     }
