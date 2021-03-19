@@ -125,8 +125,15 @@ class InvoiceTest extends TestCase
             ])->post('/api/v1/invoices/', $invoice)
             ->assertStatus(200);
 
-        //test that the same request should produce a validation error due
-        //to duplicate number being used.
+
+        $arr = $response->json();
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->put('/api/v1/invoices/'.$arr['data']['id'], $invoice)
+            ->assertStatus(200);
+
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
