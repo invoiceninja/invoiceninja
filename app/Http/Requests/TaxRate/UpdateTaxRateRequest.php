@@ -12,6 +12,7 @@
 namespace App\Http\Requests\TaxRate;
 
 use App\Http\Requests\Request;
+use Illuminate\Validation\Rule;
 
 class UpdateTaxRateRequest extends Request
 {
@@ -27,10 +28,14 @@ class UpdateTaxRateRequest extends Request
 
     public function rules()
     {
-        return [
-            // 'name' => 'unique:tax_rates,name,'.$this->tax_rate->name.',id,company_id,'.auth()->user()->companyId(),
-            'name' => 'unique:tax_rates,name,'.$this->id.',id,company_id,'.$this->company_id,
-            'rate' => 'numeric',
-        ];
+        $rules = [];
+
+        $rules['rate'] = 'numeric';
+
+        if($this->number)
+            $rules['number'] = Rule::unique('tax_rates')->where('company_id', auth()->user()->company()->id)->ignore($this->tax_rate->id);
+
+        return $rules;
+
     }
 }
