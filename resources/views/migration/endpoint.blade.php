@@ -12,7 +12,7 @@
         </div>
         <div class="panel-body">
             <h4>We need to know the link of your application.</h4><br/>
-            <form action="/migration/endpoint" method="post" id="input-endpoint-form">
+            <form action="{{ url('/migration/endpoint') }}" method="post" id="input-endpoint-form">
                 {{ csrf_field() }}
                 <div class="form-check">
                     <div class="form-group">
@@ -23,7 +23,7 @@
             </form>
         </div>
         <div class="panel-footer text-right">
-            <button onclick="document.getElementById('input-endpoint-form').submit();" class="btn btn-primary">{!! trans('texts.continue') !!}</button>
+            <button form="input-endpoint-form" class="btn btn-primary">{!! trans('texts.continue') !!}</button>
         </div>
     </div>
 

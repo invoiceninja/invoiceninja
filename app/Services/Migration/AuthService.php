@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2020. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
+
+
 namespace App\Services\Migration;
 
 use Unirest\Request;
@@ -9,17 +20,21 @@ class AuthService
 {
     protected $username;
     protected $password;
+    protected $apiSecret;
+
     protected $endpoint = 'https://app.invoiceninja.com';
     protected $uri = '/api/v1/login?include=token';
+
     protected $errors = [];
     protected $token;
     protected $isSuccessful;
 
 
-    public function __construct(string $username, string $password)
+    public function __construct(string $username, string $password, string $apiSecret = null)
     {
         $this->username = $username;
         $this->password = $password;
+        $this->apiSecret = $apiSecret;
     }
 
     public function endpoint(string $endpoint)
@@ -38,24 +53,21 @@ class AuthService
 
         $body = Body::json($data);
 
-        $response = Request::post($this->getUrl(), $this->getHeaders(), $body);
+        try {
+            $response = Request::post($this->getUrl(), $this->getHeaders(), $body);
 
-        if ($response->code == 200) {
-            
-            try {
-                $this->isSuccessful = true;
-                $this->token = $response->body->data[0]->token->token;
-            } catch (\Exception $e) {
-                info($e->getMessage());
+            $this->isSuccessful = true;
+            $this->token = $response->body->data[0]->token->token;
 
+            if (in_array($response->code, [401, 422, 500])) {
                 $this->isSuccessful = false;
-                $this->errors = [trans('texts.migration_went_wrong')];
+                $this->processErrors($response->body);
             }
-        }
+        } catch (\Exception $e) {
+            info($e->getMessage());
 
-        if (in_array($response->code, [401, 422, 500])) {
             $this->isSuccessful = false;
-            $this->processErrors($response->body);
+            $this->errors = [trans('texts.migration_went_wrong')];
         }
 
         return $this;
@@ -75,6 +87,10 @@ class AuthService
         return null;
     }
 
+    public function getApiSecret()
+    {
+        return $this->apiSecret;
+    }
 
     public function getErrors()
     {
@@ -83,10 +99,16 @@ class AuthService
 
     private function getHeaders()
     {
-        return [
+        $headers = [
             'X-Requested-With' => 'XMLHttpRequest',
             'Content-Type' => 'application/json',
         ];
+
+        if (!is_null($this->apiSecret)) {
+            $headers['X-Api-Secret'] = $this->apiSecret;
+        }
+
+        return $headers;
     }
 
     private function getUrl()

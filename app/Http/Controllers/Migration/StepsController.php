@@ -2,22 +2,9 @@
 
 namespace App\Http\Controllers\Migration;
 
-use App\Models\User;
-use App\Models\Credit;
-use App\Models\Contact;
-use App\Models\Invoice;
-use App\Models\Payment;
-use App\Models\Product;
-use App\Models\TaxRate;
 use App\Libraries\Utils;
-use App\Models\Document;
-use App\Models\PaymentMethod;
-use App\Models\AccountGateway;
-use App\Models\AccountGatewayToken;
 use App\Traits\GenerateMigrationResources;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Crypt;
-use App\Models\AccountGatewaySettings;
 use App\Services\Migration\AuthService;
 use App\Http\Controllers\BaseController;
 use App\Services\Migration\CompanyService;
@@ -26,6 +13,7 @@ use App\Http\Requests\MigrationTypeRequest;
 use App\Services\Migration\CompleteService;
 use App\Http\Requests\MigrationEndpointRequest;
 use App\Http\Requests\MigrationCompaniesRequest;
+use App\Models\Account;
 
 class StepsController extends BaseController
 {
@@ -106,7 +94,7 @@ class StepsController extends BaseController
             );
         }
 
-        session()->put('MIGRATION_ENDPOINT', $request->endpoint);
+        session()->put('MIGRATION_ENDPOINT', rtrim($request->endpoint,'/'));
 
         return redirect(
             url('/migration/auth')
@@ -136,12 +124,13 @@ class StepsController extends BaseController
             return back()->with('responseErrors', [trans('texts.cross_migration_message')]);
         }
 
-        $authentication = (new AuthService($request->email, $request->password))
+        $authentication = (new AuthService($request->email, $request->password, $request->has('api_secret') ? $request->api_secret : null))
             ->endpoint(session('MIGRATION_ENDPOINT'))
             ->start();
 
         if ($authentication->isSuccessful()) {
             session()->put('MIGRATION_ACCOUNT_TOKEN', $authentication->getAccountToken());
+            session()->put('MIGRAITON_API_SECRET', $authentication->getApiSecret());
 
             return redirect(
                 url('/migration/companies')
@@ -159,8 +148,7 @@ class StepsController extends BaseController
             );
         }
 
-        $companyService = (new CompanyService(session('MIGRATION_ACCOUNT_TOKEN')))
-            ->endpoint(session('MIGRATION_ENDPOINT'))
+        $companyService = (new CompanyService())
             ->start();
 
         if ($companyService->isSuccessful()) {
@@ -180,15 +168,12 @@ class StepsController extends BaseController
             );
         }
 
-        foreach ($request->companies as $company) {
-            (new CompleteService(session('MIGRATION_ACCOUNT_TOKEN')))
-                ->file($this->getMigrationFile())
-                ->force(array_key_exists('force', $company))
-                ->company($company['id'])
-                ->endpoint(session('MIGRATION_ENDPOINT'))
-                ->companyKey($request->account_key)
-                ->start();
-        }
+        $migrationData = $this->generateMigrationData($request->all());
+
+        $completeService = (new CompleteService(session('MIGRATION_ACCOUNT_TOKEN')))
+            ->data($migrationData)
+            ->endpoint(session('MIGRATION_ENDPOINT'))
+            ->start();
 
         return view('migration.completed');
     }
@@ -224,44 +209,67 @@ class StepsController extends BaseController
      *
      * @return string
      */
-    public function getMigrationFile()
+    public function generateMigrationData(array $data): array
     {
-        $this->account = Auth::user()->account;
+        $migrationData = [];
 
-        $date = date('Y-m-d');
-        $accountKey = $this->account->account_key;
+        foreach ($data['companies'] as $company) {
+            $account = Account::where('account_key', $company['id'])->firstOrFail();
 
-        $output = fopen('php://output', 'w') or Utils::fatalError();
+            $this->account = $account;
 
-        $fileName = "{$accountKey}-{$date}-invoiceninja";
+            $date = date('Y-m-d');
+            $accountKey = $this->account->account_key;
 
-        $data = [
-            'company' => $this->getCompany(),
-            'users' => $this->getUsers(),
-            'tax_rates' => $this->getTaxRates(),
-            'payment_terms' => $this->getPaymentTerms(),
-            'clients' => $this->getClients(),
-            'products' => $this->getProducts(),
-            'invoices' => $this->getInvoices(),
-            'quotes' => $this->getQuotes(),
-            'payments' => array_merge($this->getPayments(), $this->getCredits()),
-            'credits' => $this->getCreditsNotes(),
-            'documents' => $this->getDocuments(),
-            'company_gateways' => $this->getCompanyGateways(),
-            'client_gateway_tokens' => $this->getClientGatewayTokens(),
-        ];
+            $output = fopen('php://output', 'w') or Utils::fatalError();
 
-        $file = storage_path("migrations/{$fileName}.zip");
+            $fileName = "{$accountKey}-{$date}-invoiceninja";
 
-        $zip = new \ZipArchive();
-        $zip->open($file, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
-        $zip->addFromString('migration.json', json_encode($data, JSON_PRETTY_PRINT));
-        $zip->close();
+            $localMigrationData['data'] = [
+                'account' => $this->getAccount(),
+                'company' => $this->getCompany(),
+                'users' => $this->getUsers(),
+                'tax_rates' => $this->getTaxRates(),
+                'payment_terms' => $this->getPaymentTerms(),
+                'clients' => $this->getClients(),
+                'company_gateways' => $this->getCompanyGateways(),
+                'client_gateway_tokens' => $this->getClientGatewayTokens(),
+                'vendors' => $this->getVendors(),
+                'projects' => $this->getProjects(),
+                'products' => $this->getProducts(),
+                'credits' => $this->getCreditsNotes(),
+                'invoices' => $this->getInvoices(),
+                'recurring_invoices' => $this->getRecurringInvoices(),
+                'quotes' => $this->getQuotes(),
+                'payments' => array_merge($this->getPayments(), $this->getCredits()),
+                'documents' => $this->getDocuments(),
+                'expense_categories' => $this->getExpenseCategories(),
+                'task_statuses' => $this->getTaskStatuses(),
+                'expenses' => $this->getExpenses(),
+                'tasks' => $this->getTasks(),
+                'documents' => $this->getDocuments(),
+            ];
+
+            $localMigrationData['force'] = array_key_exists('force', $company) ? true : false;
+
+            $file = storage_path("migrations/{$fileName}.zip");
+
+            ksort($localMigrationData);
+
+            $zip = new \ZipArchive();
+            $zip->open($file, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+            $zip->addFromString('migration.json', json_encode($localMigrationData, JSON_PRETTY_PRINT));
+            $zip->close();
+
+            $localMigrationData['file'] = $file;
+
+            $migrationData[] = $localMigrationData;
+        }
+
+        return $migrationData;
 
         // header('Content-Type: application/zip');
         // header('Content-Length: ' . filesize($file));
         // header("Content-Disposition: attachment; filename={$fileName}.zip");
-
-        return $file;
     }
 }
