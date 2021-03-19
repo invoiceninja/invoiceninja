@@ -78,7 +78,13 @@ class SystemHealth
             'phantom_enabled' => (bool)config('ninja.phantomjs_pdf_generation'),
             'exec' => (bool)self::checkExecWorks(),
             'open_basedir' => (bool)self::checkOpenBaseDir(),
+            'mail_mailer' => (string)self::checkMailMailer(),
         ];
+    }
+
+    public static function checkMailMailer()
+    {
+        return config('mail.default');
     }
 
     public static function checkOpenBaseDir()
