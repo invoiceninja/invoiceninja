@@ -56,7 +56,7 @@ class BillingSubscriptionService
     {
         $invoice_repo = new InvoiceRepository();
 
-        $data['line_items'] = $this->createLineItems($data['quantity']);
+        $data['line_items'] = $this->createLineItems($data);
 
         /*
         If trial_enabled -> return early
@@ -74,25 +74,43 @@ class BillingSubscriptionService
 
     }
 
-    private function createLineItems($quantity): array
+    private function createLineItems($data): array
     {
         $line_items = [];
 
         $product = $this->billing_subscription->product;
 
         $item = new InvoiceItem;
-        $item->quantity = $quantity;
+        $item->quantity = $data['quantity'];
         $item->product_key = $product->product_key;
         $item->notes = $product->notes;
         $item->cost = $product->price;
+        $item->tax_rate1 = $product->tax_rate1 ?: 0;
+        $item->tax_name1 = $product->tax_name1 ?: '';
+        $item->tax_rate2 = $product->tax_rate2 ?: 0;
+        $item->tax_name2 = $product->tax_name2 ?: '';
+        $item->tax_rate3 = $product->tax_rate3 ?: 0;
+        $item->tax_name3 = $product->tax_name3 ?: '';
+        $item->custom_value1 = $product->custom_value1 ?: '';
+        $item->custom_value2 = $product->custom_value2 ?: '';
+        $item->custom_value3 = $product->custom_value3 ?: '';
+        $item->custom_value4 = $product->custom_value4 ?: '';
+
         //$item->type_id need to switch whether the subscription is a service or product
 
         $line_items[] = $item;
 
 
         //do we have a promocode? enter this as a line item.
+        if(strlen($data['coupon']) >=1) 
+            $line_items = $this->createPromoLine($data);
 
         return $line_items;
+    }
+
+    private function createPromoLine($data)
+    {
+        $item = new InvoiceItem;
     }
 
     private function convertInvoiceToRecurring()

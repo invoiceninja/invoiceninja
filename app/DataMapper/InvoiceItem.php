@@ -51,7 +51,7 @@ class InvoiceItem
 
     public $custom_value4 = '';
 
-    public $type_id = '1'; //1 = product, 2 = service, 3 unpaid gateway fee, 4 paid gateway fee, 5 late fee
+    public $type_id = '1'; //1 = product, 2 = service, 3 unpaid gateway fee, 4 paid gateway fee, 5 late fee, 6 promo code
 
     public static $casts = [
         'type_id' => 'string',
