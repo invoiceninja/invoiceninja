@@ -14,6 +14,7 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Validation\ValidationException;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -59,6 +60,7 @@ class VendorApiTest extends TestCase
         $data = [
             'name' => $this->faker->firstName,
             'id_number' => 'Coolio',
+            'number' => 'wiggles'
         ];
 
         $response = $this->withHeaders([
@@ -67,6 +69,33 @@ class VendorApiTest extends TestCase
             ])->put('/api/v1/vendors/'.$this->encodePrimaryKey($this->vendor->id), $data);
 
         $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals('Coolio', $arr['data']['id_number']);
+        $this->assertEquals('wiggles', $arr['data']['number']);
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->put('/api/v1/vendors/'.$this->encodePrimaryKey($this->vendor->id), $data);
+
+        $response->assertStatus(200);
+
+
+        try{
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/vendors/', $data);
+
+
+        }catch(ValidationException $e){
+
+            $response->assertStatus(302);
+
+        }
+
     }
 
     public function testVendorGet()

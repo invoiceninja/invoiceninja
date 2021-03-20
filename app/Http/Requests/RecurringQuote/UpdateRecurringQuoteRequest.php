@@ -14,6 +14,7 @@ namespace App\Http\Requests\RecurringQuote;
 use App\Http\Requests\Request;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\CleanLineItems;
+use Illuminate\Validation\Rule;
 
 class UpdateRecurringQuoteRequest extends Request
 {
@@ -46,6 +47,9 @@ class UpdateRecurringQuoteRequest extends Request
         }
 
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
+
+        if($this->number)
+            $rules['number'] = Rule::unique('recurring_quotes')->where('company_id', auth()->user()->company()->id)->ignore($this->recurring_quote->id);
 
         $this->replace($input);
     }

@@ -16,6 +16,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Session;
 use Tests\MockAccountData;
 use Tests\TestCase;
+use Illuminate\Validation\ValidationException;
 
 /**
  * @test
@@ -56,6 +57,7 @@ class ProjectApiTest extends TestCase
         $data = [
             'name' => $this->faker->firstName,
             'client_id' => $this->client->hashed_id,
+            'number' => 'duplicate',
         ];
 
         $response = $this->withHeaders([
@@ -64,6 +66,26 @@ class ProjectApiTest extends TestCase
             ])->post('/api/v1/projects', $data);
 
         $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->put('/api/v1/projects/'.$arr['data']['id'], $data)->assertStatus(200);
+
+        try{
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/projects', $data);
+        }
+        catch(ValidationException $e){
+            $response->assertStatus(302);
+        }
+
+
+
     }
 
     public function testProjectPut()

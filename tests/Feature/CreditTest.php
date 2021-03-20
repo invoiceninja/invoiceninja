@@ -131,4 +131,80 @@ class CreditTest extends TestCase
 
         $response->assertStatus(200);
     }
+
+    public function testDuplicateNumberCatch()
+    {
+        $data = [
+            'status_id' => 1,
+            'number' => 'dfdfd',
+            'discount' => 0,
+            'is_amount_discount' => 1,
+            'number' => '3434343',
+            'public_notes' => 'notes',
+            'is_deleted' => 0,
+            'custom_value1' => 0,
+            'custom_value2' => 0,
+            'custom_value3' => 0,
+            'custom_value4' => 0,
+            'status' => 1,
+            'client_id' => $this->encodePrimaryKey($this->client->id),
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/credits', $data);
+
+        $response->assertStatus(200);   
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/credits', $data);
+
+        $response->assertStatus(302);       
+    }
+
+    public function testCreditPut()
+    {
+        $data = [
+            'status_id' => 1,
+            'number' => 'dfdfd',
+            'discount' => 0,
+            'is_amount_discount' => 1,
+            'number' => '3434343',
+            'public_notes' => 'notes',
+            'is_deleted' => 0,
+            'custom_value1' => 0,
+            'custom_value2' => 0,
+            'custom_value3' => 0,
+            'custom_value4' => 0,
+            'status' => 1,
+            'client_id' => $this->encodePrimaryKey($this->client->id),
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->put('/api/v1/credits/'.$this->encodePrimaryKey($this->credit->id), $data);
+
+        $response->assertStatus(200);
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->put('/api/v1/credits/'.$this->encodePrimaryKey($this->credit->id), $data);
+
+        $response->assertStatus(200);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/credits/', $data);
+
+        $response->assertStatus(302);
+    }
+
+
+
 }
