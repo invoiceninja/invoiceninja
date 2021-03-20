@@ -102,7 +102,7 @@ class BillingSubscriptionService
 
 
         //do we have a promocode? enter this as a line item.
-        if(strlen($data['coupon']) >=1) 
+        if(strlen($data['coupon']) >=1 && ($data['coupon'] == $this->billing_subscription->promo_code) && $this->billing_subscription->promo_discount > 0) 
             $line_items[] = $this->createPromoLine($data);
 
         return $line_items;
@@ -113,13 +113,24 @@ class BillingSubscriptionService
         
         $product = $this->billing_subscription->product;
 
-        $price = 0;
+        $discounted_amount = 0;
+        $discount = 0;
+        $amount = $data['quantity'] * $product->cost;
 
+        if ($this->billing_subscription->is_amount_discount == true) {
+            $discount = $this->billing_subscription->promo_discount;
+        }
+        else {
+            $discount = round($amount * ($this->billing_subscription->promo_discount / 100), 2);
+        }
+
+        $discounted_amount = $amount - $discount;
+        
         $item = new InvoiceItem;
         $item->quantity = 1;
         $item->product_key = ctrans('texts.promo_code');
         $item->notes = ctrans('texts.promo_code');
-        $item->cost = $price;
+        $item->cost = $discounted_amount;
         $item->tax_rate1 = $product->tax_rate1 ?: 0;
         $item->tax_name1 = $product->tax_name1 ?: '';
         $item->tax_rate2 = $product->tax_rate2 ?: 0;
