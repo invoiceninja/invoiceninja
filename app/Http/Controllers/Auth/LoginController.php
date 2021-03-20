@@ -171,11 +171,11 @@ class LoginController extends BaseController
 
             //if user has 2fa enabled - lets check this now:
 
-            if($user->google_2fa_secret && $request->has('one_time_password') && strlen($request->input('one_time_password')) >= 1)
+            if($user->google_2fa_secret && $request->has('one_time_password'))
             {
                 $google2fa = new Google2FA();
 
-                if(!$google2fa->verifyKey(decrypt($user->google_2fa_secret), $request->input('one_time_password')))
+                if(strlen($request->input('one_time_password')) == 0 || !$google2fa->verifyKey(decrypt($user->google_2fa_secret), $request->input('one_time_password')))
                 {
                     return response()
                     ->json(['message' => ctrans('texts.invalid_one_time_password')], 401)
