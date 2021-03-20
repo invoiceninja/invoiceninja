@@ -15,7 +15,7 @@ class AddInvoiceIdToClientSubscriptionsTable extends Migration
     {
         Schema::table('client_subscriptions', function (Blueprint $table) {
             $table->unsignedInteger('invoice_id')->nullable();
-
+            $table->unsignedInteger('quantity')->default(1);
             $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade')->onUpdate('cascade');
         });
     }
