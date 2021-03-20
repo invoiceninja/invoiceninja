@@ -21,9 +21,9 @@ use Illuminate\Http\Request;
 class ConnectedAccountController extends BaseController
 {
 
-    protected $entity_type = CompanyUser::class;
+    protected $entity_type = User::class;
 
-    protected $entity_transformer = CompanyUserTransformer::class;
+    protected $entity_transformer = UserTransformer::class;
     
     public function __construct()
     {
