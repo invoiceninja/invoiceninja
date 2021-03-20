@@ -15,6 +15,7 @@ use App\Http\Requests\Request;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Validation\Rule;
 
 class UpdateQuoteRequest extends Request
 {
@@ -46,9 +47,8 @@ class UpdateQuoteRequest extends Request
             $rules['documents'] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
         }
 
-        if ($this->input('number')) {
-            $rules['number'] = 'unique:quotes,number,'.$this->id.',id,company_id,'.$this->quote->company_id;
-        }
+        if($this->number)
+            $rules['number'] = Rule::unique('quotes')->where('company_id', auth()->user()->company()->id)->ignore($this->quote->id);
 
         $rules['line_items'] = 'array';
 

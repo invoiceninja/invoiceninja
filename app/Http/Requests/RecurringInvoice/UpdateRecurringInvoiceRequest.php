@@ -16,6 +16,7 @@ use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Validation\Rule;
 
 class UpdateRecurringInvoiceRequest extends Request
 {
@@ -47,9 +48,9 @@ class UpdateRecurringInvoiceRequest extends Request
             $rules['documents'] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
         }
 
-        if ($this->input('number')) {
-            $rules['number'] = 'unique:recurring_invoices,number,'.$this->recurring_invoice->id.',id,company_id,'.$this->recurring_invoice->company_id;
-        }
+        if($this->number)
+            $rules['number'] = Rule::unique('recurring_invoices')->where('company_id', auth()->user()->company()->id)->ignore($this->recurring_invoice->id);
+
 
         return $rules;
     }
