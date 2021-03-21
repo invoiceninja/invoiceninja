@@ -241,7 +241,7 @@ class BaseDriver extends AbstractPaymentDriver
 
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
-        (new BillingSubscriptionService)->completePurchase($this->payment_hash);
+        //(new BillingSubscriptionService)->completePurchase($this->payment_hash);
 
         return $payment->service()->applyNumber()->save();
     }
