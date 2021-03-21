@@ -46,6 +46,10 @@ class StoreClientRequest extends Request
             $rules['documents'] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
         }
 
+        if (isset($this->number)) {
+            $rules['number'] = Rule::unique('clients')->where('company_id', auth()->user()->company()->id);
+        }
+
         /* Ensure we have a client name, and that all emails are unique*/
         //$rules['name'] = 'required|min:1';
         $rules['id_number'] = 'unique:clients,id_number,'.$this->id.',id,company_id,'.$this->company_id;
