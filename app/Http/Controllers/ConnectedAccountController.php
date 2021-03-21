@@ -14,7 +14,9 @@ namespace App\Http\Controllers;
 use App\Libraries\MultiDB;
 use App\Libraries\OAuth\Providers\Google;
 use App\Models\CompanyUser;
+use App\Models\User;
 use App\Transformers\CompanyUserTransformer;
+use App\Transformers\UserTransformer;
 use Google_Client;
 use Illuminate\Http\Request;
 
