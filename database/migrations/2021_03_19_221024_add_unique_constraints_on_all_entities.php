@@ -37,10 +37,6 @@ class AddUniqueConstraintsOnAllEntities extends Migration
             $table->unique(['company_id', 'number']);
         });
 
-        Schema::table('payment_hashes', function (Blueprint $table) {
-            $table->unique(['hash']);
-        });
-
         Schema::table('recurring_invoices', function (Blueprint $table) {
             $table->string('number')->change();
             $table->unique(['company_id', 'number']);

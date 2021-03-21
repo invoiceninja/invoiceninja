@@ -95,13 +95,15 @@ class ConnectedAccountController extends BaseController
             $client->setClientId(config('ninja.auth.google.client_id'));
             $client->setClientSecret(config('ninja.auth.google.client_secret'));
             $client->setRedirectUri(config('ninja.app_url'));
-            $token = $client->authenticate(request()->input('server_auth_code'));
+            // $token = $client->authenticate(request()->input('server_auth_code'));
 
             $refresh_token = '';
 
-            if (array_key_exists('refresh_token', $token)) {
-                $refresh_token = $token['refresh_token'];
-            }
+            // if (array_key_exists('refresh_token', $token)) {
+            //     $refresh_token = $token['refresh_token'];
+            // }
+
+            $token = '';
 
             $connected_account = [
                 'email' => $google->harvestEmail($user),
@@ -124,5 +126,54 @@ class ConnectedAccountController extends BaseController
         ->json(['message' => ctrans('texts.invalid_credentials')], 401)
         ->header('X-App-Version', config('ninja.app_version'))
         ->header('X-Api-Version', config('ninja.minimum_client_version'));
+    }
+
+    public function handleGmailOauth(Request $request)
+    {
+
+        $user = false;
+
+        $google = new Google();
+
+        $user = $google->getTokenResponse($request->input('id_token'));
+
+        if ($user) {
+            
+            $client = new Google_Client();
+            $client->setClientId(config('ninja.auth.google.client_id'));
+            $client->setClientSecret(config('ninja.auth.google.client_secret'));
+            $client->setRedirectUri(config('ninja.app_url'));
+            $token = $client->authenticate($request->input('server_auth_code'));
+
+            $refresh_token = '';
+
+            if (array_key_exists('refresh_token', $token)) {
+                $refresh_token = $token['refresh_token'];
+            }
+
+            $token = '';
+
+            $connected_account = [
+                'email' => $google->harvestEmail($user),
+                'oauth_user_id' => $google->harvestSubField($user),
+                'oauth_user_token' => $token,
+                'oauth_user_refresh_token' => $refresh_token,
+                'oauth_provider_id' => 'google',
+                'email_verified_at' =>now()
+            ];
+
+            auth()->user()->update($connected_account);
+            auth()->user()->email_verified_at = now();
+            auth()->user()->save();
+            
+            return $this->itemResponse(auth()->user());
+
+        }
+
+        return response()
+        ->json(['message' => ctrans('texts.invalid_credentials')], 401)
+        ->header('X-App-Version', config('ninja.app_version'))
+        ->header('X-Api-Version', config('ninja.minimum_client_version'));
+
     }
 }
