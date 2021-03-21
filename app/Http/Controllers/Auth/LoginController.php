@@ -330,7 +330,7 @@ class LoginController extends BaseController
             // $client->setClientSecret(config('ninja.auth.google.client_secret'));
             // $client->setRedirectUri(config('ninja.app_url'));
 
-            // $token = false;
+            $token = false;
 
             // try{
             //     $token = $client->authenticate(request()->input('server_auth_code'));
@@ -350,6 +350,7 @@ class LoginController extends BaseController
             //     $refresh_token = $token['refresh_token'];
             // }
 
+            $refresh_token = '';
             
             $name = OAuth::splitName($google->harvestName($user));
 
