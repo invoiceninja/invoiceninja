@@ -13,16 +13,24 @@ namespace App\Services\BillingSubscription;
 
 use App\DataMapper\InvoiceItem;
 use App\Factory\InvoiceFactory;
+use App\Jobs\Util\SystemLogger;
 use App\Models\BillingSubscription;
 use App\Models\ClientSubscription;
 use App\Models\PaymentHash;
 use App\Models\Product;
+use App\Models\SystemLog;
 use App\Repositories\InvoiceRepository;
+use App\Utils\Traits\MakesHash;
+use GuzzleHttp\RequestOptions;
 
 class BillingSubscriptionService
 {
+    use MakesHash;
+
     /** @var BillingSubscription */
     private $billing_subscription;
+
+    private $client_subscription;
 
     public function __construct(BillingSubscription $billing_subscription)
     {
@@ -158,11 +166,38 @@ class BillingSubscriptionService
 
         // client_id
         $cs->save();
+
+        $this->client_subscription = $cs;
+
     }
 
     public function triggerWebhook($payment_hash)
     {
         //hit the webhook to after a successful onboarding
+        //$client = xxxxxxx
+        //todo webhook
+        
+        $body = [
+            'billing_subscription' => $this->billing_subscription,
+            'client_subscription' => $this->client_subscription,
+        //    'client' => $client->toArray(),
+        ];
+
+
+        $client =  new \GuzzleHttp\Client(['headers' => $this->billing_subscription->webhook_configuration->post_purchase_headers]);
+
+        $response = $client->{$this->billing_subscription->webhook_configuration->post_purchase_rest_method}($this->billing_subscription->post_purchase_url,[
+            RequestOptions::JSON => ['body' => $body]
+        ]);
+
+            SystemLogger::dispatch(
+                $body,
+                SystemLog::CATEGORY_WEBHOOK,
+                SystemLog::EVENT_WEBHOOK_RESPONSE,
+                SystemLog::TYPE_WEBHOOK_RESPONSE,
+                //$client,
+            );
+
     }
 
     public function fireNotifications()

@@ -101,6 +101,7 @@ class CreateSingleAccount extends Command
         $company = Company::factory()->create([
             'account_id' => $account->id,
             'slack_webhook_url' => config('ninja.notification.slack'),
+            'default_password_timeout' => 30*60000,
         ]);
 
         $account->default_company_id = $company->id;
