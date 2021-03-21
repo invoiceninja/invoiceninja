@@ -82,6 +82,10 @@ class BillingSubscriptionService
 
     }
 
+    /**
+     * Creates the required line items for the invoice 
+     * for the billing subscription.
+     */
     private function createLineItems($data): array
     {
         $line_items = [];
@@ -116,11 +120,14 @@ class BillingSubscriptionService
         return $line_items;
     }
 
+    /**
+     * If a coupon is entered (and is valid)
+     * then we apply the coupon discount with a line item.
+     */
     private function createPromoLine($data)
     {
         
         $product = $this->billing_subscription->product;
-
         $discounted_amount = 0;
         $discount = 0;
         $amount = $data['quantity'] * $product->cost;
@@ -150,21 +157,46 @@ class BillingSubscriptionService
 
     }
 
-    private function convertInvoiceToRecurring()
+    private function convertInvoiceToRecurring($payment_hash)
     {
         //The first invoice is a plain invoice - the second is fired on the recurring schedule.
     }
 
-    public function createClientSubscription($payment_hash, $recurring_invoice_id = null)
+    public function createClientSubscription($payment_hash)
     {
-        //create the client sub record
+        //create the client subscription record
 
-        //?trial enabled?
+        //are we in a trial phase?
+        //has money been paid?
+        //is this a recurring or one off subscription.
+
         $cs = new ClientSubscription();
         $cs->subscription_id = $this->billing_subscription->id;
         $cs->company_id = $this->billing_subscription->company_id;
 
-        // client_id
+            //if is_trial
+            //$cs->trial_started = time();
+            //$cs->trial_duration = time() + duration period in seconds
+
+            //trials will not have any monies paid.
+
+            //if a payment has been made
+            //$cs->invoice_id = xx
+
+            //if is_recurring
+            //create recurring invoice from invoice
+            $recurring_invoice = $this->convertInvoiceToRecurring($payment_hash);
+            $recurring_invoice->frequency_id = $this->billing_subscription->frequency_id;
+            $recurring_invoice->next_send_date = $recurring_invoice->nextDateByFrequency(now()->format('Y-m-d'));
+            //$cs->recurring_invoice_id = $recurring_invoice->id;
+
+            //?set the recurring invoice as active - set the date here also based on the frequency?
+
+            //$cs->quantity = xx
+
+            // client_id
+            //$cs->client_id = xx
+
         $cs->save();
 
         $this->client_subscription = $cs;
