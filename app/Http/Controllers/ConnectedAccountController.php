@@ -110,8 +110,8 @@ class ConnectedAccountController extends BaseController
             $connected_account = [
                 'email' => $google->harvestEmail($user),
                 'oauth_user_id' => $google->harvestSubField($user),
-                'oauth_user_token' => $token,
-                'oauth_user_refresh_token' => $refresh_token,
+                // 'oauth_user_token' => $token,
+                // 'oauth_user_refresh_token' => $refresh_token,
                 'oauth_provider_id' => 'google',
                 'email_verified_at' =>now()
             ];
