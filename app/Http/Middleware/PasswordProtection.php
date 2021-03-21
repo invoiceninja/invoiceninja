@@ -42,7 +42,7 @@ class PasswordProtection
         if($timeout == 0)
             $timeout = null;
         else
-            $timeout = now()->addMinutes($timeout);
+            $timeout = now()->addMinutes($timeout/60000);
 
         if (Cache::get(auth()->user()->hashed_id.'_logged_in')) {
 
@@ -67,7 +67,7 @@ class PasswordProtection
                 ];
 
                 //If OAuth and user also has a password set  - check both
-                if ($existing_user = MultiDB::hasUser($query)  && auth()->user()->has_password && Hash::check(auth()->user()->password, $request->header('X-API-PASSWORD'))) {
+                if ($existing_user = MultiDB::hasUser($query) && auth()->user()->has_password && Hash::check(auth()->user()->password, $request->header('X-API-PASSWORD'))) {
 
                     Cache::add(auth()->user()->hashed_id.'_logged_in', Str::random(64), $timeout);
                     return $next($request);

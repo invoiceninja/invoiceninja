@@ -54,6 +54,28 @@ class ClientApiTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function testDuplicateNumberCatch()
+    {
+        $data = [
+            'name' => $this->faker->firstName,
+            'number' => 'iamaduplicate',
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/clients', $data);
+
+        $response->assertStatus(200);   
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/clients', $data);
+
+        $response->assertStatus(302);       
+    }
+
     public function testClientPut()
     {
         $data = [
@@ -67,6 +89,20 @@ class ClientApiTest extends TestCase
             ])->put('/api/v1/clients/'.$this->encodePrimaryKey($this->client->id), $data);
 
         $response->assertStatus(200);
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->put('/api/v1/clients/'.$this->encodePrimaryKey($this->client->id), $data);
+
+        $response->assertStatus(200);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/clients/', $data);
+
+        $response->assertStatus(302);
     }
 
     public function testClientGet()

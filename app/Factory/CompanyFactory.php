@@ -37,6 +37,7 @@ class CompanyFactory
         $company->enabled_modules = config('ninja.enabled_modules'); //32767;//8191; //4095
         $company->default_password_timeout = 1800000;
 
+
         return $company;
     }
 }

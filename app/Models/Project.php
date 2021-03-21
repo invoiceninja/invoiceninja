@@ -37,6 +37,7 @@ class Project extends BaseModel
         'custom_value4',
         'assigned_user_id',
         'color',
+        'number',
     ];
 
     public function getEntityType()

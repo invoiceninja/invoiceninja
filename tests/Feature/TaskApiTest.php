@@ -14,6 +14,7 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Validation\ValidationException;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -44,6 +45,7 @@ class TaskApiTest extends TestCase
     {
         $data = [
             'description' => $this->faker->firstName,
+            'number' => 'taskynumber'
         ];
 
         $response = $this->withHeaders([
@@ -53,6 +55,27 @@ class TaskApiTest extends TestCase
 
         $arr = $response->json();
         $response->assertStatus(200);
+
+        $this->assertEquals('taskynumber', $arr['data']['number']);
+
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->put('/api/v1/tasks/'.$arr['data']['id'], $data);
+
+        $response->assertStatus(200);
+
+        try{
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/tasks', $data);
+
+        $arr = $response->json();
+        }catch(ValidationException $e){
+            $response->assertStatus(302);
+        }
 
         $this->assertNotEmpty($arr['data']['number']);
     }

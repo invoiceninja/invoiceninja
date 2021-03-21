@@ -14,6 +14,7 @@ namespace App\Http\Requests\Vendor;
 use App\Http\Requests\Request;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Validation\Rule;
 
 class UpdateVendorRequest extends Request
 {
@@ -35,18 +36,15 @@ class UpdateVendorRequest extends Request
         /* Ensure we have a client name, and that all emails are unique*/
 
         $rules['country_id'] = 'integer|nullable';
-        //$rules['id_number'] = 'unique:clients,id_number,,id,company_id,' . auth()->user()->company()->id;
-        $rules['id_number'] = 'unique:clients,id_number,'.$this->id.',id,company_id,'.$this->company_id;
+        
+        if($this->number)
+            $rules['number'] = Rule::unique('vendors')->where('company_id', auth()->user()->company()->id)->ignore($this->vendor->id);
+
+        if($this->id_number)   
+            $rules['id_number'] = Rule::unique('vendors')->where('company_id', auth()->user()->company()->id)->ignore($this->vendor->id);
+
         $rules['contacts.*.email'] = 'nullable|distinct';
 
-        $contacts = request('contacts');
-
-        if (is_array($contacts)) {
-            // for ($i = 0; $i < count($contacts); $i++) {
-                // //    $rules['contacts.' . $i . '.email'] = 'nullable|email|unique:client_contacts,email,' . isset($contacts[$i]['id'].',company_id,'.$this->company_id);
-                //     //$rules['contacts.' . $i . '.email'] = 'nullable|email';
-                // }
-        }
 
         return $rules;
     }
@@ -54,7 +52,6 @@ class UpdateVendorRequest extends Request
     public function messages()
     {
         return [
-            'unique' => ctrans('validation.unique', ['attribute' => 'email']),
             'email' => ctrans('validation.email', ['attribute' => 'email']),
             'name.required' => ctrans('validation.required', ['attribute' => 'name']),
             'required' => ctrans('validation.required', ['attribute' => 'email']),
