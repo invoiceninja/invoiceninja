@@ -27,7 +27,7 @@
                 @if($signature)
                     <tr>
                         <td>
-                            <p>{{ $signature }}</p>
+                            <p>{!! $signature !!}</p>
                         </td>
                     </tr>
                 @endif

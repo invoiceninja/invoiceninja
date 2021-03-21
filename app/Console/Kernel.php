@@ -57,24 +57,17 @@ class Kernel extends ConsoleKernel
         $schedule->job(new BillingSubscriptionCron)->daily()->withoutOverlapping();
 
         $schedule->job(new RecurringInvoicesCron)->hourly()->withoutOverlapping();
+        
+        $schedule->job(new SchedulerCheck)->everyFiveMinutes();
 
         /* Run hosted specific jobs */
         if (Ninja::isHosted()) {
 
-            $schedule->job(new AdjustEmailQuota())->daily()->withoutOverlapping();
-            $schedule->job(new SendFailedEmails())->daily()->withoutOverlapping();
+            $schedule->job(new AdjustEmailQuota)->daily()->withoutOverlapping();
+            $schedule->job(new SendFailedEmails)->daily()->withoutOverlapping();
 
         }
-        /* Run queue's with this*/
-        if (Ninja::isSelfHost()) {
 
-            $schedule->command('queue:work')->everyMinute()->withoutOverlapping();
-            
-            //we need to add this as we are seeing cached queues mess up the system on first load.
-            $schedule->command('queue:restart')->everyFiveMinutes()->withoutOverlapping();
-            $schedule->job(new SchedulerCheck)->everyFiveMinutes()->withoutOverlapping();
-        
-        }
     }
 
     /**

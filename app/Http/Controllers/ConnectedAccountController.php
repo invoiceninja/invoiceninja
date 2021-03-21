@@ -21,9 +21,9 @@ use Illuminate\Http\Request;
 class ConnectedAccountController extends BaseController
 {
 
-    protected $entity_type = CompanyUser::class;
+    protected $entity_type = User::class;
 
-    protected $entity_transformer = CompanyUserTransformer::class;
+    protected $entity_transformer = UserTransformer::class;
     
     public function __construct()
     {
@@ -89,23 +89,8 @@ class ConnectedAccountController extends BaseController
 
         $user = $google->getTokenResponse(request()->input('id_token'));
 
-        if (is_array($user)) {
-            
-            $query = [
-                'oauth_user_id' => $google->harvestSubField($user),
-                'oauth_provider_id'=> 'google',
-            ];
-
-            /* Cannot allow duplicates! */
-            if ($existing_user = MultiDB::hasUser($query)) {
-                return response()
-                ->json(['message' => 'User already exists in system.'], 401)
-                ->header('X-App-Version', config('ninja.app_version'))
-                ->header('X-Api-Version', config('ninja.minimum_client_version'));
-            }
-        }
-
         if ($user) {
+            
             $client = new Google_Client();
             $client->setClientId(config('ninja.auth.google.client_id'));
             $client->setClientSecret(config('ninja.auth.google.client_secret'));
@@ -117,7 +102,6 @@ class ConnectedAccountController extends BaseController
             if (array_key_exists('refresh_token', $token)) {
                 $refresh_token = $token['refresh_token'];
             }
-
 
             $connected_account = [
                 'password' => '',
@@ -136,7 +120,8 @@ class ConnectedAccountController extends BaseController
             //$ct = CompanyUser::whereUserId(auth()->user()->id);
             //return $this->listResponse($ct);
             
-            return $this->listResponse(auth()->user());
+            return $this->itemResponse(auth()->user());
+            // return $this->listResponse(auth()->user());
         }
 
         return response()

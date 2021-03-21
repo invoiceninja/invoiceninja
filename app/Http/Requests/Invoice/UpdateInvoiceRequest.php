@@ -16,6 +16,7 @@ use App\Http\ValidationRules\Invoice\LockedInvoiceRule;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Validation\Rule;
 
 class UpdateInvoiceRequest extends Request
 {
@@ -49,10 +50,8 @@ class UpdateInvoiceRequest extends Request
 
         $rules['id'] = new LockedInvoiceRule($this->invoice);
 
-        // if ($this->input('number') && strlen($this->input('number')) >= 1) {
-        if ($this->input('number')) {
-            $rules['number'] = 'unique:invoices,number,'.$this->id.',id,company_id,'.$this->invoice->company_id;
-        }
+        if($this->number)
+            $rules['number'] = Rule::unique('invoices')->where('company_id', auth()->user()->company()->id)->ignore($this->invoice->id);
 
         $rules['line_items'] = 'array';
 

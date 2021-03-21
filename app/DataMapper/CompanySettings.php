@@ -108,6 +108,7 @@ class CompanySettings extends BaseSettings
     public $project_number_counter = 1; //@implemented
 
     public $shared_invoice_quote_counter = false; //@implemented
+    public $shared_invoice_credit_counter = false; //@implemented
     public $recurring_number_prefix = 'R'; //@implemented
     public $reset_counter_frequency_id = '0'; //@implemented
     public $reset_counter_date = ''; //@implemented
@@ -262,6 +263,7 @@ class CompanySettings extends BaseSettings
     public $hide_empty_columns_on_pdf = false;
 
     public static $casts = [
+        'shared_invoice_credit_counter'      => 'bool',
         'reply_to_name'                      => 'string',
         'hide_empty_columns_on_pdf'          => 'bool',
         'enable_reminder_endless'            => 'bool',

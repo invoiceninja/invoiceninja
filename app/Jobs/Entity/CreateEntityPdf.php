@@ -12,6 +12,7 @@
 
 namespace App\Jobs\Entity;
 
+use App\Models\Account;
 use App\Models\Credit;
 use App\Models\CreditInvitation;
 use App\Models\Design;
@@ -24,6 +25,7 @@ use App\Models\RecurringInvoiceInvitation;
 use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\PdfMaker\PdfMaker as PdfMakerService;
+use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\HtmlEngine;
 use App\Utils\Ninja;
 use App\Utils\PhantomJS\Phantom;
@@ -114,9 +116,12 @@ class CreateEntityPdf implements ShouldQueue
             $entity_design_id = 'invoice_design_id';
         }
 
-        $file_path = $path.$this->entity->number.'.pdf';
+        $file_path = $path.$this->entity->numberFormatter().'.pdf';
 
         $entity_design_id = $this->entity->design_id ? $this->entity->design_id : $this->decodePrimaryKey($this->entity->client->getSetting($entity_design_id));
+
+        if(!$this->company->account->hasFeature(Account::FEATURE_DIFFERENT_DESIGNS))
+            $entity_design_id = 2;
 
         $design = Design::find($entity_design_id);
         $html = new HtmlEngine($this->invitation);
@@ -156,7 +161,13 @@ class CreateEntityPdf implements ShouldQueue
         $pdf = null;
 
         try {
-            $pdf = $this->makePdf(null, null, $maker->getCompiledHTML(true));
+
+            if(config('ninja.invoiceninja_hosted_pdf_generation')){
+                $pdf = (new NinjaPdf())->build($maker->getCompiledHTML(true));
+            }
+            else {
+                $pdf = $this->makePdf(null, null, $maker->getCompiledHTML(true));
+            }
         } catch (\Exception $e) {
             nlog(print_r($e->getMessage(), 1));
         }

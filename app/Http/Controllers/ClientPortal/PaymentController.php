@@ -29,6 +29,7 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -237,11 +238,18 @@ class PaymentController extends Controller
                 ->get();
         }
 
+        $hash_data = ['invoices' => $payable_invoices->toArray(), 'credits' => $credit_totals];
+
+        if ($request->query('hash')) {
+            $hash_data['billing_context'] = Cache::get($request->query('hash'));
+        }
+
         $payment_hash = new PaymentHash;
         $payment_hash->hash = Str::random(128);
-        $payment_hash->data = ['invoices' => $payable_invoices->toArray(), 'credits' => $credit_totals];
+        $payment_hash->data = $hash_data;
         $payment_hash->fee_total = $fee_totals;
         $payment_hash->fee_invoice_id = $first_invoice->id;
+
         $payment_hash->save();
 
         $totals = [

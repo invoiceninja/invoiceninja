@@ -248,9 +248,9 @@ class Credit extends BaseModel
 
     public function pdf_file_path($invitation = null)
     {
-        $storage_path = Storage::url($this->client->credit_filepath().$this->number.'.pdf');
+        $storage_path = Storage::url($this->client->credit_filepath().$this->numberFormatter().'.pdf');
 
-        if (Storage::exists($this->client->credit_filepath().$this->number.'.pdf')) {
+        if (Storage::exists($this->client->credit_filepath().$this->numberFormatter().'.pdf')) {
             return $storage_path;
         }
 

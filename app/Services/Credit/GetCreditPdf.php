@@ -38,7 +38,7 @@ class GetCreditPdf extends AbstractService
 
         $path = $this->credit->client->credit_filepath();
 
-        $file_path = $path.$this->credit->number.'.pdf';
+        $file_path = $path.$this->credit->numberFormatter().'.pdf';
 
         $disk = config('filesystems.default');
 

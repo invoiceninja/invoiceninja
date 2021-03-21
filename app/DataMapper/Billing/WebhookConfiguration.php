@@ -1,0 +1,47 @@
+<?php
+
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
+
+namespace App\DataMapper\Billing;
+
+
+class WebhookConfiguration
+{
+    /**
+     * @var string
+     */
+    public $return_url = '';
+
+    /**
+     * @var string
+     */
+    public $post_purchase_url = '';
+
+    /**
+     * @var array
+     */
+    public $post_purchase_headers = [];
+
+    /**
+     * @var string
+     */
+    public $post_purchase_body =  '';
+
+    /**
+     * @var array
+     */
+    public static $casts = [
+        'return_url' => 'string',
+        'post_purchase_url' => 'string',
+        'post_purchase_headers' => 'array',
+        'post_purchase_body' => 'object',
+    ];
+}

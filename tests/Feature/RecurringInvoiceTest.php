@@ -117,6 +117,7 @@ class RecurringInvoiceTest extends TestCase
         $RecurringInvoice_update = [
             'status_id' => RecurringInvoice::STATUS_DRAFT,
             'client_id' => $this->encodePrimaryKey($RecurringInvoice->client_id),
+            'number' => 'customnumber'
         ];
 
         $this->assertNotNull($RecurringInvoice);
@@ -126,6 +127,26 @@ class RecurringInvoiceTest extends TestCase
                 'X-API-TOKEN' => $this->token,
             ])->put('/api/v1/recurring_invoices/'.$this->encodePrimaryKey($RecurringInvoice->id), $RecurringInvoice_update)
             ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals('customnumber', $arr['data']['number']);
+
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->put('/api/v1/recurring_invoices/'.$this->encodePrimaryKey($RecurringInvoice->id), $RecurringInvoice_update)
+            ->assertStatus(200);
+
+
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/recurring_invoices/', $RecurringInvoice_update)
+            ->assertStatus(302);
+
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),

@@ -13,7 +13,7 @@ return [
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', ''),
-    'app_version' => '5.1.24',
+    'app_version' => '5.1.29',
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', false),
@@ -143,4 +143,6 @@ return [
     'v4_migration_version' => '4.5.31',
     'flutter_canvas_kit' => env('FLUTTER_CANVAS_KIT', false),
     'webcron_secret' => env('WEBCRON_SECRET', false),
+    'disable_auto_update' => env('DISABLE_AUTO_UPDATE', false),
+    'invoiceninja_hosted_pdf_generation' => env('NINJA_HOSTED_PDF', false),
 ];
