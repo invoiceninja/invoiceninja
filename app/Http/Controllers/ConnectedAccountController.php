@@ -104,7 +104,6 @@ class ConnectedAccountController extends BaseController
             }
 
             $connected_account = [
-                'password' => '',
                 'email' => $google->harvestEmail($user),
                 'oauth_user_id' => $google->harvestSubField($user),
                 'oauth_user_token' => $token,
@@ -116,12 +115,9 @@ class ConnectedAccountController extends BaseController
             auth()->user()->update($connected_account);
             auth()->user()->email_verified_at = now();
             auth()->user()->save();
-
-            //$ct = CompanyUser::whereUserId(auth()->user()->id);
-            //return $this->listResponse($ct);
             
             return $this->itemResponse(auth()->user());
-            // return $this->listResponse(auth()->user());
+
         }
 
         return response()

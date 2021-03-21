@@ -36,11 +36,17 @@ class WebhookConfiguration
     public $post_purchase_body =  '';
 
     /**
+     * @var string
+     */ 
+    public $post_purchase_rest_method = 'POST';
+
+    /**
      * @var array
      */
     public static $casts = [
         'return_url' => 'string',
         'post_purchase_url' => 'string',
+        'post_purchase_rest_method' => 'string',
         'post_purchase_headers' => 'array',
         'post_purchase_body' => 'object',
     ];
