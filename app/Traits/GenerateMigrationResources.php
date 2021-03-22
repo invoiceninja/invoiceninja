@@ -98,11 +98,40 @@ info("get company");
         ];
     }
 
+    /**
+     *     define('TOKEN_BILLING_DISABLED', 1);
+     *     define('TOKEN_BILLING_OPT_IN', 2);
+     *     define('TOKEN_BILLING_OPT_OUT', 3);
+     *     define('TOKEN_BILLING_ALWAYS', 4);
+     *
+     *     off,always,optin,optout
+     */
+    private function transformAutoBill($token_billing_id)
+    {
+
+        switch ($token_billing_id) {
+            case TOKEN_BILLING_DISABLED:
+                return 'off';
+            case TOKEN_BILLING_OPT_IN:
+                return 'optin';
+            case TOKEN_BILLING_OPT_OUT:
+                return 'optout';
+            case TOKEN_BILLING_ALWAYS:
+                return 'always';
+            
+            default:
+                return 'off';
+        }
+        
+    }
+
     public function getCompanySettings()
     {
         info("get co settings");
 
         return [
+            'auto_bill' => $this->transformAutoBill($this->account->token_billing_id),
+            'payment_terms' => $this->account->payment_terms ? (string) $this->account->payment_terms : '',
             'timezone_id' => $this->account->timezone_id ? (string) $this->account->timezone_id : '15',
             'date_format_id' => $this->account->date_format_id ? (string) $this->account->date_format_id : '1',
             'currency_id' => $this->account->currency_id ? (string) $this->account->currency_id : '1',

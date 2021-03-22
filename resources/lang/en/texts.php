@@ -4199,6 +4199,7 @@ $LANG = array(
      'disable_two_factor' => 'Disable Two Factor',
      'invoice_task_datelog' => 'Invoice Task Datelog',
      'invoice_task_datelog_help' => 'Add date details to the invoice line items',
+     'promo_code' => 'Promo code',
 );
 
 return $LANG;
