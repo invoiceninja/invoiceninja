@@ -62,7 +62,7 @@
                     <div>
                         <h3 class="text-lg leading-6 font-medium text-gray-900">
                             {{ ctrans('texts.invoice_number_placeholder', ['invoice' => $invoice->number])}}
-                            - {{ ctrans('texts.paid') }}
+                            - {{ \App\Models\Invoice::stringStatus($invoice->status_id) }}
                         </h3>
                     </div>
                 </div>

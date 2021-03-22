@@ -431,7 +431,7 @@ class Design extends BaseDesign
     {
         $_variables = array_key_exists('variables', $this->context)
             ? $this->context['variables']
-            : ['values' => ['$entity.public_notes' => nl2br($this->entity->public_notes), '$entity.terms' => $this->entity->terms, '$entity_footer' => $this->entity->footer], 'labels' => []];
+            : ['values' => ['$entity.public_notes' => $this->entity->public_notes, '$entity.terms' => $this->entity->terms, '$entity_footer' => $this->entity->footer], 'labels' => []];
 
         if ($this->type == 'delivery_note') {
             return [];
@@ -443,9 +443,9 @@ class Design extends BaseDesign
             ['element' => 'div', 'properties' => ['style' => 'display: flex; flex-direction: column;'], 'elements' => [
                 ['element' => 'p', 'content' => strtr($_variables['values']['$entity.public_notes'], $_variables), 'properties' => ['data-ref' => 'total_table-public_notes', 'style' => 'text-align: left;']],
                 ['element' => 'p', 'content' => '', 'properties' => ['style' => 'text-align: left; display: flex; flex-direction: column;'], 'elements' => [
-                    ['element' => 'span', 'content' => '$entity.terms_label: ', 'properties' => ['hidden' => $this->entityVariableCheck('$entity.terms'), 'data-ref' => 'total_table-terms-label', 'style' => 'font-weight: bold; text-align: left;']],
+                    ['element' => 'span', 'content' => '$entity.terms_label: ', 'properties' => ['hidden' => $this->entityVariableCheck('$entity.terms'), 'data-ref' => 'total_table-terms-label', 'style' => 'font-weight: bold; text-align: left; margin-top: 1rem;']],
                     ['element' => 'span', 'content' => strtr($_variables['values']['$entity.terms'], $_variables), 'properties' => ['data-ref' => 'total_table-terms', 'style' => 'text-align: left;']],
-                    ['element' => 'span', 'content' => strtr($_variables['values']['$entity_footer'], $_variables), 'properties' => ['data-ref' => 'total_table-footer', 'style' => 'text-align: left;']],
+                    ['element' => 'span', 'content' => strtr($_variables['values']['$entity_footer'], $_variables), 'properties' => ['data-ref' => 'total_table-footer', 'style' => 'text-align: left; margin-top: 1rem;']],
                 ]],
                 ['element' => 'img', 'properties' => ['hidden' => $this->client->getSetting('signature_on_pdf'), 'style' => 'max-width: 50%; height: auto;', 'src' => '$contact.signature']],
                 ['element' => 'div', 'properties' => ['style' => 'margin-top: 1.5rem; display: flex; align-items: flex-start;'], 'elements' => [
