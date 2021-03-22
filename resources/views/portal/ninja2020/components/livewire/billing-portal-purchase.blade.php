@@ -14,10 +14,6 @@
 
             <div class="flex space-x-2">
                 <h1 class="text-2xl font-bold tracking-wide">{{ App\Utils\Number::formatMoney($billing_subscription->product->price, $billing_subscription->company) }}</h1>
-
-                @if($billing_subscription->per_seat_enabled)
-                    <span class="text-sm">/unit</span>
-                @endif
             </div>
 
             @if($billing_subscription->per_seat_enabled && $billing_subscription->max_seats_limit > 1)
