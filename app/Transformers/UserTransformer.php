@@ -61,6 +61,7 @@ class UserTransformer extends EntityTransformer
             'last_confirmed_email_address' => (string) $user->last_confirmed_email_address ?: '',
             'google_2fa_secret' => (bool) $user->google_2fa_secret,
             'has_password' => (bool) $user->has_password,
+            'oauth_user_token' => strlen($user->oauth_user_token) >=1 ? '***' : '',
         ];
     }
 
