@@ -262,6 +262,7 @@ class BillingPortalPurchase extends Component
                 'client_contact_id' => $this->contact->hashed_id,
             ]],
             'user_input_promo_code' => $this->coupon,
+            'coupon' => $this->coupon,
             'quantity' => $this->quantity,
         ];
 
@@ -273,6 +274,7 @@ class BillingPortalPurchase extends Component
             ->save();
 
         Cache::put($this->hash, [
+            'billing_subscription_id' => $this->billing_subscription->id,
             'email' => $this->email ?? $this->contact->email,
             'client_id' => $this->contact->client->id,
             'invoice_id' => $this->invoice->id,
