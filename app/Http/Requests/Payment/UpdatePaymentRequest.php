@@ -16,6 +16,7 @@ use App\Http\ValidationRules\PaymentAppliedValidAmount;
 use App\Http\ValidationRules\ValidCreditsPresentRule;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Validation\Rule;
 
 class UpdatePaymentRequest extends Request
 {
@@ -35,11 +36,13 @@ class UpdatePaymentRequest extends Request
     public function rules()
     {
         $rules = [
-            'number' => 'nullable|unique:payments,number,'.$this->id.',id,company_id,'.$this->payment->company_id,
             'invoices' => ['array', new PaymentAppliedValidAmount, new ValidCreditsPresentRule],
             'invoices.*.invoice_id' => 'distinct',
             'documents' => 'mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx',
         ];
+
+        if($this->number)
+            $rules['number'] = Rule::unique('payments')->where('company_id', auth()->user()->company()->id)->ignore($this->payment->id);
 
         if ($this->input('documents') && is_array($this->input('documents'))) {
             $documents = count($this->input('documents'));

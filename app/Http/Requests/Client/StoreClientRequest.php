@@ -19,6 +19,7 @@ use App\Models\Client;
 use App\Models\GroupSetting;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Validation\Rule;
 
 class StoreClientRequest extends Request
 {
@@ -46,9 +47,12 @@ class StoreClientRequest extends Request
             $rules['documents'] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
         }
 
+        if (isset($this->number)) {
+            $rules['number'] = Rule::unique('clients')->where('company_id', auth()->user()->company()->id);
+        }
+
         /* Ensure we have a client name, and that all emails are unique*/
         //$rules['name'] = 'required|min:1';
-        $rules['id_number'] = 'unique:clients,id_number,'.$this->id.',id,company_id,'.$this->company_id;
         $rules['settings'] = new ValidClientGroupSettingsRule();
         $rules['contacts.*.email'] = 'bail|nullable|distinct|sometimes|email';
         $rules['contacts.*.password'] = [
@@ -65,6 +69,10 @@ class StoreClientRequest extends Request
         if (auth()->user()->company()->account->isFreeHostedClient()) {
             $rules['hosted_clients'] = new CanStoreClientsRule($this->company_id);
         }
+
+        $rules['number'] = ['nullable',Rule::unique('clients')->where('company_id', auth()->user()->company()->id)];
+        $rules['id_number'] = ['nullable',Rule::unique('clients')->where('company_id', auth()->user()->company()->id)];
+
 
         return $rules;
     }
@@ -122,7 +130,7 @@ class StoreClientRequest extends Request
     public function messages()
     {
         return [
-            'unique' => ctrans('validation.unique', ['attribute' => 'email']),
+            // 'unique' => ctrans('validation.unique', ['attribute' => ['email','number']),
             //'required' => trans('validation.required', ['attribute' => 'email']),
             'contacts.*.email.required' => ctrans('validation.email', ['attribute' => 'email']),
         ];

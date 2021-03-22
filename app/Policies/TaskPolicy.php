@@ -20,6 +20,6 @@ class TaskPolicy extends EntityPolicy
 {
     public function create(User $user) : bool
     {
-        return $user->isAdmin();
+        return $user->isAdmin() || $user->hasPermission('create_task') || $user->hasPermission('create_all');
     }
 }

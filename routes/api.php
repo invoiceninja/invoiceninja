@@ -37,6 +37,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::post('clients/bulk', 'ClientController@bulk')->name('clients.bulk');
 
     Route::post('connected_account', 'ConnectedAccountController@index');
+    Route::post('connected_account/gmail', 'ConnectedAccountController@handleGmailOauth');
 
     Route::resource('client_statement', 'ClientStatementController@statement'); // name = (client_statement. index / create / show / update / destroy / edit
 

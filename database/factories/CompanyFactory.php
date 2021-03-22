@@ -37,6 +37,7 @@ class CompanyFactory extends Factory
             'db' => config('database.default'),
             'settings' => CompanySettings::defaults(),
             'is_large' => false,
+            'default_password_timeout' => 30*60000,
             'enabled_modules' => config('ninja.enabled_modules'),
             'custom_fields' => (object) [
                 //'invoice1' => 'Custom Date|date',

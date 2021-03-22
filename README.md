@@ -7,15 +7,7 @@
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/d39acb4bf0f74a0698dc77f382769ba5)](https://www.codacy.com/app/turbo124/invoiceninja?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=invoiceninja/invoiceninja&amp;utm_campaign=Badge_Grade)
 
-# Invoice Ninja version 5.1 RC2! 
-
-Invoice Ninja version 5.1 has now reached Release Candidate 2! 
-
-What does this mean exactly? We consider this version _almost_ stable. There may be some remaining small issues which we would love to get feedback on. We would really appreciate the community booting up this version and attempting the migration from their Invoice Ninja V4 application and inspect the migrated data.
-
-We'd also like feedback on any issues that you can see, and help us nail down the few remaining issues before Version 5 graduates to Stable Gold Release.
-
-Please note we do not consider this version ready for production use, please stick with your V4 installation for your production clients!
+# Invoice Ninja version 5! 
 
 ## Quick Start
 

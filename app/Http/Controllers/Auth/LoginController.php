@@ -175,7 +175,7 @@ class LoginController extends BaseController
             {
                 $google2fa = new Google2FA();
 
-                if(!$google2fa->verifyKey(decrypt($user->google_2fa_secret), $request->input('one_time_password')))
+                if(strlen($request->input('one_time_password')) == 0 || !$google2fa->verifyKey(decrypt($user->google_2fa_secret), $request->input('one_time_password')))
                 {
                     return response()
                     ->json(['message' => ctrans('texts.invalid_one_time_password')], 401)
@@ -194,6 +194,7 @@ class LoginController extends BaseController
 
             $user->setCompany($user->account->default_company);
             $timeout = auth()->user()->company()->default_password_timeout;
+
             Cache::put(auth()->user()->hashed_id.'_logged_in', Str::random(64), $timeout);
 
             $cu = CompanyUser::query()
@@ -322,33 +323,35 @@ class LoginController extends BaseController
 
         if ($user) {
 
-            $client = new Google_Client();
-            $client->setClientId(config('ninja.auth.google.client_id'));
-            $client->setClientSecret(config('ninja.auth.google.client_secret'));
-            $client->setRedirectUri(config('ninja.app_url'));
+            // we are no longer accessing the permissions for gmail - email permissions here
 
-            $token = false;
+            // $client = new Google_Client();
+            // $client->setClientId(config('ninja.auth.google.client_id'));
+            // $client->setClientSecret(config('ninja.auth.google.client_secret'));
+            // $client->setRedirectUri(config('ninja.app_url'));
 
-            try{
-                $token = $client->authenticate(request()->input('server_auth_code'));
-            }
-            catch(\Exception $e) {
+            // $token = false;
 
-                return response()
-                ->json(['message' => ctrans('texts.invalid_credentials')], 401)
-                ->header('X-App-Version', config('ninja.app_version'))
-                ->header('X-Api-Version', config('ninja.minimum_client_version'));
+            // try{
+            //     $token = $client->authenticate(request()->input('server_auth_code'));
+            // }
+            // catch(\Exception $e) {
 
-            }
+            //     return response()
+            //     ->json(['message' => ctrans('texts.invalid_credentials')], 401)
+            //     ->header('X-App-Version', config('ninja.app_version'))
+            //     ->header('X-Api-Version', config('ninja.minimum_client_version'));
 
-            $refresh_token = '';
+            // }
 
-            if (array_key_exists('refresh_token', $token)) {
-                $refresh_token = $token['refresh_token'];
-            }
+            // $refresh_token = '';
 
-            //$access_token = $token['access_token'];
+            // if (array_key_exists('refresh_token', $token)) {
+            //     $refresh_token = $token['refresh_token'];
+            // }
 
+            // $refresh_token = '';
+            
             $name = OAuth::splitName($google->harvestName($user));
 
             $new_account = [
@@ -357,8 +360,8 @@ class LoginController extends BaseController
                 'password' => '',
                 'email' => $google->harvestEmail($user),
                 'oauth_user_id' => $google->harvestSubField($user),
-                'oauth_user_token' => $token,
-                'oauth_user_refresh_token' => $refresh_token,
+                // 'oauth_user_token' => $token,
+                // 'oauth_user_refresh_token' => $refresh_token,
                 'oauth_provider_id' => 'google',
             ];
 

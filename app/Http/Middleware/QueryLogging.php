@@ -54,7 +54,7 @@ class QueryLogging
                 nlog($request->method().' - '.$request->url().": $count queries - ".$time);
 
                 //  if($count > 50)
-                //   Log::nlog($queries);
+                //nlog($queries);
             }
         }
 

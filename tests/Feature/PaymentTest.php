@@ -104,6 +104,15 @@ class PaymentTest extends TestCase
 
         $response->assertStatus(200);
 
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->put('/api/v1/payments/'.$this->encodePrimaryKey($Payment->id), $Payment->toArray());
+
+        $response->assertStatus(200);
+
+
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,

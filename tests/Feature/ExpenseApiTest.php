@@ -57,11 +57,34 @@ class ExpenseApiTest extends TestCase
         $this->assertNotEmpty($arr['data']['number']);
     }
 
+    public function testDuplicateNumberCatch()
+    {
+        $data = [
+            'public_notes' => $this->faker->firstName,
+            'number' => 'iamaduplicate',
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/expenses', $data);
+
+        $response->assertStatus(200);   
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/expenses', $data);
+
+        $response->assertStatus(302);       
+    }
+
+
     public function testExpensePut()
     {
         $data = [
             'public_notes' => $this->faker->firstName,
-            'id_number' => 'Coolio',
+            'number' => 'Coolio',
         ];
 
         $response = $this->withHeaders([
@@ -70,6 +93,22 @@ class ExpenseApiTest extends TestCase
             ])->put('/api/v1/expenses/'.$this->encodePrimaryKey($this->expense->id), $data);
 
         $response->assertStatus(200);
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->put('/api/v1/expenses/'.$this->encodePrimaryKey($this->expense->id), $data);
+
+        $response->assertStatus(200);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/expenses/', $data);
+
+        $response->assertStatus(302);
+
+
     }
 
     public function testExpenseGet()
