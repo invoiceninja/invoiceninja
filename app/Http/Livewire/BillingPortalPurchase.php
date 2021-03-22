@@ -262,7 +262,7 @@ class BillingPortalPurchase extends Component
                 'client_contact_id' => $this->contact->hashed_id,
             ]],
             'user_input_promo_code' => $this->coupon,
-            'coupon' => $this->coupon,
+            'coupon' => empty($this->billing_subscription->promo_code) ? '' : $this->coupon,
             'quantity' => $this->quantity,
         ];
 
