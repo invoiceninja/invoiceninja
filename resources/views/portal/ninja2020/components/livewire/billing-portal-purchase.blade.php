@@ -13,7 +13,7 @@
             <span class="text-sm uppercase font-bold">{{ ctrans('texts.price') }}:</span>
 
             <div class="flex space-x-2">
-                <h1 class="text-2xl font-bold tracking-wide">{{ App\Utils\Number::formatMoney($billing_subscription->product->price, $billing_subscription->company) }}</h1>
+                <h1 class="text-2xl font-bold tracking-wide">{{ App\Utils\Number::formatMoney($price, $billing_subscription->company) }}</h1>
             </div>
 
             @if($billing_subscription->per_seat_enabled && $billing_subscription->max_seats_limit > 1)

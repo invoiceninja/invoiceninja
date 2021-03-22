@@ -139,6 +139,13 @@ class BillingPortalPurchase extends Component
     public $request_data;
 
     /**
+     * Price of product.
+     *
+     * @var string
+     */
+    public $price;
+
+    /**
      * Handle user authentication
      *
      * @return $this|bool|void
@@ -313,9 +320,15 @@ class BillingPortalPurchase extends Component
             return $this->quantity;
         }
 
-        return $option == 'increment'
-            ? $this->quantity++
-            : $this->quantity--;
+        if ($option == 'increment') {
+            $this->quantity++;
+            return $this->price = (int) $this->price + $this->billing_subscription->product->price;
+        }
+
+        $this->quantity--;
+        $this->price = (int) $this->price - $this->billing_subscription->product->price;
+
+        return 0;
     }
 
     public function render()
