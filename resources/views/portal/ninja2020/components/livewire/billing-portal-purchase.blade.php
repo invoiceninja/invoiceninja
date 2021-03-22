@@ -20,25 +20,27 @@
                 @endif
             </div>
 
-            <div class="flex mt-4 space-x-4 items-center">
-                <span class="text-sm">{{ ctrans('texts.qty') }}</span>
-                <button wire:click="updateQuantity('decrement')" class="bg-gray-100 border rounded p-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                         class="feather feather-minus">
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                </button>
-                <button>{{ $quantity }}</button>
-                <button wire:click="updateQuantity('increment')" class="bg-gray-100 border rounded p-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                         class="feather feather-plus">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                </button>
-            </div>
+            @if($billing_subscription->per_seat_enabled)
+                <div class="flex mt-4 space-x-4 items-center">
+                    <span class="text-sm">{{ ctrans('texts.qty') }}</span>
+                    <button wire:click="updateQuantity('decrement')" class="bg-gray-100 border rounded p-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                             class="feather feather-minus">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </button>
+                    <button>{{ $quantity }}</button>
+                    <button wire:click="updateQuantity('increment')" class="bg-gray-100 border rounded p-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                             class="feather feather-plus">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </button>
+                </div>
+            @endif
 
             @if(auth('contact')->user())
                 <a href="{{ route('client.invoices.index') }}" class="block mt-16 inline-flex items-center space-x-2">
