@@ -16,6 +16,7 @@ use App\Http\Controllers\Controller;
 use App\Models\BillingSubscription;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -41,7 +42,9 @@ class BillingSubscriptionPurchaseController extends Controller
      */
     private function setLocale(string $locale): void
     {
-        $record = DB::table('languages')->where('locale', $locale)->first();
+        $record = Cache::get('languages')->filter(function ($item) use ($locale) {
+            return $item->locale == $locale;
+        })->first();
 
         if ($record) {
             App::setLocale($record->locale);

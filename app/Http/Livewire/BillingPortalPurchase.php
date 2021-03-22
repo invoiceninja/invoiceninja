@@ -17,6 +17,7 @@ use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Repositories\ClientContactRepository;
 use App\Repositories\ClientRepository;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -199,7 +200,11 @@ class BillingPortalPurchase extends Component
         ];
 
         if (array_key_exists('locale', $this->request_data)) {
-            $record = DB::table('languages')->where('locale', $this->request_data['locale'])->first();
+            $request = $this->request_data;
+
+            $record = Cache::get('languages')->filter(function ($item) use ($request) {
+                return $item->locale == $request['locale'];
+            })->first();
 
             if ($record) {
                 $data['settings']['language_id'] = (string)$record->id;
@@ -323,11 +328,11 @@ class BillingPortalPurchase extends Component
 
         if ($option == 'increment') {
             $this->quantity++;
-            return $this->price = (int) $this->price + $this->billing_subscription->product->price;
+            return $this->price = (int)$this->price + $this->billing_subscription->product->price;
         }
 
         $this->quantity--;
-        $this->price = (int) $this->price - $this->billing_subscription->product->price;
+        $this->price = (int)$this->price - $this->billing_subscription->product->price;
 
         return 0;
     }
