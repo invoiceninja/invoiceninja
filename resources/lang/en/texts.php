@@ -4174,6 +4174,10 @@ $LANG = array(
      'zoho' => 'Zoho',
      'accounting' => 'Accounting',
      'required_files_missing' => 'Please provide all CSVs.',
+     'migration_auth_label' => 'Let\'s continue by authenticating.',
+     'api_secret' => 'API secret',
+     'migration_api_secret_notice' => 'You can find API_SECRET in the .env file or Invoice Ninja v5. If property is missing, leave field blank.',
+     'billing_coupon_notice' => 'Your discount will be applied on the checkout.',
      'use_last_email' => 'Use last email',
      'activate_company' => 'Activate Company',
      'activate_company_help' => 'Enable emails, recurring invoices and notifications',
@@ -4196,6 +4200,8 @@ $LANG = array(
      'disable_two_factor' => 'Disable Two Factor',
      'invoice_task_datelog' => 'Invoice Task Datelog',
      'invoice_task_datelog_help' => 'Add date details to the invoice line items',
+     'promo_code' => 'Promo code',
+     'recurring_invoice_issued_to' => 'Recurring invoice issued to',
 );
 
 return $LANG;
