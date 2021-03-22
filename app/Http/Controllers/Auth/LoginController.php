@@ -311,6 +311,8 @@ class LoginController extends BaseController
 
                 Auth::login($existing_user, true);
                 $existing_user->setCompany($existing_user->account->default_company);
+                $timeout = $existing_user->company()->default_password_timeout / 60000;
+                Cache::put($existing_user->hashed_id.'_logged_in', Str::random(64), $timeout);
 
                 $cu = CompanyUser::query()
                                   ->where('user_id', auth()->user()->id);
@@ -345,7 +347,7 @@ class LoginController extends BaseController
             auth()->user()->save();
             $timeout = auth()->user()->company()->default_password_timeout / 60000;
             Cache::put(auth()->user()->hashed_id.'_logged_in', Str::random(64), $timeout);
-            
+
             $ct = CompanyUser::whereUserId(auth()->user()->id);
 
             return $this->listResponse($ct);
