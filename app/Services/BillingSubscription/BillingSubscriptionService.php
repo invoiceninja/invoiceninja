@@ -20,12 +20,14 @@ use App\Models\PaymentHash;
 use App\Models\Product;
 use App\Models\SystemLog;
 use App\Repositories\InvoiceRepository;
+use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
 use GuzzleHttp\RequestOptions;
 
 class BillingSubscriptionService
 {
     use MakesHash;
+    use CleanLineItems;
 
     /** @var BillingSubscription */
     private $billing_subscription;
@@ -68,7 +70,7 @@ class BillingSubscriptionService
     {
         $invoice_repo = new InvoiceRepository();
 
-        $data['line_items'] = $this->createLineItems($data);
+        $data['line_items'] = $this->cleanItems($this->createLineItems($data));
 
         /*
         If trial_enabled -> return early
