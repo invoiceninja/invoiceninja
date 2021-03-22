@@ -46,18 +46,22 @@ class BillingSubscriptionService
 
         // At this point we have some state carried from the billing page
         // to this, available as $payment_hash->data->billing_context. Make something awesome ⭐
-        
-        // create client subscription record 
+
+        // create client subscription record
         //
         // create recurring invoice if is_recurring
-        // 
+        //
 
 
     }
 
     public function startTrial(array $data)
     {
+        // Redirects from here work just fine. Livewire will respect it.
 
+        // Some magic here..
+
+        return redirect('/trial-started');
     }
 
     public function createInvoice($data): ?\App\Models\Invoice

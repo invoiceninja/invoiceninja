@@ -10,9 +10,35 @@
 
             <p class="my-6">{{ $billing_subscription->product->notes }}</p>
 
-            <span class="text-sm uppercase font-bold">{{ ctrans('texts.total') }}:</span>
+            <span class="text-sm uppercase font-bold">{{ ctrans('texts.price') }}:</span>
 
-            <h1 class="text-2xl font-bold tracking-wide">{{ App\Utils\Number::formatMoney($billing_subscription->product->price, $billing_subscription->company) }}</h1>
+            <div class="flex space-x-2">
+                <h1 class="text-2xl font-bold tracking-wide">{{ App\Utils\Number::formatMoney($billing_subscription->product->price, $billing_subscription->company) }}</h1>
+
+                @if($billing_subscription->per_seat_enabled)
+                    <span class="text-sm">/unit</span>
+                @endif
+            </div>
+
+            <div class="flex mt-4 space-x-4 items-center">
+                <span class="text-sm">{{ ctrans('texts.qty') }}</span>
+                <button wire:click="updateQuantity('decrement')" class="bg-gray-100 border rounded p-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                         class="feather feather-minus">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                </button>
+                <button>{{ $quantity }}</button>
+                <button wire:click="updateQuantity('increment')" class="bg-gray-100 border rounded p-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                         class="feather feather-plus">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                </button>
+            </div>
 
             @if(auth('contact')->user())
                 <a href="{{ route('client.invoices.index') }}" class="block mt-16 inline-flex items-center space-x-2">
@@ -32,14 +58,14 @@
     <div class="col-span-12 lg:col-span-6 bg-white lg:shadow-lg lg:h-screen">
         <div class="grid grid-cols-12 flex flex-col p-10 lg:mt-48 lg:ml-16">
             <div class="col-span-12 w-full lg:col-span-6">
-                <h2 class="text-2xl font-bold tracking-wide">{{ $heading_text }}</h2>
+                <h2 class="text-2xl font-bold tracking-wide">{{ $heading_text ?? ctrans('texts.login') }}</h2>
                 @if (session()->has('message'))
                     @component('portal.ninja2020.components.message')
                         {{ session('message') }}
                     @endcomponent
                 @endif
 
-                @if($this->steps['fetched_payment_methods'])
+                @if($steps['fetched_payment_methods'])
                     <div class="flex items-center mt-4 text-sm">
                         <form action="{{ route('client.payments.process', ['hash' => $hash, 'sidebar' => 'hidden']) }}"
                               method="post"
@@ -67,6 +93,17 @@
                             </button>
                         @endforeach
                     </div>
+                @elseif($steps['show_start_trial'])
+                    <form wire:submit.prevent="handleTrial" class="mt-8">
+                        @csrf
+                        <p class="mb-4">Some text about the trial goes here. Details about the days, etc.</p>
+
+
+                        <button class="px-3 py-2 border rounded mr-4 hover:border-blue-600">
+                            {{ ctrans('texts.trial_call_to_action') }}
+                        </button>
+                    </form>
+
                 @else
                     <form wire:submit.prevent="authenticate" class="mt-8">
                         @csrf
@@ -110,17 +147,12 @@
                     </div>
                 </div>
 
-                <form wire:submit.prevent="applyCouponCode" class="mt-4">
-                    @csrf
-
-                    <div class="flex items-center">
-                        <label class="w-full mr-2">
-                            <input type="text" wire:model.defer="coupon" class="input w-full m-0" />
-                        </label>
-
-                        <button class="button bg-primary m-0 text-white">{{ ctrans('texts.apply') }}</button>
-                    </div>
-                </form>
+                <div class="flex items-center mt-4">
+                    <label class="w-full mr-2">
+                        <input type="text" wire:model.lazy="coupon" class="input w-full m-0"/>
+                        <small class="block text-gray-900 mt-2">{{ ctrans('texts.billing_coupon_notice') }}</small>
+                    </label>
+                </div>
             </div>
         </div>
     </div>
