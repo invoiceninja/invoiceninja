@@ -193,9 +193,9 @@ class LoginController extends BaseController
             }
 
             $user->setCompany($user->account->default_company);
-            $timeout = auth()->user()->company()->default_password_timeout;
+            // $timeout = auth()->user()->company()->default_password_timeout;
 
-            Cache::put(auth()->user()->hashed_id.'_logged_in', Str::random(64), $timeout);
+            // Cache::put(auth()->user()->hashed_id.'_logged_in', Str::random(64), $timeout);
 
             $cu = CompanyUser::query()
                   ->where('user_id', auth()->user()->id);
