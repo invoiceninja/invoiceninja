@@ -14,7 +14,12 @@
 
             <div class="flex space-x-2">
                 <h1 class="text-2xl font-bold tracking-wide">{{ App\Utils\Number::formatMoney($price, $billing_subscription->company) }}</h1>
+
+                @if($billing_subscription->is_recurring)
+                    <span class="text-xs uppercase">/ {{ \App\Models\RecurringInvoice::frequencyForKey($billing_subscription->frequency_id) }}</span>
+                @endif
             </div>
+
 
             @if($billing_subscription->per_seat_enabled && $billing_subscription->max_seats_limit > 1)
                 <div class="flex mt-4 space-x-4 items-center">
