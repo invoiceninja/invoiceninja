@@ -193,9 +193,8 @@ class LoginController extends BaseController
             }
 
             $user->setCompany($user->account->default_company);
-            // $timeout = auth()->user()->company()->default_password_timeout;
-
-            // Cache::put(auth()->user()->hashed_id.'_logged_in', Str::random(64), $timeout);
+            $timeout = auth()->user()->company()->default_password_timeout / 60000;
+            Cache::put(auth()->user()->hashed_id.'_logged_in', Str::random(64), $timeout);
 
             $cu = CompanyUser::query()
                   ->where('user_id', auth()->user()->id);
@@ -322,35 +321,6 @@ class LoginController extends BaseController
         }
 
         if ($user) {
-
-            // we are no longer accessing the permissions for gmail - email permissions here
-
-            // $client = new Google_Client();
-            // $client->setClientId(config('ninja.auth.google.client_id'));
-            // $client->setClientSecret(config('ninja.auth.google.client_secret'));
-            // $client->setRedirectUri(config('ninja.app_url'));
-
-            // $token = false;
-
-            // try{
-            //     $token = $client->authenticate(request()->input('server_auth_code'));
-            // }
-            // catch(\Exception $e) {
-
-            //     return response()
-            //     ->json(['message' => ctrans('texts.invalid_credentials')], 401)
-            //     ->header('X-App-Version', config('ninja.app_version'))
-            //     ->header('X-Api-Version', config('ninja.minimum_client_version'));
-
-            // }
-
-            // $refresh_token = '';
-
-            // if (array_key_exists('refresh_token', $token)) {
-            //     $refresh_token = $token['refresh_token'];
-            // }
-
-            // $refresh_token = '';
             
             $name = OAuth::splitName($google->harvestName($user));
 
@@ -373,7 +343,9 @@ class LoginController extends BaseController
 
             auth()->user()->email_verified_at = now();
             auth()->user()->save();
-
+            $timeout = auth()->user()->company()->default_password_timeout / 60000;
+            Cache::put(auth()->user()->hashed_id.'_logged_in', Str::random(64), $timeout);
+            
             $ct = CompanyUser::whereUserId(auth()->user()->id);
 
             return $this->listResponse($ct);
