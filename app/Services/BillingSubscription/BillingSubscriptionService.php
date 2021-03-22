@@ -20,12 +20,14 @@ use App\Models\PaymentHash;
 use App\Models\Product;
 use App\Models\SystemLog;
 use App\Repositories\InvoiceRepository;
+use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
 use GuzzleHttp\RequestOptions;
 
 class BillingSubscriptionService
 {
     use MakesHash;
+    use CleanLineItems;
 
     /** @var BillingSubscription */
     private $billing_subscription;
@@ -46,25 +48,29 @@ class BillingSubscriptionService
 
         // At this point we have some state carried from the billing page
         // to this, available as $payment_hash->data->billing_context. Make something awesome ⭐
-        
-        // create client subscription record 
+
+        // create client subscription record
         //
         // create recurring invoice if is_recurring
-        // 
+        //
 
 
     }
 
     public function startTrial(array $data)
     {
+        // Redirects from here work just fine. Livewire will respect it.
 
+        // Some magic here..
+
+        return redirect('/trial-started');
     }
 
     public function createInvoice($data): ?\App\Models\Invoice
     {
         $invoice_repo = new InvoiceRepository();
 
-        $data['line_items'] = $this->createLineItems($data);
+        $data['line_items'] = $this->cleanItems($this->createLineItems($data));
 
         /*
         If trial_enabled -> return early

@@ -63,6 +63,7 @@ class SendRecurring implements ShouldQueue
                            ->markSent()
                            ->applyNumber()
                            ->createInvitations()
+                           ->fillDefaults()
                            ->save();
 
         nlog("Invoice {$invoice->number} created");

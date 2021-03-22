@@ -45,7 +45,7 @@ class SupportMessageSent extends Mailable
 
             $log_file->seek(PHP_INT_MAX);
             $last_line = $log_file->key();
-            $lines = new LimitIterator($log_file, $last_line - 10, $last_line);
+            $lines = new LimitIterator($log_file, $last_line - 100, $last_line);
 
             $log_lines = iterator_to_array($lines);
         }
