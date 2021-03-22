@@ -139,7 +139,7 @@
                     </form>
                 @endif
 
-                @if(!empty($billing_subscription->promo_code))
+                @if(!empty($billing_subscription->promo_code) && !$billing_subscription->trial_enabled)
                     <div class="relative mt-8">
                         <div class="absolute inset-0 flex items-center">
                             <div class="w-full border-t border-gray-300"></div>
