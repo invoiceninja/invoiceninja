@@ -20,7 +20,7 @@
                 @endif
             </div>
 
-            @if($billing_subscription->per_seat_enabled)
+            @if($billing_subscription->per_seat_enabled && $billing_subscription->max_seats_limit > 1)
                 <div class="flex mt-4 space-x-4 items-center">
                     <span class="text-sm">{{ ctrans('texts.qty') }}</span>
                     <button wire:click="updateQuantity('decrement')" class="bg-gray-100 border rounded p-1">

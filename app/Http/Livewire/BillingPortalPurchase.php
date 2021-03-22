@@ -309,8 +309,7 @@ class BillingPortalPurchase extends Component
             return $this->quantity;
         }
 
-        // TODO: Dave review.
-        if ($this->quantity >= $this->billing_subscription->max_seats_limit) {
+        if ($this->quantity >= $this->billing_subscription->max_seats_limit && $option == 'increment') {
             return $this->quantity;
         }
 
