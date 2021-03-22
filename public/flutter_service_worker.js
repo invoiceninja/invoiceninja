@@ -27,10 +27,10 @@ const RESOURCES = {
 "assets/assets/images/google-icon.png": "0f118259ce403274f407f5e982e681c3",
 "assets/fonts/MaterialIcons-Regular.otf": "1288c9e28052e028aba623321f7826ac",
 "assets/AssetManifest.json": "659dcf9d1baf3aed3ab1b9c42112bf8f",
-"assets/packages/material_design_icons_flutter/lib/fonts/materialdesignicons-webfont.ttf": "3e722fd57a6db80ee119f0e2c230ccff",
+"assets/packages/material_design_icons_flutter/lib/fonts/materialdesignicons-webfont.ttf": "174c02fc4609e8fc4389f5d21f16a296",
 "assets/FontManifest.json": "cf3c681641169319e61b61bd0277378f",
 "/": "23224b5e03519aaa87594403d54412cf",
-"main.dart.js": "b7493bf1a6bba44a4d7ad0f3fe39ce4b",
+"main.dart.js": "23739d5559ad1f4c23c0b72dd29078f7",
 "version.json": "b7c8971e1ab5b627fd2a4317c52b843e",
 "favicon.png": "dca91c54388f52eded692718d5a98b8b"
 };
