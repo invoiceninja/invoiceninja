@@ -293,7 +293,7 @@ class BillingPortalPurchase extends Component
             'invoice_id' => $this->invoice->id,
             'quantity' => $this->quantity,
             'subscription_id' => $this->billing_subscription->id,
-            now()->addMinutes(60)
+            now()->addMinutes(60)]
         );
 
         $this->emit('beforePaymentEventsCompleted');
