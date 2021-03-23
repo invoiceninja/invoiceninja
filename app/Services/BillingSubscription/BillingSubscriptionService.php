@@ -15,6 +15,7 @@ use App\DataMapper\InvoiceItem;
 use App\Factory\InvoiceFactory;
 use App\Jobs\Util\SystemLogger;
 use App\Models\BillingSubscription;
+use App\Models\ClientContact;
 use App\Models\ClientSubscription;
 use App\Models\PaymentHash;
 use App\Models\Product;
@@ -29,9 +30,10 @@ class BillingSubscriptionService
     use MakesHash;
     use CleanLineItems;
 
-    /** @var BillingSubscription */
+    /** @var billing_subscription */
     private $billing_subscription;
 
+    /** @var client_subscription */
     private $client_subscription;
 
     public function __construct(BillingSubscription $billing_subscription)
@@ -43,7 +45,7 @@ class BillingSubscriptionService
     {
 
         if (!property_exists($payment_hash, 'billing_context')) {
-            return;
+            throw new \Exception("Illegal entrypoint into method, payload must contain billing context");
         }
 
         // At this point we have some state carried from the billing page
@@ -57,32 +59,49 @@ class BillingSubscriptionService
 
     }
 
+    /**
+        'email' => $this->email ?? $this->contact->email,
+        'quantity' => $this->quantity,
+        'contact_id' => $this->contact->id,
+     */
     public function startTrial(array $data)
     {
         // Redirects from here work just fine. Livewire will respect it.
 
-        // Some magic here..
+        if(!$this->billing_subscription->trial_enabled)
+            return new \Exception("Trials are disabled for this product");
 
-        return redirect('/trial-started');
+        $contact = ClientContact::with('client')->find($data['contact_id']);
+
+        $cs = new ClientSubscription();
+        $cs->subscription_id = $this->billing_subscription->id;
+        $cs->company_id = $this->billing_subscription->company_id;
+        $cs->trial_started = time();
+        $cs->trial_duration = time() + $this->billing_subscription->trial_duration;
+        $cs->quantity = $data['quantity'];
+        $cs->client_id = $contact->client->id;
+        $cs->save();
+
+        $this->client_subscription = $cs;
+
+        //execute any webhooks
+        
+        //if we have a defined return url redirect now
+        
+        //else we provide a default redirect
+
+        if(strlen($this->billing_subscription->webhook_configuration->post_purchase_url) >=1)
+            return redirect($this->billing_subscription->webhook_configuration->post_purchase_url);
+
+        return redirect('/client/subscription/'.$cs->hashed_id);
     }
 
     public function createInvoice($data): ?\App\Models\Invoice
     {
+
         $invoice_repo = new InvoiceRepository();
 
         $data['line_items'] = $this->cleanItems($this->createLineItems($data));
-
-        /*
-        If trial_enabled -> return early
-
-            -- what we need to know that we don't already
-            -- Has a promo code been entered, and does it match
-            -- Is this a recurring subscription
-            --
-
-            1. Is this a recurring product?
-            2. What is the quantity? ie is this a multi seat product ( does this mean we need this value stored in the client sub?)
-        */
 
         return $invoice_repo->save($data, InvoiceFactory::create($this->billing_subscription->company_id, $this->billing_subscription->user_id));
 
@@ -94,6 +113,7 @@ class BillingSubscriptionService
      */
     private function createLineItems($data): array
     {
+
         $line_items = [];
 
         $product = $this->billing_subscription->product;
@@ -124,6 +144,7 @@ class BillingSubscriptionService
             $line_items[] = $this->createPromoLine($data);
 
         return $line_items;
+
     }
 
     /**
@@ -170,21 +191,12 @@ class BillingSubscriptionService
 
     public function createClientSubscription($payment_hash)
     {
-        //create the client subscription record
 
-        //are we in a trial phase?
-        //has money been paid?
         //is this a recurring or one off subscription.
 
         $cs = new ClientSubscription();
         $cs->subscription_id = $this->billing_subscription->id;
         $cs->company_id = $this->billing_subscription->company_id;
-
-            //if is_trial
-            //$cs->trial_started = time();
-            //$cs->trial_duration = time() + duration period in seconds
-
-            //trials will not have any monies paid.
 
             //if a payment has been made
             //$cs->invoice_id = xx
