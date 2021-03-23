@@ -34,6 +34,8 @@ class BillingSubscriptionTransformer extends EntityTransformer
 
     public function transform(BillingSubscription $billing_subscription): array
     {
+        $std = new stdClass;
+
         return [
             'id' => $this->encodePrimaryKey($billing_subscription->id),
             'user_id' => $this->encodePrimaryKey($billing_subscription->user_id),
@@ -56,7 +58,7 @@ class BillingSubscriptionTransformer extends EntityTransformer
             'allow_plan_changes' => (bool)$billing_subscription->allow_plan_changes,
             'plan_map' => (string)$billing_subscription->plan_map,
             'refund_period' => (int)$billing_subscription->refund_period,
-            'webhook_configuration' => (string)$billing_subscription->webhook_configuration,
+            'webhook_configuration' => $billing_subscription->webhook_configuration ?: $std,
             'purchase_page' => (string)route('client.subscription.purchase', $billing_subscription->hashed_id),
             'is_deleted' => (bool)$billing_subscription->is_deleted,
             'created_at' => (int)$billing_subscription->created_at,
