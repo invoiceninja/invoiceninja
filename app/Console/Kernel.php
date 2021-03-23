@@ -44,7 +44,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
 
-        $schedule->job(new VersionCheck)->daily()->withoutOverlapping();
+        $schedule->job(new VersionCheck)->daily();
 
         $schedule->command('ninja:check-data')->daily()->withoutOverlapping();
 

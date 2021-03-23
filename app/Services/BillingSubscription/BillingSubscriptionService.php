@@ -13,10 +13,12 @@ namespace App\Services\BillingSubscription;
 
 use App\DataMapper\InvoiceItem;
 use App\Factory\InvoiceFactory;
+use App\Factory\InvoiceToRecurringInvoiceFactory;
 use App\Jobs\Util\SystemLogger;
 use App\Models\BillingSubscription;
 use App\Models\ClientContact;
 use App\Models\ClientSubscription;
+use App\Models\Invoice;
 use App\Models\PaymentHash;
 use App\Models\Product;
 use App\Models\SystemLog;
@@ -85,10 +87,7 @@ class BillingSubscriptionService
         $this->client_subscription = $cs;
 
         //execute any webhooks
-        
-        //if we have a defined return url redirect now
-        
-        //else we provide a default redirect
+        $this->triggerWebhook();
 
         if(strlen($this->billing_subscription->webhook_configuration->post_purchase_url) >=1)
             return redirect($this->billing_subscription->webhook_configuration->post_purchase_url);
@@ -187,6 +186,13 @@ class BillingSubscriptionService
     private function convertInvoiceToRecurring($payment_hash)
     {
         //The first invoice is a plain invoice - the second is fired on the recurring schedule.
+        $invoice = Invoice::find($payment_hash->billing_context->invoice_id); 
+        
+        if(!$invoice)
+            throw new \Exception("Could not match an invoice for payment of billing subscription");
+
+        return InvoiceToRecurringInvoiceFactory::create($invoice);
+        
     }
 
     public function createClientSubscription($payment_hash)
@@ -198,22 +204,24 @@ class BillingSubscriptionService
         $cs->subscription_id = $this->billing_subscription->id;
         $cs->company_id = $this->billing_subscription->company_id;
 
-            //if a payment has been made
-            //$cs->invoice_id = xx
+        $cs->invoice_id = $payment_hash->billing_context->invoice_id;
+        $cs->client_id = $payment_hash->billing_context->client_id;
+        $cs->quantity = $payment_hash->billing_context->quantity;
 
             //if is_recurring
             //create recurring invoice from invoice
+            if($this->billing_subscription->is_recurring)
+            {
             $recurring_invoice = $this->convertInvoiceToRecurring($payment_hash);
             $recurring_invoice->frequency_id = $this->billing_subscription->frequency_id;
             $recurring_invoice->next_send_date = $recurring_invoice->nextDateByFrequency(now()->format('Y-m-d'));
-            //$cs->recurring_invoice_id = $recurring_invoice->id;
+            $recurring_invoice->save();
+            $cs->recurring_invoice_id = $recurring_invoice->id;
 
             //?set the recurring invoice as active - set the date here also based on the frequency?
+            $recurring_invoice->service()->start();
+            }
 
-            //$cs->quantity = xx
-
-            // client_id
-            //$cs->client_id = xx
 
         $cs->save();
 
@@ -221,16 +229,14 @@ class BillingSubscriptionService
 
     }
 
-    public function triggerWebhook($payment_hash)
+    public function triggerWebhook()
     {
         //hit the webhook to after a successful onboarding
-        //$client = xxxxxxx
-        //todo webhook
-        
+
         $body = [
             'billing_subscription' => $this->billing_subscription,
             'client_subscription' => $this->client_subscription,
-        //    'client' => $client->toArray(),
+            'client' => $this->client_subscription->client->toArray(),
         ];
 
 
@@ -245,7 +251,7 @@ class BillingSubscriptionService
                 SystemLog::CATEGORY_WEBHOOK,
                 SystemLog::EVENT_WEBHOOK_RESPONSE,
                 SystemLog::TYPE_WEBHOOK_RESPONSE,
-                //$client,
+                $this->client_subscription->client,
             );
 
     }
