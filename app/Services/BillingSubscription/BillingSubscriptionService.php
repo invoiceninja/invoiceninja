@@ -192,6 +192,7 @@ class BillingSubscriptionService
             throw new \Exception("Could not match an invoice for payment of billing subscription");
 
         //todo - need to remove the promo code - if it exists
+        
         return InvoiceToRecurringInvoiceFactory::create($invoice);
         
     }
