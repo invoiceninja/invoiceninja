@@ -115,7 +115,6 @@ class ConnectedAccountController extends BaseController
             $timeout = auth()->user()->company()->default_password_timeout;
             Cache::put(auth()->user()->hashed_id.'_logged_in', Str::random(64), $timeout);
 
-
             return $this->itemResponse(auth()->user());
 
         }
@@ -125,6 +124,8 @@ class ConnectedAccountController extends BaseController
         ->header('X-App-Version', config('ninja.app_version'))
         ->header('X-Api-Version', config('ninja.minimum_client_version'));
     }
+
+
 
     public function handleGmailOauth(Request $request)
     {
@@ -162,6 +163,8 @@ class ConnectedAccountController extends BaseController
             auth()->user()->email_verified_at = now();
             auth()->user()->save();
             
+            $this->activateGmail(auth()->user());
+
             return $this->itemResponse(auth()->user());
 
         }
@@ -171,5 +174,20 @@ class ConnectedAccountController extends BaseController
         ->header('X-App-Version', config('ninja.app_version'))
         ->header('X-Api-Version', config('ninja.minimum_client_version'));
 
+    }
+
+    private function activateGmail(User $user)
+    {
+        $company = $user->company();
+        $settings = $company->settings;
+
+        if($settings->email_sending_method == 'default')
+        {
+            $settings->email_sending_method = 'gmail';
+            $settings->gmail_sending_user_id = (string)$user->hashed_id;
+
+            $company->settings = $settings;
+            $company->save();
+        }    
     }
 }
