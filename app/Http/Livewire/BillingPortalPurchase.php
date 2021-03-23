@@ -283,13 +283,16 @@ class BillingPortalPurchase extends Component
             ->createInvoice($data)
             ->service()
             ->markSent()
+            ->fillDefaults()
             ->save();
 
         Cache::put($this->hash, [
             'billing_subscription_id' => $this->billing_subscription->id,
             'email' => $this->email ?? $this->contact->email,
             'client_id' => $this->contact->client->id,
-            'invoice_id' => $this->invoice->id],
+            'invoice_id' => $this->invoice->id,
+            'quantity' => $this->quantity,
+            'subscription_id' => $this->billing_subscription->id,
             now()->addMinutes(60)
         );
 

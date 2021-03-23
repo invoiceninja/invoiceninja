@@ -28,7 +28,7 @@ trait CleanLineItems
         $cleaned_items = [];
 
         foreach ($items as $item) {
-            $cleaned_items[] = $this->cleanLineItem($item);
+            $cleaned_items[] = $this->cleanLineItem((array)$item);
         }
 
         return $cleaned_items;
