@@ -532,7 +532,7 @@ class QuoteController extends BaseController
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }
 
-        if ($action == 'convert') {
+        if ($action == 'convert' || $action == 'convert_to_invoice') {
             $this->entity_type = Quote::class;
             $this->entity_transformer = QuoteTransformer::class;
 

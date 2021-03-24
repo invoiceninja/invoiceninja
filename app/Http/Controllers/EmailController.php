@@ -131,7 +131,7 @@ class EmailController extends BaseController
                 
                 $entity_obj->service()->markSent()->save();
 
-                EmailEntity::dispatch($invitation, $invitation->company, $template, $data)
+                EmailEntity::dispatch($invitation->fresh(), $invitation->company, $template, $data)
                             ->delay(now()->addSeconds(5));
                 
             }

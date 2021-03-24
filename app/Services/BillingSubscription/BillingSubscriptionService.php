@@ -46,7 +46,7 @@ class BillingSubscriptionService
     public function completePurchase(PaymentHash $payment_hash)
     {
 
-        if (!property_exists($payment_hash, 'billing_context')) {
+        if (!property_exists($payment_hash->data, 'billing_context')) {
             throw new \Exception("Illegal entrypoint into method, payload must contain billing context");
         }
 
@@ -79,7 +79,7 @@ class BillingSubscriptionService
         $cs->subscription_id = $this->billing_subscription->id;
         $cs->company_id = $this->billing_subscription->company_id;
         $cs->trial_started = time();
-        $cs->trial_duration = time() + $this->billing_subscription->trial_duration;
+        $cs->trial_ends = time() + $this->billing_subscription->trial_duration;
         $cs->quantity = $data['quantity'];
         $cs->client_id = $contact->client->id;
         $cs->save();
@@ -192,6 +192,7 @@ class BillingSubscriptionService
             throw new \Exception("Could not match an invoice for payment of billing subscription");
 
         //todo - need to remove the promo code - if it exists
+        
         return InvoiceToRecurringInvoiceFactory::create($invoice);
         
     }
