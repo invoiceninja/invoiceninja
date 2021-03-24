@@ -34,7 +34,7 @@ class BillingSubscriptionTransformer extends EntityTransformer
 
     public function transform(BillingSubscription $billing_subscription): array
     {
-        $std = new stdClass;
+        $std = new \stdClass;
 
         return [
             'id' => $this->encodePrimaryKey($billing_subscription->id),
