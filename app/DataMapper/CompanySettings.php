@@ -574,7 +574,8 @@ class CompanySettings extends BaseSettings
     public static function notificationDefaults() :stdClass
     {
         $notification = new stdClass;
-        $notification->email = ['all_notifications'];
+        $notification->email = [];
+        // $notification->email = ['all_notifications'];
 
         return $notification;
     }

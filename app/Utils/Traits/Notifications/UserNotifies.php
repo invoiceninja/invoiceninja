@@ -30,13 +30,21 @@ trait UserNotifies
         $notifications = $company_user->notifications;
 
         //if a user owns this record or is assigned to it, they are attached the permission for notification.
-        if ($invitation->{$entity_name}->user_id == $company_user->_user_id || $invitation->{$entity_name}->assigned_user_id == $company_user->user_id) {
-            array_push($required_permissions, 'all_user_notifications');
-        }
+        // if ($invitation->{$entity_name}->user_id == $company_user->_user_id || $invitation->{$entity_name}->assigned_user_id == $company_user->user_id) {
+        //     array_push($required_permissions, 'all_user_notifications');
+        // }
+nlog($notifications);
+nlog($required_permissions);
+nlog($notifications->email);
+nlog(count(array_intersect($required_permissions, $notifications->email)));
+nlog(count(array_intersect(['all_user_notifications'], $notifications->email)));
+nlog(count(array_intersect(['all_notifications'],$notifications->email)));
 
-        if (count(array_intersect($required_permissions, $notifications->email)) >= 1 || count(array_intersect($required_permissions, ['all_user_notifications'])) >= 1 || count(array_intersect($required_permissions, ['all_notifications'])) >= 1) {
+        if (count(array_intersect($required_permissions, $notifications->email)) >= 1 || count(array_intersect(['all_user_notifications'],$notifications->email)) >= 1 || count(array_intersect(['all_notifications'],$notifications->email)) >= 1) {
             array_push($notifiable_methods, 'mail');
         }
+
+nlog($notifiable_methods);
 
         // if(count(array_intersect($required_permissions, $notifications->slack)) >=1)
         //     array_push($notifiable_methods, 'slack');
@@ -57,9 +65,9 @@ trait UserNotifies
             return [];
         }
 
-        if ($entity->user_id == $company_user->_user_id || $entity->assigned_user_id == $company_user->user_id) {
-            array_push($required_permissions, 'all_user_notifications');
-        }
+        // if ($entity->user_id == $company_user->_user_id || $entity->assigned_user_id == $company_user->user_id) {
+        //     array_push($required_permissions, 'all_user_notifications');
+        // }
 
         if (count(array_intersect($required_permissions, $notifications->email)) >= 1 || count(array_intersect($required_permissions, ['all_user_notifications'])) >= 1 || count(array_intersect($required_permissions, ['all_notifications'])) >= 1) {
             array_push($notifiable_methods, 'mail');
