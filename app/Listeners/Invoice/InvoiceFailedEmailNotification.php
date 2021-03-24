@@ -56,7 +56,7 @@ class InvoiceFailedEmailNotification
 
             // $notification = new EntitySentNotification($event->invitation, 'invoice');
 
-            $methods = $this->findUserNotificationTypes($event->invitation, $company_user, 'invoice', ['all_notifications', 'invoice_sent']);
+            $methods = $this->findUserNotificationTypes($event->invitation, $company_user, 'invoice', ['all_notifications', 'invoice_sent', 'invoice_sent_all']);
 
             if (($key = array_search('mail', $methods)) !== false && $first_notification_sent === true) {
                 unset($methods[$key]);
