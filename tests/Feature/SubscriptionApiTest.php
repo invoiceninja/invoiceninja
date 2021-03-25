@@ -11,7 +11,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\BillingSubscription;
+use App\Models\Subscription;
 use App\Models\Product;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
@@ -24,9 +24,9 @@ use Tests\TestCase;
 
 /**
  * @test
- * @covers App\Http\Controllers\BillingSubscriptionController
+ * @covers App\Http\Controllers\SubscriptionController
  */
-class BillingSubscriptionApiTest extends TestCase
+class SubscriptionApiTest extends TestCase
 {
     use MakesHash;
     use DatabaseTransactions;
@@ -45,27 +45,30 @@ class BillingSubscriptionApiTest extends TestCase
         Model::reguard();
     }
 
-    public function testBillingSubscriptionsGet()
+    public function testSubscriptionsGet()
     {
         $product = Product::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
         ]);
 
-        $billing_subscription = BillingSubscription::factory()->create([
+        $billing_subscription = Subscription::factory()->create([
             'product_id' => $product->id,
             'company_id' => $this->company->id,
         ]);
 
+
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->get('/api/v1/billing_subscriptions/' . $this->encodePrimaryKey($billing_subscription->id));
-
+        ])->get('/api/v1/subscriptions/' . $this->encodePrimaryKey($billing_subscription->id));
+        
+        nlog($response);
+        
         $response->assertStatus(200);
     }
 
-    public function testBillingSubscriptionsPost()
+    public function testSubscriptionsPost()
     {
         $product = Product::factory()->create([
             'company_id' => $this->company->id,
@@ -75,12 +78,12 @@ class BillingSubscriptionApiTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/billing_subscriptions', ['product_id' => $product->id, 'allow_cancellation' => true]);
+        ])->post('/api/v1/subscriptions', ['product_id' => $product->id, 'allow_cancellation' => true]);
 
         $response->assertStatus(200);
     }
 
-    public function testBillingSubscriptionPut()
+    public function testSubscriptionPut()
     {
         $product = Product::factory()->create([
             'company_id' => $this->company->id,
@@ -89,13 +92,13 @@ class BillingSubscriptionApiTest extends TestCase
 
         $response1 = $this
             ->withHeaders(['X-API-SECRET' => config('ninja.api_secret'),'X-API-TOKEN' => $this->token])
-            ->post('/api/v1/billing_subscriptions', ['product_id' => $product->id])
+            ->post('/api/v1/subscriptions', ['product_id' => $product->id])
             ->assertStatus(200)
             ->json();
 
         $response2 = $this
             ->withHeaders(['X-API-SECRET' => config('ninja.api_secret'),'X-API-TOKEN' => $this->token])
-            ->put('/api/v1/billing_subscriptions/' . $response1['data']['id'], ['allow_cancellation' => true])
+            ->put('/api/v1/subscriptions/' . $response1['data']['id'], ['allow_cancellation' => true])
             ->assertStatus(200)
             ->json();
 
@@ -103,15 +106,15 @@ class BillingSubscriptionApiTest extends TestCase
     }
 
     /*
-    TypeError : Argument 1 passed to App\Transformers\BillingSubscriptionTransformer::transform() must be an instance of App\Models\BillingSubscription, bool given, called in /var/www/html/vendor/league/fractal/src/Scope.php on line 407
-    /var/www/html/app/Transformers/BillingSubscriptionTransformer.php:35
+    TypeError : Argument 1 passed to App\Transformers\SubscriptionTransformer::transform() must be an instance of App\Models\Subscription, bool given, called in /var/www/html/vendor/league/fractal/src/Scope.php on line 407
+    /var/www/html/app/Transformers/SubscriptionTransformer.php:35
     /var/www/html/vendor/league/fractal/src/Scope.php:407
     /var/www/html/vendor/league/fractal/src/Scope.php:349
     /var/www/html/vendor/league/fractal/src/Scope.php:235
     /var/www/html/app/Http/Controllers/BaseController.php:395
-    /var/www/html/app/Http/Controllers/BillingSubscriptionController.php:408
+    /var/www/html/app/Http/Controllers/SubscriptionController.php:408
     */
-    public function testBillingSubscriptionDeleted()
+    public function testSubscriptionDeleted()
     {
 
         $product = Product::factory()->create([
@@ -119,14 +122,14 @@ class BillingSubscriptionApiTest extends TestCase
             'user_id' => $this->user->id,
         ]);
 
-        $billing_subscription = BillingSubscription::factory()->create([
+        $billing_subscription = Subscription::factory()->create([
             'product_id' => $product->id,
             'company_id' => $this->company->id,
         ]);
 
         $response = $this
             ->withHeaders(['X-API-SECRET' => config('ninja.api_secret'), 'X-API-TOKEN' => $this->token])
-            ->delete('/api/v1/billing_subscriptions/' . $this->encodePrimaryKey($billing_subscription->id))
+            ->delete('/api/v1/subscriptions/' . $this->encodePrimaryKey($billing_subscription->id))
             ->assertStatus(200)
             ->json();
 

@@ -11,14 +11,13 @@
 
 namespace App\Factory;
 
+use App\Models\Subscription;
 
-use App\Models\BillingSubscription;
-
-class BillingSubscriptionFactory
+class SubscriptionFactory
 {
-    public static function create(int $company_id, int $user_id): BillingSubscription
+    public static function create(int $company_id, int $user_id): Subscription
     {
-        $billing_subscription = new BillingSubscription();
+        $billing_subscription = new Subscription();
         $billing_subscription->company_id = $company_id;
         $billing_subscription->user_id = $user_id;
 

@@ -11,12 +11,12 @@
 
 namespace App\Models;
 
-use App\Services\BillingSubscription\BillingSubscriptionService;
+use App\Services\Subscription\SubscriptionService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class BillingSubscription extends BaseModel
+class Subscription extends BaseModel
 {
     use HasFactory, SoftDeletes;
 
@@ -56,7 +56,7 @@ class BillingSubscription extends BaseModel
 
     public function service()
     {
-        return new BillingSubscriptionService($this);
+        return new SubscriptionService($this);
     }
 
     public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo

@@ -12,11 +12,10 @@
 namespace App\Jobs\Cron;
 
 use App\Libraries\MultiDB;
-use App\Models\ClientSubscription;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Carbon;
 
-class BillingSubscriptionCron
+class SubscriptionCron
 {
     use Dispatchable;
 
@@ -52,11 +51,13 @@ class BillingSubscriptionCron
 
     private function loopSubscriptions()
     {
-        $client_subs = ClientSubscription::whereNull('deleted_at')
-                                           ->cursor()
-                                           ->each(function ($cs){
-                                                $this->processSubscription($cs);
-                                            });
+            //looop recurring invoices with subscription id
+
+        // $client_subs = ClientSubscription::whereNull('deleted_at')
+        //                                    ->cursor()
+        //                                    ->each(function ($cs){
+        //                                         $this->processSubscription($cs);
+        //                                     });
     }
 
     /* Our daily cron should check

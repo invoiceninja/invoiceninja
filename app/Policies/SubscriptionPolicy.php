@@ -14,9 +14,9 @@ namespace App\Policies;
 use App\Models\User;
 
 /**
- * Class BillingSubscriptionPolicy.
+ * Class SubscriptionPolicy.
  */
-class BillingSubscriptionPolicy extends EntityPolicy
+class SubscriptionPolicy extends EntityPolicy
 {
     /**
      *  Checks if the user has create permissions.
@@ -26,6 +26,6 @@ class BillingSubscriptionPolicy extends EntityPolicy
      */
     public function create(User $user) : bool
     {
-        return $user->isAdmin() || $user->hasPermission('create_billing_subscription') || $user->hasPermission('create_all');
+        return $user->isAdmin() || $user->hasPermission('create_subscription') || $user->hasPermission('create_all');
     }
 }

@@ -9,12 +9,12 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Http\Requests\BillingSubscription;
+namespace App\Http\Requests\Subscription;
 
 use App\Http\Requests\Request;
 use Illuminate\Foundation\Http\FormRequest;
 
-class EditBillingSubscriptionRequest extends Request
+class EditSubscriptionRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,7 +23,7 @@ class EditBillingSubscriptionRequest extends Request
      */
     public function authorize()
     {
-        return auth()->user()->can('edit', $this->billing_subscription);
+        return auth()->user()->can('edit', $this->subscription);
     }
 
     /**

@@ -9,13 +9,13 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Services\BillingSubscription;
+namespace App\Services\Subscription;
 
 use App\DataMapper\InvoiceItem;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceToRecurringInvoiceFactory;
 use App\Jobs\Util\SystemLogger;
-use App\Models\BillingSubscription;
+use App\Models\Subscription;
 use App\Models\ClientContact;
 use App\Models\ClientSubscription;
 use App\Models\Invoice;
@@ -27,20 +27,20 @@ use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
 use GuzzleHttp\RequestOptions;
 
-class BillingSubscriptionService
+class SubscriptionService
 {
     use MakesHash;
     use CleanLineItems;
 
-    /** @var billing_subscription */
-    private $billing_subscription;
+    /** @var subscription */
+    private $subscription;
 
     /** @var client_subscription */
     private $client_subscription;
 
-    public function __construct(BillingSubscription $billing_subscription)
+    public function __construct(Subscription $subscription)
     {
-        $this->billing_subscription = $billing_subscription;
+        $this->subscription = $subscription;
     }
 
     public function completePurchase(PaymentHash $payment_hash)
@@ -70,16 +70,16 @@ class BillingSubscriptionService
     {
         // Redirects from here work just fine. Livewire will respect it.
 
-        if(!$this->billing_subscription->trial_enabled)
+        if(!$this->subscription->trial_enabled)
             return new \Exception("Trials are disabled for this product");
 
         $contact = ClientContact::with('client')->find($data['contact_id']);
 
         $cs = new ClientSubscription();
-        $cs->subscription_id = $this->billing_subscription->id;
-        $cs->company_id = $this->billing_subscription->company_id;
+        $cs->subscription_id = $this->subscription->id;
+        $cs->company_id = $this->subscription->company_id;
         $cs->trial_started = time();
-        $cs->trial_ends = time() + $this->billing_subscription->trial_duration;
+        $cs->trial_ends = time() + $this->subscription->trial_duration;
         $cs->quantity = $data['quantity'];
         $cs->client_id = $contact->client->id;
         $cs->save();
@@ -89,8 +89,8 @@ class BillingSubscriptionService
         //execute any webhooks
         $this->triggerWebhook();
 
-        if(strlen($this->billing_subscription->webhook_configuration->post_purchase_url) >=1)
-            return redirect($this->billing_subscription->webhook_configuration->post_purchase_url);
+        if(strlen($this->subscription->webhook_configuration->post_purchase_url) >=1)
+            return redirect($this->subscription->webhook_configuration->post_purchase_url);
 
         return redirect('/client/subscription/'.$cs->hashed_id);
     }
@@ -102,7 +102,7 @@ class BillingSubscriptionService
 
         $data['line_items'] = $this->cleanItems($this->createLineItems($data));
 
-        return $invoice_repo->save($data, InvoiceFactory::create($this->billing_subscription->company_id, $this->billing_subscription->user_id));
+        return $invoice_repo->save($data, InvoiceFactory::create($this->subscription->company_id, $this->subscription->user_id));
 
     }
 
@@ -115,7 +115,7 @@ class BillingSubscriptionService
 
         $line_items = [];
 
-        $product = $this->billing_subscription->product;
+        $product = $this->subscription->product;
 
         $item = new InvoiceItem;
         $item->quantity = $data['quantity'];
@@ -139,7 +139,7 @@ class BillingSubscriptionService
 
 
         //do we have a promocode? enter this as a line item.
-        if(strlen($data['coupon']) >=1 && ($data['coupon'] == $this->billing_subscription->promo_code) && $this->billing_subscription->promo_discount > 0) 
+        if(strlen($data['coupon']) >=1 && ($data['coupon'] == $this->subscription->promo_code) && $this->subscription->promo_discount > 0) 
             $line_items[] = $this->createPromoLine($data);
 
         return $line_items;
@@ -153,16 +153,16 @@ class BillingSubscriptionService
     private function createPromoLine($data)
     {
         
-        $product = $this->billing_subscription->product;
+        $product = $this->subscription->product;
         $discounted_amount = 0;
         $discount = 0;
         $amount = $data['quantity'] * $product->cost;
 
-        if ($this->billing_subscription->is_amount_discount == true) {
-            $discount = $this->billing_subscription->promo_discount;
+        if ($this->subscription->is_amount_discount == true) {
+            $discount = $this->subscription->promo_discount;
         }
         else {
-            $discount = round($amount * ($this->billing_subscription->promo_discount / 100), 2);
+            $discount = round($amount * ($this->subscription->promo_discount / 100), 2);
         }
 
         $discounted_amount = $amount - $discount;
@@ -203,8 +203,8 @@ class BillingSubscriptionService
         //is this a recurring or one off subscription.
 
         $cs = new ClientSubscription();
-        $cs->subscription_id = $this->billing_subscription->id;
-        $cs->company_id = $this->billing_subscription->company_id;
+        $cs->subscription_id = $this->subscription->id;
+        $cs->company_id = $this->subscription->company_id;
 
         $cs->invoice_id = $payment_hash->billing_context->invoice_id;
         $cs->client_id = $payment_hash->billing_context->client_id;
@@ -212,10 +212,10 @@ class BillingSubscriptionService
 
             //if is_recurring
             //create recurring invoice from invoice
-            if($this->billing_subscription->is_recurring)
+            if($this->subscription->is_recurring)
             {
             $recurring_invoice = $this->convertInvoiceToRecurring($payment_hash);
-            $recurring_invoice->frequency_id = $this->billing_subscription->frequency_id;
+            $recurring_invoice->frequency_id = $this->subscription->frequency_id;
             $recurring_invoice->next_send_date = $recurring_invoice->nextDateByFrequency(now()->format('Y-m-d'));
             $recurring_invoice->save();
             $cs->recurring_invoice_id = $recurring_invoice->id;
@@ -236,15 +236,15 @@ class BillingSubscriptionService
         //hit the webhook to after a successful onboarding
 
         $body = [
-            'billing_subscription' => $this->billing_subscription,
+            'subscription' => $this->subscription,
             'client_subscription' => $this->client_subscription,
             'client' => $this->client_subscription->client->toArray(),
         ];
 
 
-        $client =  new \GuzzleHttp\Client(['headers' => $this->billing_subscription->webhook_configuration->post_purchase_headers]);
+        $client =  new \GuzzleHttp\Client(['headers' => $this->subscription->webhook_configuration->post_purchase_headers]);
 
-        $response = $client->{$this->billing_subscription->webhook_configuration->post_purchase_rest_method}($this->billing_subscription->post_purchase_url,[
+        $response = $client->{$this->subscription->webhook_configuration->post_purchase_rest_method}($this->subscription->post_purchase_url,[
             RequestOptions::JSON => ['body' => $body]
         ]);
 

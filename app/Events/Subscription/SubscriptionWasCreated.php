@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Events\BillingSubscription;
+namespace App\Events\Subscription;
 
-use App\Models\BillingSubscription;
+use App\Models\Subscription;
 use App\Models\Company;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -12,14 +12,14 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class BillingSubscriptionWasCreated
+class SubscriptionWasCreated
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
-     * @var BillingSubscription
+     * @var Subscription
      */
-    public $billing_subscription;
+    public $subscription;
 
     /**
      * @var Company
@@ -36,9 +36,9 @@ class BillingSubscriptionWasCreated
      *
      * @return void
      */
-    public function __construct(BillingSubscription $billing_subscription, Company $company, array $event_vars)
+    public function __construct(Subscription $subscription, Company $company, array $event_vars)
     {
-        $this->billing_subscription = $billing_subscription;
+        $this->subscription = $subscription;
         $this->company = $company;
         $this->event_vars = $event_vars;
     }
