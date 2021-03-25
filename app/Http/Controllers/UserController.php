@@ -612,7 +612,9 @@ class UserController extends BaseController
             return response()->json(['message', 'Cannot detach owner.'],400);
 
         $company_user = CompanyUser::whereUserId($user->id)
-                                    ->whereCompanyId(auth()->user()->companyId())->first();
+                                    ->whereCompanyId(auth()->user()->companyId())
+                                    ->withTrashed()
+                                    ->first();
 
         $token = $company_user->token->where('company_id', $company_user->company_id)->where('user_id', $company_user->user_id)->first();
 
