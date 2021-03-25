@@ -53,7 +53,7 @@ class SubscriptionApiTest extends TestCase
         ]);
 
         $billing_subscription = Subscription::factory()->create([
-            'product_id' => $product->id,
+            'product_ids' => $product->id,
             'company_id' => $this->company->id,
         ]);
 
@@ -78,7 +78,7 @@ class SubscriptionApiTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/subscriptions', ['product_id' => $product->id, 'allow_cancellation' => true]);
+        ])->post('/api/v1/subscriptions', ['product_ids' => $product->id, 'allow_cancellation' => true]);
 
         $response->assertStatus(200);
     }
@@ -92,7 +92,7 @@ class SubscriptionApiTest extends TestCase
 
         $response1 = $this
             ->withHeaders(['X-API-SECRET' => config('ninja.api_secret'),'X-API-TOKEN' => $this->token])
-            ->post('/api/v1/subscriptions', ['product_id' => $product->id])
+            ->post('/api/v1/subscriptions', ['product_ids' => $product->id])
             ->assertStatus(200)
             ->json();
 
@@ -123,7 +123,7 @@ class SubscriptionApiTest extends TestCase
         ]);
 
         $billing_subscription = Subscription::factory()->create([
-            'product_id' => $product->id,
+            'product_ids' => $product->id,
             'company_id' => $this->company->id,
         ]);
 

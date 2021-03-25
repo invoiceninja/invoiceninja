@@ -21,10 +21,12 @@ class RefactorBillingScriptionsTable extends Migration
             $table->text('recurring_product_ids');
             $table->string('name');
             $table->unique(['company_id', 'name']);
+            $table->unsignedInteger('group_id');
         });
 
         Schema::table('subscriptions', function (Blueprint $table) {
             $table->renameColumn('product_id', 'product_ids');
+            $table->dropColumn('is_recurring');
         });
 
     }
