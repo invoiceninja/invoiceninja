@@ -63,7 +63,7 @@ class SubscriptionApiTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->get('/api/v1/subscriptions/' . $this->encodePrimaryKey($billing_subscription->id));
         
-        nlog($response);
+        // nlog($response);
         
         $response->assertStatus(200);
     }

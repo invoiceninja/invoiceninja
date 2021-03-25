@@ -15,6 +15,15 @@ class RefactorBillingScriptionsTable extends Migration
     {
         Schema::rename('billing_subscriptions', 'subscriptions');
 
+        Schema::table('subscriptions', function (Blueprint $table) {
+            $table->text('product_id')->change();
+            $table->text('recurring_product_ids');
+        });
+
+        Schema::table('subscriptions', function (Blueprint $table) {
+            $table->renameColumn('product_id', 'product_ids');
+        });
+
     }
 
     /**
