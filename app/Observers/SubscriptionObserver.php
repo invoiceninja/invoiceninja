@@ -11,17 +11,17 @@
 
 namespace App\Observers;
 
-use App\Models\BillingSubscription;
+use App\Models\Subscription;
 
-class BillingSubscriptionObserver
+class SubscriptionObserver
 {
     /**
      * Handle the billing_subscription "created" event.
      *
-     * @param BillingSubscription $billing_subscription
+     * @param Subscription $billing_subscription
      * @return void
      */
-    public function created(BillingSubscription $billing_subscription)
+    public function created(Subscription $subscription)
     {
         //
     }
@@ -29,10 +29,10 @@ class BillingSubscriptionObserver
     /**
      * Handle the billing_subscription "updated" event.
      *
-     * @param BillingSubscription $billing_subscription
+     * @param Subscription $billing_subscription
      * @return void
      */
-    public function updated(BillingSubscription $billing_subscription)
+    public function updated(Subscription $subscription)
     {
         //
     }
@@ -40,10 +40,10 @@ class BillingSubscriptionObserver
     /**
      * Handle the billing_subscription "deleted" event.
      *
-     * @param BillingSubscription $billing_subscription
+     * @param Subscription $billing_subscription
      * @return void
      */
-    public function deleted(BillingSubscription $billing_subscription)
+    public function deleted(Subscription $subscription)
     {
         //
     }
@@ -51,10 +51,10 @@ class BillingSubscriptionObserver
     /**
      * Handle the billing_subscription "restored" event.
      *
-     * @param BillingSubscription $billing_subscription
+     * @param Subscription $billing_subscription
      * @return void
      */
-    public function restored(BillingSubscription $billing_subscription)
+    public function restored(Subscription $subscription)
     {
         //
     }
@@ -62,10 +62,10 @@ class BillingSubscriptionObserver
     /**
      * Handle the billing_subscription "force deleted" event.
      *
-     * @param BillingSubscription $billing_subscription
+     * @param Subscription $billing_subscription
      * @return void
      */
-    public function forceDeleted(BillingSubscription $billing_subscription)
+    public function forceDeleted(Subscription $subscription)
     {
         //
     }

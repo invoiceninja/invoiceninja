@@ -13,23 +13,23 @@
 namespace App\Http\Controllers\ClientPortal;
 
 use App\Http\Controllers\Controller;
-use App\Models\BillingSubscription;
+use App\Models\Subscription;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
-class BillingSubscriptionPurchaseController extends Controller
+class SubscriptionPurchaseController extends Controller
 {
-    public function index(BillingSubscription $billing_subscription, Request $request)
+    public function index(Subscription $subscription, Request $request)
     {
         if ($request->has('locale')) {
             $this->setLocale($request->query('locale'));
         }
 
         return view('billing-portal.purchase', [
-            'billing_subscription' => $billing_subscription,
+            'subscription' => $subscription,
             'hash' => Str::uuid()->toString(),
             'request_data' => $request->all(),
         ]);

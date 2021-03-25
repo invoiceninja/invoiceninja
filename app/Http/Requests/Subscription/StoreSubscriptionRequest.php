@@ -9,12 +9,12 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Http\Requests\BillingSubscription;
+namespace App\Http\Requests\Subscription;
 
 use App\Http\Requests\Request;
-use App\Models\BillingSubscription;
+use App\Models\Subscription;
 
-class StoreBillingSubscriptionRequest extends Request
+class StoreSubscriptionRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,7 +23,7 @@ class StoreBillingSubscriptionRequest extends Request
      */
     public function authorize()
     {
-        return auth()->user()->can('create', BillingSubscription::class);
+        return auth()->user()->can('create', Subscription::class);
     }
 
     /**

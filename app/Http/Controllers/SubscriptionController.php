@@ -12,45 +12,45 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\BillingSubscription\BillingSubscriptionWasCreated;
-use App\Factory\BillingSubscriptionFactory;
-use App\Http\Requests\BillingSubscription\CreateBillingSubscriptionRequest;
-use App\Http\Requests\BillingSubscription\DestroyBillingSubscriptionRequest;
-use App\Http\Requests\BillingSubscription\EditBillingSubscriptionRequest;
-use App\Http\Requests\BillingSubscription\ShowBillingSubscriptionRequest;
-use App\Http\Requests\BillingSubscription\StoreBillingSubscriptionRequest;
-use App\Http\Requests\BillingSubscription\UpdateBillingSubscriptionRequest;
-use App\Models\BillingSubscription;
-use App\Repositories\BillingSubscriptionRepository;
-use App\Transformers\BillingSubscriptionTransformer;
+use App\Events\Subscription\SubscriptionWasCreated;
+use App\Factory\SubscriptionFactory;
+use App\Http\Requests\Subscription\CreateSubscriptionRequest;
+use App\Http\Requests\Subscription\DestroySubscriptionRequest;
+use App\Http\Requests\Subscription\EditSubscriptionRequest;
+use App\Http\Requests\Subscription\ShowSubscriptionRequest;
+use App\Http\Requests\Subscription\StoreSubscriptionRequest;
+use App\Http\Requests\Subscription\UpdateSubscriptionRequest;
+use App\Models\Subscription;
+use App\Repositories\SubscriptionRepository;
+use App\Transformers\SubscriptionTransformer;
 use App\Utils\Ninja;
 
-class BillingSubscriptionController extends BaseController
+class SubscriptionController extends BaseController
 {
-    protected $entity_type = BillingSubscription::class;
+    protected $entity_type = Subscription::class;
 
-    protected $entity_transformer = BillingSubscriptionTransformer::class;
+    protected $entity_transformer = SubscriptionTransformer::class;
 
-    protected $billing_subscription_repo;
+    protected $subscription_repo;
 
-    public function __construct(BillingSubscriptionRepository $billing_subscription_repo)
+    public function __construct(SubscriptionRepository $subscription_repo)
     {
         parent::__construct();
 
-        $this->billing_subscription_repo = $billing_subscription_repo;
+        $this->subscription_repo = $subscription_repo;
     }
 
     /**
-     * Show the list of BillingSubscriptions.
+     * Show the list of Subscriptions.
      *     
      * @return Response
      *
      * @OA\Get(
-     *      path="/api/v1/billing_subscriptions",
-     *      operationId="getBillingSubscriptions",
-     *      tags={"billing_subscriptions"},
-     *      summary="Gets a list of billing_subscriptions",
-     *      description="Lists billing_subscriptions.",
+     *      path="/api/v1/subscriptions",
+     *      operationId="getSubscriptions",
+     *      tags={"subscriptions"},
+     *      summary="Gets a list of subscriptions",
+     *      description="Lists subscriptions.",
      *      
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
@@ -58,11 +58,11 @@ class BillingSubscriptionController extends BaseController
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
      *          response=200,
-     *          description="A list of billing_subscriptions",
+     *          description="A list of subscriptions",
      *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/BillingSubscription"),
+     *          @OA\JsonContent(ref="#/components/schemas/Subscription"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -79,24 +79,24 @@ class BillingSubscriptionController extends BaseController
     
     public function index(): \Illuminate\Http\Response
     {
-        $billing_subscriptions = BillingSubscription::query()->company();
+        $subscriptions = Subscription::query()->company();
 
-        return $this->listResponse($billing_subscriptions);
+        return $this->listResponse($subscriptions);
     }
 
     /**
      * Show the form for creating a new resource.
      *
-     * @param CreateBillingSubscriptionRequest $request  The request
+     * @param CreateSubscriptionRequest $request  The request
      *
      * @return Response
      *
      *
      * @OA\Get(
-     *      path="/api/v1/billing_subscriptions/create",
-     *      operationId="getBillingSubscriptionsCreate",
-     *      tags={"billing_subscriptions"},
-     *      summary="Gets a new blank billing_subscriptions object",
+     *      path="/api/v1/subscriptions/create",
+     *      operationId="getSubscriptionsCreate",
+     *      tags={"subscriptions"},
+     *      summary="Gets a new blank subscriptions object",
      *      description="Returns a blank object with default values",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
@@ -104,11 +104,11 @@ class BillingSubscriptionController extends BaseController
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
      *          response=200,
-     *          description="A blank billing_subscriptions object",
+     *          description="A blank subscriptions object",
      *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/BillingSubscription"),
+     *          @OA\JsonContent(ref="#/components/schemas/Subscription"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -123,38 +123,38 @@ class BillingSubscriptionController extends BaseController
      *       ),
      *     )
      */
-    public function create(CreateBillingSubscriptionRequest $request): \Illuminate\Http\Response
+    public function create(CreateSubscriptionRequest $request): \Illuminate\Http\Response
     {
-        $billing_subscription = BillingSubscriptionFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        $subscription = SubscriptionFactory::create(auth()->user()->company()->id, auth()->user()->id);
 
-        return $this->itemResponse($billing_subscription);
+        return $this->itemResponse($subscription);
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param StoreBillingSubscriptionRequest $request  The request
+     * @param StoreSubscriptionRequest $request  The request
      *
      * @return Response
      *
      *
      * @OA\Post(
-     *      path="/api/v1/billing_subscriptions",
-     *      operationId="storeBillingSubscription",
-     *      tags={"billing_subscriptions"},
-     *      summary="Adds a billing_subscriptions",
-     *      description="Adds an billing_subscriptions to the system",
+     *      path="/api/v1/subscriptions",
+     *      operationId="storeSubscription",
+     *      tags={"subscriptions"},
+     *      summary="Adds a subscriptions",
+     *      description="Adds an subscriptions to the system",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\Response(
      *          response=200,
-     *          description="Returns the saved billing_subscriptions object",
+     *          description="Returns the saved subscriptions object",
      *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/BillingSubscription"),
+     *          @OA\JsonContent(ref="#/components/schemas/Subscription"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -169,30 +169,30 @@ class BillingSubscriptionController extends BaseController
      *       ),
      *     )
      */
-    public function store(StoreBillingSubscriptionRequest $request): \Illuminate\Http\Response
+    public function store(StoreSubscriptionRequest $request): \Illuminate\Http\Response
     {
-        $billing_subscription = $this->billing_subscription_repo->save($request->all(), BillingSubscriptionFactory::create(auth()->user()->company()->id, auth()->user()->id));
+        $subscription = $this->subscription_repo->save($request->all(), SubscriptionFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
-        event(new BillingsubscriptionWasCreated($billing_subscription, $billing_subscription->company, Ninja::eventVars()));
+        event(new SubscriptionWasCreated($subscription, $subscription->company, Ninja::eventVars()));
 
-        return $this->itemResponse($billing_subscription);
+        return $this->itemResponse($subscription);
     }
 
     /**
      * Display the specified resource.
      *
-     * @param ShowBillingSubscriptionRequest $request  The request
-     * @param Invoice $billing_subscription  The invoice
+     * @param ShowSubscriptionRequest $request  The request
+     * @param Invoice $subscription  The invoice
      *
      * @return Response
      *
      *
      * @OA\Get(
-     *      path="/api/v1/billing_subscriptions/{id}",
-     *      operationId="showBillingSubscription",
-     *      tags={"billing_subscriptions"},
-     *      summary="Shows an billing_subscriptions",
-     *      description="Displays an billing_subscriptions by id",
+     *      path="/api/v1/subscriptions/{id}",
+     *      operationId="showSubscription",
+     *      tags={"subscriptions"},
+     *      summary="Shows an subscriptions",
+     *      description="Displays an subscriptions by id",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -200,7 +200,7 @@ class BillingSubscriptionController extends BaseController
      *      @OA\Parameter(
      *          name="id",
      *          in="path",
-     *          description="The BillingSubscription Hashed ID",
+     *          description="The Subscription Hashed ID",
      *          example="D2J234DFA",
      *          required=true,
      *          @OA\Schema(
@@ -210,11 +210,11 @@ class BillingSubscriptionController extends BaseController
      *      ),
      *      @OA\Response(
      *          response=200,
-     *          description="Returns the BillingSubscription object",
+     *          description="Returns the Subscription object",
      *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/BillingSubscription"),
+     *          @OA\JsonContent(ref="#/components/schemas/Subscription"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -229,25 +229,25 @@ class BillingSubscriptionController extends BaseController
      *       ),
      *     )
      */
-    public function show(ShowBillingSubscriptionRequest $request, BillingSubscription $billing_subscription): \Illuminate\Http\Response
+    public function show(ShowSubscriptionRequest $request, Subscription $subscription): \Illuminate\Http\Response
     {
-        return $this->itemResponse($billing_subscription);
+        return $this->itemResponse($subscription);
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param EditBillingSubscriptionRequest $request  The request
-     * @param Invoice $billing_subscription  The invoice
+     * @param EditSubscriptionRequest $request  The request
+     * @param Invoice $subscription  The invoice
      *
      * @return Response
      *
      * @OA\Get(
-     *      path="/api/v1/billing_subscriptions/{id}/edit",
-     *      operationId="editBillingSubscription",
-     *      tags={"billing_subscriptions"},
-     *      summary="Shows an billing_subscriptions for editting",
-     *      description="Displays an billing_subscriptions by id",
+     *      path="/api/v1/subscriptions/{id}/edit",
+     *      operationId="editSubscription",
+     *      tags={"subscriptions"},
+     *      summary="Shows an subscriptions for editting",
+     *      description="Displays an subscriptions by id",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -255,7 +255,7 @@ class BillingSubscriptionController extends BaseController
      *      @OA\Parameter(
      *          name="id",
      *          in="path",
-     *          description="The BillingSubscription Hashed ID",
+     *          description="The Subscription Hashed ID",
      *          example="D2J234DFA",
      *          required=true,
      *          @OA\Schema(
@@ -269,7 +269,7 @@ class BillingSubscriptionController extends BaseController
      *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/BillingSubscription"),
+     *          @OA\JsonContent(ref="#/components/schemas/Subscription"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -284,26 +284,26 @@ class BillingSubscriptionController extends BaseController
      *       ),
      *     )
      */
-    public function edit(EditBillingSubscriptionRequest $request, BillingSubscription $billing_subscription): \Illuminate\Http\Response
+    public function edit(EditSubscriptionRequest $request, Subscription $subscription): \Illuminate\Http\Response
     {
-        return $this->itemResponse($billing_subscription);
+        return $this->itemResponse($subscription);
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param UpdateBillingSubscriptionRequest $request  The request
-     * @param BillingSubscription $billing_subscription  The invoice
+     * @param UpdateSubscriptionRequest $request  The request
+     * @param Subscription $subscription  The invoice
      *
      * @return Response
      *
      *
      * @OA\Put(
-     *      path="/api/v1/billing_subscriptions/{id}",
-     *      operationId="updateBillingSubscription",
-     *      tags={"billing_subscriptions"},
-     *      summary="Updates an billing_subscriptions",
-     *      description="Handles the updating of an billing_subscriptions by id",
+     *      path="/api/v1/subscriptions/{id}",
+     *      operationId="updateSubscription",
+     *      tags={"subscriptions"},
+     *      summary="Updates an subscriptions",
+     *      description="Handles the updating of an subscriptions by id",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -311,7 +311,7 @@ class BillingSubscriptionController extends BaseController
      *      @OA\Parameter(
      *          name="id",
      *          in="path",
-     *          description="The BillingSubscription Hashed ID",
+     *          description="The Subscription Hashed ID",
      *          example="D2J234DFA",
      *          required=true,
      *          @OA\Schema(
@@ -321,11 +321,11 @@ class BillingSubscriptionController extends BaseController
      *      ),
      *      @OA\Response(
      *          response=200,
-     *          description="Returns the billing_subscriptions object",
+     *          description="Returns the subscriptions object",
      *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
      *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
      *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/BillingSubscription"),
+     *          @OA\JsonContent(ref="#/components/schemas/Subscription"),
      *       ),
      *       @OA\Response(
      *          response=422,
@@ -340,32 +340,32 @@ class BillingSubscriptionController extends BaseController
      *       ),
      *     )
      */
-    public function update(UpdateBillingSubscriptionRequest $request, BillingSubscription $billing_subscription)
+    public function update(UpdateSubscriptionRequest $request, Subscription $subscription)
     {
-        if ($request->entityIsDeleted($billing_subscription)) {
+        if ($request->entityIsDeleted($subscription)) {
             return $request->disallowUpdate();
         }
 
-        $billing_subscription = $this->billing_subscription_repo->save($request->all(), $billing_subscription);
+        $subscription = $this->subscription_repo->save($request->all(), $subscription);
 
-        return $this->itemResponse($billing_subscription);
+        return $this->itemResponse($subscription);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param DestroyBillingSubscriptionRequest $request
-     * @param BillingSubscription $invoice
+     * @param DestroySubscriptionRequest $request
+     * @param Subscription $invoice
      *
      * @return     Response
      *
      * @throws \Exception
      * @OA\Delete(
-     *      path="/api/v1/billing_subscriptions/{id}",
-     *      operationId="deleteBillingSubscription",
-     *      tags={"billing_subscriptions"},
-     *      summary="Deletes a billing_subscriptions",
-     *      description="Handles the deletion of an billing_subscriptions by id",
+     *      path="/api/v1/subscriptions/{id}",
+     *      operationId="deleteSubscription",
+     *      tags={"subscriptions"},
+     *      summary="Deletes a subscriptions",
+     *      description="Handles the deletion of an subscriptions by id",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
@@ -373,7 +373,7 @@ class BillingSubscriptionController extends BaseController
      *      @OA\Parameter(
      *          name="id",
      *          in="path",
-     *          description="The BillingSubscription Hashed ID",
+     *          description="The Subscription Hashed ID",
      *          example="D2J234DFA",
      *          required=true,
      *          @OA\Schema(
@@ -401,10 +401,10 @@ class BillingSubscriptionController extends BaseController
      *       ),
      *     )
      */
-    public function destroy(DestroyBillingSubscriptionRequest $request, BillingSubscription $billing_subscription): \Illuminate\Http\Response
+    public function destroy(DestroySubscriptionRequest $request, Subscription $subscription): \Illuminate\Http\Response
     {
-        $this->billing_subscription_repo->delete($billing_subscription);
+        $this->subscription_repo->delete($subscription);
 
-        return $this->itemResponse($billing_subscription->fresh());
+        return $this->itemResponse($subscription->fresh());
     }
 }

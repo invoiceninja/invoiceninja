@@ -13,12 +13,12 @@
 namespace App\DataMapper\Billing;
 
 
-class BillingContextMapper
+class SubscriptionContextMapper
 {
     /**
      * @var int
      */
-    public $billing_subscription_id;
+    public $subscription_id;
 
     /**
      * @var string
@@ -39,7 +39,7 @@ class BillingContextMapper
      * @var string[]
      */
     public $casts = [
-        'billing_subscription_id' => 'integer',
+        'subscription_id' => 'integer',
         'email' => 'string',
         'client_id' => 'integer',
         'invoice_id' => 'integer',

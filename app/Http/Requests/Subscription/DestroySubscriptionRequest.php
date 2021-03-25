@@ -9,15 +9,13 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Http\Requests\BillingSubscription;
+namespace App\Http\Requests\Subscription;
 
 use App\Http\Requests\Request;
-use App\Utils\Traits\ChecksEntityStatus;
+use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateBillingSubscriptionRequest extends Request
+class DestroySubscriptionRequest extends Request
 {
-    use ChecksEntityStatus;
-
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -25,7 +23,7 @@ class UpdateBillingSubscriptionRequest extends Request
      */
     public function authorize()
     {
-        return auth()->user()->can('edit', $this->billing_subscription);
+        return auth()->user()->can('edit', $this->subscription);
     }
 
     /**

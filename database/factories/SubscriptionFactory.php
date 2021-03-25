@@ -12,17 +12,17 @@
 
 namespace Database\Factories;
 
-use App\Models\BillingSubscription;
+use App\Models\Subscription;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class BillingSubscriptionFactory extends Factory
+class SubscriptionFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = BillingSubscription::class;
+    protected $model = Subscription::class;
 
     /**
      * Define the model's default state.

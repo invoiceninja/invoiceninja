@@ -13,16 +13,16 @@
 namespace App\Repositories;
 
 
-use App\Models\BillingSubscription;
+use App\Models\Subscription;
 
-class BillingSubscriptionRepository extends BaseRepository
+class SubscriptionRepository extends BaseRepository
 {
-    public function save($data, BillingSubscription $billing_subscription): ?BillingSubscription
+    public function save($data, Subscription $subscription): ?Subscription
     {
-        $billing_subscription
+        $subscription
             ->fill($data)
             ->save();
 
-        return $billing_subscription;
+        return $subscription;
     }
 }
