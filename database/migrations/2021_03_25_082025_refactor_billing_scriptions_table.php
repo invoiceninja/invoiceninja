@@ -13,6 +13,7 @@ class RefactorBillingScriptionsTable extends Migration
      */
     public function up()
     {
+
         Schema::rename('billing_subscriptions', 'subscriptions');
 
         Schema::table('subscriptions', function (Blueprint $table) {
