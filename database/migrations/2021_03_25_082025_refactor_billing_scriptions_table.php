@@ -18,6 +18,8 @@ class RefactorBillingScriptionsTable extends Migration
         Schema::table('subscriptions', function (Blueprint $table) {
             $table->text('product_id')->change();
             $table->text('recurring_product_ids');
+            $table->string('name');
+            $table->unique(['company_id', 'name']);
         });
 
         Schema::table('subscriptions', function (Blueprint $table) {
