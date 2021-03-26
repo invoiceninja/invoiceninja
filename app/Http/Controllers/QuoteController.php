@@ -572,7 +572,6 @@ class QuoteController extends BaseController
      *      description="Performs a custom action on an Quote.
 
     The current range of actions are as follows
-    - clone_to_Quote
     - clone_to_quote
     - history
     - delivery_note
@@ -580,6 +579,8 @@ class QuoteController extends BaseController
     - download
     - archive
     - delete
+    - convert
+    - convert_to_invoice
     - email",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
@@ -640,6 +641,14 @@ class QuoteController extends BaseController
     private function performAction(Quote $quote, $action, $bulk = false)
     {
         switch ($action) {
+            case 'convert':
+            case 'convert_to_invoice':
+
+                $this->entity_type = Invoice::class;
+                $this->entity_transformer = InvoiceTransformer::class;
+                return $this->itemResponse($quote->service()->convertToInvoice());
+
+            break;
             case 'clone_to_invoice':
 
                 $this->entity_type = Invoice::class;

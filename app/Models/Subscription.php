@@ -22,10 +22,9 @@ class Subscription extends BaseModel
 
     protected $fillable = [
         'user_id',
-        'product_id',
+        'product_ids',
+        'recurring_product_ids',
         'company_id',
-        'product_id',
-        'is_recurring',
         'frequency_id',
         'auto_bill',
         'promo_code',
@@ -43,6 +42,7 @@ class Subscription extends BaseModel
         'refund_period',
         'webhook_configuration',
         'currency_id',
+        'group_id',
     ];
 
     protected $casts = [
