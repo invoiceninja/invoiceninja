@@ -87,7 +87,7 @@ class SubscriptionRepository extends BaseRepository
         return $data;
     }
 
-    private function generateLineItems($subscription)
+    public function generateLineItems($subscription)
     {
 
     	$line_items = [];
