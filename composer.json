@@ -106,7 +106,7 @@
     },
     "scripts": {
         "post-install-cmd": [
-            "if [ '${IS_DOCKER:-false}' != 'true' ]; then vendor/bin/snappdf download; fi"
+            "if [ \"${IS_DOCKER:-false}\" != \"true\" ]; then vendor/bin/snappdf download; fi"
         ],
         "post-update-cmd": [
             "vendor/bin/snappdf download"
