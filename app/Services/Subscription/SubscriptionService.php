@@ -51,13 +51,8 @@ class SubscriptionService
             throw new \Exception("Illegal entrypoint into method, payload must contain billing context");
         }
 
-        // At this point we have some state carried from the billing page
-        // to this, available as $payment_hash->data->billing_context. Make something awesome ⭐
-
-        // create client subscription record
-        //
-        // create recurring invoice if is_recurring
-        //
+        // if we have a recurring product - then generate a recurring invoice
+        // if trial is enabled, generate the recurring invoice to fire when the trial ends.
 
 
     }
@@ -166,30 +161,31 @@ class SubscriptionService
 
     // }
 
+    //@todo - need refactor
     public function triggerWebhook()
     {
         //hit the webhook to after a successful onboarding
 
-        $body = [
-            'subscription' => $this->subscription,
-            'client_subscription' => $this->client_subscription,
-            'client' => $this->client_subscription->client->toArray(),
-        ];
+        // $body = [
+        //     'subscription' => $this->subscription,
+        //     'client_subscription' => $this->client_subscription,
+        //     'client' => $this->client_subscription->client->toArray(),
+        // ];
 
 
-        $client =  new \GuzzleHttp\Client(['headers' => $this->subscription->webhook_configuration->post_purchase_headers]);
+        // $client =  new \GuzzleHttp\Client(['headers' => $this->subscription->webhook_configuration->post_purchase_headers]);
 
-        $response = $client->{$this->subscription->webhook_configuration->post_purchase_rest_method}($this->subscription->post_purchase_url,[
-            RequestOptions::JSON => ['body' => $body]
-        ]);
+        // $response = $client->{$this->subscription->webhook_configuration->post_purchase_rest_method}($this->subscription->post_purchase_url,[
+        //     RequestOptions::JSON => ['body' => $body]
+        // ]);
 
-            SystemLogger::dispatch(
-                $body,
-                SystemLog::CATEGORY_WEBHOOK,
-                SystemLog::EVENT_WEBHOOK_RESPONSE,
-                SystemLog::TYPE_WEBHOOK_RESPONSE,
-                $this->client_subscription->client,
-            );
+        //     SystemLogger::dispatch(
+        //         $body,
+        //         SystemLog::CATEGORY_WEBHOOK,
+        //         SystemLog::EVENT_WEBHOOK_RESPONSE,
+        //         SystemLog::TYPE_WEBHOOK_RESPONSE,
+        //         $this->client_subscription->client,
+        //     );
 
     }
 
