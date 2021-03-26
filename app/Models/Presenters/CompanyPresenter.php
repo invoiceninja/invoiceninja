@@ -97,7 +97,7 @@ class CompanyPresenter extends EntityPresenter
         }
     }
 
-    public function getSpcQrCode($client_currency, $invoice_number, $balance_due_raw)
+    public function getSpcQrCode($client_currency, $invoice_number, $balance_due_raw, $user_iban)
     {
         $settings = $this->entity->settings;
 
