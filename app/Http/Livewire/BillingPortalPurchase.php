@@ -140,13 +140,6 @@ class BillingPortalPurchase extends Component
     public $request_data;
 
     /**
-     * Price of product.
-     *
-     * @var string
-     */
-    public $price;
-
-    /**
      * Handle user authentication
      *
      * @return $this|bool|void
@@ -291,8 +284,6 @@ class BillingPortalPurchase extends Component
             'email' => $this->email ?? $this->contact->email,
             'client_id' => $this->contact->client->id,
             'invoice_id' => $this->invoice->id,
-            'quantity' => $this->quantity,
-            'subscription_id' => $this->subscription->id,
             now()->addMinutes(60)]
         );
 

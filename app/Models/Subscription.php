@@ -54,7 +54,7 @@ class Subscription extends BaseModel
         'deleted_at' => 'timestamp',
     ];
 
-    public function service()
+    public function service(): SubscriptionService
     {
         return new SubscriptionService($this);
     }
@@ -67,10 +67,5 @@ class Subscription extends BaseModel
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function product(): \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(Product::class);
     }
 }

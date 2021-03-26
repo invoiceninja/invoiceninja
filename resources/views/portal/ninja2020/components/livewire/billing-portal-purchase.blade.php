@@ -1,47 +1,78 @@
 <div class="grid grid-cols-12">
-    <div class="col-span-12 lg:col-span-6 bg-gray-50 shadow-lg lg:h-screen flex flex-col items-center">
-        <div class="w-full p-10 lg:w-1/2 lg:mt-48 lg:p-0">
-            <img class="h-8" src="{{ $billing_subscription->company->present()->logo }}"
-                 alt="{{ $billing_subscription->company->present()->name }}">
+    <div class="col-span-12 lg:col-span-6 bg-gray-50 flex flex-col items-center">
+        <div class="w-full p-10 lg:w-1/2 lg:mt-24 lg:p-0">
+            <img class="h-8" src="{{ $subscription->company->present()->logo }}"
+                 alt="{{ $subscription->company->present()->name }}">
 
-            <h1 id="billing-page-company-logo" class="text-3xl font-bold tracking-wide mt-8">
-                {{ $billing_subscription->product->product_key }}
-            </h1>
-
-            <p class="my-6">{{ $billing_subscription->product->notes }}</p>
-
-            <span class="text-sm uppercase font-bold">{{ ctrans('texts.price') }}:</span>
-
-            <div class="flex space-x-2">
-                <h1 class="text-2xl font-bold tracking-wide">{{ App\Utils\Number::formatMoney($price, $billing_subscription->company) }}</h1>
-
-                @if($billing_subscription->is_recurring)
-                    <span class="text-xs uppercase">/ {{ \App\Models\RecurringInvoice::frequencyForKey($billing_subscription->frequency_id) }}</span>
-                @endif
+            <div class="mt-6">
+                <p
+                    class="mb-4 uppercase leading-4 tracking-wide inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary text-white">
+                    Subscription
+                </p>
+                <h1 id="billing-page-company-logo" class="text-3xl font-bold tracking-wide">
+                    Invoice Ninja Pro+
+                </h1>
             </div>
 
+            @if(!empty($subscription->product_ids))
+                <div class="flex flex-col mt-8">
+                <span
+                    class="mb-4 uppercase leading-4 tracking-wide inline-flex items-center rounded-full text-xs font-medium">
+                    One-time purchases:
+                </span>
 
-            @if($billing_subscription->per_seat_enabled && $billing_subscription->max_seats_limit > 1)
-                <div class="flex mt-4 space-x-4 items-center">
-                    <span class="text-sm">{{ ctrans('texts.qty') }}</span>
-                    <button wire:click="updateQuantity('decrement')" class="bg-gray-100 border rounded p-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                             class="feather feather-minus">
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                        </svg>
-                    </button>
-                    <button>{{ $quantity }}</button>
-                    <button wire:click="updateQuantity('increment')" class="bg-gray-100 border rounded p-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                             class="feather feather-plus">
-                            <line x1="12" y1="5" x2="12" y2="19"></line>
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                        </svg>
-                    </button>
+                    <div class="flex items-center justify-between mb-4 bg-white rounded px-6 py-4 shadow-sm border">
+                        <div class="text-sm">Pro+ plan</div>
+                        <div data-ref="price-and-quantity-container">
+                            <span data-ref="price">$10</span>
+                            <span data-ref="quantity" class="text-sm">(1x)</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between mb-4 bg-white rounded px-6 py-4 shadow-sm border">
+                        <div class="text-sm">Another awesome product</div>
+                        <div data-ref="price-and-quantity-container">
+                            <span data-ref="price">$5</span>
+                            <span data-ref="quantity" class="text-sm">(2x)</span>
+                        </div>
+                    </div>
                 </div>
             @endif
+
+            @if(!empty($subscription->recurring_product_ids))
+                <div class="flex flex-col mt-8">
+                <span
+                    class="mb-4 uppercase leading-4 tracking-wide inline-flex items-center rounded-full text-xs font-medium">
+                    Recurring purchases:
+                </span>
+
+                    <div class="flex items-center justify-between mb-4 bg-white rounded px-6 py-4 shadow-sm border">
+                        <div class="text-sm">Pro+ plan</div>
+                        <div data-ref="price-and-quantity-container">
+                            <span data-ref="price">$10</span>
+                            <span data-ref="quantity" class="text-sm">(1x)</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between mb-4 bg-white rounded px-6 py-4 shadow-sm border">
+                        <div class="text-sm">Another awesome product</div>
+                        <div data-ref="price-and-quantity-container">
+                            <span data-ref="price">$5</span>
+                            <span data-ref="quantity" class="text-sm">(2x)</span>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            <div class="relative mt-8">
+                <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t border-gray-300"></div>
+                </div>
+
+                <div class="relative flex justify-center text-sm leading-5">
+                    <h1 class="text-2xl font-bold tracking-wide bg-gray-50 px-6 py-0">
+                        {{ ctrans('texts.total') }}: {{ App\Utils\Number::formatMoney(20, $subscription->company) }}
+                    </h1>
+                </div>
+            </div>
 
             @if(auth('contact')->user())
                 <a href="{{ route('client.invoices.index') }}" class="block mt-16 inline-flex items-center space-x-2">
@@ -58,7 +89,7 @@
         </div>
     </div>
 
-    <div class="col-span-12 lg:col-span-6 bg-white lg:shadow-lg lg:h-screen">
+    <div class="col-span-12 lg:col-span-6 bg-white lg:h-screen">
         <div class="grid grid-cols-12 flex flex-col p-10 lg:mt-48 lg:ml-16">
             <div class="col-span-12 w-full lg:col-span-6">
                 <h2 class="text-2xl font-bold tracking-wide">{{ $heading_text ?? ctrans('texts.login') }}</h2>
@@ -140,7 +171,7 @@
                     </form>
                 @endif
 
-                @if(!empty($billing_subscription->promo_code) && !$billing_subscription->trial_enabled)
+                @if(!empty($subscription->promo_code) && !$subscription->trial_enabled)
                     <div class="relative mt-8">
                         <div class="absolute inset-0 flex items-center">
                             <div class="w-full border-t border-gray-300"></div>
