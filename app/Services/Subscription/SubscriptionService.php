@@ -263,5 +263,19 @@ class SubscriptionService
         //scan for any notification we are required to send
     }
 
+    public function products()
+    {
+        return Product::whereIn('id', explode(",", $this->subscription->product_ids))->get();
+    }
+
+    public function recurring_products()
+    {
+        return Product::whereIn('id', explode(",", $this->subscription->recurring_product_ids))->get();
+    }
+
+    public function price()
+    {
+        return 1;
+    }
 
 }
