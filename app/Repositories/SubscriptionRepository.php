@@ -13,6 +13,7 @@
 namespace App\Repositories;
 
 
+use App\DataMapper\InvoiceItem;
 use App\Factory\InvoiceFactory;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -91,8 +92,40 @@ class SubscriptionRepository extends BaseRepository
 
     	$line_items = [];
 
+        foreach($subscription->service()->products() as $product)
+        {
+            $line_items[] = $this->makeLineItem($product);
+        }
+
+        foreach($subscription->service()->recurring_products() as $product)
+        {
+            $line_items[] = $this->makeLineItem($product);
+        }
+
     	$line_items = $this->cleanItems($line_items);
+
+        return $line_items;
 
     }
 
+    private function makeLineItem($product)
+    {
+        $item = new InvoiceItem;
+        $item->quantity = $product->quantity;
+        $item->product_key = $product->product_key;
+        $item->notes = $product->notes;
+        $item->cost = $product->price;
+        $item->tax_rate1 = $product->tax_rate1 ?: 0;
+        $item->tax_name1 = $product->tax_name1 ?: '';
+        $item->tax_rate2 = $product->tax_rate2 ?: 0;
+        $item->tax_name2 = $product->tax_name2 ?: '';
+        $item->tax_rate3 = $product->tax_rate3 ?: 0;
+        $item->tax_name3 = $product->tax_name3 ?: '';
+        $item->custom_value1 = $product->custom_value1 ?: '';
+        $item->custom_value2 = $product->custom_value2 ?: '';
+        $item->custom_value3 = $product->custom_value3 ?: '';
+        $item->custom_value4 = $product->custom_value4 ?: '';
+
+        return $item;
+    }
 }
