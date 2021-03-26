@@ -30,7 +30,7 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\SystemLog;
-use App\Services\BillingSubscription\BillingSubscriptionService;
+use App\Services\Subscription\SubscriptionService;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SystemLogTrait;
@@ -242,9 +242,9 @@ class BaseDriver extends AbstractPaymentDriver
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
         if (property_exists($this->payment_hash->data, 'billing_context')) {
-            $billing_subscription = \App\Models\BillingSubscription::find($this->payment_hash->data->billing_context->billing_subscription_id);
+            $billing_subscription = \App\Models\Subscription::find($this->payment_hash->data->billing_context->billing_subscription_id);
 
-            (new BillingSubscriptionService($billing_subscription))->completePurchase($this->payment_hash);
+            (new SubscriptionService($billing_subscription))->completePurchase($this->payment_hash);
         }
 
         return $payment->service()->applyNumber()->save();

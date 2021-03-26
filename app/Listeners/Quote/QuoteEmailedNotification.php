@@ -55,7 +55,7 @@ class QuoteEmailedNotification implements ShouldQueue
 
             // $notification = new EntitySentNotification($event->invitation, 'quote');
 
-            $methods = $this->findUserNotificationTypes($event->invitation, $company_user, 'quote', ['all_notifications', 'quote_sent']);
+            $methods = $this->findUserNotificationTypes($event->invitation, $company_user, 'quote', ['all_notifications', 'quote_sent', 'quote_sent_all']);
 
             if (($key = array_search('mail', $methods)) !== false && $first_notification_sent === true) {
                 unset($methods[$key]);

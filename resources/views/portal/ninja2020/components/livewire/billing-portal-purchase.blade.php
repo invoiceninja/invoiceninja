@@ -13,32 +13,35 @@
             <span class="text-sm uppercase font-bold">{{ ctrans('texts.price') }}:</span>
 
             <div class="flex space-x-2">
-                <h1 class="text-2xl font-bold tracking-wide">{{ App\Utils\Number::formatMoney($billing_subscription->product->price, $billing_subscription->company) }}</h1>
+                <h1 class="text-2xl font-bold tracking-wide">{{ App\Utils\Number::formatMoney($price, $billing_subscription->company) }}</h1>
 
-                @if($billing_subscription->per_seat_enabled)
-                    <span class="text-sm">/unit</span>
+                @if($billing_subscription->is_recurring)
+                    <span class="text-xs uppercase">/ {{ \App\Models\RecurringInvoice::frequencyForKey($billing_subscription->frequency_id) }}</span>
                 @endif
             </div>
 
-            <div class="flex mt-4 space-x-4 items-center">
-                <span class="text-sm">{{ ctrans('texts.qty') }}</span>
-                <button wire:click="updateQuantity('decrement')" class="bg-gray-100 border rounded p-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                         class="feather feather-minus">
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                </button>
-                <button>{{ $quantity }}</button>
-                <button wire:click="updateQuantity('increment')" class="bg-gray-100 border rounded p-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                         class="feather feather-plus">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                </button>
-            </div>
+
+            @if($billing_subscription->per_seat_enabled && $billing_subscription->max_seats_limit > 1)
+                <div class="flex mt-4 space-x-4 items-center">
+                    <span class="text-sm">{{ ctrans('texts.qty') }}</span>
+                    <button wire:click="updateQuantity('decrement')" class="bg-gray-100 border rounded p-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                             class="feather feather-minus">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </button>
+                    <button>{{ $quantity }}</button>
+                    <button wire:click="updateQuantity('increment')" class="bg-gray-100 border rounded p-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                             class="feather feather-plus">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </button>
+                </div>
+            @endif
 
             @if(auth('contact')->user())
                 <a href="{{ route('client.invoices.index') }}" class="block mt-16 inline-flex items-center space-x-2">
@@ -137,22 +140,24 @@
                     </form>
                 @endif
 
-                <div class="relative mt-8">
-                    <div class="absolute inset-0 flex items-center">
-                        <div class="w-full border-t border-gray-300"></div>
+                @if(!empty($billing_subscription->promo_code) && !$billing_subscription->trial_enabled)
+                    <div class="relative mt-8">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-300"></div>
+                        </div>
+
+                        <div class="relative flex justify-center text-sm leading-5">
+                            <span class="px-2 text-gray-700 bg-white">Have a coupon code?</span>
+                        </div>
                     </div>
 
-                    <div class="relative flex justify-center text-sm leading-5">
-                        <span class="px-2 text-gray-700 bg-white">Have a coupon code?</span>
+                    <div class="flex items-center mt-4">
+                        <label class="w-full mr-2">
+                            <input type="text" wire:model.lazy="coupon" class="input w-full m-0"/>
+                            <small class="block text-gray-900 mt-2">{{ ctrans('texts.billing_coupon_notice') }}</small>
+                        </label>
                     </div>
-                </div>
-
-                <div class="flex items-center mt-4">
-                    <label class="w-full mr-2">
-                        <input type="text" wire:model.lazy="coupon" class="input w-full m-0"/>
-                        <small class="block text-gray-900 mt-2">{{ ctrans('texts.billing_coupon_notice') }}</small>
-                    </label>
-                </div>
+                @endif
             </div>
         </div>
     </div>

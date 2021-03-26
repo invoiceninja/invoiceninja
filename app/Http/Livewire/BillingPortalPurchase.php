@@ -12,11 +12,12 @@
 namespace App\Http\Livewire;
 
 use App\Factory\ClientFactory;
-use App\Models\BillingSubscription;
+use App\Models\Subscription;
 use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Repositories\ClientContactRepository;
 use App\Repositories\ClientRepository;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -54,11 +55,11 @@ class BillingPortalPurchase extends Component
     public $password;
 
     /**
-     * Instance of billing subscription.
+     * Instance of subscription.
      *
-     * @var BillingSubscription
+     * @var Subscription
      */
-    public $billing_subscription;
+    public $subscription;
 
     /**
      * Instance of client contact.
@@ -139,6 +140,13 @@ class BillingPortalPurchase extends Component
     public $request_data;
 
     /**
+     * Price of product.
+     *
+     * @var string
+     */
+    public $price;
+
+    /**
      * Handle user authentication
      *
      * @return $this|bool|void
@@ -178,8 +186,8 @@ class BillingPortalPurchase extends Component
      */
     protected function createBlankClient()
     {
-        $company = $this->billing_subscription->company;
-        $user = $this->billing_subscription->user;
+        $company = $this->subscription->company;
+        $user = $this->subscription->user;
 
         $client_repo = new ClientRepository(new ClientContactRepository());
 
@@ -192,7 +200,11 @@ class BillingPortalPurchase extends Component
         ];
 
         if (array_key_exists('locale', $this->request_data)) {
-            $record = DB::table('languages')->where('locale', $this->request_data['locale'])->first();
+            $request = $this->request_data;
+
+            $record = Cache::get('languages')->filter(function ($item) use ($request) {
+                return $item->locale == $request['locale'];
+            })->first();
 
             if ($record) {
                 $data['settings']['language_id'] = (string)$record->id;
@@ -212,7 +224,7 @@ class BillingPortalPurchase extends Component
      */
     protected function getPaymentMethods(ClientContact $contact): self
     {
-        if ($this->billing_subscription->trial_enabled) {
+        if ($this->subscription->trial_enabled) {
             $this->heading_text = ctrans('texts.plan_trial');
             $this->steps['show_start_trial'] = true;
 
@@ -262,11 +274,11 @@ class BillingPortalPurchase extends Component
                 'client_contact_id' => $this->contact->hashed_id,
             ]],
             'user_input_promo_code' => $this->coupon,
-            'coupon' => $this->coupon,
+            'coupon' => empty($this->subscription->promo_code) ? '' : $this->coupon,
             'quantity' => $this->quantity,
         ];
 
-        $this->invoice = $this->billing_subscription
+        $this->invoice = $this->subscription
             ->service()
             ->createInvoice($data)
             ->service()
@@ -275,12 +287,13 @@ class BillingPortalPurchase extends Component
             ->save();
 
         Cache::put($this->hash, [
-            'billing_subscription_id' => $this->billing_subscription->id,
+            'subscription_id' => $this->subscription->id,
             'email' => $this->email ?? $this->contact->email,
             'client_id' => $this->contact->client->id,
             'invoice_id' => $this->invoice->id,
-            'subscription_id' => $this->billing_subscription->id],
-            now()->addMinutes(60)
+            'quantity' => $this->quantity,
+            'subscription_id' => $this->subscription->id,
+            now()->addMinutes(60)]
         );
 
         $this->emit('beforePaymentEventsCompleted');
@@ -293,8 +306,10 @@ class BillingPortalPurchase extends Component
      */
     public function handleTrial()
     {
-        return $this->billing_subscription->service()->startTrial([
+        return $this->subscription->service()->startTrial([
             'email' => $this->email ?? $this->contact->email,
+            'quantity' => $this->quantity,
+            'contact_id' => $this->contact->id,
         ]);
     }
 
@@ -310,14 +325,19 @@ class BillingPortalPurchase extends Component
             return $this->quantity;
         }
 
-        // TODO: Dave review.
-        if ($this->quantity >= $this->billing_subscription->max_seats_limit) {
+        if ($this->quantity >= $this->subscription->max_seats_limit && $option == 'increment') {
             return $this->quantity;
         }
 
-        return $option == 'increment'
-            ? $this->quantity++
-            : $this->quantity--;
+        if ($option == 'increment') {
+            $this->quantity++;
+            return $this->price = (int)$this->price + $this->subscription->product->price;
+        }
+
+        $this->quantity--;
+        $this->price = (int)$this->price - $this->subscription->product->price;
+
+        return 0;
     }
 
     public function render()
