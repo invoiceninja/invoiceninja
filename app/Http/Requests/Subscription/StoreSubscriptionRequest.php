@@ -13,6 +13,7 @@ namespace App\Http\Requests\Subscription;
 
 use App\Http\Requests\Request;
 use App\Models\Subscription;
+use Illuminate\Validation\Rule;
 
 class StoreSubscriptionRequest extends Request
 {
@@ -34,10 +35,8 @@ class StoreSubscriptionRequest extends Request
     public function rules()
     {
         return [
-            'user_id' => ['sometimes'],
             'product_id' => ['sometimes'],
             'assigned_user_id' => ['sometimes'],
-            'company_id' => ['sometimes'],
             'is_recurring' => ['sometimes'],
             'frequency_id' => ['sometimes'],
             'auto_bill' => ['sometimes'],
@@ -55,6 +54,7 @@ class StoreSubscriptionRequest extends Request
             'plan_map' => ['sometimes'],
             'refund_period' => ['sometimes'],
             'webhook_configuration' => ['sometimes'],
+            'name' => Rule::unique('subscriptions')->where('company_id', auth()->user()->company()->id)
         ];
     }
 }
