@@ -97,13 +97,13 @@ class CompanyPresenter extends EntityPresenter
         }
     }
 
-    public function getSpcQrCode($client_currency, $invoice_number, $balance_due_raw)
+    public function getSpcQrCode($client_currency, $invoice_number, $balance_due_raw, $user_iban)
     {
         $settings = $this->entity->settings;
 
         return 
 
-        "SPC\n0200\n1\nCH860021421411198240K\nK\n{$this->name}\n{$settings->address1}\n{$settings->postal_code} {$settings->city}\n\n\nCH\n\n\n\n\n\n\n\n{$balance_due_raw}\n{$client_currency}\n\n\n\n\n\n\n\nNON\n\n{$invoice_number}\nEPD\n";
+        "SPC\n0200\n1\n{$user_iban}\nK\n{$this->name}\n{$settings->address1}\n{$settings->postal_code} {$settings->city}\n\n\nCH\n\n\n\n\n\n\n\n{$balance_due_raw}\n{$client_currency}\n\n\n\n\n\n\n\nNON\n\n{$invoice_number}\nEPD\n";
     }
 
 }

@@ -43,6 +43,7 @@ class Subscription extends BaseModel
         'webhook_configuration',
         'currency_id',
         'group_id',
+        'price',
     ];
 
     protected $casts = [

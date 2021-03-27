@@ -80,6 +80,7 @@ class SubscriptionApiTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/subscriptions', ['product_ids' => $product->id, 'allow_cancellation' => true]);
 
+        // nlog($response);
         $response->assertStatus(200);
     }
 
