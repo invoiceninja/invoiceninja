@@ -30,15 +30,18 @@ class SubscriptionRepository extends BaseRepository
     public function save($data, Subscription $subscription): ?Subscription
     {
         $subscription->fill($data);
-            
-        $subscription->price = $this->calculatePrice($subscription);
+        
+        $calculated_prices = $this->calculatePrice($subscription);
+
+        $subscription->price = $calculated_prices['price'];
+        $subscription->promo_price = $calculated_prices['promo_price'];
 
         $subscription->save();
 
         return $subscription;
     }
 
-    private function calculatePrices($subscription) :array
+    private function calculatePrice($subscription) :array
     {
 
 		DB::beginTransaction();
@@ -61,10 +64,13 @@ class SubscriptionRepository extends BaseRepository
             ]);
 
         $invoice = InvoiceFactory::create($subscription->company_id, $subscription->user_id);
+        $invoice->client_id = $client->id;
+
+        $invoice->save();
 
         $invitation = InvoiceInvitation::factory()->create([
-	                'user_id' => $subscription->user_id,
-	                'company_id' => $subscription->company_id,
+                    'user_id' => $subscription->user_id,
+                    'company_id' => $subscription->company_id,
                     'invoice_id' => $invoice->id,
                     'client_contact_id' => $contact->id,
         ]);
@@ -73,8 +79,8 @@ class SubscriptionRepository extends BaseRepository
         $invoice->setRelation('client', $client);
         $invoice->setRelation('company', $subscription->company);
         $invoice->load('client');
-
         $invoice->line_items = $this->generateLineItems($subscription);
+
         $data['price'] = $invoice->calc()->getTotal();
         
         $invoice->discount = $subscription->promo_discount;
@@ -94,12 +100,12 @@ class SubscriptionRepository extends BaseRepository
 
         foreach($subscription->service()->products() as $product)
         {
-            $line_items[] = $this->makeLineItem($product);
+            $line_items[] = (array)$this->makeLineItem($product);
         }
 
         foreach($subscription->service()->recurring_products() as $product)
         {
-            $line_items[] = $this->makeLineItem($product);
+            $line_items[] = (array)$this->makeLineItem($product);
         }
 
     	$line_items = $this->cleanItems($line_items);
