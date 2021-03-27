@@ -14,6 +14,7 @@ namespace App\Services\Invoice;
 use App\Jobs\Entity\CreateEntityPdf;
 use App\Jobs\Invoice\InvoiceWorkflowSettings;
 use App\Jobs\Util\UnlinkFile;
+use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Models\CompanyGateway;
 use App\Models\Expense;
 use App\Models\Invoice;
@@ -62,7 +63,14 @@ class InvoiceService
         return $this;
     }
 
+    public function setExchangeRate()
+    {
+        $exchange_rate = new CurrencyApi();
 
+                    // $payment->exchange_rate = $exchange_rate->exchangeRate($client_currency, $company_currency, Carbon::parse($payment->date));
+
+        return $this;
+    }
     /**
      * Applies the recurring invoice number.
      * @return $this InvoiceService object
