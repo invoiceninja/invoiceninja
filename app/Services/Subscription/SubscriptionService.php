@@ -100,11 +100,11 @@ class SubscriptionService
         $invoice = InvoiceFactory::create($this->subscription->company_id, $this->subscription->user_id);
         $invoice->line_items = $subscription_repo->generateLineItems($this->subscription);
         $invoice->subscription_id = $this->subscription->id;
-        
+
         if(strlen($data['coupon']) >=1 && ($data['coupon'] == $this->subscription->promo_code) && $this->subscription->promo_discount > 0) 
         {
-            $invoice->discount = $subscription->promo_discount;
-            $invoice->is_amount_discount = $subscription->is_amount_discount;
+            $invoice->discount = $this->subscription->promo_discount;
+            $invoice->is_amount_discount = $this->subscription->is_amount_discount;
         }
 
         return $invoice_repo->save($data, $invoice);
