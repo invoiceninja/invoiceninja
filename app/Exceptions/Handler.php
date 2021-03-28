@@ -96,7 +96,7 @@ class Handler extends ExceptionHandler
 
         if(config('ninja.expanded_logging'))
             parent::report($exception);
-        
+
     }
 
     private function validException($exception)
@@ -116,7 +116,7 @@ class Handler extends ExceptionHandler
         if (strpos($exception->getMessage(), 'fwrite()') !== false)
             return false;
         
-        if(strpos($exception->getMessage()), 'LockableFile' !== false)
+        if(strpos($exception->getMessage(), 'LockableFile') !== false)
             return false;
 
         return true;
