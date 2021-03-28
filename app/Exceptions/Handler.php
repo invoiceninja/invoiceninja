@@ -94,7 +94,9 @@ class Handler extends ExceptionHandler
             }
         }
 
-        parent::report($exception);
+        if(config('ninja.expanded_logging'))
+            parent::report($exception);
+        
     }
 
     private function validException($exception)
@@ -105,7 +107,7 @@ class Handler extends ExceptionHandler
         if (strpos($exception->getMessage(), 'Permission denied') !== false) 
             return false;
         
-        if (strpos($exception->getMessage(), 'flock()') !== false) 
+        if (strpos($exception->getMessage(), 'flock') !== false) 
             return false;
 
         if (strpos($exception->getMessage(), 'expects parameter 1 to be resource') !== false) 
@@ -114,6 +116,8 @@ class Handler extends ExceptionHandler
         if (strpos($exception->getMessage(), 'fwrite()') !== false)
             return false;
         
+        if(strpos($exception->getMessage()), 'LockableFile' !== false)
+            return false;
 
         return true;
     }
