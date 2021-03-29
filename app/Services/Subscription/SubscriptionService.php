@@ -67,6 +67,7 @@ class SubscriptionService
     public function startTrial(array $data)
     {
         // Redirects from here work just fine. Livewire will respect it.
+        $client_contact = ClientContact::find($data['contact_id']);
 
         if(!$this->subscription->trial_enabled)
             return new \Exception("Trials are disabled for this product");
@@ -76,20 +77,22 @@ class SubscriptionService
         $subscription_repo = new SubscriptionRepository();
 
         $recurring_invoice = RecurringInvoiceFactory::create($this->subscription->company_id, $this->subscription->user_id);
+        $recurring_invoice->client_id = $client_contact->client_id; 
         $recurring_invoice->line_items = $subscription_repo->generateLineItems($this->subscription, true);
         $recurring_invoice->subscription_id = $this->subscription->id;
         $recurring_invoice->frequency_id = $this->subscription->frequency_id;
         $recurring_invoice->date = now();
-        $recurring_invoice->next_send_date = now()->addSeconds($this->subscription->trial_duration)->addDays(1);
+        $recurring_invoice->next_send_date = now()->addSeconds($this->subscription->trial_duration);
         $recurring_invoice->remaining_cycles = -1;
+        $recurring_invoice->backup = 'is_trial';
 
-        if(strlen($data['coupon']) >=1 && ($data['coupon'] == $this->subscription->promo_code) && $this->subscription->promo_discount > 0) 
+        if(array_key_exists('coupon', $data) && ($data['coupon'] == $this->subscription->promo_code) && $this->subscription->promo_discount > 0) 
         {
             $recurring_invoice->discount = $this->subscription->promo_discount;
             $recurring_invoice->is_amount_discount = $this->subscription->is_amount_discount;
         }        
 
-        $recurring_invoice = $recurring_invoice_repo->save($data, $invoice);
+        $recurring_invoice = $recurring_invoice_repo->save($data, $recurring_invoice);
         
         /* Start the recurring service */
         $recurring_invoice->service()
@@ -102,7 +105,7 @@ class SubscriptionService
         if(strlen($this->subscription->webhook_configuration->post_purchase_url) >=1)
             return redirect($this->subscription->webhook_configuration->post_purchase_url);
 
-        return redirect('/client/subscription/'.$cs->hashed_id);
+        return redirect('/client/recurring_invoices/'.$recurring_invoice->hashed_id);
     }
 
     public function createInvoice($data): ?\App\Models\Invoice
