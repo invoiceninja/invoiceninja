@@ -391,7 +391,7 @@ class Company extends BaseModel
 
     public function system_logs()
     {
-        return $this->hasMany(SystemLog::class)->orderBy('id', 'DESC')->take(50);
+        return $this->hasMany(SystemLog::class)->orderBy('id', 'DESC')->take(100);
     }
 
     public function system_log_relation()
