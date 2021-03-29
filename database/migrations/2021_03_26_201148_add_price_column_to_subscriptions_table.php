@@ -17,6 +17,10 @@ class AddPriceColumnToSubscriptionsTable extends Migration
             $table->decimal('price', 20, 6)->default(0);
             $table->decimal('promo_price', 20, 6)->default(0);
         });
+
+        Schema::table('recurring_invoices', function (Blueprint $table) {
+            $table->unsignedInteger('subscription_id')->nullable();
+        });
     }
 
     /**
