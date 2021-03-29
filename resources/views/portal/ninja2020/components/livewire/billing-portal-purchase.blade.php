@@ -5,60 +5,62 @@
                  alt="{{ $subscription->company->present()->name }}">
 
             <div class="mt-6">
-                <p
-                    class="mb-4 uppercase leading-4 tracking-wide inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary text-white">
-                    Subscription
-                </p>
+                @if(!empty($subscription->product_ids))
+                    <p
+                        class="mb-4 uppercase leading-4 tracking-wide inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary text-white">
+                        One-time purchase
+                    </p>
+                @endif
+
+                @if(!empty($subscription->recurring_product_ids))
+                    <p
+                        class="mb-4 uppercase leading-4 tracking-wide inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary text-white">
+                        Subscription
+                    </p>
+                @endif
+
                 <h1 id="billing-page-company-logo" class="text-3xl font-bold tracking-wide">
-                    Invoice Ninja Pro+
+                    {{ $subscription->name }}
                 </h1>
             </div>
 
             @if(!empty($subscription->product_ids))
                 <div class="flex flex-col mt-8">
-                <span
-                    class="mb-4 uppercase leading-4 tracking-wide inline-flex items-center rounded-full text-xs font-medium">
-                    One-time purchases:
-                </span>
+                    <p
+                        class="mb-4 uppercase leading-4 tracking-wide inline-flex items-center rounded-full text-xs font-medium">
+                        One-time purchases:
+                    </p>
 
-                    <div class="flex items-center justify-between mb-4 bg-white rounded px-6 py-4 shadow-sm border">
-                        <div class="text-sm">Pro+ plan</div>
-                        <div data-ref="price-and-quantity-container">
-                            <span data-ref="price">$10</span>
-                            <span data-ref="quantity" class="text-sm">(1x)</span>
+                    @foreach($subscription->service()->products() as $product)
+                        <div class="flex items-center justify-between mb-4 bg-white rounded px-6 py-4 shadow-sm border">
+                            <div class="text-sm">{{ $product->product_key }}</div>
+                            <div data-ref="price-and-quantity-container">
+                                <span
+                                    data-ref="price">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }}</span>
+{{--                                <span data-ref="quantity" class="text-sm">(1x)</span>--}}
+                            </div>
                         </div>
-                    </div>
-                    <div class="flex items-center justify-between mb-4 bg-white rounded px-6 py-4 shadow-sm border">
-                        <div class="text-sm">Another awesome product</div>
-                        <div data-ref="price-and-quantity-container">
-                            <span data-ref="price">$5</span>
-                            <span data-ref="quantity" class="text-sm">(2x)</span>
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
             @endif
 
             @if(!empty($subscription->recurring_product_ids))
                 <div class="flex flex-col mt-8">
-                <span
-                    class="mb-4 uppercase leading-4 tracking-wide inline-flex items-center rounded-full text-xs font-medium">
-                    Recurring purchases:
-                </span>
+                    <p
+                        class="mb-4 uppercase leading-4 tracking-wide inline-flex items-center rounded-full text-xs font-medium">
+                        Recurring purchases:
+                    </p>
 
-                    <div class="flex items-center justify-between mb-4 bg-white rounded px-6 py-4 shadow-sm border">
-                        <div class="text-sm">Pro+ plan</div>
-                        <div data-ref="price-and-quantity-container">
-                            <span data-ref="price">$10</span>
-                            <span data-ref="quantity" class="text-sm">(1x)</span>
+                    @foreach($subscription->service()->recurring_products() as $product)
+                        <div class="flex items-center justify-between mb-4 bg-white rounded px-6 py-4 shadow-sm border">
+                            <div class="text-sm">{{ $product->product_key }}</div>
+                            <div data-ref="price-and-quantity-container">
+                                <span
+                                    data-ref="price">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }}</span>
+{{--                                <span data-ref="quantity" class="text-sm">(1x)</span>--}}
+                            </div>
                         </div>
-                    </div>
-                    <div class="flex items-center justify-between mb-4 bg-white rounded px-6 py-4 shadow-sm border">
-                        <div class="text-sm">Another awesome product</div>
-                        <div data-ref="price-and-quantity-container">
-                            <span data-ref="price">$5</span>
-                            <span data-ref="quantity" class="text-sm">(2x)</span>
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
             @endif
 
@@ -69,7 +71,7 @@
 
                 <div class="relative flex justify-center text-sm leading-5">
                     <h1 class="text-2xl font-bold tracking-wide bg-gray-50 px-6 py-0">
-                        {{ ctrans('texts.total') }}: {{ App\Utils\Number::formatMoney(20, $subscription->company) }}
+                        {{ ctrans('texts.total') }}: {{ $subscription->service()->price() }}
                     </h1>
                 </div>
             </div>
