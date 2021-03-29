@@ -140,6 +140,16 @@ class BillingPortalPurchase extends Component
     public $request_data;
 
     /**
+     * @var string
+     */
+    public $price;
+
+    public function mount()
+    {
+        $this->price = $this->subscription->service()->price();
+    }
+
+    /**
      * Handle user authentication
      *
      * @return $this|bool|void
@@ -329,6 +339,13 @@ class BillingPortalPurchase extends Component
         $this->price = (int)$this->price - $this->subscription->product->price;
 
         return 0;
+    }
+
+    public function handleCoupon()
+    {
+        if ($this->coupon == $this->subscription->promo_code) {
+            $this->price = $this->subscription->promo_price;
+        }
     }
 
     public function render()

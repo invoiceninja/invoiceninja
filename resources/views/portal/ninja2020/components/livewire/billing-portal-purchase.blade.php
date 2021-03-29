@@ -37,7 +37,7 @@
                             <div data-ref="price-and-quantity-container">
                                 <span
                                     data-ref="price">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }}</span>
-{{--                                <span data-ref="quantity" class="text-sm">(1x)</span>--}}
+                                {{--                                <span data-ref="quantity" class="text-sm">(1x)</span>--}}
                             </div>
                         </div>
                     @endforeach
@@ -57,7 +57,7 @@
                             <div data-ref="price-and-quantity-container">
                                 <span
                                     data-ref="price">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }}</span>
-{{--                                <span data-ref="quantity" class="text-sm">(1x)</span>--}}
+                                {{--                                <span data-ref="quantity" class="text-sm">(1x)</span>--}}
                             </div>
                         </div>
                     @endforeach
@@ -71,7 +71,7 @@
 
                 <div class="relative flex justify-center text-sm leading-5">
                     <h1 class="text-2xl font-bold tracking-wide bg-gray-50 px-6 py-0">
-                        {{ ctrans('texts.total') }}: {{ $subscription->service()->price() }}
+                        {{ ctrans('texts.total') }}: {{ $price }}
                     </h1>
                 </div>
             </div>
@@ -184,12 +184,15 @@
                         </div>
                     </div>
 
-                    <div class="flex items-center mt-4">
+                    <form  wire:submit.prevent="handleCoupon" class="flex items-center mt-4">
+                        @csrf
+
                         <label class="w-full mr-2">
                             <input type="text" wire:model.lazy="coupon" class="input w-full m-0"/>
-                            <small class="block text-gray-900 mt-2">{{ ctrans('texts.billing_coupon_notice') }}</small>
                         </label>
-                    </div>
+
+                        <button class="button button-primary bg-primary">Apply</button>
+                    </form>
                 @endif
             </div>
         </div>
