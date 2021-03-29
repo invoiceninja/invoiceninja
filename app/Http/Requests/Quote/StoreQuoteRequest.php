@@ -16,6 +16,7 @@ use App\Http\ValidationRules\Quote\UniqueQuoteNumberRule;
 use App\Models\Quote;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Validation\Rule;
 
 class StoreQuoteRequest extends Request
 {
@@ -48,7 +49,9 @@ class StoreQuoteRequest extends Request
             $rules['documents'] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
         }
 
-        $rules['number'] = new UniqueQuoteNumberRule($this->all());
+        $rules['number'] = ['nullable',Rule::unique('quotes')->where('company_id', auth()->user()->company()->id)];
+
+        // $rules['number'] = new UniqueQuoteNumberRule($this->all());
         $rules['line_items'] = 'array';
 
         return $rules;
