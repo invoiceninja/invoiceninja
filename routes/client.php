@@ -71,7 +71,7 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'check_client_existence
     Route::get('documents/{document}/download', 'ClientPortal\DocumentController@download')->name('documents.download');
     Route::resource('documents', 'ClientPortal\DocumentController')->only(['index', 'show']);
 
-    Route::resource('subscriptions', 'ClientPortal\SubscriptionController');
+    Route::resource('subscriptions', 'ClientPortal\SubscriptionController')->only(['index']);
 
     Route::post('upload', 'ClientPortal\UploadController')->name('upload.store');
 
