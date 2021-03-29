@@ -57,4 +57,17 @@ class StoreSubscriptionRequest extends Request
             'name' => Rule::unique('subscriptions')->where('company_id', auth()->user()->company()->id)
         ];
     }
+
+    protected function prepareForValidation()
+    {
+        $input = $this->all();
+
+        if(array_key_exists('webhook_configuration', $input) && (!is_object(json_decode($input['webhook_configuration']))))
+            $input['webhook_configuration'] = new \stdClass;
+        
+        if(!array_key_exists('webhook_configuration', $input))
+            $input['webhook_configuration'] = new \stdClass;
+
+        $this->replace($input);
+    }
 }
