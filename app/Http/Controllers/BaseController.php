@@ -92,6 +92,7 @@ class BaseController extends Controller
           'company.quotes.invitations.company',
           'company.quotes.documents',
           'company.tasks.documents',
+          'company.subcsriptions',
           'company.tax_rates',
           'company.tokens_hashed',
           'company.vendors.contacts.company',
@@ -339,6 +340,13 @@ class BaseController extends Controller
 
               if(!$user->isAdmin())
                   $query->where('activities.user_id', $user->id);
+            
+            },
+            'company.subscriptions'=> function ($query) use($user) {
+              $query->where('updated_at', '>=', $updated_at);
+
+              if(!$user->isAdmin())
+                  $query->where('subscriptions.user_id', $user->id);
             
             }
           ]

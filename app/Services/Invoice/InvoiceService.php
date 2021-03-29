@@ -63,11 +63,22 @@ class InvoiceService
         return $this;
     }
 
+    /**
+     * Sets the exchange rate on the invoice if the client currency
+     * is different to the company currency.
+     */
     public function setExchangeRate()
     {
-        $exchange_rate = new CurrencyApi();
 
-                    // $payment->exchange_rate = $exchange_rate->exchangeRate($client_currency, $company_currency, Carbon::parse($payment->date));
+        $client_currency = $this->invoice->client->getSetting('currency_id');
+        $company_currency = $this->invoice->company->settings->currency_id;
+
+        if ($company_currency != $client_currency) {
+
+            $exchange_rate = new CurrencyApi();
+
+            $this->invoice->exchange_rate = $exchange_rate->exchangeRate($client_currency, $company_currency, now());
+        }
 
         return $this;
     }
@@ -139,6 +150,8 @@ class InvoiceService
     public function markSent()
     {
         $this->invoice = (new MarkSent($this->invoice->client, $this->invoice))->run();
+
+        $this->setExchangeRate();
 
         return $this;
     }

@@ -14,6 +14,7 @@ namespace App\Services\Subscription;
 use App\DataMapper\InvoiceItem;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceToRecurringInvoiceFactory;
+use App\Factory\RecurringInvoiceFactory;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientContact;
 use App\Models\ClientSubscription;
@@ -23,6 +24,7 @@ use App\Models\Product;
 use App\Models\Subscription;
 use App\Models\SystemLog;
 use App\Repositories\InvoiceRepository;
+use App\Repositories\RecurringInvoiceRepository;
 use App\Repositories\SubscriptionRepository;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
@@ -69,18 +71,23 @@ class SubscriptionService
         if(!$this->subscription->trial_enabled)
             return new \Exception("Trials are disabled for this product");
 
-        // $contact = ClientContact::with('client')->find($data['contact_id']);
+        //create recurring invoice with start date = trial_duration + 1 day
+        $recurring_invoice_repo = new RecurringInvoiceRepository();
+        $subscription_repo = new SubscriptionRepository();
 
-        // $cs = new ClientSubscription();
-        // $cs->subscription_id = $this->subscription->id;
-        // $cs->company_id = $this->subscription->company_id;
-        // $cs->trial_started = time();
-        // $cs->trial_ends = time() + $this->subscription->trial_duration;
-        // $cs->quantity = $data['quantity'];
-        // $cs->client_id = $contact->client->id;
-        // $cs->save();
+        $invoice = RecurringInvoiceFactory::create($this->subscription->company_id, $this->subscription->user_id);
+        $invoice->line_items = $subscription_repo->generateLineItems($this->subscription, true);
+        $invoice->subscription_id = $this->subscription->id;
+        $invoice->frequency_id = $this->subscription->frequency_id;
+        $invoice->date = now()->addSeconds($this->subscription->trial_duration)->addDays(1);
 
-        // $this->client_subscription = $cs;
+        if(strlen($data['coupon']) >=1 && ($data['coupon'] == $this->subscription->promo_code) && $this->subscription->promo_discount > 0) 
+        {
+            $invoice->discount = $this->subscription->promo_discount;
+            $invoice->is_amount_discount = $this->subscription->is_amount_discount;
+        }        
+
+        $recurring_invoice = $recurring_invoice_repo->save($data, $invoice);
 
         //execute any webhooks
         $this->triggerWebhook();
@@ -198,7 +205,7 @@ class SubscriptionService
         return Product::whereIn('id', $this->transformKeys(explode(",", $this->subscription->product_ids)))->get();
     }
 
-    public function recurring_products()
+    public function recurringProducts()
     {
         return Product::whereIn('id', $this->transformKeys(explode(",", $this->subscription->recurring_product_ids)))->get();
     }
