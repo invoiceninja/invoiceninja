@@ -217,6 +217,10 @@ class BillingPortalPurchase extends Component
      */
     protected function getPaymentMethods(ClientContact $contact): self
     {
+        Auth::guard('contact')->login($contact);
+
+        $this->contact = $contact;
+
         if ($this->subscription->trial_enabled) {
             $this->heading_text = ctrans('texts.plan_trial');
             $this->steps['show_start_trial'] = true;
@@ -229,10 +233,6 @@ class BillingPortalPurchase extends Component
         $this->methods = $contact->client->service()->getPaymentMethods(1000);
 
         $this->heading_text = ctrans('texts.payment_methods');
-
-        Auth::guard('contact')->login($contact);
-
-        $this->contact = $contact;
 
         return $this;
     }
