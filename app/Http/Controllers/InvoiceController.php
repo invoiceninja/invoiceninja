@@ -392,7 +392,7 @@ class InvoiceController extends BaseController
         }
 
         if ($invoice->isLocked()) {
-            return response()->json(['message' => ctrans('texts.locked_invoice')]);
+            return response()->json(['message' => ctrans('texts.locked_invoice')], 403);
         }
 
         $invoice = $this->invoice_repo->save($request->all(), $invoice);
