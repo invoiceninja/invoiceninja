@@ -21,10 +21,8 @@ class Subscription extends BaseModel
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'user_id',
         'product_ids',
         'recurring_product_ids',
-        'company_id',
         'frequency_id',
         'auto_bill',
         'promo_code',
@@ -44,6 +42,7 @@ class Subscription extends BaseModel
         'currency_id',
         'group_id',
         'price',
+        'name',
     ];
 
     protected $casts = [

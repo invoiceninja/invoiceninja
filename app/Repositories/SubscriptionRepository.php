@@ -93,17 +93,20 @@ class SubscriptionRepository extends BaseRepository
         return $data;
     }
 
-    public function generateLineItems($subscription)
+    public function generateLineItems($subscription, $is_recurring = false)
     {
 
     	$line_items = [];
 
-        foreach($subscription->service()->products() as $product)
+        if(!$is_recurring)
         {
-            $line_items[] = (array)$this->makeLineItem($product);
+            foreach($subscription->service()->products() as $product)
+            {
+                $line_items[] = (array)$this->makeLineItem($product);
+            }
         }
-
-        foreach($subscription->service()->recurring_products() as $product)
+        
+        foreach($subscription->service()->recurringProducts() as $product)
         {
             $line_items[] = (array)$this->makeLineItem($product);
         }

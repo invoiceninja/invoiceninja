@@ -182,7 +182,6 @@ class PaymentRepository extends BaseRepository {
         $company_currency = $client->company->settings->currency_id;
 
         if ($company_currency != $client_currency) {
-            $currency = $client->currency();
 
             $exchange_rate = new CurrencyApi();
 
