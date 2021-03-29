@@ -342,7 +342,7 @@ class BaseController extends Controller
                   $query->where('activities.user_id', $user->id);
             
             },
-            'company.subscriptions'=> function ($query) use($user) {
+            'company.subscriptions'=> function ($query) use($updated_at, $user) {
               $query->where('updated_at', '>=', $updated_at);
 
               if(!$user->isAdmin())

@@ -75,19 +75,26 @@ class SubscriptionService
         $recurring_invoice_repo = new RecurringInvoiceRepository();
         $subscription_repo = new SubscriptionRepository();
 
-        $invoice = RecurringInvoiceFactory::create($this->subscription->company_id, $this->subscription->user_id);
-        $invoice->line_items = $subscription_repo->generateLineItems($this->subscription, true);
-        $invoice->subscription_id = $this->subscription->id;
-        $invoice->frequency_id = $this->subscription->frequency_id;
-        $invoice->date = now()->addSeconds($this->subscription->trial_duration)->addDays(1);
+        $recurring_invoice = RecurringInvoiceFactory::create($this->subscription->company_id, $this->subscription->user_id);
+        $recurring_invoice->line_items = $subscription_repo->generateLineItems($this->subscription, true);
+        $recurring_invoice->subscription_id = $this->subscription->id;
+        $recurring_invoice->frequency_id = $this->subscription->frequency_id;
+        $recurring_invoice->date = now();
+        $recurring_invoice->next_send_date = now()->addSeconds($this->subscription->trial_duration)->addDays(1);
+        $recurring_invoice->remaining_cycles = -1;
 
         if(strlen($data['coupon']) >=1 && ($data['coupon'] == $this->subscription->promo_code) && $this->subscription->promo_discount > 0) 
         {
-            $invoice->discount = $this->subscription->promo_discount;
-            $invoice->is_amount_discount = $this->subscription->is_amount_discount;
+            $recurring_invoice->discount = $this->subscription->promo_discount;
+            $recurring_invoice->is_amount_discount = $this->subscription->is_amount_discount;
         }        
 
         $recurring_invoice = $recurring_invoice_repo->save($data, $invoice);
+        
+        /* Start the recurring service */
+        $recurring_invoice->service()
+                          ->start()
+                          ->save();
 
         //execute any webhooks
         $this->triggerWebhook();
