@@ -211,6 +211,9 @@ class AuthorizeCreditCard
     {
         $response = $data['response'];
 
+        $code = '';
+        $description = '';
+
         if($response->getTransactionResponse()->getMessages() !== null){
             $code = $response->getTransactionResponse()->getMessages()[0]->getCode();
             $description = $response->getTransactionResponse()->getMessages()[0]->getDescription();
