@@ -21,6 +21,7 @@ use App\Models\ClientSubscription;
 use App\Models\Invoice;
 use App\Models\PaymentHash;
 use App\Models\Product;
+use App\Models\RecurringInvoice;
 use App\Models\Subscription;
 use App\Models\SystemLog;
 use App\Repositories\InvoiceRepository;
@@ -80,7 +81,7 @@ class SubscriptionService
         $recurring_invoice->client_id = $client_contact->client_id; 
         $recurring_invoice->line_items = $subscription_repo->generateLineItems($this->subscription, true);
         $recurring_invoice->subscription_id = $this->subscription->id;
-        $recurring_invoice->frequency_id = $this->subscription->frequency_id;
+        $recurring_invoice->frequency_id = $this->subscription->frequency_id ?: RecurringInvoice::FREQUENCY_MONTHLY;
         $recurring_invoice->date = now();
         $recurring_invoice->next_send_date = now()->addSeconds($this->subscription->trial_duration);
         $recurring_invoice->remaining_cycles = -1;
@@ -102,7 +103,7 @@ class SubscriptionService
         //execute any webhooks
         $this->triggerWebhook();
 
-        if(strlen($this->subscription->webhook_configuration->post_purchase_url) >=1)
+        if(property_exists($this->subscription->webhook_configuration, 'post_purchase_url') && strlen($this->subscription->webhook_configuration->post_purchase_url) >=1)
             return redirect($this->subscription->webhook_configuration->post_purchase_url);
 
         return redirect('/client/recurring_invoices/'.$recurring_invoice->hashed_id);

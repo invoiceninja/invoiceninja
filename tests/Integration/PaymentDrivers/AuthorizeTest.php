@@ -310,6 +310,28 @@ class AuthorizeTest extends TestCase
         $controller = new CreateTransactionController($request);
         $response = $controller->executeWithApiResponse(\net\authorize\api\constants\ANetEnvironment::SANDBOX);
 
+        // nlog($response);
+        nlog($response->getTransactionResponse()->getMessages() !== null);
+        nlog($response->getTransactionResponse()->getMessages());
+        nlog($response->getTransactionResponse()->getMessages()[0]);
+        //nlog($response->getTransactionResponse()->getMessages()[0]->getCode());
+
+        $code = '';
+        $description = '';
+        
+        if($response->getTransactionResponse()->getMessages() !== null){
+            $code = $response->getTransactionResponse()->getMessages()[0]->getCode();
+            $description = $response->getTransactionResponse()->getMessages()[0]->getDescription();
+        }
+
+        $log = [
+            'transaction_reference' => $response->getTransactionResponse()->getTransId(),
+            'auth_code' => $response->getTransactionResponse()->getAuthCode(),
+            'code' => $code,
+            'description' => $description,
+        ];
+
+
         if ($response != null) {
             if ($response->getMessages()->getResultCode() == 'Ok') {
                 $tresponse = $response->getTransactionResponse();

@@ -98,6 +98,7 @@ class BaseController extends Controller
           'company.vendors.contacts.company',
           'company.vendors.documents',
           'company.webhooks',
+          'company.system_logs',
         ];
 
     private $mini_load = [
