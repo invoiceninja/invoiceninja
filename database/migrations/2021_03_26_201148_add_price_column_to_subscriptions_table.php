@@ -21,6 +21,17 @@ class AddPriceColumnToSubscriptionsTable extends Migration
         Schema::table('recurring_invoices', function (Blueprint $table) {
             $table->unsignedInteger('subscription_id')->nullable();
         });
+
+        Schema::table('subscriptions', function (Blueprint $table) {
+            $table->unsignedInteger('group_id')->nullable()->change();
+            $table->text('product_ids')->nullable()->change();
+            $table->text('recurring_product_ids')->nullable()->change();
+            $table->text('auto_bill')->nullable()->change();
+            $table->text('promo_code')->nullable()->change();
+            $table->unsignedInteger('frequency_id')->nullable()->change();
+            $table->text('plan_map')->nullable()->change();
+        });
+
     }
 
     /**
@@ -30,8 +41,5 @@ class AddPriceColumnToSubscriptionsTable extends Migration
      */
     public function down()
     {
-        Schema::table('subscriptions', function (Blueprint $table) {
-            //
-        });
     }
 }
