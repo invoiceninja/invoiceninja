@@ -367,7 +367,7 @@ trait MakesInvoiceValues
 
         $replacements = [
             'literal' => [
-                ':MONTH' => now()->localeMonth,
+                ':MONTH' => Carbon::createFromDate(now()->year, now()->month)->translatedFormat('F'),
                 ':YEAR' => now()->year,
                 ':QUARTER' => 'Q' . now()->quarter,
             ],
