@@ -11,7 +11,6 @@
     "related_applications": [
         {
             "platform": "play",
-            "url": "https://play.google.com/store/apps/details?id=com.invoiceninja.app",
             "id": "com.invoiceninja.app"
         }, {
             "platform": "itunes",
