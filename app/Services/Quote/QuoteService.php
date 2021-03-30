@@ -110,7 +110,7 @@ class QuoteService
 
             $this->invoice
                  ->service()
-                 // ->markSent()
+                 ->markSent()
                  ->createInvitations()
                  ->deletePdf()
                  ->save();
