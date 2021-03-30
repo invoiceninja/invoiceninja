@@ -175,7 +175,11 @@ class StepsController extends BaseController
             ->endpoint(session('MIGRATION_ENDPOINT'))
             ->start();
 
-        return view('migration.completed');
+        if ($completeService->isSuccessful()) {
+            return view('migration.completed');
+        }
+
+        return view('migration.completed', ['customMessage' => $completeService->getErrors()[0]]);
     }
 
     public function completed()
@@ -250,7 +254,7 @@ class StepsController extends BaseController
                 'documents' => $this->getDocuments(),
             ];
 
-            $localMigrationData['force'] = array_key_exists('force', $company) ? true : false;
+            $localMigrationData['force'] = array_key_exists('force', $company);
 
             $file = storage_path("migrations/{$fileName}.zip");
 
