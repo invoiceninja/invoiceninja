@@ -2,18 +2,19 @@
 
 namespace App\Http\Controllers\Migration;
 
+use App\Http\Controllers\BaseController;
+use App\Http\Requests\MigrationAuthRequest;
+use App\Http\Requests\MigrationCompaniesRequest;
+use App\Http\Requests\MigrationEndpointRequest;
+use App\Http\Requests\MigrationTypeRequest;
 use App\Libraries\Utils;
+use App\Models\Account;
+use App\Services\Migration\AuthService;
+use App\Services\Migration\CompanyService;
+use App\Services\Migration\CompleteService;
 use App\Traits\GenerateMigrationResources;
 use Illuminate\Support\Facades\Auth;
-use App\Services\Migration\AuthService;
-use App\Http\Controllers\BaseController;
-use App\Services\Migration\CompanyService;
-use App\Http\Requests\MigrationAuthRequest;
-use App\Http\Requests\MigrationTypeRequest;
-use App\Services\Migration\CompleteService;
-use App\Http\Requests\MigrationEndpointRequest;
-use App\Http\Requests\MigrationCompaniesRequest;
-use App\Models\Account;
+use Illuminate\Support\Facades\Storage;
 
 class StepsController extends BaseController
 {
@@ -256,7 +257,10 @@ class StepsController extends BaseController
 
             $localMigrationData['force'] = array_key_exists('force', $company);
 
-            $file = storage_path("migrations/{$fileName}.zip");
+            Storage::makeDirectory('migrations');
+            $file = Storage::path("migrations/{$fileName}.zip");
+
+            //$file = storage_path("migrations/{$fileName}.zip");
 
             ksort($localMigrationData);
 
