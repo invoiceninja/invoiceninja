@@ -100,22 +100,19 @@ class StripePaymentDriver extends BaseDriver
 //            GatewayType::APPLE_PAY, // TODO:: Missing implementation
         ];
 
-        if ($this->company_gateway->getSofortEnabled()
-            && $this->client
+        if ($this->client
             && isset($this->client->country)
             && in_array($this->client->country->iso_3166_3, ['AUT', 'BEL', 'DEU', 'ITA', 'NLD', 'ESP'])) {
             $types[] = GatewayType::SOFORT;
         }
 
-        if ($this->company_gateway->getAchEnabled()
-            && $this->client
+        if ($this->client
             && isset($this->client->country)
             && in_array($this->client->country->iso_3166_3, ['USA'])) {
             $types[] = GatewayType::BANK_TRANSFER;
         }
 
-        if ($this->company_gateway->getAlipayEnabled()
-            && $this->client
+        if ($this->client
             && isset($this->client->country)
             && in_array($this->client->country->iso_3166_3, ['AUS', 'DNK', 'DEU', 'ITA', 'LUX', 'NOR', 'SVN', 'GBR', 'AUT', 'EST', 'GRC', 'JPN', 'MYS', 'PRT', 'ESP', 'USA', 'BEL', 'FIN', 'HKG', 'LVA', 'NLD', 'SGP', 'SWE', 'CAN', 'FRA', 'IRL', 'LTU', 'NZL', 'SVK', 'CHE'])) {
             $types[] = GatewayType::ALIPAY;
@@ -178,7 +175,6 @@ class StripePaymentDriver extends BaseDriver
             $fields[] = ['name' => 'client_address_line_2', 'label' => ctrans('texts.address2'), 'type' => 'text', 'validation' => 'required'];
             $fields[] = ['name' => 'client_city', 'label' => ctrans('texts.city'), 'type' => 'text', 'validation' => 'required'];
             $fields[] = ['name' => 'client_state', 'label' => ctrans('texts.state'), 'type' => 'text', 'validation' => 'required'];
-            $fields[] = ['name' => 'client_postal_code', 'label' => ctrans('texts.postal_code'), 'type' => 'text', 'validation' => 'required'];
             $fields[] = ['name' => 'client_country_id', 'label' => ctrans('texts.country'), 'type' => 'text', 'validation' => 'required'];
         }
 

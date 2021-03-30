@@ -13,7 +13,7 @@ namespace App\Transformers;
 
 use App\Models\Account;
 use App\Models\Activity;
-use App\Models\BillingSubscription;
+use App\Models\Subscription;
 use App\Models\Client;
 use App\Models\ClientSubscription;
 use App\Models\Company;
@@ -92,7 +92,7 @@ class CompanyTransformer extends EntityTransformer
         'system_logs',
         'expense_categories',
         'task_statuses',
-        'client_subscriptions',
+        'subscriptions',
     ];
 
     /**
@@ -362,17 +362,10 @@ class CompanyTransformer extends EntityTransformer
         return $this->includeCollection($company->system_logs, $transformer, SystemLog::class);
     }
 
-    public function includeClientSubscriptions(Company $company)
+    public function includeSubscriptions(Company $company)
     {
-        $transformer = new ClientSubscriptionTransformer($this->serializer);
+        $transformer = new SubscriptionTransformer($this->serializer);
 
-        return $this->includeCollection($company->client_subscriptions, $transformer, ClientSubscription::class);
-    }
-
-    public function includeBillingSubscriptions(Company $company)
-    {
-        $transformer = new BillingSubscriptionTransformer($this->serializer);
-
-        return $this->includeCollection($company->billing_subscriptions, $transformer, BillingSubscription::class);
+        return $this->includeCollection($company->subscriptions, $transformer, Subscription::class);
     }
 }

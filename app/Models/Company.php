@@ -159,15 +159,10 @@ class Company extends BaseModel
     {
         return $this->hasMany(ExpenseCategory::class)->withTrashed();
     }
-
-    public function client_subscriptions()
+    
+    public function subscriptions()
     {
-        return $this->hasMany(ClientSubscription::class)->withTrashed();
-    }
-
-    public function billing_subscriptions()
-    {
-        return $this->hasMany(BillingSubscription::class)->withTrashed();
+        return $this->hasMany(Subscription::class)->withTrashed();
     }
 
     public function task_statuses()
@@ -396,7 +391,7 @@ class Company extends BaseModel
 
     public function system_logs()
     {
-        return $this->hasMany(SystemLog::class)->orderBy('id', 'DESC')->take(50);
+        return $this->hasMany(SystemLog::class)->orderBy('id', 'DESC')->take(100);
     }
 
     public function system_log_relation()

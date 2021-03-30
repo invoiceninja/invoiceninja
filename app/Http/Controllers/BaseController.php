@@ -92,11 +92,13 @@ class BaseController extends Controller
           'company.quotes.invitations.company',
           'company.quotes.documents',
           'company.tasks.documents',
+          'company.subscriptions',
           'company.tax_rates',
           'company.tokens_hashed',
           'company.vendors.contacts.company',
           'company.vendors.documents',
           'company.webhooks',
+          'company.system_logs',
         ];
 
     private $mini_load = [
@@ -214,7 +216,7 @@ class BaseController extends Controller
 
                 if(!$user->hasPermission('view_client'))
                   $query->where('clients.user_id', $user->id)->orWhere('clients.assigned_user_id', $user->id);
-                
+
             },
             'company.company_gateways' => function ($query) use ($user) {
                 $query->whereNotNull('updated_at');
@@ -339,7 +341,14 @@ class BaseController extends Controller
 
               if(!$user->isAdmin())
                   $query->where('activities.user_id', $user->id);
-            
+
+            },
+            'company.subscriptions'=> function ($query) use($updated_at, $user) {
+              $query->where('updated_at', '>=', $updated_at);
+
+              if(!$user->isAdmin())
+                  $query->where('subscriptions.user_id', $user->id);
+
             }
           ]
         );
@@ -435,7 +444,7 @@ class BaseController extends Controller
         if ($this->serializer && $this->serializer != EntityTransformer::API_SERIALIZER_JSON) {
             $this->entity_type = null;
         }
-        
+
         $resource = new Item($item, $transformer, $this->entity_type);
 
         if (auth()->user() && request()->include_static) {

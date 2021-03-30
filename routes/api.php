@@ -24,6 +24,7 @@ Route::group(['middleware' => ['api_secret_check', 'email_db']], function () {
 });
 
 Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'api/v1', 'as' => 'api.'], function () {
+    Route::post('check_subdomain', 'SubdomainController@index')->name('check_subdomain');
     Route::get('ping', 'PingController@index')->name('ping');
     Route::get('health_check', 'PingController@health')->name('health_check');
 
@@ -37,6 +38,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::post('clients/bulk', 'ClientController@bulk')->name('clients.bulk');
 
     Route::post('connected_account', 'ConnectedAccountController@index');
+    Route::post('connected_account/gmail', 'ConnectedAccountController@handleGmailOauth');
 
     Route::resource('client_statement', 'ClientStatementController@statement'); // name = (client_statement. index / create / show / update / destroy / edit
 
@@ -174,7 +176,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     // Route::post('hooks', 'SubscriptionController@subscribe')->name('hooks.subscribe');
     // Route::delete('hooks/{subscription_id}', 'SubscriptionController@unsubscribe')->name('hooks.unsubscribe');
 
-    Route::resource('billing_subscriptions', 'BillingSubscriptionController');
+    Route::resource('subscriptions', 'SubscriptionController');
     Route::resource('cliente_subscriptions', 'ClientSubscriptionController');
 });
 

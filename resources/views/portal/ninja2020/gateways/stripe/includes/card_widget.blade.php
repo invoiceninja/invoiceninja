@@ -7,7 +7,7 @@
 
     @unless(isset($show_card_element) && $show_card_element == false)
         @component('portal.ninja2020.components.general.card-element-single')
-            <div id="card-element"></div>
+            <div id="card-element" class="border p-4 rounded"></div>
         @endcomponent
     @endunless
 </div>

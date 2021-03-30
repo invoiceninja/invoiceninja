@@ -392,7 +392,7 @@ class InvoiceController extends BaseController
         }
 
         if ($invoice->isLocked()) {
-            return response()->json(['message' => ctrans('texts.locked_invoice')]);
+            return response()->json(['message' => ctrans('texts.locked_invoice')], 403);
         }
 
         $invoice = $this->invoice_repo->save($request->all(), $invoice);
@@ -794,6 +794,8 @@ class InvoiceController extends BaseController
         $invoice = $invitation->invoice;
 
         $file_path = $invoice->service()->getInvoicePdf($contact);
+
+nlog($file_path);
 
         return response()->download($file_path, basename($file_path));
     }

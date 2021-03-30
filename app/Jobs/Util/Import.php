@@ -424,7 +424,10 @@ class Import implements ShouldQueue
             unset($modified['password']); //cant import passwords.
 
             $user = $user_repository->save($modified, $this->fetchUser($resource['email']), true, true);
-
+            $user->email_verified_at = now();
+            $user->confirmation_code = '';
+            $user->save();
+            
             $user_agent = array_key_exists('token_name', $resource) ?: request()->server('HTTP_USER_AGENT');
 
             CreateCompanyToken::dispatchNow($this->company, $user, $user_agent);

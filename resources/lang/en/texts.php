@@ -3968,7 +3968,7 @@ $LANG = array(
      'list_of_recurring_invoices' => 'List of recurring invoices',
      'details_of_recurring_invoice' => 'Here are some details about recurring invoice',
      'cancellation' => 'Cancellation',
-     'about_cancellation' => 'In case you want to stop the recurring invoice,\n please click the request the cancellation.',
+     'about_cancellation' => 'In case you want to stop the recurring invoice, please click the request the cancellation.',
      'cancellation_warning' => 'Warning! You are requesting a cancellation of this service.\n Your service may be cancelled with no further notification to you.',
      'cancellation_pending' => 'Cancellation pending, we\'ll be in touch!',
      'list_of_payments' => 'List of payments',
@@ -4177,6 +4177,7 @@ $LANG = array(
      'migration_auth_label' => 'Let\'s continue by authenticating.',
      'api_secret' => 'API secret',
      'migration_api_secret_notice' => 'You can find API_SECRET in the .env file or Invoice Ninja v5. If property is missing, leave field blank.',
+     'billing_coupon_notice' => 'Your discount will be applied on the checkout.',
      'use_last_email' => 'Use last email',
      'activate_company' => 'Activate Company',
      'activate_company_help' => 'Enable emails, recurring invoices and notifications',
@@ -4200,6 +4201,7 @@ $LANG = array(
      'invoice_task_datelog' => 'Invoice Task Datelog',
      'invoice_task_datelog_help' => 'Add date details to the invoice line items',
      'promo_code' => 'Promo code',
+     'recurring_invoice_issued_to' => 'Recurring invoice issued to',
 );
 
 return $LANG;

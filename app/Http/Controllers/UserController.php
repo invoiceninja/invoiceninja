@@ -608,11 +608,18 @@ class UserController extends BaseController
      */
     public function detach(DetachCompanyUserRequest $request, User $user)
     {
-        if($user->isOwner())
-            return response()->json(['message', 'Cannot detach owner.'],400);
+        
+        if ($request->entityIsDeleted($user)) {
+            return $request->disallowUpdate();
+        }
 
         $company_user = CompanyUser::whereUserId($user->id)
-                                    ->whereCompanyId(auth()->user()->companyId())->first();
+                                    ->whereCompanyId(auth()->user()->companyId())
+                                    ->withTrashed()
+                                    ->first();
+
+        if($company_user->is_owner)
+            return response()->json(['message', 'Cannot detach owner.'], 401);
 
         $token = $company_user->token->where('company_id', $company_user->company_id)->where('user_id', $company_user->user_id)->first();
 

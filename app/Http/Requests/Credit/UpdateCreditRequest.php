@@ -67,8 +67,10 @@ class UpdateCreditRequest extends Request
 
         $input = $this->decodePrimaryKeys($input);
 
-        $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
-
+        if (isset($input['line_items'])) {
+            $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
+        }
+        
         $input['id'] = $this->credit->id;
 
         $this->replace($input);

@@ -12,7 +12,7 @@
 namespace App\Providers;
 
 use App\Models\Account;
-use App\Models\BillingSubscription;
+use App\Models\Subscription;
 use App\Models\Client;
 use App\Models\ClientSubscription;
 use App\Models\Company;
@@ -28,7 +28,7 @@ use App\Models\Quote;
 use App\Models\Task;
 use App\Models\User;
 use App\Observers\AccountObserver;
-use App\Observers\BillingSubscriptionObserver;
+use App\Observers\SubscriptionObserver;
 use App\Observers\ClientObserver;
 use App\Observers\ClientSubscriptionObserver;
 use App\Observers\CompanyGatewayObserver;
@@ -80,7 +80,7 @@ class AppServiceProvider extends ServiceProvider
         Schema::defaultStringLength(191);
 
         Account::observe(AccountObserver::class);
-        BillingSubscription::observe(BillingSubscriptionObserver::class);
+        Subscription::observe(SubscriptionObserver::class);
         Client::observe(ClientObserver::class);
         ClientSubscription::observe(ClientSubscriptionObserver::class);
         Company::observe(CompanyObserver::class);

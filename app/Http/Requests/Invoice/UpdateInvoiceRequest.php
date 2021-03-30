@@ -66,8 +66,10 @@ class UpdateInvoiceRequest extends Request
 
         $input['id'] = $this->invoice->id;
         
-        $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
-
+        if (isset($input['line_items'])) {
+            $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
+        }
+        
         if (array_key_exists('documents', $input)) {
             unset($input['documents']);
         }

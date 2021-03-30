@@ -35,6 +35,8 @@ class SendRecurring implements ShouldQueue
 
     protected $db;
 
+    public $tries = 1;
+    
     /**
      * Create a new job instance.
      *
@@ -63,6 +65,7 @@ class SendRecurring implements ShouldQueue
                            ->markSent()
                            ->applyNumber()
                            ->createInvitations()
+                           ->fillDefaults()
                            ->save();
 
         nlog("Invoice {$invoice->number} created");
@@ -73,16 +76,6 @@ class SendRecurring implements ShouldQueue
                 nlog("Firing email for invoice {$invoice->number}");
             }
         });
-
-        //Admin notification for recurring invoice sent. 
-        if ($invoice->invitations->count() >= 1) {
-            $invoice->entityEmailEvent($invoice->invitations->first(), 'invoice', 'email_template_invoice');
-        }
-    
-        if ($invoice->client->getSetting('auto_bill_date') == 'on_send_date' && $this->recurring_invoice->auto_bill_enabled) {
-            nlog("attempting to autobill {$invoice->number}");
-            $invoice->service()->autoBill()->save();
-        }
 
         nlog("updating recurring invoice dates");
         /* Set next date here to prevent a recurring loop forming */
@@ -101,6 +94,17 @@ class SendRecurring implements ShouldQueue
 
         $this->recurring_invoice->save();
         
+        //Admin notification for recurring invoice sent. 
+        if ($invoice->invitations->count() >= 1) {
+            $invoice->entityEmailEvent($invoice->invitations->first(), 'invoice', 'email_template_invoice');
+        }
+    
+        if ($invoice->client->getSetting('auto_bill_date') == 'on_send_date' && $this->recurring_invoice->auto_bill_enabled) {
+            nlog("attempting to autobill {$invoice->number}");
+            $invoice->service()->autoBill()->save();
+        }
+
+
     }
 
     public function failed($exception = null)

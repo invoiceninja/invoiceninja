@@ -11,6 +11,7 @@
 
 namespace App\Mail\Engine;
 
+use App\Models\Account;
 use App\Utils\HtmlEngine;
 use App\Utils\Number;
 

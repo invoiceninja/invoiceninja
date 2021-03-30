@@ -59,6 +59,7 @@ class CreateCompany
         $company->enabled_modules = config('ninja.enabled_modules');
         $company->subdomain = isset($this->request['subdomain']) ? $this->request['subdomain'] : '';
         $company->custom_fields = new \stdClass;
+        $company->default_password_timeout = 1800000;
         $company->save();
 
         return $company;

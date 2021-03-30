@@ -148,9 +148,9 @@ class UserRepository extends BaseRepository
 
         event(new UserWasDeleted($user, auth()->user(), $company, Ninja::eventVars()));
 
-        // $user->is_deleted = true;
-        // $user->save();
-        // $user->delete();
+         $user->is_deleted = true;
+         $user->save();
+         $user->delete();
 
 
         return $user->fresh();
@@ -177,7 +177,17 @@ class UserRepository extends BaseRepository
             return;
         }
 
+        $user->is_deleted = false;
+        $user->save();
         $user->restore();
+        // $user->company_user->restore();
+
+        $cu = CompanyUser::withTrashed()
+                         ->where('user_id', $user->id)
+                         ->where('company_id', auth()->user()->company()->id)
+                         ->first();
+
+        $cu->restore();
 
         event(new UserWasRestored($user, auth()->user(), auth()->user()->company, Ninja::eventVars()));
 

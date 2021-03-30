@@ -186,7 +186,7 @@ class PaymentMethod
             foreach ($child_array as $gateway_id => $gateway_type_id) {
                 $gateway = CompanyGateway::find($gateway_id);
 
-                $fee_label = $gateway->calcGatewayFeeLabel($this->amount, $this->client);
+                $fee_label = $gateway->calcGatewayFeeLabel($this->amount, $this->client, $gateway_type_id);
 
                 if(!$gateway_type_id){
 

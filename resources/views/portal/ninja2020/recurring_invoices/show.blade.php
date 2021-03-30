@@ -57,7 +57,8 @@
                     </div>
             </div>
         </div>
-        <div class="bg-white shadow sm:rounded-lg mb-4 mt-4" translate>
+
+        <div class="bg-white shadow sm:rounded-lg mb-4 mt-4">
             <div class="px-4 py-5 sm:p-6">
                 <div class="sm:flex sm:items-start sm:justify-between">
                     <div>
@@ -72,7 +73,8 @@
                     </div>
                     <div class="mt-5 sm:mt-0 sm:ml-6 sm:flex-shrink-0 sm:flex sm:items-center">
                         <div class="inline-flex rounded-md shadow-sm" x-data="{ open: false }">
-                            <button class="button button-danger" translate @click="open = true">Request Cancellation</button>
+                            <button class="button button-danger" translate @click="open = true">Request Cancellation
+                            </button>
                             @include('portal.ninja2020.recurring_invoices.includes.modals.cancellation')
                         </div>
                     </div>

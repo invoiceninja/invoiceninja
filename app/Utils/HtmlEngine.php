@@ -160,8 +160,8 @@ class HtmlEngine
         $data['$invoice.subtotal'] = &$data['$subtotal'];
 
         if ($this->entity->partial > 0) {
-            $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->partial, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.partial_due')];
-            $data['$balance_due_raw'] = ['value' => $this->entity->partial, 'label' => ctrans('texts.partial_due')];
+            $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->partial, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.balance_due')];
+            $data['$balance_due_raw'] = ['value' => $this->entity->partial, 'label' => ctrans('texts.balance_due')];
         } else {
             $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->balance, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.balance_due')];
             $data['$balance_due_raw'] = ['value' => $this->entity->balance, 'label' => ctrans('texts.balance_due')];
@@ -192,11 +192,12 @@ class HtmlEngine
         $data['$taxes'] = ['value' => Number::formatMoney($this->entity_calc->getItemTotalTaxes(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.taxes')];
         $data['$invoice.taxes'] = &$data['$taxes'];
 
+        $data['$user_iban'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company1', $this->settings->custom_value1, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'company1')];
         $data['$invoice.custom1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice1', $this->entity->custom_value1, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice1')];
         $data['$invoice.custom2'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice2', $this->entity->custom_value2, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice2')];
         $data['$invoice.custom3'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice3', $this->entity->custom_value3, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice3')];
         $data['$invoice.custom4'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice4', $this->entity->custom_value4, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice4')];
-        $data['$invoice.public_notes'] = ['value' => nl2br($this->entity->public_notes) ?: '', 'label' => ctrans('texts.public_notes')];
+        $data['$invoice.public_notes'] = ['value' => $this->entity->public_notes ?: '', 'label' => ctrans('texts.public_notes')];
         $data['$entity.public_notes'] = &$data['$invoice.public_notes'];
         $data['$public_notes'] = &$data['$invoice.public_notes'];
 
@@ -259,7 +260,7 @@ class HtmlEngine
         $data['$contact.email'] = ['value' => $this->contact->email, 'label' => ctrans('texts.email')];
         $data['$contact.phone'] = ['value' => $this->contact->phone, 'label' => ctrans('texts.phone')];
 
-        $data['$contact.name'] = ['value' => isset($this->contact) ? $this->contact->present()->name() : 'no contact name on record', 'label' => ctrans('texts.contact_name')];
+        $data['$contact.name'] = ['value' => isset($this->contact) ? $this->contact->present()->name() : $this->client->present()->name(), 'label' => ctrans('texts.contact_name')];
         $data['$contact.first_name'] = ['value' => isset($this->contact) ? $this->contact->first_name : '', 'label' => ctrans('texts.first_name')];
         $data['$contact.last_name'] = ['value' => isset($this->contact) ? $this->contact->last_name : '', 'label' => ctrans('texts.last_name')];
 
@@ -287,7 +288,7 @@ class HtmlEngine
 
         $data['$signature'] = ['value' => $this->settings->email_signature ?: '&nbsp;', 'label' => ''];
 
-        $data['$spc_qr_code'] = ['value' => $this->company->present()->getSpcQrCode($this->client->currency()->code, $this->entity->number, $this->entity->balance), 'label' => ''];
+        $data['$spc_qr_code'] = ['value' => $this->company->present()->getSpcQrCode($this->client->currency()->code, $this->entity->number, $this->entity->balance, $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company1', $this->settings->custom_value1, $this->client)), 'label' => ''];
 
         $logo = $this->company->present()->logo($this->settings);
 
