@@ -48,7 +48,7 @@ class Subscription extends BaseModel
     protected $casts = [
         'is_deleted' => 'boolean',
         'plan_map' => 'object',
-        'webhook_configuration' => 'object',
+        'webhook_configuration' => 'array',
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',

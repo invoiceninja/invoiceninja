@@ -103,8 +103,8 @@ class SubscriptionService
         //execute any webhooks
         $this->triggerWebhook();
 
-        if(property_exists($this->subscription->webhook_configuration, 'post_purchase_url') && strlen($this->subscription->webhook_configuration->post_purchase_url) >=1)
-            return redirect($this->subscription->webhook_configuration->post_purchase_url);
+        if(array_key_exists('post_purchase_url', $this->subscription->webhook_configuration) && strlen($this->subscription->webhook_configuration['post_purchase_url']) >=1)
+            return redirect($this->subscription->webhook_configuration['post_purchase_url']);
 
         return redirect('/client/recurring_invoices/'.$recurring_invoice->hashed_id);
     }
