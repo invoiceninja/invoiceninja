@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\ClientPortal;
 
+use App\Models\Account;
 use App\Models\Company;
+use App\Utils\Ninja;
 use Illuminate\Foundation\Http\FormRequest;
 
 class RegisterRequest extends FormRequest
@@ -41,6 +43,14 @@ class RegisterRequest extends FormRequest
 
         if ($this->company_key) {
             return Company::where('company_key', $this->company_key)->firstOrFail();
+        }
+
+        if (!$this->route()->parameter('company_key') && Ninja::isSelfHost()) {
+            $company = Account::first()->default_company;
+
+            abort_unless($company->client_can_register, 404);
+
+            return $company;
         }
 
         abort(404);
