@@ -53,7 +53,7 @@ class StoreSubscriptionRequest extends Request
             'allow_plan_changes' => ['sometimes'],
             'plan_map' => ['sometimes'],
             'refund_period' => ['sometimes'],
-            'webhook_configuration' => ['sometimes'],
+            'webhook_configuration' => ['array'],
             'name' => Rule::unique('subscriptions')->where('company_id', auth()->user()->company()->id)
         ];
     }
@@ -62,11 +62,11 @@ class StoreSubscriptionRequest extends Request
     {
         $input = $this->all();
 
-        if(array_key_exists('webhook_configuration', $input) && (!is_object(json_decode($input['webhook_configuration']))))
-            $input['webhook_configuration'] = new \stdClass;
+        // if(array_key_exists('webhook_configuration', $input) && (!is_object(json_decode($input['webhook_configuration']))))
+        //     $input['webhook_configuration'] = new \stdClass;
         
-        if(!array_key_exists('webhook_configuration', $input))
-            $input['webhook_configuration'] = new \stdClass;
+        // if(!array_key_exists('webhook_configuration', $input))
+        //     $input['webhook_configuration'] = new \stdClass;
 
         $this->replace($input);
     }
