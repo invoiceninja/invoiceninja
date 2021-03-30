@@ -211,12 +211,20 @@ class AuthorizeCreditCard
     {
         $response = $data['response'];
 
+        $code = '';
+        $description = '';
+
+        if($response->getTransactionResponse()->getMessages() !== null){
+            $code = $response->getTransactionResponse()->getMessages()[0]->getCode();
+            $description = $response->getTransactionResponse()->getMessages()[0]->getDescription();
+        }
+
         return [
             'transaction_reference' => $response->getTransactionResponse()->getTransId(),
             'amount' => $vars['amount'],
             'auth_code' => $response->getTransactionResponse()->getAuthCode(),
-            'code' => $response->getTransactionResponse()->getMessages()[0]->getCode(),
-            'description' => $response->getTransactionResponse()->getMessages()[0]->getDescription(),
+            'code' => $code,
+            'description' => $description,
             'invoices' => $vars['invoices'],
         ];
     }
