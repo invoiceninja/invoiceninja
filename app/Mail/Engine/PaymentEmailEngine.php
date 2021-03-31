@@ -76,7 +76,7 @@ class PaymentEmailEngine extends BaseEmailEngine
     }
 
 
-    private function makePaymentVariables()
+    public function makePaymentVariables()
     {
         $data = [];
 
