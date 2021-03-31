@@ -12,6 +12,9 @@
 namespace App\Http\Livewire;
 
 use App\Factory\ClientFactory;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
+use App\Mail\ContactPasswordlessLogin;
 use App\Models\Subscription;
 use App\Models\ClientContact;
 use App\Models\Invoice;
@@ -102,6 +105,7 @@ class BillingPortalPurchase extends Component
         'fetched_payment_methods' => false,
         'fetched_client' => false,
         'show_start_trial' => false,
+        'passwordless_login_sent' => false,
     ];
 
     /**
@@ -143,6 +147,13 @@ class BillingPortalPurchase extends Component
      * @var string
      */
     public $price;
+
+    /**
+     * Disabled state of passwordless login button.
+     *
+     * @var bool
+     */
+    public $passwordless_login_btn = false;
 
     public function mount()
     {
@@ -290,11 +301,11 @@ class BillingPortalPurchase extends Component
             ->save();
 
         Cache::put($this->hash, [
-            'subscription_id' => $this->subscription->id,
-            'email' => $this->email ?? $this->contact->email,
-            'client_id' => $this->contact->client->id,
-            'invoice_id' => $this->invoice->id,
-            now()->addMinutes(60)]
+                'subscription_id' => $this->subscription->id,
+                'email' => $this->email ?? $this->contact->email,
+                'client_id' => $this->contact->client->id,
+                'invoice_id' => $this->invoice->id,
+                now()->addMinutes(60)]
         );
 
         $this->emit('beforePaymentEventsCompleted');
@@ -346,6 +357,26 @@ class BillingPortalPurchase extends Component
         if ($this->coupon == $this->subscription->promo_code) {
             $this->price = $this->subscription->promo_price;
         }
+    }
+
+    public function passwordlessLogin()
+    {
+        $this->passwordless_login_btn = true;
+
+        $contact = ClientContact::query()
+            ->where('email', $this->email)
+            ->first();
+
+        $mailer = new NinjaMailerObject();
+        $mailer->mailable = new ContactPasswordlessLogin($this->email, (string)route('client.subscription.purchase', $this->subscription->hashed_id));
+        $mailer->company = $this->subscription->company;
+        $mailer->settings = $this->subscription->company->settings;
+        $mailer->to_user = $contact;
+
+        NinjaMailerJob::dispatchNow($mailer);
+
+        $this->steps['passwordless_login_sent'] = true;
+        $this->passwordless_login_btn = false;
     }
 
     public function render()

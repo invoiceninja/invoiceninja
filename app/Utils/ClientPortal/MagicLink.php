@@ -16,15 +16,15 @@ use Illuminate\Support\Str;
 
 class MagicLink
 {
-    
+
     //return a magic login link URL
-    public static function create($email) :string
+    public static function create($email, $url = null) :string
     {
         $magic_key = Str::random(64);
         $timeout = 600; //seconds
 
         Cache::add($magic_key, $email, $timeout);
 
-        return route('client.contact_magic_link', ['magic_link' => $magic_key]);
+        return route('client.contact_magic_link', ['magic_link' => $magic_key, 'redirect' => $url]);
     }
 }
