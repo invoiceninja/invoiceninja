@@ -216,7 +216,7 @@ class SubscriptionService
         return Product::whereIn('id', $this->transformKeys(explode(",", $this->subscription->product_ids)))->get();
     }
 
-    public function recurringProducts()
+    public function recurring_products()
     {
         return Product::whereIn('id', $this->transformKeys(explode(",", $this->subscription->recurring_product_ids)))->get();
     }
