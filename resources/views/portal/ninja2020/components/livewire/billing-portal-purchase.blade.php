@@ -166,6 +166,14 @@
                                 </p>
                                 @enderror
                             </label>
+
+                            <button wire:loading.attr="disabled" type="button" wire:click="passwordlessLogin" class="mt-4 text-sm active:outline-none focus:outline-none">
+                                Log in without password
+                            </button>
+
+                            @if($steps['passwordless_login_sent'])
+                                <span class="block mt-2 text-sm text-green-600">E-mail sent. Please check your inbox!</span>
+                            @endif
                         @endif
 
                         <button type="submit"
@@ -184,7 +192,7 @@
                         </div>
                     </div>
 
-                    <form  wire:submit.prevent="handleCoupon" class="flex items-center mt-4">
+                    <form wire:submit.prevent="handleCoupon" class="flex items-center mt-4">
                         @csrf
 
                         <label class="w-full mr-2">

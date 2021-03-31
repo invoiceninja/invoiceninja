@@ -74,6 +74,11 @@ nlog($request->all());
 nlog("double merp");
             if($client_contact = ClientContact::where('email', $contact_email)->first()){
                 Auth::guard('contact')->login($client_contact, true);
+
+                if ($request->query('redirect') && !empty($request->query('redirect'))) {
+                    return redirect()->to($request->query('redirect'));
+                }
+
                 return redirect()->to('client/dashboard');
             }
         }
