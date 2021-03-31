@@ -106,7 +106,7 @@ class SubscriptionRepository extends BaseRepository
             }
         }
         
-        foreach($subscription->service()->recurringProducts() as $product)
+        foreach($subscription->service()->recurring_products() as $product)
         {
             $line_items[] = (array)$this->makeLineItem($product);
         }
