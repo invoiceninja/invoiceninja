@@ -141,7 +141,7 @@ return [
     'expanded_logging' => env('EXPANDED_LOGGING', false),
     'snappdf_chromium_path' => env('SNAPPDF_CHROMIUM_PATH', false),
     'v4_migration_version' => '4.5.31',
-    'flutter_canvas_kit' => env('FLUTTER_CANVAS_KIT', false),
+    'flutter_canvas_kit' => env('FLUTTER_CANVAS_KIT', 'selfhosted-html'),
     'webcron_secret' => env('WEBCRON_SECRET', false),
     'disable_auto_update' => env('DISABLE_AUTO_UPDATE', false),
     'invoiceninja_hosted_pdf_generation' => env('NINJA_HOSTED_PDF', false),

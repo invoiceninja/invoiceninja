@@ -146,7 +146,13 @@
   
   </script>
 
-  <script defer src="main.dart.js?v={{ config('ninja.app_version') }}" type="application/javascript"></script>
+  @if(config('ninja.flutter_canvas_kit') == 'hosted')
+    <script defer src="main.dart.js?v={{ config('ninja.app_version') }}" type="application/javascript"></script>
+  @elseif(config('ninja.flutter_canvas_kit') == 'selfhosted-canvaskit')
+    <script defer src="main.wasm.dart.js?v={{ config('ninja.app_version') }}" type="application/javascript"></script>
+  @else
+    <script defer src="main.foss.dart.js?v={{ config('ninja.app_version') }}" type="application/javascript"></script>
+  @endif
 
   <center style="padding-top: 150px" id="loader">
     <div class="loader"></div>
