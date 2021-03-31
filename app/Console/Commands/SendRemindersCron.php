@@ -75,6 +75,10 @@ class SendRemindersCron extends Command
 
     }
 
+    private function webHookExpiredQuotes()
+    {
+        
+    }
 
     private function executeWebhooks()
     {

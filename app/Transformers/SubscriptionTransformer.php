@@ -44,6 +44,7 @@ class SubscriptionTransformer extends EntityTransformer
             'assigned_user_id' => $this->encodePrimaryKey($subscription->assigned_user_id),
             'company_id' => $this->encodePrimaryKey($subscription->company_id),
             'price' => (float) $subscription->price,
+            'promo_price' => (float) $subscription->promo_price,
             'frequency_id' => (string)$subscription->frequency_id,
             'auto_bill' => (string)$subscription->auto_bill,
             'promo_code' => (string)$subscription->promo_code,

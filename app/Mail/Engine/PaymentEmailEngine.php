@@ -132,9 +132,9 @@ class PaymentEmailEngine extends BaseEmailEngine
         $data['$client_balance'] = ['value' => Number::formatMoney($this->client->balance, $this->client), 'label' => ctrans('texts.account_balance')];
         $data['$paid_to_date'] = ['value' => Number::formatMoney($this->client->paid_to_date, $this->client), 'label' => ctrans('texts.paid_to_date')];
 
-        $data['$contact.full_name'] = ['value' => $this->contact->present()->name(), 'label' => ctrans('texts.name')];
-        $data['$contact.email'] = ['value' => $this->contact->email, 'label' => ctrans('texts.email')];
-        $data['$contact.phone'] = ['value' => $this->contact->phone, 'label' => ctrans('texts.phone')];
+        $data['$contact.full_name'] = ['value' => isset($this->contact) ? $this->contact->present()->name() : '', 'label' => ctrans('texts.name')];
+        $data['$contact.email'] = ['value' => isset($this->contact) ? $this->contact->email : '', 'label' => ctrans('texts.email')];
+        $data['$contact.phone'] = ['value' => isset($this->contact) ? $this->contact->phone: '', 'label' => ctrans('texts.phone')];
 
         $data['$contact.name'] = ['value' => isset($this->contact) ? $this->contact->present()->name() : 'no contact name on record', 'label' => ctrans('texts.contact_name')];
         $data['$contact.first_name'] = ['value' => isset($this->contact) ? $this->contact->first_name : '', 'label' => ctrans('texts.first_name')];
