@@ -50,7 +50,7 @@ class SubscriptionTransformer extends EntityTransformer
             'promo_discount' => (float)$subscription->promo_discount,
             'is_amount_discount' => (bool)$subscription->is_amount_discount,
             'allow_cancellation' => (bool)$subscription->allow_cancellation,
-            'per_seat_enabled' => (bool)$subscription->per_set_enabled,
+            'per_seat_enabled' => (bool)$subscription->per_seat_enabled,
             'min_seats_limit' => (int)$subscription->min_seats_limit,
             'max_seats_limit' => (int)$subscription->max_seats_limit,
             'trial_enabled' => (bool)$subscription->trial_enabled,

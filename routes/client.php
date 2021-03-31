@@ -22,6 +22,7 @@ Route::post('view/{entity_type}/{invitation_key}/password', 'ClientPortal\Entity
 Route::get('tmp_pdf/{hash}', 'ClientPortal\TempRouteController@index')->name('tmp_pdf');
 
 Route::get('client/key_login/{contact_key}', 'ClientPortal\ContactHashLoginController@login')->name('client.contact_login')->middleware(['contact_key_login']);
+Route::get('client/magic_link/{magic_link}', 'ClientPortal\ContactHashLoginController@magicLink')->name('client.contact_magic_link')->middleware(['contact_key_login']);
 Route::get('documents/{document_hash}', 'ClientPortal\DocumentController@publicDownload')->name('documents.public_download');
 
 //todo implement domain DB

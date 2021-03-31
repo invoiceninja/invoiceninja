@@ -26,4 +26,9 @@ class ContactHashLoginController extends Controller
     {
         return redirect('/client/login');
     }
+
+    public function magicLink(string $magic_link)
+    {
+        return redirect('/client/login');
+    }
 }
