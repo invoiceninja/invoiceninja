@@ -328,7 +328,7 @@ info("get company");
                 'is_primary' => (bool)$contact->is_primary,
                 'send_email' => (bool)$contact->send_invoice,
                 'confirmed' => $contact->confirmation_token ? true : false,
-                'email_verified_at' => $contact->created_at->toDateTimeString(),
+                'email_verified_at' => $contact->created_at ? Carbon::parse($contact->created_at)->toDateTimeString() : null,
                 'last_login' => $contact->last_login,
                 'password' => $contact->password,
                 'remember_token' => $contact->remember_token,
