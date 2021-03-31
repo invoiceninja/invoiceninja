@@ -29,7 +29,7 @@ class Subscription extends BaseModel
         'promo_discount',
         'is_amount_discount',
         'allow_cancellation',
-        'per_set_enabled',
+        'per_seat_enabled',
         'min_seats_limit',
         'max_seats_limit',
         'trial_enabled',

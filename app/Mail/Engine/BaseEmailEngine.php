@@ -69,6 +69,7 @@ class BaseEmailEngine implements EngineInterface
     {
         if (! empty($this->variables)) {
             $body = str_replace(array_keys($this->variables), array_values($this->variables), $body);
+            $body = str_replace(array_keys($this->variables), array_values($this->variables), $body);
         }
 
         $this->body = $body;

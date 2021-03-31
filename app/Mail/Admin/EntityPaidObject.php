@@ -11,6 +11,7 @@
 
 namespace App\Mail\Admin;
 
+use App\Mail\Engine\PaymentEmailEngine;
 use App\Utils\Number;
 use stdClass;
 
@@ -62,6 +63,8 @@ class EntityPaidObject
     {
         $settings = $this->payment->client->getMergedSettings();
 
+        $signature = $this->generateSignature($settings);
+
         $amount = Number::formatMoney($this->payment->amount, $this->payment->client);
 
         $invoice_texts = ctrans('texts.invoice_number_short');
@@ -85,7 +88,6 @@ class EntityPaidObject
             ]
             ),
             'url' => config('ninja.app_url'),
-            // 'url' => config('ninja.app_url') . '/payments/' . $this->payment->hashed_id, //because we have no deep linking we cannot use this
             'button' => ctrans('texts.view_payment'),
             'signature' => $settings->email_signature,
             'logo' => $this->company->present()->logo(),
@@ -94,5 +96,14 @@ class EntityPaidObject
         ];
 
         return $data;
+    }
+
+    private function generateSignature($settings)
+    {
+        $html_variables = (new PaymentEmailEngine($this->payment, $this->payment->client->primary_contact()->first()))->makeValues();
+
+        $signature = str_replace(array_keys($html_variables), array_values($html_variables), $settings->email_signature);
+        
+        return $signature;
     }
 }

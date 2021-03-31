@@ -53,9 +53,14 @@ class TemplateEmail extends Mailable
 
         $company = $this->client->company;
 
-        $html_variables = (new HtmlEngine($this->invitation))->makeValues();
-
-//str_replace(array_keys($html_variables), array_values($html_variables), $settings->email_signature)
+        if($this->invitation)
+        {
+            $html_variables = (new HtmlEngine($this->invitation))->makeValues();
+            $signature = str_replace(array_keys($html_variables), array_values($html_variables), $settings->email_signature);
+        }
+        else
+            $signature = $settings->email_signature;
+        
         $this->from(config('mail.from.address'), $this->company->present()->name());
         
         if (strlen($settings->bcc_email) > 1) 
@@ -75,7 +80,7 @@ class TemplateEmail extends Mailable
                 'view_link' => $this->build_email->getViewLink(),
                 'view_text' => $this->build_email->getViewText(),
                 'title' => '',
-                'signature' => str_replace(array_keys($html_variables), array_values($html_variables), $settings->email_signature),
+                'signature' => $signature,
                 'settings' => $settings,
                 'company' => $company,
                 'whitelabel' => $this->client->user->account->isPaid() ? true : false,
