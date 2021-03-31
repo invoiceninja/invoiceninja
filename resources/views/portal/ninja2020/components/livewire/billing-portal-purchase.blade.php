@@ -71,7 +71,7 @@
 
                 <div class="relative flex justify-center text-sm leading-5">
                     <h1 class="text-2xl font-bold tracking-wide bg-gray-50 px-6 py-0">
-                        {{ ctrans('texts.total') }}: {{ $price }}
+                        {{ ctrans('texts.total') }}: {{ \App\Utils\Number::formatMoney($price, $subscription->company) }}
                     </h1>
                 </div>
             </div>
