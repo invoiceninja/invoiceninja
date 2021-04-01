@@ -5,20 +5,6 @@
                  alt="{{ $subscription->company->present()->name }}">
 
             <div class="mt-6">
-                @if(!empty($subscription->product_ids))
-                    <p
-                        class="mb-4 uppercase leading-4 tracking-wide inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary text-white">
-                        One-time purchase
-                    </p>
-                @endif
-
-                @if(!empty($subscription->recurring_product_ids))
-                    <p
-                        class="mb-4 uppercase leading-4 tracking-wide inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary text-white">
-                        Subscription
-                    </p>
-                @endif
-
                 <h1 id="billing-page-company-logo" class="text-3xl font-bold tracking-wide">
                     {{ $subscription->name }}
                 </h1>
