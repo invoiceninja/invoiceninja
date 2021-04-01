@@ -157,7 +157,7 @@ class BillingPortalPurchase extends Component
 
     public function mount()
     {
-        $this->price = $this->subscription->service()->price();
+        $this->price = $this->subscription->price;
     }
 
     /**
