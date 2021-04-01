@@ -58,7 +58,8 @@ class SubscriptionService
         if(strlen($this->subscription->recurring_product_ids) >=1){
 
             $recurring_invoice = $this->convertInvoiceToRecurring($payment_hash->payment->client_id);
-        
+            $recurring_invoice_repo = new RecurringInvoiceRepository();
+
             $recurring_invoice->next_send_date = now();
             $recurring_invoice = $recurring_invoice_repo->save([], $recurring_invoice);
             $recurring_invoice->next_send_date = $recurring_invoice->nextSendDate();
