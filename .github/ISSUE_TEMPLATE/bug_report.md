@@ -37,3 +37,5 @@ If applicable, add screenshots to help explain your problem.
 Add any other context about the problem here.
 
 Note: Before posting don't forget to check our "Troubleshooting" category in the [docs](https://invoiceninja.github.io/docs/self-host-troubleshooting/) (https://invoiceninja.github.io/docs/self-host-troubleshooting/).
+
+**(v5) Can you replicate the issue on our demo site? https://demo.invoiceninja.com**
