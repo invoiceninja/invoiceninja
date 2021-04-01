@@ -51,7 +51,6 @@ class StoreSubscriptionRequest extends Request
             'trial_duration' => ['sometimes'],
             'allow_query_overrides' => ['sometimes'],
             'allow_plan_changes' => ['sometimes'],
-            'plan_map' => ['sometimes'],
             'refund_period' => ['sometimes'],
             'webhook_configuration' => ['array'],
             'name' => ['required', Rule::unique('subscriptions')->where('company_id', auth()->user()->company()->id)]
