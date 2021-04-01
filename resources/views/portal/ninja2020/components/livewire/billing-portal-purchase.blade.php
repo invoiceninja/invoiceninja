@@ -59,6 +59,10 @@
                     <h1 class="text-2xl font-bold tracking-wide bg-gray-50 px-6 py-0">
                         {{ ctrans('texts.total') }}
                         : {{ \App\Utils\Number::formatMoney($price, $subscription->company) }}
+
+                        @if($steps['discount_applied'])
+                            <small class="ml-1 line-through text-gray-500">{{ \App\Utils\Number::formatMoney($subscription->price, $subscription->company) }}</small>
+                        @endif
                     </h1>
                 </div>
             </div>
