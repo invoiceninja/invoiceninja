@@ -33,13 +33,13 @@ class SubscriptionTransformer extends EntityTransformer
 
     public function transform(Subscription $subscription): array
     {
-        $std = new \stdClass;
 
         return [
             'id' => $this->encodePrimaryKey($subscription->id),
             'user_id' => $this->encodePrimaryKey($subscription->user_id),
             'group_id' => $this->encodePrimaryKey($subscription->group_id),
             'product_ids' => (string)$subscription->product_ids,
+            'name' => (string)$subscription->name,
             'recurring_product_ids' => (string)$subscription->recurring_product_ids,
             'assigned_user_id' => $this->encodePrimaryKey($subscription->assigned_user_id),
             'company_id' => $this->encodePrimaryKey($subscription->company_id),
@@ -60,7 +60,7 @@ class SubscriptionTransformer extends EntityTransformer
             'allow_plan_changes' => (bool)$subscription->allow_plan_changes,
             'plan_map' => (string)$subscription->plan_map,
             'refund_period' => (int)$subscription->refund_period,
-            'webhook_configuration' => $subscription->webhook_configuration ?: $std,
+            'webhook_configuration' => $subscription->webhook_configuration ?: [],
             'purchase_page' => (string)route('client.subscription.purchase', $subscription->hashed_id),
             'is_deleted' => (bool)$subscription->is_deleted,
             'created_at' => (int)$subscription->created_at,

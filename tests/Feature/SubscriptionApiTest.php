@@ -11,14 +11,15 @@
 
 namespace Tests\Feature;
 
-use App\Models\Subscription;
 use App\Models\Product;
+use App\Models\Subscription;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -55,6 +56,7 @@ class SubscriptionApiTest extends TestCase
         $billing_subscription = Subscription::factory()->create([
             'product_ids' => $product->id,
             'company_id' => $this->company->id,
+            'name' => Str::random(5)
         ]);
 
 
@@ -78,7 +80,7 @@ class SubscriptionApiTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/subscriptions', ['product_ids' => $product->id, 'allow_cancellation' => true]);
+        ])->post('/api/v1/subscriptions', ['product_ids' => $product->id, 'allow_cancellation' => true, 'name' => Str::random(5)]);
 
         // nlog($response);
         $response->assertStatus(200);
@@ -93,7 +95,7 @@ class SubscriptionApiTest extends TestCase
 
         $response1 = $this
             ->withHeaders(['X-API-SECRET' => config('ninja.api_secret'),'X-API-TOKEN' => $this->token])
-            ->post('/api/v1/subscriptions', ['product_ids' => $product->id])
+            ->post('/api/v1/subscriptions', ['product_ids' => $product->id,            'name' => Str::random(5)])
             ->assertStatus(200)
             ->json();
 
@@ -126,6 +128,7 @@ class SubscriptionApiTest extends TestCase
         $billing_subscription = Subscription::factory()->create([
             'product_ids' => $product->id,
             'company_id' => $this->company->id,
+            'name' => Str::random(5)
         ]);
 
         $response = $this
