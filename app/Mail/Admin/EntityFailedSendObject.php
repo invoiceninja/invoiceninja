@@ -124,7 +124,7 @@ class EntityFailedSendObject
         $settings = $this->entity->client->getMergedSettings();
         $signature = $settings->email_signature;
 
-        $html_variables = (new HtmlEngine($this->invitation)->makeValues();
+        $html_variables = (new HtmlEngine($this->invitation))->makeValues();
         $signature = str_replace(array_keys($html_variables), array_values($html_variables), $signature);
 
         return [

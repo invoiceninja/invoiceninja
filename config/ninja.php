@@ -3,6 +3,7 @@
 return [
 
     'web_url' => 'https://www.invoiceninja.com',
+    'admin_token' => env('NINJA_ADMIN_TOKEN', ''),
     'license_url' => 'https://app.invoiceninja.com',
     'production' => env('NINJA_PROD', false),
     'license'   => env('NINJA_LICENSE', ''),
@@ -140,8 +141,8 @@ return [
     'log_pdf_html' => env('LOG_PDF_HTML', false),
     'expanded_logging' => env('EXPANDED_LOGGING', false),
     'snappdf_chromium_path' => env('SNAPPDF_CHROMIUM_PATH', false),
-    'v4_migration_version' => '4.5.31',
-    'flutter_canvas_kit' => env('FLUTTER_CANVAS_KIT', false),
+    'v4_migration_version' => '4.5.35',
+    'flutter_canvas_kit' => env('FLUTTER_CANVAS_KIT', 'selfhosted-html'),
     'webcron_secret' => env('WEBCRON_SECRET', false),
     'disable_auto_update' => env('DISABLE_AUTO_UPDATE', false),
     'invoiceninja_hosted_pdf_generation' => env('NINJA_HOSTED_PDF', false),
