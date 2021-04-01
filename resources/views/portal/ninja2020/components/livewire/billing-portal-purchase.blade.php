@@ -71,7 +71,8 @@
 
                 <div class="relative flex justify-center text-sm leading-5">
                     <h1 class="text-2xl font-bold tracking-wide bg-gray-50 px-6 py-0">
-                        {{ ctrans('texts.total') }}: {{ \App\Utils\Number::formatMoney($price, $subscription->company) }}
+                        {{ ctrans('texts.total') }}
+                        : {{ \App\Utils\Number::formatMoney($price, $subscription->company) }}
                     </h1>
                 </div>
             </div>
@@ -121,13 +122,25 @@
                             <input type="hidden" name="payment_method_id" value="{{ $payment_method_id }}"/>
                         </form>
 
-                        @foreach($this->methods as $method)
-                            <button
-                                wire:click="handleMethodSelectingEvent('{{ $method['company_gateway_id'] }}', '{{ $method['gateway_type_id'] }}')"
-                                class="px-3 py-2 border rounded mr-4 hover:border-blue-600">
-                                {{ $method['label'] }}
-                            </button>
-                        @endforeach
+                        @if($steps['started_payment'] == false)
+                            @foreach($this->methods as $method)
+                                <button
+                                    wire:click="handleMethodSelectingEvent('{{ $method['company_gateway_id'] }}', '{{ $method['gateway_type_id'] }}')"
+                                    class="px-3 py-2 border rounded mr-4 hover:border-blue-600">
+                                    {{ $method['label'] }}
+                                </button>
+                            @endforeach
+                        @endif
+
+                        @if($steps['started_payment'])
+                            <svg class="animate-spin h-8 w-8 text-primary" xmlns="http://www.w3.org/2000/svg"
+                                 fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                        stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        @endif
                     </div>
                 @elseif($steps['show_start_trial'])
                     <form wire:submit.prevent="handleTrial" class="mt-8">
@@ -167,12 +180,14 @@
                                 @enderror
                             </label>
 
-                            <button wire:loading.attr="disabled" type="button" wire:click="passwordlessLogin" class="mt-4 text-sm active:outline-none focus:outline-none">
+                            <button wire:loading.attr="disabled" type="button" wire:click="passwordlessLogin"
+                                    class="mt-4 text-sm active:outline-none focus:outline-none">
                                 Log in without password
                             </button>
 
                             @if($steps['passwordless_login_sent'])
-                                <span class="block mt-2 text-sm text-green-600">E-mail sent. Please check your inbox!</span>
+                                <span
+                                    class="block mt-2 text-sm text-green-600">E-mail sent. Please check your inbox!</span>
                             @endif
                         @endif
 

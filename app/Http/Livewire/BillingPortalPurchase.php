@@ -106,6 +106,7 @@ class BillingPortalPurchase extends Component
         'fetched_client' => false,
         'show_start_trial' => false,
         'passwordless_login_sent' => false,
+        'started_payment' => false,
     ];
 
     /**
@@ -280,6 +281,8 @@ class BillingPortalPurchase extends Component
      */
     public function handleBeforePaymentEvents()
     {
+        $this->steps['started_payment'] = true;
+
         $data = [
             'client_id' => $this->contact->client->id,
             'date' => now()->format('Y-m-d'),
