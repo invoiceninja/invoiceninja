@@ -54,7 +54,7 @@ class StoreSubscriptionRequest extends Request
             'plan_map' => ['sometimes'],
             'refund_period' => ['sometimes'],
             'webhook_configuration' => ['array'],
-            'name' => Rule::unique('subscriptions')->where('company_id', auth()->user()->company()->id)
+            'name' => ['required', Rule::unique('subscriptions')->where('company_id', auth()->user()->company()->id)]
         ];
     }
 
