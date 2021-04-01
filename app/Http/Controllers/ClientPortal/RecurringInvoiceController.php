@@ -61,27 +61,28 @@ class RecurringInvoiceController extends Controller
 
     public function requestCancellation(Request $request, RecurringInvoice $recurring_invoice)
     {
-        //todo double check the user is able to request a cancellation
-        //can add locale specific by chaining ->locale();
-        
-        $nmo = new NinjaMailerObject;
-        $nmo->mailable = (new NinjaMailer((new ClientContactRequestCancellationObject($recurring_invoice, auth()->user()))->build()));
-        $nmo->company = $recurring_invoice->company;
-        $nmo->settings = $recurring_invoice->company->settings;
+        if (is_null($recurring_invoice->subscription_id) || optional($recurring_invoice->subscription)->allow_cancellation) {
+            $nmo = new NinjaMailerObject;
+            $nmo->mailable = (new NinjaMailer((new ClientContactRequestCancellationObject($recurring_invoice, auth()->user()))->build()));
+            $nmo->company = $recurring_invoice->company;
+            $nmo->settings = $recurring_invoice->company->settings;
 
-        $notifiable_users = $this->filterUsersByPermissions($recurring_invoice->company->company_users, $recurring_invoice, ['recurring_cancellation']);
+            $notifiable_users = $this->filterUsersByPermissions($recurring_invoice->company->company_users, $recurring_invoice, ['recurring_cancellation']);
 
-        $notifiable_users->each(function ($company_user) use($nmo){
+            $notifiable_users->each(function ($company_user) use($nmo){
 
-            $nmo->to_user = $company_user->user;
-            NinjaMailerJob::dispatch($nmo);
+                $nmo->to_user = $company_user->user;
+                NinjaMailerJob::dispatch($nmo);
 
-        });
+            });
 
-        //$recurring_invoice->user->notify(new ClientContactRequestCancellation($recurring_invoice, auth()->user()));
+            //$recurring_invoice->user->notify(new ClientContactRequestCancellation($recurring_invoice, auth()->user()));
 
-        return $this->render('recurring_invoices.cancellation.index', [
-            'invoice' => $recurring_invoice,
-        ]);
+            return $this->render('recurring_invoices.cancellation.index', [
+                'invoice' => $recurring_invoice,
+            ]);
+        }
+
+        return back();
     }
 }

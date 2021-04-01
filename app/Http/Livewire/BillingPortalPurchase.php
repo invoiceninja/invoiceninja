@@ -106,6 +106,7 @@ class BillingPortalPurchase extends Component
         'fetched_client' => false,
         'show_start_trial' => false,
         'passwordless_login_sent' => false,
+        'started_payment' => false,
     ];
 
     /**
@@ -157,7 +158,12 @@ class BillingPortalPurchase extends Component
 
     public function mount()
     {
-        $this->price = $this->subscription->service()->price();
+        $this->price = $this->subscription->price;
+
+        if (request()->query('coupon')) {
+            $this->coupon = request()->query('coupon');
+            $this->handleCoupon();
+        }
     }
 
     /**
@@ -280,6 +286,8 @@ class BillingPortalPurchase extends Component
      */
     public function handleBeforePaymentEvents()
     {
+        $this->steps['started_payment'] = true;
+
         $data = [
             'client_id' => $this->contact->client->id,
             'date' => now()->format('Y-m-d'),
@@ -368,7 +376,7 @@ class BillingPortalPurchase extends Component
             ->first();
 
         $mailer = new NinjaMailerObject();
-        $mailer->mailable = new ContactPasswordlessLogin($this->email, (string)route('client.subscription.purchase', $this->subscription->hashed_id));
+        $mailer->mailable = new ContactPasswordlessLogin($this->email, (string)route('client.subscription.purchase', $this->subscription->hashed_id) . '?coupon=' . $this->coupon);
         $mailer->company = $this->subscription->company;
         $mailer->settings = $this->subscription->company->settings;
         $mailer->to_user = $contact;

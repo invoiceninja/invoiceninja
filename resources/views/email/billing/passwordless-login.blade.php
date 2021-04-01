@@ -3,8 +3,8 @@
         @include('email.components.header', ['logo' => 'https://www.invoiceninja.com/wp-content/uploads/2015/10/logo-white-horizontal-1.png'])
     @endslot
 
-    <h2>Passwordless login link requested</h2>
-    <p>Hey, there was a request to log in using passwordless link.</p>
+    <h2>Login link requested</h2>
+    <p>Hey, there was a request to log in using link.</p>
 
     <a href="{{ $url }}" target="_blank" class="button">Sign in to Invoice Ninja</a>
 
