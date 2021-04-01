@@ -68,8 +68,7 @@
         "symfony/http-client": "^5.2",
         "turbo124/beacon": "^1.0",
         "webpatser/laravel-countries": "dev-master#75992ad",
-        "wildbit/swiftmailer-postmark": "^3.3",
-        "invoiceninja/admin-module": "dev-master"
+        "wildbit/swiftmailer-postmark": "^3.3"
     },
     "require-dev": {
         "php": "^7.3|^7.4",
@@ -135,8 +134,5 @@
         "optimize-autoloader": true
     },
     "minimum-stability": "dev",
-    "prefer-stable": true,
-     "repositories": [
-        {"type": "vcs", "url": "https://github.com/invoiceninja/admin-module"}
-    ]
+    "prefer-stable": true
 }

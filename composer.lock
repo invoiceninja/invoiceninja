@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d0023db8c59d4b2d3ceca97b5fdaaf03",
+    "content-hash": "2307a2f3214da0d1cc772cc1a1405682",
     "packages": [
         {
             "name": "authorizenet/authorizenet",
@@ -2637,46 +2637,6 @@
                 "source": "https://github.com/Intervention/image/tree/master"
             },
             "time": "2019-11-02T09:15:47+00:00"
-        },
-        {
-            "name": "invoiceninja/admin-module",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "git@github.com:invoiceninja/admin-module.git",
-                "reference": "dff0e7b16bd0ec9f36694b636db641579d52d753"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/invoiceninja/admin-module/zipball/dff0e7b16bd0ec9f36694b636db641579d52d753",
-                "reference": "dff0e7b16bd0ec9f36694b636db641579d52d753",
-                "shasum": ""
-            },
-            "default-branch": true,
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [],
-                    "aliases": []
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Modules\\Admin\\": ""
-                }
-            },
-            "authors": [
-                {
-                    "name": "David Bomba",
-                    "email": "turbo124@gmail.com"
-                }
-            ],
-            "description": "Admin module for reselling Invoice Ninja",
-            "support": {
-                "source": "https://github.com/invoiceninja/admin-module/tree/master",
-                "issues": "https://github.com/invoiceninja/admin-module/issues"
-            },
-            "time": "2021-04-01T03:50:33+00:00"
         },
         {
             "name": "jean85/pretty-package-versions",
@@ -14168,8 +14128,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "webpatser/laravel-countries": 20,
-        "invoiceninja/admin-module": 20
+        "webpatser/laravel-countries": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
