@@ -107,6 +107,7 @@ class BillingPortalPurchase extends Component
         'show_start_trial' => false,
         'passwordless_login_sent' => false,
         'started_payment' => false,
+        'discount_applied' => false,
     ];
 
     /**
@@ -364,6 +365,7 @@ class BillingPortalPurchase extends Component
     {
         if ($this->coupon == $this->subscription->promo_code) {
             $this->price = $this->subscription->promo_price;
+            $this->steps['discount_applied'] = true;
         }
     }
 
