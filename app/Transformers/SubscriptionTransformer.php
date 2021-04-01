@@ -40,6 +40,7 @@ class SubscriptionTransformer extends EntityTransformer
             'user_id' => $this->encodePrimaryKey($subscription->user_id),
             'group_id' => $this->encodePrimaryKey($subscription->group_id),
             'product_ids' => (string)$subscription->product_ids,
+            'name' => (string)$subscription->name,
             'recurring_product_ids' => (string)$subscription->recurring_product_ids,
             'assigned_user_id' => $this->encodePrimaryKey($subscription->assigned_user_id),
             'company_id' => $this->encodePrimaryKey($subscription->company_id),

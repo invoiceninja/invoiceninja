@@ -21,6 +21,7 @@ class Subscription extends BaseModel
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'assigned_user_id',
         'product_ids',
         'recurring_product_ids',
         'frequency_id',
