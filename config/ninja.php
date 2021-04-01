@@ -3,6 +3,7 @@
 return [
 
     'web_url' => 'https://www.invoiceninja.com',
+    'admin_token' => env('NINJA_ADMIN_TOKEN', ''),
     'license_url' => 'https://app.invoiceninja.com',
     'production' => env('NINJA_PROD', false),
     'license'   => env('NINJA_LICENSE', ''),
