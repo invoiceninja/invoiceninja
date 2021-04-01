@@ -397,7 +397,7 @@ info("get company");
                 'referral_code' => $user->referral_code,
                 'oauth_user_id' => $user->oauth_user_id,
                 'oauth_provider_id' => $user->oauth_provider_id,
-                'google_2fa_secret' => $user->google_2fa_secret,
+                'google_2fa_secret' => '',
                 'accepted_terms_version' => $user->accepted_terms_version,
                 'password' => $user->password,
                 'remember_token' => $user->remember_token,
