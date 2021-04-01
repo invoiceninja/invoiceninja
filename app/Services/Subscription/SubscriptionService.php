@@ -111,14 +111,14 @@ class SubscriptionService
         $recurring_invoice->next_send_date = now()->addSeconds($this->subscription->trial_duration);
         $recurring_invoice->backup = 'is_trial';
 
-        if(array_key_exists('coupon', $data) && ($data['coupon'] == $this->subscription->promo_code) && $this->subscription->promo_discount > 0) 
+        if(array_key_exists('coupon', $data) && ($data['coupon'] == $this->subscription->promo_code) && $this->subscription->promo_discount > 0)
         {
             $recurring_invoice->discount = $this->subscription->promo_discount;
             $recurring_invoice->is_amount_discount = $this->subscription->is_amount_discount;
-        }        
+        }
 
         $recurring_invoice = $recurring_invoice_repo->save($data, $recurring_invoice);
-        
+
         /* Start the recurring service */
         $recurring_invoice->service()
                           ->start()
@@ -144,7 +144,7 @@ class SubscriptionService
         $invoice->line_items = $subscription_repo->generateLineItems($this->subscription);
         $invoice->subscription_id = $this->subscription->id;
 
-        if(strlen($data['coupon']) >=1 && ($data['coupon'] == $this->subscription->promo_code) && $this->subscription->promo_discount > 0) 
+        if(strlen($data['coupon']) >=1 && ($data['coupon'] == $this->subscription->promo_code) && $this->subscription->promo_discount > 0)
         {
             $invoice->discount = $this->subscription->promo_discount;
             $invoice->is_amount_discount = $this->subscription->is_amount_discount;
@@ -161,7 +161,7 @@ class SubscriptionService
         $subscription_repo = new SubscriptionRepository();
 
         $recurring_invoice = RecurringInvoiceFactory::create($this->subscription->company_id, $this->subscription->user_id);
-        $recurring_invoice->client_id = $client_id; 
+        $recurring_invoice->client_id = $client_id;
         $recurring_invoice->line_items = $subscription_repo->generateLineItems($this->subscription, true);
         $recurring_invoice->subscription_id = $this->subscription->id;
         $recurring_invoice->frequency_id = $this->subscription->frequency_id ?: RecurringInvoice::FREQUENCY_MONTHLY;
@@ -249,10 +249,4 @@ class SubscriptionService
     {
         return Product::whereIn('id', $this->transformKeys(explode(",", $this->subscription->recurring_product_ids)))->get();
     }
-
-    public function price()
-    {
-        return 1;
-    }
-
 }
