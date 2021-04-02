@@ -2,6 +2,7 @@
     if(!isset($design)) {
         $design = 'light';
     }
+    $primary_color = isset($settings) ? $settings->primary_color : '#4caf50';
 @endphp
 
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -16,11 +17,11 @@
 
 <style type="text/css">
     :root {
-        --primary-color: {{ isset($settings) ? $settings->primary_color : '#4caf50' }};
+        --primary-color: {{ $primary_color }};
     }
 
     .primary-color-bg {
-        background-color: {{ isset($settings) ? $settings->primary_color : '#4caf50' }};
+        background-color: {{ $primary_color }};
     }
 
     #email-content h1, h2, h3, h4 {
@@ -38,7 +39,7 @@
     }
 
     .button {
-        background-color: {{ isset($settings) ? $settings->primary_color : '#4caf50' }};
+        background-color: {{ $primary_color }};
         color: white;
         padding: 10px 16px;
         text-decoration: none;
@@ -68,7 +69,7 @@
             <table align="center" cellpadding="0" cellspacing="0" width="600"
                    style="box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06)">
                 <tr>
-                    <td align="center" bgcolor="#4caf50" class="primary-color-bg" style="padding: 40px 0 30px 0;">
+                    <td align="center" bgcolor="{{ $primary_color }}" class="primary-color-bg" style="padding: 40px 0 30px 0;">
                         {{ $header }}
                     </td>
                 </tr>
