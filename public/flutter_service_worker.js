@@ -31,8 +31,8 @@ const RESOURCES = {
 "assets/assets/images/payment_types/paypal.png": "8e06c094c1871376dfea1da8088c29d1",
 "assets/assets/images/payment_types/maestro.png": "e533b92bfb50339fdbfa79e3dfe81f08",
 "assets/FontManifest.json": "cf3c681641169319e61b61bd0277378f",
-"main.dart.js": "4ca4aa873adda14b5d1476f085431b28",
-"version.json": "b7c8971e1ab5b627fd2a4317c52b843e"
+"main.dart.js": "54ad5a5e961909b8be9d8dd395bb3628",
+"version.json": "e021a7a1750aa3e7d1d89b51ac9837e9"
 };
 
 // The application shell files that are downloaded before a service worker can
