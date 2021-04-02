@@ -17,7 +17,9 @@ use App\Models\Design;
 use App\Models\Invoice;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\PdfMaker\PdfMaker as PdfMakerService;
+use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\HtmlEngine;
+use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Pdf\PdfMaker;
 use Illuminate\Support\Facades\Storage;
@@ -58,6 +60,10 @@ class GenerateDeliveryNote
 
         $file_path = sprintf('%s%s_delivery_note.pdf', $this->invoice->client->invoice_filepath(), $this->invoice->number);
 
+        if (config('ninja.phantomjs_pdf_generation')) {
+            return (new Phantom)->generate($this->invoice->invitations->first());
+        }
+
         $design = Design::find($design_id);
         $html = new HtmlEngine($this->invoice->invitations->first());
 
@@ -86,7 +92,12 @@ class GenerateDeliveryNote
 
         // Storage::makeDirectory($this->invoice->client->invoice_filepath(), 0775);
 
-        $pdf = $this->makePdf(null, null, $maker->getCompiledHTML());
+            if(config('ninja.invoiceninja_hosted_pdf_generation')){
+                $pdf = (new NinjaPdf())->build($maker->getCompiledHTML(true));
+            }
+            else {
+                $pdf = $this->makePdf(null, null, $maker->getCompiledHTML());
+            }
 
         if (config('ninja.log_pdf_html')) {
             info($maker->getCompiledHTML());

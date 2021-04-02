@@ -12,6 +12,7 @@
 namespace App\Services\Payment;
 
 use App\Events\Invoice\InvoiceWasUpdated;
+use App\Jobs\Invoice\InvoiceWorkflowSettings;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
@@ -82,6 +83,8 @@ class UpdateInvoicePayment
                 ->updatePaidToDate($paid_amount)
                 ->updateStatus()
                 ->save();
+
+            InvoiceWorkflowSettings::dispatchNow($invoice);
 
             event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars()));
         });
