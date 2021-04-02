@@ -13,6 +13,7 @@ namespace App\Http\Requests\Subscription;
 
 use App\Http\Requests\Request;
 use App\Models\Subscription;
+use Illuminate\Validation\Rule;
 
 class StoreSubscriptionRequest extends Request
 {
@@ -34,10 +35,8 @@ class StoreSubscriptionRequest extends Request
     public function rules()
     {
         return [
-            'user_id' => ['sometimes'],
             'product_id' => ['sometimes'],
             'assigned_user_id' => ['sometimes'],
-            'company_id' => ['sometimes'],
             'is_recurring' => ['sometimes'],
             'frequency_id' => ['sometimes'],
             'auto_bill' => ['sometimes'],
@@ -52,9 +51,16 @@ class StoreSubscriptionRequest extends Request
             'trial_duration' => ['sometimes'],
             'allow_query_overrides' => ['sometimes'],
             'allow_plan_changes' => ['sometimes'],
-            'plan_map' => ['sometimes'],
             'refund_period' => ['sometimes'],
-            'webhook_configuration' => ['sometimes'],
+            'webhook_configuration' => ['array'],
+            'name' => ['required', Rule::unique('subscriptions')->where('company_id', auth()->user()->company()->id)]
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        $input = $this->all();
+
+        $this->replace($input);
     }
 }

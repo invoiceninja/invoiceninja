@@ -12,6 +12,7 @@
 namespace App\Mail\Admin;
 
 use App\Models\Invoice;
+use App\Utils\HtmlEngine;
 use App\Utils\Number;
 use App\Utils\Traits\MakesHash;
 use stdClass;
@@ -84,6 +85,8 @@ class AutoBillingFailureObject
     private function getData()
     {
         $signature = $this->client->getSetting('email_signature');
+        $html_variables = (new HtmlEngine($this->invoices->first()->invitations->first()))->makeValues();
+        $signature = str_replace(array_keys($html_variables), array_values($html_variables), $signature);
 
         $data = [
             'title' => ctrans(

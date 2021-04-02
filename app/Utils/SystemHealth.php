@@ -79,6 +79,7 @@ class SystemHealth
             'exec' => (bool)self::checkExecWorks(),
             'open_basedir' => (bool)self::checkOpenBaseDir(),
             'mail_mailer' => (string)self::checkMailMailer(),
+            'flutter_renderer' => (string)config('ninja.flutter_canvas_kit'),
         ];
     }
 

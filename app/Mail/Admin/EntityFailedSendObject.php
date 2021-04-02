@@ -11,6 +11,7 @@
 
 namespace App\Mail\Admin;
 
+use App\Utils\HtmlEngine;
 use App\Utils\Number;
 use stdClass;
 
@@ -121,6 +122,10 @@ class EntityFailedSendObject
     private function getData()
     {
         $settings = $this->entity->client->getMergedSettings();
+        $signature = $settings->email_signature;
+
+        $html_variables = (new HtmlEngine($this->invitation))->makeValues();
+        $signature = str_replace(array_keys($html_variables), array_values($html_variables), $signature);
 
         return [
             'title' => $this->getSubject(),
@@ -136,7 +141,7 @@ class EntityFailedSendObject
             ),
             'url' => $this->invitation->getAdminLink(),
             'button' => ctrans("texts.view_{$this->entity_type}"),
-            'signature' => $settings->email_signature,
+            'signature' => $signature,
             'logo' => $this->company->present()->logo(),
             'settings' => $settings,
             'whitelabel' => $this->company->account->isPaid() ? true : false,

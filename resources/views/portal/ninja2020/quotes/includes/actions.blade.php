@@ -8,7 +8,7 @@
         <div class="px-4 py-5 sm:p-6">
             <div class="sm:flex sm:items-start sm:justify-between">
                 <h3 class="text-lg leading-6 font-medium text-gray-900">
-                    {{ ctrans('texts.pending_approval') }}
+                    {{ ctrans('texts.approve') }}
                 </h3>
 
                 <div class="mt-5 sm:mt-0 sm:ml-6 sm:flex-shrink-0 sm:flex sm:items-center">

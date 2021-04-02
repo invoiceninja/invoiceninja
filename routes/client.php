@@ -22,6 +22,7 @@ Route::post('view/{entity_type}/{invitation_key}/password', 'ClientPortal\Entity
 Route::get('tmp_pdf/{hash}', 'ClientPortal\TempRouteController@index')->name('tmp_pdf');
 
 Route::get('client/key_login/{contact_key}', 'ClientPortal\ContactHashLoginController@login')->name('client.contact_login')->middleware(['contact_key_login']);
+Route::get('client/magic_link/{magic_link}', 'ClientPortal\ContactHashLoginController@magicLink')->name('client.contact_magic_link')->middleware(['contact_key_login']);
 Route::get('documents/{document_hash}', 'ClientPortal\DocumentController@publicDownload')->name('documents.public_download');
 
 //todo implement domain DB
@@ -71,12 +72,14 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'check_client_existence
     Route::get('documents/{document}/download', 'ClientPortal\DocumentController@download')->name('documents.download');
     Route::resource('documents', 'ClientPortal\DocumentController')->only(['index', 'show']);
 
+    Route::resource('subscriptions', 'ClientPortal\SubscriptionController')->only(['index']);
+
     Route::post('upload', 'ClientPortal\UploadController')->name('upload.store');
 
     Route::get('logout', 'Auth\ContactLoginController@logout')->name('logout');
 });
 
-Route::get('client/subscription/{billing_subscription}/purchase', 'ClientPortal\BillingSubscriptionPurchaseController@index')->name('client.subscription.purchase');
+Route::get('client/subscription/{subscription}/purchase', 'ClientPortal\SubscriptionPurchaseController@index')->name('client.subscription.purchase');
 
 Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'client.'], function () {
     /*Invitation catches*/

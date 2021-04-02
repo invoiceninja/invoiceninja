@@ -14,6 +14,7 @@ namespace App\Services\Invoice;
 use App\Jobs\Entity\CreateEntityPdf;
 use App\Jobs\Invoice\InvoiceWorkflowSettings;
 use App\Jobs\Util\UnlinkFile;
+use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Models\CompanyGateway;
 use App\Models\Expense;
 use App\Models\Invoice;
@@ -62,7 +63,25 @@ class InvoiceService
         return $this;
     }
 
+    /**
+     * Sets the exchange rate on the invoice if the client currency
+     * is different to the company currency.
+     */
+    public function setExchangeRate()
+    {
 
+        $client_currency = $this->invoice->client->getSetting('currency_id');
+        $company_currency = $this->invoice->company->settings->currency_id;
+
+        if ($company_currency != $client_currency) {
+
+            $exchange_rate = new CurrencyApi();
+
+            $this->invoice->exchange_rate = $exchange_rate->exchangeRate($client_currency, $company_currency, now());
+        }
+
+        return $this;
+    }
     /**
      * Applies the recurring invoice number.
      * @return $this InvoiceService object
@@ -131,6 +150,8 @@ class InvoiceService
     public function markSent()
     {
         $this->invoice = (new MarkSent($this->invoice->client, $this->invoice))->run();
+
+        $this->setExchangeRate();
 
         return $this;
     }

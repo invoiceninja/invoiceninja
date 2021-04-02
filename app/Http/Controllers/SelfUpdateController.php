@@ -66,10 +66,16 @@ class SelfUpdateController extends BaseController
         $repo = new GitRepository(base_path());
 
         nlog('Are there changes to pull? '.$repo->hasChanges());
+        $output = '';
 
         try {
-            $res = $repo->pull();
+            // $res = $repo->pull();
+
+            $output = $repo->execute('pull origin');
+
         } catch (GitException $e) {
+            
+            nlog($output);
             nlog($e->getMessage());
             return response()->json(['message'=>$e->getMessage()], 500);
         }
@@ -78,7 +84,7 @@ class SelfUpdateController extends BaseController
             Artisan::call('ninja:post-update');
         });
 
-        return response()->json(['message' => ''], 200);
+        return response()->json(['message' => $output], 200);
     }
 
     public function checkVersion()

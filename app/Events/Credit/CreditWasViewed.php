@@ -12,6 +12,7 @@
 namespace App\Events\Credit;
 
 use App\Models\Company;
+use App\Models\CreditInvitation;
 use Illuminate\Queue\SerializesModels;
 
 /**

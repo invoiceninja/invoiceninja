@@ -89,7 +89,8 @@
         "psr-4": {
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
-            "Database\\Seeders\\": "database/seeders/"
+            "Database\\Seeders\\": "database/seeders/",
+            "Modules\\": "Modules/"
         },
         "files": [
         ]
@@ -106,7 +107,7 @@
     },
     "scripts": {
         "post-install-cmd": [
-            "if [ '${IS_DOCKER:-false}' != 'true' ]; then vendor/bin/snappdf download; fi"
+            "if [ \"${IS_DOCKER:-false}\" != \"true\" ]; then vendor/bin/snappdf download; fi"
         ],
         "post-update-cmd": [
             "vendor/bin/snappdf download"

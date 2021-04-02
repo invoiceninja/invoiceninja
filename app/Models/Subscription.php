@@ -21,40 +21,39 @@ class Subscription extends BaseModel
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'user_id',
+        'assigned_user_id',
         'product_ids',
         'recurring_product_ids',
-        'company_id',
         'frequency_id',
         'auto_bill',
         'promo_code',
         'promo_discount',
         'is_amount_discount',
         'allow_cancellation',
-        'per_set_enabled',
-        'min_seats_limit',
+        'per_seat_enabled',
         'max_seats_limit',
         'trial_enabled',
         'trial_duration',
         'allow_query_overrides',
         'allow_plan_changes',
-        'plan_map',
         'refund_period',
         'webhook_configuration',
         'currency_id',
         'group_id',
+        'price',
+        'name',
+        'currency_id',
     ];
 
     protected $casts = [
         'is_deleted' => 'boolean',
-        'plan_map' => 'object',
-        'webhook_configuration' => 'object',
+        'webhook_configuration' => 'array',
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
     ];
 
-    public function service()
+    public function service(): SubscriptionService
     {
         return new SubscriptionService($this);
     }
@@ -67,10 +66,5 @@ class Subscription extends BaseModel
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function product(): \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(Product::class);
     }
 }

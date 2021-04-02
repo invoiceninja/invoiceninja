@@ -160,8 +160,8 @@ class HtmlEngine
         $data['$invoice.subtotal'] = &$data['$subtotal'];
 
         if ($this->entity->partial > 0) {
-            $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->partial, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.partial_due')];
-            $data['$balance_due_raw'] = ['value' => $this->entity->partial, 'label' => ctrans('texts.partial_due')];
+            $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->partial, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.balance_due')];
+            $data['$balance_due_raw'] = ['value' => $this->entity->partial, 'label' => ctrans('texts.balance_due')];
         } else {
             $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->balance, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.balance_due')];
             $data['$balance_due_raw'] = ['value' => $this->entity->balance, 'label' => ctrans('texts.balance_due')];
@@ -192,6 +192,8 @@ class HtmlEngine
         $data['$taxes'] = ['value' => Number::formatMoney($this->entity_calc->getItemTotalTaxes(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.taxes')];
         $data['$invoice.taxes'] = &$data['$taxes'];
 
+        $data['$user.name'] = ['value' => $this->entity->user->present()->name(), 'label' => ctrans('texts.name')];
+        $data['$user_iban'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company1', $this->settings->custom_value1, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'company1')];
         $data['$invoice.custom1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice1', $this->entity->custom_value1, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice1')];
         $data['$invoice.custom2'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice2', $this->entity->custom_value2, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice2')];
         $data['$invoice.custom3'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice3', $this->entity->custom_value3, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice3')];
@@ -259,7 +261,7 @@ class HtmlEngine
         $data['$contact.email'] = ['value' => $this->contact->email, 'label' => ctrans('texts.email')];
         $data['$contact.phone'] = ['value' => $this->contact->phone, 'label' => ctrans('texts.phone')];
 
-        $data['$contact.name'] = ['value' => isset($this->contact) ? $this->contact->present()->name() : 'no contact name on record', 'label' => ctrans('texts.contact_name')];
+        $data['$contact.name'] = ['value' => isset($this->contact) ? $this->contact->present()->name() : $this->client->present()->name(), 'label' => ctrans('texts.contact_name')];
         $data['$contact.first_name'] = ['value' => isset($this->contact) ? $this->contact->first_name : '', 'label' => ctrans('texts.first_name')];
         $data['$contact.last_name'] = ['value' => isset($this->contact) ? $this->contact->last_name : '', 'label' => ctrans('texts.last_name')];
 
@@ -287,7 +289,7 @@ class HtmlEngine
 
         $data['$signature'] = ['value' => $this->settings->email_signature ?: '&nbsp;', 'label' => ''];
 
-        $data['$spc_qr_code'] = ['value' => $this->company->present()->getSpcQrCode($this->client->currency()->code, $this->entity->number, $this->entity->balance), 'label' => ''];
+        $data['$spc_qr_code'] = ['value' => $this->company->present()->getSpcQrCode($this->client->currency()->code, $this->entity->number, $this->entity->balance, $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company1', $this->settings->custom_value1, $this->client)), 'label' => ''];
 
         $logo = $this->company->present()->logo($this->settings);
 
@@ -327,6 +329,7 @@ class HtmlEngine
         $data['$task.service'] = ['value' => '', 'label' => ctrans('texts.service')];
         $data['$task.description'] = ['value' => '', 'label' => ctrans('texts.description')];
         $data['$task.rate'] = ['value' => '', 'label' => ctrans('texts.rate')];
+        $data['$task.cost'] = ['value' => '', 'label' => ctrans('texts.rate')];
         $data['$task.hours'] = ['value' => '', 'label' => ctrans('texts.hours')];
         $data['$task.tax'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$task.tax_name1'] = ['value' => '', 'label' => ctrans('texts.tax')];
@@ -334,6 +337,10 @@ class HtmlEngine
         $data['$task.tax_name3'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$task.line_total'] = ['value' => '', 'label' => ctrans('texts.line_total')];
         $data['$task.service'] = ['value' => '', 'label' => ctrans('texts.service')];
+        $data['$task.task1'] = ['value' => '', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'task1')];
+        $data['$task.task2'] = ['value' => '', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'task2')];
+        $data['$task.task3'] = ['value' => '', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'task3')];
+        $data['$task.task4'] = ['value' => '', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'task4')];
 
         if ($this->settings->signature_on_pdf) {
             $data['$contact.signature'] = ['value' => $this->invitation->signature_base64, 'label' => ctrans('texts.signature')];

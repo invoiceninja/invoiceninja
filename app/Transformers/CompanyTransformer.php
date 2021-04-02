@@ -92,7 +92,7 @@ class CompanyTransformer extends EntityTransformer
         'system_logs',
         'expense_categories',
         'task_statuses',
-        'billing_subscriptions',
+        'subscriptions',
     ];
 
     /**
@@ -366,6 +366,6 @@ class CompanyTransformer extends EntityTransformer
     {
         $transformer = new SubscriptionTransformer($this->serializer);
 
-        return $this->includeCollection($company->billing_subscriptions, $transformer, Subscription::class);
+        return $this->includeCollection($company->subscriptions, $transformer, Subscription::class);
     }
 }

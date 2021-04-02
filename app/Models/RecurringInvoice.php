@@ -196,7 +196,7 @@ class RecurringInvoice extends BaseModel
     {
         return $this->morphMany(Document::class, 'documentable');
     }
-    
+
     public function getStatusAttribute()
     {
         if ($this->status_id == self::STATUS_ACTIVE && Carbon::parse($this->next_send_date)->isFuture()) {
@@ -394,9 +394,9 @@ class RecurringInvoice extends BaseModel
         if ($this->remaining_cycles == -1) {
             $iterations = 10;
         }
-        
+
         $data = [];
-            
+
         if (!Carbon::parse($this->next_send_date)) {
             return $data;
         }
@@ -407,7 +407,7 @@ class RecurringInvoice extends BaseModel
             // we don't add the days... we calc the day of the month!!
             $next_due_date = $this->calculateDueDate($next_send_date->copy()->format('Y-m-d'));
             $next_due_date_string = $next_due_date ? $next_due_date->format('Y-m-d') : '';
-            
+
             $next_send_date = Carbon::parse($next_send_date);
 
             $data[] = [
@@ -420,7 +420,7 @@ class RecurringInvoice extends BaseModel
 
         /*If no due date is set - unset the due_date value */
         // if(!$this->due_date_days || $this->due_date_days == 0){
-            
+
         //     foreach($data as $key => $value)
         //         $data[$key]['due_date'] = '';
 
@@ -467,5 +467,10 @@ class RecurringInvoice extends BaseModel
     public function service() :RecurringService
     {
         return new RecurringService($this);
+    }
+
+    public function subscription(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Subscription::class);
     }
 }

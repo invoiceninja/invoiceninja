@@ -139,6 +139,8 @@ class CompanySettings extends BaseSettings
     public $payment_type_id = '0'; //@TODO where do we use this?
     // public $invoice_fields = ''; //@TODO is this redundant, we store this in the custom_fields on the company?
 
+    public $valid_until = ''; //@implemented
+
     public $show_accept_invoice_terms = false; //@TODO ben to confirm
     public $show_accept_quote_terms = false;  //@TODO ben to confirm
     public $require_invoice_signature = false;  //@TODO ben to confirm
@@ -430,6 +432,7 @@ class CompanySettings extends BaseSettings
         'show_accept_quote_terms'            => 'bool',
         'show_accept_invoice_terms'          => 'bool',
         'timezone_id'                        => 'string',
+        'valid_until'                        => 'string',
         'date_format_id'                     => 'string',
         'military_time'                      => 'bool',
         'language_id'                        => 'string',

@@ -45,8 +45,6 @@ class ActionInvoiceRequest extends Request
     {
         $input = $this->all();
 
-        $this->invoice = Invoice::find($this->decodePrimary($invoice_id));
-
         if (!array_key_exists('action', $input)) {
             $this->error_msg = 'Action is a required field';
         } elseif (!$this->invoiceDeletable($this->invoice)) {

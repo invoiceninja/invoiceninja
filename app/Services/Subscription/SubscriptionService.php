@@ -14,15 +14,19 @@ namespace App\Services\Subscription;
 use App\DataMapper\InvoiceItem;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceToRecurringInvoiceFactory;
+use App\Factory\RecurringInvoiceFactory;
 use App\Jobs\Util\SystemLogger;
-use App\Models\Subscription;
 use App\Models\ClientContact;
 use App\Models\ClientSubscription;
 use App\Models\Invoice;
 use App\Models\PaymentHash;
 use App\Models\Product;
+use App\Models\RecurringInvoice;
+use App\Models\Subscription;
 use App\Models\SystemLog;
 use App\Repositories\InvoiceRepository;
+use App\Repositories\RecurringInvoiceRepository;
+use App\Repositories\SubscriptionRepository;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
 use GuzzleHttp\RequestOptions;
@@ -36,7 +40,7 @@ class SubscriptionService
     private $subscription;
 
     /** @var client_subscription */
-    private $client_subscription;
+    // private $client_subscription;
 
     public function __construct(Subscription $subscription)
     {
@@ -50,15 +54,41 @@ class SubscriptionService
             throw new \Exception("Illegal entrypoint into method, payload must contain billing context");
         }
 
-        // At this point we have some state carried from the billing page
-        // to this, available as $payment_hash->data->billing_context. Make something awesome ⭐
+        // if we have a recurring product - then generate a recurring invoice
+        if(strlen($this->subscription->recurring_product_ids) >=1){
 
-        // create client subscription record
-        //
-        // create recurring invoice if is_recurring
-        //
+            $recurring_invoice = $this->convertInvoiceToRecurring($payment_hash->payment->client_id);
+            $recurring_invoice_repo = new RecurringInvoiceRepository();
 
+            $recurring_invoice->next_send_date = now();
+            $recurring_invoice = $recurring_invoice_repo->save([], $recurring_invoice);
+            $recurring_invoice->next_send_date = $recurring_invoice->nextSendDate();
 
+            /* Start the recurring service */
+            $recurring_invoice->service()
+                              ->start()
+                              ->save();
+
+            //execute any webhooks
+            $this->triggerWebhook();
+
+            if(array_key_exists('post_purchase_url', $this->subscription->webhook_configuration) && strlen($this->subscription->webhook_configuration['post_purchase_url']) >=1)
+                return redirect($this->subscription->webhook_configuration['post_purchase_url']);
+
+            return redirect('/client/recurring_invoices/'.$recurring_invoice->hashed_id);
+        }
+        else
+        {
+
+            //execute any webhooks
+            $this->triggerWebhook();
+
+            if(array_key_exists('post_purchase_url', $this->subscription->webhook_configuration) && strlen($this->subscription->webhook_configuration['post_purchase_url']) >=1)
+                return redirect($this->subscription->webhook_configuration['post_purchase_url']);
+
+            return redirect('/client/invoices/'.$this->encodePrimaryKey($payment_hash->fee_invoice_id));
+
+        }
     }
 
     /**
@@ -69,192 +99,139 @@ class SubscriptionService
     public function startTrial(array $data)
     {
         // Redirects from here work just fine. Livewire will respect it.
+        $client_contact = ClientContact::find($data['contact_id']);
 
         if(!$this->subscription->trial_enabled)
             return new \Exception("Trials are disabled for this product");
 
-        $contact = ClientContact::with('client')->find($data['contact_id']);
+        //create recurring invoice with start date = trial_duration + 1 day
+        $recurring_invoice_repo = new RecurringInvoiceRepository();
 
-        $cs = new ClientSubscription();
-        $cs->subscription_id = $this->subscription->id;
-        $cs->company_id = $this->subscription->company_id;
-        $cs->trial_started = time();
-        $cs->trial_ends = time() + $this->subscription->trial_duration;
-        $cs->quantity = $data['quantity'];
-        $cs->client_id = $contact->client->id;
-        $cs->save();
+        $recurring_invoice = $this->convertInvoiceToRecurring($client_contact->client_id);
+        $recurring_invoice->next_send_date = now()->addSeconds($this->subscription->trial_duration);
+        $recurring_invoice->backup = 'is_trial';
 
-        $this->client_subscription = $cs;
+        if(array_key_exists('coupon', $data) && ($data['coupon'] == $this->subscription->promo_code) && $this->subscription->promo_discount > 0)
+        {
+            $recurring_invoice->discount = $this->subscription->promo_discount;
+            $recurring_invoice->is_amount_discount = $this->subscription->is_amount_discount;
+        }
+
+        $recurring_invoice = $recurring_invoice_repo->save($data, $recurring_invoice);
+
+        /* Start the recurring service */
+        $recurring_invoice->service()
+                          ->start()
+                          ->save();
 
         //execute any webhooks
         $this->triggerWebhook();
 
-        if(strlen($this->subscription->webhook_configuration->post_purchase_url) >=1)
-            return redirect($this->subscription->webhook_configuration->post_purchase_url);
+        if(array_key_exists('post_purchase_url', $this->subscription->webhook_configuration) && strlen($this->subscription->webhook_configuration['post_purchase_url']) >=1)
+            return redirect($this->subscription->webhook_configuration['post_purchase_url']);
 
-        return redirect('/client/subscription/'.$cs->hashed_id);
+        return redirect('/client/recurring_invoices/'.$recurring_invoice->hashed_id);
     }
+
 
     public function createInvoice($data): ?\App\Models\Invoice
     {
 
         $invoice_repo = new InvoiceRepository();
+        $subscription_repo = new SubscriptionRepository();
 
-        $data['line_items'] = $this->cleanItems($this->createLineItems($data));
+        $invoice = InvoiceFactory::create($this->subscription->company_id, $this->subscription->user_id);
+        $invoice->line_items = $subscription_repo->generateLineItems($this->subscription);
+        $invoice->subscription_id = $this->subscription->id;
 
-        return $invoice_repo->save($data, InvoiceFactory::create($this->subscription->company_id, $this->subscription->user_id));
-
-    }
-
-    /**
-     * Creates the required line items for the invoice 
-     * for the billing subscription.
-     */
-    private function createLineItems($data): array
-    {
-
-        $line_items = [];
-
-        $product = $this->subscription->product;
-
-        $item = new InvoiceItem;
-        $item->quantity = $data['quantity'];
-        $item->product_key = $product->product_key;
-        $item->notes = $product->notes;
-        $item->cost = $product->price;
-        $item->tax_rate1 = $product->tax_rate1 ?: 0;
-        $item->tax_name1 = $product->tax_name1 ?: '';
-        $item->tax_rate2 = $product->tax_rate2 ?: 0;
-        $item->tax_name2 = $product->tax_name2 ?: '';
-        $item->tax_rate3 = $product->tax_rate3 ?: 0;
-        $item->tax_name3 = $product->tax_name3 ?: '';
-        $item->custom_value1 = $product->custom_value1 ?: '';
-        $item->custom_value2 = $product->custom_value2 ?: '';
-        $item->custom_value3 = $product->custom_value3 ?: '';
-        $item->custom_value4 = $product->custom_value4 ?: '';
-
-        //$item->type_id need to switch whether the subscription is a service or product
-
-        $line_items[] = $item;
-
-
-        //do we have a promocode? enter this as a line item.
-        if(strlen($data['coupon']) >=1 && ($data['coupon'] == $this->subscription->promo_code) && $this->subscription->promo_discount > 0) 
-            $line_items[] = $this->createPromoLine($data);
-
-        return $line_items;
-
-    }
-
-    /**
-     * If a coupon is entered (and is valid)
-     * then we apply the coupon discount with a line item.
-     */
-    private function createPromoLine($data)
-    {
-        
-        $product = $this->subscription->product;
-        $discounted_amount = 0;
-        $discount = 0;
-        $amount = $data['quantity'] * $product->cost;
-
-        if ($this->subscription->is_amount_discount == true) {
-            $discount = $this->subscription->promo_discount;
-        }
-        else {
-            $discount = round($amount * ($this->subscription->promo_discount / 100), 2);
+        if(strlen($data['coupon']) >=1 && ($data['coupon'] == $this->subscription->promo_code) && $this->subscription->promo_discount > 0)
+        {
+            $invoice->discount = $this->subscription->promo_discount;
+            $invoice->is_amount_discount = $this->subscription->is_amount_discount;
         }
 
-        $discounted_amount = $amount - $discount;
-        
-        $item = new InvoiceItem;
-        $item->quantity = 1;
-        $item->product_key = ctrans('texts.promo_code');
-        $item->notes = ctrans('texts.promo_code');
-        $item->cost = $discounted_amount;
-        $item->tax_rate1 = $product->tax_rate1 ?: 0;
-        $item->tax_name1 = $product->tax_name1 ?: '';
-        $item->tax_rate2 = $product->tax_rate2 ?: 0;
-        $item->tax_name2 = $product->tax_name2 ?: '';
-        $item->tax_rate3 = $product->tax_rate3 ?: 0;
-        $item->tax_name3 = $product->tax_name3 ?: '';
-
-        return $item;
+        return $invoice_repo->save($data, $invoice);
 
     }
 
-    private function convertInvoiceToRecurring($payment_hash)
-    {
-        //The first invoice is a plain invoice - the second is fired on the recurring schedule.
-        $invoice = Invoice::find($payment_hash->billing_context->invoice_id); 
-        
-        if(!$invoice)
-            throw new \Exception("Could not match an invoice for payment of billing subscription");
 
-        //todo - need to remove the promo code - if it exists
-        
-        return InvoiceToRecurringInvoiceFactory::create($invoice);
-        
-    }
-
-    public function createClientSubscription($payment_hash)
+    private function convertInvoiceToRecurring($client_id)
     {
 
-        //is this a recurring or one off subscription.
+        $subscription_repo = new SubscriptionRepository();
 
-        $cs = new ClientSubscription();
-        $cs->subscription_id = $this->subscription->id;
-        $cs->company_id = $this->subscription->company_id;
+        $recurring_invoice = RecurringInvoiceFactory::create($this->subscription->company_id, $this->subscription->user_id);
+        $recurring_invoice->client_id = $client_id;
+        $recurring_invoice->line_items = $subscription_repo->generateLineItems($this->subscription, true);
+        $recurring_invoice->subscription_id = $this->subscription->id;
+        $recurring_invoice->frequency_id = $this->subscription->frequency_id ?: RecurringInvoice::FREQUENCY_MONTHLY;
+        $recurring_invoice->date = now();
+        $recurring_invoice->remaining_cycles = -1;
 
-        $cs->invoice_id = $payment_hash->billing_context->invoice_id;
-        $cs->client_id = $payment_hash->billing_context->client_id;
-        $cs->quantity = $payment_hash->billing_context->quantity;
-
-            //if is_recurring
-            //create recurring invoice from invoice
-            if($this->subscription->is_recurring)
-            {
-            $recurring_invoice = $this->convertInvoiceToRecurring($payment_hash);
-            $recurring_invoice->frequency_id = $this->subscription->frequency_id;
-            $recurring_invoice->next_send_date = $recurring_invoice->nextDateByFrequency(now()->format('Y-m-d'));
-            $recurring_invoice->save();
-            $cs->recurring_invoice_id = $recurring_invoice->id;
-
-            //?set the recurring invoice as active - set the date here also based on the frequency?
-            $recurring_invoice->service()->start();
-            }
-
-
-        $cs->save();
-
-        $this->client_subscription = $cs;
-
+        return $recurring_invoice;
     }
 
+    // @deprecated due to change in architecture
+
+    // public function createClientSubscription($payment_hash)
+    // {
+
+    //     //is this a recurring or one off subscription.
+
+    //     $cs = new ClientSubscription();
+    //     $cs->subscription_id = $this->subscription->id;
+    //     $cs->company_id = $this->subscription->company_id;
+
+    //     $cs->invoice_id = $payment_hash->billing_context->invoice_id;
+    //     $cs->client_id = $payment_hash->billing_context->client_id;
+    //     $cs->quantity = $payment_hash->billing_context->quantity;
+
+    //         //if is_recurring
+    //         //create recurring invoice from invoice
+    //         if($this->subscription->is_recurring)
+    //         {
+    //         $recurring_invoice = $this->convertInvoiceToRecurring($payment_hash);
+    //         $recurring_invoice->frequency_id = $this->subscription->frequency_id;
+    //         $recurring_invoice->next_send_date = $recurring_invoice->nextDateByFrequency(now()->format('Y-m-d'));
+    //         $recurring_invoice->save();
+    //         $cs->recurring_invoice_id = $recurring_invoice->id;
+
+    //         //?set the recurring invoice as active - set the date here also based on the frequency?
+    //         $recurring_invoice->service()->start();
+    //         }
+
+
+    //     $cs->save();
+
+    //     $this->client_subscription = $cs;
+
+    // }
+
+    //@todo - need refactor
     public function triggerWebhook()
     {
         //hit the webhook to after a successful onboarding
 
-        $body = [
-            'subscription' => $this->subscription,
-            'client_subscription' => $this->client_subscription,
-            'client' => $this->client_subscription->client->toArray(),
-        ];
+        // $body = [
+        //     'subscription' => $this->subscription,
+        //     'client_subscription' => $this->client_subscription,
+        //     'client' => $this->client_subscription->client->toArray(),
+        // ];
 
 
-        $client =  new \GuzzleHttp\Client(['headers' => $this->subscription->webhook_configuration->post_purchase_headers]);
+        // $client =  new \GuzzleHttp\Client(['headers' => $this->subscription->webhook_configuration->post_purchase_headers]);
 
-        $response = $client->{$this->subscription->webhook_configuration->post_purchase_rest_method}($this->subscription->post_purchase_url,[
-            RequestOptions::JSON => ['body' => $body]
-        ]);
+        // $response = $client->{$this->subscription->webhook_configuration->post_purchase_rest_method}($this->subscription->post_purchase_url,[
+        //     RequestOptions::JSON => ['body' => $body]
+        // ]);
 
-            SystemLogger::dispatch(
-                $body,
-                SystemLog::CATEGORY_WEBHOOK,
-                SystemLog::EVENT_WEBHOOK_RESPONSE,
-                SystemLog::TYPE_WEBHOOK_RESPONSE,
-                $this->client_subscription->client,
-            );
+        //     SystemLogger::dispatch(
+        //         $body,
+        //         SystemLog::CATEGORY_WEBHOOK,
+        //         SystemLog::EVENT_WEBHOOK_RESPONSE,
+        //         SystemLog::TYPE_WEBHOOK_RESPONSE,
+        //         $this->client_subscription->client,
+        //     );
 
     }
 
@@ -263,5 +240,13 @@ class SubscriptionService
         //scan for any notification we are required to send
     }
 
+    public function products()
+    {
+        return Product::whereIn('id', $this->transformKeys(explode(",", $this->subscription->product_ids)))->get();
+    }
 
+    public function recurring_products()
+    {
+        return Product::whereIn('id', $this->transformKeys(explode(",", $this->subscription->recurring_product_ids)))->get();
+    }
 }
