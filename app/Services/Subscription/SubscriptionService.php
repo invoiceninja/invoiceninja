@@ -27,6 +27,7 @@ use App\Models\SystemLog;
 use App\Repositories\InvoiceRepository;
 use App\Repositories\RecurringInvoiceRepository;
 use App\Repositories\SubscriptionRepository;
+use App\Utils\Ninja;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
 use GuzzleHttp\RequestOptions;
@@ -70,7 +71,13 @@ class SubscriptionService
                               ->save();
 
             //execute any webhooks
-            $this->triggerWebhook();
+
+            $context = [
+                'context' => 'recurring_purchase',
+                'recurring_invoice' => $recurring_invoice->hashed_id,
+            ];
+
+            $this->triggerWebhook($context);
 
             if(array_key_exists('post_purchase_url', $this->subscription->webhook_configuration) && strlen($this->subscription->webhook_configuration['post_purchase_url']) >=1)
                 return redirect($this->subscription->webhook_configuration['post_purchase_url']);
@@ -80,8 +87,13 @@ class SubscriptionService
         else
         {
 
+            $context = [
+                'context' => 'single_purchase',
+                'invoice' => $this->encodePrimaryKey($payment_hash->fee_invoice_id),
+            ];
+
             //execute any webhooks
-            $this->triggerWebhook();
+            $this->triggerWebhook($context);
 
             if(array_key_exists('post_purchase_url', $this->subscription->webhook_configuration) && strlen($this->subscription->webhook_configuration['post_purchase_url']) >=1)
                 return redirect($this->subscription->webhook_configuration['post_purchase_url']);
@@ -124,8 +136,13 @@ class SubscriptionService
                           ->start()
                           ->save();
 
+            $context = [
+                'context' => 'trial',
+                'recurring_invoice' => $recurring_invoice->hashed_id,
+            ];
+
         //execute any webhooks
-        $this->triggerWebhook();
+        $this->triggerWebhook($context);
 
         if(array_key_exists('post_purchase_url', $this->subscription->webhook_configuration) && strlen($this->subscription->webhook_configuration['post_purchase_url']) >=1)
             return redirect($this->subscription->webhook_configuration['post_purchase_url']);
@@ -208,22 +225,35 @@ class SubscriptionService
     // }
 
     //@todo - need refactor
-    public function triggerWebhook()
+    public function triggerWebhook($context)
     {
+        //context = 'trial, recurring_purchase, single_purchase'
         //hit the webhook to after a successful onboarding
 
-        // $body = [
-        //     'subscription' => $this->subscription,
-        //     'client_subscription' => $this->client_subscription,
-        //     'client' => $this->client_subscription->client->toArray(),
-        // ];
+        $body = [
+            'subscription' => $this->subscription->toArray(),
+            'client' => $this->client_subscription->client->toArray(),
+        ];
 
+        $body = array_merge($body, $context);
+        
+        if(Ninja::isHosted())
+        {
+            $hosted = [
+                'company' => $this->subscription->company,
+            ];
 
-        // $client =  new \GuzzleHttp\Client(['headers' => $this->subscription->webhook_configuration->post_purchase_headers]);
+            $body = array_merge($body, $hosted);
+        }
 
-        // $response = $client->{$this->subscription->webhook_configuration->post_purchase_rest_method}($this->subscription->post_purchase_url,[
-        //     RequestOptions::JSON => ['body' => $body]
-        // ]);
+        $client =  new \GuzzleHttp\Client(
+            [
+                'headers' => $this->subscription->webhook_configuration['post_purchase_headers']
+            ]);
+
+        $response = $client->{$this->subscription->webhook_configuration['post_purchase_rest_method']($this->subscription['post_purchase_url'],[
+            RequestOptions::JSON => ['body' => $body]
+        ]);
 
         //     SystemLogger::dispatch(
         //         $body,
