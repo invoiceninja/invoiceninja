@@ -231,8 +231,8 @@ class SubscriptionService
         //hit the webhook to after a successful onboarding
 
         $body = [
-            'subscription' => $this->subscription->toArray(),
-            'client' => $this->client_subscription->client->toArray(),
+            'subscription' => $this->subscription->hashed_id,
+            'client' => $this->client_subscription->client->hashed_id,
         ];
 
         $body = array_merge($body, $context);
