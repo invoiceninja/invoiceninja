@@ -75,6 +75,7 @@ class SubscriptionService
             $context = [
                 'context' => 'recurring_purchase',
                 'recurring_invoice' => $recurring_invoice->hashed_id,
+                'invoice' => $this->encodePrimaryKey($payment_hash->fee_invoice_id),
             ];
 
             $this->triggerWebhook($context);
