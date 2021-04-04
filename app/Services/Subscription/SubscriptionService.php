@@ -76,6 +76,8 @@ class SubscriptionService
                 'context' => 'recurring_purchase',
                 'recurring_invoice' => $recurring_invoice->hashed_id,
                 'invoice' => $this->encodePrimaryKey($payment_hash->fee_invoice_id),
+                'client' => $recurring_invoice->client->hashed_id,
+                'subscription' => $this->subscription->hashed_id,
             ];
 
             $this->triggerWebhook($context);
@@ -87,10 +89,13 @@ class SubscriptionService
         }
         else
         {
+            $invoice = Invoice::find($payment_hash->fee_invoice_id);
 
             $context = [
                 'context' => 'single_purchase',
                 'invoice' => $this->encodePrimaryKey($payment_hash->fee_invoice_id),
+                'client'  => $invoice->client->hashed_id,
+                'subscription' => $this->subscription->hashed_id,
             ];
 
             //execute any webhooks
@@ -140,6 +145,8 @@ class SubscriptionService
             $context = [
                 'context' => 'trial',
                 'recurring_invoice' => $recurring_invoice->hashed_id,
+                'client' => $recurring_invoice->client->hashed_id,
+                'subscription' => $this->subscription->hashed_id,
             ];
 
         //execute any webhooks
@@ -231,12 +238,7 @@ class SubscriptionService
         //context = 'trial, recurring_purchase, single_purchase'
         //hit the webhook to after a successful onboarding
 
-        $body = [
-            'subscription' => $this->subscription->hashed_id,
-            'client' => $this->client_subscription->client->hashed_id,
-        ];
-
-        $body = array_merge($body, $context);
+        $body = $context;
 
         if(Ninja::isHosted())
         {
@@ -252,7 +254,7 @@ class SubscriptionService
                 'headers' => $this->subscription->webhook_configuration['post_purchase_headers']
             ]);
 
-        $response = $client->{$this->subscription->webhook_configuration['post_purchase_rest_method']}($this->subscription['post_purchase_url'],[
+        $response = $client->{$this->subscription->webhook_configuration['post_purchase_rest_method']}($this->subscription->webhook_configuration['post_purchase_url'],[
             RequestOptions::JSON => ['body' => $body]
         ]);
 
