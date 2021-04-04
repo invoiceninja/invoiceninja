@@ -236,7 +236,7 @@ class SubscriptionService
         ];
 
         $body = array_merge($body, $context);
-        
+
         if(Ninja::isHosted())
         {
             $hosted = [
@@ -251,7 +251,7 @@ class SubscriptionService
                 'headers' => $this->subscription->webhook_configuration['post_purchase_headers']
             ]);
 
-        $response = $client->{$this->subscription->webhook_configuration['post_purchase_rest_method']($this->subscription['post_purchase_url'],[
+        $response = $client->{$this->subscription->webhook_configuration['post_purchase_rest_method']}($this->subscription['post_purchase_url'],[
             RequestOptions::JSON => ['body' => $body]
         ]);
 
