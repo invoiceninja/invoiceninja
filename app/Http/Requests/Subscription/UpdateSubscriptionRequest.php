@@ -35,8 +35,11 @@ class UpdateSubscriptionRequest extends Request
      */
     public function rules()
     {
-        return [
+        $rules = [
             //
         ];
+
+        return $this->globalRules($rules);
+
     }
 }

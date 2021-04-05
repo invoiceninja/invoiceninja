@@ -34,7 +34,7 @@ class StoreSubscriptionRequest extends Request
      */
     public function rules()
     {
-        return [
+        $rules =  [
             'product_id' => ['sometimes'],
             'assigned_user_id' => ['sometimes'],
             'is_recurring' => ['sometimes'],
@@ -55,6 +55,9 @@ class StoreSubscriptionRequest extends Request
             'webhook_configuration' => ['array'],
             'name' => ['required', Rule::unique('subscriptions')->where('company_id', auth()->user()->company()->id)]
         ];
+
+        return $this->globalRules($rules);
+
     }
 
     protected function prepareForValidation()

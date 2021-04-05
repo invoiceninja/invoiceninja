@@ -34,6 +34,8 @@ class WebhookTransformer extends EntityTransformer
             'target_url' => $webhook->target_url ? (string) $webhook->target_url : '',
             'event_id' => (string) $webhook->event_id,
             'format' => (string) $webhook->format,
+            'rest_method' => (string) $webhook->rest_method ?: '',
+            'headers' => $webhook->headers ?: [],
         ];
     }
 }
