@@ -95,6 +95,21 @@ class ClientContact extends Authenticatable implements HasLocalePreference
         'client_id',
     ];
 
+    /**
+     * Whitelisted fields for using from query parameters on subscriptions request.
+     *
+     * @var string[]
+     */
+    public static $subscription_fillable = [
+        'first_name',
+        'last_name',
+        'phone',
+        'custom_value1',
+        'custom_value2',
+        'custom_value3',
+        'custom_value4',
+        'email',
+    ];
 
 	/*
 	V2 type of scope
