@@ -55,6 +55,9 @@ class UpdateOrCreateProduct implements ShouldQueue
     {
         MultiDB::setDB($this->company->db);
 
+        if(strval($this->invoice->client->getSetting('currency_id')) != strval($this->company->settings->currency_id))
+            return;
+        
         /* 
          * If the invoice was generated from a Task or Expense then
          * we do NOT update the product details this short block we
