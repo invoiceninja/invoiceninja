@@ -15,7 +15,9 @@ use App\DataMapper\InvoiceItem;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceToRecurringInvoiceFactory;
 use App\Factory\RecurringInvoiceFactory;
+use App\Jobs\Util\SubscriptionWebhookHandler;
 use App\Jobs\Util\SystemLogger;
+use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\ClientSubscription;
 use App\Models\Invoice;
@@ -243,38 +245,36 @@ class SubscriptionService
             'db' => $this->subscription->company->db,
         ]);        
 
-            $headers = [
-                'Content-Type' => 'application/json',
-                'X-Requested-With' => 'XMLHttpRequest',
-            ];
-
-            //$this->subscription->webhook_configuration['post_purchase_headers']
-
-            $client =  new \GuzzleHttp\Client(
-            [
-                'headers' => $headers,
-            ]);
+        $headers = [
+            'Content-Type' => 'application/json',
+            'X-Requested-With' => 'XMLHttpRequest',
+        ];
 
 
-        try{
+        $client =  new \GuzzleHttp\Client(
+        [
+            'headers' => $headers,
+        ]);
+
+        try {
             $response = $client->{$this->subscription->webhook_configuration['post_purchase_rest_method']}($this->subscription->webhook_configuration['post_purchase_url'],[
                 RequestOptions::JSON => ['body' => $body], RequestOptions::ALLOW_REDIRECTS => false
             ]);
         }
         catch(\Exception $e)
         {
-            nlog($e->getMessage());
+
         }
 
-        // $response = $client->post('http://ninja.test:8000/api/admin/plan',[RequestOptions::JSON => ['body' => $body]]);
+        $client = \App\Models\Client::find($this->decodePrimaryKey($body['client']));
 
-        //     SystemLogger::dispatch(
-        //         $body,
-        //         SystemLog::CATEGORY_WEBHOOK,
-        //         SystemLog::EVENT_WEBHOOK_RESPONSE,
-        //         SystemLog::TYPE_WEBHOOK_RESPONSE,
-        //         $this->client_subscription->client,
-        //     );
+            SystemLogger::dispatch(
+                $body,
+                SystemLog::CATEGORY_WEBHOOK,
+                SystemLog::EVENT_WEBHOOK_RESPONSE,
+                SystemLog::TYPE_WEBHOOK_RESPONSE,
+                $client,
+            );
 
     }
 
