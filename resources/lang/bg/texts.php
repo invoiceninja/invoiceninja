@@ -2259,6 +2259,7 @@ $LANG = array(
     'sample_commands' => 'Примерни команди',
     'voice_commands_feedback' => 'Работим активно за подобряване на тази функционалност. Ако има команда, която желаете да бъде поддържана, моля изпратете ни имейл на :email.',
     'payment_type_Venmo' => 'Venmo',
+    'payment_type_MPESA' => 'MPESA',
     'payment_type_Money Order' => 'Паричен превод',
     'archived_products' => 'Успешно архивирани :count продукта',
     'recommend_on' => 'Препоръчваме <b>да активирате</b> тази настройка.',

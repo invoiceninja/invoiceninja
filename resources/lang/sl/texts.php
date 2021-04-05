@@ -2255,6 +2255,7 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
     'sample_commands' => 'Vzorčni ukazi',
     'voice_commands_feedback' => 'Aktivno si prizadevamo izboljšati storitev. Če imate ukaz, ki bi želeli da ga vključimo, nam prosim pišite na :email.',
     'payment_type_Venmo' => 'Venmo',
+    'payment_type_MPESA' => 'MPESA',
     'payment_type_Money Order' => 'Poštna Nakaznica',
     'archived_products' => 'Število uspešno arhiviranih izdelkov: :count',
     'recommend_on' => 'Priporočamo da <b>omogočite</b> to nastavitev.',

@@ -2259,6 +2259,7 @@ $LANG = array(
     'sample_commands' => 'Пример наредби',
     'voice_commands_feedback' => 'Активно работиме на тоа да ја подобриме оваа функција, ако има наредба која би сакале да ја поддржиме ве молиме пратете ни е-пошта на :email.',
     'payment_type_Venmo' => 'Venmo',
+    'payment_type_MPESA' => 'MPESA',
     'payment_type_Money Order' => 'Нарачка на пари',
     'archived_products' => 'Успешно архивирање на :count продукти',
     'recommend_on' => 'Препорачуваме <b> овозможување </b> на ова подесување.',

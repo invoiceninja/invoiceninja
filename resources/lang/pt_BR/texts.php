@@ -2252,6 +2252,7 @@ Quando tiver as quantias, volte a esta página de formas de pagamento e clique "
     'sample_commands' => 'Comandos de exemplo',
     'voice_commands_feedback' => 'Estamos trabalhando ativamente para melhorar esta funcionalidade, se houver um comando que quiser que suportemos, mande-nos um email em :email.',
     'payment_type_Venmo' => 'Venmo',
+    'payment_type_MPESA' => 'MPESA',
     'payment_type_Money Order' => 'Pedido com Dinheiro',
     'archived_products' => ':count produtos arquivados com sucesso',
     'recommend_on' => 'Recomendamos <b>habilitar</b> esta configuração.',

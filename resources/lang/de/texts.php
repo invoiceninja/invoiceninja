@@ -2259,6 +2259,7 @@ Sobald Sie die Beträge erhalten haben, kommen Sie bitte wieder zurück zu diese
     'sample_commands' => 'Beispiele für Sprachbefehle',
     'voice_commands_feedback' => 'Wir arbeiten aktiv daran, dieses Feature zu verbessern. Wenn es einen Befehl gibt, den wir unterstützen sollen, senden Sie uns bitte eine E-Mail an :email.',
     'payment_type_Venmo' => 'Venmo',
+    'payment_type_MPESA' => 'MPESA',
     'payment_type_Money Order' => 'Zahlunganweisung',
     'archived_products' => 'Archivierung erfolgreich :Produktzähler',
     'recommend_on' => 'Wir empfehlen diese Einstellung zu <b>aktivieren</b>.',

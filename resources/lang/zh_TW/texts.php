@@ -2255,6 +2255,7 @@ $LANG = array(
     'sample_commands' => '示範指令',
     'voice_commands_feedback' => '我們正積極致力於改善此功能。若有您希望我們支援的指令，請以電子郵件告訴我們 :email。',
     'payment_type_Venmo' => 'Venmo',
+    'payment_type_MPESA' => 'MPESA',
     'payment_type_Money Order' => '匯票',
     'archived_products' => '歸檔 :count 項產品資料成功',
     'recommend_on' => '我們建議 <b>啟用</b> 這項設定。',

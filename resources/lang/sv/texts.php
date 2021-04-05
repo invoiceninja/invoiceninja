@@ -2265,6 +2265,7 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'sample_commands' => 'Test kommandon',
     'voice_commands_feedback' => 'Vi arbetat aktivt med att förbättra denna funktion, om där är ett kommando du vill vi ska stödja skicka ett mail till :email',
     'payment_type_Venmo' => 'Venmo',
+    'payment_type_MPESA' => 'MPESA',
     'payment_type_Money Order' => 'Fastpris i förskott - Money Order',
     'archived_products' => 'Arkiverade :count produkter utan problem',
     'recommend_on' => 'Vi rekommenderar <b>aktivering</b> av denna inställning.',

@@ -2260,6 +2260,7 @@ $LANG = array(
     'sample_commands' => 'คำสั่งตัวอย่าง',
     'voice_commands_feedback' => 'เรากำลังทำงานอย่างเต็มที่เพื่อปรับปรุงคุณลักษณะนี้ถ้ามีคำสั่งที่คุณต้องการให้เราสนับสนุนเพิ่มเติมโปรดส่งอีเมลถึงเราที่ :email.',
     'payment_type_Venmo' => 'Venmo',
+    'payment_type_MPESA' => 'MPESA',
     'payment_type_Money Order' => 'Money Order',
     'archived_products' => 'เก็บบันทึก :count สินค้า',
     'recommend_on' => 'เราแนะนำ <b>เปิดการใช้งาน</b>การตั้งค่านี้',

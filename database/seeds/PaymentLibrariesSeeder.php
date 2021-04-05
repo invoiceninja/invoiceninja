@@ -75,6 +75,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'GoCardless', 'provider' => 'GoCardlessV2\Redirect', 'sort_order' => 9, 'is_offsite' => true],
             ['name' => 'PagSeguro', 'provider' => 'PagSeguro'],
             ['name' => 'PAYMILL', 'provider' => 'Paymill'],
+            ['name' => 'MPESA', 'provider' => 'MPESA'],
             ['name' => 'Custom', 'provider' => 'Custom2', 'is_offsite' => true, 'sort_order' => 21],
             ['name' => 'Custom', 'provider' => 'Custom3', 'is_offsite' => true, 'sort_order' => 22],
         ];

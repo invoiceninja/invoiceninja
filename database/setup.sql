@@ -2162,7 +2162,7 @@ CREATE TABLE `payment_types` (
 
 LOCK TABLES `payment_types` WRITE;
 /*!40000 ALTER TABLE `payment_types` DISABLE KEYS */;
-INSERT INTO `payment_types` VALUES (1,'Apply Credit',NULL),(2,'Bank Transfer',2),(3,'Cash',NULL),(4,'Debit',1),(5,'ACH',2),(6,'Visa Card',1),(7,'MasterCard',1),(8,'American Express',1),(9,'Discover Card',1),(10,'Diners Card',1),(11,'EuroCard',1),(12,'Nova',1),(13,'Credit Card Other',1),(14,'PayPal',3),(15,'Google Wallet',NULL),(16,'Check',NULL),(17,'Carte Blanche',1),(18,'UnionPay',1),(19,'JCB',1),(20,'Laser',1),(21,'Maestro',1),(22,'Solo',1),(23,'Switch',1),(24,'iZettle',1),(25,'Swish',2),(26,'Venmo',NULL),(27,'Money Order',NULL),(28,'Alipay',7),(29,'Sofort',8),(30,'SEPA',9),(31,'GoCardless',10),(32,'Bitcoin',4);
+INSERT INTO `payment_types` VALUES (1,'Apply Credit',NULL),(2,'Bank Transfer',2),(3,'Cash',NULL),(4,'Debit',1),(5,'ACH',2),(6,'Visa Card',1),(7,'MasterCard',1),(8,'American Express',1),(9,'Discover Card',1),(10,'Diners Card',1),(11,'EuroCard',1),(12,'Nova',1),(13,'Credit Card Other',1),(14,'PayPal',3),(15,'Google Wallet',NULL),(16,'Check',NULL),(17,'Carte Blanche',1),(18,'UnionPay',1),(19,'JCB',1),(20,'Laser',1),(21,'Maestro',1),(22,'Solo',1),(23,'Switch',1),(24,'iZettle',1),(25,'Swish',2),(26,'Venmo',NULL),(27,'Money Order',NULL),(28,'Alipay',7),(29,'Sofort',8),(30,'SEPA',9),(31,'GoCardless',10),(32,'Bitcoin',4),(33,'MPESA',NULL);
 /*!40000 ALTER TABLE `payment_types` ENABLE KEYS */;
 UNLOCK TABLES;
 

@@ -2252,6 +2252,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'sample_commands' => 'Exemples de commandes',
     'voice_commands_feedback' => 'Nous travaillons activement à l\'amélioration de cette fonctionnalité. Si vous souhaitez l\'ajout d\'une commande sépcifique, veuillez nous contacter par courriel à :email.',
     'payment_type_Venmo' => 'Venmo',
+    'payment_type_MPESA' => 'MPESA',
     'payment_type_Money Order' => 'Mandat postal',
     'archived_products' => ':count produits archivés avec succès',
     'recommend_on' => 'Nous recommandons d\'<b>activer</b> ce réglage.',

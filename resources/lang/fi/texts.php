@@ -2258,6 +2258,7 @@ $LANG = array(
     'sample_commands' => 'Sample commands',
     'voice_commands_feedback' => 'We\'re actively working  improve this feature, jos there\'s  command you\'d like us  support  sähköposti us at :sähköposti.',
     'payment_type_Venmo' => 'Venmo',
+    'payment_type_MPESA' => 'MPESA',
     'payment_type_Money Order' => 'Money Order',
     'archived_products' => 'onnistuneesti arkistoitu :count tuotteet',
     'recommend_on' => 'We recommend <b>enabling</b> this asetus.',

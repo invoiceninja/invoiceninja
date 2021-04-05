@@ -2258,6 +2258,7 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'sample_commands' => 'Δείγματα εντολών',
     'voice_commands_feedback' => 'Εργαζόμαστε για να βελτιώσουμε αυτό το χαρακτηριστικό, εάν υπάρχει μία εντολή που θέλετε να υποστηρίζουμε παρακαλούμε στείλτε μας email στο :email.',
     'payment_type_Venmo' => 'Venmo',
+    'payment_type_MPESA' => 'MPESA',
     'payment_type_Money Order' => 'Έμβασμα',
     'archived_products' => 'Επιτυχής αρχειοθέτηση :count προϊόντων',
     'recommend_on' => 'Προτείνουμε την <b>ενεργοποίηση</b> αυτής της ρύθμισης.',

@@ -2250,6 +2250,7 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'sample_commands' => 'Voorbeeldcommando\'s',
     'voice_commands_feedback' => 'We werken actief aan deze feature, als er een commando is waarvan u wilt dat wij dat ondersteunen, mail ons dan op :email.',
     'payment_type_Venmo' => 'Venmo',
+    'payment_type_MPESA' => 'MPESA',
     'payment_type_Money Order' => 'Money Order',
     'archived_products' => 'Succesvol :count producten gearchiveerd',
     'recommend_on' => 'We raden aan deze instellingen <b>in te schakelen</b>.',

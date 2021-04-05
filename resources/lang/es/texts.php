@@ -2256,6 +2256,7 @@ $LANG = array(
     'sample_commands' => 'Comandos de muestra',
     'voice_commands_feedback' => 'Estamos trabajando activamente para mejorar esta función, si hay un comando que te gustaría que soportemos, envíanos un correo electrónico a: email.',
     'payment_type_Venmo' => 'Venmo',
+    'payment_type_MPESA' => 'MPESA',
     'payment_type_Money Order' => 'Giro Postal',
     'archived_products' => ':count productos archivados con éxito',
     'recommend_on' => 'Nosotros recomendamos <b>habilitar</b> esta función.',

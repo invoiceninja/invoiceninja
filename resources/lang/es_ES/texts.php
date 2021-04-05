@@ -2248,6 +2248,7 @@ Una vez que tenga los montos, vuelva a esta página de métodos de pago y haga c
     'sample_commands' => 'Comandos de ejemplo',
     'voice_commands_feedback' => 'Estamos trabajando activamente para mejorar esta función, si hay un comando que le gustaría que admitamos, envíenos un correo electrónico a :email.',
     'payment_type_Venmo' => 'Venmo',
+    'payment_type_MPESA' => 'MPESA',
     'payment_type_Money Order' => 'Giro postal',
     'archived_products' => ':count productos archivados correctamente',
     'recommend_on' => 'Recomendamos <b>habilitar</b> esta configuración.',

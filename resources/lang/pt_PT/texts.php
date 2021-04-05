@@ -2250,6 +2250,7 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'sample_commands' => 'Comandos de exemplo',
     'voice_commands_feedback' => 'Estamos a trabalhar para melhorar esta questão, se quiser por enviar-nos um email para :email.',
     'payment_type_Venmo' => 'Venmo',
+    'payment_type_MPESA' => 'MPESA',
     'payment_type_Money Order' => 'Money Order',
     'archived_products' => ':count Produtos arquivados com sucesso',
     'recommend_on' => 'Recomendamos <b>ativar</b> esta definição.',
