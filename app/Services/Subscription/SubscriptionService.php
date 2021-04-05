@@ -152,8 +152,9 @@ class SubscriptionService
         //execute any webhooks
         $this->triggerWebhook($context);
 
-        if(array_key_exists('post_purchase_url', $this->subscription->webhook_configuration) && strlen($this->subscription->webhook_configuration['post_purchase_url']) >=1)
-            return redirect($this->subscription->webhook_configuration['post_purchase_url']);
+        if(array_key_exists('return_url', $this->subscription->webhook_configuration) && strlen($this->subscription->webhook_configuration['return_url']) >=1){
+            return redirect($this->subscription->webhook_configuration['return_url']);
+        }
 
         return redirect('/client/recurring_invoices/'.$recurring_invoice->hashed_id);
     }
@@ -235,28 +236,37 @@ class SubscriptionService
     //@todo - need refactor
     public function triggerWebhook($context)
     {
-        //context = 'trial, recurring_purchase, single_purchase'
-        //hit the webhook to after a successful onboarding
 
-        $body = $context;
+        $body = array_merge($context, [
+            'company_key' => $this->subscription->company->company_key, 
+            'account_key' => $this->subscription->company->account->key,
+            'db' => $this->subscription->company->db,
+        ]);        
 
-        if(Ninja::isHosted())
-        {
-            $hosted = [
-                'company' => $this->subscription->company,
+            $headers = [
+                'Content-Type' => 'application/json',
+                'X-Requested-With' => 'XMLHttpRequest',
             ];
 
-            $body = array_merge($body, $hosted);
-        }
+            //$this->subscription->webhook_configuration['post_purchase_headers']
 
-        $client =  new \GuzzleHttp\Client(
+            $client =  new \GuzzleHttp\Client(
             [
-                'headers' => $this->subscription->webhook_configuration['post_purchase_headers']
+                'headers' => $headers,
             ]);
 
-        $response = $client->{$this->subscription->webhook_configuration['post_purchase_rest_method']}($this->subscription->webhook_configuration['post_purchase_url'],[
-            RequestOptions::JSON => ['body' => $body]
-        ]);
+
+        try{
+            $response = $client->{$this->subscription->webhook_configuration['post_purchase_rest_method']}($this->subscription->webhook_configuration['post_purchase_url'],[
+                RequestOptions::JSON => ['body' => $body], RequestOptions::ALLOW_REDIRECTS => false
+            ]);
+        }
+        catch(\Exception $e)
+        {
+            nlog($e->getMessage());
+        }
+
+        // $response = $client->post('http://ninja.test:8000/api/admin/plan',[RequestOptions::JSON => ['body' => $body]]);
 
         //     SystemLogger::dispatch(
         //         $body,
