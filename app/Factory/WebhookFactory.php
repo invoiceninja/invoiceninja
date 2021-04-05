@@ -23,7 +23,9 @@ class WebhookFactory
         $webhook->target_url = '';
         $webhook->event_id = 1;
         $webhook->format = 'JSON';
-
+        $webhook->rest_method = 'post';
+        $webhook->headers = [];
+        
         return $webhook;
     }
 }

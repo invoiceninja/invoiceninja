@@ -35,8 +35,20 @@ class UpdateSubscriptionRequest extends Request
      */
     public function rules()
     {
-        return [
+        $rules = [
             //
         ];
+
+        return $this->globalRules($rules);
+
+    }
+
+    protected function prepareForValidation()
+    {
+        $input = $this->all();
+
+        $input = $this->decodePrimaryKeys($input);
+
+        $this->replace($input);
     }
 }

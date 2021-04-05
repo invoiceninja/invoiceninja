@@ -55,4 +55,36 @@ class CompanySettingsTest extends TestCase
 
         $this->assertEquals(1, count($diff));
     }
+
+    public function testStringEquivalence()
+    {
+
+        $value = (strval(4) != strval(3));
+
+        $this->assertTrue($value);
+
+        $value = (strval(4) != strval(4));
+
+        $this->assertFalse($value);
+
+        $value = (strval('4') != strval(4));
+        $this->assertFalse($value);
+
+        $value = (strval('4') != strval('4'));
+
+        $this->assertFalse($value);
+
+        $value = (strval('4') != strval(3));
+
+        $this->assertTrue($value);
+
+        $value = (strval(4) != strval('3'));
+
+        $this->assertTrue($value);
+
+        $value = (strval('4') != strval('3'));
+
+        $this->assertTrue($value);
+
+    }
 }

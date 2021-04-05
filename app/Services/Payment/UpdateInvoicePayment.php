@@ -82,6 +82,7 @@ class UpdateInvoicePayment
                 ->updateBalance($paid_amount * -1)
                 ->updatePaidToDate($paid_amount)
                 ->updateStatus()
+                ->deletePdf()
                 ->save();
 
             InvoiceWorkflowSettings::dispatchNow($invoice);

@@ -227,6 +227,8 @@ class Import implements ShouldQueue
         CompanySizeCheck::dispatch();
 
         info('Completed🚀🚀🚀🚀🚀 at '.now());
+
+        unlink($this->file_path);
     }
 
     private function setInitialCompanyLedgerBalances()
