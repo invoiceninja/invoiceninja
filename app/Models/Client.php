@@ -99,6 +99,36 @@ class Client extends BaseModel implements HasLocalePreference
 
     protected $touches = [];
 
+    /**
+     * Whitelisted fields for using from query parameters on subscriptions request.
+     *
+     * @var string[]
+     */
+    public static $subscriptions_fillable = [
+        'assigned_user_id',
+        'address1',
+        'address2',
+        'city',
+        'state',
+        'postal_code',
+        'country_id',
+        'custom_value1',
+        'custom_value2',
+        'custom_value3',
+        'custom_value4',
+        'shipping_address1',
+        'shipping_address2',
+        'shipping_city',
+        'shipping_state',
+        'shipping_postal_code',
+        'shipping_country_id',
+        'payment_terms',
+        'vat_number',
+        'id_number',
+        'public_notes',
+        'phone',
+    ];
+
     public function getEntityType()
     {
         return self::class;
@@ -614,7 +644,7 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function recurring_invoice_filepath()
     {
-        return $this->company->company_key.'/'.$this->client_hash.'/recurring_invoices/';        
+        return $this->company->company_key.'/'.$this->client_hash.'/recurring_invoices/';
     }
 
     public function company_filepath()
