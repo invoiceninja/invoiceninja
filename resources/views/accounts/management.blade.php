@@ -249,16 +249,18 @@
 				<h3 class="panel-title">{!! trans('texts.migrate_to_next_version') !!}</h3>
 			</div>
 			<div class="panel-body">
-
-				<div class="col-lg-8 col-sm-8">
-					<div clasS="form-group">
-						{!! trans('texts.migrate_intro_text') !!}
-					</div>	
-				</div>
-
-				<div class="col-md-12">
-					<div class="form-group">
-						<a class="btn btn-primary btn-lg" href="/migration/start">{!! trans('texts.start_the_migration') !!}</a>
+				<div class="form-group">
+					<label for="modules" class="control-label col-lg-4 col-sm-4"></label>
+					<div class="col-lg-8 col-sm-8">
+						<div class="help-block">{{ trans('texts.migrate_intro_text')}}</div><br/>
+						@if(Auth::user()->eligibleForMigration())
+							<a class="btn btn-primary btn-lg"
+								href="{{ url('/migration/start') }}">{!! trans('texts.start_migration') !!}</a>
+						@else
+							{{ trans('texts.not_allowed') }}
+						@endif
+						<br/>
+						<a href="https://invoiceninja.github.io/docs/migration/" target="_blank">{{ trans('texts.learn_more') }}</a>
 					</div>
 				</div>
 			</div>
