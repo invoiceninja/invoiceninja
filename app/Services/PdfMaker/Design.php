@@ -251,7 +251,7 @@ class Design extends BaseDesign
     public function productTable(): array
     {
         $product_items = collect($this->entity->line_items)->filter(function ($item) {
-            return $item->type_id == 1;
+            return $item->type_id == 1 || $item->type_id == 6;
         });
 
         if (count($product_items) == 0) {
