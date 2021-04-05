@@ -507,13 +507,6 @@ class Design extends BaseDesign
             }
         }
 
-        if (!is_null($this->entity->partial) && $this->entity->partial > 0) {
-            $elements[1]['elements'][] = ['element' => 'div', 'elements' => [
-                ['element' => 'span', 'content' => '$partial_due_label', 'properties' => ['data-ref' => 'totals_table-partial_due-label']],
-                ['element' => 'span', 'content' => '$partial_due'],
-            ]];
-        }
-
         $elements[1]['elements'][] = ['element' => 'div', 'elements' => [
             ['element' => 'span', 'content' => '',],
             ['element' => 'span', 'content' => ''],
