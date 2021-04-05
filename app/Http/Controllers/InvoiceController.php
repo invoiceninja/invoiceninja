@@ -795,7 +795,7 @@ class InvoiceController extends BaseController
 
         $file_path = $invoice->service()->getInvoicePdf($contact);
 
-nlog($file_path);
+        nlog($file_path);
 
         return response()->download($file_path, basename($file_path));
     }
