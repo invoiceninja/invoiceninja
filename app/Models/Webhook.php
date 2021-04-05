@@ -57,6 +57,12 @@ class Webhook extends BaseModel
         'target_url',
         'format',
         'event_id',
+        'rest_method',
+        'headers',
+    ];
+
+    protected $casts = [
+        'headers' => 'array',
     ];
 
     public function user()
