@@ -114,12 +114,12 @@ class PaymentFailureObject
 
         $text = '';
 
-        foreach($this->invoices as $invoice)
-        {
+        // foreach($this->invoices as $invoice)
+        // {
 
-            $text .= ctrans('texts.notification_invoice_payment_failed_subject', ['invoice' => $invoice->number]) . "\n";
+        //     $text .= ctrans('texts.notification_invoice_payment_failed_subject', ['invoice' => $invoice->number]) . "\n";
 
-        }
+        // }
 
         return $text;
 

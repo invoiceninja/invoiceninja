@@ -124,7 +124,6 @@ class SubscriptionService
 
         $response = $this->triggerWebhook($context);
 
-
     }
 
     /* Starts the process to create a trial 
