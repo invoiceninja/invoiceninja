@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a76d1ecefd6830083b247e8c1af5c4f0",
+    "content-hash": "feb70f976b798dde6550a7b5439bb191",
     "packages": [
         {
             "name": "authorizenet/authorizenet",
@@ -1005,76 +1005,6 @@
                 "source": "https://github.com/czproject/git-php/tree/v3.18.2"
             },
             "time": "2021-02-15T11:41:33+00:00"
-        },
-        {
-            "name": "dacastro4/laravel-gmail",
-            "version": "v5.1.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/dacastro4/laravel-gmail.git",
-                "reference": "7db240bb5ac2d86fdce98e1880c4c0857c73aff8"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/dacastro4/laravel-gmail/zipball/7db240bb5ac2d86fdce98e1880c4c0857c73aff8",
-                "reference": "7db240bb5ac2d86fdce98e1880c4c0857c73aff8",
-                "shasum": ""
-            },
-            "require": {
-                "google/apiclient": "^2.5",
-                "illuminate/auth": "~5.8|^6.0|^7.0|^8.0",
-                "illuminate/config": "~5.8|^6.0|^7.0|^8.0",
-                "illuminate/database": "~5.8|^6.0|^7.0|^8.0",
-                "illuminate/routing": "~5.8|^6.0|^7.0|^8.0",
-                "illuminate/session": "~5.8|^6.0|^7.0|^8.0",
-                "illuminate/support": "~5.8|^6.0|^7.0|^8.0",
-                "php": "^8.0",
-                "swiftmailer/swiftmailer": "~5.8|^6.0"
-            },
-            "require-dev": {
-                "mockery/mockery": "^1.0",
-                "orchestra/testbench": "^4.0|^5.0|^6.0",
-                "phpunit/phpunit": "^9.3",
-                "squizlabs/php_codesniffer": "~3.4"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "Dacastro4\\LaravelGmail\\LaravelGmailServiceProvider"
-                    ],
-                    "aliases": {
-                        "LaravelGmail": "Dacastro4\\LaravelGmail\\Facade\\LaravelGmail"
-                    }
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Dacastro4\\LaravelGmail\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Daniel Castro",
-                    "email": "danielcastro04@gmail.com",
-                    "homepage": "https://danielcastro.dev"
-                }
-            ],
-            "description": "Gmail API package for Laravel",
-            "keywords": [
-                "api",
-                "gmail",
-                "laravel"
-            ],
-            "support": {
-                "issues": "https://github.com/dacastro4/laravel-gmail/issues",
-                "source": "https://github.com/dacastro4/laravel-gmail/tree/v5.1.2"
-            },
-            "time": "2021-04-05T20:34:36+00:00"
         },
         {
             "name": "dasprid/enum",
@@ -9750,6 +9680,75 @@
                 "source": "https://github.com/turbo124/beacon/tree/1.0.7"
             },
             "time": "2021-03-23T09:54:29+00:00"
+        },
+        {
+            "name": "turbo124/laravel-gmail",
+            "version": "v5.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/turbo124/laravel-gmail.git",
+                "reference": "55ca0271a54a568ebaa26febbe0790b2ce5ac966"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/turbo124/laravel-gmail/zipball/55ca0271a54a568ebaa26febbe0790b2ce5ac966",
+                "reference": "55ca0271a54a568ebaa26febbe0790b2ce5ac966",
+                "shasum": ""
+            },
+            "require": {
+                "google/apiclient": "^2.5",
+                "illuminate/auth": "~5.8|^6.0|^7.0|^8.0",
+                "illuminate/config": "~5.8|^6.0|^7.0|^8.0",
+                "illuminate/database": "~5.8|^6.0|^7.0|^8.0",
+                "illuminate/routing": "~5.8|^6.0|^7.0|^8.0",
+                "illuminate/session": "~5.8|^6.0|^7.0|^8.0",
+                "illuminate/support": "~5.8|^6.0|^7.0|^8.0",
+                "php": "^7.3|^7.4|^8.0",
+                "swiftmailer/swiftmailer": "~5.8|^6.0"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.0",
+                "orchestra/testbench": "^4.0",
+                "phpunit/phpunit": "^8.5",
+                "squizlabs/php_codesniffer": "~3.4"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Dacastro4\\LaravelGmail\\LaravelGmailServiceProvider"
+                    ],
+                    "aliases": {
+                        "LaravelGmail": "Dacastro4\\LaravelGmail\\Facade\\LaravelGmail"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Dacastro4\\LaravelGmail\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Daniel Castro",
+                    "email": "danielcastro04@gmail.com",
+                    "homepage": "https://danielcastro.me"
+                }
+            ],
+            "description": "Gmail API package for Laravel",
+            "keywords": [
+                "api",
+                "gmail",
+                "laravel"
+            ],
+            "support": {
+                "source": "https://github.com/turbo124/laravel-gmail/tree/v5.0.1"
+            },
+            "time": "2021-04-06T00:53:48+00:00"
         },
         {
             "name": "vlucas/phpdotenv",
