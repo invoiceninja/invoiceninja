@@ -220,14 +220,14 @@ trait CompanySettingsSaver
         switch ($key) {
             case 'int':
             case 'integer':
-                return ctype_digit(strval(abs($value)));
+                return ctype_digit(strval(abs((int)$value)));
                 // return is_int($value) || ctype_digit(strval(abs($value)));
             case 'real':
             case 'float':
             case 'double':
                 return is_float($value) || is_numeric(strval($value));
             case 'string':
-                return method_exists($value, '__toString') || is_null($value) || is_string($value);
+                return (is_string($value) && method_exists($value, '__toString')) || is_null($value) || is_string($value);
                 //return is_null($value) || is_string($value);
             case 'bool':
             case 'boolean':
