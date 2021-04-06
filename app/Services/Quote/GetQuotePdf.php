@@ -15,6 +15,7 @@ use App\Jobs\Entity\CreateEntityPdf;
 use App\Models\ClientContact;
 use App\Models\Quote;
 use App\Services\AbstractService;
+use App\Utils\TempFile;
 use Illuminate\Support\Facades\Storage;
 
 class GetQuotePdf extends AbstractService
@@ -46,6 +47,9 @@ class GetQuotePdf extends AbstractService
             $file_path = CreateEntityPdf::dispatchNow($invitation);
         }
 
+        if(config('filesystems.default') == 's3')
+            return TempFile::path(Storage::disk($disk)->url($file_path));
+        
         return Storage::disk($disk)->path($file_path);
     }
 }
