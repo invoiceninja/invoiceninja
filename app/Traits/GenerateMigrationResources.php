@@ -421,7 +421,7 @@ info("get company");
         $credits = [];
 
         $export_credits = Invoice::where('account_id', $this->account->id)
-            ->where('amount', '<', '0')
+            ->where('balance', '<', '0')
             ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
             ->where('is_public', true)
             ->withTrashed()
