@@ -298,9 +298,12 @@ info("get company");
         $settings = new \stdClass();
         $settings->currency_id = $client->currency_id ? (string) $client->currency_id : (string) $client->account->currency_id;
 
-        if ($client->language_id) {
+        if($client->task_rate && $client->task_rate > 0)
+            $settings->default_task_rate = (float)$client->task_rate;
+
+        if ($client->language_id) 
             $settings->language_id = (string)$client->language_id;
-        }
+        
 
         return $settings;
     }
