@@ -244,6 +244,15 @@ class SubscriptionService
 
         }
 
+        /* Append the response to the system logger body */
+        if($response) {
+            
+            $status = $response->getStatusCode();
+            $response_body = $response->getBody();
+            $body = array_merge($body, ['status' => $status, 'response_body' => $response_body]);
+
+        }
+
         $client = \App\Models\Client::find($this->decodePrimaryKey($body['client']));
 
             SystemLogger::dispatch(
