@@ -13,6 +13,7 @@ namespace App\Services\Credit;
 
 use App\Jobs\Entity\CreateEntityPdf;
 use App\Services\AbstractService;
+use App\Utils\TempFile;
 use Illuminate\Support\Facades\Storage;
 
 class GetCreditPdf extends AbstractService
@@ -47,6 +48,9 @@ class GetCreditPdf extends AbstractService
         if (! $file) {
             $file_path = CreateEntityPdf::dispatchNow($this->invitation);
         }
+
+        if(config('filesystems.default') == 's3')
+            return TempFile::path(Storage::disk($disk)->url($file_path));
 
         return Storage::disk($disk)->path($file_path);
     }

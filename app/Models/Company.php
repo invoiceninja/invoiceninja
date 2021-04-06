@@ -100,7 +100,6 @@ class Company extends BaseModel
         'country_id' => 'string',
         'custom_fields' => 'object',
         'settings' => 'object',
-        'custom_fields' => 'object',
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
