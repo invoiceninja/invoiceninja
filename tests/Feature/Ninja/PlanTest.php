@@ -61,5 +61,15 @@ class PlanTest extends TestCase
 
     }
 
+    public function testTrialFilter()
+    {
+        $plans = collect(['trial_pro','trial_enterprise','no_freebies']);
+
+        $filtered_plans = $plans->filter(function ($plan){
+                                return strpos($plan, 'trial_') !== false;
+                            });
+
+        $this->assertEquals($filtered_plans->count(), 2);
+    }
 
 }
