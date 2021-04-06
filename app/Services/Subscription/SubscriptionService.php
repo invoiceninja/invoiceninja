@@ -111,6 +111,16 @@ class SubscriptionService
         }
     }
 
+    public function isEligible($contact)
+    {
+        $data = [
+            'context' => 'is_eligible',
+            'subscription' => $this->subscription->hashed_id,
+            'contact' => $contact->hashed_id,
+            'contact_email' => $contact->email
+        ];
+    }
+
     /**
         'email' => $this->email ?? $this->contact->email,
         'quantity' => $this->quantity,
@@ -199,45 +209,13 @@ class SubscriptionService
         return $recurring_invoice;
     }
 
-    // @deprecated due to change in architecture
-
-    // public function createClientSubscription($payment_hash)
-    // {
-
-    //     //is this a recurring or one off subscription.
-
-    //     $cs = new ClientSubscription();
-    //     $cs->subscription_id = $this->subscription->id;
-    //     $cs->company_id = $this->subscription->company_id;
-
-    //     $cs->invoice_id = $payment_hash->billing_context->invoice_id;
-    //     $cs->client_id = $payment_hash->billing_context->client_id;
-    //     $cs->quantity = $payment_hash->billing_context->quantity;
-
-    //         //if is_recurring
-    //         //create recurring invoice from invoice
-    //         if($this->subscription->is_recurring)
-    //         {
-    //         $recurring_invoice = $this->convertInvoiceToRecurring($payment_hash);
-    //         $recurring_invoice->frequency_id = $this->subscription->frequency_id;
-    //         $recurring_invoice->next_send_date = $recurring_invoice->nextDateByFrequency(now()->format('Y-m-d'));
-    //         $recurring_invoice->save();
-    //         $cs->recurring_invoice_id = $recurring_invoice->id;
-
-    //         //?set the recurring invoice as active - set the date here also based on the frequency?
-    //         $recurring_invoice->service()->start();
-    //         }
-
-
-    //     $cs->save();
-
-    //     $this->client_subscription = $cs;
-
-    // }
-
-    //@todo - need refactor
     public function triggerWebhook($context)
     {
+        /* If no webhooks have been set, then just return gracefully */
+        if(!array_key_exists('post_purchase_url', $this->subscription->webhook_configuration) || !array_key_exists('post_purchase_rest_method', $this->subscription->webhook_configuration) {
+            return;
+        }
+
 
         $body = array_merge($context, [
             'company_key' => $this->subscription->company->company_key, 

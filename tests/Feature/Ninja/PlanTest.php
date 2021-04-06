@@ -40,7 +40,7 @@ class PlanTest extends TestCase
         Model::reguard();
     }
 
-    public function testTrialPlans()
+    public function testTrialFeatures()
     {
         config(['ninja.production' => true]);
 
@@ -51,8 +51,6 @@ class PlanTest extends TestCase
         $this->account->trial_duration = 60*60*24*31;
         $this->account->save();
     
-        nlog($this->account->getPlanDetails());
-
         $this->assertFalse($this->account->hasFeature(Account::FEATURE_USERS));
 
         $this->account->trial_plan = 'pro';
