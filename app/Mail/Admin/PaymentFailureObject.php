@@ -26,9 +26,9 @@ class PaymentFailureObject
 
     public $company;
 
-    public $payment_hash;
+    public $amount;
 
-    private $invoices;
+    // private $invoices;
 
     /**
      * Create a new job instance.
@@ -38,7 +38,7 @@ class PaymentFailureObject
      * @param $company
      * @param $amount
      */
-    public function __construct($client, $error, $company, $payment_hash)
+    public function __construct($client, $error, $company, $amount)
     {
         $this->client = $client;
 
@@ -46,7 +46,7 @@ class PaymentFailureObject
 
         $this->company = $company;
 
-        $this->payment_hash = $payment_hash;
+        $this->amount = $amount;
 
         $this->company = $company;
 
@@ -55,7 +55,7 @@ class PaymentFailureObject
     public function build()
     {
 
-        $this->invoices = Invoice::whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->get();
+        // $this->invoices = Invoice::whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->get();
 
         $mail_obj = new stdClass;
         $mail_obj->amount = $this->getAmount();
@@ -70,7 +70,7 @@ class PaymentFailureObject
     private function getAmount()
     {
 
-       return array_sum(array_column($this->payment_hash->invoices(), 'amount')) + $this->payment_hash->fee_total;
+       return $this->amount;
 
     }
 
