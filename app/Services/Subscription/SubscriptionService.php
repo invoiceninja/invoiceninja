@@ -111,21 +111,27 @@ class SubscriptionService
         }
     }
 
+    /* Hits the client endpoint to determine whether the user is able to access this subscription */
     public function isEligible($contact)
     {
-        $data = [
+
+        $context = [
             'context' => 'is_eligible',
             'subscription' => $this->subscription->hashed_id,
             'contact' => $contact->hashed_id,
             'contact_email' => $contact->email
         ];
+
+        $response = $this->triggerWebhook($context);
+
+
     }
 
-    /**
-        'email' => $this->email ?? $this->contact->email,
-        'quantity' => $this->quantity,
-        'contact_id' => $this->contact->id,
-     */
+    /* Starts the process to create a trial 
+        - we create a recurring invoice, which is has its next_send_date as now() + trial_duration
+        - we then hit the client API end point to advise the trial payload
+        - we then return the user to either a predefined user endpoint, OR we return the user to the recurring invoice page.
+    */
     public function startTrial(array $data)
     {
         // Redirects from here work just fine. Livewire will respect it.
@@ -162,7 +168,7 @@ class SubscriptionService
             ];
 
         //execute any webhooks
-        $this->triggerWebhook($context);
+        $response = $this->triggerWebhook($context);
 
         if(array_key_exists('return_url', $this->subscription->webhook_configuration) && strlen($this->subscription->webhook_configuration['return_url']) >=1){
             return redirect($this->subscription->webhook_configuration['return_url']);
@@ -213,9 +219,10 @@ class SubscriptionService
     {
         /* If no webhooks have been set, then just return gracefully */
         if(!array_key_exists('post_purchase_url', $this->subscription->webhook_configuration) || !array_key_exists('post_purchase_rest_method', $this->subscription->webhook_configuration)) {
-            return;
+            return true;
         }
 
+        $response = false;
 
         $body = array_merge($context, [
             'company_key' => $this->subscription->company->company_key, 
@@ -241,7 +248,7 @@ class SubscriptionService
         }
         catch(\Exception $e)
         {
-
+            $body = array_merge($body, ['exception' => $e->getMessage()]);
         }
 
         /* Append the response to the system logger body */
@@ -262,6 +269,8 @@ class SubscriptionService
                 SystemLog::TYPE_WEBHOOK_RESPONSE,
                 $client,
             );
+
+        return $response;
 
     }
 
