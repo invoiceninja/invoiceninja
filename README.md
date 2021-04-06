@@ -17,8 +17,8 @@ Currently the client portal and API are of alpha quality, to get started:
 git clone https://github.com/invoiceninja/invoiceninja.git
 git checkout v5-stable
 cp .env.example .env
-php artisan key:generate
 composer update
+php artisan key:generate
 ```
 
 Please Note: Your APP_KEY in the .env file is used to encrypt data, if you lose this you will not be able to run the application.

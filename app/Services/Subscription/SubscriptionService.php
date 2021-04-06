@@ -111,11 +111,27 @@ class SubscriptionService
         }
     }
 
-    /**
-        'email' => $this->email ?? $this->contact->email,
-        'quantity' => $this->quantity,
-        'contact_id' => $this->contact->id,
-     */
+    /* Hits the client endpoint to determine whether the user is able to access this subscription */
+    public function isEligible($contact)
+    {
+
+        $context = [
+            'context' => 'is_eligible',
+            'subscription' => $this->subscription->hashed_id,
+            'contact' => $contact->hashed_id,
+            'contact_email' => $contact->email
+        ];
+
+        $response = $this->triggerWebhook($context);
+
+
+    }
+
+    /* Starts the process to create a trial 
+        - we create a recurring invoice, which is has its next_send_date as now() + trial_duration
+        - we then hit the client API end point to advise the trial payload
+        - we then return the user to either a predefined user endpoint, OR we return the user to the recurring invoice page.
+    */
     public function startTrial(array $data)
     {
         // Redirects from here work just fine. Livewire will respect it.
@@ -152,7 +168,7 @@ class SubscriptionService
             ];
 
         //execute any webhooks
-        $this->triggerWebhook($context);
+        $response = $this->triggerWebhook($context);
 
         if(array_key_exists('return_url', $this->subscription->webhook_configuration) && strlen($this->subscription->webhook_configuration['return_url']) >=1){
             return redirect($this->subscription->webhook_configuration['return_url']);
@@ -199,45 +215,14 @@ class SubscriptionService
         return $recurring_invoice;
     }
 
-    // @deprecated due to change in architecture
-
-    // public function createClientSubscription($payment_hash)
-    // {
-
-    //     //is this a recurring or one off subscription.
-
-    //     $cs = new ClientSubscription();
-    //     $cs->subscription_id = $this->subscription->id;
-    //     $cs->company_id = $this->subscription->company_id;
-
-    //     $cs->invoice_id = $payment_hash->billing_context->invoice_id;
-    //     $cs->client_id = $payment_hash->billing_context->client_id;
-    //     $cs->quantity = $payment_hash->billing_context->quantity;
-
-    //         //if is_recurring
-    //         //create recurring invoice from invoice
-    //         if($this->subscription->is_recurring)
-    //         {
-    //         $recurring_invoice = $this->convertInvoiceToRecurring($payment_hash);
-    //         $recurring_invoice->frequency_id = $this->subscription->frequency_id;
-    //         $recurring_invoice->next_send_date = $recurring_invoice->nextDateByFrequency(now()->format('Y-m-d'));
-    //         $recurring_invoice->save();
-    //         $cs->recurring_invoice_id = $recurring_invoice->id;
-
-    //         //?set the recurring invoice as active - set the date here also based on the frequency?
-    //         $recurring_invoice->service()->start();
-    //         }
-
-
-    //     $cs->save();
-
-    //     $this->client_subscription = $cs;
-
-    // }
-
-    //@todo - need refactor
     public function triggerWebhook($context)
     {
+        /* If no webhooks have been set, then just return gracefully */
+        if(!array_key_exists('post_purchase_url', $this->subscription->webhook_configuration) || !array_key_exists('post_purchase_rest_method', $this->subscription->webhook_configuration)) {
+            return true;
+        }
+
+        $response = false;
 
         $body = array_merge($context, [
             'company_key' => $this->subscription->company->company_key, 
@@ -263,6 +248,15 @@ class SubscriptionService
         }
         catch(\Exception $e)
         {
+            $body = array_merge($body, ['exception' => $e->getMessage()]);
+        }
+
+        /* Append the response to the system logger body */
+        if($response) {
+            
+            $status = $response->getStatusCode();
+            $response_body = $response->getBody();
+            $body = array_merge($body, ['status' => $status, 'response_body' => $response_body]);
 
         }
 
@@ -275,6 +269,8 @@ class SubscriptionService
                 SystemLog::TYPE_WEBHOOK_RESPONSE,
                 $client,
             );
+
+        return $response;
 
     }
 
