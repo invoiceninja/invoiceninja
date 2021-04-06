@@ -251,7 +251,7 @@ class Design extends BaseDesign
     public function productTable(): array
     {
         $product_items = collect($this->entity->line_items)->filter(function ($item) {
-            return $item->type_id == 1;
+            return $item->type_id == 1 || $item->type_id == 6;
         });
 
         if (count($product_items) == 0) {
@@ -412,11 +412,9 @@ class Design extends BaseDesign
                         $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['data-ref' => 'product_table-product.tax2-td']];
                     } elseif ($cell == '$product.tax_rate3') {
                         $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['data-ref' => 'product_table-product.tax3-td']];
-                    }
-                    else if($cell == '$product.unit_cost' || $cell == '$task.rate') {
+                    } else if ($cell == '$product.unit_cost' || $cell == '$task.rate') {
                         $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['style' => 'white-space: nowrap;', 'data-ref' => "{$_type}_table-" . substr($cell, 1) . '-td']];
-                    }
-                    else {
+                    } else {
                         $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['data-ref' => "{$_type}_table-" . substr($cell, 1) . '-td']];
                     }
                 }
@@ -456,7 +454,7 @@ class Design extends BaseDesign
             ['element' => 'div', 'properties' => ['class' => 'totals-table-right-side'], 'elements' => []],
         ];
 
-        foreach (['discount', 'custom_surcharge1', 'custom_surcharge2', 'custom_surcharge3', 'custom_surcharge4'] as $property) {
+        foreach (['discount'] as $property) {
             $variable = sprintf('%s%s', '$', $property);
 
             if (
@@ -499,19 +497,20 @@ class Design extends BaseDesign
                         ['element' => 'span', 'content', 'content' => Number::formatMoney($tax['total'], $this->context['client']), 'properties' => ['data-ref' => 'totals-table-line_tax_' . $i]],
                     ]];
                 }
+            } elseif (Str::startsWith($variable, '$custom')) {
+                $field = explode('_', $variable);
+                $visible = property_exists($this->client->company->custom_fields, $field[1]) && !empty($this->client->company->custom_fields->{$field[1]});
+
+                $elements[1]['elements'][] = ['element' => 'div', 'elements' => [
+                    ['element' => 'span', 'content' => $variable . '_label', 'properties' => ['hidden' => !$visible, 'data-ref' => 'totals_table-' . substr($variable, 1) . '-label']],
+                    ['element' => 'span', 'content' => $variable, 'properties' => ['hidden' => !$visible, 'data-ref' => 'totals_table-' . substr($variable, 1)]],
+                ]];
             } else {
                 $elements[1]['elements'][] = ['element' => 'div', 'elements' => [
                     ['element' => 'span', 'content' => $variable . '_label', 'properties' => ['data-ref' => 'totals_table-' . substr($variable, 1) . '-label']],
                     ['element' => 'span', 'content' => $variable, 'properties' => ['data-ref' => 'totals_table-' . substr($variable, 1)]],
                 ]];
             }
-        }
-
-        if (!is_null($this->entity->partial) && $this->entity->partial > 0) {
-            $elements[1]['elements'][] = ['element' => 'div', 'elements' => [
-                ['element' => 'span', 'content' => '$partial_due_label', 'properties' => ['data-ref' => 'totals_table-partial_due-label']],
-                ['element' => 'span', 'content' => '$partial_due'],
-            ]];
         }
 
         $elements[1]['elements'][] = ['element' => 'div', 'elements' => [

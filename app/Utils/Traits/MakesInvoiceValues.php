@@ -273,7 +273,7 @@ trait MakesInvoiceValues
 
         foreach ($items as $key => $item) {
             if ($table_type == '$product' && $item->type_id != 1) {
-                if ($item->type_id != 4) {
+                if ($item->type_id != 4 && $item->type_id != 6) {
                     continue;
                 }
             }

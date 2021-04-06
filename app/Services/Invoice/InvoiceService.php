@@ -263,7 +263,7 @@ class InvoiceService
     {
         if ((int)$this->invoice->balance == 0) {
             
-            InvoiceWorkflowSettings::dispatch($this->invoice);
+            InvoiceWorkflowSettings::dispatchNow($this->invoice);
 
             $this->setStatus(Invoice::STATUS_PAID);
         }

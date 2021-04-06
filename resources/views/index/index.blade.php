@@ -146,9 +146,9 @@
   
   </script>
 
-  @if(config('ninja.flutter_canvas_kit') == 'hosted')
+  @if(config('ninja.flutter_renderer') == 'hosted')
     <script defer src="main.dart.js?v={{ config('ninja.app_version') }}" type="application/javascript"></script>
-  @elseif(config('ninja.flutter_canvas_kit') == 'selfhosted-canvaskit')
+  @elseif(config('ninja.flutter_renderer') == 'selfhosted-canvaskit')
     <script defer src="main.wasm.dart.js?v={{ config('ninja.app_version') }}" type="application/javascript"></script>
   @else
     <script defer src="main.foss.dart.js?v={{ config('ninja.app_version') }}" type="application/javascript"></script>

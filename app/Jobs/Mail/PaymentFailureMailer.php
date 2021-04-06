@@ -11,12 +11,12 @@
 
 namespace App\Jobs\Mail;
 
+use App\Jobs\Mail\NinjaMailer;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
 use App\Mail\Admin\EntityNotificationMailer;
 use App\Mail\Admin\PaymentFailureObject;
-use App\Mail\NinjaMailer;
 use App\Models\User;
 use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Bus\Queueable;
@@ -38,7 +38,7 @@ class PaymentFailureMailer implements ShouldQueue
 
     public $company;
 
-    public $payment_hash;
+    public $amount;
 
     public $settings;
 
@@ -50,7 +50,7 @@ class PaymentFailureMailer implements ShouldQueue
      * @param $company
      * @param $amount
      */
-    public function __construct($client, $error, $company, $payment_hash)
+    public function __construct($client, $error, $company, $amount)
     {
         $this->company = $company;
 
@@ -58,7 +58,7 @@ class PaymentFailureMailer implements ShouldQueue
 
         $this->client = $client;
 
-        $this->payment_hash = $payment_hash;
+        $this->amount = $amount;
 
         $this->company = $company;
 
@@ -86,7 +86,7 @@ class PaymentFailureMailer implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
-                $mail_obj = (new PaymentFailureObject($this->client, $this->error, $this->company, $this->payment_hash))->build();
+                $mail_obj = (new PaymentFailureObject($this->client, $this->error, $this->company, $this->amount))->build();
 
                 $nmo = new NinjaMailerObject;
                 $nmo->mailable = new NinjaMailer($mail_obj);

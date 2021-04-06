@@ -19,7 +19,10 @@
 
                     @foreach($subscription->service()->products() as $product)
                         <div class="flex items-center justify-between mb-4 bg-white rounded px-6 py-4 shadow-sm border">
-                            <div class="text-sm">{{ $product->product_key }}</div>
+                            <div>
+                                <p class="text-sm text-xl">{{ $product->product_key }}</p>
+                                <p class="text-sm text-gray-800">{{ $product->notes }}</p>
+                            </div>
                             <div data-ref="price-and-quantity-container">
                                 <span
                                     data-ref="price">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }}</span>
@@ -57,8 +60,7 @@
 
                 <div class="relative flex justify-center text-sm leading-5">
                     <h1 class="text-2xl font-bold tracking-wide bg-gray-50 px-6 py-0">
-                        {{ ctrans('texts.total') }}
-                        : {{ \App\Utils\Number::formatMoney($price, $subscription->company) }}
+                        {{ ctrans('texts.total') }}: {{ \App\Utils\Number::formatMoney($price, $subscription->company) }}
 
                         @if($steps['discount_applied'])
                             <small class="ml-1 line-through text-gray-500">{{ \App\Utils\Number::formatMoney($subscription->price, $subscription->company) }}</small>

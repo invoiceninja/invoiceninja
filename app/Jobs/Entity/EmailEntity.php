@@ -34,6 +34,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\App;
 
 /*Multi Mailer implemented*/
 
@@ -103,6 +104,9 @@ class EmailEntity implements ShouldQueue
         
         /* Set DB */
         MultiDB::setDB($this->company->db);
+
+        App::setLocale($this->invitation->contact->preferredLocale());
+
 
         $nmo = new NinjaMailerObject;
         $nmo->mailable = new TemplateEmail($this->email_entity_builder,$this->invitation->contact, $this->invitation);

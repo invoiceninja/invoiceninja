@@ -15,6 +15,7 @@ use App\Factory\ClientFactory;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Mail\ContactPasswordlessLogin;
+use App\Models\Client;
 use App\Models\Subscription;
 use App\Models\ClientContact;
 use App\Models\Invoice;
@@ -220,6 +221,16 @@ class BillingPortalPurchase extends Component
             'settings' => [],
         ];
 
+        foreach ($this->request_data as $field => $value) {
+            if (in_array($field, Client::$subscriptions_fillable)) {
+                $data[$field] = $value;
+            }
+
+            if (in_array($field, ClientContact::$subscription_fillable)) {
+                $data['contacts'][0][$field] = $value;
+            }
+        }
+
         if (array_key_exists('locale', $this->request_data)) {
             $request = $this->request_data;
 
@@ -391,6 +402,10 @@ class BillingPortalPurchase extends Component
 
     public function render()
     {
+        if (array_key_exists('email', $this->request_data)) {
+            $this->email = $this->request_data['email'];
+        }
+
         if ($this->contact instanceof ClientContact) {
             $this->getPaymentMethods($this->contact);
         }

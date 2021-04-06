@@ -65,6 +65,7 @@ class SubscriptionTransformer extends EntityTransformer
             'created_at' => (int)$subscription->created_at,
             'updated_at' => (int)$subscription->updated_at,
             'archived_at' => (int)$subscription->deleted_at,
+            'plan_map' => '', //@deprecated 03/04/2021
         ];
     }
 
