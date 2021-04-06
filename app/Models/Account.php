@@ -53,6 +53,7 @@ class Account extends BaseModel
         'deleted_at',
         'promo_expires',
         'discount_expires',
+        'trial_started',
     ];
 
     const PLAN_FREE = 'free';
@@ -239,13 +240,17 @@ class Account extends BaseModel
 
         $trial_active = false;
         if ($trial_plan && $include_trial) {
-            $trial_started = DateTime::createFromFormat('Y-m-d', $this->trial_started);
-            $trial_expires = clone $trial_started;
-            $trial_expires->modify('+2 weeks');
+            $trial_started = $this->trial_started;
+            $trial_expires = $this->trial_started->addSeconds($this->trial_duration);
+            // $trial_expires->modify('+2 weeks');
 
-            if ($trial_expires >= date_create()) {
+            if($trial_expires->lessThan(now())){
                 $trial_active = true;
-            }
+             }
+
+            // if ($trial_expires >= date_create()) {
+            //     $trial_active = true;
+            // }
         }
 
         $plan_active = false;
