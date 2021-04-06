@@ -239,12 +239,13 @@ class Account extends BaseModel
         }
 
         $trial_active = false;
+
         if ($trial_plan && $include_trial) {
             $trial_started = $this->trial_started;
             $trial_expires = $this->trial_started->addSeconds($this->trial_duration);
             // $trial_expires->modify('+2 weeks');
 
-            if($trial_expires->lessThan(now())){
+            if($trial_expires->greaterThan(now())){
                 $trial_active = true;
              }
 
@@ -269,6 +270,7 @@ class Account extends BaseModel
         if (! $include_inactive && ! $plan_active && ! $trial_active) {
             return null;
         }
+
 
         // Should we show plan details or trial details?
         if (($plan && ! $trial_plan) || ! $include_trial) {

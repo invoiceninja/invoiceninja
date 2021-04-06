@@ -42,13 +42,25 @@ class PlanTest extends TestCase
 
     public function testTrialPlans()
     {
+        config(['ninja.production' => true]);
+
+        $this->assertFalse($this->account->hasFeature(Account::FEATURE_USERS));
 
         $this->account->trial_plan = 'enterprise';
         $this->account->trial_started = now();
         $this->account->trial_duration = 60*60*24*31;
         $this->account->save();
     
-        $this->assertTrue($this->account->hasFeature(Account::FEATURE_USERS));
+        nlog($this->account->getPlanDetails());
+
+        $this->assertFalse($this->account->hasFeature(Account::FEATURE_USERS));
+
+        $this->account->trial_plan = 'pro';
+        $this->account->save();
+
+        $this->assertFalse($this->account->hasFeature(Account::FEATURE_USERS));
+        $this->assertTrue($this->account->hasFeature(Account::FEATURE_CUSTOM_URL));
+
     }
 
 
