@@ -82,7 +82,9 @@ class SubscriptionService
                 'subscription' => $this->subscription->hashed_id,
             ];
 
-            $this->triggerWebhook($context);
+            $response = $this->triggerWebhook($context);
+
+            nlog($response);
 
             if(array_key_exists('post_purchase_url', $this->subscription->webhook_configuration) && strlen($this->subscription->webhook_configuration['post_purchase_url']) >=1)
                 return redirect($this->subscription->webhook_configuration['post_purchase_url']);
