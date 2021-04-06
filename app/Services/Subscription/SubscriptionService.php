@@ -212,7 +212,7 @@ class SubscriptionService
     public function triggerWebhook($context)
     {
         /* If no webhooks have been set, then just return gracefully */
-        if(!array_key_exists('post_purchase_url', $this->subscription->webhook_configuration) || !array_key_exists('post_purchase_rest_method', $this->subscription->webhook_configuration) {
+        if(!array_key_exists('post_purchase_url', $this->subscription->webhook_configuration) || !array_key_exists('post_purchase_rest_method', $this->subscription->webhook_configuration)) {
             return;
         }
 
