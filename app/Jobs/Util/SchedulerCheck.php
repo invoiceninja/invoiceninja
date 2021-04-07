@@ -51,6 +51,7 @@ class SchedulerCheck implements ShouldQueue
             try {
                 Artisan::call('optimize');
             } catch (\Exception $e) {
+                nlog($e->getMessage());
                 nlog("I wasn't able to optimize.");
             }
 
