@@ -181,6 +181,11 @@ class Invoice extends BaseModel
         return $this->belongsTo(Client::class)->withTrashed();
     }
 
+    public function subscription()
+    {
+        return $this->belongsTo(Subscription::class)->withTrashed();
+    }
+
     public function documents()
     {
         return $this->morphMany(Document::class, 'documentable');
