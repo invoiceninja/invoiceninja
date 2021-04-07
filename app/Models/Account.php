@@ -54,6 +54,7 @@ class Account extends BaseModel
         'promo_expires',
         'discount_expires',
         'trial_started',
+        'plan_expires'
     ];
 
     const PLAN_FREE = 'free';
