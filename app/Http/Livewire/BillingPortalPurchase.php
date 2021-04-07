@@ -271,7 +271,7 @@ class BillingPortalPurchase extends Component
 
         $this->steps['fetched_payment_methods'] = true;
 
-        $this->methods = $contact->client->service()->getPaymentMethods(1000);
+        $this->methods = $contact->client->service()->getPaymentMethods($this->price);
 
         $this->heading_text = ctrans('texts.payment_methods');
 
