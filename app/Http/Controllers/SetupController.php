@@ -147,7 +147,9 @@ class SetupController extends Controller
             DB::purge('db-ninja-01');
             
             /* Run migrations */
-            Artisan::call('optimize');
+            if(!config('ninja.disable_auto_update'))
+                Artisan::call('optimize');
+
             Artisan::call('migrate', ['--force' => true]);
             Artisan::call('db:seed', ['--force' => true]);
             
