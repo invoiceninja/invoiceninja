@@ -118,7 +118,6 @@ class SubscriptionService
     /* Hits the client endpoint to determine whether the user is able to access this subscription */
     public function isEligible($contact)
     {
-
         $context = [
             'context' => 'is_eligible',
             'subscription' => $this->subscription->hashed_id,
@@ -131,7 +130,7 @@ class SubscriptionService
         return $response;
     }
 
-    /* Starts the process to create a trial 
+    /* Starts the process to create a trial
         - we create a recurring invoice, which is has its next_send_date as now() + trial_duration
         - we then hit the client API end point to advise the trial payload
         - we then return the user to either a predefined user endpoint, OR we return the user to the recurring invoice page.
@@ -229,10 +228,10 @@ class SubscriptionService
         $response = false;
 
         $body = array_merge($context, [
-            'company_key' => $this->subscription->company->company_key, 
+            'company_key' => $this->subscription->company->company_key,
             'account_key' => $this->subscription->company->account->key,
             'db' => $this->subscription->company->db,
-        ]);        
+        ]);
 
         $response = $this->sendLoad($this->subscription, $body);
 
@@ -240,10 +239,10 @@ class SubscriptionService
         if(is_array($response)){
 
             $body = $response;
-        
+
         }
         else {
-            
+
             $status = $response->getStatusCode();
             $response_body = $response->getBody();
             $body = array_merge($body, ['status' => $status, 'response_body' => $response_body]);
