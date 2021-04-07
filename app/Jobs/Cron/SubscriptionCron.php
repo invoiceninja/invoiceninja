@@ -52,6 +52,7 @@ class SubscriptionCron
 
             }
         }
+        
     }
 
     private function loopSubscriptions()
