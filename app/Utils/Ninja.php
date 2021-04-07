@@ -136,4 +136,37 @@ class Ninja
 
         return $translations;
     }
+
+    public function createLicense($request)
+    {
+        // $affiliate = Affiliate::where('affiliate_key', '=', SELF_HOST_AFFILIATE_KEY)->first();
+        // $email = trim(Input::get('email'));
+
+        // if (! $email || $email == TEST_USERNAME) {
+        //     return RESULT_FAILURE;
+        // }
+
+        // $license = new License();
+        // $license->first_name = Input::get('first_name');
+        // $license->last_name = Input::get('last_name');
+        // $license->email = $email;
+        // $license->transaction_reference = Request::getClientIp();
+        // $license->license_key = self::generateLicense();
+        // $license->affiliate_id = $affiliate->id;
+        // $license->product_id = PRODUCT_SELF_HOST;
+        // $license->is_claimed = 1;
+        // $license->save();
+
+        // return RESULT_SUCCESS;
+    }
+
+    // public static function generateLicense()
+    // {
+    //     $parts = [];
+    //     for ($i = 0; $i < 5; $i++) {
+    //         $parts[] = strtoupper(str_random(4));
+    //     }
+
+    //     return implode('-', $parts);
+    // }
 }

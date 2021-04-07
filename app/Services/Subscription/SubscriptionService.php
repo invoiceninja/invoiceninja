@@ -32,12 +32,14 @@ use App\Repositories\SubscriptionRepository;
 use App\Utils\Ninja;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\SubscriptionHooker;
 use GuzzleHttp\RequestOptions;
 
 class SubscriptionService
 {
     use MakesHash;
     use CleanLineItems;
+    use SubscriptionHooker;
 
     /** @var subscription */
     private $subscription;
@@ -82,7 +84,9 @@ class SubscriptionService
                 'subscription' => $this->subscription->hashed_id,
             ];
 
-            $this->triggerWebhook($context);
+            $response = $this->triggerWebhook($context);
+
+            nlog($response);
 
             if(array_key_exists('post_purchase_url', $this->subscription->webhook_configuration) && strlen($this->subscription->webhook_configuration['post_purchase_url']) >=1)
                 return redirect($this->subscription->webhook_configuration['post_purchase_url']);
@@ -124,6 +128,7 @@ class SubscriptionService
 
         $response = $this->triggerWebhook($context);
 
+        return $response;
     }
 
     /* Starts the process to create a trial 
@@ -229,29 +234,15 @@ class SubscriptionService
             'db' => $this->subscription->company->db,
         ]);        
 
-        $headers = [
-            'Content-Type' => 'application/json',
-            'X-Requested-With' => 'XMLHttpRequest',
-        ];
-
-
-        $client =  new \GuzzleHttp\Client(
-        [
-            'headers' => $headers,
-        ]);
-
-        try {
-            $response = $client->{$this->subscription->webhook_configuration['post_purchase_rest_method']}($this->subscription->webhook_configuration['post_purchase_url'],[
-                RequestOptions::JSON => ['body' => $body], RequestOptions::ALLOW_REDIRECTS => false
-            ]);
-        }
-        catch(\Exception $e)
-        {
-            $body = array_merge($body, ['exception' => $e->getMessage()]);
-        }
+        $response = $this->sendLoad($this->subscription, $body);
 
         /* Append the response to the system logger body */
-        if($response) {
+        if(is_array($response)){
+
+            $body = $response;
+        
+        }
+        else {
             
             $status = $response->getStatusCode();
             $response_body = $response->getBody();

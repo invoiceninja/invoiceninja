@@ -18,6 +18,7 @@ use App\Utils\SystemHealth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Artisan;
 
 trait AppSetup
 {
@@ -35,6 +36,9 @@ trait AppSetup
     public function buildCache($force = false)
     {
         $cached_tables = config('ninja.cached_tables');
+
+        if(request()->has('clear_cache'))
+            Artisan::call('optimize');
 
         foreach ($cached_tables as $name => $class) {
             if (request()->has('clear_cache') || !Cache::has($name) || $force) {

@@ -243,15 +243,11 @@ class Account extends BaseModel
         if ($trial_plan && $include_trial) {
             $trial_started = $this->trial_started;
             $trial_expires = $this->trial_started->addSeconds($this->trial_duration);
-            // $trial_expires->modify('+2 weeks');
 
             if($trial_expires->greaterThan(now())){
                 $trial_active = true;
              }
 
-            // if ($trial_expires >= date_create()) {
-            //     $trial_active = true;
-            // }
         }
 
         $plan_active = false;
