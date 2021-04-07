@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5a0dfc90f7a612df2b8cfe1013787e88",
+    "content-hash": "64a35682f0e808b80b4784d812271f0b",
     "packages": [
         {
             "name": "authorizenet/authorizenet",
@@ -3764,27 +3764,28 @@
         },
         {
             "name": "league/omnipay",
-            "version": "v3.1.0",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/omnipay.git",
-                "reference": "1ba7c8a3312cf2342458b99c9e5b86eaae44aed2"
+                "reference": "e9439db0633ba988e6f6cdd029fad38aad73f9f6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay/zipball/1ba7c8a3312cf2342458b99c9e5b86eaae44aed2",
-                "reference": "1ba7c8a3312cf2342458b99c9e5b86eaae44aed2",
+                "url": "https://api.github.com/repos/thephpleague/omnipay/zipball/e9439db0633ba988e6f6cdd029fad38aad73f9f6",
+                "reference": "e9439db0633ba988e6f6cdd029fad38aad73f9f6",
                 "shasum": ""
             },
             "require": {
                 "omnipay/common": "^3",
-                "php": "^7.2",
+                "php": "^7.2|^8.0",
                 "php-http/discovery": "^1.12",
                 "php-http/guzzle7-adapter": "^0.1"
             },
             "require-dev": {
                 "omnipay/tests": "^3"
             },
+            "default-branch": true,
             "type": "metapackage",
             "extra": {
                 "branch-alias": {
@@ -3815,9 +3816,9 @@
             ],
             "support": {
                 "issues": "https://github.com/thephpleague/omnipay/issues",
-                "source": "https://github.com/thephpleague/omnipay/tree/v3.1.0"
+                "source": "https://github.com/thephpleague/omnipay/tree/master"
             },
-            "time": "2020-09-22T14:02:17+00:00"
+            "time": "2021-03-12T09:17:59+00:00"
         },
         {
             "name": "livewire/livewire",
@@ -4568,21 +4569,21 @@
         },
         {
             "name": "omnipay/common",
-            "version": "v3.0.5",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/omnipay-common.git",
-                "reference": "0d1f4486c1c873537ac030d37c7ce2986c4de1d2"
+                "reference": "e1ebc22615f14219d31cefdf62d7036feb228b1c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-common/zipball/0d1f4486c1c873537ac030d37c7ce2986c4de1d2",
-                "reference": "0d1f4486c1c873537ac030d37c7ce2986c4de1d2",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-common/zipball/e1ebc22615f14219d31cefdf62d7036feb228b1c",
+                "reference": "e1ebc22615f14219d31cefdf62d7036feb228b1c",
                 "shasum": ""
             },
             "require": {
                 "moneyphp/money": "^3.1",
-                "php": "^5.6|^7",
+                "php": "^5.6|^7|^8",
                 "php-http/client-implementation": "^1",
                 "php-http/discovery": "^1.2.1",
                 "php-http/message": "^1.5",
@@ -4597,6 +4598,7 @@
             "suggest": {
                 "league/omnipay": "The default Omnipay package provides a default HTTP Adapter."
             },
+            "default-branch": true,
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -4648,9 +4650,9 @@
             ],
             "support": {
                 "issues": "https://github.com/thephpleague/omnipay-common/issues",
-                "source": "https://github.com/thephpleague/omnipay-common/tree/v3.0.5"
+                "source": "https://github.com/thephpleague/omnipay-common/tree/master"
             },
-            "time": "2020-08-20T18:22:12+00:00"
+            "time": "2020-12-13T12:53:48+00:00"
         },
         {
             "name": "omnipay/paypal",
