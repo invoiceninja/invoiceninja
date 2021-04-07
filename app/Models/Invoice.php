@@ -166,6 +166,11 @@ class Invoice extends BaseModel
         return $this->belongsTo(User::class)->withTrashed();
     }
 
+    public function recurring_invoice()
+    {
+        return $this->belongsTo(RecurringInvoice::class)->withTrashed();
+    }
+
     public function assigned_user()
     {
         return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
