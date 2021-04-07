@@ -122,7 +122,8 @@ class SubscriptionService
             'context' => 'is_eligible',
             'subscription' => $this->subscription->hashed_id,
             'contact' => $contact->hashed_id,
-            'contact_email' => $contact->email
+            'contact_email' => $contact->email,
+            'client' => $contact->client->hashed_id,
         ];
 
         $response = $this->triggerWebhook($context);
@@ -276,5 +277,29 @@ class SubscriptionService
     public function recurring_products()
     {
         return Product::whereIn('id', $this->transformKeys(explode(",", $this->subscription->recurring_product_ids)))->get();
+    }
+
+    /**
+     * Get available upgrades & downgrades for the plan.
+     *
+     * @return \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection
+     */
+    public function getPlans()
+    {
+        return Subscription::query()
+            ->where('company_id', $this->subscription->company_id)
+            ->where('group_id', $this->subscription->group_id)
+            ->where('id', '!=', $this->subscription->id)
+            ->get();
+    }
+
+    public function completePlanChange(PaymentHash $paymentHash)
+    {
+        // .. handle redirect, after upgrade redirects, etc..
+    }
+
+    public function handleCancellation()
+    {
+        // ..
     }
 }

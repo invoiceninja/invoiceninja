@@ -85,5 +85,10 @@
             </div>
         @endif
 
+        @if($invoice->subscription->allow_plan_changes)
+            @foreach($invoice->subscription->service()->getPlans() as $subscription)
+                <a href="#">{{ $subscription->name }}</a>
+            @endforeach
+        @endif
     </div>
 @endsection

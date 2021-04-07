@@ -30,6 +30,7 @@ class SubscriptionInvoicesTable extends Component
             ->where('client_id', auth('contact')->user()->client->id)
             ->whereNotNull('subscription_id')
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
+            ->where('balance', '=', 0)
             ->paginate($this->per_page);
 
         return render('components.livewire.subscriptions-invoices-table', [
