@@ -8,6 +8,7 @@ Route::get('/', 'BaseController@flutterRoute')->middleware('guest');
 
 Route::get('setup', 'SetupController@index')->middleware('guest');
 Route::post('setup', 'SetupController@doSetup')->middleware('guest');
+Route::get('update', 'SetupController@update')->middleware('guest');
 
 Route::post('setup/check_db', 'SetupController@checkDB')->middleware('guest');
 Route::post('setup/check_mail', 'SetupController@checkMail')->middleware('guest');

@@ -11,6 +11,7 @@
 
                 <form action="{{ url()->current() }}" method="post" class="mt-6">
                     @csrf
+                    <input type="hidden" name="user_id" value="{{ $user_id }}">
                     <div class="flex flex-col mt-4">
                         <label for="password" class="input-label">{{ ctrans('texts.password') }}</label>
                         <input type="password" name="password" id="password"

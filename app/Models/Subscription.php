@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Models\RecurringInvoice;
 use App\Services\Subscription\SubscriptionService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -77,4 +78,39 @@ class Subscription extends BaseModel
     {
         return $this->belongsTo(User::class);
     }
+
+    public function nextDateByInterval($date, $frequency_id)
+    {
+
+        switch ($frequency_id) {
+
+            case RecurringInvoice::FREQUENCY_DAILY:
+                return $date->addDay();
+            case RecurringInvoice::FREQUENCY_WEEKLY:
+                return $date->addWeek();
+            case RecurringInvoice::FREQUENCY_TWO_WEEKS:
+                return $date->addWeeks(2);
+            case RecurringInvoice::FREQUENCY_FOUR_WEEKS:
+                return $date->addWeeks(4);
+            case RecurringInvoice::FREQUENCY_MONTHLY:
+                return $date->addMonthNoOverflow();
+            case RecurringInvoice::FREQUENCY_TWO_MONTHS:
+                return $date->addMonthsNoOverflow(2);
+            case RecurringInvoice::FREQUENCY_THREE_MONTHS:
+                return $date->addMonthsNoOverflow(3);
+            case RecurringInvoice::FREQUENCY_FOUR_MONTHS:
+                return $date->addMonthsNoOverflow(4);
+            case RecurringInvoice::FREQUENCY_SIX_MONTHS:
+                return $date->addMonthsNoOverflow(6);
+            case RecurringInvoice::FREQUENCY_ANNUALLY:
+                return $date->addYear();
+            case RecurringInvoice::FREQUENCY_TWO_YEARS:
+                return $date->addYears(2);
+            case RecurringInvoice::FREQUENCY_THREE_YEARS:
+                return $date->addYears(3);
+            default:
+                return null;
+        }
+    }
+
 }

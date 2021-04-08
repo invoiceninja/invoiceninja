@@ -24,6 +24,7 @@ class ProjectNumberColumn extends Migration
     {
         Schema::table('projects', function ($table) {
             $table->string('number')->nullable();
+            $table->unique(['company_id', 'number']);
         });
 
         Schema::table('expenses', function ($t) {

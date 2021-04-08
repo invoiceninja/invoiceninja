@@ -10,13 +10,16 @@
  */
 namespace Tests\Feature\Ninja;
 
+use App\Factory\SubscriptionFactory;
 use App\Models\Account;
+use App\Models\RecurringInvoice;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Session;
 use Tests\MockAccountData;
 use Tests\TestCase;
+use Carbon\Carbon;
 
 /**
  * @test
@@ -70,6 +73,19 @@ class PlanTest extends TestCase
                             });
 
         $this->assertEquals($filtered_plans->count(), 2);
+    }
+
+    public function testSubscriptionDateIncrement()
+    {
+        $subscription = SubscriptionFactory::create($this->company->id, $this->user->id);
+        $subscription->frequency_id = RecurringInvoice::FREQUENCY_MONTHLY;
+        $subscription->save();
+
+        $date = Carbon::parse('2020-01-01')->startOfDay();
+
+        $next_date = $subscription->nextDateByInterval($date, RecurringInvoice::FREQUENCY_MONTHLY);
+
+        $this->assertEquals($date->addMonthNoOverflow()->startOfDay(), $next_date->startOfDay());
     }
 
 }
