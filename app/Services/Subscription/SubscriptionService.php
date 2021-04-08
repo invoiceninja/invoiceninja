@@ -182,6 +182,11 @@ class SubscriptionService
     }
 
 
+    public function createChangePlanInvoice($data)
+    {
+        
+    }
+
     public function createInvoice($data): ?\App\Models\Invoice
     {
 
