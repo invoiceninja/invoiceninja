@@ -16,6 +16,7 @@ use Cz\Git\GitException;
 use Cz\Git\GitRepository;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Artisan;
 
 class SelfUpdateController extends BaseController
 {
@@ -69,8 +70,21 @@ class SelfUpdateController extends BaseController
         $output = '';
 
         try {
-            // $res = $repo->pull();
+            
+            $cacheCompiled = base_path('bootstrap/cache/compiled.php');
+            if (file_exists($cacheCompiled)) { unlink ($cacheCompiled); }
+            $cacheServices = base_path('bootstrap/cache/services.php');
+            if (file_exists($cacheServices)) { unlink ($cacheServices); }
 
+            Artisan::call('clear-compiled');
+            Artisan::call('cache:clear');
+            Artisan::call('debugbar:clear');
+            Artisan::call('route:clear');
+            Artisan::call('view:clear');
+            Artisan::call('config:clear');
+
+            $output = $repo->execute('stash');
+            $output = $repo->execute('reset hard origin/v5-stable');
             $output = $repo->execute('pull origin');
 
         } catch (GitException $e) {

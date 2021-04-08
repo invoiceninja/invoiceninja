@@ -72,7 +72,7 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'check_client_existence
     Route::get('documents/{document}/download', 'ClientPortal\DocumentController@download')->name('documents.download');
     Route::resource('documents', 'ClientPortal\DocumentController')->only(['index', 'show']);
 
-    Route::get('subscriptions/{subscription}/plan_switch/{target_subscription}', 'ClientPortal\SubscriptionPlanSwitchController@index')->name('subscription.plan_switch');
+    Route::get('subscriptions/{subscription}/plan_switch/{target}', 'ClientPortal\SubscriptionPlanSwitchController@index')->name('subscription.plan_switch');
 
     Route::resource('subscriptions', 'ClientPortal\SubscriptionController')->only(['index']);
 
