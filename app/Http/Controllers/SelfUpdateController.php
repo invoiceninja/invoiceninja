@@ -16,7 +16,6 @@ use Cz\Git\GitException;
 use Cz\Git\GitRepository;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Artisan;
 
 class SelfUpdateController extends BaseController
 {
