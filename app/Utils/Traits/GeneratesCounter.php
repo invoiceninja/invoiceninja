@@ -426,6 +426,9 @@ trait GeneratesCounter
         }
 
         switch ($client->company->reset_counter_frequency_id) {
+            case RecurringInvoice::FREQUENCY_DAILY:
+                $reset_date->addDay();
+                break;
             case RecurringInvoice::FREQUENCY_WEEKLY:
                 $reset_date->addWeek();
                 break;

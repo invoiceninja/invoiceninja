@@ -13,6 +13,7 @@
 namespace App\Http\Controllers\Traits;
 
 use App\Models\User;
+use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Hash;
@@ -23,6 +24,7 @@ use Illuminate\Support\Facades\Hash;
 trait VerifiesUserEmail
 {
     use UserSessionAttributes;
+    use MakesHash;
 
     /**
      * @return RedirectResponse
@@ -37,13 +39,13 @@ trait VerifiesUserEmail
             return $this->render('auth.confirmed', ['root' => 'themes', 'message' => ctrans('texts.wrong_confirmation')]);
         }
 
-        if (is_null($user->password) || empty($user->password)) {
-            return $this->render('auth.confirmation_with_password', ['root' => 'themes']);
-        }
-
         $user->email_verified_at = now();
         $user->confirmation_code = null;
         $user->save();
+
+        if (is_null($user->password) || empty($user->password) || Hash::check('', $user->password)) {
+            return $this->render('auth.confirmation_with_password', ['root' => 'themes', 'user_id' => $user->hashed_id]);
+        }
 
         return $this->render('auth.confirmed', [
             'root' => 'themes',
@@ -53,15 +55,12 @@ trait VerifiesUserEmail
 
     public function confirmWithPassword()
     {
-        $user = User::where('confirmation_code', request()->confirmation_code)->first();
-
-        if (! $user) {
-            return $this->render('auth.confirmed', ['root' => 'themes', 'message' => ctrans('texts.wrong_confirmation')]);
-        }
+        $user = User::where('id', $this->decodePrimaryKey(request()->user_id))->firstOrFail();
 
         request()->validate([
-            'password' => ['required', 'min:6', 'confirmed'],
+            'password' => ['required', 'min:6'],
         ]);
+
 
         $user->password = Hash::make(request()->password);
 

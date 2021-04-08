@@ -12,7 +12,6 @@
 
 namespace App\Http\Controllers;
 
-use \Illuminate\Support\Facades\DB;
 use App\Http\Requests\Setup\CheckDatabaseRequest;
 use App\Http\Requests\Setup\CheckMailRequest;
 use App\Http\Requests\Setup\StoreSetupRequest;
@@ -20,6 +19,7 @@ use App\Jobs\Account\CreateAccount;
 use App\Jobs\Util\VersionCheck;
 use App\Models\Account;
 use App\Utils\CurlUtils;
+use App\Utils\Ninja;
 use App\Utils\SystemHealth;
 use App\Utils\Traits\AppSetup;
 use Beganovich\Snappdf\Snappdf;
@@ -29,10 +29,12 @@ use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\File;
+use \Illuminate\Support\Facades\DB;
 
 /**
  * Class SetupController.
@@ -147,7 +149,9 @@ class SetupController extends Controller
             DB::purge('db-ninja-01');
             
             /* Run migrations */
-            Artisan::call('optimize');
+            if(!config('ninja.disable_auto_update'))
+                Artisan::call('optimize');
+
             Artisan::call('migrate', ['--force' => true]);
             Artisan::call('db:seed', ['--force' => true]);
             
@@ -264,5 +268,30 @@ class SetupController extends Controller
         } catch (Exception $e) {
             return response([], 500);
         }
+    }
+
+    public function update()
+    {
+
+        if( Ninja::isNinja() || !request()->has('secret') || (request()->input('secret') != config('ninja.update_secret')) )
+            return redirect('/');
+
+        $cacheCompiled = base_path('bootstrap/cache/compiled.php');
+        if (file_exists($cacheCompiled)) { unlink ($cacheCompiled); }
+        $cacheServices = base_path('bootstrap/cache/services.php');
+        if (file_exists($cacheServices)) { unlink ($cacheServices); }
+
+        Artisan::call('clear-compiled');
+        Artisan::call('cache:clear');
+        Artisan::call('debugbar:clear');
+        Artisan::call('route:clear');
+        Artisan::call('view:clear');
+        Artisan::call('config:clear');
+        Cache::flush();
+        Artisan::call('migrate', ['--force' => true]);
+        Artisan::call('db:seed', ['--force' => true]);
+
+        return redirect('/?clear_cache=true');
+
     }
 }

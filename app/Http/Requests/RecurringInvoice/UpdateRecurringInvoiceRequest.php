@@ -97,7 +97,9 @@ class UpdateRecurringInvoiceRequest extends Request
             }
         }
 
-        $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
+        if (isset($input['line_items'])) {
+            $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
+        }
 
         if (isset($input['auto_bill'])) {
             $input['auto_bill_enabled'] = $this->setAutoBillFlag($input['auto_bill']);
