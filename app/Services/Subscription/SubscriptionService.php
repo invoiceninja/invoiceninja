@@ -317,6 +317,8 @@ class SubscriptionService
 
     public function handleCancellation()
     {
+        dd('Cancelling using SubscriptionService');
+
         // ..
     }
 

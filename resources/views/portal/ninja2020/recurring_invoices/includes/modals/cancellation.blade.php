@@ -1,4 +1,5 @@
-<div x-show="open" class="fixed bottom-0 inset-x-0 px-4 pb-4 sm:inset-0 sm:flex sm:items-center sm:justify-center" style="display:none;">
+<div x-show="open" class="fixed bottom-0 inset-x-0 px-4 pb-4 sm:inset-0 sm:flex sm:items-center sm:justify-center"
+     style="display:none;">
     <div x-show="open" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0"
          x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200"
          x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
@@ -33,10 +34,7 @@
         </div>
         <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
             <div class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto">
-                <a href="{{ route('client.recurring_invoices.request_cancellation',['recurring_invoice' => $invoice->hashed_id]) }}"
-                   class="button button-danger button-block">
-                    {{ ctrans('texts.confirm') }}
-                </a>
+                @livewire('recurring-invoice-cancellation', ['invoice' => $invoice])
             </div>
             <div class="mt-3 flex w-full rounded-md shadow-sm sm:mt-0 sm:w-auto">
                 <button @click="open = false" type="button" class="button button-secondary button-block">
