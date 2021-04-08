@@ -42,6 +42,12 @@
         </div>
 
         <!-- Payment box -->
-        @livewire('subscription-plan-switch', compact('subscription', 'target_subscription', 'contact'))
+        @livewire('subscription-plan-switch', compact('subscription', 'target', 'contact'))
     </div>
 @endsection
+
+@push('footer')
+    <script>
+        Livewire.on('beforePaymentEventsCompleted', () => document.getElementById('payment-method-form').submit());
+    </script>
+@endpush

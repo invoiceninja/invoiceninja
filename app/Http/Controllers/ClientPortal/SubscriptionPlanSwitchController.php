@@ -24,14 +24,14 @@ class SubscriptionPlanSwitchController extends Controller
      *
      * @param ShowPlanSwitchRequest $request
      * @param Subscription $subscription
-     * @param string $target_subscription
+     * @param string $target
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function index(ShowPlanSwitchRequest $request, Subscription $subscription, Subscription $target_subscription)
+    public function index(ShowPlanSwitchRequest $request, Subscription $subscription, Subscription $target)
     {
         return render('subscriptions.switch', [
             'subscription' => $subscription,
-            'target_subscription' => $target_subscription,
+            'target' => $target,
         ]);
     }
 }

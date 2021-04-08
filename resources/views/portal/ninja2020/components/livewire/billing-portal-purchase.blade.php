@@ -41,7 +41,7 @@
 
                     @foreach($subscription->service()->recurring_products() as $product)
                         <div class="flex items-center justify-between mb-4 bg-white rounded px-6 py-4 shadow-sm border">
-                            <div class="text-sm">{{ $product->product_key }}</div>
+                            <div class="text-sm">{{ $product->notes }}</div>
                             <div data-ref="price-and-quantity-container">
                                 <span
                                     data-ref="price">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }}</span>
@@ -136,9 +136,6 @@
                 @elseif($steps['show_start_trial'])
                     <form wire:submit.prevent="handleTrial" class="mt-8">
                         @csrf
-                        <p class="mb-4">Some text about the trial goes here. Details about the days, etc.</p>
-
-
                         <button class="px-3 py-2 border rounded mr-4 hover:border-blue-600">
                             {{ ctrans('texts.trial_call_to_action') }}
                         </button>
