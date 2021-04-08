@@ -623,7 +623,7 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('vendor_id')->nullable();
 
             $t->unsignedInteger('status_id')->index();
-            $t->text('number')->nullable();
+            $t->string('number')->nullable();
 
             $t->float('discount')->default(0);
             $t->boolean('is_amount_discount')->default(false);
@@ -672,6 +672,7 @@ class CreateUsersTable extends Migration
             $t->softDeletes('deleted_at', 6);
             $t->index(['company_id', 'deleted_at']);
 
+            $t->unique(['company_id', 'number']);
             $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade')->onUpdate('cascade');
             $t->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
@@ -960,7 +961,7 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('exchange_currency_id');
 
             $t->index(['company_id', 'deleted_at']);
-
+            $t->unique(['company_id', 'number']);
             $t->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
             $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade')->onUpdate('cascade');
             $t->foreign('client_contact_id')->references('id')->on('client_contacts')->onDelete('cascade')->onUpdate('cascade');
