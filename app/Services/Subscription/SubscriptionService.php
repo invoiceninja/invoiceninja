@@ -184,7 +184,7 @@ class SubscriptionService
 
     public function createChangePlanInvoice($data)
     {
-        
+        return Invoice::where('status_id', Invoice::STATUS_SENT)->first();
     }
 
     public function createInvoice($data): ?\App\Models\Invoice
@@ -275,9 +275,9 @@ class SubscriptionService
     }
 
     /**
-     * Get the single charge products for the 
+     * Get the single charge products for the
      * subscription
-     * 
+     *
      * @return ?Product Collection
      */
     public function products()
@@ -286,9 +286,9 @@ class SubscriptionService
     }
 
     /**
-     * Get the recurring products for the 
+     * Get the recurring products for the
      * subscription
-     * 
+     *
      * @return ?Product Collection
      */
     public function recurring_products()
@@ -318,5 +318,18 @@ class SubscriptionService
     public function handleCancellation()
     {
         // ..
+    }
+
+    /**
+     * Get pro rata calculation between subscriptions.
+     *
+     * @param Subscription $current
+     * @param Subscription $target
+     */
+    public function getPriceBetweenSubscriptions(Subscription $current, Subscription $target): int
+    {
+        // Calculate the pro rata. Return negative value if credits needed.
+
+        return 1;
     }
 }
