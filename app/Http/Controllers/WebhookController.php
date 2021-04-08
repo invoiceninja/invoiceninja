@@ -361,6 +361,7 @@ class WebhookController extends BaseController
         $webhook->user_id = auth()->user()->id;
         $webhook->event_id = $event_id;
         $webhook->target_url = $target_url;
+        $webhook->fill($request->all());
         $webhook->save();
 
         if (! $webhook->id) {
