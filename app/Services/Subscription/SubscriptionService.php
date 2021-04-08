@@ -127,7 +127,7 @@ class SubscriptionService
         ];
 
         $response = $this->triggerWebhook($context);
-
+        nlog($response);
         return $response;
     }
 
@@ -269,11 +269,23 @@ class SubscriptionService
         //scan for any notification we are required to send
     }
 
+    /**
+     * Get the single charge products for the 
+     * subscription
+     * 
+     * @return ?Product Collection
+     */
     public function products()
     {
         return Product::whereIn('id', $this->transformKeys(explode(",", $this->subscription->product_ids)))->get();
     }
 
+    /**
+     * Get the recurring products for the 
+     * subscription
+     * 
+     * @return ?Product Collection
+     */
     public function recurring_products()
     {
         return Product::whereIn('id', $this->transformKeys(explode(",", $this->subscription->recurring_product_ids)))->get();
