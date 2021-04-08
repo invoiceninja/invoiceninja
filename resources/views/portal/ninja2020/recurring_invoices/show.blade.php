@@ -85,14 +85,14 @@
             </div>
         @endif
 
-        @if($invoice->subscription->allow_plan_changes)
+        @if($invoice->subscription && $invoice->subscription->allow_plan_changes)
             <div class="bg-white shadow overflow-hidden px-4 py-5 lg:rounded-lg">
                 <h3 class="text-lg leading-6 font-medium text-gray-900">Switch Plans:</h3>
                 <p class="mt-1 max-w-2xl text-sm leading-5 text-gray-500">Upgrade or downgrade your current plan.</p>
 
                 <div class="flex mt-4">
                     @foreach($invoice->subscription->service()->getPlans() as $subscription)
-                        <a href="{{ route('client.subscription.plan_switch', ['subscription' => $invoice->subscription->hashed_id, 'target_subscription' => $subscription->hashed_id]) }}" class="border rounded px-5 py-2 hover:border-gray-800 text-sm cursor-pointer">{{ $subscription->name }}</a>
+                        <a href="{{ route('client.subscription.plan_switch', ['subscription' => $invoice->subscription->hashed_id, 'target' => $subscription->hashed_id]) }}" class="border rounded px-5 py-2 hover:border-gray-800 text-sm cursor-pointer">{{ $subscription->name }}</a>
                     @endforeach
                 </div>
             </div>
