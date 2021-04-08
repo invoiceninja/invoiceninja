@@ -16,7 +16,6 @@ use Cz\Git\GitException;
 use Cz\Git\GitRepository;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Artisan;
 
 class SelfUpdateController extends BaseController
 {
@@ -83,8 +82,8 @@ class SelfUpdateController extends BaseController
             Artisan::call('view:clear');
             Artisan::call('config:clear');
 
-            $output = $repo->execute('stash');
-            $output = $repo->execute('reset hard origin/v5-stable');
+            // $output = $repo->execute('stash');
+            // $output = $repo->execute('reset --hard origin/v5-stable');
             $output = $repo->execute('pull origin');
 
         } catch (GitException $e) {
