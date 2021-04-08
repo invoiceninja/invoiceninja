@@ -12,6 +12,19 @@ import Axios from 'axios';
 
 class Setup {
     constructor() {
+        let isDocker = document.querySelector('meta[name=is_docker]').content;
+
+        // If we're working with Docker, we can skip site config, database, & email.
+        if (isDocker) {
+            ['application-wrapper', 'database-wrapper', 'mail-wrapper'].forEach((wrapper) => {
+                document.getElementById(wrapper).classList.add('hidden');
+            });
+
+            document.getElementById('setup-notice').classList.add('hidden');
+            document.getElementById('account-wrapper').classList.remove('hidden');
+            document.getElementById('submit-wrapper').classList.remove('hidden');
+        }
+
         this.checkDbButton = document.getElementById('test-db-connection');
         this.checkDbAlert = document.getElementById('database-response');
 

@@ -1,9 +1,13 @@
 @extends('portal.ninja2020.layout.clean_setup')
 @section('meta_title', ctrans('texts.setup'))
 
+@push('head')
+    <meta name="is_docker" content="{{ config('ninja.is_docker') }}">
+@endpush
+
 @section('body')
 <div class="container mx-auto mb-10 mt-4">
-    <form action="{{ url('/setup') }}" method="post">
+    <form action="{{ url('/setup') }}" method="post" novalidate>
         @csrf
 
         <div class="grid grid-cols-12 px-6">
@@ -51,7 +55,7 @@
                     @include('setup._mail')
                     @include('setup._account')
 
-                    <p class="mt-4 text-sm">{{ ctrans('texts.setup_steps_notice') }}</p>
+                    <p class="mt-4 text-sm" id="setup-notice">{{ ctrans('texts.setup_steps_notice') }}</p>
 
                     <div class="flex justify-center mt-4 hidden" id="submit-wrapper">
                         <div class="flex flex-col">
