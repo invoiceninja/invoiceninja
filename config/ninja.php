@@ -38,7 +38,7 @@ return [
     'sentry_dsn' => env('SENTRY_LARAVEL_DSN', 'https://9b4e15e575214354a7d666489783904a@sentry.invoicing.co/6'),
     'environment' => env('NINJA_ENVIRONMENT', 'selfhost'), // 'hosted', 'development', 'selfhost', 'reseller'
 	'preconfigured_install' => env('PRECONFIGURED_INSTALL',false),
-
+    'update_secret' => env('UPDATE_SECRET', false),
     // Settings used by invoiceninja.com
 
     'terms_of_service_url' => [
