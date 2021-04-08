@@ -20,7 +20,6 @@
                     @foreach($subscription->service()->products() as $product)
                         <div class="flex items-center justify-between mb-4 bg-white rounded px-6 py-4 shadow-sm border">
                             <div>
-                                <p class="text-sm text-xl">{{ $product->product_key }}</p>
                                 <p class="text-sm text-gray-800">{{ $product->notes }}</p>
                             </div>
                             <div data-ref="price-and-quantity-container">
@@ -124,7 +123,7 @@
                             @endforeach
                         @endif
 
-                        @if($steps['started_payment'])
+                        @if($steps['started_payment'] && $steps['show_loading_bar'])
                             <svg class="animate-spin h-8 w-8 text-primary" xmlns="http://www.w3.org/2000/svg"
                                  fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
@@ -208,6 +207,10 @@
 
                         <button class="button button-primary bg-primary">Apply</button>
                     </form>
+                @endif
+
+                @if($steps['not_eligible'] && !is_null($steps['not_eligible']))
+                    <h1>{{ ctrans('texts.payment_error') }}</h1>
                 @endif
             </div>
         </div>

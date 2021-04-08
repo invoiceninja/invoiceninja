@@ -4202,6 +4202,7 @@ $LANG = array(
      'invoice_task_datelog_help' => 'Add date details to the invoice line items',
      'promo_code' => 'Promo code',
      'recurring_invoice_issued_to' => 'Recurring invoice issued to',
+     'subscription' => 'Subscription',
 );
 
 return $LANG;

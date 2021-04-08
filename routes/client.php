@@ -72,6 +72,8 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'check_client_existence
     Route::get('documents/{document}/download', 'ClientPortal\DocumentController@download')->name('documents.download');
     Route::resource('documents', 'ClientPortal\DocumentController')->only(['index', 'show']);
 
+    Route::get('subscriptions/{subscription}/plan_switch/{target_subscription}', 'ClientPortal\SubscriptionPlanSwitchController@index')->name('subscription.plan_switch');
+
     Route::resource('subscriptions', 'ClientPortal\SubscriptionController')->only(['index']);
 
     Route::post('upload', 'ClientPortal\UploadController')->name('upload.store');
@@ -79,7 +81,7 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'check_client_existence
     Route::get('logout', 'Auth\ContactLoginController@logout')->name('logout');
 });
 
-Route::get('client/subscription/{subscription}/purchase', 'ClientPortal\SubscriptionPurchaseController@index')->name('client.subscription.purchase');
+Route::get('client/subscription/{subscription}/purchase/', 'ClientPortal\SubscriptionPurchaseController@index')->name('client.subscription.purchase');
 
 Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'client.'], function () {
     /*Invitation catches*/

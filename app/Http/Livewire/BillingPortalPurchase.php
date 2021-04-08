@@ -109,6 +109,8 @@ class BillingPortalPurchase extends Component
         'passwordless_login_sent' => false,
         'started_payment' => false,
         'discount_applied' => false,
+        'show_loading_bar' => false,
+        'not_eligible' => null,
     ];
 
     /**
@@ -269,7 +271,7 @@ class BillingPortalPurchase extends Component
 
         $this->steps['fetched_payment_methods'] = true;
 
-        $this->methods = $contact->client->service()->getPaymentMethods(1000);
+        $this->methods = $contact->client->service()->getPaymentMethods($this->price);
 
         $this->heading_text = ctrans('texts.payment_methods');
 
@@ -299,6 +301,7 @@ class BillingPortalPurchase extends Component
     public function handleBeforePaymentEvents()
     {
         $this->steps['started_payment'] = true;
+        $this->steps['show_loading_bar'] = true;
 
         $data = [
             'client_id' => $this->contact->client->id,
@@ -319,6 +322,15 @@ class BillingPortalPurchase extends Component
             ->markSent()
             ->fillDefaults()
             ->save();
+
+        $is_eligible = $this->subscription->service()->isEligible($this->contact);
+
+        if (is_array($is_eligible)) {
+            $this->steps['not_eligible'] = true;
+            $this->steps['show_loading_bar'] = false;
+
+            return;
+        }
 
         Cache::put($this->hash, [
                 'subscription_id' => $this->subscription->id,
