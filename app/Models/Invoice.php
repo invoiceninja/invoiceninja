@@ -84,10 +84,10 @@ class Invoice extends BaseModel
         'custom_surcharge2',
         'custom_surcharge3',
         'custom_surcharge4',
-        'custom_surcharge_tax1',
-        'custom_surcharge_tax2',
-        'custom_surcharge_tax3',
-        'custom_surcharge_tax4',
+    // 'custom_surcharge_tax1',
+    // 'custom_surcharge_tax2',
+    // 'custom_surcharge_tax3',
+    // 'custom_surcharge_tax4',
         'design_id',
         'assigned_user_id',
         'exchange_rate',
@@ -103,10 +103,6 @@ class Invoice extends BaseModel
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
-        'custom_surcharge_tax1' => 'bool',
-        'custom_surcharge_tax2' => 'bool',
-        'custom_surcharge_tax3' => 'bool',
-        'custom_surcharge_tax4' => 'bool',
     ];
 
     protected $with = [];
