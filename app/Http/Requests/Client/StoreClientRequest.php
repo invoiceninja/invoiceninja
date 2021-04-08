@@ -81,7 +81,7 @@ class StoreClientRequest extends Request
     {
         $input = $this->all();
 
-        //@todo implement feature permissions for > 100 clients
+        //@todo implement feature permissions for > 50 clients
         
         $settings = ClientSettings::defaults();
 
