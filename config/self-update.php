@@ -44,7 +44,7 @@ return [
             'repository_url' => 'https://github.com/',
             'download_path' => env('SELF_UPDATER_DOWNLOAD_PATH', '/tmp'),
             'private_access_token' => env('SELF_UPDATER_GITHUB_PRIVATE_ACCESS_TOKEN', ''),
-            'use_branch' => env('SELF_UPDATER_USE_BRANCH', 'v5-stable'),
+            'use_branch' => env('SELF_UPDATER_USE_BRANCH', ''),
         ],
         'http' => [
             'type' => 'http',
@@ -89,7 +89,7 @@ return [
     |
     */
 
-    'log_events' => env('SELF_UPDATER_LOG_EVENTS', false),
+    'log_events' => env('SELF_UPDATER_LOG_EVENTS', true),
 
     /*
     |--------------------------------------------------------------------------
