@@ -63,27 +63,6 @@ class SelfUpdateController extends BaseController
             return response()->json(['message' => ctrans('texts.self_update_not_available')], 403);
         }
 
-
-        // $it = new \RecursiveDirectoryIterator("/home/david/Development/invoiceninja");
-
-        // $x=1;
-        // // Loop through files
-        // foreach(new \RecursiveIteratorIterator($it) as $file) {
-
-        // var_dum
-        //    if(is_file($file) && is_writable($file))
-        //     nlog('writable ' .$x);
-        //   elseif(is_file($file))
-        //     nlog("{$file} is not writable {$x}");
-        //   //exit;
-          
-        //   $x++;
-        //   // if ($file->isWritable() === false) {
-        //   //       $checkPermission = false;
-        //   //   }
-          
-        // }
-
         // Check if new version is available
         if($updater->source()->isNewVersionAvailable()) {
 
