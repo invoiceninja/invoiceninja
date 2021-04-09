@@ -54,7 +54,7 @@ class SelfUpdateController extends BaseController
      *       ),
      *     )
      */
-    public function update()
+    public function update(\Codedge\Updater\UpdaterManager $updater)
     {
         define('STDIN', fopen('php://stdin', 'r'));
 
@@ -62,14 +62,14 @@ class SelfUpdateController extends BaseController
             return response()->json(['message' => ctrans('texts.self_update_not_available')], 403);
         }
 
-        /* .git MUST be owned/writable by the webserver user */
-        $repo = new GitRepository(base_path());
+        // /* .git MUST be owned/writable by the webserver user */
+        // $repo = new GitRepository(base_path());
 
-        nlog('Are there changes to pull? '.$repo->hasChanges());
-        $output = '';
+        // nlog('Are there changes to pull? '.$repo->hasChanges());
+        // $output = '';
 
 
-        $updater = new \Codedge\Updater\UpdaterManager() 
+        // $updater = new \Codedge\Updater\UpdaterManager();
 
         // Check if new version is available
         if($updater->source()->isNewVersionAvailable()) {

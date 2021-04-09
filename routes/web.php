@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', 'BaseController@flutterRoute')->middleware('guest');
 
+Route::get('self-update', 'SelfUpdateController@update')->middleware('guest');
+
+
 Route::get('setup', 'SetupController@index')->middleware('guest');
 Route::post('setup', 'SetupController@doSetup')->middleware('guest');
 Route::get('update', 'SetupController@update')->middleware('guest');
