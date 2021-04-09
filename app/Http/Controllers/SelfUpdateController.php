@@ -16,7 +16,6 @@ use Cz\Git\GitException;
 use Cz\Git\GitRepository;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Artisan;
 
 class SelfUpdateController extends BaseController
 {
@@ -69,34 +68,53 @@ class SelfUpdateController extends BaseController
         nlog('Are there changes to pull? '.$repo->hasChanges());
         $output = '';
 
-        try {
-            
-            $cacheCompiled = base_path('bootstrap/cache/compiled.php');
-            if (file_exists($cacheCompiled)) { unlink ($cacheCompiled); }
-            $cacheServices = base_path('bootstrap/cache/services.php');
-            if (file_exists($cacheServices)) { unlink ($cacheServices); }
 
-            Artisan::call('clear-compiled');
-            Artisan::call('cache:clear');
-            Artisan::call('debugbar:clear');
-            Artisan::call('route:clear');
-            Artisan::call('view:clear');
-            Artisan::call('config:clear');
+        $updater = new \Codedge\Updater\UpdaterManager() 
 
-            $output = $repo->execute('stash');
-            $output = $repo->execute('reset hard origin/v5-stable');
-            $output = $repo->execute('pull origin');
+        // Check if new version is available
+        if($updater->source()->isNewVersionAvailable()) {
 
-        } catch (GitException $e) {
-            
-            nlog($output);
-            nlog($e->getMessage());
-            return response()->json(['message'=>$e->getMessage()], 500);
+            // Get the current installed version
+            echo $updater->source()->getVersionInstalled();
+
+            // Get the new version available
+            $versionAvailable = $updater->source()->getVersionAvailable();
+
+            // Create a release
+            $release = $updater->source()->fetch($versionAvailable);
+
+            // Run the update process
+            $updater->source()->update($release);
         }
 
-        dispatch(function () {
-            Artisan::call('ninja:post-update');
-        });
+        // try {
+            
+        //     $cacheCompiled = base_path('bootstrap/cache/compiled.php');
+        //     if (file_exists($cacheCompiled)) { unlink ($cacheCompiled); }
+        //     $cacheServices = base_path('bootstrap/cache/services.php');
+        //     if (file_exists($cacheServices)) { unlink ($cacheServices); }
+
+        //     Artisan::call('clear-compiled');
+        //     Artisan::call('cache:clear');
+        //     Artisan::call('debugbar:clear');
+        //     Artisan::call('route:clear');
+        //     Artisan::call('view:clear');
+        //     Artisan::call('config:clear');
+
+        //     // $output = $repo->execute('stash');
+        //     // $output = $repo->execute('reset --hard origin/v5-stable');
+        //     $output = $repo->execute('pull origin');
+
+        // } catch (GitException $e) {
+            
+        //     nlog($output);
+        //     nlog($e->getMessage());
+        //     return response()->json(['message'=>$e->getMessage()], 500);
+        // }
+
+        // dispatch(function () {
+        //     Artisan::call('ninja:post-update');
+        // });
 
         return response()->json(['message' => $output], 200);
     }

@@ -15,6 +15,7 @@ return [
     'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', ''),
     'app_version' => '5.1.42',
+    'app_tag' => 'v5.1.42',
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', false),
