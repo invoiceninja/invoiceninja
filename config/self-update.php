@@ -140,7 +140,7 @@ return [
             //]
         ],
         'post_update' => [
-
+            'class' => \App\Console\Commands\PostUpdate::class
         ],
     ],
 
