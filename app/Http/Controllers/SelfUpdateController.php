@@ -12,8 +12,6 @@
 namespace App\Http\Controllers;
 
 use App\Utils\Ninja;
-use Cz\Git\GitException;
-use Cz\Git\GitRepository;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Artisan;
 
@@ -72,7 +70,6 @@ class SelfUpdateController extends BaseController
             // Create a release
             $release = $updater->source()->fetch($versionAvailable);
 
-            // Run the update process
             $updater->source()->update($release);
 
         }
