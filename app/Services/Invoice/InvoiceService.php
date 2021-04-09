@@ -101,6 +101,8 @@ class InvoiceService
      */
     public function applyPayment(Payment $payment, float $payment_amount)
     {
+        $this->deletePdf();
+
         $this->invoice = (new ApplyPayment($this->invoice, $payment, $payment_amount))->run();
 
         return $this;
@@ -295,6 +297,7 @@ class InvoiceService
 
     public function deletePdf()
     {
+        nlog("delete PDF");
         //UnlinkFile::dispatchNow(config('filesystems.default'), $this->invoice->client->invoice_filepath() . $this->invoice->numberFormatter().'.pdf');
         Storage::disk(config('filesystems.default'))->delete($this->invoice->client->invoice_filepath() . $this->invoice->numberFormatter().'.pdf');
         

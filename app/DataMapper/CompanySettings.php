@@ -595,14 +595,14 @@ class CompanySettings extends BaseSettings
         $variables = [
             'client_details' => [
                 '$client.name',
-                '$client.id_number',
+                '$client.number',
                 '$client.vat_number',
                 '$client.address1',
                 '$client.address2',
                 '$client.city_state_postal',
                 '$client.country',
-                '$contact.email',
                 '$client.phone',
+                '$contact.email',
             ],
             'company_details' => [
                 '$company.name',
@@ -668,7 +668,7 @@ class CompanySettings extends BaseSettings
                 '$total_taxes',
                 '$line_taxes',
                 '$paid_to_date',
-                '$outstanding',
+                '$total',
             ],
         ];
 

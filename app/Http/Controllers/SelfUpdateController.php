@@ -12,8 +12,6 @@
 namespace App\Http\Controllers;
 
 use App\Utils\Ninja;
-use Cz\Git\GitException;
-use Cz\Git\GitRepository;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Artisan;
 
@@ -54,50 +52,42 @@ class SelfUpdateController extends BaseController
      *       ),
      *     )
      */
-    public function update()
+    public function update(\Codedge\Updater\UpdaterManager $updater)
     {
+        set_time_limit(0);
         define('STDIN', fopen('php://stdin', 'r'));
 
         if (Ninja::isNinja()) {
             return response()->json(['message' => ctrans('texts.self_update_not_available')], 403);
         }
 
-        /* .git MUST be owned/writable by the webserver user */
-        $repo = new GitRepository(base_path());
+        // Check if new version is available
+        if($updater->source()->isNewVersionAvailable()) {
 
-        nlog('Are there changes to pull? '.$repo->hasChanges());
-        $output = '';
+            // Get the new version available
+            $versionAvailable = $updater->source()->getVersionAvailable();
 
-        try {
-            
-            $cacheCompiled = base_path('bootstrap/cache/compiled.php');
-            if (file_exists($cacheCompiled)) { unlink ($cacheCompiled); }
-            $cacheServices = base_path('bootstrap/cache/services.php');
-            if (file_exists($cacheServices)) { unlink ($cacheServices); }
+            // Create a release
+            $release = $updater->source()->fetch($versionAvailable);
 
-            Artisan::call('clear-compiled');
-            Artisan::call('cache:clear');
-            Artisan::call('debugbar:clear');
-            Artisan::call('route:clear');
-            Artisan::call('view:clear');
-            Artisan::call('config:clear');
+            $updater->source()->update($release);
 
-            // $output = $repo->execute('stash');
-            // $output = $repo->execute('reset --hard origin/v5-stable');
-            $output = $repo->execute('pull origin');
-
-        } catch (GitException $e) {
-            
-            nlog($output);
-            nlog($e->getMessage());
-            return response()->json(['message'=>$e->getMessage()], 500);
         }
+            
+        $cacheCompiled = base_path('bootstrap/cache/compiled.php');
+        if (file_exists($cacheCompiled)) { unlink ($cacheCompiled); }
+        $cacheServices = base_path('bootstrap/cache/services.php');
+        if (file_exists($cacheServices)) { unlink ($cacheServices); }
 
-        dispatch(function () {
-            Artisan::call('ninja:post-update');
-        });
+        Artisan::call('clear-compiled');
+        Artisan::call('cache:clear');
+        Artisan::call('debugbar:clear');
+        Artisan::call('route:clear');
+        Artisan::call('view:clear');
+        Artisan::call('config:clear');
 
-        return response()->json(['message' => $output], 200);
+        return response()->json(['message' => 'Update completed'], 200);
+
     }
 
     public function checkVersion()
