@@ -114,6 +114,7 @@ class PaymentRepository extends BaseRepository {
 
         /*Iterate through invoices and apply payments*/
         if (array_key_exists('invoices', $data) && is_array($data['invoices']) && count($data['invoices']) > 0) {
+
             $invoice_totals = array_sum(array_column($data['invoices'], 'amount'));
 
             $invoices = Invoice::whereIn('id', array_column($data['invoices'], 'invoice_id'))->get();
@@ -125,7 +126,10 @@ class PaymentRepository extends BaseRepository {
                 $invoice = Invoice::whereId($paid_invoice['invoice_id'])->first();
 
                 if ($invoice) {
-                    $invoice = $invoice->service()->markSent()->applyPayment($payment, $paid_invoice['amount'])->save();
+                    $invoice = $invoice->service()
+                                       ->markSent()
+                                       ->applyPayment($payment, $paid_invoice['amount'])
+                                       ->save();
                 }
             }
         } else {

@@ -14,6 +14,7 @@ namespace App\Models;
 use App\Models\Presenters\AccountPresenter;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
+use Carbon\Carbon;
 use DateTime;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Laracasts\Presenter\PresentableTrait;
@@ -257,8 +258,8 @@ class Account extends BaseModel
                 $plan_active = true;
                 $plan_expires = false;
             } else {
-                $plan_expires = DateTime::createFromFormat('Y-m-d', $this->plan_expires);
-                if ($plan_expires >= date_create()) {
+                $plan_expires = Carbon::parse($this->plan_expires);
+                if ($plan_expires->greaterThan(now())) {
                     $plan_active = true;
                 }
             }
