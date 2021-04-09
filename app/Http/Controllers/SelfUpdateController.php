@@ -12,8 +12,6 @@
 namespace App\Http\Controllers;
 
 use App\Utils\Ninja;
-use Cz\Git\GitException;
-use Cz\Git\GitRepository;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Artisan;
 
@@ -54,28 +52,17 @@ class SelfUpdateController extends BaseController
      *       ),
      *     )
      */
-    public function update()
+    public function update(\Codedge\Updater\UpdaterManager $updater)
     {
+        set_time_limit(0);
         define('STDIN', fopen('php://stdin', 'r'));
 
         if (Ninja::isNinja()) {
             return response()->json(['message' => ctrans('texts.self_update_not_available')], 403);
         }
 
-        /* .git MUST be owned/writable by the webserver user */
-        $repo = new GitRepository(base_path());
-
-        nlog('Are there changes to pull? '.$repo->hasChanges());
-        $output = '';
-
-
-        $updater = new \Codedge\Updater\UpdaterManager() 
-
         // Check if new version is available
         if($updater->source()->isNewVersionAvailable()) {
-
-            // Get the current installed version
-            echo $updater->source()->getVersionInstalled();
 
             // Get the new version available
             $versionAvailable = $updater->source()->getVersionAvailable();
@@ -83,40 +70,24 @@ class SelfUpdateController extends BaseController
             // Create a release
             $release = $updater->source()->fetch($versionAvailable);
 
-            // Run the update process
             $updater->source()->update($release);
+
         }
-
-        // try {
             
-        //     $cacheCompiled = base_path('bootstrap/cache/compiled.php');
-        //     if (file_exists($cacheCompiled)) { unlink ($cacheCompiled); }
-        //     $cacheServices = base_path('bootstrap/cache/services.php');
-        //     if (file_exists($cacheServices)) { unlink ($cacheServices); }
+        $cacheCompiled = base_path('bootstrap/cache/compiled.php');
+        if (file_exists($cacheCompiled)) { unlink ($cacheCompiled); }
+        $cacheServices = base_path('bootstrap/cache/services.php');
+        if (file_exists($cacheServices)) { unlink ($cacheServices); }
 
-        //     Artisan::call('clear-compiled');
-        //     Artisan::call('cache:clear');
-        //     Artisan::call('debugbar:clear');
-        //     Artisan::call('route:clear');
-        //     Artisan::call('view:clear');
-        //     Artisan::call('config:clear');
+        Artisan::call('clear-compiled');
+        Artisan::call('cache:clear');
+        Artisan::call('debugbar:clear');
+        Artisan::call('route:clear');
+        Artisan::call('view:clear');
+        Artisan::call('config:clear');
 
-        //     // $output = $repo->execute('stash');
-        //     // $output = $repo->execute('reset --hard origin/v5-stable');
-        //     $output = $repo->execute('pull origin');
+        return response()->json(['message' => 'Update completed'], 200);
 
-        // } catch (GitException $e) {
-            
-        //     nlog($output);
-        //     nlog($e->getMessage());
-        //     return response()->json(['message'=>$e->getMessage()], 500);
-        // }
-
-        // dispatch(function () {
-        //     Artisan::call('ninja:post-update');
-        // });
-
-        return response()->json(['message' => $output], 200);
     }
 
     public function checkVersion()

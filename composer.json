@@ -38,7 +38,6 @@
         "coconutcraig/laravel-postmark": "^2.10",
         "codedge/laravel-selfupdater": "^3.2",
         "composer/composer": "^2",
-        "czproject/git-php": "^3.17",
         "doctrine/dbal": "^2.10",
         "fakerphp/faker": "^1.14",
         "fideloper/proxy": "^4.2",
