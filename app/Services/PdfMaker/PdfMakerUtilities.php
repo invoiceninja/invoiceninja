@@ -130,19 +130,14 @@ trait PdfMakerUtilities
             }
 
             if ($contains_html) {
-                // Support for injecting direct HTML into elements.
-                // Example: Without documentFragment(): <b>Hello!</b> will result: &lt;b&gt;Hello!&lt;/b&gt;
-                // With document fragment we can evaluate HTML directly.
+                // If the element contains the HTML, we gonna display it as is. DOMDocument, is going to
+                // encode it for us, preventing any errors on the backend due processing stage.
+                // Later, we decode this using Javascript so it looks like it's normal HTML being injected.
+                // To get all elements that need frontend decoding, we use 'data-ref' property.
 
                 $_child = $this->document->createElement($child['element'], '');
-
-                $fragment = $this->document->createDocumentFragment();
-
-                $fragment->appendXML(
-                    strtr($child['content'], ['&' => '&amp;'])
-                );
-
-                $_child->appendChild($fragment);
+                $_child->setAttribute('data-state', 'encoded-html');
+                $_child->nodeValue = $child['content'];
             } else {
                 // .. in case string doesn't contain any HTML, we'll just return
                 // raw $content.
