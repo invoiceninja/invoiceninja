@@ -37,7 +37,6 @@
         "cleverit/ubl_invoice": "^1.3",
         "coconutcraig/laravel-postmark": "^2.10",
         "composer/composer": "^2",
-        "czproject/git-php": "^3.17",
         "turbo124/laravel-gmail": "^5",
         "doctrine/dbal": "^2.10",
         "fideloper/proxy": "^4.2",

@@ -601,8 +601,8 @@ class CompanySettings extends BaseSettings
                 '$client.address2',
                 '$client.city_state_postal',
                 '$client.country',
-                '$contact.email',
                 '$client.phone',
+                '$contact.email',
             ],
             'company_details' => [
                 '$company.name',
