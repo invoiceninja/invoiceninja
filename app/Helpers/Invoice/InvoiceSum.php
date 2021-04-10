@@ -310,8 +310,6 @@ class InvoiceSum
     private function getSurchargeTaxTotalForKey($key, $rate)
     {
 
-        nlog("in the surg");
-
         $tax_component = 0;
 
         if($this->invoice->custom_surcharge_tax1)
@@ -333,9 +331,7 @@ class InvoiceSum
         {
             $tax_component += round($this->invoice->custom_surcharge4 * ($rate / 100), 2);
         }
-nlog("key = {$key}");
-nlog("tax component = {$tax_component}");
-
+        
         return $tax_component;
      
     }
