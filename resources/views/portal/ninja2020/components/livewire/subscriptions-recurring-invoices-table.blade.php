@@ -1,8 +1,4 @@
 <div>
-    <p class="mb-4 uppercase leading-4 tracking-wide inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary text-white">
-        Subscriptions
-    </p>
-
     <div class="flex items-center justify-between mt-4">
         <div class="flex items-center">
             <span class="mr-2 text-sm hidden md:block">{{ ctrans('texts.per_page') }}</span>
