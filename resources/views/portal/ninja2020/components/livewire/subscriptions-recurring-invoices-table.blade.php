@@ -1,5 +1,5 @@
 <div>
-    <div class="flex items-center justify-between mt-4">
+    <div class="flex items-center justify-between">
         <div class="flex items-center">
             <span class="mr-2 text-sm hidden md:block">{{ ctrans('texts.per_page') }}</span>
             <select wire:model="per_page" class="form-select py-1 text-sm">
