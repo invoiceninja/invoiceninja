@@ -92,7 +92,7 @@
 
                 <div class="flex mt-4">
                     @foreach($invoice->subscription->service()->getPlans() as $subscription)
-                        <a href="{{ route('client.subscription.plan_switch', ['subscription' => $invoice->subscription->hashed_id, 'target' => $subscription->hashed_id]) }}" class="border rounded px-5 py-2 hover:border-gray-800 text-sm cursor-pointer">{{ $subscription->name }}</a>
+                        <a href="{{ route('client.subscription.plan_switch', ['recurring_invoice' => $invoice->hashed_id, 'target' => $subscription->hashed_id]) }}" class="border rounded px-5 py-2 hover:border-gray-800 text-sm cursor-pointer">{{ $subscription->name }}</a>
                     @endforeach
                 </div>
             </div>

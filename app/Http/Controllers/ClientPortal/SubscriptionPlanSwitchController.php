@@ -14,6 +14,7 @@ namespace App\Http\Controllers\ClientPortal;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\Subscriptions\ShowPlanSwitchRequest;
+use App\Models\RecurringInvoice;
 use App\Models\Subscription;
 use Illuminate\Http\Request;
 
@@ -23,15 +24,20 @@ class SubscriptionPlanSwitchController extends Controller
      * Show the page for switching between plans.
      *
      * @param ShowPlanSwitchRequest $request
-     * @param Subscription $subscription
+     * @param RecurringInvoice $recurring_invoice
      * @param string $target
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function index(ShowPlanSwitchRequest $request, Subscription $subscription, Subscription $target)
+    public function index(ShowPlanSwitchRequest $request, RecurringInvoice $recurring_invoice, Subscription $target)
     {
+        //calculate whether a payment is required or whether we pass through a credit for this.
+        
+        $amount = $recurring_invoice->subscription->service()->calculateUpgradePrice($recurring_invoice, $target);
+
         return render('subscriptions.switch', [
             'subscription' => $subscription,
             'target' => $target,
+            'amount' => $amount,
         ]);
     }
 }

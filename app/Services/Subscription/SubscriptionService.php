@@ -33,6 +33,7 @@ use App\Utils\Ninja;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SubscriptionHooker;
+use Carbon\Carbon;
 use GuzzleHttp\RequestOptions;
 
 class SubscriptionService
@@ -44,14 +45,15 @@ class SubscriptionService
     /** @var subscription */
     private $subscription;
 
-    /** @var client_subscription */
-    // private $client_subscription;
-
     public function __construct(Subscription $subscription)
     {
         $this->subscription = $subscription;
     }
 
+    /*  
+        Performs the initial purchase of a 
+        one time or recurring product
+    */
     public function completePurchase(PaymentHash $payment_hash)
     {
 
@@ -181,9 +183,72 @@ class SubscriptionService
         return redirect('/client/recurring_invoices/'.$recurring_invoice->hashed_id);
     }
 
+    public function calculateUpgradePrice(RecurringInvoice $recurring_invoice, Subscription $target)
+    {
+        //calculate based on daily prices
+
+        $current_amount = $recurring_invoice->amount;
+        $currency_frequency = $recurring_invoice->frequency_id;
+
+        $outstanding = $recurring_invoice->invoices
+                                         ->where('is_deleted', 0)
+                                         ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                                         ->where('balance', '>', 0);
+
+        $outstanding_amounts = $outstanding->sum('balance');
+        $outstanding_invoices = $outstanding->get();
+
+        if ($outstanding->count() == 0){
+            //nothing outstanding
+        }
+        elseif ($outstanding_amounts > $current_amount){
+            //user has multiple amounts outstanding
+        }
+        elseif ($outstanding_amounts < $current_amount && $outstanding_amounts > 0) {
+            //user is changing plan mid frequency cycle
+        }
+
+        // $current_plan_price = $this->subscription
+    }
+
+    private function calculateProRataRefund($invoice)
+    {
+        //determine the start date
+        
+        $start_date = Carbon::parse($invoice->date);
+
+        $current_date = now();
+
+        $days_to_refund = $start_date->diffInDays($current_date);
+    }
 
     public function createChangePlanInvoice($data)
     {
+        //Data array structure
+        /**
+         * [
+         * 'subscription' => Subscription::class,
+         * 'target' => Subscription::class
+         * ]
+         */
+        
+        //logic
+        
+        // Is the user paid up to date? ie are there any outstanding invoices for this subscription
+
+        // User in arrears.
+         
+        
+        // User paid up to date (in credit!)
+         
+            //generate credit amount.
+            //
+            //generate new billable amount
+            //
+            
+            //if billable amount is LESS than 0 -> generate a credit and pass through.
+            //
+            //if billable amoun is GREATER than 0 -> gener
         return Invoice::where('status_id', Invoice::STATUS_SENT)->first();
     }
 

@@ -297,7 +297,6 @@ class InvoiceService
 
     public function deletePdf()
     {
-        nlog("delete PDF");
         //UnlinkFile::dispatchNow(config('filesystems.default'), $this->invoice->client->invoice_filepath() . $this->invoice->numberFormatter().'.pdf');
         Storage::disk(config('filesystems.default'))->delete($this->invoice->client->invoice_filepath() . $this->invoice->numberFormatter().'.pdf');
         
