@@ -54,7 +54,7 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'check_client_existence
     Route::get('payment_methods/{payment_method}/verification', 'ClientPortal\PaymentMethodController@verify')->name('payment_methods.verification');
     Route::post('payment_methods/{payment_method}/verification', 'ClientPortal\PaymentMethodController@processVerification');
 
-    Route::resource('payment_methods', 'ClientPortal\PaymentMethodController'); // name = (payment_methods. index / create / show / update / destroy / edit
+    Route::resource('payment_methods', 'ClientPortal\PaymentMethodController')->except(['edit', 'update']); // name = (payment_methods. index / create / show / update / destroy / edit
 
     Route::match(['GET', 'POST'], 'quotes/approve', 'ClientPortal\QuoteController@bulk')->name('quotes.bulk');
     Route::get('quotes', 'ClientPortal\QuoteController@index')->name('quotes.index')->middleware('portal_enabled');
