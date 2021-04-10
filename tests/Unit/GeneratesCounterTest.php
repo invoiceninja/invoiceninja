@@ -73,6 +73,45 @@ class GeneratesCounterTest extends TestCase
         $this->assertTrue($this->hasSharedCounter($this->client));
     }
 
+    public function testNoCounterBeingSpecifiedInCounterStringStub()
+    {
+        $settings = $this->client->company->settings;
+        $settings->invoice_number_counter = 1;
+        $settings->invoice_number_pattern = 'test-{$counter}';
+        $settings->shared_invoice_quote_counter = 1;
+        $this->client->company->settings = $settings;
+        $this->client->company->save();
+
+        $this->client->settings = $settings;
+        $this->client->save();
+        $this->client->fresh();
+
+        $invoice_number = $this->getNextInvoiceNumber($this->client, $this->invoice);
+
+        $this->assertEquals('test-0001', $invoice_number);
+
+    }
+
+    public function testNoCounterBeingSpecifiedInCounterStringWithFix()
+    {
+        $settings = $this->client->company->settings;
+        $settings->invoice_number_counter = 100;
+        $settings->invoice_number_pattern = 'test-';
+        $settings->shared_invoice_quote_counter = 100;
+        $this->client->company->settings = $settings;
+        $this->client->company->save();
+
+        $this->client->settings = $settings;
+        $this->client->save();
+        $this->client->fresh();
+
+        $invoice_number = $this->getNextInvoiceNumber($this->client, $this->invoice);
+
+        $this->assertEquals('test-0100', $invoice_number);
+
+    }
+
+
     public function testInvoiceNumberValue()
     {
         $invoice_number = $this->getNextInvoiceNumber($this->client, $this->invoice);
