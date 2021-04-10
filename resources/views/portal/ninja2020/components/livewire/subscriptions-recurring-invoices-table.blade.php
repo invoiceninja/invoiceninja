@@ -22,6 +22,11 @@
                     </th>
                     <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary">
                         <p role="button" wire:click="sortBy('number')" class="cursor-pointer">
+                            {{ ctrans('texts.frequency') }}
+                        </p>
+                    </th>
+                    <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary">
+                        <p role="button" wire:click="sortBy('number')" class="cursor-pointer">
                             {{ ctrans('texts.invoice') }}
                         </p>
                     </th>
@@ -42,6 +47,9 @@
                     <tr class="bg-white group hover:bg-gray-100">
                         <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
                             {{ $recurring_invoice->subscription->name }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                            {{ \App\Models\RecurringInvoice::frequencyForKey($recurring_invoice->frequency_id) }}
                         </td>
                         <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
                             <a href="{{ route('client.recurring_invoice.show', $recurring_invoice->hashed_id) }}"
