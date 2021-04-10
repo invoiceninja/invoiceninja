@@ -42,6 +42,15 @@ class DatesTest extends TestCase
         $diff_in_days = $start_date->diffInDays($current_date);
 
         $this->assertEquals(19, $diff_in_days);
-;
+
+    }
+
+    public function testDiffInDaysRange()
+    {
+        $now = Carbon::parse('2020-01-01');
+
+        $x = now()->diffInDays(now()->addDays(7));
+
+        $this->assertEquals(7, $x);
     }
 }

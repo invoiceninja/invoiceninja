@@ -220,6 +220,11 @@ class SubscriptionService
         $current_date = now();
 
         $days_to_refund = $start_date->diffInDays($current_date);
+        $days_in_frequency = $this->getDaysInFrequency();
+
+        $pro_rata_refund = round(($days_to_refund/$days_in_frequency) * $invoice->amount ,2);
+        
+        return $pro_rata_refund;
     }
 
     public function createChangePlanInvoice($data)
@@ -398,5 +403,39 @@ class SubscriptionService
         // Calculate the pro rata. Return negative value if credits needed.
 
         return 1;
+    }
+
+    private function getDaysInFrequency()
+    {
+
+        switch ($this->subscription->frequency_id) {
+            case self::FREQUENCY_DAILY:
+                return 1;
+            case self::FREQUENCY_WEEKLY:
+                return 7;
+            case self::FREQUENCY_TWO_WEEKS:
+                return 14;
+            case self::FREQUENCY_FOUR_WEEKS:
+                return now()->diffInDays(now()->addWeeks(4));
+            case self::FREQUENCY_MONTHLY:
+                return now()->diffInDays(now()->addMonthNoOverflow());
+            case self::FREQUENCY_TWO_MONTHS:
+                return now()->diffInDays(now()->addMonthNoOverflow(2));
+            case self::FREQUENCY_THREE_MONTHS:
+                return now()->diffInDays(now()->addMonthNoOverflow(3));
+            case self::FREQUENCY_FOUR_MONTHS:
+                return now()->diffInDays(now()->addMonthNoOverflow(4));
+            case self::FREQUENCY_SIX_MONTHS:
+                return now()->diffInDays(now()->addMonthNoOverflow(6));
+            case self::FREQUENCY_ANNUALLY:
+                return now()->diffInDays(now()->addYear());
+            case self::FREQUENCY_TWO_YEARS:
+                return now()->diffInDays(now()->addYears(2));
+            case self::FREQUENCY_THREE_YEARS:
+                return now()->diffInDays(now()->addYears(3));
+            default:
+                return 0;
+        }
+    
     }
 }
