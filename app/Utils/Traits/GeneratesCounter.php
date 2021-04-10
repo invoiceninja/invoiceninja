@@ -352,11 +352,6 @@ trait GeneratesCounter
             $counter++;
         } while ($check);
 
-
-        nlog($counter);
-        nlog($pattern);
-        nlog($number);
-
         return $number;
     }
 
