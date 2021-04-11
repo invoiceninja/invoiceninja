@@ -7,8 +7,8 @@
 ### Fixed:
 - Fixes for counters where patterns without {$counter} could causes endless recursion.
 - Fixes for surcharge tax displayed amount on PDF.
-
-### Removed:
+- Fixes for custom designs not rendering the custom template
+- Fixes for missing bulk actions on Subscriptions
 
 ## v5.1.43
 
