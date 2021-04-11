@@ -200,15 +200,17 @@ class SubscriptionService
 
         if ($outstanding->count() == 0){
             //nothing outstanding
+            return $target->price;
         }
-        elseif ($outstanding_amounts > $current_amount){
+        elseif ($outstanding->count() == 1){
             //user has multiple amounts outstanding
+            return $target->price - $this->calculateProRataRefund($outstanding->first());
         }
-        elseif ($outstanding_amounts < $current_amount && $outstanding_amounts > 0) {
+        elseif ($outstanding->count > 1) {
             //user is changing plan mid frequency cycle
+            //we cannot handle this if there are more than one invoice outstanding.
         }
 
-        // $current_plan_price = $this->subscription
     }
 
     private function calculateProRataRefund($invoice)
@@ -278,7 +280,7 @@ class SubscriptionService
     }
 
 
-    private function convertInvoiceToRecurring($client_id)
+    private function convertInvoiceToRecurring($client_id) :RecurringInvoice
     {
 
         $subscription_repo = new SubscriptionRepository();
