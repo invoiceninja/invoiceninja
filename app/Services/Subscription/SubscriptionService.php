@@ -33,6 +33,7 @@ use App\Utils\Ninja;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SubscriptionHooker;
+use Carbon\Carbon;
 use GuzzleHttp\RequestOptions;
 
 class SubscriptionService
@@ -44,14 +45,15 @@ class SubscriptionService
     /** @var subscription */
     private $subscription;
 
-    /** @var client_subscription */
-    // private $client_subscription;
-
     public function __construct(Subscription $subscription)
     {
         $this->subscription = $subscription;
     }
 
+    /*  
+        Performs the initial purchase of a 
+        one time or recurring product
+    */
     public function completePurchase(PaymentHash $payment_hash)
     {
 
@@ -181,9 +183,79 @@ class SubscriptionService
         return redirect('/client/recurring_invoices/'.$recurring_invoice->hashed_id);
     }
 
+    public function calculateUpgradePrice(RecurringInvoice $recurring_invoice, Subscription $target)
+    {
+        //calculate based on daily prices
+
+        $current_amount = $recurring_invoice->amount;
+        $currency_frequency = $recurring_invoice->frequency_id;
+
+        $outstanding = $recurring_invoice->invoices
+                                         ->where('is_deleted', 0)
+                                         ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                                         ->where('balance', '>', 0);
+
+        $outstanding_amounts = $outstanding->sum('balance');
+        $outstanding_invoices = $outstanding->get();
+
+        if ($outstanding->count() == 0){
+            //nothing outstanding
+            return $target->price;
+        }
+        elseif ($outstanding->count() == 1){
+            //user has multiple amounts outstanding
+            return $target->price - $this->calculateProRataRefund($outstanding->first());
+        }
+        elseif ($outstanding->count > 1) {
+            //user is changing plan mid frequency cycle
+            //we cannot handle this if there are more than one invoice outstanding.
+        }
+
+    }
+
+    private function calculateProRataRefund($invoice)
+    {
+        //determine the start date
+        
+        $start_date = Carbon::parse($invoice->date);
+
+        $current_date = now();
+
+        $days_to_refund = $start_date->diffInDays($current_date);
+        $days_in_frequency = $this->getDaysInFrequency();
+
+        $pro_rata_refund = round(($days_to_refund/$days_in_frequency) * $invoice->amount ,2);
+        
+        return $pro_rata_refund;
+    }
 
     public function createChangePlanInvoice($data)
     {
+        //Data array structure
+        /**
+         * [
+         * 'subscription' => Subscription::class,
+         * 'target' => Subscription::class
+         * ]
+         */
+        
+        //logic
+        
+        // Is the user paid up to date? ie are there any outstanding invoices for this subscription
+
+        // User in arrears.
+         
+        
+        // User paid up to date (in credit!)
+         
+            //generate credit amount.
+            //
+            //generate new billable amount
+            //
+            
+            //if billable amount is LESS than 0 -> generate a credit and pass through.
+            //
+            //if billable amoun is GREATER than 0 -> gener
         return Invoice::where('status_id', Invoice::STATUS_SENT)->first();
     }
 
@@ -208,7 +280,7 @@ class SubscriptionService
     }
 
 
-    private function convertInvoiceToRecurring($client_id)
+    private function convertInvoiceToRecurring($client_id) :RecurringInvoice
     {
 
         $subscription_repo = new SubscriptionRepository();
@@ -333,5 +405,39 @@ class SubscriptionService
         // Calculate the pro rata. Return negative value if credits needed.
 
         return 1;
+    }
+
+    private function getDaysInFrequency()
+    {
+
+        switch ($this->subscription->frequency_id) {
+            case self::FREQUENCY_DAILY:
+                return 1;
+            case self::FREQUENCY_WEEKLY:
+                return 7;
+            case self::FREQUENCY_TWO_WEEKS:
+                return 14;
+            case self::FREQUENCY_FOUR_WEEKS:
+                return now()->diffInDays(now()->addWeeks(4));
+            case self::FREQUENCY_MONTHLY:
+                return now()->diffInDays(now()->addMonthNoOverflow());
+            case self::FREQUENCY_TWO_MONTHS:
+                return now()->diffInDays(now()->addMonthNoOverflow(2));
+            case self::FREQUENCY_THREE_MONTHS:
+                return now()->diffInDays(now()->addMonthNoOverflow(3));
+            case self::FREQUENCY_FOUR_MONTHS:
+                return now()->diffInDays(now()->addMonthNoOverflow(4));
+            case self::FREQUENCY_SIX_MONTHS:
+                return now()->diffInDays(now()->addMonthNoOverflow(6));
+            case self::FREQUENCY_ANNUALLY:
+                return now()->diffInDays(now()->addYear());
+            case self::FREQUENCY_TWO_YEARS:
+                return now()->diffInDays(now()->addYears(2));
+            case self::FREQUENCY_THREE_YEARS:
+                return now()->diffInDays(now()->addYears(3));
+            default:
+                return 0;
+        }
+    
     }
 }
