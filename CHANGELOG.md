@@ -13,6 +13,7 @@
 - Fixes for counters where patterns without {$counter} could causes endless recursion.
 - Fixes for surcharge tax displayed amount on PDF.
 - Fixes CSS padding on the show page for recurring invoices (#5412)
+- Fixes for rendering invalid HTML & parsing invalid XML (#5395)
 
 ### Removed:
 - Removed one-time payments table (#5412)
