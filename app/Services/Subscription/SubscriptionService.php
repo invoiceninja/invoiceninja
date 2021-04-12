@@ -196,7 +196,8 @@ class SubscriptionService
                                          ->where('balance', '>', 0);
 
         $outstanding_amounts = $outstanding->sum('balance');
-        $outstanding_invoices = $outstanding->get();
+        // $outstanding_invoices = $outstanding->get();
+        $outstanding_invoices = $outstanding;
 
         if ($outstanding->count() == 0){
             //nothing outstanding

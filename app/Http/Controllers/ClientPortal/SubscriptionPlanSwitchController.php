@@ -34,8 +34,15 @@ class SubscriptionPlanSwitchController extends Controller
         
         $amount = $recurring_invoice->subscription->service()->calculateUpgradePrice($recurring_invoice, $target);
 
+nlog($amount);
+
+        //if($amount == null)
+        //please show account upgrade unavailable
+        //@ben
+
         return render('subscriptions.switch', [
-            'subscription' => $subscription,
+            'subscription' => $recurring_invoice->subscription,
+            'recurring_invoice' => $recurring_invoice,
             'target' => $target,
             'amount' => $amount,
         ]);
