@@ -60,7 +60,7 @@
         </div>
 
         @if(is_null($invoice->subscription_id) || optional($invoice->subscription)->allow_cancellation)
-            <div class="bg-white shadow sm:rounded-lg mb-4 mt-4">
+            <div class="bg-white shadow sm:rounded-lg mt-4">
                 <div class="px-4 py-5 sm:p-6">
                     <div class="sm:flex sm:items-start sm:justify-between">
                         <div>
@@ -86,11 +86,11 @@
         @endif
 
         @if($invoice->subscription && $invoice->subscription->allow_plan_changes)
-            <div class="bg-white shadow overflow-hidden px-4 py-5 lg:rounded-lg">
+            <div class="bg-white shadow overflow-hidden px-4 py-5 lg:rounded-lg mt-4">
                 <h3 class="text-lg leading-6 font-medium text-gray-900">Switch Plans:</h3>
                 <p class="mt-1 max-w-2xl text-sm leading-5 text-gray-500">Upgrade or downgrade your current plan.</p>
 
-                <div class="flex mt-4">
+                <div class="flex mt-4 space-x-2">
                     @foreach($invoice->subscription->service()->getPlans() as $subscription)
                         <a href="{{ route('client.subscription.plan_switch', ['recurring_invoice' => $invoice->hashed_id, 'target' => $subscription->hashed_id]) }}" class="border rounded px-5 py-2 hover:border-gray-800 text-sm cursor-pointer">{{ $subscription->name }}</a>
                     @endforeach
