@@ -62,6 +62,7 @@ class InvoicesTable extends Component
         $query = $query
             ->where('client_id', auth('contact')->user()->client->id)
             ->where('status_id', '<>', Invoice::STATUS_DRAFT)
+            ->withTrashed()
             ->paginate($this->per_page);
 
         return render('components.livewire.invoices-table', [
