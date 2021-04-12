@@ -255,7 +255,7 @@ class MultiDB
     {
 
         if (! config('ninja.db.multi_db_enabled'))
-            return (Company::on($db)->whereSubdomain($subdomain)->exists() === true);
+            return (Company::whereSubdomain($subdomain)->exists() === true);
 
         foreach (self::$dbs as $db) {
             if ($company = Company::on($db)->whereSubdomain($subdomain)->first()) {
