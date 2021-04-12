@@ -111,6 +111,7 @@ class BillingPortalPurchase extends Component
         'discount_applied' => false,
         'show_loading_bar' => false,
         'not_eligible' => null,
+        'not_eligible_message' => null,
     ];
 
     /**
@@ -327,6 +328,7 @@ class BillingPortalPurchase extends Component
 
         if (is_array($is_eligible)) {
             $this->steps['not_eligible'] = true;
+            $this->steps['not_eligible_message'] = $is_eligible['exception'];
             $this->steps['show_loading_bar'] = false;
 
             return;
