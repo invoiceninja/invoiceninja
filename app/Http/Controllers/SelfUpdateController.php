@@ -11,6 +11,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\FilePermissionsFailure;
 use App\Utils\Ninja;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Artisan;
@@ -61,6 +62,9 @@ class SelfUpdateController extends BaseController
             return response()->json(['message' => ctrans('texts.self_update_not_available')], 403);
         }
 
+        if(!$this->testWritable())
+            throw new FilePermissionsFailure('Cannot update system because files are not writable!');
+
         // Check if new version is available
         if($updater->source()->isNewVersionAvailable()) {
 
@@ -88,6 +92,19 @@ class SelfUpdateController extends BaseController
 
         return response()->json(['message' => 'Update completed'], 200);
 
+    }
+
+    private function testWritable()
+    {
+        $directoryIterator = new \RecursiveDirectoryIterator(base_path());
+
+        foreach (new \RecursiveIteratorIterator($directoryIterator) as $file) {
+            if ($file->isFile() && ! $file->isWritable()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public function checkVersion()
