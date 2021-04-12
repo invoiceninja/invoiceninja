@@ -26,6 +26,11 @@ class InvoicesTable extends Component
 
     public $status = [];
 
+    public function mount()
+    {
+        $this->sort_asc = false;
+    }
+
     public function render()
     {
         $local_status = [];
