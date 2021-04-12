@@ -148,7 +148,7 @@ class PaymentMethodController extends Controller
             ->detach($payment_method);
 
         try {
-            event(new MethodDeleted($payment_method, auth('contact')->user()->company, Ninja::eventVars()));
+            event(new MethodDeleted($payment_method, auth('contact')->user()->company, Ninja::eventVars(auth('contact')->user()->id)));
             $payment_method->delete();
         } catch (Exception $e) {
             

@@ -4203,6 +4203,12 @@ $LANG = array(
      'promo_code' => 'Promo code',
      'recurring_invoice_issued_to' => 'Recurring invoice issued to',
      'subscription' => 'Subscription',
+
+    'activity_80' => ':user created subscription :subscription',
+    'activity_81' => ':user updated subscription :subscription',
+    'activity_82' => ':user archived subscription :subscription',
+    'activity_83' => ':user deleted subscription :subscription',
+    'activity_84' => ':user restored subscription :subscription',
 );
 
 return $LANG;

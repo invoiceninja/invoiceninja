@@ -211,10 +211,10 @@ trait Refundable
             foreach ($data['invoices'] as $invoice) {
                 $fields->invoice_id = $invoice->id;
 
-                $activity_repo->save($fields, $this, Ninja::eventVars());
+                $activity_repo->save($fields, $this, Ninja::eventVars(auth()->user()->id));
             }
         } else {
-            $activity_repo->save($fields, $this, Ninja::eventVars());
+            $activity_repo->save($fields, $this, Ninja::eventVars(auth()->user()->id));
         }
     }
 

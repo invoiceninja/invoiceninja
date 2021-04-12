@@ -13,6 +13,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\Subscription\SubscriptionWasCreated;
+use App\Events\Subscription\SubscriptionWasUpdated;
 use App\Factory\SubscriptionFactory;
 use App\Http\Requests\Subscription\CreateSubscriptionRequest;
 use App\Http\Requests\Subscription\DestroySubscriptionRequest;
@@ -176,7 +177,7 @@ class SubscriptionController extends BaseController
     {
         $subscription = $this->subscription_repo->save($request->all(), SubscriptionFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
-        event(new SubscriptionWasCreated($subscription, $subscription->company, Ninja::eventVars()));
+        event(new SubscriptionWasCreated($subscription, $subscription->company, Ninja::eventVars(auth()->user()->id)));
 
         return $this->itemResponse($subscription);
     }
@@ -350,6 +351,8 @@ class SubscriptionController extends BaseController
         }
 
         $subscription = $this->subscription_repo->save($request->all(), $subscription);
+
+        event(new SubscriptionWasUpdated($subscription, $subscription->company, Ninja::eventVars(auth()->user()->id)));
 
         return $this->itemResponse($subscription);
     }

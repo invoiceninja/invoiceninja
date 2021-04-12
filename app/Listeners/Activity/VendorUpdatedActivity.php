@@ -45,8 +45,10 @@ class VendorUpdatedActivity implements ShouldQueue
 
         $fields = new stdClass;
 
+        $user_id = $event->event_vars['user_id'] ?: $event->vendor->user_id;
+
         $fields->vendor_id = $vendor->id;
-        $fields->user_id = $vendor->user_id;
+        $fields->user_id = $user_id;
         $fields->company_id = $vendor->company_id;
         $fields->activity_type_id = Activity::UPDATE_VENDOR;
 

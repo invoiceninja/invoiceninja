@@ -85,7 +85,7 @@ class ClientController extends BaseController
 
         $this->uploadLogo($request->file('company_logo'), $company, $client);
 
-        event(new ClientWasCreated($client, $company, Ninja::eventVars()));
+        event(new ClientWasCreated($client, $company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($client);
     }

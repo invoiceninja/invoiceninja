@@ -17,7 +17,7 @@ use App\Repositories\ActivityRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use stdClass;
 
-class PaymentRefundedActivity implements ShouldQueue
+class SubscriptionDeletedActivity implements ShouldQueue
 {
     protected $activity_repo;
 
@@ -43,15 +43,13 @@ class PaymentRefundedActivity implements ShouldQueue
 
         $fields = new stdClass;
 
-        $user_id = $event->event_vars['user_id'] ?: $event->payment->user_id;
+        $user_id = $event->event_vars['user_id'] ?: $event->subscription->user_id;
 
-        $fields->client_id = $event->payment->id;
-        $fields->client_id = $event->payment->client_id;
+        $fields->subscription_id = $event->subscription->id;
         $fields->user_id = $user_id;
-        $fields->company_id = $event->payment->company_id;
-        $fields->activity_type_id = Activity::REFUNDED_PAYMENT;
-        $fields->payment_id = $event->payment->id;
+        $fields->company_id = $event->subscription->company_id;
+        $fields->activity_type_id = Activity::DELETE_SUBSCRIPTION;
 
-        $this->activity_repo->save($fields, $event->client, $event->event_vars);
+        $this->activity_repo->save($fields, $event->subscription, $event->event_vars);
     }
 }
