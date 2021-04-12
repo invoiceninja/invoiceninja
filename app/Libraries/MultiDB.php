@@ -192,6 +192,7 @@ class MultiDB
                 return true;
             
         }
+        self::setDefaultDatabase();
 
         return false;
     }
@@ -205,6 +206,7 @@ class MultiDB
                 return true;
             }
         }
+        self::setDefaultDatabase();
 
         return false;
     }
@@ -218,6 +220,7 @@ class MultiDB
                 return true;
             }
         }
+        self::setDefaultDatabase();
 
         return false;
     }
@@ -230,6 +233,7 @@ class MultiDB
                 return true;
             }
         }
+        self::setDefaultDatabase();
 
         return false;
     }
@@ -242,6 +246,7 @@ class MultiDB
                 return true;
             }
         }
+        self::setDefaultDatabase();
 
         return false;
     }
