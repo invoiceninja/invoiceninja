@@ -209,8 +209,14 @@ trait DesignHelpers
 
         $javascript = 'document.querySelectorAll("tbody > tr > td").forEach(t=>{if(""!==t.innerText){let e=t.getAttribute("data-ref").slice(0,-3);document.querySelector(`th[data-ref="${e}-th"]`).removeAttribute("hidden")}}),document.querySelectorAll("tbody > tr > td").forEach(t=>{let e=t.getAttribute("data-ref").slice(0,-3);(e=document.querySelector(`th[data-ref="${e}-th"]`)).hasAttribute("hidden")&&""==t.innerText&&t.setAttribute("hidden","true")});';
 
+        // Previously we've been decoding the HTML on the backend and XML parsing isn't good options because it requires,
+        // strict & valid HTML to even output/decode. Decoding is now done on the frontend with this piece of Javascript.
+
+        $html_decode = 'document.querySelectorAll(`[data-state="encoded-html"]`).forEach((element) => element.innerHTML = element.innerText)';
+
         return ['element' => 'div', 'elements' => [
             ['element' => 'script', 'content' => $javascript],
+            ['element' => 'script', 'content' => $html_decode],
         ]];
     }
 
