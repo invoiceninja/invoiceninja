@@ -11,6 +11,9 @@
 
 namespace App\Exceptions;
 
+use App\Exceptions\FilePermissionsFailure;
+use App\Exceptions\InternalPDFFailure;
+use App\Exceptions\PhantomPDFFailure;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
@@ -94,7 +97,7 @@ class Handler extends ExceptionHandler
             }
         }
 
-        if(config('ninja.expanded_logging'))
+        // if(config('ninja.expanded_logging'))
             parent::report($exception);
 
     }
@@ -134,6 +137,12 @@ class Handler extends ExceptionHandler
     {
         if ($exception instanceof ModelNotFoundException && $request->expectsJson()) {
             return response()->json(['message'=>$exception->getMessage()], 400);
+        }elseif($exception instanceof InternalPDFFailure && $request->expectsJson()){
+            return response()->json(['message' => $exception->getMessage()], 500);
+        }elseif($exception instanceof PhantomPDFFailure && $request->expectsJson()){
+            return response()->json(['message' => $exception->getMessage()], 500);
+        }elseif($exception instanceof FilePermissionsFailure) {
+            return response()->json(['message' => $exception->getMessage()], 500);
         } elseif ($exception instanceof ThrottleRequestsException && $request->expectsJson()) {
             return response()->json(['message'=>'Too many requests'], 429);
         } elseif ($exception instanceof FatalThrowableError && $request->expectsJson()) {
@@ -152,8 +161,7 @@ class Handler extends ExceptionHandler
         } elseif ($exception instanceof MethodNotAllowedHttpException && $request->expectsJson()) {
             return response()->json(['message'=>'Method not support for this route'], 404);
         } elseif ($exception instanceof ValidationException && $request->expectsJson()) {
-            info(print_r($exception->validator->getMessageBag(), 1));
-
+            nlog($exception->validator->getMessageBag());
             return response()->json(['message' => 'The given data was invalid.', 'errors' => $exception->validator->getMessageBag()], 422);
         } elseif ($exception instanceof RelationNotFoundException && $request->expectsJson()) {
             return response()->json(['message' => $exception->getMessage()], 400);
@@ -161,9 +169,7 @@ class Handler extends ExceptionHandler
             return response()->json(['message' => $exception->getMessage()], 400);
         } elseif ($exception instanceof GenericPaymentDriverFailure) {
             $data['message'] = $exception->getMessage();
-            //dd($data);
-           // return view('errors.layout', $data);
-        }
+        } 
 
         return parent::render($request, $exception);
     }

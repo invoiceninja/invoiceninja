@@ -183,7 +183,7 @@ class SubscriptionService
         return redirect('/client/recurring_invoices/'.$recurring_invoice->hashed_id);
     }
 
-    public function calculateUpgradePrice(RecurringInvoice $recurring_invoice, Subscription $target)
+    public function calculateUpgradePrice(RecurringInvoice $recurring_invoice, Subscription $target) :?float
     {
         //calculate based on daily prices
 
@@ -206,14 +206,17 @@ class SubscriptionService
             //user has multiple amounts outstanding
             return $target->price - $this->calculateProRataRefund($outstanding->first());
         }
-        elseif ($outstanding->count > 1) {
+        elseif ($outstanding->count() > 1) {
             //user is changing plan mid frequency cycle
             //we cannot handle this if there are more than one invoice outstanding.
+            return null;
         }
+
+        return null;
 
     }
 
-    private function calculateProRataRefund($invoice)
+    private function calculateProRataRefund($invoice) :float
     {
         //determine the start date
         
