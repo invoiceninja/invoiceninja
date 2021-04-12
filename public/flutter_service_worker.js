@@ -31,7 +31,7 @@ const RESOURCES = {
 "assets/assets/images/payment_types/paypal.png": "8e06c094c1871376dfea1da8088c29d1",
 "assets/assets/images/payment_types/maestro.png": "e533b92bfb50339fdbfa79e3dfe81f08",
 "assets/FontManifest.json": "cf3c681641169319e61b61bd0277378f",
-"main.dart.js": "31d80a113194ef17dd9cf3a54cf6243a",
+"main.dart.js": "8d5d8dfabdd7655c5601ea6bbee0c579",
 "version.json": "e021a7a1750aa3e7d1d89b51ac9837e9"
 };
 
