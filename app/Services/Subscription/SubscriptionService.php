@@ -250,11 +250,12 @@ class SubscriptionService
                                      ->where('balance', '>', 0)
                                      ->first();
 
+        $pro_rata_refund = null;
 
         // we calculate the pro rata refund for this invoice.
         if($outstanding_invoice)
         {
-
+            // $pro_rata_refund = $this->calculateProRataRefund($out
         }
 
         //logic

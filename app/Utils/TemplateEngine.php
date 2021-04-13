@@ -119,7 +119,7 @@ class TemplateEngine
                 $this->body = EmailTemplateDefaults::getDefaultTemplate($this->template, $this->settings_entity->locale());
             }
         }
-
+        
         return $this;
     }
 
