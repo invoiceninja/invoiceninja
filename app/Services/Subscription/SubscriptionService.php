@@ -190,7 +190,7 @@ class SubscriptionService
         $current_amount = $recurring_invoice->amount;
         $currency_frequency = $recurring_invoice->frequency_id;
 
-        $outstanding = $recurring_invoice->invoices
+        $outstanding = $recurring_invoice->invoices()
                                          ->where('is_deleted', 0)
                                          ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                          ->where('balance', '>', 0);
@@ -238,11 +238,25 @@ class SubscriptionService
         //Data array structure
         /**
          * [
+         * 'recurring_invoice' => RecurringInvoice::class,
          * 'subscription' => Subscription::class,
          * 'target' => Subscription::class
          * ]
          */
         
+        $outstanding_invoice = $recurring_invoice->invoices()
+                                     ->where('is_deleted', 0)
+                                     ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                                     ->where('balance', '>', 0)
+                                     ->first();
+
+
+        // we calculate the pro rata refund for this invoice.
+        if($outstanding_invoice)
+        {
+
+        }
+
         //logic
         
         // Is the user paid up to date? ie are there any outstanding invoices for this subscription
