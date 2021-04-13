@@ -84,7 +84,7 @@ class ValidInvoicesRules implements Rule
             }
             else if($invoice['amount'] > $inv->balance) {
 
-                $this->error_msg = ctrans('texts.amount_greater_than_balance');
+                $this->error_msg = ctrans('texts.amount_greater_than_balance_v5');
 
                 return false;
             }

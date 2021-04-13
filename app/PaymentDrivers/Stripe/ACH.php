@@ -14,8 +14,11 @@ namespace App\PaymentDrivers\Stripe;
 
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\Request;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
+use App\Mail\Gateways\ACHVerificationNotification;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
@@ -47,7 +50,7 @@ class ACH
         return render('gateways.stripe.ach.authorize', array_merge($data));
     }
 
-    public function authorizeResponse($request)
+    public function authorizeResponse(Request $request)
     {
         $this->stripe->init();
 
@@ -62,6 +65,14 @@ class ACH
         }
 
         $client_gateway_token = $this->storePaymentMethod($source, $request->input('method'), $customer);
+
+        $mailer = new NinjaMailerObject();
+        $mailer->mailable = new ACHVerificationNotification();
+        $mailer->company = auth('contact')->user()->client->company;
+        $mailer->settings = auth('contact')->user()->client->company->settings;
+        $mailer->to_user = auth('contact')->user();
+
+        NinjaMailerJob::dispatchNow($mailer);
 
         return redirect()->route('client.payment_methods.verification', ['payment_method' => $client_gateway_token->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
     }

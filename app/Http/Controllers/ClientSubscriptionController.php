@@ -173,7 +173,7 @@ class ClientSubscriptionController extends BaseController
     {
         $client_subscription = $this->client_subscription_repo->save($request->all(), ClientSubscriptionFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
-        event(new ClientsubscriptionWasCreated($client_subscription, $client_subscription->company, Ninja::eventVars()));
+        event(new ClientsubscriptionWasCreated($client_subscription, $client_subscription->company, Ninja::eventVars(auth()->user()->id)));
 
         return $this->itemResponse($client_subscription);
     }

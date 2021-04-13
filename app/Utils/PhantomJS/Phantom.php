@@ -11,6 +11,7 @@
 
 namespace App\Utils\PhantomJS;
 
+use App\Exceptions\PhantomPDFFailure;
 use App\Jobs\Util\SystemLogger;
 use App\Models\CreditInvitation;
 use App\Models\Design;
@@ -91,8 +92,6 @@ class Phantom
         
         $instance = Storage::disk(config('filesystems.default'))->put($file_path, $pdf);
 
-// nlog($instance);
-// nlog($file_path);
         return $file_path;
     }
 
@@ -128,6 +127,8 @@ class Phantom
                 SystemLog::TYPE_PDF_FAILURE,
                 $invitation->contact->client
             );
+
+            throw new PhantomPDFFailure('There was an error generating the PDF with Phantom JS');
         }
         else {
 

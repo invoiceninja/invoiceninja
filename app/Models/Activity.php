@@ -84,6 +84,12 @@ class Activity extends StaticModel
     const INVOICE_REMINDER3_SENT = 65;
     const INVOICE_REMINDER_ENDLESS_SENT = 66;
 
+    const CREATE_SUBSCRIPTION = 80;
+    const UPDATE_SUBSCRIPTION = 81;
+    const ARCHIVE_SUBSCRIPTION = 82;
+    const DELETE_SUBSCRIPTION = 83;
+    const RESTORE_SUBSCRIPTION = 84;
+    
     protected $casts = [
         'is_system' => 'boolean',
         'updated_at' => 'timestamp',

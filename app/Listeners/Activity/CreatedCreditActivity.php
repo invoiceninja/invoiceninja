@@ -43,8 +43,10 @@ class CreatedCreditActivity implements ShouldQueue
 
         $fields = new stdClass;
 
+        $user_id = $event->event_vars['user_id'] ?: $event->credit->user_id;
+
         $fields->credit_id = $event->credit->id;
-        $fields->user_id = $event->credit->user_id;
+        $fields->user_id = $user_id;
         $fields->client_id = $event->credit->client_id;
 
         $fields->company_id = $event->credit->company_id;

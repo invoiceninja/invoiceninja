@@ -46,7 +46,7 @@ trait GeneratesCounter
         $counter_string = $this->getEntityCounter($entity, $client);  
         $pattern = $this->getNumberPattern($entity, $client);  
 
-        if (strpos($pattern, 'clientCounter') || strpos($pattern, 'client_counter')) {
+        if ((strpos($pattern, 'clientCounter') !== false) || (strpos($pattern, 'client_counter') !==false) ) {
 
             if (property_exists($client->settings, $counter_string)) {
                 $counter = $client->settings->{$counter_string};
@@ -55,7 +55,7 @@ trait GeneratesCounter
             }
 
             $counter_entity = $client;
-        } elseif (strpos($pattern, 'groupCounter') || strpos($pattern, 'group_counter')) {
+        } elseif ((strpos($pattern, 'groupCounter') !== false) || (strpos($pattern, 'group_counter') !== false)) {
 
             if (property_exists($client->group_settings, $counter_string)) {
             $counter = $client->group_settings->{$counter_string};
@@ -73,6 +73,10 @@ trait GeneratesCounter
         //If it is a quote - we need to 
         $pattern = $this->getNumberPattern($entity, $client);
         
+        if(strlen($pattern) > 1 && (stripos($pattern, 'counter') === false)){
+            $pattern = $pattern.'{$counter}';
+        }
+
         $padding = $client->getSetting('counter_padding');
 
         if($is_recurring)
@@ -333,6 +337,7 @@ trait GeneratesCounter
      */
     private function checkEntityNumber($class, $entity, $counter, $padding, $pattern, $prefix = '')
     {
+
         $check = false;
 
         do {
@@ -482,6 +487,9 @@ trait GeneratesCounter
         }
 
         switch ($company->reset_counter_frequency_id) {
+            case RecurringInvoice::FREQUENCY_DAILY:
+                $reset_date->addDay();
+                break;
             case RecurringInvoice::FREQUENCY_WEEKLY:
                 $reset_date->addWeek();
                 break;
