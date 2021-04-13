@@ -39,56 +39,56 @@ class TaskStatusSortOnUpdateTest extends TestCase
         );
     }
 
-    public function testTasksSort()
-    {
+    // public function testTasksSort()
+    // {
         
-        $project = Project::factory()->create([
-            'user_id' => $this->user->id,
-            'company_id' => $this->company->id,
-            'name' => 'Test Project',
-        ]);
+    //     $project = Project::factory()->create([
+    //         'user_id' => $this->user->id,
+    //         'company_id' => $this->company->id,
+    //         'name' => 'Test Project',
+    //     ]);
 
-        for($x=0; $x<10; $x++)
-        {
-            $task = Task::factory()->create([
-                'user_id' => $this->user->id,
-                'company_id' => $this->company->id,
-                'project_id' => $project->id
-            ]);
+    //     for($x=0; $x<10; $x++)
+    //     {
+    //         $task = Task::factory()->create([
+    //             'user_id' => $this->user->id,
+    //             'company_id' => $this->company->id,
+    //             'project_id' => $project->id
+    //         ]);
 
-            $task->status_id = TaskStatus::where('company_id', $this->company->id)->first()->id;
-            $task->save();
-        }
-
-
-        $this->assertTrue($task->project()->exists());
-        $this->assertEquals($task->project->tasks->count(), 10);    
-
-        $task->status_order = 1;
-
-        $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->put('/api/v1/tasks/'.$this->encodePrimaryKey($task->id), $task->toArray());
-
-        $response->assertStatus(200);
-
-        $this->assertEquals($task->fresh()->status_order, 1);
+    //         $task->status_id = TaskStatus::where('company_id', $this->company->id)->first()->id;
+    //         $task->save();
+    //     }
 
 
-        $task->status_order = 10;
+    //     $this->assertTrue($task->project()->exists());
+    //     $this->assertEquals($task->project->tasks->count(), 10);    
 
-        $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->put('/api/v1/tasks/'.$this->encodePrimaryKey($task->id), $task->toArray());
+    //     $task->status_order = 1;
 
-        $response->assertStatus(200);
+    //     $response = $this->withHeaders([
+    //             'X-API-SECRET' => config('ninja.api_secret'),
+    //             'X-API-TOKEN' => $this->token,
+    //         ])->put('/api/v1/tasks/'.$this->encodePrimaryKey($task->id), $task->toArray());
 
-        nlog($task->fresh()->project->tasks->toArray());
+    //     $response->assertStatus(200);
 
-        $this->assertEquals($task->fresh()->status_order, 9);
+    //     $this->assertEquals($task->fresh()->status_order, 1);
 
-    }
+
+    //     $task->status_order = 10;
+
+    //     $response = $this->withHeaders([
+    //             'X-API-SECRET' => config('ninja.api_secret'),
+    //             'X-API-TOKEN' => $this->token,
+    //         ])->put('/api/v1/tasks/'.$this->encodePrimaryKey($task->id), $task->toArray());
+
+    //     $response->assertStatus(200);
+
+    //     nlog($task->fresh()->project->tasks->toArray());
+
+    //     $this->assertEquals($task->fresh()->status_order, 9);
+
+    // }
 
 }

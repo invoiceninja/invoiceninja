@@ -89,29 +89,6 @@ class PaymentMethodController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param int $id
-     * @return void
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param Request $request
-     * @param int $id
-     * @return void
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
     public function verify(ClientGatewayToken $payment_method)
     {
         $gateway = $this->getClientGateway();
@@ -148,10 +125,10 @@ class PaymentMethodController extends Controller
             ->detach($payment_method);
 
         try {
-            event(new MethodDeleted($payment_method, auth('contact')->user()->company, Ninja::eventVars()));
+            event(new MethodDeleted($payment_method, auth('contact')->user()->company, Ninja::eventVars(auth('contact')->user()->id)));
             $payment_method->delete();
         } catch (Exception $e) {
-            
+
             nlog($e->getMessage());
 
             return back();

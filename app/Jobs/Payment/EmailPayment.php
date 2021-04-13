@@ -91,7 +91,7 @@ class EmailPayment implements ShouldQueue
 
             NinjaMailerJob::dispatch($nmo);
 
-            event(new PaymentWasEmailed($this->payment, $this->payment->company, Ninja::eventVars()));
+            event(new PaymentWasEmailed($this->payment, $this->payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         }
     }
 }

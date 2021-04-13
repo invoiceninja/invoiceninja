@@ -243,7 +243,7 @@ class Payment extends BaseModel
             $this->status_id = $this->refunded == $this->amount ? self::STATUS_REFUNDED : self::STATUS_PARTIALLY_REFUNDED;
             $this->save();
 
-            event(new PaymentWasRefunded($this, $refund_change, $this->company, Ninja::eventVars()));
+            event(new PaymentWasRefunded($this, $refund_change, $this->company, Ninja::eventVars(auth()->user()->id)));
         }
 
         return true;
@@ -280,7 +280,7 @@ class Payment extends BaseModel
         $this->status_id = self::STATUS_CANCELLED;
         $this->save();
 
-        event(new PaymentWasVoided($this, $this->company, Ninja::eventVars()));
+        event(new PaymentWasVoided($this, $this->company, Ninja::eventVars(auth()->user()->id)));
     }
 
     public function getLink()

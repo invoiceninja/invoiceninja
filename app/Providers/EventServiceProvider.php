@@ -67,6 +67,11 @@ use App\Events\Quote\QuoteWasEmailed;
 use App\Events\Quote\QuoteWasRestored;
 use App\Events\Quote\QuoteWasUpdated;
 use App\Events\Quote\QuoteWasViewed;
+use App\Events\Subscription\SubscriptionWasArchived;
+use App\Events\Subscription\SubscriptionWasCreated;
+use App\Events\Subscription\SubscriptionWasDeleted;
+use App\Events\Subscription\SubscriptionWasRestored;
+use App\Events\Subscription\SubscriptionWasUpdated;
 use App\Events\Task\TaskWasArchived;
 use App\Events\Task\TaskWasCreated;
 use App\Events\Task\TaskWasDeleted;
@@ -89,6 +94,7 @@ use App\Listeners\Activity\CreatedClientActivity;
 use App\Listeners\Activity\CreatedCreditActivity;
 use App\Listeners\Activity\CreatedExpenseActivity;
 use App\Listeners\Activity\CreatedQuoteActivity;
+use App\Listeners\Activity\CreatedSubscriptionActivity;
 use App\Listeners\Activity\CreatedTaskActivity;
 use App\Listeners\Activity\CreatedVendorActivity;
 use App\Listeners\Activity\CreditArchivedActivity;
@@ -106,6 +112,10 @@ use App\Listeners\Activity\PaymentUpdatedActivity;
 use App\Listeners\Activity\PaymentVoidedActivity;
 use App\Listeners\Activity\QuoteUpdatedActivity;
 use App\Listeners\Activity\RestoreClientActivity;
+use App\Listeners\Activity\SubscriptionArchivedActivity;
+use App\Listeners\Activity\SubscriptionDeletedActivity;
+use App\Listeners\Activity\SubscriptionRestoredActivity;
+use App\Listeners\Activity\SubscriptionUpdatedActivity;
 use App\Listeners\Activity\TaskArchivedActivity;
 use App\Listeners\Activity\TaskDeletedActivity;
 use App\Listeners\Activity\TaskRestoredActivity;
@@ -395,6 +405,21 @@ class EventServiceProvider extends ServiceProvider
         ],
         TaskWasRestored::class => [
             TaskRestoredActivity::class,
+        ],
+        SubscriptionWasCreated::class => [
+            CreatedSubscriptionActivity::class,
+        ],
+        SubscriptionWasUpdated::class => [
+            SubscriptionUpdatedActivity::class,
+        ],
+        SubscriptionWasArchived::class => [
+            SubscriptionArchivedActivity::class,
+        ],
+        SubscriptionWasDeleted::class => [
+            SubscriptionDeletedActivity::class,
+        ],
+        SubscriptionWasRestored::class => [
+            SubscriptionRestoredActivity::class,
         ],
         VendorWasCreated::class => [
             CreatedVendorActivity::class,

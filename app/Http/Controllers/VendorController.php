@@ -278,7 +278,7 @@ class VendorController extends BaseController
 
         $this->uploadLogo($request->file('company_logo'), $vendor->company, $vendor);
 
-        event(new VendorWasUpdated($vendor, $vendor->company, Ninja::eventVars()));
+        event(new VendorWasUpdated($vendor, $vendor->company, Ninja::eventVars(auth()->user()->id)));
 
         return $this->itemResponse($vendor->fresh());
     }
@@ -376,7 +376,7 @@ class VendorController extends BaseController
 
         $this->uploadLogo($request->file('company_logo'), $vendor->company, $vendor);
 
-        event(new VendorWasCreated($vendor, $vendor->company, Ninja::eventVars()));
+        event(new VendorWasCreated($vendor, $vendor->company, Ninja::eventVars(auth()->user()->id)));
 
         return $this->itemResponse($vendor);
     }

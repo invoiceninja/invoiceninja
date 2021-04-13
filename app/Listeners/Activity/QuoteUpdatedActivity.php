@@ -45,9 +45,11 @@ class QuoteUpdatedActivity implements ShouldQueue
 
         $fields = new stdClass;
 
+        $user_id = $event->event_vars['user_id'] ?: $event->quote->user_id;
+
         $fields->quote_id = $quote->id;
         $fields->client_id = $quote->client_id;
-        $fields->user_id = $quote->user_id;
+        $fields->user_id = $user_id;
         $fields->company_id = $quote->company_id;
         $fields->activity_type_id = Activity::UPDATE_QUOTE;
 

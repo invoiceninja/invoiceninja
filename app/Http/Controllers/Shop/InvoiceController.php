@@ -85,7 +85,7 @@ class InvoiceController extends BaseController
 
         $invoice = $invoice->service()->triggeredActions($request)->save();
 
-        event(new InvoiceWasCreated($invoice, $company, Ninja::eventVars()));
+        event(new InvoiceWasCreated($invoice, $company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($invoice);
     }

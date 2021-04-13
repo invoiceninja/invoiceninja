@@ -11,9 +11,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\FilePermissionsFailure;
 use App\Utils\Ninja;
-use Cz\Git\GitException;
-use Cz\Git\GitRepository;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Artisan;
 
@@ -54,37 +53,58 @@ class SelfUpdateController extends BaseController
      *       ),
      *     )
      */
-    public function update()
+    public function update(\Codedge\Updater\UpdaterManager $updater)
     {
+        set_time_limit(0);
         define('STDIN', fopen('php://stdin', 'r'));
 
         if (Ninja::isNinja()) {
             return response()->json(['message' => ctrans('texts.self_update_not_available')], 403);
         }
 
-        /* .git MUST be owned/writable by the webserver user */
-        $repo = new GitRepository(base_path());
+        if(!$this->testWritable())
+            throw new FilePermissionsFailure('Cannot update system because files are not writable!');
 
-        nlog('Are there changes to pull? '.$repo->hasChanges());
-        $output = '';
+        // Check if new version is available
+        if($updater->source()->isNewVersionAvailable()) {
 
-        try {
-            // $res = $repo->pull();
+            // Get the new version available
+            $versionAvailable = $updater->source()->getVersionAvailable();
 
-            $output = $repo->execute('pull origin');
+            // Create a release
+            $release = $updater->source()->fetch($versionAvailable);
 
-        } catch (GitException $e) {
+            $updater->source()->update($release);
+
+        }
             
-            nlog($output);
-            nlog($e->getMessage());
-            return response()->json(['message'=>$e->getMessage()], 500);
+        $cacheCompiled = base_path('bootstrap/cache/compiled.php');
+        if (file_exists($cacheCompiled)) { unlink ($cacheCompiled); }
+        $cacheServices = base_path('bootstrap/cache/services.php');
+        if (file_exists($cacheServices)) { unlink ($cacheServices); }
+
+        Artisan::call('clear-compiled');
+        Artisan::call('cache:clear');
+        Artisan::call('debugbar:clear');
+        Artisan::call('route:clear');
+        Artisan::call('view:clear');
+        Artisan::call('config:clear');
+
+        return response()->json(['message' => 'Update completed'], 200);
+
+    }
+
+    private function testWritable()
+    {
+        $directoryIterator = new \RecursiveDirectoryIterator(base_path());
+
+        foreach (new \RecursiveIteratorIterator($directoryIterator) as $file) {
+            if ($file->isFile() && ! $file->isWritable()) {
+                return false;
+            }
         }
 
-        dispatch(function () {
-            Artisan::call('ninja:post-update');
-        });
-
-        return response()->json(['message' => $output], 200);
+        return true;
     }
 
     public function checkVersion()

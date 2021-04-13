@@ -177,6 +177,8 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     // Route::delete('hooks/{subscription_id}', 'SubscriptionController@unsubscribe')->name('hooks.unsubscribe');
 
     Route::resource('subscriptions', 'SubscriptionController');
+    Route::post('subscriptions/bulk', 'SubscriptionController@bulk')->name('subscriptions.bulk');
+
     Route::resource('cliente_subscriptions', 'ClientSubscriptionController');
 });
 

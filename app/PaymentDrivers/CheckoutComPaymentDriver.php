@@ -209,7 +209,8 @@ class CheckoutComPaymentDriver extends BaseDriver
 
         $payment = new \Checkout\Models\Payments\Payment($method, $this->client->getCurrencyCode());
         $payment->amount = $this->convertToCheckoutAmount($amount, $this->client->getCurrencyCode());
-        $payment->reference = $cgt->meta->last4 . '-' . now();
+        //$payment->reference = $cgt->meta->last4 . '-' . now();
+        $payment->reference = $invoice->number . '-' . now();
 
         $request = new PaymentResponseRequest();
         $request->setMethod('POST');

@@ -13,6 +13,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\Subscription\SubscriptionWasCreated;
+use App\Events\Subscription\SubscriptionWasUpdated;
 use App\Factory\SubscriptionFactory;
 use App\Http\Requests\Subscription\CreateSubscriptionRequest;
 use App\Http\Requests\Subscription\DestroySubscriptionRequest;
@@ -24,9 +25,12 @@ use App\Models\Subscription;
 use App\Repositories\SubscriptionRepository;
 use App\Transformers\SubscriptionTransformer;
 use App\Utils\Ninja;
+use App\Utils\Traits\MakesHash;
 
 class SubscriptionController extends BaseController
 {
+    use MakesHash;
+    
     protected $entity_type = Subscription::class;
 
     protected $entity_transformer = SubscriptionTransformer::class;
@@ -173,7 +177,7 @@ class SubscriptionController extends BaseController
     {
         $subscription = $this->subscription_repo->save($request->all(), SubscriptionFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
-        event(new SubscriptionWasCreated($subscription, $subscription->company, Ninja::eventVars()));
+        event(new SubscriptionWasCreated($subscription, $subscription->company, Ninja::eventVars(auth()->user()->id)));
 
         return $this->itemResponse($subscription);
     }
@@ -348,6 +352,8 @@ class SubscriptionController extends BaseController
 
         $subscription = $this->subscription_repo->save($request->all(), $subscription);
 
+        event(new SubscriptionWasUpdated($subscription, $subscription->company, Ninja::eventVars(auth()->user()->id)));
+
         return $this->itemResponse($subscription);
     }
 
@@ -407,4 +413,72 @@ class SubscriptionController extends BaseController
 
         return $this->itemResponse($subscription->fresh());
     }
+
+    /**
+     * Perform bulk actions on the list view.
+     *
+     * @return Response
+     *
+     *
+     * @OA\Post(
+     *      path="/api/v1/subscriptions/bulk",
+     *      operationId="bulkSubscriptions",
+     *      tags={"subscriptions"},
+     *      summary="Performs bulk actions on an array of subscriptions",
+     *      description="",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/index"),
+     *      @OA\RequestBody(
+     *         description="User credentials",
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="integer",
+     *                     description="Array of hashed IDs to be bulk 'actioned",
+     *                     example="[0,1,2,3]",
+     *                 ),
+     *             )
+     *         )
+     *     ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="The Subscription response",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Subscription"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
+    public function bulk()
+    {
+        $action = request()->input('action');
+
+        $ids = request()->input('ids');
+        $subscriptions = Subscription::withTrashed()->find($this->transformKeys($ids));
+
+        $subscriptions->each(function ($subscription, $key) use ($action) {
+            if (auth()->user()->can('edit', $subscription)) {
+                $this->subscription_repo->{$action}($subscription);
+            }
+        });
+
+        return $this->listResponse(Subscription::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+    }
+
 }
