@@ -120,6 +120,12 @@ class TemplateEngine
             }
         }
 
+        $converter = new CommonMarkConverter([
+            'allow_unsafe_links' => false,
+        ]);
+
+        $this->body = $converter->convertToHtml($this->body);
+        
         return $this;
     }
 
