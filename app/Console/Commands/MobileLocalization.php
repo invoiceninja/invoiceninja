@@ -83,6 +83,11 @@ class MobileLocalization extends Command
                 if (substr($text, 0, 6) == 'texts.') {
                     $text = $resources->$key;
                 }
+
+                $text = str_replace(array('<b>', '</b>'), '', $text);
+                $text = str_replace(array('<i>', '</i>'), '', $text);
+                $text = str_replace(array('<strong>', '</strong>'), '', $text);
+
                 echo "'$key': '$text',\n";
             }
 
@@ -92,7 +97,7 @@ class MobileLocalization extends Command
 
     private function getResources()
     {
-        $url = 'https://raw.githubusercontent.com/invoiceninja/flutter-mobile/develop/lib/utils/i18n.dart';
+        $url = 'https://raw.githubusercontent.com/invoiceninja/flutter-client/develop/lib/utils/i18n.dart';
         $data = CurlUtils::get($url);
 
         $start = strpos($data, 'do not remove comment') + 25;
