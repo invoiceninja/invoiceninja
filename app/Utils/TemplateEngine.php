@@ -16,11 +16,13 @@ use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
+use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
 use App\Utils\Traits\MakesTemplateData;
 use DB;
 use League\CommonMark\CommonMarkConverter;
+use TijsVerkoyen\CssToInlineStyles\CssToInlineStyles;
 
 class TemplateEngine
 {
@@ -162,17 +164,12 @@ class TemplateEngine
 
         $this->body = strtr($this->body, $data['labels']);
         $this->body = strtr($this->body, $data['values']);
-        $this->body = str_replace("\n", "<br>", $this->body);
-
+//        $this->body = str_replace("\n", "<br>", $this->body);
 
         $this->subject = strtr($this->subject, $data['labels']);
         $this->subject = strtr($this->subject, $data['values']);
 
-        $converter = new CommonMarkConverter([
-            'allow_unsafe_links' => false,
-        ]);
-
-        $this->body = $converter->convertToHtml($this->body);
+        $this->body = DesignHelpers::parseMarkdownToHtml($this->body);
     }
 
     private function renderTemplate()
@@ -255,5 +252,12 @@ class TemplateEngine
     private function tearDown()
     {
         DB::rollBack();
+    }
+
+    private static function inlineMarkupCss(string $css, string $html): ?string
+    {
+        $inliner = new CssToInlineStyles();
+
+        return $inliner->convert($html, $css);
     }
 }
