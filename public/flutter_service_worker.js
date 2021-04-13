@@ -10,7 +10,7 @@ const RESOURCES = {
 "/": "23224b5e03519aaa87594403d54412cf",
 "favicon.ico": "51636d3a390451561744c42188ccd628",
 "assets/packages/material_design_icons_flutter/lib/fonts/materialdesignicons-webfont.ttf": "174c02fc4609e8fc4389f5d21f16a296",
-"assets/NOTICES": "07f1fc1c6d65ff41af75bba43f48d163",
+"assets/NOTICES": "3bf0be7e0e4deca198e5f5c4800f9232",
 "assets/fonts/MaterialIcons-Regular.otf": "1288c9e28052e028aba623321f7826ac",
 "assets/AssetManifest.json": "659dcf9d1baf3aed3ab1b9c42112bf8f",
 "assets/assets/images/google-icon.png": "0f118259ce403274f407f5e982e681c3",
@@ -31,7 +31,7 @@ const RESOURCES = {
 "assets/assets/images/payment_types/paypal.png": "8e06c094c1871376dfea1da8088c29d1",
 "assets/assets/images/payment_types/maestro.png": "e533b92bfb50339fdbfa79e3dfe81f08",
 "assets/FontManifest.json": "cf3c681641169319e61b61bd0277378f",
-"main.dart.js": "9b4b3481075cd8b6553e65c2608a2479",
+"main.dart.js": "055b36d24df53f20c9e8060e0db4a081",
 "version.json": "e021a7a1750aa3e7d1d89b51ac9837e9"
 };
 
