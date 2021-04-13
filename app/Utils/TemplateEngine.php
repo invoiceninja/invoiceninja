@@ -198,6 +198,33 @@ class TemplateEngine
             $wrapper = str_replace('<head>', $injection, $wrapper);
         }
 
+
+//        $root = new DOMDocument();
+//        $root->loadHTML('<table style="font-family:arial,helvetica,sans-serif;" role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
+//    <tbody>
+//    <tr>
+//        <td style="overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:arial,helvetica,sans-serif;" align="left">
+//            <div style="color: #000000; line-height: 140%; text-align: left; word-wrap: break-word;" id="content"></div>
+//        </td>
+//    </tr>
+//    </tbody>
+//</table>');
+//
+//        $node = new DOMDocument();
+//        $node->loadXML('<h1>This is my content</h1>');
+//
+//        $node = $root->importNode($node->documentElement, true);
+//
+//// $root->documentElement->appendChild($node);
+//
+//        $root->getElementById('content')->appendChild($node);
+//        $root->getElementById('content')->ownerDocument->saveHTML();
+//
+//        var_dump($root->getElementById('content')->ownerDocument->saveHTML($root->getElementsByTagName('table')->item(0)));
+
+        $wrapper_document = new \DOMDocument();
+        $wrapper_document->loadHTML($wrapper);
+
         $data = [
             'subject' => $this->subject,
             'body' => $this->body,
