@@ -279,7 +279,7 @@ class ExpenseController extends BaseController
 
         $this->uploadLogo($request->file('company_logo'), $expense->company, $expense);
 
-        event(new ExpenseWasUpdated($expense, $expense->company, Ninja::eventVars()));
+        event(new ExpenseWasUpdated($expense, $expense->company, Ninja::eventVars(auth()->user()->id)));
 
         return $this->itemResponse($expense->fresh());
     }
@@ -373,7 +373,7 @@ class ExpenseController extends BaseController
     {
         $expense = $this->expense_repo->save($request->all(), ExpenseFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
-        event(new ExpenseWasCreated($expense, $expense->company, Ninja::eventVars()));
+        event(new ExpenseWasCreated($expense, $expense->company, Ninja::eventVars(auth()->user()->id)));
 
         return $this->itemResponse($expense);
     }

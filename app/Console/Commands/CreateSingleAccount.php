@@ -236,6 +236,7 @@ class CreateSingleAccount extends Command
         $webhook_config = [
             'post_purchase_url' => 'http://ninja.test:8000/api/admin/plan',
             'post_purchase_rest_method' => 'POST',
+            'post_purchase_headers' => [],
         ];
 
         $sub = SubscriptionFactory::create($company->id, $user->id);
@@ -243,6 +244,7 @@ class CreateSingleAccount extends Command
         $sub->group_id = $gs->id;
         $sub->recurring_product_ids = "{$p1->hashed_id}";
         $sub->webhook_configuration = $webhook_config;
+        $sub->allow_plan_changes = true;
         $sub->save();
 
         $sub = SubscriptionFactory::create($company->id, $user->id);
@@ -250,6 +252,7 @@ class CreateSingleAccount extends Command
         $sub->group_id = $gs->id;
         $sub->recurring_product_ids = "{$p2->hashed_id}";
         $sub->webhook_configuration = $webhook_config;
+        $sub->allow_plan_changes = true;
         $sub->save();
     }
 

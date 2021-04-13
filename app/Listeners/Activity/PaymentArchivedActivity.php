@@ -48,9 +48,11 @@ class PaymentArchivedActivity implements ShouldQueue
 
         $fields = new stdClass;
 
+        $user_id = $event->event_vars['user_id'] ?: $event->payment->user_id;
+
         $fields->payment_id = $payment->id;
         $fields->client_id = $payment->client_id;
-        $fields->user_id = $payment->user_id;
+        $fields->user_id = $user_id;
         $fields->company_id = $payment->company_id;
         $fields->activity_type_id = Activity::ARCHIVE_PAYMENT;
 

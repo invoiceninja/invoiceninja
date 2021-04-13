@@ -30,12 +30,24 @@ class SubscriptionPlanSwitchController extends Controller
      */
     public function index(ShowPlanSwitchRequest $request, RecurringInvoice $recurring_invoice, Subscription $target)
     {
-        //calculate whether a payment is required or whether we pass through a credit for this.
         
-        $amount = $recurring_invoice->subscription->service()->calculateUpgradePrice($recurring_invoice, $target);
+        $amount = $recurring_invoice->subscription
+                                    ->service()
+                                    ->calculateUpgradePrice($recurring_invoice, $target);
+
+        /**
+         * 
+         * Null value here is a proxy for
+         * denying the user a change plan option
+         * 
+         */
+        if(is_null($amount))
+            render('subscriptions.denied');
+
 
         return render('subscriptions.switch', [
-            'subscription' => $subscription,
+            'subscription' => $recurring_invoice->subscription,
+            'recurring_invoice' => $recurring_invoice,
             'target' => $target,
             'amount' => $amount,
         ]);

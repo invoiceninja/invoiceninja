@@ -282,7 +282,7 @@ class ClientController extends BaseController
 
         $this->uploadLogo($request->file('company_logo'), $client->company, $client);
 
-        event(new ClientWasUpdated($client, $client->company, Ninja::eventVars()));
+        event(new ClientWasUpdated($client, $client->company, Ninja::eventVars(auth()->user()->id)));
 
         return $this->itemResponse($client->fresh());
     }
@@ -380,7 +380,7 @@ class ClientController extends BaseController
 
         $this->uploadLogo($request->file('company_logo'), $client->company, $client);
 
-        event(new ClientWasCreated($client, $client->company, Ninja::eventVars()));
+        event(new ClientWasCreated($client, $client->company, Ninja::eventVars(auth()->user()->id)));
 
         return $this->itemResponse($client);
     }

@@ -41,6 +41,11 @@ use App\Events\Quote\QuoteWasCreated;
 use App\Events\Quote\QuoteWasDeleted;
 use App\Events\Quote\QuoteWasRestored;
 use App\Events\Quote\QuoteWasUpdated;
+use App\Events\Subscription\SubscriptionWasArchived;
+use App\Events\Subscription\SubscriptionWasCreated;
+use App\Events\Subscription\SubscriptionWasDeleted;
+use App\Events\Subscription\SubscriptionWasRestored;
+use App\Events\Subscription\SubscriptionWasUpdated;
 use App\Events\Task\TaskWasArchived;
 use App\Events\Task\TaskWasCreated;
 use App\Events\Task\TaskWasDeleted;
@@ -670,5 +675,61 @@ class EventTest extends TestCase
         ->assertStatus(200);
     }
 
+    public function testSubscriptionEvents()
+    {
+        $this->expectsEvents([
+            SubscriptionWasCreated::class,
+            SubscriptionWasUpdated::class,
+            SubscriptionWasArchived::class,
+            SubscriptionWasRestored::class,
+            SubscriptionWasDeleted::class,
+        ]);
+
+        $data = [
+            'name' => $this->faker->firstName,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/subscriptions/', $data)
+            ->assertStatus(200);
+
+
+        $arr = $response->json();
+
+        $data = [
+            'name' => $this->faker->firstName,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->put('/api/v1/subscriptions/' . $arr['data']['id'], $data)
+        ->assertStatus(200);
+
+
+        $data = [
+            'ids' => [$arr['data']['id']],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/subscriptions/bulk?action=archive', $data)
+        ->assertStatus(200);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/subscriptions/bulk?action=restore', $data)
+        ->assertStatus(200);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/subscriptions/bulk?action=delete', $data)
+        ->assertStatus(200);
+    }
 
 }

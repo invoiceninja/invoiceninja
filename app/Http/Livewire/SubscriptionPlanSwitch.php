@@ -20,9 +20,19 @@ use Livewire\Component;
 class SubscriptionPlanSwitch extends Component
 {
     /**
+     * @var RecurringInvoice
+     */
+    public $recurring_invoice;
+
+    /**
      * @var Subscription
      */
     public $subscription;
+
+    /**
+     * @var ?float
+     */
+    public $amount;
 
     /**
      * @var Subscription
@@ -62,7 +72,7 @@ class SubscriptionPlanSwitch extends Component
 
     public function mount()
     {
-        $this->total = $this->subscription->service()->getPriceBetweenSubscriptions($this->subscription, $this->target);
+        $this->total = $this->amount;
 
         $this->methods = $this->contact->client->service()->getPaymentMethods(100);
 
@@ -74,6 +84,7 @@ class SubscriptionPlanSwitch extends Component
         $this->state['show_loading_bar'] = true;
 
         $this->state['invoice'] = $this->subscription->service()->createChangePlanInvoice([
+            'recurring_invoice' => $this->recurring_invoice,
             'subscription' => $this->subscription,
             'target' => $this->target,
         ]);

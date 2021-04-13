@@ -12,6 +12,8 @@
 ### Fixed:
 - Fixes for counters where patterns without {$counter} could causes endless recursion.
 - Fixes for surcharge tax displayed amount on PDF.
+- Fixes for custom designs not rendering the custom template
+- Fixes for missing bulk actions on Subscriptions
 - Fixes CSS padding on the show page for recurring invoices (#5412)
 - Fixes for rendering invalid HTML & parsing invalid XML (#5395)
 

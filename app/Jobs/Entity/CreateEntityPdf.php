@@ -12,6 +12,7 @@
 
 namespace App\Jobs\Entity;
 
+use App\Exceptions\FilePermissionsFailure;
 use App\Models\Account;
 use App\Models\Credit;
 use App\Models\CreditInvitation;
@@ -168,6 +169,7 @@ class CreateEntityPdf implements ShouldQueue
             else {
                 $pdf = $this->makePdf(null, null, $maker->getCompiledHTML(true));
             }
+
         } catch (\Exception $e) {
             nlog(print_r($e->getMessage(), 1));
         }
@@ -176,8 +178,20 @@ class CreateEntityPdf implements ShouldQueue
             info($maker->getCompiledHTML());
         }
 
+
         if ($pdf) {
-            Storage::disk($this->disk)->put($file_path, $pdf);
+
+            try{
+    
+                Storage::disk($this->disk)->put($file_path, $pdf);
+    
+            }
+            catch(\Exception $e)
+            {
+
+                throw new FilePermissionsFailure('Could not write the PDF, permission issues!');
+
+            }
         }
 
         return $file_path;

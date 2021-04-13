@@ -183,20 +183,21 @@ class SubscriptionService
         return redirect('/client/recurring_invoices/'.$recurring_invoice->hashed_id);
     }
 
-    public function calculateUpgradePrice(RecurringInvoice $recurring_invoice, Subscription $target)
+    public function calculateUpgradePrice(RecurringInvoice $recurring_invoice, Subscription $target) :?float
     {
         //calculate based on daily prices
 
         $current_amount = $recurring_invoice->amount;
         $currency_frequency = $recurring_invoice->frequency_id;
 
-        $outstanding = $recurring_invoice->invoices
+        $outstanding = $recurring_invoice->invoices()
                                          ->where('is_deleted', 0)
                                          ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                          ->where('balance', '>', 0);
 
         $outstanding_amounts = $outstanding->sum('balance');
-        $outstanding_invoices = $outstanding->get();
+        // $outstanding_invoices = $outstanding->get();
+        $outstanding_invoices = $outstanding;
 
         if ($outstanding->count() == 0){
             //nothing outstanding
@@ -206,14 +207,17 @@ class SubscriptionService
             //user has multiple amounts outstanding
             return $target->price - $this->calculateProRataRefund($outstanding->first());
         }
-        elseif ($outstanding->count > 1) {
+        elseif ($outstanding->count() > 1) {
             //user is changing plan mid frequency cycle
             //we cannot handle this if there are more than one invoice outstanding.
+            return null;
         }
+
+        return null;
 
     }
 
-    private function calculateProRataRefund($invoice)
+    private function calculateProRataRefund($invoice) :float
     {
         //determine the start date
         
@@ -234,11 +238,25 @@ class SubscriptionService
         //Data array structure
         /**
          * [
+         * 'recurring_invoice' => RecurringInvoice::class,
          * 'subscription' => Subscription::class,
          * 'target' => Subscription::class
          * ]
          */
         
+        $outstanding_invoice = $recurring_invoice->invoices()
+                                     ->where('is_deleted', 0)
+                                     ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                                     ->where('balance', '>', 0)
+                                     ->first();
+
+
+        // we calculate the pro rata refund for this invoice.
+        if($outstanding_invoice)
+        {
+
+        }
+
         //logic
         
         // Is the user paid up to date? ie are there any outstanding invoices for this subscription

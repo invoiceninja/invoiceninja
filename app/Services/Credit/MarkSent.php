@@ -37,7 +37,7 @@ class MarkSent
 
         $this->credit->markInvitationsSent();
 
-        event(new CreditWasMarkedSent($this->credit, $this->credit->company, Ninja::eventVars()));
+        event(new CreditWasMarkedSent($this->credit, $this->credit->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         $this->credit
              ->service()

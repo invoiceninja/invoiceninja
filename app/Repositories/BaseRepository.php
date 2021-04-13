@@ -55,7 +55,7 @@ class BaseRepository
         $className = $this->getEventClass($entity, 'Archived');
 
         if (class_exists($className)) {
-            event(new $className($entity, $entity->company, Ninja::eventVars()));
+            event(new $className($entity, $entity->company, Ninja::eventVars(auth()->user()->id)));
         }
     }
 
@@ -81,7 +81,7 @@ class BaseRepository
         $className = $this->getEventClass($entity, 'Restored');
 
         if (class_exists($className)) {
-            event(new $className($entity, $fromDeleted, $entity->company, Ninja::eventVars()));
+            event(new $className($entity, $fromDeleted, $entity->company, Ninja::eventVars(auth()->user()->id)));
         }
     }
 
@@ -102,7 +102,7 @@ class BaseRepository
         $className = $this->getEventClass($entity, 'Deleted');
 
         if (class_exists($className) && ! ($entity instanceof Company)) {
-            event(new $className($entity, $entity->company, Ninja::eventVars()));
+            event(new $className($entity, $entity->company, Ninja::eventVars(auth()->user()->id)));
         }
     }
 
