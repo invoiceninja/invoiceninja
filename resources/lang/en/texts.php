@@ -4202,6 +4202,8 @@ $LANG = array(
      'invoice_task_datelog_help' => 'Add date details to the invoice line items',
      'promo_code' => 'Promo code',
      'recurring_invoice_issued_to' => 'Recurring invoice issued to',
+     'amount_greater_than_balance_v5' => 'The amount is greater than the invoice balance. You cannot overpay an     invoice.',
+
 );
 
 return $LANG;
