@@ -41,7 +41,7 @@ class SubscriptionWasRestored
      */
     public function __construct(Subscription $subscription, $fromDeleted, Company $company, array $event_vars)
     {
-        $this->task = $subscription;
+        $this->subscription = $subscription;
         $this->fromDeleted = $fromDeleted;
         $this->company = $company;
         $this->event_vars = $event_vars;
