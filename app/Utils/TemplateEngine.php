@@ -119,12 +119,6 @@ class TemplateEngine
                 $this->body = EmailTemplateDefaults::getDefaultTemplate($this->template, $this->settings_entity->locale());
             }
         }
-
-        $converter = new CommonMarkConverter([
-            'allow_unsafe_links' => false,
-        ]);
-
-        $this->body = $converter->convertToHtml($this->body);
         
         return $this;
     }
