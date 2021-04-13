@@ -4178,6 +4178,8 @@ $LANG = array(
      'api_secret' => 'API secret',
      'migration_api_secret_notice' => 'You can find API_SECRET in the .env file or Invoice Ninja v5. If property is missing, leave field blank.',
      'promo_code' => 'Promo code',
+     'amount_greater_than_balance_v5' => 'The amount is greater than the invoice balance. You cannot overpay an invoice.',
+
 );
 
 return $LANG;
