@@ -4266,6 +4266,11 @@ $LANG = array(
      'count_minutes' => ':count Minutes',
      'password_timeout' => 'Password Timeout',
      'shared_invoice_credit_counter' => 'Shared Invoice/Credit Counter',
+         'activity_80' => ':user created subscription :subscription',
+    'activity_81' => ':user updated subscription :subscription',
+    'activity_82' => ':user archived subscription :subscription',
+    'activity_83' => ':user deleted subscription :subscription',
+    'activity_84' => ':user restored subscription :subscription',
 );
 
 return $LANG;
