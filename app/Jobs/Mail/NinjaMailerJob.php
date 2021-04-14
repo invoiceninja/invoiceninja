@@ -108,7 +108,7 @@ class NinjaMailerJob implements ShouldQueue
                 event(new InvoiceWasEmailedAndFailed($this->nmo->invitation, $this->nmo->company, $message, $this->nmo->reminder_template, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
                 break;
             case Payment::class:
-                event(new PaymentWasEmailedAndFailed($this->nmo->entity, $this->nmo->company, $message, Ninja::eventVars(auth()->user ? auth()->user()->id : null)));
+                event(new PaymentWasEmailedAndFailed($this->nmo->entity, $this->nmo->company, $message, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
                 break;
             default:
                 # code...
