@@ -375,7 +375,7 @@ class HtmlEngine
         $data['$entity_footer'] = ['value' => $this->entity->footer, 'label' => ''];
 
         $data['$page_size'] = ['value' => $this->settings->page_size, 'label' => ''];
-        $data['$page_layout'] = ['value' => $this->settings->page_layout, 'label' => ''];
+        $data['$page_layout'] = ['value' => property_exists($this->settings, 'page_layout') ? $this->settings->page_layout : 'Portrait', 'label' => ''];
 
         $arrKeysLength = array_map('strlen', array_keys($data));
         array_multisort($arrKeysLength, SORT_DESC, $data);
