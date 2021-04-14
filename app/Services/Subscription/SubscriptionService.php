@@ -199,6 +199,7 @@ class SubscriptionService
         $outstanding_amounts = $outstanding->sum('balance');
         // $outstanding_invoices = $outstanding->get();
         $outstanding_invoice = Invoice::where('subscription_id', $this->subscription->id)
+                                         ->where('client_id', $recurring_invoice->client_id)
                                          ->where('is_deleted', 0)
                                          ->orderBy('id', 'desc')
                                          ->first();   
@@ -234,16 +235,19 @@ class SubscriptionService
 
         $current_date = now();
 
-        $days_to_refund = $start_date->diffInDays($current_date);
+        $days_of_subscription_used = $start_date->diffInDays($current_date);
 
         $days_in_frequency = $this->getDaysInFrequency();
 
-        $pro_rata_refund = round((($days_in_frequency - $days_to_refund)/$days_in_frequency) * $invoice->amount ,2);
+        $pro_rata_refund = round((($days_in_frequency - $days_of_subscription_used)/$days_in_frequency) * $invoice->amount ,2);
         
-        nlog("days_to_refund = {$days_to_refund} days in frequency {$days_in_frequency} invoice amount = {$invoice->amount}");
+        nlog("{$days_in_frequency} - {$days_of_subscription_used} / {$days_in_frequency}");
+
+        nlog("days_to_refund = {$days_of_subscription_used} days in frequency {$days_in_frequency} invoice amount = {$invoice->amount}");
         nlog("pro rata refund = {$pro_rata_refund}");
 
         return $pro_rata_refund;
+
     }
 
     /**
@@ -275,67 +279,42 @@ nlog("days to charge = {$days_to_charge} fays in frequency = {$days_in_frequency
     public function createChangePlanInvoice($data)
     {
         $recurring_invoice = $data['recurring_invoice'];
-        //Data array structure
-        /**
-         * [
-         * 'recurring_invoice' => RecurringInvoice::class,
-         * 'subscription' => Subscription::class,
-         * 'target' => Subscription::class
-         * ]
-         */
-        
-        // $outstanding_invoice = $recurring_invoice->invoices()
-        //                              ->where('is_deleted', 0)
-        //                              ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
-        //                              ->where('balance', '>', 0)
-        //                              ->first();
 
         $pro_rata_charge_amount = 0;
         $pro_rata_refund_amount = 0;
 
-        // // We calculate the pro rata charge for this invoice.
-        // if($outstanding_invoice)
-        // {
-        // }
-
-        $last_invoice = $recurring_invoice->invoices()
+        $last_invoice = Invoice::where('subscription_id', $this->subscription->id)
+                                         ->where('client_id', $recurring_invoice->client_id)
                                          ->where('is_deleted', 0)
                                          ->orderBy('id', 'desc')
                                          ->first();   
         
-        //$last_invoice may not be here!
-
-        if(!$last_invoice) {
-            $data = [
-                'client_id' => $recurring_invoice->client_id,
-                'coupon' => '',
-            ];
-
-            return $this->createInvoice($data)->service()->markSent()->fillDefaults()->save();
-
-        }
-        else if($last_invoice->balance > 0) 
+        if($last_invoice->balance > 0) 
         {
             $pro_rata_charge_amount = $this->calculateProRataCharge($last_invoice);
+            nlog("pro rata charge = {$pro_rata_charge_amount}");
         }
         else
         {
             $pro_rata_refund_amount = $this->calculateProRataRefund($last_invoice) * -1;
+            nlog("pro rata refund = {$pro_rata_refund_amount}");
         }
 
         $total_payable = $pro_rata_refund_amount + $pro_rata_charge_amount + $this->subscription->price;
 
+        nlog("total payable = {$total_payable}");
+
         if($total_payable > 0)
         {
-            return $this->proRataInvoice($pro_rata_refund_amount, $data['subscription'], $data['target']);
+            return $this->proRataInvoice($pro_rata_refund_amount, $last_invoice, $data['target']);
         }
         else
         {
             //create credit
         }
 
-
-        return Invoice::where('status_id', Invoice::STATUS_SENT)->first();
+dd("no");
+     //  return Invoice::where('status_id', Invoice::STATUS_SENT)->first();
     }
 
     /**
@@ -398,26 +377,34 @@ nlog("days to charge = {$days_to_charge} fays in frequency = {$days_in_frequency
           'coupon' => '',
           'quantity' => 1,
      */
-    private function proRataInvoice($refund_amount, $subscription, $target)
+    private function proRataInvoice($refund_amount, $last_invoice, $target)
     {
         $subscription_repo = new SubscriptionRepository();
         $invoice_repo = new InvoiceRepository();
+
+        $invoice = InvoiceFactory::create($this->subscription->company_id, $this->subscription->user_id);
+        $invoice->date = now()->format('Y-m-d');
+        $invoice->subscription_id = $this->subscription->id;
 
         $line_items = $subscription_repo->generateLineItems($target);
 
         $item = new InvoiceItem;
         $item->quantity = 1;
         $item->product_key = ctrans('texts.refund');
-        $item->notes = ctrans('texts.refund') . ":" .$subscription->name;
+        $item->notes = ctrans('texts.refund') . ":" .$this->subscription->name;
         $item->cost = $refund_amount;
 
         $line_items[] = $item;
-    
+        $invoice->line_items = $line_items;
+
         $data = [
-            'client_id' => $subscription->client_id,
+            'client_id' => $last_invoice->client_id,
             'quantity' => 1,
             'date' => now()->format('Y-m-d'),
         ];
+
+        // $invoice = $invoice_repo->save($data, $invoice);
+        // dd($invoice);
 
         return $invoice_repo->save($data, $invoice)->service()->markSent()->fillDefaults()->save();
 
