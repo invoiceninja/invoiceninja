@@ -32,6 +32,7 @@ use App\Models\Expense;
 use App\Models\Product;
 use App\Models\Project;
 use App\Models\Quote;
+use App\Models\RecurringInvoice;
 use App\Models\Task;
 use App\Models\User;
 use App\Models\Vendor;
@@ -255,6 +256,7 @@ class CreateSingleAccount extends Command
         $sub->recurring_product_ids = "{$p1->hashed_id}";
         $sub->webhook_configuration = $webhook_config;
         $sub->allow_plan_changes = true;
+        $sub->frequency_id = RecurringInvoice::FREQUENCY_MONTHLY;
         $sub->save();
 
         $sub = SubscriptionFactory::create($company->id, $user->id);
@@ -263,6 +265,7 @@ class CreateSingleAccount extends Command
         $sub->recurring_product_ids = "{$p2->hashed_id}";
         $sub->webhook_configuration = $webhook_config;
         $sub->allow_plan_changes = true;
+        $sub->frequency_id = RecurringInvoice::FREQUENCY_MONTHLY;
         $sub->save();
 
         $sub = SubscriptionFactory::create($company->id, $user->id);
@@ -271,6 +274,7 @@ class CreateSingleAccount extends Command
         $sub->recurring_product_ids = "{$p3->hashed_id}";
         $sub->webhook_configuration = $webhook_config;
         $sub->allow_plan_changes = true;
+        $sub->frequency_id = RecurringInvoice::FREQUENCY_MONTHLY;
         $sub->save();
     }
 

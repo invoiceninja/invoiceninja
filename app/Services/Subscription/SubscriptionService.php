@@ -29,6 +29,7 @@ use App\Models\SystemLog;
 use App\Repositories\InvoiceRepository;
 use App\Repositories\RecurringInvoiceRepository;
 use App\Repositories\SubscriptionRepository;
+use App\Services\Subscription\ZeroCostProduct;
 use App\Utils\Ninja;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
@@ -93,12 +94,10 @@ class SubscriptionService
 
             $response = $this->triggerWebhook($context);
 
-            nlog($response);
+            // nlog($response);
 
-            if(array_key_exists('post_purchase_url', $this->subscription->webhook_configuration) && strlen($this->subscription->webhook_configuration['post_purchase_url']) >=1)
-                return redirect($this->subscription->webhook_configuration['post_purchase_url']);
+            $this->handleRedirect('/client/recurring_invoices/'.$recurring_invoice->hashed_id);
 
-            return redirect('/client/recurring_invoices/'.$recurring_invoice->hashed_id);
         }
         else
         {
@@ -114,10 +113,7 @@ class SubscriptionService
             //execute any webhooks
             $this->triggerWebhook($context);
 
-            if(array_key_exists('post_purchase_url', $this->subscription->webhook_configuration) && strlen($this->subscription->webhook_configuration['post_purchase_url']) >=1)
-                return redirect($this->subscription->webhook_configuration['post_purchase_url']);
-
-            return redirect('/client/invoices/'.$this->encodePrimaryKey($payment_hash->fee_invoice_id));
+            $this->handleRedirect('/client/invoices/'.$this->encodePrimaryKey($payment_hash->fee_invoice_id));
 
         }
     }
@@ -417,6 +413,7 @@ class SubscriptionService
 
     }
 
+
     public function createInvoice($data): ?\App\Models\Invoice
     {
 
@@ -438,7 +435,7 @@ class SubscriptionService
     }
 
 
-    private function convertInvoiceToRecurring($client_id) :RecurringInvoice
+    public function convertInvoiceToRecurring($client_id) :RecurringInvoice
     {
 
         $subscription_repo = new SubscriptionRepository();
@@ -480,7 +477,8 @@ class SubscriptionService
         else {
 
             $status = $response->getStatusCode();
-            $response_body = $response->getBody();
+
+            //$response_body = $response->getReasonPhrase();
             $body = array_merge($body, ['status' => $status, 'response_body' => $response_body]);
 
         }
@@ -580,6 +578,36 @@ class SubscriptionService
         }
     
     }
+    
 
+    /**
+    * 'email' => $this->email ?? $this->contact->email,
+    * 'quantity' => $this->quantity,
+    * 'contact_id' => $this->contact->id,
+    */        
+    public function handleNoPaymentRequired(array $data)
+    {
 
+        $context = (new ZeroCostProduct($this->subscription, $data))->run();
+
+        // Forward payload to webhook
+        if(array_key_exists('context', $context))
+            $response = $this->triggerWebhook($context);
+
+        // Hit the redirect
+        return $this->handleRedirect($context['redirect_url']);
+        
+    }
+
+    /**
+     * Handles redirecting the user
+     */
+    private function handleRedirect($default_redirect)
+    {
+
+        if(array_key_exists('return_url', $this->subscription->webhook_configuration) && strlen($this->subscription->webhook_configuration['return_url']) >=1)
+            return redirect($this->subscription->webhook_configuration['return_url']);
+
+        return redirect($default_redirect);
+    }    
 }
