@@ -21,6 +21,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -39,6 +40,8 @@ class SubscriptionApiTest extends TestCase
         parent::setUp();
 
         $this->makeTestData();
+
+        $this->withoutExceptionHandling();
 
         Session::start();
 
@@ -92,20 +95,23 @@ class SubscriptionApiTest extends TestCase
         $product = Product::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
-            'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
         ]);
 
         $response1 = $this
             ->withHeaders(['X-API-SECRET' => config('ninja.api_secret'),'X-API-TOKEN' => $this->token])
-            ->post('/api/v1/subscriptions', ['product_ids' => $product->id,            'name' => Str::random(5)])
+            ->post('/api/v1/subscriptions', ['product_ids' => $product->id, 'name' => Str::random(5)])
             ->assertStatus(200)
             ->json();
 
-        $response2 = $this
+        // try {
+            $response2 = $this
             ->withHeaders(['X-API-SECRET' => config('ninja.api_secret'),'X-API-TOKEN' => $this->token])
             ->put('/api/v1/subscriptions/' . $response1['data']['id'], ['allow_cancellation' => true])
             ->assertStatus(200)
             ->json();
+            // }catch(ValidationException $e) {
+            //    nlog($e->validator->getMessageBag());
+        // }
 
         $this->assertNotEquals($response1['data']['allow_cancellation'], $response2['data']['allow_cancellation']);
     }

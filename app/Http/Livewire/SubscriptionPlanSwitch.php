@@ -82,6 +82,7 @@ class SubscriptionPlanSwitch extends Component
 
     public function handleBeforePaymentEvents(): void
     {
+        
         $this->state['show_loading_bar'] = true;
 
         $this->state['invoice'] = $this->target->service()->createChangePlanInvoice([
