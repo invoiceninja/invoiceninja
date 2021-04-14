@@ -198,40 +198,12 @@
                         <div class="u-col u-col-100" style="max-width: 320px;min-width: 500px;display: table-cell;vertical-align: top;">
                             <div style="width: 100% !important;">
                                 <!--[if (!mso)&(!IE)]><!--><div style="padding: 11px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;"><!--<![endif]-->
+                                    <div id="content-wrapper">
+                                        {{ $slot }}
+                                    </div>
 
-                                    {{ $slot }}
-
-{{--                                    <table style="font-family:arial,helvetica,sans-serif;" role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">--}}
-{{--                                        <tbody>--}}
-{{--                                        <tr>--}}
-{{--                                            <td style="overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:arial,helvetica,sans-serif;" align="left">--}}
-
-{{--                                                <div align="center">--}}
-{{--                                                    <!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-spacing: 0; border-collapse: collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;font-family:arial,helvetica,sans-serif;"><tr><td style="font-family:arial,helvetica,sans-serif;" align="center"><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="" style="height:36px; v-text-anchor:middle; width:106px;" arcsize="11%" stroke="f" fillcolor="#142cb5"><w:anchorlock/><center style="color:#FFFFFF;font-family:arial,helvetica,sans-serif;"><![endif]-->--}}
-{{--                                                    <a href="" target="_blank" class="button">--}}
-{{--                                                        Visit portal--}}
-{{--                                                    </a>--}}
-{{--                                                    <!--[if mso]></center></v:roundrect></td></tr></table><![endif]-->--}}
-{{--                                                </div>--}}
-
-{{--                                            </td>--}}
-{{--                                        </tr>--}}
-{{--                                        </tbody>--}}
-{{--                                    </table>--}}
-
-{{--                                    <table style="font-family:arial,helvetica,sans-serif;" role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">--}}
-{{--                                        <tbody>--}}
-{{--                                        <tr>--}}
-{{--                                            <td style="overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:arial,helvetica,sans-serif;" align="left">--}}
-
-{{--                                                <div style="color: #000000; line-height: 140%; text-align: left; word-wrap: break-word;">--}}
-{{--                                                    <p style="font-size: 14px; line-height: 140%;">If you can't click on button copy following link: <a href="https://invoiceninja.com/example-url-to-copy" target="_blank" rel="noopener">https://invoiceninja.com/example-url-to-copy</a></p>--}}
-{{--                                                </div>--}}
-
-{{--                                            </td>--}}
-{{--                                        </tr>--}}
-{{--                                        </tbody>--}}
-{{--                                    </table>--}}
+                                    <!-- Before border -->
+                                    <span id="before-border"></span>
 
                                     <!-- Bottom border (gray) -->
                                     <table style="font-family:arial,helvetica,sans-serif;" role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
@@ -255,25 +227,29 @@
                                     </table>
 
                                     <!-- Whitelabel logo -->
-                                    <table style="font-family:arial,helvetica,sans-serif;" role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
-                                        <tbody>
-                                        <tr>
-                                            <td style="overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:arial,helvetica,sans-serif;" align="left">
+                                    @isset($whitelabel)
+                                        @if(!$whitelabel)
+                                            <table style="font-family:arial,helvetica,sans-serif;" role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
+                                                <tbody>
+                                                <tr>
+                                                    <td style="overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:arial,helvetica,sans-serif;" align="left">
 
-                                                <table width="100%" cellpadding="0" cellspacing="0" border="0">
-                                                    <tr>
-                                                        <td style="padding-right: 0px;padding-left: 0px;" align="center">
+                                                        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                                            <tr>
+                                                                <td style="padding-right: 0px;padding-left: 0px;" align="center">
 
-                                                            <img align="center" border="0" src="images/image-2.png" alt="Image" title="Image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 34%;max-width: 163.2px;" width="163.2"/>
+                                                                    <img align="center" border="0" src="{{ asset('images/created-by-invoiceninja-new.png') }}" alt="Image" title="Image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 34%;max-width: 163.2px; {{ $design == 'dark' ? 'filter: invert(100%);' : '' }}" width="163.2"/>
 
-                                                        </td>
-                                                    </tr>
-                                                </table>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
 
-                                            </td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
+                                                    </td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        @endif
+                                    @endisset
 
                                     <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->
                             </div>

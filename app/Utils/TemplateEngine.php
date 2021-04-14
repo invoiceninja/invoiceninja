@@ -198,36 +198,46 @@ class TemplateEngine
             $wrapper = str_replace('<head>', $injection, $wrapper);
         }
 
+        $documents['wrapper'] = new \DOMDocument();
+        $documents['wrapper']->loadHTML($wrapper);
 
-//        $root = new DOMDocument();
-//        $root->loadHTML('<table style="font-family:arial,helvetica,sans-serif;" role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
-//    <tbody>
-//    <tr>
-//        <td style="overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:arial,helvetica,sans-serif;" align="left">
-//            <div style="color: #000000; line-height: 140%; text-align: left; word-wrap: break-word;" id="content"></div>
-//        </td>
-//    </tr>
-//    </tbody>
-//</table>');
-//
-//        $node = new DOMDocument();
-//        $node->loadXML('<h1>This is my content</h1>');
-//
-//        $node = $root->importNode($node->documentElement, true);
-//
-//// $root->documentElement->appendChild($node);
-//
-//        $root->getElementById('content')->appendChild($node);
-//        $root->getElementById('content')->ownerDocument->saveHTML();
-//
-//        var_dump($root->getElementById('content')->ownerDocument->saveHTML($root->getElementsByTagName('table')->item(0)));
+        $styles = $documents['wrapper']->getElementsByTagName('style')->item(0)->nodeValue;
 
-        $wrapper_document = new \DOMDocument();
-        $wrapper_document->loadHTML($wrapper);
+        $documents['wrapper']->saveHTML();
+
+        $documents['body'] = new \DOMDocument();
+        $documents['body']->loadHTML(empty($this->body) ? '<div></div>' : (new CssToInlineStyles())->convert($this->body, $styles));
+
+        $table_html ='
+            <table style="font-family:arial,helvetica,sans-serif;" role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
+                <tbody>
+                    <tr>
+                        <td style="overflow-wrap:break-word;word-break:break-word;padding:5px;font-family:arial,helvetica,sans-serif;" align="left">
+                            <div style="color: #000000; line-height: 140%; text-align: left; word-wrap: break-word;" id="table-content"></div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>';
+
+        foreach ($documents['body']->getElementsByTagName('body')->item(0)->childNodes as $element) {
+            $table = new \DOMDocument();
+
+            $table->loadHTML($table_html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+
+            $element = $table->importNode($element, true);
+
+            $table->getElementById('table-content')->appendChild($element);
+
+            $node = $documents['wrapper']->importNode($table->documentElement, true);
+
+            $documents['wrapper']->getElementById('content-wrapper')->appendChild($node);
+        }
+
+        $body = $documents['wrapper']->getElementById('content-wrapper')->ownerDocument->saveHTML($documents['wrapper']->getElementById('content-wrapper'));
 
         $data = [
             'subject' => $this->subject,
-            'body' => $this->body,
+            'body' => $body,
             'wrapper' => $wrapper,
             'raw_body' => $this->raw_body,
             'raw_subject' => $this->raw_subject
@@ -281,10 +291,13 @@ class TemplateEngine
         DB::rollBack();
     }
 
-    private static function inlineMarkupCss(string $css, string $html): ?string
+    private static function cssToInlineStyles(string $css, string $html): ?string
     {
-        $inliner = new CssToInlineStyles();
+        return (new CssToInlineStyles())->convert($html, $css);
+    }
 
-        return $inliner->convert($html, $css);
+    private static function wrapElementsIntoTables()
+    {
+
     }
 }
