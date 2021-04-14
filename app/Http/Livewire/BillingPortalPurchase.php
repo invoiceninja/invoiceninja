@@ -112,6 +112,7 @@ class BillingPortalPurchase extends Component
         'show_loading_bar' => false,
         'not_eligible' => null,
         'not_eligible_message' => null,
+        'payment_required' => true,
     ];
 
     /**
@@ -269,8 +270,11 @@ class BillingPortalPurchase extends Component
 
             return $this;
         }
-
-        $this->steps['fetched_payment_methods'] = true;
+        
+        if((int)$this->subscription->price == 0)
+            $this->steps['payment_required'] = false;
+        else
+            $this->steps['fetched_payment_methods'] = true;
 
         $this->methods = $contact->client->service()->getPaymentMethods($this->price);
 
@@ -339,6 +343,7 @@ class BillingPortalPurchase extends Component
                 'email' => $this->email ?? $this->contact->email,
                 'client_id' => $this->contact->client->id,
                 'invoice_id' => $this->invoice->id,
+                'context' => 'purchase',
                 now()->addMinutes(60)]
         );
 
@@ -356,6 +361,30 @@ class BillingPortalPurchase extends Component
             'email' => $this->email ?? $this->contact->email,
             'quantity' => $this->quantity,
             'contact_id' => $this->contact->id,
+            'client_id' => $this->contact->client->id,
+        ]);
+    }
+
+    public function handlePaymentNotRequired()
+    {
+
+       $is_eligible = $this->subscription->service()->isEligible($this->contact);
+
+        if ($is_eligible['status_code'] != 200) {
+            $this->steps['not_eligible'] = true;
+            $this->steps['not_eligible_message'] = $is_eligible['exception']['message'];
+            $this->steps['show_loading_bar'] = false;
+
+            return;
+        }
+
+
+        return $this->subscription->service()->handleNoPaymentRequired([
+            'email' => $this->email ?? $this->contact->email,
+            'quantity' => $this->quantity,
+            'contact_id' => $this->contact->id,
+            'client_id' => $this->contact->client->id,
+            'coupon' => '',
         ]);
     }
 

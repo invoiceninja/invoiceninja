@@ -14,6 +14,7 @@ namespace App\Http\Livewire;
 
 use App\Models\ClientContact;
 use App\Models\Subscription;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Livewire\Component;
 
@@ -74,7 +75,7 @@ class SubscriptionPlanSwitch extends Component
     {
         $this->total = $this->amount;
 
-        $this->methods = $this->contact->client->service()->getPaymentMethods(100);
+        $this->methods = $this->contact->client->service()->getPaymentMethods($this->amount);
 
         $this->hash = Str::uuid()->toString();
     }
@@ -83,11 +84,22 @@ class SubscriptionPlanSwitch extends Component
     {
         $this->state['show_loading_bar'] = true;
 
-        $this->state['invoice'] = $this->subscription->service()->createChangePlanInvoice([
+        $this->state['invoice'] = $this->target->service()->createChangePlanInvoice([
             'recurring_invoice' => $this->recurring_invoice,
             'subscription' => $this->subscription,
             'target' => $this->target,
+            'hash' => $this->hash,
         ]);
+
+            Cache::put($this->hash, [
+                'subscription_id' => $this->target->id,
+                'target_id' => $this->target->id,
+                'recurring_invoice' => $this->recurring_invoice->id,
+                'client_id' => $this->recurring_invoice->client->id,
+                'invoice_id' => $this->state['invoice']->id,
+                'context' => 'change_plan',
+                now()->addMinutes(60)]
+            );
 
         $this->state['payment_initialised'] = true;
 

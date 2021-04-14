@@ -135,6 +135,13 @@
                             </svg>
                         @endif
                     </div>
+                @elseif(!$steps['payment_required'])
+                    <form wire:submit.prevent="handlePaymentNotRequired" class="mt-8">
+                        @csrf
+                        <button class="px-3 py-2 border rounded mr-4 hover:border-blue-600">
+                            {{ ctrans('texts.click_to_continue') }}
+                        </button>
+                    </form>
                 @elseif($steps['show_start_trial'])
                     <form wire:submit.prevent="handleTrial" class="mt-8">
                         @csrf

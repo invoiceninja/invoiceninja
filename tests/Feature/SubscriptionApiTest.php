@@ -12,6 +12,7 @@
 namespace Tests\Feature;
 
 use App\Models\Product;
+use App\Models\RecurringInvoice;
 use App\Models\Subscription;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
@@ -91,6 +92,7 @@ class SubscriptionApiTest extends TestCase
         $product = Product::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
+            'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
         ]);
 
         $response1 = $this
