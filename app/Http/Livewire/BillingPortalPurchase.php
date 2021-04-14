@@ -339,6 +339,7 @@ class BillingPortalPurchase extends Component
                 'email' => $this->email ?? $this->contact->email,
                 'client_id' => $this->contact->client->id,
                 'invoice_id' => $this->invoice->id,
+                'context' => 'purchase',
                 now()->addMinutes(60)]
         );
 
