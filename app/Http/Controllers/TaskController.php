@@ -279,8 +279,8 @@ class TaskController extends BaseController
         
         $task = $this->task_repo->save($request->all(), $task);
 
-        // if($task->status_order != $old_task->status_order)
-        //     $this->task_repo->sortStatuses($old_task, $task);
+        if($task->status_order != $old_task->status_order)
+            $this->task_repo->sortStatuses($old_task, $task);
 
         event(new TaskWasUpdated($task, $task->company, Ninja::eventVars(auth()->user()->id)));
 

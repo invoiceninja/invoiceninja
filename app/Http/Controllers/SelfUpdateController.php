@@ -85,7 +85,7 @@ class SelfUpdateController extends BaseController
 
         Artisan::call('clear-compiled');
         Artisan::call('cache:clear');
-        Artisan::call('debugbar:clear');
+        // Artisan::call('debugbar:clear');
         Artisan::call('route:clear');
         Artisan::call('view:clear');
         Artisan::call('config:clear');

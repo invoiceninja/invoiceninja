@@ -130,7 +130,7 @@ class SubscriptionService
         ];
 
         $response = $this->triggerWebhook($context);
-        nlog($response);
+        // nlog($response);
         return $response;
     }
 
@@ -198,15 +198,18 @@ class SubscriptionService
 
         $outstanding_amounts = $outstanding->sum('balance');
         // $outstanding_invoices = $outstanding->get();
-        $outstanding_invoices = $outstanding;
+        $outstanding_invoice = Invoice::where('subscription_id', $this->subscription->id)
+                                         ->where('is_deleted', 0)
+                                         ->orderBy('id', 'desc')
+                                         ->first();   
 
         if ($outstanding->count() == 0){
             //nothing outstanding
-            return $target->price;
+            return $target->price - $this->calculateProRataRefund($outstanding_invoice);
         }
         elseif ($outstanding->count() == 1){
             //user has multiple amounts outstanding
-            return $target->price - $this->calculateProRataRefund($outstanding->first());
+            return $target->price - $this->calculateProRataRefund($outstanding_invoice);
         }
         elseif ($outstanding->count() > 1) {
             //user is changing plan mid frequency cycle
@@ -237,6 +240,9 @@ class SubscriptionService
 
         $pro_rata_refund = round((($days_in_frequency - $days_to_refund)/$days_in_frequency) * $invoice->amount ,2);
         
+        nlog("days_to_refund = {$days_to_refund} days in frequency {$days_in_frequency} invoice amount = {$invoice->amount}");
+        nlog("pro rata refund = {$pro_rata_refund}");
+
         return $pro_rata_refund;
     }
 
@@ -253,13 +259,17 @@ class SubscriptionService
 
         $current_date = now();
 
-        $days_to_refund = $start_date->diffInDays($current_date);
+        $days_to_charge = $start_date->diffInDays($current_date);
 
         $days_in_frequency = $this->getDaysInFrequency();
 
-        $pro_rata_refund = round(($days_to_refund/$days_in_frequency) * $invoice->amount ,2);
+nlog("days to charge = {$days_to_charge} fays in frequency = {$days_in_frequency}");
+
+        $pro_rata_charge = round(($days_to_charge/$days_in_frequency) * $invoice->amount ,2);
         
-        return $pro_rata_refund;
+        nlog("pro rata charge = {$pro_rata_charge}");
+
+        return $pro_rata_charge;
     }
 
     public function createChangePlanInvoice($data)
@@ -549,29 +559,29 @@ class SubscriptionService
     {
 
         switch ($this->subscription->frequency_id) {
-            case self::FREQUENCY_DAILY:
+            case RecurringInvoice::FREQUENCY_DAILY:
                 return 1;
-            case self::FREQUENCY_WEEKLY:
+            case RecurringInvoice::FREQUENCY_WEEKLY:
                 return 7;
-            case self::FREQUENCY_TWO_WEEKS:
+            case RecurringInvoice::FREQUENCY_TWO_WEEKS:
                 return 14;
-            case self::FREQUENCY_FOUR_WEEKS:
+            case RecurringInvoice::FREQUENCY_FOUR_WEEKS:
                 return now()->diffInDays(now()->addWeeks(4));
-            case self::FREQUENCY_MONTHLY:
+            case RecurringInvoice::FREQUENCY_MONTHLY:
                 return now()->diffInDays(now()->addMonthNoOverflow());
-            case self::FREQUENCY_TWO_MONTHS:
+            case RecurringInvoice::FREQUENCY_TWO_MONTHS:
                 return now()->diffInDays(now()->addMonthNoOverflow(2));
-            case self::FREQUENCY_THREE_MONTHS:
+            case RecurringInvoice::FREQUENCY_THREE_MONTHS:
                 return now()->diffInDays(now()->addMonthNoOverflow(3));
-            case self::FREQUENCY_FOUR_MONTHS:
+            case RecurringInvoice::FREQUENCY_FOUR_MONTHS:
                 return now()->diffInDays(now()->addMonthNoOverflow(4));
-            case self::FREQUENCY_SIX_MONTHS:
+            case RecurringInvoice::FREQUENCY_SIX_MONTHS:
                 return now()->diffInDays(now()->addMonthNoOverflow(6));
-            case self::FREQUENCY_ANNUALLY:
+            case RecurringInvoice::FREQUENCY_ANNUALLY:
                 return now()->diffInDays(now()->addYear());
-            case self::FREQUENCY_TWO_YEARS:
+            case RecurringInvoice::FREQUENCY_TWO_YEARS:
                 return now()->diffInDays(now()->addYears(2));
-            case self::FREQUENCY_THREE_YEARS:
+            case RecurringInvoice::FREQUENCY_THREE_YEARS:
                 return now()->diffInDays(now()->addYears(3));
             default:
                 return 0;
