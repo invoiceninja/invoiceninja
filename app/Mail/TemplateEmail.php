@@ -49,6 +49,10 @@ class TemplateEmail extends Mailable
     {
         $template_name = 'email.template.'.$this->build_email->getTemplate();
 
+        if($this->build_email->getTemplate() == 'custom') {
+            $this->build_email->setBody(str_replace('$body', $this->build_email->getBody(), $this->client->getSetting('email_style_custom')));
+        }
+
         $settings = $this->client->getMergedSettings();
 
         $company = $this->client->company;

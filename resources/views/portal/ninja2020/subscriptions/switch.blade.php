@@ -8,10 +8,10 @@
             <!-- 1) Subscription we're switching from -->
             <div
                 class="col-span-12 md:col-start-2 md:col-span-4 bg-white rounded px-4 py-5 shadow hover:shadow-lg">
-                <span class="text-sm uppercase text-gray-900">Current plan:</span>
-                <p class="mt-4">Placeholder text for plan notes, some text.</p>
+                <span class="text-sm uppercase text-gray-900">{{ ctrans('texts.current') }}</span>
+                <p class="mt-4">{{ $subscription->name }}</p>
                 <div class="flex justify-end mt-2">
-                    <span>$10</span>
+                    <span> {{ \App\Utils\Number::formatMoney($subscription->price, $subscription->company) }}</span>
                 </div>
             </div>
 
@@ -33,16 +33,16 @@
 
             <!-- 2) Subscription we're switching to -->
             <div class="col-span-12 md:col-span-4 bg-white rounded px-4 py-5 shadow border hover:shadow-lg group-hover:border-transparent">
-                <span class="text-sm uppercase text-gray-900">Switching to:</span>
-                <p class="mt-4">Placeholder text for plan notes, some text.</p>
+                <span class="text-sm uppercase text-gray-900">{{ ctrans('texts.change') }}</span>
+                <p class="mt-4">{{ $target->name }}</p>
                 <div class="flex justify-end mt-2">
-                    <span>$10</span>
+                    <span> {{ \App\Utils\Number::formatMoney($target->price, $target->company) }}</span>
                 </div>
             </div>
         </div>
 
         <!-- Payment box -->
-        @livewire('subscription-plan-switch', compact('subscription', 'target', 'contact'))
+        @livewire('subscription-plan-switch', compact('recurring_invoice', 'subscription', 'target', 'contact', 'amount'))
     </div>
 @endsection
 

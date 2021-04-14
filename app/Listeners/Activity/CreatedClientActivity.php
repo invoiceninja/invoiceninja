@@ -43,8 +43,10 @@ class CreatedClientActivity implements ShouldQueue
 
         $fields = new stdClass;
 
+        $user_id = $event->event_vars['user_id'] ?: $event->client->user_id;
+
         $fields->client_id = $event->client->id;
-        $fields->user_id = $event->client->user_id;
+        $fields->user_id = $user_id;
         $fields->company_id = $event->client->company_id;
         $fields->activity_type_id = Activity::CREATE_CLIENT;
 

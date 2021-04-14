@@ -14,8 +14,10 @@ namespace App\Console\Commands;
 use App\DataMapper\CompanySettings;
 use App\DataMapper\FeesAndLimits;
 use App\Events\Invoice\InvoiceWasCreated;
+use App\Factory\GroupSettingFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceItemFactory;
+use App\Factory\SubscriptionFactory;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Jobs\Company\CreateCompanyTaskStatuses;
 use App\Models\Account;
@@ -30,6 +32,7 @@ use App\Models\Expense;
 use App\Models\Product;
 use App\Models\Project;
 use App\Models\Quote;
+use App\Models\RecurringInvoice;
 use App\Models\Task;
 use App\Models\User;
 use App\Models\Vendor;
@@ -201,6 +204,78 @@ class CreateSingleAccount extends Command
         }
 
         $this->createGateways($company, $user);
+
+        $this->createSubsData($company, $user);
+    }
+
+    private function createSubsData($company, $user)
+    {
+        $gs = GroupSettingFactory::create($company->id, $user->id);
+        $gs->name = "plans";
+        $gs->save();
+
+        $p1 = Product::factory()->create([
+                'user_id' => $user->id,
+                'company_id' => $company->id,
+                'product_key' => 'pro_plan',
+                'notes' => 'The Pro Plan',
+                'cost' => 10,
+                'price' => 10,
+                'quantity' => 1,
+            ]);        
+
+        $p2 = Product::factory()->create([
+                'user_id' => $user->id,
+                'company_id' => $company->id,
+                'product_key' => 'enterprise_plan',
+                'notes' => 'The Enterprise Plan',
+                'cost' => 10,
+                'price' => 10,
+                'quantity' => 1,
+            ]); 
+
+        $p3 = Product::factory()->create([
+                'user_id' => $user->id,
+                'company_id' => $company->id,
+                'product_key' => 'free_plan',
+                'notes' => 'The Free Plan',
+                'cost' => 0,
+                'price' => 0,
+                'quantity' => 1,
+            ]); 
+
+        $webhook_config = [
+            'post_purchase_url' => 'http://ninja.test:8000/api/admin/plan',
+            'post_purchase_rest_method' => 'POST',
+            'post_purchase_headers' => [],
+        ];
+
+        $sub = SubscriptionFactory::create($company->id, $user->id);
+        $sub->name = "Pro Plan";
+        $sub->group_id = $gs->id;
+        $sub->recurring_product_ids = "{$p1->hashed_id}";
+        $sub->webhook_configuration = $webhook_config;
+        $sub->allow_plan_changes = true;
+        $sub->frequency_id = RecurringInvoice::FREQUENCY_MONTHLY;
+        $sub->save();
+
+        $sub = SubscriptionFactory::create($company->id, $user->id);
+        $sub->name = "Enterprise Plan";
+        $sub->group_id = $gs->id;
+        $sub->recurring_product_ids = "{$p2->hashed_id}";
+        $sub->webhook_configuration = $webhook_config;
+        $sub->allow_plan_changes = true;
+        $sub->frequency_id = RecurringInvoice::FREQUENCY_MONTHLY;
+        $sub->save();
+
+        $sub = SubscriptionFactory::create($company->id, $user->id);
+        $sub->name = "Free Plan";
+        $sub->group_id = $gs->id;
+        $sub->recurring_product_ids = "{$p3->hashed_id}";
+        $sub->webhook_configuration = $webhook_config;
+        $sub->allow_plan_changes = true;
+        $sub->frequency_id = RecurringInvoice::FREQUENCY_MONTHLY;
+        $sub->save();
     }
 
     private function createClient($company, $user)

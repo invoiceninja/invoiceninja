@@ -144,11 +144,11 @@ class ApplyPayment
                  ->ledger()
                  ->updateCreditBalance(($this->amount_applied * -1), "Credit payment applied to Invoice {$this->invoice->number}");
 
-        event(new InvoiceWasUpdated($this->invoice, $this->invoice->company, Ninja::eventVars()));
+        event(new InvoiceWasUpdated($this->invoice, $this->invoice->company, Ninja::eventVars(auth()->user()->id)));
 
         if ((int)$this->invoice->balance == 0) {
             $this->invoice->service()->deletePdf();
-            event(new InvoiceWasPaid($this->invoice, $payment, $this->payment->company, Ninja::eventVars()));
+            event(new InvoiceWasPaid($this->invoice, $payment, $this->payment->company, Ninja::eventVars(auth()->user()->id)));
         }
     }
 }

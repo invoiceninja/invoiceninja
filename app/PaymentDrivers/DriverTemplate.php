@@ -11,6 +11,12 @@
 
 namespace App\PaymentDrivers;
 
+use App\Models\ClientGatewayToken;
+use App\Models\GatewayType;
+use App\Models\Payment;
+use App\Models\PaymentHash;
+use App\Models\SystemLog;
+use App\PaymentDrivers\Stripe\CreditCard;
 use App\Utils\Traits\MakesHash;
 
 class DriverTemplate extends BaseDriver

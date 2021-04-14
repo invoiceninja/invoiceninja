@@ -201,7 +201,7 @@ class CreditController extends BaseController
                          ->fillDefaults()
                          ->save();
 
-        event(new CreditWasCreated($credit, $credit->company, Ninja::eventVars()));
+        event(new CreditWasCreated($credit, $credit->company, Ninja::eventVars(auth()->user()->id)));
 
         return $this->itemResponse($credit);
     }
@@ -378,7 +378,7 @@ class CreditController extends BaseController
 
         $credit->service()->deletePdf();
         
-        event(new CreditWasUpdated($credit, $credit->company, Ninja::eventVars()));
+        event(new CreditWasUpdated($credit, $credit->company, Ninja::eventVars(auth()->user()->id)));
 
         return $this->itemResponse($credit);
     }

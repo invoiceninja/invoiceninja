@@ -12,6 +12,7 @@
 namespace App\Helpers\Invoice;
 
 use App\Models\Invoice;
+use App\Models\TaxRate;
 use App\Utils\Traits\NumberFormatter;
 use Illuminate\Support\Collection;
 
@@ -90,16 +91,16 @@ class InvoiceSum
     private function calculateCustomValues()
     {
 
-        $this->total_taxes += $this->valuerTax($this->invoice->custom_surcharge1, $this->invoice->custom_surcharge_tax1);
+        // $this->total_taxes += $this->valuerTax($this->invoice->custom_surcharge1, $this->invoice->custom_surcharge_tax1);
         $this->total_custom_values += $this->valuer($this->invoice->custom_surcharge1);
 
-        $this->total_taxes += $this->valuerTax($this->invoice->custom_surcharge2, $this->invoice->custom_surcharge_tax2);
+        // $this->total_taxes += $this->valuerTax($this->invoice->custom_surcharge2, $this->invoice->custom_surcharge_tax2);
         $this->total_custom_values += $this->valuer($this->invoice->custom_surcharge2);
 
-        $this->total_taxes += $this->valuerTax($this->invoice->custom_surcharge3, $this->invoice->custom_surcharge_tax3);
+        // $this->total_taxes += $this->valuerTax($this->invoice->custom_surcharge3, $this->invoice->custom_surcharge_tax3);
         $this->total_custom_values += $this->valuer($this->invoice->custom_surcharge3);
 
-        $this->total_taxes += $this->valuerTax($this->invoice->custom_surcharge4, $this->invoice->custom_surcharge_tax4);
+        // $this->total_taxes += $this->valuerTax($this->invoice->custom_surcharge4, $this->invoice->custom_surcharge_tax4);
         $this->total_custom_values += $this->valuer($this->invoice->custom_surcharge4);
 
         $this->total += $this->total_custom_values;
@@ -112,18 +113,24 @@ class InvoiceSum
 
         if (strlen($this->invoice->tax_name1) > 1) {
             $tax = $this->taxer($this->total, $this->invoice->tax_rate1);
+            $tax += $this->getSurchargeTaxTotalForKey($this->invoice->tax_name1, $this->invoice->tax_rate1);
+
             $this->total_taxes += $tax;
             $this->total_tax_map[] = ['name' => $this->invoice->tax_name1.' '.floatval($this->invoice->tax_rate1).'%', 'total' => $tax];
         }
 
         if (strlen($this->invoice->tax_name2) > 1) {
             $tax = $this->taxer($this->total, $this->invoice->tax_rate2);
+            $tax += $this->getSurchargeTaxTotalForKey($this->invoice->tax_name2, $this->invoice->tax_rate2);
+
             $this->total_taxes += $tax;
             $this->total_tax_map[] = ['name' => $this->invoice->tax_name2.' '.floatval($this->invoice->tax_rate2).'%', 'total' => $tax];
         }
 
         if (strlen($this->invoice->tax_name3) > 1) {
             $tax = $this->taxer($this->total, $this->invoice->tax_rate3);
+            $tax += $this->getSurchargeTaxTotalForKey($this->invoice->tax_name3, $this->invoice->tax_rate3);
+
             $this->total_taxes += $tax;
             $this->total_tax_map[] = ['name' => $this->invoice->tax_name3.' '.floatval($this->invoice->tax_rate3).'%', 'total' => $tax];
         }
@@ -299,6 +306,37 @@ class InvoiceSum
 
         return $this;
     }
+
+    private function getSurchargeTaxTotalForKey($key, $rate)
+    {
+
+        $tax_component = 0;
+
+        if($this->invoice->custom_surcharge_tax1)
+        {
+            $tax_component += round($this->invoice->custom_surcharge1 * ($rate / 100), 2);
+        }
+
+        if($this->invoice->custom_surcharge_tax2)
+        {
+            $tax_component += round($this->invoice->custom_surcharge2 * ($rate / 100), 2);
+        }
+
+        if($this->invoice->custom_surcharge_tax3)
+        {
+            $tax_component += round($this->invoice->custom_surcharge3 * ($rate / 100), 2);
+        }
+
+        if($this->invoice->custom_surcharge_tax4)
+        {
+            $tax_component += round($this->invoice->custom_surcharge4 * ($rate / 100), 2);
+        }
+        
+        return $tax_component;
+     
+    }
+
+
 
     public function getTaxMap()
     {        

@@ -59,10 +59,12 @@
 
                 <div class="relative flex justify-center text-sm leading-5">
                     <h1 class="text-2xl font-bold tracking-wide bg-gray-50 px-6 py-0">
-                        {{ ctrans('texts.total') }}: {{ \App\Utils\Number::formatMoney($price, $subscription->company) }}
+                        {{ ctrans('texts.total') }}
+                        : {{ \App\Utils\Number::formatMoney($price, $subscription->company) }}
 
                         @if($steps['discount_applied'])
-                            <small class="ml-1 line-through text-gray-500">{{ \App\Utils\Number::formatMoney($subscription->price, $subscription->company) }}</small>
+                            <small
+                                class="ml-1 line-through text-gray-500">{{ \App\Utils\Number::formatMoney($subscription->price, $subscription->company) }}</small>
                         @endif
                     </h1>
                 </div>
@@ -133,6 +135,13 @@
                             </svg>
                         @endif
                     </div>
+                @elseif(!$steps['payment_required'])
+                    <form wire:submit.prevent="handlePaymentNotRequired" class="mt-8">
+                        @csrf
+                        <button class="px-3 py-2 border rounded mr-4 hover:border-blue-600">
+                            {{ ctrans('texts.click_to_continue') }}
+                        </button>
+                    </form>
                 @elseif($steps['show_start_trial'])
                     <form wire:submit.prevent="handleTrial" class="mt-8">
                         @csrf
@@ -208,6 +217,10 @@
 
                 @if($steps['not_eligible'] && !is_null($steps['not_eligible']))
                     <h1>{{ ctrans('texts.payment_error') }}</h1>
+
+                    @if($steps['not_eligible_message'])
+                        <small class="mt-4 block">{{ $steps['not_eligible_message'] }}</small>
+                    @endif
                 @endif
             </div>
         </div>

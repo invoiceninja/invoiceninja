@@ -184,7 +184,7 @@ class RecurringInvoice extends BaseModel
 
     public function invoices()
     {
-        return $this->hasMany(Invoice::class, 'id', 'recurring_id')->withTrashed();
+        return $this->hasMany(Invoice::class, 'recurring_id', 'id')->withTrashed();
     }
 
     public function invitations()

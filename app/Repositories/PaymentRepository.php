@@ -155,7 +155,7 @@ class PaymentRepository extends BaseRepository {
         }
 
 		if ( ! $is_existing_payment && ! $this->import_mode ) {
-			event( new PaymentWasCreated( $payment, $payment->company, Ninja::eventVars() ) );
+			event( new PaymentWasCreated( $payment, $payment->company, Ninja::eventVars(auth()->user()->id) ) );
 		}
 
         nlog("payment amount = {$payment->amount}");
@@ -205,7 +205,7 @@ class PaymentRepository extends BaseRepository {
 
         $payment = $payment->service()->deletePayment();
 
-        event(new PaymentWasDeleted($payment, $payment->company, Ninja::eventVars()));
+        event(new PaymentWasDeleted($payment, $payment->company, Ninja::eventVars(auth()->user()->id)));
 
         return $payment;
         //return parent::delete($payment);

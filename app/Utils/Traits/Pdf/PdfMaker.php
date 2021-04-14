@@ -12,6 +12,7 @@
 
 namespace App\Utils\Traits\Pdf;
 
+use App\Exceptions\InternalPDFFailure;
 use Beganovich\Snappdf\Snappdf;
 
 trait PdfMaker
@@ -33,8 +34,14 @@ trait PdfMaker
             $pdf->setChromiumPath(config('ninja.snappdf_chromium_path'));
         }
 
-        return $pdf
-            ->setHtml($html)
-            ->generate();
+        $generated  = $pdf
+                        ->setHtml($html)
+                        ->generate();
+
+        if($generated)
+            return $generated;
+
+
+        throw new InternalPDFFailure('There was an issue generating the PDF locally');
     }
 }

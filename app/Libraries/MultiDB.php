@@ -192,6 +192,7 @@ class MultiDB
                 return true;
             
         }
+        self::setDefaultDatabase();
 
         return false;
     }
@@ -205,6 +206,7 @@ class MultiDB
                 return true;
             }
         }
+        self::setDefaultDatabase();
 
         return false;
     }
@@ -218,6 +220,7 @@ class MultiDB
                 return true;
             }
         }
+        self::setDefaultDatabase();
 
         return false;
     }
@@ -230,6 +233,7 @@ class MultiDB
                 return true;
             }
         }
+        self::setDefaultDatabase();
 
         return false;
     }
@@ -242,16 +246,20 @@ class MultiDB
                 return true;
             }
         }
+        self::setDefaultDatabase();
 
         return false;
     }
 
     public static function findAndSetDbByDomain($subdomain) :bool
     {
+
+        if (! config('ninja.db.multi_db_enabled'))
+            return (Company::whereSubdomain($subdomain)->exists() === true);
+
         foreach (self::$dbs as $db) {
             if ($company = Company::on($db)->whereSubdomain($subdomain)->first()) {
                 self::setDb($company->db);
-
                 return true;
             }
         }

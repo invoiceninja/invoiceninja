@@ -129,7 +129,7 @@ class CreditInvitation extends BaseModel
         $storage_path = Storage::url($this->credit->client->quote_filepath().$this->credit->numberFormatter().'.pdf');
 
         if (! Storage::exists($this->credit->client->credit_filepath().$this->credit->numberFormatter().'.pdf')) {
-            event(new CreditWasUpdated($this, $this->company, Ninja::eventVars()));
+            event(new CreditWasUpdated($this, $this->company, Ninja::eventVars(auth()->user()->id)));
             CreateEntityPdf::dispatchNow($this);
         }
 
