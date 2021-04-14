@@ -116,15 +116,6 @@ class SubscriptionApiTest extends TestCase
         $this->assertNotEquals($response1['data']['allow_cancellation'], $response2['data']['allow_cancellation']);
     }
 
-    /*
-    TypeError : Argument 1 passed to App\Transformers\SubscriptionTransformer::transform() must be an instance of App\Models\Subscription, bool given, called in /var/www/html/vendor/league/fractal/src/Scope.php on line 407
-    /var/www/html/app/Transformers/SubscriptionTransformer.php:35
-    /var/www/html/vendor/league/fractal/src/Scope.php:407
-    /var/www/html/vendor/league/fractal/src/Scope.php:349
-    /var/www/html/vendor/league/fractal/src/Scope.php:235
-    /var/www/html/app/Http/Controllers/BaseController.php:395
-    /var/www/html/app/Http/Controllers/SubscriptionController.php:408
-    */
     public function testSubscriptionDeleted()
     {
 
