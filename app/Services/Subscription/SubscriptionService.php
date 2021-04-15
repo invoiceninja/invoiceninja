@@ -347,29 +347,13 @@ class SubscriptionService
 
         $credit = $this->createCredit($pro_rata_refund_amount, $last_invoice, $target_subscription, $old_subscription);
         
-///////////////////////////
-        $old_subscription_recurring_invoice = $recurring_invoice;
-        $old_subscription_recurring_invoice->service()->stop()->save();
-
-        $recurring_invoice_repo = new RecurringInvoiceRepository();
-        $recurring_invoice_repo->archive($old_subscription_recurring_invoice);
-
-            $recurring_invoice = $this->convertInvoiceToRecurring($recurring_invoice->client_id);
-            $recurring_invoice = $recurring_invoice_repo->save([], $recurring_invoice);
-            $recurring_invoice->next_send_date = now();
-            $recurring_invoice->next_send_date = $recurring_invoice->nextSendDate();
-
-            /* Start the recurring service */
-            $recurring_invoice->service()
-                              ->start()
-                              ->save();
-////////////////////////////
+        $new_recurring_invoice = $this->createNewRecurringInvoice($recurring_invoice);
 
             $context = [
                 'context' => 'change_plan',
-                'recurring_invoice' => $recurring_invoice->hashed_id,
+                'recurring_invoice' => $new_recurring_invoice->hashed_id,
                 'credit' => $credit->hashed_id,
-                'client' => $recurring_invoice->client->hashed_id,
+                'client' => $new_recurring_invoice->client->hashed_id,
                 'subscription' => $target_subscription->hashed_id,
                 'contact' => auth('contact')->user()->hashed_id,
             ];
@@ -424,26 +408,10 @@ class SubscriptionService
      */
     private function handlePlanChange($payment_hash)
     {
-
-        //payment has been made.
-        //
-        //new subscription starts today - delete old recurring invoice.
         
-        $old_subscription_recurring_invoice = RecurringInvoice::find($payment_hash->data->billing_context->recurring_invoice);
-        $old_subscription_recurring_invoice->service()->stop()->save();
+        $old_recurring_invoice = RecurringInvoice::find($payment_hash->data->billing_context->recurring_invoice);
 
-        $recurring_invoice_repo = new RecurringInvoiceRepository();
-        $recurring_invoice_repo->archive($old_subscription_recurring_invoice);
-
-            $recurring_invoice = $this->convertInvoiceToRecurring($payment_hash->payment->client_id);
-            $recurring_invoice = $recurring_invoice_repo->save([], $recurring_invoice);
-            $recurring_invoice->next_send_date = now();
-            $recurring_invoice->next_send_date = $recurring_invoice->nextSendDate();
-
-            /* Start the recurring service */
-            $recurring_invoice->service()
-                              ->start()
-                              ->save();
+        $recurring_invoice = $this->createNewRecurringInvoice($old_recurring_invoice);
 
             $context = [
                 'context' => 'change_plan',
@@ -462,6 +430,28 @@ class SubscriptionService
 
     }
 
+    private function createNewRecurringInvoice($old_recurring_invoice) :RecurringInvoice
+    {
+
+        $old_recurring_invoice->service()->stop()->save();
+
+        $recurring_invoice_repo = new RecurringInvoiceRepository();
+        $recurring_invoice_repo->archive($$old_recurring_invoice);
+
+            $recurring_invoice = $this->convertInvoiceToRecurring($old_recurring_invoice->client_id);
+            $recurring_invoice = $recurring_invoice_repo->save([], $recurring_invoice);
+            $recurring_invoice->next_send_date = now();
+            $recurring_invoice->next_send_date = $recurring_invoice->nextSendDate();
+
+            /* Start the recurring service */
+            $recurring_invoice->service()
+                              ->start()
+                              ->save();
+
+          return $recurring_invoice;
+
+    }
+
     public function handlePlanChangeNoPayment($data)
     {
         /*
@@ -471,21 +461,7 @@ class SubscriptionService
         'hash' => $this->hash,
         */
         
-        $old_subscription_recurring_invoice = $data['recurring_invoice'];
-        $old_subscription_recurring_invoice->service()->stop()->save();
-
-        $recurring_invoice_repo = new RecurringInvoiceRepository();
-        $recurring_invoice_repo->archive($old_subscription_recurring_invoice);
-
-            $recurring_invoice = $this->convertInvoiceToRecurring($old_subscription_recurring_invoice->client_id);
-            $recurring_invoice = $recurring_invoice_repo->save([], $recurring_invoice);
-            $recurring_invoice->next_send_date = now();
-            $recurring_invoice->next_send_date = $recurring_invoice->nextSendDate();
-
-            /* Start the recurring service */
-            $recurring_invoice->service()
-                              ->start()
-                              ->save();
+        $recurring_invoice = $this->createNewRecurringInvoice($data['recurring_invoice']);
 
             $context = [
                 'context' => 'change_plan',
@@ -682,11 +658,62 @@ class SubscriptionService
             ->get();
     }
 
-    public function handleCancellation()
+    public function handleCancellation(RecurringInvoice $recurring_invoice)
     {
-        dd('Cancelling using SubscriptionService');
+        //only allow cancellation of services that are paid up to date.
+        
+        // $last_invoice = 
 
-        // ..
+        //only refund if they are in the refund window.
+        $outstanding_invoice = Invoice::where('subscription_id', $this->subscription->id)
+                                     ->where('client_id', $recurring_invoice->client_id)
+                                     ->where('is_deleted', 0)
+                                     ->orderBy('id', 'desc')
+                                     ->first();   
+
+        $invoice_start_date = Carbon::parse($outstanding_invoice->date);
+        $refund_end_date = $invoice_start_date->addSeconds($this->subscription->refund_period);
+
+        /* Stop the recurring invoice and archive */
+        $recurring_invoice->service()->stop()->save();
+        $recurring_invoice_repo = new RecurringInvoiceRepository();
+        $recurring_invoice_repo->archive($$old_recurring_invoice);
+
+        if($refund_end_date->greaterThan(now()) && (int)$outstanding_invoice->balance == 0)
+        {
+            //we are in the refund window.
+            //
+            //$outstanding_invoice
+            if($outstanding_invoice->payments()->exists())
+            {
+                $payment = $outstanding_invoice->payments()->first();
+
+                $data = [
+                    'id' => $payment->id,
+                    'gateway_refund' => true,
+                    'send_email' => true,
+                    'invoices' => [
+                        ['invoice_id' => $outstanding_invoice->id, 'amount' => $outstanding_invoice->amount],
+                    ],
+
+                ];
+
+                $payment->refundPayment($data);
+            }
+        }
+
+            $context = [
+                'context' => 'cancellation',
+                'subscription' => $this->subscription->hashed_id,
+                'recurring_invoice' => $recurring_invoice->hashed_id,
+                'client' => $recurring_invoice->client->hashed_id,
+                'contact' => auth('contact')->user()->hashed_id,
+            ];
+
+            $this->triggerWebhook($context);
+
+            return $this->handleRedirect('client/subscriptions');
+
     }
 
     private function getDaysInFrequency()
