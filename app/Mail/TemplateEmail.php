@@ -14,7 +14,9 @@ namespace App\Mail;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\User;
+use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
 use App\Utils\HtmlEngine;
+use App\Utils\TemplateEngine;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -53,6 +55,14 @@ class TemplateEmail extends Mailable
             $this->build_email->setBody(str_replace('$body', $this->build_email->getBody(), $this->client->getSetting('email_style_custom')));
         }
 
+        $this->build_email->setBody(
+            DesignHelpers::parseMarkdownToHtml($this->build_email->getBody())
+        );
+
+        $this->build_email->setBody(
+            TemplateEngine::wrapElementsIntoTables('<style></style><div id="content-wrapper"></div>', $this->build_email->getBody())
+        );
+
         $settings = $this->client->getMergedSettings();
 
         $company = $this->client->company;
@@ -64,10 +74,10 @@ class TemplateEmail extends Mailable
         }
         else
             $signature = $settings->email_signature;
-        
+
         $this->from(config('mail.from.address'), $this->company->present()->name());
-        
-        if (strlen($settings->bcc_email) > 1) 
+
+        if (strlen($settings->bcc_email) > 1)
             $this->bcc($settings->bcc_email, $settings->bcc_email);
 
         $this->subject($this->build_email->getSubject())
