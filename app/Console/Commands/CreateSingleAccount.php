@@ -229,8 +229,8 @@ class CreateSingleAccount extends Command
                 'company_id' => $company->id,
                 'product_key' => 'enterprise_plan',
                 'notes' => 'The Enterprise Plan',
-                'cost' => 10,
-                'price' => 10,
+                'cost' => 14,
+                'price' => 14,
                 'quantity' => 1,
             ]); 
 

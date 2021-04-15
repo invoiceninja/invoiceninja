@@ -56,7 +56,7 @@ class UpdateSubscriptionRequest extends Request
             'allow_plan_changes' => ['sometimes'],
             'refund_period' => ['sometimes'],
             'webhook_configuration' => ['array'],
-            'name' => ['required', Rule::unique('subscriptions')->where('company_id', auth()->user()->company()->id)->ignore($this->subscription->id)]
+            'name' => ['sometimes', Rule::unique('subscriptions')->where('company_id', auth()->user()->company()->id)->ignore($this->subscription->id)]
         ];
 
         return $this->globalRules($rules);

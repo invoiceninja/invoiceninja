@@ -25,7 +25,7 @@ class RecurringInvoiceCancellation extends Component
     public function processCancellation()
     {
         if ($this->invoice->subscription) {
-            return $this->invoice->subscription->service()->handleCancellation();
+            return $this->invoice->subscription->service()->handleCancellation($this->invoice);
         }
 
         return redirect()->route('client.recurring_invoices.request_cancellation', ['recurring_invoice' => $this->invoice->hashed_id]);
