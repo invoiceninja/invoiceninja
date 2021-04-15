@@ -12,6 +12,7 @@
 namespace App\Services\Subscription;
 
 use App\DataMapper\InvoiceItem;
+use App\Factory\CreditFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceToRecurringInvoiceFactory;
 use App\Factory\RecurringInvoiceFactory;
@@ -26,6 +27,7 @@ use App\Models\Product;
 use App\Models\RecurringInvoice;
 use App\Models\Subscription;
 use App\Models\SystemLog;
+use App\Repositories\CreditRepository;
 use App\Repositories\InvoiceRepository;
 use App\Repositories\RecurringInvoiceRepository;
 use App\Repositories\SubscriptionRepository;
@@ -177,11 +179,7 @@ class SubscriptionService
         //execute any webhooks
         $response = $this->triggerWebhook($context);
 
-        if(array_key_exists('return_url', $this->subscription->webhook_configuration) && strlen($this->subscription->webhook_configuration['return_url']) >=1){
-            return redirect($this->subscription->webhook_configuration['return_url']);
-        }
-
-        return redirect('/client/recurring_invoices/'.$recurring_invoice->hashed_id);
+        return $this->handleRedirect('/client/recurring_invoices/'.$recurring_invoice->hashed_id);
     }
 
     public function calculateUpgradePrice(RecurringInvoice $recurring_invoice, Subscription $target) :?float
@@ -245,6 +243,13 @@ class SubscriptionService
 
     }
 
+    /**
+     * Returns refundable set of line items
+     * transformed for direct injection into
+     * the invoice
+     * @param  Invoice $invoice 
+     * @return array      
+     */
     private function calculateProRataRefundItems($invoice) :array
     {
         
@@ -255,8 +260,6 @@ class SubscriptionService
         $days_of_subscription_used = $start_date->diffInDays($current_date);
 
         $days_in_frequency = $this->getDaysInFrequency();
-
-        //$pro_rata_refund = round(((c * $invoice->amount ,2);
 
         $ratio = ($days_in_frequency - $days_of_subscription_used)/$days_in_frequency;
 
@@ -300,7 +303,7 @@ class SubscriptionService
 
         $days_in_frequency = $this->getDaysInFrequency();
 
-nlog("days to charge = {$days_to_charge} fays in frequency = {$days_in_frequency}");
+        nlog("days to charge = {$days_to_charge} fays in frequency = {$days_in_frequency}");
 
         $pro_rata_charge = round(($days_to_charge/$days_in_frequency) * $invoice->amount ,2);
         
@@ -309,11 +312,12 @@ nlog("days to charge = {$days_to_charge} fays in frequency = {$days_in_frequency
         return $pro_rata_charge;
     }
 
-    public function createChangePlanInvoice($data)
+    public function createChangePlanCredit($data)
     {
         $recurring_invoice = $data['recurring_invoice'];
         $old_subscription = $data['subscription'];
-
+        $target_subscription = $data['target'];
+        
         $pro_rata_charge_amount = 0;
         $pro_rata_refund_amount = 0;
 
@@ -323,7 +327,7 @@ nlog("days to charge = {$days_to_charge} fays in frequency = {$days_in_frequency
                                          ->withTrashed()
                                          ->orderBy('id', 'desc')
                                          ->first();   
-// dd($);
+
         if($last_invoice->balance > 0) 
         {
             $pro_rata_charge_amount = $this->calculateProRataCharge($last_invoice, $old_subscription);
@@ -339,16 +343,45 @@ nlog("days to charge = {$days_to_charge} fays in frequency = {$days_in_frequency
 
         nlog("total payable = {$total_payable}");
 
-        if($total_payable > 0)
+        return $this->createCredit($pro_rata_refund_amount, $last_invoice, $target_subscription, $old_subscription);
+        
+
+    }
+
+    public function createChangePlanInvoice($data)
+    {
+        $recurring_invoice = $data['recurring_invoice'];
+        $old_subscription = $data['subscription'];
+        $target_subscription = $data['target'];
+
+        $pro_rata_charge_amount = 0;
+        $pro_rata_refund_amount = 0;
+
+        $last_invoice = Invoice::where('subscription_id', $recurring_invoice->subscription_id)
+                                         ->where('client_id', $recurring_invoice->client_id)
+                                         ->where('is_deleted', 0)
+                                         ->withTrashed()
+                                         ->orderBy('id', 'desc')
+                                         ->first();   
+
+        if($last_invoice->balance > 0) 
         {
-            return $this->proRataInvoice($pro_rata_refund_amount, $last_invoice, $data['target'], $old_subscription);
+            $pro_rata_charge_amount = $this->calculateProRataCharge($last_invoice, $old_subscription);
+            nlog("pro rata charge = {$pro_rata_charge_amount}");
         }
         else
         {
-            //create credit
+            $pro_rata_refund_amount = $this->calculateProRataRefund($last_invoice, $old_subscription) * -1;
+            nlog("pro rata refund = {$pro_rata_refund_amount}");
         }
 
-     //  return Invoice::where('status_id', Invoice::STATUS_SENT)->first();
+        $total_payable = $pro_rata_refund_amount + $pro_rata_charge_amount + $this->subscription->price;
+
+        nlog("total payable = {$total_payable}");
+
+
+        return $this->proRataInvoice($pro_rata_refund_amount, $last_invoice, $target_subscription, $old_subscription);
+
     }
 
     /**
@@ -403,6 +436,29 @@ nlog("days to charge = {$days_to_charge} fays in frequency = {$days_in_frequency
 
     }
 
+    private function createCredit($refund_amount, $last_invoice, $target, $old_subscription)
+    {
+
+        $subscription_repo = new SubscriptionRepository();
+        $credit_repo = new CreditRepository();
+
+        $credit = CreditFactory::create($this->subscription->company_id, $this->subscription->user_id);
+        $credit->date = now()->format('Y-m-d');
+        $credit->subscription_id = $this->subscription->id;
+
+        $line_items = $subscription_repo->generateLineItems($target);
+
+        $credit->line_items = array_merge($line_items, $this->calculateProRataRefundItems($last_invoice));
+
+        $data = [
+            'client_id' => $last_invoice->client_id,
+            'quantity' => 1,
+            'date' => now()->format('Y-m-d'),
+        ];
+
+        return $credit_repo->save($data, $credit)->service()->markSent()->fillDefaults()->save();
+
+    }
     /**
      *    'client_id' => 2,
           'date' => '2021-04-13',
@@ -422,12 +478,6 @@ nlog("days to charge = {$days_to_charge} fays in frequency = {$days_in_frequency
 
         $line_items = $subscription_repo->generateLineItems($target);
 
-        // $item = new InvoiceItem;
-        // $item->quantity = 1;
-        // $item->product_key = ctrans('texts.refund');
-        // $item->notes = ctrans('texts.refund') . ": " .$$old_subscription->name;
-        // $item->cost = $refund_amount;
-
         $invoice->line_items = array_merge($line_items, $this->calculateProRataRefundItems($last_invoice));
 
         $data = [
@@ -435,9 +485,6 @@ nlog("days to charge = {$days_to_charge} fays in frequency = {$days_in_frequency
             'quantity' => 1,
             'date' => now()->format('Y-m-d'),
         ];
-
-        // $invoice = $invoice_repo->save($data, $invoice);
-        // dd($invoice);
 
         return $invoice_repo->save($data, $invoice)->service()->markSent()->fillDefaults()->save();
 

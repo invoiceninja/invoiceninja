@@ -32,7 +32,14 @@
                 <input type="hidden" name="company_gateway_id" value="{{ $state['company_gateway_id'] }}"/>
                 <input type="hidden" name="payment_method_id" value="{{ $state['payment_method_id'] }}"/>
             </form>
-    @endif
+        @elseif($state['credit'])
+            <form wire:submit.prevent="handlePaymentNotRequired" class="mt-8">
+                @csrf
+                <button class="px-3 py-2 border rounded mr-4 hover:border-blue-600">
+                    {{ ctrans('texts.click_to_continue') }}
+                </button>
+            </form>
+        @endif
 
     <!-- Payment methods -->
         <div class="mt-8 flex flex-col items-center">
