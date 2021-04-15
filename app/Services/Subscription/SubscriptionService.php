@@ -398,7 +398,7 @@ class SubscriptionService
         nlog("total payable = {$total_payable}");
 
 
-        return $this->proRataInvoice($pro_rata_refund_amount, $last_invoice, $target_subscription, $old_subscription);
+        return $this->proRataInvoice($last_invoice, $target_subscription);
 
     }
 
@@ -510,7 +510,7 @@ class SubscriptionService
           'coupon' => '',
           'quantity' => 1,
      */
-    private function proRataInvoice($refund_amount, $last_invoice, $target, $old_subscription)
+    private function proRataInvoice($last_invoice, $target)
     {
         $subscription_repo = new SubscriptionRepository();
         $invoice_repo = new InvoiceRepository();
@@ -529,11 +529,20 @@ class SubscriptionService
             'date' => now()->format('Y-m-d'),
         ];
 
-        return $invoice_repo->save($data, $invoice)->service()->markSent()->fillDefaults()->save();
+        return $invoice_repo->save($data, $invoice)
+                            ->service()
+                            ->markSent()
+                            ->fillDefaults()
+                            ->save();
 
     }
 
-
+    /**
+     * Generates the first invoice when a subscription is purchased
+     * 
+     * @param  array $data 
+     * @return Invoice       
+     */
     public function createInvoice($data): ?\App\Models\Invoice
     {
 
@@ -554,7 +563,13 @@ class SubscriptionService
 
     }
 
-
+    /**
+     * Generates a recurring invoice based on
+     * the specifications of the subscription
+     * 
+     * @param  int $client_id The Client Id
+     * @return RecurringInvoice            
+     */
     public function convertInvoiceToRecurring($client_id) :RecurringInvoice
     {
 
@@ -571,6 +586,11 @@ class SubscriptionService
         return $recurring_invoice;
     }
 
+    /**
+     * Hit a 3rd party API if defined in the subscription
+     *
+     * @param  array $context 
+     */
     public function triggerWebhook($context)
     {
         /* If no webhooks have been set, then just return gracefully */
@@ -658,11 +678,14 @@ class SubscriptionService
             ->get();
     }
 
+    /**
+     * Handle the cancellation of a subscription
+     * 
+     * @param  RecurringInvoice $recurring_invoice 
+     * 
+     */
     public function handleCancellation(RecurringInvoice $recurring_invoice)
     {
-        //only allow cancellation of services that are paid up to date.
-        
-        // $last_invoice = 
 
         //only refund if they are in the refund window.
         $outstanding_invoice = Invoice::where('subscription_id', $this->subscription->id)
@@ -679,11 +702,10 @@ class SubscriptionService
         $recurring_invoice_repo = new RecurringInvoiceRepository();
         $recurring_invoice_repo->archive($recurring_invoice);
 
+        /* Refund only if we are in the window - and there is nothing outstanding on the invoice */
         if($refund_end_date->greaterThan(now()) && (int)$outstanding_invoice->balance == 0)
         {
-            //we are in the refund window.
-            //
-            //$outstanding_invoice
+
             if($outstanding_invoice->payments()->exists())
             {
                 $payment = $outstanding_invoice->payments()->first();
