@@ -240,15 +240,48 @@ class SubscriptionService
         $days_in_frequency = $this->getDaysInFrequency();
 
         $pro_rata_refund = round((($days_in_frequency - $days_of_subscription_used)/$days_in_frequency) * $invoice->amount ,2);
-        
-        nlog("{$days_in_frequency} - {$days_of_subscription_used} / {$days_in_frequency}");
-
-        nlog("days_to_refund = {$days_of_subscription_used} days in frequency {$days_in_frequency} invoice amount = {$invoice->amount}");
-        nlog("pro rata refund = {$pro_rata_refund}");
 
         return $pro_rata_refund;
 
     }
+
+    private function calculateProRataRefundItems($invoice) :array
+    {
+        
+        $start_date = Carbon::parse($invoice->date);
+
+        $current_date = now();
+
+        $days_of_subscription_used = $start_date->diffInDays($current_date);
+
+        $days_in_frequency = $this->getDaysInFrequency();
+
+        //$pro_rata_refund = round(((c * $invoice->amount ,2);
+
+        $ratio = ($days_in_frequency - $days_of_subscription_used)/$days_in_frequency;
+
+        $line_items = [];
+
+        foreach($invoice->line_items as $item)
+        {
+
+            if($item->product_key != ctrans('texts.refund'))
+            {
+                
+                $item->cost = ($item->cost*$ratio*-1);
+                $item->product_key = ctrans('texts.refund');
+                $item->notes = ctrans('texts.refund') . ": ". $item->notes;
+            
+
+                $line_items[] = $item;
+            
+            }
+        }
+
+        return $line_items;
+
+    }
+
 
     /**
      * We only charge for the used days
@@ -279,24 +312,26 @@ nlog("days to charge = {$days_to_charge} fays in frequency = {$days_in_frequency
     public function createChangePlanInvoice($data)
     {
         $recurring_invoice = $data['recurring_invoice'];
+        $old_subscription = $data['subscription'];
 
         $pro_rata_charge_amount = 0;
         $pro_rata_refund_amount = 0;
 
-        $last_invoice = Invoice::where('subscription_id', $this->subscription->id)
+        $last_invoice = Invoice::where('subscription_id', $recurring_invoice->subscription_id)
                                          ->where('client_id', $recurring_invoice->client_id)
                                          ->where('is_deleted', 0)
+                                         ->withTrashed()
                                          ->orderBy('id', 'desc')
                                          ->first();   
-        
+// dd($);
         if($last_invoice->balance > 0) 
         {
-            $pro_rata_charge_amount = $this->calculateProRataCharge($last_invoice);
+            $pro_rata_charge_amount = $this->calculateProRataCharge($last_invoice, $old_subscription);
             nlog("pro rata charge = {$pro_rata_charge_amount}");
         }
         else
         {
-            $pro_rata_refund_amount = $this->calculateProRataRefund($last_invoice) * -1;
+            $pro_rata_refund_amount = $this->calculateProRataRefund($last_invoice, $old_subscription) * -1;
             nlog("pro rata refund = {$pro_rata_refund_amount}");
         }
 
@@ -306,14 +341,13 @@ nlog("days to charge = {$days_to_charge} fays in frequency = {$days_in_frequency
 
         if($total_payable > 0)
         {
-            return $this->proRataInvoice($pro_rata_refund_amount, $last_invoice, $data['target']);
+            return $this->proRataInvoice($pro_rata_refund_amount, $last_invoice, $data['target'], $old_subscription);
         }
         else
         {
             //create credit
         }
 
-dd("no");
      //  return Invoice::where('status_id', Invoice::STATUS_SENT)->first();
     }
 
@@ -377,7 +411,7 @@ dd("no");
           'coupon' => '',
           'quantity' => 1,
      */
-    private function proRataInvoice($refund_amount, $last_invoice, $target)
+    private function proRataInvoice($refund_amount, $last_invoice, $target, $old_subscription)
     {
         $subscription_repo = new SubscriptionRepository();
         $invoice_repo = new InvoiceRepository();
@@ -388,14 +422,13 @@ dd("no");
 
         $line_items = $subscription_repo->generateLineItems($target);
 
-        $item = new InvoiceItem;
-        $item->quantity = 1;
-        $item->product_key = ctrans('texts.refund');
-        $item->notes = ctrans('texts.refund') . ":" .$this->subscription->name;
-        $item->cost = $refund_amount;
+        // $item = new InvoiceItem;
+        // $item->quantity = 1;
+        // $item->product_key = ctrans('texts.refund');
+        // $item->notes = ctrans('texts.refund') . ": " .$$old_subscription->name;
+        // $item->cost = $refund_amount;
 
-        $line_items[] = $item;
-        $invoice->line_items = $line_items;
+        $invoice->line_items = array_merge($line_items, $this->calculateProRataRefundItems($last_invoice));
 
         $data = [
             'client_id' => $last_invoice->client_id,
