@@ -677,7 +677,7 @@ class SubscriptionService
         /* Stop the recurring invoice and archive */
         $recurring_invoice->service()->stop()->save();
         $recurring_invoice_repo = new RecurringInvoiceRepository();
-        $recurring_invoice_repo->archive($$old_recurring_invoice);
+        $recurring_invoice_repo->archive($recurring_invoice);
 
         if($refund_end_date->greaterThan(now()) && (int)$outstanding_invoice->balance == 0)
         {
@@ -698,7 +698,7 @@ class SubscriptionService
 
                 ];
 
-                $payment->refundPayment($data);
+                $payment->refund($data);
             }
         }
 
