@@ -85,26 +85,12 @@ class SubscriptionPlanSwitch extends Component
         
         $this->state['show_loading_bar'] = true;
 
-        $change_cost = $this->target->service()->calculateUpgradePrice($this->recurring_invoice, $this->target);
-
-        if($change_cost > 0)
-        {
             $this->state['invoice'] = $this->target->service()->createChangePlanInvoice([
                 'recurring_invoice' => $this->recurring_invoice,
                 'subscription' => $this->subscription,
                 'target' => $this->target,
                 'hash' => $this->hash,
             ]);
-        }
-        else
-        {
-            $this->state['credit'] = $this->target->service()->createChangePlanCredit([
-                'recurring_invoice' => $this->recurring_invoice,
-                'subscription' => $this->subscription,
-                'target' => $this->target,
-                'hash' => $this->hash,
-            ]);
-        }
 
             Cache::put($this->hash, [
                 'subscription_id' => $this->target->id,
@@ -138,6 +124,13 @@ class SubscriptionPlanSwitch extends Component
 
     public function handlePaymentNotRequired()
     {
+
+        return $this->target->service()->createChangePlanCredit([
+                'recurring_invoice' => $this->recurring_invoice,
+                'subscription' => $this->subscription,
+                'target' => $this->target,
+                'hash' => $this->hash,
+            ]);
 
     }
 

@@ -1,6 +1,9 @@
 <div class="grid grid-cols-12 gap-8 mt-8">
     <div class="col-span-12 md:col-span-5 md:col-start-4 px-4 py-5">
         <!-- Total price -->
+
+        @if(isset($state['invoice']))
+
         <div class="relative mt-8">
             <div class="absolute inset-0 flex items-center">
                 <div class="w-full border-t border-gray-300"></div>
@@ -15,7 +18,6 @@
             </div>
         </div>
 
-        @if($state['invoice'])
             <form action="{{ route('client.payments.process', ['hash' => $hash, 'sidebar' => 'hidden']) }}"
                   method="post" id="payment-method-form">
                 @csrf
@@ -32,14 +34,6 @@
                 <input type="hidden" name="company_gateway_id" value="{{ $state['company_gateway_id'] }}"/>
                 <input type="hidden" name="payment_method_id" value="{{ $state['payment_method_id'] }}"/>
             </form>
-        @elseif($state['credit'])
-            <form wire:submit.prevent="handlePaymentNotRequired" class="mt-8">
-                @csrf
-                <button class="px-3 py-2 border rounded mr-4 hover:border-blue-600">
-                    {{ ctrans('texts.click_to_continue') }}
-                </button>
-            </form>
-        @endif
 
     <!-- Payment methods -->
         <div class="mt-8 flex flex-col items-center">
@@ -68,5 +62,10 @@
                 @endif
             </div>
         </div>
+        @elseif($amount < 0)
+            <button wire:click="handlePaymentNotRequired"class="px-3 py-2 border rounded mr-4 hover:border-blue-600">
+                {{ ctrans('texts.click_to_continue') }}
+            </button>
+        @endif
     </div>
 </div>

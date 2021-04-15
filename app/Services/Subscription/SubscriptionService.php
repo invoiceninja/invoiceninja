@@ -250,9 +250,11 @@ class SubscriptionService
      * @param  Invoice $invoice 
      * @return array      
      */
-    private function calculateProRataRefundItems($invoice) :array
+    private function calculateProRataRefundItems($invoice, $is_credit = false) :array
     {
-        
+        /* depending on whether we are creating an invoice or a credit*/
+        $multiplier = $is_credit ? 1 : -1;
+
         $start_date = Carbon::parse($invoice->date);
 
         $current_date = now();
@@ -271,7 +273,7 @@ class SubscriptionService
             if($item->product_key != ctrans('texts.refund'))
             {
                 
-                $item->cost = ($item->cost*$ratio*-1);
+                $item->cost = ($item->cost*$ratio*$multiplier);
                 $item->product_key = ctrans('texts.refund');
                 $item->notes = ctrans('texts.refund') . ": ". $item->notes;
             
@@ -343,8 +345,40 @@ class SubscriptionService
 
         nlog("total payable = {$total_payable}");
 
-        return $this->createCredit($pro_rata_refund_amount, $last_invoice, $target_subscription, $old_subscription);
+        $credit = $this->createCredit($pro_rata_refund_amount, $last_invoice, $target_subscription, $old_subscription);
         
+///////////////////////////
+        $old_subscription_recurring_invoice = $recurring_invoice;
+        $old_subscription_recurring_invoice->service()->stop()->save();
+
+        $recurring_invoice_repo = new RecurringInvoiceRepository();
+        $recurring_invoice_repo->archive($old_subscription_recurring_invoice);
+
+            $recurring_invoice = $this->convertInvoiceToRecurring($recurring_invoice->client_id);
+            $recurring_invoice = $recurring_invoice_repo->save([], $recurring_invoice);
+            $recurring_invoice->next_send_date = now();
+            $recurring_invoice->next_send_date = $recurring_invoice->nextSendDate();
+
+            /* Start the recurring service */
+            $recurring_invoice->service()
+                              ->start()
+                              ->save();
+////////////////////////////
+
+            $context = [
+                'context' => 'change_plan',
+                'recurring_invoice' => $recurring_invoice->hashed_id,
+                'credit' => $credit->hashed_id,
+                'client' => $recurring_invoice->client->hashed_id,
+                'subscription' => $target_subscription->hashed_id,
+                'contact' => auth('contact')->user()->hashed_id,
+            ];
+
+            $response = $this->triggerWebhook($context);
+
+            nlog($response);
+
+            return $this->handleRedirect('/client/credits/'.$credit->hashed_id);
 
     }
 
@@ -424,16 +458,49 @@ class SubscriptionService
 
             nlog($response);
 
-            if(array_key_exists('post_purchase_url', $this->subscription->webhook_configuration) && strlen($this->subscription->webhook_configuration['post_purchase_url']) >=1)
-                return redirect($this->subscription->webhook_configuration['post_purchase_url']);
-
-            return redirect('/client/recurring_invoices/'.$recurring_invoice->hashed_id);
+            return $this->handleRedirect('/client/recurring_invoices/'.$recurring_invoice->hashed_id);
 
     }
 
-    public function handlePlanChangeNoPayment()
+    public function handlePlanChangeNoPayment($data)
     {
+        /*
+        'recurring_invoice' => $this->recurring_invoice,
+        'subscription' => $this->subscription,
+        'target' => $this->target,
+        'hash' => $this->hash,
+        */
+        
+        $old_subscription_recurring_invoice = $data['recurring_invoice'];
+        $old_subscription_recurring_invoice->service()->stop()->save();
 
+        $recurring_invoice_repo = new RecurringInvoiceRepository();
+        $recurring_invoice_repo->archive($old_subscription_recurring_invoice);
+
+            $recurring_invoice = $this->convertInvoiceToRecurring($old_subscription_recurring_invoice->client_id);
+            $recurring_invoice = $recurring_invoice_repo->save([], $recurring_invoice);
+            $recurring_invoice->next_send_date = now();
+            $recurring_invoice->next_send_date = $recurring_invoice->nextSendDate();
+
+            /* Start the recurring service */
+            $recurring_invoice->service()
+                              ->start()
+                              ->save();
+
+            $context = [
+                'context' => 'change_plan',
+                'recurring_invoice' => $recurring_invoice->hashed_id,
+                'invoice' => $this->encodePrimaryKey($payment_hash->fee_invoice_id),
+                'client' => $recurring_invoice->client->hashed_id,
+                'subscription' => $this->subscription->hashed_id,
+                'contact' => auth('contact')->user()->hashed_id,
+            ];
+
+            $response = $this->triggerWebhook($context);
+
+            nlog($response);
+
+            return $this->handleRedirect('/client/recurring_invoices/'.$recurring_invoice->hashed_id);
     }
 
     private function createCredit($refund_amount, $last_invoice, $target, $old_subscription)
@@ -448,7 +515,7 @@ class SubscriptionService
 
         $line_items = $subscription_repo->generateLineItems($target);
 
-        $credit->line_items = array_merge($line_items, $this->calculateProRataRefundItems($last_invoice));
+        $credit->line_items = array_merge($line_items, $this->calculateProRataRefundItems($last_invoice, true));
 
         $data = [
             'client_id' => $last_invoice->client_id,
