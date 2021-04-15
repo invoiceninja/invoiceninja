@@ -345,7 +345,7 @@ class SubscriptionService
 
         nlog("total payable = {$total_payable}");
 
-        $credit = $this->createCredit($pro_rata_refund_amount, $last_invoice, $target_subscription, $old_subscription);
+        $credit = $this->createCredit($last_invoice, $target_subscription);
         
         $new_recurring_invoice = $this->createNewRecurringInvoice($recurring_invoice);
 
@@ -479,7 +479,7 @@ class SubscriptionService
             return $this->handleRedirect('/client/recurring_invoices/'.$recurring_invoice->hashed_id);
     }
 
-    private function createCredit($refund_amount, $last_invoice, $target, $old_subscription)
+    private function createCredit($last_invoice, $target)
     {
 
         $subscription_repo = new SubscriptionRepository();
@@ -502,13 +502,14 @@ class SubscriptionService
         return $credit_repo->save($data, $credit)->service()->markSent()->fillDefaults()->save();
 
     }
+
     /**
-     *    'client_id' => 2,
-          'date' => '2021-04-13',
-          'invitations' => 
-          'user_input_promo_code' => NULL,
-          'coupon' => '',
-          'quantity' => 1,
+     * When changing plans we need to generate a pro rata
+     * invoice which takes into account any credits.
+     * 
+     * @param  Invoice $last_invoice 
+     * @param  Subscription $target       
+     * @return Invoice               
      */
     private function proRataInvoice($last_invoice, $target)
     {
@@ -519,9 +520,7 @@ class SubscriptionService
         $invoice->date = now()->format('Y-m-d');
         $invoice->subscription_id = $this->subscription->id;
 
-        $line_items = $subscription_repo->generateLineItems($target);
-
-        $invoice->line_items = array_merge($line_items, $this->calculateProRataRefundItems($last_invoice));
+        $invoice->line_items = array_merge($subscription_repo->generateLineItems($target), $this->calculateProRataRefundItems($last_invoice));
 
         $data = [
             'client_id' => $last_invoice->client_id,
