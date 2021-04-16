@@ -16,6 +16,16 @@ class MailServiceProvider extends MailProvider
         $this->registerIlluminateMailer();
     }
 
+    public function boot()
+    {
+        $this->app['mail.manager']->extend('postmark', function () {
+            return new PostmarkTransport(
+                $this->guzzle(config('postmark.guzzle', [])),
+                config('postmark.secret', config('services.postmark.secret'))
+            );
+        });
+    }
+
     protected function registerIlluminateMailer()
     {
         // $this->app->singleton('mail.manager', function($app) {
@@ -30,17 +40,18 @@ class MailServiceProvider extends MailProvider
             return $app->make('mail.manager')->mailer();
         });
 
-        $this->app['mail.manager']->extend('postmark', function () {
-            return new PostmarkTransport(
-                $this->guzzle(config('postmark.guzzle', [])),
-                config('postmark.secret', config('services.postmark.secret'))
-            );
-        });
     }
     
     protected function guzzle(array $config): HttpClient
     {
         return new HttpClient($config);
+    }
+
+    public function provides()
+    {
+        return [
+            'mail.manager',
+            'mailer'        ];
     }
 }
 
