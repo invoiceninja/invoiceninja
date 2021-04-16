@@ -140,6 +140,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::resource('tasks', 'TaskController'); // name = (tasks. index / create / show / update / destroy / edit
     Route::post('tasks/bulk', 'TaskController@bulk')->name('tasks.bulk');
     Route::put('tasks/{task}/upload', 'TaskController@upload');
+    Route::post('tasks/sort', 'TaskController@sort');
 
     Route::resource('task_statuses', 'TaskStatusController'); // name = (task_statuses. index / create / show / update / destroy / edit
     Route::post('task_statuses/bulk', 'TaskStatusController@bulk')->name('task_statuses.bulk');
