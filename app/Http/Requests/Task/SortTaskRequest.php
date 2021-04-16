@@ -30,6 +30,7 @@ class SortTaskRequest extends Request
     public function rules()
     {
 
+        return [];
 
     }
 
