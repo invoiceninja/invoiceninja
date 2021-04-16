@@ -11,11 +11,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Utils\Ninja;
 use App\Utils\TemplateEngine;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
 use App\Utils\Traits\MakesTemplateData;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Lang;
 
 class TemplateController extends BaseController
 {
@@ -89,7 +92,7 @@ class TemplateController extends BaseController
         $subject = request()->has('subject') ? request()->input('subject') : '';
         $body = request()->has('body') ? request()->input('body') : '';
         $template = request()->has('template') ? request()->input('template') : '';
-
+        
         $data = (new TemplateEngine($body, $subject, $entity, $entity_id, $template))->build();
 
         return response()->json($data, 200);

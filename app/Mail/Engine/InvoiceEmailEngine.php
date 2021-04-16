@@ -14,7 +14,10 @@ namespace App\Mail\Engine;
 use App\DataMapper\EmailTemplateDefaults;
 use App\Models\Account;
 use App\Utils\HtmlEngine;
+use App\Utils\Ninja;
 use App\Utils\Number;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Lang;
 
 class InvoiceEmailEngine extends BaseEmailEngine
 {
@@ -42,6 +45,10 @@ class InvoiceEmailEngine extends BaseEmailEngine
 
     public function build()
     {
+
+        App::forgetInstance('translator');
+        Lang::replace(Ninja::transformTranslations($this->client->getMergedSettings()));
+
         if (is_array($this->template_data) &&  array_key_exists('body', $this->template_data) && strlen($this->template_data['body']) > 0) {
             $body_template = $this->template_data['body'];
         } elseif (strlen($this->client->getSetting('email_template_'.$this->reminder_template)) > 0) {
