@@ -132,7 +132,7 @@ class SubscriptionService
         ];
 
         $response = $this->triggerWebhook($context);
-        // nlog($response);
+
         return $response;
     }
 
@@ -182,6 +182,17 @@ class SubscriptionService
         return $this->handleRedirect('/client/recurring_invoices/'.$recurring_invoice->hashed_id);
     }
 
+    /**
+     * Returns an upgrade price when moving between plans
+     *
+     * However we only allow people to  move between plans 
+     * if their account is in good standing.
+     * 
+     * @param  RecurringInvoice $recurring_invoice 
+     * @param  Subscription     $target            
+     * 
+     * @return float                              
+     */
     public function calculateUpgradePrice(RecurringInvoice $recurring_invoice, Subscription $target) :?float
     {
         //calculate based on daily prices
@@ -195,7 +206,7 @@ class SubscriptionService
                                          ->where('balance', '>', 0);
 
         $outstanding_amounts = $outstanding->sum('balance');
-        // $outstanding_invoices = $outstanding->get();
+
         $outstanding_invoice = Invoice::where('subscription_id', $this->subscription->id)
                                          ->where('client_id', $recurring_invoice->client_id)
                                          ->where('is_deleted', 0)
@@ -247,6 +258,7 @@ class SubscriptionService
      * Returns refundable set of line items
      * transformed for direct injection into
      * the invoice
+     * 
      * @param  Invoice $invoice 
      * @return array      
      */
@@ -287,7 +299,6 @@ class SubscriptionService
 
     }
 
-
     /**
      * We only charge for the used days
      * 
@@ -314,6 +325,12 @@ class SubscriptionService
         return $pro_rata_charge;
     }
 
+    /**
+     * When downgrading, we may need to create
+     * a credit
+     * 
+     * @param  array $data 
+     */
     public function createChangePlanCredit($data)
     {
         $recurring_invoice = $data['recurring_invoice'];
@@ -366,6 +383,12 @@ class SubscriptionService
 
     }
 
+    /**
+     * When changing plans, we need to generate a pro rata invoice
+     * 
+     * @param  array $data 
+     * @return Invoice       
+     */
     public function createChangePlanInvoice($data)
     {
         $recurring_invoice = $data['recurring_invoice'];
@@ -395,16 +418,15 @@ class SubscriptionService
 
         $total_payable = $pro_rata_refund_amount + $pro_rata_charge_amount + $this->subscription->price;
 
-        nlog("total payable = {$total_payable}");
-
-
         return $this->proRataInvoice($last_invoice, $target_subscription);
 
     }
 
     /**
-     * Response from payment service on return from a plan change
+     * Response from payment service on 
+     * return from a plan change
      * 
+     * @param  PaymentHash $payment_hash 
      */
     private function handlePlanChange($payment_hash)
     {
@@ -430,6 +452,13 @@ class SubscriptionService
 
     }
 
+    /**
+     * Creates a new recurring invoice when changing
+     * plans
+     * 
+     * @param  RecurringInvoice $old_recurring_invoice 
+     * @return RecurringInvoice                        
+     */
     private function createNewRecurringInvoice($old_recurring_invoice) :RecurringInvoice
     {
 
@@ -452,15 +481,14 @@ class SubscriptionService
 
     }
 
+    /**
+     * Handle a plan change where no payment is required
+     * 
+     * @param  array $data 
+     */
     public function handlePlanChangeNoPayment($data)
     {
-        /*
-        'recurring_invoice' => $this->recurring_invoice,
-        'subscription' => $this->subscription,
-        'target' => $this->target,
-        'hash' => $this->hash,
-        */
-        
+
         $recurring_invoice = $this->createNewRecurringInvoice($data['recurring_invoice']);
 
             $context = [
@@ -474,11 +502,18 @@ class SubscriptionService
 
             $response = $this->triggerWebhook($context);
 
-            nlog($response);
+            // nlog($response);
 
             return $this->handleRedirect('/client/recurring_invoices/'.$recurring_invoice->hashed_id);
     }
 
+    /**
+     * Creates a credit note if the plan change requires
+     * 
+     * @param  Invoice $last_invoice 
+     * @param  Subscription $target       
+     * @return Credit               
+     */
     private function createCredit($last_invoice, $target)
     {
 
