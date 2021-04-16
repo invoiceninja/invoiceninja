@@ -619,7 +619,7 @@ class TaskController extends BaseController
                              ->first();
 
                 nlog($task_record->id);
-                $task_record->status_sort_order = $key;
+                $task_record->status_order = $key;
                 $task_record->status_id = $sort_status_id;
                 $task_record->save();
             }
