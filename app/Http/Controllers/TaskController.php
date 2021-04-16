@@ -614,13 +614,14 @@ class TaskController extends BaseController
             {
 
                 nlog($task);
-                $task = Task::where('id', $this->decodePrimaryKey($task))
+                $task_record = Task::where('id', $this->decodePrimaryKey($task))
                              ->where('company_id', auth()->user()->company()->id)
                              ->first();
 
-                $task->status_sort_order = $key;
-                $task->status_id = $sort_status_id;
-                $task->save();
+                nlog($task_record->id);
+                $task_record->status_sort_order = $key;
+                $task_record->status_id = $sort_status_id;
+                $task_record->save();
             }
 
         }
