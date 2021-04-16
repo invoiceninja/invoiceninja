@@ -614,7 +614,7 @@ class PaymentController extends BaseController
                 break;
             case 'email':
                 //dispatch email to queue
-                $this->payment->service()->sendEmail();
+                $payment->service()->sendEmail();
 
                 if (! $bulk) {
                     return $this->itemResponse($payment);
