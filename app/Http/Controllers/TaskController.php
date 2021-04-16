@@ -589,8 +589,8 @@ class TaskController extends BaseController
         // "task_ids":{"VolejYWdjN":
         //     ["xYRdG7dDzO","q9wdLwbjPX","4w9aAOdvMR","mxkazYeJ0P","WJxbojagwO","oBDbDxbl2E"],"wMvbmqpbYA":["4openRe7Az","1YQdJ2dOGp"],"OpnelRlbKB":["X46dBXa79j"],"Wpmbk2xazJ":["k8mep2bMyJ","JX7ax9byv4"]}}
     
-        $task_statuses = json_decode($request->input('status_ids'));
-        $tasks = json_decode($request->input('task_ids'));
+        $task_statuses = $request->input('status_ids');
+        $tasks = $request->input('task_ids');
 
         collect($task_statuses)->each(function ($task_status_hashed_id, $key){
 
@@ -621,5 +621,7 @@ class TaskController extends BaseController
             }
 
         }
+
+        return response()->json(['message' => 'Ok'],200);
     }
 }
