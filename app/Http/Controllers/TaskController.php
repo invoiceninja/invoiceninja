@@ -608,9 +608,12 @@ class TaskController extends BaseController
 
             $sort_status_id = $this->decodePrimaryKey($key);
             
+            nlog($task_list);
+
             foreach ($task_list as $key => $task)
             {
 
+                nlog($task);
                 $task = Task::where('id', $this->decodePrimaryKey($task))
                              ->where('company_id', auth()->user()->company()->id)
                              ->first();
