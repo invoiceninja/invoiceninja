@@ -18,28 +18,30 @@ class MailServiceProvider extends MailProvider
 
     public function boot()
     {
-        $this->app['mail.manager']->extend('postmark', function () {
-            return new PostmarkTransport(
-                $this->guzzle(config('postmark.guzzle', [])),
-                config('postmark.secret', config('services.postmark.secret'))
-            );
-        });
+
     }
 
     protected function registerIlluminateMailer()
     {
-        // $this->app->singleton('mail.manager', function($app) {
-        //     return  new GmailTransportManager($app);
-        // });
-
-        $this->app->bind('mail.manager', function($app) {
+        $this->app->singleton('mail.manager', function($app) {
             return  new GmailTransportManager($app);
         });
+
+        // $this->app->bind('mail.manager', function($app) {
+        //     return  new GmailTransportManager($app);
+        // });
         
         $this->app->bind('mailer', function ($app) {
             return $app->make('mail.manager')->mailer();
         });
 
+        $this->app['mail.manager']->extend('postmark', function () {
+            return new PostmarkTransport(
+                $this->guzzle(config('postmark.guzzle', [])),
+                config('postmark.secret')
+            );
+        });
+        
     }
     
     protected function guzzle(array $config): HttpClient
