@@ -19,11 +19,13 @@ use App\Http\Requests\Task\CreateTaskRequest;
 use App\Http\Requests\Task\DestroyTaskRequest;
 use App\Http\Requests\Task\EditTaskRequest;
 use App\Http\Requests\Task\ShowTaskRequest;
+use App\Http\Requests\Task\SortTaskRequest;
 use App\Http\Requests\Task\StoreTaskRequest;
 use App\Http\Requests\Task\UpdateTaskRequest;
 use App\Http\Requests\Task\UploadTaskRequest;
 use App\Models\Account;
 use App\Models\Task;
+use App\Models\TaskStatus;
 use App\Repositories\TaskRepository;
 use App\Transformers\TaskTransformer;
 use App\Utils\Ninja;
@@ -579,4 +581,45 @@ class TaskController extends BaseController
         return $this->itemResponse($task->fresh());
 
     }  
+
+    public function sort(SortTaskRequest $request)
+    {
+        // : {"status_ids":
+        // ["VolejYWdjN","wMvbmqpbYA","OpnelRlbKB","Wpmbk2xazJ"],
+        // "task_ids":{"VolejYWdjN":
+        //     ["xYRdG7dDzO","q9wdLwbjPX","4w9aAOdvMR","mxkazYeJ0P","WJxbojagwO","oBDbDxbl2E"],"wMvbmqpbYA":["4openRe7Az","1YQdJ2dOGp"],"OpnelRlbKB":["X46dBXa79j"],"Wpmbk2xazJ":["k8mep2bMyJ","JX7ax9byv4"]}}
+    
+        $task_statuses = json_decode($request->input('status_ids'));
+        $tasks = json_decode($request->input('task_ids'));
+
+        collect($task_statuses)->each(function ($task_status_hashed_id, $key){
+
+            $task_status = TaskStatus::where('id', $this->decodePrimaryKey($task_status_hashed_id))
+                                     ->where('company_id', auth()->user()->company()->id)
+                                     ->first();
+
+            $task_status->status_order = $key;
+            $task_status->save();
+
+        });
+
+        foreach($tasks as $key => $task_list)
+        {
+
+            $sort_status_id = $this->decodePrimaryKey($key);
+            
+            foreach ($task_list as $key => $task)
+            {
+
+                $task = Task::where('id', $this->decodePrimaryKey($task))
+                             ->where('company_id', auth()->user()->company()->id)
+                             ->first();
+
+                $task->status_sort_order = $key;
+                $task->status_id = $sort_status_id;
+                $task->save();
+            }
+
+        }
+    }
 }
