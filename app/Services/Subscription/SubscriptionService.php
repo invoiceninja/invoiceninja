@@ -66,7 +66,7 @@ class SubscriptionService
 
         if($payment_hash->data->billing_context->context == 'change_plan') {
             return $this->handlePlanChange($payment_hash);
-        };
+        }
 
         // if we have a recurring product - then generate a recurring invoice
         if(strlen($this->subscription->recurring_product_ids) >=1){
@@ -430,7 +430,7 @@ class SubscriptionService
      */
     private function handlePlanChange($payment_hash)
     {
-        
+
         $old_recurring_invoice = RecurringInvoice::find($payment_hash->data->billing_context->recurring_invoice);
 
         $recurring_invoice = $this->createNewRecurringInvoice($old_recurring_invoice);
@@ -443,6 +443,7 @@ class SubscriptionService
                 'subscription' => $this->subscription->hashed_id,
                 'contact' => auth('contact')->user()->hashed_id,
             ];
+
 
             $response = $this->triggerWebhook($context);
 
@@ -465,7 +466,7 @@ class SubscriptionService
         $old_recurring_invoice->service()->stop()->save();
 
         $recurring_invoice_repo = new RecurringInvoiceRepository();
-        $recurring_invoice_repo->archive($$old_recurring_invoice);
+        $recurring_invoice_repo->archive($old_recurring_invoice);
 
             $recurring_invoice = $this->convertInvoiceToRecurring($old_recurring_invoice->client_id);
             $recurring_invoice = $recurring_invoice_repo->save([], $recurring_invoice);
