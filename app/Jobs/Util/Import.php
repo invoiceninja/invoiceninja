@@ -674,6 +674,8 @@ class Import implements ShouldQueue
                     $resource['invitations'][$key]['user_id'] = $modified['user_id'];
                     $resource['invitations'][$key]['company_id'] = $this->company->id;
                     unset($resource['invitations'][$key]['recurring_invoice_id']);
+                    unset($resource['invitations'][$key]['id']);
+
                 }
             
                 $modified['invitations'] = $this->deDuplicateInvitations($resource['invitations']);
@@ -736,6 +738,7 @@ class Import implements ShouldQueue
                     $resource['invitations'][$key]['user_id'] = $modified['user_id'];
                     $resource['invitations'][$key]['company_id'] = $this->company->id;
                     unset($resource['invitations'][$key]['invoice_id']);
+                    unset($resource['invitations'][$key]['id']);
                 }
 
                 $modified['invitations'] = $this->deDuplicateInvitations($resource['invitations']);
@@ -864,6 +867,7 @@ class Import implements ShouldQueue
                     $resource['invitations'][$key]['user_id'] = $modified['user_id'];
                     $resource['invitations'][$key]['company_id'] = $this->company->id;
                     unset($resource['invitations'][$key]['invoice_id']);
+                    unset($resource['invitations'][$key]['id']);
                 }
 
                 $modified['invitations'] = $this->deDuplicateInvitations($resource['invitations']);

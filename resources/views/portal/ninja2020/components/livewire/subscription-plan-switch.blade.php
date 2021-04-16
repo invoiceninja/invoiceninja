@@ -2,7 +2,7 @@
     <div class="col-span-12 md:col-span-5 md:col-start-4 px-4 py-5">
         <!-- Total price -->
 
-        @if(isset($state['invoice']))
+        @if($amount > 0)
 
         <div class="relative mt-8">
             <div class="absolute inset-0 flex items-center">
