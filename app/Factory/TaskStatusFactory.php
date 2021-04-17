@@ -22,6 +22,7 @@ class TaskStatusFactory
         $task_status->company_id = $company_id;
         $task_status->name = '';
         $task_status->color = '#fff';
+        $task_status->status_order = 9999;
         
         return $task_status;
     }
