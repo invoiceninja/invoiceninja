@@ -783,6 +783,8 @@ info("get company");
         if($invoice->end_date < now())
             return 4;
 
+        return 1;
+
     }
 
     private function transformQuoteStatusId($quote)
@@ -1833,7 +1835,7 @@ info("translated gateway_type = {$translated_gateway_type}");
         $meta->exp_month = (string)$exp_month;
         $meta->exp_year = (string)$exp_year;
         $meta->brand = (string)$payment_method->payment_type->name;
-        $meta->last4 = (string)str_replace(',', '', ($payment_method->expiration));
+        $meta->last4 = (string)str_replace(',', '', ($payment_method->last4));
         $meta->type = $payment_method->payment_type->gateway_type_id;
 
         return $meta;
