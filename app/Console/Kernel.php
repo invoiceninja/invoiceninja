@@ -68,6 +68,11 @@ class Kernel extends ConsoleKernel
 
         }
 
+        if(config('queue.default') && Ninja::isSelfHost()) {
+            $schedule->command('queue:work')->everyMinute()->withoutOverlapping();
+            $schedule->command('queue:restart')->everyFiveMinutes()->withoutOverlapping(); 
+        }
+
     }
 
     /**
