@@ -1,6 +1,9 @@
 # Release notes
 
 ## [Unreleased (daily channel)](https://github.com/invoiceninja/invoiceninja/tree/v5-develop)
+Fixed: Refactor of e-mail templates
+
+## [v5.1.47-release](https://github.com/invoiceninja/invoiceninja/releases/tag/v5.1.47-release)
 
 ### Added:
 - Subscriptions are now going to show the frequency in the table (#5412)
