@@ -35,7 +35,6 @@ class SubscriptionPlanSwitchController extends Controller
         $amount = $recurring_invoice->subscription
                                     ->service()
                                     ->calculateUpgradePrice($recurring_invoice, $target);
-
         /**
          * 
          * Null value here is a proxy for

@@ -16,10 +16,13 @@ use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
 use App\Utils\Traits\MakesTemplateData;
 use DB;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Lang;
 use League\CommonMark\CommonMarkConverter;
 
 class TemplateEngine
@@ -95,6 +98,9 @@ class TemplateEngine
             $this->settings_entity = auth()->user()->company();
             $this->settings = $this->settings_entity->settings;
         }
+
+        App::forgetInstance('translator');
+        Lang::replace(Ninja::transformTranslations($this->settings));
 
         return $this;
     }

@@ -155,7 +155,11 @@ class PaymentRepository extends BaseRepository {
         }
 
 		if ( ! $is_existing_payment && ! $this->import_mode ) {
-			event( new PaymentWasCreated( $payment, $payment->company, Ninja::eventVars(auth()->user()->id) ) );
+
+            if ($payment->client->getSetting('client_manual_payment_notification')) 
+                $payment->service()->sendEmail();
+			
+            event( new PaymentWasCreated( $payment, $payment->company, Ninja::eventVars(auth()->user()->id) ) );
 		}
 
         nlog("payment amount = {$payment->amount}");

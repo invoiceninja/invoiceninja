@@ -45,12 +45,29 @@ class Webhook extends BaseModel
     
     public static $valid_events = [
         self::EVENT_CREATE_CLIENT,
-        self::EVENT_CREATE_PAYMENT,
-        self::EVENT_CREATE_QUOTE,
         self::EVENT_CREATE_INVOICE,
+        self::EVENT_CREATE_QUOTE,
+        self::EVENT_CREATE_PAYMENT,
         self::EVENT_CREATE_VENDOR,
+        self::EVENT_UPDATE_QUOTE,
+        self::EVENT_DELETE_QUOTE,
+        self::EVENT_UPDATE_INVOICE,
+        self::EVENT_DELETE_INVOICE,
+        self::EVENT_UPDATE_CLIENT,
+        self::EVENT_DELETE_CLIENT,
+        self::EVENT_DELETE_PAYMENT,
+        self::EVENT_UPDATE_VENDOR,
+        self::EVENT_DELETE_VENDOR,
         self::EVENT_CREATE_EXPENSE,
+        self::EVENT_UPDATE_EXPENSE,
+        self::EVENT_DELETE_EXPENSE,
         self::EVENT_CREATE_TASK,
+        self::EVENT_UPDATE_TASK,
+        self::EVENT_DELETE_TASK,
+        self::EVENT_APPROVE_QUOTE,
+        self::EVENT_LATE_INVOICE,
+        self::EVENT_EXPIRED_QUOTE,
+        self::EVENT_REMIND_INVOICE,
     ];
 
     protected $fillable = [
