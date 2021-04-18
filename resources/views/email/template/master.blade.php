@@ -115,19 +115,41 @@
         }
 
         .button {
-            padding: 12px; box-sizing: border-box;display: inline-block;font-family:arial,helvetica,sans-serif;text-decoration: none;-webkit-text-size-adjust: none;text-align: center;color: #FFFFFF; background-color: #142cb5; border-radius: 4px; -webkit-border-radius: 4px; -moz-border-radius: 4px; width:auto; max-width:100%; overflow-wrap: break-word; word-break: break-word; word-wrap:break-word; mso-border-alt: none;
+            padding: 12px;
+            box-sizing: border-box;
+            display: inline-block;
+            font-family: arial, helvetica, sans-serif;
+            text-decoration: none;
+            -webkit-text-size-adjust: none;
+            text-align: center;
+            color: #FFFFFF;
+            background-color: {{ $primary_color }} !important;
+            border-radius: 4px;
+            -webkit-border-radius: 4px;
+            -moz-border-radius: 4px;
+            width: auto;
+            max-width: 100%;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            word-wrap: break-word;
+            mso-border-alt: none;
         }
 
         .center {
             text-align: center;
         }
+
+        .content-contrast-color {
+            color: {{ $design == 'dark' ? '#ffffff' : '#000000' }} !important;
+            opacity: {{ $design == 'dark' ? '87%': '100%' }} !important;
+        }
     </style>
 </head>
 
-<body class="clean-body" style="margin: 0;padding: 0;-webkit-text-size-adjust: 100%;background-color: #ffffff">
+<body class="clean-body" style="margin: 0;padding: 0;-webkit-text-size-adjust: 100%;background-color: {{ $design == 'light' ? '#ffffff': '#1D1D1D' }}">
 <!--[if IE]><div class="ie-container"><![endif]-->
 <!--[if mso]><div class="mso-container"><![endif]-->
-<table style="border-collapse: collapse;table-layout: fixed;border-spacing: 0;mso-table-lspace: 0pt;mso-table-rspace: 0pt;vertical-align: top;min-width: 320px;Margin: 0 auto;background-color: #ffffff;width:100%" cellpadding="0" cellspacing="0">
+<table style="border-collapse: collapse;table-layout: fixed;border-spacing: 0;mso-table-lspace: 0pt;mso-table-rspace: 0pt;vertical-align: top;min-width: 320px;Margin: 0 auto;background-color: {{ $design == 'light' ? '#ffffff': '#1D1D1D' }};width:100%" cellpadding="0" cellspacing="0">
     <tbody>
     <tr style="vertical-align: top">
         <td style="word-break: break-word;border-collapse: collapse !important;vertical-align: top">
@@ -149,7 +171,7 @@
                                         <tr>
                                             <td style="overflow-wrap:break-word;word-break:break-word;padding:0px 0px 20px;font-family:arial,helvetica,sans-serif;" align="left">
 
-                                                <table height="0px" align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse;table-layout: fixed;border-spacing: 0;mso-table-lspace: 0pt;mso-table-rspace: 0pt;vertical-align: top;border-top: 6px solid #142cb5;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%">
+                                                <table height="0px" align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse;table-layout: fixed;border-spacing: 0;mso-table-lspace: 0pt;mso-table-rspace: 0pt;vertical-align: top;border-top: 6px solid {{ $primary_color }};-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%">
                                                     <tbody>
                                                     <tr style="vertical-align: top">
                                                         <td style="word-break: break-word;border-collapse: collapse !important;vertical-align: top;font-size: 0px;line-height: 0px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%">
@@ -220,7 +242,7 @@
                                         <tr>
                                             <td style="overflow-wrap:break-word;word-break:break-word;padding:10px 0px;font-family:arial,helvetica,sans-serif;" align="left">
 
-                                                <table height="0px" align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse;table-layout: fixed;border-spacing: 0;mso-table-lspace: 0pt;mso-table-rspace: 0pt;vertical-align: top;border-top: 2px solid #f3f4f6;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%">
+                                                <table height="0px" align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse;table-layout: fixed;border-spacing: 0;mso-table-lspace: 0pt;mso-table-rspace: 0pt;vertical-align: top;border-top: 2px solid {{ $design == 'light' ? '#f3f4f6' : '#2c2c2c' }};-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%">
                                                     <tbody>
                                                     <tr style="vertical-align: top">
                                                         <td style="word-break: break-word;border-collapse: collapse !important;vertical-align: top;font-size: 0px;line-height: 0px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%">

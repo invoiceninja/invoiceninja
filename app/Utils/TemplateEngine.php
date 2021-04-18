@@ -277,7 +277,7 @@ class TemplateEngine
                 <tbody>
                     <tr>
                         <td style="overflow-wrap:break-word;word-break:break-word;padding:5px;font-family:arial,helvetica,sans-serif;" align="left">
-                            <div style="color: #000000; line-height: 140%; text-align: left; word-wrap: break-word;" id="table-content"></div>
+                            <div style="color: #000000; line-height: 140%; text-align: left; word-wrap: break-word;" id="table-content" class="content-contrast-color"></div>
                         </td>
                     </tr>
                 </tbody>
