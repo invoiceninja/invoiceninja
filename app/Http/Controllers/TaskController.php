@@ -582,12 +582,47 @@ class TaskController extends BaseController
 
     }  
 
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param StoreTaskRequest $request
+     * @return Response
+     *
+     *
+     *
+     * @OA\Post(
+     *      path="/api/v1/tasks/stort",
+     *      operationId="sortTasks",
+     *      tags={"tasks"},
+     *      summary="Sort tasks on KanBan",
+     *      description="Sorts tasks after drag and drop on the KanBan.",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns an Ok, 200 HTTP status",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
     public function sort(SortTaskRequest $request)
     {
-        // : {"status_ids":
-        // ["VolejYWdjN","wMvbmqpbYA","OpnelRlbKB","Wpmbk2xazJ"],
-        // "task_ids":{"VolejYWdjN":
-        //     ["xYRdG7dDzO","q9wdLwbjPX","4w9aAOdvMR","mxkazYeJ0P","WJxbojagwO","oBDbDxbl2E"],"wMvbmqpbYA":["4openRe7Az","1YQdJ2dOGp"],"OpnelRlbKB":["X46dBXa79j"],"Wpmbk2xazJ":["k8mep2bMyJ","JX7ax9byv4"]}}
     
         $task_statuses = $request->input('status_ids');
         $tasks = $request->input('task_ids');
@@ -608,17 +643,19 @@ class TaskController extends BaseController
 
             $sort_status_id = $this->decodePrimaryKey($key);
             
-            nlog($task_list);
+            // nlog($task_list);
 
             foreach ($task_list as $key => $task)
             {
 
-                nlog($task);
+                // nlog($task);
+                
                 $task_record = Task::where('id', $this->decodePrimaryKey($task))
                              ->where('company_id', auth()->user()->company()->id)
                              ->first();
 
-                nlog($task_record->id);
+                // nlog($task_record->id);
+                
                 $task_record->status_order = $key;
                 $task_record->status_id = $sort_status_id;
                 $task_record->save();
