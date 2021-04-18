@@ -60,7 +60,7 @@ class TemplateEmail extends Mailable
         );
 
         $this->build_email->setBody(
-            TemplateEngine::wrapElementsIntoTables('<style></style><div id="content-wrapper"></div>', $this->build_email->getBody())
+            TemplateEngine::wrapElementsIntoTables('<div id="content-wrapper"></div>', $this->build_email->getBody())
         );
 
         $settings = $this->client->getMergedSettings();

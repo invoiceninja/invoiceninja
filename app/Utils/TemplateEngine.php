@@ -259,7 +259,13 @@ class TemplateEngine
         $documents['wrapper'] = new \DOMDocument();
         $documents['wrapper']->loadHTML($wrapper);
 
-        $styles = $documents['wrapper']->getElementsByTagName('style')->item(0)->nodeValue;
+        $documents['master'] = new \DOMDocument();
+
+        $documents['master']->loadHTML(
+          view('email.template.master', ['header' => '', 'slot' => ''])->render()
+        );
+
+        $styles = $documents['master']->getElementsByTagName('style')->item(0)->nodeValue;
 
         $documents['wrapper']->saveHTML();
 

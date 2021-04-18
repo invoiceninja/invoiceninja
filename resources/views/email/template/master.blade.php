@@ -117,6 +117,10 @@
         .button {
             padding: 12px; box-sizing: border-box;display: inline-block;font-family:arial,helvetica,sans-serif;text-decoration: none;-webkit-text-size-adjust: none;text-align: center;color: #FFFFFF; background-color: #142cb5; border-radius: 4px; -webkit-border-radius: 4px; -moz-border-radius: 4px; width:auto; max-width:100%; overflow-wrap: break-word; word-break: break-word; word-wrap:break-word; mso-border-alt: none;
         }
+
+        .center {
+            text-align: center;
+        }
     </style>
 </head>
 
@@ -199,7 +203,12 @@
                             <div style="width: 100% !important;">
                                 <!--[if (!mso)&(!IE)]><!--><div style="padding: 11px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;"><!--<![endif]-->
                                     <div id="content-wrapper">
+                                        @yield('greeting')
+
                                         {{ $slot }}
+
+                                        @yield('signature')
+                                        @yield('footer')
                                     </div>
 
                                     <!-- Before border -->
