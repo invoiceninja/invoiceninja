@@ -330,9 +330,9 @@ class BillingPortalPurchase extends Component
 
         $is_eligible = $this->subscription->service()->isEligible($this->contact);
 
-        if (is_array($is_eligible)) {
+        if ($is_eligible['exception']['message'] != 'Success') {
             $this->steps['not_eligible'] = true;
-            $this->steps['not_eligible_message'] = $is_eligible['exception'];
+            $this->steps['not_eligible_message'] = $is_eligible['exception']['message'];
             $this->steps['show_loading_bar'] = false;
 
             return;

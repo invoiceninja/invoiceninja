@@ -82,14 +82,15 @@ class SubscriptionPlanSwitch extends Component
 
     public function handleBeforePaymentEvents(): void
     {
+        
         $this->state['show_loading_bar'] = true;
 
-        $this->state['invoice'] = $this->target->service()->createChangePlanInvoice([
-            'recurring_invoice' => $this->recurring_invoice,
-            'subscription' => $this->subscription,
-            'target' => $this->target,
-            'hash' => $this->hash,
-        ]);
+            $this->state['invoice'] = $this->target->service()->createChangePlanInvoice([
+                'recurring_invoice' => $this->recurring_invoice,
+                'subscription' => $this->subscription,
+                'target' => $this->target,
+                'hash' => $this->hash,
+            ]);
 
             Cache::put($this->hash, [
                 'subscription_id' => $this->target->id,
@@ -119,6 +120,18 @@ class SubscriptionPlanSwitch extends Component
         $this->state['payment_method_id'] = $gateway_type_id;
 
         $this->handleBeforePaymentEvents();
+    }
+
+    public function handlePaymentNotRequired()
+    {
+
+        return $this->target->service()->createChangePlanCredit([
+                'recurring_invoice' => $this->recurring_invoice,
+                'subscription' => $this->subscription,
+                'target' => $this->target,
+                'hash' => $this->hash,
+            ]);
+
     }
 
     public function render()

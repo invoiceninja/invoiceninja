@@ -23,6 +23,7 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\SystemLog;
+use App\Services\Subscription\SubscriptionService;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
@@ -341,6 +342,12 @@ class PaymentController extends Controller
         }
 
         $payment = $payment->service()->applyCredits($payment_hash)->save();
+
+        if (property_exists($payment_hash->data, 'billing_context')) {
+            $billing_subscription = \App\Models\Subscription::find($payment_hash->data->billing_context->subscription_id);
+
+            return (new SubscriptionService($billing_subscription))->completePurchase($payment_hash);
+        }
 
         return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
     }

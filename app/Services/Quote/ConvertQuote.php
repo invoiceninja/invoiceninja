@@ -34,9 +34,9 @@ class ConvertQuote
     public function run($quote)
     {
         $invoice = CloneQuoteToInvoiceFactory::create($quote, $quote->user_id);
-
+        $invoice->design_id = $this->client->getSetting('invoice_design_id');
         $invoice = $this->invoice_repo->save([], $invoice);
-
+        
         $invoice->fresh();
 
         $invoice->service()
