@@ -22,10 +22,10 @@ class TaskStatusRepository extends BaseRepository
 
 	public function delete($task_status)
 	{
-        $task_status = TaskStatus::where('company_id', $task_status->company_id)
+        $ts = TaskStatus::where('company_id', $task_status->company_id)
                                  ->first();
 
-        $new_status = $task_status ? $task_status->id : null;
+        $new_status = $ts ? $ts->id : null;
 
         Task::where('status_id', $task_status->id)
         ->where('company_id', $task_status->company_id)
