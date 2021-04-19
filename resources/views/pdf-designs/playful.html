@@ -94,7 +94,9 @@
     #product-table,
     #delivery-note-table,
     #task-table {
-        padding: 3rem;
+        padding-left: 3rem;
+        padding-right: 3rem;
+        margin-top: 3rem;
         /* margin-bottom: 200px; */
         min-width: 100%;
         table-layout: fixed;
@@ -220,17 +222,10 @@
         padding: 10px;
     }
 
-    #footer {
-        position: fixed;
-        bottom: 0;
-        min-width: 100%;
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
-        margin-left: -10px;
-    }
-
-    #footer > * {
-        padding: 5px;
+    [data-ref="total_table-public_notes"] {
+        text-align: left;
+        padding-left: 3rem;
+        padding-right: 3rem;
     }
 </style>
 
@@ -286,15 +281,6 @@
 </div>
 
 <div id="footer">
-
-
-    <div style="background-color: #00968B"><!-- 1 --></div>
-    <div style="background-color: #1D756E"><!-- 2 --></div>
-    <div style="background-color: #FCB600"><!-- 3 --></div>
-    <div style="background-color: #BA932F"><!-- 4 --></div>
-    <div style="background-color: #A72A4E"><!-- 5 --></div>
-    <div style="background-color: #E20041"><!-- 6 --></div>
-    <div style="background-color: #F8B300"><!-- 7 --></div>
-    <div style="background-color: #009B8F"><!-- 8 --></div>
+    <p data-ref="total_table-public_notes">$entity.public_notes</p>
 </div>
 
