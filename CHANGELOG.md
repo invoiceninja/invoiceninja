@@ -3,6 +3,7 @@
 ## [Unreleased (daily channel)](https://github.com/invoiceninja/invoiceninja/tree/v5-develop)
 ## Fixed:
 - Refactor of e-mail templates
+- Client portal: Invoices & recurring invoices are now sorted by date (by default)
 
 ## Added:
 - Public notes of entities will now show in #footer section of designs (previously totals table).
