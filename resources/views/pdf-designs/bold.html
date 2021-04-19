@@ -213,6 +213,11 @@
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
         gap: 15px;
+        color: white;
+    }
+
+    [data-ref="total_table-public_notes"] {
+        padding-top: 0.5rem
     }
 </style>
 
@@ -233,7 +238,9 @@
     <tr>
         <td class="page-footer-cell">
             <div class="footer-wrapper" id="footer">
-                <div> <!-- #1 column --> </div>
+                <div>
+                    <p data-ref="total_table-public_notes">$entity.public_notes</p>
+                </div>
                 <div> <!-- #2 column --> </div>
                 <div> <!-- #3 column --> </div>
             </div>
