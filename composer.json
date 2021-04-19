@@ -65,6 +65,7 @@
         "sentry/sentry-laravel": "^2",
         "stripe/stripe-php": "^7.50",
         "symfony/http-client": "^5.2",
+        "tijsverkoyen/css-to-inline-styles": "^2.2",
         "turbo124/beacon": "^1.0",
         "turbo124/laravel-gmail": "^5",
         "webpatser/laravel-countries": "dev-master#75992ad",

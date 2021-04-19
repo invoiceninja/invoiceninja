@@ -16,6 +16,7 @@ use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
+use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
@@ -24,6 +25,7 @@ use DB;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Lang;
 use League\CommonMark\CommonMarkConverter;
+use TijsVerkoyen\CssToInlineStyles\CssToInlineStyles;
 
 class TemplateEngine
 {
@@ -168,17 +170,12 @@ class TemplateEngine
 
         $this->body = strtr($this->body, $data['labels']);
         $this->body = strtr($this->body, $data['values']);
-        $this->body = str_replace("\n", "<br>", $this->body);
-
+//        $this->body = str_replace("\n", "<br>", $this->body);
 
         $this->subject = strtr($this->subject, $data['labels']);
         $this->subject = strtr($this->subject, $data['values']);
 
-        $converter = new CommonMarkConverter([
-            'allow_unsafe_links' => false,
-        ]);
-
-        $this->body = $converter->convertToHtml($this->body);
+        $this->body = DesignHelpers::parseMarkdownToHtml($this->body);
     }
 
     private function renderTemplate()
@@ -209,7 +206,7 @@ class TemplateEngine
 
         $data = [
             'subject' => $this->subject,
-            'body' => $this->body,
+            'body' => self::wrapElementsIntoTables(strtr($wrapper, ['$body' => '']), $this->body, $this->entity_obj->client->getMergedSettings()),
             'wrapper' => $wrapper,
             'raw_body' => $this->raw_body,
             'raw_subject' => $this->raw_subject
@@ -261,5 +258,51 @@ class TemplateEngine
     private function tearDown()
     {
         DB::rollBack();
+    }
+
+    public static function wrapElementsIntoTables(string $wrapper, string $body, $settings): ?string
+    {
+        $documents['wrapper'] = new \DOMDocument();
+        $documents['wrapper']->loadHTML($wrapper);
+
+        $documents['master'] = new \DOMDocument();
+
+        $documents['master']->loadHTML(
+          view('email.template.master', ['header' => '', 'slot' => '', 'settings' => $settings])->render()
+        );
+
+        $styles = $documents['master']->getElementsByTagName('style')->item(0)->nodeValue;
+
+        $documents['wrapper']->saveHTML();
+
+        $documents['body'] = new \DOMDocument();
+        $documents['body']->loadHTML(empty($body) ? '<div></div>' : (new CssToInlineStyles())->convert($body, $styles));
+
+        $table_html ='
+            <table style="font-family:arial,helvetica,sans-serif;" role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
+                <tbody>
+                    <tr>
+                        <td style="overflow-wrap:break-word;word-break:break-word;padding:5px;font-family:arial,helvetica,sans-serif;" align="left">
+                            <div style="color: #000000; line-height: 140%; text-align: left; word-wrap: break-word;" id="table-content" class="content-contrast-color"></div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>';
+
+        foreach ($documents['body']->getElementsByTagName('body')->item(0)->childNodes as $element) {
+            $table = new \DOMDocument();
+
+            $table->loadHTML($table_html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+
+            $element = $table->importNode($element, true);
+
+            $table->getElementById('table-content')->appendChild($element);
+
+            $node = $documents['wrapper']->importNode($table->documentElement, true);
+
+            $documents['wrapper']->getElementById('content-wrapper')->appendChild($node);
+        }
+
+        return $documents['wrapper']->getElementById('content-wrapper')->ownerDocument->saveHTML($documents['wrapper']->getElementById('content-wrapper'));
     }
 }

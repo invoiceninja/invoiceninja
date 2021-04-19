@@ -16,6 +16,7 @@ use App\Utils\Traits\MakesHash;
 use DOMDocument;
 use DOMXPath;
 use Exception;
+use League\CommonMark\CommonMarkConverter;
 
 trait DesignHelpers
 {
@@ -307,5 +308,14 @@ trait DesignHelpers
             $value,
             $this->client
         );
+    }
+
+    public static function parseMarkdownToHtml(string $markdown): ?string
+    {
+        $converter = new CommonMarkConverter([
+            'allow_unsafe_links' => false,
+        ]);
+
+        return $converter->convertToHtml($markdown);
     }
 }

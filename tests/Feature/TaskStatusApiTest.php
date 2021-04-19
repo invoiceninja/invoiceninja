@@ -135,7 +135,7 @@ class TaskStatusApiTest extends TestCase
             ])->delete('/api/v1/task_statuses/'.$this->encodePrimaryKey($this->task_status->id));
 
         $arr = $response->json();
-
+nlog($arr);
         $this->assertTrue($arr['data']['is_deleted']);
     }
 

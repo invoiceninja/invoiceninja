@@ -186,6 +186,10 @@
         text-align: right;
         padding-right: 1rem;
     }
+
+    [data-ref="total_table-public_notes"] {
+        padding-left: 1rem
+    }
 </style>
 
 <div id="header"></div>
@@ -218,4 +222,6 @@
     <table id="delivery-note-table" cellspacing="0"></table>
 </div>
 
-<div id="footer"></div>
+<div id="footer">
+    <p data-ref="total_table-public_notes">$entity.public_notes</p>
+</div>

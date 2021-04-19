@@ -29,7 +29,7 @@ class DeleteCompanyDocuments
     {
         MultiDB::setDb($event->company->db);
 
-        $path = sprintf('%s/%s', storage_path('app/public'), $event->company->company_key);
+        $path = sprintf('%s/%s', public_path('storage'), $event->company->company_key);
 
         // Remove all files & folders, under company's path.
         // This will delete directory itself, as well.
