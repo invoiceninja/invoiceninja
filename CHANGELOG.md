@@ -4,6 +4,9 @@
 ## Fixed:
 - Refactor of e-mail templates
 
+## Added:
+- Public notes of entities will now show in #footer section of designs (previously totals table).
+
 ## [v5.1.47-release](https://github.com/invoiceninja/invoiceninja/releases/tag/v5.1.47-release)
 
 ### Added:
