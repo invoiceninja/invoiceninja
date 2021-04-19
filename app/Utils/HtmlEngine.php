@@ -153,6 +153,8 @@ class HtmlEngine
             $data['$date'] = ['value' => $this->translateDate($this->entity->date, $this->entity->client->date_format(), $this->entity->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.credit_date')];
         }
 
+        $data['$portal_url'] = ['value' => $this->invitation->getPortalLink(), 'label' =>''];
+        
         $data['$entity_number'] = &$data['$number'];
         $data['$invoice.discount'] = ['value' => Number::formatMoney($this->entity_calc->getTotalDiscount(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.discount')];
         $data['$discount'] = &$data['$invoice.discount'];
