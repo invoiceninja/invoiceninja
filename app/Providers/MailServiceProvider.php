@@ -16,15 +16,20 @@ class MailServiceProvider extends MailProvider
         $this->registerIlluminateMailer();
     }
 
+    public function boot()
+    {
+
+    }
+
     protected function registerIlluminateMailer()
     {
-        // $this->app->singleton('mail.manager', function($app) {
-        //     return  new GmailTransportManager($app);
-        // });
-
-        $this->app->bind('mail.manager', function($app) {
+        $this->app->singleton('mail.manager', function($app) {
             return  new GmailTransportManager($app);
         });
+
+        // $this->app->bind('mail.manager', function($app) {
+        //     return  new GmailTransportManager($app);
+        // });
         
         $this->app->bind('mailer', function ($app) {
             return $app->make('mail.manager')->mailer();
@@ -33,14 +38,22 @@ class MailServiceProvider extends MailProvider
         $this->app['mail.manager']->extend('postmark', function () {
             return new PostmarkTransport(
                 $this->guzzle(config('postmark.guzzle', [])),
-                config('postmark.secret', config('services.postmark.secret'))
+                config('postmark.secret')
             );
         });
+        
     }
     
     protected function guzzle(array $config): HttpClient
     {
         return new HttpClient($config);
+    }
+
+    public function provides()
+    {
+        return [
+            'mail.manager',
+            'mailer'        ];
     }
 }
 

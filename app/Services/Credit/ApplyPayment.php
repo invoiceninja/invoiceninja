@@ -148,7 +148,7 @@ class ApplyPayment
 
         if ((int)$this->invoice->balance == 0) {
             $this->invoice->service()->deletePdf();
-            event(new InvoiceWasPaid($this->invoice, $payment, $this->payment->company, Ninja::eventVars(auth()->user()->id)));
+            event(new InvoiceWasPaid($this->invoice, $this->payment, $this->payment->company, Ninja::eventVars(auth()->user()->id)));
         }
     }
 }

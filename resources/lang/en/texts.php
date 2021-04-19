@@ -4209,6 +4209,8 @@ $LANG = array(
     'activity_82' => ':user archived subscription :subscription',
     'activity_83' => ':user deleted subscription :subscription',
     'activity_84' => ':user restored subscription :subscription',
+    'amount_greater_than_balance_v5' => 'The amount is greater than the invoice balance. You cannot overpay an invoice.',
+    'click_to_continue' => 'Click to continue',
 );
 
 return $LANG;

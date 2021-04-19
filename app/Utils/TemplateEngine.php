@@ -17,10 +17,13 @@ use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
 use App\Utils\Traits\MakesTemplateData;
 use DB;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Lang;
 use League\CommonMark\CommonMarkConverter;
 use TijsVerkoyen\CssToInlineStyles\CssToInlineStyles;
 
@@ -98,6 +101,9 @@ class TemplateEngine
             $this->settings = $this->settings_entity->settings;
         }
 
+        App::forgetInstance('translator');
+        Lang::replace(Ninja::transformTranslations($this->settings));
+
         return $this;
     }
 
@@ -121,7 +127,7 @@ class TemplateEngine
                 $this->body = EmailTemplateDefaults::getDefaultTemplate($this->template, $this->settings_entity->locale());
             }
         }
-
+        
         return $this;
     }
 
