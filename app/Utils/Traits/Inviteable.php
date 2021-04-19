@@ -66,6 +66,30 @@ trait Inviteable
         }
     }
 
+    public function getPortalLink() :string
+    {
+
+        $domain = isset($this->company->portal_domain) ?: $this->company->domain();
+
+        switch ($this->company->portal_mode) {
+            case 'subdomain':
+                return $domain.'/client/';
+                break;
+            case 'iframe':
+                return $domain.'/client/';
+                //return $domain . $entity_type .'/'. $this->contact->client->client_hash .'/'. $this->key;
+                break;
+            case 'domain':
+                return $domain.'/client/';
+                break;
+
+            default:
+                return '';
+                break;
+        }
+
+    }
+
     public function getAdminLink() :string
     {
         return $this->getLink().'?silent=true';
