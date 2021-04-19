@@ -33,6 +33,7 @@ use App\Models\Project;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use App\Models\Task;
+use App\Models\TaskStatus;
 use App\Models\User;
 use App\Models\Vendor;
 use App\Models\VendorContact;
@@ -352,6 +353,8 @@ class DemoMode extends Command
                 'company_id' => $client->company_id,
                 'client_id' => $client->id
             ]);
+
+        $task->status_id = TaskStatus::all()->random()->id;
 
         $task->number = $this->getNextTaskNumber($task);
         $task->save();
