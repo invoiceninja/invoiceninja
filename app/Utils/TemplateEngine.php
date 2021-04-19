@@ -200,7 +200,7 @@ class TemplateEngine
 
         $data = [
             'subject' => $this->subject,
-            'body' => self::wrapElementsIntoTables(strtr($wrapper, ['$body' => '']), $this->body),
+            'body' => self::wrapElementsIntoTables(strtr($wrapper, ['$body' => '']), $this->body, $this->entity_obj->client->getMergedSettings()),
             'wrapper' => $wrapper,
             'raw_body' => $this->raw_body,
             'raw_subject' => $this->raw_subject
@@ -254,7 +254,7 @@ class TemplateEngine
         DB::rollBack();
     }
 
-    public static function wrapElementsIntoTables(string $wrapper, string $body): ?string
+    public static function wrapElementsIntoTables(string $wrapper, string $body, $settings): ?string
     {
         $documents['wrapper'] = new \DOMDocument();
         $documents['wrapper']->loadHTML($wrapper);
@@ -262,7 +262,7 @@ class TemplateEngine
         $documents['master'] = new \DOMDocument();
 
         $documents['master']->loadHTML(
-          view('email.template.master', ['header' => '', 'slot' => ''])->render()
+          view('email.template.master', ['header' => '', 'slot' => '', 'settings' => $settings])->render()
         );
 
         $styles = $documents['master']->getElementsByTagName('style')->item(0)->nodeValue;
