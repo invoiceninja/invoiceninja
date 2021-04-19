@@ -31,115 +31,23 @@ use Stripe\Exception\InvalidRequestException;
 class Account
 {
 
-//https://stripe.com/docs/api/accounts/object?lang=php
-	/**
-	 * 
-capabilities.acss_debit_payments
-string
-The status of the ACSS Direct Debits payments capability of the account, or whether the account can directly process ACSS Direct Debits charges.
-
-capabilities.afterpay_clearpay_payments
-string
-The status of the Afterpay Clearpay capability of the account, or whether the account can directly process Afterpay Clearpay charges.
-
-capabilities.au_becs_debit_payments
-string
-The status of the BECS Direct Debit (AU) payments capability of the account, or whether the account can directly process BECS Direct Debit (AU) charges.
-
-capabilities.bacs_debit_payments
-string
-The status of the Bacs Direct Debits payments capability of the account, or whether the account can directly process Bacs Direct Debits charges.
-
-capabilities.bancontact_payments
-string
-The status of the Bancontact payments capability of the account, or whether the account can directly process Bancontact charges.
-
-capabilities.card_issuing
-string
-The status of the card issuing capability of the account, or whether you can use Issuing to distribute funds on cards
-
-capabilities.card_payments
-string
-The status of the card payments capability of the account, or whether the account can directly process credit and debit card charges.
-
-capabilities.cartes_bancaires_payments
-string
-The status of the Cartes Bancaires payments capability of the account, or whether the account can directly process Cartes Bancaires card charges in EUR currency.
-
-capabilities.eps_payments
-string
-The status of the EPS payments capability of the account, or whether the account can directly process EPS charges.
-
-capabilities.fpx_payments
-string
-The status of the FPX payments capability of the account, or whether the account can directly process FPX charges.
-
-capabilities.giropay_payments
-string
-The status of the giropay payments capability of the account, or whether the account can directly process giropay charges.
-
-capabilities.grabpay_payments
-string
-The status of the GrabPay payments capability of the account, or whether the account can directly process GrabPay charges.
-
-capabilities.ideal_payments
-string
-The status of the iDEAL payments capability of the account, or whether the account can directly process iDEAL charges.
-
-capabilities.jcb_payments
-string
-The status of the JCB payments capability of the account, or whether the account (Japan only) can directly process JCB credit card charges in JPY currency.
-
-capabilities.legacy_payments
-string
-The status of the legacy payments capability of the account.
-
-capabilities.oxxo_payments
-string
-The status of the OXXO payments capability of the account, or whether the account can directly process OXXO charges.
-
-capabilities.p24_payments
-string
-The status of the P24 payments capability of the account, or whether the account can directly process P24 charges.
-
-capabilities.sepa_debit_payments
-string
-The status of the SEPA Direct Debits payments capability of the account, or whether the account can directly process SEPA Direct Debits charges.
-
-capabilities.sofort_payments
-string
-The status of the Sofort payments capability of the account, or whether the account can directly process Sofort charges.
-
-capabilities.tax_reporting_us_1099_k
-string
-The status of the tax reporting 1099-K (US) capability of the account.
-
-capabilities.tax_reporting_us_1099_misc
-string
-The status of the tax reporting 1099-MISC (US) capability of the account.
-
-capabilities.transfers
-string
-The status of the transfers capability of the account, or whether your platform can transfer funds to the account.
-	 */
+/*** If this is a new account (ie there is no account_id in company_gateways.config, the we need to create an account as below.
 
 ///
 // $stripe = new \Stripe\StripeClient(
 //   'sk_test_4eC39HqLyjWDarjtT1zdp7dc'
 // );
 // $stripe->accounts->create([
-//   'type' => 'custom',
-//   'country' => 'US',
-//   'email' => 'jenny.rosen@example.com',
-//   'capabilities' => [
-//     'card_payments' => ['requested' => true],
-//     'transfers' => ['requested' => true],
-//   ],
+//   'type' => 'standard',
+//   'country' => 'US', //if we have it - inject
+//   'email' => 'jenny.rosen@example.com', //if we have it - inject
 // ]);
 ///
 
 
 //response
+
+//******************* We should store the 'id' as a property in the config with the key `account_id`
 
 /**
  * {
@@ -235,8 +143,52 @@ The status of the transfers capability of the account, or whether your platform 
  */
 
 
-
+//At this stage we have an account, so we need to generate the account link
 //then create the account link
 
-// https://stripe.com/docs/api/account_links/create?lang=php
+// now we start the stripe onboarding flow
+// https://stripe.com/docs/api/account_links/object
+// 
+/**
+ * $stripe = new \Stripe\StripeClient(
+  'sk_test_4eC39HqLyjWDarjtT1zdp7dc'
+);
+$stripe->accountLinks->create([
+  'account' => 'acct_1032D82eZvKYlo2C',
+  'refresh_url' => 'https://example.com/reauth',
+  'return_url' => 'https://example.com/return',
+  'type' => 'account_onboarding',
+]);
+ */
+
+/**
+ * Response = 
+ * {
+  "object": "account_link",
+  "created": 1618869558,
+  "expires_at": 1618869858,
+  "url": "https://connect.stripe.com/setup/s/9BhFaPdfseRF"
+}
+ */
+
+//The users account may not be active yet, we need to pull the account back and check for the property `charges_enabled`
+//
+//
+
+
+// What next?
+// 
+// Now we need to create a superclass of the StripePaymentDriver, i believe the only thing we need to change is the way we initialize the gateway..
+
+/**
+ * 
+\Stripe\Stripe::setApiKey("{{PLATFORM_SECRET_KEY}}"); <--- platform secret key  = Invoice Ninja secret key
+\Stripe\Customer::create(
+  ["email" => "person@example.edu"],
+  ["stripe_account" => "{{CONNECTED_STRIPE_ACCOUNT_ID}}"] <------ company_gateway.config.account_id
+);
+
+
+ */
+
 }
