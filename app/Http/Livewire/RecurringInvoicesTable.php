@@ -23,6 +23,13 @@ class RecurringInvoicesTable extends Component
 
     public $per_page = 10;
 
+    public function mount()
+    {
+        $this->sort_asc = false;
+
+        $this->sort_field = 'date';
+    }
+
     public function render()
     {
         $query = RecurringInvoice::query();
