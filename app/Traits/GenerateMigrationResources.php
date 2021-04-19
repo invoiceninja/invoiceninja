@@ -785,6 +785,8 @@ info("get company");
         if($invoice->end_date < now())
             return 4;
 
+        return 1;
+
     }
 
     private function transformQuoteStatusId($quote)
