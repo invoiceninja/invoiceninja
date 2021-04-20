@@ -80,7 +80,7 @@ class ACH
     {
         $this->stripe->init();
 
-        $bank_account = Customer::retrieveSource($request->customer, $request->source);
+        $bank_account = Customer::retrieveSource($request->customer, $request->source, $this->stripe->stripe_connect_auth);
 
         try {
             $bank_account->verify(['amounts' => request()->transactions]);
@@ -110,6 +110,7 @@ class ACH
 
     public function paymentResponse($request)
     {
+
         $this->stripe->init();
 
         $source = ClientGatewayToken::query()
@@ -141,7 +142,7 @@ class ACH
                 'currency' => $state['currency'],
                 'customer' => $state['customer'],
                 'source' => $state['source'],
-            ]);
+            ], $this->stripe->stripe_connect_auth);
 
             $state = array_merge($state, $request->all());
 

@@ -9,14 +9,19 @@
  */
 
 class StripeCreditCard {
-    constructor(key, secret, onlyAuthorization) {
+    constructor(key, secret, onlyAuthorization, stripeConnect) {
         this.key = key;
         this.secret = secret;
         this.onlyAuthorization = onlyAuthorization;
+        this.stripeConnect = stripeConnect;
     }
 
     setupStripe() {
         this.stripe = Stripe(this.key);
+
+        if(this.stripeConnect)
+            this.stripe.stripeAccount = this.stripeConnect;
+
         this.elements = this.stripe.elements();
 
         return this;
@@ -201,4 +206,7 @@ const secret =
 const onlyAuthorization =
     document.querySelector('meta[name="only-authorization"]').content ?? '';
 
-new StripeCreditCard(publishableKey, secret, onlyAuthorization).handle();
+const stripeConnect = 
+    document.querySelector('meta[name="stripe-account-id"]').content;
+
+new StripeCreditCard(publishableKey, secret, onlyAuthorization, stripeConnect).handle();
