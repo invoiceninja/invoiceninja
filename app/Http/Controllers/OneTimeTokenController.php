@@ -68,19 +68,18 @@ class OneTimeTokenController extends BaseController
      */
     public function create(OneTimeTokenRequest $request)
     {
-
         $hash = Str::random(64);
 
         $data = [
             'user_id' => auth()->user()->id,
-            'company_key'=> auth()->user()->company()->company_key,
+            'company_key'=> auth()->user()->company->company_key,
             'context' => $request->input('context'),
         ];
 
         Cache::put( $hash, $data, 3600);
 
         return response()->json(['hash' => $hash], 200);
-    
+
     }
 
     public function router(OneTimeRouterRequest $request)

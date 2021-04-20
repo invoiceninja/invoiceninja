@@ -12,24 +12,40 @@
 
 namespace App\PaymentDrivers\Stripe\Connect;
 
-use App\Exceptions\PaymentFailed;
-use App\Http\Requests\Request;
-use App\Jobs\Mail\PaymentFailureMailer;
-use App\Jobs\Util\SystemLogger;
-use App\Models\ClientGatewayToken;
-use App\Models\GatewayType;
-use App\Models\Payment;
-use App\Models\PaymentType;
-use App\Models\SystemLog;
-use App\PaymentDrivers\StripePaymentDriver;
-use App\Utils\Traits\MakesHash;
-use Exception;
-use Stripe\Customer;
-use Stripe\Exception\CardException;
-use Stripe\Exception\InvalidRequestException;
-
 class Account
 {
+    /**
+     * @throws \Stripe\Exception\ApiErrorException
+     */
+    public static function create(array $payload): \Stripe\Account
+    {
+        $stripe = new \Stripe\StripeClient(
+            config('ninja.stripe_private_key')
+        );
+
+        return $stripe->accounts->create([
+            'type' => 'standard',
+            'country' => $payload['country'],
+            'email' => $payload['email'],
+        ]);
+    }
+
+    /**
+     * @throws \Stripe\Exception\ApiErrorException
+     */
+    public static function link(string $account_id): \Stripe\AccountLink
+    {
+        $stripe = new \Stripe\StripeClient(
+            config('ninja.stripe_private_key')
+        );
+
+        return $stripe->accountLinks->create([
+            'account' => $account_id,
+            'refresh_url' => 'http://localhost:8080/stripe_connect/reauth',
+            'return_url' => 'http://localhost:8080/stripe_connect/return',
+            'type' => 'account_onboarding',
+        ]);
+    }
 
 /*** If this is a new account (ie there is no account_id in company_gateways.config, the we need to create an account as below.
 
@@ -148,7 +164,7 @@ class Account
 
 // now we start the stripe onboarding flow
 // https://stripe.com/docs/api/account_links/object
-// 
+//
 /**
  * $stripe = new \Stripe\StripeClient(
   'sk_test_4eC39HqLyjWDarjtT1zdp7dc'
@@ -162,7 +178,7 @@ $stripe->accountLinks->create([
  */
 
 /**
- * Response = 
+ * Response =
  * {
   "object": "account_link",
   "created": 1618869558,
@@ -177,11 +193,11 @@ $stripe->accountLinks->create([
 
 
 // What next?
-// 
+//
 // Now we need to create a superclass of the StripePaymentDriver, i believe the only thing we need to change is the way we initialize the gateway..
 
 /**
- * 
+ *
 \Stripe\Stripe::setApiKey("{{PLATFORM_SECRET_KEY}}"); <--- platform secret key  = Invoice Ninja secret key
 \Stripe\Customer::create(
   ["email" => "person@example.edu"],

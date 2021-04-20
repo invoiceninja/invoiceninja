@@ -147,5 +147,5 @@ return [
     'webcron_secret' => env('WEBCRON_SECRET', false),
     'disable_auto_update' => env('DISABLE_AUTO_UPDATE', false),
     'invoiceninja_hosted_pdf_generation' => env('NINJA_HOSTED_PDF', false),
-    'ninja_stripe_key' => env('NINJA_STRIPE_KEY', false),
+    'stripe_private_key' => env('STRIPE_PRIVATE_KEY', null),
 ];

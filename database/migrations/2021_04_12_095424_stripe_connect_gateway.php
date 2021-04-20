@@ -29,12 +29,10 @@ class StripeConnectGateway extends Migration
 
         Gateway::create($gateway);
 
-        if(Ninja::isNinja())
-        {
+        if (Ninja::isNinja()) {
             Gateway::where('id', 20)->update(['visible' => 0]);
             Gateway::where('id', 56)->update(['visible' => 1]);
         }
-
     }
 
     /**
