@@ -12,6 +12,7 @@
 namespace App\Jobs\Util;
 
 use App\Models\Account;
+use App\Utils\Ninja;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -39,6 +40,17 @@ class VersionCheck implements ShouldQueue
 
         if ($version_file) {
             Account::whereNotNull('id')->update(['latest_version' => $version_file]);
+        }
+
+        if(Ninja::isSelfHost())
+        {
+            $account = Account::first();
+
+            if($account->plan == 'white_label' && $account->plan_expires->lt(now())){
+                $account->plan = null;
+                $account->plan_expires = null;
+                $account->save();
+            }
         }
     }
 }

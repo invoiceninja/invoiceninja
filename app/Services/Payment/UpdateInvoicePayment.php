@@ -87,7 +87,7 @@ class UpdateInvoicePayment
 
             InvoiceWorkflowSettings::dispatchNow($invoice);
 
-            event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars()));
+            event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         });
         
         $this->payment->save();
