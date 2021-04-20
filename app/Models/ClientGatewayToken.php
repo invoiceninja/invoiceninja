@@ -66,9 +66,9 @@ class ClientGatewayToken extends BaseModel
      * @param null $field
      * @return Model|null
      */
-    public function resolveRouteBinding($value, $field = null)
-    {
-        return $this
-            ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
-    }
+    // public function resolveRouteBinding($value, $field = null)
+    // {
+    //     return $this
+    //         ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
+    // }
 }
