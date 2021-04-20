@@ -32,7 +32,7 @@ class StoreClientGatewayTokenRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->isAdmin()
+        return auth()->user()->isAdmin();
     }
 
     public function rules()
@@ -40,6 +40,8 @@ class StoreClientGatewayTokenRequest extends Request
         $rules = [
             'client_id' => 'required',
             'company_gateway_id' => 'required',
+            'gateway_type_id' => 'required|integer',
+            'meta' => 'required',
         ];
 
 
@@ -52,7 +54,6 @@ class StoreClientGatewayTokenRequest extends Request
         $input = $this->all();
 
         $input = $this->decodePrimaryKeys($input);
-
 
         $this->replace($input);
     }

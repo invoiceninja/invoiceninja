@@ -37,6 +37,8 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::put('clients/{client}/upload', 'ClientController@upload')->name('clients.upload');
     Route::post('clients/bulk', 'ClientController@bulk')->name('clients.bulk');
 
+    Route::resource('client_gateway_tokens', 'ClientGatewayTokenController'); 
+    
     Route::post('connected_account', 'ConnectedAccountController@index');
     Route::post('connected_account/gmail', 'ConnectedAccountController@handleGmailOauth');
 
