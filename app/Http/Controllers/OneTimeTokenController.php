@@ -13,6 +13,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\OneTimeToken\OneTimeRouterRequest;
 use App\Http\Requests\OneTimeToken\OneTimeTokenRequest;
+use App\Models\Company;
+use App\Models\CompanyUser;
 use App\Models\User;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -23,7 +25,6 @@ class OneTimeTokenController extends BaseController
 {
 
     private $contexts = [
-        'stripe_connect_test' => 'https://connect.stripe.com/oauth/authorize?response_type=code&client_id=ca_J2FhIhcf9GT5BlWUNeQ1FhnZACaYZrOI&scope=read_write',
         'stripe_connect' => 'https://connect.stripe.com/oauth/authorize?response_type=code&client_id=ca_J2Fh2tZfMlaaItUfbUwBBx4JPss8jCz9&scope=read_write'
     ];
 
@@ -72,11 +73,11 @@ class OneTimeTokenController extends BaseController
 
         $data = [
             'user_id' => auth()->user()->id,
-            'company_key'=> auth()->company()->company_key,
-            'context' => $requst->input('context'),
+            'company_key'=> auth()->user()->company()->company_key,
+            'context' => $request->input('context'),
         ];
 
-        Cache::put( $hash, $data, 3600 );
+        Cache::put( $hash, $data, 3600);
 
         return response()->json(['hash' => $hash], 200);
     
@@ -88,7 +89,12 @@ class OneTimeTokenController extends BaseController
 
         MultiDB::findAndSetDbByCompanyKey($data['company_key']);
 
+        $company = Company::where('company_key', $data['company_key'])->first();        
         $user = User::findOrFail($data['user_id']);
+
+        $company_user = CompanyUser::where('company_id', $company->id)
+                                    ->where('user_id', $user->id)
+                                    ->firstOrFail();
 
         Auth::login($user, true);
 

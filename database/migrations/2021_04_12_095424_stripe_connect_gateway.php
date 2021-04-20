@@ -22,7 +22,7 @@ class StripeConnectGateway extends Migration
             'provider' => 'StripeConnect', 
             'sort_order' => 1, 
             'key' => 'd14dd26a47cecc30fdd65700bfb67b34', 
-            'fields' => '{"apiKey":"", "publishableKey":""}'
+            'fields' => '{"account_id":""}'
         ];
 
         Gateway::create($gateway);

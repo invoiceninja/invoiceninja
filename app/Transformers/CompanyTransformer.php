@@ -15,7 +15,6 @@ use App\Models\Account;
 use App\Models\Activity;
 use App\Models\Subscription;
 use App\Models\Client;
-use App\Models\ClientSubscription;
 use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\CompanyLedger;

@@ -55,6 +55,10 @@ class StripePaymentDriver extends BaseDriver
 
     public $payment_method;
 
+    public $stripe_connect = false;
+
+    public $stripe_connect_auth = [];
+
     public static $methods = [
         GatewayType::CREDIT_CARD => CreditCard::class,
         GatewayType::BANK_TRANSFER => ACH::class,
@@ -72,11 +76,21 @@ class StripePaymentDriver extends BaseDriver
      */
     public function init(): void
     {
-        $this->stripe = new StripeClient(
-            $this->company_gateway->getConfigField('apiKey')
-        );
+        if($this->stripe_connect)
+        {
+            Stripe::setApiKey(config('ninja.ninja_stripe_key'));
+            
+            $this->stripe_connect_auth = ["stripe_account" => $this->company_gateway->getConfigField('account_id')];
+        }
+        else
+        {
+            $this->stripe = new StripeClient(
+                $this->company_gateway->getConfigField('apiKey')
+            );
 
-        Stripe::setApiKey($this->company_gateway->getConfigField('apiKey'));
+            Stripe::setApiKey($this->company_gateway->getConfigField('apiKey'));
+
+        }
     }
 
     public function setPaymentMethod($payment_method_id)
