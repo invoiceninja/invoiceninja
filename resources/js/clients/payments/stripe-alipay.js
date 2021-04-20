@@ -9,14 +9,19 @@
  */
 
 class ProcessAlipay {
-    constructor(key) {
+    constructor(key, stripeConnect) {
         this.key = key;
+        this.stripeConnect = stripeConnect;
+
         this.errors = document.getElementById('errors');
     }
 
     setupStripe = () => {
         this.stripe = Stripe(this.key);
 
+        if(this.stripeConnect)
+            this.stripe.stripeAccount = this.stripeConnect;
+        
         return this;
     };
 
@@ -57,4 +62,8 @@ const publishableKey = document.querySelector(
     'meta[name="stripe-publishable-key"]'
 ).content;
 
-new ProcessAlipay(publishableKey).setupStripe().handle();
+const stripeConnect = document.querySelector(
+    'meta[name="stripe-account-id"]'
+).content;
+
+new ProcessAlipay(publishableKey, stripeConnect).setupStripe().handle();

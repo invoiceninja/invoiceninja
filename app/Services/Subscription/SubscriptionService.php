@@ -19,7 +19,6 @@ use App\Jobs\Util\SubscriptionWebhookHandler;
 use App\Jobs\Util\SystemLogger;
 use App\Models\Client;
 use App\Models\ClientContact;
-use App\Models\ClientSubscription;
 use App\Models\Invoice;
 use App\Models\PaymentHash;
 use App\Models\Product;
