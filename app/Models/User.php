@@ -493,6 +493,16 @@ class User extends Authenticatable
 
         return array_combine($keys, $values);
     }
+
+    public function eligibleForMigration()
+    {
+        // Not ready to show to hosted users
+        if (Utils::isNinjaProd()) {
+            return false;
+        }
+
+        return is_null($this->public_id) || $this->public_id == 0;
+    }
 }
 
 User::created(function ($user)

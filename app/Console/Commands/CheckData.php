@@ -67,7 +67,7 @@ class CheckData extends Command
     protected $log = '';
     protected $isValid = true;
 
-    public function fire()
+    public function handle()
     {
         $this->logMessage(date('Y-m-d h:i:s') . ' Running CheckData...');
 
@@ -82,7 +82,6 @@ class CheckData extends Command
         }
 
         //$this->checkInvoices();
-        $this->checkTranslations();
         $this->checkInvoiceBalances();
         $this->checkClientBalances();
         $this->checkContacts();
@@ -97,6 +96,7 @@ class CheckData extends Command
             $this->checkFailedJobs();
         }
 
+        $this->checkTranslations();
         $this->logMessage('Done: ' . strtoupper($this->isValid ? RESULT_SUCCESS : RESULT_FAILURE));
         $errorEmail = env('ERROR_EMAIL');
 
@@ -130,6 +130,7 @@ class CheckData extends Command
                     $this->logMessage($language->locale . ' is invalid: ' . $text);
                 }
 
+                /*
                 preg_match('/(.script)/', strtolower($text), $matches);
                 if (count($matches)) {
                     foreach ($matches as $match) {
@@ -141,6 +142,7 @@ class CheckData extends Command
                         break;
                     }
                 }
+                */
             }
         }
 

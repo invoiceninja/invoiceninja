@@ -1,5 +1,8 @@
 language: php
 
+services:
+  - mysql
+
 sudo: true
 
 # Prevent tests from taking more than 50 minutes
@@ -7,6 +10,7 @@ group: deprecated-2017Q4
 
 php:
   - 7.2
+  - 7.3
 
 addons:
   hosts:
@@ -26,7 +30,7 @@ env:
 before_install:
   # set GitHub token and update composer
   - if [ -n "$GH_TOKEN" ]; then composer config github-oauth.github.com ${GH_TOKEN}; fi;
-  - composer self-update && composer -V
+  - composer self-update 1.10.19 && composer -V
 #  - export USE_ZEND_ALLOC=0
   - rvm use 1.9.3 --install --fuzzy
 
@@ -82,6 +86,7 @@ script:
   - php ./vendor/codeception/codeception/codecept run --debug acceptance InvoiceCest.php
   - php ./vendor/codeception/codeception/codecept run --debug acceptance QuoteCest.php
   - php ./vendor/codeception/codeception/codecept run --debug acceptance InvoiceDesignCest.php
+  - php ./vendor/codeception/codeception/codecept run --debug acceptance OnlinePaymentCest.php
   - php ./vendor/codeception/codeception/codecept run --debug acceptance PaymentCest.php
   - php ./vendor/codeception/codeception/codecept run --debug acceptance TaskCest.php
   - php ./vendor/codeception/codeception/codecept run --debug acceptance AllPagesCept.php
@@ -91,7 +96,6 @@ script:
   #- php ./vendor/codeception/codeception/codecept run --debug run acceptance GoProCest.php
   #- php ./vendor/codeception/codeception/codecept run --debug acceptance GatewayFeesCest.php
   #- php ./vendor/codeception/codeception/codecept run --debug acceptance DiscountCest.php
-  #- php ./vendor/codeception/codeception/codecept run --debug acceptance OnlinePaymentCest.php
 
 after_script:
   - php artisan ninja:check-data --no-interaction --database='db-ninja-1'

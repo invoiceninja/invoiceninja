@@ -42,7 +42,6 @@ class CalculatePayouts extends Command
      */
     public function handle()
     {
-        $this->info('Running CalculatePayouts...');
         $type = strtolower($this->option('type'));
 
         switch ($type) {
@@ -61,7 +60,6 @@ class CalculatePayouts extends Command
         $userMap = [];
 
         foreach ($servers as $server) {
-            $this->info('Processing users: ' . $server->name);
             config(['database.default' => $server->name]);
 
             $users = User::where('referral_code', '!=', '')
@@ -72,7 +70,6 @@ class CalculatePayouts extends Command
         }
 
         foreach ($servers as $server) {
-            $this->info('Processing companies: ' . $server->name);
             config(['database.default' => $server->name]);
 
             $companies = Company::where('referral_code', '!=', '')
@@ -80,19 +77,27 @@ class CalculatePayouts extends Command
                 ->whereNotNull('payment_id')
                 ->get();
 
+            $this->info('User,Client,Date,Amount,Reference');
+
             foreach ($companies as $company) {
+                if (!isset($userMap[$company->referral_code])) {
+                    continue;
+                }
+
                 $user = $userMap[$company->referral_code];
                 $payment = $company->payment;
 
                 if ($payment) {
                     $client = $payment->client;
 
-                    $this->info("User: $user");
-                    $this->info("Client: " . $client->getDisplayName());
-
                     foreach ($client->payments as $payment) {
                         $amount = $payment->getCompletedAmount();
-                        $this->info("Date: $payment->payment_date, Amount: $amount, Reference: $payment->transaction_reference");
+                        $this->info('"' . $user . '",' .
+                            '"' . $client->getDisplayName() . '",' .
+                            $payment->payment_date . ',' .
+                            $amount . ',' .
+                            $payment->transaction_reference
+                        );
                     }
                 }
             }

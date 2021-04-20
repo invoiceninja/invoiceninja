@@ -61,7 +61,7 @@
         <li>$client.state</li>
         <li>$client.postalCode</li>
         <li>$client.country.name</li>
-        <li>$client.phone</li>
+        <li>$client.workPhone</li>
         <li>$client.balance</li>
         @if ($account->customLabel('client1'))
             <li>$client.customValue1</li>

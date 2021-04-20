@@ -37,7 +37,7 @@ class CreateLuisData extends Command
     /**
      * @return bool
      */
-    public function fire()
+    public function handle()
     {
         $this->fakerField = $this->argument('faker_field');
 

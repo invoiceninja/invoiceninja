@@ -151,7 +151,7 @@ class GenerateStatementData
         $item->product_key = $ageGroups['age_group_0'];
         $item->notes = $ageGroups['age_group_30'];
         $item->custom_value1 = $ageGroups['age_group_60'];
-        $item->custom_value1 = $ageGroups['age_group_90'];
+        $item->custom_value2 = $ageGroups['age_group_90'];
         $item->cost = $ageGroups['age_group_120'];
         $item->invoice_item_type_id = 4;
         $data->push($item);

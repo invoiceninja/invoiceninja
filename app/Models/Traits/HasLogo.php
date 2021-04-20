@@ -4,6 +4,7 @@ namespace App\Models\Traits;
 
 use Utils;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Document;
 
 /**
  * Class HasLogo.

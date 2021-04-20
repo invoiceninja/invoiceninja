@@ -9,11 +9,18 @@ use App\Models\GatewayType;
 use Cache;
 use Exception;
 use App\Models\PaymentType;
+use Stripe\PaymentIntent;
+use Stripe\Stripe;
 
 class StripePaymentDriver extends BasePaymentDriver
 {
     protected $customerReferenceParam = 'customerReference';
     public $canRefundPayments = true;
+
+    protected function prepareStripeAPI()
+    {
+        Stripe::setApiKey($this->accountGateway->getConfigField('apiKey'));
+    }
 
     public function gatewayTypes()
     {
@@ -59,6 +66,17 @@ class StripePaymentDriver extends BasePaymentDriver
         }
 
         return $types;
+    }
+
+    /**
+     * Returns a setup intent that allows the user to enter card details without initiating a transaction.
+     *
+     * @return \Stripe\SetupIntent
+     */
+    public function getSetupIntent()
+    {
+        $this->prepareStripeAPI();
+        return \Stripe\SetupIntent::create();
     }
 
     public function tokenize()
@@ -136,14 +154,25 @@ class StripePaymentDriver extends BasePaymentDriver
     {
         $data = parent::paymentDetails($paymentMethod);
 
+        // Stripe complains if the email field is set
+        unset($data['email']);
+
+        if ( ! empty($this->input['paymentIntentID'])) {
+            // If we're completing a previously initiated payment intent, use that ID first.
+            $data['payment_intent'] = $this->input['paymentIntentID'];
+            unset($data['card']);
+            return $data;
+        }
+
         if ($paymentMethod) {
             return $data;
         }
 
-        // Stripe complains if the email field is set
-        unset($data['email']);
-
-        if (! empty($this->input['sourceToken'])) {
+        if ( ! empty($this->input['paymentMethodID'])) {
+            // We're using an existing payment method.
+            $data['payment_method'] = $this->input['paymentMethodID'];
+            unset($data['card']);
+        } else if ( ! empty($this->input['sourceToken'])) {
             $data['token'] = $this->input['sourceToken'];
             unset($data['card']);
         }
@@ -157,25 +186,158 @@ class StripePaymentDriver extends BasePaymentDriver
         return $data;
     }
 
+    /**
+     * @param bool $input
+     * @param bool $paymentMethod
+     * @param bool $offSession True if this payment is being made automatically rather than manually initiated by the user.
+     *
+     * @return bool|mixed
+     * @throws PaymentActionRequiredException When further interaction is required from the user.
+     */
+    public function completeOnsitePurchase($input = false, $paymentMethod = false, $offSession = false)
+    {
+        $data = $this->prepareOnsitePurchase($input, $paymentMethod);
+
+        if ( ! $data && request()->capture) {
+            // We only want to save the payment details, not actually charge the card.
+            $real_data = $this->paymentDetails($paymentMethod);
+
+            if ( ! empty($real_data['payment_method'])) {
+                // Attach the payment method to the existing customer.
+                $this->prepareStripeAPI();
+                $payment_method      = \Stripe\PaymentMethod::retrieve($real_data['payment_method']);
+                $payment_method      = $payment_method->attach(['customer' => $this->getCustomerID()]);
+                $this->tokenResponse = $payment_method;
+                parent::createToken();
+                return $payment_method;
+            }
+        }
+
+        if ( ! $data) {
+            // No payment method to charge against yet; probably a 2-step or capture-only transaction.
+            return null;
+        }
+
+        if ( ! empty($data['payment_method']) || ! empty($data['payment_intent']) || ! empty($data['token'])) {
+            // Need to use Stripe's new Payment Intent API.
+            $this->prepareStripeAPI();
+
+            // Get information about the currency we're using.
+            $currency = Cache::get('currencies')->where('code', strtoupper($data['currency']))->first();
+
+            if ( ! empty($data['payment_intent'])) {
+                // Find the existing payment intent.
+                $intent = PaymentIntent::retrieve($data['payment_intent']);
+
+                if ( ! $intent->amount == $data['amount'] * pow(10, $currency['precision'])) {
+                    // Make sure that the provided payment intent matches the invoice amount.
+                    throw new Exception('Incorrect PaymentIntent amount.');
+                }
+                $intent->confirm();
+            } elseif ( ! empty($data['token']) || ! empty($data['payment_method'])) {
+                $params = [
+                    'amount'              => $data['amount'] * pow(10, $currency['precision']),
+                    'currency'            => $data['currency'],
+                    'confirmation_method' => 'manual',
+                    'confirm'             => true,
+                ];
+
+                if ($offSession) {
+                    $params['off_session'] = true;
+                }
+
+                if ( ! empty($data['description'])) {
+                    $params['description'] = $data['description'];
+                }
+
+                if ( ! empty($data['payment_method'])) {
+                    $params['payment_method'] = $data['payment_method'];
+
+                    if ($this->shouldCreateToken()) {
+                        // Tell Stripe to save the payment method for future usage.
+                        $params['setup_future_usage']  = 'off_session';
+                        $params['save_payment_method'] = true;
+                        $params['customer']            = $this->getCustomerID();
+                    }
+                } elseif ( ! empty($data['token'])) {
+                    // Use a stored payment method.
+                    $params['payment_method'] = $data['token'];
+                    $params['customer']       = $this->getCustomerID();
+
+                    if (substr($data['token'], 0, 3) === 'ba_') {
+                        // The PaymentIntent API doesn't seem to work with saved Bank Accounts.
+                        // For now, just use the old API.
+                        return $this->doOmnipayOnsitePurchase($data, $paymentMethod);
+                    }
+                }
+
+                $intent = PaymentIntent::create($params);
+            }
+
+            if (empty($intent)) {
+                throw new \Exception('PaymentIntent not found.');
+            } elseif (($intent->status == 'requires_source_action' || $intent->status == 'requires_action') &&
+                      $intent->next_action->type == 'use_stripe_sdk') {
+                // Throw an exception that can either be logged or be handled by getting further interaction from the user.
+                throw new PaymentActionRequiredException(['payment_intent' => $intent]);
+            } else if ($intent->status == 'succeeded') {
+                $ref     = ! empty($intent->charges->data) ? $intent->charges->data[0]->id : null;
+                $payment = $this->createPayment($ref, $paymentMethod);
+
+                if ($this->invitation->invoice->account->isNinjaAccount()) {
+                    \Session::flash('trackEventCategory', '/account');
+                    \Session::flash('trackEventAction', '/buy_pro_plan');
+                    \Session::flash('trackEventAmount', $payment->amount);
+                }
+
+                if ($intent->setup_future_usage == 'off_session') {
+                    // Save the payment method ID.
+                    $payment_method      = \Stripe\PaymentMethod::retrieve($intent->payment_method);
+                    $this->tokenResponse = $payment_method;
+                    parent::createToken();
+                }
+
+                return $payment;
+            } else {
+                throw new Exception('Invalid PaymentIntent status: ' . $intent->status);
+            }
+        } else {
+            return $this->doOmnipayOnsitePurchase($data, $paymentMethod);
+        }
+    }
+
+    public function getCustomerID()
+    {
+        // if a customer already exists link the token to it
+        if ($customer = $this->customer()) {
+            return $customer->token;
+        } else {
+            // otherwise create a new czustomer
+            $invoice = $this->invitation->invoice;
+            $client  = $invoice->client;
+
+            $response = $this->gateway()->createCustomer([
+                'description' => $client->getDisplayName(),
+                'email'       => $this->contact()->email,
+            ])->send();
+            return $response->getCustomerReference();
+        }
+    }
+
     public function createToken()
     {
         $invoice = $this->invitation->invoice;
-        $client = $invoice->client;
+        $client  = $invoice->client;
 
         $data = $this->paymentDetails();
-        $data['description'] = $client->getDisplayName();
 
-        // if a customer already exists link the token to it
-        if ($customer = $this->customer()) {
-            $data['customerReference'] = $customer->token;
-        // otherwise create a new customer
-        } else {
-            $response = $this->gateway()->createCustomer([
-                'description' => $client->getDisplayName(),
-                'email' => $this->contact()->email,
-            ])->send();
-            $data['customerReference'] = $response->getCustomerReference();
+        if ( ! empty($data['payment_method']) || ! empty($data['payment_intent'])) {
+            // Using the PaymentIntent API; we'll save the details later.
+            return null;
         }
+
+        $data['description']       = $client->getDisplayName();
+        $data['customerReference'] = $this->getCustomerID();
 
         if (! empty($data['plaidPublicToken'])) {
             $plaidResult = $this->getPlaidToken($data['plaidPublicToken'], $data['plaidAccountId']);
@@ -228,7 +390,12 @@ class StripePaymentDriver extends BasePaymentDriver
             return false;
         }
 
-        $paymentMethod->source_reference = $source['id'];
+        if ( ! empty($source['id'])) {
+            $paymentMethod->source_reference = $source['id'];
+        } elseif ( ! empty($data['id'])) {
+            // Find an ID on the payment method instead of the card.
+            $paymentMethod->source_reference = $data['id'];
+        }
         $paymentMethod->last4 = $source['last4'];
 
         // For older users the Stripe account may just have the customer token but not the card version
@@ -273,6 +440,11 @@ class StripePaymentDriver extends BasePaymentDriver
             } elseif ($isBitcoin) {
                 $payment->payment_type_id = PAYMENT_TYPE_BITCOIN;
             }
+        } else if (! $paymentMethod && $this->isGatewayType(GATEWAY_TYPE_CREDIT_CARD) && ! strcmp($this->purchaseResponse['payment_method_details']['type'], "card")) {
+            $card = $this->purchaseResponse['payment_method_details']['card'];
+            $payment->last4 = $card['last4'];
+            $payment->expiration = $card['exp_year'] . '-' . $card['exp_month'] . '-01';
+            $payment->payment_type_id = PaymentType::parseCardType($card['brand']);
         }
 
         return $payment;
@@ -484,7 +656,6 @@ class StripePaymentDriver extends BasePaymentDriver
             'charge.refunded',
             'customer.source.updated',
             'customer.source.deleted',
-            'customer.bank_account.deleted',
             'source.chargeable',
         ];
 
@@ -533,14 +704,14 @@ class StripePaymentDriver extends BasePaymentDriver
             } elseif ($eventType == 'charge.refunded') {
                 $payment->recordRefund($source['amount_refunded'] / 100 - $payment->refunded);
             }
-        } elseif ($eventType == 'customer.source.updated' || $eventType == 'customer.source.deleted' || $eventType == 'customer.bank_account.deleted') {
+        } elseif ($eventType == 'customer.source.updated' || $eventType == 'customer.source.deleted') {
             $paymentMethod = PaymentMethod::scope(false, $accountId)->where('source_reference', '=', $sourceRef)->first();
 
             if (! $paymentMethod) {
                 return false;
             }
 
-            if ($eventType == 'customer.source.deleted' || $eventType == 'customer.bank_account.deleted') {
+            if ($eventType == 'customer.source.deleted') {
                 $paymentMethod->delete();
             } elseif ($eventType == 'customer.source.updated') {
                 //$this->paymentService->convertPaymentMethodFromStripe($source, null, $paymentMethod)->save();

@@ -21,7 +21,7 @@ class ResetData extends Command
      */
     protected $description = 'Reset data';
 
-    public function fire()
+    public function handle()
     {
         $this->info(date('r') . ' Running ResetData...');
 

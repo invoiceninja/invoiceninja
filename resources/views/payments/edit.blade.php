@@ -14,7 +14,7 @@
 
 @section('content')
 
-	{!! Former::open($url)
+	{!! Former::open($payment ? $url : '')
         ->addClass('col-lg-10 col-lg-offset-1 warn-on-exit main-form')
         ->onsubmit('return onFormSubmit(event)')
         ->method($method)
@@ -134,6 +134,7 @@
 
 	<script type="text/javascript">
 
+    var canSubmitPayment = true;
 	var invoices = {!! $invoices !!};
 	var clients = {!! $clients !!};
 
@@ -220,12 +221,13 @@
 	});
 
     function onFormSubmit(event) {
-        if ($('#saveButton').is(':disabled')) {
+        if (! canSubmitPayment) {
             return false;
         }
 
         @if ($payment)
             $('#saveButton').attr('disabled', true);
+            canSubmitPayment = false;
             return true;
         @else
             // warn if amount is more than balance/credit will be created
@@ -235,6 +237,7 @@
 
             if (NINJA.parseFloat(amount) <= invoice.balance || confirm("{{ trans('texts.amount_greater_than_balance') }}")) {
                 $('#saveButton').attr('disabled', true);
+                canSubmitPayment = false;
                 submitAjax();
                 return false;
             } else {
@@ -258,11 +261,14 @@
 
     function handleSaveFailed(data) {
 		$('#saveButton').attr('disabled', false);
-		var error = '';
+        canSubmitPayment = true;
+
+		var error = '{{ trans('texts.error_refresh_page') }}';
 		if (data) {
-			var error = firstJSONError(data.responseJSON) || data.statusText;
+		    error = firstJSONError(data.responseJSON);
 		}
-		swal({!! json_encode(trans('texts.error_refresh_page')) !!}, error);
+
+		swal({title: '{{ trans('texts.an_error_occurred') }}', text: error});
 	}
 
     function submitAction(action) {

@@ -11,6 +11,7 @@ use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\Product;
 use App\Ninja\Mailers\UserMailer;
+use App\Ninja\PaymentDrivers\PaymentActionRequiredException;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Services\InvoiceService;
@@ -124,11 +125,18 @@ class OnlinePaymentController extends BaseController
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function doPayment(CreateOnlinePaymentRequest $request, $invitationKey, $gatewayTypeAlias = false)
+    public function doPayment(
+        CreateOnlinePaymentRequest $request,
+        $invitationKey,
+        $gatewayTypeAlias = false,
+        $sourceId = false
+    )
     {
         $invitation = $request->invitation;
 
-        if ($gatewayTypeAlias) {
+        if ($gatewayTypeAlias == GATEWAY_TYPE_TOKEN) {
+            $gatewayTypeId = $gatewayTypeAlias;
+        } elseif ($gatewayTypeAlias) {
             $gatewayTypeId = GatewayType::getIdFromAlias($gatewayTypeAlias);
         } else {
             $gatewayTypeId = Session::get($invitation->id . 'gateway_type');
@@ -141,7 +149,16 @@ class OnlinePaymentController extends BaseController
         }
 
         try {
-            $paymentDriver->completeOnsitePurchase($request->all());
+            // Load the payment method to charge.
+            // Currently only hit for saved cards that still require 3D secure verification.
+            $paymentMethod = null;
+            if ($sourceId) {
+                $paymentMethod = PaymentMethod::clientId($invitation->invoice->client_id)
+                                              ->wherePublicId($sourceId)
+                                              ->firstOrFail();
+            }
+
+            $paymentDriver->completeOnsitePurchase($request->all(), $paymentMethod);
 
             if (request()->capture) {
                 return redirect('/client/dashboard')->withMessage(trans('texts.updated_payment_details'));
@@ -152,6 +169,8 @@ class OnlinePaymentController extends BaseController
             }
 
             return $this->completePurchase($invitation);
+        } catch (PaymentActionRequiredException $exception) {
+            return $paymentDriver->startStepTwo($exception->getData());
         } catch (Exception $exception) {
             return $this->error($paymentDriver, $exception, true);
         }

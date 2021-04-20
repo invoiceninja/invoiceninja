@@ -172,7 +172,7 @@
 		}
 		submittedForm = true;
 
-		if (id) {
+		if (id || id===0) {
 			$('#public_id_{{ $entityType }}').val(id);
 		}
 
@@ -180,7 +180,9 @@
 	        sweetConfirm(function() {
 	            $('#action_{{ $entityType }}').val(action);
 	    		$('form.listForm_{{ $entityType }}').submit();
-	        });
+	        }, null, null, function(){ // CancelCallback
+			submittedForm = false;
+		});
 		} else {
 			$('#action_{{ $entityType }}').val(action);
 			$('form.listForm_{{ $entityType }}').submit();

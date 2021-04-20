@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\UserSignedUp;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\UpdateAccountRequest;
+use App\Models\Company;
 use App\Models\Account;
 use App\Models\User;
 use App\Ninja\OAuth\OAuth;
@@ -14,6 +15,7 @@ use App\Ninja\Transformers\UserAccountTransformer;
 use App\Services\AuthService;
 use Auth;
 use Cache;
+use Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -287,4 +289,49 @@ class AccountApiController extends BaseAPIController
 
     }
 
+    public function upgrade(Request $request)
+    {
+        $user = Auth::user();
+        $account = $user->account;
+        $company = $account->company;
+        $orderId = $request->order_id;
+        $timestamp = $request->timestamp;
+        $productId = $request->product_id;
+
+        if ($company->app_store_order_id) {
+            return '{"message":"error"}';
+        }
+
+        if ($productId == 'v1_pro_yearly') {
+            $company->plan = PLAN_PRO;
+            $company->num_users = 1;
+            $company->plan_price = PLAN_PRICE_PRO_MONTHLY * 10;
+        } else if ($productId == 'v1_enterprise_2_yearly') {
+            $company->plan = PLAN_ENTERPRISE;
+            $company->num_users = 2;
+            $company->plan_price = PLAN_PRICE_ENTERPRISE_MONTHLY_2 * 10;
+        } else if ($productId == 'v1_enterprise_5_yearly') {
+            $company->plan = PLAN_ENTERPRISE;
+            $company->num_users = 5;
+            $company->plan_price = PLAN_PRICE_ENTERPRISE_MONTHLY_5 * 10;
+        } else if ($productId == 'v1_enterprise_10_yearly') {
+            $company->plan = PLAN_ENTERPRISE;
+            $company->num_users = 10;
+            $company->plan_price = PLAN_PRICE_ENTERPRISE_MONTHLY_10 * 10;
+        } else if ($productId == 'v1_enterprise_20_yearly') {
+            $company->plan = PLAN_ENTERPRISE;
+            $company->num_users = 20;
+            $company->plan_price = PLAN_PRICE_ENTERPRISE_MONTHLY_20 * 10;
+        }
+
+        $company->app_store_order_id = $orderId;
+        $company->plan_term = PLAN_TERM_YEARLY;
+        $company->plan_started = $company->plan_started ?: date('Y-m-d');
+        $company->plan_paid = date('Y-m-d');
+        $company->plan_expires = Carbon::now()->addYear()->format('Y-m-d');
+        $company->trial_plan = null;
+        $company->save();
+
+        return '{"message":"success"}';
+    }
 }

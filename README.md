@@ -9,34 +9,38 @@
 
 ## [Hosted](https://www.invoiceninja.com) | [Self-Hosted](https://www.invoiceninja.org)
 
-### We're on Slack, join us at [slack.invoiceninja.com](http://slack.invoiceninja.com)
+### We're on Slack, join us at [slack.invoiceninja.com](http://slack.invoiceninja.com) or if you like [StackOverflow](https://stackoverflow.com/tags/invoice-ninja/)
 
-All Pro and Enterprise features from the hosted app are included in the open-source code. We offer a $20 per year white-label license to remove our branding for personal use.
+Just make sure to add the `invoice-ninja` tag to your question.
+
+#### Note: v5 is now tagged Stable! To upgrade from v4 you need to [install v5](https://invoiceninja.github.io/docs/self-host-installation/) as a separate app and then use the migration tool in the latest version of v4 on Settings > Account Management.
+
+All Pro and Enterprise features from the hosted app are included in the open-source code. We offer a $30 per year white-label license to remove the Invoice Ninja branding from client facing parts of the app.
 
 The self-host zip includes all third party libraries whereas downloading the code from GitHub requires using Composer to install the dependencies.
 
 * [Features](https://www.invoiceninja.com/invoicing-features/)
 * [Videos](https://www.youtube.com/channel/UCXAHcBvhW05PDtWYIq7WDFA/videos)
-* [User Guide](https://invoice-ninja.readthedocs.io/en/latest/)
+* [User Guide](https://docs.invoiceninja.com/)
 * [Support Forum](https://www.invoiceninja.com/forums/forum/support/)
+* [StackOverflow](https://stackoverflow.com/tags/invoice-ninja/)
 
 ## Referral Program
 * Earn 50% of Pro & Enterprise Plans up to 4 years - [Learn more](https://www.invoiceninja.com/referral-program/)
 
-## Mobile Apps
-* Current: [github.com/invoiceninja/flutter-mobile](https://github.com/invoiceninja/flutter-mobile)
-    * [iPhone](https://itunes.apple.com/us/app/invoice-ninja/id1435514417?ls=1&mt=8)
-    * [Android](https://play.google.com/store/apps/details?id=com.invoiceninja.flutter)
-* Legacy
-    * [iPhone](https://itunes.apple.com/us/app/invoice-ninja/id1220337560?ls=1&mt=8)
-    * [Android](https://play.google.com/store/apps/details?id=com.invoiceninja.invoiceninja)
+## Mobile App
+* [iPhone](https://itunes.apple.com/us/app/invoice-ninja/id1435514417?ls=1&mt=8)
+* [Android](https://play.google.com/store/apps/details?id=com.invoiceninja.flutter)
+* [Source Code](https://github.com/invoiceninja/flutter-mobile)
 
 ## Installation Options
 * [Ansible](https://github.com/invoiceninja/ansible-installer)
-* [Self-Host Zip](https://invoice-ninja.readthedocs.io/en/latest/install.html)
+* [Self-Host Zip](https://docs.invoiceninja.com/install.html)
 * [Docker File](https://hub.docker.com/r/invoiceninja/invoiceninja/)
 * [Cloudron](https://cloudron.io/store/com.invoiceninja.cloudronapp.html)
 * [Softaculous](https://www.softaculous.com/apps/ecommerce/Invoice_Ninja)
+* [Lando](https://github.com/invoiceninja/invoiceninja/issues/2880)
+* [Yunohost](https://github.com/YunoHost-Apps/invoiceninja_ynh)
 
 ## Recommended Providers
 * [Stripe](https://stripe.com/)
@@ -51,6 +55,8 @@ The self-host zip includes all third party libraries whereas downloading the cod
 ## Third Party Modules
 * [Event Scheduler](https://github.com/cytech/Scheduler-InvoiceNinja)
 * [Manufacturer Module](https://github.com/dicarlosystems/manufacturer-invoiceninja)
+* [Point of Sale](https://github.com/dicarlosystems/pointofsale-invoiceninja)
+* [Invoice Design Import/Export](https://github.com/feyst/invoicedesignexport)
 
 > Feel free to email us for help if you're working on a module, we're happy to provide developer support.
 

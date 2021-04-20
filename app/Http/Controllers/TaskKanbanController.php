@@ -125,7 +125,7 @@ class TaskKanbanController extends BaseController
         $origSortOrder = $status->sort_order;
         $newSortOrder = request('sort_order');
 
-        if (request()->has('sort_order') && $newSortOrder != $origSortOrder) {
+        if (request()->filled('sort_order') && $newSortOrder != $origSortOrder) {
             TaskStatus::scope()
                 ->where('sort_order', '>', $origSortOrder)
                 ->decrement('sort_order');

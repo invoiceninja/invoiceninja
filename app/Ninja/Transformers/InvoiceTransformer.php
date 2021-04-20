@@ -122,6 +122,7 @@ class InvoiceTransformer extends EntityTransformer
             'partial_due_date' => $invoice->partial_due_date ?: '',
             'has_tasks' => (bool) $invoice->has_tasks,
             'auto_bill' => (bool) $invoice->auto_bill,
+            'auto_bill_id' => (int) $invoice->auto_bill,
             'custom_value1' => (float) $invoice->custom_value1,
             'custom_value2' => (float) $invoice->custom_value2,
             'custom_taxes1' => (bool) $invoice->custom_taxes1,

@@ -306,7 +306,7 @@ class InvoiceController extends BaseController
 
         // Check for any taxes which have been deleted
         $taxRateOptions = $account->present()->taxRateOptions;
-        if ($invoice->exists) {
+        if ($invoice->exists && !$invoice->deleted_at) {
             foreach ($invoice->getTaxes() as $key => $rate) {
                 $key = '0 ' . $key; // mark it as a standard exclusive rate option
                 if (isset($taxRateOptions[$key])) {

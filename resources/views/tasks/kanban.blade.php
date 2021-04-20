@@ -30,6 +30,8 @@
             vertical-align: top;
             white-space: normal;
             cursor: pointer;
+            max-height:70vh;
+            overflow-y: scroll;
         }
 
         .kanban-column-last {

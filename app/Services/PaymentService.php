@@ -136,7 +136,7 @@ class PaymentService extends BaseService
         }
 
         try {
-            return $paymentDriver->completeOnsitePurchase(false, $paymentMethod);
+            return $paymentDriver->completeOnsitePurchase(false, $paymentMethod, true);
         } catch (Exception $exception) {
             $subject = trans('texts.auto_bill_failed', ['invoice_number' => $invoice->invoice_number]);
             $message = sprintf('%s: %s', ucwords($paymentDriver->providerName()), $exception->getMessage());
@@ -193,7 +193,7 @@ class PaymentService extends BaseService
             $successful = 0;
 
             foreach ($payments as $payment) {
-                if (Auth::user()->can('edit', $payment)) {
+                if (Auth::user()->can('edit', $payment) && !$payment->is_deleted) {
                     $amount = ! empty($params['refund_amount']) ? floatval($params['refund_amount']) : null;
                     $sendEmail = ! empty($params['refund_email']) ? boolval($params['refund_email']) : false;
                     $paymentDriver = false;

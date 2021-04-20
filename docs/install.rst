@@ -3,7 +3,7 @@ Install
 
 Thanks for taking the time to setup Invoice Ninja.
 
-.. Note:: The applications requires PHP 7.0, 7.1 or 7.2 and MySQL.
+.. Note:: The applications requires PHP 7.1 or 7.2 and MySQL.
 
 Detailed Guides
 ^^^^^^^^^^^^^^^
@@ -16,7 +16,8 @@ Detailed Guides
 
 - CentOS and Nginx: `thishosting.rocks <https://thishosting.rocks/how-to-install-invoice-ninja-on-centos/>`_
 
-- HostGator: `catsinja.com <http://blog.catsinja.com/2018/10/setup-invoice-ninja-on-hostgator-shared/>`_
+- HostGator: `carlosthomas.net <https://carlosthomas.net/blog/2018/10/setup-invoice-ninja-on-hostgator-shared/>`_
+
 
 Automatic Install/Update
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -41,7 +42,7 @@ You can either download the zip file below or checkout the code from our GitHub 
 
 https://download.invoiceninja.com
 
-.. Note:: All Pro and Enterprise features from our hosted app are included in both the zip file and the GitHub repository. We offer a $20 per year white-label license to remove our branding.
+.. Note:: All Pro and Enterprise features from our hosted app are included in both the zip file and the GitHub repository. We offer a $30 per year white-label license to remove our branding.
 
 - Release Notes: `github.com/invoiceninja/invoiceninja/releases <https://github.com/invoiceninja/invoiceninja/releases>`_
 
@@ -92,6 +93,7 @@ Troubleshooting
 ^^^^^^^^^^^^^^^
 
 - Check your webserver log (ie, /var/log/apache2/error.log) and the application logs (storage/logs/laravel-error.log) for more details or set ``APP_DEBUG=true`` in .env
+- If you see "Whoops, looks like something went wrong" this `blog post <https://bobcares.com/blog/laravel-something-went-wrong/>`_ may be helpful.
 - To resolve ``[Symfony\Component\Debug\Exception\FatalErrorException] Class 'SomeClass' not found`` try running php artisan optimize
 - To resolve ``file_put_contents(...): failed to open stream: Permission denied`` run ``chmod -R 777 storage`` then ``chmod -R 755 storage``
 - If index.php is in the URL it likely means that mod_rewrite needs to be enabled.

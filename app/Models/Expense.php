@@ -157,7 +157,7 @@ class Expense extends EntityModel
      */
     public function recurring_expense()
     {
-        return $this->belongsTo('App\Models\RecurringExpense');
+        return $this->belongsTo('App\Models\RecurringExpense')->withTrashed();
     }
 
 

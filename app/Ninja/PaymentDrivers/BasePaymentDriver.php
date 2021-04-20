@@ -150,7 +150,12 @@ class BasePaymentDriver
             if (Session::has('error')) {
                 Session::reflash();
             } else {
-                $this->completeOnsitePurchase();
+                try {
+                    $this->completeOnsitePurchase();
+                } catch (PaymentActionRequiredException $exception) {
+                    return $this->startStepTwo($exception->getData(), $sourceId);
+                }
+
                 if ($redirectUrl = session('redirect_url:' . $this->invitation->invitation_key)) {
                     $separator = strpos($redirectUrl, '?') === false ? '?' : '&';
 
@@ -169,27 +174,74 @@ class BasePaymentDriver
         }
 
         $data = [
-            'details' => ! empty($input['details']) ? json_decode($input['details']) : false,
-            'accountGateway' => $this->accountGateway,
+            'details'                 => ! empty($input['details']) ? json_decode($input['details']) : false,
+            'accountGateway'          => $this->accountGateway,
             'acceptedCreditCardTypes' => $this->accountGateway->getCreditcardTypes(),
-            'gateway' => $gateway,
-            'showBreadcrumbs' => false,
-            'url' => $url,
-            'amount' => $this->invoice()->getRequestedAmount(),
-            'invoiceNumber' => $this->invoice()->invoice_number,
-            'client' => $this->client(),
-            'contact' => $this->invitation->contact,
-            'invitation' => $this->invitation,
-            'gatewayType' => $this->gatewayType,
-            'currencyId' => $this->client()->getCurrencyId(),
-            'currencyCode' => $this->client()->getCurrencyCode(),
-            'account' => $this->account(),
-            'sourceId' => $sourceId,
-            'tokenize' => $this->tokenize(),
-            'transactionToken' => $this->createTransactionToken(),
+            'gateway'                 => $gateway,
+            'showBreadcrumbs'         => false,
+            'url'                     => $url,
+            'amount'                  => $this->invoice()->getRequestedAmount(),
+            'invoiceNumber'           => $this->invoice()->invoice_number,
+            'client'                  => $this->client(),
+            'contact'                 => $this->invitation->contact,
+            'invitation'              => $this->invitation,
+            'gatewayType'             => $this->gatewayType,
+            'currencyId'              => $this->client()->getCurrencyId(),
+            'currencyCode'            => $this->client()->getCurrencyCode(),
+            'account'                 => $this->account(),
+            'sourceId'                => $sourceId,
+            'tokenize'                => $this->tokenize(),
+            'driver'                  => $this,
+            'transactionToken'        => $this->createTransactionToken(),
         ];
 
         return view($this->paymentView(), $data);
+    }
+
+    public function startStepTwo($data = null, $sourceId = false)
+    {
+        $url = 'payment/' . $this->invitation->invitation_key;
+
+        if ($sourceId) {
+            $url .= '/token/' . $sourceId;
+        }
+
+        if (request()->capture) {
+            $url .= '?capture=true';
+        }
+
+        $data = [
+            'step2_details'           => $data,
+            'url'                     => $url,
+            'showBreadcrumbs'         => false,
+            'accountGateway'          => $this->accountGateway,
+            'gateway'                 => $this->accountGateway->gateway,
+            'acceptedCreditCardTypes' => $this->accountGateway->getCreditcardTypes(),
+            'amount'                  => $this->invoice()->getRequestedAmount(),
+            'invoiceNumber'           => $this->invoice()->invoice_number,
+            'client'                  => $this->client(),
+            'contact'                 => $this->invitation->contact,
+            'invitation'              => $this->invitation,
+            'gatewayType'             => $this->gatewayType,
+            'currencyId'              => $this->client()->getCurrencyId(),
+            'currencyCode'            => $this->client()->getCurrencyCode(),
+            'account'                 => $this->account(),
+            'tokenize'                => $this->tokenize(),
+            'transactionToken'        => $this->createTransactionToken(),
+        ];
+
+        return view($this->stepTwoView(), $data);
+    }
+
+    protected function stepTwoView()
+    {
+        $file = sprintf('%s/views/payments/%s/step2.blade.php', resource_path(), $this->providerName());
+
+        if (file_exists($file)) {
+            return sprintf('payments.%s/step2', $this->providerName());
+        } else {
+            return 'payments.step2';
+        }
     }
 
     // check if a custom view exists for this provider
@@ -267,10 +319,9 @@ class BasePaymentDriver
         return $this->gateway;
     }
 
-    public function completeOnsitePurchase($input = false, $paymentMethod = false)
+    protected function prepareOnsitePurchase($input = false, $paymentMethod = false)
     {
         $this->input = $input && count($input) ? $input : false;
-        $gateway = $this->gateway();
 
         if ($input) {
             $this->updateClient();
@@ -278,16 +329,16 @@ class BasePaymentDriver
 
         // load or create token
         if ($this->isGatewayType(GATEWAY_TYPE_TOKEN)) {
-            if (! $paymentMethod) {
+            if ( ! $paymentMethod) {
                 $paymentMethod = PaymentMethod::clientId($this->client()->id)
-                    ->wherePublicId($this->sourceId)
-                    ->firstOrFail();
+                                              ->wherePublicId($this->sourceId)
+                                              ->firstOrFail();
             }
 
             $invoicRepo = app('App\Ninja\Repositories\InvoiceRepository');
             $invoicRepo->setGatewayFee($this->invoice(), $paymentMethod->payment_type->gateway_type_id);
 
-            if (! $this->meetsGatewayTypeLimits($paymentMethod->payment_type->gateway_type_id)) {
+            if ( ! $this->meetsGatewayTypeLimits($paymentMethod->payment_type->gateway_type_id)) {
                 // The customer must have hacked the URL
                 Session::flash('error', trans('texts.limits_not_met'));
 
@@ -298,7 +349,7 @@ class BasePaymentDriver
                 $paymentMethod = $this->createToken();
             }
 
-            if (! $this->meetsGatewayTypeLimits($this->gatewayType)) {
+            if ( ! $this->meetsGatewayTypeLimits($this->gatewayType)) {
                 // The customer must have hacked the URL
                 Session::flash('error', trans('texts.limits_not_met'));
 
@@ -311,7 +362,32 @@ class BasePaymentDriver
         }
 
         // prepare and process payment
-        $data = $this->paymentDetails($paymentMethod);
+        return $this->paymentDetails($paymentMethod);
+    }
+
+    /**
+     * @param bool $input
+     * @param bool $paymentMethod
+     * @param bool $offSession True if this payment is being made automatically rather than manually initiated by the user.
+     *
+     * @return bool|mixed
+     * @throws PaymentActionRequiredException When further interaction is required from the user.
+     */
+    public function completeOnsitePurchase($input = false, $paymentMethod = false, $offSession = false)
+    {
+        $data = $this->prepareOnsitePurchase($input, $paymentMethod);
+
+        if ( ! $data) {
+            // No payment method to charge against yet; probably a 2-step or capture-only transaction.
+            return null;
+        }
+
+        return $this->doOmnipayOnsitePurchase($data, $paymentMethod);
+    }
+
+    protected function doOmnipayOnsitePurchase($data, $paymentMethod = false)
+    {
+        $gateway = $this->gateway();
 
         // TODO move to payment driver class
         if ($this->isGateway(GATEWAY_SAGE_PAY_DIRECT) || $this->isGateway(GATEWAY_SAGE_PAY_SERVER)) {
@@ -321,14 +397,14 @@ class BasePaymentDriver
         } else {
             $items = null;
         }
-        $response = $gateway->purchase($data)
-                        ->setItems($items)
-                        ->send();
-        $this->purchaseResponse = (array) $response->getData();
+        $response               = $gateway->purchase($data)
+                                          ->setItems($items)
+                                          ->send();
+        $this->purchaseResponse = (array)$response->getData();
 
         // parse the transaction reference
         if ($this->transactionReferenceParam) {
-            if (! empty($this->purchaseResponse[$this->transactionReferenceParam])) {
+            if ( ! empty($this->purchaseResponse[$this->transactionReferenceParam])) {
                 $ref = $this->purchaseResponse[$this->transactionReferenceParam];
             } else {
                 throw new Exception($response->getMessage() ?: trans('texts.payment_error'));
@@ -807,7 +883,7 @@ class BasePaymentDriver
     protected function createLicense($payment)
     {
         // TODO parse invoice to determine license
-        if ($payment->amount == 20) {
+        if ($payment->amount == WHITE_LABEL_PRICE) {
             $affiliateId = 4;
             $productId = PRODUCT_WHITE_LABEL;
         } else {
@@ -843,6 +919,10 @@ class BasePaymentDriver
             $amount = min($amount, $payment->getCompletedAmount());
         } else {
             $amount = $payment->getCompletedAmount();
+        }
+
+        if ($payment->is_deleted) {
+            return false;
         }
 
         if (! $amount) {

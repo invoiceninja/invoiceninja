@@ -57,7 +57,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'Cardgate', 'provider' => 'Cardgate'],
             ['name' => 'Checkout.com', 'provider' => 'CheckoutCom'],
             ['name' => 'Creditcall', 'provider' => 'Creditcall'],
-            ['name' => 'Cybersource', 'provider' => 'Cybersource'],
+            ['name' => 'Cybersource', 'provider' => 'Cybersource', 'payment_library_id' => 2],
             ['name' => 'ecoPayz', 'provider' => 'Ecopayz'],
             ['name' => 'Fasapay', 'provider' => 'Fasapay'],
             ['name' => 'Komoju', 'provider' => 'Komoju'],

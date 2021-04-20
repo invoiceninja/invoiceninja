@@ -151,10 +151,10 @@ class DocumentAPIController extends BaseAPIController
      * )
      */
     public function destroy(UpdateDocumentRequest $request)
-    {
+    {    
         $entity = $request->entity();
 
-        $this->documentRepo->delete($entity);
+        $entity->delete();
 
         return $this->itemResponse($entity);
     }

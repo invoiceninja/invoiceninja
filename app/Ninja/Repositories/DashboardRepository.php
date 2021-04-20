@@ -290,7 +290,7 @@ class DashboardRepository
 
         return $activities->orderBy('activities.created_at', 'desc')
                 ->with('client.contacts', 'user', 'invoice', 'payment', 'credit', 'account', 'task', 'expense', 'contact')
-                ->take(50)
+                ->take(100)
                 ->get();
     }
 
@@ -317,7 +317,7 @@ class DashboardRepository
 
         return $pastDue->select([DB::raw("coalesce(invoices.partial_due_date, invoices.due_date) due_date"), 'invoices.balance', 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id', 'clients.user_id as client_user_id', 'invoice_type_id'])
                     ->orderBy('invoices.due_date', 'asc')
-                    ->take(50)
+                    ->take(100)
                     ->get();
     }
 
@@ -346,7 +346,7 @@ class DashboardRepository
             $upcoming = $upcoming->where('invoices.user_id', '=', $userId);
         }
 
-        return $upcoming->take(50)
+        return $upcoming->take(100)
                     ->select([DB::raw("coalesce(invoices.partial_due_date, invoices.due_date) due_date"), 'invoices.balance', 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id', 'clients.user_id as client_user_id', 'invoice_type_id'])
                     ->get();
     }
@@ -371,7 +371,7 @@ class DashboardRepository
 
         return $payments->select(['payments.payment_date', DB::raw('(payments.amount - payments.refunded) as amount'), 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id', 'clients.user_id as client_user_id'])
                     ->orderBy('payments.payment_date', 'desc')
-                    ->take(50)
+                    ->take(100)
                     ->get();
     }
 

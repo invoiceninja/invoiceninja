@@ -63,5 +63,6 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'lookup' => \App\Http\Middleware\DatabaseLookup::class,
         'permissions.required' => \App\Http\Middleware\PermissionsRequired::class,
+        'migration' => \App\Http\Middleware\EligibleForMigration::class,
     ];
 }

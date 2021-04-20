@@ -10,6 +10,9 @@
 /public/vendor
 /resources/assets/bower
 /storage/*.key
+/storage/documents
+/storage/import
+/storage/migrations
 /bootstrap/compiled.php
 /bootstrap/environment.php
 /vendor

@@ -3,6 +3,7 @@
 namespace App\Ninja\Datatables;
 
 use Auth;
+use Carbon;
 use URL;
 use Utils;
 use App\Models\Invoice;
@@ -84,6 +85,8 @@ class RecurringInvoiceDatatable extends EntityDatatable
         if ($model->invoice_status_id == INVOICE_STATUS_SENT) {
             if (! $model->last_sent_date_sql || $model->last_sent_date_sql == '0000-00-00') {
                 $label = trans('texts.pending');
+            } elseif ($model->end_date_sql && Carbon::parse($model->end_date_sql)->isPast()) {
+                $label = trans('texts.status_completed');
             } else {
                 $label = trans('texts.active');
             }

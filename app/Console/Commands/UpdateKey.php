@@ -27,7 +27,7 @@ class UpdateKey extends Command
      */
     protected $description = 'Update application key';
 
-    public function fire()
+    public function handle()
     {
         $this->info(date('r') . ' Running UpdateKey...');
 

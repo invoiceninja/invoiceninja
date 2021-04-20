@@ -202,9 +202,9 @@ if (! defined('APP_NAME')) {
     define('IMPORT_PANCAKE', 'Pancake');
 
     define('MAX_NUM_CLIENTS', 100);
-    define('MAX_NUM_CLIENTS_PRO', 20000);
+    define('MAX_NUM_CLIENTS_PRO', 40000);
     define('MAX_NUM_CLIENTS_LEGACY', 500);
-    define('MAX_INVOICE_AMOUNT', 1000000000);
+    define('MAX_INVOICE_AMOUNT', 10000000000);
     define('LEGACY_CUTOFF', 57800);
     define('ERROR_DELAY', 3);
 
@@ -361,7 +361,7 @@ if (! defined('APP_NAME')) {
     define('NINJA_APP_URL', env('NINJA_APP_URL', 'https://app.invoiceninja.com'));
     define('NINJA_DOCS_URL', env('NINJA_DOCS_URL', 'https://invoice-ninja.readthedocs.io/en/latest'));
     define('NINJA_DATE', '2000-01-01');
-    define('NINJA_VERSION', '4.5.13' . env('NINJA_VERSION_SUFFIX'));
+    define('NINJA_VERSION', '4.5.38' . env('NINJA_VERSION_SUFFIX'));
     define('NINJA_TERMS_VERSION', '1.0.1');
 
     define('SOCIAL_LINK_FACEBOOK', env('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja'));
@@ -414,12 +414,12 @@ if (! defined('APP_NAME')) {
     define('INVOICE_DESIGNS_AFFILIATE_KEY', 'T3RS74');
     define('SELF_HOST_AFFILIATE_KEY', '8S69AD');
 
-    define('PLAN_PRICE_PRO_MONTHLY', env('PLAN_PRICE_PRO_MONTHLY', 8));
-    define('PLAN_PRICE_ENTERPRISE_MONTHLY_2', env('PLAN_PRICE_ENTERPRISE_MONTHLY_2', 12));
-    define('PLAN_PRICE_ENTERPRISE_MONTHLY_5', env('PLAN_PRICE_ENTERPRISE_MONTHLY_5', 18));
-    define('PLAN_PRICE_ENTERPRISE_MONTHLY_10', env('PLAN_PRICE_ENTERPRISE_MONTHLY_10', 24));
-    define('PLAN_PRICE_ENTERPRISE_MONTHLY_20', env('PLAN_PRICE_ENTERPRISE_MONTHLY_20', 36));
-    define('WHITE_LABEL_PRICE', env('WHITE_LABEL_PRICE', 20));
+    define('PLAN_PRICE_PRO_MONTHLY', env('PLAN_PRICE_PRO_MONTHLY', 10));
+    define('PLAN_PRICE_ENTERPRISE_MONTHLY_2', env('PLAN_PRICE_ENTERPRISE_MONTHLY_2', 14));
+    define('PLAN_PRICE_ENTERPRISE_MONTHLY_5', env('PLAN_PRICE_ENTERPRISE_MONTHLY_5', 26));
+    define('PLAN_PRICE_ENTERPRISE_MONTHLY_10', env('PLAN_PRICE_ENTERPRISE_MONTHLY_10', 36));
+    define('PLAN_PRICE_ENTERPRISE_MONTHLY_20', env('PLAN_PRICE_ENTERPRISE_MONTHLY_20', 44));
+    define('WHITE_LABEL_PRICE', env('WHITE_LABEL_PRICE', 30));
     define('INVOICE_DESIGNS_PRICE', env('INVOICE_DESIGNS_PRICE', 10));
 
     define('USER_TYPE_SELF_HOST', 'SELF_HOST');
@@ -695,7 +695,7 @@ if (! defined('APP_NAME')) {
     }
 
     // include modules in translations
-    function mtrans($entityType, $text = false)
+    function mtrans($entityType, $text = false, $replace = [])
     {
         if (! $text) {
             $text = $entityType;
@@ -704,7 +704,7 @@ if (! defined('APP_NAME')) {
         // check if this has been translated in a module language file
         if (! Utils::isNinjaProd() && $module = Module::find($entityType)) {
             $key = "{$module->getLowerName()}::texts.{$text}";
-            $value = trans($key);
+            $value = trans($key, $replace);
             if ($key != $value) {
                 return $value;
             }

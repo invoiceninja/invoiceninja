@@ -123,6 +123,10 @@
 			position: fixed;
 		}
 
+    div#taskForm {
+      overflow-y: auto;
+    }
+
 		.ui-timepicker-wrapper.start-time  {
 			width: 140px !important;
 		}

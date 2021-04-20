@@ -54,7 +54,7 @@ class ClientPortalProposalController extends BaseController
 
         $proposal = $invitation->proposal;
 
-        $pdf = dispatch(new ConvertProposalToPdf($proposal));
+        $pdf = dispatch_now(new ConvertProposalToPdf($proposal));
 
         $this->downloadResponse($proposal->getFilename(), $pdf);
     }

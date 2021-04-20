@@ -69,6 +69,16 @@ class LoadPostmarkHistory extends Job
             $details = $this->postmark->getOutboundMessageDetails($message['MessageID']);
             $str .= sprintf('<b>%s</b><br/>', $details['subject']);
 
+            $event = $details['messageevents'][0];
+            $str .= sprintf('%s | %s<br/>', $event['Type'], $this->account->getDateTime($event['ReceivedAt'], true));
+            if ($message = $event['Details']['DeliveryMessage']) {
+                $str .= sprintf('<span class="text-muted">%s</span><br/>', $message);
+            }
+            if ($server = $event['Details']['DestinationServer']) {
+                $str .= sprintf('<span class="text-muted">%s</span><br/>', $server);
+            }
+
+            /*
             if (count($details['messageevents'])) {
                 $event = $details['messageevents'][0];
                 $str .= sprintf('%s | %s<br/>', $event['Type'], $this->account->getDateTime($event['ReceivedAt'], true));
@@ -81,6 +91,7 @@ class LoadPostmarkHistory extends Job
             } else {
                 $str .= trans('texts.processing') . '...';
             }
+            */
 
             $str .= '<p/>';
         }

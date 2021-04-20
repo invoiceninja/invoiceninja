@@ -76,7 +76,7 @@ class CreateTestData extends Command
     /**
      * @return bool
      */
-    public function fire()
+    public function handle()
     {
         if (Utils::isNinjaProd()) {
             $this->info('Unable to run in production');
@@ -133,7 +133,7 @@ class CreateTestData extends Command
 
             $this->createInvoices($client);
             $this->createInvoices($client, true);
-            $this->createTasks($client);
+           // $this->createTasks($client);
         }
     }
 

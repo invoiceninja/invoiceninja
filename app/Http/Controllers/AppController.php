@@ -44,6 +44,10 @@ class AppController extends BaseController
             return Redirect::to('/');
         }
 
+        if (file_exists(base_path() . '/.env')) {
+            exit('Error: app is already configured, backup then delete the .env file to re-run the setup');
+        }
+
         return View::make('setup');
     }
 
@@ -131,7 +135,6 @@ class AppController extends BaseController
 
         Cache::flush();
         Artisan::call('db:seed', ['--force' => true, '--class' => 'UpdateSeeder']);
-        Artisan::call('optimize', ['--force' => true]);
 
         if (! Account::count()) {
             $firstName = trim(Input::get('first_name'));
@@ -269,7 +272,6 @@ class AppController extends BaseController
                 if (Industry::count() == 0) {
                     Artisan::call('db:seed', ['--force' => true]);
                 }
-                Artisan::call('optimize', ['--force' => true]);
             } catch (Exception $e) {
                 Utils::logError($e);
 
@@ -307,7 +309,6 @@ class AppController extends BaseController
                 Artisan::call('route:clear');
                 Artisan::call('view:clear');
                 Artisan::call('config:clear');
-                Artisan::call('optimize', ['--force' => true]);
                 Auth::logout();
                 Cache::flush();
                 Session::flush();

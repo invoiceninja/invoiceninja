@@ -154,11 +154,12 @@
 
     @if ($client)
         {{ Former::populate($client) }}
+        {{ Former::populateField('country_id', (string) $client->country_id) }}
         {{ Former::populateField('first_name', $contact->first_name) }}
         {{ Former::populateField('last_name', $contact->last_name) }}
         {{ Former::populateField('email', $contact->email) }}
         @if (!$client->country_id && $client->account->country_id)
-            {{ Former::populateField('country_id', $client->account->country_id) }}
+            {{ Former::populateField('country_id', (string) $client->account->country_id) }}
             {{ Former::populateField('shipping_country_id', $client->account->country_id) }}
         @endif
     @endif
@@ -170,7 +171,7 @@
         {{ Former::populateField('city', 'New York') }}
         {{ Former::populateField('state', 'NY') }}
         {{ Former::populateField('postal_code', '10118') }}
-        {{ Former::populateField('country_id', 840) }}
+        {{ Former::populateField('country_id', (string) 840) }}
 
         <script>
             $(function() {
@@ -253,7 +254,7 @@
                 <div class="col-md-6">
                     {!! Former::select('country_id')
                             ->placeholder(trans('texts.country_id'))
-                            ->fromQuery($countries, 'name', 'id')
+                            ->fromQuery($countries, 'name', ['value' => 'id', 'data-iso_3166_2' => 'iso_3166_2'])
                             ->addGroupClass('country-select')
                             ->label('') !!}
                 </div>
@@ -449,38 +450,58 @@
             // Handle form submission.
             var form = document.getElementById('payment-form');
             form.addEventListener('submit', function(event) {
-              event.preventDefault();
+                event.preventDefault();
+                var options = {
+                    billing_details: {
+                        name: document.getElementById('first_name').value + ' ' + document.getElementById('last_name').value,
+                        @if (!empty($accountGateway->show_address))
+                        address: {
+                            line1: $('#address1').val(),
+                            line2: $('#address2').val(),
+                            city: $('#city').val(),
+                            state: $('#state').val(),
+                            postal_code: document.getElementById('postal_code')?$('#postal_code').val():null,
+                            country: $("#country_id option:selected").attr('data-iso_3166_2')
+                        }
+                        @endif
+                    }
+                };
 
-
-            var options = {
-                name: document.getElementById('first_name').value + ' ' + document.getElementById('last_name').value
-            };
-
-            if (document.getElementById('postal_code')) {
-                options.address_zip = document.getElementById('postal_code').value;
-            }
-
-            stripe.createToken(cardNumber, options).then(function(result) {
-                if (result.error) {
-                  // Inform the user if there was an error.
-                  var errorElement = document.getElementById('card-errors');
-                  errorElement.textContent = result.error.message;
-                    releaseSubmitButton();
-                } else {
-                  // Send the token to your server.
-                  stripeTokenHandler(result.token);
-                }
-              });
+                @if(request()->capture)
+                stripe.handleCardSetup('{{$driver->getSetupIntent()->client_secret}}', cardNumber, {payment_method_data: options}).then(function (result) {
+                    if (result.error) {
+                        // Inform the user if there was an error.
+                        var errorElement = document.getElementById('card-errors');
+                        errorElement.textContent = result.error.message;
+                        releaseSubmitButton();
+                    } else {
+                        // Send the ID to your server.
+                        stripePaymentMethodHandler(result.setupIntent.payment_method);
+                    }
+                });
+                @else
+                stripe.createPaymentMethod('card', cardNumber, options).then(function (result) {
+                    if (result.error) {
+                      // Inform the user if there was an error.
+                      var errorElement = document.getElementById('card-errors');
+                      errorElement.textContent = result.error.message;
+                        releaseSubmitButton();
+                    } else {
+                      // Send the ID to your server.
+                      stripePaymentMethodHandler(result.paymentMethod.id);
+                    }
+                });
+                @endif
             });
 
 
-            function stripeTokenHandler(token) {
+            function stripePaymentMethodHandler(paymentMethodID) {
               // Insert the token ID into the form so it gets submitted to the server
               var form = document.getElementById('payment-form');
               var hiddenInput = document.createElement('input');
               hiddenInput.setAttribute('type', 'hidden');
-              hiddenInput.setAttribute('name', 'sourceToken');
-              hiddenInput.setAttribute('value', token.id);
+              hiddenInput.setAttribute('name', 'paymentMethodID');
+              hiddenInput.setAttribute('value', paymentMethodID);
               form.appendChild(hiddenInput);
 
               // Submit the form
@@ -611,7 +632,7 @@
     <p>&nbsp;</p>
     <center>
         @if (isset($invitation))
-            {!! Button::normal(strtoupper(trans('texts.cancel')))->large()->asLinkTo($invitation->getLink()) !!}
+            {!! Button::normal(strtoupper(trans('texts.cancel')))->large()->asLinkTo(HTMLUtils::previousUrl('/')) !!}
             &nbsp;&nbsp;
         @endif
 

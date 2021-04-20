@@ -1187,17 +1187,12 @@ function escapeRegExp(str) {
 }
 
 function firstJSONError(json) {
+    json = json['errors'];
     for (var key in json) {
         if ( ! json.hasOwnProperty(key)) {
             continue;
         }
-        var item = json[key];
-        for (var subKey in item) {
-            if ( ! item.hasOwnProperty(subKey)) {
-                continue;
-            }
-            return item[subKey];
-        }
+        return json[key] + '';
     }
     return false;
 }
