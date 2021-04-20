@@ -29,6 +29,14 @@ class ClientGatewayToken extends BaseModel
         'hashed_id',
     ];
 
+    protected $fillable = [
+        'token',
+        'routing_number',
+        'gateway_customer_reference',
+        'gateway_type_id',
+        'meta',
+    ];
+
     public function getEntityType()
     {
         return self::class;
