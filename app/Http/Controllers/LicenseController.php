@@ -81,6 +81,7 @@ class LicenseController extends BaseController
      */
     public function index()
     {
+        $this->checkLicense();
 
         /* Catch claim license requests */
         if (config('ninja.environment') == 'selfhost' && request()->has('license_key')) {
@@ -139,5 +140,16 @@ class LicenseController extends BaseController
         ];
 
         return response()->json($error, 400);
+    }
+
+    private function checkLicense()
+    {
+        $account = auth()->user()->company()->account;
+
+        if($account->plan == 'white_label' && $account->plan_expires->lt(now())){
+            $account->plan = null;
+            $account->plan_expires = null;
+            $account->save();
+        }
     }
 }
