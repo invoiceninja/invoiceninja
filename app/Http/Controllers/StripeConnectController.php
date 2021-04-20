@@ -30,6 +30,7 @@ class StripeConnectController extends BaseController
 //        $request->getTokenContent();
 
         $data = [
+            'type' => 'standard',
             'email' => 'user@example.com',
             'country' => 'US',
         ];
@@ -41,5 +42,10 @@ class StripeConnectController extends BaseController
         // Store account->id into company_gateways.
 
         return redirect($link['url']);
+    }
+
+    public function completed()
+    {
+        dd(request()->all());
     }
 }
