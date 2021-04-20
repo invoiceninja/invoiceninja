@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Gateway;
+use App\Utils\Ninja;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -32,8 +34,6 @@ class StripeConnectGateway extends Migration
             Gateway::where('id', 20)->update(['visible' => 0]);
             Gateway::where('id', 56)->update(['visible' => 1]);
         }
-
-        Model::guard();
 
     }
 

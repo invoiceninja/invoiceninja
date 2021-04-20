@@ -14,10 +14,16 @@ class AuthorizeACH {
         this.key = document.querySelector(
             'meta[name="stripe-publishable-key"]'
         ).content;
+        this.stripe_connect = document.querySelector(
+            'meta[name="stripe-account-id"]'
+        ).content;
     }
 
     setupStripe = () => {
         this.stripe = Stripe(this.key);
+
+        if(this.stripe_connect)
+            this.stripe.stripeAccount = this.stripe_connect;
 
         return this;
     };
