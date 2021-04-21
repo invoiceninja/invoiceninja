@@ -262,6 +262,10 @@ class TemplateEngine
 
     public static function wrapElementsIntoTables(string $wrapper, string $body, $settings): ?string
     {
+        $wrapper = $wrapper == strip_tags($wrapper)
+            ? '<div id="content-wrapper"></div>'
+            : $wrapper;
+
         $documents['wrapper'] = new \DOMDocument();
         $documents['wrapper']->loadHTML($wrapper);
 
