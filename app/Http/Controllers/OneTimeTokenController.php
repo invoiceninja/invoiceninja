@@ -88,9 +88,9 @@ class OneTimeTokenController extends BaseController
 
         MultiDB::findAndSetDbByCompanyKey($data['company_key']);
 
-        $user = User::findOrFail($data['user_id']);
+        // $user = User::findOrFail($data['user_id']);
 
-        Auth::login($user, true);
+        // Auth::login($user, true);
 
         // Cache::forget($request->input('hash'));
 
