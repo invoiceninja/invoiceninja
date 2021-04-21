@@ -127,7 +127,7 @@ class TemplateEngine
                 $this->body = EmailTemplateDefaults::getDefaultTemplate($this->template, $this->settings_entity->locale());
             }
         }
-        
+
         return $this;
     }
 
@@ -276,7 +276,7 @@ class TemplateEngine
         $documents['wrapper']->saveHTML();
 
         $documents['body'] = new \DOMDocument();
-        $documents['body']->loadHTML(empty($body) ? '<div></div>' : (new CssToInlineStyles())->convert($body, $styles));
+        $documents['body']->loadHTML(empty($body) ? '<div></div>' : mb_convert_encoding((new CssToInlineStyles())->convert($body, $styles), 'HTML-ENTITIES', 'UTF-8'));
 
         $table_html ='
             <table style="font-family:arial,helvetica,sans-serif;" role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">

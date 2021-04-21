@@ -422,6 +422,11 @@ trait GeneratesCounter
      */
     private function resetCounters(Client $client)
     {
+        $reset_counter_frequency = (int)$client->getSetting('reset_counter_frequency_id');
+
+        if($reset_counter_frequency == 0)
+            return;
+        
         $timezone = Timezone::find($client->getSetting('timezone_id'));
 
         $reset_date = Carbon::parse($client->getSetting('reset_counter_date'), $timezone->name);
@@ -430,7 +435,7 @@ trait GeneratesCounter
             return false;
         }
 
-        switch ($client->company->reset_counter_frequency_id) {
+        switch ($reset_counter_frequency) {
             case RecurringInvoice::FREQUENCY_DAILY:
                 $reset_date->addDay();
                 break;

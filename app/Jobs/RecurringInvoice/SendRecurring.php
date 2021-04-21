@@ -68,15 +68,6 @@ class SendRecurring implements ShouldQueue
                            ->fillDefaults()
                            ->save();
 
-        nlog("Invoice {$invoice->number} created");
-
-        $invoice->invitations->each(function ($invitation) use ($invoice) {
-            if ($invitation->contact && strlen($invitation->contact->email) >=1) {
-                EmailEntity::dispatch($invitation, $invoice->company);
-                nlog("Firing email for invoice {$invoice->number}");
-            }
-        });
-
         nlog("updating recurring invoice dates");
         /* Set next date here to prevent a recurring loop forming */
         $this->recurring_invoice->next_send_date = $this->recurring_invoice->nextSendDate()->format('Y-m-d');
@@ -98,6 +89,15 @@ class SendRecurring implements ShouldQueue
         if ($invoice->invitations->count() >= 1) {
             $invoice->entityEmailEvent($invoice->invitations->first(), 'invoice', 'email_template_invoice');
         }
+    
+        nlog("Invoice {$invoice->number} created");
+
+        $invoice->invitations->each(function ($invitation) use ($invoice) {
+            if ($invitation->contact && strlen($invitation->contact->email) >=1) {
+                EmailEntity::dispatch($invitation, $invoice->company);
+                nlog("Firing email for invoice {$invoice->number}");
+            }
+        });
     
         if ($invoice->client->getSetting('auto_bill_date') == 'on_send_date' && $this->recurring_invoice->auto_bill_enabled) {
             nlog("attempting to autobill {$invoice->number}");
