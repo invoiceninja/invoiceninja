@@ -348,6 +348,10 @@ class GeneratesCounterTest extends TestCase
         $this->assertEquals($vendor_number, date('Y').'-'.str_pad($vendor->user_id, 2, '0', STR_PAD_LEFT).'-0002');
     }
 
+    public function testResetCounter()
+    {
+        
+    }
     /*
 
         public function testClientNextNumber()
