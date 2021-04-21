@@ -193,4 +193,27 @@ return [
 
     ],
 
+    'redis-sentinel' => [
+
+        'default' => [
+            [
+                'host' => 'v5db1',
+                'port' => 26379,
+            ],
+            [
+                'host' => 'v5db2',
+                'port' => 26379,
+            ],
+        ],
+
+        'options' => [
+            'service' => env('REDIS_SENTINEL_SERVICE', 'mymaster'),
+            'parameters' => [
+                'password' => env('REDIS_PASSWORD', null),
+                'database' => 0,
+            ],
+        ],
+
+    ],
+
 ];

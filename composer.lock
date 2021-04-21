@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f01381d3d00f0bd84acbda078ad1b99e",
+    "content-hash": "131c90cf17cbf87d1fc25b96c052a8e3",
     "packages": [
         {
             "name": "authorizenet/authorizenet",
@@ -4174,6 +4174,169 @@
                 }
             ],
             "time": "2020-12-14T13:15:25+00:00"
+        },
+        {
+            "name": "monospice/laravel-redis-sentinel-drivers",
+            "version": "2.x-dev",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/monospice/laravel-redis-sentinel-drivers.git",
+                "reference": "5b1c107d2fc511c26829c5c5b57957e31dc32807"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/monospice/laravel-redis-sentinel-drivers/zipball/5b1c107d2fc511c26829c5c5b57957e31dc32807",
+                "reference": "5b1c107d2fc511c26829c5c5b57957e31dc32807",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/cache": "^5.4 || ^6.0 || ^7.0 || ^8.0",
+                "illuminate/contracts": "^5.4 || ^6.0 || ^7.0 || ^8.0",
+                "illuminate/queue": "^5.4 || ^6.0 || ^7.0 || ^8.0",
+                "illuminate/redis": "^5.4 || ^6.0 || ^7.0 || ^8.0",
+                "illuminate/session": "^5.4 || ^6.0 || ^7.0 || ^8.0",
+                "illuminate/support": "^5.4 || ^6.0 || ^7.0 || ^8.0",
+                "monospice/spicy-identifiers": "^0.1",
+                "php": ">=5.6.4",
+                "predis/predis": "^1.1"
+            },
+            "require-dev": {
+                "laravel/framework": "^5.4 || ^6.0 || ^7.0 || ^8.0",
+                "laravel/horizon": "^1.0 || ^2.0 || ^3.0 || ^4.0",
+                "laravel/lumen-framework": "^5.4 || ^6.0 || ^7.0 || ^8.0",
+                "mockery/mockery": "^1.3",
+                "phpunit/phpunit": "^5.0"
+            },
+            "default-branch": true,
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Monospice\\LaravelRedisSentinel\\RedisSentinelServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Monospice\\LaravelRedisSentinel\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Cy Rossignol",
+                    "email": "cy@rossignols.me"
+                }
+            ],
+            "description": "Redis Sentinel integration for Laravel and Lumen.",
+            "keywords": [
+                "laravel",
+                "lumen",
+                "redis",
+                "sentinel"
+            ],
+            "support": {
+                "issues": "https://github.com/monospice/laravel-redis-sentinel-drivers/issues",
+                "source": "https://github.com/monospice/laravel-redis-sentinel-drivers/tree/integration-tests"
+            },
+            "time": "2020-09-08T06:14:57+00:00"
+        },
+        {
+            "name": "monospice/spicy-identifier-tools",
+            "version": "1.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/monospice/spicy-identifier-tools.git",
+                "reference": "8659493c64d3023c38bf4f325bff86fbb53c085a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/monospice/spicy-identifier-tools/zipball/8659493c64d3023c38bf4f325bff86fbb53c085a",
+                "reference": "8659493c64d3023c38bf4f325bff86fbb53c085a",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "phpspec/phpspec": "~2.2",
+                "phpunit/phpunit": "~4.7"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Monospice\\SpicyIdentifiers\\Tools\\": "src/Tools"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Cy Rossignol",
+                    "email": "cy.rossignol@yahoo.com"
+                }
+            ],
+            "description": "An easy way to parse, convert, and format identifier names.",
+            "support": {
+                "issues": "https://github.com/monospice/spicy-identifier-tools/issues",
+                "source": "https://github.com/monospice/spicy-identifier-tools/tree/1.0.3"
+            },
+            "time": "2015-11-04T19:00:37+00:00"
+        },
+        {
+            "name": "monospice/spicy-identifiers",
+            "version": "0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/monospice/spicy-identifiers.git",
+                "reference": "ecd04ca84907f2f0d58bf3b2bb9a36d7d29d86bd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/monospice/spicy-identifiers/zipball/ecd04ca84907f2f0d58bf3b2bb9a36d7d29d86bd",
+                "reference": "ecd04ca84907f2f0d58bf3b2bb9a36d7d29d86bd",
+                "shasum": ""
+            },
+            "require": {
+                "monospice/spicy-identifier-tools": "~1.0",
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "phpspec/phpspec": "~2.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Monospice\\SpicyIdentifiers\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Cy Rossignol",
+                    "email": "cy@rossignols.me"
+                }
+            ],
+            "description": "An easy way to parse and manipulate identifier names, such as dynamic method names.",
+            "keywords": [
+                "dynamic",
+                "method",
+                "parser",
+                "variable"
+            ],
+            "support": {
+                "issues": "https://github.com/monospice/spicy-identifiers/issues",
+                "source": "https://github.com/monospice/spicy-identifiers/tree/1.0.x"
+            },
+            "time": "2017-01-29T09:00:23+00:00"
         },
         {
             "name": "mtdowling/jmespath.php",
