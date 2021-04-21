@@ -154,13 +154,14 @@ return [
         ],
 
         'sentinel-default' => array_merge(
-            array_map(
-                function ($a, $b) {
-                    return ["host" => $a,"port" => $b];
-                },
-                explode(',', env('REDIS_HOST', 'localhost')),
-                explode(',', env('REDIS_PORT', 26379))
-            ),
+             [
+               "host" => "v5db1",
+               "port" => "26379",
+             ],
+             [
+               "host" => "v5db2",
+               "port" => "26379",
+             ],
             ['options' => [
                 'replication' => 'sentinel',
                 'service' =>  env('REDIS_SENTINEL_SERVICE', 'mymaster'),
@@ -172,13 +173,14 @@ return [
         ),
 
         'sentinel-cache' => array_merge(
-            array_map(
-                function ($a, $b) {
-                    return ["host" => $a,"port" => $b];
-                },
-                explode(',', env('REDIS_HOST', 'localhost')),
-                explode(',', env('REDIS_PORT', 26379))
-            ),
+             [
+               "host" => "v5db1",
+               "port" => "26379",
+             ],
+             [
+               "host" => "v5db2",
+               "port" => "26379",
+             ],
             ['options' => [
                 'replication' => 'sentinel',
                 'service' =>  env('REDIS_SENTINEL_SERVICE', 'mymaster'),
@@ -188,6 +190,29 @@ return [
                 ],
             ]]
         ),
+
+    ],
+
+    'redis-sentinel' => [
+
+        'default' => [
+            [
+                'host' => 'v5db1',
+                'port' => 26379,
+            ],
+            [
+                'host' => 'v5db2',
+                'port' => 26379,
+            ],
+        ],
+
+        'options' => [
+            'service' => env('REDIS_SENTINEL_SERVICE', 'mymaster'),
+            'parameters' => [
+                'password' => env('REDIS_PASSWORD', null),
+                'database' => 0,
+            ],
+        ],
 
     ],
 
