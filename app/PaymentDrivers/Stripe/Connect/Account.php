@@ -20,7 +20,7 @@ class Account
     public static function create(array $payload): \Stripe\Account
     {
         $stripe = new \Stripe\StripeClient(
-            config('ninja.stripe_private_key')
+            config('ninja.ninja_stripe_key')
         );
 
         return $stripe->accounts->create([
@@ -36,13 +36,13 @@ class Account
     public static function link(string $account_id): \Stripe\AccountLink
     {
         $stripe = new \Stripe\StripeClient(
-            config('ninja.stripe_private_key')
+            config('ninja.ninja_stripe_key')
         );
 
         return $stripe->accountLinks->create([
             'account' => $account_id,
-            'refresh_url' => 'http://localhost:8080/stripe_connect/reauth',
-            'return_url' => 'http://localhost:8080/stripe_connect/return',
+            'refresh_url' => 'http://ninja.test:8000/stripe_connect/reauth',
+            'return_url' => 'http://ninja.test:8000/stripe_connect/return',
             'type' => 'account_onboarding',
         ]);
     }
