@@ -222,11 +222,5 @@ class InvoiceTest extends TestCase
         //$this->assertEquals(count($this->invoice_calc->getTaxMap()), 1);
     }
 
-    public function testSentStatus()
-    {
-        $this->invoice->due_date = now()->addMonth();
-        $this->invoice->status_id = Invoice::STATUS_SENT;
 
-        $this->assertEquals(Invoice::STATUS_SENT, $this->invoice->getStatusAttribute());
-    }
 }

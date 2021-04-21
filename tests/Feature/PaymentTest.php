@@ -14,6 +14,7 @@ use App\DataMapper\ClientSettings;
 use App\Factory\ClientFactory;
 use App\Factory\CreditFactory;
 use App\Factory\InvoiceFactory;
+use App\Factory\InvoiceItemFactory;
 use App\Factory\PaymentFactory;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Models\Client;
@@ -1385,4 +1386,99 @@ class PaymentTest extends TestCase
 
         $this->assertEquals(1, $arr['data'][0]['is_deleted']);
     }
+
+
+    public function testDeleteRefundedPayment()
+    {
+
+       $this->invoice = null;
+
+        $client = ClientFactory::create($this->company->id, $this->user->id);
+        $client->save();
+
+        $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
+        $this->invoice->client_id = $client->id;
+
+
+            $item = InvoiceItemFactory::create();
+            $item->quantity = 1;
+            $item->cost = 10;
+            $item->product_key = 'test';
+            $item->notes = 'test';
+            $item->custom_value1 = '';
+            $item->custom_value2 = '';
+            $item->custom_value3 = '';
+            $item->custom_value4 = '';
+
+            $line_items[] = $item;
+
+        $this->invoice->line_items = $line_items;
+        $this->invoice->uses_inclusive_taxes = false;
+
+        $this->invoice->save();
+
+        $this->invoice_calc = new InvoiceSum($this->invoice);
+        $this->invoice_calc->build();
+
+        $this->invoice = $this->invoice_calc->getInvoice();
+        $this->invoice->save();
+        $this->invoice->service()->markSent()->save(); 
+
+
+        $this->assertEquals(10, $this->invoice->balance);
+        $this->assertEquals(10, $this->invoice->client->balance);
+
+        $this->invoice->service()->markPaid()->save();
+
+        $this->assertEquals(0, $this->invoice->balance);
+        $this->assertEquals(0, $this->invoice->client->balance);
+
+        $this->assertTrue($this->invoice->payments()->exists());
+
+        $payment = $this->invoice->payments()->first();
+
+        $data = [
+            'id' => $this->encodePrimaryKey($payment->id),
+            'amount' => 10,
+            'date' => '2021/12/12',
+            'invoices' => [
+                [
+                'invoice_id' => $this->invoice->hashed_id,
+                'amount' => 10,
+                ],
+            ],
+        ];
+
+        $response = false;
+
+        try {
+            $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/payments/refund', $data);
+        } catch (ValidationException $e) {
+            $message = json_decode($e->validator->getMessageBag(), 1);
+            nlog($message);
+        }
+
+        $arr = $response->json();
+
+        $response->assertStatus(200);
+
+        $this->assertEquals(10, $this->invoice->fresh()->balance);
+        $this->assertEquals(10, $this->invoice->fresh()->balance);
+
+        $data = [
+            'ids' => [$this->encodePrimaryKey($payment->id)],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/payments/bulk?action=delete', $data);
+        
+        $this->assertEquals(10, $this->invoice->fresh()->balance);
+        $this->assertEquals(10, $this->invoice->fresh()->balance);
+    }
 }
+
