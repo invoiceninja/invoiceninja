@@ -12,6 +12,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Factory\CompanyGatewayFactory;
 use App\Http\Requests\StripeConnect\InitializeStripeConnectRequest;
 use App\Models\CompanyGateway;
 use App\PaymentDrivers\Stripe\Connect\Account;
@@ -27,25 +28,33 @@ class StripeConnectController extends BaseController
      */
     public function initialize(InitializeStripeConnectRequest $request, string $token)
     {
-//        $request->getTokenContent();
+        // Should we check if company has set country in the ap? Otherwise this will fail.
 
         $data = [
             'type' => 'standard',
-            'email' => 'user@example.com',
-            'country' => 'US',
+            'email' => $request->getContact()->email,
+            'country' => $request->getCompany()->country()->iso_3166_2,
         ];
 
         $account = Account::create($data);
 
-        $link = Account::link($account->id);
+        $link = Account::link($account->id, $token);
 
-        // Store account->id into company_gateways.
+//        $company_gateway = CompanyGatewayFactory::create($request->getCompany()->id, $request->getContact()->client->user->id);
+//
+//        $company_gateway->fill([
+//            'gateway_key' => 'provide-valid-stripe-key-here',
+//            'fees_and_limits' => [],
+//            'config' => encrypt(json_encode(['account_id' => $account->id]))
+//        ]);
+//
+//        $company_gateway->save();
 
         return redirect($link['url']);
     }
 
     public function completed()
     {
-        dd(request()->all());
+        return render('gateways.stripe.connect.completed');
     }
 }
