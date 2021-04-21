@@ -12,6 +12,7 @@ namespace Tests\Unit;
 
 use App\Factory\InvoiceItemFactory;
 use App\Helpers\Invoice\InvoiceSum;
+use App\Models\Invoice;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\MockAccountData;
 use Tests\TestCase;
@@ -219,5 +220,13 @@ class InvoiceTest extends TestCase
         //$this->assertEquals($this->invoice_calc->getBalance(), 26);
         //$this->assertEquals($this->invoice_calc->getTotalTaxes(), 4);
         //$this->assertEquals(count($this->invoice_calc->getTaxMap()), 1);
+    }
+
+    public function testSentStatus()
+    {
+        $this->invoice->due_date = now()->addMonth();
+        $this->invoice->status_id = Invoice::STATUS_SENT;
+
+        $this->assertEquals(Invoice::STATUS_SENT, $this->invoice->getStatusAttribute());
     }
 }
