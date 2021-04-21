@@ -58,7 +58,6 @@
         "league/omnipay": "^3.1",
         "livewire/livewire": "^2.0",
         "maennchen/zipstream-php": "^1.2",
-        "monospice/laravel-redis-sentinel-drivers": "^2.7",
         "nwidart/laravel-modules": "^8.0",
         "omnipay/paypal": "^3.0",
         "pragmarx/google2fa": "^8.0",
