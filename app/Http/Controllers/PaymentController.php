@@ -592,7 +592,7 @@ class PaymentController extends BaseController
              $this->payment_repo->restore($payment);
                 
                 if (! $bulk) {
-                    return $this->listResponse($payment);
+                    return $this->itemResponse($payment);
                 }
 
                 break;
@@ -600,7 +600,7 @@ class PaymentController extends BaseController
              $this->payment_repo->archive($payment);
                 
                 if (! $bulk) {
-                    return $this->listResponse($payment);
+                    return $this->itemResponse($payment);
                 }
                 // code...
                 break;
@@ -608,14 +608,26 @@ class PaymentController extends BaseController
              $this->payment_repo->delete($payment);
                 
                 if (! $bulk) {
-                    return $this->listResponse($payment);
+                    return $this->itemResponse($payment);
                 }
                 // code...
                 break;
             case 'email':
                 //dispatch email to queue
-                break;
+                $payment->service()->sendEmail();
 
+                if (! $bulk) {
+                    return $this->itemResponse($payment);
+                }
+                break;
+            case 'email_receipt':
+                $this->payment->service()->sendEmail();
+
+                if (! $bulk) {
+                    return $this->itemResponse($payment);
+                }
+                break;
+            
             default:
                 // code...
                 break;
@@ -670,6 +682,8 @@ class PaymentController extends BaseController
     public function refund(RefundPaymentRequest $request)
     {
         $payment = $request->payment();
+
+// nlog($request->all());
 
         $payment = $payment->refund($request->all());
 

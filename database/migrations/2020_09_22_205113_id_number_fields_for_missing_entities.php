@@ -36,7 +36,7 @@ class IdNumberFieldsForMissingEntities extends Migration
         Schema::table('vendors', function (Blueprint $table) {
             $table->text('vendor_hash')->nullable();
             $table->text('public_notes')->nullable();
-            $table->unique(['company_id', 'number']);
+            // $table->unique(['company_id', 'number']);
         });
 
         Schema::table('vendor_contacts', function (Blueprint $table) {

@@ -35,10 +35,11 @@ class StoreSubscriptionRequest extends Request
     public function rules()
     {
         $rules =  [
-            'product_id' => ['sometimes'],
+            'product_ids' => ['sometimes'],
+            'recurring_product_ids' => ['sometimes'],
             'assigned_user_id' => ['sometimes'],
             'is_recurring' => ['sometimes'],
-            'frequency_id' => ['sometimes'],
+            'frequency_id' => ['required_with:recurring_product_ids'],
             'auto_bill' => ['sometimes'],
             'promo_code' => ['sometimes'],
             'promo_discount' => ['sometimes'],

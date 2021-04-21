@@ -122,6 +122,23 @@ class TaskStatusApiTest extends TestCase
         $this->assertEquals(0, $arr['data'][0]['archived_at']);
     }
 
+
+    public function testTaskStatusDeletedFromDELETEROute()
+    {
+        $data = [
+            'ids' => [$this->encodePrimaryKey($this->task_status->id)],
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->delete('/api/v1/task_statuses/'.$this->encodePrimaryKey($this->task_status->id));
+
+        $arr = $response->json();
+nlog($arr);
+        $this->assertTrue($arr['data']['is_deleted']);
+    }
+
     public function testTaskStatusDeleted()
     {
         $data = [

@@ -17,6 +17,7 @@ use App\Http\Requests\ClientPortal\Subscriptions\ShowPlanSwitchRequest;
 use App\Models\RecurringInvoice;
 use App\Models\Subscription;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class SubscriptionPlanSwitchController extends Controller
 {
@@ -30,11 +31,10 @@ class SubscriptionPlanSwitchController extends Controller
      */
     public function index(ShowPlanSwitchRequest $request, RecurringInvoice $recurring_invoice, Subscription $target)
     {
-        
+
         $amount = $recurring_invoice->subscription
                                     ->service()
                                     ->calculateUpgradePrice($recurring_invoice, $target);
-
         /**
          * 
          * Null value here is a proxy for

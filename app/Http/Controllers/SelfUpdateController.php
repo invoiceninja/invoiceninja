@@ -85,7 +85,6 @@ class SelfUpdateController extends BaseController
 
         Artisan::call('clear-compiled');
         Artisan::call('cache:clear');
-        Artisan::call('debugbar:clear');
         Artisan::call('route:clear');
         Artisan::call('view:clear');
         Artisan::call('config:clear');
@@ -96,10 +95,17 @@ class SelfUpdateController extends BaseController
 
     private function testWritable()
     {
-        $directoryIterator = new \RecursiveDirectoryIterator(base_path());
+        $directoryIterator = new \RecursiveDirectoryIterator(base_path(), \RecursiveDirectoryIterator::SKIP_DOTS);
 
         foreach (new \RecursiveIteratorIterator($directoryIterator) as $file) {
+
+            if(strpos($file->getPathname(), '.git') !== false)
+                continue;
+
+            // nlog($file->getPathname());
+
             if ($file->isFile() && ! $file->isWritable()) {
+                throw new FilePermissionsFailure($file);
                 return false;
             }
         }

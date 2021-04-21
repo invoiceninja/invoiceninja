@@ -482,9 +482,9 @@ class CompanyController extends BaseController
                 $company_user->user->forceDelete();
             });
 
-            if (Ninja::isHosted()) {
-                RefundCancelledAccount::dispatchNow($account);
-            }
+            // if (Ninja::isHosted()) {
+            //     RefundCancelledAccount::dispatchNow($account);
+            // }
 
             $account->delete();
 

@@ -19,11 +19,13 @@ use App\Http\Requests\Task\CreateTaskRequest;
 use App\Http\Requests\Task\DestroyTaskRequest;
 use App\Http\Requests\Task\EditTaskRequest;
 use App\Http\Requests\Task\ShowTaskRequest;
+use App\Http\Requests\Task\SortTaskRequest;
 use App\Http\Requests\Task\StoreTaskRequest;
 use App\Http\Requests\Task\UpdateTaskRequest;
 use App\Http\Requests\Task\UploadTaskRequest;
 use App\Models\Account;
 use App\Models\Task;
+use App\Models\TaskStatus;
 use App\Repositories\TaskRepository;
 use App\Transformers\TaskTransformer;
 use App\Utils\Ninja;
@@ -279,8 +281,8 @@ class TaskController extends BaseController
         
         $task = $this->task_repo->save($request->all(), $task);
 
-        // if($task->status_order != $old_task->status_order)
-        //     $this->task_repo->sortStatuses($old_task, $task);
+        if($task->status_order != $old_task->status_order)
+            $this->task_repo->sortStatuses($old_task, $task);
 
         event(new TaskWasUpdated($task, $task->company, Ninja::eventVars(auth()->user()->id)));
 
@@ -579,4 +581,88 @@ class TaskController extends BaseController
         return $this->itemResponse($task->fresh());
 
     }  
+
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param StoreTaskRequest $request
+     * @return Response
+     *
+     *
+     *
+     * @OA\Post(
+     *      path="/api/v1/tasks/stort",
+     *      operationId="sortTasks",
+     *      tags={"tasks"},
+     *      summary="Sort tasks on KanBan",
+     *      description="Sorts tasks after drag and drop on the KanBan.",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns an Ok, 200 HTTP status",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
+    public function sort(SortTaskRequest $request)
+    {
+    
+        $task_statuses = $request->input('status_ids');
+        $tasks = $request->input('task_ids');
+
+        collect($task_statuses)->each(function ($task_status_hashed_id, $key){
+
+            $task_status = TaskStatus::where('id', $this->decodePrimaryKey($task_status_hashed_id))
+                                     ->where('company_id', auth()->user()->company()->id)
+                                     ->first();
+
+            $task_status->status_order = $key;
+            $task_status->save();
+
+        });
+
+        foreach($tasks as $key => $task_list)
+        {
+
+            $sort_status_id = $this->decodePrimaryKey($key);
+            
+            // nlog($task_list);
+
+            foreach ($task_list as $key => $task)
+            {
+
+                // nlog($task);
+                
+                $task_record = Task::where('id', $this->decodePrimaryKey($task))
+                             ->where('company_id', auth()->user()->company()->id)
+                             ->first();
+
+                // nlog($task_record->id);
+                
+                $task_record->status_order = $key;
+                $task_record->status_id = $sort_status_id;
+                $task_record->save();
+            }
+
+        }
+
+        return response()->json(['message' => 'Ok'],200);
+    }
 }

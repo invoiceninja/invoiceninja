@@ -8,6 +8,7 @@ use App\Http\Requests\TaskStatus\DestroyTaskStatusRequest;
 use App\Http\Requests\TaskStatus\ShowTaskStatusRequest;
 use App\Http\Requests\TaskStatus\StoreTaskStatusRequest;
 use App\Http\Requests\TaskStatus\UpdateTaskStatusRequest;
+use App\Models\Task;
 use App\Models\TaskStatus;
 use App\Repositories\TaskStatusRepository;
 use App\Transformers\TaskStatusTransformer;
@@ -398,9 +399,10 @@ class TaskStatusController extends BaseController
      */
     public function destroy(DestroyTaskStatusRequest $request, TaskStatus $task_status)
     {
-        $task_status->delete();
-
-        return $this->itemResponse($task_status->fresh());
+        
+        $task_status = $this->task_status_repo->delete($task_status);
+     
+        return $this->itemResponse($task_status);
     }
 
     /**

@@ -153,6 +153,8 @@ class HtmlEngine
             $data['$date'] = ['value' => $this->translateDate($this->entity->date, $this->entity->client->date_format(), $this->entity->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.credit_date')];
         }
 
+        $data['$portal_url'] = ['value' => $this->invitation->getPortalLink(), 'label' =>''];
+        
         $data['$entity_number'] = &$data['$number'];
         $data['$invoice.discount'] = ['value' => Number::formatMoney($this->entity_calc->getTotalDiscount(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.discount')];
         $data['$discount'] = &$data['$invoice.discount'];
@@ -375,7 +377,7 @@ class HtmlEngine
         $data['$entity_footer'] = ['value' => $this->entity->footer, 'label' => ''];
 
         $data['$page_size'] = ['value' => $this->settings->page_size, 'label' => ''];
-        $data['$page_layout'] = ['value' => $this->settings->page_layout, 'label' => ''];
+        $data['$page_layout'] = ['value' => property_exists($this->settings, 'page_layout') ? $this->settings->page_layout : 'Portrait', 'label' => ''];
 
         $arrKeysLength = array_map('strlen', array_keys($data));
         array_multisort($arrKeysLength, SORT_DESC, $data);

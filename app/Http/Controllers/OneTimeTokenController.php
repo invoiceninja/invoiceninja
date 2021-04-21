@@ -72,8 +72,8 @@ class OneTimeTokenController extends BaseController
 
         $data = [
             'user_id' => auth()->user()->id,
-            'company_key'=> auth()->company()->company_key,
-            'context' => $requst->input('context'),
+            'company_key'=> auth()->user()->company()->company_key,
+            'context' => $request->input('context'),
         ];
 
         Cache::put( $hash, $data, 3600 );

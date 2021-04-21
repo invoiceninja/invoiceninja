@@ -222,6 +222,11 @@
     .page-content-cell {
         padding: 1rem;
     }
+
+    [data-ref="total_table-public_notes"] {
+        margin-top: 2rem;
+        margin-bottom: 2rem
+    }
 </style>
 
 <table class="page-container">
@@ -242,7 +247,9 @@
                 <div style="margin-top: 195px"></div>
                 <div class="footer-wrapper" id="footer">
                     <div class="footer-content">
-                        <div></div>
+                        <div>
+                            <p data-ref="total_table-public_notes">$entity.public_notes</p>
+                        </div>
                         <div id="company-details"></div>
                         <div id="company-address"></div>
                     </div>
