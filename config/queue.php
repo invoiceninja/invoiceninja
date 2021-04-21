@@ -67,13 +67,6 @@ return [
             'block_for' => null,
         ],
 
-        'redis-sentinel' => [
-                'driver' => 'redis-sentinel',
-                'connection' => 'default',
-                'queue' => 'default',
-                'retry_after' => 90, // Laravel >= 5.4.30
-                'expire' => 90,      // Laravel < 5.4.30
-            ],
     ],
 
     /*

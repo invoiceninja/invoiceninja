@@ -86,10 +86,6 @@ return [
             'endpoint' => env('DYNAMODB_ENDPOINT'),
         ],
 
-        'redis-sentinel' => [
-                'driver' => 'redis-sentinel',
-                'connection' => 'default',
-            ],
     ],
 
     /*
