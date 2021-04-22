@@ -49,7 +49,7 @@ class StripeConnectController extends BaseController
             ->first();
 
         if ($exists) {
-            return redirect()->route('stripe_connect.return');
+            return render('gateways.stripe.connect.existing');
         }
 
         $account = Account::create($data);
