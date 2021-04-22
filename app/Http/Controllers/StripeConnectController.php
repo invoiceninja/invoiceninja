@@ -31,6 +31,9 @@ class StripeConnectController extends BaseController
     {
         // Should we check if company has set country in the ap? Otherwise this will fail.
 
+        if(!is_array($request->getTokenContent()))
+            throw new \Exception('Invalid token');
+
         MultiDB::findAndSetDbByCompanyKey($request->getTokenContent()['company_key']);
 
         $data = [
