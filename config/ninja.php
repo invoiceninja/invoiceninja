@@ -14,8 +14,8 @@ return [
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', ''),
-    'app_version' => '5.1.52',
-    'app_tag' => '5.1.52-release',
+    'app_version' => '5.1.53',
+    'app_tag' => '5.1.53-release',
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', false),
@@ -39,7 +39,7 @@ return [
     'sentry_dsn' => env('SENTRY_LARAVEL_DSN', 'https://9b4e15e575214354a7d666489783904a@sentry.invoicing.co/6'),
     'environment' => env('NINJA_ENVIRONMENT', 'selfhost'), // 'hosted', 'development', 'selfhost', 'reseller'
 	'preconfigured_install' => env('PRECONFIGURED_INSTALL',false),
-    'update_secret' => env('UPDATE_SECRET', false),
+    'update_secret' => env('UPDATE_SECRET', ''),
     // Settings used by invoiceninja.com
 
     'terms_of_service_url' => [
