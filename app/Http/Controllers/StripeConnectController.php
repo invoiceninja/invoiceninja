@@ -32,7 +32,8 @@ class StripeConnectController extends BaseController
         // Should we check if company has set country in the ap? Otherwise this will fail.
 
         if(!is_array($request->getTokenContent()))
-            throw new \Exception('Invalid token');
+            abort(400, 'Invalid token');
+
 
         MultiDB::findAndSetDbByCompanyKey($request->getTokenContent()['company_key']);
 
@@ -55,7 +56,7 @@ class StripeConnectController extends BaseController
 
         $link = Account::link($account->id, $token);
 
-        $company_gateway = CompanyGatewayFactory::create($request->getCompany()->id, $request->getContact()->client->user->id);
+        $company_gateway = CompanyGatewayFactory::create($request->getCompany()->id, $request->getContact()->id);
 
         $company_gateway->fill([
             'gateway_key' => 'd14dd26a47cecc30fdd65700bfb67b34',
