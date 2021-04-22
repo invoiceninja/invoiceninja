@@ -18,6 +18,7 @@ use App\Models\Company;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\RecurringInvoice;
+use App\Models\Timezone;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
@@ -46,6 +47,42 @@ class GeneratesCounterTest extends TestCase
         Model::reguard();
 
         $this->makeTestData();
+    }
+
+    public function testResetCounter()
+    {
+        $timezone = Timezone::find(1);
+
+        $date_formatted = now($timezone->name)->format('Ymd');
+
+        $settings = $this->company->settings;
+        $settings->invoice_number_pattern = '{$date:Ymd}-{$counter}';
+        $settings->timezone_id = 1;
+        $this->company->settings = $settings;
+        $this->company->save();
+
+        $this->client->settings = $settings;
+        $this->client->save();
+
+        $invoice_number = $this->getNextInvoiceNumber($this->client->fresh(), $this->invoice->fresh());
+        $this->assertEquals($date_formatted."-0001", $invoice_number);
+        $invoice_number = $this->getNextInvoiceNumber($this->client->fresh(), $this->invoice->fresh());
+        $this->assertEquals($date_formatted."-0002", $invoice_number);
+
+        $settings->reset_counter_date = now($timezone->name)->format('Y-m-d');
+        $settings->reset_counter_frequency_id = RecurringInvoice::FREQUENCY_DAILY;
+        $this->company->settings = $settings;
+        $this->company->save();
+
+        $this->client->settings = $settings;
+        $this->client->save();
+        
+        $this->travel(5)->days();
+        $date_formatted = now($timezone->name)->format('Ymd');
+
+        $invoice_number = $this->getNextInvoiceNumber($this->client->fresh(), $this->invoice->fresh());
+        $this->assertEquals($date_formatted."-0001", $invoice_number);
+        
     }
 
     public function testHasSharedCounter()
@@ -348,10 +385,7 @@ class GeneratesCounterTest extends TestCase
         $this->assertEquals($vendor_number, date('Y').'-'.str_pad($vendor->user_id, 2, '0', STR_PAD_LEFT).'-0002');
     }
 
-    public function testResetCounter()
-    {
-        
-    }
+
     /*
 
         public function testClientNextNumber()
