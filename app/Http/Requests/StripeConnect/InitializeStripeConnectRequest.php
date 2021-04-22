@@ -14,6 +14,7 @@ namespace App\Http\Requests\StripeConnect;
 
 use App\Models\ClientContact;
 use App\Models\Company;
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Cache;
 
@@ -55,7 +56,7 @@ class InitializeStripeConnectRequest extends FormRequest
 
     public function getContact()
     {
-        return ClientContact::findOrFail($this->getTokenContent()['user_id']);
+        return User::findOrFail($this->getTokenContent()['user_id']);
     }
 
     public function getCompany()
