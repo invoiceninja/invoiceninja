@@ -195,7 +195,7 @@ Route::get('token_hash_router', 'OneTimeTokenController@router');
 
 Route::get('webcron', 'WebCronController@index');
 
-Route::group(['middleware' => ['api_db', 'locale']], function () {
+Route::group(['middleware' => ['locale']], function () {
     Route::get('stripe_connect/completed', 'StripeConnectController@completed')->name('stripe_connect.return');
     Route::get('stripe_connect/{token}', 'StripeConnectController@initialize')->name('stripe_connect.initialization');
 });
