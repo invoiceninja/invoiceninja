@@ -183,10 +183,6 @@ class TemplateEngine
         if ($email_style !== 'custom') {
             $this->body = DesignHelpers::parseMarkdownToHtml($this->body);
         }
-
-        if ($email_style == 'custom') {
-
-        }
     }
 
     private function renderTemplate()
@@ -220,13 +216,9 @@ class TemplateEngine
             $wrapper = str_replace('<head>', $injection, $wrapper);
         }
 
-//        $body = $email_style == 'custom'
-//            ? $this->body
-//            : self::wrapElementsIntoTables(strtr($wrapper, ['$body' => '']), $this->body, $this->entity_obj->client->getMergedSettings());
-
         $data = [
             'subject' => $this->subject,
-            'body' => $this->body,
+            'body' => $email_style == 'custom' ? $this->body : self::wrapElementsIntoTables(strtr('<div id="content-wrapper"></div>', ['$body' => '']), $this->body, $this->entity_obj->client->getMergedSettings()),
             'wrapper' => $wrapper,
             'raw_body' => $this->raw_body,
             'raw_subject' => $this->raw_subject
@@ -283,7 +275,7 @@ class TemplateEngine
     public static function wrapElementsIntoTables(string $wrapper, string $body, $settings): ?string
     {
         $documents['wrapper'] = new \DOMDocument();
-        $documents['wrapper']->loadHTML($wrapper);
+        @$documents['wrapper']->loadHTML($wrapper);
 
         $documents['master'] = new \DOMDocument();
 
