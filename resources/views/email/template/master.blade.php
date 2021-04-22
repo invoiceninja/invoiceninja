@@ -224,11 +224,15 @@
                         <div class="u-col u-col-100" style="max-width: 320px;min-width: 500px;display: table-cell;vertical-align: top;">
                             <div style="width: 100% !important;">
                                 <!--[if (!mso)&(!IE)]><!--><div style="padding: 11px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;"><!--<![endif]-->
-                                    <div id="content-wrapper">
+                                    <div class="content-contrast-color">
                                         @yield('greeting')
+                                    </div>
 
+                                    <div id="content-wrapper">
                                         {{ $slot }}
+                                    </div>
 
+                                    <div class="content-contrast-color">
                                         @yield('signature')
                                         @yield('footer')
                                     </div>

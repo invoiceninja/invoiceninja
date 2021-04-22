@@ -182,14 +182,21 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::resource('subscriptions', 'SubscriptionController');
     Route::post('subscriptions/bulk', 'SubscriptionController@bulk')->name('subscriptions.bulk');
 
-    Route::resource('cliente_subscriptions', 'ClientSubscriptionController');
 });
 
 Route::match(['get', 'post'], 'payment_webhook/{company_key}/{company_gateway_id}', 'PaymentWebhookController')
-    ->middleware(['guest', 'api_db'])
+    ->middleware(['guest'])
     ->name('payment_webhook');
 
 Route::post('api/v1/postmark_webhook', 'PostMarkController@webhook');
+
 Route::get('token_hash_router', 'OneTimeTokenController@router');
+
 Route::get('webcron', 'WebCronController@index');
+
+Route::group(['middleware' => ['locale']], function () {
+    Route::get('stripe_connect/{token}', 'StripeConnectController@initialize')->name('stripe_connect.initialization');
+    Route::get('stripe_connect/completed', 'StripeConnectController@completed')->name('stripe_connect.return');
+});
+
 Route::fallback('BaseController@notFound');
