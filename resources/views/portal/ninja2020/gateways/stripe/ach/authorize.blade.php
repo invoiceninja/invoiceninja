@@ -2,6 +2,7 @@
 
 @section('gateway_head')
     <meta name="stripe-publishable-key" content="{{ $gateway->company_gateway->getPublishableKey() }}">
+    <meta name="stripe-account-id" content="{{ $gateway->company_gateway->getConfigField('account_id') }}">
 @endsection
 
 @section('gateway_content')
