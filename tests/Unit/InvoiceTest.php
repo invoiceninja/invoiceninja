@@ -12,6 +12,7 @@ namespace Tests\Unit;
 
 use App\Factory\InvoiceItemFactory;
 use App\Helpers\Invoice\InvoiceSum;
+use App\Models\Invoice;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\MockAccountData;
 use Tests\TestCase;
@@ -220,4 +221,6 @@ class InvoiceTest extends TestCase
         //$this->assertEquals($this->invoice_calc->getTotalTaxes(), 4);
         //$this->assertEquals(count($this->invoice_calc->getTaxMap()), 1);
     }
+
+
 }

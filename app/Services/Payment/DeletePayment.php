@@ -80,19 +80,21 @@ class DeletePayment
 
             $this->payment->invoices()->each(function ($paymentable_invoice) {
 
+                $net_deletable = $paymentable_invoice->pivot->amount - $paymentable_invoice->pivot->refunded;
+                
                 $paymentable_invoice->service()
-                                    ->updateBalance($paymentable_invoice->pivot->amount)
-                                    ->updatePaidToDate($paymentable_invoice->pivot->amount * -1)
+                                    ->updateBalance($net_deletable)
+                                    ->updatePaidToDate($net_deletable * -1)
                                     ->save();
 
                 $paymentable_invoice->ledger()
-                                    ->updateInvoiceBalance($paymentable_invoice->pivot->amount, "Adjusting invoice {$paymentable_invoice->number} due to deletion of Payment {$this->payment->number}")
+                                    ->updateInvoiceBalance($net_deletable, "Adjusting invoice {$paymentable_invoice->number} due to deletion of Payment {$this->payment->number}")
                                     ->save();
 
                 $paymentable_invoice->client
                                     ->service()
-                                    ->updateBalance($paymentable_invoice->pivot->amount)
-                                    ->updatePaidToDate($paymentable_invoice->pivot->amount * -1)
+                                    ->updateBalance($net_deletable)
+                                    ->updatePaidToDate($net_deletable * -1)
                                     ->save();
 
                 if ($paymentable_invoice->balance == $paymentable_invoice->amount) {

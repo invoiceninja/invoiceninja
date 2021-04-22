@@ -245,21 +245,30 @@ class Invoice extends BaseModel
 
     public function getStatusAttribute()
     {
-        if ($this->status_id == self::STATUS_SENT && $this->due_date > Carbon::now()) {
+        $due_date = $this->due_date ? Carbon::parse($this->due_date) : false;
+        $partial_due_date = $this->partial_due_Date ? Carbon::parse($this->partial_due_date) : false;
+
+        if ($this->status_id == self::STATUS_SENT && $due_date && $due_date->gt(now())) {
+            nlog("1 unpaid");
             return self::STATUS_UNPAID;
-        } elseif ($this->status_id == self::STATUS_PARTIAL && $this->partial_due_date > Carbon::now()) {
-            return self::STATUS_UNPAID;
-        } elseif ($this->status_id == self::STATUS_SENT && $this->due_date < Carbon::now()) {
+        } elseif ($this->status_id == self::STATUS_PARTIAL && $partial_due_date && $partial_due_date->gt(now())) {
+            nlog("2 partial");
+            return self::STATUS_PARTIAL;
+        } elseif ($this->status_id == self::STATUS_SENT && $due_date && $due_date->lt(now())) {
+            nlog("3 overdue");
             return self::STATUS_OVERDUE;
-        } elseif ($this->status_id == self::STATUS_PARTIAL && $this->partial_due_date < Carbon::now()) {
+        } elseif ($this->status_id == self::STATUS_PARTIAL && $partial_due_date && $partial_due_date->lt(now())) {
+            nlog("4 overdue");
             return self::STATUS_OVERDUE;
         } else {
+            nlog("status id ");
             return $this->status_id;
         }
     }
 
     public function isPayable(): bool
     {
+
         if ($this->status_id == self::STATUS_DRAFT && $this->is_deleted == false) {
             return true;
         } elseif ($this->status_id == self::STATUS_SENT && $this->is_deleted == false) {
