@@ -273,7 +273,8 @@ class SetupController extends Controller
     public function update()
     {
 
-        if( Ninja::isNinja() || !request()->has('secret') || (request()->input('secret') != config('ninja.update_secret')) )
+        // if( Ninja::isNinja() || !request()->has('secret') || (request()->input('secret') != config('ninja.update_secret')) )
+        if(!request()->has('secret') || (request()->input('secret') != config('ninja.update_secret')) )
             return redirect('/');
 
         $cacheCompiled = base_path('bootstrap/cache/compiled.php');
