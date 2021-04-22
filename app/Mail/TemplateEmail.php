@@ -55,15 +55,17 @@ class TemplateEmail extends Mailable
             $this->build_email->setBody(str_replace('$body', $this->build_email->getBody(), $this->client->getSetting('email_style_custom')));
         }
 
-        $this->build_email->setBody(
-            DesignHelpers::parseMarkdownToHtml($this->build_email->getBody())
-        );
-
         $settings = $this->client->getMergedSettings();
 
-        $this->build_email->setBody(
-            TemplateEngine::wrapElementsIntoTables('<div id="content-wrapper"></div>', $this->build_email->getBody(), $settings)
-        );
+        if ($this->build_email->getTemplate() !== 'custom') {
+            $this->build_email->setBody(
+                DesignHelpers::parseMarkdownToHtml($this->build_email->getBody())
+            );
+
+            $this->build_email->setBody(
+                TemplateEngine::wrapElementsIntoTables('<div id="content-wrapper"></div>', $this->build_email->getBody(), $settings)
+            );
+        }
 
         $company = $this->client->company;
 
