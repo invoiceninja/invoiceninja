@@ -58,7 +58,7 @@ trait Utilities
     private function processSuccessfulPayment(Payment $_payment)
     {
         if ($this->getParent()->payment_hash->data->store_card) {
-            $this->storePaymentMethod($_payment);
+            $this->storeLocalPaymentMethod($_payment);
         }
 
         $data = [
@@ -118,7 +118,7 @@ trait Utilities
         }
     }
 
-    private function storePaymentMethod(Payment $response)
+    private function storeLocalPaymentMethod(Payment $response)
     {
         try {
             $payment_meta = new stdClass;

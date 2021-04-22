@@ -8,47 +8,24 @@
     <title>Invoice Ninja</title>
 </head>
 
-<body>
-<table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+<div id="content-wrapper">
+    {!! $body !!}
+</div>
+
+@if($signature)
     <tr>
-        <td style="font-family: Arial, sans-serif, 'Open Sans'">
-            <table cellpadding="0" cellspacing="0" width="100%">
-                <tr>
-                    <td>
-                        <table cellpadding="0" cellspacing="0" width="100%">
-                            <tr>
-                                <td id="email-content">
-                                    {!! $body !!}
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-                @if($signature)
-                    <tr>
-                        <td>
-                            <p>{!! $signature !!}</p>
-                        </td>
-                    </tr>
-                @endif
-                <tr>
-                    @isset($whitelabel)
-                        @if(!$whitelabel)
-                            <td>
-                                <p>
-                                    <a href="https://invoiceninja.com" target="_blank">
-                                        {{ __('texts.ninja_email_footer', ['site' => 'Invoice Ninja']) }}
-                                    </a>
-                                </p>
-                            </td>
-                        @endif
-                    @endif
-                </tr>
-            </table>
+        <td>
+            <p>{!! $signature !!}</p>
         </td>
     </tr>
-</table>
-</body>
+@endif
 
-</html>
-
+@isset($whitelabel)
+    @if(!$whitelabel)
+        <p>
+            <a href="https://invoiceninja.com" target="_blank">
+                {{ __('texts.ninja_email_footer', ['site' => 'Invoice Ninja']) }}
+            </a>
+        </p>
+    @endif
+@endisset

@@ -14,8 +14,8 @@ return [
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', ''),
-    'app_version' => '5.1.50',
-    'app_tag' => '5.1.50-release',
+    'app_version' => '5.1.51',
+    'app_tag' => '5.1.51-release',
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', false),
@@ -147,4 +147,5 @@ return [
     'webcron_secret' => env('WEBCRON_SECRET', false),
     'disable_auto_update' => env('DISABLE_AUTO_UPDATE', false),
     'invoiceninja_hosted_pdf_generation' => env('NINJA_HOSTED_PDF', false),
+    'ninja_stripe_key' => env('NINJA_STRIPE_KEY', null),
 ];

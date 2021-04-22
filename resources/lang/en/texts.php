@@ -1775,6 +1775,7 @@ $LANG = array(
     'lang_Chinese - Taiwan' => 'Chinese - Taiwan',
     'lang_Serbian' => 'Serbian',
     'lang_Bulgarian' => 'Bulgarian',
+    'lang_Russian' => 'Russian',
 
     // Industries
     'industry_Accounting & Legal' => 'Accounting & Legal',

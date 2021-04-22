@@ -141,7 +141,7 @@ class CreditCard
         $this->checkout->payment_hash->data = array_merge((array)$this->checkout->payment_hash->data, ['checkout_payment_ref' => $payment]);
         $this->checkout->payment_hash->save();
 
-        if ($this->checkout->client->currency()->code == 'EUR') {
+        if ($this->checkout->client->currency()->code == 'EUR' || $this->checkout->company_gateway->getConfigField('threeds')) {
             $payment->{'3ds'} = ['enabled' => true];
 
             $payment->{'success_url'} = route('payment_webhook', [

@@ -52,6 +52,10 @@ class TemplateEngine
     private $raw_body;
 
     private $raw_subject;
+    /**
+     * @var array
+     */
+    private $labels_and_values;
 
     public function __construct($body, $subject, $entity, $entity_id, $template)
     {
@@ -165,17 +169,20 @@ class TemplateEngine
 
     private function entityValues($contact)
     {
+        $this->labels_and_values = (new HtmlEngine($this->entity_obj->invitations->first()))->generateLabelsAndValues();
 
-        $data = (new HtmlEngine($this->entity_obj->invitations->first()))->generateLabelsAndValues();
-
-        $this->body = strtr($this->body, $data['labels']);
-        $this->body = strtr($this->body, $data['values']);
+        $this->body = strtr($this->body, $this->labels_and_values['labels']);
+        $this->body = strtr($this->body, $this->labels_and_values['values']);
 //        $this->body = str_replace("\n", "<br>", $this->body);
 
-        $this->subject = strtr($this->subject, $data['labels']);
-        $this->subject = strtr($this->subject, $data['values']);
+        $this->subject = strtr($this->subject, $this->labels_and_values['labels']);
+        $this->subject = strtr($this->subject, $this->labels_and_values['values']);
 
-        $this->body = DesignHelpers::parseMarkdownToHtml($this->body);
+        $email_style = $this->settings_entity->getSetting('email_style');
+
+        if ($email_style !== 'custom') {
+            $this->body = DesignHelpers::parseMarkdownToHtml($this->body);
+        }
     }
 
     private function renderTemplate()
@@ -192,6 +199,11 @@ class TemplateEngine
         if ($email_style == 'custom') {
             $wrapper = $this->settings_entity->getSetting('email_style_custom');
 
+            // In order to parse variables such as $signature in the body,
+            // we need to replace strings with the values from HTMLEngine.
+
+            $wrapper = strtr($wrapper, $this->labels_and_values['values']);
+
             /*If no custom design exists, send back a blank!*/
             if (strlen($wrapper) > 1) {
                 $wrapper = $this->renderView($wrapper, $data);
@@ -206,7 +218,7 @@ class TemplateEngine
 
         $data = [
             'subject' => $this->subject,
-            'body' => self::wrapElementsIntoTables(strtr($wrapper, ['$body' => '']), $this->body, $this->entity_obj->client->getMergedSettings()),
+            'body' => $email_style == 'custom' ? $this->body : self::wrapElementsIntoTables(strtr('<div id="content-wrapper"></div>', ['$body' => '']), $this->body, $this->entity_obj->client->getMergedSettings()),
             'wrapper' => $wrapper,
             'raw_body' => $this->raw_body,
             'raw_subject' => $this->raw_subject
@@ -263,7 +275,7 @@ class TemplateEngine
     public static function wrapElementsIntoTables(string $wrapper, string $body, $settings): ?string
     {
         $documents['wrapper'] = new \DOMDocument();
-        $documents['wrapper']->loadHTML($wrapper);
+        @$documents['wrapper']->loadHTML($wrapper);
 
         $documents['master'] = new \DOMDocument();
 

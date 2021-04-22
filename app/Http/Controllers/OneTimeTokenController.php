@@ -13,6 +13,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\OneTimeToken\OneTimeRouterRequest;
 use App\Http\Requests\OneTimeToken\OneTimeTokenRequest;
+use App\Models\Company;
+use App\Models\CompanyUser;
 use App\Models\User;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -23,7 +25,6 @@ class OneTimeTokenController extends BaseController
 {
 
     private $contexts = [
-        'stripe_connect_test' => 'https://connect.stripe.com/oauth/authorize?response_type=code&client_id=ca_J2FhIhcf9GT5BlWUNeQ1FhnZACaYZrOI&scope=read_write',
         'stripe_connect' => 'https://connect.stripe.com/oauth/authorize?response_type=code&client_id=ca_J2Fh2tZfMlaaItUfbUwBBx4JPss8jCz9&scope=read_write'
     ];
 
@@ -67,7 +68,6 @@ class OneTimeTokenController extends BaseController
      */
     public function create(OneTimeTokenRequest $request)
     {
-
         $hash = Str::random(64);
 
         $data = [
@@ -76,10 +76,10 @@ class OneTimeTokenController extends BaseController
             'context' => $request->input('context'),
         ];
 
-        Cache::put( $hash, $data, 3600 );
+        Cache::put( $hash, $data, 3600);
 
         return response()->json(['hash' => $hash], 200);
-    
+
     }
 
     public function router(OneTimeRouterRequest $request)
@@ -88,10 +88,8 @@ class OneTimeTokenController extends BaseController
 
         MultiDB::findAndSetDbByCompanyKey($data['company_key']);
 
-        $user = User::findOrFail($data['user_id']);
-
-        Auth::login($user, true);
-
+        // $user = User::findOrFail($data['user_id']);
+        // Auth::login($user, true);
         // Cache::forget($request->input('hash'));
 
         $this->sendTo($data['context']);
