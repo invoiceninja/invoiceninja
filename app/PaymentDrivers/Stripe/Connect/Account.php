@@ -33,7 +33,7 @@ class Account
     /**
      * @throws \Stripe\Exception\ApiErrorException
      */
-    public static function link(string $account_id): \Stripe\AccountLink
+    public static function link(string $account_id, string $token): \Stripe\AccountLink
     {
         $stripe = new \Stripe\StripeClient(
             config('ninja.ninja_stripe_key')
@@ -41,8 +41,8 @@ class Account
 
         return $stripe->accountLinks->create([
             'account' => $account_id,
-            'refresh_url' => 'http://ninja.test:8000/stripe_connect/reauth',
-            'return_url' => 'http://ninja.test:8000/stripe_connect/return',
+            'refresh_url' => route('stripe_connect.initialization', $token),
+            'return_url' => route('stripe_connect.return'),
             'type' => 'account_onboarding',
         ]);
     }

@@ -12,6 +12,8 @@
 
 namespace App\Http\Requests\StripeConnect;
 
+use App\Models\ClientContact;
+use App\Models\Company;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Cache;
 
@@ -46,10 +48,24 @@ class InitializeStripeConnectRequest extends FormRequest
      */
     public function getTokenContent()
     {
-        $data = Cache::get($this->input('token'));
+        $data = Cache::get($this->token);
 
         abort_if(!$data, 404);
 
+        abort_if(!array_key_exists('user_id', $data), 404);
+
+        abort_if(!array_key_exists('company_key', $data), 404);
+
         return $data;
+    }
+
+    public function getContact()
+    {
+        return ClientContact::findOrFail($this->getTokenContent()['user_id']);
+    }
+
+    public function getCompany()
+    {
+        return Company::where('company_key', $this->getTokenContent()['company_key'])->firstOrFail();
     }
 }
