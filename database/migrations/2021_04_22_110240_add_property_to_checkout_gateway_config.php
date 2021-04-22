@@ -41,7 +41,7 @@ class AddPropertyToCheckoutGatewayConfig extends Migration
                 $checkout->save();
         });
 
-        $this->buildCache(true);
+        // $this->buildCache(true);
     }
 
     /**
