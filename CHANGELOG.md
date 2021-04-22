@@ -2,6 +2,10 @@
 
 ## [Unreleased (daily channel)](https://github.com/invoiceninja/invoiceninja/tree/v5-develop)
 ## Fixed:
+- Fixes for e-mails, encoding & parsing invalid HTML
+
+## [v5.1.50-release](https://github.com/invoiceninja/invoiceninja/releases/tag/v5.1.50-release)
+## Fixed:
 - Refactor of e-mail templates
 - Client portal: Invoices & recurring invoices are now sorted by date (by default)
 
