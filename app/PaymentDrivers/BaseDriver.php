@@ -370,7 +370,7 @@ class BaseDriver extends AbstractPaymentDriver
 
         $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->get();
 
-        $invoices->first()->invitations->each(function ($invitation) {
+        $invoices->first()->invitations->each(function ($invitation) use ($nmo){
 
             if ($invitation->contact->send_email && $invitation->contact->email) {
 

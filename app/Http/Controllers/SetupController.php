@@ -291,7 +291,9 @@ class SetupController extends Controller
         Artisan::call('migrate', ['--force' => true]);
         Artisan::call('db:seed', ['--force' => true]);
 
-        return redirect('/?clear_cache=true');
+        $this->buildCache(true);
+
+        return redirect('/');
 
     }
 }
