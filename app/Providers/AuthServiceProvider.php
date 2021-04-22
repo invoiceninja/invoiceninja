@@ -40,7 +40,6 @@ use App\Models\Webhook;
 use App\Policies\ActivityPolicy;
 use App\Policies\SubscriptionPolicy;
 use App\Policies\ClientPolicy;
-use App\Policies\ClientSubscriptionPolicy;
 use App\Policies\CompanyGatewayPolicy;
 use App\Policies\CompanyPolicy;
 use App\Policies\CompanyTokenPolicy;
