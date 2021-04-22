@@ -14,6 +14,7 @@ namespace App\Http\Controllers;
 
 use App\Factory\CompanyGatewayFactory;
 use App\Http\Requests\StripeConnect\InitializeStripeConnectRequest;
+use App\Libraries\MultiDB;
 use App\Models\CompanyGateway;
 use App\PaymentDrivers\Stripe\Connect\Account;
 use Stripe\Exception\ApiErrorException;
@@ -29,6 +30,8 @@ class StripeConnectController extends BaseController
     public function initialize(InitializeStripeConnectRequest $request, string $token)
     {
         // Should we check if company has set country in the ap? Otherwise this will fail.
+
+        MultiDB::findAndSetDbByCompanyKey($request->getTokenContent()['company_key']);
 
         $data = [
             'type' => 'standard',
