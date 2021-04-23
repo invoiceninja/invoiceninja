@@ -269,14 +269,36 @@ class CompanyGateway extends BaseModel
      */
     public function calcGatewayFeeLabel($amount, Client $client, $gateway_type_id = GatewayType::CREDIT_CARD) :string
     {
-        $label = '';
+        $label = ' ';
 
         $fee = $this->calcGatewayFee($amount, $gateway_type_id);
 
-        if ($fee > 0) {
-            $fee = Number::formatMoney(round($fee, 2), $client);
-            $label = ' - '.$fee.' '.ctrans('texts.fee');
+        // if ($fee > 0) {
+        //     $fee =  Number::formatMoney(round($fee, 2), $client);
+        //     $label = ' - '.$fee.' '.ctrans('texts.fee');
+        // }
+
+        if($fee > 0) {
+
+            $fees_and_limits = $this->fees_and_limits->{$gateway_type_id};
+
+            if(strlen($fees_and_limits->fee_percent) >=1)
+                $label .= $fees_and_limits->fee_percent . '%';
+
+            if(strlen($fees_and_limits->fee_amount) >=1){
+
+                if(strlen($label) > 1) {
+
+                    $label .= ' + ' . Number::formatMoney($fees_and_limits->fee_amount, $client);
+
+                }else {
+                    $label .= Number::formatMoney($fees_and_limits->fee_amount, $client);
+                }
+            }
+
+
         }
+
 
         return $label;
     }
