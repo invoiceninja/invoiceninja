@@ -87,8 +87,13 @@ class NinjaMailerJob implements ShouldQueue
         //send email
         try {
             nlog("trying to send");
+            
             Mail::to($this->nmo->to_user->email)
                 ->send($this->nmo->mailable);
+
+            LightLogs::create(new EmailSuccess($this->nmo->company_key->company_key))
+                     ->batch();
+
         } catch (\Exception $e) {
 
             nlog("error failed with {$e->getMessage()}");
@@ -181,8 +186,6 @@ class NinjaMailerJob implements ShouldQueue
                 $message->getHeaders()->addTextHeader('GmailToken', $token);     
              });
 
-        LightLogs::create(new EmailSuccess($this->nmo->company_key->company_key))
-                 ->batch();
     }
 
     private function logMailError($errors, $recipient_object)
