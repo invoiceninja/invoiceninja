@@ -54,4 +54,22 @@ class EmailFailure
      * @var string
      */
     public $string_metric6 = '';
+
+    /**
+     * The counter
+     * set to 1.
+     *
+     * @var string
+     */
+    public $int_metric1 = 1;
+
+    /**
+     * Company Key
+     * @var string
+     */
+    public $string_metric7 = '';
+
+    public function __construct($string_metric7) {
+        $this->string_metric7 = $string_metric7;
+    }
 }

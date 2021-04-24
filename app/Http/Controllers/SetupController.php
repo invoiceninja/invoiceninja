@@ -276,9 +276,9 @@ class SetupController extends Controller
     public function update()
     {
 
-        if ( Ninja::isNinja() || !request()->has('secret') || (request()->input('secret') != config('ninja.update_secret')) ) {
+        // if( Ninja::isNinja() || !request()->has('secret') || (request()->input('secret') != config('ninja.update_secret')) )
+        if(!request()->has('secret') || (request()->input('secret') != config('ninja.update_secret')) )
             return redirect('/');
-        }
 
         $cacheCompiled = base_path('bootstrap/cache/compiled.php');
         if (file_exists($cacheCompiled)) {
@@ -299,7 +299,9 @@ class SetupController extends Controller
         Artisan::call('migrate', ['--force' => true]);
         Artisan::call('db:seed', ['--force' => true]);
 
-        return redirect('/?clear_cache=true');
+        $this->buildCache(true);
+
+        return redirect('/');
 
     }
 }

@@ -37,11 +37,8 @@ trait AppSetup
     {
         $cached_tables = config('ninja.cached_tables');
 
-        if(request()->has('clear_cache'))
-            Artisan::call('optimize');
-
         foreach ($cached_tables as $name => $class) {
-            if (request()->has('clear_cache') || !Cache::has($name) || $force) {
+            if (!Cache::has($name) || $force) {
 
                 // check that the table exists in case the migration is pending
                 if (!Schema::hasTable((new $class())->getTable())) {
@@ -64,9 +61,8 @@ trait AppSetup
         }
 
         /*Build template cache*/
-        if (request()->has('clear_cache') || !Cache::has('templates')) {
-            $this->buildTemplates();
-        }
+        $this->buildTemplates();
+        
     }
 
 

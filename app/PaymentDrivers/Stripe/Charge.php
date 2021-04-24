@@ -62,9 +62,9 @@ class Charge
 
         $this->stripe->init();
 
-        $local_stripe = new StripeClient(
-            $this->stripe->company_gateway->getConfigField('apiKey')
-        );
+        // $local_stripe = new StripeClient(
+        //     $this->stripe->company_gateway->getConfigField('apiKey')
+        // );
 
         $response = null;
 
