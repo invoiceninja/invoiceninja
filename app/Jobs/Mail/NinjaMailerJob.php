@@ -91,7 +91,7 @@ class NinjaMailerJob implements ShouldQueue
             Mail::to($this->nmo->to_user->email)
                 ->send($this->nmo->mailable);
 
-            LightLogs::create(new EmailSuccess($this->nmo->company_key->company_key))
+            LightLogs::create(new EmailSuccess($this->nmo->company->company_key))
                      ->batch();
 
         } catch (\Exception $e) {
