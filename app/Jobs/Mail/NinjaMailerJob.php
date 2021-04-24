@@ -12,6 +12,7 @@
 namespace App\Jobs\Mail;
 
 use App\DataMapper\Analytics\EmailFailure;
+use App\DataMapper\Analytics\EmailSuccess;
 use App\Events\Invoice\InvoiceWasEmailedAndFailed;
 use App\Events\Payment\PaymentWasEmailedAndFailed;
 use App\Jobs\Mail\NinjaMailerObject;
@@ -180,6 +181,8 @@ class NinjaMailerJob implements ShouldQueue
                 $message->getHeaders()->addTextHeader('GmailToken', $token);     
              });
 
+        LightLogs::create(new EmailSuccess($this->nmo->company_key->company_key))
+                 ->batch();
     }
 
     private function logMailError($errors, $recipient_object)
@@ -198,7 +201,7 @@ class NinjaMailerJob implements ShouldQueue
         nlog('mailer job failed');
         nlog($exception->getMessage());
         
-        $job_failure = new EmailFailure();
+        $job_failure = new EmailFailure($this->nmo->company->company_key);
         $job_failure->string_metric5 = get_parent_class($this);
         $job_failure->string_metric6 = $exception->getMessage();
 
