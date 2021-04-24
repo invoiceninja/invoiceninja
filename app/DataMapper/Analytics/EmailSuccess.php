@@ -11,14 +11,15 @@
 
 namespace App\DataMapper\Analytics;
 
-class EmailFailure
+class EmailSuccess
 {
+
     /**
      * The type of Sample.
      *
      * Monotonically incrementing counter
      *
-     * 	- counter
+     *  - counter
      *
      * @var string
      */
@@ -28,7 +29,7 @@ class EmailFailure
      * The name of the counter.
      * @var string
      */
-    public $name = 'job.failure.email';
+    public $name = 'job.success.email';
 
     /**
      * The datetime of the counter measurement.
