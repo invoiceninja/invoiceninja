@@ -36,18 +36,21 @@ class MailServiceProvider extends MailProvider
         });
 
         $this->app['mail.manager']->extend('postmark', function () {
-             return new HttpClient(array_merge($config, [
-                'base_uri' => empty($config['base_uri'])
-                    ? 'https://api.postmarkapp.com'
-                    : $config['base_uri']
-            ]));
+            return new PostmarkTransport(
+                $this->guzzle(config('postmark.guzzle', [])),
+                config('postmark.secret')
+            );
         });
         
     }
     
     protected function guzzle(array $config): HttpClient
     {
-        return new HttpClient($config);
+        return new HttpClient(array_merge($config, [
+                'base_uri' => empty($config['base_uri'])
+                    ? 'https://api.postmarkapp.com'
+                    : $config['base_uri']
+            ]));
     }
 
     public function provides()
