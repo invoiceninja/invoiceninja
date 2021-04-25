@@ -9626,16 +9626,16 @@
         },
         {
             "name": "turbo124/beacon",
-            "version": "1.0.9",
+            "version": "1.0.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/turbo124/beacon.git",
-                "reference": "1f40a16d8ce19f0c7ea7bfae5e22a1bed4d1aab9"
+                "reference": "91d9b06848f45ef9ed933ef3b99b77fcc107c9df"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/turbo124/beacon/zipball/1f40a16d8ce19f0c7ea7bfae5e22a1bed4d1aab9",
-                "reference": "1f40a16d8ce19f0c7ea7bfae5e22a1bed4d1aab9",
+                "url": "https://api.github.com/repos/turbo124/beacon/zipball/91d9b06848f45ef9ed933ef3b99b77fcc107c9df",
+                "reference": "91d9b06848f45ef9ed933ef3b99b77fcc107c9df",
                 "shasum": ""
             },
             "require": {
@@ -9683,9 +9683,9 @@
                 "turbo124"
             ],
             "support": {
-                "source": "https://github.com/turbo124/beacon/tree/1.0.9"
+                "source": "https://github.com/turbo124/beacon/tree/1.0.10"
             },
-            "time": "2021-04-25T01:03:05+00:00"
+            "time": "2021-04-25T01:37:06+00:00"
         },
         {
             "name": "turbo124/laravel-gmail",
