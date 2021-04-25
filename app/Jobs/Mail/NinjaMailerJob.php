@@ -205,6 +205,7 @@ class NinjaMailerJob implements ShouldQueue
         nlog($exception->getMessage());
         
         $job_failure = new EmailFailure($this->nmo->company->company_key);
+        $job_failure->string_metric5 = 'failed_email';
         $job_failure->string_metric6 = substr($exception->getMessage(), 0, 150);
 
         LightLogs::create($job_failure)
