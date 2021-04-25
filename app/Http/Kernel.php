@@ -29,7 +29,6 @@ use App\Http\Middleware\QueryLogging;
 use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Http\Middleware\SetDb;
 use App\Http\Middleware\SetDbByCompanyKey;
-use App\Http\Middleware\SetDefaultMailer;
 use App\Http\Middleware\SetDomainNameDb;
 use App\Http\Middleware\SetEmailDb;
 use App\Http\Middleware\SetInviteDb;
@@ -160,6 +159,5 @@ class Kernel extends HttpKernel
         'contact_key_login' => ContactKeyLogin::class,
         'check_client_existence' => CheckClientExistence::class,
         'user_verified' => UserVerified::class,
-        'default_mailer' => SetDefaultMailer::class,
     ];
 }
