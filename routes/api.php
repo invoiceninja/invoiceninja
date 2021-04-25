@@ -13,12 +13,12 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::group(['middleware' => ['api_secret_check']], function () {
+Route::group(['middleware' => ['api_secret_check', 'default_mailer']], function () {
     Route::post('api/v1/signup', 'AccountController@store')->name('signup.submit');
     Route::post('api/v1/oauth_login', 'Auth\LoginController@oauthApiLogin');
 });
 
-Route::group(['middleware' => ['api_secret_check', 'email_db']], function () {
+Route::group(['middleware' => ['api_secret_check', 'email_db', 'default_mailer']], function () {
     Route::post('api/v1/login', 'Auth\LoginController@apiLogin')->name('login.submit');
     Route::post('api/v1/reset_password', 'Auth\ForgotPasswordController@sendResetLinkEmail');
 });
