@@ -20,6 +20,7 @@ use App\Transformers\UserTransformer;
 use Google_Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class ConnectedAccountController extends BaseController
 {
