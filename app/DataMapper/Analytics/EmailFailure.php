@@ -45,7 +45,7 @@ class EmailFailure
      *
      * @var string
      */
-    public $string_metric5 = '';
+    public $string_metric5 = 'stub';
 
     /**
      * The exception string
@@ -53,7 +53,7 @@ class EmailFailure
      *
      * @var string
      */
-    public $string_metric6 = '';
+    public $string_metric6 = 'stub';
 
     /**
      * The counter
