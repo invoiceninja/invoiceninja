@@ -11,6 +11,7 @@
 
 namespace App\Providers;
 
+use App\Events\Account\AccountCreated;
 use App\Events\Client\ClientWasArchived;
 use App\Events\Client\ClientWasCreated;
 use App\Events\Client\ClientWasDeleted;
@@ -179,6 +180,8 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
+        AccountCreated::class =>[
+        ],
         MessageSending::class =>[
         ],
         MessageSent::class => [

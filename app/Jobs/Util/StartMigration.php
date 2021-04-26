@@ -26,6 +26,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use ZipArchive;
 
 class StartMigration implements ShouldQueue
@@ -109,6 +110,8 @@ class StartMigration implements ShouldQueue
             }
 
             Import::dispatchNow($file, $this->company, $this->user);
+
+            Storage::deleteDirectory(public_path("storage/migrations/{$filename}"));
 
         } catch (NonExistingMigrationFile | ProcessingMigrationArchiveFailed | ResourceNotAvailableForMigration | MigrationValidatorFailed | ResourceDependencyMissing $e) {
 
