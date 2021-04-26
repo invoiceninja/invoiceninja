@@ -295,15 +295,15 @@ class MultiDB
         /* This will set the database connection for the request */
         config(['database.default' => $database]);
 
-        DB::purge($database);
-        DB::reconnect($database);
+        // DB::purge($database);
+        // DB::reconnect($database);
     }
 
     public static function setDefaultDatabase()
     {
         config(['database.default' => config('ninja.db.default')]);
 
-        DB::purge(config('ninja.db.default'));
-        DB::reconnect(config('ninja.db.default'));
+        // DB::purge(config('ninja.db.default'));
+        // DB::reconnect(config('ninja.db.default'));
     }
 }

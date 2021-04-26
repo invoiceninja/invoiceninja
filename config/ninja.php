@@ -54,7 +54,7 @@ return [
 
     'db' => [
         'multi_db_enabled' => env('MULTI_DB_ENABLED', false),
-        'default' => env('DB_CONNECTION', 'db-ninja-01'),
+        'default' => env('DB_CONNECTION', 'mysql'),
     ],
 
     'i18n' => [
