@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'db-ninja-01'),
+    'default' => env('DB_CONNECTION', 'mysql'),
 
     /*
     |--------------------------------------------------------------------------
@@ -35,17 +35,18 @@ return [
 
         // single database setup
         'mysql' => [
-            'driver'    => 'mysql',
-            'host'      => env('DB_HOST1', '127.0.0.1'),
-            'database'  => env('DB_DATABASE1', 'forge'),
-            'username'  => env('DB_USERNAME1', 'forge'),
-            'password'  => env('DB_PASSWORD1', ''),
-            'port'      => env('DB_PORT1', '3306'),
-            'charset'   => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
-            'prefix'    => '',
-            'strict'    => env('DB_STRICT', false),
-            'engine'    => 'InnoDB ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8',
+            'driver'         => 'mysql',
+            'host'           => env('DB_HOST1', env('DB_HOST', '127.0.0.1')),
+            'database'       => env('DB_DATABASE1', env('DB_DATABASE', 'forge')),
+            'username'       => env('DB_USERNAME1', env('DB_USERNAME', 'forge')),
+            'password'       => env('DB_PASSWORD1', env('DB_PASSWORD', '')),
+            'port'           => env('DB_PORT1', env('DB_PORT', '3306')),
+            'charset'        => 'utf8mb4',
+            'collation'      => 'utf8mb4_unicode_ci',
+            'prefix'         => '',
+            'prefix_indexes' => true,
+            'strict'         => env('DB_STRICT', false),
+            'engine'         => 'InnoDB ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8',
         ],
 
         'sqlite' => [
@@ -92,7 +93,7 @@ return [
             'prefix'         => '',
             'prefix_indexes' => true,
             'strict'         => env('DB_STRICT', false),
-            'engine'    => 'InnoDB ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8',
+            'engine'         => 'InnoDB ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8',
         ],
 
         'db-ninja-02' => [
@@ -107,7 +108,7 @@ return [
             'prefix'         => '',
             'prefix_indexes' => true,
             'strict'         => env('DB_STRICT', false),
-            'engine'    => 'InnoDB ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8',
+            'engine'         => 'InnoDB ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8',
         ],
     ],
 

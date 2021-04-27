@@ -22,6 +22,7 @@ class TaskRepository extends BaseRepository
 {
     use GeneratesCounter;
 
+    public $new_task = true;
 
     /**
      * Saves the task and its contacts.
@@ -33,9 +34,14 @@ class TaskRepository extends BaseRepository
      */
     public function save(array $data, Task $task) : ?Task
     {
+        if($task->id)
+            $this->new_task = false;
 
         $task->fill($data);
         $task->save();
+
+        if($this->new_task && !$task->status_id)
+            $this->setDefaultStatus($task);
 
         $task->number = empty($task->number) || !array_key_exists('number', $data) ? $this->getNextTaskNumber($task) : $data['number'];
 
@@ -101,6 +107,19 @@ class TaskRepository extends BaseRepository
             TaskFactory::create(auth()->user()->company()->id, auth()->user()->id)
         );
 
+    }
+
+    private function setDefaultStatus(Task $task)
+    {
+        $first_status = $task->company->task_statuses()
+                              ->whereNull('deleted_at')
+                              ->orderBy('id','asc')
+                              ->first();
+
+        if($first_status)
+            return $first_status->id;
+
+        return null;
     }
 
     /**

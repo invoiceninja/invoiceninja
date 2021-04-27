@@ -46,7 +46,11 @@ class MailServiceProvider extends MailProvider
     
     protected function guzzle(array $config): HttpClient
     {
-        return new HttpClient($config);
+        return new HttpClient(array_merge($config, [
+                'base_uri' => empty($config['base_uri'])
+                    ? 'https://api.postmarkapp.com'
+                    : $config['base_uri']
+            ]));
     }
 
     public function provides()
@@ -56,4 +60,3 @@ class MailServiceProvider extends MailProvider
             'mailer'        ];
     }
 }
-

@@ -187,33 +187,42 @@ trait DesignHelpers
         // By default all table headers are hidden with HTML `hidden` property.
         // This will check for table data values & if they're not empty it will remove hidden from the column itself.
 
-        /*  document.querySelectorAll("tbody > tr > td").forEach(e => {
-                if ("" !== e.innerText) {
-                    let t = e.getAttribute("data-ref").slice(0, -3);
-                    document.querySelector(`th[data-ref="${t}-th"]`).removeAttribute("hidden");
-                }
-            });
+        /*
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll("#product-table > tbody > tr > td, #task-table > tbody > tr > td, #delivery-note-table > tbody > tr > td").forEach(e => {
+        if ("" !== e.innerText) {
+            let t = e.getAttribute("data-ref").slice(0, -3);
+            document.querySelector(`th[data-ref="${t}-th"]`).removeAttribute("hidden");
+        }
+    });
 
-            document.querySelectorAll("tbody > tr > td").forEach(e => {
-                let t = e.getAttribute("data-ref").slice(0, -3);
-                t = document.querySelector(`th[data-ref="${t}-th"]`);
+    document.querySelectorAll("#product-table > tbody > tr > td, #task-table > tbody > tr > td, #delivery-note-table > tbody > tr > td").forEach(e => {
+        let t = e.getAttribute("data-ref").slice(0, -3);
+        t = document.querySelector(`th[data-ref="${t}-th"]`);
 
-                if (!t.hasAttribute('hidden')) {
-                    return;
-                }
+        if (!t.hasAttribute('hidden')) {
+            return;
+        }
 
-                if ("" == e.innerText) {
-                    e.setAttribute('hidden', 'true');
-                }
-            });
+        if ("" == e.innerText) {
+            e.setAttribute('hidden', 'true');
+        }
+    });
+}, false);
         */
 
-        $javascript = 'document.querySelectorAll("tbody > tr > td").forEach(t=>{if(""!==t.innerText){let e=t.getAttribute("data-ref").slice(0,-3);document.querySelector(`th[data-ref="${e}-th"]`).removeAttribute("hidden")}}),document.querySelectorAll("tbody > tr > td").forEach(t=>{let e=t.getAttribute("data-ref").slice(0,-3);(e=document.querySelector(`th[data-ref="${e}-th"]`)).hasAttribute("hidden")&&""==t.innerText&&t.setAttribute("hidden","true")});';
+        $javascript = 'document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll("#product-table > tbody > tr > td, #task-table > tbody > tr > td, #delivery-note-table > tbody > tr > td").forEach(t=>{if(""!==t.innerText){let e=t.getAttribute("data-ref").slice(0,-3);document.querySelector(`th[data-ref="${e}-th"]`).removeAttribute("hidden")}}),document.querySelectorAll("#product-table > tbody > tr > td, #task-table > tbody > tr > td, #delivery-note-table > tbody > tr > td").forEach(t=>{let e=t.getAttribute("data-ref").slice(0,-3);(e=document.querySelector(`th[data-ref="${e}-th"]`)).hasAttribute("hidden")&&""==t.innerText&&t.setAttribute("hidden","true")})},!1);';
 
         // Previously we've been decoding the HTML on the backend and XML parsing isn't good options because it requires,
         // strict & valid HTML to even output/decode. Decoding is now done on the frontend with this piece of Javascript.
 
-        $html_decode = 'document.querySelectorAll(`[data-state="encoded-html"]`).forEach((element) => element.innerHTML = element.innerText)';
+        /**
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll(`[data-state="encoded-html"]`).forEach((element) => element.innerHTML = element.innerText)
+        }, false);
+         */
+
+        $html_decode = 'document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll(`[data-state="encoded-html"]`).forEach(e=>e.innerHTML=e.innerText)},!1);';
 
         return ['element' => 'div', 'elements' => [
             ['element' => 'script', 'content' => $javascript],
