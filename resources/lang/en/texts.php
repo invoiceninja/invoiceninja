@@ -4266,6 +4266,20 @@ $LANG = array(
      'count_minutes' => ':count Minutes',
      'password_timeout' => 'Password Timeout',
      'shared_invoice_credit_counter' => 'Shared Invoice/Credit Counter',
+     'activity_80' => ':user created subscription :subscription',
+    'activity_81' => ':user updated subscription :subscription',
+    'activity_82' => ':user archived subscription :subscription',
+    'activity_83' => ':user deleted subscription :subscription',
+    'activity_84' => ':user restored subscription :subscription',
+    'amount_greater_than_balance_v5' => 'The amount is greater than the invoice balance. You cannot overpay an invoice.',
+    'click_to_continue' => 'Click to continue',
+
+    'notification_invoice_sent_subject' => 'Invoice :invoice was created to :client',
+    'notification_invoice_viewed_subject' => 'Invoice :invoice was created for :client',
+    'notification_quote_sent_subject' => 'Quote :invoice was created to :client',
+    'notification_quote_viewed_subject' => 'Quote :invoice was created for :client',
+    'notification_credit_sent_subject' => 'Credit :invoice was created to :client',
+    'notification_credit_viewed_subject' => 'Credit :invoice was created for :client',
 );
 
 return $LANG;
