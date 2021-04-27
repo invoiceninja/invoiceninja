@@ -66,7 +66,7 @@ class SelfUpdateController extends BaseController
             throw new FilePermissionsFailure('Cannot update system because files are not writable!');
 
         // Check if new version is available
-        if($updater->source()->isNewVersionAvailable()) {
+        //if($updater->source()->isNewVersionAvailable()) {
 
             // Get the new version available
             $versionAvailable = $updater->source()->getVersionAvailable();
@@ -76,7 +76,7 @@ class SelfUpdateController extends BaseController
 
             $updater->source()->update($release);
 
-        }
+        //}
             
         $cacheCompiled = base_path('bootstrap/cache/compiled.php');
         if (file_exists($cacheCompiled)) { unlink ($cacheCompiled); }
