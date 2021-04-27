@@ -4274,12 +4274,12 @@ $LANG = array(
     'amount_greater_than_balance_v5' => 'The amount is greater than the invoice balance. You cannot overpay an invoice.',
     'click_to_continue' => 'Click to continue',
 
-    'notification_invoice_sent_subject' => 'Invoice :invoice was created to :client',
-    'notification_invoice_viewed_subject' => 'Invoice :invoice was created for :client',
-    'notification_quote_sent_subject' => 'Quote :invoice was created to :client',
-    'notification_quote_viewed_subject' => 'Quote :invoice was created for :client',
-    'notification_credit_sent_subject' => 'Credit :invoice was created to :client',
-    'notification_credit_viewed_subject' => 'Credit :invoice was created for :client',
+    'notification_invoice_created_subject' => 'Invoice :invoice was created to :client',
+    'notification_invoice_created_subject' => 'Invoice :invoice was created for :client',
+    'notification_quote_created_subject' => 'Quote :invoice was created to :client',
+    'notification_quote_created_subject' => 'Quote :invoice was created for :client',
+    'notification_credit_created_subject' => 'Credit :invoice was created to :client',
+    'notification_credit_created_subject' => 'Credit :invoice was created for :client',
 );
 
 return $LANG;
