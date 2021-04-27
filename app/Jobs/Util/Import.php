@@ -192,6 +192,15 @@ class Import implements ShouldQueue
         $array = json_decode(file_get_contents($this->file_path), 1);
         $data = $array['data'];
 
+
+        // disable some functionality here:
+        // 1. disable update_products
+
+        $update_product_state = $this->company->update_products;
+
+        $this->company->update_products = false;
+        $this->company->save();
+
         foreach ($this->available_imports as $import) {
             if (! array_key_exists($import, $data)) {
                 //throw new ResourceNotAvailableForMigration("Resource {$key} is not available for migration.");
@@ -211,9 +220,10 @@ class Import implements ShouldQueue
         // $this->fixClientBalances();
         $check_data = CheckCompanyData::dispatchNow($this->company, md5(time()));
 
-        // if($check_data['status'] == 'errors')
-        //     throw new ProcessingMigrationArchiveFailed(implode("\n", $check_data));
-
+        //reset functionality here
+        $this->company->update_products = $update_product_state;
+        $this->company->save();
+        
         try{
             Mail::to($this->user->email, $this->user->name())
                 ->send(new MigrationCompleted($this->company, implode("<br>",$check_data)));
@@ -224,7 +234,12 @@ class Import implements ShouldQueue
         
         /*After a migration first some basic jobs to ensure the system is up to date*/
         VersionCheck::dispatch();
-        CompanySizeCheck::dispatch();
+        
+            //company size check
+            if ($this->company->invoices()->count() > 1000 || $this->company->products()->count() > 1000 || $this->company->clients()->count() > 1000) {
+                $company->is_large = true;
+                $company->save();
+            }
 
         info('Completed🚀🚀🚀🚀🚀 at '.now());
 
