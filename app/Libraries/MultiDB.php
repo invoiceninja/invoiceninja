@@ -16,6 +16,7 @@ use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 /**
@@ -293,10 +294,17 @@ class MultiDB
     {
         /* This will set the database connection for the request */
         config(['database.default' => $database]);
+
+        // for some reason this breaks everything _hard_
+        // DB::purge($database);
+        // DB::reconnect($database);
     }
 
     public static function setDefaultDatabase()
     {
         config(['database.default' => config('ninja.db.default')]);
+
+        // DB::purge(config('ninja.db.default'));
+        // DB::reconnect(config('ninja.db.default'));
     }
 }

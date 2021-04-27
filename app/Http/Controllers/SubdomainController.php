@@ -28,9 +28,8 @@ class SubdomainController extends BaseController
      */
     public function index()
     {
-        $subdomain_exists = MultiDB::findAndSetDbByDomain(request()->input('subdomain'));
 
-        if($subdomain_exists)
+        if( MultiDB::findAndSetDbByDomain(request()->input('subdomain')) )
             return response()->json(['message' => 'Domain not available'] , 401);
 
         return response()->json(['message' => 'Domain available'], 200);
