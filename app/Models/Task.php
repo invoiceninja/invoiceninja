@@ -74,6 +74,11 @@ class Task extends BaseModel
         return $this->belongsTo(Client::class);
     }
 
+    public function status()
+    {
+        return $this->belongsTo(TaskStatus::class);
+    }
+
     public function invoice()
     {
         return $this->belongsTo(Invoice::class);

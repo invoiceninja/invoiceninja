@@ -90,6 +90,8 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::put('invoices/{invoice}/upload', 'InvoiceController@upload')->name('invoices.upload');
     Route::get('invoice/{invitation_key}/download', 'InvoiceController@downloadPdf')->name('invoices.downloadPdf');
     Route::post('invoices/bulk', 'InvoiceController@bulk')->name('invoices.bulk');
+    
+    Route::post('logout', 'LogoutController@index')->name('logout');
 
     Route::post('migrate', 'MigrationController@index')->name('migrate.start');
 

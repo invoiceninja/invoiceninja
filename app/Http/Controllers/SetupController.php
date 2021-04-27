@@ -47,8 +47,9 @@ class SetupController extends Controller
     {
         $check = SystemHealth::check(false);
 
-        if ($check['system_health'] == true && $check['simple_db_check'] && Schema::hasTable('accounts') && $account = Account::all()->first())
+        if ($check['system_health'] == true && $check['simple_db_check'] && Schema::hasTable('accounts') && $account = Account::all()->first()) {
             return redirect('/');
+        }
 
         // not sure if we really need this.
         // if(File::exists(base_path('.env')))
@@ -124,20 +125,22 @@ class SetupController extends Controller
             'MAIL_PASSWORD' => $request->input('mail_password'),
 
             'NINJA_ENVIRONMENT' => 'selfhost',
-            'DB_CONNECTION' => 'db-ninja-01',
         ];
 
-        if(config('ninja.preconfigured_install')){
-        	// Database connection was already configured. Don't let the user override it.
-        	unset($env_values['DB_HOST1']);
-			unset($env_values['DB_PORT1']);
-			unset($env_values['DB_DATABASE1']);
-			unset($env_values['DB_USERNAME1']);
-			unset($env_values['DB_PASSWORD1']);
-		}
+        if (config('ninja.db.multi_db_enabled')) {
+            $env_values['DB_CONNECTION'] = 'db-ninja-01';
+        }
+
+        if (config('ninja.preconfigured_install')) {
+            // Database connection was already configured. Don't let the user override it.
+            unset($env_values['DB_HOST1']);
+            unset($env_values['DB_PORT1']);
+            unset($env_values['DB_DATABASE1']);
+            unset($env_values['DB_USERNAME1']);
+            unset($env_values['DB_PASSWORD1']);
+        }
 
         try {
-
             foreach ($env_values as $property => $value) {
                 $this->updateEnvironmentProperty($property, $value);
             }
@@ -149,8 +152,9 @@ class SetupController extends Controller
             DB::purge('db-ninja-01');
             
             /* Run migrations */
-            if(!config('ninja.disable_auto_update'))
+            if (!config('ninja.disable_auto_update')) {
                 Artisan::call('optimize');
+            }
 
             Artisan::call('migrate', ['--force' => true]);
             Artisan::call('db:seed', ['--force' => true]);
@@ -168,7 +172,6 @@ class SetupController extends Controller
 
             return redirect('/');
         } catch (Exception $e) {
-            
             nlog($e->getMessage());
             info($e->getMessage());
 
@@ -278,9 +281,13 @@ class SetupController extends Controller
             return redirect('/');
 
         $cacheCompiled = base_path('bootstrap/cache/compiled.php');
-        if (file_exists($cacheCompiled)) { unlink ($cacheCompiled); }
+        if (file_exists($cacheCompiled)) {
+            unlink ($cacheCompiled);
+        }
         $cacheServices = base_path('bootstrap/cache/services.php');
-        if (file_exists($cacheServices)) { unlink ($cacheServices); }
+        if (file_exists($cacheServices)) {
+            unlink ($cacheServices);
+        }
 
         Artisan::call('clear-compiled');
         Artisan::call('cache:clear');

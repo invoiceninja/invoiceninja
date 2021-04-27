@@ -12,6 +12,7 @@
 namespace App\Jobs\Mail;
 
 use App\DataMapper\Analytics\EmailFailure;
+use App\DataMapper\Analytics\EmailSuccess;
 use App\Events\Invoice\InvoiceWasEmailedAndFailed;
 use App\Events\Payment\PaymentWasEmailedAndFailed;
 use App\Jobs\Mail\NinjaMailerObject;
@@ -86,8 +87,13 @@ class NinjaMailerJob implements ShouldQueue
         //send email
         try {
             nlog("trying to send");
+            
             Mail::to($this->nmo->to_user->email)
                 ->send($this->nmo->mailable);
+
+            LightLogs::create(new EmailSuccess($this->nmo->company->company_key))
+                     ->batch();
+
         } catch (\Exception $e) {
 
             nlog("error failed with {$e->getMessage()}");
@@ -198,9 +204,9 @@ class NinjaMailerJob implements ShouldQueue
         nlog('mailer job failed');
         nlog($exception->getMessage());
         
-        $job_failure = new EmailFailure();
-        $job_failure->string_metric5 = get_parent_class($this);
-        $job_failure->string_metric6 = $exception->getMessage();
+        $job_failure = new EmailFailure($this->nmo->company->company_key);
+        $job_failure->string_metric5 = 'failed_email';
+        $job_failure->string_metric6 = substr($exception->getMessage(), 0, 150);
 
         LightLogs::create($job_failure)
                  ->batch();

@@ -20,12 +20,12 @@ class ConstantsSeeder extends Seeder
 {
     public function run()
     {
-        Size::create(['name' => '1 - 3']);
-        Size::create(['name' => '4 - 10']);
-        Size::create(['name' => '11 - 50']);
-        Size::create(['name' => '51 - 100']);
-        Size::create(['name' => '101 - 500']);
-        Size::create(['name' => '500+']);
+        Size::create(['id' => 1, 'name' => '1 - 3']);
+        Size::create(['id' => 2, 'name' => '4 - 10']);
+        Size::create(['id' => 3, 'name' => '11 - 50']);
+        Size::create(['id' => 4, 'name' => '51 - 100']);
+        Size::create(['id' => 5, 'name' => '101 - 500']);
+        Size::create(['id' => 6, 'name' => '500+']);
 
         PaymentLibrary::create(['name' => 'Omnipay']);
 
