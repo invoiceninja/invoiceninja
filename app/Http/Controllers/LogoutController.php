@@ -59,12 +59,14 @@ class LogoutController extends BaseController
      */
     public function index(Request $request)
     {
-        CompanyToken::whereRaw('BINARY `token`= ?', [$request->header('X-API-TOKEN')])
+        CompanyToken::with('company')
+                    ->whereRaw('BINARY `token`= ?', [$request->header('X-API-TOKEN')])
                     ->company
                     ->tokens()
+                    ->where('is_system', true)
                     ->forceDelete();
 
-        return response()->json(['message' => 'logged out.'], 200);
+        return response()->json(['message' => 'All tokens deleted'], 200);
     }
 
 }
