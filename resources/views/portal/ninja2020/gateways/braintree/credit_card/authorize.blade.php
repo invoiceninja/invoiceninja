@@ -2,6 +2,6 @@
 
 @section('gateway_content')
     @component('portal.ninja2020.components.general.card-element-single', ['title' => 'Credit card', 'show_title' => false])
-        {{ __('texts.checkout_authorize_label') }}
+        {{ __('texts.payment_method_cannot_be_authorized_first') }}
     @endcomponent
 @endsection

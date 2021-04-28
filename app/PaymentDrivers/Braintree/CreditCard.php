@@ -38,6 +38,18 @@ class CreditCard
         $this->braintree->init();
     }
 
+    public function authorizeView(array $data)
+    {
+        $data['gateway'] = $this->braintree;
+
+        return render('gateways.braintree.credit_card.authorize', $data);
+    }
+
+    public function authorizeResponse($data)
+    {
+
+    }
+
     /**
      * Credit card payment page.
      *
@@ -52,6 +64,13 @@ class CreditCard
         return render('gateways.braintree.credit_card.pay', $data);
     }
 
+    /**
+     * Process the credit card payments.
+     *
+     * @param PaymentResponseRequest $request
+     * @return \Illuminate\Http\RedirectResponse|void
+     * @throws PaymentFailed
+     */
     public function paymentResponse(PaymentResponseRequest $request)
     {
         $state = [
@@ -93,8 +112,6 @@ class CreditCard
             'transaction_reference' => $response->transaction->id,
             'gateway_type_id' => GatewayType::CREDIT_CARD,
         ];
-
-        // Store card if checkbox selected.
 
         $payment = $this->braintree->createPayment($data, Payment::STATUS_COMPLETED);
 

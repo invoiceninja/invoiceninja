@@ -66,6 +66,16 @@ class BraintreePaymentDriver extends BaseDriver
         ];
     }
 
+    public function authorizeView($data)
+    {
+        return $this->payment_method->authorizeView($data);
+    }
+
+    public function authorizeResponse($data)
+    {
+        return $this->payment_method->authorizeResponse($data);
+    }
+
     public function processPaymentView(array $data)
     {
         return $this->payment_method->paymentView($data);

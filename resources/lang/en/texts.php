@@ -4235,6 +4235,8 @@ $LANG = array(
     'notification_quote_created_subject' => 'Quote :invoice was created for :client',
     'notification_credit_created_subject' => 'Credit :invoice was created to :client',
     'notification_credit_created_subject' => 'Credit :invoice was created for :client',
+
+    'payment_method_cannot_be_authorized_first' => 'This payment method can be can saved for future use, once you complete your first transaction. Don\'t forget to check "Store credit card details" during payment process.',
 );
 
 return $LANG;
