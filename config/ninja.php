@@ -13,7 +13,7 @@ return [
     'debug_enabled' => env('APP_DEBUG', false),
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
-    'app_domain' => env('APP_DOMAIN', ''),
+    'app_domain' => env('APP_DOMAIN', 'invoicing.co'),
     'app_version' => '5.1.55',
     'app_tag' => '5.1.55-release',
     'minimum_client_version' => '5.0.16',
