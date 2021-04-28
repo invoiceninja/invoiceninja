@@ -34,13 +34,15 @@ class StoreCompanyRequest extends Request
 
     public function rules()
     {
+        $input = $this->all();
+
         $rules = [];
 
         $rules['name'] = new ValidCompanyQuantity();
         $rules['company_logo'] = 'mimes:jpeg,jpg,png,gif|max:10000'; // max 10000kb
         $rules['settings'] = new ValidSettingsRule();
 
-        if (isset($rules['portal_mode']) && ($rules['portal_mode'] == 'domain' || $rules['portal_mode'] == 'iframe')) {
+        if (isset($input['portal_mode']) && ($input['portal_mode'] == 'domain' || $input['portal_mode'] == 'iframe')) {
             $rules['portal_domain'] = 'sometimes|url';
         } else {
             $rules['portal_domain'] = 'nullable|alpha_num';
