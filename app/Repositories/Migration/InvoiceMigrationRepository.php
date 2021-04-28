@@ -161,7 +161,7 @@ class InvoiceMigrationRepository extends BaseRepository
             }
 
             
-            if ($model->company->update_products !== false) {
+            if ($model->company->update_products) {
                 UpdateOrCreateProduct::dispatchNow($model->line_items, $model, $model->company);
             }
         }
