@@ -13,9 +13,11 @@
 namespace App\PaymentDrivers;
 
 
+use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Models\GatewayType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Braintree\CreditCard;
+use Illuminate\Http\Request;
 
 class BraintreePaymentDriver extends BaseDriver
 {
@@ -25,6 +27,9 @@ class BraintreePaymentDriver extends BaseDriver
 
     public $can_authorise_credit_card = true;
 
+    /**
+     * @var \Braintree\Gateway;
+     */
     public $gateway;
 
     public static $methods = [
@@ -34,9 +39,14 @@ class BraintreePaymentDriver extends BaseDriver
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_BRAINTREE;
 
-    public function init()
+    public function init(): void
     {
-
+        $this->gateway = new \Braintree\Gateway([
+            'environment' => $this->company_gateway->getConfigField('testMode') ? 'sandbox' : 'production',
+            'merchantId' => $this->company_gateway->getConfigField('merchantId'),
+            'publicKey' => $this->company_gateway->getConfigField('publicKey'),
+            'privateKey' => $this->company_gateway->getConfigField('privateKey'),
+        ]);
     }
 
     public function setPaymentMethod($payment_method_id)
@@ -59,5 +69,10 @@ class BraintreePaymentDriver extends BaseDriver
     public function processPaymentView(array $data)
     {
         return $this->payment_method->paymentView($data);
+    }
+
+    public function processPaymentResponse($request)
+    {
+        return $this->payment_method->paymentResponse($request);
     }
 }

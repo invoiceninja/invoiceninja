@@ -4,6 +4,8 @@
     <meta name="client-token" content="{{ $client_token ?? '' }}"/>
 
     <script src="https://js.braintreegateway.com/web/dropin/1.27.0/js/dropin.min.js"></script>
+    <script src="https://js.braintreegateway.com/web/3.76.2/js/client.min.js"></script>
+    <script src="https://js.braintreegateway.com/web/3.76.2/js/data-collector.min.js"></script>
 @endsection
 
 @section('gateway_content')
@@ -17,6 +19,7 @@
         <input type="hidden" name="payment_method_id" value="{{ $payment_method_id }}">
 
         <input type="hidden" name="token">
+        <input type="hidden" name="client-data">
     </form>
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.payment_type')])
@@ -57,12 +60,43 @@
     @include('portal.ninja2020.gateways.includes.pay_now')
 @endsection
 
-@push('gateway_footer')
+@section('gateway_footer')
     <script type="text/javascript">
+        let payNow = document.getElementById('pay-now');
+
+        braintree.client.create({
+            authorization: document.querySelector('meta[name=client-token]').content
+        }, function (err, clientInstance) {
+            braintree.dataCollector.create({
+                client: clientInstance,
+                paypal: true
+            }, function (err, dataCollectorInstance) {
+                if (err) {
+                    return;
+                }
+
+                document.querySelector('input[name=client-data]').value = dataCollectorInstance.deviceData;
+            });
+        });
+
         braintree.dropin.create({
             authorization: document.querySelector('meta[name=client-token]').content,
             container: '#dropin-container'
         }, (error, dropinInstance) => {
+            if (error) console.error(error);
+
+            payNow.addEventListener('click', () => {
+                dropinInstance.requestPaymentMethod((error, payload) => {
+                    if (error) {
+                        return console.error(error);
+                    }
+
+                    document.querySelector('input[name=token]').value = payload.nonce;
+                    document.querySelector('input[name=gateway_response]').value = JSON.stringify(payload);
+
+                    document.getElementById('server-response').submit();
+                });
+            });
         });
     </script>
-@endpush
+@endsection
