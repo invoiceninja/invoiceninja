@@ -183,6 +183,16 @@ class InvoiceSum
         return $this;
     }
 
+    /**
+     * Allow us to get the entity without persisting it
+     * @return Invoice the temp
+     */
+    public function getTempEntity()
+    {
+        $this->setCalculatedAttributes();
+        return $this->invoice;
+    }
+
     public function getInvoice()
     {
         //Build invoice values here and return Invoice
