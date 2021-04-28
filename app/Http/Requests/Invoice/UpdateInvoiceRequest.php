@@ -12,7 +12,9 @@
 namespace App\Http\Requests\Invoice;
 
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\Invoice\InvoiceBalanceSanity;
 use App\Http\ValidationRules\Invoice\LockedInvoiceRule;
+use App\Models\Invoice;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
@@ -54,6 +56,9 @@ class UpdateInvoiceRequest extends Request
             $rules['number'] = Rule::unique('invoices')->where('company_id', auth()->user()->company()->id)->ignore($this->invoice->id);
 
         $rules['line_items'] = 'array';
+
+        if($this->input('status_id') != Invoice::STATUS_DRAFT)
+            $rules['balance'] = new InvoiceBalanceSanity($this->invoice, $this->all());
 
         return $rules;
     }

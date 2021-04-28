@@ -196,6 +196,12 @@ class InvoiceSumInclusive
         return $this->invoice;
     }
 
+    public function getTempEntity()
+    {
+        $this->setCalculatedAttributes();
+        return $this->invoice;
+    }
+
     public function getInvoice()
     {
         //Build invoice values here and return Invoice

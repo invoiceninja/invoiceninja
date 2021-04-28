@@ -127,6 +127,7 @@ use App\Listeners\Activity\VendorDeletedActivity;
 use App\Listeners\Activity\VendorRestoredActivity;
 use App\Listeners\Activity\VendorUpdatedActivity;
 use App\Listeners\Contact\UpdateContactLastLogin;
+use App\Listeners\Credit\CreditCreatedNotification;
 use App\Listeners\Credit\CreditEmailedNotification;
 use App\Listeners\Credit\CreditRestoredActivity;
 use App\Listeners\Credit\CreditViewedActivity;
@@ -136,6 +137,7 @@ use App\Listeners\Invoice\CreateInvoiceHtmlBackup;
 use App\Listeners\Invoice\CreateInvoicePdf;
 use App\Listeners\Invoice\InvoiceArchivedActivity;
 use App\Listeners\Invoice\InvoiceCancelledActivity;
+use App\Listeners\Invoice\InvoiceCreatedNotification;
 use App\Listeners\Invoice\InvoiceDeletedActivity;
 use App\Listeners\Invoice\InvoiceEmailActivity;
 use App\Listeners\Invoice\InvoiceEmailFailedActivity;
@@ -155,6 +157,7 @@ use App\Listeners\Payment\PaymentNotification;
 use App\Listeners\Payment\PaymentRestoredActivity;
 use App\Listeners\Quote\QuoteApprovedActivity;
 use App\Listeners\Quote\QuoteArchivedActivity;
+use App\Listeners\Quote\QuoteCreatedNotification;
 use App\Listeners\Quote\QuoteDeletedActivity;
 use App\Listeners\Quote\QuoteEmailActivity;
 use App\Listeners\Quote\QuoteEmailedNotification;
@@ -260,6 +263,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         CreditWasCreated::class => [
             CreatedCreditActivity::class,
+            CreditCreatedNotification::class,
         ],
         CreditWasDeleted::class => [
             DeleteCreditActivity::class,
@@ -318,6 +322,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         InvoiceWasCreated::class => [
             CreateInvoiceActivity::class,
+            InvoiceCreatedNotification::class,
         //    CreateInvoicePdf::class,
         ],
         InvoiceWasPaid::class => [
@@ -373,6 +378,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         QuoteWasCreated::class => [
             CreatedQuoteActivity::class,
+            QuoteCreatedNotification::class,
         ],
         QuoteWasUpdated::class => [
             QuoteUpdatedActivity::class,
