@@ -16,6 +16,7 @@ use App\DataMapper\Analytics\LoginSuccess;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
 use App\Jobs\Account\CreateAccount;
+use App\Jobs\Company\CreateCompanyToken;
 use App\Libraries\MultiDB;
 use App\Libraries\OAuth\OAuth;
 use App\Libraries\OAuth\Providers\Google;
@@ -199,6 +200,15 @@ class LoginController extends BaseController
             $cu = CompanyUser::query()
                   ->where('user_id', auth()->user()->id);
 
+            $cu->first()->account->companies->each(function ($company) use($cu, $request){
+
+                if($company->tokens()->where('is_system', true)->count() == 0)
+                {
+                    CreateCompanyToken::dispatchNow($company, $cu->first()->user, $request->server('HTTP_USER_AGENT'));
+                }
+
+            });
+
             return $this->listResponse($cu);
 
         } else {
@@ -262,9 +272,16 @@ class LoginController extends BaseController
 
         $cu = CompanyUser::query()
                           ->where('user_id', $company_token->user_id);
-        //->where('company_id', $company_token->company_id);
 
-        //$ct = CompanyUser::whereUserId(auth()->user()->id);
+
+        $cu->first()->account->companies->each(function ($company) use($cu, $request){
+
+            if($company->tokens()->where('is_system', true)->count() == 0)
+            {
+                CreateCompanyToken::dispatchNow($company, $cu->first()->user, $request->server('HTTP_USER_AGENT'));
+            }
+        });
+
         return $this->refreshResponse($cu);
     }
 
@@ -317,6 +334,14 @@ class LoginController extends BaseController
                 $cu = CompanyUser::query()
                                   ->where('user_id', auth()->user()->id);
 
+                $cu->first()->account->companies->each(function ($company) use($cu){
+
+                    if($company->tokens()->where('is_system', true)->count() == 0)
+                    {
+                        CreateCompanyToken::dispatchNow($company, $cu->first()->user, request()->server('HTTP_USER_AGENT'));
+                    }
+                });
+
                 return $this->listResponse($cu);
                 
             }
@@ -348,9 +373,17 @@ class LoginController extends BaseController
             $timeout = auth()->user()->company()->default_password_timeout / 60000;
             Cache::put(auth()->user()->hashed_id.'_logged_in', Str::random(64), $timeout);
 
-            $ct = CompanyUser::whereUserId(auth()->user()->id);
+            $cu = CompanyUser::whereUserId(auth()->user()->id);
 
-            return $this->listResponse($ct);
+            $cu->first()->account->companies->each(function ($company) use($cu){
+
+                if($company->tokens()->where('is_system', true)->count() == 0)
+                {
+                    CreateCompanyToken::dispatchNow($company, $cu->first()->user, request()->server('HTTP_USER_AGENT'));
+                }
+            });
+
+            return $this->listResponse($cu);
         }
 
         return response()

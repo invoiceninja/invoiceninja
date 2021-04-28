@@ -69,14 +69,18 @@ class Charge
         $response = null;
 
         try {
-            $response = $local_stripe->paymentIntents->create([
+
+            $data = [
               'amount' => $this->stripe->convertToStripeAmount($amount, $this->stripe->client->currency()->precision),
               'currency' => $this->stripe->client->getCurrencyCode(),
               'payment_method' => $cgt->token,
               'customer' => $cgt->gateway_customer_reference,
               'confirm' => true,
               'description' => $description,
-            ]);
+            ];
+
+            $response = $this->stripe->createPaymentIntent($data);
+            // $response = $local_stripe->paymentIntents->create($data);
 
             SystemLogger::dispatch($response, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->stripe->client);
         } catch (\Exception $e) {
