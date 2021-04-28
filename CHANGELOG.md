@@ -1,6 +1,8 @@
 # Release notes
 
 ## [Unreleased (daily channel)](https://github.com/invoiceninja/invoiceninja/tree/v5-develop)
+## Fixed:
+- Fix User created/updated/deleted Actvity display format
 
 ## Added:
 - Invoice / Quote / Credit created notifications
