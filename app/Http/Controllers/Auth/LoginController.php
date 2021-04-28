@@ -209,7 +209,8 @@ class LoginController extends BaseController
 
             });
 
-            return $this->listResponse($cu);
+            return $this->timeConstrainedResponse($cu);
+            // return $this->listResponse($cu);
 
         } else {
 
