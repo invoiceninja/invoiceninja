@@ -4204,6 +4204,22 @@ $LANG = array(
      'promo_code' => 'Promo code',
      'recurring_invoice_issued_to' => 'Recurring invoice issued to',
      'subscription' => 'Subscription',
+     'new_subscription' => 'New Subscription',
+     'deleted_subscription' => 'Successfully deleted subscription',
+     'removed_subscription' => 'Successfully removed subscription',
+     'restored_subscription' => 'Successfully restored subscription',
+     'search_subscription' => 'Search 1 Subscription',
+     'search_subscriptions' => 'Search :count Subscriptions',
+     'subdomain_is_not_available' => 'Subdomain is not available',
+     'connect_gmail' => 'Connect Gmail',
+     'disconnect_gmail' => 'Disconnect Gmail',
+     'connected_gmail' => 'Successfully connected Gmail',
+     'disconnected_gmail' => 'Successfully disconnected Gmail',
+     'update_fail_help' => 'Changes to the codebase may be blocking the update, you can run this command to discard the changes:',
+     'client_id_number' => 'Client ID Number',
+     'count_minutes' => ':count Minutes',
+     'password_timeout' => 'Password Timeout',
+     'shared_invoice_credit_counter' => 'Shared Invoice/Credit Counter',
 
     'activity_80' => ':user created subscription :subscription',
     'activity_81' => ':user updated subscription :subscription',
@@ -4212,6 +4228,13 @@ $LANG = array(
     'activity_84' => ':user restored subscription :subscription',
     'amount_greater_than_balance_v5' => 'The amount is greater than the invoice balance. You cannot overpay an invoice.',
     'click_to_continue' => 'Click to continue',
+
+    'notification_invoice_created_subject' => 'Invoice :invoice was created to :client',
+    'notification_invoice_created_subject' => 'Invoice :invoice was created for :client',
+    'notification_quote_created_subject' => 'Quote :invoice was created to :client',
+    'notification_quote_created_subject' => 'Quote :invoice was created for :client',
+    'notification_credit_created_subject' => 'Credit :invoice was created to :client',
+    'notification_credit_created_subject' => 'Credit :invoice was created for :client',
 );
 
 return $LANG;

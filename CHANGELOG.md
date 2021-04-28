@@ -1,6 +1,12 @@
 # Release notes
 
 ## [Unreleased (daily channel)](https://github.com/invoiceninja/invoiceninja/tree/v5-develop)
+
+## Added:
+- Invoice / Quote / Credit created notifications
+- Logout route - deletes all auth tokens
+
+## [v5.1.54-release](https://github.com/invoiceninja/invoiceninja/releases/tag/v5.1.50-release)
 ## Fixed:
 - Fixes for e-mails, encoding & parsing invalid HTML
 
