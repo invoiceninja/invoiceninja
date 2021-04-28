@@ -257,7 +257,7 @@ class ClientContact extends Authenticatable implements HasLocalePreference
      */
     public function getLoginLink()
     {
-        $domain = isset($this->company->portal_domain) ?: $this->company->domain();
+        $domain = isset($this->company->portal_domain) ? $this->company->portal_domain : $this->company->domain();
 
         return $domain . '/client/key_login/' . $this->contact_key;
     }
