@@ -45,7 +45,7 @@ class StoreCompanyRequest extends Request
         if (isset($input['portal_mode']) && ($input['portal_mode'] == 'domain' || $input['portal_mode'] == 'iframe')) {
             $rules['portal_domain'] = 'sometimes|url';
         } else {
-            $rules['portal_domain'] = 'nullable|alpha_num';
+            $rules['subdomain'] = 'nullable|alpha_num';
         }
 
         return $rules;
