@@ -17,10 +17,6 @@ class SubdomainController extends BaseController
 {
     private $protected = [
         'www',
-        'v5-app1',
-        'v5-app2',
-        'v5-db1',
-        'v5-db2',
         'app',
         'ninja',
         'sentry',
