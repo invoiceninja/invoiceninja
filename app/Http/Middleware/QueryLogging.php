@@ -36,9 +36,9 @@ class QueryLogging
     {
 
         // Enable query logging for development
-        if (!Ninja::isHosted() || !config('beacon.enabled')) {
-            return $next($request);
-        }
+        // if (!Ninja::isHosted() || !config('beacon.enabled')) {
+        //     return $next($request);
+        // }
 
         $timeStart = microtime(true);
         DB::enableQueryLog();
@@ -55,7 +55,7 @@ class QueryLogging
             nlog($request->method().' - '.$request->url().": $count queries - ".$time);
 
             //  if($count > 50)
-            //nlog($queries);
+            nlog($queries);
             
            LightLogs::create(new DbQuery($request->method(), $request->url(), $count, $time))
                  ->batch();

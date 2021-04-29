@@ -219,7 +219,7 @@ class BaseController extends Controller
 
             },
             'company.company_gateways' => function ($query) use ($user) {
-                $query->whereNotNull('updated_at');
+                $query->whereNotNull('updated_at')->with('gateway');
 
                 if(!$user->isAdmin())
                   $query->where('company_gateways.user_id', $user->id);
@@ -402,7 +402,7 @@ class BaseController extends Controller
 
             },
             'company.company_gateways' => function ($query) use ($user) {
-                $query->whereNotNull('created_at');
+                $query->whereNotNull('created_at')->with('gateway');
 
                 if(!$user->isAdmin())
                   $query->where('company_gateways.user_id', $user->id);

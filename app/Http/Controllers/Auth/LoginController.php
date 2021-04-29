@@ -343,7 +343,7 @@ class LoginController extends BaseController
                     }
                 });
 
-                return $this->listResponse($cu);
+                return $this->timeConstrainedResponse($cu);
                 
             }
         }
@@ -384,7 +384,7 @@ class LoginController extends BaseController
                 }
             });
 
-            return $this->listResponse($cu);
+            return $this->timeConstrainedResponse($cu);
         }
 
         return response()
