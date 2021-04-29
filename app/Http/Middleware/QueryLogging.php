@@ -57,7 +57,7 @@ class QueryLogging
             //  if($count > 50)
             nlog($queries);
             
-           LightLogs::create(new DbQuery($request->method(), $request->url(), $count, $time))
+           LightLogs::create(new DbQuery($request->method(), $request->url(), $count, $time, request()->ip()))
                  ->batch();
         }
         
