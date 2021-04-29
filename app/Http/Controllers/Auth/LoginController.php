@@ -284,8 +284,8 @@ class LoginController extends BaseController
         });
 
 
-        // if($request->has('current_company') && $request->input('current_company') == 'true')
-        //   $cu->where("company_id", $company_token->company_id);
+        if($request->has('current_company') && $request->input('current_company') == 'true')
+          $cu->where("company_id", $company_token->company_id);
 
         return $this->refreshResponse($cu);
     }
