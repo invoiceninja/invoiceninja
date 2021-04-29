@@ -38,10 +38,12 @@ class CompanyUserTransformer extends EntityTransformer
 
     public function transform(CompanyUser $company_user)
     {
+        $blank_obj = new \stdClass;
+
         return [
             'permissions' => $company_user->permissions ?: '',
-            'notifications' => (object) $company_user->notifications,
-            'settings' => (object) $company_user->settings,
+            'notifications' => (object) $company_user->notifications ?: $blank_obj,
+            'settings' => (object) $company_user->settings ?: $blank_obj,
             'is_owner' => (bool) $company_user->is_owner,
             'is_admin' => (bool) $company_user->is_admin,
             'is_locked' => (bool) $company_user->is_locked,
