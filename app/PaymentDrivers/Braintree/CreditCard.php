@@ -84,9 +84,19 @@ class CreditCard
         $this->braintree->payment_hash->data = array_merge((array)$this->braintree->payment_hash->data, $state);
         $this->braintree->payment_hash->save();
 
+        $customer = $this->braintree->findOrCreateCustomer();
+
+        $payment_method = $this->braintree->gateway->paymentMethod()->create([
+            'customerId' => $customer->id,
+            'paymentMethodNonce' => $state['token'],
+            'options' => [
+                'verifyCard' => true,
+            ],
+        ]);
+
         $result = $this->braintree->gateway->transaction()->sale([
             'amount' => $this->braintree->payment_hash->data->amount_with_fee,
-            'paymentMethodNonce' => $state['token'],
+            'paymentMethodToken' => $payment_method->paymentMethod->token,
             'deviceData' => $state['client-data'],
             'options' => [
                 'submitForSettlement' => true
@@ -97,7 +107,7 @@ class CreditCard
             $this->braintree->logSuccessfulGatewayResponse(['response' => $request->server_response, 'data' => $this->braintree->payment_hash], SystemLog::TYPE_BRAINTREE);
 
             if ($request->store_card) {
-                $this->storePaymentMethod();
+                $this->storePaymentMethod($payment_method, $customer->id);
             }
 
             return $this->processSuccessfulPayment($result);
@@ -160,27 +170,23 @@ class CreditCard
         throw new PaymentFailed($response->transaction->additionalProcessorResponse, $response->transaction->processorResponseCode);
     }
 
-    private function storePaymentMethod()
+    private function storePaymentMethod($method, $customer_reference)
     {
-        return;
-
-        $method = $this->braintree->payment_hash->data->server_response->details;
-
         try {
             $payment_meta = new \stdClass;
-            $payment_meta->exp_month = (string) $method->expirationMonth;
-            $payment_meta->exp_year = (string) $method->expirationYear;
-            $payment_meta->brand = (string) $method->cardType;
-            $payment_meta->last4 = (string) $method->lastFour;
+            $payment_meta->exp_month = (string)$method->paymentMethod->expirationMonth;
+            $payment_meta->exp_year = (string)$method->paymentMethod->expirationYear;
+            $payment_meta->brand = (string)$method->paymentMethod->cardType;
+            $payment_meta->last4 = (string)$method->paymentMethod->last4;
             $payment_meta->type = GatewayType::CREDIT_CARD;
 
             $data = [
                 'payment_meta' => $payment_meta,
-                'token' => $method->id,
+                'token' => $method->paymentMethod->token,
                 'payment_method_id' => $this->braintree->payment_hash->data->payment_method_id,
             ];
 
-            $this->braintree->storeGatewayToken($data, ['gateway_customer_reference' => $customer->id]);
+            $this->braintree->storeGatewayToken($data, ['gateway_customer_reference' => $customer_reference]);
         } catch (\Exception $e) {
             return $this->braintree->processInternallyFailedPayment($this->braintree, $e);
         }

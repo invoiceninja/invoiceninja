@@ -14,6 +14,7 @@ namespace App\PaymentDrivers;
 
 
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Braintree\CreditCard;
@@ -84,5 +85,27 @@ class BraintreePaymentDriver extends BaseDriver
     public function processPaymentResponse($request)
     {
         return $this->payment_method->paymentResponse($request);
+    }
+
+    public function findOrCreateCustomer()
+    {
+        $existing = ClientGatewayToken::query()
+            ->where('company_gateway_id', $this->company_gateway->id)
+            ->where('client_id', $this->client->id)
+            ->first();
+
+        if ($existing) {
+            return $this->gateway->customer()->find($existing->gateway_customer_reference);
+        }
+
+        $result =  $this->gateway->customer()->create([
+            'firstName' => $this->client->present()->name,
+            'email' => $this->client->present()->email,
+            'phone' => $this->client->present()->phone,
+        ]);
+
+        if ($result->success) {
+            return $result->customer;
+        }
     }
 }
