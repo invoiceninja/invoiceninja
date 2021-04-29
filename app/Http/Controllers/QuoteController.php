@@ -677,7 +677,7 @@ class QuoteController extends BaseController
             case 'download':
                     return response()->streamDownload(function () use ($quote) {
                         echo file_get_contents($quote->pdf_file_path());
-                    }, basename($quote->pdf_file_path()));
+                    }, basename($quote->pdf_file_path()), ['Cache-Control:' => 'no-cache']);
                     //return response()->download(TempFile::path($quote->pdf_file_path()), basename($quote->pdf_file_path()));
                 break;
             case 'restore':
@@ -730,7 +730,7 @@ class QuoteController extends BaseController
 
         $file_path = $quote->service()->getQuotePdf($contact);
 
-        return response()->download($file_path);
+        return response()->download($file_path, basename($file_path), ['Cache-Control:' => 'no-cache']);
     }
 
     /**
