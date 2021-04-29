@@ -4271,6 +4271,7 @@ $LANG = array(
     'activity_82' => ':user archived subscription :subscription',
     'activity_83' => ':user deleted subscription :subscription',
     'activity_84' => ':user restored subscription :subscription',
+    'lang_Russian' => 'Russian',
 );
 
 return $LANG;

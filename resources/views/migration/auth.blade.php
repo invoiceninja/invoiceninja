@@ -25,11 +25,13 @@
                     <input type="password" name="password" class="form form-control">
                 </div>
 
-                <div class="form-group">
-                    <label for="api_secret">{!! trans('texts.api_secret') !!}</label>
-                    <input type="api_secret" name="api_secret" class="form form-control">
-                    <small>{!! trans('texts.migration_api_secret_notice') !!}</small>
-                </div>
+                @if(!Utils::isNinjaProd())
+                    <div class="form-group">
+                        <label for="api_secret">{!! trans('texts.api_secret') !!}</label>
+                        <input type="api_secret" name="api_secret" class="form form-control">
+                        <small>{!! trans('texts.migration_api_secret_notice') !!}</small>
+                    </div>
+                @endif
             </form>
         </div>
         <div class="panel-footer text-right">

@@ -66,9 +66,16 @@ class StepsController extends BaseController
         session()->put('MIGRATION_TYPE', $request->option);
 
         if ($request->option == 0) {
+
+            session()->put('MIGRATION_ENDPOINT', 'https://invoicing.co');
+
             return redirect(
-                url('/migration/endpoint')
+                url('/migration/auth')
             );
+
+            // return redirect(
+            //     url('/migration/endpoint')
+            // );
         }
 
         return redirect(
