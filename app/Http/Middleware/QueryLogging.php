@@ -36,9 +36,9 @@ class QueryLogging
     {
 
         // Enable query logging for development
-        // if (!Ninja::isHosted() || !config('beacon.enabled')) {
-        //     return $next($request);
-        // }
+        if (!Ninja::isHosted() || !config('beacon.enabled')) {
+            return $next($request);
+        }
 
         $timeStart = microtime(true);
         DB::enableQueryLog();
