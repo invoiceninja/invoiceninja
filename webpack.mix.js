@@ -65,6 +65,10 @@ mix.js("resources/js/app.js", "public/js")
     .js(
         "resources/js/clients/linkify-urls.js",
         "public/js/clients/linkify-urls.js"
+    )
+    .js(
+        "resources/js/clients/payments/braintree-credit-card.js",
+        "public/js/clients/payments/braintree-credit-card.js"
     );
 
 mix.copyDirectory('node_modules/card-js/card-js.min.css', 'public/css/card-js.min.css');
