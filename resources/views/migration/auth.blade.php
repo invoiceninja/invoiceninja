@@ -11,7 +11,11 @@
             <h3 class="panel-title">{!! trans('texts.welcome_to_the_new_version') !!}</h3>
         </div>
         <div class="panel-body">
+            @if(Utils::isNinjaProd())
             <h4>{!! trans('texts.migration_create_account_notice') !!}</h4><br/>
+            @else
+            <h4>{!! trans('texts.migration_auth_label')!!}</h4>
+            @endif
             <form action="{{ url('/migration/auth') }}" method="post" id="auth-form">
                 {{ csrf_field() }}
 
