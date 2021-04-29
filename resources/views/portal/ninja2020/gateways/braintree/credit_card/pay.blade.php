@@ -59,6 +59,8 @@
         </label>
     @endcomponent
 
+    @include('portal.ninja2020.gateways.includes.save_card')
+
     @component('portal.ninja2020.components.general.card-element-single')
         <div id="dropin-container"></div>
     @endcomponent
@@ -99,6 +101,15 @@
 
                     document.querySelector('input[name=token]').value = payload.nonce;
                     document.querySelector('input[name=gateway_response]').value = JSON.stringify(payload);
+
+                    let tokenBillingCheckbox = document.querySelector(
+                        'input[name="token-billing-checkbox"]:checked'
+                    );
+
+                    if (tokenBillingCheckbox) {
+                        document.querySelector('input[name="store_card"]').value =
+                            tokenBillingCheckbox.value;
+                    }
 
                     document.getElementById('server-response').submit();
                 });

@@ -96,6 +96,10 @@ class CreditCard
         if ($result->success) {
             $this->braintree->logSuccessfulGatewayResponse(['response' => $request->server_response, 'data' => $this->braintree->payment_hash], SystemLog::TYPE_BRAINTREE);
 
+            if ($request->store_card) {
+                $this->storePaymentMethod();
+            }
+
             return $this->processSuccessfulPayment($result);
         }
 
@@ -154,5 +158,31 @@ class CreditCard
         );
 
         throw new PaymentFailed($response->transaction->additionalProcessorResponse, $response->transaction->processorResponseCode);
+    }
+
+    private function storePaymentMethod()
+    {
+        return;
+
+        $method = $this->braintree->payment_hash->data->server_response->details;
+
+        try {
+            $payment_meta = new \stdClass;
+            $payment_meta->exp_month = (string) $method->expirationMonth;
+            $payment_meta->exp_year = (string) $method->expirationYear;
+            $payment_meta->brand = (string) $method->cardType;
+            $payment_meta->last4 = (string) $method->lastFour;
+            $payment_meta->type = GatewayType::CREDIT_CARD;
+
+            $data = [
+                'payment_meta' => $payment_meta,
+                'token' => $method->id,
+                'payment_method_id' => $this->braintree->payment_hash->data->payment_method_id,
+            ];
+
+            $this->braintree->storeGatewayToken($data, ['gateway_customer_reference' => $customer->id]);
+        } catch (\Exception $e) {
+            return $this->braintree->processInternallyFailedPayment($this->braintree, $e);
+        }
     }
 }
