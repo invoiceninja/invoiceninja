@@ -423,7 +423,11 @@ class Company extends BaseModel
     public function domain()
     {
         if (Ninja::isNinja()) {
-            return $this->subdomain . config('ninja.app_domain');
+
+            if($this->portal_mode == 'domain')
+                return $this->portal_domain;
+
+            return "https://{$this->subdomain}" . config('ninja.app_domain');
         }
 
         return config('ninja.app_url');
