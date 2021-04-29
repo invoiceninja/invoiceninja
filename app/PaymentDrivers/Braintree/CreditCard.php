@@ -45,9 +45,9 @@ class CreditCard
         return render('gateways.braintree.credit_card.authorize', $data);
     }
 
-    public function authorizeResponse($data)
+    public function authorizeResponse($data): \Illuminate\Http\RedirectResponse
     {
-
+        return back();
     }
 
     /**
@@ -85,7 +85,7 @@ class CreditCard
         $this->braintree->payment_hash->save();
 
         $result = $this->braintree->gateway->transaction()->sale([
-            'amount' => '2000.50',
+            'amount' => $this->braintree->payment_hash->data->amount_with_fee,
             'paymentMethodNonce' => $state['token'],
             'deviceData' => $state['client-data'],
             'options' => [
@@ -108,7 +108,7 @@ class CreditCard
 
         $data = [
             'payment_type' => PaymentType::parseCardType(strtolower($state->server_response->details->cardType)),
-            'amount' => 10,
+            'amount' => $this->braintree->payment_hash->data->amount_with_fee,
             'transaction_reference' => $response->transaction->id,
             'gateway_type_id' => GatewayType::CREDIT_CARD,
         ];
@@ -137,7 +137,7 @@ class CreditCard
             $this->braintree->client,
             $response,
             $this->braintree->client->company,
-            10,
+            $this->braintree->payment_hash->data->amount_with_fee,
         );
 
         $message = [

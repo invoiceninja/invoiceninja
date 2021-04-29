@@ -239,7 +239,7 @@ class PaymentController extends Controller
                 ->get();
         }
 
-        $hash_data = ['invoices' => $payable_invoices->toArray(), 'credits' => $credit_totals];
+        $hash_data = ['invoices' => $payable_invoices->toArray(), 'credits' => $credit_totals, 'amount_with_fee' => max(0, (($invoice_totals + $fee_totals) - $credit_totals))];
 
         if ($request->query('hash')) {
             $hash_data['billing_context'] = Cache::get($request->query('hash'));

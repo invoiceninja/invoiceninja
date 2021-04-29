@@ -6,6 +6,12 @@
     <script src="https://js.braintreegateway.com/web/dropin/1.27.0/js/dropin.min.js"></script>
     <script src="https://js.braintreegateway.com/web/3.76.2/js/client.min.js"></script>
     <script src="https://js.braintreegateway.com/web/3.76.2/js/data-collector.min.js"></script>
+
+    <style>
+        [data-braintree-id="toggle"] {
+            display: none;
+        }
+    </style>
 @endsection
 
 @section('gateway_content')
