@@ -52,8 +52,14 @@ class PostUpdate extends Command
 
         nlog("finished migrating");
 
-        exec('vendor/bin/composer install --no-dev -o');
+        $output = [];
 
+        exec('vendor/bin/composer install --no-dev -o', $output);
+
+        info(print_r($output,1));
+
+        nlog($output);
+        
         nlog("finished running composer install ");
 
 

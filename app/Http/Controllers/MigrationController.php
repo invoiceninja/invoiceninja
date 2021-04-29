@@ -345,14 +345,14 @@ class MigrationController extends BaseController
                 return;
             }
 
-            try {
+            // try {
                 // StartMigration::dispatch(base_path("storage/app/public/$migration_file"), $user, $fresh_company)->delay(now()->addSeconds(5));
                 nlog("starting migration job");
                 nlog($migration_file);
                 StartMigration::dispatch($migration_file, $user, $fresh_company);
-            } catch (\Exception $e) {
-                nlog($e->getMessage());
-            }
+            // } catch (\Exception $e) {
+            //     nlog($e->getMessage());
+            // }
         }
 
         return response()->json([
