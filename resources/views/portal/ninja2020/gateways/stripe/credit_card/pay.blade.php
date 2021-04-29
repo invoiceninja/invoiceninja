@@ -2,7 +2,7 @@
 
 @section('gateway_head')
     <meta name="stripe-publishable-key" content="{{ $gateway->getPublishableKey() }}">
-    <meta name="stripe-account-id" content="{{ $gateway->company_gateway->getConfigField('account_id') }}">
+    <meta name="stripe-account-id" content="{{ $gateway->getConfigField('account_id') }}">
     <meta name="stripe-secret" content="{{ $intent->client_secret }}">
     <meta name="only-authorization" content="">
 @endsection
