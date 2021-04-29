@@ -86,17 +86,9 @@ class CreditCard
 
         $customer = $this->braintree->findOrCreateCustomer();
 
-        $payment_method = $this->braintree->gateway->paymentMethod()->create([
-            'customerId' => $customer->id,
-            'paymentMethodNonce' => $state['token'],
-            'options' => [
-                'verifyCard' => true,
-            ],
-        ]);
-
         $result = $this->braintree->gateway->transaction()->sale([
             'amount' => $this->braintree->payment_hash->data->amount_with_fee,
-            'paymentMethodToken' => $payment_method->paymentMethod->token,
+            'paymentMethodToken' => $this->getPaymentToken($request->all(), $customer->id),
             'deviceData' => $state['client-data'],
             'options' => [
                 'submitForSettlement' => true
@@ -106,7 +98,7 @@ class CreditCard
         if ($result->success) {
             $this->braintree->logSuccessfulGatewayResponse(['response' => $request->server_response, 'data' => $this->braintree->payment_hash], SystemLog::TYPE_BRAINTREE);
 
-            if ($request->store_card) {
+            if ($request->store_card && is_null($request->token)) {
                 $this->storePaymentMethod($payment_method, $customer->id);
             }
 
@@ -116,12 +108,31 @@ class CreditCard
         return $this->processUnsuccessfulPayment($result);
     }
 
+    private function getPaymentToken(array $data, $customerId): ?string
+    {
+        if (array_key_exists('token', $data) && !is_null($data['token'])) {
+            return $data['token'];
+        }
+
+        $gateway_response = json_decode($data['gateway_response']);
+
+        $payment_method = $this->braintree->gateway->paymentMethod()->create([
+            'customerId' => $customerId,
+            'paymentMethodNonce' => $gateway_response->nonce,
+            'options' => [
+                'verifyCard' => true,
+            ],
+        ]);
+
+        return $payment_method->paymentMethod->token;
+    }
+
     private function processSuccessfulPayment($response)
     {
         $state = $this->braintree->payment_hash->data;
 
         $data = [
-            'payment_type' => PaymentType::parseCardType(strtolower($state->server_response->details->cardType)),
+            'payment_type' => PaymentType::parseCardType(strtolower($response->transaction->creditCard['cardType'])),
             'amount' => $this->braintree->payment_hash->data->amount_with_fee,
             'transaction_reference' => $response->transaction->id,
             'gateway_type_id' => GatewayType::CREDIT_CARD,
