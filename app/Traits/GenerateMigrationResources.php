@@ -1286,6 +1286,15 @@ info("translated gateway_type = {$translated_gateway_type}");
 
             $gateway_types = $account_gateway->paymentDriver()->gatewayTypes();
 
+            $config = 'If you see this message - we were not able to decrypt your config';
+
+            try{
+                $config = Crypt::decrypt($account_gateway->config);
+            }
+            catch(\Exception $e){
+
+            }
+
             // foreach ($gateway_types as $gateway_type_id) {
                 $transformed[] = [
                     'id' => $account_gateway->id,
@@ -1297,7 +1306,7 @@ info("translated gateway_type = {$translated_gateway_type}");
                     'require_billing_address' => $account_gateway->show_billing_address,
                     'require_shipping_address' => $account_gateway->show_shipping_address,
                     'update_details' => $account_gateway->update_details,
-                    'config' => Crypt::decrypt($account_gateway->config),
+                    'config' => $config,
                     'fees_and_limits' => $this->buildFeesAndLimits($gateway_types),
                     'custom_value1' => '',
                     'custom_value2' => '',
