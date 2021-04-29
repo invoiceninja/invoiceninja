@@ -192,15 +192,6 @@ class Import implements ShouldQueue
         $array = json_decode(file_get_contents($this->file_path), 1);
         $data = $array['data'];
 
-
-        // disable some functionality here:
-        // 1. disable update_products
-
-        $update_product_state = $this->company->update_products;
-
-        $this->company->update_products = false;
-        $this->company->save();
-
         foreach ($this->available_imports as $import) {
             if (! array_key_exists($import, $data)) {
                 //throw new ResourceNotAvailableForMigration("Resource {$key} is not available for migration.");
@@ -220,9 +211,7 @@ class Import implements ShouldQueue
         // $this->fixClientBalances();
         $check_data = CheckCompanyData::dispatchNow($this->company, md5(time()));
 
-        //reset functionality here
-        $this->company->update_products = $update_product_state;
-        $this->company->save();
+
         
         try{
             Mail::to($this->user->email, $this->user->name())
