@@ -64,18 +64,14 @@ class SelfUpdateController extends BaseController
 
         $this->testWritable();
 
-        // Check if new version is available
-        //if($updater->source()->isNewVersionAvailable()) {
+        // Get the new version available
+        $versionAvailable = $updater->source()->getVersionAvailable();
 
-            // Get the new version available
-            $versionAvailable = $updater->source()->getVersionAvailable();
+        // Create a release
+        $release = $updater->source()->fetch($versionAvailable);
 
-            // Create a release
-            $release = $updater->source()->fetch($versionAvailable);
+        $updater->source()->update($release);
 
-            $updater->source()->update($release);
-
-        //}
             
         $cacheCompiled = base_path('bootstrap/cache/compiled.php');
         if (file_exists($cacheCompiled)) { unlink ($cacheCompiled); }
@@ -105,6 +101,7 @@ class SelfUpdateController extends BaseController
 
             if ($file->isFile() && ! $file->isWritable()) {
                 // throw new FilePermissionsFailure($file);
+                nlog("Cannot update system because {$file->getFileName()} is not writable");
                 throw new FilePermissionsFailure("Cannot update system because {$file->getFileName()} is not writable");
                 return false;
             }
