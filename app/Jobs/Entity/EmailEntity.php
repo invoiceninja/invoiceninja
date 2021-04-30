@@ -60,6 +60,8 @@ class EmailEntity implements ShouldQueue
 
     public $template_data; //The data to be merged into the template
 
+    public $tries = 1;
+   
     /**
      * EmailEntity constructor.
      *
