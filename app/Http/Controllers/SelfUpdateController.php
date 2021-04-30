@@ -62,8 +62,7 @@ class SelfUpdateController extends BaseController
             return response()->json(['message' => ctrans('texts.self_update_not_available')], 403);
         }
 
-        if(!$this->testWritable())
-            throw new FilePermissionsFailure('Cannot update system because files are not writable!');
+        $this->testWritable();
 
         // Check if new version is available
         //if($updater->source()->isNewVersionAvailable()) {
@@ -105,7 +104,8 @@ class SelfUpdateController extends BaseController
             // nlog($file->getPathname());
 
             if ($file->isFile() && ! $file->isWritable()) {
-                throw new FilePermissionsFailure($file);
+                // throw new FilePermissionsFailure($file);
+                throw new FilePermissionsFailure("Cannot update system because {$file->getFileName()} is not writable");
                 return false;
             }
         }
