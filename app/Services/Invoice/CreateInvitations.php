@@ -55,6 +55,16 @@ class CreateInvitations extends AbstractService
             }
         });
 
+        if($this->invoice->invitations()->count() == 0) {
+            
+            $contact = $this->createBlankContact();
+
+                $ii = InvoiceInvitationFactory::create($this->invoice->company_id, $this->invoice->user_id);
+                $ii->invoice_id = $this->invoice->id;
+                $ii->client_contact_id = $contact->id;
+                $ii->save();
+        }
+
         return $this->invoice;
     }
 
@@ -65,5 +75,7 @@ class CreateInvitations extends AbstractService
         $new_contact->contact_key = Str::random(40);
         $new_contact->is_primary = true;
         $new_contact->save();
+
+        return $new_contact;
     }
 }
