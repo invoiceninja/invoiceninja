@@ -86,9 +86,11 @@ class CreditCard
 
         $customer = $this->braintree->findOrCreateCustomer();
 
+        $token = $this->getPaymentToken($request->all(), $customer->id);
+
         $result = $this->braintree->gateway->transaction()->sale([
             'amount' => $this->braintree->payment_hash->data->amount_with_fee,
-            'paymentMethodToken' => $this->getPaymentToken($request->all(), $customer->id),
+            'paymentMethodToken' => $token,
             'deviceData' => $state['client-data'],
             'options' => [
                 'submitForSettlement' => true
@@ -99,6 +101,8 @@ class CreditCard
             $this->braintree->logSuccessfulGatewayResponse(['response' => $request->server_response, 'data' => $this->braintree->payment_hash], SystemLog::TYPE_BRAINTREE);
 
             if ($request->store_card && is_null($request->token)) {
+                $payment_method = $this->braintree->gateway->paymentMethod()->find($token);
+
                 $this->storePaymentMethod($payment_method, $customer->id);
             }
 
@@ -185,15 +189,15 @@ class CreditCard
     {
         try {
             $payment_meta = new \stdClass;
-            $payment_meta->exp_month = (string)$method->paymentMethod->expirationMonth;
-            $payment_meta->exp_year = (string)$method->paymentMethod->expirationYear;
-            $payment_meta->brand = (string)$method->paymentMethod->cardType;
-            $payment_meta->last4 = (string)$method->paymentMethod->last4;
+            $payment_meta->exp_month = (string)$method->expirationMonth;
+            $payment_meta->exp_year = (string)$method->expirationYear;
+            $payment_meta->brand = (string)$method->cardType;
+            $payment_meta->last4 = (string)$method->last4;
             $payment_meta->type = GatewayType::CREDIT_CARD;
 
             $data = [
                 'payment_meta' => $payment_meta,
-                'token' => $method->paymentMethod->token,
+                'token' => $method->token,
                 'payment_method_id' => $this->braintree->payment_hash->data->payment_method_id,
             ];
 
