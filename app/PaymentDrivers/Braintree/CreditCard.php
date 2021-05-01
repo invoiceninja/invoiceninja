@@ -160,7 +160,7 @@ class CreditCard
      */
     private function processUnsuccessfulPayment($response)
     {
-        PaymentFailureMailer::dispatch($this->braintree->client, $response->transaction->additionalProcessorResponse, $this->braintree->client->company, 10);
+        PaymentFailureMailer::dispatch($this->braintree->client, $response->transaction->additionalProcessorResponse, $this->braintree->client->company, $this->braintree->payment_hash->data->amount_with_fee);
 
         PaymentFailureMailer::dispatch(
             $this->braintree->client,
