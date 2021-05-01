@@ -14,8 +14,13 @@ namespace App\PaymentDrivers;
 
 
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Jobs\Mail\PaymentFailureMailer;
+use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
+use App\Models\Invoice;
+use App\Models\PaymentHash;
+use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Braintree\CreditCard;
 use Illuminate\Http\Request;
@@ -98,7 +103,7 @@ class BraintreePaymentDriver extends BaseDriver
             return $this->gateway->customer()->find($existing->gateway_customer_reference);
         }
 
-        $result =  $this->gateway->customer()->create([
+        $result = $this->gateway->customer()->create([
             'firstName' => $this->client->present()->name,
             'email' => $this->client->present()->email,
             'phone' => $this->client->present()->phone,
@@ -106,6 +111,74 @@ class BraintreePaymentDriver extends BaseDriver
 
         if ($result->success) {
             return $result->customer;
+        }
+    }
+
+    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
+    {
+        $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
+
+        $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->first();
+
+        if ($invoice) {
+            $description = "Invoice {$invoice->number} for {$amount} for client {$this->client->present()->name()}";
+        } else {
+            $description = "Payment with no invoice for amount {$amount} for client {$this->client->present()->name()}";
+        }
+
+        $this->init();
+
+        $result = $this->gateway->transaction()->sale([
+            'amount' => $amount,
+            'paymentMethodToken' => $cgt->token,
+            'deviceData' => '',
+            'options' => [
+                'submitForSettlement' => true
+            ],
+        ]);
+
+        if ($result->success) {
+            $this->confirmGatewayFee();
+
+            $data = [
+                'payment_type' => PaymentType::parseCardType(strtolower($result->transaction->creditCard['cardType'])),
+                'amount' => $amount,
+                'transaction_reference' => $result->transaction->id,
+                'gateway_type_id' => GatewayType::CREDIT_CARD,
+            ];
+
+            $payment = $this->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);
+
+            SystemLogger::dispatch(
+                ['response' => $result, 'data' => $data],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_SUCCESS,
+                SystemLog::TYPE_BRAINTREE,
+                $this->client
+            );
+
+            return $payment;
+        }
+
+        if (! $result->success) {
+            $this->unWindGatewayFees($payment_hash);
+
+            PaymentFailureMailer::dispatch($this->client, $result->transaction->additionalProcessorResponse, $this->client->company, $this->payment_hash->data->amount_with_fee);
+
+            $message = [
+                'server_response' => $result,
+                'data' => $this->payment_hash->data,
+            ];
+
+            SystemLogger::dispatch(
+                $message,
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_BRAINTREE,
+                $this->client
+            );
+
+            return false;
         }
     }
 }
