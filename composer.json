@@ -93,8 +93,7 @@
             "Database\\Seeders\\": "database/seeders/",
             "Modules\\": "Modules/"
         },
-        "files": [
-        ]
+        "files": []
     },
     "autoload-dev": {
         "psr-4": {

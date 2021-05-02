@@ -51,7 +51,8 @@ class RecurringInvoiceToInvoiceFactory
         $invoice->client_id = $client->id;
         $invoice->auto_bill_enabled = $recurring_invoice->auto_bill_enabled;
         $invoice->paid_to_date = 0;
-
+        $invoice->design_id = $recurring_invoice->design_id;
+        
         return $invoice;
     }
 }

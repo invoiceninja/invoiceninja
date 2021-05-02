@@ -673,7 +673,7 @@ class InvoiceController extends BaseController
             case 'download':
                     return response()->streamDownload(function () use ($invoice) {
                         echo file_get_contents($invoice->pdf_file_path());
-                    }, basename($invoice->pdf_file_path()));
+                    }, basename($invoice->pdf_file_path()), ['Cache-Control:' => 'no-cache']);
                     //return response()->download(TempFile::path($invoice->pdf_file_path()), basename($invoice->pdf_file_path()));
                 break;
             case 'restore':
@@ -795,7 +795,7 @@ class InvoiceController extends BaseController
 
         $file_path = $invoice->service()->getInvoicePdf($contact);
 
-        return response()->download($file_path, basename($file_path));
+        return response()->download($file_path, basename($file_path), ['Cache-Control:' => 'no-cache']);
     }
 
     /**
@@ -850,7 +850,7 @@ class InvoiceController extends BaseController
             $file = public_path("storage/{$file_path}");
 
 
-            return response()->download($file, basename($file));
+            return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache']);
         } catch (\Exception $e) {
             return response(['message' => 'Oops, something went wrong. Make sure you have symlink to storage/ in public/ directory.'], 500);
         }
