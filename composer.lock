@@ -4,60 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "38a79899673526624db4d62a76dd9a5e",
+    "content-hash": "f01381d3d00f0bd84acbda078ad1b99e",
     "packages": [
-        {
-            "name": "asm/php-ansible",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/maschmann/php-ansible.git",
-                "reference": "4f2145cad264fd9f800baf6d3a79dd43fd8009db"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/maschmann/php-ansible/zipball/4f2145cad264fd9f800baf6d3a79dd43fd8009db",
-                "reference": "4f2145cad264fd9f800baf6d3a79dd43fd8009db",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7.1.0|>8.0.0",
-                "psr/log": "^1.1",
-                "symfony/process": "^4.0|^5.0"
-            },
-            "require-dev": {
-                "mikey179/vfsstream": "^1.6",
-                "phpunit/phpunit": "^9.0"
-            },
-            "default-branch": true,
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Asm\\": "Asm"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Marc Aschmann",
-                    "email": "maschmann@gmail.com"
-                }
-            ],
-            "description": "A PHP wrapper for Ansible.",
-            "homepage": "https://github.com/maschmann/php-ansible",
-            "keywords": [
-                "ansible",
-                "php"
-            ],
-            "support": {
-                "issues": "https://github.com/maschmann/php-ansible/issues",
-                "source": "https://github.com/maschmann/php-ansible/tree/master"
-            },
-            "time": "2021-03-02T18:27:29+00:00"
-        },
         {
             "name": "authorizenet/authorizenet",
             "version": "2.0.2",
@@ -14294,7 +14242,6 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "asm/php-ansible": 20,
         "webpatser/laravel-countries": 20
     },
     "prefer-stable": true,
