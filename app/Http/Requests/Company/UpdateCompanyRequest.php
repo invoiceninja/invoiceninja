@@ -59,7 +59,10 @@ class UpdateCompanyRequest extends Request
     protected function prepareForValidation()
     {
         $input = $this->all();
-// nlog($input);
+
+        if(strlen($input['portal_domain']) > 1)
+            $input['portal_domain'] = str_replace("http:", "https:", $input['portal_domain']);
+
         if (array_key_exists('settings', $input)) {
             $input['settings'] = $this->filterSaveableSettings($input['settings']);
         }
