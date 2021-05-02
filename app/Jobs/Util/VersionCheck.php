@@ -46,6 +46,9 @@ class VersionCheck implements ShouldQueue
         {
             $account = Account::first();
 
+            if(!$account)
+                return;
+
             if($account->plan == 'white_label' && $account->plan_expires->lt(now())){
                 $account->plan = null;
                 $account->plan_expires = null;

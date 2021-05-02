@@ -42,7 +42,7 @@ class CreateAccountActivity implements ShouldQueue
         if(Ninja::isHosted())
         {
             $nmo = new NinjaMailerObject;
-            $nmo->mailable = new Modules\Admin\Mail\Welcome($event->user);
+            $nmo->mailable = new \Modules\Admin\Mail\Welcome($event->user);
             $nmo->company =  $event->company;
             $nmo->settings = $event->company->settings;
             $nmo->to_user = $event->user;

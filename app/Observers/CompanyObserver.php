@@ -13,6 +13,7 @@ namespace App\Observers;
 
 use App\Events\Company\CompanyDocumentsDeleted;
 use App\Models\Company;
+use App\Utils\Ninja;
 
 class CompanyObserver
 {
@@ -35,7 +36,16 @@ class CompanyObserver
      */
     public function updated(Company $company)
     {
-        //
+
+        if(Ninja::isHosted() && $company->portal_mode == 'domain' && $company->isDirty('portal_domain'))
+        {
+        nlog('company observer - updated');
+        nlog($company->portal_domain);
+        nlog($company->getOriginal('portal_domain'));
+
+            //fire event to build new custom portal domain 
+            \Modules\Admin\Jobs\Domain\CustomDomain::dispatch($company->getOriginal('portal_domain'), $company)->onQueue('domain');
+        }
     }
 
     /**
