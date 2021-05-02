@@ -60,7 +60,7 @@ class UpdateCompanyRequest extends Request
     {
         $input = $this->all();
 
-        if(strlen($input['portal_domain']) > 1)
+        if(array_key_exists('portal_domain', $input) && strlen($input['portal_domain']) > 1)
             $input['portal_domain'] = str_replace("http:", "https:", $input['portal_domain']);
 
         if (array_key_exists('settings', $input)) {
