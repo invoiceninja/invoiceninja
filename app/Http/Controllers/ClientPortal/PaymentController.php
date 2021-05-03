@@ -97,6 +97,10 @@ class PaymentController extends Controller
         $payable_invoices = collect($request->payable_invoices);
         $invoices = Invoice::whereIn('id', $this->transformKeys($payable_invoices->pluck('invoice_id')->toArray()))->get();
 
+        $invoices->each(function($invoice){
+            $invoice->service()->removeUnpaidGatewayFees()->save();
+        });
+
         /* pop non payable invoice from the $payable_invoices array */
 
         $payable_invoices = $payable_invoices->filter(function ($payable_invoice) use ($invoices) {
