@@ -54,6 +54,9 @@ class SystemLogger implements ShouldQueue
             'type_id' => $this->type_id,
         ];
 
+        if(!$this->log)
+            return;
+
         SystemLog::create($sl);
     }
 }
