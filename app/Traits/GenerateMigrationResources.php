@@ -889,6 +889,8 @@ info("get company");
                 'created_at' => $invitation->created_at ? Carbon::parse($invitation->created_at)->toDateString() : null,
                 'updated_at' => $invitation->updated_at ? Carbon::parse($invitation->updated_at)->toDateString() : null,
                 'deleted_at' => $invitation->deleted_at ? Carbon::parse($invitation->deleted_at)->toDateString() : null,
+                'email_status' => '',
+                'email_error' => '',
             ];
         }
 
