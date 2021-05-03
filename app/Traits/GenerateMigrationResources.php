@@ -880,7 +880,7 @@ info("get company");
                 'key' => $invitation->invitation_key,
                 'transaction_reference' => $invitation->transaction_reference,
                 'message_id' => $invitation->message_id,
-                'email_error' => $invitation->email_error,
+                'email_error' => $invitation->email_error ?: '',
                 'signature_base64' => $invitation->signature_base64,
                 'signature_date' => $invitation->signature_date,
                 'sent_date' => $invitation->sent_date,
@@ -889,6 +889,7 @@ info("get company");
                 'created_at' => $invitation->created_at ? Carbon::parse($invitation->created_at)->toDateString() : null,
                 'updated_at' => $invitation->updated_at ? Carbon::parse($invitation->updated_at)->toDateString() : null,
                 'deleted_at' => $invitation->deleted_at ? Carbon::parse($invitation->deleted_at)->toDateString() : null,
+                'email_status' => '',
             ];
         }
 
