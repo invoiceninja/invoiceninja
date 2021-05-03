@@ -23,6 +23,7 @@ use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Braintree\CreditCard;
+use App\PaymentDrivers\Braintree\PayPal;
 use Illuminate\Http\Request;
 
 class BraintreePaymentDriver extends BaseDriver
@@ -59,7 +60,7 @@ class BraintreePaymentDriver extends BaseDriver
     {
         $class = self::$methods[$payment_method_id];
 
-        $this->payment_method = new $class($this);
+        $this->payment_method = new PayPal($this);
 
         return $this;
     }
