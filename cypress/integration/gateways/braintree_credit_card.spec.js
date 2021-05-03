@@ -44,4 +44,32 @@ context('Checkout.com: Credit card testing', () => {
 
         cy.url().should('contain', '/client/payments/VolejRejNm');
     });
+
+    it('should pay with saved card (token)', function () {
+        cy.visit('/client/invoices');
+
+        cy.get('[data-cy=pay-now]').first().click();
+        cy.get('[data-cy=pay-now-dropdown]').click();
+        cy.get('[data-cy=pay-with-0]').click();
+
+        cy.get('[name=payment-type]').first().check();
+
+        cy.get('#pay-now-with-token').click();
+
+        cy.url().should('contain', '/client/payments/Opnel5aKBz');
+    });
+
+    it('should be able to remove payment method', function () {
+        cy.visit('/client/payment_methods');
+
+        cy.get('[data-cy=view-payment-method]').click();
+
+        cy.get('#open-delete-popup').click();
+
+        cy.get('[data-cy=confirm-payment-removal]').click();
+
+        cy.url().should('contain', '/client/payment_methods');
+
+        cy.get('body').contains('Payment method has been successfully removed.');
+    });
 });
