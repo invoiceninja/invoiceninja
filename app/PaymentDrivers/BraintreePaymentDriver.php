@@ -60,7 +60,7 @@ class BraintreePaymentDriver extends BaseDriver
     {
         $class = self::$methods[$payment_method_id];
 
-        $this->payment_method = new PayPal($this);
+        $this->payment_method = new $class($this);
 
         return $this;
     }
