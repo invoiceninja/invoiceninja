@@ -349,7 +349,7 @@ class MigrationController extends BaseController
                 // StartMigration::dispatch(base_path("storage/app/public/$migration_file"), $user, $fresh_company)->delay(now()->addSeconds(5));
                 nlog("starting migration job");
                 nlog($migration_file);
-                StartMigration::dispatch($migration_file, $user, $fresh_company);
+                StartMigration::dispatch($migration_file, $user, $fresh_company)->onQueue('migration');
             // } catch (\Exception $e) {
             //     nlog($e->getMessage());
             // }
