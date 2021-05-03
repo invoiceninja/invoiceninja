@@ -90,7 +90,6 @@ class GeneratesCounterTest extends TestCase
         $invoice_number = $this->getNextInvoiceNumber($this->client->fresh(), $this->invoice->fresh());
         $this->assertEquals($date_formatted."-0002", $invoice_number);
 
-
         $settings->reset_counter_date = now($timezone->name)->format('Y-m-d');
         $settings->reset_counter_frequency_id = RecurringInvoice::FREQUENCY_DAILY;
         $this->company->settings = $settings;
@@ -101,6 +100,9 @@ class GeneratesCounterTest extends TestCase
 
         $invoice_number = $this->getNextInvoiceNumber($this->client->fresh(), $this->invoice->fresh());
         $this->assertEquals($date_formatted."-0001", $invoice_number);
+
+        $this->travelBack();
+
     }
 
     public function testHasSharedCounter()
