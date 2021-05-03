@@ -677,6 +677,8 @@ class Import implements ShouldQueue
                     $resource['invitations'][$key]['client_contact_id'] = $this->transformId('client_contacts', $invite['client_contact_id']);
                     $resource['invitations'][$key]['user_id'] = $modified['user_id'];
                     $resource['invitations'][$key]['company_id'] = $this->company->id;
+                    $resource['invitations'][$key]['email_status'] = '';
+
                     unset($resource['invitations'][$key]['recurring_invoice_id']);
                     unset($resource['invitations'][$key]['id']);
 
@@ -741,6 +743,7 @@ class Import implements ShouldQueue
                     $resource['invitations'][$key]['client_contact_id'] = $this->transformId('client_contacts', $invite['client_contact_id']);
                     $resource['invitations'][$key]['user_id'] = $modified['user_id'];
                     $resource['invitations'][$key]['company_id'] = $this->company->id;
+                    $resource['invitations'][$key]['email_status'] = '';
                     unset($resource['invitations'][$key]['invoice_id']);
                     unset($resource['invitations'][$key]['id']);
                 }
@@ -870,6 +873,7 @@ class Import implements ShouldQueue
                     $resource['invitations'][$key]['client_contact_id'] = $this->transformId('client_contacts', $invite['client_contact_id']);
                     $resource['invitations'][$key]['user_id'] = $modified['user_id'];
                     $resource['invitations'][$key]['company_id'] = $this->company->id;
+                    $resource['invitations'][$key]['email_status'] = '';
                     unset($resource['invitations'][$key]['invoice_id']);
                     unset($resource['invitations'][$key]['id']);
                 }
