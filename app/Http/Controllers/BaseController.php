@@ -395,7 +395,8 @@ class BaseController extends Controller
             'company' => function ($query) use ($created_at, $user) {
                 $query->whereNotNull('created_at')->with('documents');
             },
-            'company.clients' => function ($query) use ($user) {
+            'company.clients' => function ($query) use ($created_at, $user) {
+                $query->where('clients.created_at', '>=', $created_at)->with('contacts.company', 'gateway_tokens', 'documents');
 
                 if(!$user->hasPermission('view_client'))
                   $query->where('clients.user_id', $user->id)->orWhere('clients.assigned_user_id', $user->id);
