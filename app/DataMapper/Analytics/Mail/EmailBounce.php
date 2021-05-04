@@ -9,7 +9,7 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\DataMapper\Analytics;
+namespace App\DataMapper\Analytics\Mail;
 
 class EmailBounce
 {
