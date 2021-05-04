@@ -103,16 +103,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.180.0",
+            "version": "3.180.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "761d06d3d320bd1a0114f9d937eccd1613e1913b"
+                "reference": "7801112fd8be227954a6ecfbfd85b01ee4a7cae4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/761d06d3d320bd1a0114f9d937eccd1613e1913b",
-                "reference": "761d06d3d320bd1a0114f9d937eccd1613e1913b",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/7801112fd8be227954a6ecfbfd85b01ee4a7cae4",
+                "reference": "7801112fd8be227954a6ecfbfd85b01ee4a7cae4",
                 "shasum": ""
             },
             "require": {
@@ -187,9 +187,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.180.0"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.180.1"
             },
-            "time": "2021-05-03T20:41:22+00:00"
+            "time": "2021-05-04T18:14:38+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
