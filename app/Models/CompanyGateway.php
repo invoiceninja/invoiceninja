@@ -65,6 +65,7 @@ class CompanyGateway extends BaseModel
         '3758e7f7c6f4cecf0f4f348b9a00f456' => 304,
         '3b6621f970ab18887c4f6dca78d3f8bb' => 305,
         '54faab2ab6e3223dbe848b1686490baa' => 306,
+        'd14dd26a47cecc30fdd65700bfb67b34' => 301,
     ];
 
     protected $touches = [];
