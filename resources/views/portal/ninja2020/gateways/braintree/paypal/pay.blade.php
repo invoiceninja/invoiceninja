@@ -5,6 +5,7 @@
 
     <script src="https://js.braintreegateway.com/web/3.76.2/js/client.min.js"></script>
     <script src="https://js.braintreegateway.com/web/3.76.2/js/paypal-checkout.min.js"></script>
+    <script src="https://js.braintreegateway.com/web/3.76.2/js/data-collector.min.js"></script>
 @endsection
 
 @section('gateway_content')
@@ -29,70 +30,40 @@
 
     @include('portal.ninja2020.gateways.includes.payment_details')
 
+    @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
+        @if(count($tokens) > 0)
+            @foreach($tokens as $token)
+                <label class="mr-4 block mt-2">
+                    <input
+                        type="radio"
+                        data-token="{{ $token->token }}"
+                        name="payment-type"
+                        class="form-radio cursor-pointer toggle-payment-with-token"/>
+                    <span class="ml-1 cursor-pointer">{{ $token->meta->email }}</span>
+                </label>
+            @endforeach
+        @endisset
+
+        <label class="block mt-2">
+            <input
+                type="radio"
+                id="toggle-payment-with-credit-card"
+                class="form-radio cursor-pointer"
+                name="payment-type"
+                checked/>
+            <span class="ml-1 cursor-pointer">{{ __('texts.new_account') }}</span>
+        </label>
+    @endcomponent
+
+    @include('portal.ninja2020.gateways.includes.save_card')
+
     @component('portal.ninja2020.components.general.card-element-single')
         <div id="paypal-button"></div>
     @endcomponent
+
+    @include('portal.ninja2020.gateways.includes.pay_now', ['id' => 'pay-now-with-token', 'class' => 'hidden'])
 @endsection
 
 @section('gateway_footer')
-    <script>
-        braintree.client.create({
-            authorization: document.querySelector('meta[name=client-token]').content,
-        }).then(function (clientInstance) {
-            // Create a PayPal Checkout component.
-            return braintree.paypalCheckout.create({
-                client: clientInstance
-            });
-        }).then(function (paypalCheckoutInstance) {
-            return paypalCheckoutInstance.loadPayPalSDK({
-                vault: true
-            }).then(function (paypalCheckoutInstance) {
-                return paypal.Buttons({
-                    fundingSource: paypal.FUNDING.PAYPAL,
-
-                    createBillingAgreement: function () {
-                        return paypalCheckoutInstance.createPayment({
-                            flow: 'vault', // Required
-
-                            // The following are optional params
-                            billingAgreementDescription: 'Your agreement description',
-                            enableShippingAddress: true,
-                            shippingAddressEditable: false,
-                            shippingAddressOverride: {
-                                recipientName: 'Scruff McGruff',
-                                line1: '1234 Main St.',
-                                line2: 'Unit 1',
-                                city: 'Chicago',
-                                countryCode: 'US',
-                                postalCode: '60652',
-                                state: 'IL',
-                                phone: '123.456.7890'
-                            }
-                        });
-                    },
-
-                    onApprove: function (data, actions) {
-                        return paypalCheckoutInstance.tokenizePayment(data).then(function (payload) {
-                            // Submit `payload.nonce` to your server
-                        });
-                    },
-
-                    onCancel: function (data) {
-                        console.log('PayPal payment canceled', JSON.stringify(data, 0, 2));
-                    },
-
-                    onError: function (err) {
-                        console.error('PayPal error', err);
-                    }
-                }).render('#paypal-button');
-            });
-        }).catch(function (err) {
-            console.log(err.message);
-
-            let errorsContainer = document.getElementById('errors');
-
-            errorsContainer.innerText = err.message;
-            errorsContainer.hidden = false;
-        });
-    </script>
+    <script src="{{ asset('js/clients/payments/braintree-paypal.js') }}"></script>
 @endsection
