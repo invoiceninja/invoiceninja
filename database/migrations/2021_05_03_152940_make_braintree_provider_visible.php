@@ -14,9 +14,7 @@ class MakeBraintreeProviderVisible extends Migration
      */
     public function up()
     {
-        $gateway = Gateway::where('key', 'f7ec488676d310683fb51802d076d713')->first();
-        $gateway->visible = 1;
-        $gateway->save();
+        Gateway::where('id', 50)->update(['visible' => 1]);
     }
 
     /**
