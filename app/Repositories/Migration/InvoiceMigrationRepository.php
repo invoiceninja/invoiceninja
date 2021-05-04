@@ -107,35 +107,7 @@ class InvoiceMigrationRepository extends BaseRepository
 
         InvoiceInvitation::reguard();
         RecurringInvoiceInvitation::reguard();
-        /*
-                if (isset($data['invitations'])) {
-                    $invitations = collect($data['invitations']);
 
-                    $model->invitations->pluck('key')->diff($invitations->pluck('key'))->each(function ($invitation) use ($resource) {
-                        $this->getInvitation($invitation, $resource)->delete();
-                    });
-
-                    foreach ($data['invitations'] as $invitation) {
-
-                        //if no invitations are present - create one.
-                        if (! $this->getInvitation($invitation, $resource)) {
-                            if (isset($invitation['id'])) {
-                                unset($invitation['id']);
-                            }
-
-                            //make sure we are creating an invite for a contact who belongs to the client only!
-                            $contact = ClientContact::find($invitation['client_contact_id']);
-
-                            if ($contact && $model->client_id == $contact->client_id) {
-                                $new_invitation = $invitation_factory_class::create($model->company_id, $model->user_id);
-                                $new_invitation->{$lcfirst_resource_id} = $model->id;
-                                $new_invitation->client_contact_id = $contact->id;
-                                $new_invitation->save();
-                            }
-                        }
-                    }
-                }
-        */
         $model->load('invitations');
 
         /* If no invitations have been created, this is our fail safe to maintain state*/
@@ -152,8 +124,6 @@ class InvoiceMigrationRepository extends BaseRepository
         if ($class->name == Invoice::class || $class->name == RecurringInvoice::class) {
             if (($state['finished_amount'] != $state['starting_amount']) && ($model->status_id != Invoice::STATUS_DRAFT)) {
 
-                // $model->ledger()->updateInvoiceBalance(($state['finished_amount'] - $state['starting_amount']));
-                // $model->client->service()->updateBalance(($state['finished_amount'] - $state['starting_amount']))->save();
             }
 
             if (! $model->design_id) {
@@ -162,7 +132,7 @@ class InvoiceMigrationRepository extends BaseRepository
 
             
             if ($model->company->update_products) {
-                UpdateOrCreateProduct::dispatchNow($model->line_items, $model, $model->company);
+                //UpdateOrCreateProduct::dispatchNow($model->line_items, $model, $model->company);
             }
         }
 

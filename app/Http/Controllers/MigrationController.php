@@ -18,6 +18,7 @@ use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Util\StartMigration;
 use App\Mail\ExistingMigration;
+use App\Mail\Migration\MaxCompanies;
 use App\Models\Company;
 use App\Models\CompanyToken;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -231,18 +232,50 @@ class MigrationController extends BaseController
             nlog($request->all());
         }
 
+    try {
+        return response()->json([
+        '_id' => Str::uuid(),
+        'method' => config('queue.default'),
+        'started_at' => now(),
+    ], 200);
+
+    } finally {
+    // Controller logic here
+
         foreach ($companies as $company) {
             $is_valid = $request->file($company->company_index)->isValid();
 
             if (!$is_valid) {
-                // We might want to send user something's wrong with migration or nope?
                 continue;
             }
 
             $user = auth()->user();
 
+            $company_count = $user->account->companies()->count();
+
             // Look for possible existing company (based on company keys).
             $existing_company = Company::whereRaw('BINARY `company_key` = ?', [$company->company_key])->first();
+
+            if(!$existing_company && $company_count >=10) {
+
+                $nmo = new NinjaMailerObject;
+                $nmo->mailable = new MaxCompanies($user->account->companies()->first());
+                $nmo->company = $user->account->companies()->first();
+                $nmo->settings = $user->account->companies()->first()->settings;
+                $nmo->to_user = $user;
+                NinjaMailerJob::dispatch($nmo);
+                return;
+            }
+            elseif($existing_company && $company_count > 10 ){
+
+                $nmo = new NinjaMailerObject;
+                $nmo->mailable = new MaxCompanies($user->account->companies()->first());
+                $nmo->company = $user->account->companies()->first();
+                $nmo->settings = $user->account->companies()->first()->settings;
+                $nmo->to_user = $user;
+                NinjaMailerJob::dispatch($nmo);
+                return;
+            }
 
             $checks = [
                 'existing_company' => $existing_company ? (bool)1 : false,
@@ -254,11 +287,11 @@ class MigrationController extends BaseController
                 nlog('Migrating: Existing company without force. (CASE_01)');
 
                 $nmo = new NinjaMailerObject;
-                $nmo->mailable = new ExistingMigration();
-                $nmo->company = $existing_company;
-                $nmo->settings = $existing_company->settings;
+                $nmo->mailable = new ExistingMigration($existing_company);
+                $nmo->company = $user->account->companies()->first();
+                $nmo->settings = $user->account->companies()->first();
                 $nmo->to_user = $user;
-
+                
                 NinjaMailerJob::dispatch($nmo);
 
                 return response()->json([
@@ -355,10 +388,7 @@ class MigrationController extends BaseController
             // }
         }
 
-        return response()->json([
-            '_id' => Str::uuid(),
-            'method' => config('queue.default'),
-            'started_at' => now(),
-        ], 200);
+    }
+
     }
 }

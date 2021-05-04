@@ -4,9 +4,9 @@
         @include('email.components.header', ['logo' => $logo])
     @endslot
 
-    <h2>{{ctrans('texts.migration_already_completed')}}</h2>
+    <h2>{{ctrans('texts.max_companies')}}</h2>
 
-    <p>{{ctrans('texts.migration_already_completed_desc', ['company_name' => $company_name])}}</p>
+    <p>{{ctrans('texts.max_companies_desc')}}</p>
 
     @if(isset($whitelabel) && !$whitelabel)
         @slot('footer')
