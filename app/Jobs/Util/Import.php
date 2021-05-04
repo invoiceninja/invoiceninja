@@ -31,6 +31,7 @@ use App\Factory\VendorFactory;
 use App\Http\Requests\Company\UpdateCompanyRequest;
 use App\Http\ValidationRules\ValidCompanyGatewayFeesAndLimitsRule;
 use App\Http\ValidationRules\ValidUserForCompany;
+use App\Jobs\Company\CreateCompanyTaskStatuses;
 use App\Jobs\Company\CreateCompanyToken;
 use App\Jobs\Ninja\CheckCompanyData;
 use App\Jobs\Ninja\CompanySizeCheck;
@@ -82,10 +83,10 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Turbo124\Beacon\Facades\LightLogs;
-use Illuminate\Support\Facades\Mail;
 
 class Import implements ShouldQueue
 {
@@ -229,6 +230,9 @@ class Import implements ShouldQueue
                 $this->company->is_large = true;
                 $this->company->save();
             }
+
+        // CreateCompanyPaymentTerms::dispatchNow($sp035a66, $spaa9f78);
+        CreateCompanyTaskStatuses::dispatchNow($this->company, $this->user);
 
         info('Completed🚀🚀🚀🚀🚀 at '.now());
 

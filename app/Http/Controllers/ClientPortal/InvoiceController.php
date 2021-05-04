@@ -50,6 +50,8 @@ class InvoiceController extends Controller
     {
         set_time_limit(0);
 
+        $invoice->service()->removeUnpaidGatewayFees()->save();
+
         $data = [
             'invoice' => $invoice,
         ];

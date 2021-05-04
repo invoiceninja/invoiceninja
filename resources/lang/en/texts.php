@@ -4229,12 +4229,17 @@ $LANG = array(
     'amount_greater_than_balance_v5' => 'The amount is greater than the invoice balance. You cannot overpay an invoice.',
     'click_to_continue' => 'Click to continue',
 
-    'notification_invoice_created_subject' => 'Invoice :invoice was created to :client',
+    'notification_invoice_created_body' => 'The following invoice :invoice was created for client :client for :amount.',
     'notification_invoice_created_subject' => 'Invoice :invoice was created for :client',
-    'notification_quote_created_subject' => 'Quote :invoice was created to :client',
+    'notification_quote_created_body' => 'The following quote :invoice was created for client :client for :amount.',
     'notification_quote_created_subject' => 'Quote :invoice was created for :client',
-    'notification_credit_created_subject' => 'Credit :invoice was created to :client',
+    'notification_credit_created_body' => 'The following credit :invoice was created for client :client for :amount.',
     'notification_credit_created_subject' => 'Credit :invoice was created for :client',
+    'max_companies' => 'Maximum companies migrated',
+    'max_companies_desc' => 'You have reached your maximum number of companies. Delete existing companies to migrate new ones.',
+    'migration_already_completed' => 'Company already migrated',
+    'migration_already_completed_desc' => 'Looks like you already migrated <b> :company_name </b>to the V5 version of the Invoice Ninja. In case you want to start over, you can force migrate to wipe existing data.',
+
 );
 
 return $LANG;

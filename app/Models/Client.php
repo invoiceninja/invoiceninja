@@ -79,8 +79,9 @@ class Client extends BaseModel implements HasLocalePreference
 
     protected $with = [
         'gateway_tokens',
-        'documents'
-        //'currency',
+        'documents',
+        'contacts.company',
+        // 'currency',
         // 'primary_contact',
         // 'country',
         // 'contacts',
