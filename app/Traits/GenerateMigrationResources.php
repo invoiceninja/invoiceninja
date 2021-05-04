@@ -534,6 +534,10 @@ info("get company");
     private function getDesignId($design_id)
     {
         if($design_id >= 11)
+            return 2;
+        elseif($design_id == 1)
+            return 2;
+        elseif($design_id == 2)
             return 1;
 
         return $design_id;
