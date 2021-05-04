@@ -41,7 +41,7 @@ class BraintreePaymentDriver extends BaseDriver
 
     public static $methods = [
         GatewayType::CREDIT_CARD => CreditCard::class,
-        GatewayType::PAYPAL,
+        GatewayType::PAYPAL => PayPal::class,
     ];
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_BRAINTREE;
