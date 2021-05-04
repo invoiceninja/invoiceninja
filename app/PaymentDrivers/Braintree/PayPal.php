@@ -28,6 +28,18 @@ class PayPal
         $this->braintree->init();
     }
 
+    public function authorizeView(array $data)
+    {
+        $data['gateway'] = $this->braintree;
+
+        return render('gateways.braintree.paypal.authorize', $data);
+    }
+
+    public function authorizeResponse($data): \Illuminate\Http\RedirectResponse
+    {
+        return back();
+    }
+
     /**
      * Credit card payment page.
      *
