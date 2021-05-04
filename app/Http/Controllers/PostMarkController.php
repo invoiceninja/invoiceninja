@@ -12,6 +12,7 @@
 namespace App\Http\Controllers;
 
 use App\DataMapper\Analytics\EmailBounce;
+use App\DataMapper\Analytics\EmailSpam;
 use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Models\CreditInvitation;
@@ -165,7 +166,7 @@ class PostMarkController extends BaseController
         );
 
         LightLogs::create($bounce)->batch();
-        
+
         SystemLogger::dispatch($request->all(), SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_BOUNCED, SystemLog::TYPE_WEBHOOK_RESPONSE, $this->invitation->contact->client);
     }
 
@@ -199,6 +200,14 @@ class PostMarkController extends BaseController
 
         $this->invitation->email_status = 'spam';
         $this->invitation->save();
+
+        $spam = new EmailSpam(
+            $request->input('Tag'),
+            $request->input('From'),
+            $request->input('MessageID')
+        );
+
+        LightLogs::create($bounce)->batch();
 
         SystemLogger::dispatch($request->all(), SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_SPAM_COMPLAINT, SystemLog::TYPE_WEBHOOK_RESPONSE, $this->invitation->contact->client);
     }
