@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Mail;
+namespace App\Mail\Migration;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class ExistingMigration extends Mailable
+class MaxCompanies extends Mailable
 {
     // use Queueable, SerializesModels;
 
@@ -16,7 +16,11 @@ class ExistingMigration extends Mailable
 
     public $logo;
 
-    public $company_name;
+    public $title;
+
+    public $message;
+
+    public $whitelabel;
 
     /**
      * Create a new message instance.
@@ -37,9 +41,11 @@ class ExistingMigration extends Mailable
     {
         $this->settings = $this->company->settings;
         $this->logo = $this->company->present()->logo();
-        $this->company_name = $this->company->present()->name();
+        $this->title = ctrans('texts.max_companies');
+        $this->message = ctrans('texts.max_companies_desc');
+        $this->whitelabel = $this->company->account->isPaid();
 
-         return $this->from(config('mail.from.address'), config('mail.from.name'))
-                    ->view('email.migration.existing');
+        return $this->from(config('mail.from.address'), config('mail.from.name'))
+                    ->view('email.migration.max_companies');
     }
 }

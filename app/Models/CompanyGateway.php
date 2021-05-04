@@ -225,7 +225,7 @@ class CompanyGateway extends BaseModel
     {
         $config = $this->getConfig();
 
-        if ($this->gateway->provider == 'Stripe' && strpos($config->publishableKey, 'test')) {
+        if ($this->gateway->provider == 'Stripe' && property_exists($config, 'publishableKey') && strpos($config->publishableKey, 'test')) {
             return true;
         }
 
