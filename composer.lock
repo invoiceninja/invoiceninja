@@ -4,8 +4,60 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f01381d3d00f0bd84acbda078ad1b99e",
+    "content-hash": "38a79899673526624db4d62a76dd9a5e",
     "packages": [
+        {
+            "name": "asm/php-ansible",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/maschmann/php-ansible.git",
+                "reference": "4f2145cad264fd9f800baf6d3a79dd43fd8009db"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/maschmann/php-ansible/zipball/4f2145cad264fd9f800baf6d3a79dd43fd8009db",
+                "reference": "4f2145cad264fd9f800baf6d3a79dd43fd8009db",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1.0|>8.0.0",
+                "psr/log": "^1.1",
+                "symfony/process": "^4.0|^5.0"
+            },
+            "require-dev": {
+                "mikey179/vfsstream": "^1.6",
+                "phpunit/phpunit": "^9.0"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Asm\\": "Asm"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Marc Aschmann",
+                    "email": "maschmann@gmail.com"
+                }
+            ],
+            "description": "A PHP wrapper for Ansible.",
+            "homepage": "https://github.com/maschmann/php-ansible",
+            "keywords": [
+                "ansible",
+                "php"
+            ],
+            "support": {
+                "issues": "https://github.com/maschmann/php-ansible/issues",
+                "source": "https://github.com/maschmann/php-ansible/tree/master"
+            },
+            "time": "2021-03-02T18:27:29+00:00"
+        },
         {
             "name": "authorizenet/authorizenet",
             "version": "2.0.2",
@@ -51,16 +103,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.180.0",
+            "version": "3.180.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "761d06d3d320bd1a0114f9d937eccd1613e1913b"
+                "reference": "7801112fd8be227954a6ecfbfd85b01ee4a7cae4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/761d06d3d320bd1a0114f9d937eccd1613e1913b",
-                "reference": "761d06d3d320bd1a0114f9d937eccd1613e1913b",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/7801112fd8be227954a6ecfbfd85b01ee4a7cae4",
+                "reference": "7801112fd8be227954a6ecfbfd85b01ee4a7cae4",
                 "shasum": ""
             },
             "require": {
@@ -135,9 +187,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.180.0"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.180.1"
             },
-            "time": "2021-05-03T20:41:22+00:00"
+            "time": "2021-05-04T18:14:38+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -14247,6 +14299,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "asm/php-ansible": 20,
         "webpatser/laravel-countries": 20
     },
     "prefer-stable": true,
