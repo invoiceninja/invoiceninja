@@ -40,9 +40,9 @@ class PasswordProtection
         $timeout = auth()->user()->company()->default_password_timeout;
 
         if($timeout == 0)
-            $timeout = now()->addYear();
+            $timeout = 30*60*1000*1000;
         else
-            $timeout = now()->addMinutes($timeout/1000);
+            $timeout = $timeout/1000;
 
         if (Cache::get(auth()->user()->hashed_id.'_logged_in')) {
 
