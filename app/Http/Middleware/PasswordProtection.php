@@ -42,7 +42,7 @@ class PasswordProtection
         if($timeout == 0)
             $timeout = now()->addYear();
         else
-            $timeout = now()->addMinutes($timeout/60000);
+            $timeout = now()->addMinutes($timeout/1000);
 
         if (Cache::get(auth()->user()->hashed_id.'_logged_in')) {
 
