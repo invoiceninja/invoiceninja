@@ -13,9 +13,12 @@
 namespace App\Http\Livewire;
 
 use App\Models\Company;
+use App\Models\CompanyGateway;
 use App\Models\User;
+use App\PaymentDrivers\WePayPaymentDriver;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
+use WePay;
 
 class WepaySignup extends Component
 {
@@ -25,6 +28,10 @@ class WepaySignup extends Component
     public $first_name;
     public $last_name;
     public $email;
+    public $company_name;
+    public $country;
+    public $ach;
+    public $wepay_payment_tos_agree;
 
     public $terms;
     public $privacy_policy;
@@ -32,9 +39,13 @@ class WepaySignup extends Component
     public $saved;
 
     protected $rules = [
-        'first_name' => ['sometimes'],
-        'last_name' => ['sometimes'],
+        'first_name' => ['required'],
+        'last_name' => ['required'],
         'email' => ['required', 'email'],
+        'company_name' => ['required'],
+        'country' => ['required'],
+        'ach' => ['sometimes'],
+        'wepay_payment_tos_agree' => ['accepted'],
     ];
 
     public function mount()
@@ -43,6 +54,9 @@ class WepaySignup extends Component
         $company = Company::where('company_key', $this->company_key)->first();
         
         $this->fill([
+            'wepay_payment_tos_agree' => '',
+            'ach' => '',
+            'country' => 'US',
             'user' => $user,
             'first_name' => $user->first_name,
             'last_name' => $user->last_name,
@@ -64,10 +78,61 @@ class WepaySignup extends Component
 
         $data = $this->validate($this->rules);
 
-        // $this->user
-        //     ->fill($data)
-        //     ->save();
+        $this->saved = ctrans('texts.processing');
 
-        $this->saved = ctrans('texts.saved_at', ['time' => now()->toTimeString()]);
+        $wepay_driver = new WePayPaymentDriver(new CompanyGateway, null, null);
+
+        $wepay_driver->init();
+
+        $user_details = [
+            'client_id' => config('ninja.wepay.client_id'),
+            'client_secret' => config('ninja.wepay.client_secret'),
+            'email' => $data['email'],
+            'first_name' => $data['first_name'],
+            'last_name' => $data['last_name'],
+            'original_ip' => request()->ip(),
+            'original_device' => request()->server('HTTP_USER_AGENT'),
+            'tos_acceptance_time' => time(),
+            'redirect_uri' => route('wepay.process_signup'),
+            'scope' => 'manage_accounts,collect_payments,view_user,preapprove_payments,send_money',
+        ];
+
+        $wepay_user = $wepay_driver->request('user/register/', $user_details);
+
+        $access_token = $wepay_user->access_token;
+
+        $access_token_expires = $wepay_user->expires_in ? (time() + $wepay_user->expires_in) : null;
+
+        $wepay = new WePay($access_token);
+
+            $account_details = [
+                'name' => $data['company_name']),
+                'description' => ctrans('texts.wepay_account_description'),
+                'theme_object' => json_decode({"name":"Invoice Ninja","primary_color":"0b4d78","secondary_color":"0b4d78","background_color":"f8f8f8","button_color":"33b753"}),
+                'callback_uri' => $accountGateway->getWebhookUrl(),
+                'rbits' => $account->present()->rBits,
+                'country' => $data['country'],
+            ];
+
+            if (Input::get('country') == 'CA') {
+                $accountDetails['currencies'] = ['CAD'];
+                $accountDetails['country_options'] = ['debit_opt_in' => boolval(Input::get('debit_cards'))];
+            } elseif (Input::get('country') == 'GB') {
+                $accountDetails['currencies'] = ['GBP'];
+            }
+
+            $wepayAccount = $wepay->request('account/create/', $accountDetails);
+
+            try {
+                $wepay->request('user/send_confirmation/', []);
+                $confirmationRequired = true;
+            } catch (\WePayException $ex) {
+                if ($ex->getMessage() == 'This access_token is already approved.') {
+                    $confirmationRequired = false;
+                } else {
+                    throw $ex;
+                }
+            }
+
     }
 }

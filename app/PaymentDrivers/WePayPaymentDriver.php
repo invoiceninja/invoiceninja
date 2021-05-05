@@ -59,6 +59,8 @@ class WePayPaymentDriver extends BaseDriver
 
         $this->wepay = new WePay(null);
         
+        return $this;
+        
     }
 
     public function setup(array $data)
