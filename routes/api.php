@@ -199,8 +199,7 @@ Route::get('webcron', 'WebCronController@index');
 Route::group(['middleware' => ['locale']], function () {
     Route::get('stripe_connect/{token}', 'StripeConnectController@initialize')->name('stripe_connect.initialization');
     Route::get('stripe_connect/completed', 'StripeConnectController@completed')->name('stripe_connect.return');
-    Route::get('wepay/signup/{token}', 'WePayController@signup')->name('wepay.signup');
-    Route::post('wepay/processSignup', 'WePayController@processSignup')->name('wepay.process_signup');
+
 });
 
 Route::fallback('BaseController@notFound');
