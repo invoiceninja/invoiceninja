@@ -86,6 +86,15 @@ class BraintreePayPal {
 
                     onApprove: function (data, actions) {
                         return paypalCheckoutInstance.tokenizePayment(data).then(function (payload) {
+                            let tokenBillingCheckbox = document.querySelector(
+                                'input[name="token-billing-checkbox"]:checked'
+                            );
+
+                            if (tokenBillingCheckbox) {
+                                document.querySelector('input[name="store_card"]').value =
+                                    tokenBillingCheckbox.value;
+                            }
+
                             document.querySelector('input[name=gateway_response]').value = JSON.stringify(payload);
                             document.getElementById('server-response').submit();
                         });
