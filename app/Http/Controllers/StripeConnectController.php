@@ -34,7 +34,6 @@ class StripeConnectController extends BaseController
         if(!is_array($request->getTokenContent()))
             abort(400, 'Invalid token');
 
-
         MultiDB::findAndSetDbByCompanyKey($request->getTokenContent()['company_key']);
 
         $data = [
