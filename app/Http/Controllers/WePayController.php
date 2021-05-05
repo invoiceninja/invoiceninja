@@ -44,8 +44,8 @@ class WePayController extends BaseController
         // $data['user_id'] = $this->encodePrimaryKey($hash['user_id']);
         // $data['company_key'] = $hash['company_key'];
 
-        $data['user_id'] = 1;
         $user = User::first();
+        $data['user_id'] = $user->id;
 
         $data['company_key'] = $user->account->companies()->first()->company_key;
 

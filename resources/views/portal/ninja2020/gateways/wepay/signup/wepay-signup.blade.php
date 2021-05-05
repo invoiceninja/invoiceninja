@@ -82,6 +82,12 @@
                         </div>
                     </div>
 
+                    <div class="col-span-6 sm:col-span-4">
+
+                        <span><i>{{ ctrans('texts.standard_fees_apply')}}</i></span>
+                    
+                    </div>
+
                 </div>
             </div>
             <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
