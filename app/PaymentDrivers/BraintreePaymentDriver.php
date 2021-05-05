@@ -19,6 +19,7 @@ use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
@@ -112,6 +113,17 @@ class BraintreePaymentDriver extends BaseDriver
 
         if ($result->success) {
             return $result->customer;
+        }
+    }
+
+    public function refund(Payment $payment, $amount, $return_client_response = false)
+    {
+        $this->init();
+
+        try {
+            $response = $this->gateway->transaction()->refund($payment->transaction_reference, $amount);
+        } catch(\Exception $e) {
+            // ..
         }
     }
 
