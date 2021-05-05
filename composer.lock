@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "38a79899673526624db4d62a76dd9a5e",
+    "content-hash": "8ebeefd50035c907152aebf54d1dbd21",
     "packages": [
         {
             "name": "asm/php-ansible",
@@ -10154,6 +10154,57 @@
                 "source": "https://github.com/webpatser/laravel-countries"
             },
             "time": "2019-07-12T14:06:05+00:00"
+        },
+        {
+            "name": "wepay/php-sdk",
+            "version": "0.3.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/wepay/PHP-SDK.git",
+                "reference": "2a89ceb2954d117d082f869d3bfcb7864e6c2a7d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wepay/PHP-SDK/zipball/2a89ceb2954d117d082f869d3bfcb7864e6c2a7d",
+                "reference": "2a89ceb2954d117d082f869d3bfcb7864e6c2a7d",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.2.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "wepay.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "WePay",
+                    "email": "api@wepay.com"
+                }
+            ],
+            "description": "WePay APIv2 SDK for PHP",
+            "keywords": [
+                "payment",
+                "sdk",
+                "wepay"
+            ],
+            "support": {
+                "issues": "https://github.com/wepay/PHP-SDK/issues",
+                "source": "https://github.com/wepay/PHP-SDK/tree/master"
+            },
+            "time": "2017-01-21T07:03:26+00:00"
         },
         {
             "name": "wildbit/swiftmailer-postmark",

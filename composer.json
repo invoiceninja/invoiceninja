@@ -70,6 +70,7 @@
         "turbo124/beacon": "^1.0",
         "turbo124/laravel-gmail": "^5",
         "webpatser/laravel-countries": "dev-master#75992ad",
+        "wepay/php-sdk": "^0.3",
         "wildbit/swiftmailer-postmark": "^3.3"
     },
     "require-dev": {
