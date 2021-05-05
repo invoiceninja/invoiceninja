@@ -40,7 +40,7 @@ class PasswordProtection
         $timeout = auth()->user()->company()->default_password_timeout;
 
         if($timeout == 0)
-            $timeout = null;
+            $timeout = now()->addYear();
         else
             $timeout = now()->addMinutes($timeout/60000);
 
@@ -68,12 +68,12 @@ class PasswordProtection
                 //If OAuth and user also has a password set  - check both
                 if ($existing_user = MultiDB::hasUser($query) && auth()->user()->has_password && Hash::check(auth()->user()->password, $request->header('X-API-PASSWORD'))) {
 
-                    Cache::add(auth()->user()->hashed_id.'_logged_in', Str::random(64), $timeout);
+                    Cache::put(auth()->user()->hashed_id.'_logged_in', Str::random(64), $timeout);
                     return $next($request);
                 }
                 elseif($existing_user = MultiDB::hasUser($query) && !auth()->user()->has_password){
 
-                    Cache::add(auth()->user()->hashed_id.'_logged_in', Str::random(64), $timeout);
+                    Cache::put(auth()->user()->hashed_id.'_logged_in', Str::random(64), $timeout);
                     return $next($request);                    
                 }
             }
@@ -83,7 +83,7 @@ class PasswordProtection
 
         }elseif ($request->header('X-API-PASSWORD') && Hash::check($request->header('X-API-PASSWORD'), auth()->user()->password))  {
 
-            Cache::add(auth()->user()->hashed_id.'_logged_in', Str::random(64), $timeout);
+            Cache::put(auth()->user()->hashed_id.'_logged_in', Str::random(64), $timeout);
 
             return $next($request);
 
