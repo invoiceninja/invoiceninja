@@ -46,8 +46,7 @@ class PasswordProtection
 
         if (Cache::get(auth()->user()->hashed_id.'_logged_in')) {
 
-            Cache::pull(auth()->user()->hashed_id.'_logged_in');
-            Cache::add(auth()->user()->hashed_id.'_logged_in', Str::random(64), $timeout);
+            Cache::put(auth()->user()->hashed_id.'_logged_in', Str::random(64), $timeout);
 
             return $next($request);
 
