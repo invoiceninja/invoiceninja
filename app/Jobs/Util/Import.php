@@ -459,6 +459,19 @@ class Import implements ShouldQueue
         $user_repository = null;
     }
 
+    private function checkUniqueConstraint($model, $column, $value)
+    {
+        $model_query = (new $model())
+                            ->query()
+                            ->where($column, $value)
+                            ->exists();
+
+        if($model_query)
+            return $value.'_'. Str::random(5);
+
+        return $value;
+    }
+
     /**
      * @param array $data
      * @throws Exception
@@ -476,6 +489,7 @@ class Import implements ShouldQueue
             $modified['user_id'] = $this->processUserId($resource);
             $modified['balance'] = $modified['balance'] ?: 0;
             $modified['paid_to_date'] = $modified['paid_to_date'] ?: 0;
+            $modified['number'] = $this->checkUniqueConstraint(Client::class, 'number', $modified['number']);
 
             unset($modified['id']);
             unset($modified['contacts']);
@@ -487,6 +501,14 @@ class Import implements ShouldQueue
                     $modified['user_id']
                 )
             );
+
+            if(array_key_exists('created_at', $modified))
+                $client->created_at = $modified['created_at'];
+
+            if(array_key_exists('updated_at', $modified))
+                $client->updated_at = $modified['updated_at'];
+
+            $client->save(['timestamps' => false]);
 
             $client->contacts()->forceDelete();
 
@@ -891,6 +913,14 @@ class Import implements ShouldQueue
                 QuoteFactory::create($this->company->id, $modified['user_id'])
             );
 
+            if(array_key_exists('created_at', $modified))
+                $quote->created_at = $modified['created_at'];
+
+            if(array_key_exists('updated_at', $modified))
+                $quote->updated_at = $modified['updated_at'];
+
+            $quote->save(['timestamps' => false]);
+
             $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
 
             $key = "quotes_{$resource['id']}";
@@ -956,6 +986,14 @@ class Import implements ShouldQueue
                 $modified,
                 PaymentFactory::create($this->company->id, $modified['user_id'])
             );
+
+            if(array_key_exists('created_at', $modified))
+                $payment->created_at = $modified['created_at'];
+
+            if(array_key_exists('updated_at', $modified))
+                $payment->updated_at = $modified['updated_at'];
+
+            $payment->save(['timestamps' => false]);
 
             if (array_key_exists('company_gateway_id', $resource) && isset($resource['company_gateway_id']) && $resource['company_gateway_id'] != 'NULL') {
                 $payment->company_gateway_id = $this->transformId('company_gateways', $resource['company_gateway_id']);
@@ -1319,6 +1357,14 @@ class Import implements ShouldQueue
 
             $task = Task::Create($modified);
 
+            if(array_key_exists('created_at', $modified))
+                $task->created_at = $modified['created_at'];
+
+            if(array_key_exists('updated_at', $modified))
+                $task->updated_at = $modified['updated_at'];
+
+            $task->save(['timestamps' => false]);
+
             $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
 
             $this->ids['tasks'] = [
@@ -1399,6 +1445,14 @@ class Import implements ShouldQueue
 
             $expense = Expense::Create($modified);
 
+            if(array_key_exists('created_at', $modified))
+                $expense->created_at = $modified['created_at'];
+
+            if(array_key_exists('updated_at', $modified))
+                $expense->updated_at = $modified['updated_at'];
+
+            $expense->save(['timestamps' => false]);
+            
             $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
 
             $key = "expenses_{$resource['id']}";

@@ -47,6 +47,7 @@ class InvoiceEmailActivity implements ShouldQueue
         $fields->user_id = $event->invitation->invoice->user_id;
         $fields->company_id = $event->invitation->invoice->company_id;
         $fields->client_contact_id = $event->invitation->invoice->client_contact_id;
+        $fields->client_id = $event->invitation->invoice->client_id;
         $fields->activity_type_id = Activity::EMAIL_INVOICE;
 
         $this->activity_repo->save($fields, $event->invitation->invoice, $event->event_vars);
