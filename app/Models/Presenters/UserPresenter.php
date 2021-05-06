@@ -26,4 +26,28 @@ class UserPresenter extends EntityPresenter
 
         return $first_name.' '.$last_name;
     }
+
+
+    public function getDisplayName()
+    {
+        if ($this->getFullName()) {
+            return $this->getFullName();
+        } elseif ($this->entity->email) {
+            return $this->entity->email;
+        } else {
+            return ctrans('texts.guest');
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getFullName()
+    {
+        if ($this->entity->first_name || $this->entity->last_name) {
+            return $this->entity->first_name.' '.$this->entity->last_name;
+        } else {
+            return '';
+        }
+    }
 }

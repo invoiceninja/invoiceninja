@@ -106,4 +106,8 @@ class CompanyPresenter extends EntityPresenter
         "SPC\n0200\n1\n{$user_iban}\nK\n{$this->name}\n{$settings->address1}\n{$settings->postal_code} {$settings->city}\n\n\nCH\n\n\n\n\n\n\n\n{$balance_due_raw}\n{$client_currency}\n\n\n\n\n\n\n\nNON\n\n{$invoice_number}\nEPD\n";
     }
 
+    public function size()
+    {
+        return $this->entity->size ? $this->entity->size->name : '';
+    }
 }

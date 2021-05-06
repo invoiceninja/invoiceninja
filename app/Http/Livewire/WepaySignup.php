@@ -37,6 +37,7 @@ class WepaySignup extends Component
     public $privacy_policy;
 
     public $saved;
+    public $company;
 
     protected $rules = [
         'first_name' => ['required'],
@@ -51,8 +52,8 @@ class WepaySignup extends Component
     public function mount()
     {
         $user = User::find($this->user_id);
-        $company = Company::where('company_key', $this->company_key)->first();
-        
+        $this->company = Company::where('company_key', $this->company_key)->firstOrFail();
+            
         $this->fill([
             'wepay_payment_tos_agree' => '',
             'ach' => '',
@@ -61,7 +62,7 @@ class WepaySignup extends Component
             'first_name' => $user->first_name,
             'last_name' => $user->last_name,
             'email' => $user->email,
-            'company_name' => $company->present()->name(),
+            'company_name' => $this->company->present()->name(),
             'saved' => ctrans('texts.confirm'),
             'terms' => '<a href="https://go.wepay.com/terms-of-service" target="_blank">'.ctrans('texts.terms_of_service').'</a>',
             'privacy_policy' => '<a href="https://go.wepay.com/privacy-policy" target="_blank">'.ctrans('texts.privacy_policy').'</a>',
@@ -106,29 +107,29 @@ class WepaySignup extends Component
         $wepay = new WePay($access_token);
 
             $account_details = [
-                'name' => $data['company_name']),
+                'name' => $data['company_name'],
                 'description' => ctrans('texts.wepay_account_description'),
-                'theme_object' => json_decode({"name":"Invoice Ninja","primary_color":"0b4d78","secondary_color":"0b4d78","background_color":"f8f8f8","button_color":"33b753"}),
+                'theme_object' => json_decode('{"name":"Invoice Ninja","primary_color":"0b4d78","secondary_color":"0b4d78","background_color":"f8f8f8","button_color":"33b753"}'),
                 'callback_uri' => $accountGateway->getWebhookUrl(),
-                'rbits' => $account->present()->rBits,
+                'rbits' => $this->company->present()->rBits,
                 'country' => $data['country'],
             ];
 
-            if (Input::get('country') == 'CA') {
-                $accountDetails['currencies'] = ['CAD'];
-                $accountDetails['country_options'] = ['debit_opt_in' => boolval(Input::get('debit_cards'))];
-            } elseif (Input::get('country') == 'GB') {
-                $accountDetails['currencies'] = ['GBP'];
+            if ($data['country'] == 'CA') {
+                $account_details['currencies'] = ['CAD'];
+                $account_details['country_options'] = ['debit_opt_in' => boolval($data['debit_cards'])];
+            } elseif ($data['country'] == 'GB') {
+                $account_details['currencies'] = ['GBP'];
             }
 
-            $wepayAccount = $wepay->request('account/create/', $accountDetails);
+            $wepay_account = $wepay->request('account/create/', $account_details);
 
             try {
                 $wepay->request('user/send_confirmation/', []);
-                $confirmationRequired = true;
+                $confirmation_required = true;
             } catch (\WePayException $ex) {
                 if ($ex->getMessage() == 'This access_token is already approved.') {
-                    $confirmationRequired = false;
+                    $confirmation_required = false;
                 } else {
                     throw $ex;
                 }
