@@ -11,10 +11,12 @@
 
 namespace App\Transformers;
 
+use App\Models\Activity;
 use App\Models\Document;
 use App\Models\Invoice;
 use App\Models\RecurringInvoice;
 use App\Models\RecurringInvoiceInvitation;
+use App\Transformers\ActivityTransformer;
 use App\Utils\Traits\MakesHash;
 
 class RecurringInvoiceTransformer extends EntityTransformer
@@ -29,6 +31,7 @@ class RecurringInvoiceTransformer extends EntityTransformer
     protected $availableIncludes = [
         'invitations',
         'documents',
+        'activities',
     //    'payments',
     //    'client',
     ];
@@ -62,6 +65,13 @@ class RecurringInvoiceTransformer extends EntityTransformer
             return $this->includeItem($invoice->client, $transformer, ENTITY_CLIENT);
         }
     */
+    public function includeActivities(RecurringInvoice $invoice)
+    {
+        $transformer = new ActivityTransformer($this->serializer);
+
+        return $this->includeCollection($invoice->activities, $transformer, Activity::class);
+    }   
+
     public function includeInvitations(RecurringInvoice $invoice)
     {
         $transformer = new RecurringInvoiceInvitationTransformer($this->serializer);

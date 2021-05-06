@@ -89,10 +89,22 @@ class UserRepository extends BaseRepository
                 $data['company_user']['notifications'] = CompanySettings::notificationDefaults();
                 $user->companies()->attach($company->id, $data['company_user']);
             } else {
-                $cu->fill($data['company_user']);
-                $cu->restore();
-                $cu->tokens()->restore();
-                $cu->save();
+
+                if(auth()->user()->isAdmin())
+                {
+                    $cu->fill($data['company_user']);
+                    $cu->restore();
+                    $cu->tokens()->restore();
+                    $cu->save();
+                }
+                else {
+                            
+                    $cu->notifications = $data['company_user']['notifications'];
+                    $cu->settings = $data['company_user']['settings'];
+                    $cu->save();
+
+                }
+                
             }
 
             $user->with(['company_users' => function ($query) use ($company, $user) {

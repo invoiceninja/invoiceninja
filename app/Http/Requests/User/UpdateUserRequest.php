@@ -45,9 +45,9 @@ class UpdateUserRequest extends Request
     {
         $input = $this->all();
 
-        if (isset($input['company_user']) && ! auth()->user()->isAdmin()) {
-            unset($input['company_user']);
-        }
+        // if (isset($input['company_user']) && ! auth()->user()->isAdmin()) {
+        //     unset($input['company_user']);
+        // }
 
         $this->replace($input);
     }

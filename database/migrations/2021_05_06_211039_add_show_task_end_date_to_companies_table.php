@@ -14,7 +14,7 @@ class AddShowTaskEndDateToCompaniesTable extends Migration
     public function up()
     {
         Schema::table('companies', function (Blueprint $table) {
-            $table->boolean('show_task_end_date')->default('false');
+            $table->boolean('show_task_end_date')->default(false);
         });
     }
 
