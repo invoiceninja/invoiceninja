@@ -123,7 +123,7 @@ class UserRepository extends BaseRepository
             $cu->forceDelete();
         }
 
-        event(new UserWasDeleted($user, $company, Ninja::eventVars(auth()->user()->id)));
+        event(new UserWasDeleted($user, $company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         $user->delete();
 
@@ -146,7 +146,7 @@ class UserRepository extends BaseRepository
             $cu->delete();
         }
 
-        event(new UserWasDeleted($user, auth()->user(), $company, Ninja::eventVars(auth()->user()->id)));
+        event(new UserWasDeleted($user, auth()->user(), $company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
          $user->is_deleted = true;
          $user->save();
@@ -164,7 +164,7 @@ class UserRepository extends BaseRepository
 
         $user->delete();
 
-        event(new UserWasArchived($user, auth()->user(), auth()->user()->company, Ninja::eventVars(auth()->user()->id)));
+        event(new UserWasArchived($user, auth()->user(), auth()->user()->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
     }
 
@@ -189,7 +189,7 @@ class UserRepository extends BaseRepository
 
         $cu->restore();
 
-        event(new UserWasRestored($user, auth()->user(), auth()->user()->company, Ninja::eventVars(auth()->user()->id)));
+        event(new UserWasRestored($user, auth()->user(), auth()->user()->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
     }
 }

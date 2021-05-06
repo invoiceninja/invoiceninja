@@ -255,10 +255,10 @@ class Credit extends BaseModel
         }
 
         if (! $invitation) {
-            event(new CreditWasUpdated($this, $this->company, Ninja::eventVars(auth()->user()->id)));
+            event(new CreditWasUpdated($this, $this->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
             CreateEntityPdf::dispatchNow($this->invitations->first());
         } else {
-            event(new CreditWasUpdated($this, $this->company, Ninja::eventVars(auth()->user()->id)));
+            event(new CreditWasUpdated($this, $this->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
             CreateEntityPdf::dispatchNow($invitation);
         }
 

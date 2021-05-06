@@ -159,7 +159,7 @@ class PaymentRepository extends BaseRepository {
             if ($payment->client->getSetting('client_manual_payment_notification')) 
                 $payment->service()->sendEmail();
 			
-            event( new PaymentWasCreated( $payment, $payment->company, Ninja::eventVars(auth()->user()->id) ) );
+            event( new PaymentWasCreated( $payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null) ) );
 		}
 
         nlog("payment amount = {$payment->amount}");
@@ -209,7 +209,7 @@ class PaymentRepository extends BaseRepository {
 
         $payment = $payment->service()->deletePayment();
 
-        event(new PaymentWasDeleted($payment, $payment->company, Ninja::eventVars(auth()->user()->id)));
+        event(new PaymentWasDeleted($payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $payment;
         //return parent::delete($payment);
