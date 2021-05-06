@@ -460,7 +460,7 @@ class HtmlEngine
         $country = Country::find($this->settings->country_id);
 
         if ($country) {
-            return $country->name;
+            return ctrans('texts.country_' . $country->name);
         }
 
         return '&nbsp;';
