@@ -79,6 +79,7 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'check_client_existence
     Route::post('upload', 'ClientPortal\UploadController')->name('upload.store');
 
     Route::get('logout', 'Auth\ContactLoginController@logout')->name('logout');
+
 });
 
 Route::get('client/subscription/{subscription}/purchase/', 'ClientPortal\SubscriptionPurchaseController@index')->name('client.subscription.purchase');

@@ -95,7 +95,7 @@ class PaymentLibrariesSeeder extends Seeder
 
         Gateway::query()->update(['visible' => 0]);
 
-        Gateway::whereIn('id', [1,15,20,39,55])->update(['visible' => 1]);
+        Gateway::whereIn('id', [1,15,20,39,55,49])->update(['visible' => 1]);
 
         Gateway::all()->each(function ($gateway) {
             $gateway->site_url = $gateway->getHelp();

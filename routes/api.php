@@ -199,6 +199,7 @@ Route::get('webcron', 'WebCronController@index');
 Route::group(['middleware' => ['locale']], function () {
     Route::get('stripe_connect/{token}', 'StripeConnectController@initialize')->name('stripe_connect.initialization');
     Route::get('stripe_connect/completed', 'StripeConnectController@completed')->name('stripe_connect.return');
+
 });
 
 Route::fallback('BaseController@notFound');
