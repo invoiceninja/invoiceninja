@@ -122,8 +122,22 @@ class BraintreePaymentDriver extends BaseDriver
 
         try {
             $response = $this->gateway->transaction()->refund($payment->transaction_reference, $amount);
-        } catch(\Exception $e) {
-            // ..
+
+            return [
+                'transaction_reference' => $response->id,
+                'transaction_response' => json_encode($response),
+                'success' => (bool) $response->success,
+                'description' => $response->status,
+                'code' => 0,
+            ];
+        } catch (\Exception $e) {
+            return [
+                'transaction_reference' => null,
+                'transaction_response' => json_encode($e->getMessage()),
+                'success' => false,
+                'description' => $e->getMessage(),
+                'code' => $e->getCode(),
+            ];
         }
     }
 
@@ -173,7 +187,7 @@ class BraintreePaymentDriver extends BaseDriver
             return $payment;
         }
 
-        if (! $result->success) {
+        if (!$result->success) {
             $this->unWindGatewayFees($payment_hash);
 
             PaymentFailureMailer::dispatch($this->client, $result->transaction->additionalProcessorResponse, $this->client->company, $this->payment_hash->data->amount_with_fee);
