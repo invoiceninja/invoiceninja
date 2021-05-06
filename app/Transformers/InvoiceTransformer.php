@@ -11,12 +11,14 @@
 
 namespace App\Transformers;
 
+use App\Models\Activity;
 use App\Models\Backup;
 use App\Models\Client;
 use App\Models\Document;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Models\Payment;
+use App\Transformers\ActivityTransformer;
 use App\Utils\Traits\MakesHash;
 
 class InvoiceTransformer extends EntityTransformer
@@ -33,6 +35,7 @@ class InvoiceTransformer extends EntityTransformer
         'history',
         'payments',
         'client',
+        'activities',
     //    'documents',
     ];
 
@@ -79,6 +82,14 @@ class InvoiceTransformer extends EntityTransformer
 
         return $this->includeCollection($invoice->documents, $transformer, Document::class);
     }
+
+    public function includeActivities(Invoice $invoice)
+    {
+        $transformer = new ActivityTransformer($this->serializer);
+
+        return $this->includeCollection($invoice->activities, $transformer, Activity::class);
+    }
+
 
     public function transform(Invoice $invoice)
     {

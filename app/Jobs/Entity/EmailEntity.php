@@ -144,7 +144,7 @@ class EmailEntity implements ShouldQueue
     {
         switch ($this->entity_string) {
             case 'invoice':
-                event(new InvoiceWasEmailedAndFailed($this->invitation, $this->company, $message, $this->reminder_template, Ninja::eventVars(auth()->user()->id)));
+                event(new InvoiceWasEmailedAndFailed($this->invitation, $this->company, $message, $this->reminder_template, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
                 break;
 
             default:

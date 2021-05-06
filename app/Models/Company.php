@@ -88,6 +88,7 @@ class Company extends BaseModel
         'oauth_password_required',
         'invoice_task_datelog',
         'default_password_timeout',
+        'show_task_end_date',
     ];
 
     protected $hidden = [
