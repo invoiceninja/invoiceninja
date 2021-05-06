@@ -32,6 +32,7 @@ class WepaySignup extends Component
     public $country;
     public $ach;
     public $wepay_payment_tos_agree;
+    public $debit_cards;
 
     public $terms;
     public $privacy_policy;
@@ -77,6 +78,13 @@ class WepaySignup extends Component
     public function submit()
     {
         //need to create or get a new WePay CompanyGateway
+        $cg = CompanyGateway::where('id', 49)
+                            ->where('company_id', $this->company->id)
+                            ->firstOrNew();
+
+        if(!$cg->id) {
+
+        }
 
         $data = $this->validate($this->rules);
 
@@ -111,7 +119,7 @@ class WepaySignup extends Component
                 'name' => $data['company_name'],
                 'description' => ctrans('texts.wepay_account_description'),
                 'theme_object' => json_decode('{"name":"Invoice Ninja","primary_color":"0b4d78","secondary_color":"0b4d78","background_color":"f8f8f8","button_color":"33b753"}'),
-                'callback_uri' => $accountGateway->getWebhookUrl(),
+                'callback_uri' => route('payment_webhook', ['company_key' => $this->company->company_key, 'company_gateway_id' => $cg->hashed_id]),
                 'rbits' => $this->company->present()->rBits,
                 'country' => $data['country'],
             ];
