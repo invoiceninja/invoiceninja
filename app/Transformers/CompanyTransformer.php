@@ -157,6 +157,7 @@ class CompanyTransformer extends EntityTransformer
             'oauth_password_required' => (bool)$company->oauth_password_required,
             'session_timeout' => (int)$company->session_timeout,
             'default_password_timeout' => (int) $company->default_password_timeout,
+            'invoice_task_datelog' => (bool) $company->invoice_task_datelog,
         ];
     }
 

@@ -58,7 +58,7 @@ class SelfUpdateController extends BaseController
         set_time_limit(0);
         define('STDIN', fopen('php://stdin', 'r'));
 
-        if (Ninja::isNinja()) {
+        if (Ninja::isHosted()) {
             return response()->json(['message' => ctrans('texts.self_update_not_available')], 403);
         }
 
