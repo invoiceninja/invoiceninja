@@ -459,6 +459,19 @@ class Import implements ShouldQueue
         $user_repository = null;
     }
 
+    private function checkUniqueConstraint($model, $column, $value)
+    {
+        $model_query = (new $model())
+                            ->query()
+                            ->where($column, $value)
+                            ->exists();
+
+        if($model_query)
+            return $value.'_'. Str::random(5);
+
+        return $value;
+    }
+
     /**
      * @param array $data
      * @throws Exception
@@ -476,6 +489,7 @@ class Import implements ShouldQueue
             $modified['user_id'] = $this->processUserId($resource);
             $modified['balance'] = $modified['balance'] ?: 0;
             $modified['paid_to_date'] = $modified['paid_to_date'] ?: 0;
+            $modified['number'] = $this->checkUniqueConstraint(Client::class, 'number', $modified['number']);
 
             unset($modified['id']);
             unset($modified['contacts']);
