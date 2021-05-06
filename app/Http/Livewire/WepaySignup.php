@@ -76,6 +76,7 @@ class WepaySignup extends Component
 
     public function submit()
     {
+        //need to create or get a new WePay CompanyGateway
 
         $data = $this->validate($this->rules);
 
