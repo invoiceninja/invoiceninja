@@ -107,11 +107,11 @@ class BaseController extends Controller
           'token',
           'company.activities',
           'company.documents',
-          //'company.users.company_user',
+          'company.users.company_user',
           'company.tax_rates',
           'company.groups',
           'company.payment_terms',
-          'company.designs.company'
+          'company.designs.company',
         ];
 
     public function __construct()
