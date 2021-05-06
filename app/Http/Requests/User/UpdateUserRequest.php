@@ -23,7 +23,7 @@ class UpdateUserRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth()->user()->id === $this->id || auth()->user()->isAdmin();
+        return auth()->user()->id == $this->user->id || auth()->user()->isAdmin();
     }
 
     public function rules()

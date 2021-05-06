@@ -50,17 +50,17 @@
                         <label for="country" class="input-label">@lang('texts.country')</label>
                     
                         <div class="radio">
-                        <input class="form-radio mr-2" type="radio" value="US" name="country" checked>
+                        <input class="form-radio mr-2" type="radio" value="US" name="country" checked wire:model="country">
                         <span>{{ ctrans('texts.country_United States') }}</span>
                         </div>
 
                         <div class="radio">
-                        <input class="form-radio mr-2" type="radio" value="CA" name="country">
+                        <input class="form-radio mr-2" type="radio" value="CA" name="country" wire:model="country">
                         <span>{{ ctrans('texts.country_Canada') }}</span>
                         </div>
 
                         <div class="radio">
-                        <input class="form-radio mr-2" type="radio" value="GB" name="country">
+                        <input class="form-radio mr-2" type="radio" value="GB" name="country" wire:model="country">
                         <span>{{ ctrans('texts.country_United Kingdom') }}</span>
                         </div>
 
@@ -69,7 +69,7 @@
                     <div class="col-span-6 sm:col-span-4">
                         <label for="country" class="input-label">@lang('texts.ach')</label>
                         <div class="checkbox">
-                        <input class="switch-input" type="checkbox" name="ach">
+                        <input class="switch-input" type="checkbox" name="ach" value="1" wire:model="ach">
                         <span>{{ ctrans('texts.enable_ach')}}</span>
                         </div>
                     </div>
@@ -77,9 +77,14 @@
                     <div class="col-span-6 sm:col-span-4">
                         <label for="country" class="input-label"></label>
                         <div class="checkbox">
-                        <input class="switch-input" type="checkbox" name="wepay_payment_tos_agree">
+                        <input type="checkbox" name="wepay_payment_tos_agree" value="1" wire:model="wepay_payment_tos_agree">
                         <span>{!! ctrans('texts.wepay_payment_tos_agree', ['terms' => $terms, 'privacy_policy' => $privacy_policy]) !!}</span>
                         </div>
+                        @error('wepay_payment_tos_agree')
+                        <div class="validation validation-fail">
+                            {{ $message }}
+                        </div>
+                        @enderror
                     </div>
 
                     <div class="col-span-6 sm:col-span-4">

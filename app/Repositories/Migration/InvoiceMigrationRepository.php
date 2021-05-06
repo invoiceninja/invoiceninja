@@ -71,7 +71,14 @@ class InvoiceMigrationRepository extends BaseRepository
 
         $model->fill($tmp_data);
         $model->status_id = $tmp_data['status_id'];
-        $model->save();
+        
+        if(array_key_exists('created_at', $data))
+            $model->created_at = $data['created_at'];
+
+        if(array_key_exists('updated_at', $data))
+            $model->updated_at = $data['updated_at'];
+
+        $model->save(['timestamps' => false]);
 
         if (array_key_exists('documents', $data)) {
             $this->saveDocuments($data['documents'], $model);
