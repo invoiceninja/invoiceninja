@@ -111,6 +111,7 @@ class BaseController extends Controller
           'company.tax_rates',
           'company.groups',
           'company.payment_terms',
+          'company.designs.company'
         ];
 
     public function __construct()
@@ -416,12 +417,12 @@ class BaseController extends Controller
                   $query->where('credits.user_id', $user->id)->orWhere('credits.assigned_user_id', $user->id);
 
             },
-            'company.designs'=> function ($query) use ($created_at, $user) {
-                $query->where('created_at', '>=', $created_at)->with('company');
+            // 'company.designs'=> function ($query) use ($created_at, $user) {
+            //     $query->where('created_at', '>=', $created_at)->with('company');
 
-                if(!$user->isAdmin())
-                  $query->where('designs.user_id', $user->id);
-            },
+            //     if(!$user->isAdmin())
+            //       $query->where('designs.user_id', $user->id);
+            // },
             'company.documents'=> function ($query) use ($created_at, $user) {
                 $query->where('created_at', '>=', $created_at);
             },
