@@ -11,7 +11,9 @@
 
 namespace App\DataMapper\Analytics;
 
-class LoginSuccess
+use Turbo124\Beacon\ExampleMetric\GenericCounter;
+
+class LoginSuccess extends GenericCounter
 {
     /**
      * The type of Sample.
