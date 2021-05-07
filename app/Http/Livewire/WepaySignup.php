@@ -104,7 +104,7 @@ class WepaySignup extends Component
 
         $wepay_driver = new WePayPaymentDriver($cg, null, null);
 
-        $wepay_driver->init();
+        $wepay = $wepay_driver->init()->wepay;
 
         $user_details = [
             'client_id' => config('ninja.wepay.client_id'),
@@ -119,7 +119,7 @@ class WepaySignup extends Component
             'scope' => 'manage_accounts,collect_payments,view_user,preapprove_payments,send_money',
         ];
 
-        $wepay_user = $wepay_driver->request('user/register/', $user_details);
+        $wepay_user = $wepay->request('user/register/', $user_details);
 
         $access_token = $wepay_user->access_token;
 
@@ -132,7 +132,7 @@ class WepaySignup extends Component
                 'description' => ctrans('texts.wepay_account_description'),
                 'theme_object' => json_decode('{"name":"Invoice Ninja","primary_color":"0b4d78","secondary_color":"0b4d78","background_color":"f8f8f8","button_color":"33b753"}'),
                 'callback_uri' => route('payment_webhook', ['company_key' => $this->company->company_key, 'company_gateway_id' => $cg->hashed_id]),
-                'rbits' => $this->company->present()->rBits,
+                'rbits' => $this->company->rBits(),
                 'country' => $data['country'],
             ];
 

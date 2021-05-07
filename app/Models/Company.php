@@ -445,20 +445,35 @@ class Company extends BaseModel
 
     public function rBits()
     {
-        $account = $this->account;
         $user = $this->owner();
         $data = [];
 
         $data[] = $this->createRBit('business_name', 'user', ['business_name' => $this->present()->name()]);
-        $data[] = $this->createRBit('industry_code', 'user', ['industry_detail' => $this->industry->name]);
+        $data[] = $this->createRBit('industry_code', 'user', ['industry_detail' => $this->industry ? $this->industry->name : '']);
         $data[] = $this->createRBit('comment', 'partner_database', ['comment_text' => 'Logo image not present']);
-        $data[] = $this->createRBit('business_description', 'user', ['business_description' => $company->present()->size()]);
+        $data[] = $this->createRBit('business_description', 'user', ['business_description' => $this->present()->size()]);
 
         $data[] = $this->createRBit('person', 'user', ['name' => $user->present()->getFullName()]);
         $data[] = $this->createRBit('email', 'user', ['email' => $user->email]);
         $data[] = $this->createRBit('phone', 'user', ['phone' => $user->phone]);
-        $data[] = $this->createRBit('website_uri', 'user', ['uri' => $this->entity->settings->website]);
+        $data[] = $this->createRBit('website_uri', 'user', ['uri' => $this->settings->website]);
         $data[] = $this->createRBit('external_account', 'partner_database', ['is_partner_account' => 'yes', 'account_type' => 'Invoice Ninja', 'create_time' => time()]);
+
+        return $data;
+    }
+
+
+    private function createRBit($type, $source, $properties)
+    {
+        $data = new \stdClass;
+        $data->receive_time = time();
+        $data->type = $type;
+        $data->source = $source;
+        $data->properties = new \stdClass;
+
+        foreach ($properties as $key => $val) {
+            $data->properties->$key = $val;
+        }
 
         return $data;
     }

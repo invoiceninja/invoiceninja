@@ -55,7 +55,7 @@ class WePayPaymentDriver extends BaseDriver
         }
 
         if ($this->company_gateway) 
-            $this->wepay = new WePay($this->company_gateway->getConfig()->accessToken);
+            $this->wepay = new WePay($this->company_gateway->getConfigField('accessToken'));
 
         $this->wepay = new WePay(null);
         
