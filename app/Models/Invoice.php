@@ -204,7 +204,7 @@ class Invoice extends BaseModel
 
     public function activities()
     {
-        return $this->hasMany(Activity::class);
+        return $this->hasMany(Activity::class)->orderBy('id', 'DESC')->take(300);
     }
 
     public function history()
