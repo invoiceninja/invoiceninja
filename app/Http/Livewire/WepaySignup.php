@@ -80,7 +80,7 @@ class WepaySignup extends Component
     public function submit()
     {
         //need to create or get a new WePay CompanyGateway
-        $cg = CompanyGateway::where('id', 49)
+        $cg = CompanyGateway::where('gateway_key', '8fdeed552015b3c7b44ed6c8ebd9e992')
                             ->where('company_id', $this->company->id)
                             ->firstOrNew();
 
@@ -96,9 +96,6 @@ class WepaySignup extends Component
         }
 
         $data = $this->validate($this->rules);
-
-
-// nlog($data);
 
         $this->saved = ctrans('texts.processing');
 
@@ -156,5 +153,19 @@ class WepaySignup extends Component
                 }
             }
 
+            $config = [
+                'userId' => $wepay_user->user_id,
+                'accessToken' => $access_token,
+                'tokenType' => $wepay_user->token_type,
+                'tokenExpires' => $access_token_expires,
+                'accountId' => $wepay_account->account_id,
+                'state' => $wepay_account->state,
+                'testMode' => config('ninja.wepay.environment') == 'staging',
+                'country' => $data['country'],
+            ];
+
+            $cg->setConfig($config);
+            $cg->save();
     }
+
 }
