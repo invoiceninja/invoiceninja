@@ -48,7 +48,7 @@ class WePayPaymentDriver extends BaseDriver
         if (WePay::getEnvironment() == 'none') {
             
             if(config('ninja.wepay.environment') == 'staging')
-                WePay::useStaing(config('ninja.wepay.client_id'), config('ninja.wepay.client_secret'));
+                WePay::useStaging(config('ninja.wepay.client_id'), config('ninja.wepay.client_secret'));
             else
                 WePay::useProduction(config('ninja.wepay.client_id'), config('ninja.wepay.client_secret'));
 

@@ -12,6 +12,7 @@
 
 namespace App\Http\Livewire;
 
+use App\Factory\CompanyGatewayFactory;
 use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\User;
@@ -48,6 +49,7 @@ class WepaySignup extends Component
         'country' => ['required'],
         'ach' => ['sometimes'],
         'wepay_payment_tos_agree' => ['accepted'],
+        'debit_cards' => ['sometimes'],
     ];
 
     public function mount()
@@ -83,14 +85,24 @@ class WepaySignup extends Component
                             ->firstOrNew();
 
         if(!$cg->id) {
-
+            $cg = CompanyGatewayFactory::create($this->company->id, $this->user->id);
+            $cg->gateway_key = '8fdeed552015b3c7b44ed6c8ebd9e992';
+            $cg->require_cvv = false;
+            $cg->require_billing_address = false;
+            $cg->require_shipping_address = false;
+            $cg->update_details = false;
+            $cg->config = encrypt(config('ninja.testvars.checkout'));
+            $cg->save();
         }
 
         $data = $this->validate($this->rules);
 
+
+// nlog($data);
+
         $this->saved = ctrans('texts.processing');
 
-        $wepay_driver = new WePayPaymentDriver(new CompanyGateway, null, null);
+        $wepay_driver = new WePayPaymentDriver($cg, null, null);
 
         $wepay_driver->init();
 

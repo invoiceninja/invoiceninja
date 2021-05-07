@@ -76,7 +76,7 @@
                             <label for="country" class="input-label">@lang('texts.debit_cards')</label>
 
                             <div class="checkbox">
-                                <input class="form-checkbox cursor-pointer mr-2" type="checkbox">
+                                <input class="form-checkbox cursor-pointer mr-2" type="checkbox" name="debit_cards" value="1" wire:model="debit_cards">
                                 <span>{{ ctrans('texts.accept_debit_cards') }}</span>
                             </div>
                         </div>
@@ -85,7 +85,7 @@
                     <div class="col-span-6 sm:col-span-4">
                         <label for="country" class="input-label">@lang('texts.ach')</label>
                         <div class="checkbox">
-                            <input class="switch-input" type="checkbox" name="ach" value="1" wire:model="ach">
+                            <input class="form-checkbox cursor-pointer mr-2" type="checkbox" name="ach" value="1" wire:model="ach">
                             <span>{{ ctrans('texts.enable_ach')}}</span>
                         </div>
                     </div>
@@ -93,8 +93,7 @@
                     <div class="col-span-6 sm:col-span-4">
                         <label for="country" class="input-label"></label>
                         <div class="checkbox">
-                            <input type="checkbox" name="wepay_payment_tos_agree" value="1"
-                                   wire:model="wepay_payment_tos_agree">
+                            <input class="form-checkbox cursor-pointer mr-2" type="checkbox" name="wepay_payment_tos_agree" value="1" wire:model="wepay_payment_tos_agree">
                             <span>{!! ctrans('texts.wepay_payment_tos_agree', ['terms' => $terms, 'privacy_policy' => $privacy_policy]) !!}</span>
                         </div>
                         @error('wepay_payment_tos_agree')
@@ -102,6 +101,10 @@
                             {{ $message }}
                         </div>
                         @enderror
+                    </div>
+
+                    <div class="col-span-6 sm:col-span-4">
+                        <span><i>{{ ctrans('texts.standard_fees_apply')}}</i></span>
                     </div>
 
                     <div class="col-span-6 {{ $country != 'CA' ? 'hidden' : 'block' }}">
@@ -267,9 +270,7 @@
                         </table>
                     </div>
 
-                    <div class="col-span-6 sm:col-span-4">
-                        <span><i>{{ ctrans('texts.standard_fees_apply')}}</i></span>
-                    </div>
+
                 </div>
             </div>
 
