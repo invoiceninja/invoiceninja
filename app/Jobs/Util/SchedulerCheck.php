@@ -23,6 +23,8 @@ class SchedulerCheck implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public $tries = 1;
+
     public function __construct()
     {
     }
@@ -45,18 +47,18 @@ class SchedulerCheck implements ShouldQueue
                 Artisan::call('migrate', ['--force' => true]);
             } catch (\Exception $e) {
                 nlog("I wasn't able to migrate the data.");
-            }
+                nlog($e->getMessage());
 
+            }
 
             try {
                 Artisan::call('clear-compiled');
                 Artisan::call('cache:clear');
                 Artisan::call('route:clear');
-                Artisan::call('config:clear');
-                Artisan::call('optimize');
+                Artisan::call('config:cache');
             } catch (\Exception $e) {
-                nlog($e->getMessage());
                 nlog("I wasn't able to optimize.");
+                nlog($e->getMessage());
             }
 
 
@@ -64,6 +66,7 @@ class SchedulerCheck implements ShouldQueue
                 Artisan::call('view:clear');
             } catch (\Exception $e) {
                 nlog("I wasn't able to clear the views.");
+                nlog($e->getMessage());
             }
 
 
