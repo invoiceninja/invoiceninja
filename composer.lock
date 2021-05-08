@@ -103,16 +103,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.180.1",
+            "version": "3.180.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "7801112fd8be227954a6ecfbfd85b01ee4a7cae4"
+                "reference": "948a4defbe2a571cc4460725015b8e98b7060f2d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/7801112fd8be227954a6ecfbfd85b01ee4a7cae4",
-                "reference": "7801112fd8be227954a6ecfbfd85b01ee4a7cae4",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/948a4defbe2a571cc4460725015b8e98b7060f2d",
+                "reference": "948a4defbe2a571cc4460725015b8e98b7060f2d",
                 "shasum": ""
             },
             "require": {
@@ -187,9 +187,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.180.1"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.180.5"
             },
-            "time": "2021-05-04T18:14:38+00:00"
+            "time": "2021-05-07T18:12:43+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -6811,16 +6811,16 @@
         },
         {
             "name": "sentry/sentry",
-            "version": "3.2.1",
+            "version": "3.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getsentry/sentry-php.git",
-                "reference": "fb4f83e6e2d718d1e5fbfe3a20cced83f47f040f"
+                "reference": "02237728bdc5b82b0a14c37417644e3f3606db9b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getsentry/sentry-php/zipball/fb4f83e6e2d718d1e5fbfe3a20cced83f47f040f",
-                "reference": "fb4f83e6e2d718d1e5fbfe3a20cced83f47f040f",
+                "url": "https://api.github.com/repos/getsentry/sentry-php/zipball/02237728bdc5b82b0a14c37417644e3f3606db9b",
+                "reference": "02237728bdc5b82b0a14c37417644e3f3606db9b",
                 "shasum": ""
             },
             "require": {
@@ -6899,7 +6899,7 @@
             ],
             "support": {
                 "issues": "https://github.com/getsentry/sentry-php/issues",
-                "source": "https://github.com/getsentry/sentry-php/tree/3.2.1"
+                "source": "https://github.com/getsentry/sentry-php/tree/3.2.2"
             },
             "funding": [
                 {
@@ -6911,20 +6911,20 @@
                     "type": "custom"
                 }
             ],
-            "time": "2021-04-06T07:55:41+00:00"
+            "time": "2021-05-06T10:15:01+00:00"
         },
         {
             "name": "sentry/sentry-laravel",
-            "version": "2.5.1",
+            "version": "2.5.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getsentry/sentry-laravel.git",
-                "reference": "2af8a531f202f0ac014f5fad532815ed34f730a9"
+                "reference": "368a2701b3bd370a2892f1f67bfbf0cbecbaca17"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getsentry/sentry-laravel/zipball/2af8a531f202f0ac014f5fad532815ed34f730a9",
-                "reference": "2af8a531f202f0ac014f5fad532815ed34f730a9",
+                "url": "https://api.github.com/repos/getsentry/sentry-laravel/zipball/368a2701b3bd370a2892f1f67bfbf0cbecbaca17",
+                "reference": "368a2701b3bd370a2892f1f67bfbf0cbecbaca17",
                 "shasum": ""
             },
             "require": {
@@ -6987,7 +6987,7 @@
             ],
             "support": {
                 "issues": "https://github.com/getsentry/sentry-laravel/issues",
-                "source": "https://github.com/getsentry/sentry-laravel/tree/2.5.1"
+                "source": "https://github.com/getsentry/sentry-laravel/tree/2.5.2"
             },
             "funding": [
                 {
@@ -6999,20 +6999,20 @@
                     "type": "custom"
                 }
             ],
-            "time": "2021-04-29T11:10:22+00:00"
+            "time": "2021-05-06T07:49:08+00:00"
         },
         {
             "name": "stripe/stripe-php",
-            "version": "v7.77.0",
+            "version": "v7.78.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stripe/stripe-php.git",
-                "reference": "f6724447481f6fb8c2e714165e092adad9ca470a"
+                "reference": "6ec33fa8e9de2322be93d28dfd685661c67ca549"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/f6724447481f6fb8c2e714165e092adad9ca470a",
-                "reference": "f6724447481f6fb8c2e714165e092adad9ca470a",
+                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/6ec33fa8e9de2322be93d28dfd685661c67ca549",
+                "reference": "6ec33fa8e9de2322be93d28dfd685661c67ca549",
                 "shasum": ""
             },
             "require": {
@@ -7058,9 +7058,9 @@
             ],
             "support": {
                 "issues": "https://github.com/stripe/stripe-php/issues",
-                "source": "https://github.com/stripe/stripe-php/tree/v7.77.0"
+                "source": "https://github.com/stripe/stripe-php/tree/v7.78.0"
             },
-            "time": "2021-04-12T17:19:16+00:00"
+            "time": "2021-05-05T23:55:32+00:00"
         },
         {
             "name": "swiftmailer/swiftmailer",
@@ -9809,16 +9809,16 @@
         },
         {
             "name": "turbo124/laravel-gmail",
-            "version": "v5.0.1",
+            "version": "v5.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/turbo124/laravel-gmail.git",
-                "reference": "55ca0271a54a568ebaa26febbe0790b2ce5ac966"
+                "reference": "f8b8806d0b37ab5b2d4c3f402f8094d9021bd342"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/turbo124/laravel-gmail/zipball/55ca0271a54a568ebaa26febbe0790b2ce5ac966",
-                "reference": "55ca0271a54a568ebaa26febbe0790b2ce5ac966",
+                "url": "https://api.github.com/repos/turbo124/laravel-gmail/zipball/f8b8806d0b37ab5b2d4c3f402f8094d9021bd342",
+                "reference": "f8b8806d0b37ab5b2d4c3f402f8094d9021bd342",
                 "shasum": ""
             },
             "require": {
@@ -9872,9 +9872,9 @@
                 "laravel"
             ],
             "support": {
-                "source": "https://github.com/turbo124/laravel-gmail/tree/v5.0.1"
+                "source": "https://github.com/turbo124/laravel-gmail/tree/v5.0.2"
             },
-            "time": "2021-04-06T00:53:48+00:00"
+            "time": "2021-05-08T00:17:52+00:00"
         },
         {
             "name": "vlucas/phpdotenv",
@@ -10741,21 +10741,21 @@
         },
         {
             "name": "darkaonline/l5-swagger",
-            "version": "8.0.4",
+            "version": "8.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DarkaOnLine/L5-Swagger.git",
-                "reference": "3477e7013daf8b6fc142c45fdcb9fe6c74d7398d"
+                "reference": "238e5d318b3d48a77c76b6950c51146578563853"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DarkaOnLine/L5-Swagger/zipball/3477e7013daf8b6fc142c45fdcb9fe6c74d7398d",
-                "reference": "3477e7013daf8b6fc142c45fdcb9fe6c74d7398d",
+                "url": "https://api.github.com/repos/DarkaOnLine/L5-Swagger/zipball/238e5d318b3d48a77c76b6950c51146578563853",
+                "reference": "238e5d318b3d48a77c76b6950c51146578563853",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "laravel/framework": "^8.0 || ^7.0",
+                "laravel/framework": ">=8.40.0 || ^7.0",
                 "php": "^7.2 || ^8.0",
                 "swagger-api/swagger-ui": "^3.0",
                 "symfony/yaml": "^5.0",
@@ -10808,7 +10808,7 @@
             ],
             "support": {
                 "issues": "https://github.com/DarkaOnLine/L5-Swagger/issues",
-                "source": "https://github.com/DarkaOnLine/L5-Swagger/tree/8.0.4"
+                "source": "https://github.com/DarkaOnLine/L5-Swagger/tree/8.0.5"
             },
             "funding": [
                 {
@@ -10816,7 +10816,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2020-12-08T13:29:20+00:00"
+            "time": "2021-05-07T09:57:00+00:00"
         },
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -11061,16 +11061,16 @@
         },
         {
             "name": "facade/ignition",
-            "version": "2.8.4",
+            "version": "2.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/facade/ignition.git",
-                "reference": "87fb348dab0ae1a7c206c3e902a5a44ba541742f"
+                "reference": "e7db3b601ce742568b92648818ef903904d20164"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/facade/ignition/zipball/87fb348dab0ae1a7c206c3e902a5a44ba541742f",
-                "reference": "87fb348dab0ae1a7c206c3e902a5a44ba541742f",
+                "url": "https://api.github.com/repos/facade/ignition/zipball/e7db3b601ce742568b92648818ef903904d20164",
+                "reference": "e7db3b601ce742568b92648818ef903904d20164",
                 "shasum": ""
             },
             "require": {
@@ -11134,7 +11134,7 @@
                 "issues": "https://github.com/facade/ignition/issues",
                 "source": "https://github.com/facade/ignition"
             },
-            "time": "2021-04-29T13:55:26+00:00"
+            "time": "2021-05-05T06:45:12+00:00"
         },
         {
             "name": "facade/ignition-contracts",
