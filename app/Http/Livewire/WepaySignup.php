@@ -79,6 +79,8 @@ class WepaySignup extends Component
 
     public function submit()
     {
+        $data = $this->validate($this->rules);
+
         //need to create or get a new WePay CompanyGateway
         $cg = CompanyGateway::where('gateway_key', '8fdeed552015b3c7b44ed6c8ebd9e992')
                             ->where('company_id', $this->company->id)
@@ -94,8 +96,6 @@ class WepaySignup extends Component
             $cg->config = encrypt(config('ninja.testvars.checkout'));
             $cg->save();
         }
-
-        $data = $this->validate($this->rules);
 
         $this->saved = ctrans('texts.processing');
 
