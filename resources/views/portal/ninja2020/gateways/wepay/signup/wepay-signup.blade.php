@@ -82,6 +82,7 @@
                         </div>
                     @endif
 
+                    <!--
                     <div class="col-span-6 sm:col-span-4">
                         <label for="country" class="input-label">@lang('texts.ach')</label>
                         <div class="checkbox">
@@ -89,6 +90,7 @@
                             <span>{{ ctrans('texts.enable_ach')}}</span>
                         </div>
                     </div>
+                    -->
 
                     <div class="col-span-6 sm:col-span-4">
                         <label for="country" class="input-label"></label>
