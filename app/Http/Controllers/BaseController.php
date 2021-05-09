@@ -334,8 +334,6 @@ class BaseController extends Controller
             'company.task_statuses'=> function ($query) use ($updated_at, $user) {
                 $query->where('updated_at', '>=', $updated_at);
 
-                if(!$user->isAdmin())
-                  $query->where('task_statuses.user_id', $user->id);
 
             },
             'company.activities'=> function ($query) use($user) {
@@ -517,9 +515,6 @@ class BaseController extends Controller
             },
             'company.task_statuses'=> function ($query) use ($created_at, $user) {
                 $query->where('created_at', '>=', $created_at);
-
-                if(!$user->isAdmin())
-                  $query->where('task_statuses.user_id', $user->id);
 
             },
             'company.activities'=> function ($query) use($user) {
