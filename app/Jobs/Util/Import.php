@@ -71,6 +71,7 @@ use App\Repositories\QuoteRepository;
 use App\Repositories\UserRepository;
 use App\Repositories\VendorContactRepository;
 use App\Repositories\VendorRepository;
+use App\Utils\Ninja;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
 use App\Utils\Traits\MakesHash;
@@ -1215,6 +1216,11 @@ class Import implements ShouldQueue
 
             if (isset($modified['fees_and_limits'])) {
                 $modified['fees_and_limits'] = $this->cleanFeesAndLimits($modified['fees_and_limits']);
+            }
+
+            if(Ninja::isHosted() && $modified['gateway_key'] == 'd14dd26a37cecc30fdd65700bfb55b23'){
+                $modified['gateway_key'] = 'd14dd26a47cecc30fdd65700bfb67b34';
+                $modified['fees_and_limits'] = [];
             }
 
             $company_gateway = CompanyGateway::create($modified);
