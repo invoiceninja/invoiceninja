@@ -128,6 +128,11 @@ class Credit extends BaseModel
         return $this->hasManyThrough(Backup::class, Activity::class);
     }
 
+    public function activities()
+    {
+        return $this->hasMany(Activity::class)->orderBy('id', 'DESC')->take(300);
+    }
+
     public function company()
     {
         return $this->belongsTo(Company::class);

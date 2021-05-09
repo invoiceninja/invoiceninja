@@ -52,12 +52,13 @@ class QueryLogging
             $timeEnd = microtime(true);
             $time = $timeEnd - $timeStart;
 
-            nlog($request->method().' - '.urldecode($request->fullUrl()).": $count queries - ".$time);
+            nlog($request->method().' - '.urldecode($request->url()).": $count queries - ".$time);
+            // nlog($request->method().' - '.urldecode($request->fullUrl()).": $count queries - ".$time);
 
             //  if($count > 50)
             //nlog($queries);
             
-           LightLogs::create(new DbQuery($request->method(), urldecode($request->fullUrl()), $count, $time, request()->ip()))
+           LightLogs::create(new DbQuery($request->method(), urldecode($request->url()), $count, $time, request()->ip()))
                  ->batch();
         }
         

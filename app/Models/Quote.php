@@ -130,6 +130,11 @@ class Quote extends BaseModel
         return $this->hasManyThrough(Backup::class, Activity::class);
     }
 
+    public function activities()
+    {
+        return $this->hasMany(Activity::class)->orderBy('id', 'DESC')->take(300);
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class)->withTrashed();
