@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "38a79899673526624db4d62a76dd9a5e",
+    "content-hash": "cbd0c778d0092866b6c2d3f693f0e5fe",
     "packages": [
         {
             "name": "asm/php-ansible",
@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/maschmann/php-ansible.git",
-                "reference": "4f2145cad264fd9f800baf6d3a79dd43fd8009db"
+                "reference": "d526011521ea8f3433d8e940d2a1839474b1c1f4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/maschmann/php-ansible/zipball/4f2145cad264fd9f800baf6d3a79dd43fd8009db",
-                "reference": "4f2145cad264fd9f800baf6d3a79dd43fd8009db",
+                "url": "https://api.github.com/repos/maschmann/php-ansible/zipball/d526011521ea8f3433d8e940d2a1839474b1c1f4",
+                "reference": "d526011521ea8f3433d8e940d2a1839474b1c1f4",
                 "shasum": ""
             },
             "require": {
@@ -54,9 +54,9 @@
             ],
             "support": {
                 "issues": "https://github.com/maschmann/php-ansible/issues",
-                "source": "https://github.com/maschmann/php-ansible/tree/master"
+                "source": "https://github.com/maschmann/php-ansible/tree/v2.2"
             },
-            "time": "2021-03-02T18:27:29+00:00"
+            "time": "2021-05-09T14:23:09+00:00"
         },
         {
             "name": "authorizenet/authorizenet",
@@ -296,6 +296,55 @@
                 "source": "https://github.com/beganovich/snappdf/tree/v1.6.0"
             },
             "time": "2021-03-19T21:20:07+00:00"
+        },
+        {
+            "name": "braintree/braintree_php",
+            "version": "6.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/braintree/braintree_php.git",
+                "reference": "2406535506ebdbfd685596d890746a4a2db6fa9e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/braintree/braintree_php/zipball/2406535506ebdbfd685596d890746a4a2db6fa9e",
+                "reference": "2406535506ebdbfd685596d890746a4a2db6fa9e",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-dom": "*",
+                "ext-hash": "*",
+                "ext-openssl": "*",
+                "ext-xmlwriter": "*",
+                "php": ">=7.3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.0",
+                "squizlabs/php_codesniffer": "^3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Braintree\\": "lib/Braintree"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Braintree",
+                    "homepage": "https://www.braintreepayments.com"
+                }
+            ],
+            "description": "Braintree PHP Client Library",
+            "support": {
+                "issues": "https://github.com/braintree/braintree_php/issues",
+                "source": "https://github.com/braintree/braintree_php/tree/6.1.0"
+            },
+            "time": "2021-05-06T20:43:19+00:00"
         },
         {
             "name": "brick/math",
@@ -2106,16 +2155,16 @@
         },
         {
             "name": "google/apiclient-services",
-            "version": "v0.173.0",
+            "version": "v0.174.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-api-php-client-services.git",
-                "reference": "9034b5ba3e25c9ad8e49b6457b9cad21fd9d9847"
+                "reference": "004c5280f5a26a8acbb6f6af6a792e4872b7648a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/9034b5ba3e25c9ad8e49b6457b9cad21fd9d9847",
-                "reference": "9034b5ba3e25c9ad8e49b6457b9cad21fd9d9847",
+                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/004c5280f5a26a8acbb6f6af6a792e4872b7648a",
+                "reference": "004c5280f5a26a8acbb6f6af6a792e4872b7648a",
                 "shasum": ""
             },
             "require": {
@@ -2141,9 +2190,9 @@
             ],
             "support": {
                 "issues": "https://github.com/googleapis/google-api-php-client-services/issues",
-                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.173.0"
+                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.174.0"
             },
-            "time": "2021-05-02T11:20:02+00:00"
+            "time": "2021-05-08T11:20:03+00:00"
         },
         {
             "name": "google/auth",
@@ -3884,28 +3933,27 @@
         },
         {
             "name": "league/omnipay",
-            "version": "dev-master",
+            "version": "v3.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/omnipay.git",
-                "reference": "d090c000030fc759e32f6f747873b5d630103030"
+                "reference": "1ba7c8a3312cf2342458b99c9e5b86eaae44aed2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay/zipball/d090c000030fc759e32f6f747873b5d630103030",
-                "reference": "d090c000030fc759e32f6f747873b5d630103030",
+                "url": "https://api.github.com/repos/thephpleague/omnipay/zipball/1ba7c8a3312cf2342458b99c9e5b86eaae44aed2",
+                "reference": "1ba7c8a3312cf2342458b99c9e5b86eaae44aed2",
                 "shasum": ""
             },
             "require": {
                 "omnipay/common": "^3",
-                "php": "^7.2|^8.0",
+                "php": "^7.2",
                 "php-http/discovery": "^1.12",
                 "php-http/guzzle7-adapter": "^0.1"
             },
             "require-dev": {
                 "omnipay/tests": "^3"
             },
-            "default-branch": true,
             "type": "metapackage",
             "extra": {
                 "branch-alias": {
@@ -3936,9 +3984,9 @@
             ],
             "support": {
                 "issues": "https://github.com/thephpleague/omnipay/issues",
-                "source": "https://github.com/thephpleague/omnipay/tree/master"
+                "source": "https://github.com/thephpleague/omnipay/tree/v3.1.0"
             },
-            "time": "2021-05-02T15:02:18+00:00"
+            "time": "2020-09-22T14:02:17+00:00"
         },
         {
             "name": "livewire/livewire",
@@ -4689,21 +4737,21 @@
         },
         {
             "name": "omnipay/common",
-            "version": "dev-master",
+            "version": "v3.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/omnipay-common.git",
-                "reference": "e1ebc22615f14219d31cefdf62d7036feb228b1c"
+                "reference": "0d1f4486c1c873537ac030d37c7ce2986c4de1d2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-common/zipball/e1ebc22615f14219d31cefdf62d7036feb228b1c",
-                "reference": "e1ebc22615f14219d31cefdf62d7036feb228b1c",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-common/zipball/0d1f4486c1c873537ac030d37c7ce2986c4de1d2",
+                "reference": "0d1f4486c1c873537ac030d37c7ce2986c4de1d2",
                 "shasum": ""
             },
             "require": {
                 "moneyphp/money": "^3.1",
-                "php": "^5.6|^7|^8",
+                "php": "^5.6|^7",
                 "php-http/client-implementation": "^1",
                 "php-http/discovery": "^1.2.1",
                 "php-http/message": "^1.5",
@@ -4718,7 +4766,6 @@
             "suggest": {
                 "league/omnipay": "The default Omnipay package provides a default HTTP Adapter."
             },
-            "default-branch": true,
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -4770,9 +4817,9 @@
             ],
             "support": {
                 "issues": "https://github.com/thephpleague/omnipay-common/issues",
-                "source": "https://github.com/thephpleague/omnipay-common/tree/master"
+                "source": "https://github.com/thephpleague/omnipay-common/tree/v3.0.5"
             },
-            "time": "2020-12-13T12:53:48+00:00"
+            "time": "2020-08-20T18:22:12+00:00"
         },
         {
             "name": "omnipay/paypal",
