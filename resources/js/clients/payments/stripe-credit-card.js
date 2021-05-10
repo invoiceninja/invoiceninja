@@ -19,7 +19,7 @@ class StripeCreditCard {
     setupStripe() {
         this.stripe = Stripe(this.key);
 
-        if(this.stripeConnect)
+        if (this.stripeConnect)
             this.stripe.stripeAccount = this.stripeConnect;
 
         this.elements = this.stripe.elements();
@@ -28,7 +28,11 @@ class StripeCreditCard {
     }
 
     createElement() {
-        this.cardElement = this.elements.create('card');
+        this.cardElement = this.elements.create('card', {
+            value: {
+                postalCode: document.querySelector('meta[name=client-postal-code]').content,
+            }
+        });
 
         return this;
     }
@@ -206,7 +210,11 @@ const secret =
 const onlyAuthorization =
     document.querySelector('meta[name="only-authorization"]').content ?? '';
 
-const stripeConnect = 
+const stripeConnect =
     document.querySelector('meta[name="stripe-account-id"]').content;
 
-new StripeCreditCard(publishableKey, secret, onlyAuthorization, stripeConnect).handle();
+let s = new StripeCreditCard(publishableKey, secret, onlyAuthorization, stripeConnect);
+
+s.handle();
+
+Livewire.on('passed-required-fields-check', () => s.handle());
