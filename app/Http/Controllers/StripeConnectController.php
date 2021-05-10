@@ -59,11 +59,7 @@ class StripeConnectController extends BaseController
 
         $account = Account::create($data);
 
-nlog($account);
-
         $link = Account::link($account->id, $token);
-
-nlog($link);
 
         if(!$company_gateway)
             $company_gateway = CompanyGatewayFactory::create($request->getCompany()->id, $request->getContact()->id);
