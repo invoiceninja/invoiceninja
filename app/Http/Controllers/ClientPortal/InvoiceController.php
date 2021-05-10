@@ -57,7 +57,7 @@ class InvoiceController extends Controller
         ];
 
         if ($request->query('mode') === 'fullscreen') {
-            return response()->file($invoice->pdf_file_path(null, 'path'));
+            return render('invoices.show-fullscreen', $data);
         }
 
         return $this->render('invoices.show', $data);
