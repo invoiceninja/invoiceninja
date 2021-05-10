@@ -44,7 +44,7 @@ class QuoteController extends Controller
         ];
 
         if ($request->query('mode') === 'fullscreen') {
-            return response()->file($quote->pdf_file_path(null, 'path'));
+            return render('quotes.show-fullscreen', $data);
         }
 
         return $this->render('quotes.show', $data);
