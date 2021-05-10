@@ -80,7 +80,11 @@ class ActivityRepository extends BaseRepository
 
         $backup = new Backup();
 
-        if (get_class($entity) == Invoice::class || get_class($entity) == Quote::class || get_class($entity) == Credit::class) {
+        if (get_class($entity) == Invoice::class 
+            || get_class($entity) == Quote::class 
+            || get_class($entity) == Credit::class 
+            || get_class($entity) == RecurringInvoice::class
+        ) {
             $contact = $entity->client->primary_contact()->first();
             $backup->html_backup = $this->generateHtml($entity);
             $backup->amount = $entity->amount;

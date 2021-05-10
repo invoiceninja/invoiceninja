@@ -18,7 +18,7 @@ return [
     'app_tag' => '5.1.61-release',
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
-    'api_secret' => env('API_SECRET', false),
+    'api_secret' => env('API_SECRET', ''),
     'google_maps_api_key' => env('GOOGLE_MAPS_API_KEY'),
     'google_analytics_url' => env('GOOGLE_ANALYTICS_URL', 'https://www.google-analytics.com/collect'),
     'key_length' => 64,
@@ -148,4 +148,5 @@ return [
     'disable_auto_update' => env('DISABLE_AUTO_UPDATE', false),
     'invoiceninja_hosted_pdf_generation' => env('NINJA_HOSTED_PDF', false),
     'ninja_stripe_key' => env('NINJA_STRIPE_KEY', null),
+    'pdf_generator' => env('PDF_GENERATOR', false),
 ];

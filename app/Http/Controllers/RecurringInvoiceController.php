@@ -200,6 +200,8 @@ class RecurringInvoiceController extends BaseController
     {
         $recurring_invoice = $this->recurring_invoice_repo->save($request->all(), RecurringInvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
+nlog($recurring_invoice);
+
         return $this->itemResponse($recurring_invoice);
     }
 

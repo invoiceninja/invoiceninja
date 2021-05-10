@@ -17,6 +17,7 @@ use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Queue;
 
 /**
  * Class SystemHealth.
@@ -80,6 +81,7 @@ class SystemHealth
             'open_basedir' => (bool)self::checkOpenBaseDir(),
             'mail_mailer' => (string)self::checkMailMailer(),
             'flutter_renderer' => (string)config('ninja.flutter_canvas_kit'),
+            'jobs_pending' => (int) Queue::size(),
         ];
     }
 
