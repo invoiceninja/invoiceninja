@@ -37,10 +37,6 @@ class ContactKeyLogin
         if (Auth::guard('contact')->check()) {
             Auth::guard('contact')->logout();
         }
-nlog("merp");
-nlog($request->has('magic_link'));
-nlog($request->input('magic_link'));
-nlog($request->all());
 
         if ($request->segment(3) && config('ninja.db.multi_db_enabled')) {
             if (MultiDB::findAndSetDbByContactKey($request->segment(3))) {
@@ -71,7 +67,6 @@ nlog($request->all());
             }
         } elseif ($request->segment(2) && $request->segment(2) == 'magic_link' && $request->segment(3)) {
             $contact_email = Cache::get($request->segment(3));
-nlog("double merp");
             if($client_contact = ClientContact::where('email', $contact_email)->first()){
                 Auth::guard('contact')->login($client_contact, true);
 
@@ -83,7 +78,6 @@ nlog("double merp");
             }
         }
 
-nlog("exit");
 
         return $next($request);
     }

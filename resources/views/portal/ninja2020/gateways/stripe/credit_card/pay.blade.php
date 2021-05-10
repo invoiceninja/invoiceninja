@@ -5,6 +5,8 @@
     <meta name="stripe-account-id" content="{{ $gateway->company_gateway->getConfigField('account_id') }}">
     <meta name="stripe-secret" content="{{ $intent->client_secret }}">
     <meta name="only-authorization" content="">
+
+    <meta name="client-postal-code" content="{{ $client->postal_code ?? '' }}">
 @endsection
 
 @section('gateway_content')
@@ -58,6 +60,14 @@
 @endsection
 
 @section('gateway_footer')
+    <script>
+        Livewire.on('passed-required-fields-check', (event) => {
+            if (event.hasOwnProperty('client_postal_code')) {
+                document.querySelector('meta[name=client-postal-code]').content = event.client_postal_code;
+            }
+        });
+    </script>
+
     <script src="https://js.stripe.com/v3/"></script>
     <script src="{{ asset('js/clients/payments/stripe-credit-card.js') }}"></script>
 @endsection
