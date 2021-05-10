@@ -1,8 +1,9 @@
-<form action="{{ route('client.quotes.bulk') }}" method="post" onsubmit="return confirm('{{ ctrans('texts.quote_approval_confirmation_label') }}')">
+<form action="{{ route('client.quotes.bulk') }}" method="post" id="approve-form" />
     @csrf
     <input type="hidden" name="action" value="approve">
     <input type="hidden" name="process" value="true">
     <input type="hidden" name="quotes[]" value="{{ $quote->hashed_id }}">
+    <input type="hidden" name="signature">
 
     <div class="bg-white shadow sm:rounded-lg">
         <div class="px-4 py-5 sm:p-6">
@@ -16,10 +17,11 @@
 
                     <div class="inline-flex rounded-md shadow-sm">
                         <input type="hidden" name="action" value="payment">
-                        <button class="button button-primary bg-primary">{{ ctrans('texts.approve') }}</button>
+                        <button type="button" class="button button-primary bg-primary" id="approve-button">{{ ctrans('texts.approve') }}</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </form>
+
