@@ -4240,6 +4240,11 @@ $LANG = array(
     'migration_already_completed' => 'Company already migrated',
     'migration_already_completed_desc' => 'Looks like you already migrated <b> :company_name </b>to the V5 version of the Invoice Ninja. In case you want to start over, you can force migrate to wipe existing data.',
 
+    'activity_100' => ':user created recurring invoice :recurring_invoice',
+    'activity_101' => ':user updated recurring invoice :recurring_invoice',
+    'activity_102' => ':user archived recurring invoice :recurring_invoice',
+    'activity_103' => ':user deleted recurring invoice :recurring_invoice',
+    'activity_104' => ':user restored recurring invoice :recurring_invoice',
 );
 
 return $LANG;

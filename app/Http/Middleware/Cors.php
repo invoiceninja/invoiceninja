@@ -22,15 +22,6 @@ class Cors
             return Response::make('OK', 200, $headers);
         }
 
-        /* Work around for file downloads where the response cannot contain have headers set */
-        // if($request instanceOf BinaryFileResponse)
-        //   return $next($request);
-        // else
-        // return $next($request)
-        //   ->header('Access-Control-Allow-Origin', '*')
-        //   ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-        //   ->header('Access-Control-Allow-Headers', 'X-API-SECRET,X-API-TOKEN,DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range');
-
         $response = $next($request);
 
         $response->headers->set('Access-Control-Allow-Origin', '*');
