@@ -43,20 +43,26 @@ class StripeConnectController extends BaseController
             'country' => $request->getCompany()->country()->iso_3166_2,
         ];
 
-        $exists = CompanyGateway::query()
+        $company_gateway = CompanyGateway::query()
             ->where('gateway_key', 'd14dd26a47cecc30fdd65700bfb67b34')
             ->where('company_id', $request->getCompany()->id)
             ->first();
 
-        if ($exists) {
-            return render('gateways.stripe.connect.existing');
+        if ($company_gateway) {
+
+            $config = decrypt($company_gateway->config);
+
+            if(property_exists($config, 'account_id'))
+                return render('gateways.stripe.connect.existing');
+        
         }
 
         $account = Account::create($data);
 
         $link = Account::link($account->id, $token);
 
-        $company_gateway = CompanyGatewayFactory::create($request->getCompany()->id, $request->getContact()->id);
+        if(!$company_gateway)
+            $company_gateway = CompanyGatewayFactory::create($request->getCompany()->id, $request->getContact()->id);
 
         $company_gateway->fill([
             'gateway_key' => 'd14dd26a47cecc30fdd65700bfb67b34',
