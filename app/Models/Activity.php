@@ -90,6 +90,12 @@ class Activity extends StaticModel
     const DELETE_SUBSCRIPTION = 83;
     const RESTORE_SUBSCRIPTION = 84;
     
+    const CREATE_RECURRING_INVOICE = 100;
+    const UPDATE_RECURRING_INVOICE = 101; 
+    const ARCHIVE_RECURRING_INVOICE = 102; 
+    const DELETE_RECURRING_INVOICE = 103; 
+    const RESTORE_RECURRING_INVOICE = 104; 
+
     protected $casts = [
         'is_system' => 'boolean',
         'updated_at' => 'timestamp',

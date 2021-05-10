@@ -11,6 +11,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\RecurringInvoice\RecurringInvoiceWasCreated;
+use App\Events\RecurringInvoice\RecurringInvoiceWasUpdated;
 use App\Factory\RecurringInvoiceFactory;
 use App\Filters\RecurringInvoiceFilters;
 use App\Http\Requests\RecurringInvoice\ActionRecurringInvoiceRequest;
@@ -200,7 +202,7 @@ class RecurringInvoiceController extends BaseController
     {
         $recurring_invoice = $this->recurring_invoice_repo->save($request->all(), RecurringInvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
-nlog($recurring_invoice);
+        event(new RecurringInvoiceWasCreated($recurring_invoice, $recurring_invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($recurring_invoice);
     }
@@ -377,6 +379,8 @@ nlog($recurring_invoice);
         $recurring_invoice = $this->recurring_invoice_repo->save($request->all(), $recurring_invoice);
 
         $recurring_invoice->service()->deletePdf()->save();
+
+        event(new RecurringInvoiceWasUpdated($recurring_invoice, $recurring_invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($recurring_invoice);
     }
