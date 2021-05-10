@@ -64,16 +64,6 @@ class StoreRecurringInvoiceRequest extends Request
     {
         $input = $this->all();
 
-        // foreach($this->input('documents') as $document)
-        // {
-        //     if($document instanceof UploadedFile){
-        //         nlog("i am an uploaded file");
-        //         nlog($document);
-        //     }
-        //     else
-        //         nlog($document);
-        // }
-
         if (array_key_exists('design_id', $input) && is_string($input['design_id'])) {
             $input['design_id'] = $this->decodePrimaryKey($input['design_id']);
         }
