@@ -57,9 +57,17 @@ class StripeConnectController extends BaseController
         
         }
 
-        $account = Account::create($data);
+        $stripe = new \Stripe\StripeClient(
+          config('ninja.ninja_stripe_key');
+        );
 
-        $link = Account::link($account->id, $token);
+        $account = $stripe->accounts->create($data);
+
+nlog($account);
+
+        $link = $stripe->accountLinks->create($account->id, $token);
+
+nlog($link);
 
         if(!$company_gateway)
             $company_gateway = CompanyGatewayFactory::create($request->getCompany()->id, $request->getContact()->id);
