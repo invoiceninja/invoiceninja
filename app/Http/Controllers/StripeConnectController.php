@@ -58,7 +58,7 @@ class StripeConnectController extends BaseController
         }
 
         $stripe = new \Stripe\StripeClient(
-          config('ninja.ninja_stripe_key');
+          config('ninja.ninja_stripe_key')
         );
 
         $account = $stripe->accounts->create($data);
