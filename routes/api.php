@@ -196,9 +196,4 @@ Route::get('token_hash_router', 'OneTimeTokenController@router');
 
 Route::get('webcron', 'WebCronController@index');
 
-Route::group(['middleware' => ['locale']], function () {
-    Route::get('stripe/signup/{token}', 'StripeConnectController@initialize')->name('stripe_connect.initialization');
-    Route::get('stripe/signup/completed', 'StripeConnectController@completed')->name('stripe_connect.return');
-});
-
 Route::fallback('BaseController@notFound');
