@@ -13,7 +13,7 @@ class ShowCreditRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return !$this->credit->is_deleted;
     }
 
     /**
