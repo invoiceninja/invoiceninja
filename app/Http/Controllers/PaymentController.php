@@ -208,6 +208,9 @@ class PaymentController extends BaseController
     {
         $payment = $this->payment_repo->save($request->all(), PaymentFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
+        if($request->has('email_receipt') && $request->input('email_receipt') == 'true' && !$payment->client->getSetting('client_manual_payment_notification'))
+            $payment->service()->sendEmail();
+
         return $this->itemResponse($payment);
     }
 
@@ -382,7 +385,7 @@ class PaymentController extends BaseController
 
         $payment = $this->payment_repo->save($request->all(), $payment);
 
-        event(new PaymentWasUpdated($payment, $payment->company, Ninja::eventVars(auth()->user()->id)));
+        event(new PaymentWasUpdated($payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         return $this->itemResponse($payment);
     }
 

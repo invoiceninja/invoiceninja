@@ -131,18 +131,18 @@ class PreviewController extends BaseController
             }
 
             //if phantom js...... inject here..
-            if (config('ninja.phantomjs_pdf_generation')) {
+            if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
                 return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
             }
             
-            if(config('ninja.invoiceninja_hosted_pdf_generation')){
+            if(config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja'){
                 return (new NinjaPdf())->build($maker->getCompiledHTML(true));
             }
 
             //else
             $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), auth()->user()->company());
 
-            return response()->download($file_path)->deleteFileAfterSend(true);
+            return response()->download($file_path, basename($file_path), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
         }
 
         return $this->blankEntity();

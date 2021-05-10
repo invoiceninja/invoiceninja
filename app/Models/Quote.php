@@ -130,6 +130,11 @@ class Quote extends BaseModel
         return $this->hasManyThrough(Backup::class, Activity::class);
     }
 
+    public function activities()
+    {
+        return $this->hasMany(Activity::class)->orderBy('id', 'DESC')->take(300);
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class)->withTrashed();
@@ -213,7 +218,7 @@ class Quote extends BaseModel
         nlog($storage_path);
 
         if (! Storage::exists($this->client->quote_filepath().$this->numberFormatter().'.pdf')) {
-            event(new QuoteWasUpdated($this, $this->company, Ninja::eventVars(auth()->user()->id)));
+            event(new QuoteWasUpdated($this, $this->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
             CreateEntityPdf::dispatchNow($invitation);
         }
 

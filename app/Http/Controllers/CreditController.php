@@ -201,7 +201,7 @@ class CreditController extends BaseController
                          ->fillDefaults()
                          ->save();
 
-        event(new CreditWasCreated($credit, $credit->company, Ninja::eventVars(auth()->user()->id)));
+        event(new CreditWasCreated($credit, $credit->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($credit);
     }
@@ -378,7 +378,7 @@ class CreditController extends BaseController
 
         $credit->service()->deletePdf();
         
-        event(new CreditWasUpdated($credit, $credit->company, Ninja::eventVars(auth()->user()->id)));
+        event(new CreditWasUpdated($credit, $credit->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($credit);
     }
@@ -538,7 +538,7 @@ class CreditController extends BaseController
             case 'download':
                     return response()->streamDownload(function () use ($credit) {
                         echo file_get_contents($credit->pdf_file_path());
-                    }, basename($credit->pdf_file_path()));
+                    }, basename($credit->pdf_file_path()), ['Cache-Control:' => 'no-cache']);
                 //return response()->download(TempFile::path($credit->pdf_file_path()), basename($credit->pdf_file_path()));
               break;
             case 'archive':
@@ -589,7 +589,7 @@ class CreditController extends BaseController
 
         $file_path = $credit->service()->getCreditPdf($invitation);
 
-        return response()->download($file_path);
+        return response()->download($file_path, basename($file_path), ['Cache-Control:' => 'no-cache']);
     }
 
     /**

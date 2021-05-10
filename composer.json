@@ -30,6 +30,7 @@
         "ext-dom": "*",
         "ext-json": "*",
         "ext-libxml": "*",
+        "asm/php-ansible": "dev-master",
         "authorizenet/authorizenet": "^2.0",
         "bacon/bacon-qr-code": "^2.0",
         "beganovich/snappdf": "^1.0",
@@ -94,8 +95,7 @@
             "Database\\Seeders\\": "database/seeders/",
             "Modules\\": "Modules/"
         },
-        "files": [
-        ]
+        "files": []
     },
     "autoload-dev": {
         "psr-4": {

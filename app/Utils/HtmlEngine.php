@@ -154,7 +154,7 @@ class HtmlEngine
         }
 
         $data['$portal_url'] = ['value' => $this->invitation->getPortalLink(), 'label' =>''];
-        
+
         $data['$entity_number'] = &$data['$number'];
         $data['$invoice.discount'] = ['value' => Number::formatMoney($this->entity_calc->getTotalDiscount(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.discount')];
         $data['$discount'] = &$data['$invoice.discount'];
@@ -238,7 +238,7 @@ class HtmlEngine
         $data['$vat_number'] = ['value' => $this->client->vat_number ?: '&nbsp;', 'label' => ctrans('texts.vat_number')];
         $data['$website'] = ['value' => $this->client->present()->website() ?: '&nbsp;', 'label' => ctrans('texts.website')];
         $data['$phone'] = ['value' => $this->client->present()->phone() ?: '&nbsp;', 'label' => ctrans('texts.phone')];
-        $data['$country'] = ['value' => isset($this->client->country->name) ? $this->client->country->name : '', 'label' => ctrans('texts.country')];
+        $data['$country'] = ['value' => isset($this->client->country->name) ? ctrans('texts.country_' . $this->client->country->name) : '', 'label' => ctrans('texts.country')];
         $data['$email'] = ['value' => isset($this->contact) ? $this->contact->email : 'no contact email on record', 'label' => ctrans('texts.email')];
         $data['$client_name'] = ['value' => $this->entity->present()->clientName() ?: '&nbsp;', 'label' => ctrans('texts.client_name')];
         $data['$client.name'] = &$data['$client_name'];
@@ -460,7 +460,7 @@ class HtmlEngine
         $country = Country::find($this->settings->country_id);
 
         if ($country) {
-            return $country->name;
+            return ctrans('texts.country_' . $country->name);
         }
 
         return '&nbsp;';

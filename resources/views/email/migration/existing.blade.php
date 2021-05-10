@@ -1,31 +1,18 @@
 @component('email.template.master', ['design' => 'light', 'settings' => $settings])
 
-@slot('header')
-    @component('email.components.header')
-        Migration already completed
-    @endcomponent
-@endslot
+    @slot('header')
+        @include('email.components.header', ['logo' => $logo])
+    @endslot
 
-@slot('greeting')
-	Hello,
-@endslot
+    <h2>{{ctrans('texts.migration_already_completed')}}</h2>
 
-Looks like you already migrated your data to V2 version of the Invoice Ninja. In case you want to start over, you can 'force' migrate to wipe existing data.
+    <p>{{ctrans('texts.migration_already_completed_desc', ['company_name' => $company_name])}}</p>
 
-@component('email.components.button', ['url' => url('/')])
-    Visit portal
-@endcomponent
-
-
-@slot('signature')
-Thank you, <br>
-Invoice Ninja
-@endslot
-
-@slot('footer')
-    @component('email.components.footer', ['url' => 'https://invoiceninja.com', 'url_text' => '&copy; InvoiceNinja'])
-        For any info, please visit InvoiceNinja.
-    @endcomponent
-@endslot
-
+    @if(isset($whitelabel) && !$whitelabel)
+        @slot('footer')
+            @component('email.components.footer', ['url' => 'https://invoiceninja.com', 'url_text' => '&copy; InvoiceNinja'])
+                For any info, please visit InvoiceNinja.
+            @endcomponent
+        @endslot
+    @endif
 @endcomponent

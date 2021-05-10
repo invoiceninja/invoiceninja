@@ -50,6 +50,8 @@ class InvoiceController extends Controller
     {
         set_time_limit(0);
 
+        $invoice->service()->removeUnpaidGatewayFees()->save();
+
         $data = [
             'invoice' => $invoice,
         ];
@@ -164,7 +166,7 @@ class InvoiceController extends Controller
         if ($invoices->count() == 1) {
             return response()->streamDownload(function () use ($invoices) {
                 echo file_get_contents($invoices->first()->pdf_file_path());
-            }, basename($invoices->first()->pdf_file_path()));
+            }, basename($invoices->first()->pdf_file_path()), ['Cache-Control:' => 'no-cache']);
             //return response()->download(TempFile::path($invoices->first()->pdf_file_path()), basename($invoices->first()->pdf_file_path()));
         }
 

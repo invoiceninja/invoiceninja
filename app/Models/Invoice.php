@@ -204,7 +204,7 @@ class Invoice extends BaseModel
 
     public function activities()
     {
-        return $this->hasMany(Activity::class);
+        return $this->hasMany(Activity::class)->orderBy('id', 'DESC')->take(300);
     }
 
     public function history()
@@ -249,19 +249,14 @@ class Invoice extends BaseModel
         $partial_due_date = $this->partial_due_Date ? Carbon::parse($this->partial_due_date) : false;
 
         if ($this->status_id == self::STATUS_SENT && $due_date && $due_date->gt(now())) {
-            nlog("1 unpaid");
             return self::STATUS_UNPAID;
         } elseif ($this->status_id == self::STATUS_PARTIAL && $partial_due_date && $partial_due_date->gt(now())) {
-            nlog("2 partial");
             return self::STATUS_PARTIAL;
         } elseif ($this->status_id == self::STATUS_SENT && $due_date && $due_date->lt(now())) {
-            nlog("3 overdue");
             return self::STATUS_OVERDUE;
         } elseif ($this->status_id == self::STATUS_PARTIAL && $partial_due_date && $partial_due_date->lt(now())) {
-            nlog("4 overdue");
             return self::STATUS_OVERDUE;
         } else {
-            nlog("status id ");
             return $this->status_id;
         }
     }
@@ -400,8 +395,18 @@ class Invoice extends BaseModel
     public function pdf_file_path($invitation = null, string $type = 'url')
     {
         if (! $invitation) {
-            $invitation = $this->invitations->first();
+
+            if($this->invitations()->exists())
+                $invitation = $this->invitations()->first();
+            else{
+                $this->service()->createInvitations();
+                $invitation = $this->invitations()->first();
+            }
+
         }
+
+        if(!$invitation)
+            throw new \Exception('Hard fail, could not create an invitation - is there a valid contact?');
 
         $storage_path = Storage::$type($this->client->invoice_filepath().$this->numberFormatter().'.pdf');
 

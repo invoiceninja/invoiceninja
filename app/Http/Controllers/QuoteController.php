@@ -211,7 +211,7 @@ class QuoteController extends BaseController
 
         $quote = $quote->service()->fillDefaults()->save();
 
-        event(new QuoteWasCreated($quote, $quote->company, Ninja::eventVars(auth()->user()->id)));
+        event(new QuoteWasCreated($quote, $quote->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($quote);
     }
@@ -389,7 +389,7 @@ class QuoteController extends BaseController
 
         $quote->service()->deletePdf();
         
-        event(new QuoteWasUpdated($quote, $quote->company, Ninja::eventVars(auth()->user()->id)));
+        event(new QuoteWasUpdated($quote, $quote->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($quote);
     }
@@ -677,7 +677,7 @@ class QuoteController extends BaseController
             case 'download':
                     return response()->streamDownload(function () use ($quote) {
                         echo file_get_contents($quote->pdf_file_path());
-                    }, basename($quote->pdf_file_path()));
+                    }, basename($quote->pdf_file_path()), ['Cache-Control:' => 'no-cache']);
                     //return response()->download(TempFile::path($quote->pdf_file_path()), basename($quote->pdf_file_path()));
                 break;
             case 'restore':
@@ -730,7 +730,7 @@ class QuoteController extends BaseController
 
         $file_path = $quote->service()->getQuotePdf($contact);
 
-        return response()->download($file_path);
+        return response()->download($file_path, basename($file_path), ['Cache-Control:' => 'no-cache']);
     }
 
     /**

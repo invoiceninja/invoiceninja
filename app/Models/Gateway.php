@@ -85,6 +85,7 @@ class Gateway extends StaticModel
                 return [GatewayType::PAYPAL => ['refund' => true, 'token_billing' => false]]; //Paypal
                 break;
             case 20:
+            case 56:
                 return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true],
                     GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable']],
                     GatewayType::ALIPAY => ['refund' => false, 'token_billing' => false],

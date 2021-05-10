@@ -194,8 +194,15 @@ class LoginController extends BaseController
             }
 
             $user->setCompany($user->account->default_company);
-            $timeout = auth()->user()->company()->default_password_timeout / 60000;
-            Cache::put(auth()->user()->hashed_id.'_logged_in', Str::random(64), $timeout);
+
+            $timeout = $user->company()->default_password_timeout;
+
+            if($timeout == 0)
+                $timeout = 30*60*1000*1000;
+            else
+                $timeout = $timeout/1000;
+
+            Cache::put($user->hashed_id.'_logged_in', Str::random(64), $timeout);
 
             $cu = CompanyUser::query()
                   ->where('user_id', auth()->user()->id);
@@ -209,7 +216,8 @@ class LoginController extends BaseController
 
             });
 
-            return $this->listResponse($cu);
+            return $this->timeConstrainedResponse($cu);
+            // return $this->listResponse($cu);
 
         } else {
 
@@ -282,6 +290,10 @@ class LoginController extends BaseController
             }
         });
 
+
+        if($request->has('current_company') && $request->input('current_company') == 'true')
+          $cu->where("company_id", $company_token->company_id);
+
         return $this->refreshResponse($cu);
     }
 
@@ -328,7 +340,15 @@ class LoginController extends BaseController
 
                 Auth::login($existing_user, true);
                 $existing_user->setCompany($existing_user->account->default_company);
-                $timeout = $existing_user->company()->default_password_timeout / 60000;
+
+                $timeout = $existing_user->company()->default_password_timeout;
+
+                if($timeout == 0)
+                    $timeout = 30*60*1000*1000;
+                else
+                    $timeout = $timeout/1000;
+
+
                 Cache::put($existing_user->hashed_id.'_logged_in', Str::random(64), $timeout);
 
                 $cu = CompanyUser::query()
@@ -342,7 +362,7 @@ class LoginController extends BaseController
                     }
                 });
 
-                return $this->listResponse($cu);
+                return $this->timeConstrainedResponse($cu);
                 
             }
         }
@@ -370,7 +390,15 @@ class LoginController extends BaseController
 
             auth()->user()->email_verified_at = now();
             auth()->user()->save();
-            $timeout = auth()->user()->company()->default_password_timeout / 60000;
+
+            $timeout = auth()->user()->company()->default_password_timeout;
+
+                if($timeout == 0)
+                    $timeout = 30*60*1000*1000;
+                else
+                    $timeout = $timeout/1000;
+
+
             Cache::put(auth()->user()->hashed_id.'_logged_in', Str::random(64), $timeout);
 
             $cu = CompanyUser::whereUserId(auth()->user()->id);
@@ -383,7 +411,7 @@ class LoginController extends BaseController
                 }
             });
 
-            return $this->listResponse($cu);
+            return $this->timeConstrainedResponse($cu);
         }
 
         return response()

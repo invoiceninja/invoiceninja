@@ -431,54 +431,55 @@ trait GeneratesCounter
 
         $reset_date = Carbon::parse($client->getSetting('reset_counter_date'), $timezone->name);
 
-        if (! $reset_date->isToday() || ! $client->getSetting('reset_counter_date')) {
+        if (! $reset_date->lte(now()) || ! $client->getSetting('reset_counter_date')) {
             return false;
         }
 
         switch ($reset_counter_frequency) {
             case RecurringInvoice::FREQUENCY_DAILY:
-                $reset_date->addDay();
+                now()->addDay();
                 break;
             case RecurringInvoice::FREQUENCY_WEEKLY:
-                $reset_date->addWeek();
+                now()->addWeek();
                 break;
             case RecurringInvoice::FREQUENCY_TWO_WEEKS:
-                $reset_date->addWeeks(2);
+                now()->addWeeks(2);
                 break;
             case RecurringInvoice::FREQUENCY_FOUR_WEEKS:
-                $reset_date->addWeeks(4);
+                now()->addWeeks(4);
                 break;
             case RecurringInvoice::FREQUENCY_MONTHLY:
-                $reset_date->addMonth();
+                now()->addMonth();
                 break;
             case RecurringInvoice::FREQUENCY_TWO_MONTHS:
-                $reset_date->addMonths(2);
+                now()->addMonths(2);
                 break;
             case RecurringInvoice::FREQUENCY_THREE_MONTHS:
-                $reset_date->addMonths(3);
+                now()->addMonths(3);
                 break;
             case RecurringInvoice::FREQUENCY_FOUR_MONTHS:
-                $reset_date->addMonths(4);
+                now()->addMonths(4);
                 break;
             case RecurringInvoice::FREQUENCY_SIX_MONTHS:
-                $reset_date->addMonths(6);
+                now()->addMonths(6);
                 break;
             case RecurringInvoice::FREQUENCY_ANNUALLY:
-                $reset_date->addYear();
+                now()->addYear();
                 break;
             case RecurringInvoice::FREQUENCY_TWO_YEARS:
-                $reset_date->addYears(2);
+                now()->addYears(2);
                 break;
         }
 
         $settings = $client->company->settings;
-        $settings->reset_counter_date = $reset_date->format($client->date_format());
+        $settings->reset_counter_date = $reset_date->format('Y-m-d');
         $settings->invoice_number_counter = 1;
         $settings->quote_number_counter = 1;
         $settings->credit_number_counter = 1;
 
         $client->company->settings = $settings;
         $client->company->save();
+
     }
 
     private function resetCompanyCounters($company)
@@ -487,7 +488,7 @@ trait GeneratesCounter
 
         $reset_date = Carbon::parse($company->settings->reset_counter_date, $timezone->name);
 
-        if (! $reset_date->isToday() || ! $company->settings->reset_counter_date) {
+        if (! $reset_date->lte(now()) || ! $company->settings->reset_counter_date) {
             return false;
         }
 

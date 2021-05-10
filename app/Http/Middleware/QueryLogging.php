@@ -11,10 +11,13 @@
 
 namespace App\Http\Middleware;
 
+use App\DataMapper\Analytics\DbQuery;
+use App\Utils\Ninja;
 use Closure;
 use DB;
 use Illuminate\Http\Request;
 use Log;
+use Turbo124\Beacon\Facades\LightLogs;
 
 /**
  * Class QueryLogging.
@@ -31,32 +34,34 @@ class QueryLogging
      */
     public function handle(Request $request, Closure $next)
     {
-        $timeStart = microtime(true);
 
         // Enable query logging for development
-        if (config('ninja.app_env') == 'production') {
+        if (!Ninja::isHosted() || !config('beacon.enabled')) {
             return $next($request);
         }
 
+        $timeStart = microtime(true);
         DB::enableQueryLog();
-
         $response = $next($request);
 
-        if (config('ninja.app_env') != 'production') {
+        // hide requests made by debugbar
+        if (strstr($request->url(), '_debugbar') === false) {
 
-            // hide requests made by debugbar
-            if (strstr($request->url(), '_debugbar') === false) {
-                $queries = DB::getQueryLog();
-                $count = count($queries);
-                $timeEnd = microtime(true);
-                $time = $timeEnd - $timeStart;
+            $queries = DB::getQueryLog();
+            $count = count($queries);
+            $timeEnd = microtime(true);
+            $time = $timeEnd - $timeStart;
 
-                nlog($request->method().' - '.$request->url().": $count queries - ".$time);
+            nlog($request->method().' - '.urldecode($request->url()).": $count queries - ".$time);
+            // nlog($request->method().' - '.urldecode($request->fullUrl()).": $count queries - ".$time);
 
-                //  if($count > 50)
-                //nlog($queries);
-            }
+            //  if($count > 50)
+            //nlog($queries);
+            
+           LightLogs::create(new DbQuery($request->method(), urldecode($request->url()), $count, $time, request()->ip()))
+                 ->batch();
         }
+        
 
         return $response;
     }

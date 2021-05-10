@@ -42,43 +42,42 @@ class PostUpdate extends Command
     {
         set_time_limit(0);
 
-        nlog('running post update');
+        info('running post update');
 
         try {
             Artisan::call('migrate', ['--force' => true]);
         } catch (\Exception $e) {
-            nlog("I wasn't able to migrate the data.");
+            info("I wasn't able to migrate the data.");
         }
 
         nlog("finished migrating");
 
-        exec('vendor/bin/composer install --no-dev -o');
+        $output = [];
 
-        nlog("finished running composer install ");
+        exec('vendor/bin/composer install --no-dev -o', $output);
 
+        info(print_r($output,1));        
+        info("finished running composer install ");
 
         try {
             Artisan::call('optimize');
         } catch (\Exception $e) {
-            nlog("I wasn't able to optimize.");
+            info("I wasn't able to optimize.");
         }
 
-        nlog("optimized");
+        info("optimized");
 
         try {
             Artisan::call('view:clear');
         } catch (\Exception $e) {
-            nlog("I wasn't able to clear the views.");
+            info("I wasn't able to clear the views.");
         }
 
-        nlog("view cleared");
-
-        /* For the following to work, the web user (www-data) must own all the directories */
+        info("view cleared");
 
         VersionCheck::dispatch();
 
-        nlog("sent for version check");
+        info("Sent for version check");
         
-        // echo "Done.";
     }
 }

@@ -60,6 +60,8 @@ class EmailEntity implements ShouldQueue
 
     public $template_data; //The data to be merged into the template
 
+    public $tries = 1;
+   
     /**
      * EmailEntity constructor.
      *
@@ -142,7 +144,7 @@ class EmailEntity implements ShouldQueue
     {
         switch ($this->entity_string) {
             case 'invoice':
-                event(new InvoiceWasEmailedAndFailed($this->invitation, $this->company, $message, $this->reminder_template, Ninja::eventVars(auth()->user()->id)));
+                event(new InvoiceWasEmailedAndFailed($this->invitation, $this->company, $message, $this->reminder_template, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
                 break;
 
             default:

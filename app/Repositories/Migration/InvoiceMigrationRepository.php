@@ -23,6 +23,7 @@ use App\Models\RecurringInvoiceInvitation;
 use App\Repositories\BaseRepository;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
+use Illuminate\Support\Carbon;
 use ReflectionClass;
 
 /**
@@ -59,6 +60,12 @@ class InvoiceMigrationRepository extends BaseRepository
 
         $tmp_data = $data;
 
+        if(array_key_exists('tax_rate1', $tmp_data) && is_null($tmp_data['tax_rate1']))
+            $tmp_data['tax_rate1'] = 0;
+
+        if(array_key_exists('tax_rate2', $tmp_data) && is_null($tmp_data['tax_rate2']))
+            $tmp_data['tax_rate2'] = 0;
+
         /* We need to unset some variable as we sometimes unguard the model */
 
         if (isset($tmp_data['invitations'])) {
@@ -71,7 +78,15 @@ class InvoiceMigrationRepository extends BaseRepository
 
         $model->fill($tmp_data);
         $model->status_id = $tmp_data['status_id'];
-        $model->save();
+
+        if($tmp_data['created_at'])
+            $model->created_at = Carbon::parse($tmp_data['created_at']);
+
+        if($tmp_data['updated_at'])
+            $model->updated_at = Carbon::parse($tmp_data['updated_at']);
+
+        $model->save(['timestamps' => false]);
+
 
         if (array_key_exists('documents', $data)) {
             $this->saveDocuments($data['documents'], $model);
@@ -107,35 +122,7 @@ class InvoiceMigrationRepository extends BaseRepository
 
         InvoiceInvitation::reguard();
         RecurringInvoiceInvitation::reguard();
-        /*
-                if (isset($data['invitations'])) {
-                    $invitations = collect($data['invitations']);
 
-                    $model->invitations->pluck('key')->diff($invitations->pluck('key'))->each(function ($invitation) use ($resource) {
-                        $this->getInvitation($invitation, $resource)->delete();
-                    });
-
-                    foreach ($data['invitations'] as $invitation) {
-
-                        //if no invitations are present - create one.
-                        if (! $this->getInvitation($invitation, $resource)) {
-                            if (isset($invitation['id'])) {
-                                unset($invitation['id']);
-                            }
-
-                            //make sure we are creating an invite for a contact who belongs to the client only!
-                            $contact = ClientContact::find($invitation['client_contact_id']);
-
-                            if ($contact && $model->client_id == $contact->client_id) {
-                                $new_invitation = $invitation_factory_class::create($model->company_id, $model->user_id);
-                                $new_invitation->{$lcfirst_resource_id} = $model->id;
-                                $new_invitation->client_contact_id = $contact->id;
-                                $new_invitation->save();
-                            }
-                        }
-                    }
-                }
-        */
         $model->load('invitations');
 
         /* If no invitations have been created, this is our fail safe to maintain state*/
@@ -152,18 +139,12 @@ class InvoiceMigrationRepository extends BaseRepository
         if ($class->name == Invoice::class || $class->name == RecurringInvoice::class) {
             if (($state['finished_amount'] != $state['starting_amount']) && ($model->status_id != Invoice::STATUS_DRAFT)) {
 
-                // $model->ledger()->updateInvoiceBalance(($state['finished_amount'] - $state['starting_amount']));
-                // $model->client->service()->updateBalance(($state['finished_amount'] - $state['starting_amount']))->save();
             }
 
             if (! $model->design_id) {
                 $model->design_id = $this->decodePrimaryKey($client->getSetting('invoice_design_id'));
             }
 
-            
-            if ($model->company->update_products !== false) {
-                UpdateOrCreateProduct::dispatchNow($model->line_items, $model, $model->company);
-            }
         }
 
         if ($class->name == Credit::class) {

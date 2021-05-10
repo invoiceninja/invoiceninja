@@ -31,6 +31,7 @@ use App\Factory\VendorFactory;
 use App\Http\Requests\Company\UpdateCompanyRequest;
 use App\Http\ValidationRules\ValidCompanyGatewayFeesAndLimitsRule;
 use App\Http\ValidationRules\ValidUserForCompany;
+use App\Jobs\Company\CreateCompanyTaskStatuses;
 use App\Jobs\Company\CreateCompanyToken;
 use App\Jobs\Ninja\CheckCompanyData;
 use App\Jobs\Ninja\CompanySizeCheck;
@@ -70,6 +71,7 @@ use App\Repositories\QuoteRepository;
 use App\Repositories\UserRepository;
 use App\Repositories\VendorContactRepository;
 use App\Repositories\VendorRepository;
+use App\Utils\Ninja;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
 use App\Utils\Traits\MakesHash;
@@ -82,10 +84,11 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Turbo124\Beacon\Facades\LightLogs;
-use Illuminate\Support\Facades\Mail;
 
 class Import implements ShouldQueue
 {
@@ -192,15 +195,6 @@ class Import implements ShouldQueue
         $array = json_decode(file_get_contents($this->file_path), 1);
         $data = $array['data'];
 
-
-        // disable some functionality here:
-        // 1. disable update_products
-
-        $update_product_state = $this->company->update_products;
-
-        $this->company->update_products = false;
-        $this->company->save();
-
         foreach ($this->available_imports as $import) {
             if (! array_key_exists($import, $data)) {
                 //throw new ResourceNotAvailableForMigration("Resource {$key} is not available for migration.");
@@ -220,9 +214,7 @@ class Import implements ShouldQueue
         // $this->fixClientBalances();
         $check_data = CheckCompanyData::dispatchNow($this->company, md5(time()));
 
-        //reset functionality here
-        $this->company->update_products = $update_product_state;
-        $this->company->save();
+
         
         try{
             Mail::to($this->user->email, $this->user->name())
@@ -237,9 +229,12 @@ class Import implements ShouldQueue
         
             //company size check
             if ($this->company->invoices()->count() > 1000 || $this->company->products()->count() > 1000 || $this->company->clients()->count() > 1000) {
-                $company->is_large = true;
-                $company->save();
+                $this->company->is_large = true;
+                $this->company->save();
             }
+
+        // CreateCompanyPaymentTerms::dispatchNow($sp035a66, $spaa9f78);
+        CreateCompanyTaskStatuses::dispatchNow($this->company, $this->user);
 
         info('Completed🚀🚀🚀🚀🚀 at '.now());
 
@@ -466,6 +461,21 @@ class Import implements ShouldQueue
         $user_repository = null;
     }
 
+    private function checkUniqueConstraint($model, $column, $value)
+    {
+        $value = trim($value);
+
+        $model_query = (new $model())
+                            ->query()
+                            ->where($column, $value)
+                            ->exists();
+
+        if($model_query)
+            return $value.'_'. Str::random(5);
+
+        return $value;
+    }
+
     /**
      * @param array $data
      * @throws Exception
@@ -483,6 +493,7 @@ class Import implements ShouldQueue
             $modified['user_id'] = $this->processUserId($resource);
             $modified['balance'] = $modified['balance'] ?: 0;
             $modified['paid_to_date'] = $modified['paid_to_date'] ?: 0;
+            $modified['number'] = $this->checkUniqueConstraint(Client::class, 'number', $modified['number']);
 
             unset($modified['id']);
             unset($modified['contacts']);
@@ -494,6 +505,14 @@ class Import implements ShouldQueue
                     $modified['user_id']
                 )
             );
+
+            if(array_key_exists('created_at', $modified))
+                $client->created_at = Carbon::parse($modified['created_at']);
+
+            if(array_key_exists('updated_at', $modified))
+                $client->updated_at = Carbon::parse($modified['updated_at']);
+
+            $client->save(['timestamps' => false]);
 
             $client->contacts()->forceDelete();
 
@@ -568,6 +587,12 @@ class Import implements ShouldQueue
             unset($modified['id']);
             unset($modified['contacts']);
 
+            if(array_key_exists('created_at', $modified))
+                $modified['created_at'] = Carbon::parse($modified['created_at']);
+
+            if(array_key_exists('updated_at', $modified))
+                $modified['updated_at'] = Carbon::parse($modified['updated_at']);
+
             $vendor = $vendor_repository->save(
                 $modified,
                 VendorFactory::create(
@@ -635,6 +660,12 @@ class Import implements ShouldQueue
             $modified['company_id'] = $this->company->id;
             $modified['user_id'] = $this->processUserId($resource);
 
+            if(array_key_exists('created_at', $modified))
+                $modified['created_at'] = Carbon::parse($modified['created_at']);
+
+            if(array_key_exists('updated_at', $modified))
+                $modified['updated_at'] = Carbon::parse($modified['updated_at']);
+
             unset($modified['id']);
 
             $product_repository->save(
@@ -681,6 +712,12 @@ class Import implements ShouldQueue
             $modified['company_id'] = $this->company->id;
             $modified['line_items'] = $this->cleanItems($modified['line_items']);
 
+            if(array_key_exists('created_at', $modified))
+                $modified['created_at'] = Carbon::parse($modified['created_at']);
+
+            if(array_key_exists('updated_at', $modified))
+                $modified['updated_at'] = Carbon::parse($modified['updated_at']);
+
             unset($modified['id']);
 
             if (array_key_exists('invitations', $resource)) {
@@ -688,6 +725,8 @@ class Import implements ShouldQueue
                     $resource['invitations'][$key]['client_contact_id'] = $this->transformId('client_contacts', $invite['client_contact_id']);
                     $resource['invitations'][$key]['user_id'] = $modified['user_id'];
                     $resource['invitations'][$key]['company_id'] = $this->company->id;
+                    $resource['invitations'][$key]['email_status'] = '';
+
                     unset($resource['invitations'][$key]['recurring_invoice_id']);
                     unset($resource['invitations'][$key]['id']);
 
@@ -752,6 +791,7 @@ class Import implements ShouldQueue
                     $resource['invitations'][$key]['client_contact_id'] = $this->transformId('client_contacts', $invite['client_contact_id']);
                     $resource['invitations'][$key]['user_id'] = $modified['user_id'];
                     $resource['invitations'][$key]['company_id'] = $this->company->id;
+                    $resource['invitations'][$key]['email_status'] = '';
                     unset($resource['invitations'][$key]['invoice_id']);
                     unset($resource['invitations'][$key]['id']);
                 }
@@ -814,6 +854,12 @@ class Import implements ShouldQueue
             $modified['user_id'] = $this->processUserId($resource);
             $modified['company_id'] = $this->company->id;
 
+            if(array_key_exists('created_at', $modified))
+                $modified['created_at'] = Carbon::parse($modified['created_at']);
+
+            if(array_key_exists('updated_at', $modified))
+                $modified['updated_at'] = Carbon::parse($modified['updated_at']);
+
             unset($modified['id']);
 
             $credit = $credit_repository->save(
@@ -873,6 +919,18 @@ class Import implements ShouldQueue
 
             $modified['company_id'] = $this->company->id;
 
+            if(array_key_exists('created_at', $modified))
+                $modified['created_at'] = Carbon::parse($modified['created_at']);
+
+            if(array_key_exists('updated_at', $modified))
+                $modified['updated_at'] = Carbon::parse($modified['updated_at']);
+            
+            if(array_key_exists('tax_rate1', $modified) && is_null($modified['tax_rate1']))
+                $modified['tax_rate1'] = 0;
+
+            if(array_key_exists('tax_rate2', $modified) && is_null($modified['tax_rate2']))
+                $modified['tax_rate2'] = 0;
+
             unset($modified['id']);
 
 
@@ -881,6 +939,7 @@ class Import implements ShouldQueue
                     $resource['invitations'][$key]['client_contact_id'] = $this->transformId('client_contacts', $invite['client_contact_id']);
                     $resource['invitations'][$key]['user_id'] = $modified['user_id'];
                     $resource['invitations'][$key]['company_id'] = $this->company->id;
+                    $resource['invitations'][$key]['email_status'] = '';
                     unset($resource['invitations'][$key]['invoice_id']);
                     unset($resource['invitations'][$key]['id']);
                 }
@@ -893,6 +952,14 @@ class Import implements ShouldQueue
                 $modified,
                 QuoteFactory::create($this->company->id, $modified['user_id'])
             );
+
+            if(array_key_exists('created_at', $modified))
+                $quote->created_at = $modified['created_at'];
+
+            if(array_key_exists('updated_at', $modified))
+                $quote->updated_at = $modified['updated_at'];
+
+            $quote->save(['timestamps' => false]);
 
             $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
 
@@ -959,6 +1026,14 @@ class Import implements ShouldQueue
                 $modified,
                 PaymentFactory::create($this->company->id, $modified['user_id'])
             );
+
+            if(array_key_exists('created_at', $modified))
+                $payment->created_at = Carbon::parse($modified['created_at']);
+
+            if(array_key_exists('updated_at', $modified))
+                $payment->updated_at = Carbon::parse($modified['updated_at']);
+
+            $payment->save(['timestamps' => false]);
 
             if (array_key_exists('company_gateway_id', $resource) && isset($resource['company_gateway_id']) && $resource['company_gateway_id'] != 'NULL') {
                 $payment->company_gateway_id = $this->transformId('company_gateways', $resource['company_gateway_id']);
@@ -1182,6 +1257,11 @@ class Import implements ShouldQueue
                 $modified['fees_and_limits'] = $this->cleanFeesAndLimits($modified['fees_and_limits']);
             }
 
+            if(Ninja::isHosted() && $modified['gateway_key'] == 'd14dd26a37cecc30fdd65700bfb55b23'){
+                $modified['gateway_key'] = 'd14dd26a47cecc30fdd65700bfb67b34';
+                $modified['fees_and_limits'] = [];
+            }
+
             $company_gateway = CompanyGateway::create($modified);
 
             $key = "company_gateways_{$resource['id']}";
@@ -1322,6 +1402,16 @@ class Import implements ShouldQueue
 
             $task = Task::Create($modified);
 
+            if(array_key_exists('created_at', $modified))
+                $task->created_at = Carbon::parse($modified['created_at']);
+
+            if(array_key_exists('updated_at', $modified))
+                $task->updated_at = Carbon::parse($modified['updated_at']);
+
+
+
+            $task->save(['timestamps' => false]);
+
             $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
 
             $this->ids['tasks'] = [
@@ -1402,6 +1492,16 @@ class Import implements ShouldQueue
 
             $expense = Expense::Create($modified);
 
+            if(array_key_exists('created_at', $modified))
+                $expense->created_at = Carbon::parse($modified['created_at']);
+
+            if(array_key_exists('updated_at', $modified))
+                $expense->updated_at = Carbon::parse($modified['updated_at']);
+
+
+
+            $expense->save(['timestamps' => false]);
+            
             $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
 
             $key = "expenses_{$resource['id']}";

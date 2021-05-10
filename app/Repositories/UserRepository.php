@@ -89,10 +89,22 @@ class UserRepository extends BaseRepository
                 $data['company_user']['notifications'] = CompanySettings::notificationDefaults();
                 $user->companies()->attach($company->id, $data['company_user']);
             } else {
-                $cu->fill($data['company_user']);
-                $cu->restore();
-                $cu->tokens()->restore();
-                $cu->save();
+
+                if(auth()->user()->isAdmin())
+                {
+                    $cu->fill($data['company_user']);
+                    $cu->restore();
+                    $cu->tokens()->restore();
+                    $cu->save();
+                }
+                else {
+                            
+                    $cu->notifications = $data['company_user']['notifications'];
+                    $cu->settings = $data['company_user']['settings'];
+                    $cu->save();
+
+                }
+                
             }
 
             $user->with(['company_users' => function ($query) use ($company, $user) {
@@ -123,7 +135,7 @@ class UserRepository extends BaseRepository
             $cu->forceDelete();
         }
 
-        event(new UserWasDeleted($user, $company, Ninja::eventVars(auth()->user()->id)));
+        event(new UserWasDeleted($user, $company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         $user->delete();
 
@@ -146,7 +158,7 @@ class UserRepository extends BaseRepository
             $cu->delete();
         }
 
-        event(new UserWasDeleted($user, auth()->user(), $company, Ninja::eventVars(auth()->user()->id)));
+        event(new UserWasDeleted($user, auth()->user(), $company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
          $user->is_deleted = true;
          $user->save();
@@ -164,7 +176,7 @@ class UserRepository extends BaseRepository
 
         $user->delete();
 
-        event(new UserWasArchived($user, auth()->user(), auth()->user()->company, Ninja::eventVars(auth()->user()->id)));
+        event(new UserWasArchived($user, auth()->user(), auth()->user()->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
     }
 
@@ -189,7 +201,7 @@ class UserRepository extends BaseRepository
 
         $cu->restore();
 
-        event(new UserWasRestored($user, auth()->user(), auth()->user()->company, Ninja::eventVars(auth()->user()->id)));
+        event(new UserWasRestored($user, auth()->user(), auth()->user()->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
     }
 }

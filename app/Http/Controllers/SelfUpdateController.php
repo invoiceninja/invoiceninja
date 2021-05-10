@@ -58,25 +58,20 @@ class SelfUpdateController extends BaseController
         set_time_limit(0);
         define('STDIN', fopen('php://stdin', 'r'));
 
-        if (Ninja::isNinja()) {
+        if (Ninja::isHosted()) {
             return response()->json(['message' => ctrans('texts.self_update_not_available')], 403);
         }
 
-        if(!$this->testWritable())
-            throw new FilePermissionsFailure('Cannot update system because files are not writable!');
+        $this->testWritable();
 
-        // Check if new version is available
-        //if($updater->source()->isNewVersionAvailable()) {
+        // Get the new version available
+        $versionAvailable = $updater->source()->getVersionAvailable();
 
-            // Get the new version available
-            $versionAvailable = $updater->source()->getVersionAvailable();
+        // Create a release
+        $release = $updater->source()->fetch($versionAvailable);
 
-            // Create a release
-            $release = $updater->source()->fetch($versionAvailable);
+        $updater->source()->update($release);
 
-            $updater->source()->update($release);
-
-        //}
             
         $cacheCompiled = base_path('bootstrap/cache/compiled.php');
         if (file_exists($cacheCompiled)) { unlink ($cacheCompiled); }
@@ -84,7 +79,6 @@ class SelfUpdateController extends BaseController
         if (file_exists($cacheServices)) { unlink ($cacheServices); }
 
         Artisan::call('clear-compiled');
-        Artisan::call('cache:clear');
         Artisan::call('route:clear');
         Artisan::call('view:clear');
         Artisan::call('config:clear');
@@ -105,7 +99,9 @@ class SelfUpdateController extends BaseController
             // nlog($file->getPathname());
 
             if ($file->isFile() && ! $file->isWritable()) {
-                throw new FilePermissionsFailure($file);
+                // throw new FilePermissionsFailure($file);
+                nlog("Cannot update system because {$file->getFileName()} is not writable");
+                throw new FilePermissionsFailure("Cannot update system because {$file->getFileName()} is not writable");
                 return false;
             }
         }

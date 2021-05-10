@@ -284,18 +284,17 @@ class SetupController extends Controller
         if (file_exists($cacheCompiled)) {
             unlink ($cacheCompiled);
         }
+
         $cacheServices = base_path('bootstrap/cache/services.php');
         if (file_exists($cacheServices)) {
             unlink ($cacheServices);
         }
 
         Artisan::call('clear-compiled');
-        Artisan::call('cache:clear');
-        Artisan::call('debugbar:clear');
         Artisan::call('route:clear');
         Artisan::call('view:clear');
         Artisan::call('config:clear');
-        Cache::flush();
+
         Artisan::call('migrate', ['--force' => true]);
         Artisan::call('db:seed', ['--force' => true]);
 
