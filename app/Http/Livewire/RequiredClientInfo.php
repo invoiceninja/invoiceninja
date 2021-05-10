@@ -88,7 +88,9 @@ class RequiredClientInfo extends Component
         }
 
         if ($this->updateClientDetails($data)) {
-            $this->emit('passed-required-fields-check');
+            $this->emit('passed-required-fields-check', [
+                'client_postal_code' => $this->contact->client->postal_code,
+            ]);
 
             return true;
         }
