@@ -202,16 +202,16 @@ class StripeCreditCard {
 }
 
 const publishableKey =
-    document.querySelector('meta[name="stripe-publishable-key"]').content ?? '';
+    document.querySelector('meta[name="stripe-publishable-key"]')?.content ?? '';
 
 const secret =
-    document.querySelector('meta[name="stripe-secret"]').content ?? '';
+    document.querySelector('meta[name="stripe-secret"]')?.content ?? '';
 
 const onlyAuthorization =
-    document.querySelector('meta[name="only-authorization"]').content ?? '';
+    document.querySelector('meta[name="only-authorization"]')?.content ?? '';
 
 const stripeConnect =
-    document.querySelector('meta[name="stripe-account-id"]').content ?? '';
+    document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
 
 let s = new StripeCreditCard(publishableKey, secret, onlyAuthorization, stripeConnect);
 
