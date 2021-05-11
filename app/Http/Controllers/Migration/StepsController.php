@@ -227,6 +227,8 @@ class StepsController extends BaseController
      */
     public function generateMigrationData(array $data): array
     {
+        set_time_limit(0);
+
         $migrationData = [];
 
         foreach ($data['companies'] as $company) {
