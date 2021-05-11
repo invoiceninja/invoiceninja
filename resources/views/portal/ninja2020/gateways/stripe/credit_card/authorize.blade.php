@@ -6,6 +6,8 @@
     <meta name="stripe-secret" content="{{ $intent->client_secret }}">
     <meta name="only-authorization" content="true">
     <meta name="stripe-token" content="">
+    <meta name="client-postal-code" content="{{ $client->postal_code ?? '' }}">
+
 @endsection
 
 @section('gateway_content')
