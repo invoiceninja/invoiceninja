@@ -60,10 +60,10 @@ class ProcessAlipay {
 
 const publishableKey = document.querySelector(
     'meta[name="stripe-publishable-key"]'
-).content;
+)?.content ?? '';
 
 const stripeConnect = document.querySelector(
     'meta[name="stripe-account-id"]'
-).content;
+)?.content ?? '';
 
 new ProcessAlipay(publishableKey, stripeConnect).setupStripe().handle();

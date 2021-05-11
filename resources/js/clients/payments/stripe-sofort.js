@@ -64,9 +64,9 @@ class ProcessSOFORT {
 
 const publishableKey = document.querySelector(
     'meta[name="stripe-publishable-key"]'
-).content;
+)?.content ?? '';
 
 const stripeConnect = 
-    document.querySelector('meta[name="stripe-account-id"]').content ?? ''; 
+    document.querySelector('meta[name="stripe-account-id"]')?.content ?? ''; 
 
 new ProcessSOFORT(publishableKey, stripeConnect).setupStripe().handle();
