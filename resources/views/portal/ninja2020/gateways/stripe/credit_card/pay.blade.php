@@ -5,7 +5,6 @@
     <meta name="stripe-account-id" content="{{ $gateway->company_gateway->getConfigField('account_id') }}">
     <meta name="stripe-secret" content="{{ $intent->client_secret }}">
     <meta name="only-authorization" content="">
-
     <meta name="client-postal-code" content="{{ $client->postal_code ?? '' }}">
 @endsection
 
