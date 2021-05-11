@@ -1,12 +1,8 @@
 @extends('portal.ninja2020.layout.payments', ['gateway_title' => 'Credit card', 'card_title' => 'Credit card'])
 
 @section('gateway_head')
-
-    @if($gateway->getConfigField('account_id'))
-    <meta name="stripe-account-id" content="{{ $gateway->getConfigField('account_id') }}">
-    @else
     <meta name="stripe-publishable-key" content="{{ $gateway->getPublishableKey() }}">
-    @endif
+    <meta name="stripe-account-id" content="{{ $gateway->getConfigField('account_id') }}">
     <meta name="stripe-secret" content="{{ $intent->client_secret }}">
     <meta name="only-authorization" content="true">
     <meta name="stripe-token" content="">

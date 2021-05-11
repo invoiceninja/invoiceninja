@@ -67,6 +67,6 @@ const publishableKey = document.querySelector(
 ).content;
 
 const stripeConnect = 
-    document.querySelector('meta[name="stripe-account-id"]').content;
+    document.querySelector('meta[name="stripe-account-id"]').content ?? ''; 
 
 new ProcessSOFORT(publishableKey, stripeConnect).setupStripe().handle();

@@ -211,7 +211,7 @@ const onlyAuthorization =
     document.querySelector('meta[name="only-authorization"]').content ?? '';
 
 const stripeConnect =
-    document.querySelector('meta[name="stripe-account-id"]').content;
+    document.querySelector('meta[name="stripe-account-id"]').content ?? '';
 
 let s = new StripeCreditCard(publishableKey, secret, onlyAuthorization, stripeConnect);
 
