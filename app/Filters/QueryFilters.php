@@ -160,4 +160,13 @@ abstract class QueryFilters
             return $this->builder->whereClientId(auth('contact')->user()->client->id);
         }
     }
+
+    public function created_at($value)
+    {
+        $created_at = $value ? $value : 0;
+
+        $created_at = date('Y-m-d H:i:s', $value);
+
+        return $this->builder->where('created_at', '>=', $created_at);
+    }
 }
