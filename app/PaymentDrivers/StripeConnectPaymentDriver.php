@@ -16,6 +16,7 @@ use App\Factory\PaymentFactory;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
 use App\Http\Requests\Request;
 use App\Jobs\Util\SystemLogger;
+use App\Models\Client;
 use App\Models\ClientGatewayToken;
 use App\Models\CompanyGateway;
 use App\Models\GatewayType;
