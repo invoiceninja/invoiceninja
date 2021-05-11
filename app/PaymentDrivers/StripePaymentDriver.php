@@ -297,6 +297,7 @@ class StripePaymentDriver extends BaseDriver
         if ($client_gateway_token && $client_gateway_token->gateway_customer_reference) {
             $customer = Customer::retrieve($client_gateway_token->gateway_customer_reference);
         } else {
+            $meta = [];
             $data['name'] = $this->client->present()->name();
             $data['phone'] = $this->client->present()->phone();
 
@@ -304,7 +305,10 @@ class StripePaymentDriver extends BaseDriver
                 $data['email'] = $this->client->present()->email();
             }
 
-            $customer = Customer::create($data);
+            if($this->stripe->stripe_connect)
+                $meta['account_id'] = $this->company_gateway->getConfigField('account_id');
+
+            $customer = Customer::create($data, $meta);
         }
 
         if (!$customer) {
