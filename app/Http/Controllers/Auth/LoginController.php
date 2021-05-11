@@ -207,6 +207,9 @@ class LoginController extends BaseController
             $cu = CompanyUser::query()
                   ->where('user_id', auth()->user()->id);
 
+            if(!$cu->exists())
+                return response()->json(['message' => 'User not linked to any companies'], 403);
+
             $cu->first()->account->companies->each(function ($company) use($cu, $request){
 
                 if($company->tokens()->where('is_system', true)->count() == 0)
