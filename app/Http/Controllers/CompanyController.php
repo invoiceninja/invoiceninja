@@ -480,11 +480,8 @@ class CompanyController extends BaseController
         if ($company_count == 1) {
             $company->company_users->each(function ($company_user) {
                 $company_user->user->forceDelete();
+                $company_user->forceDelete();
             });
-
-            // if (Ninja::isHosted()) {
-            //     RefundCancelledAccount::dispatchNow($account);
-            // }
 
             $account->delete();
 
@@ -493,6 +490,11 @@ class CompanyController extends BaseController
                      ->batch();
         } else {
             $company_id = $company->id;
+
+            $company->company_users->each(function ($company_user){
+                $company_user->forceDelete();
+            });
+
             $company->delete();
 
             //If we are deleting the default companies, we'll need to make a new company the default.
