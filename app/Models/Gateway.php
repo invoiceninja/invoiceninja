@@ -95,6 +95,12 @@ class Gateway extends StaticModel
             case 39:
                 return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true]]; //Checkout
                 break;
+            case 50:
+                return [
+                    GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true],
+                    GatewayType::PAYPAL => ['refund' => true, 'token_billing' => true]
+                ];
+                break;
             default:
                 return [];
                 break;

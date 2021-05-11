@@ -5,7 +5,7 @@
         </svg>
     </button>
     <div class="flex-1 px-3 md:px-8 flex justify-between items-center">
-        <span class="text-xl text-gray-900">@yield('meta_title')</span>
+        <span class="text-xl text-gray-900" data-ref="meta-title">@yield('meta_title')</span>
         <div class="flex items-center md:ml-6 md:mr-2">
             @if($multiple_contacts->count() > 1)
             <div class="relative inline-block text-left" x-data="{ open: false }">
