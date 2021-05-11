@@ -4,6 +4,7 @@
 
     @if($gateway->getConfigField('account_id'))
     <meta name="stripe-account-id" content="{{ $gateway->getConfigField('account_id') }}">
+    <meta name="stripe-publishable-key" content="{{ config('ninja.ninja_stripe_publishable_key') }}">
     @else
     <meta name="stripe-publishable-key" content="{{ $gateway->getPublishableKey() }}">
     @endif
