@@ -300,7 +300,7 @@ class StripePaymentDriver extends BaseDriver
         $client_gateway_token = ClientGatewayToken::whereClientId($this->client->id)->whereCompanyGatewayId($this->company_gateway->id)->first();
 
         if ($client_gateway_token && $client_gateway_token->gateway_customer_reference) {
-            $customer = Customer::retrieve($client_gateway_token->gateway_customer_reference);
+            $customer = Customer::retrieve($client_gateway_token->gateway_customer_reference, $this->stripe_connect_auth);
         } else {
 
             $data['name'] = $this->client->present()->name();
