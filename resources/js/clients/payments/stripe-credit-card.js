@@ -17,11 +17,19 @@ class StripeCreditCard {
     }
 
     setupStripe() {
-        this.stripe = Stripe(this.key);
 
-        if (this.stripeConnect)
-            this.stripe.stripeAccount = this.stripeConnect;
-
+        if (this.stripeConnect){
+           // this.stripe.stripeAccount = this.stripeConnect;
+           
+           this.stripe = Stripe(this.key, {
+              stripeAccount: this.stripeConnect,
+            }); 
+           
+        }
+        else {
+            this.stripe = Stripe(this.key);
+        }
+        
         this.elements = this.stripe.elements();
 
         return this;
