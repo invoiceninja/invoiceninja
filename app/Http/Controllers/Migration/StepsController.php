@@ -266,7 +266,7 @@ class StepsController extends BaseController
                 'expenses' => $this->getExpenses(),
                 'tasks' => $this->getTasks(),
                 'documents' => $this->getDocuments(),
-                'ninja_tokens' => $this->getNinjaTokens(),
+                'ninja_tokens' => $this->getNinjaToken(),
             ];
 
             $localMigrationData['force'] = array_key_exists('force', $company);
