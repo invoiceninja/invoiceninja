@@ -4284,7 +4284,11 @@ $LANG = array(
     'migration_create_account_notice' => 'Please ensure you have created an account on the new platform first <a href="https://invoicing.co">here</a> , please ensure that the credentials are <b>identical</b> to your v4 credentials. Once the account has been created, you can start the migration process here.',
     'auth' => 'Authentication',
     'companies' => 'Select companies for migration',
-    
+    'activity_100' => ':user created recurring invoice :recurring_invoice',
+    'activity_101' => ':user updated recurring invoice :recurring_invoice',
+    'activity_102' => ':user archived recurring invoice :recurring_invoice',
+    'activity_103' => ':user deleted recurring invoice :recurring_invoice',
+    'activity_104' => ':user restored recurring invoice :recurring_invoice',
 
 );
 

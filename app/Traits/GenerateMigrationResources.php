@@ -538,8 +538,14 @@ info("get company");
         elseif($design_id == 1)
             return 2;
         elseif($design_id == 2)
+            return 3;
+        elseif($design_id == 3)
+            return 4;
+        elseif($design_id == 4)
             return 1;
-
+        elseif($design_id == 10)
+            return 2;
+        
         return $design_id;
     }
 
