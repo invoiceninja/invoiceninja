@@ -127,6 +127,8 @@ class InvoiceController extends Controller
 
         $payment_methods = auth()->user()->client->service()->getPaymentMethods($total);
 
+        //if there is only one payment method -> lets return straight to the payment page
+
         $data = [
             'settings' => auth()->user()->client->getMergedSettings(),
             'invoices' => $invoices,
@@ -135,8 +137,6 @@ class InvoiceController extends Controller
             'hashed_ids' => $invoices->pluck('hashed_id'),
             'total' =>  $total,
         ];
-
-// nlog($data);
 
         return $this->render('invoices.payment', $data);
     }

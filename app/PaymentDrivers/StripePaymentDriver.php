@@ -407,7 +407,7 @@ class StripePaymentDriver extends BaseDriver
     {
         try {
             $stripe_payment_method = $this->getStripePaymentMethod($payment_method);
-            $stripe_payment_method->attach(['customer' => $customer->id], $this->stripe_connect_auth);
+            $stripe_payment_method->attach(['customer' => $customer->id], null, $this->stripe_connect_auth);
         } catch (ApiErrorException | Exception $e) {
             $this->processInternallyFailedPayment($this, $e);
         }
@@ -427,7 +427,9 @@ class StripePaymentDriver extends BaseDriver
         );
 
         try {
-            $stripe->paymentMethods->detach($token->token, $this->stripe_connect_auth);
+            $stripe_payment_method = $this->getStripePaymentMethod($token->token);
+            $stripe_payment_method->detach($token->token, null, $this->stripe_connect_auth);
+            //$stripe->paymentMethods->detach($token->token, $this->stripe_connect_auth);
         } catch (Exception $e) {
             SystemLogger::dispatch([
                 'server_response' => $e->getMessage(), 'data' => request()->all(),
