@@ -405,11 +405,26 @@ class StripePaymentDriver extends BaseDriver
      */
     public function attach(string $payment_method, $customer): void
     {
+        $this->init();
+
         try {
+
             $stripe_payment_method = $this->getStripePaymentMethod($payment_method);
-            $stripe_payment_method->attach(['customer' => $customer->id], null, $this->stripe_connect_auth);
+            $stripe_payment_method->attach(['customer' => $customer->id], $this->stripe_connect_auth);
+
         } catch (ApiErrorException | Exception $e) {
-            $this->processInternallyFailedPayment($this, $e);
+
+            nlog($e->getMessage());
+
+            SystemLogger::dispatch([
+                'server_response' => $e->getMessage(), 
+                'data' => request()->all(),
+            ], 
+            SystemLog::CATEGORY_GATEWAY_RESPONSE, 
+            SystemLog::EVENT_GATEWAY_FAILURE, 
+            SystemLog::TYPE_STRIPE, 
+            $this->client);
+
         }
     }
 
@@ -422,18 +437,27 @@ class StripePaymentDriver extends BaseDriver
      */
     public function detach(ClientGatewayToken $token)
     {
-        $stripe = new StripeClient(
-            $this->company_gateway->getConfigField('apiKey')
-        );
 
-        try {
-            $stripe_payment_method = $this->getStripePaymentMethod($token->token);
-            $stripe_payment_method->detach($token->token, null, $this->stripe_connect_auth);
-            //$stripe->paymentMethods->detach($token->token, $this->stripe_connect_auth);
-        } catch (Exception $e) {
+        $this->init();
+
+        try{
+            
+            $pm = $this->getStripePaymentMethod($token->token);
+            $pm->detach([], $this->stripe_connect_auth);
+
+        } catch (ApiErrorException | Exception $e) {
+
+            nlog($e->getMessage());
+
             SystemLogger::dispatch([
-                'server_response' => $e->getMessage(), 'data' => request()->all(),
-            ], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->client);
+                'server_response' => $e->getMessage(), 
+                'data' => request()->all(),
+            ], 
+            SystemLog::CATEGORY_GATEWAY_RESPONSE, 
+            SystemLog::EVENT_GATEWAY_FAILURE, 
+            SystemLog::TYPE_STRIPE, 
+            $this->client);
+
         }
     }
 
@@ -452,9 +476,13 @@ class StripePaymentDriver extends BaseDriver
     public function getStripePaymentMethod(string $source)
     {
         try {
+
             return PaymentMethod::retrieve($source, $this->stripe_connect_auth);
+
         } catch (ApiErrorException | Exception $e) {
+
             return $this->processInternallyFailedPayment($this, $e);
+            
         }
     }
 }
