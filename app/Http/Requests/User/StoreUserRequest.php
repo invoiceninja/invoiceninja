@@ -59,10 +59,6 @@ class StoreUserRequest extends Request
 
 //unique user rule - check company_user table for user_id / company_id  / account_id if none exist we can add the user. ELSE return false
 
-//nlog($this->all());
-//nlog($this->input('company_user.account'));
-// nlog($this->input('company_user.account.id'));
-// nlog($this->input('company_user.account.id'));
 
         if (isset($input['company_user'])) {
             if (! isset($input['company_user']['is_admin'])) {

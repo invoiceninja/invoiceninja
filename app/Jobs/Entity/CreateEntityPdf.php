@@ -91,13 +91,21 @@ class CreateEntityPdf implements ShouldQueue
 
     public function handle()
     {
+        /* Set the locale*/
         App::setLocale($this->contact->preferredLocale());
+        
+        /* Forget the singleton*/
         App::forgetInstance('translator');
+
+        /* Init a new copy of the translator*/
+        $t = app('translator');
+
+        /* Set customized translations _NOW_ */
         Lang::replace(Ninja::transformTranslations($this->entity->client->getMergedSettings()));
 
         $this->entity->service()->deletePdf();
 
-        if (config('ninja.phantomjs_pdf_generation')) {
+        if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
             return (new Phantom)->generate($this->invitation);
         }
 
@@ -163,7 +171,7 @@ class CreateEntityPdf implements ShouldQueue
 
         try {
 
-            if(config('ninja.invoiceninja_hosted_pdf_generation')){
+            if(config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja'){
                 $pdf = (new NinjaPdf())->build($maker->getCompiledHTML(true));
             }
             else {

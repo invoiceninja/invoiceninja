@@ -44,6 +44,9 @@ class SystemLogger implements ShouldQueue
 
     public function handle() :void
     {
+        if(!$this->client)
+            return;
+        
         $sl = [
             'client_id' => $this->client->id,
             'company_id' => $this->client->company->id,

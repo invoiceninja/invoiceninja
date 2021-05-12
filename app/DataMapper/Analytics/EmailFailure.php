@@ -11,7 +11,9 @@
 
 namespace App\DataMapper\Analytics;
 
-class EmailFailure
+use Turbo124\Beacon\ExampleMetric\GenericMixedMetric;
+
+class EmailFailure extends GenericMixedMetric
 {
     /**
      * The type of Sample.

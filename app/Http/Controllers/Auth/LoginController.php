@@ -13,17 +13,22 @@ namespace App\Http\Controllers\Auth;
 
 use App\DataMapper\Analytics\LoginFailure;
 use App\DataMapper\Analytics\LoginSuccess;
+use App\Events\User\UserLoggedIn;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
 use App\Jobs\Account\CreateAccount;
 use App\Jobs\Company\CreateCompanyToken;
+use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Libraries\OAuth\OAuth;
 use App\Libraries\OAuth\Providers\Google;
+use App\Models\Client;
 use App\Models\CompanyToken;
 use App\Models\CompanyUser;
+use App\Models\SystemLog;
 use App\Models\User;
 use App\Transformers\CompanyUserTransformer;
+use App\Utils\Ninja;
 use App\Utils\Traits\UserSessionAttributes;
 use Google_Client;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
@@ -170,6 +175,8 @@ class LoginController extends BaseController
 
             $user = $this->guard()->user();
 
+            event(new UserLoggedIn($user, $user->account->default_company, Ninja::eventVars($user->id)));
+
             //if user has 2fa enabled - lets check this now:
 
             if($user->google_2fa_secret && $request->has('one_time_password'))
@@ -207,6 +214,9 @@ class LoginController extends BaseController
             $cu = CompanyUser::query()
                   ->where('user_id', auth()->user()->id);
 
+            if(!$cu->exists())
+                return response()->json(['message' => 'User not linked to any companies'], 403);
+
             $cu->first()->account->companies->each(function ($company) use($cu, $request){
 
                 if($company->tokens()->where('is_system', true)->count() == 0)
@@ -224,6 +234,14 @@ class LoginController extends BaseController
             LightLogs::create(new LoginFailure())
                 ->increment()
                 ->batch();
+
+            SystemLogger::dispatch(
+                request()->getClientIp(),
+                SystemLog::CATEGORY_SECURITY,
+                SystemLog::EVENT_USER,
+                SystemLog::TYPE_LOGIN_FAILURE,
+                Client::first(),
+            );
 
             $this->incrementLoginAttempts($request);
 

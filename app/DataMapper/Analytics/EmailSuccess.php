@@ -11,7 +11,9 @@
 
 namespace App\DataMapper\Analytics;
 
-class EmailSuccess
+use Turbo124\Beacon\ExampleMetric\GenericMixedMetric;
+
+class EmailSuccess extends GenericMixedMetric
 {
 
     /**

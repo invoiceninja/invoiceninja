@@ -68,8 +68,6 @@ class TokenAuth
             //stateless, don't remember the user.
             auth()->login($user, false);
 
-            event(new UserLoggedIn($user, $company_token->company, Ninja::eventVars()));
-
         } else {
             $error = [
                 'message' => 'Invalid token',

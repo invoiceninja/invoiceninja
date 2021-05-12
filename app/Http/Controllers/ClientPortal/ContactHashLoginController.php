@@ -31,4 +31,9 @@ class ContactHashLoginController extends Controller
     {
         return redirect('/client/login');
     }
+
+    public function errorPage()
+    {
+        return render('generic.error', ['title' => session()->get('title'), 'notification' => session()->get('notification')]);
+    }
 }

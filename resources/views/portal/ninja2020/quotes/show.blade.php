@@ -4,6 +4,11 @@
 @push('head')
     <meta name="pdf-url" content="{{ asset($quote->pdf_file_path()) }}">
     <script src="{{ asset('js/vendor/pdf.js/pdf.min.js') }}"></script>
+
+    <meta name="show-quote-terms" content="{{ $settings->show_accept_quote_terms ? true : false }}">
+    <meta name="require-quote-signature" content="{{ $client->company->account->hasFeature(\App\Models\Account::FEATURE_INVOICE_SETTINGS) && $settings->require_quote_signature }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
 @endpush
 
 @section('body')
@@ -74,8 +79,12 @@
     </div>
 
     <iframe src="{{ $quote->pdf_file_path() }}" class="h-screen w-full border-0 hidden lg:block mt-4"></iframe>
+
+    @include('portal.ninja2020.invoices.includes.terms', ['entities' => [$quote], 'entity_type' => ctrans('texts.quote')])
+    @include('portal.ninja2020.invoices.includes.signature')
 @endsection
 
 @section('footer')
+    <script src="{{ asset('js/clients/quotes/approve.js') }}"></script>
     <script src="{{ asset('js/clients/shared/pdf.js') }}"></script>
 @endsection

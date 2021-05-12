@@ -157,6 +157,16 @@ class RecurringInvoice extends BaseModel
         return $value;
     }
 
+    public function activities()
+    {
+        return $this->hasMany(Activity::class)->orderBy('id', 'DESC')->take(300);
+    }
+
+    public function history()
+    {
+        return $this->hasManyThrough(Backup::class, Activity::class);
+    }
+
     public function company()
     {
         return $this->belongsTo(Company::class);
