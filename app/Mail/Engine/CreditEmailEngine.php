@@ -105,7 +105,10 @@ class CreditEmailEngine extends BaseEmailEngine
 
             // Storage::url
             foreach($this->credit->documents as $document){
-                // $this->setAttachments(['path'=>$document->filePath(),'name'=>$document->name]);
+                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => $document->type]]);
+            }
+
+            foreach($this->credit->company->documents as $document){
                 $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => $document->type]]);
             }
 
