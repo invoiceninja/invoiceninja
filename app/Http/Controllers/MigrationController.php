@@ -21,6 +21,7 @@ use App\Mail\ExistingMigration;
 use App\Mail\Migration\MaxCompanies;
 use App\Models\Company;
 use App\Models\CompanyToken;
+use App\Utils\Ninja;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -378,14 +379,15 @@ class MigrationController extends BaseController
                 return;
             }
 
-            // try {
-                // StartMigration::dispatch(base_path("storage/app/public/$migration_file"), $user, $fresh_company)->delay(now()->addSeconds(5));
                 nlog("starting migration job");
                 nlog($migration_file);
-                StartMigration::dispatch($migration_file, $user, $fresh_company)->onQueue('migration');
-            // } catch (\Exception $e) {
-            //     nlog($e->getMessage());
-            // }
+
+                if(Ninja::isHosted())
+                    StartMigration::dispatch($migration_file, $user, $fresh_company)->onQueue('migration');
+                else
+                    StartMigration::dispatch($migration_file, $user, $fresh_company);
+
+
         }
 
     }

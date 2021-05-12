@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "38a79899673526624db4d62a76dd9a5e",
+    "content-hash": "cbd0c778d0092866b6c2d3f693f0e5fe",
     "packages": [
         {
             "name": "asm/php-ansible",
@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/maschmann/php-ansible.git",
-                "reference": "4f2145cad264fd9f800baf6d3a79dd43fd8009db"
+                "reference": "d526011521ea8f3433d8e940d2a1839474b1c1f4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/maschmann/php-ansible/zipball/4f2145cad264fd9f800baf6d3a79dd43fd8009db",
-                "reference": "4f2145cad264fd9f800baf6d3a79dd43fd8009db",
+                "url": "https://api.github.com/repos/maschmann/php-ansible/zipball/d526011521ea8f3433d8e940d2a1839474b1c1f4",
+                "reference": "d526011521ea8f3433d8e940d2a1839474b1c1f4",
                 "shasum": ""
             },
             "require": {
@@ -54,9 +54,9 @@
             ],
             "support": {
                 "issues": "https://github.com/maschmann/php-ansible/issues",
-                "source": "https://github.com/maschmann/php-ansible/tree/master"
+                "source": "https://github.com/maschmann/php-ansible/tree/v2.2"
             },
-            "time": "2021-03-02T18:27:29+00:00"
+            "time": "2021-05-09T14:23:09+00:00"
         },
         {
             "name": "authorizenet/authorizenet",
@@ -103,16 +103,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.180.1",
+            "version": "3.180.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "7801112fd8be227954a6ecfbfd85b01ee4a7cae4"
+                "reference": "1a836be14ba664ea11eb965dec77715e9e607013"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/7801112fd8be227954a6ecfbfd85b01ee4a7cae4",
-                "reference": "7801112fd8be227954a6ecfbfd85b01ee4a7cae4",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/1a836be14ba664ea11eb965dec77715e9e607013",
+                "reference": "1a836be14ba664ea11eb965dec77715e9e607013",
                 "shasum": ""
             },
             "require": {
@@ -187,9 +187,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.180.1"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.180.6"
             },
-            "time": "2021-05-04T18:14:38+00:00"
+            "time": "2021-05-10T18:17:07+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -296,6 +296,55 @@
                 "source": "https://github.com/beganovich/snappdf/tree/v1.6.0"
             },
             "time": "2021-03-19T21:20:07+00:00"
+        },
+        {
+            "name": "braintree/braintree_php",
+            "version": "6.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/braintree/braintree_php.git",
+                "reference": "2406535506ebdbfd685596d890746a4a2db6fa9e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/braintree/braintree_php/zipball/2406535506ebdbfd685596d890746a4a2db6fa9e",
+                "reference": "2406535506ebdbfd685596d890746a4a2db6fa9e",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-dom": "*",
+                "ext-hash": "*",
+                "ext-openssl": "*",
+                "ext-xmlwriter": "*",
+                "php": ">=7.3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.0",
+                "squizlabs/php_codesniffer": "^3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Braintree\\": "lib/Braintree"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Braintree",
+                    "homepage": "https://www.braintreepayments.com"
+                }
+            ],
+            "description": "Braintree PHP Client Library",
+            "support": {
+                "issues": "https://github.com/braintree/braintree_php/issues",
+                "source": "https://github.com/braintree/braintree_php/tree/6.1.0"
+            },
+            "time": "2021-05-06T20:43:19+00:00"
         },
         {
             "name": "brick/math",
@@ -2106,16 +2155,16 @@
         },
         {
             "name": "google/apiclient-services",
-            "version": "v0.173.0",
+            "version": "v0.174.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-api-php-client-services.git",
-                "reference": "9034b5ba3e25c9ad8e49b6457b9cad21fd9d9847"
+                "reference": "004c5280f5a26a8acbb6f6af6a792e4872b7648a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/9034b5ba3e25c9ad8e49b6457b9cad21fd9d9847",
-                "reference": "9034b5ba3e25c9ad8e49b6457b9cad21fd9d9847",
+                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/004c5280f5a26a8acbb6f6af6a792e4872b7648a",
+                "reference": "004c5280f5a26a8acbb6f6af6a792e4872b7648a",
                 "shasum": ""
             },
             "require": {
@@ -2141,9 +2190,9 @@
             ],
             "support": {
                 "issues": "https://github.com/googleapis/google-api-php-client-services/issues",
-                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.173.0"
+                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.174.0"
             },
-            "time": "2021-05-02T11:20:02+00:00"
+            "time": "2021-05-08T11:20:03+00:00"
         },
         {
             "name": "google/auth",
@@ -3303,16 +3352,16 @@
         },
         {
             "name": "league/commonmark",
-            "version": "1.6.0",
+            "version": "1.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/commonmark.git",
-                "reference": "19a9673b833cc37770439097b381d86cd125bfe8"
+                "reference": "2651c497f005de305c7ba3f232cbd87b8c00ee8c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/19a9673b833cc37770439097b381d86cd125bfe8",
-                "reference": "19a9673b833cc37770439097b381d86cd125bfe8",
+                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/2651c497f005de305c7ba3f232cbd87b8c00ee8c",
+                "reference": "2651c497f005de305c7ba3f232cbd87b8c00ee8c",
                 "shasum": ""
             },
             "require": {
@@ -3400,7 +3449,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-05-01T19:00:49+00:00"
+            "time": "2021-05-08T16:08:00+00:00"
         },
         {
             "name": "league/csv",
@@ -6811,16 +6860,16 @@
         },
         {
             "name": "sentry/sentry",
-            "version": "3.2.1",
+            "version": "3.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getsentry/sentry-php.git",
-                "reference": "fb4f83e6e2d718d1e5fbfe3a20cced83f47f040f"
+                "reference": "02237728bdc5b82b0a14c37417644e3f3606db9b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getsentry/sentry-php/zipball/fb4f83e6e2d718d1e5fbfe3a20cced83f47f040f",
-                "reference": "fb4f83e6e2d718d1e5fbfe3a20cced83f47f040f",
+                "url": "https://api.github.com/repos/getsentry/sentry-php/zipball/02237728bdc5b82b0a14c37417644e3f3606db9b",
+                "reference": "02237728bdc5b82b0a14c37417644e3f3606db9b",
                 "shasum": ""
             },
             "require": {
@@ -6899,7 +6948,7 @@
             ],
             "support": {
                 "issues": "https://github.com/getsentry/sentry-php/issues",
-                "source": "https://github.com/getsentry/sentry-php/tree/3.2.1"
+                "source": "https://github.com/getsentry/sentry-php/tree/3.2.2"
             },
             "funding": [
                 {
@@ -6911,20 +6960,20 @@
                     "type": "custom"
                 }
             ],
-            "time": "2021-04-06T07:55:41+00:00"
+            "time": "2021-05-06T10:15:01+00:00"
         },
         {
             "name": "sentry/sentry-laravel",
-            "version": "2.5.1",
+            "version": "2.5.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getsentry/sentry-laravel.git",
-                "reference": "2af8a531f202f0ac014f5fad532815ed34f730a9"
+                "reference": "23ea0d80cb2eb7d0d056879726f7800549fc7c01"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getsentry/sentry-laravel/zipball/2af8a531f202f0ac014f5fad532815ed34f730a9",
-                "reference": "2af8a531f202f0ac014f5fad532815ed34f730a9",
+                "url": "https://api.github.com/repos/getsentry/sentry-laravel/zipball/23ea0d80cb2eb7d0d056879726f7800549fc7c01",
+                "reference": "23ea0d80cb2eb7d0d056879726f7800549fc7c01",
                 "shasum": ""
             },
             "require": {
@@ -6941,6 +6990,9 @@
                 "mockery/mockery": "1.3.*",
                 "orchestra/testbench": "3.1 - 3.8 | ^4.7 | ^5.1 | ^6.0",
                 "phpunit/phpunit": "^5.7 | ^6.5 | ^7.5 | ^8.4 | ^9.3"
+            },
+            "suggest": {
+                "zendframework/zend-diactoros": "When using Laravel >=5.1 - <=6.9 this package can help get more accurate request info, not used on Laravel >=6.10 anymore (https://laravel.com/docs/5.8/requests#psr7-requests)"
             },
             "type": "library",
             "extra": {
@@ -6987,7 +7039,7 @@
             ],
             "support": {
                 "issues": "https://github.com/getsentry/sentry-laravel/issues",
-                "source": "https://github.com/getsentry/sentry-laravel/tree/2.5.1"
+                "source": "https://github.com/getsentry/sentry-laravel/tree/2.5.3"
             },
             "funding": [
                 {
@@ -6999,20 +7051,20 @@
                     "type": "custom"
                 }
             ],
-            "time": "2021-04-29T11:10:22+00:00"
+            "time": "2021-05-10T13:41:30+00:00"
         },
         {
             "name": "stripe/stripe-php",
-            "version": "v7.77.0",
+            "version": "v7.78.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stripe/stripe-php.git",
-                "reference": "f6724447481f6fb8c2e714165e092adad9ca470a"
+                "reference": "6ec33fa8e9de2322be93d28dfd685661c67ca549"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/f6724447481f6fb8c2e714165e092adad9ca470a",
-                "reference": "f6724447481f6fb8c2e714165e092adad9ca470a",
+                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/6ec33fa8e9de2322be93d28dfd685661c67ca549",
+                "reference": "6ec33fa8e9de2322be93d28dfd685661c67ca549",
                 "shasum": ""
             },
             "require": {
@@ -7058,9 +7110,9 @@
             ],
             "support": {
                 "issues": "https://github.com/stripe/stripe-php/issues",
-                "source": "https://github.com/stripe/stripe-php/tree/v7.77.0"
+                "source": "https://github.com/stripe/stripe-php/tree/v7.78.0"
             },
-            "time": "2021-04-12T17:19:16+00:00"
+            "time": "2021-05-05T23:55:32+00:00"
         },
         {
             "name": "swiftmailer/swiftmailer",
@@ -9809,16 +9861,16 @@
         },
         {
             "name": "turbo124/laravel-gmail",
-            "version": "v5.0.1",
+            "version": "v5.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/turbo124/laravel-gmail.git",
-                "reference": "55ca0271a54a568ebaa26febbe0790b2ce5ac966"
+                "reference": "f8b8806d0b37ab5b2d4c3f402f8094d9021bd342"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/turbo124/laravel-gmail/zipball/55ca0271a54a568ebaa26febbe0790b2ce5ac966",
-                "reference": "55ca0271a54a568ebaa26febbe0790b2ce5ac966",
+                "url": "https://api.github.com/repos/turbo124/laravel-gmail/zipball/f8b8806d0b37ab5b2d4c3f402f8094d9021bd342",
+                "reference": "f8b8806d0b37ab5b2d4c3f402f8094d9021bd342",
                 "shasum": ""
             },
             "require": {
@@ -9872,9 +9924,9 @@
                 "laravel"
             ],
             "support": {
-                "source": "https://github.com/turbo124/laravel-gmail/tree/v5.0.1"
+                "source": "https://github.com/turbo124/laravel-gmail/tree/v5.0.2"
             },
-            "time": "2021-04-06T00:53:48+00:00"
+            "time": "2021-05-08T00:17:52+00:00"
         },
         {
             "name": "vlucas/phpdotenv",
@@ -10741,21 +10793,21 @@
         },
         {
             "name": "darkaonline/l5-swagger",
-            "version": "8.0.4",
+            "version": "8.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DarkaOnLine/L5-Swagger.git",
-                "reference": "3477e7013daf8b6fc142c45fdcb9fe6c74d7398d"
+                "reference": "238e5d318b3d48a77c76b6950c51146578563853"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DarkaOnLine/L5-Swagger/zipball/3477e7013daf8b6fc142c45fdcb9fe6c74d7398d",
-                "reference": "3477e7013daf8b6fc142c45fdcb9fe6c74d7398d",
+                "url": "https://api.github.com/repos/DarkaOnLine/L5-Swagger/zipball/238e5d318b3d48a77c76b6950c51146578563853",
+                "reference": "238e5d318b3d48a77c76b6950c51146578563853",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "laravel/framework": "^8.0 || ^7.0",
+                "laravel/framework": ">=8.40.0 || ^7.0",
                 "php": "^7.2 || ^8.0",
                 "swagger-api/swagger-ui": "^3.0",
                 "symfony/yaml": "^5.0",
@@ -10808,7 +10860,7 @@
             ],
             "support": {
                 "issues": "https://github.com/DarkaOnLine/L5-Swagger/issues",
-                "source": "https://github.com/DarkaOnLine/L5-Swagger/tree/8.0.4"
+                "source": "https://github.com/DarkaOnLine/L5-Swagger/tree/8.0.5"
             },
             "funding": [
                 {
@@ -10816,7 +10868,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2020-12-08T13:29:20+00:00"
+            "time": "2021-05-07T09:57:00+00:00"
         },
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -11061,16 +11113,16 @@
         },
         {
             "name": "facade/ignition",
-            "version": "2.8.4",
+            "version": "2.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/facade/ignition.git",
-                "reference": "87fb348dab0ae1a7c206c3e902a5a44ba541742f"
+                "reference": "e7db3b601ce742568b92648818ef903904d20164"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/facade/ignition/zipball/87fb348dab0ae1a7c206c3e902a5a44ba541742f",
-                "reference": "87fb348dab0ae1a7c206c3e902a5a44ba541742f",
+                "url": "https://api.github.com/repos/facade/ignition/zipball/e7db3b601ce742568b92648818ef903904d20164",
+                "reference": "e7db3b601ce742568b92648818ef903904d20164",
                 "shasum": ""
             },
             "require": {
@@ -11134,7 +11186,7 @@
                 "issues": "https://github.com/facade/ignition/issues",
                 "source": "https://github.com/facade/ignition"
             },
-            "time": "2021-04-29T13:55:26+00:00"
+            "time": "2021-05-05T06:45:12+00:00"
         },
         {
             "name": "facade/ignition-contracts",

@@ -11,10 +11,12 @@
 
 namespace App\Transformers;
 
+use App\Models\Activity;
 use App\Models\Backup;
 use App\Models\Document;
 use App\Models\Quote;
 use App\Models\QuoteInvitation;
+use App\Transformers\ActivityTransformer;
 use App\Utils\Traits\MakesHash;
 
 class QuoteTransformer extends EntityTransformer
@@ -30,9 +32,17 @@ class QuoteTransformer extends EntityTransformer
         'invitations',
         'documents',
         'history',
+        'activities',
        //    'payments',
     //    'client',
     ];
+
+    public function includeActivities(Quote $quote)
+    {
+        $transformer = new ActivityTransformer($this->serializer);
+
+        return $this->includeCollection($quote->activities, $transformer, Activity::class);
+    }
 
     public function includeHistory(Quote $quote)
     {

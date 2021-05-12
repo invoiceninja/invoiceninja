@@ -1,8 +1,12 @@
 @extends('portal.ninja2020.layout.payments', ['gateway_title' => 'Alipay', 'card_title' => 'Alipay'])
 
 @section('gateway_head')
-    <meta name="stripe-publishable-key" content="{{ $gateway->getPublishableKey() }}">
+    @if($gateway->company_gateway->getConfigField('account_id'))
     <meta name="stripe-account-id" content="{{ $gateway->company_gateway->getConfigField('account_id') }}">
+    <meta name="stripe-publishable-key" content="{{ config('ninja.ninja_stripe_publishable_key') }}">
+    @else
+    <meta name="stripe-publishable-key" content="{{ $gateway->getPublishableKey() }}">
+    @endif
     <meta name="return-url" content="{{ $return_url }}">
     <meta name="currency" content="{{ $currency }}">
     <meta name="amount" content="{{ $stripe_amount }}">

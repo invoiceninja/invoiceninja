@@ -211,7 +211,7 @@ class QuoteController extends BaseController
 
         $quote = $quote->service()->fillDefaults()->save();
 
-        event(new QuoteWasCreated($quote, $quote->company, Ninja::eventVars(auth()->user()->id)));
+        event(new QuoteWasCreated($quote, $quote->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($quote);
     }
@@ -389,7 +389,7 @@ class QuoteController extends BaseController
 
         $quote->service()->deletePdf();
         
-        event(new QuoteWasUpdated($quote, $quote->company, Ninja::eventVars(auth()->user()->id)));
+        event(new QuoteWasUpdated($quote, $quote->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($quote);
     }

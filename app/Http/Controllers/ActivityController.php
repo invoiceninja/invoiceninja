@@ -141,10 +141,10 @@ class ActivityController extends BaseController
             return response()->json(['message'=> ctrans('texts.no_backup_exists'), 'errors' => new stdClass], 404);
         }
 
-        if (config('ninja.phantomjs_pdf_generation')) {
+        if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
             $pdf = (new Phantom)->convertHtmlToPdf($backup->html_backup);
         }
-        elseif(config('ninja.invoiceninja_hosted_pdf_generation')){
+        elseif(config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja'){
             $pdf = (new NinjaPdf())->build($backup->html_backup);
         }
         else {

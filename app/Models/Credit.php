@@ -128,6 +128,11 @@ class Credit extends BaseModel
         return $this->hasManyThrough(Backup::class, Activity::class);
     }
 
+    public function activities()
+    {
+        return $this->hasMany(Activity::class)->orderBy('id', 'DESC')->take(300);
+    }
+
     public function company()
     {
         return $this->belongsTo(Company::class);
@@ -255,10 +260,10 @@ class Credit extends BaseModel
         }
 
         if (! $invitation) {
-            event(new CreditWasUpdated($this, $this->company, Ninja::eventVars(auth()->user()->id)));
+            event(new CreditWasUpdated($this, $this->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
             CreateEntityPdf::dispatchNow($this->invitations->first());
         } else {
-            event(new CreditWasUpdated($this, $this->company, Ninja::eventVars(auth()->user()->id)));
+            event(new CreditWasUpdated($this, $this->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
             CreateEntityPdf::dispatchNow($invitation);
         }
 

@@ -54,7 +54,7 @@ trait AppSetup
                     $orderBy = 'id';
                 }
                 $tableData = $class::orderBy($orderBy)->get();
-                if ($tableData->count()) {
+                if ($tableData->count() > 1) {
                     Cache::forever($name, $tableData);
                 }
             }

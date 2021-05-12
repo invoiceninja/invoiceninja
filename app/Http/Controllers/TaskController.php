@@ -284,7 +284,7 @@ class TaskController extends BaseController
         if($task->status_order != $old_task->status_order)
             $this->task_repo->sortStatuses($old_task, $task);
 
-        event(new TaskWasUpdated($task, $task->company, Ninja::eventVars(auth()->user()->id)));
+        event(new TaskWasUpdated($task, $task->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($task->fresh());
     }
@@ -378,7 +378,7 @@ class TaskController extends BaseController
     {
         $task = $this->task_repo->save($request->all(), TaskFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
-        event(new TaskWasCreated($task, $task->company, Ninja::eventVars(auth()->user()->id)));
+        event(new TaskWasCreated($task, $task->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($task);
     }

@@ -55,7 +55,7 @@ class BaseRepository
         $className = $this->getEventClass($entity, 'Archived');
 
         if (class_exists($className)) {
-            event(new $className($entity, $entity->company, Ninja::eventVars(auth()->user()->id)));
+            event(new $className($entity, $entity->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         }
     }
 
@@ -81,7 +81,7 @@ class BaseRepository
         $className = $this->getEventClass($entity, 'Restored');
 
         if (class_exists($className)) {
-            event(new $className($entity, $fromDeleted, $entity->company, Ninja::eventVars(auth()->user()->id)));
+            event(new $className($entity, $fromDeleted, $entity->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         }
     }
 
@@ -102,7 +102,7 @@ class BaseRepository
         $className = $this->getEventClass($entity, 'Deleted');
 
         if (class_exists($className) && ! ($entity instanceof Company)) {
-            event(new $className($entity, $entity->company, Ninja::eventVars(auth()->user()->id)));
+            event(new $className($entity, $entity->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         }
     }
 
@@ -301,11 +301,6 @@ class BaseRepository
 
         /* Perform model specific tasks */
         if ($model instanceof Invoice) {
-
-nlog("in base");
-nlog($state['finished_amount']);
-nlog($state['starting_amount']);
-nlog($model->status_id);
 
             if (($state['finished_amount'] != $state['starting_amount']) && ($model->status_id != Invoice::STATUS_DRAFT)) {
 

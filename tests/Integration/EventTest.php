@@ -41,6 +41,11 @@ use App\Events\Quote\QuoteWasCreated;
 use App\Events\Quote\QuoteWasDeleted;
 use App\Events\Quote\QuoteWasRestored;
 use App\Events\Quote\QuoteWasUpdated;
+use App\Events\RecurringInvoice\RecurringInvoiceWasArchived;
+use App\Events\RecurringInvoice\RecurringInvoiceWasCreated;
+use App\Events\RecurringInvoice\RecurringInvoiceWasDeleted;
+use App\Events\RecurringInvoice\RecurringInvoiceWasRestored;
+use App\Events\RecurringInvoice\RecurringInvoiceWasUpdated;
 use App\Events\Subscription\SubscriptionWasArchived;
 use App\Events\Subscription\SubscriptionWasCreated;
 use App\Events\Subscription\SubscriptionWasDeleted;
@@ -68,6 +73,7 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Validation\ValidationException;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -536,6 +542,76 @@ class EventTest extends TestCase
         ])->post('/api/v1/invoices/bulk?action=delete', $data)
         ->assertStatus(200);
     }
+
+
+
+    public function testRecurringInvoiceEvents()
+    {
+        /* Test fire new invoice */
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'number' => 'dudex',
+            'frequency_id' => 1,
+        ];
+
+        $this->expectsEvents([
+            RecurringInvoiceWasCreated::class,
+            RecurringInvoiceWasUpdated::class,
+            RecurringInvoiceWasArchived::class,
+            RecurringInvoiceWasRestored::class,
+            RecurringInvoiceWasDeleted::class,
+        ]);
+
+        try {
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/recurring_invoices/', $data);
+        } catch (ValidationException $e) {
+            $message = json_decode($e->validator->getMessageBag(), 1);
+        }
+
+        $response->assertStatus(200);
+
+
+        $arr = $response->json();
+
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'number' => 'dude2',
+            'frequency_id' => 1,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->put('/api/v1/recurring_invoices/' . $arr['data']['id'], $data)
+        ->assertStatus(200);
+
+
+        $data = [
+            'ids' => [$arr['data']['id']],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/recurring_invoices/bulk?action=archive', $data)
+        ->assertStatus(200);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/recurring_invoices/bulk?action=restore', $data)
+        ->assertStatus(200);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/recurring_invoices/bulk?action=delete', $data)
+        ->assertStatus(200);
+    }
+
 
 
     public function testClientEvents()

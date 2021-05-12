@@ -131,11 +131,11 @@ class PreviewController extends BaseController
             }
 
             //if phantom js...... inject here..
-            if (config('ninja.phantomjs_pdf_generation')) {
+            if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
                 return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
             }
             
-            if(config('ninja.invoiceninja_hosted_pdf_generation')){
+            if(config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja'){
                 return (new NinjaPdf())->build($maker->getCompiledHTML(true));
             }
 

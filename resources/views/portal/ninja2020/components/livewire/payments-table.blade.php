@@ -15,6 +15,11 @@
             <thead>
                 <tr>
                     <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white uppercase tracking-wider">
+                        <span role="button" wire:click="sortBy('number')" class="cursor-pointer">
+                            {{ ctrans('texts.number') }}
+                        </span>
+                    </th>
+                    <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white uppercase tracking-wider">
                         <span role="button" wire:click="sortBy('date')" class="cursor-pointer">
                             {{ ctrans('texts.payment_date') }}
                         </span>
@@ -45,6 +50,9 @@
             <tbody>
                 @forelse($payments as $payment)
                     <tr class="bg-white group hover:bg-gray-100">
+                        <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                            {{ $payment->number }}
+                        </td>
                         <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
                             {{ $payment->formatDate($payment->date, $payment->client->date_format()) }}
                         </td>

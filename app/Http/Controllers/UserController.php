@@ -211,7 +211,7 @@ class UserController extends BaseController
 
             nlog("in the store method of the usercontroller class");
 
-        event(new UserWasCreated($user, auth()->user(), $company, Ninja::eventVars(auth()->user()->id)));
+        event(new UserWasCreated($user, auth()->user(), $company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($user->fresh());
     }
@@ -401,7 +401,7 @@ class UserController extends BaseController
             $user->company_user()->update(["permissions_updated_at" => now()]);
         }
 
-        event(new UserWasUpdated($user, auth()->user(), auth()->user()->company, Ninja::eventVars(auth()->user()->id)));
+        event(new UserWasUpdated($user, auth()->user(), auth()->user()->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($user);
     }
@@ -474,7 +474,7 @@ class UserController extends BaseController
         /* If the user passes the company user we archive the company user */
         $user = $this->user_repo->delete($request->all(), $user);
 
-        event(new UserWasDeleted($user, auth()->user(), auth()->user()->company, Ninja::eventVars(auth()->user()->id)));
+        event(new UserWasDeleted($user, auth()->user(), auth()->user()->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($user->fresh());
     }

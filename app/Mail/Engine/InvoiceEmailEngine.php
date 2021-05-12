@@ -116,9 +116,14 @@ class InvoiceEmailEngine extends BaseEmailEngine
 
             // Storage::url
             foreach($this->invoice->documents as $document){
-                // $this->setAttachments(['path'=>$document->filePath(),'name'=>$document->name]);
                 $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => $document->type]]);
             }
+
+            foreach($this->invoice->company->documents as $document){
+                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => $document->type]]);
+            }
+
+
 
         }
 

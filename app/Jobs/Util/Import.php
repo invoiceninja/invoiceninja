@@ -71,6 +71,7 @@ use App\Repositories\QuoteRepository;
 use App\Repositories\UserRepository;
 use App\Repositories\VendorContactRepository;
 use App\Repositories\VendorRepository;
+use App\Utils\Ninja;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\CompanyGatewayFeesAndLimitsSaver;
 use App\Utils\Traits\MakesHash;
@@ -83,6 +84,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -436,6 +438,10 @@ class Import implements ShouldQueue
             $user = $user_repository->save($modified, $this->fetchUser($resource['email']), true, true);
             $user->email_verified_at = now();
             $user->confirmation_code = '';
+
+            if($modified['deleted_at'])
+                $user->deleted_at = now();
+            
             $user->save();
             
             $user_agent = array_key_exists('token_name', $resource) ?: request()->server('HTTP_USER_AGENT');
@@ -461,6 +467,8 @@ class Import implements ShouldQueue
 
     private function checkUniqueConstraint($model, $column, $value)
     {
+        $value = trim($value);
+
         $model_query = (new $model())
                             ->query()
                             ->where($column, $value)
@@ -503,10 +511,10 @@ class Import implements ShouldQueue
             );
 
             if(array_key_exists('created_at', $modified))
-                $client->created_at = $modified['created_at'];
+                $client->created_at = Carbon::parse($modified['created_at']);
 
             if(array_key_exists('updated_at', $modified))
-                $client->updated_at = $modified['updated_at'];
+                $client->updated_at = Carbon::parse($modified['updated_at']);
 
             $client->save(['timestamps' => false]);
 
@@ -583,6 +591,12 @@ class Import implements ShouldQueue
             unset($modified['id']);
             unset($modified['contacts']);
 
+            if(array_key_exists('created_at', $modified))
+                $modified['created_at'] = Carbon::parse($modified['created_at']);
+
+            if(array_key_exists('updated_at', $modified))
+                $modified['updated_at'] = Carbon::parse($modified['updated_at']);
+
             $vendor = $vendor_repository->save(
                 $modified,
                 VendorFactory::create(
@@ -650,6 +664,12 @@ class Import implements ShouldQueue
             $modified['company_id'] = $this->company->id;
             $modified['user_id'] = $this->processUserId($resource);
 
+            if(array_key_exists('created_at', $modified))
+                $modified['created_at'] = Carbon::parse($modified['created_at']);
+
+            if(array_key_exists('updated_at', $modified))
+                $modified['updated_at'] = Carbon::parse($modified['updated_at']);
+
             unset($modified['id']);
 
             $product_repository->save(
@@ -695,6 +715,12 @@ class Import implements ShouldQueue
             $modified['user_id'] = $this->processUserId($resource);
             $modified['company_id'] = $this->company->id;
             $modified['line_items'] = $this->cleanItems($modified['line_items']);
+
+            if(array_key_exists('created_at', $modified))
+                $modified['created_at'] = Carbon::parse($modified['created_at']);
+
+            if(array_key_exists('updated_at', $modified))
+                $modified['updated_at'] = Carbon::parse($modified['updated_at']);
 
             unset($modified['id']);
 
@@ -832,6 +858,12 @@ class Import implements ShouldQueue
             $modified['user_id'] = $this->processUserId($resource);
             $modified['company_id'] = $this->company->id;
 
+            if(array_key_exists('created_at', $modified))
+                $modified['created_at'] = Carbon::parse($modified['created_at']);
+
+            if(array_key_exists('updated_at', $modified))
+                $modified['updated_at'] = Carbon::parse($modified['updated_at']);
+
             unset($modified['id']);
 
             $credit = $credit_repository->save(
@@ -890,6 +922,18 @@ class Import implements ShouldQueue
             $modified['user_id'] = $this->processUserId($resource);
 
             $modified['company_id'] = $this->company->id;
+
+            if(array_key_exists('created_at', $modified))
+                $modified['created_at'] = Carbon::parse($modified['created_at']);
+
+            if(array_key_exists('updated_at', $modified))
+                $modified['updated_at'] = Carbon::parse($modified['updated_at']);
+            
+            if(array_key_exists('tax_rate1', $modified) && is_null($modified['tax_rate1']))
+                $modified['tax_rate1'] = 0;
+
+            if(array_key_exists('tax_rate2', $modified) && is_null($modified['tax_rate2']))
+                $modified['tax_rate2'] = 0;
 
             unset($modified['id']);
 
@@ -988,10 +1032,10 @@ class Import implements ShouldQueue
             );
 
             if(array_key_exists('created_at', $modified))
-                $payment->created_at = $modified['created_at'];
+                $payment->created_at = Carbon::parse($modified['created_at']);
 
             if(array_key_exists('updated_at', $modified))
-                $payment->updated_at = $modified['updated_at'];
+                $payment->updated_at = Carbon::parse($modified['updated_at']);
 
             $payment->save(['timestamps' => false]);
 
@@ -1217,6 +1261,11 @@ class Import implements ShouldQueue
                 $modified['fees_and_limits'] = $this->cleanFeesAndLimits($modified['fees_and_limits']);
             }
 
+            if(Ninja::isHosted() && $modified['gateway_key'] == 'd14dd26a37cecc30fdd65700bfb55b23'){
+                $modified['gateway_key'] = 'd14dd26a47cecc30fdd65700bfb67b34';
+                $modified['fees_and_limits'] = [];
+            }
+
             $company_gateway = CompanyGateway::create($modified);
 
             $key = "company_gateways_{$resource['id']}";
@@ -1358,10 +1407,12 @@ class Import implements ShouldQueue
             $task = Task::Create($modified);
 
             if(array_key_exists('created_at', $modified))
-                $task->created_at = $modified['created_at'];
+                $task->created_at = Carbon::parse($modified['created_at']);
 
             if(array_key_exists('updated_at', $modified))
-                $task->updated_at = $modified['updated_at'];
+                $task->updated_at = Carbon::parse($modified['updated_at']);
+
+
 
             $task->save(['timestamps' => false]);
 
@@ -1446,10 +1497,12 @@ class Import implements ShouldQueue
             $expense = Expense::Create($modified);
 
             if(array_key_exists('created_at', $modified))
-                $expense->created_at = $modified['created_at'];
+                $expense->created_at = Carbon::parse($modified['created_at']);
 
             if(array_key_exists('updated_at', $modified))
-                $expense->updated_at = $modified['updated_at'];
+                $expense->updated_at = Carbon::parse($modified['updated_at']);
+
+
 
             $expense->save(['timestamps' => false]);
             

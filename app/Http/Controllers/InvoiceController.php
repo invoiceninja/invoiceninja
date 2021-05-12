@@ -218,7 +218,7 @@ class InvoiceController extends BaseController
                            ->triggeredActions($request)
                            ->save();
 
-        event(new InvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars(auth()->user()->id)));
+        event(new InvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         
         return $this->itemResponse($invoice);
     }
@@ -399,7 +399,7 @@ class InvoiceController extends BaseController
         
         $invoice->service()->deletePdf();
 
-        event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars(auth()->user()->id)));
+        event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($invoice);
     }
