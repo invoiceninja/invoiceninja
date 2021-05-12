@@ -55,7 +55,7 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'check_client_existence
     Route::get('payment_methods/{payment_method}/verification', 'ClientPortal\PaymentMethodController@verify')->name('payment_methods.verification');
     Route::post('payment_methods/{payment_method}/verification', 'ClientPortal\PaymentMethodController@processVerification');
 
-    Route::resource('payment_methods', 'ClientPortal\PaymentMethodController')->except(['edit', 'update']); 
+    Route::resource('payment_methods', 'ClientPortal\PaymentMethodController')->except(['edit', 'update']);
 
     Route::match(['GET', 'POST'], 'quotes/approve', 'ClientPortal\QuoteController@bulk')->name('quotes.bulk');
     Route::get('quotes', 'ClientPortal\QuoteController@index')->name('quotes.index')->middleware('portal_enabled');
@@ -76,6 +76,8 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'check_client_existence
     Route::get('subscriptions/{recurring_invoice}/plan_switch/{target}', 'ClientPortal\SubscriptionPlanSwitchController@index')->name('subscription.plan_switch');
 
     Route::resource('subscriptions', 'ClientPortal\SubscriptionController')->middleware('portal_enabled')->only(['index']);
+
+    Route::resource('tasks', 'ClientPortal\TaskController')->only(['index']);
 
     Route::post('upload', 'ClientPortal\UploadController')->name('upload.store');
     Route::get('logout', 'Auth\ContactLoginController@logout')->name('logout');
