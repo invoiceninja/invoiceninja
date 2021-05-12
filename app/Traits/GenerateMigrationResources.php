@@ -1303,6 +1303,8 @@ info("translated gateway_type = {$translated_gateway_type}");
                 $config = Crypt::decrypt($account_gateway->config);
             }
             catch(\Exception $e){
+            
+                info($config);
 
             }
 
