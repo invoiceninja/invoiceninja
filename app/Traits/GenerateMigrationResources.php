@@ -6,6 +6,7 @@ use App\Models\AccountGateway;
 use App\Models\AccountGatewaySettings;
 use App\Models\AccountGatewayToken;
 use App\Models\AccountToken;
+use App\Models\Client;
 use App\Models\Contact;
 use App\Models\Credit;
 use App\Models\Document;
@@ -345,6 +346,40 @@ info("get company");
         return $transformed;
     }
 
+    protected function getNinjaToken()
+    {
+        $transformed = [];
+
+        $ninja_client = Client::where('public_id', $this->account->id)->first();
+
+        if(!$ninja_client)
+            return $transformed;
+
+        $agts = AccountGatewayToken::where('client_id', $ninja_client->id)->get();
+        $is_default = true;
+
+        foreach($agts as $agt) {
+
+            $payment_method = $agt->default_payment_method;
+            $contact = Contact::where('id', $payment_method->contact_id)->withTrashed()->first();
+
+            $transformed[] = [
+                'id' => $payment_method->id,
+                'company_id' => $this->account->id,
+                'client_id' => $contact->client_id,
+                'token' => $payment_method->source_reference,
+                'company_gateway_id' => $agt->account_gateway_id,
+                'gateway_customer_reference' => $agt->token,
+                'gateway_type_id' => $payment_method->payment_type->gateway_type_id,
+                'is_default' => $is_default,
+                'meta' => $this->convertMeta($payment_method),
+            ];
+        }
+
+        return $transformed;
+
+    }
+
     protected function getProducts()
     {
         info("get products");
@@ -363,7 +398,8 @@ info("get company");
                 'custom_value2' => $product->custom_value2 ?: '',
                 'product_key' => $product->product_key ?: '',
                 'notes' => $product->notes ?: '',
-                'cost' => $product->cost ?: 0,
+                'price' => $product->cost ?: 0,
+                'cost' => 0,
                 'quantity' => $product->qty ?: 0,
                 'tax_name1' => $product->tax_name1,
                 'tax_name2' => $product->tax_name2,
