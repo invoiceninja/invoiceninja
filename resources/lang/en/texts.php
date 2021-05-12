@@ -4246,6 +4246,8 @@ $LANG = array(
     'activity_102' => ':user archived recurring invoice :recurring_invoice',
     'activity_103' => ':user deleted recurring invoice :recurring_invoice',
     'activity_104' => ':user restored recurring invoice :recurring_invoice',
+    'new_login_detected' => 'New login detected for your account.',
+    'new_login_description' => 'You recently logged in to your Invoice Ninja account from a new location or device:<br><br><b>IP:</b> :ip<br><b>Time:</b> :time<br><b>Email:</b> :email',
 );
 
 return $LANG;

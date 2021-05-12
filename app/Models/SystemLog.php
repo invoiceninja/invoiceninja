@@ -78,6 +78,9 @@ class SystemLog extends Model
     const TYPE_MODIFIED = 701;
     const TYPE_DELETED = 702;
 
+    const TYPE_LOGIN_SUCCESS = 800;
+    const TYPE_LOGIN_FAILURE = 801;
+    
     protected $fillable = [
         'client_id',
         'company_id',
