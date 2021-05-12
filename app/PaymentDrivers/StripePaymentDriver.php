@@ -30,6 +30,7 @@ use App\PaymentDrivers\Stripe\Utilities;
 use App\Utils\Traits\MakesHash;
 use Exception;
 use Illuminate\Support\Carbon;
+use Stripe\Account;
 use Stripe\Customer;
 use Stripe\Exception\ApiErrorException;
 use Stripe\PaymentIntent;
@@ -482,7 +483,14 @@ class StripePaymentDriver extends BaseDriver
         } catch (ApiErrorException | Exception $e) {
 
             return $this->processInternallyFailedPayment($this, $e);
-            
+
         }
+    }
+
+    public function getAllConnectedAccounts()
+    {
+        $this->init();
+
+        return Account::all();
     }
 }

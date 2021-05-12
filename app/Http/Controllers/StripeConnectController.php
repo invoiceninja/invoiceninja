@@ -12,9 +12,11 @@
 
 namespace App\Http\Controllers;
 
+use App\DataMapper\FeesAndLimits;
 use App\Factory\CompanyGatewayFactory;
 use App\Http\Requests\StripeConnect\InitializeStripeConnectRequest;
 use App\Libraries\MultiDB;
+use App\Models\Client;
 use App\Models\CompanyGateway;
 use App\PaymentDrivers\Stripe\Connect\Account;
 use Stripe\Exception\ApiErrorException;
@@ -70,7 +72,27 @@ class StripeConnectController extends BaseController
             'config' => encrypt(json_encode(['account_id' => $account->id]))
         ]);
 
+        /* Set Credit Card To Enabled */
+        $gateway_types = $company_gateway->driver(new Client)->gatewayTypes();
+
+        $fees_and_limits = new \stdClass;
+        $fees_and_limits->{$gateway_types[0]} = new FeesAndLimits;
+
+        $company_gateway->fees_and_limits = $fees_and_limits;
         $company_gateway->save();
+
+        /* Link account if existing account exists */
+        if($account_id = $this->checkAccountAlreadyLinkToEmail($company_gateway, $request->getContact()->email)) {
+            
+            $config = json_decode(decrypt($company_gateway->config));
+
+            $config->account_id = $account_id;
+            $company_gateway->config = encrypt(json_encode($config));
+            $company_gateway->save();
+
+            return render('gateways.stripe.connect.existing');
+        }
+
 
         return redirect($link['url']);
     }
@@ -78,5 +100,23 @@ class StripeConnectController extends BaseController
     public function completed()
     {
         return render('gateways.stripe.connect.completed');
+    }
+
+
+    private function checkAccountAlreadyLinkToEmail($company_gateway, $email)
+    {
+        $client = Client::first() ? Client::first() : new Client;
+
+        //Pull the list of Stripe Accounts and see if we match
+        $accounts = $company_gateway->driver($client)->getAllConnectedAccounts()->data;
+
+        foreach($accounts as $account)
+        {
+            if($account['email'] == $email)
+                return $account['id'];
+        }
+
+        return false;
+
     }
 }
