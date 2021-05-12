@@ -18,11 +18,14 @@ use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
 use App\Jobs\Account\CreateAccount;
 use App\Jobs\Company\CreateCompanyToken;
+use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Libraries\OAuth\OAuth;
 use App\Libraries\OAuth\Providers\Google;
+use App\Models\Client;
 use App\Models\CompanyToken;
 use App\Models\CompanyUser;
+use App\Models\SystemLog;
 use App\Models\User;
 use App\Transformers\CompanyUserTransformer;
 use App\Utils\Ninja;
@@ -231,6 +234,14 @@ class LoginController extends BaseController
             LightLogs::create(new LoginFailure())
                 ->increment()
                 ->batch();
+
+            SystemLogger::dispatch(
+                request()->getClientIp(),
+                SystemLog::CATEGORY_SECURITY,
+                SystemLog::EVENT_USER,
+                SystemLog::TYPE_LOGIN_FAILURE,
+                Client::first(),
+            );
 
             $this->incrementLoginAttempts($request);
 

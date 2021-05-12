@@ -13,8 +13,11 @@ namespace App\Listeners\User;
 
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
+use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Mail\User\UserLoggedIn;
+use App\Models\Client;
+use App\Models\SystemLog;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -64,6 +67,13 @@ class UpdateUserLastLogin implements ShouldQueue
             $user->save();
         }
 
+        SystemLogger::dispatch(
+            $ip,
+            SystemLog::CATEGORY_SECURITY,
+            SystemLog::EVENT_USER,
+            SystemLog::TYPE_LOGIN_SUCCESS,
+            $event->company->clients()->first(),
+        );
 
     }
 }
