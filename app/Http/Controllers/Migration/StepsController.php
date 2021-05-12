@@ -176,18 +176,22 @@ class StepsController extends BaseController
             );
         }
 
-        $migrationData = $this->generateMigrationData($request->all());
+        try {
+            $migrationData = $this->generateMigrationData($request->all());
 
-        $completeService = (new CompleteService(session('MIGRATION_ACCOUNT_TOKEN')))
-            ->data($migrationData)
-            ->endpoint(session('MIGRATION_ENDPOINT'))
-            ->start();
-
-        if ($completeService->isSuccessful()) {
-            return view('migration.completed');
+            $completeService = (new CompleteService(session('MIGRATION_ACCOUNT_TOKEN')))
+                ->data($migrationData)
+                ->endpoint(session('MIGRATION_ENDPOINT'))
+                ->start();
         }
+        finally {
+        
+            if ($completeService->isSuccessful()) {
+                return view('migration.completed');
+            }
 
-        return view('migration.completed', ['customMessage' => $completeService->getErrors()[0]]);
+            return view('migration.completed', ['customMessage' => $completeService->getErrors()[0]]);
+        }
     }
 
     public function completed()
@@ -223,6 +227,8 @@ class StepsController extends BaseController
      */
     public function generateMigrationData(array $data): array
     {
+        set_time_limit(0);
+
         $migrationData = [];
 
         foreach ($data['companies'] as $company) {
