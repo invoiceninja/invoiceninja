@@ -1,4 +1,13 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
 
 namespace App\Mail\Migration;
 
@@ -46,6 +55,7 @@ class MaxCompanies extends Mailable
         $this->whitelabel = $this->company->account->isPaid();
 
         return $this->from(config('mail.from.address'), config('mail.from.name'))
+                    ->subject(ctrans('texts.max_companies'))
                     ->view('email.migration.max_companies');
     }
 }
