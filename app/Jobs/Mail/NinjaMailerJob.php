@@ -85,6 +85,10 @@ class NinjaMailerJob implements ShouldQueue
             $this->nmo->mailable->replyTo($this->nmo->settings->reply_to_email, $reply_to_name);
 
         }
+        else {
+            $this->nmo->mailable->replyTo($this->nmo->company->owner()->email, $this->nmo->company->owner()->present()->name());
+        }
+
 
         if (strlen($this->nmo->settings->bcc_email) > 1) {
             nlog('bcc list available');

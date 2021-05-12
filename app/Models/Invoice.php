@@ -415,6 +415,8 @@ class Invoice extends BaseModel
             CreateEntityPdf::dispatchNow($invitation);
         }
 
+nlog($storage_path);
+
         return $storage_path;
     }
 

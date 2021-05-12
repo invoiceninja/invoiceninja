@@ -82,7 +82,18 @@ class SystemHealth
             'mail_mailer' => (string)self::checkMailMailer(),
             'flutter_renderer' => (string)config('ninja.flutter_canvas_kit'),
             'jobs_pending' => (int) Queue::size(),
+            'pdf_engine' => (string) self::getPdfEngine(),
         ];
+    }
+
+    public static function getPdfEngine()
+    {
+        if(config('ninja.invoiceninja_hosted_pdf_generation'))
+            return 'Invoice Ninja Hosted PDF Generator';
+        elseif(config('ninja.phantomjs_pdf_generation'))
+            return 'Phantom JS Web Generator';
+        else
+            return 'SnapPDF PDF Generator';
     }
 
     public static function checkMailMailer()
