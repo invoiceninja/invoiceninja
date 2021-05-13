@@ -13,6 +13,8 @@ namespace App\Jobs\Company;
 
 use App\Libraries\MultiDB;
 use App\Models\Company;
+use App\Models\CreditInvitation;
+use App\Models\InvoiceInvitation;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoice;
 use App\Utils\Traits\MakesHash;
@@ -57,9 +59,127 @@ class CompanyExport implements ShouldQueue
 
         set_time_limit(0);
 
-        $this->export_data['company'] = $this->company->makeHidden(['id','account_id'])->toArray();
 
-        $this->export_data['design'] = $this->company->user_designs->makeHidden(['id'])->toArray();
+        $this->export_data['clients'] = $this->company->clients->map(function ($client){
+
+            $client = $this->transformArrayOfKeys($client, ['id', 'company_id', 'user_id']);
+
+            return $company;
+
+        })->toArray();
+
+        $this->export_data['company'] = $this->company->map(function ($company){
+
+            $company = $this->transformArrayOfKeys($company, ['id', 'account_id']);
+
+            return $company;
+
+        })->toArray();
+
+        $this->export_data['company_gateways'] = $this->company->company_gateways->map(function ($company_gateway){
+
+            $company_gateway = $this->transformArrayOfKeys($company_gateway, ['company_id', 'user_id']);
+
+            return $company_gateway;
+
+        })->toArray();
+
+        $this->export_data['company_tokens'] = $this->company->tokens->map(function ($token){
+
+            $token = $this->transformArrayOfKeys($token, ['company_id', 'account_id', 'user_id']);
+
+            return $token;
+
+        })->toArray();
+
+        $this->export_data['company_ledger'] = $this->company->ledger->map(function ($ledger){
+
+            $ledger = $this->transformArrayOfKeys($ledger, ['activity_id', 'client_id', 'company_id', 'account_id', 'user_id','company_ledgerable_id']);
+
+            return $ledger;
+
+        })->toArray();
+
+        $this->export_data['company_users'] = $this->company->company_users->map(function ($company_user){
+
+            $company_user = $this->transformArrayOfKeys($company_user, ['company_id', 'account_id', 'user_id']);
+
+            return $company_user;
+
+        })->toArray();
+
+        $this->export_data['credits'] = $this->company->credits->map(function ($credit){
+
+            $credit = $this->transformBasicEntities($credit);
+            $credit = $this->transformArrayOfKeys($credit, ['recurring_id','client_id', 'vendor_id', 'project_id', 'design_id', 'subscription_id','invoice_id']);
+
+            return $credit;
+
+        })->toArray();
+
+
+        $this->export_data['credit_invitations'] = CreditInvitation::where('company_id', $this->company_id)->withTrashed()->cursor()->map(function ($credit){
+
+            $credit = $this->transformArrayOfKeys($credit, ['company_id', 'user_id', 'client_contact_id', 'recurring_invoice_id']);
+
+            return $credit;
+
+        })->toArray();
+
+        $this->export_data['designs'] = $this->company->user_designs->makeHidden(['id'])->toArray();
+
+        $this->export_data['documents'] = $this->company->documents->map(function ($document){
+
+            $document = $this->transformArrayOfKeys($document, ['user_id', 'assigned_user_id', 'company_id', 'project_id', 'vendor_id']);
+
+            return $document;
+
+        })->toArray();
+
+        $this->export_data['expense_categories'] = $this->company->expenses->map(function ($expense_category){
+
+            $expense_category = $this->transformArrayOfKeys($expense_category, ['user_id', 'company_id']);
+            
+            return $expense_category;
+
+        })->toArray();
+
+
+        $this->export_data['expenses'] = $this->company->expenses->map(function ($expense){
+
+            $expense = $this->transformBasicEntities($expense);
+            $expense = $this->transformArrayOfKeys($expense, ['vendor_id', 'invoice_id', 'client_id', 'category_id', 'recurring_expense_id','project_id']);
+
+            return $expense;
+
+        })->toArray();
+
+        $this->export_data['group_settings'] = $this->company->group_settings->map(function ($gs){
+
+            $gs = $this->transformArrayOfKeys($gs, ['user_id', 'company_id']);
+
+            return $gs;
+
+        })->toArray();
+
+
+        $this->export_data['invoices'] = $this->company->invoices->map(function ($invoice){
+
+            $invoice = $this->transformBasicEntities($invoice);
+            $invoice = $this->transformArrayOfKeys($invoice, ['recurring_id','client_id', 'vendor_id', 'project_id', 'design_id', 'subscription_id']);
+
+            return $invoice;
+
+        })->toArray();
+
+
+        $this->export_data['invoice_invitations'] = InvoiceInvitation::where('company_id', $this->company_id)->withTrashed()->cursor()->map(function ($invoice){
+
+            $invoice = $this->transformArrayOfKeys($invoice, ['company_id', 'user_id', 'client_contact_id', 'recurring_invoice_id']);
+
+            return $invoice;
+
+        })->toArray();
 
         $this->export_data['payment_terms'] = $this->company->user_payment_terms->map(function ($term){
 
@@ -68,6 +188,24 @@ class CompanyExport implements ShouldQueue
             return $term;
 
         })->makeHidden(['id'])->toArray();
+
+        $this->export_data['paymentables'] = $this->company->payments()->with('paymentables')->cursor()->map(function ($paymentable){
+
+            $paymentable = $this->transformArrayOfKeys($paymentable, ['payment_id','paymentable_id']);
+
+            return $paymentable;
+
+        })->toArray();
+
+        $this->export_data['payments'] = $this->company->payments->map(function ($payment){
+
+            $payment = $this->transformBasicEntities($payment);
+            $payment = $this->transformArrayOfKeys($payment, ['client_id','project_id', 'vendor_id', 'client_contact_id', 'invitation_id', 'company_gateway_id']);
+
+            return $project;
+
+        })->toArray();
+
 
         $this->export_data['projects'] = $this->company->projects->map(function ($project){
 
