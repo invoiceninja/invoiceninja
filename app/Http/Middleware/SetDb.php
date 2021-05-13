@@ -27,6 +27,7 @@ class SetDb
      */
     public function handle($request, Closure $next)
     {
+        
         $error = [
             'message' => 'Invalid Token',
             'errors' => new stdClass,

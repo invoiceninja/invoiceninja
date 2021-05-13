@@ -12,6 +12,7 @@
 namespace App\Models;
 
 use App\Models\Presenters\CompanyPresenter;
+use App\Models\User;
 use App\Services\Notification\NotificationService;
 use App\Utils\Ninja;
 use App\Utils\Traits\CompanySettingsSaver;
@@ -20,8 +21,8 @@ use App\Utils\Traits\ThrottlesEmail;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notification;
-use Laracasts\Presenter\PresentableTrait;
 use Illuminate\Support\Facades\Cache;
+use Laracasts\Presenter\PresentableTrait;
 
 class Company extends BaseModel
 {
@@ -431,8 +432,10 @@ class Company extends BaseModel
     }
 
     public function owner()
-    {
+    {nlog("in owner");
         $c = $this->company_users->where('is_owner', true)->first();
+
+nlog($c);
 
         return User::find($c->user_id);
     }

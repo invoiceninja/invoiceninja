@@ -146,18 +146,18 @@ class MultiDB
      * @param array $data
      * @return User|null
      */
-    public static function hasContact(array $data) : ?ClientContact
+    public static function hasContact(string $email) : ?ClientContact
     {
         if (! config('ninja.db.multi_db_enabled')) {
-            return ClientContact::where($data)->withTrashed()->first();
+            return ClientContact::where('email', $email)->withTrashed()->first();
         }
 
         foreach (self::$dbs as $db) {
-            self::setDB($db);
-
-            $user = ClientContacts::where($data)->withTrashed()->first();
+            
+            $user = ClientContact::on($db)->where('email', $email)->withTrashed()->first();
 
             if ($user) {
+                self::setDB($db);
                 return $user;
             }
         }
@@ -205,7 +205,6 @@ class MultiDB
         foreach (self::$dbs as $db) {
             if ($ct = CompanyToken::on($db)->whereRaw('BINARY `token`= ?', [$token])->first()) {
                 self::setDb($ct->company->db);
-
                 return true;
             }
         }

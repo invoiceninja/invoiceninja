@@ -72,7 +72,7 @@ class ContactForgotPasswordController extends Controller
     {
         //MultiDB::userFindAndSetDb($request->input('email'));
         
-        $user = MultiDB::hasContact(['email' => $request->input('email')]);
+        $user = MultiDB::hasContact($request->input('email'));
 
         $this->validateEmail($request);
 
@@ -84,6 +84,10 @@ class ContactForgotPasswordController extends Controller
         );
 
         if ($request->ajax()) {
+
+            if($response == Password::RESET_THROTTLED)
+                return response()->json(['message' => ctrans('passwords.throttled'), 'status' => false], 429);
+
             return $response == Password::RESET_LINK_SENT
                 ? response()->json(['message' => 'Reset link sent to your email.', 'status' => true], 201)
                 : response()->json(['message' => 'Email not found', 'status' => false], 401);

@@ -17,6 +17,13 @@
         @endif
         <div class="col-span-2 h-screen flex">
             <div class="m-auto md:w-1/2 lg:w-1/4">
+    
+        @if(\App\Models\Account::count() > 0 && !\App\Models\Account::first()->isPaid())
+        <div>
+            <img src="{{ asset('images/invoiceninja-black-logo-2.png') }}" class="border-b border-gray-100 h-18 pb-4" alt="Invoice Ninja logo">
+        </div>
+        @endif
+
                 <div class="flex flex-col">
                     <h1 class="text-center text-3xl">{{ ctrans('texts.client_portal') }}</h1>
                     <form action="{{ route('client.login') }}" method="post" class="mt-6">
