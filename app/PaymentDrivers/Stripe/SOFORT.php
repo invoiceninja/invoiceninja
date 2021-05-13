@@ -102,8 +102,6 @@ class SOFORT
     {
         $server_response = $this->stripe->payment_hash->data;
 
-        PaymentFailureMailer::dispatch($this->stripe->client, $server_response->redirect_status, $this->stripe->client->company, $server_response->amount);
-
         PaymentFailureMailer::dispatch(
             $this->stripe->client,
             $server_response,
