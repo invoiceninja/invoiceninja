@@ -114,7 +114,7 @@ class ConnectedAccountController extends BaseController
             auth()->user()->save();
             
             $timeout = auth()->user()->company()->default_password_timeout;
-            Cache::put(auth()->user()->hashed_id.'_logged_in', Str::random(64), $timeout);
+            Cache::put(auth()->user()->hashed_id.'_'.auth()->user()->account_id.'_logged_in', Str::random(64), $timeout);
 
             return $this->itemResponse(auth()->user());
 

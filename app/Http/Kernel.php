@@ -160,4 +160,23 @@ class Kernel extends HttpKernel
         'check_client_existence' => CheckClientExistence::class,
         'user_verified' => UserVerified::class,
     ];
+
+
+    protected $middlewarePriority = [
+        ContactTokenAuth::class,
+        ContactSetDb::class,
+        SetInviteDb::class,
+        ContactRegister::class,
+        ShopTokenAuth::class,
+        PhantomSecret::class,
+        ContactKeyLogin::class,
+        CheckClientExistence::class,
+        ClientPortalEnabled::class,
+        UrlSetDb::class,
+        SetWebDb::class,
+        SetDb::class,
+        SetDbByCompanyKey::class,
+        TokenAuth::class,
+        SubstituteBindings::class,
+    ];
 }
