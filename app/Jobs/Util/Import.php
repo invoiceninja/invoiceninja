@@ -209,6 +209,9 @@ class Import implements ShouldQueue
             $this->{$method}($data[$import]);
         }
 
+        if(Ninja::isHosted())
+            $this->processNinjaTokens($data['ninja_tokens']);
+
         $this->setInitialCompanyLedgerBalances();
         
         // $this->fixClientBalances();
@@ -1636,6 +1639,10 @@ class Import implements ShouldQueue
         return $response->getBody();
     }
 
+    private function processNinjaTokens(array $data)
+    {
+        
+    }
 
     /* In V4 we use negative invoices (credits) and add then into the client balance. In V5, these sit off ledger and are applied later.
      This next section will check for credit balances and reduce the client balance so that the V5 balances are correct

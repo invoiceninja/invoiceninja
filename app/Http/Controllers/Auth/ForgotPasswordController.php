@@ -104,9 +104,9 @@ class ForgotPasswordController extends Controller
      */
     public function sendResetLinkEmail(Request $request)
     {
-        //MultiDB::userFindAndSetDb($request->input('email'));
+        MultiDB::userFindAndSetDb($request->input('email'));
         
-        $user = MultiDB::hasUser(['email' => $request->input('email')]);
+        // $user = MultiDB::hasUser(['email' => $request->input('email')]);
 
         $this->validateEmail($request);
 

@@ -150,6 +150,11 @@ class Company extends BaseModel
         return $this->belongsTo(Account::class);
     }
 
+    public function client_contacts()
+    {
+        return $this->hasMany(ClientContact::class)->withTrashed();
+    }
+
     public function users()
     {
         return $this->hasManyThrough(User::class, CompanyUser::class, 'company_id', 'id', 'id', 'user_id');
@@ -202,6 +207,12 @@ class Company extends BaseModel
     {
         return $this->hasMany(Vendor::class)->withTrashed();
     }
+
+    public function all_activities()
+    {
+        return $this->hasMany(Activity::class);
+    }
+
 
     public function activities()
     {
@@ -301,9 +312,19 @@ class Company extends BaseModel
         return $this->hasMany(Design::class)->whereCompanyId($this->id)->orWhere('company_id', null);
     }
 
+    public function user_designs()
+    {
+        return $this->hasMany(Design::class);
+    }
+
     public function payment_terms()
     {
         return $this->hasMany(PaymentTerm::class)->whereCompanyId($this->id)->orWhere('company_id', null);
+    }
+
+    public function user_payment_terms()
+    {
+        return $this->hasMany(PaymentTerm::class);
     }
 
     /**

@@ -129,13 +129,12 @@ class MultiDB
         }
 
         foreach (self::$dbs as $db) {
+
             self::setDB($db);
 
-            $user = User::where($data)->withTrashed()->first();
-
-            if ($user) {
+            if ($user = User::where($data)->withTrashed()->first()) 
                 return $user;
-            }
+            
         }
 
         self::setDefaultDatabase();

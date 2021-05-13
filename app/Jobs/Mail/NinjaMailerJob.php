@@ -54,7 +54,9 @@ class NinjaMailerJob implements ShouldQueue
 
     public $nmo;
 
-    public function __construct(NinjaMailerObject $nmo)
+    public $override;
+
+    public function __construct(NinjaMailerObject $nmo, bool $override = false)
     {
 
         $this->nmo = $nmo;
@@ -64,7 +66,7 @@ class NinjaMailerJob implements ShouldQueue
     public function handle()
     {
         /*If we are migrating data we don't want to fire any emails*/
-        if ($this->nmo->company->is_disabled) 
+        if ($this->nmo->company->is_disabled && !$this->override) 
             return true;
         
         /*Set the correct database*/
@@ -83,6 +85,10 @@ class NinjaMailerJob implements ShouldQueue
             $this->nmo->mailable->replyTo($this->nmo->settings->reply_to_email, $reply_to_name);
 
         }
+        else {
+            $this->nmo->mailable->replyTo($this->nmo->company->owner()->email, $this->nmo->company->owner()->present()->name());
+        }
+
 
         if (strlen($this->nmo->settings->bcc_email) > 1) {
             nlog('bcc list available');

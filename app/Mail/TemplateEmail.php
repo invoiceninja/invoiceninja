@@ -107,7 +107,7 @@ class TemplateEmail extends Mailable
             });
 
         //conditionally attach files
-        if ($settings->pdf_email_attachment !== false && ! empty($this->build_email->getAttachments())) {
+        // if ($settings->pdf_email_attachment !== false && ! empty($this->build_email->getAttachments())) {
 
             //hosted | plan check here
             foreach ($this->build_email->getAttachments() as $file) {
@@ -118,7 +118,7 @@ class TemplateEmail extends Mailable
                     $this->attach($file['path'], ['as' => $file['name'], 'mime' => $file['mime']]);
 
             }
-        }
+        // }
 
         return $this;
     }
