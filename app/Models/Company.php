@@ -432,12 +432,8 @@ class Company extends BaseModel
     }
 
     public function owner()
-    {nlog("in owner");
-        $c = $this->company_users->where('is_owner', true)->first();
-
-nlog($c);
-
-        return User::find($c->user_id);
+    {
+        return $this->company_users->where('is_owner', true)->first()->user;
     }
 
     public function resolveRouteBinding($value, $field = null)
