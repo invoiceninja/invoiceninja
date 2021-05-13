@@ -301,9 +301,19 @@ class Company extends BaseModel
         return $this->hasMany(Design::class)->whereCompanyId($this->id)->orWhere('company_id', null);
     }
 
+    public function user_designs()
+    {
+        return $this->hasMany(Design::class);
+    }
+
     public function payment_terms()
     {
         return $this->hasMany(PaymentTerm::class)->whereCompanyId($this->id)->orWhere('company_id', null);
+    }
+
+    public function user_payment_terms()
+    {
+        return $this->hasMany(PaymentTerm::class);
     }
 
     /**
