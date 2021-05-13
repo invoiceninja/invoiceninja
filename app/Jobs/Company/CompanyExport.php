@@ -457,13 +457,13 @@ class CompanyExport implements ShouldQueue
 
         fclose($tempStream);
 
-        $nmo = new NinjaMailerObject;
-        $nmo->mailable = new DownloadBackup(Storage::disk(config('filesystems.default'))->url($path.$file_name), $this->company);
-        $nmo->to_user = $this->user;
-        $nmo->settings = $this->company->settings;
-        $nmo->company = $this->company;
+        // $nmo = new NinjaMailerObject;
+        // $nmo->mailable = new DownloadBackup(Storage::disk(config('filesystems.default'))->url($path.$file_name), $this->company);
+        // $nmo->to_user = $this->user;
+        // $nmo->settings = $this->company->settings;
+        // $nmo->company = $this->company;
         
-        NinjaMailerJob::dispatch($nmo);
+        // NinjaMailerJob::dispatch($nmo);
         
         UnlinkFile::dispatch(config('filesystems.default'), $path.$file_name)->delay(now()->addHours(1));
     }

@@ -188,12 +188,15 @@ class MultiDB
         //multi-db active
         foreach (self::$dbs as $db) {
             
-            if (User::on($db)->where(['email' => $email])->count() >= 1) 
+            if (User::on($db)->where('email', $email)->count() >= 1){ 
+                nlog("setting db {$db}");
+                self::setDb($db);
                 return true;
-            
-        }
-        self::setDefaultDatabase();
+            }
 
+        }
+
+        self::setDefaultDatabase();
         return false;
     }
 
