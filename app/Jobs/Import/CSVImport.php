@@ -96,8 +96,8 @@ class CSVImport implements ShouldQueue {
 		MultiDB::setDb( $this->company->db );
 
 		Auth::login( $this->company->owner(), true );
-
-		$this->company->owner()->setCompany( $this->company );
+		
+		auth()->user()->setCompany($this->company);
 
 		$this->buildMaps();
 

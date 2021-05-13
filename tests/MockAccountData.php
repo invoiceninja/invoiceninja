@@ -128,6 +128,7 @@ trait MockAccountData
      */
     public function makeTestData()
     {
+        config(['database.default' => config('ninja.db.default')]);
 
         /* Warm up the cache !*/
         $cached_tables = config('ninja.cached_tables');
