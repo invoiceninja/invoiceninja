@@ -11,13 +11,19 @@
 
 namespace App\Jobs\Company;
 
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
+use App\Jobs\Util\UnlinkFile;
 use App\Libraries\MultiDB;
+use App\Mail\DownloadBackup;
+use App\Mail\DownloadInvoices;
 use App\Models\Company;
 use App\Models\CreditInvitation;
 use App\Models\InvoiceInvitation;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoice;
 use App\Models\RecurringInvoiceInvitation;
+use App\Models\User;
 use App\Models\VendorContact;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Bus\Queueable;
@@ -25,16 +31,21 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
+use ZipStream\Option\Archive;
+use ZipStream\ZipStream;
 
 class CompanyExport implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash;
 
-    protected $company;
+    public $company;
 
     private $export_format;
 
     private $export_data = [];
+
+    public $user;
 
     /**
      * Create a new job instance.
@@ -43,9 +54,10 @@ class CompanyExport implements ShouldQueue
      * @param User $user
      * @param string $custom_token_name
      */
-    public function __construct(Company $company, $export_format = 'json')
+    public function __construct(Company $company, User $user, $export_format = 'json')
     {
         $this->company = $company;
+        $this->user = $user;
         $this->export_format = $export_format;
     }
 
@@ -87,11 +99,15 @@ class CompanyExport implements ShouldQueue
 
             return $activity;
 
-        })->toArray();
+        })->makeHidden(['id'])->toArray();
 
         $this->export_data['backups'] = $this->company->all_activities()->with('backup')->cursor()->map(function ($activity){
 
             $backup = $activity->backup;
+
+            if(!$backup)
+                return;
+
             $backup->activity_id = $this->encodePrimaryKey($backup->activity_id);
 
             return $backup;
@@ -309,7 +325,7 @@ class CompanyExport implements ShouldQueue
         $this->export_data['subscriptions'] = $this->company->subscriptions->map(function ($subscription){
 
             $subscription = $this->transformBasicEntities($subscription);
-            $subscription->group_id = $this->encodePrimaryKey($group_id);
+            $subscription->group_id = $this->encodePrimaryKey($subscription->group_id);
 
             return $subscription;
 
@@ -328,7 +344,7 @@ class CompanyExport implements ShouldQueue
         $this->export_data['tasks'] = $this->company->tasks->map(function ($task){
 
             $task = $this->transformBasicEntities($task);
-            $task = $this->transformArrayOfKeys(['client_id', 'invoice_id', 'project_id', 'status_id']);
+            $task = $this->transformArrayOfKeys($task, ['client_id', 'invoice_id', 'project_id', 'status_id']);
 
             return $task;
 
@@ -387,7 +403,9 @@ class CompanyExport implements ShouldQueue
 
         })->makeHidden(['id'])->toArray();
 
-        var_dump($this->export_data);
+        //write to tmp and email to owner();
+
+        $this->zipAndSend();        
     }
 
     private function transformBasicEntities($model)
@@ -406,6 +424,48 @@ class CompanyExport implements ShouldQueue
 
         return $model;
 
+    }
+
+    private function zipAndSend()
+    {
+        nlog("zipping");
+
+        $tempStream = fopen('php://memory', 'w+');
+
+        $options = new Archive();
+        $options->setOutputStream($tempStream);
+
+        $file_name = date('Y-m-d').'_'.str_replace(' ', '_', $this->company->present()->name() . '_' . $this->company->company_key .'.zip');
+
+        $zip = new ZipStream($file_name, $options);
+
+        $fp = tmpfile();
+        fwrite($fp, json_encode($this->export_data));
+        rewind($fp);
+        $zip->addFileFromStream('backup.json', $fp);
+
+        $zip->finish();
+
+        $path = 'backups/';
+        
+        nlog($path.$file_name);
+
+        Storage::disk(config('filesystems.default'))->put($path.$file_name, $tempStream);
+        // fclose($fp);
+
+        nlog(Storage::disk(config('filesystems.default'))->url($path.$file_name));
+
+        fclose($tempStream);
+
+        $nmo = new NinjaMailerObject;
+        $nmo->mailable = new DownloadBackup(Storage::disk(config('filesystems.default'))->url($path.$file_name), $this->company);
+        $nmo->to_user = $this->user;
+        $nmo->settings = $this->company->settings;
+        $nmo->company = $this->company;
+        
+        NinjaMailerJob::dispatch($nmo);
+        
+        UnlinkFile::dispatch(config('filesystems.default'), $path.$file_name)->delay(now()->addHours(1));
     }
 
 }

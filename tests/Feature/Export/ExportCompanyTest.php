@@ -44,6 +44,6 @@ class ExportCompanyTest extends TestCase
 
     public function testCompanyExport()
     {
-        CompanyExport::dispatchNow($this->company);
+        CompanyExport::dispatchNow($this->company, $this->company->users->first());
     }
 }

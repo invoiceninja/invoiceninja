@@ -75,6 +75,8 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::put('expenses/{expense}/upload', 'ExpenseController@upload');
     Route::post('expenses/bulk', 'ExpenseController@bulk')->name('expenses.bulk');
 
+    Route::post('export', 'ExportController@index')->name('export.index');
+
     Route::resource('expense_categories', 'ExpenseCategoryController'); // name = (expense_categories. index / create / show / update / destroy / edit
     Route::post('expense_categories/bulk', 'ExpenseCategoryController@bulk')->name('expense_categories.bulk');
 
