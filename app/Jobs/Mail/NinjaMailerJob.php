@@ -21,6 +21,7 @@ use App\Libraries\Google\Google;
 use App\Libraries\MultiDB;
 use App\Mail\TemplateEmail;
 use App\Models\ClientContact;
+use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\SystemLog;
@@ -72,6 +73,8 @@ class NinjaMailerJob implements ShouldQueue
         /*Set the correct database*/
         MultiDB::setDb($this->nmo->company->db);
 
+        $company = Company::where('company_key', $this->nmo->company->company_key)->first();
+
         /* Set the email driver */
         $this->setMailDriver();
 
@@ -86,7 +89,7 @@ class NinjaMailerJob implements ShouldQueue
 
         }
         else {
-            $this->nmo->mailable->replyTo($this->nmo->company->owner()->email, $this->nmo->company->owner()->present()->name());
+            $this->nmo->mailable->replyTo($company->owner()->email, $company->owner()->present()->name());
         }
 
 
