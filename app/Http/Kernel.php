@@ -172,6 +172,7 @@ class Kernel extends HttpKernel
         SetDbByCompanyKey::class,
         TokenAuth::class,
         ContactTokenAuth::class,
+        Authenticate::class,
         ShopTokenAuth::class,
         ContactKeyLogin::class,
         ContactRegister::class,
