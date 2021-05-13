@@ -106,7 +106,7 @@ class ForgotPasswordController extends Controller
     {
         MultiDB::userFindAndSetDb($request->input('email'));
         
-        // $user = MultiDB::hasUser(['email' => $request->input('email')]);
+        $user = MultiDB::hasUser(['email' => $request->input('email')]);
 
         $this->validateEmail($request);
 
@@ -116,7 +116,7 @@ class ForgotPasswordController extends Controller
         $response = $this->broker()->sendResetLink(
             $this->credentials($request)
         );
-
+nlog($response);
         if ($request->ajax()) {
             return $response == Password::RESET_LINK_SENT
                 ? response()->json(['message' => 'Reset link sent to your email.', 'status' => true], 201)
