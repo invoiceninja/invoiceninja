@@ -108,7 +108,7 @@ class GenerateDeliveryNote
 
         /* Copy from remote disk to local when using cloud file storage. */
         if(config('filesystems.default') == 's3')
-            return TempFile::path(Storage::disk($disk)->url($file_path));
+            return TempFile::path(Storage::disk($this->disk)->url($file_path));
 
         return $file_path;
     }
