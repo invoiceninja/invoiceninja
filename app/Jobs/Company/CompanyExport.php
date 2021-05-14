@@ -66,7 +66,7 @@ class CompanyExport implements ShouldQueue
      *
      * @return CompanyToken|null
      */
-    public function handle() : void
+    public function handle()
     {
 
         MultiDB::setDb($this->company->db);
@@ -405,7 +405,9 @@ class CompanyExport implements ShouldQueue
 
         //write to tmp and email to owner();
 
-        $this->zipAndSend();        
+        $this->zipAndSend();  
+
+        return true;      
     }
 
     private function transformBasicEntities($model)

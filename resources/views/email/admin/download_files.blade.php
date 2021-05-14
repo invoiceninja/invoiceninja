@@ -1,7 +1,7 @@
 @component('email.template.master', ['design' => 'light', 'settings' =>$settings])
 
 @slot('header')
-    @component('email.components.header', ['p' => '', 'logo' => $url])
+    @component('email.components.header', ['p' => '', 'logo' => $logo])
     	@lang('texts.download')
     @endcomponent
 
@@ -11,6 +11,11 @@
 @endslot
 
 @lang('texts.download_timeframe')
+
+
+    @component('email.components.button', ['url' => $url])
+        @lang('texts.download')
+    @endcomponent
 
 @slot('signature')
     InvoiceNinja (contact@invoiceninja.com)
