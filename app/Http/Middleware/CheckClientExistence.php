@@ -31,6 +31,8 @@ class CheckClientExistence
         $multiple_contacts = ClientContact::query()
             ->where('email', auth('contact')->user()->email)
             ->whereNotNull('email')
+            ->where('email', '<>', '')
+            ->where('account_id', auth('contact')->user()->client->company->account->id)
             ->whereNull('deleted_at')
             ->distinct('company_id')
             ->distinct('email')
