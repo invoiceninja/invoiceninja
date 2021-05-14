@@ -149,7 +149,8 @@ class CompanyExport implements ShouldQueue
         $this->export_data['company_gateways'] = $this->company->company_gateways->map(function ($company_gateway){
 
             $company_gateway = $this->transformArrayOfKeys($company_gateway, ['company_id', 'user_id']);
-
+            $company_gateway->config = decrypt($company_gateway->config);
+            
             return $company_gateway;
 
         })->toArray();
