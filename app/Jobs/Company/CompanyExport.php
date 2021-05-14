@@ -66,7 +66,7 @@ class CompanyExport implements ShouldQueue
      *
      * @return CompanyToken|null
      */
-    public function handle() : void
+    public function handle()
     {
 
         MultiDB::setDb($this->company->db);
@@ -149,7 +149,8 @@ class CompanyExport implements ShouldQueue
         $this->export_data['company_gateways'] = $this->company->company_gateways->map(function ($company_gateway){
 
             $company_gateway = $this->transformArrayOfKeys($company_gateway, ['company_id', 'user_id']);
-
+            $company_gateway->config = decrypt($company_gateway->config);
+            
             return $company_gateway;
 
         })->toArray();
@@ -405,7 +406,9 @@ class CompanyExport implements ShouldQueue
 
         //write to tmp and email to owner();
 
-        $this->zipAndSend();        
+        $this->zipAndSend();  
+
+        return true;      
     }
 
     private function transformBasicEntities($model)

@@ -8,24 +8,31 @@
  *
  * @license https://opensource.org/licenses/AAL
  */
-namespace Tests\Feature\Export;
+namespace Tests\Feature\Import;
 
-use App\Jobs\Company\CompanyExport;
+use App\Jobs\Import\CSVImport;
+use App\Models\Client;
+use App\Models\Expense;
 use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\Product;
+use App\Models\Vendor;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;
-use Illuminate\Support\Facades\Storage;
-use League\Csv\Writer;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
+use League\Csv\Reader;
+use League\Csv\Statement;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
  * @test
+ * 
  */
-class ExportCompanyTest extends TestCase
+class ImportCompanyTest extends TestCase
 {
     use MakesHash;
-    use MockAccountData;
 
     public function setUp() :void
     {
@@ -35,17 +42,15 @@ class ExportCompanyTest extends TestCase
             ThrottleRequests::class
         );
 
-        // $this->faker = \Faker\Factory::create();
-
-        $this->makeTestData();
 
         $this->withoutExceptionHandling();
     }
 
-    public function testCompanyExport()
+    public function testBackupJsonRead()
     {
-        $res = CompanyExport::dispatchNow($this->company, $this->company->users->first());
+        $backup_json_file = base_path().'/tests/Feature/Import/backup.json';
 
-        $this->assertTrue($res);
+        $this->assertTrue(is_array(json_decode(file_get_contents($backup_json_file),1)));
     }
+
 }

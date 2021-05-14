@@ -366,13 +366,92 @@ class BaseController extends Controller
         return $this->response($this->manager->createData($resource)->toArray());
     }
 
+    protected function miniLoadResponse($query)
+    {
+      $user = auth()->user();
+
+
+        $this->serializer = request()->input('serializer') ?: EntityTransformer::API_SERIALIZER_ARRAY;
+
+        if ($this->serializer === EntityTransformer::API_SERIALIZER_JSON) {
+            $this->manager->setSerializer(new JsonApiSerializer());
+        } else {
+            $this->manager->setSerializer(new ArraySerializer());
+        }
+
+        $transformer = new $this->entity_transformer($this->serializer);
+        $created_at = request()->has('created_at') ? request()->input('created_at') : 0;
+
+        $created_at = date('Y-m-d H:i:s', $created_at);
+
+        $query->with(
+            [
+            'company' => function ($query) use ($created_at, $user) {
+                $query->whereNotNull('created_at')->with('documents');
+            },
+            'company.designs'=> function ($query) use ($created_at, $user) {
+                $query->where('created_at', '>=', $created_at)->with('company');
+
+                if(!$user->isAdmin())
+                  $query->where('designs.user_id', $user->id);
+            },
+            'company.documents'=> function ($query) use ($created_at, $user) {
+                $query->where('created_at', '>=', $created_at);
+            },
+            'company.groups' => function ($query) use ($created_at, $user) {
+                $query->where('created_at', '>=', $created_at);
+
+                if(!$user->isAdmin())
+                  $query->where('group_settings.user_id', $user->id);
+            },
+            'company.payment_terms'=> function ($query) use ($created_at, $user) {
+                $query->where('created_at', '>=', $created_at);
+
+                if(!$user->isAdmin())
+                  $query->where('payment_terms.user_id', $user->id);
+
+            },
+            'company.tax_rates' => function ($query) use ($created_at, $user) {
+                $query->where('created_at', '>=', $created_at);
+
+                if(!$user->isAdmin())
+                  $query->where('tax_rates.user_id', $user->id);
+
+            },
+            'company.activities'=> function ($query) use($user) {
+
+              if(!$user->isAdmin())
+                  $query->where('activities.user_id', $user->id);
+
+            }
+          ]
+        );
+
+        if ($query instanceof Builder) {
+            $limit = request()->input('per_page', 20);
+
+            $paginator = $query->paginate($limit);
+            $query = $paginator->getCollection();
+            $resource = new Collection($query, $transformer, $this->entity_type);
+            $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
+        } else {
+            $resource = new Collection($query, $transformer, $this->entity_type);
+        }
+
+        return $this->response($this->manager->createData($resource)->toArray());
+
+
+    }
+
     protected function timeConstrainedResponse($query)
     {
 
         $user = auth()->user();
 
-        if ($user->getCompany()->is_large)
+        if ($user->getCompany()->is_large){
           $this->manager->parseIncludes($this->mini_load);
+          return $this->miniLoadResponse($query);
+        }
         else
           $this->manager->parseIncludes($this->first_load);
 
