@@ -2,6 +2,7 @@
 
 ## [Unreleased (daily channel)](https://github.com/invoiceninja/invoiceninja/tree/v5-develop)
 - Add Cache-control: no-cache to prevent overaggressive caching of assets
+- Improved labelling in the settings (client portal)
 
 ## [v5.1.56-release](https://github.com/invoiceninja/invoiceninja/releases/tag/v5.1.56-release)
 ## Fixed:
