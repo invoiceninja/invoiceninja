@@ -4249,6 +4249,7 @@ $LANG = array(
     'new_login_detected' => 'New login detected for your account.',
     'new_login_description' => 'You recently logged in to your Invoice Ninja account from a new location or device:<br><br><b>IP:</b> :ip<br><b>Time:</b> :time<br><b>Email:</b> :email',
     'download_backup_subject' => 'Your company backup is ready for download',
+    'contact_details' => 'Contact Details',
 );
 
 return $LANG;

@@ -14,18 +14,18 @@
             <ul>
                 @foreach(session()->get('missing_required_fields') as $field)
                     <li class="block">— {{ ctrans("texts.{$field}") }}</li>
-                @endforeach    
+                @endforeach
             </ul>
 
             <button onclick="window.history.back();" class="block mt-3 button button-link pl-0 ml-0 underline">{{ ctrans('texts.after_completing_go_back_to_previous_page') }}</button>
         </div>
     @endif
 
-    <!-- Basic information: first & last name, e-mail address etc. -->
-    @livewire('profile.settings.general')
-    
-    <!-- Name, website & logo -->
+    <!-- Clients' name, website & logo -->
     @livewire('profile.settings.name-website-logo')
+
+    <!-- Basic information: Contact's first & last name, e-mail address etc. -->
+    @livewire('profile.settings.general')
 
     <!-- Client personal address -->
     @livewire('profile.settings.personal-address', ['countries' => $countries])
