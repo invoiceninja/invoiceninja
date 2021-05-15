@@ -30,14 +30,15 @@ class DownloadBackup extends Mailable
         $company = Company::where('company_key', $this->company->company_key)->first();
 
         return $this->from(config('mail.from.address'), config('mail.from.name'))
-                    ->subject(ctrans('texts.download_backup_subject'))
+                    ->subject(ctrans('texts.download_backup_subject', ['company' => $company->present()->name()]))
                     ->markdown(
                         'email.admin.download_files',
                         [
                             'url' => $this->file_path,
                             'logo' => $company->present()->logo,
                             'whitelabel' => $company->account->isPaid() ? true : false,
-                            'settings' => $company->settings
+                            'settings' => $company->settings,
+                            'greeting' => $company->present()->name(),
                         ]
                     );
     }

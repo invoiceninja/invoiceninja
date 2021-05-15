@@ -431,7 +431,6 @@ class CompanyExport implements ShouldQueue
 
     private function zipAndSend()
     {
-        nlog("zipping");
 
         $tempStream = fopen('php://memory', 'w+');
 
@@ -450,11 +449,8 @@ class CompanyExport implements ShouldQueue
         $zip->finish();
 
         $path = 'backups/';
-        
-        nlog($path.$file_name);
 
         Storage::disk(config('filesystems.default'))->put($path.$file_name, $tempStream);
-        // fclose($fp);
 
         fclose($tempStream);
 
