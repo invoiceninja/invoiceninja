@@ -105,6 +105,8 @@ class CreateSingleAccount extends Command
             'account_id' => $account->id,
             'slack_webhook_url' => config('ninja.notification.slack'),
             'default_password_timeout' => 30*60000,
+            'portal_mode' => 'domain',
+            'portal_domain' => 'http://ninja.test:8000',
         ]);
 
         $account->default_company_id = $company->id;
