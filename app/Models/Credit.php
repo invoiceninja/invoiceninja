@@ -251,24 +251,28 @@ class Credit extends BaseModel
         $this->save();
     }
 
-    public function pdf_file_path($invitation = null)
+    public function pdf_file_path($invitation = null, string $type = 'url')
     {
-        $storage_path = Storage::url($this->client->credit_filepath().$this->numberFormatter().'.pdf');
-
-        if (Storage::exists($this->client->credit_filepath().$this->numberFormatter().'.pdf')) {
-            return $storage_path;
-        }
-
         if (! $invitation) {
-            event(new CreditWasUpdated($this, $this->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
-            CreateEntityPdf::dispatchNow($this->invitations->first());
-        } else {
-            event(new CreditWasUpdated($this, $this->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
-            CreateEntityPdf::dispatchNow($invitation);
+
+            if($this->invitations()->exists())
+                $invitation = $this->invitations()->first();
+            else{
+                $this->service()->createInvitations();
+                $invitation = $this->invitations()->first();
+            }
+
         }
 
-        return $storage_path;
+        if(!$invitation)
+            throw new \Exception('Hard fail, could not create an invitation - is there a valid contact?');
+
+        
+        $file_path = CreateEntityPdf::dispatchNow($invitation);
+
+        return Storage::disk('public')->path($file_path);
     }
+
 
     public function markInvitationsSent()
     {

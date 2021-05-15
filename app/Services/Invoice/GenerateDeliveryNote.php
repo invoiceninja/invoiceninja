@@ -20,7 +20,6 @@ use App\Services\PdfMaker\PdfMaker as PdfMakerService;
 use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\HtmlEngine;
 use App\Utils\PhantomJS\Phantom;
-use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Pdf\PdfMaker;
 use Illuminate\Support\Facades\Storage;
@@ -50,7 +49,9 @@ class GenerateDeliveryNote
 
         $this->contact = $contact;
 
-        $this->disk = $disk ?? config('filesystems.default');
+        $this->disk = 'public';
+
+        // $this->disk = $disk ?? config('filesystems.default');
     }
 
     public function run()
@@ -106,10 +107,7 @@ class GenerateDeliveryNote
 
         Storage::disk($this->disk)->put($file_path, $pdf);
 
-        /* Copy from remote disk to local when using cloud file storage. */
-        if(config('filesystems.default') == 's3')
-            return TempFile::path(Storage::disk($this->disk)->url($file_path));
+        return Storage::disk($this->disk)->path($file_path);
 
-        return $file_path;
     }
 }

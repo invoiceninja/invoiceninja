@@ -210,21 +210,24 @@ class Quote extends BaseModel
     public function pdf_file_path($invitation = null, string $type = 'url')
     {
         if (! $invitation) {
-            $invitation = $this->invitations->first();
+
+            if($this->invitations()->exists())
+                $invitation = $this->invitations()->first();
+            else{
+                $this->service()->createInvitations();
+                $invitation = $this->invitations()->first();
+            }
+
         }
 
-        $storage_path = Storage::$type($this->client->quote_filepath().$this->numberFormatter().'.pdf');
+        if(!$invitation)
+            throw new \Exception('Hard fail, could not create an invitation - is there a valid contact?');
 
-        nlog($storage_path);
+        
+        $file_path = CreateEntityPdf::dispatchNow($invitation);
 
-        if (! Storage::exists($this->client->quote_filepath().$this->numberFormatter().'.pdf')) {
-            event(new QuoteWasUpdated($this, $this->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
-            CreateEntityPdf::dispatchNow($invitation);
-        }
-
-        return $storage_path;
+        return Storage::disk('public')->path($file_path);
     }
-
 
 
     /**

@@ -86,7 +86,9 @@ class CreateEntityPdf implements ShouldQueue
 
         $this->contact = $invitation->contact;
 
-        $this->disk = $disk ?? config('filesystems.default');
+        $this->disk = 'public';
+        
+        // $this->disk = $disk ?? config('filesystems.default');
     }
 
     public function handle()
