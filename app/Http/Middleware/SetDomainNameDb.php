@@ -60,7 +60,7 @@ class SetDomainNameDb
         else {
 
            $query = [
-                'portal_domain' => $request->getHost(),
+                'portal_domain' => $request->getSchemeAndHttpHost(),
                 'portal_mode' => 'domain',
             ];
 
