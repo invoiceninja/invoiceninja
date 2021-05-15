@@ -71,6 +71,8 @@ class CompanyExport implements ShouldQueue
 
         MultiDB::setDb($this->company->db);
 
+        $this->company = Company::where('company_key', $this->company->company_key)->first();
+
         set_time_limit(0);
 
         $this->export_data['app_version'] = config('ninja.app_version');
@@ -114,6 +116,16 @@ class CompanyExport implements ShouldQueue
 
         })->toArray();
 
+        $this->export_data['users'] = $this->company->users()->withTrashed()->cursor()->map(function ($user){
+
+            $user->account_id = $this->encodePrimaryKey($user->account_id);
+            $user->id = $this->encodePrimaryKey($user->id);
+
+            return $user;
+
+        })->toArray();
+
+
         $this->export_data['client_contacts'] = $this->company->client_contacts->map(function ($client_contact){
 
             $client_contact = $this->transformArrayOfKeys($client_contact, ['id', 'company_id', 'user_id',' client_id']);
@@ -140,11 +152,7 @@ class CompanyExport implements ShouldQueue
 
         })->toArray();
 
-        $temp_co = $this->company;
-        $temp_co->id = $this->encodePrimaryKey($temp_co->id);
-        $temp_co->account_id = $this->encodePrimaryKey($temp_co->account_id);
-
-        $this->export_data['company'] = $temp_co->toArray();
+        $this->export_data['company'] = $this->company->toArray();
 
         $this->export_data['company_gateways'] = $this->company->company_gateways->map(function ($company_gateway){
 
@@ -273,7 +281,7 @@ class CompanyExport implements ShouldQueue
             $payment = $this->transformBasicEntities($payment);
             $payment = $this->transformArrayOfKeys($payment, ['client_id','project_id', 'vendor_id', 'client_contact_id', 'invitation_id', 'company_gateway_id']);
 
-            return $project;
+            return $payment;
 
         })->toArray();
 
@@ -369,15 +377,6 @@ class CompanyExport implements ShouldQueue
             return $rate;
 
         })->makeHidden(['id'])->toArray();
-
-        $this->export_data['users'] = $this->company->users()->withTrashed()->cursor()->map(function ($user){
-
-            $user->account_id = $this->encodePrimaryKey($user->account_id);
-            $user->id = $this->encodePrimaryKey($user->id);
-
-            return $user;
-
-        })->makeHidden(['ip'])->toArray();
 
         $this->export_data['vendors'] = $this->company->vendors->map(function ($vendor){
 
