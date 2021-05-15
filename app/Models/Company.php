@@ -443,7 +443,7 @@ class Company extends BaseModel
 
     public function domain()
     {
-        if (Ninja::isNinja()) {
+        if (Ninja::isHosted()) {
 
             if($this->portal_mode == 'domain')
                 return $this->portal_domain;
