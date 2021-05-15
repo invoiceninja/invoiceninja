@@ -61,6 +61,7 @@ class ImportCompanyTest extends TestCase
         $backup_json_file = json_decode(file_get_contents($backup_json_file));
 
         $this->assertTrue(property_exists($backup_json_file, 'app_version'));
+        $this->assertTrue(property_exists($backup_json_file, 'users'));
 
         // User::unguard();
 
