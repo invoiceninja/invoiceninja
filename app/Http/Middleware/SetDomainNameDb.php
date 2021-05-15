@@ -41,7 +41,7 @@ class SetDomainNameDb
 
         if (strpos($request->getHost(), 'invoicing.co') !== false) 
         {
-            $subdomain = array_first(explode('.', $request->getHost()));
+            $subdomain = explode('.', $request->getHost())[0];
             
             $query = [
                 'subdomain' => $subdomain,
