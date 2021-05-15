@@ -53,4 +53,33 @@ class ImportCompanyTest extends TestCase
         $this->assertTrue(is_array(json_decode(file_get_contents($backup_json_file),1)));
     }
 
+    public function testImportUsers()
+    {
+
+        $backup_json_file = base_path().'/tests/Feature/Import/backup.json';
+
+        $backup_json_file = json_decode(file_get_contents($backup_json_file));
+
+        $this->assertTrue(property_exists($backup_json_file, 'app_version'));
+
+        // User::unguard();
+
+        // foreach ($this->backup_file->users as $user)
+        // {
+
+        //     $new_user = User::firstOrNew(
+        //         ['email' => $user->email],
+        //         (array)$user,
+        //     );
+
+        //     $new_user->account_id = $this->account->id;
+        //     $new_user->save(['timestamps' => false]);
+
+        //     $this->ids['users']["{$user->id}"] = $new_user->id;
+        // }
+
+        // User::reguard();
+    }
+
+
 }
