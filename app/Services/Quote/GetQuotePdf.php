@@ -39,16 +39,9 @@ class GetQuotePdf extends AbstractService
 
         $file_path = $path.$this->quote->numberFormatter().'.pdf';
 
-        $disk = config('filesystems.default');
+        $disk = 'public';
 
-        $file = Storage::disk($disk)->exists($file_path);
-
-        if (! $file) {
-            $file_path = CreateEntityPdf::dispatchNow($invitation);
-        }
-
-        if(config('filesystems.default') == 's3')
-            return TempFile::path(Storage::disk($disk)->url($file_path));
+        $file_path = CreateEntityPdf::dispatchNow($invitation);
         
         return Storage::disk($disk)->path($file_path);
     }

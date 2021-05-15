@@ -41,16 +41,9 @@ class GetCreditPdf extends AbstractService
 
         $file_path = $path.$this->credit->numberFormatter().'.pdf';
 
-        $disk = config('filesystems.default');
+        $disk = 'public';
 
-        $file = Storage::disk($disk)->exists($file_path);
-
-        if (! $file) {
-            $file_path = CreateEntityPdf::dispatchNow($this->invitation);
-        }
-
-        if(config('filesystems.default') == 's3')
-            return TempFile::path(Storage::disk($disk)->url($file_path));
+        $file_path = CreateEntityPdf::dispatchNow($this->invitation);
 
         return Storage::disk($disk)->path($file_path);
     }
