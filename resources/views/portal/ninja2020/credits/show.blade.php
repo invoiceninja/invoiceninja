@@ -2,7 +2,7 @@
 @section('meta_title', ctrans('texts.entity_number_placeholder', ['entity' => ctrans('texts.credit'), 'entity_number' => $credit->number]))
 
 @push('head')
-    <meta name="pdf-url" content="{{ $credit->pdf_file_path(null, 'url') }}">
+    <meta name="pdf-url" content="{{ $credit->pdf_file_path(null, 'url', true) }}">
     <script src="{{ asset('js/vendor/pdf.js/pdf.min.js') }}"></script>
 @endpush
 

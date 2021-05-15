@@ -1,7 +1,7 @@
 @extends('portal.ninja2020.layout.clean')
 
 @push('head')
-    <meta name="pdf-url" content="{{ asset($entity->pdf_file_path(null, 'url')) }}">
+    <meta name="pdf-url" content="{{ asset($entity->pdf_file_path(null, 'url',true)) }}">
     <script src="{{ asset('js/vendor/pdf.js/pdf.min.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.7.x/dist/alpine.min.js" defer></script>
 @endpush
@@ -39,7 +39,7 @@
                     <div x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95" class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg">
                         <div class="rounded-md bg-white shadow-xs">
                             <div class="py-1">
-                                <a target="_blank" href="{{ asset($entity->pdf_file_path(null, 'url')) }}" class="block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900">{{ ctrans('texts.open_in_new_tab') }}</a>
+                                <a target="_blank" href="{{ asset($entity->pdf_file_path(null, 'url',true)) }}" class="block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900">{{ ctrans('texts.open_in_new_tab') }}</a>
                             </div>
                         </div>
                     </div>
