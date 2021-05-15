@@ -16,6 +16,7 @@ use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Product;
+use App\Models\User;
 use App\Models\Vendor;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;
@@ -63,23 +64,28 @@ class ImportCompanyTest extends TestCase
         $this->assertTrue(property_exists($backup_json_file, 'app_version'));
         $this->assertTrue(property_exists($backup_json_file, 'users'));
 
-        // User::unguard();
+        User::unguard();
 
-        // foreach ($this->backup_file->users as $user)
-        // {
+        foreach ($backup_json_file->users as $user)
+        {
 
-        //     $new_user = User::firstOrNew(
-        //         ['email' => $user->email],
-        //         (array)$user,
-        //     );
+            $new_user = User::firstOrNew(
+                ['email' => $user->email],
+                (array)$user,
+            );
 
-        //     $new_user->account_id = $this->account->id;
-        //     $new_user->save(['timestamps' => false]);
+            $new_user->account_id = $this->account->id;
+            $new_user->save(['timestamps' => false]);
 
-        //     $this->ids['users']["{$user->id}"] = $new_user->id;
-        // }
+nlog($new_user->toArray());
 
-        // User::reguard();
+            $this->ids['users']["{$user->id}"] = $new_user->id;
+
+nlog($this->ids);
+
+        }
+
+        User::reguard();
     }
 
 

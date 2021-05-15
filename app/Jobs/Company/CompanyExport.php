@@ -370,7 +370,7 @@ class CompanyExport implements ShouldQueue
 
         })->makeHidden(['id'])->toArray();
 
-        $this->export_data['users'] = $this->company->users->map(function ($user){
+        $this->export_data['users'] = $this->company->users()->withTrashed()->cursor()->map(function ($user){
 
             $user->account_id = $this->encodePrimaryKey($user->account_id);
             $user->id = $this->encodePrimaryKey($user->id);
