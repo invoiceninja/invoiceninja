@@ -34,13 +34,46 @@ class SetDomainNameDb
         /*
          * Use the host name to set the active DB
          **/
-        if ($request->getSchemeAndHttpHost() && config('ninja.db.multi_db_enabled') && ! MultiDB::findAndSetDbByDomain($request->getSchemeAndHttpHost())) {
-            if (request()->json) {
-                return response()->json($error, 403);
-            } else {
-                abort(404);
+
+        if(!config('ninja.db.multi_db_enabled'))
+            return $next($request);
+
+
+        if (strpos($request->getHost(), 'invoicing.co') !== false) 
+        {
+            $subdomain = array_first(explode('.', $request->getHost()));
+            
+            $query = [
+                'subdomain' => $subdomain,
+                'portal_mode' => 'subdomain',
+            ];
+
+            if(!MultiDB::findAndSetDbByDomain($query)){
+                if ($request->json) {
+                        return response()->json($error, 403);
+                } else {
+                    abort(400, 'Domain not found');
+                }
             }
+
         }
+        else {
+
+           $query = [
+                'portal_domain' => $request->getHost(),
+                'portal_mode' => 'domain',
+            ];
+
+            if(!MultiDB::findAndSetDbByDomain($query)){
+                if ($request->json) {
+                        return response()->json($error, 403);
+                } else {
+                    abort(400, 'Domain not found');
+                }
+            }
+
+        }
+
 
         return $next($request);
     }
