@@ -80,7 +80,7 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'check_client_existence
     Route::get('logout', 'Auth\ContactLoginController@logout')->name('logout');
 });
 
-Route::get('client/subscription/{subscription}/purchase', 'ClientPortal\SubscriptionPurchaseController@index')->name('client.subscription.purchase')->middleware('domain_db');
+Route::get('client/subscriptions/{subscription}/purchase', 'ClientPortal\SubscriptionPurchaseController@index')->name('client.subscription.purchase')->middleware('domain_db');
 
 Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'client.'], function () {
     /*Invitation catches*/
