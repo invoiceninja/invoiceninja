@@ -40,20 +40,20 @@ class PdfCreatorTest extends TestCase
     {
         $credit_path = CreateEntityPdf::dispatchNow($this->credit->invitations->first());
     
-        $this->assertTrue(Storage::exists($this->client->credit_filepath().$this->credit->number.'.pdf'));
+        $this->assertTrue(Storage::disk('public')->exists($credit_path));
     }
 
     public function testInvoicePdfCreated()
     {
         $invoice_path = CreateEntityPdf::dispatchNow($this->invoice->invitations->first());
-    
-        $this->assertTrue(Storage::exists($this->client->invoice_filepath().$this->invoice->number.'.pdf'));
-    }
+
+        $this->assertTrue(Storage::disk('public')->exists($invoice_path));
+        }
 
     public function testQuotePdfCreated()
     {
         $quote_path = CreateEntityPdf::dispatchNow($this->quote->invitations->first());
     
-        $this->assertTrue(Storage::exists($this->client->quote_filepath().$this->quote->number.'.pdf'));
+        $this->assertTrue(Storage::disk('public')->exists($quote_path));
     }
 }

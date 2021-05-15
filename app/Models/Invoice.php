@@ -408,21 +408,12 @@ class Invoice extends BaseModel
         if(!$invitation)
             throw new \Exception('Hard fail, could not create an invitation - is there a valid contact?');
 
-        $storage_path = Storage::$type($this->client->invoice_filepath().$this->numberFormatter().'.pdf');
+        
+        $file_path = CreateEntityPdf::dispatchNow($invitation);
 
-        if (! Storage::exists($this->client->invoice_filepath().$this->numberFormatter().'.pdf')) {
-            event(new InvoiceWasUpdated($this, $this->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
-            CreateEntityPdf::dispatchNow($invitation);
-        }
-
-nlog($storage_path);
-
-        return $storage_path;
+        return Storage::disk('public')->path($file_path);
     }
 
-    /**
-     * Updates Invites to SENT.
-     */
     public function markInvitationsSent()
     {
         $this->invitations->each(function ($invitation) {

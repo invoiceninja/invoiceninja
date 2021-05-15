@@ -83,23 +83,24 @@ class ZipInvoices implements ShouldQueue
         $zip = new ZipStream($file_name, $options);
 
         foreach ($this->invoices as $invoice) {
-            $zip->addFileFromPath(basename($invoice->pdf_file_path()), TempFile::path($invoice->pdf_file_path()));
+            //$zip->addFileFromPath(basename($invoice->pdf_file_path()), TempFile::path($invoice->pdf_file_path()));
+            $zip->addFileFromPath(basename($invoice->pdf_file_path()), $invoice->pdf_file_path());
         }
 
         $zip->finish();
 
-        Storage::disk(config('filesystems.default'))->put($path.$file_name, $tempStream);
+        Storage::disk('public')->put($path.$file_name, $tempStream);
 
         fclose($tempStream);
 
         $nmo = new NinjaMailerObject;
-        $nmo->mailable = new DownloadInvoices(Storage::disk(config('filesystems.default'))->url($path.$file_name), $this->company);
+        $nmo->mailable = new DownloadInvoices(Storage::disk('public')->url($path.$file_name), $this->company);
         $nmo->to_user = $this->user;
         $nmo->settings = $this->settings;
         $nmo->company = $this->company;
         
         NinjaMailerJob::dispatch($nmo);
         
-        UnlinkFile::dispatch(config('filesystems.default'), $path.$file_name)->delay(now()->addHours(1));
+        UnlinkFile::dispatch('public', $path.$file_name)->delay(now()->addHours(1));
     }
 }

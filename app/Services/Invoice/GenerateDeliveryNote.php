@@ -20,7 +20,6 @@ use App\Services\PdfMaker\PdfMaker as PdfMakerService;
 use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\HtmlEngine;
 use App\Utils\PhantomJS\Phantom;
-use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Pdf\PdfMaker;
 use Illuminate\Support\Facades\Storage;
@@ -50,7 +49,9 @@ class GenerateDeliveryNote
 
         $this->contact = $contact;
 
-        $this->disk = $disk ?? config('filesystems.default');
+        $this->disk = 'public';
+
+        // $this->disk = $disk ?? config('filesystems.default');
     }
 
     public function run()
@@ -59,7 +60,7 @@ class GenerateDeliveryNote
             ? $this->invoice->design_id
             : $this->decodePrimaryKey($this->invoice->client->getSetting('invoice_design_id'));
 
-        $filename = sprintf('%s_delivery_note.pdf', $this->invoice->number);
+        $file_path = sprintf('%s%s_delivery_note.pdf', $this->invoice->client->invoice_filepath(), $this->invoice->number);
 
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
             return (new Phantom)->generate($this->invoice->invitations->first());
@@ -91,6 +92,8 @@ class GenerateDeliveryNote
             ->design($template)
             ->build();
 
+        // Storage::makeDirectory($this->invoice->client->invoice_filepath(), 0775);
+
             if(config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja'){
                 $pdf = (new NinjaPdf())->build($maker->getCompiledHTML(true));
             }
@@ -102,8 +105,9 @@ class GenerateDeliveryNote
             info($maker->getCompiledHTML());
         }
 
-        return TempFile::filePath($pdf, $filename);
-        // Storage::disk($this->disk)->put($file_path, $pdf);
-        // return $file_path;
+        Storage::disk($this->disk)->put($file_path, $pdf);
+
+        return Storage::disk($this->disk)->path($file_path);
+
     }
 }

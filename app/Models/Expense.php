@@ -96,4 +96,9 @@ class Expense extends BaseModel
     {
         return $this->belongsTo(Vendor::class);
     }
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
+    }
 }

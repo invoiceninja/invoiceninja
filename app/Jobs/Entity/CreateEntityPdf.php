@@ -30,7 +30,6 @@ use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\HtmlEngine;
 use App\Utils\Ninja;
 use App\Utils\PhantomJS\Phantom;
-use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
 use App\Utils\Traits\NumberFormatter;
@@ -87,7 +86,9 @@ class CreateEntityPdf implements ShouldQueue
 
         $this->contact = $invitation->contact;
 
-        $this->disk = $disk ?? config('filesystems.default');
+        $this->disk = 'public';
+        
+        // $this->disk = $disk ?? config('filesystems.default');
     }
 
     public function handle()
@@ -188,23 +189,22 @@ class CreateEntityPdf implements ShouldQueue
         }
 
 
-        // if ($pdf) {
+        if ($pdf) {
 
-        //     try{
+            try{
     
-        //         // Storage::disk($this->disk)->put($file_path, $pdf);
+                Storage::disk($this->disk)->put($file_path, $pdf);
     
-        //     }
-        //     catch(\Exception $e)
-        //     {
+            }
+            catch(\Exception $e)
+            {
 
-        //         throw new FilePermissionsFailure('Could not write the PDF, permission issues!');
+                throw new FilePermissionsFailure('Could not write the PDF, permission issues!');
 
-        //     }
-        // }
-        // // nlog("entity says path = {$file_path}");
-        return TempFile::filePath($pdf, $this->entity->numberFormatter().'.pdf');
+            }
+        }
 
+        return $file_path;
     }
 
     public function failed($e)
