@@ -251,7 +251,7 @@ class Credit extends BaseModel
         $this->save();
     }
 
-    public function pdf_file_path($invitation = null, string $type = 'path')
+    public function pdf_file_path($invitation = null, string $type = 'path', bool $portal = false)
     {
         if (! $invitation) {
 
@@ -267,11 +267,15 @@ class Credit extends BaseModel
         if(!$invitation)
             throw new \Exception('Hard fail, could not create an invitation - is there a valid contact?');
 
+        $file_path = $this->client->credit_filepath().$this->numberFormatter().'.pdf';
+        
+        if(Storage::disk('public')->exists($file_path))
+            return Storage::disk('public')->{$type}($file_path);
+
         $file_path = CreateEntityPdf::dispatchNow($invitation);
 
         return Storage::disk('public')->{$type}($file_path);
     }
-
     public function markInvitationsSent()
     {
         $this->invitations->each(function ($invitation) {

@@ -2,7 +2,7 @@
 @section('meta_title', ctrans('texts.entity_number_placeholder', ['entity' => ctrans('texts.quote'), 'entity_number' => $quote->number]))
 
 @push('head')
-    <meta name="pdf-url" content="{{ asset($quote->pdf_file_path(null, 'url')) }}">
+    <meta name="pdf-url" content="{{ asset($quote->pdf_file_path(null, 'url', true)) }}">
     <script src="{{ asset('js/vendor/pdf.js/pdf.min.js') }}"></script>
 
     <meta name="show-quote-terms" content="{{ $settings->show_accept_quote_terms ? true : false }}">
@@ -78,7 +78,7 @@
         <canvas id="pdf-placeholder" class="shadow rounded-lg bg-white lg:hidden mt-4 p-4"></canvas>
     </div>
 
-    <iframe src="{{ $quote->pdf_file_path(null, 'url') }}" class="h-screen w-full border-0 hidden lg:block mt-4"></iframe>
+    <iframe src="{{ $quote->pdf_file_path(null, 'url',true) }}" class="h-screen w-full border-0 hidden lg:block mt-4"></iframe>
 
     @include('portal.ninja2020.invoices.includes.terms', ['entities' => [$quote], 'entity_type' => ctrans('texts.quote')])
     @include('portal.ninja2020.invoices.includes.signature')

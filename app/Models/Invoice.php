@@ -392,7 +392,7 @@ class Invoice extends BaseModel
         return $invoice_calc->build();
     }
 
-    public function pdf_file_path($invitation = null, string $type = 'path')
+    public function pdf_file_path($invitation = null, string $type = 'path', bool $portal = false)
     {
         if (! $invitation) {
 
@@ -407,6 +407,11 @@ class Invoice extends BaseModel
 
         if(!$invitation)
             throw new \Exception('Hard fail, could not create an invitation - is there a valid contact?');
+
+        $file_path = $this->client->invoice_filepath().$this->numberFormatter().'.pdf';
+        
+        if(Storage::disk('public')->exists($file_path))
+            return Storage::disk('public')->{$type}($file_path);
 
         $file_path = CreateEntityPdf::dispatchNow($invitation);
 
