@@ -309,14 +309,14 @@ class CompanyGateway extends BaseModel
         $fees_and_limits = $this->getFeesAndLimits($gateway_type_id);
 
         if (! $fees_and_limits) {
-            return 0;
+            return false;
         }
 
         $fee = 0;
 
         if ($fees_and_limits->fee_amount) {
             $fee += $fees_and_limits->fee_amount;
-            // info("fee after adding fee amount = {$fee}");
+            nlog("fee after adding fee amount = {$fee}");
         }
 
         if ($fees_and_limits->fee_percent) {
@@ -325,7 +325,7 @@ class CompanyGateway extends BaseModel
             } else {
                 $fee += round(($amount * $fees_and_limits->fee_percent / 100), 2);
             }
-            // info("fee after adding fee percent = {$fee}");
+            nlog("fee after adding fee percent = {$fee}");
         }
 
         /* Cap fee if we have to here. */
@@ -334,6 +334,7 @@ class CompanyGateway extends BaseModel
         }
 
         $pre_tax_fee = $fee;
+            nlog("fee after adding fee percent = {$fee}");
 
         /**/
         if ($include_taxes) {
@@ -352,6 +353,7 @@ class CompanyGateway extends BaseModel
                 // info("fee after adding fee tax 3 = {$fee}");
             }
         }
+            nlog("fee after adding fee percent = {$fee}");
 
         return $fee;
     }
