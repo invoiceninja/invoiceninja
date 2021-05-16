@@ -168,7 +168,7 @@ class PaymentMethod
                 if (isset($gateway->fees_and_limits) && is_object($gateway->fees_and_limits) && property_exists($gateway->fees_and_limits, GatewayType::CREDIT_CARD)) {
 
                     if ($this->validGatewayForAmount($gateway->fees_and_limits->{GatewayType::CREDIT_CARD}, $this->amount)) 
-                        $this->payment_methods[] = [$gateway->id => GatewayType::CREDIT_CARD];
+                        $this->payment_methods[] = [$gateway->id => $type];
                     
                 } else {
                     $this->payment_methods[] = [$gateway->id => NULL];
