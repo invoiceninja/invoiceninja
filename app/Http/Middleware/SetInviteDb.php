@@ -28,7 +28,7 @@ class SetInviteDb
     public function handle($request, Closure $next)
     {
         $error = [
-                'message' => 'Invalid URL',
+                'message' => 'I could not find the database for this object.',
                 'errors' => new stdClass,
             ];
         /*
@@ -46,7 +46,7 @@ class SetInviteDb
             if (request()->json) {
                 return response()->json($error, 403);
             } else {
-                abort(404);
+                abort(404,'I could not find the database for this object.');
             }
         }
 
