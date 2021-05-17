@@ -25,6 +25,7 @@ use App\PaymentDrivers\Stripe\ACH;
 use App\PaymentDrivers\Stripe\Alipay;
 use App\PaymentDrivers\Stripe\Charge;
 use App\PaymentDrivers\Stripe\CreditCard;
+use App\PaymentDrivers\Stripe\ImportCustomers;
 use App\PaymentDrivers\Stripe\SOFORT;
 use App\PaymentDrivers\Stripe\UpdatePaymentMethods;
 use App\PaymentDrivers\Stripe\Utilities;
@@ -513,9 +514,10 @@ class StripePaymentDriver extends BaseDriver
      * Phone
      * Email
      */
-    public function importAndUpdateCustomers()
+    public function importCustomers()
     {
 
+        return (new ImportCustomers($this))->run();
         //match clients based on the gateway_customer_reference column
 
     }

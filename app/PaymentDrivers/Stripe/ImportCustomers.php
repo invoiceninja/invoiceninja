@@ -48,6 +48,9 @@ class ImportCustomers
             $this->addCustomer($customer);
         }   
 
+        /* Now call the update payment methods handler*/
+        $this->stripe->updateAllPaymentMethods();
+
     }
 
     private function addCustomer(Customer $customer)

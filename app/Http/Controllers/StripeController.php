@@ -12,6 +12,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\Util\ImportStripeCustomers;
 use App\Jobs\Util\StripeUpdatePaymentMethods;
 
 class StripeController extends BaseController
@@ -23,6 +24,22 @@ class StripeController extends BaseController
 		{
 
 			StripeUpdatePaymentMethods::dispatch(auth()->user()->getCompany());
+
+			return response()->json(['message' => 'Processing'], 403);
+
+		}
+
+		
+		return response()->json(['message' => 'Unauthorized'], 403);
+	}
+
+	public function import()
+	{
+
+		if(auth()->user()->isAdmin())
+		{
+			
+			ImportStripeCustomers::dispatch(auth()->user()->getCompany());
 
 			return response()->json(['message' => 'Processing'], 403);
 
