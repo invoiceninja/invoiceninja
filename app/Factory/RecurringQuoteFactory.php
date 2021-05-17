@@ -35,10 +35,10 @@ class RecurringQuoteFactory
         $quote->tax_rate1 = 0;
         $quote->tax_name2 = '';
         $quote->tax_rate2 = 0;
-        $quote->custom_value1 = 0;
-        $quote->custom_value2 = 0;
-        $quote->custom_value3 = 0;
-        $quote->custom_value4 = 0;
+        $quote->custom_value1 = '';
+        $quote->custom_value2 = '';
+        $quote->custom_value3 = '';
+        $quote->custom_value4 = '';
         $quote->amount = 0;
         $quote->balance = 0;
         $quote->partial = 0;
