@@ -183,6 +183,8 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     // Route::post('hooks', 'SubscriptionController@subscribe')->name('hooks.subscribe');
     // Route::delete('hooks/{subscription_id}', 'SubscriptionController@unsubscribe')->name('hooks.unsubscribe');
 
+    Route::post('stripe/update_payment_methods', 'StripeController@update')->middleware('password_protected')->name('stripe.update');
+
     Route::resource('subscriptions', 'SubscriptionController');
     Route::post('subscriptions/bulk', 'SubscriptionController@bulk')->name('subscriptions.bulk');
 
@@ -193,9 +195,7 @@ Route::match(['get', 'post'], 'payment_webhook/{company_key}/{company_gateway_id
     ->name('payment_webhook');
 
 Route::post('api/v1/postmark_webhook', 'PostMarkController@webhook');
-
 Route::get('token_hash_router', 'OneTimeTokenController@router');
-
 Route::get('webcron', 'WebCronController@index');
 
 Route::fallback('BaseController@notFound');
