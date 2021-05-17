@@ -13,6 +13,7 @@
 namespace App\PaymentDrivers\Stripe;
 
 use App\Factory\ClientContactFactory;
+use App\Factory\ClientFactory;
 use App\Factory\ClientGatewayTokenFactory;
 use App\Models\Client;
 use App\Models\ClientGatewayToken;
@@ -55,31 +56,37 @@ class ImportCustomers
 
     private function addCustomer(Customer $customer)
     {
+        
+        $account = $this->stripe->company_gateway->company->account;
 
-        $account = $this->company_gateway->company->account;
-
-        $existing_customer = $this->company_gateway
+        $existing_customer = $this->stripe
+                                  ->company_gateway
                                   ->client_gateway_tokens()
                                   ->where('gateway_customer_reference', $customer->id)
                                   ->exists();
 
 
         if($existing_customer)
-            return
+            return;
 
-        $client = ClientFactory::create($this->company_gateway->company_id, $this->company_gateway->user_id);
-        $client->address1 = $customer->address->line1 ?: '';
-        $client->address2 = $customer->address->line2 ?: '';
-        $client->city = $customer->address->city ?: '';
-        $client->state = $customer->address->state ?: '';
+        $client = ClientFactory::create($this->stripe->company_gateway->company_id, $this->stripe->company_gateway->user_id);
 
-        if($customer->address->country){
+        if(property_exists($customer, 'address'))
+        {
+            $client->address1 = property_exists($customer->address, 'line1') ? $customer->address->line1 : '';
+            $client->address2 = property_exists($customer->address, 'line2') ? $customer->address->line2 : '';
+            $client->city = property_exists($customer->address, 'city') ? $customer->address->city : '';
+            $client->state = property_exists($customer->address, 'state') ? $customer->address->state : '';
+            $client->phone =  property_exists($customer->address, 'phone') ? $customer->phone : '';
 
-            $country = Country::where('iso_3166_2', $customer->address->country)->first()
+            if(property_exists($customer->address, 'country')){
 
-            if($country)
-                $client->country_id = $country->id;
+                $country = Country::where('iso_3166_2', $customer->address->country)->first();
 
+                if($country)
+                    $client->country_id = $country->id;
+
+            }
         }
 
         if($customer->currency) {
@@ -96,12 +103,11 @@ class ImportCustomers
 
         }
 
-        $client->phone = $customer->phone ?: '';
-        $client->name = $customer->name ?: '';
+        $client->name = property_exists($customer, 'name') ? $customer->name : '';
 
-        if(!$account->isPaidHostedClient() && Client::where('company_id', $this->company_gateway->company_id)->count() <= config('ninja.quotas.free.clients')){
+        if(!$account->isPaidHostedClient() && Client::where('company_id', $this->stripe->company_gateway->company_id)->count() <= config('ninja.quotas.free.clients')){
 
-            $client->save()
+            $client->save();
 
             $contact = ClientContactFactory::create($client->company_id, $client->user_id);
             $contact->client_id = $client->id;

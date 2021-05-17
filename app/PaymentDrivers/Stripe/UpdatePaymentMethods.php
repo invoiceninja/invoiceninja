@@ -104,7 +104,7 @@ class UpdatePaymentMethods
         $cgt->token = $bank_account->id;
         $cgt->gateway_customer_reference = $token->gateway_customer_reference;
         $cgt->company_gateway_id = $token->company_gateway_id;
-        $cgt->gateway_type_id = GatewayType::BANK_TRANSFER
+        $cgt->gateway_type_id = GatewayType::BANK_TRANSFER;
         $cgt->meta = new \stdClass;
         $cgt->routing_number = $bank_account->routing_number;
         $cgt->save();
