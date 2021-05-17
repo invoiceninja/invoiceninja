@@ -399,7 +399,7 @@ info("get company");
                 'product_key' => $product->product_key ?: '',
                 'notes' => $product->notes ?: '',
                 'price' => $product->cost ?: 0,
-                'cost' => 0,
+                'cost' => $product->cost ?: 0,
                 'quantity' => $product->qty ?: 0,
                 'tax_name1' => $product->tax_name1,
                 'tax_name2' => $product->tax_name2,
@@ -1330,7 +1330,6 @@ info("translated gateway_type = {$translated_gateway_type}");
         info("get get company gateways");
 
         $account_gateways = AccountGateway::where('account_id', $this->account->id)->withTrashed()->get();
-
 
         $transformed = [];
 
