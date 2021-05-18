@@ -53,17 +53,10 @@ class StripeConnectController extends BaseController
             if(property_exists($config, 'account_id'))
                 return view('auth.connect.existing');
 
-        
         }
 
-        $company = Company::where('company_key', $request->getTokenContent()['company_key'])->first();
-
-        auth()->login($request->getContact(), true);
         $stripe_client_id = config('ninja.ninja_stripe_client_id');
-        auth()->user()->setCompany($company);
-
         $redirect_uri = 'http://ninja.test:8000/stripe/completed';
-
         $endpoint = "https://connect.stripe.com/oauth/authorize?response_type=code&client_id={$stripe_client_id}&redirect_uri={$redirect_uri}&scope=read_write&state={$token}";
 
         return redirect($endpoint);
@@ -80,9 +73,8 @@ class StripeConnectController extends BaseController
         ]);
 
         $company = Company::where('company_key', $request->getTokenContent()['company_key'])->first();
-        auth()->user()->setCompany($company);
 
-        $company_gateway = CompanyGatewayFactory::create($company->id, auth()->user()->id);
+        $company_gateway = CompanyGatewayFactory::create($company->id, $company->owner()->id);
         $fees_and_limits = new \stdClass;
         $fees_and_limits->{GatewayType::CREDIT_CARD} = new FeesAndLimits;
         $company_gateway->gateway_key = 'd14dd26a47cecc30fdd65700bfb67b34';
@@ -114,9 +106,9 @@ class StripeConnectController extends BaseController
         }
 
         $company_gateway->config = encrypt(json_encode($payload));
-
         $company_gateway->save();
 
+        auth()->logout();
         //response here
         return view('auth.connect.completed');
     }

@@ -34,14 +34,16 @@ class RedirectIfAuthenticated
           }
           break;
           case 'user':
-          if (Auth::guard($guard)->check()) {
-              return redirect()->route('dashboard.index');
-          }
+          Auth::logout();
+          // if (Auth::guard($guard)->check()) {
+          //     return redirect()->route('dashboard.index');
+          // }
           break;
         default:
-          if (Auth::guard($guard)->check()) {
-              return redirect('/');
-          }
+        Auth::logout();
+          // if (Auth::guard($guard)->check()) {
+          //     return redirect('/');
+          // }
           break;
       }
 
