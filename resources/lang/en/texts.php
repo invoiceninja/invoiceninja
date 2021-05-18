@@ -4248,6 +4248,8 @@ $LANG = array(
     'activity_104' => ':user restored recurring invoice :recurring_invoice',
     'new_login_detected' => 'New login detected for your account.',
     'new_login_description' => 'You recently logged in to your Invoice Ninja account from a new location or device:<br><br><b>IP:</b> :ip<br><b>Time:</b> :time<br><b>Email:</b> :email',
+    'download_backup_subject' => 'Your company backup is ready for download',
+    'contact_details' => 'Contact Details',
     'download_backup_subject' => ':company backup is ready for download',
 );
 
