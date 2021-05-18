@@ -26,6 +26,7 @@
     .header-wrapper {
         display: grid;
         grid-template-columns: 1.5fr 1fr 1fr;
+        gap: 20px;
         background-color: #2d2c2a;
         padding: 3rem;
         color: white;
@@ -33,7 +34,7 @@
     }
 
     .company-logo {
-        height: 6rem;
+        width: auto; /** If logo is too big or too small, modify using percentages. Example: width: 90%; **/
     }
 
     #company-details,
