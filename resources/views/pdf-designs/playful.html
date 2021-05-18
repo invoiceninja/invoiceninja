@@ -25,12 +25,8 @@
     .header-wrapper {
         margin-top: 2rem;
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-columns: 1fr 0.5fr 2fr;
         padding: 2rem 3rem;
-    }
-
-    .header-wrapper .company-logo {
-        height: 5rem;
     }
 
     .header-wrapper .entity-details-wrapper {
@@ -48,6 +44,10 @@
     .header-wrapper #entity-details > tr,
     .header-wrapper #entity-details th {
         font-weight: normal;
+    }
+
+    .company-logo {
+        width: auto; /** If logo is too big or too small, modify using percentages. Example: width: 90%; **/
     }
 
     .contacts-wrapper {
