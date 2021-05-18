@@ -94,6 +94,9 @@ return [
             'prefix_indexes' => true,
             'strict'         => env('DB_STRICT', false),
             'engine'         => 'InnoDB ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8',
+            //  'options'   => array(
+            //     PDO::ATTR_EMULATE_PREPARES => true
+            // ),
         ],
 
         'db-ninja-02' => [
@@ -109,6 +112,9 @@ return [
             'prefix_indexes' => true,
             'strict'         => env('DB_STRICT', false),
             'engine'         => 'InnoDB ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8',
+            //  'options'   => array(
+            //     PDO::ATTR_EMULATE_PREPARES => true
+            // ),
         ],
     ],
 
