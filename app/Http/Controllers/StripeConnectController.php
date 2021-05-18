@@ -58,7 +58,7 @@ class StripeConnectController extends BaseController
         }
 
         $stripe_client_id = config('ninja.ninja_stripe_client_id');
-        $redirect_uri = 'http://ninja.test:8000/stripe/completed';
+        $redirect_uri = 'https://invoicing.co/stripe/completed';
         $endpoint = "https://connect.stripe.com/oauth/authorize?response_type=code&client_id={$stripe_client_id}&redirect_uri={$redirect_uri}&scope=read_write&state={$token}";
 
         if($email = $request->getContact()->email)
