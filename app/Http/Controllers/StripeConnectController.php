@@ -41,6 +41,8 @@ class StripeConnectController extends BaseController
 
         MultiDB::findAndSetDbByCompanyKey($request->getTokenContent()['company_key']);
 
+        $company = Company::where('company_key', $request->getTokenContent()['company_key'])->first();
+
         $company_gateway = CompanyGateway::query()
             ->where('gateway_key', 'd14dd26a47cecc30fdd65700bfb67b34')
             ->where('company_id', $request->getCompany()->id)
@@ -48,7 +50,7 @@ class StripeConnectController extends BaseController
 
         if ($company_gateway) {
 
-            $config = decrypt($company_gateway->config);
+            $config = $company_gateway->getConfig();
 
             if(property_exists($config, 'account_id'))
                 return view('auth.connect.existing');
@@ -58,6 +60,12 @@ class StripeConnectController extends BaseController
         $stripe_client_id = config('ninja.ninja_stripe_client_id');
         $redirect_uri = 'http://ninja.test:8000/stripe/completed';
         $endpoint = "https://connect.stripe.com/oauth/authorize?response_type=code&client_id={$stripe_client_id}&redirect_uri={$redirect_uri}&scope=read_write&state={$token}";
+
+        if($email = $request->getContact()->email)
+            $endpoint .= "&stripe_user[email]={$email}";
+
+        $company_name = str_replace(" ", "_", $company->present()->name());
+        $endpoint .= "&stripe_user[business_name]={$company_name}";
 
         return redirect($endpoint);
     }
@@ -72,6 +80,8 @@ class StripeConnectController extends BaseController
           'code' => $request->input('code'),
         ]);
 
+        // nlog($response);
+
         $company = Company::where('company_key', $request->getTokenContent()['company_key'])->first();
 
         $company_gateway = CompanyGatewayFactory::create($company->id, $company->id);
@@ -79,32 +89,32 @@ class StripeConnectController extends BaseController
         $fees_and_limits->{GatewayType::CREDIT_CARD} = new FeesAndLimits;
         $company_gateway->gateway_key = 'd14dd26a47cecc30fdd65700bfb67b34';
         $company_gateway->fees_and_limits = $fees_and_limits;
-        $company_gateway->config = encrypt(json_encode([]));
+        $company_gateway->setConfig([]);
         $company_gateway->save();
 
         $payload = [
             'account_id' => $response->stripe_user_id,
             "token_type" => 'bearer',
-            "stripe_publishable_key" => $request->input('stripe_publishable_key'),
-            "scope" => $request->input('scope'),
-            "livemode" => $request->input('livemode'),
-            "stripe_user_id" => $request->input('stripe_user_id'),
-            "refresh_token" => $request->input('refresh_token'),
-            "access_token" => $request->input('access_token')
+            "stripe_publishable_key" => $response->stripe_publishable_key,
+            "scope" => $response->scope,
+            "livemode" => $response->livemode,
+            "stripe_user_id" => $response->stripe_user_id,
+            "refresh_token" => $response->refresh_token,
+            "access_token" => $response->access_token
         ];
 
         /* Link account if existing account exists */
         if($account_id = $this->checkAccountAlreadyLinkToEmail($company_gateway, $request->getContact()->email)) {
             
             $payload['account_id'] = $account_id;
-            $company_gateway->config = $company_gateway->setConfig($payload);
+            $company_gateway->setConfig($payload);
             $company_gateway->save();
 
             return view('auth.connect.existing');
 
         }
 
-        $company_gateway->config = $company_gateway->setConfig($payload);
+        $company_gateway->setConfig($payload);
         $company_gateway->save();
 
         //response here
