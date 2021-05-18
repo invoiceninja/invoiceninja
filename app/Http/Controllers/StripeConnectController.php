@@ -92,7 +92,7 @@ class StripeConnectController extends BaseController
 
         $company = Company::where('company_key', $request->getTokenContent()['company_key'])->first();
 
-        $company_gateway = CompanyGatewayFactory::create($company->id, $company->id);
+        $company_gateway = CompanyGatewayFactory::create($company->id, $company->owner()->id);
         $fees_and_limits = new \stdClass;
         $fees_and_limits->{GatewayType::CREDIT_CARD} = new FeesAndLimits;
         $company_gateway->gateway_key = 'd14dd26a47cecc30fdd65700bfb67b34';
