@@ -275,8 +275,8 @@ class SetupController extends Controller
 
     public function update()
     {
-        if(Ninja::isHosted())
-            return redirect('/');
+        // if(Ninja::isHosted())
+        //     return redirect('/');
     
         // if( Ninja::isNinja() || !request()->has('secret') || (request()->input('secret') != config('ninja.update_secret')) )
         if(!request()->has('secret') || (request()->input('secret') != config('ninja.update_secret')) )
