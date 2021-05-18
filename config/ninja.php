@@ -7,7 +7,7 @@ return [
     'license_url' => 'https://app.invoiceninja.com',
     'production' => env('NINJA_PROD', false),
     'license'   => env('NINJA_LICENSE', ''),
-    'version_url' => 'https://raw.githubusercontent.com/invoiceninja/invoiceninja/v5-stable/VERSION.txt',
+    'version_url' => 'https://pdf.invoicing.co/api/version',
     'app_name' => env('APP_NAME', 'Invoice Ninja'),
     'app_env' => env('APP_ENV', 'selfhosted'),
     'debug_enabled' => env('APP_DEBUG', false),
