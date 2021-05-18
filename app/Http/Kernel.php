@@ -110,7 +110,6 @@ class Kernel extends HttpKernel
             ShareErrorsFromSession::class,
             VerifyCsrfToken::class,
             SubstituteBindings::class,
-            //\App\Http\Middleware\StartupCheck::class,
             QueryLogging::class,
         ],
         'shop' => [

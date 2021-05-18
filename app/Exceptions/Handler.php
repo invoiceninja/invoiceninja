@@ -83,7 +83,7 @@ class Handler extends ExceptionHandler
                         'email' => 'anonymous@example.com',
                         'name'  => 'Anonymous User',
                     ]);
-                } elseif (auth()->guard('user') && auth()->guard('user')->user() && auth()->user()->company() && auth()->user()->company()->account->report_errors) {
+                } elseif (auth()->guard('user') && auth()->guard('user')->user() && auth()->user()->companyIsSet() && auth()->user()->company()->account->report_errors) {
                     $scope->setUser([
                         'id'    => auth()->user()->account->key,
                         'email' => 'anonymous@example.com',

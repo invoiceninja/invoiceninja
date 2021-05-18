@@ -17,8 +17,11 @@ use App\Factory\CompanyGatewayFactory;
 use App\Http\Requests\StripeConnect\InitializeStripeConnectRequest;
 use App\Libraries\MultiDB;
 use App\Models\Client;
+use App\Models\Company;
 use App\Models\CompanyGateway;
+use App\Models\GatewayType;
 use App\PaymentDrivers\Stripe\Connect\Account;
+use Illuminate\Http\Request;
 use Stripe\Exception\ApiErrorException;
 
 class StripeConnectController extends BaseController
@@ -38,6 +41,8 @@ class StripeConnectController extends BaseController
 
         MultiDB::findAndSetDbByCompanyKey($request->getTokenContent()['company_key']);
 
+        $company = Company::where('company_key', $request->getTokenContent()['company_key'])->first();
+
         $company_gateway = CompanyGateway::query()
             ->where('gateway_key', 'd14dd26a47cecc30fdd65700bfb67b34')
             ->where('company_id', $request->getCompany()->id)
@@ -45,53 +50,75 @@ class StripeConnectController extends BaseController
 
         if ($company_gateway) {
 
-            $config = decrypt($company_gateway->config);
+            $config = $company_gateway->getConfig();
 
             if(property_exists($config, 'account_id'))
-                return render('gateways.stripe.connect.existing');
-        
-        }
-        else
-            $company_gateway = CompanyGatewayFactory::create($request->getCompany()->id, $request->getContact()->id);
+                return view('auth.connect.existing');
 
-        /* Set Credit Card To Enabled */
-        $gateway_types = $company_gateway->driver(new Client)->gatewayTypes();
+        }
+
+        $stripe_client_id = config('ninja.ninja_stripe_client_id');
+        $redirect_uri = 'http://ninja.test:8000/stripe/completed';
+        $endpoint = "https://connect.stripe.com/oauth/authorize?response_type=code&client_id={$stripe_client_id}&redirect_uri={$redirect_uri}&scope=read_write&state={$token}";
+
+        if($email = $request->getContact()->email)
+            $endpoint .= "&stripe_user[email]={$email}";
+
+        $company_name = str_replace(" ", "_", $company->present()->name());
+        $endpoint .= "&stripe_user[business_name]={$company_name}";
+
+        return redirect($endpoint);
+    }
+
+    public function completed(InitializeStripeConnectRequest $request)
+    {
+
+        \Stripe\Stripe::setApiKey(config('ninja.ninja_stripe_key'));
+
+        $response = \Stripe\OAuth::token([
+          'grant_type' => 'authorization_code',
+          'code' => $request->input('code'),
+        ]);
+
+        // nlog($response);
+
+        $company = Company::where('company_key', $request->getTokenContent()['company_key'])->first();
+
+        $company_gateway = CompanyGatewayFactory::create($company->id, $company->id);
         $fees_and_limits = new \stdClass;
-        $fees_and_limits->{$gateway_types[0]} = new FeesAndLimits;
-        
+        $fees_and_limits->{GatewayType::CREDIT_CARD} = new FeesAndLimits;
         $company_gateway->gateway_key = 'd14dd26a47cecc30fdd65700bfb67b34';
         $company_gateway->fees_and_limits = $fees_and_limits;
+        $company_gateway->setConfig([]);
         $company_gateway->save();
+
+        $payload = [
+            'account_id' => $response->stripe_user_id,
+            "token_type" => 'bearer',
+            "stripe_publishable_key" => $response->stripe_publishable_key,
+            "scope" => $response->scope,
+            "livemode" => $response->livemode,
+            "stripe_user_id" => $response->stripe_user_id,
+            "refresh_token" => $response->refresh_token,
+            "access_token" => $response->access_token
+        ];
 
         /* Link account if existing account exists */
         if($account_id = $this->checkAccountAlreadyLinkToEmail($company_gateway, $request->getContact()->email)) {
             
-            $config = json_decode(decrypt($company_gateway->config));
-
-            $config->account_id = $account_id;
-            $company_gateway->config = encrypt(json_encode($config));
+            $payload['account_id'] = $account_id;
+            $company_gateway->setConfig($payload);
             $company_gateway->save();
 
-            return render('gateways.stripe.connect.existing');
+            return view('auth.connect.existing');
+
         }
 
-        $data = [
-            'type' => 'standard',
-            'email' => $request->getContact()->email,
-            'country' => $request->getCompany()->country()->iso_3166_2,
-        ];
-
-        $account = Account::create($data);
-        $link = Account::link($account->id, $token);
-        $company_gateway->config = encrypt(json_encode(['account_id' => $account->id]));
+        $company_gateway->setConfig($payload);
         $company_gateway->save();
 
-        return redirect($link['url']);
-    }
-
-    public function completed()
-    {
-        return render('gateways.stripe.connect.completed');
+        //response here
+        return view('auth.connect.completed');
     }
 
 
@@ -111,4 +138,22 @@ class StripeConnectController extends BaseController
         return false;
 
     }
+    
+
+
+
+    /*********************************
+    * Stripe OAuth
+    */
+   
+   //  public function initialize(InitializeStripeConnectRequest $request, string $token)
+   // {
+
+   //  $stripe_key = config('ninja.ninja_stripe_key');
+
+   //  $endpoint = "https://connect.stripe.com/oauth/authorize?response_type=code&client_id={$stripe_key}&scope=read_write";
+
+   //  return redirect($endpoint);
+
+   // }
 }
