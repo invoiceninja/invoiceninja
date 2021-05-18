@@ -98,7 +98,7 @@ class StripeConnectController extends BaseController
         $company_gateway->gateway_key = 'd14dd26a47cecc30fdd65700bfb67b34';
         $company_gateway->fees_and_limits = $fees_and_limits;
         $company_gateway->setConfig([]);
-        $company_gateway->save();
+        // $company_gateway->save();
 
         $payload = [
             'account_id' => $response->stripe_user_id,
@@ -112,15 +112,16 @@ class StripeConnectController extends BaseController
         ];
 
         /* Link account if existing account exists */
-        if($account_id = $this->checkAccountAlreadyLinkToEmail($company_gateway, $request->getContact()->email)) {
+        // if($account_id = $this->checkAccountAlreadyLinkToEmail($company_gateway, $request->getContact()->email)) {
             
-            $payload['account_id'] = $account_id;
-            $company_gateway->setConfig($payload);
-            $company_gateway->save();
+        //     $payload['account_id'] = $account_id;
+        //     $payload['stripe_user_id'] = $account_id;
+        //     $company_gateway->setConfig($payload);
+        //     $company_gateway->save();
 
-            return view('auth.connect.existing');
+        //     return view('auth.connect.existing');
 
-        }
+        // }
 
         $company_gateway->setConfig($payload);
         $company_gateway->save();
