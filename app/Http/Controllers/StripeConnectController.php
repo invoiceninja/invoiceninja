@@ -64,8 +64,8 @@ class StripeConnectController extends BaseController
         // if($email = $request->getContact()->email)
         //     $endpoint .= "&stripe_user[email]={$email}";
 
-        $company_name = str_replace(" ", "_", $company->present()->name());
-        $endpoint .= "&stripe_user[business_name]={$company_name}";
+        // $company_name = str_replace(" ", "_", $company->present()->name());
+        // $endpoint .= "&stripe_user[business_name]={$company_name}";
 
         return redirect($endpoint);
     }
@@ -83,6 +83,7 @@ class StripeConnectController extends BaseController
 
         }catch(\Exception $e)
         {
+            
             nlog($e->getMessage());
         
         }
