@@ -61,8 +61,8 @@ class StripeConnectController extends BaseController
         $redirect_uri = 'https://invoicing.co/stripe/completed';
         $endpoint = "https://connect.stripe.com/oauth/authorize?response_type=code&client_id={$stripe_client_id}&redirect_uri={$redirect_uri}&scope=read_write&state={$token}";
 
-        if($email = $request->getContact()->email)
-            $endpoint .= "&stripe_user[email]={$email}";
+        // if($email = $request->getContact()->email)
+        //     $endpoint .= "&stripe_user[email]={$email}";
 
         $company_name = str_replace(" ", "_", $company->present()->name());
         $endpoint .= "&stripe_user[business_name]={$company_name}";
@@ -75,10 +75,17 @@ class StripeConnectController extends BaseController
 
         \Stripe\Stripe::setApiKey(config('ninja.ninja_stripe_key'));
 
-        $response = \Stripe\OAuth::token([
-          'grant_type' => 'authorization_code',
-          'code' => $request->input('code'),
-        ]);
+        try {
+            $response = \Stripe\OAuth::token([
+              'grant_type' => 'authorization_code',
+              'code' => $request->input('code'),
+            ]);
+
+        }catch(\Exception $e)
+        {
+            nlog($e->getMessage());
+        
+        }
 
         // nlog($response);
 
