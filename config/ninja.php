@@ -149,6 +149,7 @@ return [
     'invoiceninja_hosted_pdf_generation' => env('NINJA_HOSTED_PDF', false),
     'ninja_stripe_key' => env('NINJA_STRIPE_KEY', null),
     'ninja_stripe_publishable_key' => env('NINJA_PUBLISHABLE_KEY', null),
+    'ninja_stripe_client_id' => env('NINJA_STRIPE_CLIENT_ID', null),
     'pdf_generator' => env('PDF_GENERATOR', false),
     'internal_queue_enabled' => env('INTERNAL_QUEUE_ENABLED', true),
 ];

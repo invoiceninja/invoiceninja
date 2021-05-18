@@ -33,6 +33,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use ZipArchive;
 use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
@@ -41,7 +42,11 @@ class CompanyImport implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash;
 
+    protected $current_app_version;
+
     public $company;
+
+    private $account;
 
     public $file_path;
 
@@ -49,7 +54,33 @@ class CompanyImport implements ShouldQueue
 
     public $import_company;
 
+    public $ids = [];
+
     private $options = '';
+
+    private $importables = [
+        'company',
+        'users',
+        // 'payment_terms',
+        // 'tax_rates',
+        // 'clients',
+        // 'company_gateways',
+        // 'client_gateway_tokens',
+        // 'vendors',
+        // 'projects',
+        // 'products',
+        // 'credits',
+        // 'invoices',
+        // 'recurring_invoices',
+        // 'quotes',
+        // 'payments',
+        // 'expense_categories',
+        // 'task_statuses',
+        // 'expenses',
+        // 'tasks',
+        // 'documents',
+    ];
+
     /**
      * Create a new job instance.
      *
@@ -62,6 +93,7 @@ class CompanyImport implements ShouldQueue
         $this->company = $company;
         $this->file_path = $file_path;
         $this->options = $options;
+        $this->current_app_version = config('ninja.app_version');
     }
 
     public function handle()
@@ -69,9 +101,18 @@ class CompanyImport implements ShouldQueue
     	MultiDB::setDb($this->company->db);
 
     	$this->company =Company::where('company_key', $this->company->company_key)->firstOrFail();
+        $this->account = $this->company->account;
 
     	$this->unzipFile()
     		 ->preFlightChecks();
+
+            foreach($this->importables as $import){
+
+                $method = Str::ucfirst(Str::camel($import));
+
+                $this->{$method}();
+
+            }
 
     }
 
@@ -85,10 +126,12 @@ class CompanyImport implements ShouldQueue
     private function preFlightChecks()
     {
     	//check the file version and perform any necessary adjustments to the file in order to proceed - needed when we change schema
-    	//
-    	$app_version = $this->backup_file->app_version;
+    	
+    	if($this->current_app_version != $this->backup_file->app_version)
+        {
+            //perform some magic here
+        }
 
-    	nlog($app_version);
 
     	return $this;
     }
@@ -118,10 +161,39 @@ class CompanyImport implements ShouldQueue
     	return $this;
     }
 
-    private function importData()
+    private function importUsers()
     {
-    	// $this->import_company = Company::where('company_key', $this->company->company_key)->firstOrFail();
+        User::unguard();
 
-    	return $this;
+        foreach ($this->backup_file->users as $user)
+        {
+
+            $new_user = User::firstOrNew(
+                ['email' => $user->email],
+                (array)$user,
+            );
+
+            $new_user->account_id = $this->account->id;
+            $new_user->save(['timestamps' => false]);
+
+            $this->ids['users']["{$user->id}"] = $new_user->id;
+        }
+
+        Expense::reguard();
+
+    }
+
+
+    public function transformId(string$resource, string $old): int
+    {
+        if (! array_key_exists($resource, $this->ids)) {
+            throw new \Exception("Resource {$resource} not available.");
+        }
+
+        if (! array_key_exists("{$old}", $this->ids[$resource])) {
+            throw new \Exception("Missing resource key: {$old}");
+        }
+
+        return $this->ids[$resource]["{$old}"];
     }
 }

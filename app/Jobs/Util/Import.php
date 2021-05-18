@@ -1264,7 +1264,7 @@ class Import implements ShouldQueue
                 $modified['fees_and_limits'] = $this->cleanFeesAndLimits($modified['fees_and_limits']);
             }
 
-            if(Ninja::isHosted() && $modified['gateway_key'] == 'd14dd26a37cecc30fdd65700bfb55b23'){
+            else if(Ninja::isHosted() && !Ninja::isPaidHostedClient() && $modified['gateway_key'] == 'd14dd26a37cecc30fdd65700bfb55b23'){
                 $modified['gateway_key'] = 'd14dd26a47cecc30fdd65700bfb67b34';
                 $modified['fees_and_limits'] = [];
             }
@@ -1296,6 +1296,8 @@ class Import implements ShouldQueue
 
             $modified['company_id'] = $this->company->id;
             $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
+            $modified['company_gateway_id'] = $this->transformId('company_gateways', $resource['company_gateway_id']);
+            
             //$modified['user_id'] = $this->processUserId($resource);
 
             $cgt = ClientGatewayToken::Create($modified);

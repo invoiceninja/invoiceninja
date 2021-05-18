@@ -110,7 +110,6 @@ class Kernel extends HttpKernel
             ShareErrorsFromSession::class,
             VerifyCsrfToken::class,
             SubstituteBindings::class,
-            //\App\Http\Middleware\StartupCheck::class,
             QueryLogging::class,
         ],
         'shop' => [
@@ -163,6 +162,7 @@ class Kernel extends HttpKernel
 
 
     protected $middlewarePriority = [
+        SetDomainNameDb::class,
         SetDb::class,
         SetWebDb::class,
         UrlSetDb::class,
@@ -170,7 +170,6 @@ class Kernel extends HttpKernel
         SetEmailDb::class,
         SetInviteDb::class,
         SetDbByCompanyKey::class,
-        SetDomainNameDb::class,
         TokenAuth::class,
         ContactTokenAuth::class,
         ContactKeyLogin::class,

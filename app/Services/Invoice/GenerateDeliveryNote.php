@@ -49,7 +49,9 @@ class GenerateDeliveryNote
 
         $this->contact = $contact;
 
-        $this->disk = $disk ?? config('filesystems.default');
+        $this->disk = 'public';
+
+        // $this->disk = $disk ?? config('filesystems.default');
     }
 
     public function run()
@@ -105,6 +107,7 @@ class GenerateDeliveryNote
 
         Storage::disk($this->disk)->put($file_path, $pdf);
 
-        return $file_path;
+        return Storage::disk($this->disk)->path($file_path);
+
     }
 }

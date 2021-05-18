@@ -36,10 +36,10 @@ class RecurringInvoiceFactory
         $invoice->tax_rate1 = 0;
         $invoice->tax_name2 = '';
         $invoice->tax_rate2 = 0;
-        $invoice->custom_value1 = 0;
-        $invoice->custom_value2 = 0;
-        $invoice->custom_value3 = 0;
-        $invoice->custom_value4 = 0;
+        $invoice->custom_value1 = '';
+        $invoice->custom_value2 = '';
+        $invoice->custom_value3 = '';
+        $invoice->custom_value4 = '';
         $invoice->amount = 0;
         $invoice->balance = 0;
         $invoice->partial = 0;

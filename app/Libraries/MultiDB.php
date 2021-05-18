@@ -253,14 +253,14 @@ class MultiDB
         return false;
     }
 
-    public static function findAndSetDbByDomain($subdomain) :bool
+    public static function findAndSetDbByDomain($query_array) :bool
     {
 
         if (! config('ninja.db.multi_db_enabled'))
-            return (Company::whereSubdomain($subdomain)->exists() === true);
+            return (Company::where($query_array)->exists() === true);
 
         foreach (self::$dbs as $db) {
-            if ($company = Company::on($db)->whereSubdomain($subdomain)->first()) {
+            if ($company = Company::on($db)->where($query_array)->first()) {
                 self::setDb($company->db);
                 return true;
             }

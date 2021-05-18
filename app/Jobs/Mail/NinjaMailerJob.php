@@ -57,6 +57,8 @@ class NinjaMailerJob implements ShouldQueue
 
     public $override;
 
+    public $company;
+
     public function __construct(NinjaMailerObject $nmo, bool $override = false)
     {
 
@@ -73,7 +75,8 @@ class NinjaMailerJob implements ShouldQueue
         /*Set the correct database*/
         MultiDB::setDb($this->nmo->company->db);
 
-        $company = Company::where('company_key', $this->nmo->company->company_key)->first();
+        /* Serializing models from other jobs wipes the primary key */
+        $this->company = Company::where('company_key', $this->nmo->company->company_key)->first();
 
         /* Set the email driver */
         $this->setMailDriver();
@@ -89,7 +92,7 @@ class NinjaMailerJob implements ShouldQueue
 
         }
         else {
-            $this->nmo->mailable->replyTo($company->owner()->email, $company->owner()->present()->name());
+            $this->nmo->mailable->replyTo($this->company->owner()->email, $this->company->owner()->present()->name());
         }
 
 
@@ -178,7 +181,15 @@ class NinjaMailerJob implements ShouldQueue
         nlog("Sending via {$user->name()}");
 
         $google = (new Google())->init();
-        $google->getClient()->setAccessToken(json_encode($user->oauth_user_token));
+
+        try{
+            $google->getClient()->setAccessToken(json_encode($user->oauth_user_token));
+        }
+        catch(\Exception $e) {
+            $this->logMailError('Gmail Token Invalid', $this->company->clients()->first());
+            $this->nmo->settings->email_sending_method = 'default';
+            return $this->setMailDriver();
+        }
 
         if ($google->getClient()->isAccessTokenExpired()) {
             $google->refreshToken($user);
