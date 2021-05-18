@@ -94,6 +94,8 @@ class Handler extends ExceptionHandler
                     ]);
             });
 
+                app('sentry')->captureException($exception);
+
         }
         elseif (app()->bound('sentry') && $this->shouldReport($exception)) {
             app('sentry')->configureScope(function (Scope $scope): void {
