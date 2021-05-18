@@ -74,7 +74,7 @@ class StripeConnectController extends BaseController
 
         $company = Company::where('company_key', $request->getTokenContent()['company_key'])->first();
 
-        $company_gateway = CompanyGatewayFactory::create($company->id, $company->owner()->id);
+        $company_gateway = CompanyGatewayFactory::create($company->id, $company->id);
         $fees_and_limits = new \stdClass;
         $fees_and_limits->{GatewayType::CREDIT_CARD} = new FeesAndLimits;
         $company_gateway->gateway_key = 'd14dd26a47cecc30fdd65700bfb67b34';
@@ -96,19 +96,17 @@ class StripeConnectController extends BaseController
         /* Link account if existing account exists */
         if($account_id = $this->checkAccountAlreadyLinkToEmail($company_gateway, $request->getContact()->email)) {
             
-            $config = json_decode(decrypt($company_gateway->config));
-
-            $company_gateway->config = encrypt(json_encode($payload));
+            $payload['account_id'] = $account_id;
+            $company_gateway->config = $company_gateway->setConfig($payload);
             $company_gateway->save();
 
             return view('auth.connect.existing');
 
         }
 
-        $company_gateway->config = encrypt(json_encode($payload));
+        $company_gateway->config = $company_gateway->setConfig($payload);
         $company_gateway->save();
 
-        auth()->logout();
         //response here
         return view('auth.connect.completed');
     }
