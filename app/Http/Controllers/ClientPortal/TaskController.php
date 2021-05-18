@@ -14,7 +14,6 @@ namespace App\Http\Controllers\ClientPortal;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\Tasks\ShowTasksRequest;
-use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
@@ -26,6 +25,10 @@ class TaskController extends Controller
      */
     public function index(ShowTasksRequest $request)
     {
+        \Carbon\Carbon::setLocale(
+            auth('contact')->user()->preferredLocale()
+        );
+
         return render('tasks.index');
     }
 }
