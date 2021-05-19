@@ -77,6 +77,7 @@ class ImportCustomers
 
         nlog("inserting a customer");
         nlog($customer);
+        
         $client = ClientFactory::create($this->stripe->company_gateway->company_id, $this->stripe->company_gateway->user_id);
 
         if(property_exists($customer, 'address'))
