@@ -44,16 +44,19 @@ class SystemLogger implements ShouldQueue
         $this->event_id = $event_id;
         $this->type_id = $type_id;
         $this->client = $client;
+        $this->company = $company;
     }
 
     public function handle() :void
     {
+        if(!$this->company)
+            return;
 
         MultiDB::setDb($this->company->db);
 
         $client_id = $this->client ? $this->client->id : null;
         $user_id = $this->client ? $this->client->user_id : $this->company->owner()->id;
-        
+
         $sl = [
             'client_id' => $client_id,
             'company_id' => $this->company->id,
