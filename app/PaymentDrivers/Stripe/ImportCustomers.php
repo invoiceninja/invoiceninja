@@ -56,11 +56,11 @@ class ImportCustomers
 
     private function addCustomer(Customer $customer)
     {
+
+    $account = $this->stripe->company_gateway->company->account;
         
     if(!$account->isPaidHostedClient() && Client::where('company_id', $this->stripe->company_gateway->company_id)->count() > config('ninja.quotas.free.clients'))
         return;
-    
-        $account = $this->stripe->company_gateway->company->account;
 
         nlog("search Stripe for {$custom->id}");
 
