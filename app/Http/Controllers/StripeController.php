@@ -22,8 +22,8 @@ class StripeController extends BaseController
 	{
 		if(auth()->user()->isAdmin())
 		{
-
-			StripeUpdatePaymentMethods::dispatch(auth()->user()->getCompany());
+			
+			StripeUpdatePaymentMethods::dispatch(auth()->user()->company());
 
 			return response()->json(['message' => 'Processing'], 200);
 
@@ -39,7 +39,7 @@ class StripeController extends BaseController
 		if(auth()->user()->isAdmin())
 		{
 			
-			ImportStripeCustomers::dispatch(auth()->user()->getCompany());
+			ImportStripeCustomers::dispatch(auth()->user()->company());
 
 			return response()->json(['message' => 'Processing'], 200);
 
