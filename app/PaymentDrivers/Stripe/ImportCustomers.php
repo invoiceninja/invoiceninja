@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
- */
+*/
 
 namespace App\PaymentDrivers\Stripe;
 

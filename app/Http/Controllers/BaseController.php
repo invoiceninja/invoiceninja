@@ -189,10 +189,7 @@ class BaseController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->getCompany()->is_large)
-          $this->manager->parseIncludes($this->mini_load);
-        else
-          $this->manager->parseIncludes($this->first_load);
+        $this->manager->parseIncludes($this->first_load);
 
         $this->serializer = request()->input('serializer') ?: EntityTransformer::API_SERIALIZER_ARRAY;
 

@@ -238,6 +238,8 @@ class SubscriptionService
      */
     private function calculateProRataRefund($invoice) :float
     {
+        if(!$this->invoice->date)
+            return 0;
         
         $start_date = Carbon::parse($invoice->date);
 
