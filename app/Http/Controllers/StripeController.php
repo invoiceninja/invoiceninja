@@ -25,7 +25,7 @@ class StripeController extends BaseController
 
 			StripeUpdatePaymentMethods::dispatch(auth()->user()->getCompany());
 
-			return response()->json(['message' => 'Processing'], 403);
+			return response()->json(['message' => 'Processing'], 200);
 
 		}
 
@@ -41,7 +41,7 @@ class StripeController extends BaseController
 			
 			ImportStripeCustomers::dispatch(auth()->user()->getCompany());
 
-			return response()->json(['message' => 'Processing'], 403);
+			return response()->json(['message' => 'Processing'], 200);
 
 		}
 
