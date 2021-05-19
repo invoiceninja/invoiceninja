@@ -57,14 +57,18 @@ class ImportCustomers
     private function addCustomer(Customer $customer)
     {
         
+    if(!$account->isPaidHostedClient() && Client::where('company_id', $this->stripe->company_gateway->company_id)->count() > config('ninja.quotas.free.clients'))
+        return;
+    
         $account = $this->stripe->company_gateway->company->account;
+
+        nlog("search Stripe for {$custom->id}");
 
         $existing_customer = $this->stripe
                                   ->company_gateway
                                   ->client_gateway_tokens()
                                   ->where('gateway_customer_reference', $customer->id)
                                   ->exists();
-
 
         if($existing_customer)
             return;
@@ -105,8 +109,6 @@ class ImportCustomers
 
         $client->name = property_exists($customer, 'name') ? $customer->name : '';
 
-        if(!$account->isPaidHostedClient() && Client::where('company_id', $this->stripe->company_gateway->company_id)->count() <= config('ninja.quotas.free.clients')){
-
             $client->save();
 
             $contact = ClientContactFactory::create($client->company_id, $client->user_id);
@@ -114,8 +116,7 @@ class ImportCustomers
             $contact->first_name = $client->name ?: '';
             $contact->phone = $client->phone ?: '';
             $contact->email = $client->email ?: '';
-            $contact->save();
-            
-        }
+            $contact->save();            
+
     }
 }
