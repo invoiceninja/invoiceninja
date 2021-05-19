@@ -1,4 +1,4 @@
-<footer class="bg-white px-4 py-5 shadow px-4 sm:px-6 md:px-8 flex justify-center border border-gray-200 justify-between items-center" x-data="{ privacy: false, tos: false }">
+<footer class="bg-white px-4 py-5 shadow px-4 sm:px-6 md:px-8 flex justify-center border-t border-gray-200 justify-between items-center" x-data="{ privacy: false, tos: false }">
     <section>
         <span class="text-xs md:text-sm text-gray-700">{{ ctrans('texts.footer_label', ['company' => auth('contact')->user() ? (auth('contact')->user()->user->account->isPaid() ? auth('contact')->user()->company->present()->name() : 'Invoice Ninja') : 'Invoice Ninja', 'year' => date('Y')])  }}</span>
 

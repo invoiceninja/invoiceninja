@@ -12,11 +12,18 @@
             <img class="h-6 w-auto" src="{!! auth('contact')->user()->company->present()->logo($settings) !!}" alt="{{ config('app.name') }}" />
         </div>
         <div class="mt-5 flex-1 h-0 overflow-y-auto">
-            <nav class="flex-1 py-4 bg-white">
+            <nav class="flex-1 pb-4 pt-0 bg-white">
                 @foreach($sidebar as $row)
-                <a class="group flex items-center p-4 text-sm leading-5 font-medium text-gray-900 bg-white hover:font-semibold focus:outline-none focus:font-semibold transition ease-in-out duration-150 {{ isActive($row['url']) }}" href="{{ route($row['url']) }}">
-                    <img src="{{ asset('images/svg/dark/' . $row['icon'] . '.svg') }}" class="w-5 h-5 fill-current text-gray-900 mr-3" alt="" />
-                    {{ $row['title'] }}
+                <a class="group flex items-center p-4 text-sm leading-5 font-medium hover:font-semibold focus:outline-none focus:font-semibold transition ease-in-out duration-150 {{ isActive($row['url'], true) ? 'bg-primary text-white' : 'text-gray-900' }}" href="{{ route($row['url']) }}">
+                    @if(isActive($row['url'], true))
+                        <img src="{{ asset('images/svg/' . $row['icon'] . '.svg') }}"
+                             class="w-5 h-5 fill-current mr-3" alt=""/>
+                    @else
+                        <img src="{{ asset('images/svg/dark/' . $row['icon'] . '.svg') }}"
+                             class="w-5 h-5 fill-current mr-3" alt=""/>
+                    @endif
+
+                    <span>{{ $row['title'] }}</span>
                 </a>
                 @endforeach
             </nav>
