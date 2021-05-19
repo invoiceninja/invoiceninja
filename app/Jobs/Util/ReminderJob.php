@@ -12,6 +12,7 @@
 namespace App\Jobs\Util;
 
 use App\Events\Invoice\InvoiceWasEmailed;
+use App\Jobs\Entity\EmailEntity;
 use App\Libraries\MultiDB;
 use App\Models\Invoice;
 use App\Utils\Ninja;
