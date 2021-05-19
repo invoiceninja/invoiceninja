@@ -237,7 +237,7 @@ class LoginController extends BaseController
                 ->batch();
 
             SystemLogger::dispatch(
-                json_encode(['id' => request()->getClientIp()]),
+                json_encode(['ip' => request()->getClientIp()]),
                 SystemLog::CATEGORY_SECURITY,
                 SystemLog::EVENT_USER,
                 SystemLog::TYPE_LOGIN_FAILURE,
