@@ -42,7 +42,7 @@ class ImportCustomers
 
         $this->stripe->init();
 
-        $customers = Customer::all();
+        $customers = Customer::all([], $this->stripe->stripe_connect_auth);
 
         foreach($customers as $customer)
         {
@@ -62,7 +62,7 @@ class ImportCustomers
     if(!$account->isPaidHostedClient() && Client::where('company_id', $this->stripe->company_gateway->company_id)->count() > config('ninja.quotas.free.clients'))
         return;
 
-        nlog("search Stripe for {$custom->id}");
+        nlog("search Stripe for {$customer->id}");
 
         $existing_customer = $this->stripe
                                   ->company_gateway
@@ -70,9 +70,13 @@ class ImportCustomers
                                   ->where('gateway_customer_reference', $customer->id)
                                   ->exists();
 
-        if($existing_customer)
+        if($existing_customer){
+            nlog("Skipping - Customer exists: {$customer->email}");
             return;
+        }
 
+        nlog("inserting a customer");
+        nlog($customer);
         $client = ClientFactory::create($this->stripe->company_gateway->company_id, $this->stripe->company_gateway->user_id);
 
         if(property_exists($customer, 'address'))
@@ -107,16 +111,16 @@ class ImportCustomers
 
         }
 
-        $client->name = property_exists($customer, 'name') ? $customer->name : '';
+        $client->name = property_exists($customer, 'name') ? $customer->name : $customer->email;
 
-            $client->save();
+        $client->save();
 
-            $contact = ClientContactFactory::create($client->company_id, $client->user_id);
-            $contact->client_id = $client->id;
-            $contact->first_name = $client->name ?: '';
-            $contact->phone = $client->phone ?: '';
-            $contact->email = $client->email ?: '';
-            $contact->save();            
+        $contact = ClientContactFactory::create($client->company_id, $client->user_id);
+        $contact->client_id = $client->id;
+        $contact->first_name = $client->name ?: '';
+        $contact->phone = $client->phone ?: '';
+        $contact->email = $customer->email ?: '';
+        $contact->save();            
 
     }
 }
