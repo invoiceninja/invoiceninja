@@ -125,7 +125,8 @@ class Phantom
                 SystemLog::CATEGORY_PDF,
                 SystemLog::EVENT_PDF_RESPONSE,
                 SystemLog::TYPE_PDF_FAILURE,
-                $invitation->contact->client
+                $invitation->contact->client,
+                $invitation->company,
             );
 
             throw new PhantomPDFFailure('There was an error generating the PDF with Phantom JS');
@@ -137,7 +138,8 @@ class Phantom
                 SystemLog::CATEGORY_PDF,
                 SystemLog::EVENT_PDF_RESPONSE,
                 SystemLog::TYPE_PDF_SUCCESS,
-                $invitation->contact->client
+                $invitation->contact->client,
+                $invitation->company,
             );
 
         }

@@ -664,7 +664,8 @@ class SubscriptionService
                 SystemLog::CATEGORY_WEBHOOK,
                 SystemLog::EVENT_WEBHOOK_RESPONSE,
                 SystemLog::TYPE_WEBHOOK_RESPONSE,
-                $client,
+                $client, 
+                $client->company,
             );
 
         return $response;

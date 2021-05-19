@@ -222,7 +222,8 @@ class NinjaMailerJob implements ShouldQueue
             SystemLog::CATEGORY_MAIL,
             SystemLog::EVENT_MAIL_SEND,
             SystemLog::TYPE_FAILURE,
-            $recipient_object
+            $recipient_object,
+            $this->nmo->company
         );
     }
 

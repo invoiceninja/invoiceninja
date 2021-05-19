@@ -106,7 +106,8 @@ class PayPalExpressPaymentDriver extends BaseDriver
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_FAILURE,
             SystemLog::TYPE_PAYPAL,
-            $this->client
+            $this->client,
+            $this->client->company,
         );
 
         throw new PaymentFailed($response->getMessage(), $response->getCode());
@@ -140,7 +141,8 @@ class PayPalExpressPaymentDriver extends BaseDriver
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_SUCCESS,
                 SystemLog::TYPE_PAYPAL,
-                $this->client
+                $this->client,
+                $this->client->company,
             );
 
             return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
@@ -162,7 +164,8 @@ class PayPalExpressPaymentDriver extends BaseDriver
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_FAILURE,
                 SystemLog::TYPE_PAYPAL,
-                $this->client
+                $this->client,
+                $this->client->company,
             );
 
             throw new PaymentFailed($response->getMessage(), $response->getCode());
