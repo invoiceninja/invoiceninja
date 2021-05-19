@@ -87,7 +87,8 @@ class Alipay
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_SUCCESS,
             SystemLog::TYPE_STRIPE,
-            $this->stripe->client
+            $this->stripe->client,
+            $this->stripe->client->company,
         );
 
         return redirect()->route('client.payments.show', ['payment' => $this->stripe->encodePrimaryKey($payment->id)]);
@@ -116,7 +117,8 @@ class Alipay
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_FAILURE,
             SystemLog::TYPE_STRIPE,
-            $this->stripe->client
+            $this->stripe->client,
+            $this->stripe->client->company,
         );
 
         throw new PaymentFailed('Failed to process the payment.', 500);

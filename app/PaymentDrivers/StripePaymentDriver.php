@@ -338,7 +338,7 @@ class StripePaymentDriver extends BaseDriver
                 ->create(['charge' => $payment->transaction_reference, 'amount' => $this->convertToStripeAmount($amount, $this->client->currency()->precision)], $meta);
 
             if ($response->status == $response::STATUS_SUCCEEDED) {
-                SystemLogger::dispatch(['server_response' => $response, 'data' => request()->all(),], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->client);
+                SystemLogger::dispatch(['server_response' => $response, 'data' => request()->all(),], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->client, $this->client->company);
 
                 return [
                     'transaction_reference' => $response->charge,
@@ -349,7 +349,7 @@ class StripePaymentDriver extends BaseDriver
                 ];
             }
 
-            SystemLogger::dispatch(['server_response' => $response, 'data' => request()->all(),], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->client);
+            SystemLogger::dispatch(['server_response' => $response, 'data' => request()->all(),], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->client, $this->client->company);
 
             return [
                 'transaction_reference' => null,
@@ -359,7 +359,7 @@ class StripePaymentDriver extends BaseDriver
                 'code' => 422,
             ];
         } catch (Exception $e) {
-            SystemLogger::dispatch(['server_response' => $response, 'data' => request()->all(),], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->client);
+            SystemLogger::dispatch(['server_response' => $response, 'data' => request()->all(),], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_STRIPE, $this->client, $this->client->company);
 
             nlog($e->getMessage());
 
@@ -426,7 +426,7 @@ class StripePaymentDriver extends BaseDriver
             SystemLog::CATEGORY_GATEWAY_RESPONSE, 
             SystemLog::EVENT_GATEWAY_FAILURE, 
             SystemLog::TYPE_STRIPE, 
-            $this->client);
+            $this->client, $this->client->company);
 
         }
     }
@@ -459,7 +459,7 @@ class StripePaymentDriver extends BaseDriver
             SystemLog::CATEGORY_GATEWAY_RESPONSE, 
             SystemLog::EVENT_GATEWAY_FAILURE, 
             SystemLog::TYPE_STRIPE, 
-            $this->client);
+            $this->client, $this->client->company);
 
         }
     }

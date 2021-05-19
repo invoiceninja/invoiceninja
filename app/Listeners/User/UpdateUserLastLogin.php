@@ -75,6 +75,7 @@ class UpdateUserLastLogin implements ShouldQueue
             SystemLog::EVENT_USER,
             SystemLog::TYPE_LOGIN_SUCCESS,
             $event->company->clients()->first(),
+            $event->company,
         );
 
     }
