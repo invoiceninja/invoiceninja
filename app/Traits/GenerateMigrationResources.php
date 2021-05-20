@@ -373,6 +373,8 @@ info("get company");
                 'gateway_type_id' => $payment_method->payment_type->gateway_type_id,
                 'is_default' => $is_default,
                 'meta' => $this->convertMeta($payment_method),
+                'client' => $contact->client->toArray(),
+                'contacts' => $contact->client->contacts->toArray(),
             ];
         }
 
