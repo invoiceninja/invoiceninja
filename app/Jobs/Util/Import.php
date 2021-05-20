@@ -1650,7 +1650,7 @@ class Import implements ShouldQueue
         $ninja_company = Company::on('db-ninja-01')->find(config('ninja.ninja_default_company_id'));
 
         /* If we already have a record of this user - move along. */
-        if($client_contact = ClientContact::on('db-ninja-01')->where(['email' => $owner->email, 'company_id' => $ninja_company->id)->exists())
+        if($client_contact = ClientContact::on('db-ninja-01')->where(['email' => $owner->email, 'company_id' => $ninja_company->id])->exists())
             return $client_contact->client;
 
         $ninja_client = ClientFactory::create($ninja_company->id, $ninja_company->owner()->id);
