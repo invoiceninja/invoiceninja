@@ -249,6 +249,17 @@
                     <div class="footer-content">
                         <div>
                             <p data-ref="total_table-footer">$entity_footer</p>
+
+                            <script>
+                                // Clear up space a bit, if [product-table, tasks-table, delivery-note-table] isn't present.
+                                document.addEventListener('DOMContentLoaded', () => {
+                                    ['product-table', 'task-table', 'delivery-note-table'].forEach((tableIdentifier) => {
+                                        document.getElementById(tableIdentifier).childElementCount === 0
+                                            ? document.getElementById(tableIdentifier).style.display = 'none'
+                                            : '';
+                                    });
+                                });
+                            </script>
                         </div>
                         <div id="company-details"></div>
                         <div id="company-address"></div>
