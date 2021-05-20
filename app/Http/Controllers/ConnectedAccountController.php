@@ -160,6 +160,9 @@ class ConnectedAccountController extends BaseController
                 'email_verified_at' =>now()
             ];
 
+            if(auth()->user()->email != $google->harvestEmail($user))
+                return response()->json(['message' => 'Primary Email differs to OAuth email. Emails must match.'], 400);
+
             auth()->user()->update($connected_account);
             auth()->user()->email_verified_at = now();
             auth()->user()->save();

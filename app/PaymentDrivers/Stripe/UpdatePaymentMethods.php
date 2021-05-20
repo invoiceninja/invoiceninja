@@ -74,15 +74,15 @@ class UpdatePaymentMethods
                     $this->addOrUpdateCard($method, $token, GatewayType::SOFORT);
                 }
 
-                $bank_accounts = Customer::allSources(
-                    $token->gateway_customer_reference,
-                    ['object' => 'bank_account', 'limit' => 300]
-                );
+                // $bank_accounts = Customer::allSources(
+                //     $token->gateway_customer_reference,
+                //     ['object' => 'bank_account', 'limit' => 300]
+                // );
 
-                foreach($bank_accounts as $bank_account)
-                {
-                    $this->addOrUpdateBankAccount($bank_account, $token);
-                }
+                // foreach($bank_accounts as $bank_account)
+                // {
+                //     $this->addOrUpdateBankAccount($bank_account, $token);
+                // }
 
         });
 
