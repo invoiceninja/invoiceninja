@@ -95,9 +95,12 @@ class CreditEmailEngine extends BaseEmailEngine
             ->setInvitation($this->invitation);
 
         if ($this->client->getSetting('pdf_email_attachment') !== false && $this->credit->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
-            $this->setAttachments([$this->credit->pdf_file_path()]);
 
-            // $this->setAttachments(['path' => $this->credit->pdf_file_path(), 'name' => basename($this->credit->pdf_file_path())]);
+            if(Ninja::isHosted())
+                $this->setAttachments([$this->credit->pdf_file_path(null, 'url', true)]);
+            else
+                $this->setAttachments([$this->credit->pdf_file_path()]);
+            
         }
 
         //attach third party documents
