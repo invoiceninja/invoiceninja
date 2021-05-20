@@ -20,17 +20,17 @@ const RESOURCES = {
 "assets/assets/images/payment_types/visa.png": "3ddc4a4d25c946e8ad7e6998f30fd4e3",
 "assets/assets/images/payment_types/discover.png": "6c0a386a00307f87db7bea366cca35f5",
 "assets/assets/images/payment_types/dinerscard.png": "06d85186ba858c18ab7c9caa42c92024",
-"assets/fonts/MaterialIcons-Regular.otf": "4e6447691c9509f7acdbf8a931a85ca1",
+"assets/fonts/MaterialIcons-Regular.otf": "1288c9e28052e028aba623321f7826ac",
 "assets/FontManifest.json": "cf3c681641169319e61b61bd0277378f",
 "assets/packages/material_design_icons_flutter/lib/fonts/materialdesignicons-webfont.ttf": "174c02fc4609e8fc4389f5d21f16a296",
 "assets/AssetManifest.json": "659dcf9d1baf3aed3ab1b9c42112bf8f",
-"assets/NOTICES": "f8d32fd874c15b7cbfad08f434bd34e9",
+"assets/NOTICES": "687b68d41e137cfbdee105c0b9be3e9d",
 "icons/Icon-512.png": "0f9aff01367f0a0c69773d25ca16ef35",
 "icons/Icon-192.png": "bb1cf5f6982006952211c7c8404ffbed",
 "favicon.png": "dca91c54388f52eded692718d5a98b8b",
 "version.json": "ea1781094b87723b953889a712b1feba",
 "manifest.json": "ce1b79950eb917ea619a0a30da27c6a3",
-"main.dart.js": "828901b2b108cc046e405352e47b1c10",
+"main.dart.js": "9bd7816df91b39021d71a94de8ad1c39",
 "favicon.ico": "51636d3a390451561744c42188ccd628",
 "/": "23224b5e03519aaa87594403d54412cf"
 };
@@ -49,7 +49,7 @@ self.addEventListener("install", (event) => {
   return event.waitUntil(
     caches.open(TEMP).then((cache) => {
       return cache.addAll(
-        CORE.map((value) => new Request(value, {'cache': 'reload'})));
+        CORE.map((value) => new Request(value + '?revision=' + RESOURCES[value], {'cache': 'reload'})));
     })
   );
 });
