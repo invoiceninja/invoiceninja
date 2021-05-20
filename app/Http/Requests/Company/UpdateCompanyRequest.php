@@ -50,7 +50,7 @@ class UpdateCompanyRequest extends Request
         } else {
 
             if(Ninja::isHosted()){
-                $rules['subdomain'] = ['nullable|alpha_num', new ValidSubdomain($this->all())];
+                $rules['subdomain'] = ['nullable', 'alpha_num', new ValidSubdomain($this->all())];
             }
             else
                 $rules['subdomain'] = 'nullable|alpha_num';
