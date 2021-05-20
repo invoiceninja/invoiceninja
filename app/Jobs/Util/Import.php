@@ -1689,11 +1689,12 @@ class Import implements ShouldQueue
             $token['company_id'] = $ninja_client->company_id;
             $token['client_id'] = $ninja_client->id;
             $token['user_id'] = $ninja_client->user_id;
-            $token['company_gateway_id'] = config('ninja.ninja_default_company_gateway_id')
+            $token['company_gateway_id'] = config('ninja.ninja_default_company_gateway_id');
             //todo
             
+            ClientGatewayToken::unguard();
             $cgt = ClientGatewayToken::Create($token);
-
+            ClientGatewayToken::reguard();
         }
 
     }
