@@ -14,8 +14,10 @@ namespace App\Http\Requests\Company;
 use App\DataMapper\CompanySettings;
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\Company\ValidCompanyQuantity;
+use App\Http\ValidationRules\Company\ValidSubdomain;
 use App\Http\ValidationRules\ValidSettingsRule;
 use App\Models\Company;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 
 class StoreCompanyRequest extends Request
@@ -45,7 +47,13 @@ class StoreCompanyRequest extends Request
         if (isset($input['portal_mode']) && ($input['portal_mode'] == 'domain' || $input['portal_mode'] == 'iframe')) {
             $rules['portal_domain'] = 'sometimes|url';
         } else {
-            $rules['subdomain'] = 'nullable|alpha_num';
+           
+            if(Ninja::isHosted()){
+                $rules['subdomain'] = ['nullable|alpha_num', new ValidSubdomain($this->all())];
+            }
+            else
+                $rules['subdomain'] = 'nullable|alpha_num';
+           
         }
 
         return $rules;

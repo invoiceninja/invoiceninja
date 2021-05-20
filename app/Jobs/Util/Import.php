@@ -17,6 +17,7 @@ use App\Exceptions\MigrationValidatorFailed;
 use App\Exceptions\ProcessingMigrationArchiveFailed;
 use App\Exceptions\ResourceDependencyMissing;
 use App\Exceptions\ResourceNotAvailableForMigration;
+use App\Factory\ClientContactFactory;
 use App\Factory\ClientFactory;
 use App\Factory\CompanyLedgerFactory;
 use App\Factory\CreditFactory;
@@ -1641,9 +1642,60 @@ class Import implements ShouldQueue
         return $response->getBody();
     }
 
+    private function buildNewUserPlan() :Client
+    {
+        $local_company = Company::find($this->company->id);
+        $owner = $local_company->owner();
+
+        $ninja_company = Company::on('db-ninja-01')->find(config('ninja.ninja_default_company_id'));
+
+        /* If we already have a record of this user - move along. */
+        if($client_contact = ClientContact::on('db-ninja-01')->where(['email' => $owner->email, 'company_id' => $ninja_company->id)->exists())
+            return $client_contact->client;
+
+        $ninja_client = ClientFactory::create($ninja_company->id, $ninja_company->owner()->id);
+        $ninja_client->setConnection('db-ninja-01');
+        $ninja_client->name = $owner->present()->name();
+        $ninja_client->address1 = $local_company->settings->address1;
+        $ninja_client->address2 = $local_company->settings->address2;
+        $ninja_client->city = $local_company->settings->city;
+        $ninja_client->postal_code = $local_company->settings->postal_code;
+        $ninja_client->state = $local_company->settings->state;
+        $ninja_client->country_id = $local_company->settings->country_id;
+
+        $ninja_client->save();
+
+        $ninja_client_contact = ClientContactFactory::create($ninja_company->id, $ninja_company->owner()->id);
+        $ninja_client_contact->setConnection('db-ninja-01');
+        $ninja_client_contact->first_name = $owner->first_name;
+        $ninja_client_contact->last_name = $owner->last_name;
+        $ninja_client_contact->client_id = $ninja_client->id;
+        $ninja_client_contact->email = $owner->email;
+        $ninja_client_contact->phone = $owner->phone;
+        $ninja_client_contact->save();
+
+    }
+
     private function processNinjaTokens(array $data)
     {
-        
+        if(count($data) == 0)
+            $ninja_client = $this->buildNewUserPlan();
+
+        foreach($data as $token)
+        {
+            //get invoiceninja company_id
+            $ninja_company = Company::on('db-ninja-01')->where('id', config('ninja.ninja_default_company_id'))->first();
+
+            $token['company_id'] = $ninja_client->company_id;
+            $token['client_id'] = $ninja_client->id;
+            $token['user_id'] = $ninja_client->user_id;
+            $token['company_gateway_id'] = config('ninja.ninja_default_company_gateway_id')
+            //todo
+            
+            $cgt = ClientGatewayToken::Create($token);
+
+        }
+
     }
 
     /* In V4 we use negative invoices (credits) and add then into the client balance. In V5, these sit off ledger and are applied later.

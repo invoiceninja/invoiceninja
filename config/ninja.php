@@ -150,6 +150,8 @@ return [
     'ninja_stripe_key' => env('NINJA_STRIPE_KEY', null),
     'ninja_stripe_publishable_key' => env('NINJA_PUBLISHABLE_KEY', null),
     'ninja_stripe_client_id' => env('NINJA_STRIPE_CLIENT_ID', null),
+    'ninja_default_company_id' => env('NINJA_COMPANY_ID', null),
+    'ninja_default_company_gateway_id' => env('NINJA_COMPANY_GATEWAY_ID', null),
     'pdf_generator' => env('PDF_GENERATOR', false),
     'internal_queue_enabled' => env('INTERNAL_QUEUE_ENABLED', true),
 ];
