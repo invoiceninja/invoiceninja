@@ -56,6 +56,7 @@ class MultiDB
             return Company::whereSubdomain($subdomain)->get()->count() == 0;
         }
 
+
         //multi-db active
         foreach (self::$dbs as $db) {
             if (Company::on($db)->whereSubdomain($subdomain)->get()->count() >= 1) {
@@ -63,7 +64,7 @@ class MultiDB
             }
         }
 
-        self::setDefaultDatabase();
+        //self::setDefaultDatabase();
 
         return true;
     }
