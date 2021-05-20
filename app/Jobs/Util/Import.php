@@ -1618,6 +1618,9 @@ class Import implements ShouldQueue
                  ->batch();
 
         info(print_r($exception->getMessage(), 1));
+
+        if(Ninja::isHosted())
+            app('sentry')->captureException($exception);
     }
 
 
