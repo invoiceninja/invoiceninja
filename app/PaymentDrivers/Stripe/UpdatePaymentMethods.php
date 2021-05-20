@@ -111,7 +111,7 @@ class UpdatePaymentMethods
 
     }
 
-    private function addOrUpdateCard(PaymentMethod $method, ClientGatewayToken $token, GatewayType $type_id)
+    private function addOrUpdateCard(PaymentMethod $method, ClientGatewayToken $token, $type_id)
     {
         
         $token_exists = ClientGatewayToken::where([
