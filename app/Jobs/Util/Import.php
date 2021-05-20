@@ -1650,7 +1650,7 @@ class Import implements ShouldQueue
         $ninja_company = Company::on('db-ninja-01')->find(config('ninja.ninja_default_company_id'));
 
         /* If we already have a record of this user - move along. */
-        if($client_contact = ClientContact::on('db-ninja-01')->where(['email' => $owner->email, 'company_id' => $ninja_company->id)->exists())
+        if($client_contact = ClientContact::on('db-ninja-01')->where(['email' => $owner->email, 'company_id' => $ninja_company->id])->exists())
             return $client_contact->client;
 
         $ninja_client = ClientFactory::create($ninja_company->id, $ninja_company->owner()->id);
@@ -1689,11 +1689,12 @@ class Import implements ShouldQueue
             $token['company_id'] = $ninja_client->company_id;
             $token['client_id'] = $ninja_client->id;
             $token['user_id'] = $ninja_client->user_id;
-            $token['company_gateway_id'] = config('ninja.ninja_default_company_gateway_id')
+            $token['company_gateway_id'] = config('ninja.ninja_default_company_gateway_id');
             //todo
             
+            ClientGatewayToken::unguard();
             $cgt = ClientGatewayToken::Create($token);
-
+            ClientGatewayToken::reguard();
         }
 
     }
