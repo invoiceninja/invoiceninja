@@ -1618,6 +1618,9 @@ class Import implements ShouldQueue
                  ->batch();
 
         info(print_r($exception->getMessage(), 1));
+
+        if(Ninja::isHosted())
+            app('sentry')->captureException($exception);
     }
 
 
@@ -1642,7 +1645,7 @@ class Import implements ShouldQueue
         return $response->getBody();
     }
 
-    private function buildNewUserPlan() :Client
+    private function buildNewUserPlan() 
     {
         $local_company = Company::find($this->company->id);
         $owner = $local_company->owner();
@@ -1674,6 +1677,8 @@ class Import implements ShouldQueue
         $ninja_client_contact->phone = $owner->phone;
         $ninja_client_contact->save();
 
+
+        return $ninja_client;
     }
 
     private function processNinjaTokens(array $data)
