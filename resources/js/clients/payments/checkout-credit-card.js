@@ -32,6 +32,10 @@ class CheckoutCreditCard {
         document.getElementById('pay-now-with-token--container').classList.add('hidden');
         document.getElementById('save-card--container').style.display = 'grid';
 
+        document
+            .querySelector('input[name=token]')
+            .value = '';
+
         const payButton = document.getElementById('pay-button');
         const publicKey = document.querySelector('meta[name="public-key"]').content ?? '';
         const form = document.getElementById('payment-form');
