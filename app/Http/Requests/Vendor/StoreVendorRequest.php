@@ -15,6 +15,7 @@ use App\Http\Requests\Request;
 use App\Http\ValidationRules\ValidVendorGroupSettingsRule;
 use App\Models\Vendor;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Validation\Rule;
 
 class StoreVendorRequest extends Request
 {
@@ -39,6 +40,9 @@ class StoreVendorRequest extends Request
         //$rules['settings'] = new ValidVendorGroupSettingsRule();
         $rules['contacts.*.email'] = 'nullable|distinct';
 
+        if (isset($this->number)) {
+            $rules['number'] = Rule::unique('vendors')->where('company_id', auth()->user()->company()->id);
+        }
 
         return $rules;
     }
