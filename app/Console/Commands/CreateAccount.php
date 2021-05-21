@@ -105,6 +105,9 @@ class CreateAccount extends Command
             'password' => Hash::make($password),
             'confirmation_code' => $this->createDbHash(config('database.default')),
             'email_verified_at' => now(),
+            'first_name'        => 'New',
+            'last_name'         => 'User',
+            'phone'             => '',
         ]);
 
         $company_token = new CompanyToken;

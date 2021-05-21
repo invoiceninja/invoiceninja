@@ -37,10 +37,10 @@ class CreditFactory
         $credit->tax_rate1 = 0;
         $credit->tax_name2 = '';
         $credit->tax_rate2 = 0;
-        $credit->custom_value1 = 0;
-        $credit->custom_value2 = 0;
-        $credit->custom_value3 = 0;
-        $credit->custom_value4 = 0;
+        $credit->custom_value1 = '';
+        $credit->custom_value2 = '';
+        $credit->custom_value3 = '';
+        $credit->custom_value4 = '';
         $credit->amount = 0;
         $credit->balance = 0;
         $credit->partial = 0;

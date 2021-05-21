@@ -207,25 +207,38 @@ class Quote extends BaseModel
     }
 
 
-    public function pdf_file_path($invitation = null, string $type = 'url')
+    public function pdf_file_path($invitation = null, string $type = 'path', bool $portal = false)
     {
         if (! $invitation) {
-            $invitation = $this->invitations->first();
+
+            if($this->invitations()->exists())
+                $invitation = $this->invitations()->first();
+            else{
+                $this->service()->createInvitations();
+                $invitation = $this->invitations()->first();
+            }
+
         }
 
-        $storage_path = Storage::$type($this->client->quote_filepath().$this->numberFormatter().'.pdf');
+        if(!$invitation)
+            throw new \Exception('Hard fail, could not create an invitation - is there a valid contact?');
 
-        nlog($storage_path);
+        $file_path = $this->client->quote_filepath().$this->numberFormatter().'.pdf';
 
-        if (! Storage::exists($this->client->quote_filepath().$this->numberFormatter().'.pdf')) {
-            event(new QuoteWasUpdated($this, $this->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
-            CreateEntityPdf::dispatchNow($invitation);
+        if(Ninja::isHosted() && $portal && Storage::disk(config('filesystems.default'))->exists($file_path)){
+            return Storage::disk(config('filesystems.default'))->{$type}($file_path);
         }
+        elseif(Ninja::isHosted() && $portal){
+            $file_path = CreateEntityPdf::dispatchNow($invitation,config('filesystems.default'));
+            return Storage::disk(config('filesystems.default'))->{$type}($file_path);
+        }
+        
+        if(Storage::disk('public')->exists($file_path))
+            return Storage::disk('public')->{$type}($file_path);
 
-        return $storage_path;
+        $file_path = CreateEntityPdf::dispatchNow($invitation);
+            return Storage::disk('public')->{$type}($file_path);
     }
-
-
 
     /**
      * @param int $status

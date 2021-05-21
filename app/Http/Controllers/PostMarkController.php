@@ -125,7 +125,13 @@ class PostMarkController extends BaseController
         $this->invitation->email_status = 'delivered';
         $this->invitation->save();
 
-        SystemLogger::dispatch($request->all(), SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_DELIVERY, SystemLog::TYPE_WEBHOOK_RESPONSE, $this->invitation->contact->client);
+        SystemLogger::dispatch($request->all(), 
+            SystemLog::CATEGORY_MAIL, 
+            SystemLog::EVENT_MAIL_DELIVERY, 
+            SystemLog::TYPE_WEBHOOK_RESPONSE, 
+            $this->invitation->contact->client,
+            $this->invitation->company
+        );
     }
 
 // {
@@ -167,7 +173,7 @@ class PostMarkController extends BaseController
 
         LightLogs::create($bounce)->batch();
 
-        SystemLogger::dispatch($request->all(), SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_BOUNCED, SystemLog::TYPE_WEBHOOK_RESPONSE, $this->invitation->contact->client);
+        SystemLogger::dispatch($request->all(), SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_BOUNCED, SystemLog::TYPE_WEBHOOK_RESPONSE, $this->invitation->contact->client, $this->invitation->company);
     }
 
 // {
@@ -209,7 +215,7 @@ class PostMarkController extends BaseController
 
         LightLogs::create($bounce)->batch();
 
-        SystemLogger::dispatch($request->all(), SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_SPAM_COMPLAINT, SystemLog::TYPE_WEBHOOK_RESPONSE, $this->invitation->contact->client);
+        SystemLogger::dispatch($request->all(), SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_SPAM_COMPLAINT, SystemLog::TYPE_WEBHOOK_RESPONSE, $this->invitation->contact->client, $this->invitation->company);
     }
 
     private function discoverInvitation($message_id)

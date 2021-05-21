@@ -497,7 +497,7 @@ class RecurringInvoiceController extends BaseController
 
         $file_path = $recurring_invoice->service()->getInvoicePdf($contact);
 
-        return response()->download($file_path, basename($file_path), ['Cache-Control:' => 'no-cache']);
+        return response()->download($file_path, basename($file_path), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
     }
 
     /**

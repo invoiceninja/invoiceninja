@@ -290,7 +290,8 @@ class PaymentController extends Controller
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_ERROR,
                 SystemLog::TYPE_FAILURE,
-                auth('contact')->user()->client
+                auth('contact')->user()->client,
+                auth('contact')->user()->client->company
             );
 
             throw new PaymentFailed($e->getMessage());

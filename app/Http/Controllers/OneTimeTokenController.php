@@ -25,7 +25,6 @@ class OneTimeTokenController extends BaseController
 {
 
     private $contexts = [
-        'stripe_connect' => 'https://connect.stripe.com/oauth/authorize?response_type=code&client_id=ca_J2Fh2tZfMlaaItUfbUwBBx4JPss8jCz9&scope=read_write'
     ];
 
     public function __construct()

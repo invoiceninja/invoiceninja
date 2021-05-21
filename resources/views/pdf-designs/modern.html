@@ -54,14 +54,14 @@
         padding-bottom: 0.5rem;
     }
 
-    .company-logo {
-        height: 5rem;
-    }
-
     .logo-client-wrapper {
         margin: 3rem 2rem;
         display: grid;
         grid-template-columns: 1.5fr 1fr;
+    }
+
+    .company-logo {
+        zoom: 50%; /** Adapt the zoom size, if you think it's necessary. **/
     }
 
     #client-details {
@@ -249,6 +249,17 @@
                     <div class="footer-content">
                         <div>
                             <p data-ref="total_table-footer">$entity_footer</p>
+
+                            <script>
+                                // Clear up space a bit, if [product-table, tasks-table, delivery-note-table] isn't present.
+                                document.addEventListener('DOMContentLoaded', () => {
+                                    ['product-table', 'task-table', 'delivery-note-table'].forEach((tableIdentifier) => {
+                                        document.getElementById(tableIdentifier).childElementCount === 0
+                                            ? document.getElementById(tableIdentifier).style.display = 'none'
+                                            : '';
+                                    });
+                                });
+                            </script>
                         </div>
                         <div id="company-details"></div>
                         <div id="company-address"></div>

@@ -123,6 +123,7 @@ class WebhookHandler implements ShouldQueue
                 SystemLog::EVENT_WEBHOOK_RESPONSE,
                 SystemLog::TYPE_WEBHOOK_RESPONSE,
                 $this->company->clients->first(),
+                $this->company
             );
 
         }
@@ -136,6 +137,7 @@ class WebhookHandler implements ShouldQueue
                 SystemLog::EVENT_WEBHOOK_RESPONSE,
                 SystemLog::TYPE_WEBHOOK_RESPONSE,
                 $this->company->clients->first(),
+                $this->company,
             );
 
         }

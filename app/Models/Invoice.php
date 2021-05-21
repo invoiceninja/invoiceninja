@@ -392,7 +392,7 @@ class Invoice extends BaseModel
         return $invoice_calc->build();
     }
 
-    public function pdf_file_path($invitation = null, string $type = 'url')
+    public function pdf_file_path($invitation = null, string $type = 'path', bool $portal = false)
     {
         if (! $invitation) {
 
@@ -408,19 +408,23 @@ class Invoice extends BaseModel
         if(!$invitation)
             throw new \Exception('Hard fail, could not create an invitation - is there a valid contact?');
 
-        $storage_path = Storage::$type($this->client->invoice_filepath().$this->numberFormatter().'.pdf');
+        $file_path = $this->client->invoice_filepath().$this->numberFormatter().'.pdf';
 
-        if (! Storage::exists($this->client->invoice_filepath().$this->numberFormatter().'.pdf')) {
-            event(new InvoiceWasUpdated($this, $this->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
-            CreateEntityPdf::dispatchNow($invitation);
+        if(Ninja::isHosted() && $portal && Storage::disk(config('filesystems.default'))->exists($file_path)){
+            return Storage::disk(config('filesystems.default'))->{$type}($file_path);
         }
+        elseif(Ninja::isHosted() && $portal){
+            $file_path = CreateEntityPdf::dispatchNow($invitation,config('filesystems.default'));
+            return Storage::disk(config('filesystems.default'))->{$type}($file_path);
+        }
+        
+        if(Storage::disk('public')->exists($file_path))
+            return Storage::disk('public')->{$type}($file_path);
 
-        return $storage_path;
+        $file_path = CreateEntityPdf::dispatchNow($invitation);
+            return Storage::disk('public')->{$type}($file_path);
     }
 
-    /**
-     * Updates Invites to SENT.
-     */
     public function markInvitationsSent()
     {
         $this->invitations->each(function ($invitation) {

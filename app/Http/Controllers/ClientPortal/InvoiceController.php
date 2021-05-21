@@ -164,10 +164,10 @@ class InvoiceController extends Controller
 
         //if only 1 pdf, output to buffer for download
         if ($invoices->count() == 1) {
-            return response()->streamDownload(function () use ($invoices) {
-                echo file_get_contents($invoices->first()->pdf_file_path());
-            }, basename($invoices->first()->pdf_file_path()), ['Cache-Control:' => 'no-cache']);
-            //return response()->download(TempFile::path($invoices->first()->pdf_file_path()), basename($invoices->first()->pdf_file_path()));
+
+           $file = $invoices->first()->pdf_file_path();
+           return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);;
+
         }
 
         // enable output of HTTP headers

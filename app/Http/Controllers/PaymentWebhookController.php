@@ -21,13 +21,18 @@ class PaymentWebhookController extends Controller
     public function __invoke(PaymentWebhookRequest $request, string $company_key, string $company_gateway_id)
     {
 
-    	MultiDB::findAndSetDbByCompanyKey($company_key);
+    	// MultiDB::findAndSetDbByCompanyKey($company_key);
 
         $payment = $request->getPayment();
+        
+        if(!$payment)
+        	return response()->json(['message' => 'Payment record not found.'], 400);
+
         $client = is_null($payment) ? $request->getClient() : $payment->client;
 
-        // $contact= $client->primary_contact()->first();
-        // Auth::guard('contact')->login($contact, true);
+        if(!$client)
+	        return response()->json(['message' => 'Client record not found.'], 400);
+
 
         return $request->getCompanyGateway()
             ->driver($client)

@@ -21,6 +21,7 @@ use App\Libraries\Google\Google;
 use App\Libraries\MultiDB;
 use App\Mail\TemplateEmail;
 use App\Models\ClientContact;
+use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\SystemLog;
@@ -54,7 +55,11 @@ class NinjaMailerJob implements ShouldQueue
 
     public $nmo;
 
-    public function __construct(NinjaMailerObject $nmo)
+    public $override;
+
+    public $company;
+
+    public function __construct(NinjaMailerObject $nmo, bool $override = false)
     {
 
         $this->nmo = $nmo;
@@ -64,11 +69,14 @@ class NinjaMailerJob implements ShouldQueue
     public function handle()
     {
         /*If we are migrating data we don't want to fire any emails*/
-        if ($this->nmo->company->is_disabled) 
+        if ($this->nmo->company->is_disabled && !$this->override) 
             return true;
         
         /*Set the correct database*/
         MultiDB::setDb($this->nmo->company->db);
+
+        /* Serializing models from other jobs wipes the primary key */
+        $this->company = Company::where('company_key', $this->nmo->company->company_key)->first();
 
         /* Set the email driver */
         $this->setMailDriver();
@@ -83,6 +91,10 @@ class NinjaMailerJob implements ShouldQueue
             $this->nmo->mailable->replyTo($this->nmo->settings->reply_to_email, $reply_to_name);
 
         }
+        else {
+            $this->nmo->mailable->replyTo($this->company->owner()->email, $this->company->owner()->present()->name());
+        }
+
 
         if (strlen($this->nmo->settings->bcc_email) > 1) {
             nlog('bcc list available');
@@ -104,10 +116,12 @@ class NinjaMailerJob implements ShouldQueue
         } catch (\Exception $e) {
 
             nlog("error failed with {$e->getMessage()}");
-            // nlog($e);
 
             if($this->nmo->entity)
                 $this->entityEmailFailed($e->getMessage());
+
+            if(Ninja::isHosted())
+                app('sentry')->captureException($e);
         }
     }
 
@@ -169,7 +183,15 @@ class NinjaMailerJob implements ShouldQueue
         nlog("Sending via {$user->name()}");
 
         $google = (new Google())->init();
-        $google->getClient()->setAccessToken(json_encode($user->oauth_user_token));
+
+        try{
+            $google->getClient()->setAccessToken(json_encode($user->oauth_user_token));
+        }
+        catch(\Exception $e) {
+            $this->logMailError('Gmail Token Invalid', $this->company->clients()->first());
+            $this->nmo->settings->email_sending_method = 'default';
+            return $this->setMailDriver();
+        }
 
         if ($google->getClient()->isAccessTokenExpired()) {
             $google->refreshToken($user);
@@ -202,7 +224,8 @@ class NinjaMailerJob implements ShouldQueue
             SystemLog::CATEGORY_MAIL,
             SystemLog::EVENT_MAIL_SEND,
             SystemLog::TYPE_FAILURE,
-            $recipient_object
+            $recipient_object,
+            $this->nmo->company
         );
     }
 

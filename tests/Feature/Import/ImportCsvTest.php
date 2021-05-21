@@ -42,6 +42,7 @@ class ImportCsvTest extends TestCase
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
+        config(['database.default' => config('ninja.db.default')]);
 
         // $this->faker = \Faker\Factory::create();
 

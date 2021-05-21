@@ -16,6 +16,7 @@ use App\Factory\CreditInvitationFactory;
 use App\Models\Credit;
 use App\Models\CreditInvitation;
 use App\Services\AbstractService;
+use Illuminate\Support\Str;
 
 class CreateInvitations extends AbstractService
 {

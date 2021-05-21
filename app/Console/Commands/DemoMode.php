@@ -128,7 +128,7 @@ class DemoMode extends Command
     {
         $faker = \Faker\Factory::create();
 
-        $this->count = 50;
+        $this->count = 25;
 
         $this->info('Creating Small Account and Company');
 
@@ -486,7 +486,7 @@ class DemoMode extends Command
         if (rand(0, 1)) {
             $invoice->assigned_user_id = $assigned_user_id;
         }
-
+        $invoice->number = $this->getNextRecurringInvoiceNumber($client);
         $invoice->save();
     }
 

@@ -22,6 +22,10 @@
         padding: 0;
     }
 
+    .company-logo {
+        zoom: 50%; /** Adapt the zoom size, if you think it's necessary. **/
+    }
+
     .company-logo-wrapper {
         display: flex;
         flex-direction: row;
@@ -30,7 +34,7 @@
         border-bottom: 4px solid;
     }
 
-    .company-logo-wrapper .company-logo {
+    .company-logo-wrapper {
         height: 5rem;
     }
 
@@ -133,6 +137,7 @@
     }
 
     #table-totals {
+        margin-top: 1rem;
         display: grid;
         grid-template-columns: 2fr 1fr;
         padding-top: 0.5rem;
@@ -176,6 +181,10 @@
     [data-ref="total_table-footer"] {
         padding-left: 1rem
     }
+
+    #footer {
+        margin-top: 30px;
+    }
 </style>
 
 <div id="header"></div>
@@ -215,12 +224,23 @@
 
     <table id="task-table" cellspacing="0"></table>
 
-    <div id="table-totals" cellspacing="0"></div>
-
     <table id="delivery-note-table" cellspacing="0"></table>
+    
+    <div id="table-totals" cellspacing="0"></div>
 </div>
 
 <div id="footer">
     <p data-ref="total_table-footer">$entity_footer</p>
+
+    <script>
+        // Clear up space a bit, if [product-table, tasks-table, delivery-note-table] isn't present.
+        document.addEventListener('DOMContentLoaded', () => {
+            ['product-table', 'task-table', 'delivery-note-table'].forEach((tableIdentifier) => {
+                document.getElementById(tableIdentifier).childElementCount === 0
+                    ? document.getElementById(tableIdentifier).style.display = 'none'
+                    : '';
+            });
+        });
+    </script>
 </div>
 

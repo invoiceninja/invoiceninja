@@ -64,7 +64,7 @@ class CreateEntityPdf implements ShouldQueue
      *
      * @param $invitation
      */
-    public function __construct($invitation)
+    public function __construct($invitation, $disk = 'public')
     {
         $this->invitation = $invitation;
 
@@ -86,7 +86,9 @@ class CreateEntityPdf implements ShouldQueue
 
         $this->contact = $invitation->contact;
 
-        $this->disk = $disk ?? config('filesystems.default');
+        $this->disk = $disk;
+        
+        // $this->disk = $disk ?? config('filesystems.default');
     }
 
     public function handle()
@@ -192,12 +194,12 @@ class CreateEntityPdf implements ShouldQueue
             try{
     
                 Storage::disk($this->disk)->put($file_path, $pdf);
-    
+                
             }
             catch(\Exception $e)
             {
 
-                throw new FilePermissionsFailure('Could not write the PDF, permission issues!');
+                throw new FilePermissionsFailure($e->getMessage());
 
             }
         }
@@ -209,8 +211,5 @@ class CreateEntityPdf implements ShouldQueue
     {
 
     }
-    // public function failed(\Exception $exception)
-    // {
-    //     nlog("help!");
-    // }
+    
 }

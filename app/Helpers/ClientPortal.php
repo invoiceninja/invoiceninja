@@ -30,7 +30,7 @@ function isActive($page, bool $boolean = false)
     }
 
     if ($page == $current_page) {
-        return 'bg-primary-darken';
+        return 'bg-gray-200';
     }
 
     return false;

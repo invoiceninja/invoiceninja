@@ -24,12 +24,12 @@ class ContactHashLoginController extends Controller
      */
     public function login(string $contact_key)
     {
-        return redirect('/client/login');
+        return redirect('/client/invoices');
     }
 
     public function magicLink(string $magic_link)
     {
-        return redirect('/client/login');
+        return redirect('/client/invoices');
     }
 
     public function errorPage()

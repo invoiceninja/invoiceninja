@@ -55,9 +55,6 @@ class UserEmailChanged implements ShouldQueue
     public function handle()
     {
         nlog("notifying user of email change");
-
-        if ($this->company->is_disabled) 
-            return true;
         
         //Set DB
         MultiDB::setDb($this->company->db);
@@ -78,7 +75,7 @@ class UserEmailChanged implements ShouldQueue
         $nmo->company = $this->company;
         $nmo->to_user = $this->old_user;
 
-        NinjaMailerJob::dispatch($nmo);
+        NinjaMailerJob::dispatch($nmo, true);
 
         // $nmo->to_user = $this->new_user;
         // NinjaMailerJob::dispatch($nmo);
