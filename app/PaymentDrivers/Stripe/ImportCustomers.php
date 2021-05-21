@@ -21,6 +21,7 @@ use App\Models\Country;
 use App\Models\Currency;
 use App\Models\GatewayType;
 use App\PaymentDrivers\StripePaymentDriver;
+use App\PaymentDrivers\Stripe\UpdatePaymentMethods;
 use App\Utils\Traits\MakesHash;
 use Stripe\Customer;
 use Stripe\PaymentMethod;
@@ -32,15 +33,20 @@ class ImportCustomers
     /** @var StripePaymentDriver */
     public $stripe;
 
+    public $update_payment_methods;
+
     public function __construct(StripePaymentDriver $stripe)
     {
         $this->stripe = $stripe;
+
     }
 
     public function run()
     {
 
         $this->stripe->init();
+
+        $this->update_payment_methods = new UpdatePaymentMethods($this->stripe);
 
         $customers = Customer::all([], $this->stripe->stripe_connect_auth);
 
@@ -123,5 +129,6 @@ class ImportCustomers
         $contact->email = $customer->email ?: '';
         $contact->save();            
 
+        $this->update_payment_methods->updateMethods($customer, $client);
     }
 }

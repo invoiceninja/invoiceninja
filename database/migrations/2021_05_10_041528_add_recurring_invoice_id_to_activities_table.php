@@ -16,6 +16,15 @@ class AddRecurringInvoiceIdToActivitiesTable extends Migration
         Schema::table('activities', function (Blueprint $table) {
             $table->unsignedInteger('recurring_invoice_id')->nullable();
         });
+
+
+        if (!Schema::hasColumn('companies', 'show_task_end_date'))
+        {
+            Schema::table('companies', function (Blueprint $table) {
+                $table->boolean('show_task_end_date')->default(false);
+            });
+        }
+
     }
 
     /**
