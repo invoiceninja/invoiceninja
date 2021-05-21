@@ -16,7 +16,7 @@ class AuthorizeACH {
         ).content;
         this.stripe_connect = document.querySelector(
             'meta[name="stripe-account-id"]'
-        ).content;
+        )?.content;
     }
 
     setupStripe = () => {
