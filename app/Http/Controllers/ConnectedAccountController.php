@@ -114,7 +114,7 @@ class ConnectedAccountController extends BaseController
             auth()->user()->save();
             
             $timeout = auth()->user()->company()->default_password_timeout;
-            Cache::put(auth()->user()->hashed_id.'_logged_in', Str::random(64), $timeout);
+            Cache::put(auth()->user()->hashed_id.'_'.auth()->user()->account_id.'_logged_in', Str::random(64), $timeout);
 
             return $this->itemResponse(auth()->user());
 
@@ -159,6 +159,9 @@ class ConnectedAccountController extends BaseController
                 'oauth_provider_id' => 'google',
                 'email_verified_at' =>now()
             ];
+
+            if(auth()->user()->email != $google->harvestEmail($user))
+                return response()->json(['message' => 'Primary Email differs to OAuth email. Emails must match.'], 400);
 
             auth()->user()->update($connected_account);
             auth()->user()->email_verified_at = now();

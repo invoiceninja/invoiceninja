@@ -42,7 +42,7 @@ class ContactKeyLogin
             if (MultiDB::findAndSetDbByContactKey($request->segment(3))) {
 
             if($client_contact = ClientContact::where('contact_key', $request->segment(3))->first()){
-                auth()->guard('contact')->login($client_contact, true);
+                Auth::guard('contact')->login($client_contact, true);
                 return redirect()->to('client/dashboard');
              }
 

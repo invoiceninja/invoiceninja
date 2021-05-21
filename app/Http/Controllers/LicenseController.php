@@ -107,6 +107,12 @@ class LicenseController extends BaseController
                         'errors' => new stdClass,
                     ];
 
+                    $account->plan_term = Account::PLAN_TERM_YEARLY;
+                    $account->plan_paid = null;
+                    $account->plan_expires = null;
+                    $account->plan = Account::PLAN_FREE;
+                    $account->save();
+
                     return response()->json($error, 400);
                 } else {
                     $account = auth()->user()->company()->account;

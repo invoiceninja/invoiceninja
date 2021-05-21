@@ -139,7 +139,7 @@ class StartMigration implements ShouldQueue
             $this->company->update_products = $update_product_flag;
             $this->company->save();
 
-            Mail::to($this->user)->send(new MigrationFailed($e, $e->getMessage()));
+            Mail::to($this->user->email, $this->user->name())->send(new MigrationFailed($e, $e->getMessage()));
 
             if (app()->environment() !== 'production') {
                 info($e->getMessage());

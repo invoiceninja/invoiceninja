@@ -59,7 +59,7 @@
                                 {{ $credit->formatDate($credit->date, $credit->client->date_format()) }}
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
-                                {{ empty($credit->public_notes) ? '/' : $credit->public_notes }}
+                                {{ $credit->public_notes }}
                             </td>
                             <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
                                 <a href="{{ route('client.credit.show', $credit->hashed_id) }}" class="button-link text-primary">

@@ -18,7 +18,7 @@ Route::group(['middleware' => ['api_secret_check']], function () {
     Route::post('api/v1/oauth_login', 'Auth\LoginController@oauthApiLogin');
 });
 
-Route::group(['middleware' => ['api_secret_check', 'email_db']], function () {
+Route::group(['middleware' => ['api_secret_check','email_db']], function () {
     Route::post('api/v1/login', 'Auth\LoginController@apiLogin')->name('login.submit');
     Route::post('api/v1/reset_password', 'Auth\ForgotPasswordController@sendResetLinkEmail');
 });
@@ -74,6 +74,8 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::resource('expenses', 'ExpenseController'); // name = (expenses. index / create / show / update / destroy / edit
     Route::put('expenses/{expense}/upload', 'ExpenseController@upload');
     Route::post('expenses/bulk', 'ExpenseController@bulk')->name('expenses.bulk');
+
+    Route::post('export', 'ExportController@index')->name('export.index');
 
     Route::resource('expense_categories', 'ExpenseCategoryController'); // name = (expense_categories. index / create / show / update / destroy / edit
     Route::post('expense_categories/bulk', 'ExpenseCategoryController@bulk')->name('expense_categories.bulk');
@@ -181,6 +183,9 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     // Route::post('hooks', 'SubscriptionController@subscribe')->name('hooks.subscribe');
     // Route::delete('hooks/{subscription_id}', 'SubscriptionController@unsubscribe')->name('hooks.unsubscribe');
 
+    Route::post('stripe/update_payment_methods', 'StripeController@update')->middleware('password_protected')->name('stripe.update');
+    Route::post('stripe/import_customers', 'StripeController@import')->middleware('password_protected')->name('stripe.import');
+
     Route::resource('subscriptions', 'SubscriptionController');
     Route::post('subscriptions/bulk', 'SubscriptionController@bulk')->name('subscriptions.bulk');
 
@@ -191,9 +196,7 @@ Route::match(['get', 'post'], 'payment_webhook/{company_key}/{company_gateway_id
     ->name('payment_webhook');
 
 Route::post('api/v1/postmark_webhook', 'PostMarkController@webhook');
-
 Route::get('token_hash_router', 'OneTimeTokenController@router');
-
 Route::get('webcron', 'WebCronController@index');
 
 Route::fallback('BaseController@notFound');

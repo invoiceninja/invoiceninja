@@ -56,6 +56,7 @@ class MultiDB
             return Company::whereSubdomain($subdomain)->get()->count() == 0;
         }
 
+
         //multi-db active
         foreach (self::$dbs as $db) {
             if (Company::on($db)->whereSubdomain($subdomain)->get()->count() >= 1) {
@@ -63,7 +64,7 @@ class MultiDB
             }
         }
 
-        self::setDefaultDatabase();
+        //self::setDefaultDatabase();
 
         return true;
     }
@@ -129,13 +130,12 @@ class MultiDB
         }
 
         foreach (self::$dbs as $db) {
+
             self::setDB($db);
 
-            $user = User::where($data)->withTrashed()->first();
-
-            if ($user) {
+            if ($user = User::where($data)->withTrashed()->first()) 
                 return $user;
-            }
+            
         }
 
         self::setDefaultDatabase();
@@ -147,18 +147,18 @@ class MultiDB
      * @param array $data
      * @return User|null
      */
-    public static function hasContact(array $data) : ?ClientContact
+    public static function hasContact(string $email) : ?ClientContact
     {
         if (! config('ninja.db.multi_db_enabled')) {
-            return ClientContact::where($data)->withTrashed()->first();
+            return ClientContact::where('email', $email)->withTrashed()->first();
         }
 
         foreach (self::$dbs as $db) {
-            self::setDB($db);
-
-            $user = ClientContacts::where($data)->withTrashed()->first();
+            
+            $user = ClientContact::on($db)->where('email', $email)->withTrashed()->first();
 
             if ($user) {
+                self::setDB($db);
                 return $user;
             }
         }
@@ -189,12 +189,15 @@ class MultiDB
         //multi-db active
         foreach (self::$dbs as $db) {
             
-            if (User::on($db)->where(['email' => $email])->count() >= 1) 
+            if (User::on($db)->where('email', $email)->count() >= 1){ 
+                nlog("setting db {$db}");
+                self::setDb($db);
                 return true;
-            
-        }
-        self::setDefaultDatabase();
+            }
 
+        }
+
+        self::setDefaultDatabase();
         return false;
     }
 
@@ -203,7 +206,6 @@ class MultiDB
         foreach (self::$dbs as $db) {
             if ($ct = CompanyToken::on($db)->whereRaw('BINARY `token`= ?', [$token])->first()) {
                 self::setDb($ct->company->db);
-
                 return true;
             }
         }
@@ -252,14 +254,14 @@ class MultiDB
         return false;
     }
 
-    public static function findAndSetDbByDomain($subdomain) :bool
+    public static function findAndSetDbByDomain($query_array) :bool
     {
 
         if (! config('ninja.db.multi_db_enabled'))
-            return (Company::whereSubdomain($subdomain)->exists() === true);
+            return (Company::where($query_array)->exists() === true);
 
         foreach (self::$dbs as $db) {
-            if ($company = Company::on($db)->whereSubdomain($subdomain)->first()) {
+            if ($company = Company::on($db)->where($query_array)->first()) {
                 self::setDb($company->db);
                 return true;
             }

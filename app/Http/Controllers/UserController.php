@@ -63,9 +63,11 @@ class UserController extends BaseController
      */
     public function __construct(UserRepository $user_repo)
     {
+
         parent::__construct();
 
         $this->user_repo = $user_repo;
+
     }
 
     /**
@@ -376,7 +378,6 @@ class UserController extends BaseController
      */
     public function update(UpdateUserRequest $request, User $user)
     {
-
         $old_company_user = $user->company_user;
         $old_user = json_encode($user);
         $old_user_email = $user->getOriginal('email');

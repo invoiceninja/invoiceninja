@@ -27,8 +27,6 @@ class ContactPasswordlessLogin extends Mailable
      */
     public $email;
 
-    public $url = 'https://google.com';
-
     /**
      * Create a new message instance.
      *
@@ -49,6 +47,8 @@ class ContactPasswordlessLogin extends Mailable
      */
     public function build()
     {
-        return $this->view('email.billing.passwordless-login');
+        return $this
+            ->subject(ctrans('texts.account_passwordless_login'))
+            ->view('email.billing.passwordless-login');
     }
 }

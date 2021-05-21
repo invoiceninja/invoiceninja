@@ -23,6 +23,7 @@ use App\Libraries\MultiDB;
 use App\Libraries\OAuth\OAuth;
 use App\Libraries\OAuth\Providers\Google;
 use App\Models\Client;
+use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\CompanyUser;
 use App\Models\SystemLog;
@@ -209,7 +210,7 @@ class LoginController extends BaseController
             else
                 $timeout = $timeout/1000;
 
-            Cache::put($user->hashed_id.'_logged_in', Str::random(64), $timeout);
+            Cache::put($user->hashed_id.'_'.$user->account_id.'_logged_in', Str::random(64), $timeout);
 
             $cu = CompanyUser::query()
                   ->where('user_id', auth()->user()->id);
@@ -236,11 +237,12 @@ class LoginController extends BaseController
                 ->batch();
 
             SystemLogger::dispatch(
-                request()->getClientIp(),
+                json_encode(['ip' => request()->getClientIp()]),
                 SystemLog::CATEGORY_SECURITY,
                 SystemLog::EVENT_USER,
                 SystemLog::TYPE_LOGIN_FAILURE,
-                Client::first(),
+                null,
+                Company::first(),
             );
 
             $this->incrementLoginAttempts($request);
@@ -366,8 +368,7 @@ class LoginController extends BaseController
                 else
                     $timeout = $timeout/1000;
 
-
-                Cache::put($existing_user->hashed_id.'_logged_in', Str::random(64), $timeout);
+                Cache::put($existing_user->hashed_id.'_'.$existing_user->account_id.'_logged_in', Str::random(64), $timeout);
 
                 $cu = CompanyUser::query()
                                   ->where('user_id', auth()->user()->id);
@@ -416,8 +417,7 @@ class LoginController extends BaseController
                 else
                     $timeout = $timeout/1000;
 
-
-            Cache::put(auth()->user()->hashed_id.'_logged_in', Str::random(64), $timeout);
+            Cache::put(auth()->user()->hashed_id.'_'.auth()->user()->account_id.'_logged_in', Str::random(64), $timeout);
 
             $cu = CompanyUser::whereUserId(auth()->user()->id);
 

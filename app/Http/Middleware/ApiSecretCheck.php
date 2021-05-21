@@ -11,6 +11,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Utils\Ninja;
 use Closure;
 use Illuminate\Http\Request;
 use stdClass;
@@ -26,7 +27,7 @@ class ApiSecretCheck
      */
     public function handle($request, Closure $next)
     {
-        if (! config('ninja.api_secret')) {
+        if (! config('ninja.api_secret') || Ninja::isHosted()) {
             return $next($request);
         }
 

@@ -4,6 +4,13 @@
 @section('body')
     <div class="flex h-screen">
         <div class="m-auto md:w-1/3 lg:w-1/5">
+
+        @if(\App\Models\Account::count() > 0 && !\App\Models\Account::first()->isPaid())
+        <div>
+            <img src="{{ asset('images/invoiceninja-black-logo-2.png') }}" class="border-b border-gray-100 h-18 pb-4" alt="Invoice Ninja logo">
+        </div>
+        @endif
+
             <div class="flex flex-col">
                 <h1 class="text-center text-3xl">{{ ctrans('texts.password_reset') }}</h1>
                 @if(session('status'))

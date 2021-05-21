@@ -25,12 +25,8 @@
     .header-wrapper {
         margin-top: 2rem;
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-columns: 1fr 0.5fr 2fr;
         padding: 2rem 3rem;
-    }
-
-    .header-wrapper .company-logo {
-        height: 5rem;
     }
 
     .header-wrapper .entity-details-wrapper {
@@ -48,6 +44,10 @@
     .header-wrapper #entity-details > tr,
     .header-wrapper #entity-details th {
         font-weight: normal;
+    }
+
+    .company-logo {
+        zoom: 50%; /** Adapt the zoom size, if you think it's necessary. **/
     }
 
     .contacts-wrapper {
@@ -169,6 +169,7 @@
     }
 
     #table-totals {
+        margin-top: 1rem;
         display: grid;
         grid-template-columns: 2fr 1fr;
         gap: 80px;
@@ -227,6 +228,10 @@
         padding-left: 3rem;
         padding-right: 3rem;
     }
+
+    #footer {
+        margin-top: 1rem;
+    }
 </style>
 
 
@@ -275,12 +280,23 @@
 
     <table id="task-table" cellspacing="0"></table>
 
-    <div id="table-totals" cellspacing="0"></div>
-
     <table id="delivery-note-table" cellspacing="0"></table>
+
+    <div id="table-totals" cellspacing="0"></div>
 </div>
 
 <div id="footer">
-    <p data-ref="total_table-footer">$entity_footer/p>
+    <p data-ref="total_table-footer">$entity_footer</p>
+
+    <script>
+        // Clear up space a bit, if [product-table, tasks-table, delivery-note-table] isn't present.
+        document.addEventListener('DOMContentLoaded', () => {
+            ['product-table', 'task-table', 'delivery-note-table'].forEach((tableIdentifier) => {
+                document.getElementById(tableIdentifier).childElementCount === 0
+                    ? document.getElementById(tableIdentifier).style.display = 'none'
+                    : '';
+            });
+        });
+    </script>
 </div>
 

@@ -110,7 +110,6 @@ class Kernel extends HttpKernel
             ShareErrorsFromSession::class,
             VerifyCsrfToken::class,
             SubstituteBindings::class,
-            //\App\Http\Middleware\StartupCheck::class,
             QueryLogging::class,
         ],
         'shop' => [
@@ -159,5 +158,29 @@ class Kernel extends HttpKernel
         'contact_key_login' => ContactKeyLogin::class,
         'check_client_existence' => CheckClientExistence::class,
         'user_verified' => UserVerified::class,
+    ];
+
+
+    protected $middlewarePriority = [
+        SetDomainNameDb::class,
+        SetDb::class,
+        SetWebDb::class,
+        UrlSetDb::class,
+        ContactSetDb::class,
+        SetEmailDb::class,
+        SetInviteDb::class,
+        SetDbByCompanyKey::class,
+        TokenAuth::class,
+        ContactTokenAuth::class,
+        ContactKeyLogin::class,
+        Authenticate::class,
+        ShopTokenAuth::class,
+        ContactRegister::class,
+        PhantomSecret::class,
+        CheckClientExistence::class,
+        ClientPortalEnabled::class,
+        PasswordProtection::class,
+        Locale::class,
+        SubstituteBindings::class,
     ];
 }
