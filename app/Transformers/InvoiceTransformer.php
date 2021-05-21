@@ -154,7 +154,7 @@ class InvoiceTransformer extends EntityTransformer
             'reminder_last_sent' => $invoice->reminder_last_sent ?: '',
             'paid_to_date' => (float) $invoice->paid_to_date,
             'subscription_id' => $this->encodePrimaryKey($invoice->subscription_id),
-
+            'auto_bill_enabled' => (bool) $invoice->auto_bill_enabled,
         ];
     }
 }
