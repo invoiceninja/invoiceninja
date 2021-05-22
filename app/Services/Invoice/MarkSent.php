@@ -39,8 +39,6 @@ class MarkSent extends AbstractService
 
         $this->invoice->markInvitationsSent();
 
-        $this->invoice->setReminder();
-
         $this->invoice
              ->service()
              ->setStatus(Invoice::STATUS_SENT)
@@ -49,6 +47,8 @@ class MarkSent extends AbstractService
              ->updateBalance($this->invoice->amount)
              ->deletePdf()
              ->save();
+
+        $this->invoice->setReminder();
 
         $this->client->service()->updateBalance($this->invoice->balance)->save();
 
