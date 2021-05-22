@@ -12,14 +12,14 @@ class MigrationFailed extends Mailable
 
     public $exception;
     public $content;
-
+    public $settings;
     /**
      * Create a new message instance.
      *
      * @param $content
      * @param $exception
      */
-    public function __construct($exception, $content = null)
+    public function __construct($exception, $content = null, $setings)
     {
         $this->exception = $exception;
         $this->content = $content;
@@ -33,6 +33,7 @@ class MigrationFailed extends Mailable
     public function build()
     {
         return $this->from(config('mail.from.address'), config('mail.from.name'))
-                    ->view('email.migration.failed');
+                    ->view('email.migration.failed',['settings' => $this->settings])
+                    ->with();
     }
 }
