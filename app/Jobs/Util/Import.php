@@ -210,7 +210,7 @@ class Import implements ShouldQueue
             $this->{$method}($data[$import]);
         }
 
-        if(Ninja::isHosted())
+        if(Ninja::isHosted() && array_key_exists('ninja_tokens', $data))
             $this->processNinjaTokens($data['ninja_tokens']);
 
         $this->setInitialCompanyLedgerBalances();
@@ -225,6 +225,7 @@ class Import implements ShouldQueue
                 ->send(new MigrationCompleted($this->company, implode("<br>",$check_data)));
         }
         catch(\Exception $e) {
+
             nlog($e->getMessage());
         }
         
@@ -1671,6 +1672,7 @@ class Import implements ShouldQueue
         $ninja_client->postal_code = $local_company->settings->postal_code;
         $ninja_client->state = $local_company->settings->state;
         $ninja_client->country_id = $local_company->settings->country_id;
+        $ninja_client->custom_value1 = $local_company->company_key;
 
         $ninja_client->save();
 
@@ -1690,21 +1692,24 @@ class Import implements ShouldQueue
 
     private function processNinjaTokens(array $data)
     {
-        if(count($data) == 0)
-            $ninja_client = $this->buildNewUserPlan();
-
         $current_db = config('database.default');
+        $local_company = Company::find($this->company->id);
 
         MultiDB::setDb('db-ninja-01');
+
+        if($existing_client = Client::where('custom_value1', $local_company->company_key)->first())
+            $ninja_client = $existing_client;
+        else
+            $ninja_client = $this->buildNewUserPlan();
 
         foreach($data as $token)
         {
             //get invoiceninja company_id
             $ninja_company = Company::where('id', config('ninja.ninja_default_company_id'))->first();
 
-            $token['company_id'] = $ninja_client->company_id;
-            $token['client_id'] = $ninja_client->id;
-            $token['user_id'] = $ninja_client->user_id;
+            $token['company_id'] = $ninja_company->id;
+            $token['client_id'] = $ninja_client->id;/////
+            $token['user_id'] = $ninja_company->owner()->id;
             $token['company_gateway_id'] = config('ninja.ninja_default_company_gateway_id');
             //todo
             

@@ -20,6 +20,7 @@ use App\Libraries\MultiDB;
 use App\Mail\MigrationFailed;
 use App\Models\Company;
 use App\Models\User;
+use App\Utils\Ninja;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -139,6 +140,10 @@ class StartMigration implements ShouldQueue
             $this->company->update_products = $update_product_flag;
             $this->company->save();
 
+
+            if(Ninja::isHosted())
+                app('sentry')->captureException($e);
+            
             Mail::to($this->user->email, $this->user->name())->send(new MigrationFailed($e, $this->company->settings, $e->getMessage()));
 
             if (app()->environment() !== 'production') {
