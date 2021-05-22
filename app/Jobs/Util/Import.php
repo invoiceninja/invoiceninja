@@ -296,6 +296,9 @@ class Import implements ShouldQueue
 
         $data = $this->transformCompanyData($data);
 
+        if(Ninja::isHosted())
+            $data['subdomain'] = $this->randomSubdomainGenerator();
+
         $rules = (new UpdateCompanyRequest())->rules();
 
         $validator = Validator::make($data, $rules);
@@ -1704,6 +1707,28 @@ class Import implements ShouldQueue
 
     }
 
+    private function randomSubdomainGenerator()
+    {
+            do {
+                $length = 8;
+                $string = '';
+                $vowels = array("a","e","i","o","u");  
+                $consonants = array(
+                    'b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 
+                    'n', 'p', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z'
+                );  
+
+                $max = $length / 2;
+                for ($i = 1; $i <= $max; $i++)
+                {
+                    $string .= $consonants[rand(0,19)];
+                    $string .= $vowels[rand(0,4)];
+                }
+            }
+            while(!MultiDB::checkDomainAvailable($string));
+
+            return $string;
+    }
     /* In V4 we use negative invoices (credits) and add then into the client balance. In V5, these sit off ledger and are applied later.
      This next section will check for credit balances and reduce the client balance so that the V5 balances are correct
     */
