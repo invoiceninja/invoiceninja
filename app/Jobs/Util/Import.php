@@ -1650,17 +1650,20 @@ class Import implements ShouldQueue
 
     private function buildNewUserPlan() 
     {
+        $current_db = config('database.default');
+
+        MultiDB::setDb('db-ninja-01');
+
         $local_company = Company::find($this->company->id);
         $owner = $local_company->owner();
 
-        $ninja_company = Company::on('db-ninja-01')->find(config('ninja.ninja_default_company_id'));
+        $ninja_company = Company::find(config('ninja.ninja_default_company_id'));
 
         /* If we already have a record of this user - move along. */
-        if($client_contact = ClientContact::on('db-ninja-01')->where(['email' => $owner->email, 'company_id' => $ninja_company->id])->exists())
+        if($client_contact = ClientContact::where(['email' => $owner->email, 'company_id' => $ninja_company->id])->exists())
             return $client_contact->client;
 
         $ninja_client = ClientFactory::create($ninja_company->id, $ninja_company->owner()->id);
-        $ninja_client->setConnection('db-ninja-01');
         $ninja_client->name = $owner->present()->name();
         $ninja_client->address1 = $local_company->settings->address1;
         $ninja_client->address2 = $local_company->settings->address2;
@@ -1672,7 +1675,6 @@ class Import implements ShouldQueue
         $ninja_client->save();
 
         $ninja_client_contact = ClientContactFactory::create($ninja_company->id, $ninja_company->owner()->id);
-        $ninja_client_contact->setConnection('db-ninja-01');
         $ninja_client_contact->first_name = $owner->first_name;
         $ninja_client_contact->last_name = $owner->last_name;
         $ninja_client_contact->client_id = $ninja_client->id;
@@ -1680,6 +1682,8 @@ class Import implements ShouldQueue
         $ninja_client_contact->phone = $owner->phone;
         $ninja_client_contact->save();
 
+
+        MultiDB::setDb($current_db);
 
         return $ninja_client;
     }
@@ -1689,10 +1693,14 @@ class Import implements ShouldQueue
         if(count($data) == 0)
             $ninja_client = $this->buildNewUserPlan();
 
+        $current_db = config('database.default');
+
+        MultiDB::setDb('db-ninja-01');
+
         foreach($data as $token)
         {
             //get invoiceninja company_id
-            $ninja_company = Company::on('db-ninja-01')->where('id', config('ninja.ninja_default_company_id'))->first();
+            $ninja_company = Company::where('id', config('ninja.ninja_default_company_id'))->first();
 
             $token['company_id'] = $ninja_client->company_id;
             $token['client_id'] = $ninja_client->id;
@@ -1705,6 +1713,7 @@ class Import implements ShouldQueue
             ClientGatewayToken::reguard();
         }
 
+        MultiDB::setDb($current_db);
     }
 
     private function randomSubdomainGenerator()
