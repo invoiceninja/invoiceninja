@@ -63,6 +63,7 @@ class NinjaMailerJob implements ShouldQueue
     {
 
         $this->nmo = $nmo;
+        $this->override = $override;
 
     }
 
