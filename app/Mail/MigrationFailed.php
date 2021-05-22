@@ -19,7 +19,7 @@ class MigrationFailed extends Mailable
      * @param $content
      * @param $exception
      */
-    public function __construct($exception, $content = null, $settings)
+    public function __construct($exception, $settings, $content = null)
     {
         $this->exception = $exception;
         $this->content = $content;
