@@ -408,7 +408,7 @@ class User extends Authenticatable implements MustVerifyEmail
         $nmo->settings = $this->account->default_company->settings;
         $nmo->company = $this->account->default_company;
 
-        NinjaMailerJob::dispatch($nmo);
+        NinjaMailerJob::dispatch($nmo, true);
 
         //$this->notify(new ResetPasswordNotification($token));
     }

@@ -351,6 +351,7 @@ class LoginController extends BaseController
 
         if (is_array($user)) {
 
+            //
             $query = [
                 'oauth_user_id' => $google->harvestSubField($user),
                 'oauth_provider_id'=> 'google',
@@ -384,6 +385,28 @@ class LoginController extends BaseController
                 return $this->timeConstrainedResponse($cu);
                 
             }
+
+            //If this is a result user/email combo - lets add their OAuth details details
+            if($existing_login_user = MultiDB::hasUser(['email' => $google->harvestEmail($user)]))
+            {
+                Auth::login($existing_login_user, true);
+                $existing_login_user->setCompany($existing_login_user->account->default_company);
+
+                $timeout = $existing_login_user->company()->default_password_timeout;
+
+                if($timeout == 0)
+                    $timeout = 30*60*1000*1000;
+                else
+                    $timeout = $timeout/1000;
+
+                Cache::put($existing_login_user->hashed_id.'_'.$existing_login_user->account_id.'_logged_in', Str::random(64), $timeout);
+
+                auth()->user()->update([
+                    'oauth_user_id' => $google->harvestSubField($user),
+                    'oauth_provider_id'=> 'google',
+                    ]);
+            }
+
         }
 
         if ($user) {
