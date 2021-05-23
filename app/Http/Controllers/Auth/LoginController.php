@@ -31,6 +31,7 @@ use App\Models\User;
 use App\Transformers\CompanyUserTransformer;
 use App\Utils\Ninja;
 use App\Utils\Traits\UserSessionAttributes;
+use App\Utils\Traits\User\LoginCache;
 use Google_Client;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
@@ -55,6 +56,7 @@ class LoginController extends BaseController
 
     use AuthenticatesUsers;
     use UserSessionAttributes;
+    use LoginCache;
 
     protected $entity_type = CompanyUser::class;
 
