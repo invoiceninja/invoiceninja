@@ -31,6 +31,7 @@ use App\Models\User;
 use App\Transformers\CompanyUserTransformer;
 use App\Utils\Ninja;
 use App\Utils\Traits\UserSessionAttributes;
+use App\Utils\Traits\User\LoginCache;
 use Google_Client;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
@@ -55,6 +56,7 @@ class LoginController extends BaseController
 
     use AuthenticatesUsers;
     use UserSessionAttributes;
+    use LoginCache;
 
     protected $entity_type = CompanyUser::class;
 
@@ -178,8 +180,7 @@ class LoginController extends BaseController
 
             event(new UserLoggedIn($user, $user->account->default_company, Ninja::eventVars($user->id)));
 
-            //if user has 2fa enabled - lets check this now:
-
+            //2FA
             if($user->google_2fa_secret && $request->has('one_time_password'))
             {
                 $google2fa = new Google2FA();
@@ -203,14 +204,7 @@ class LoginController extends BaseController
 
             $user->setCompany($user->account->default_company);
 
-            $timeout = $user->company()->default_password_timeout;
-
-            if($timeout == 0)
-                $timeout = 30*60*1000*1000;
-            else
-                $timeout = $timeout/1000;
-
-            Cache::put($user->hashed_id.'_'.$user->account_id.'_logged_in', Str::random(64), $timeout);
+            $this->setLoginCache($user);
 
             $cu = CompanyUser::query()
                   ->where('user_id', auth()->user()->id);
@@ -228,7 +222,7 @@ class LoginController extends BaseController
             });
 
             return $this->timeConstrainedResponse($cu);
-            // return $this->listResponse($cu);
+
 
         } else {
 
@@ -362,14 +356,7 @@ class LoginController extends BaseController
                 Auth::login($existing_user, true);
                 $existing_user->setCompany($existing_user->account->default_company);
 
-                $timeout = $existing_user->company()->default_password_timeout;
-
-                if($timeout == 0)
-                    $timeout = 30*60*1000*1000;
-                else
-                    $timeout = $timeout/1000;
-
-                Cache::put($existing_user->hashed_id.'_'.$existing_user->account_id.'_logged_in', Str::random(64), $timeout);
+                $this->setLoginCache($existing_user);
 
                 $cu = CompanyUser::query()
                                   ->where('user_id', auth()->user()->id);
@@ -392,21 +379,13 @@ class LoginController extends BaseController
                 Auth::login($existing_login_user, true);
                 $existing_login_user->setCompany($existing_login_user->account->default_company);
 
-                $timeout = $existing_login_user->company()->default_password_timeout;
-
-                if($timeout == 0)
-                    $timeout = 30*60*1000*1000;
-                else
-                    $timeout = $timeout/1000;
-
-                Cache::put($existing_login_user->hashed_id.'_'.$existing_login_user->account_id.'_logged_in', Str::random(64), $timeout);
+                $this->setLoginCache($existing_login_user);
 
                 auth()->user()->update([
                     'oauth_user_id' => $google->harvestSubField($user),
                     'oauth_provider_id'=> 'google',
                     ]);
             
-
                 $cu = CompanyUser::query()
                                   ->where('user_id', auth()->user()->id);
 
@@ -447,14 +426,7 @@ class LoginController extends BaseController
             auth()->user()->email_verified_at = now();
             auth()->user()->save();
 
-            $timeout = auth()->user()->company()->default_password_timeout;
-
-                if($timeout == 0)
-                    $timeout = 30*60*1000*1000;
-                else
-                    $timeout = $timeout/1000;
-
-            Cache::put(auth()->user()->hashed_id.'_'.auth()->user()->account_id.'_logged_in', Str::random(64), $timeout);
+            $this->setLoginCache(auth()->user());
 
             $cu = CompanyUser::whereUserId(auth()->user()->id);
 
