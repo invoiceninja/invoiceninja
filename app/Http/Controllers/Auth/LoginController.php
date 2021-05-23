@@ -404,6 +404,36 @@ class LoginController extends BaseController
 
         if ($user) {
             
+            //check the user doesn't already exist in some form
+
+            if($existing_login_user = MultiDB::hasUser(['email' => $google->harvestEmail($user)]))
+            {
+                Auth::login($existing_login_user, true);
+                $existing_login_user->setCompany($existing_login_user->account->default_company);
+
+                $this->setLoginCache($existing_login_user);
+
+                auth()->user()->update([
+                    'oauth_user_id' => $google->harvestSubField($user),
+                    'oauth_provider_id'=> 'google',
+                    ]);
+            
+                $cu = CompanyUser::query()
+                                  ->where('user_id', auth()->user()->id);
+
+                $cu->first()->account->companies->each(function ($company) use($cu){
+
+                    if($company->tokens()->where('is_system', true)->count() == 0)
+                    {
+                        CreateCompanyToken::dispatchNow($company, $cu->first()->user, request()->server('HTTP_USER_AGENT'));
+                    }
+                });
+
+                return $this->timeConstrainedResponse($cu);
+            }
+
+
+            //user not found anywhere - lets sign them up.
             $name = OAuth::splitName($google->harvestName($user));
 
             $new_account = [
