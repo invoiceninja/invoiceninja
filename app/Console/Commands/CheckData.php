@@ -75,6 +75,8 @@ class CheckData extends Command
             config(['database.default' => $database]);
         }
 
+        $this->checkContacts();
+
         if (! $this->option('client_id')) {
             $this->checkBlankInvoiceHistory();
             $this->checkPaidToDate();
@@ -84,7 +86,6 @@ class CheckData extends Command
         //$this->checkInvoices();
         $this->checkInvoiceBalances();
         $this->checkClientBalances();
-        $this->checkContacts();
         $this->checkUserAccounts();
         //$this->checkLogoFiles();
 
