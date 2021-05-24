@@ -307,7 +307,7 @@ class MultiDB
         return false;
     }
 
-    public function randomSubdomainGenerator()
+    public static function randomSubdomainGenerator()
     {
         $current_db = config('database.default');  
               
