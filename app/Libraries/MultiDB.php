@@ -52,37 +52,38 @@ class MultiDB
 
     public static function checkDomainAvailable($subdomain) : bool
     {
-        if (! config('ninja.db.multi_db_enabled')) {
+        if (! config('ninja.db.multi_db_enabled')) 
             return Company::whereSubdomain($subdomain)->get()->count() == 0;
-        }
 
+        $current_db = config('database.default');  
 
-        //multi-db active
         foreach (self::$dbs as $db) {
             if (Company::on($db)->whereSubdomain($subdomain)->get()->count() >= 1) {
+                self::setDb($current_db);
                 return false;
             }
         }
 
-        //self::setDefaultDatabase();
+        self::setDb($current_db);
 
         return true;
     }
 
     public static function checkUserEmailExists($email) : bool
     {
-        if (! config('ninja.db.multi_db_enabled')) {
+        if (! config('ninja.db.multi_db_enabled')) 
             return User::where(['email' => $email])->get()->count() >= 1 ?? false; // true >= 1 emails found / false -> == emails found
-        }
+        
+        $current_db = config('database.default');  
 
-        //multi-db active
         foreach (self::$dbs as $db) {
             if (User::on($db)->where(['email' => $email])->get()->count() >= 1) { // if user already exists, validation will fail
+                self::setDb($current_db);
                 return true;
             }
         }
 
-        self::setDefaultDatabase();
+        self::setDb($current_db);
 
         return false;
     }
@@ -102,19 +103,21 @@ class MultiDB
      */
     public static function checkUserAndCompanyCoExist($email, $company_key) :bool
     {
+        $current_db = config('database.default');  
+
         foreach (self::$dbs as $db) {
             if (User::on($db)->where(['email' => $email])->get()->count() >= 1) { // if user already exists, validation will fail
                 if (Company::on($db)->where(['company_key' => $company_key])->get()->count() >= 1) {
+                    self::setDb($current_db);
                     return true;
                 } else {
-                    self::setDefaultDatabase();
-
+                    self::setDb($current_db);
                     return false;
                 }
             }
         }
 
-        self::setDefaultDatabase();
+        self::setDb($current_db);
 
         return true;
     }
@@ -125,20 +128,21 @@ class MultiDB
      */
     public static function hasUser(array $data) : ?User
     {
-        if (! config('ninja.db.multi_db_enabled')) {
+        if (! config('ninja.db.multi_db_enabled')) 
             return User::where($data)->withTrashed()->first();
-        }
+        
+        $current_db = config('database.default');  
 
         foreach (self::$dbs as $db) {
 
             self::setDB($db);
-
-            if ($user = User::where($data)->withTrashed()->first()) 
+            if ($user = User::where($data)->withTrashed()->first()) {
                 return $user;
+            }
             
         }
 
-        self::setDefaultDatabase();
+        self::setDb($current_db);
 
         return null;
     }
@@ -149,107 +153,119 @@ class MultiDB
      */
     public static function hasContact(string $email) : ?ClientContact
     {
-        if (! config('ninja.db.multi_db_enabled')) {
+        if (! config('ninja.db.multi_db_enabled')) 
             return ClientContact::where('email', $email)->withTrashed()->first();
-        }
+
+        $current_db = config('database.default');  
 
         foreach (self::$dbs as $db) {
             
             $user = ClientContact::on($db)->where('email', $email)->withTrashed()->first();
 
             if ($user) {
-                self::setDB($db);
+                self::setDb($db);
                 return $user;
             }
         }
 
-        self::setDefaultDatabase();
-
+        self::setDB($current_db);
         return null;
     }
 
     public static function contactFindAndSetDb($token) :bool
     {
+        $current_db = config('database.default');  
+
         foreach (self::$dbs as $db) {
             if ($ct = ClientContact::on($db)->whereRaw('BINARY `token`= ?', [$token])->first()) {
-                self::setDb($ct->company->db);
-
+                self::setDb($db);
                 return true;
             }
         }
 
-        self::setDefaultDatabase();
+        self::setDB($current_db);
 
         return false;
     }
 
     public static function userFindAndSetDb($email) : bool
     {
+        $current_db = config('database.default');  
 
         //multi-db active
         foreach (self::$dbs as $db) {
             
             if (User::on($db)->where('email', $email)->count() >= 1){ 
-                nlog("setting db {$db}");
                 self::setDb($db);
                 return true;
             }
 
         }
 
-        self::setDefaultDatabase();
+        self::setDB($current_db);
         return false;
     }
 
     public static function findAndSetDb($token) :bool
     {
+        $current_db = config('database.default');  
+
         foreach (self::$dbs as $db) {
             if ($ct = CompanyToken::on($db)->whereRaw('BINARY `token`= ?', [$token])->first()) {
                 self::setDb($ct->company->db);
                 return true;
             }
         }
-        self::setDefaultDatabase();
+
+        self::setDB($current_db);
 
         return false;
     }
 
     public static function findAndSetDbByCompanyKey($company_key) :bool
     {
+        $current_db = config('database.default');  
+
         foreach (self::$dbs as $db) {
             if ($company = Company::on($db)->where('company_key', $company_key)->first()) {
                 self::setDb($company->db);
-
                 return true;
             }
         }
-        self::setDefaultDatabase();
+
+        self::setDB($current_db);
 
         return false;
     }
 
     public static function findAndSetDbByContactKey($contact_key) :bool
     {
+        $current_db = config('database.default');  
+
         foreach (self::$dbs as $db) {
             if ($client_contact = ClientContact::on($db)->where('contact_key', $contact_key)->first()) {
                 self::setDb($client_contact->company->db);
                 return true;
             }
         }
-        self::setDefaultDatabase();
+
+        self::setDB($current_db);
 
         return false;
     }
 
     public static function findAndSetDbByClientHash($client_hash) :bool
     {
+        $current_db = config('database.default');  
+
         foreach (self::$dbs as $db) {
             if ($client = Client::on($db)->where('client_hash', $client_hash)->first()) {
                 self::setDb($client->company->db);
                 return true;
             }
         }
-        self::setDefaultDatabase();
+
+        self::setDB($current_db);
 
         return false;
     }
@@ -260,6 +276,8 @@ class MultiDB
         if (! config('ninja.db.multi_db_enabled'))
             return (Company::where($query_array)->exists() === true);
 
+        $current_db = config('database.default');  
+
         foreach (self::$dbs as $db) {
             if ($company = Company::on($db)->where($query_array)->first()) {
                 self::setDb($company->db);
@@ -267,7 +285,7 @@ class MultiDB
             }
         }
 
-        self::setDefaultDatabase();
+        self::setDB($current_db);
 
         return false;
     }
@@ -275,16 +293,16 @@ class MultiDB
     public static function findAndSetDbByInvitation($entity, $invitation_key)
     {
         $class = 'App\Models\\'.ucfirst(Str::camel($entity)).'Invitation';
+        $current_db = config('database.default');  
 
         foreach (self::$dbs as $db) {
             if ($invite = $class::on($db)->whereRaw('BINARY `key`= ?', [$invitation_key])->first()) {
                 self::setDb($db);
-
                 return true;
             }
         }
 
-        self::setDefaultDatabase();
+        self::setDB($current_db);
 
         return false;
     }
