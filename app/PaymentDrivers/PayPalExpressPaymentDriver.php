@@ -118,7 +118,7 @@ class PayPalExpressPaymentDriver extends BaseDriver
         $this->initializeOmnipayGateway();
 
         $response = $this->omnipay_gateway
-            ->completePurchase(['amount' => $this->payment_hash->data->amount])
+            ->completePurchase(['amount' => $this->payment_hash->data->amount, 'currency' => $this->client->getCurrencyCode()])
             ->send();
 
         if ($response->isCancelled()) {
@@ -187,7 +187,7 @@ class PayPalExpressPaymentDriver extends BaseDriver
             'cancelUrl' => $this->client->company->domain() . '/client/invoices',
             'description' => implode(',', collect($this->payment_hash->data->invoices)
                 ->map(function ($invoice) {
-                    return sprintf('%s: %s', ctrans('texts.invoice_number'), $invoice->invoice_number);
+                    return sprintf('%s: %s', ctrans('texts.invoice_number'), $invoice->number);
                 })->toArray()),
             'transactionId' => $this->payment_hash->hash . '-' . time(),
             'ButtonSource' => 'InvoiceNinja_SP',
