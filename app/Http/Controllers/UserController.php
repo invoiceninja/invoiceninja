@@ -215,7 +215,9 @@ class UserController extends BaseController
 
         event(new UserWasCreated($user, auth()->user(), $company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
-        return $this->itemResponse($user->fresh());
+        $user->setCompany($company);
+
+        return $this->itemResponse($user);
     }
 
     /**
