@@ -21,6 +21,7 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Task;
 use App\Services\Client\ClientService;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
@@ -301,6 +302,10 @@ class InvoiceService
         //UnlinkFile::dispatchNow(config('filesystems.default'), $this->invoice->client->invoice_filepath() . $this->invoice->numberFormatter().'.pdf');
         Storage::disk(config('filesystems.default'))->delete($this->invoice->client->invoice_filepath() . $this->invoice->numberFormatter().'.pdf');
         
+        if(Ninja::isHosted()) {
+            Storage::disk('public')->delete($this->invoice->client->invoice_filepath() . $this->invoice->numberFormatter().'.pdf');
+        }
+
         return $this;
     }
 
