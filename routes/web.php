@@ -24,7 +24,7 @@ Route::post('password/reset', 'Auth\ResetPasswordController@reset')->middleware(
  * Social authentication
  */
 
-// Route::get('auth/{provider}', 'Auth\LoginController@redirectToProvider');
+Route::get('auth/{provider}', 'Auth\LoginController@redirectToProvider');
 // Route::get('auth/{provider}/create', 'Auth\LoginController@redirectToProviderAndCreate');
 
 /*

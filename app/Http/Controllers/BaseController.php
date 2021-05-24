@@ -164,7 +164,7 @@ class BaseController extends Controller
      */
     public function notFoundClient()
     {
-        return abort(404);
+        abort(404, 'Page not found in client portal.');
     }
 
     /**
