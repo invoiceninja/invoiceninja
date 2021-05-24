@@ -60,7 +60,7 @@ class SupportMessageSent extends Mailable
         $subject = "Customer MSG {$user->present()->name} - [{$plan} - DB:{$company->db}]";
 
         return $this->from(config('mail.from.address'), config('mail.from.name')) 
-                ->replyTo($user, $user->present()->name())
+                ->replyTo($user->email, $user->present()->name())
                 ->subject($subject)
                 ->markdown('email.support.message', [
                     'message' => $this->message,
