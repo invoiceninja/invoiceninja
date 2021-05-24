@@ -1775,7 +1775,7 @@ $LANG = array(
     'lang_Chinese - Taiwan' => 'Chinese - Taiwan',
     'lang_Serbian' => 'Serbian',
     'lang_Bulgarian' => 'Bulgarian',
-    'lang_Russian' => 'Russian',
+    'lang_Russian (Russia)' => 'Russian (Russia)',
 
     // Industries
     'industry_Accounting & Legal' => 'Accounting & Legal',
@@ -4250,7 +4250,7 @@ $LANG = array(
     'new_login_description' => 'You recently logged in to your Invoice Ninja account from a new location or device:<br><br><b>IP:</b> :ip<br><b>Time:</b> :time<br><b>Email:</b> :email',
     'download_backup_subject' => 'Your company backup is ready for download',
     'contact_details' => 'Contact Details',
-    'download_backup_subject' => ':company backup is ready for download',
+    'download_backup_subject' => 'Your company backup is ready for download',
     'account_passwordless_login' => 'Account passwordless login',
 );
 

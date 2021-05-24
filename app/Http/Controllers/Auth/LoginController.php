@@ -476,4 +476,62 @@ class LoginController extends BaseController
         ->header('X-App-Version', config('ninja.app_version'))
         ->header('X-Api-Version', config('ninja.minimum_client_version'));
     }
+
+    public function redirectToProvider(string $provider)
+    {
+        //'https://www.googleapis.com/auth/gmail.send','email','profile','openid'
+        $scopes = [];
+        
+        if($provider == 'google'){
+            $scopes = ['https://www.googleapis.com/auth/gmail.send','email','profile','openid'];
+        }
+
+        if (request()->has('code')) {
+            return $this->handleProviderCallback($provider);
+        } else {
+            return Socialite::driver($provider)->scopes($scopes)->redirect();
+        }
+    }
+
+    public function handleProviderCallback(string $provider)
+    {
+        $socialite_user = Socialite::driver($provider)
+                                    ->stateless()
+                                    ->user();
+
+        // if($user = OAuth::handleAuth($socialite_user, $provider))
+        // {
+        //     Auth::login($user, true);
+
+        //     return redirect($this->redirectTo);
+        // }
+        // else if(MultiDB::checkUserEmailExists($socialite_user->getEmail()))
+        // {
+        //     Session::flash('error', 'User exists in system, but not with this authentication method'); //todo add translations
+
+        //     return view('auth.login');
+        // }
+        // else {
+        //     //todo
+        //     $name = OAuth::splitName($socialite_user->getName());
+
+        //     $new_account = [
+        //         'first_name' => $name[0],
+        //         'last_name' => $name[1],
+        //         'password' => '',
+        //         'email' => $socialite_user->getEmail(),
+        //         'oauth_user_id' => $socialite_user->getId(),
+        //         'oauth_provider_id' => $provider
+        //     ];
+
+        //     $account = CreateAccount::dispatchNow($new_account);
+
+        //     Auth::login($account->default_company->owner(), true);
+
+        //     $cookie = cookie('db', $account->default_company->db);
+
+        //     return redirect($this->redirectTo)->withCookie($cookie);
+        // }
+
+    }
 }

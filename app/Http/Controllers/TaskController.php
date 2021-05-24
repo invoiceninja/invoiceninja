@@ -643,18 +643,12 @@ class TaskController extends BaseController
 
             $sort_status_id = $this->decodePrimaryKey($key);
             
-            // nlog($task_list);
-
             foreach ($task_list as $key => $task)
             {
-
-                // nlog($task);
                 
                 $task_record = Task::where('id', $this->decodePrimaryKey($task))
                              ->where('company_id', auth()->user()->company()->id)
                              ->first();
-
-                // nlog($task_record->id);
                 
                 $task_record->status_order = $key;
                 $task_record->status_id = $sort_status_id;
@@ -663,6 +657,6 @@ class TaskController extends BaseController
 
         }
 
-        return response()->json(['message' => 'Ok'],200);
+        return response()->json(['message' => 'Ok'], 200);
     }
 }
