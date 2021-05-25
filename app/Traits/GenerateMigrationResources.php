@@ -373,6 +373,8 @@ info("get company");
                 'gateway_type_id' => $payment_method->payment_type->gateway_type_id,
                 'is_default' => $is_default,
                 'meta' => $this->convertMeta($payment_method),
+                'client' => $contact->client->toArray(),
+                'contacts' => $contact->client->contacts->toArray(),
             ];
         }
 
@@ -399,7 +401,7 @@ info("get company");
                 'product_key' => $product->product_key ?: '',
                 'notes' => $product->notes ?: '',
                 'price' => $product->cost ?: 0,
-                'cost' => 0,
+                'cost' => $product->cost ?: 0,
                 'quantity' => $product->qty ?: 0,
                 'tax_name1' => $product->tax_name1,
                 'tax_name2' => $product->tax_name2,
@@ -547,8 +549,12 @@ info("get company");
                 'tax_name2' => $invoice->tax_name2,
                 'tax_rate1' => $invoice->tax_rate1,
                 'tax_rate2' => $invoice->tax_rate2,
-                'custom_value1' => $invoice->custom_value1 ?: '',
-                'custom_value2' => $invoice->custom_value2 ?: '',
+                'custom_surcharge1' => $invoice->custom_value1 ?: '',
+                'custom_surcharge2' => $invoice->custom_value2 ?: '',
+                'custom_value1' => $invoice->custom_text_value1 ?: '',
+                'custom_value2' => $invoice->custom_text_value2 ?: '',
+                'custom_surcharge_tax1' => $invoice->custom_taxes1 ?: '',
+                'custom_surcharge_tax2' => $invoice->custom_taxes2 ?: '',
                 'next_send_date' => null,
                 'amount' => $invoice->amount ?: 0,
                 'balance' => $invoice->balance ?: 0,
@@ -1052,8 +1058,12 @@ info("get company");
                 'tax_name2' => $quote->tax_name2,
                 'tax_rate1' => $quote->tax_rate1,
                 'tax_rate2' => $quote->tax_rate2,
-                'custom_value1' => $quote->custom_value1 ?: '',
-                'custom_value2' => $quote->custom_value2 ?: '',
+                'custom_surcharge1' => $quote->custom_value1 ?: '',
+                'custom_surcharge2' => $quote->custom_value2 ?: '',
+                'custom_value1' => $quote->custom_text_value1 ?: '',
+                'custom_value2' => $quote->custom_text_value2 ?: '',
+                'custom_surcharge_tax1' => $quote->custom_taxes1 ?: '',
+                'custom_surcharge_tax2' => $quote->custom_taxes2 ?: '',
                 'next_send_date' => null,
                 'amount' => $quote->amount ?: 0,
                 'balance' => $quote->balance ?: 0,
@@ -1322,7 +1332,6 @@ info("translated gateway_type = {$translated_gateway_type}");
         info("get get company gateways");
 
         $account_gateways = AccountGateway::where('account_id', $this->account->id)->withTrashed()->get();
-
 
         $transformed = [];
 
