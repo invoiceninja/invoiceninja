@@ -108,7 +108,7 @@ class CreditTransformer extends EntityTransformer
             'po_number' => $credit->po_number ?: '',
             'date' => $credit->date ?: '',
             'last_sent_date' => $credit->last_sent_date ?: '',
-            'next_send_date' => $credit->date ?: '',
+            'next_send_date' => $credit->next_send_date ?: '',
             'reminder1_sent' => $credit->reminder1_sent ?: '',
             'reminder2_sent' => $credit->reminder2_sent ?: '',
             'reminder3_sent' => $credit->reminder3_sent ?: '',
