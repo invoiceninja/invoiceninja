@@ -114,7 +114,7 @@ class InvoiceTransformer extends EntityTransformer
             'po_number' => $invoice->po_number ?: '',
             'date' => $invoice->date ?: '',
             'last_sent_date' => $invoice->last_sent_date ?: '',
-            'next_send_date' => $invoice->date ?: '',
+            'next_send_date' => $invoice->next_send_date ?: '',
             'due_date' => $invoice->due_date ?: '',
             'terms' => $invoice->terms ?: '',
             'public_notes' => $invoice->public_notes ?: '',
