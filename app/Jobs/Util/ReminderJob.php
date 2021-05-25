@@ -48,22 +48,22 @@ class ReminderJob implements ShouldQueue
             //multiDB environment, need to
             foreach (MultiDB::$dbs as $db) {
                 MultiDB::setDB($db);
-
-                $this->processReminders($db);
+                $this->processReminders();
             }
         }
     }
 
-    private function processReminders($db = null)
+    private function processReminders()
     {
         Invoice::where('next_send_date', Carbon::today()->format('Y-m-d'))->with('invitations')->cursor()->each(function ($invoice) {
+
             if ($invoice->isPayable()) {
                 $reminder_template = $invoice->calculateTemplate('invoice');
                 $invoice->service()->touchReminder($reminder_template)->save();
 
                 $invoice->invitations->each(function ($invitation) use ($invoice, $reminder_template) {
                     EmailEntity::dispatch($invitation, $invitation->company, $reminder_template);
-                    nlog("Firing email for invoice {$invoice->number}");
+                    nlog("Firing reminder email for invoice {$invoice->number}");
                 });
 
                 if ($invoice->invitations->count() > 0) {
@@ -73,6 +73,7 @@ class ReminderJob implements ShouldQueue
                 $invoice->next_send_date = null;
                 $invoice->save();
             }
+
         });
     }
 }
