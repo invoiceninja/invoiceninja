@@ -373,6 +373,8 @@ info("get company");
                 'gateway_type_id' => $payment_method->payment_type->gateway_type_id,
                 'is_default' => $is_default,
                 'meta' => $this->convertMeta($payment_method),
+                'client' => $contact->client->toArray(),
+                'contacts' => $contact->client->contacts->toArray(),
             ];
         }
 
@@ -1368,6 +1370,9 @@ info("translated gateway_type = {$translated_gateway_type}");
                     'custom_value2' => '',
                     'custom_value3' => '',
                     'custom_value4' => '',
+                    'created_at' => $account_gateway->created_at ? Carbon::parse($account_gateway->created_at)->toDateString() : null,
+                    'updated_at' => $account_gateway->updated_at ? Carbon::parse($account_gateway->updated_at)->toDateString() : null,
+                    'deleted_at' => $account_gateway->deleted_at ? Carbon::parse($account_gateway->deleted_at)->toDateString() : null,
                 ];
             // }
         }
