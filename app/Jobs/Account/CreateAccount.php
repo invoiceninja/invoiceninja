@@ -25,11 +25,13 @@ use App\Jobs\Util\VersionCheck;
 use App\Mail\Admin\AccountCreatedObject;
 use App\Mail\Admin\VerifyUserObject;
 use App\Models\Account;
+use App\Models\Timezone;
 use App\Notifications\Ninja\NewAccountCreated;
 use App\Utils\Ninja;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 use Turbo124\Beacon\Facades\LightLogs;
@@ -74,6 +76,7 @@ class CreateAccount
 
         $sp035a66 = CreateCompany::dispatchNow($this->request, $sp794f3f);
         $sp035a66->load('account');
+        $sp035a66->settings = $this->processSettings($sp035a66->settings);
         $sp794f3f->default_company_id = $sp035a66->id;
         $sp794f3f->save();
 
@@ -107,4 +110,53 @@ class CreateAccount
 
         return $sp794f3f;
     }
+
+    private function processSettings($settings)
+    {
+        if(Ninja::isHosted() && Cache::get('currencies') && $data = unserialize(@file_get_contents('http://www.geoplugin.net/php.gp?ip=' . $this->request->getClientIp())))
+        {
+
+            $currency_code = strtolower($data['geoplugin_currencyCode']);
+            $country_code = strtolower($data['geoplugin_countryCode']);
+
+            $currency = Cache::get('currencies')->filter(function ($item) use ($currency_code) {
+                return strtolower($item->code) == $currency_code;
+            })->first();
+
+            if ($currency) {
+                $settings->currency_id = (string)$currency->id;
+            }
+
+            $country = Cache::get('countries')->filter(function ($item) use ($country_code) {
+                return strtolower($item->iso_3166_2) == $country_code || strtolower($item->iso_3166_3) == $country_code;
+            })->first();
+
+            if ($country) {
+                $settings->country_id = (string)$country->id;
+            }
+            
+            $language = Cache::get('languages')->filter(function ($item) use ($currency_code) {
+                return strtolower($item->locale) == $currency_code;
+            })->first();
+
+            if ($language) {
+                $settings->language_id = (string)$language->id;
+            }
+
+            $timezone = Timezone::where('name', $data['geoplugin_timezone'])->first();
+
+            if($timezone) {
+                $settings->timezone_id = (string)$timezone->id;
+            }
+
+            return $settings;
+        }
+
+
+        return $settings;
+    }
 }
+
+
+
+

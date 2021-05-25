@@ -109,6 +109,14 @@ class CreateSingleAccount extends Command
             'portal_domain' => 'http://ninja.test:8000',
         ]);
 
+        $settings = $company->settings;
+        $settings->invoice_terms = 'Default company invoice terms';
+        $settings->quote_terms = 'Default company quote terms';
+        $settings->invoice_footer = 'Default invoice footer';
+
+        $company->settings = $settings;
+        $company->save();
+        
         $account->default_company_id = $company->id;
         $account->save();
 
