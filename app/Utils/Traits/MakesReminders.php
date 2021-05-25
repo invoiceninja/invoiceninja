@@ -34,76 +34,94 @@ trait MakesReminders
 
         $date_collection = collect();
 
-        if ($settings->schedule_reminder1 == 'after_invoice_date' &&
+        if (is_null($this->reminder1_sent) &&
+            $settings->schedule_reminder1 == 'after_invoice_date' &&
             $settings->num_days_reminder1 > 0) {
             $reminder_date = Carbon::parse($this->date)->addDays($settings->num_days_reminder1);
+            nlog("reminder 1 = after invoice date = {$reminder_date}");
 
             if ($reminder_date->gt(Carbon::parse($this->next_send_date)));
-            $date_collection->push($reminder_date->format('Y-m-d'));
+                $date_collection->push($reminder_date->format('Y-m-d')); nlog('after_invoice_date pushed to collection');
         }
 
-        if ($settings->schedule_reminder1 == 'before_due_date' &&
+        if (is_null($this->reminder1_sent) &&
+            $settings->schedule_reminder1 == 'before_due_date' &&
             $settings->num_days_reminder1 > 0) {
             $reminder_date = Carbon::parse($this->due_date)->subDays($settings->num_days_reminder1);
+            nlog("reminder 1 = before_due_date = {$reminder_date}");
 
             if ($reminder_date->gt(Carbon::parse($this->next_send_date)));
-            $date_collection->push($reminder_date->format('Y-m-d'));
+                $date_collection->push($reminder_date->format('Y-m-d')); nlog('before_due_date pushed to collection');
         }
 
-        if ($settings->schedule_reminder1 == 'after_due_date' &&
+        if (is_null($this->reminder1_sent) &&
+            $settings->schedule_reminder1 == 'after_due_date' &&
             $settings->num_days_reminder1 > 0) {
             $reminder_date = Carbon::parse($this->due_date)->addDays($settings->num_days_reminder1);
+            nlog("reminder 1 = after_due_date = {$reminder_date}");
 
             if ($reminder_date->gt(Carbon::parse($this->next_send_date)));
-            $date_collection->push($reminder_date->format('Y-m-d'));
+                $date_collection->push($reminder_date->format('Y-m-d'));  nlog('after_due_date pushed to collection');
         }
 
-        if ($settings->schedule_reminder2 == 'after_invoice_date' &&
+        if (is_null($this->reminder2_sent) &&
+            $settings->schedule_reminder2 == 'after_invoice_date' &&
             $settings->num_days_reminder2 > 0) {
             $reminder_date = Carbon::parse($this->date)->addDays($settings->num_days_reminder2);
+            nlog("reminder 2 = after_invoice_date = {$reminder_date}");
 
             if ($reminder_date->gt(Carbon::parse($this->next_send_date)));
-            $date_collection->push($reminder_date->format('Y-m-d'));
+                $date_collection->push($reminder_date->format('Y-m-d')); nlog('after_invoice_date pushed to collection');
         }
 
-        if ($settings->schedule_reminder2 == 'before_due_date' &&
+        if (is_null($this->reminder2_sent) &&
+            $settings->schedule_reminder2 == 'before_due_date' &&
             $settings->num_days_reminder2 > 0) {
             $reminder_date = Carbon::parse($this->due_date)->subDays($settings->num_days_reminder2);
+            nlog("reminder 2 = before_due_date = {$reminder_date}");
 
             if ($reminder_date->gt(Carbon::parse($this->next_send_date)));
-            $date_collection->push($reminder_date->format('Y-m-d'));
+                $date_collection->push($reminder_date->format('Y-m-d')); nlog('before_due_date pushed to collection');
         }
 
-        if ($settings->schedule_reminder2 == 'after_due_date' &&
+        if (is_null($this->reminder2_sent) &&
+            $settings->schedule_reminder2 == 'after_due_date' &&
             $settings->num_days_reminder2 > 0) {
             $reminder_date = Carbon::parse($this->due_date)->addDays($settings->num_days_reminder2);
+            nlog("reminder 2 = after_due_date = {$reminder_date}");
 
             if ($reminder_date->gt(Carbon::parse($this->next_send_date)));
-            $date_collection->push($reminder_date->format('Y-m-d'));
+                $date_collection->push($reminder_date->format('Y-m-d')); nlog('after_due_date pushed to collection');
         }
 
-        if ($settings->schedule_reminder3 == 'after_invoice_date' &&
+        if (is_null($this->reminder3_sent) &&
+            $settings->schedule_reminder3 == 'after_invoice_date' &&
             $settings->num_days_reminder3 > 0) {
             $reminder_date = Carbon::parse($this->date)->addDays($settings->num_days_reminder3);
+            nlog("reminder 3 = after_invoice_date = {$reminder_date}");
 
             if ($reminder_date->gt(Carbon::parse($this->next_send_date)));
-            $date_collection->push($reminder_date->format('Y-m-d'));
+                $date_collection->push($reminder_date->format('Y-m-d')); nlog('after_invoice_date pushed to collection');
         }
 
-        if ($settings->schedule_reminder3 == 'before_due_date' &&
+        if (is_null($this->reminder3_sent) &&
+            $settings->schedule_reminder3 == 'before_due_date' &&
             $settings->num_days_reminder3 > 0) {
             $reminder_date = Carbon::parse($this->due_date)->subDays($settings->num_days_reminder3);
+                nlog("reminder 3 = before_due_date = {$reminder_date}");
 
             if ($reminder_date->gt(Carbon::parse($this->next_send_date)));
-            $date_collection->push($reminder_date->format('Y-m-d'));
+                $date_collection->push($reminder_date->format('Y-m-d')); nlog('before_due_date pushed to collection');
         }
 
-        if ($settings->schedule_reminder3 == 'after_due_date' &&
+        if (is_null($this->reminder3_sent) &&
+            $settings->schedule_reminder3 == 'after_due_date' &&
             $settings->num_days_reminder3 > 0) {
             $reminder_date = Carbon::parse($this->due_date)->addDays($settings->num_days_reminder3);
+                nlog("reminder 3 = after_due_date = {$reminder_date}");
 
             if ($reminder_date->gt(Carbon::parse($this->next_send_date)));
-            $date_collection->push($reminder_date->format('Y-m-d'));
+                $date_collection->push($reminder_date->format('Y-m-d')); nlog('after_due_date pushed to collection');
         }
 
         $this->next_send_date = $date_collection->sort()->first();
