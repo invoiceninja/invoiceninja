@@ -113,7 +113,7 @@ class CreateAccount
 
     private function processSettings($settings)
     {
-        if(Ninja::isHosted() && Cache::get('currencies') && $data = unserialize(@file_get_contents('http://www.geoplugin.net/php.gp?ip=' . $this->request->getClientIp())))
+        if(Ninja::isHosted() && Cache::get('currencies') && $data = unserialize(@file_get_contents('http://www.geoplugin.net/php.gp?ip=' . request()->getClientIp())))
         {
 
             $currency_code = strtolower($data['geoplugin_currencyCode']);

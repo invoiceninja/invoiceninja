@@ -118,6 +118,8 @@ class Phantom
 
         $finfo = new \finfo(FILEINFO_MIME);
 
+nlog($pdf);
+
         if($finfo->buffer($pdf) != 'application/pdf; charset=binary')
         {
             SystemLogger::dispatch(
