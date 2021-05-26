@@ -631,6 +631,7 @@ class TaskController extends BaseController
 
             $task_status = TaskStatus::where('id', $this->decodePrimaryKey($task_status_hashed_id))
                                      ->where('company_id', auth()->user()->company()->id)
+                                     ->withTrashed()
                                      ->first();
 
             $task_status->status_order = $key;
@@ -648,6 +649,7 @@ class TaskController extends BaseController
                 
                 $task_record = Task::where('id', $this->decodePrimaryKey($task))
                              ->where('company_id', auth()->user()->company()->id)
+                             ->withTrashed()
                              ->first();
                 
                 $task_record->status_order = $key;
