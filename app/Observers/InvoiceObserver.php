@@ -52,8 +52,8 @@ class InvoiceObserver
             WebhookHandler::dispatch(Webhook::EVENT_UPDATE_INVOICE, $invoice, $invoice->company);
         }
     
-        if($invoice->isDirty('date') || $invoice->isDirty('due_date'))
-            $invoice->service()->setReminder()->save();
+        // if($invoice->isDirty('date') || $invoice->isDirty('due_date'))
+        //     $invoice->service()->setReminder()->save();
 
         // UnlinkFile::dispatchNow(config('filesystems.default'), $invoice->client->invoice_filepath() . $invoice->numberFormatter().'.pdf');
 

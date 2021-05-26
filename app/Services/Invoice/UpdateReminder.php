@@ -21,7 +21,7 @@ class UpdateReminder extends AbstractService
 
 	public $settings;
 
-    public function __construct($invoice, $settings = null)
+    public function __construct(Invoice $invoice, $settings = null)
     {
         $this->invoice = $invoice;
         $this->settings = $settings;

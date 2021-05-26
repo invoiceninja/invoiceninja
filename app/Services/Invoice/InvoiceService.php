@@ -245,6 +245,13 @@ class InvoiceService
 
         return $this;
     }
+    
+    public function setReminder($settings = null)
+    {
+        $this->invoice = (new UpdateReminder($this->invoice, $settings))->run();
+
+        return $this;
+    }
 
     public function setStatus($status)
     {
@@ -422,13 +429,6 @@ class InvoiceService
         /* If client currency differs from the company default currency, then insert the client exchange rate on the model.*/
         if(!isset($this->invoice->exchange_rate) && $this->invoice->client->currency()->id != (int) $this->invoice->company->settings->currency_id)
             $this->invoice->exchange_rate = $this->invoice->client->currency()->exchange_rate;
-
-        return $this;
-    }
-    
-    public function setReminder($settings = null)
-    {
-        $this->invoice = (new UpdateReminder($this->invoice, $settings))->run();
 
         return $this;
     }

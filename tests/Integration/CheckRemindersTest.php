@@ -19,7 +19,6 @@ use Tests\TestCase;
 
 /**
  * @test
- * @covers  App\Utils\Traits\MakesReminders
  */
 class CheckRemindersTest extends TestCase
 {
@@ -50,6 +49,8 @@ class CheckRemindersTest extends TestCase
         $settings->num_days_reminder3 = 1;
 
         $this->company->settings = $settings;
+        $this->company->save();
+
         $this->invoice->service()->markSent();
         $this->invoice->service()->setReminder($settings)->save();
 

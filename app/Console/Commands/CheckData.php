@@ -65,7 +65,7 @@ class CheckData extends Command
     /**
      * @var string
      */
-    protected $name = 'ninja:check-data';
+    protected $signature = 'ninja:check-data {--database=} {--fix=}';
 
     /**
      * @var string
