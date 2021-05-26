@@ -1655,17 +1655,16 @@ class Import implements ShouldQueue
         $current_db = config('database.default');
 
         $local_company = Company::where('company_key', $this->company->company_key)->first();
-        $owner = $local_company->owner();
 
         MultiDB::setDb('db-ninja-01');
         $ninja_company = Company::find(config('ninja.ninja_default_company_id'));
 
         /* If we already have a record of this user - move along. */
-        if($client_contact = ClientContact::where(['email' => $owner->email, 'company_id' => $ninja_company->id])->first())
+        if($client_contact = ClientContact::where(['email' => $this->user->email, 'company_id' => $ninja_company->id])->first())
             return $client_contact->client;
 
         $ninja_client = ClientFactory::create($ninja_company->id, $ninja_company->owner()->id);
-        $ninja_client->name = $owner->present()->name();
+        $ninja_client->name = $this->user->present()->name();
         $ninja_client->address1 = $local_company->settings->address1;
         $ninja_client->address2 = $local_company->settings->address2;
         $ninja_client->city = $local_company->settings->city;
@@ -1677,11 +1676,11 @@ class Import implements ShouldQueue
         $ninja_client->save();
 
         $ninja_client_contact = ClientContactFactory::create($ninja_company->id, $ninja_company->owner()->id);
-        $ninja_client_contact->first_name = $owner->first_name;
-        $ninja_client_contact->last_name = $owner->last_name;
+        $ninja_client_contact->first_name = $this->user->first_name;
+        $ninja_client_contact->last_name = $this->user->last_name;
         $ninja_client_contact->client_id = $ninja_client->id;
-        $ninja_client_contact->email = $owner->email;
-        $ninja_client_contact->phone = $owner->phone;
+        $ninja_client_contact->email = $this->user->email;
+        $ninja_client_contact->phone = $this->user->phone;
         $ninja_client_contact->save();
 
 

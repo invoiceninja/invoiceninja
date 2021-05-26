@@ -52,22 +52,18 @@ class AutoBillCron
                                         ->where('auto_bill_enabled', true)
                                         ->where('balance', '>', 0)
                                         ->with('company')
-                                        ->cursor();
-
-            $auto_bill_partial_invoices->each(function ($invoice){
-                $this->runAutoBiller($invoice);
-            });
+                                        ->cursor()->each(function ($invoice){
+                                            $this->runAutoBiller($invoice);
+                                        });
 
             $auto_bill_invoices = Invoice::whereDate('due_date', '<=', now())
                                         ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                         ->where('auto_bill_enabled', true)
                                         ->where('balance', '>', 0)
                                         ->with('company')
-                                        ->cursor();
-
-            $auto_bill_invoices->each(function ($invoice){
-                $this->runAutoBiller($invoice);
-            });
+                                        ->cursor()->each(function ($invoice){
+                                            $this->runAutoBiller($invoice);
+                                        });
 
 
         } else {
@@ -80,22 +76,18 @@ class AutoBillCron
                                             ->where('auto_bill_enabled', true)
                                             ->where('balance', '>', 0)
                                             ->with('company')
-                                            ->cursor();
-
-                $auto_bill_partial_invoices->each(function ($invoice){
-                    $this->runAutoBiller($invoice);
-                });
+                                            ->cursor()->each(function ($invoice){
+                                                $this->runAutoBiller($invoice);
+                                            });
 
                 $auto_bill_invoices = Invoice::whereDate('due_date', '<=', now())
                                             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                             ->where('auto_bill_enabled', true)
                                             ->where('balance', '>', 0)
                                             ->with('company')
-                                            ->cursor();
-
-                $auto_bill_invoices->each(function ($invoice){
-                    $this->runAutoBiller($invoice);
-                });
+                                            ->cursor()->each(function ($invoice){
+                                                $this->runAutoBiller($invoice);
+                                            });
 
             }
         }
