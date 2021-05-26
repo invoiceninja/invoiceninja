@@ -34,6 +34,7 @@ use App\Models\Project;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use App\Models\Task;
+use App\Models\TaxRate;
 use App\Models\User;
 use App\Models\Vendor;
 use App\Models\VendorContact;
@@ -153,6 +154,29 @@ class CreateSingleAccount extends Command
                 'user_id' => $user->id,
                 'company_id' => $company->id,
             ]);
+
+
+        TaxRate::factory()->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'name' => 'GST',
+            'rate' => 10
+        ]);
+
+        TaxRate::factory()->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,            
+            'name' => 'VAT',
+            'rate' => 17.5
+        ]);
+
+        TaxRate::factory()->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'name' => 'CA Sales Tax',
+            'rate' => 5
+        ]);
+        
 
         $this->info('Creating '.$this->count.' clients');
 
