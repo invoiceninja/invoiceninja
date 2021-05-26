@@ -431,30 +431,20 @@ class CompanyExport implements ShouldQueue
     private function zipAndSend()
     {
 
-        $tempStream = fopen('php://memory', 'w+');
-
-        $options = new Archive();
-        $options->setOutputStream($tempStream);
-
         $file_name = date('Y-m-d').'_'.str_replace(' ', '_', $this->company->present()->name() . '_' . $this->company->company_key .'.zip');
 
-        $zip = new ZipStream($file_name, $options);
+        $zip_path = public_path('storage/backups/'.$file_name);
+        $zip = new \ZipArchive();
 
-        $fp = tmpfile();
-        fwrite($fp, json_encode($this->export_data));
-        rewind($fp);
-        $zip->addFileFromStream('backup.json', $fp);
+        if ($zip->open($zip_path, \ZipArchive::CREATE)!==TRUE) {
+            nlog("cannot open {$zip_path}");
+        }
 
-        $zip->finish();
-
-        $path = 'backups/';
-
-        Storage::disk(config('filesystems.default'))->put($path.$file_name, $tempStream);
-
-        fclose($tempStream);
+        $zip->addFromString("backup.json", json_encode($this->export_data));
+        $zip->close();
 
         $nmo = new NinjaMailerObject;
-        $nmo->mailable = new DownloadBackup(Storage::disk(config('filesystems.default'))->url($path.$file_name), $this->company);
+        $nmo->mailable = new DownloadBackup(Storage::disk(config('filesystems.default'))->url('backups/'.$file_name), $this->company);
         $nmo->to_user = $this->user;
         $nmo->company = $this->company;
         $nmo->settings = $this->company->settings;
