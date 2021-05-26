@@ -40,6 +40,8 @@ class AutoBillInvoice extends AbstractService
 
     public function run()
     {
+        $is_partial = false;
+
         /* Is the invoice payable? */
         if (! $this->invoice->isPayable()) 
             return $this->invoice;
@@ -57,6 +59,8 @@ class AutoBillInvoice extends AbstractService
 
         /* Determine $amount */
         if ($this->invoice->partial > 0) {
+            $is_partial = true;
+            $invoice_total = $this->invoice->amount;
             $amount = $this->invoice->partial;
         } elseif ($this->invoice->balance > 0) {
             $amount = $this->invoice->balance;
@@ -77,7 +81,10 @@ class AutoBillInvoice extends AbstractService
         //$fee = $gateway_token->gateway->calcGatewayFee($amount, $gateway_token->gateway_type_id, $this->invoice->uses_inclusive_taxes);
         $this->invoice = $this->invoice->service()->addGatewayFee($gateway_token->gateway, $gateway_token->gateway_type_id, $amount)->save();
 
-        $fee = $this->invoice->amount - $amount;
+        if($is_partial)
+            $fee = $this->invoice->amount - $invoice_total;
+        else
+            $fee = $this->invoice->amount - $amount;
 
         /* Build payment hash */
         $payment_hash = PaymentHash::create([
