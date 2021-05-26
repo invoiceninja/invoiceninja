@@ -21,6 +21,7 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Task;
 use App\Services\Client\ClientService;
+use App\Services\Invoice\UpdateReminder;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Carbon;
@@ -425,6 +426,13 @@ class InvoiceService
         return $this;
     }
     
+    public function setReminder($settings = null)
+    {
+        $this->invoice = (new UpdateReminder($this->invoice, $settings))->run();
+
+        return $this;
+    }
+
     /**
      * Saves the invoice.
      * @return Invoice object
