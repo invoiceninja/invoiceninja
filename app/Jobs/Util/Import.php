@@ -211,8 +211,8 @@ class Import implements ShouldQueue
             $this->{$method}($data[$import]);
         }
 
-        if(Ninja::isHosted() && array_key_exists('ninja_tokens', $data))
-            $this->processNinjaTokens($data['ninja_tokens']);
+        // if(Ninja::isHosted() && array_key_exists('ninja_tokens', $data))
+        //     $this->processNinjaTokens($data['ninja_tokens']);
 
         $this->setInitialCompanyLedgerBalances();
         
