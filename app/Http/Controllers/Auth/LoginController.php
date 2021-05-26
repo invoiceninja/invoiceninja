@@ -449,7 +449,7 @@ class LoginController extends BaseController
 
             MultiDB::setDefaultDatabase();
 
-            $account = CreateAccount::dispatchNow($new_account);
+            $account = CreateAccount::dispatchNow($new_account, request()->getClientIp());
 
             Auth::login($account->default_company->owner(), true);
 
