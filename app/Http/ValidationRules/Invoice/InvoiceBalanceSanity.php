@@ -57,13 +57,13 @@ class InvoiceBalanceSanity implements Rule
     private function checkIfInvoiceBalanceIsSane() : bool
     {
 
-        $this->invoice->line_items = $this->input['line_items'];
+        DB::connection(config('database.default'))->beginTransaction();
 
-        DB::beginTransaction();
+        $this->invoice = Invoice::on(config('database.default'))->find($this->invoice->id);
+        $this->invoice->line_items = $this->input['line_items'];
+        $temp_invoice = $this->invoice->calc()->getTempEntity();
  
-            $temp_invoice = $this->invoice->calc()->getTempEntity();
- 
-        DB::rollBack();
+        DB::connection(config('database.default'))->rollBack();
 
         if($temp_invoice->balance < 0){
             $this->message = 'Invoice balance cannot go negative';
@@ -71,7 +71,7 @@ class InvoiceBalanceSanity implements Rule
         }
 
 
-        return true;
+       return true;
 
     }
 }
