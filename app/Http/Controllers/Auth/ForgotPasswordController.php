@@ -13,6 +13,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Libraries\MultiDB;
+use App\Models\Account;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -105,7 +106,6 @@ class ForgotPasswordController extends Controller
     public function sendResetLinkEmail(Request $request)
     {
         MultiDB::userFindAndSetDb($request->input('email'));
-        
         $user = MultiDB::hasUser(['email' => $request->input('email')]);
 
         $this->validateEmail($request);

@@ -13,6 +13,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Events\Contact\ContactLoggedIn;
 use App\Http\Controllers\Controller;
+use App\Models\Account;
 use App\Models\ClientContact;
 use App\Utils\Ninja;
 use Auth;
@@ -31,9 +32,13 @@ class ContactLoginController extends Controller
         $this->middleware('guest:contact', ['except' => ['logout']]);
     }
 
-    public function showLoginForm()
+    public function showLoginForm(Request $request)
     {
-        return $this->render('auth.login');
+        $account_id = $request->get('account_id');
+        $account = Account::find($account_id);
+
+        return $this->render('auth.login', ['account' => $account]);
+        
     }
 
     public function login(Request $request)
