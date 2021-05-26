@@ -7,7 +7,11 @@
     <p>Looks like your migration failed. Here's the error message:</p>
 
     <pre>
+    	@if(Ninja::isHosted())
+    		There was a problem with your migration, please send us an email contact@invoiceninja.com
+    	@else
         {!! $exception->getMessage() !!}
         {!! $content !!}
+        @endif
     </pre>
 @endcomponent

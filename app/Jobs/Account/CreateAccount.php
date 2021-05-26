@@ -42,9 +42,12 @@ class CreateAccount
 
     protected $request;
 
-    public function __construct(array $sp660339)
+    protected $client_ip;
+
+    public function __construct(array $sp660339, $client_ip)
     {
         $this->request = $sp660339;
+        $this->client_ip = $client_ip;
     }
 
     public function handle()
@@ -113,7 +116,7 @@ class CreateAccount
 
     private function processSettings($settings)
     {
-        if(Ninja::isHosted() && Cache::get('currencies') && $data = unserialize(@file_get_contents('http://www.geoplugin.net/php.gp?ip=' . request()->getClientIp())))
+        if(Ninja::isHosted() && Cache::get('currencies') && $data = unserialize(@file_get_contents('http://www.geoplugin.net/php.gp?ip=' . $this->client_ip)))
         {
 
             $currency_code = strtolower($data['geoplugin_currencyCode']);

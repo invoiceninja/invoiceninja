@@ -60,12 +60,6 @@ class UniqueUserRule implements Rule
      */
     private function checkIfEmailExists($email) : bool
     {
-        $current_db = config('database.default');
-
-        $result =  MultiDB::checkUserEmailExists($email);
-
-        MultiDB::setDb($current_db);
-        
-        return $result;
+        return MultiDB::checkUserEmailExists($email);
     }
 }

@@ -68,7 +68,7 @@ class ReminderJob implements ShouldQueue
                     event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars(), $reminder_template));
                 }
 
-                $invoice->setReminder();
+                $invoice->service()->setReminder()->save();
                 
             } else {
                 $invoice->next_send_date = null;

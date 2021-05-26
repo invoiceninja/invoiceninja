@@ -75,7 +75,7 @@ class ReminderTest extends TestCase
 
         $this->company->settings = $settings;
         $this->invoice->service()->markSent();
-        $this->invoice->setReminder($settings);
+        $this->invoice->service()->setReminder($settings)->save();
 
         $this->assertEquals($this->invoice->next_send_date, Carbon::now()->addDays(7)->format('Y-m-d'));
 
@@ -102,7 +102,7 @@ class ReminderTest extends TestCase
 
         $this->company->settings = $settings;
         $this->invoice->service()->markSent();
-        $this->invoice->setReminder($settings);
+        $this->invoice->service()->setReminder($settings)->save();
 
         $this->invoice->fresh();
 
@@ -132,7 +132,7 @@ class ReminderTest extends TestCase
 
         $this->company->settings = $settings;
         $this->invoice->service()->markSent();
-        $this->invoice->setReminder($settings);
+        $this->invoice->service()->setReminder($settings)->save();
 
         $this->invoice->fresh();
         

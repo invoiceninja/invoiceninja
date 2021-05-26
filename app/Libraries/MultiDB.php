@@ -106,8 +106,8 @@ class MultiDB
         $current_db = config('database.default');  
 
         foreach (self::$dbs as $db) {
-            if (User::on($db)->where(['email' => $email])->get()->count() >= 1) { // if user already exists, validation will fail
-                if (Company::on($db)->where(['company_key' => $company_key])->get()->count() >= 1) {
+            if (User::on($db)->where(['email' => $email])->exists()) { 
+                if (Company::on($db)->where(['company_key' => $company_key])->exists()) {
                     self::setDb($current_db);
                     return true;
                 } else {
