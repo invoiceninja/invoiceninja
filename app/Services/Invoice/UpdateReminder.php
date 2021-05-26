@@ -38,7 +38,7 @@ class UpdateReminder extends AbstractService
             $this->invoice->next_send_date = null;
             $this->invoice->save();
 
-            return; //exit early
+            return $this->invoice; //exit early
         }
 
         $date_collection = collect();

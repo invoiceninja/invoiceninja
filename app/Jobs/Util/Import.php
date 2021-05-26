@@ -423,7 +423,8 @@ class Import implements ShouldQueue
         $rules = [
             '*.first_name' => ['string'],
             '*.last_name' => ['string'],
-            '*.email' => ['distinct'],
+            //'*.email' => ['distinct'],
+            '*.email' => ['distinct', 'email', new ValidUserForCompany(), new AttachableUser()],
         ];
 
         // if (config('ninja.db.multi_db_enabled')) {

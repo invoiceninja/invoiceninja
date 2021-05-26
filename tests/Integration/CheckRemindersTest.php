@@ -25,7 +25,6 @@ class CheckRemindersTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
-    use MakesReminders;
 
     public function setUp() :void
     {
