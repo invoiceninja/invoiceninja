@@ -30,6 +30,7 @@ use App\Factory\TaxRateFactory;
 use App\Factory\UserFactory;
 use App\Factory\VendorFactory;
 use App\Http\Requests\Company\UpdateCompanyRequest;
+use App\Http\ValidationRules\User\AttachableUser;
 use App\Http\ValidationRules\ValidCompanyGatewayFeesAndLimitsRule;
 use App\Http\ValidationRules\ValidUserForCompany;
 use App\Jobs\Company\CreateCompanyTaskStatuses;
