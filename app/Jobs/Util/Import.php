@@ -1654,6 +1654,8 @@ class Import implements ShouldQueue
     {
         $current_db = config('database.default');
 
+        nlog($this->company);
+        
         $local_company = Company::on($current_db)->where('company_key', $this->company->company_key)->first();
 
         MultiDB::setDb('db-ninja-01');
@@ -1692,7 +1694,7 @@ class Import implements ShouldQueue
     private function processNinjaTokens(array $data)
     {
         $current_db = config('database.default');
-        $local_company = Company::find($this->company->id);
+        $local_company = Company::on($current_db)->where('company_key', $this->company->company_key)->first();
 
         MultiDB::setDb('db-ninja-01');
 
