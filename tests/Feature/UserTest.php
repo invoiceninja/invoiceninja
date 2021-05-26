@@ -106,6 +106,8 @@ class UserTest extends TestCase
         $user->save();
 
         $data = $user->toArray();
+        
+        $response = false;
 
         try {
         $response = $this->withHeaders([
