@@ -1654,7 +1654,7 @@ class Import implements ShouldQueue
     {
         $current_db = config('database.default');
 
-        $local_company = Company::where('company_key', $this->company->company_key)->first();
+        $local_company = Company::on($current_db)->where('company_key', $this->company->company_key)->first();
 
         MultiDB::setDb('db-ninja-01');
         $ninja_company = Company::find(config('ninja.ninja_default_company_id'));
