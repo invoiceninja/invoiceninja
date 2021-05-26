@@ -425,12 +425,8 @@ class Import implements ShouldQueue
             '*.first_name' => ['string'],
             '*.last_name' => ['string'],
             //'*.email' => ['distinct'],
-            '*.email' => ['distinct', 'email', new ValidUserForCompany(), new AttachableUser()],
+            '*.email' => ['distinct', 'email', new ValidUserForCompany()],
         ];
-
-        // if (config('ninja.db.multi_db_enabled')) {
-        //     array_push($rules['*.email'], new ValidUserForCompany());
-        // }
 
         $validator = Validator::make($data, $rules);
 
