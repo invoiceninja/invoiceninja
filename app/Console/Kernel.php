@@ -59,7 +59,7 @@ class Kernel extends ConsoleKernel
 
         $schedule->job(new RecurringInvoicesCron)->hourly()->withoutOverlapping();
         
-        $schedule->job(new AutoBillCron)->daily()->withoutOverlapping();        
+        $schedule->job(new AutoBillCron)->dailyAt('00:30')->withoutOverlapping();        
 
         $schedule->job(new SchedulerCheck)->everyFiveMinutes();
 

@@ -95,6 +95,7 @@ class AutoBillCron
 
     private function runAutoBiller(Invoice $invoice)
     {
+        nlog("Firing autobill for {$invoice->company_id} - {$invoice->number}");
         $invoice->service()->autoBill()->save();
     }
 }
