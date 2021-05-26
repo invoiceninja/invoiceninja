@@ -48,7 +48,11 @@ class SetDomainNameDb
                 'portal_mode' => 'subdomain',
             ];
 
-            if(!MultiDB::findAndSetDbByDomain($query)){
+            if($company = MultiDB::findAndSetDbByDomain($query)){
+                $request->attributes->add(['account_id' => $company->account_id]);
+            }
+            else 
+            {
                 if ($request->json) {
                         return response()->json($error, 403);
                 } else {
@@ -66,7 +70,11 @@ class SetDomainNameDb
                 'portal_mode' => 'domain',
             ];
 
-            if(!MultiDB::findAndSetDbByDomain($query)){
+            if($company = MultiDB::findAndSetDbByDomain($query)){
+                $request->attributes->add(['account_id' => $company->account_id]);
+            }
+            else
+            {
                 if ($request->json) {
                         return response()->json($error, 403);
                 } else {

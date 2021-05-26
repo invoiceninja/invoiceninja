@@ -274,14 +274,14 @@ class MultiDB
     {
 
         if (! config('ninja.db.multi_db_enabled'))
-            return (Company::where($query_array)->exists() === true);
+            return (Company::where($query_array)->first());
 
         $current_db = config('database.default');  
 
         foreach (self::$dbs as $db) {
             if ($company = Company::on($db)->where($query_array)->first()) {
                 self::setDb($company->db);
-                return true;
+                return $company;
             }
         }
 
