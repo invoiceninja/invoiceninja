@@ -11,8 +11,9 @@
 
 namespace App\Console;
 
-use App\Jobs\Cron\SubscriptionCron;
+use App\Jobs\Cron\AutoBillCron;
 use App\Jobs\Cron\RecurringInvoicesCron;
+use App\Jobs\Cron\SubscriptionCron;
 use App\Jobs\Ninja\AdjustEmailQuota;
 use App\Jobs\Ninja\CompanySizeCheck;
 use App\Jobs\Util\ReminderJob;
@@ -58,6 +59,8 @@ class Kernel extends ConsoleKernel
 
         $schedule->job(new RecurringInvoicesCron)->hourly()->withoutOverlapping();
         
+        $schedule->job(new AutoBillCron)->daily()->withoutOverlapping();        
+
         $schedule->job(new SchedulerCheck)->everyFiveMinutes();
 
         /* Run hosted specific jobs */
