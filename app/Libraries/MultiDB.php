@@ -270,7 +270,7 @@ class MultiDB
         return false;
     }
 
-    public static function findAndSetDbByDomain($query_array) :bool
+    public static function findAndSetDbByDomain($query_array)
     {
 
         if (! config('ninja.db.multi_db_enabled'))
