@@ -144,7 +144,7 @@ class StartMigration implements ShouldQueue
             if(Ninja::isHosted())
                 app('sentry')->captureException($e);
             
-            Mail::to($this->user->email, $this->user->name())->send(new MigrationFailed($e, $this->company->settings, $e->getMessage()));
+            Mail::to($this->user->email, $this->user->name())->send(new MigrationFailed($e, $this->company, $e->getMessage()));
 
             if (app()->environment() !== 'production') {
                 info($e->getMessage());
