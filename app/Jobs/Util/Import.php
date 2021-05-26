@@ -298,8 +298,11 @@ class Import implements ShouldQueue
 
         $data = $this->transformCompanyData($data);
 
-        if(Ninja::isHosted())
-            $data['subdomain'] = MultiDB::randomSubdomainGenerator();
+        if(Ninja::isHosted() && strlen($data['subdomain']) > 1) {
+
+            if(!MultiDB::checkDomainAvailable($data['subdomain']))
+                $data['subdomain'] = MultiDB::randomSubdomainGenerator();
+        }
 
         $rules = (new UpdateCompanyRequest())->rules();
 
