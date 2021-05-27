@@ -46,7 +46,6 @@ class ImportCompanyTest extends TestCase
             ThrottleRequests::class
         );
 
-
         $this->withoutExceptionHandling();
 
         $this->account = Account::factory()->create();
@@ -69,6 +68,32 @@ class ImportCompanyTest extends TestCase
         $this->assertTrue(is_array(json_decode(file_get_contents($backup_json_file),1)));
 
         unlink($backup_json_file);
+    }
+
+    private function unpackZip()
+    {
+
+       $backup_json_file_zip = base_path().'/tests/Feature/Import/backup.zip';
+
+        $zip = new \ZipArchive;
+        $res = $zip->open($backup_json_file_zip);
+        if ($res === TRUE) {
+          $zip->extractTo(sys_get_temp_dir());
+          $zip->close();
+        } 
+
+        $backup_json_file = sys_get_temp_dir() . "/backup/backup.json";
+
+        $backup_json_object = json_decode(file_get_contents($backup_json_file)); 
+
+        return $backup_json_object;
+    }
+
+    private function testAppVersion()
+    {
+        $obj = $this->unpackZip();
+
+        $this->assertEquals("5.1.52", $obj->app_version);
     }
 
     public function testImportUsers()

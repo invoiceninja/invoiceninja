@@ -211,8 +211,6 @@ class UserController extends BaseController
 
         $ct = CreateCompanyToken::dispatchNow($company, $user, $user_agent);
 
-            nlog("in the store method of the usercontroller class");
-
         event(new UserWasCreated($user, auth()->user(), $company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         $user->setCompany($company);
