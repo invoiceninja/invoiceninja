@@ -128,27 +128,39 @@ class CompanyExport implements ShouldQueue
 
         $this->export_data['client_contacts'] = $this->company->client_contacts->map(function ($client_contact){
 
-            $client_contact = $this->transformArrayOfKeys($client_contact, ['id', 'company_id', 'user_id',' client_id']);
+            $client_contact = $this->transformArrayOfKeys($client_contact, ['company_id', 'user_id', 'client_id']);
 
-            return $client_contact;
+                        return $client_contact->makeVisible([
+                            'password',
+                            'remember_token',
+                            'user_id',
+                            'company_id',
+                            'client_id',
+                            'google_2fa_secret',
+                            'id',
+                            'oauth_provider_id',
+                            'oauth_user_id',
+                            'token',
+                            'hashed_id',
+                        ]);
 
         })->all();
 
 
         $this->export_data['client_gateway_tokens'] = $this->company->client_gateway_tokens->map(function ($client_gateway_token){
 
-            $client_gateway_token = $this->transformArrayOfKeys($client_gateway_token, ['id', 'company_id', 'client_id']);
+            $client_gateway_token = $this->transformArrayOfKeys($client_gateway_token, ['company_id', 'client_id']);
 
-            return $client_gateway_token;
+            return $client_gateway_token->makeVisible(['id']);
 
         })->all();
 
 
-        $this->export_data['clients'] = $this->company->clients->makeVisible(['id','private_notes','user_id','company_id','last_login'])->map(function ($client){
+        $this->export_data['clients'] = $this->company->clients->map(function ($client){
 
             $client = $this->transformArrayOfKeys($client, ['company_id', 'user_id', 'assigned_user_id', 'group_settings_id']);
 
-            return $client->makeVisible(['id','private_notes','user_id','company_id','last_login']);
+            return $client->makeVisible(['id','private_notes','user_id','company_id','last_login','hashed_id']);
 
         })->all();
 
@@ -160,7 +172,7 @@ class CompanyExport implements ShouldQueue
             $company_gateway = $this->transformArrayOfKeys($company_gateway, ['company_id', 'user_id']);
             $company_gateway->config = decrypt($company_gateway->config);
             
-            return $company_gateway;
+            return $company_gateway->makeVisible(['id']);
 
         })->all();
 
@@ -282,10 +294,18 @@ class CompanyExport implements ShouldQueue
             $payment = $this->transformBasicEntities($payment);
             $payment = $this->transformArrayOfKeys($payment, ['client_id','project_id', 'vendor_id', 'client_contact_id', 'invitation_id', 'company_gateway_id']);
 
-            return $payment;
-
+            return $payment->makeVisible(['id']);
+            
         })->all();
 
+        $this->export_data['products'] = $this->company->products->map(function ($product){
+
+            $product = $this->transformBasicEntities($product);
+            $product = $this->transformArrayOfKeys($product, ['vendor_id','project_id']);
+
+            return $product->makeVisible(['id']);
+
+        })->all();
 
         $this->export_data['projects'] = $this->company->projects->map(function ($project){
 

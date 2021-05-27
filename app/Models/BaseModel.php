@@ -36,10 +36,6 @@ class BaseModel extends Model
     use UserSessionAttributes;
     use HasFactory;
 
-    //todo customise names of archived_at / updated_at columns
-    ///const CREATED_AT = 'creation_date';
-    //const UPDATED_AT = 'last_update';
-
     protected $appends = [
         'hashed_id',
     ];

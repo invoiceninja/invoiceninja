@@ -13,6 +13,7 @@ namespace Tests\Feature\Import;
 use App\Jobs\Import\CSVImport;
 use App\Models\Account;
 use App\Models\Client;
+use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\CompanyUser;
@@ -346,6 +347,7 @@ class ImportCompanyTest extends TestCase
         {
         
             $user_id = $this->transformId('users', $obj->user_id);
+            $assigned_user_id = $this->transformId('users', $obj->assigned_user_id);
 
             $obj_array = (array)$obj;
             unset($obj_array['user_id']);
@@ -356,9 +358,6 @@ class ImportCompanyTest extends TestCase
             unset($obj_array['gateway_tokens']);
             unset($obj_array['contacts']);
             unset($obj_array['documents']);
-
-            // $obj_array['settings'] = json_encode($obj_array['settings']);
-            // nlog($obj_array);
             
             $new_obj = Client::firstOrNew(
                         ['number' => $obj->number, 'company_id' => $this->company->id],
@@ -376,12 +375,96 @@ class ImportCompanyTest extends TestCase
         $this->assertEquals(1, Client::count());
         /***************************** Clients *****************************/
 
+        /***************************** Client Contacts *****************************/
+        ClientContact::unguard();
+
+        $this->assertEquals(1, count($this->backup_json_object->client_contacts));
+
+        foreach($this->backup_json_object->client_contacts as $obj)
+        {
+
+            $user_id = $this->transformId('users', $obj->user_id);
+            $client_id = $this->transformId('clients', $obj->client_id);
+
+            $obj_array = (array)$obj;
+            unset($obj_array['user_id']);
+            unset($obj_array['company_id']);
+            unset($obj_array['account_id']);
+            unset($obj_array['hashed_id']);
+            unset($obj_array['id']);
+            unset($obj_array['gateway_tokens']);
+            unset($obj_array['contacts']);
+            unset($obj_array['documents']);
+            
+            $obj_array['client_id'] = $client_id;
+
+            $new_obj = ClientContact::firstOrNew(
+                        ['email' => $obj->email, 'company_id' => $this->company->id],
+                        $obj_array,
+                    );
+
+            $new_obj->save(['timestamps' => false]);
+            
+            $this->ids['client_contacts']["{$obj->hashed_id}"] = $new_obj->id;
+
+        }
+
+        ClientContact::reguard();
+    
+        $this->assertEquals(1, ClientContact::count());
+        /***************************** Client Contacts *****************************/
+
+//vendors!
+//projects!
+
+        /***************************** Products *****************************/
+        // Product::unguard();
+
+        // $this->assertEquals(1, count($this->backup_json_object->products));
+
+        // foreach($this->backup_json_object->products as $obj)
+        // {
+
+        //     $user_id = $this->transformId('users', $obj->user_id);
+        //     $assigned_user_id = $this->transformId('users', $obj->assigned_user_id);
+        //     $vendor_id = $this->transformId('vendors', $obj->vendor_id);
+        //     $project_id = $this->transformId('projects', $obj->project_id);
+
+        //     $obj_array = (array)$obj;
+        //     unset($obj_array['user_id']);
+        //     unset($obj_array['company_id']);
+        //     unset($obj_array['account_id']);
+        //     unset($obj_array['hashed_id']);
+        //     unset($obj_array['id']);
+            
+
+        //     $new_obj = new Product();
+        //     $new_obj->company_id = $this->company->id;
+        //     $new_obj->user_id = $user_id;
+        //     $new_obj->assigned_user_id = $assigned_user_id;
+        //     $new_obj->vendor_id = $vendor_id;
+        //     $new_obj->project_id = $project_id;
+        //     $new_obj->fill($obj_array);
+
+        //     $new_obj->save(['timestamps' => false]);
+            
+        //     $this->ids['products']["{$obj->hashed_id}"] = $new_obj->id;
+
+        // }
+
+        // Product::reguard();
+    
+        // $this->assertEquals(1, Product::count());
+        /***************************** Products *****************************/
 
     }
 
 
-    private function transformId(string $resource, string $old): int
+    private function transformId(string $resource, ?string $old): ?int
     {
+        if(empty($old))
+            return null;
+
         if (! array_key_exists($resource, $this->ids)) {
             throw new \Exception("Resource {$resource} not available.");
         }

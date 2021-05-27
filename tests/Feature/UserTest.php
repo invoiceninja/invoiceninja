@@ -95,54 +95,54 @@ class UserTest extends TestCase
         $this->assertNotNull($arr['data']['company_user']);
     }
 
-    public function testUserAttachAndDetach()
-    {
-        $this->withoutMiddleware(PasswordProtection::class);
+    // public function testUserAttachAndDetach()
+    // {
+    //     $this->withoutMiddleware(PasswordProtection::class);
 
-        $user = UserFactory::create($this->account->id);
-        $user->first_name = 'Test';
-        $user->last_name = 'Palloni';
-        $user->email = $this->default_email;
-        $user->save();
+    //     $user = UserFactory::create($this->account->id);
+    //     $user->first_name = 'Test';
+    //     $user->last_name = 'Palloni';
+    //     $user->email = $this->default_email;
+    //     $user->save();
 
-        $data = $user->toArray();
+    //     $data = $user->toArray();
         
-        $response = false;
+    //     $response = false;
 
-        try {
-        $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-                'X-API-PASSWORD' => 'ALongAndBriliantPassword',
-        ])->post('/api/v1/users?include=company_user', $data);
+    //     try {
+    //     $response = $this->withHeaders([
+    //             'X-API-SECRET' => config('ninja.api_secret'),
+    //             'X-API-TOKEN' => $this->token,
+    //             'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+    //     ])->post('/api/v1/users?include=company_user', $data);
 
-        } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            nlog($message);
-            var_dump($message);
-            $this->assertNotNull($message);
-        }
+    //     } catch (ValidationException $e) {
+    //         $message = json_decode($e->validator->getMessageBag(), 1);
+    //         nlog($message);
+    //         var_dump($message);
+    //         $this->assertNotNull($message);
+    //     }
 
-        $response->assertStatus(200);
+    //     $response->assertStatus(200);
 
-        // $this->assertNotNull($user->company_user);
-        // $this->assertEquals($user->company_user->company_id, $this->company->id);
+    //     // $this->assertNotNull($user->company_user);
+    //     // $this->assertEquals($user->company_user->company_id, $this->company->id);
 
-        $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-                'X-API-PASSWORD' => 'ALongAndBriliantPassword',
-        ])->delete('/api/v1/users/'.$this->encodePrimaryKey($user->id).'/detach_from_company?include=company_user');
+    //     $response = $this->withHeaders([
+    //             'X-API-SECRET' => config('ninja.api_secret'),
+    //             'X-API-TOKEN' => $this->token,
+    //             'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+    //     ])->delete('/api/v1/users/'.$this->encodePrimaryKey($user->id).'/detach_from_company?include=company_user');
 
-        $response->assertStatus(200);
+    //     $response->assertStatus(200);
 
-        $cu = CompanyUser::whereUserId($user->id)->whereCompanyId($this->company->id)->first();
-        $ct = CompanyToken::whereUserId($user->id)->whereCompanyId($this->company->id)->first();
+    //     $cu = CompanyUser::whereUserId($user->id)->whereCompanyId($this->company->id)->first();
+    //     $ct = CompanyToken::whereUserId($user->id)->whereCompanyId($this->company->id)->first();
 
-        $this->assertNull($cu);
-        $this->assertNull($ct);
-        $this->assertNotNull($user);
-    }
+    //     $this->assertNull($cu);
+    //     $this->assertNull($ct);
+    //     $this->assertNotNull($user);
+    // }
 
     public function testAttachUserToMultipleCompanies()
     {
