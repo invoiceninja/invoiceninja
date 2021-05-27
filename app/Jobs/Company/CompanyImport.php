@@ -65,6 +65,8 @@ class CompanyImport implements ShouldQueue
         'users',
         // 'payment_terms',
         // 'tax_rates',
+        // 'expense_categories',
+        // 'task_statuses',
         // 'clients',
         // 'company_gateways',
         // 'client_gateway_tokens',
@@ -76,11 +78,15 @@ class CompanyImport implements ShouldQueue
         // 'recurring_invoices',
         // 'quotes',
         // 'payments',
-        // 'expense_categories',
-        // 'task_statuses',
         // 'expenses',
         // 'tasks',
         // 'documents',
+        // 'subscriptions',
+        // 'webhooks',
+        // 'system_logs',
+        // 'paymentables',
+        // 'company_ledger',
+        // 'backups',
     ];
 
     /**

@@ -144,13 +144,14 @@ class CompanyExport implements ShouldQueue
         })->all();
 
 
-        $this->export_data['clients'] = $this->company->clients->map(function ($client){
+        $this->export_data['clients'] = $this->company->clients->makeVisible(['id','private_notes','user_id','company_id','last_login'])->map(function ($client){
 
-            $client = $this->transformArrayOfKeys($client, ['id', 'company_id', 'user_id',' assigned_user_id', 'group_settings_id']);
+            $client = $this->transformArrayOfKeys($client, ['company_id', 'user_id', 'assigned_user_id', 'group_settings_id']);
 
-            return $client;
+            return $client->makeVisible(['id','private_notes','user_id','company_id','last_login']);
 
         })->all();
+
 
         $this->export_data['company'] = $this->company->toArray();
 

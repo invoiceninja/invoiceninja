@@ -22,6 +22,7 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentTerm;
 use App\Models\Product;
+use App\Models\TaskStatus;
 use App\Models\TaxRate;
 use App\Models\User;
 use App\Models\Vendor;
@@ -274,7 +275,7 @@ class ImportCompanyTest extends TestCase
         /***************************** Expense Category *****************************/
         ExpenseCategory::unguard();
 
-        $this->assertEquals(2, count($this->backup_json_object->tax_rates));
+        $this->assertEquals(2, count($this->backup_json_object->expense_categories));
 
         foreach($this->backup_json_object->expense_categories as $obj)
         {
@@ -302,6 +303,79 @@ class ImportCompanyTest extends TestCase
     
         $this->assertEquals(2, ExpenseCategory::count());
         /***************************** Expense Category *****************************/
+
+
+        /***************************** Task Statuses *****************************/
+        TaskStatus::unguard();
+
+        $this->assertEquals(4, count($this->backup_json_object->task_statuses));
+
+        foreach($this->backup_json_object->task_statuses as $obj)
+        {
+        
+            $user_id = $this->transformId('users', $obj->user_id);
+
+            $obj_array = (array)$obj;
+            unset($obj_array['user_id']);
+            unset($obj_array['company_id']);
+            unset($obj_array['account_id']);
+            unset($obj_array['hashed_id']);
+            unset($obj_array['id']);
+            unset($obj_array['tax_rate_id']);
+
+            $new_obj = TaskStatus::firstOrNew(
+                        ['name' => $obj->name, 'company_id' => $this->company->id],
+                        $obj_array,
+                    );
+
+            $new_obj->save(['timestamps' => false]);
+            
+        }
+
+        TaskStatus::reguard();
+    
+        $this->assertEquals(4, TaskStatus::count());
+        /***************************** Task Statuses *****************************/
+
+        /***************************** Clients *****************************/
+        Client::unguard();
+
+        $this->assertEquals(1, count($this->backup_json_object->clients));
+
+        foreach($this->backup_json_object->clients as $obj)
+        {
+        
+            $user_id = $this->transformId('users', $obj->user_id);
+
+            $obj_array = (array)$obj;
+            unset($obj_array['user_id']);
+            unset($obj_array['company_id']);
+            unset($obj_array['account_id']);
+            unset($obj_array['hashed_id']);
+            unset($obj_array['id']);
+            unset($obj_array['gateway_tokens']);
+            unset($obj_array['contacts']);
+            unset($obj_array['documents']);
+
+            // $obj_array['settings'] = json_encode($obj_array['settings']);
+            // nlog($obj_array);
+            
+            $new_obj = Client::firstOrNew(
+                        ['number' => $obj->number, 'company_id' => $this->company->id],
+                        $obj_array,
+                    );
+
+            $new_obj->save(['timestamps' => false]);
+            
+            $this->ids['clients']["{$obj->hashed_id}"] = $new_obj->id;
+
+        }
+
+        Client::reguard();
+    
+        $this->assertEquals(1, Client::count());
+        /***************************** Clients *****************************/
+
 
     }
 
