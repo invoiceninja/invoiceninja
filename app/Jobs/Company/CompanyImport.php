@@ -11,6 +11,7 @@
 
 namespace App\Jobs\Company;
 
+use App\Exceptions\ImportCompanyFailed;
 use App\Exceptions\NonExistingMigrationFile;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
@@ -19,6 +20,7 @@ use App\Libraries\MultiDB;
 use App\Mail\DownloadBackup;
 use App\Mail\DownloadInvoices;
 use App\Models\Company;
+use App\Models\CompanyUser;
 use App\Models\CreditInvitation;
 use App\Models\InvoiceInvitation;
 use App\Models\QuoteInvitation;
@@ -100,7 +102,7 @@ class CompanyImport implements ShouldQueue
     {
     	MultiDB::setDb($this->company->db);
 
-    	$this->company =Company::where('company_key', $this->company->company_key)->firstOrFail();
+    	$this->company = Company::where('company_key', $this->company->company_key)->firstOrFail();
         $this->account = $this->company->account;
 
     	$this->unzipFile()
@@ -168,6 +170,9 @@ class CompanyImport implements ShouldQueue
         foreach ($this->backup_file->users as $user)
         {
 
+            if(User::where('email', $user->email)->where('account_id', '!=', $this->account->id)->exists())
+                throw new ImportCompanyFailed("{$user->email} is already in the system attached to a different account");
+
             $new_user = User::firstOrNew(
                 ['email' => $user->email],
                 (array)$user,
@@ -176,15 +181,38 @@ class CompanyImport implements ShouldQueue
             $new_user->account_id = $this->account->id;
             $new_user->save(['timestamps' => false]);
 
-            $this->ids['users']["{$user->id}"] = $new_user->id;
+            $this->ids['users']["{$user->hashed_id}"] = $new_user->id;
+
         }
 
-        Expense::reguard();
+        User::reguard();
+
+    }
+
+    private function importCompanyUsers()
+    {
+        CompanyUser::unguard();
+
+        foreach($this->backup_file->company_users as $cu)
+        {
+            $user_id = $this->transformId($cu->user_id);
+
+            $new_cu = CompanyUser::firstOrNew(
+                        ['user_id' => $user_id, 'company_id', $this->company->id],
+                        (array)$cu,
+                    );
+
+            $new_cu->account_id = $this->account->id;
+            $new_cu->save(['timestamps' => false]);
+            
+        }
+
+        CompanyUser::reguard();
 
     }
 
 
-    public function transformId(string$resource, string $old): int
+    public function transformId(string $resource, string $old): int
     {
         if (! array_key_exists($resource, $this->ids)) {
             throw new \Exception("Resource {$resource} not available.");

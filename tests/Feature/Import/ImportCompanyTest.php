@@ -13,6 +13,8 @@ namespace Tests\Feature\Import;
 use App\Jobs\Import\CSVImport;
 use App\Models\Account;
 use App\Models\Client;
+use App\Models\Company;
+use App\Models\CompanyUser;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -37,6 +39,7 @@ class ImportCompanyTest extends TestCase
     use MakesHash;
 
     public $account;
+    public $company;
 
     public function setUp() :void
     {
@@ -49,6 +52,7 @@ class ImportCompanyTest extends TestCase
         $this->withoutExceptionHandling();
 
         $this->account = Account::factory()->create();
+        $this->company = Company::factory()->create(['account_id' => $this->account->id]);
     }
 
     public function testBackupJsonRead()
@@ -122,6 +126,8 @@ class ImportCompanyTest extends TestCase
 
         User::unguard();
 
+        $this->assertEquals(2, count($backup_json_object->users));
+
         foreach ($backup_json_object->users as $user)
         {
             $user_array = (array)$user;
@@ -142,7 +148,51 @@ class ImportCompanyTest extends TestCase
         User::reguard();
 
         $this->assertEquals(2, User::count());
+
+        $this->assertEquals(2, count($backup_json_object->company_users));
+
+        CompanyUser::unguard();
+
+        foreach($backup_json_object->company_users as $cu)
+        {
+            $user_id = $this->transformId('users', $cu->user_id);
+
+            $cu_array = (array)$cu;
+            unset($cu_array['user_id']);
+            unset($cu_array['company_id']);
+            unset($cu_array['account_id']);
+            unset($cu_array['hashed_id']);
+            unset($cu_array['id']);
+
+            $new_cu = CompanyUser::firstOrNew(
+                        ['user_id' => $user_id, 'company_id' => $this->company->id],
+                        (array)$cu_array,
+                    );
+
+            $new_cu->account_id = $this->account->id;
+            $new_cu->save(['timestamps' => false]);
+            
+        }
+
+        CompanyUser::reguard();
+
+        $this->assertEquals(2, CompanyUser::count());
+
     }
 
+
+
+    private function transformId(string $resource, string $old): int
+    {
+        if (! array_key_exists($resource, $this->ids)) {
+            throw new \Exception("Resource {$resource} not available.");
+        }
+
+        if (! array_key_exists("{$old}", $this->ids[$resource])) {
+            throw new \Exception("Missing resource key: {$old}");
+        }
+
+        return $this->ids[$resource]["{$old}"];
+    }
 
 }
