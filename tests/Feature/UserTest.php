@@ -119,6 +119,7 @@ class UserTest extends TestCase
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
             nlog($message);
+            var_dump($message);
             $this->assertNotNull($message);
         }
 
@@ -130,7 +131,7 @@ class UserTest extends TestCase
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-                    'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+                'X-API-PASSWORD' => 'ALongAndBriliantPassword',
         ])->delete('/api/v1/users/'.$this->encodePrimaryKey($user->id).'/detach_from_company?include=company_user');
 
         $response->assertStatus(200);
