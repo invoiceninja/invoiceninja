@@ -215,7 +215,7 @@ class CompanyExport implements ShouldQueue
 
         })->all();
 
-        $this->export_data['expense_categories'] = $this->company->expenses->map(function ($expense_category){
+        $this->export_data['expense_categories'] = $this->company->expense_categories->map(function ($expense_category){
 
             $expense_category = $this->transformArrayOfKeys($expense_category, ['user_id', 'company_id']);
             
