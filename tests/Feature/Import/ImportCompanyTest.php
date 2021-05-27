@@ -51,6 +51,10 @@ class ImportCompanyTest extends TestCase
 
         $this->withoutExceptionHandling();
 
+        Account::all()->each(function ($account){
+            $account->delete();
+        });
+
         $this->account = Account::factory()->create();
         $this->company = Company::factory()->create(['account_id' => $this->account->id]);
     }
