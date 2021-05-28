@@ -260,7 +260,11 @@ class CompanyExport implements ShouldQueue
             $invoice = $this->transformBasicEntities($invoice);
             $invoice = $this->transformArrayOfKeys($invoice, ['recurring_id','client_id', 'vendor_id', 'project_id', 'design_id', 'subscription_id']);
 
-            return $invoice->makeVisible(['id']);
+            return $invoice->makeVisible(['id',
+                                        'private_notes',
+                                        'user_id',
+                                        'client_id',
+                                        'company_id',]);
 
         })->all();
 

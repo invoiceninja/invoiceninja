@@ -530,8 +530,7 @@ class ImportCompanyTest extends TestCase
 // Recurring Invoice Invitations
 
         $this->assertEquals(2, count($this->backup_json_object->recurring_invoice_invitations));
-nlog($this->backup_json_object->recurring_invoice_invitations);
-nlog($this->ids);
+
         $this->genericImport(RecurringInvoiceInvitation::class, 
             ['user_id', 'client_contact_id', 'company_id', 'id', 'hashed_id', 'recurring_invoice_id'], 
             [
@@ -546,6 +545,30 @@ nlog($this->ids);
  
 // Recurring Invoice Invitations
  
+
+        $this->assertEquals(2, count($this->backup_json_object->invoices));
+
+        $this->genericImport(Invoice::class, 
+            ['user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'recurring_id','status'], 
+            [
+                ['users' => 'user_id'], 
+                ['users' => 'assigned_user_id'], 
+                ['recurring_invoices' => 'recurring_id'],
+                ['clients' => 'client_id'],
+                ['subscriptions' => 'subscription_id'],
+                ['projects' => 'project_id'],
+                ['vendors' => 'vendor_id'],
+            ], 
+            'invoices',
+            'number');
+
+        $this->assertEquals(2, Invoice::count());
+
+// Invoices
+
+
+
+// Invoices
     }
 
     private function genericNewClassImport($class, $unset, $transforms, $object_property)
