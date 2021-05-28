@@ -121,7 +121,7 @@ class CompanyExport implements ShouldQueue
             $user->account_id = $this->encodePrimaryKey($user->account_id);
             // $user->id = $this->encodePrimaryKey($user->id);
 
-            return $user;
+            return $user->makeVisible(['id']);
 
         })->all();
 
@@ -205,7 +205,7 @@ class CompanyExport implements ShouldQueue
             $credit = $this->transformBasicEntities($credit);
             $credit = $this->transformArrayOfKeys($credit, ['recurring_id','client_id', 'vendor_id', 'project_id', 'design_id', 'subscription_id','invoice_id']);
 
-            return $credit;
+            return $credit->makeVisible(['id']);
 
         })->all();
 
@@ -214,7 +214,7 @@ class CompanyExport implements ShouldQueue
 
             $credit = $this->transformArrayOfKeys($credit, ['company_id', 'user_id', 'client_contact_id', 'recurring_invoice_id']);
 
-            return $credit;
+            return $credit->makeVisible(['id']);
 
         })->all();
 
@@ -224,7 +224,7 @@ class CompanyExport implements ShouldQueue
 
             $document = $this->transformArrayOfKeys($document, ['user_id', 'assigned_user_id', 'company_id', 'project_id', 'vendor_id']);
 
-            return $document;
+            return $document->makeVisible(['id']);
 
         })->all();
 
@@ -232,7 +232,7 @@ class CompanyExport implements ShouldQueue
 
             $expense_category = $this->transformArrayOfKeys($expense_category, ['user_id', 'company_id']);
             
-            return $expense_category;
+            return $expense_category->makeVisible(['id']);
 
         })->all();
 
@@ -242,7 +242,7 @@ class CompanyExport implements ShouldQueue
             $expense = $this->transformBasicEntities($expense);
             $expense = $this->transformArrayOfKeys($expense, ['vendor_id', 'invoice_id', 'client_id', 'category_id', 'recurring_expense_id','project_id']);
 
-            return $expense;
+            return $expense->makeVisible(['id']);
 
         })->all();
 
@@ -250,7 +250,7 @@ class CompanyExport implements ShouldQueue
 
             $gs = $this->transformArrayOfKeys($gs, ['user_id', 'company_id']);
 
-            return $gs;
+            return $gs->makeVisible(['id']);
 
         })->all();
 
@@ -260,7 +260,7 @@ class CompanyExport implements ShouldQueue
             $invoice = $this->transformBasicEntities($invoice);
             $invoice = $this->transformArrayOfKeys($invoice, ['recurring_id','client_id', 'vendor_id', 'project_id', 'design_id', 'subscription_id']);
 
-            return $invoice;
+            return $invoice->makeVisible(['id']);
 
         })->all();
 
@@ -269,7 +269,7 @@ class CompanyExport implements ShouldQueue
 
             $invoice = $this->transformArrayOfKeys($invoice, ['company_id', 'user_id', 'client_contact_id', 'recurring_invoice_id']);
 
-            return $invoice;
+            return $invoice->makeVisible(['id']);
 
         })->all();
 
@@ -312,7 +312,7 @@ class CompanyExport implements ShouldQueue
             $project = $this->transformBasicEntities($project);
             $project = $this->transformArrayOfKeys($project, ['client_id']);
 
-            return $project;
+            return $project->makeVisible(['id']);
 
         })->all();
 
@@ -321,7 +321,7 @@ class CompanyExport implements ShouldQueue
             $quote = $this->transformBasicEntities($quote);
             $quote = $this->transformArrayOfKeys($quote, ['invoice_id','recurring_id','client_id', 'vendor_id', 'project_id', 'design_id', 'subscription_id']);
 
-            return $quote;
+            return $quote->makeVisible(['id']);
 
         })->all();
 
@@ -339,7 +339,8 @@ class CompanyExport implements ShouldQueue
 
             $ri = $this->transformBasicEntities($ri);
             $ri = $this->transformArrayOfKeys($ri, ['client_id', 'vendor_id', 'project_id', 'design_id', 'subscription_id']);
-            return $ri;
+            
+            return $ri->makeVisible(['id']);
 
         })->all();
 
@@ -357,7 +358,13 @@ class CompanyExport implements ShouldQueue
             $subscription = $this->transformBasicEntities($subscription);
             $subscription->group_id = $this->encodePrimaryKey($subscription->group_id);
 
-            return $subscription;
+            return $subscription->makeVisible([ 'id',
+                                                'user_id',
+                                                'assigned_user_id',
+                                                'company_id',
+                                                'product_ids',
+                                                'recurring_product_ids',
+                                                'group_id']);
 
         })->all();
 
@@ -376,7 +383,7 @@ class CompanyExport implements ShouldQueue
             $task = $this->transformBasicEntities($task);
             $task = $this->transformArrayOfKeys($task, ['client_id', 'invoice_id', 'project_id', 'status_id']);
 
-            return $task;
+            return $task->makeVisible(['id']);
 
         })->all();
 
@@ -401,7 +408,7 @@ class CompanyExport implements ShouldQueue
 
         $this->export_data['vendors'] = $this->company->vendors->map(function ($vendor){
 
-            return $this->transformBasicEntities($vendor);
+            return $this->transformBasicEntities($vendor)->makeVisible(['id']);
 
         })->all();
 
@@ -411,7 +418,7 @@ class CompanyExport implements ShouldQueue
             $vendor = $this->transformBasicEntities($vendor);
             $vendor->vendor_id = $this->encodePrimaryKey($vendor->vendor_id);
 
-            return $vendor;
+            return $vendor->makeVisible(['id']);
 
         })->all();
 
