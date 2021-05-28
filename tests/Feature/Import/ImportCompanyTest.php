@@ -531,8 +531,9 @@ class ImportCompanyTest extends TestCase
 
         $this->assertEquals(2, count($this->backup_json_object->recurring_invoice_invitations));
 nlog($this->backup_json_object->recurring_invoice_invitations);
+nlog($this->ids);
         $this->genericImport(RecurringInvoiceInvitation::class, 
-            ['user_id', 'client_contact_id', 'company_id', 'id', 'hashed_id'], 
+            ['user_id', 'client_contact_id', 'company_id', 'id', 'hashed_id', 'recurring_invoice_id'], 
             [
                 ['users' => 'user_id'], 
                 ['recurring_invoices' => 'recurring_invoice_id'],

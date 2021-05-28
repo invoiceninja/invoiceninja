@@ -330,7 +330,7 @@ class CompanyExport implements ShouldQueue
 
             $quote = $this->transformArrayOfKeys($quote, ['company_id', 'user_id', 'client_contact_id', 'recurring_invoice_id']);
 
-            return $quote;
+            return $quote->makeVisible(['id']);
 
         })->all();
 
