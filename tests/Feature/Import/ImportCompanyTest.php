@@ -23,6 +23,8 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentTerm;
 use App\Models\Product;
+use App\Models\Vendor;
+use App\Models\VendorContact;
 use App\Models\TaskStatus;
 use App\Models\TaxRate;
 use App\Models\User;
@@ -414,6 +416,11 @@ class ImportCompanyTest extends TestCase
         $this->assertEquals(1, ClientContact::count());
         /***************************** Client Contacts *****************************/
 
+        /* Generic */
+
+
+        /* Generic */
+
 //vendors!
 //projects!
 
@@ -459,6 +466,40 @@ class ImportCompanyTest extends TestCase
 
     }
 
+    private function genericImport($class, $unset, $transform, $object_property, $match_key)
+    {
+
+        $class::unguard();
+
+
+        foreach($this->backup_json_object->{$object_property} as $obj)
+        {
+
+            $obj_array = (array)$obj;
+            foreach($unset as $un){
+                unset($obj_array[$un]);
+            }
+
+            foreach($trans as $key => $value)
+            {
+                $obj_array["{$value}"] = $this->transformId($object_property, $obj->{$value});
+            }
+            
+            $new_obj = $class::firstOrNew(
+                    [$match_key => $obj->{$match_key}, 'company_id' => $this->company->id],
+                    $obj_array,
+                );
+
+            $new_obj->save(['timestamps' => false]);
+            
+            $this->ids["{$object_property}"]["{$obj->hashed_id}"] = $new_obj->id;
+
+        }
+
+        $class::reguard();
+           
+
+    }
 
     private function transformId(string $resource, ?string $old): ?int
     {

@@ -16,6 +16,7 @@ use App\Factory\InvoiceInvitationFactory;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Services\AbstractService;
+use Illuminate\Support\Str;
 
 class CreateInvitations extends AbstractService
 {
