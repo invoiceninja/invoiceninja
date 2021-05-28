@@ -58,7 +58,7 @@ class AttachableUser implements Rule
         if(!$user)
             return true;
 
-        $user_already_attached =  CompanyUser::query()
+        $user_already_attached = CompanyUser::query()
                                     ->where('user_id', $user->id)
                                     ->where('account_id',$user->account_id)
                                     ->where('company_id', auth()->user()->company()->id)

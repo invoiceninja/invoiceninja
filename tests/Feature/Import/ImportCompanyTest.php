@@ -14,21 +14,27 @@ use App\Jobs\Import\CSVImport;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
+use App\Models\ClientGatewayToken;
 use App\Models\Company;
+use App\Models\CompanyGateway;
 use App\Models\CompanyToken;
 use App\Models\CompanyUser;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
+use App\Models\GroupSetting;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentTerm;
 use App\Models\Product;
-use App\Models\Vendor;
-use App\Models\VendorContact;
+use App\Models\Project;
+use App\Models\RecurringInvoice;
+use App\Models\RecurringInvoiceInvitation;
+use App\Models\Subscription;
 use App\Models\TaskStatus;
 use App\Models\TaxRate;
 use App\Models\User;
 use App\Models\Vendor;
+use App\Models\VendorContact;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Cache;
@@ -416,75 +422,200 @@ class ImportCompanyTest extends TestCase
         $this->assertEquals(1, ClientContact::count());
         /***************************** Client Contacts *****************************/
 
-        /* Generic */
-
-
-        /* Generic */
-
 //vendors!
+        /* Generic */
+        $this->assertEquals(1, count($this->backup_json_object->vendors));
+
+        $this->genericImport(Vendor::class, 
+            ['user_id', 'assigned_user_id', 'company_id', 'id', 'hashed_id'], 
+            [['users' => 'user_id'], ['users' =>'assigned_user_id']], 
+            'vendors',
+            'number');
+
+        $this->assertEquals(1, Vendor::count());
+
+        /* Generic */
+
+        $this->assertEquals(1, count($this->backup_json_object->projects));
+        //$class, $unset, $transforms, $object_property, $match_key
+        $this->genericImport(Project::class, 
+            ['user_id', 'assigned_user_id', 'company_id', 'id', 'hashed_id','client_id'], 
+            [['users' => 'user_id'], ['users' =>'assigned_user_id'], ['clients' => 'client_id']], 
+            'projects',
+            'number');
+
+        $this->assertEquals(1, Project::count());
+
 //projects!
 
-        /***************************** Products *****************************/
-        // Product::unguard();
+//products!
 
-        // $this->assertEquals(1, count($this->backup_json_object->products));
+        $this->assertEquals(1, count($this->backup_json_object->products));
 
-        // foreach($this->backup_json_object->products as $obj)
-        // {
+        $this->genericNewClassImport(Product::class,
+            ['user_id', 'company_id', 'hashed_id', 'id'],
+            [['users' => 'user_id'], ['users' =>'assigned_user_id'], ['vendors' => 'vendor_id'], ['projects' => 'project_id']],
+            'products' 
+        );
+        $this->assertEquals(1, Product::count());
 
-        //     $user_id = $this->transformId('users', $obj->user_id);
-        //     $assigned_user_id = $this->transformId('users', $obj->assigned_user_id);
-        //     $vendor_id = $this->transformId('vendors', $obj->vendor_id);
-        //     $project_id = $this->transformId('projects', $obj->project_id);
+//company gateways        
 
-        //     $obj_array = (array)$obj;
-        //     unset($obj_array['user_id']);
-        //     unset($obj_array['company_id']);
-        //     unset($obj_array['account_id']);
-        //     unset($obj_array['hashed_id']);
-        //     unset($obj_array['id']);
-            
+        $this->assertEquals(1, count($this->backup_json_object->company_gateways));
 
-        //     $new_obj = new Product();
-        //     $new_obj->company_id = $this->company->id;
-        //     $new_obj->user_id = $user_id;
-        //     $new_obj->assigned_user_id = $assigned_user_id;
-        //     $new_obj->vendor_id = $vendor_id;
-        //     $new_obj->project_id = $project_id;
-        //     $new_obj->fill($obj_array);
+        $this->genericNewClassImport(CompanyGateway::class,
+            ['user_id', 'company_id', 'hashed_id', 'id'],
+            [['users' => 'user_id']],
+            'company_gateways' 
+        );
 
-        //     $new_obj->save(['timestamps' => false]);
-            
-        //     $this->ids['products']["{$obj->hashed_id}"] = $new_obj->id;
+        $this->assertEquals(1, CompanyGateway::count());
 
-        // }
+//company gateways
 
-        // Product::reguard();
-    
-        // $this->assertEquals(1, Product::count());
-        /***************************** Products *****************************/
 
+//client gateway tokens
+
+        $this->genericNewClassImport(ClientGatewayToken::class, 
+            ['company_id', 'id', 'hashed_id','client_id'], 
+            [['clients' => 'client_id']], 
+            'client_gateway_tokens');
+
+//client gateway tokens
+
+//Group Settings
+        $this->genericImport(GroupSetting::class, 
+            ['user_id', 'company_id', 'id', 'hashed_id',], 
+            [['users' => 'user_id']], 
+            'group_settings',
+            'name');
+//Group Settings
+
+//Subscriptions
+        $this->assertEquals(1, count($this->backup_json_object->subscriptions));
+
+        $this->genericImport(Subscription::class, 
+            ['user_id', 'assigned_user_id', 'company_id', 'id', 'hashed_id',], 
+            [['group_settings' => 'group_id'], ['users' => 'user_id'], ['users' => 'assigned_user_id']], 
+            'subscriptions',
+            'name');
+
+        $this->assertEquals(1, Subscription::count());
+
+//Subscriptions
+
+// Recurring Invoices
+ 
+        $this->assertEquals(2, count($this->backup_json_object->recurring_invoices));
+
+        $this->genericImport(RecurringInvoice::class, 
+            ['user_id', 'assigned_user_id', 'company_id', 'id', 'hashed_id', 'client_id','subscription_id','project_id','vendor_id','status'], 
+            [
+                ['subscriptions' => 'subscription_id'], 
+                ['users' => 'user_id'], 
+                ['users' => 'assigned_user_id'],
+                ['clients' => 'client_id'],
+                ['projects' => 'project_id'],
+                ['vendors' => 'vendor_id'],
+                ['clients' => 'client_id'],
+            ], 
+            'recurring_invoices',
+            'number');
+
+        $this->assertEquals(2, RecurringInvoice::count());
+
+// Recurring Invoices
+
+
+// Recurring Invoice Invitations
+
+        $this->assertEquals(2, count($this->backup_json_object->recurring_invoice_invitations));
+nlog($this->backup_json_object->recurring_invoice_invitations);
+        $this->genericImport(RecurringInvoiceInvitation::class, 
+            ['user_id', 'client_contact_id', 'company_id', 'id', 'hashed_id'], 
+            [
+                ['users' => 'user_id'], 
+                ['recurring_invoices' => 'recurring_invoice_id'],
+                ['client_contacts' => 'client_contact_id'],
+            ], 
+            'recurring_invoice_invitations',
+            'key');
+
+        $this->assertEquals(2, RecurringInvoiceInvitation::count());
+ 
+// Recurring Invoice Invitations
+ 
     }
 
-    private function genericImport($class, $unset, $transform, $object_property, $match_key)
+    private function genericNewClassImport($class, $unset, $transforms, $object_property)
     {
 
         $class::unguard();
 
-
         foreach($this->backup_json_object->{$object_property} as $obj)
         {
-
+            /* Remove unwanted keys*/
             $obj_array = (array)$obj;
             foreach($unset as $un){
                 unset($obj_array[$un]);
             }
 
-            foreach($trans as $key => $value)
+            /* Transform old keys to new keys */
+            foreach($transforms as $transform)
             {
-                $obj_array["{$value}"] = $this->transformId($object_property, $obj->{$value});
+                foreach($transform as $key => $value)
+                {
+                    $obj_array["{$value}"] = $this->transformId($key, $obj->{$value});
+                }    
             }
             
+            if($class instanceof CompanyGateway) {
+                $obj_array['config'] = encrypt($obj_array['config']);
+            }
+
+            $new_obj = new $class();
+            $new_obj->company_id = $this->company->id;
+            $new_obj->fill($obj_array);
+
+            $new_obj->save(['timestamps' => false]);
+            
+            $this->ids["{$object_property}"]["{$obj->hashed_id}"] = $new_obj->id;
+
+        }
+
+        $class::reguard();
+    
+
+    }
+
+    private function genericImport($class, $unset, $transforms, $object_property, $match_key)
+    {
+
+        $class::unguard();
+
+        foreach($this->backup_json_object->{$object_property} as $obj)
+        {
+            /* Remove unwanted keys*/
+            $obj_array = (array)$obj;
+            foreach($unset as $un){
+                unset($obj_array[$un]);
+            }
+
+            /* Transform old keys to new keys */
+            foreach($transforms as $transform)
+            {
+                foreach($transform as $key => $value)
+                {
+                    $obj_array["{$value}"] = $this->transformId($key, $obj->{$value});
+                }    
+            }
+            
+            /* New to convert product ids from old hashes to new hashes*/
+            if($class instanceof Subscription){
+                $obj_array['product_ids'] = $this->recordProductIds($obj_array['product_ids']); 
+                $obj_array['recurring_product_ids'] = $this->recordProductIds($obj_array['recurring_product_ids']); 
+            }
+
             $new_obj = $class::firstOrNew(
                     [$match_key => $obj->{$match_key}, 'company_id' => $this->company->id],
                     $obj_array,
@@ -497,8 +628,22 @@ class ImportCompanyTest extends TestCase
         }
 
         $class::reguard();
-           
+    
+    }
 
+    private function recordProductIds($ids)
+    {
+
+        $id_array = explode(",", $ids);
+
+        $tmp_arr = [];
+
+        foreach($id_array as $id) {
+
+            $tmp_arr[] = $this->encodePrimaryKey($this->transformId('products', $id));
+        }     
+
+        return implode(",", $tmp_arr);
     }
 
     private function transformId(string $resource, ?string $old): ?int
