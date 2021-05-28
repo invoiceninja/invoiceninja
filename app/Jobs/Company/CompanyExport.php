@@ -335,7 +335,7 @@ class CompanyExport implements ShouldQueue
         })->all();
 
 
-        $this->export_data['recurring_invoices'] = $this->company->recurring_invoices->map(function ($ri){
+        $this->export_data['recurring_invoices'] = $this->company->recurring_invoices->makeVisible(['id'])->map(function ($ri){
 
             $ri = $this->transformBasicEntities($ri);
             $ri = $this->transformArrayOfKeys($ri, ['client_id', 'vendor_id', 'project_id', 'design_id', 'subscription_id']);
@@ -441,7 +441,7 @@ class CompanyExport implements ShouldQueue
     private function transformBasicEntities($model)
     {
 
-        return $this->transformArrayOfKeys($model, ['id', 'user_id', 'assigned_user_id', 'company_id']);
+        return $this->transformArrayOfKeys($model, ['user_id', 'assigned_user_id', 'company_id']);
 
     }
 
