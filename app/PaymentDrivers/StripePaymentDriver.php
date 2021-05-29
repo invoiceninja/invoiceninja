@@ -390,6 +390,13 @@ class StripePaymentDriver extends BaseDriver
             $payment->save();
         }
 
+        if ($request->type == 'charge.succeeded') {
+            $payment->status_id = Payment::STATUS_COMPLETED;
+            $payment->save();
+        }
+
+        // charge.failed, charge.refunded
+
         return response([], 200);
     }
 
