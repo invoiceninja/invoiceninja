@@ -19,17 +19,24 @@ use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\CompanyToken;
 use App\Models\CompanyUser;
+use App\Models\Credit;
+use App\Models\CreditInvitation;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\GroupSetting;
 use App\Models\Invoice;
+use App\Models\InvoiceInvitation;
 use App\Models\Payment;
 use App\Models\PaymentTerm;
+use App\Models\Paymentable;
 use App\Models\Product;
 use App\Models\Project;
+use App\Models\Quote;
+use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoice;
 use App\Models\RecurringInvoiceInvitation;
 use App\Models\Subscription;
+use App\Models\Task;
 use App\Models\TaskStatus;
 use App\Models\TaxRate;
 use App\Models\User;
@@ -545,7 +552,7 @@ class ImportCompanyTest extends TestCase
  
 // Recurring Invoice Invitations
  
-
+// Invoices
         $this->assertEquals(2, count($this->backup_json_object->invoices));
 
         $this->genericImport(Invoice::class, 
@@ -564,12 +571,222 @@ class ImportCompanyTest extends TestCase
 
         $this->assertEquals(2, Invoice::count());
 
-// Invoices
-
-
 
 // Invoices
+
+//  Invoice Invitations
+
+        $this->assertEquals(2, count($this->backup_json_object->invoice_invitations));
+
+        $this->genericImport(InvoiceInvitation::class, 
+            ['user_id', 'client_contact_id', 'company_id', 'id', 'hashed_id', 'invoice_id'], 
+            [
+                ['users' => 'user_id'], 
+                ['invoices' => 'invoice_id'],
+                ['client_contacts' => 'client_contact_id'],
+            ], 
+            'invoice_invitations',
+            'key');
+
+        $this->assertEquals(2, InvoiceInvitation::count());
+ 
+//  Invoice Invitations
+
+
+// Quotes
+        $this->assertEquals(2, count($this->backup_json_object->quotes));
+
+        $this->genericImport(Quote::class, 
+            ['user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'recurring_id','status'], 
+            [
+                ['users' => 'user_id'], 
+                ['users' => 'assigned_user_id'], 
+                ['recurring_invoices' => 'recurring_id'],
+                ['clients' => 'client_id'],
+                ['subscriptions' => 'subscription_id'],
+                ['projects' => 'project_id'],
+                ['vendors' => 'vendor_id'],
+            ], 
+            'quotes',
+            'number');
+
+        $this->assertEquals(2, Quote::count());
+
+
+// Quotes
+
+//  Quotes Invitations
+
+        $this->assertEquals(2, count($this->backup_json_object->quote_invitations));
+
+        $this->genericImport(QuoteInvitation::class, 
+            ['user_id', 'client_contact_id', 'company_id', 'id', 'hashed_id', 'quote_id'], 
+            [
+                ['users' => 'user_id'], 
+                ['quotes' => 'quote_id'],
+                ['client_contacts' => 'client_contact_id'],
+            ], 
+            'quote_invitations',
+            'key');
+
+        $this->assertEquals(2, QuoteInvitation::count());
+ 
+//  Quotes Invitations
+
+// Credits
+        $this->assertEquals(2, count($this->backup_json_object->credits));
+
+        $this->genericImport(Credit::class, 
+            ['user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'recurring_id','status'], 
+            [
+                ['users' => 'user_id'], 
+                ['users' => 'assigned_user_id'], 
+                ['recurring_invoices' => 'recurring_id'],
+                ['clients' => 'client_id'],
+                ['subscriptions' => 'subscription_id'],
+                ['projects' => 'project_id'],
+                ['vendors' => 'vendor_id'],
+            ], 
+            'quotes',
+            'number');
+
+        $this->assertEquals(2, Credit::count());
+
+
+// Credits
+
+//  Credits Invitations
+
+        $this->assertEquals(2, count($this->backup_json_object->credit_invitations));
+
+        $this->genericImport(CreditInvitation::class, 
+            ['user_id', 'client_contact_id', 'company_id', 'id', 'hashed_id', 'credit_id'], 
+            [
+                ['users' => 'user_id'], 
+                ['quotes' => 'credit_id'],
+                ['client_contacts' => 'client_contact_id'],
+            ], 
+            'credit_invitations',
+            'key');
+
+        $this->assertEquals(2, CreditInvitation::count());
+ 
+//  Credits Invitations
+
+
+// Expenses
+
+        $this->assertEquals(2, count($this->backup_json_object->expenses));
+
+        $this->genericImport(Expense::class, 
+            ['assigned_user_id', 'user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'project_id','vendor_id'], 
+            [
+                ['users' => 'user_id'], 
+                ['users' => 'assigned_user_id'], 
+                ['clients' => 'client_id'],
+                ['projects' => 'project_id'],
+                ['vendors' => 'vendor_id'],
+            ], 
+            'expenses',
+            'number');
+
+        $this->assertEquals(2, Expense::count());
+
+// Expenses
+
+
+
+// Tasks
+
+        $this->assertEquals(3, count($this->backup_json_object->tasks));
+
+        $this->genericImport(Task::class, 
+            ['assigned_user_id', 'user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'invoice_id','project_id'], 
+            [
+                ['users' => 'user_id'], 
+                ['users' => 'assigned_user_id'], 
+                ['clients' => 'client_id'],
+                ['projects' => 'project_id'],
+                ['invoices' => 'invoice_id'],
+            ], 
+            'tasks',
+            'number');
+
+        $this->assertEquals(3, Task::count());
+
+// Tasks
+
+
+// Payments
+
+        $this->assertEquals(2, count($this->backup_json_object->payments));
+
+        $this->genericImport(Payment::class, 
+            ['assigned_user_id', 'user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'client_contact_id','invitation_id','vendor_id','paymentables'], 
+            [
+                ['users' => 'user_id'], 
+                ['users' => 'assigned_user_id'], 
+                ['clients' => 'client_id'],
+                ['client_contacts' => 'client_contact_id'],
+                ['vendors' => 'vendor_id'],
+                ['invoice_invitations' => 'invitation_id'],
+                ['company_gateways' => 'company_gateway_id'],
+            ], 
+            'payments',
+            'number');
+
+        $this->assertEquals(2, Payment::count());
+
+// Payments
+ 
+
+// Paymentables
+
+        // $this->assertEquals(2, count($this->backup_json_object->paymentables));
+
+        // $this->paymentablesImport();
+
+        // $this->assertEquals(2, Paymentable::count());
+
+
+// Paymentables
     }
+
+    private function paymentablesImport()
+    {
+
+        foreach($this->backup_json_object->paymentables as $paymentable)
+        {
+            $paymentable = new Paymentable();
+            $paymentable->payment_id = $this->transformId('payments', $paymentable->payment_id);
+            $paymentable->paymentable_type = $paymentable->paymentable_type;
+            $paymentable->amount = $paymentable->amount;
+            $paymentable->refunded = $paymentable->refunded;
+            $paymentable->created_at = $paymentable->created_at;
+            $paymentable->deleted_at = $paymentable->deleted_at;
+            $paymentable->updated_at = $paymentable->updated_at;
+            $paymentable->paymentable_id = $this->convertPaymentableId($paymentable->paymentable_type, $paymentable->paymentable_id);
+            $paymentable->paymentable_type = $paymentable->paymentable_type;
+            $paymentable->save(['timestamps' => false]);
+
+        }
+    }
+
+    private function convertPaymentableId($type, $id)
+    {
+        switch ($type) {
+            case 'invoices':
+                return $this->transformId('invoices', $id);
+                break;
+            case Credit::class:
+                return $this->transformId('credits', $id);
+                break;            
+            default:
+                # code...
+                break;
+        }
+    }
+
 
     private function genericNewClassImport($class, $unset, $transforms, $object_property)
     {
