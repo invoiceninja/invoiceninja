@@ -12,6 +12,8 @@ namespace Tests\Feature\Import;
 
 use App\Jobs\Import\CSVImport;
 use App\Models\Account;
+use App\Models\Activity;
+use App\Models\Backup;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\ClientGatewayToken;
@@ -553,6 +555,7 @@ class ImportCompanyTest extends TestCase
 // Recurring Invoice Invitations
  
 // Invoices
+
         $this->assertEquals(2, count($this->backup_json_object->invoices));
 
         $this->genericImport(Invoice::class, 
@@ -647,7 +650,7 @@ class ImportCompanyTest extends TestCase
                 ['projects' => 'project_id'],
                 ['vendors' => 'vendor_id'],
             ], 
-            'quotes',
+            'credits',
             'number');
 
         $this->assertEquals(2, Credit::count());
@@ -694,8 +697,6 @@ class ImportCompanyTest extends TestCase
 
 // Expenses
 
-
-
 // Tasks
 
         $this->assertEquals(3, count($this->backup_json_object->tasks));
@@ -715,7 +716,6 @@ class ImportCompanyTest extends TestCase
         $this->assertEquals(3, Task::count());
 
 // Tasks
-
 
 // Payments
 
@@ -739,36 +739,117 @@ class ImportCompanyTest extends TestCase
 
 // Payments
  
+// Paymentables
+
+        $this->paymentablesImport();
+
+        $this->assertEquals(1, Paymentable::count());
+
 
 // Paymentables
 
-        // $this->assertEquals(2, count($this->backup_json_object->paymentables));
 
-        // $this->paymentablesImport();
+// Activities
+        $activities = [];
 
-        // $this->assertEquals(2, Paymentable::count());
+        foreach($this->backup_json_object->activities as $activity)
+        {
+            $activity->account_id = $this->company->account_id;
+            $activities[] = $activity;
+        }
+
+        $this->assertEquals(25, count($this->backup_json_object->activities));
+
+        $this->backup_json_object->activities = $activities;
+
+        $this->genericImport(Activity::class, 
+            [
+                'user_id',
+                'company_id',
+                'client_id',
+                'client_contact_id',
+                'project_id',
+                'vendor_id',
+                'payment_id',
+                'invoice_id',
+                'credit_id',
+                'invitation_id',
+                'task_id',
+                'expense_id',
+                'token_id',
+                'quote_id',
+                'subscription_id',
+                'recurring_invoice_id',
+                'hashed_id',
+                'company_id',
+            ], 
+            [
+                ['users' => 'user_id'], 
+                ['clients' => 'client_id'],
+                ['client_contacts' => 'client_contact_id'],
+                ['projects' => 'project_id'],
+                ['vendors' => 'vendor_id'],
+                ['payments' => 'payment_id'],
+                ['invoices' => 'invoice_id'],
+                ['credits' => 'credit_id'],
+                ['tasks' => 'task_id'],
+                ['expenses' => 'expense_id'],
+                ['quotes' => 'quote_id'],
+                ['subscriptions' => 'subscription_id'],
+                ['recurring_invoices' => 'recurring_invoice_id'],
+                ['invitations' => 'invitation_id'],
+            ], 
+            'activities',
+            'created_at');
+
+        $this->assertEquals(25, Activity::count());
+
+// Activities
+
+// Backup
+
+        $this->assertEquals(25, count($this->backup_json_object->backups));
+
+        $this->genericImportWithoutCompany(Backup::class, 
+            ['activity_id','hashed_id'], 
+            [
+                ['activities' => 'activity_id'], 
+            ], 
+            'backups',
+            'created_at');
+
+        $this->assertEquals(25, Backup::count());
+
+// Backup
+
+// Company Ledger
 
 
-// Paymentables
+
+// Company Ledger
     }
 
     private function paymentablesImport()
     {
 
-        foreach($this->backup_json_object->paymentables as $paymentable)
+        foreach($this->backup_json_object->payments as $payment)
         {
-            $paymentable = new Paymentable();
-            $paymentable->payment_id = $this->transformId('payments', $paymentable->payment_id);
-            $paymentable->paymentable_type = $paymentable->paymentable_type;
-            $paymentable->amount = $paymentable->amount;
-            $paymentable->refunded = $paymentable->refunded;
-            $paymentable->created_at = $paymentable->created_at;
-            $paymentable->deleted_at = $paymentable->deleted_at;
-            $paymentable->updated_at = $paymentable->updated_at;
-            $paymentable->paymentable_id = $this->convertPaymentableId($paymentable->paymentable_type, $paymentable->paymentable_id);
-            $paymentable->paymentable_type = $paymentable->paymentable_type;
-            $paymentable->save(['timestamps' => false]);
 
+            foreach($payment->paymentables as $paymentable_obj)
+            {
+
+                $paymentable = new Paymentable();
+                $paymentable->payment_id = $this->transformId('payments', $paymentable_obj->payment_id);
+                $paymentable->paymentable_type = $paymentable_obj->paymentable_type;
+                $paymentable->amount = $paymentable_obj->amount;
+                $paymentable->refunded = $paymentable_obj->refunded;
+                $paymentable->created_at = $paymentable_obj->created_at;
+                $paymentable->deleted_at = $paymentable_obj->deleted_at;
+                $paymentable->updated_at = $paymentable_obj->updated_at;
+                $paymentable->paymentable_id = $this->convertPaymentableId($paymentable_obj->paymentable_type, $paymentable_obj->paymentable_id);
+                $paymentable->paymentable_type = $paymentable_obj->paymentable_type;
+                $paymentable->save(['timestamps' => false]);
+            }
         }
     }
 
@@ -780,7 +861,9 @@ class ImportCompanyTest extends TestCase
                 break;
             case Credit::class:
                 return $this->transformId('credits', $id);
-                break;            
+                break;    
+            case Payment::class:
+                return $this->transformId('payments', $id);        
             default:
                 # code...
                 break;
@@ -789,6 +872,66 @@ class ImportCompanyTest extends TestCase
 
 
     private function genericNewClassImport($class, $unset, $transforms, $object_property)
+    {
+
+        $class::unguard();
+
+        foreach($this->backup_json_object->{$object_property} as $obj)
+        {
+            /* Remove unwanted keys*/
+            $obj_array = (array)$obj;
+            foreach($unset as $un){
+                unset($obj_array[$un]);
+            }
+
+            $activity_invitation_key = false;
+
+            if($class instanceof Activity){
+
+                if(isset($obj->invitation_id)){
+
+                    if(isset($obj->invoice_id))
+                        $activity_invitation_key = 'invoice_invitations';
+                    elseif(isset($obj->quote_id))
+                        $activity_invitation_key = 'quote_invitations';
+                    elseif($isset($obj->credit_id))
+                        $activity_invitation_key  = 'credit_invitations';
+                }
+
+            }
+
+            /* Transform old keys to new keys */
+            foreach($transforms as $transform)
+            {
+                foreach($transform as $key => $value)
+                {
+                    if($class instanceof Activity && $activity_invitation_key)
+                        $key = $activity_invitation_key;
+                    
+                    $obj_array["{$value}"] = $this->transformId($key, $obj->{$value});
+                }    
+            }
+
+            if($class instanceof CompanyGateway) {
+                $obj_array['config'] = encrypt($obj_array['config']);
+            }
+
+            $new_obj = new $class();
+            $new_obj->company_id = $this->company->id;
+            $new_obj->fill($obj_array);
+
+            $new_obj->save(['timestamps' => false]);
+            
+            $this->ids["{$object_property}"]["{$obj->hashed_id}"] = $new_obj->id;
+
+        }
+
+        $class::reguard();
+    
+
+    }
+
+    private function genericImportWithoutCompany($class, $unset, $transforms, $object_property, $match_key)
     {
 
         $class::unguard();
@@ -810,13 +953,16 @@ class ImportCompanyTest extends TestCase
                 }    
             }
             
-            if($class instanceof CompanyGateway) {
-                $obj_array['config'] = encrypt($obj_array['config']);
+            /* New to convert product ids from old hashes to new hashes*/
+            if($class instanceof Subscription){
+                $obj_array['product_ids'] = $this->recordProductIds($obj_array['product_ids']); 
+                $obj_array['recurring_product_ids'] = $this->recordProductIds($obj_array['recurring_product_ids']); 
             }
 
-            $new_obj = new $class();
-            $new_obj->company_id = $this->company->id;
-            $new_obj->fill($obj_array);
+            $new_obj = $class::firstOrNew(
+                    [$match_key => $obj->{$match_key}],
+                    $obj_array,
+                );
 
             $new_obj->save(['timestamps' => false]);
             
@@ -826,8 +972,8 @@ class ImportCompanyTest extends TestCase
 
         $class::reguard();
     
-
     }
+
 
     private function genericImport($class, $unset, $transforms, $object_property, $match_key)
     {
@@ -897,7 +1043,7 @@ class ImportCompanyTest extends TestCase
         }
 
         if (! array_key_exists("{$old}", $this->ids[$resource])) {
-            throw new \Exception("Missing resource key: {$old}");
+            throw new \Exception("Missing {$resource} key: {$old}");
         }
 
         return $this->ids[$resource]["{$old}"];

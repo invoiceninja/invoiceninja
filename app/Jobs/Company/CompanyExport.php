@@ -285,18 +285,13 @@ class CompanyExport implements ShouldQueue
 
         })->makeHidden(['id'])->all();
 
-        $this->export_data['paymentables'] = $this->company->payments()->with('paymentables')->cursor()->map(function ($paymentable){
-
-            $paymentable = $this->transformArrayOfKeys($paymentable, ['payment_id','paymentable_id']);
-
-            return $paymentable;
-
-        })->all();
 
         $this->export_data['payments'] = $this->company->payments->map(function ($payment){
 
             $payment = $this->transformBasicEntities($payment);
             $payment = $this->transformArrayOfKeys($payment, ['client_id','project_id', 'vendor_id', 'client_contact_id', 'invitation_id', 'company_gateway_id']);
+
+            $payment->paymentables = $this->transformPaymentable($payment);
 
             return $payment->makeVisible(['id']);
             
@@ -457,6 +452,24 @@ class CompanyExport implements ShouldQueue
         }
 
         return $model;
+
+    }
+
+    private function transformPaymentable($payment)
+    {
+
+        $new_arr = [];
+
+        foreach($payment->paymentables as $paymentable)
+        {
+
+            $paymentable->payment_id = $this->encodePrimaryKey($paymentable->payment_id);
+            $paymentable->paymentable_id = $this->encodePrimaryKey($paymentable->paymentable_id);
+
+            $new_arr[] = $paymentable;
+        }
+
+        return $new_arr;
 
     }
 

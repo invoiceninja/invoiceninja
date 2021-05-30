@@ -80,7 +80,6 @@ class CompanyImport implements ShouldQueue
         // 'recurring_invoices',
         // 'quotes',
         // 'payments',
-        // 'paymentables',
         // 'subscriptions',
         // 'expenses',
         // 'tasks',
