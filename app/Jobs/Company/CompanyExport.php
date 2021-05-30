@@ -220,9 +220,10 @@ class CompanyExport implements ShouldQueue
 
         $this->export_data['designs'] = $this->company->user_designs->makeHidden(['id'])->all();
 
-        $this->export_data['documents'] = $this->company->documents->map(function ($document){
+        $this->export_data['documents'] = $this->company->all_documents->map(function ($document){
 
-            $document = $this->transformArrayOfKeys($document, ['user_id', 'assigned_user_id', 'company_id', 'project_id', 'vendor_id']);
+            $document = $this->transformArrayOfKeys($document, ['user_id', 'assigned_user_id', 'company_id', 'project_id', 'vendor_id','documentable_id']);
+            $document->hashed_id = $this->encodePrimaryKey($document->id);
 
             return $document->makeVisible(['id']);
 
@@ -431,7 +432,7 @@ class CompanyExport implements ShouldQueue
         })->makeHidden(['id'])->all();
 
         //write to tmp and email to owner();
-
+        
         $this->zipAndSend();  
 
         return true;      

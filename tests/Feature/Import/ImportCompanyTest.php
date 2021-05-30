@@ -855,7 +855,12 @@ class ImportCompanyTest extends TestCase
 //  Designs 
 
 // Documents
+        $this->assertEquals(2, count($this->backup_json_object->documents));
+
         $this->documentsImport();
+
+        $this->assertEquals(2, Document::count());
+
 // Documents
     }
 
@@ -912,7 +917,7 @@ class ImportCompanyTest extends TestCase
             case Expense::class:
                 return $this->transformId('expenses', $id);
                 break;
-            case Invoice::class:
+            case 'invoices':
                 return $this->transformId('invoices', $id);
                 break;
             case Payment::class:
