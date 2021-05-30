@@ -19,6 +19,7 @@ use App\Models\ClientContact;
 use App\Models\ClientGatewayToken;
 use App\Models\Company;
 use App\Models\CompanyGateway;
+use App\Models\CompanyLedger;
 use App\Models\CompanyToken;
 use App\Models\CompanyUser;
 use App\Models\Credit;
@@ -823,8 +824,19 @@ class ImportCompanyTest extends TestCase
 // Backup
 
 // Company Ledger
+        $this->assertEquals(3, count($this->backup_json_object->company_ledger));
 
+        $this->genericImport(CompanyLedger::class, 
+            ['company_id', 'user_id', 'client_id', 'activity_id', 'id','account_id'], 
+            [
+                ['users' => 'user_id'], 
+                ['clients' => 'client_id'],
+                ['activities' => 'activity_id'],
+            ], 
+            'company_ledger',
+            'created_at');
 
+        $this->assertEquals(3, CompanyLedger::count());
 
 // Company Ledger
     }
@@ -966,7 +978,11 @@ class ImportCompanyTest extends TestCase
 
             $new_obj->save(['timestamps' => false]);
             
-            $this->ids["{$object_property}"]["{$obj->hashed_id}"] = $new_obj->id;
+            if($new_obj instanceof CompanyLedger){
+
+            }
+            else
+                $this->ids["{$object_property}"]["{$obj->hashed_id}"] = $new_obj->id;
 
         }
 
@@ -1010,7 +1026,10 @@ class ImportCompanyTest extends TestCase
 
             $new_obj->save(['timestamps' => false]);
             
-            $this->ids["{$object_property}"]["{$obj->hashed_id}"] = $new_obj->id;
+            if($new_obj instanceof CompanyLedger){
+            }
+            else
+                $this->ids["{$object_property}"]["{$obj->hashed_id}"] = $new_obj->id;
 
         }
 
