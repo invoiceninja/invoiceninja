@@ -31,7 +31,7 @@ class EntityViewController extends Controller
     public function index(string $entity_type, string $invitation_key)
     {
         if (! in_array($entity_type, $this->entity_types)) {
-            abort(404);
+            abort(404, 'Entity not found');
         }
 
         $invitation_entity = sprintf('App\\Models\\%sInvitation', ucfirst($entity_type));
@@ -91,7 +91,7 @@ class EntityViewController extends Controller
     public function handlePassword(string $entity_type, string $invitation_key)
     {
         if (! in_array($entity_type, $this->entity_types)) {
-            abort(404);
+            abort(404, 'Entity not found');
         }
 
         $invitation_entity = sprintf('App\\Models\\%sInvitation', ucfirst($entity_type));

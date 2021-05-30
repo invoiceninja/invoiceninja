@@ -13,6 +13,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Libraries\MultiDB;
+use App\Models\Account;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 use Illuminate\Http\Request;
@@ -50,11 +51,15 @@ class ContactForgotPasswordController extends Controller
      *
      * @return Factory|View
      */
-    public function showLinkRequestForm()
+    public function showLinkRequestForm(Request $request)
     {
+        $account_id = $request->get('account_id');
+        $account = Account::find($account_id);
+
         return $this->render('auth.passwords.request', [
             'title' => 'Client Password Reset',
             'passwordEmailRoute' => 'client.password.email',
+            'account' => $account
         ]);
     }
 

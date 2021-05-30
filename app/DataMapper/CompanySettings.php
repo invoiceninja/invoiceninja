@@ -202,7 +202,7 @@ class CompanySettings extends BaseSettings
     public $schedule_reminder2 = ''; // (enum: after_invoice_date, before_due_date, after_due_date) implmemented
     public $schedule_reminder3 = ''; // (enum: after_invoice_date, before_due_date, after_due_date) implmemented
 
-    public $reminder_send_time = 32400; //number of seconds from UTC +0 to send reminders @TODO
+    public $reminder_send_time = 0; //number of seconds from UTC +0 to send reminders @TODO
 
     public $late_fee_amount1 = 0; //@implemented
     public $late_fee_amount2 = 0; //@implemented
@@ -667,8 +667,9 @@ class CompanySettings extends BaseSettings
                 '$custom_surcharge4',
                 '$total_taxes',
                 '$line_taxes',
-                '$paid_to_date',
                 '$total',
+                '$paid_to_date',
+                '$outstanding',
             ],
         ];
 

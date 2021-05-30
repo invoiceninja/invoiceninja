@@ -3,7 +3,7 @@
 
 @section('body')
     <div class="grid lg:grid-cols-12 py-8">
-        <div class="lg:col-span-4 lg:col-start-5 px-6">
+        <div class="col-span-12 lg:col-span-6 lg:col-start-4 xl:col-span-4 xl:col-start-5 px-6">
             <div class="flex justify-center">
                 <img class="h-32 w-auto" src="{{ $company->present()->logo() }}" alt="{{ ctrans('texts.logo') }}">
             </div>

@@ -159,8 +159,6 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function setCompany($company)
     {
-        // config(['ninja.company_id' => $company->id]);
-
         $this->company = $company;
     }
 
@@ -170,16 +168,17 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getCompany()
     {
 
-        if (request()->header('X-API-TOKEN')) {
-            $company_token = CompanyToken::with(['company'])->whereRaw('BINARY `token`= ?', [request()->header('X-API-TOKEN')])->first();
-
-            return $company_token->company;
-        }
-        elseif ($this->company){
+        if ($this->company){
 
             return $this->company;
         
         }
+        elseif (request()->header('X-API-TOKEN')) {
+            $company_token = CompanyToken::with(['company'])->whereRaw('BINARY `token`= ?', [request()->header('X-API-TOKEN')])->first();
+
+            return $company_token->company;
+        }
+
 
         // return false;
         throw new \Exception('No Company Found');
@@ -408,7 +407,7 @@ class User extends Authenticatable implements MustVerifyEmail
         $nmo->settings = $this->account->default_company->settings;
         $nmo->company = $this->account->default_company;
 
-        NinjaMailerJob::dispatch($nmo);
+        NinjaMailerJob::dispatch($nmo, true);
 
         //$this->notify(new ResetPasswordNotification($token));
     }

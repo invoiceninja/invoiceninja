@@ -84,6 +84,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::post('group_settings/bulk', 'GroupSettingController@bulk');
 
     Route::post('import', 'ImportController@import')->name('import.import');
+    Route::post('import_json', 'ImportJsonController@import')->name('import.import_json');
     Route::post('preimport', 'ImportController@preimport')->name('import.preimport');
 
     Route::resource('invoices', 'InvoiceController'); // name = (invoices. index / create / show / update / destroy / edit

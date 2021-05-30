@@ -11,8 +11,8 @@
 
 namespace App\Providers;
 
+use App\Http\Middleware\SetDomainNameDb;
 use App\Models\Account;
-use App\Models\Subscription;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyGateway;
@@ -24,10 +24,10 @@ use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Proposal;
 use App\Models\Quote;
+use App\Models\Subscription;
 use App\Models\Task;
 use App\Models\User;
 use App\Observers\AccountObserver;
-use App\Observers\SubscriptionObserver;
 use App\Observers\ClientObserver;
 use App\Observers\CompanyGatewayObserver;
 use App\Observers\CompanyObserver;
@@ -39,8 +39,10 @@ use App\Observers\PaymentObserver;
 use App\Observers\ProductObserver;
 use App\Observers\ProposalObserver;
 use App\Observers\QuoteObserver;
+use App\Observers\SubscriptionObserver;
 use App\Observers\TaskObserver;
 use App\Observers\UserObserver;
+use App\Utils\Ninja;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Queue\Events\JobProcessing;
@@ -49,6 +51,7 @@ use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -92,6 +95,15 @@ class AppServiceProvider extends ServiceProvider
         Quote::observe(QuoteObserver::class);
         Task::observe(TaskObserver::class);
         User::observe(UserObserver::class);
+
+
+        /* Handles setting the correct database with livewire classes */
+        if(Ninja::isHosted())
+        {
+            Livewire::addPersistentMiddleware([
+                SetDomainNameDb::class,
+            ]);
+        }
 
         // Queue::before(function (JobProcessing $event) {
         //     // \Log::info('Event Job '.$event->connectionName);

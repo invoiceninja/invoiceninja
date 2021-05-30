@@ -181,14 +181,16 @@ class BillingPortalPurchase extends Component
     {
         $this->validate();
 
-        $contact = ClientContact::where('email', $this->email)->first();
+        $contact = ClientContact::where('email', $this->email)
+                                ->where('company_id', $this->subscription->company_id)
+                                ->first();
 
         if ($contact && $this->steps['existing_user'] === false) {
             return $this->steps['existing_user'] = true;
         }
 
         if ($contact && $this->steps['existing_user']) {
-            $attempt = Auth::guard('contact')->attempt(['email' => $this->email, 'password' => $this->password]);
+            $attempt = Auth::guard('contact')->attempt(['email' => $this->email, 'password' => $this->password, 'company_id' => $this->subscription->company_id]);
 
             return $attempt
                 ? $this->getPaymentMethods($contact)

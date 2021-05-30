@@ -17,6 +17,7 @@ use App\Models\CompanyUser;
 use App\Models\User;
 use App\Transformers\CompanyUserTransformer;
 use App\Transformers\UserTransformer;
+use App\Utils\Traits\User\LoginCache;
 use Google_Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -24,6 +25,7 @@ use Illuminate\Support\Str;
 
 class ConnectedAccountController extends BaseController
 {
+    use LoginCache;
 
     protected $entity_type = User::class;
 
@@ -113,9 +115,8 @@ class ConnectedAccountController extends BaseController
             auth()->user()->email_verified_at = now();
             auth()->user()->save();
             
-            $timeout = auth()->user()->company()->default_password_timeout;
-            Cache::put(auth()->user()->hashed_id.'_'.auth()->user()->account_id.'_logged_in', Str::random(64), $timeout);
-
+            $this->setLoginCache(auth()->user());
+            
             return $this->itemResponse(auth()->user());
 
         }

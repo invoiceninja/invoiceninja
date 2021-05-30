@@ -59,12 +59,13 @@ class SupportMessageSent extends Mailable
 
         $subject = "Customer MSG {$user->present()->name} - [{$plan} - DB:{$company->db}]";
 
-        return $this->from(config('mail.from.address'), config('mail.from.name')) //todo this needs to be fixed to handle the hosted version
-            ->subject($subject)
-            ->markdown('email.support.message', [
-                'message' => $this->message,
-                'system_info' => $system_info,
-                'laravel_log' => $log_lines,
-            ]);
+        return $this->from(config('mail.from.address'), config('mail.from.name')) 
+                ->replyTo($user->email, $user->present()->name())
+                ->subject($subject)
+                ->markdown('email.support.message', [
+                    'message' => $this->message,
+                    'system_info' => $system_info,
+                    'laravel_log' => $log_lines,
+                ]);
     }
 }

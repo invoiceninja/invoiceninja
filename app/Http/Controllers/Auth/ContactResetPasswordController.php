@@ -12,6 +12,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Account;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Auth\ResetsPasswords;
 use Illuminate\Http\Request;
@@ -62,8 +63,11 @@ class ContactResetPasswordController extends Controller
      */
     public function showResetForm(Request $request, $token = null)
     {
+        $account_id = $request->get('account_id');
+        $account = Account::find($account_id);
+
         return $this->render('auth.passwords.reset')->with(
-            ['token' => $token, 'email' => $request->email]
+            ['token' => $token, 'email' => $request->email, 'account' => $account]
         );
     }
 
