@@ -28,6 +28,7 @@ use App\Models\RecurringInvoice;
 use App\Models\RecurringInvoiceInvitation;
 use App\Models\User;
 use App\Models\VendorContact;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -46,48 +47,49 @@ class CompanyImport implements ShouldQueue
 
     protected $current_app_version;
 
-    public $company;
-
     private $account;
 
-    public $file_path;
+    public $company;
 
-    private $backup_file;
+    public $user;
 
-    public $import_company;
+    private $hash;
+
+    public $backup_file;
 
     public $ids = [];
 
-    private $options = '';
+    private $request_array = [];
 
     private $importables = [
         'company',
         'users',
-        // 'payment_terms',
-        // 'tax_rates',
-        // 'expense_categories',
-        // 'task_statuses',
-        // 'clients',
-        // 'client_contacts',
-        // 'products',
-        // 'vendors',
-        // 'projects',
-        // 'company_gateways',
-        // 'client_gateway_tokens',
-        // 'group_settings',
-        // 'credits',
-        // 'invoices',
-        // 'recurring_invoices',
-        // 'quotes',
-        // 'payments',
-        // 'subscriptions',
-        // 'expenses',
-        // 'tasks',
-        // 'documents',
-        // 'webhooks',
-        // 'system_logs',
-        // 'company_ledger',
-        // 'backups',
+        'payment_terms',
+        'tax_rates',
+        'expense_categories',
+        'task_statuses',
+        'clients',
+        'client_contacts',
+        'products',
+        'vendors',
+        'projects',
+        'company_gateways',
+        'client_gateway_tokens',
+        'group_settings',
+        'credits',
+        'invoices',
+        'recurring_invoices',
+        'quotes',
+        'payments',
+        'subscriptions',
+        'expenses',
+        'tasks',
+        'documents',
+        'webhooks',
+        'activities',
+        'backups',
+        'system_logs',
+        'company_ledger',
     ];
 
     /**
@@ -95,13 +97,14 @@ class CompanyImport implements ShouldQueue
      *
      * @param Company $company
      * @param User $user
-     * @param string $custom_token_name
+     * @param string $hash - the cache hash of the import data.
+     * @param array $request->all()
      */
-    public function __construct(Company $company, string $file_path, array $options)
+    public function __construct(Company $company, User $user, string $hash, array $request_array)
     {
         $this->company = $company;
-        $this->file_path = $file_path;
-        $this->options = $options;
+        $this->hash = $hash;
+        $this->request_array = $request_array;
         $this->current_app_version = config('ninja.app_version');
     }
 
@@ -112,16 +115,24 @@ class CompanyImport implements ShouldQueue
     	$this->company = Company::where('company_key', $this->company->company_key)->firstOrFail();
         $this->account = $this->company->account;
 
-    	$this->unzipFile()
-    		 ->preFlightChecks();
+        $this->backup_file = Cache::get($this->hash);
 
-            foreach($this->importables as $import){
+        if ( empty( $this->import_object ) ) 
+            throw new \Exception('No import data found, has the cache expired?');
+        
+        $this->backup_file = base64_decode($this->backup_file);
 
-                $method = Str::ucfirst(Str::camel($import));
 
-                $this->{$method}();
+        /* Determine what we have to import now - should we also purge existing data? */
 
-            }
+
+            // foreach($this->importables as $import){
+
+            //     $method = Str::ucfirst(Str::camel($import));
+
+            //     $this->{$method}();
+
+            // }
 
     }
 
@@ -145,28 +156,31 @@ class CompanyImport implements ShouldQueue
     	return $this;
     }
 
-    private function unzipFile()
+
+    private function importSettings()
     {
-        $zip = new ZipArchive();
-    	$archive = $zip->open(public_path("storage/backups/{$this->file_path}"));
-    	$filename = pathinfo($this->filepath, PATHINFO_FILENAME);
-        $zip->extractTo(public_path("storage/backups/{$filename}"));
-        $zip->close();
-        $file_location = public_path("storage/backups/$filename/backup.json");
 
-        if (! file_exists($file_location)) {
-            throw new NonExistingMigrationFile('Backup file does not exist, or it is corrupted.');
-        }
+        $this->company->settings = $this->backup_file->company->settings;
+        $this->company->save();
 
-    	$this->backup_file = json_decode(file_get_contents($file_location));
-
-    	return $this;
+        return $this;
     }
 
     private function importCompany()
     {
+        $tmp_company = $this->backup_file->company;
+        $tmp_company->company_key = $this->createHash();
+        $tmp_company->db = config('database.default');
+        $tmp_company->account_id = $this->account->id;
 
-    	//$this->import_company = ..
+        if(Ninja::isHosted())
+            $tmp_company->subdomain = MultiDB::randomSubdomainGenerator();
+        else 
+            $tmp_company->subdomain = '';
+        
+        $this->company = $tmp_company;
+        $this->company->save();
+
     	return $this;
     }
 

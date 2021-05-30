@@ -13,8 +13,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Import\ImportJsonRequest;
 use App\Jobs\Company\CompanyExport;
+use App\Jobs\Company\CompanyImport;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class ImportJsonController extends BaseController
 {
@@ -56,9 +59,38 @@ class ImportJsonController extends BaseController
     public function index(ImportJsonRequest $request)
     {
 
-        // CompanyExport::dispatch(auth()->user()->getCompany(), auth()->user());
+        $import_file = $request->file('files');
+
+        $contents = $this->unzipFile($import_file->getPathname());
+
+        $hash = Str::random(32);
+
+        Cache::put( $hash, base64_encode( $contents ), 3600 );
+
+        CompanyImport::dispatch(auth()->user()->getCompany(), auth()->user(), $hash, $request->all());
 
         return response()->json(['message' => 'Processing'], 200);
 
+    }
+
+    private function unzipFile($file_contents)
+    {
+        $zip = new ZipArchive();
+        $archive = $zip->open($file_contents);
+
+        $filename = pathinfo($file_contents, PATHINFO_FILENAME);
+        $zip->extractTo(public_path("storage/backups/{$filename}"));
+        $zip->close();
+        $file_location = public_path("storage/backups/$filename/backup.json");
+
+        if (! file_exists($file_location)) 
+            throw new NonExistingMigrationFile('Backup file does not exist, or it is corrupted.');
+        
+        $data = json_decode(file_get_contents($file_location));
+
+        unlink($file_contents);
+        unlink($file_location);
+
+        return $data
     }
 }
