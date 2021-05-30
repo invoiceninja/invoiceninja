@@ -24,6 +24,8 @@ use App\Models\CompanyToken;
 use App\Models\CompanyUser;
 use App\Models\Credit;
 use App\Models\CreditInvitation;
+use App\Models\Design;
+use App\Models\Document;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\GroupSetting;
@@ -839,6 +841,101 @@ class ImportCompanyTest extends TestCase
         $this->assertEquals(3, CompanyLedger::count());
 
 // Company Ledger
+ 
+// Designs
+
+        $this->genericImport(Design::class, 
+            ['company_id', 'user_id'], 
+            [
+                ['users' => 'user_id'],
+            ], 
+            'designs',
+            'name');
+
+//  Designs 
+
+// Documents
+        $this->documentsImport();
+// Documents
+    }
+
+    private function documentsImport()
+    {
+
+        foreach($this->backup_json_object->documents as $document)
+        {
+
+            $new_document = new Document();
+            $new_document->user_id = $this->transformId('users', $document->user_id);
+            $new_document->assigned_user_id = $this->transformId('users', $document->assigned_user_id);
+            $new_document->company_id = $this->company->id;
+            $new_document->project_id = $this->transformId('projects', $document->project_id);
+            $new_document->vendor_id = $this->transformId('vendors', $document->vendor_id);
+            $new_document->url = $document->url;
+            $new_document->preview = $document->preview;
+            $new_document->name = $document->name;
+            $new_document->type = $document->type;
+            $new_document->disk = $document->disk;
+            $new_document->hash = $document->hash;
+            $new_document->size = $document->size;
+            $new_document->width = $document->width;
+            $new_document->height = $document->height;
+            $new_document->is_default = $document->is_default;
+            $new_document->custom_value1 = $document->custom_value1;
+            $new_document->custom_value2 = $document->custom_value2;
+            $new_document->custom_value3 = $document->custom_value3;
+            $new_document->custom_value4 = $document->custom_value4;
+            $new_document->deleted_at = $document->deleted_at;
+            $new_document->documentable_id = $this->transformDocumentId($document->documentable_id, $document->documentable_type);
+            $new_document->documentable_type = $document->documentable_type;
+
+            $new_document->save(['timestamps' => false]);
+        
+        }
+    }
+
+    private function transformDocumentId($id, $type)
+    {
+        switch ($type) {
+            case Company::class:
+                return $this->company->id;
+                break;
+            case Client::class:
+                return $this->transformId('clients', $id);
+                break;
+            case ClientContact::class:
+                return $this->transformId('client_contacts', $id);
+                break;
+            case Credit::class:
+                return $this->transformId('credits', $id);
+                break;
+            case Expense::class:
+                return $this->transformId('expenses', $id);
+                break;
+            case Invoice::class:
+                return $this->transformId('invoices', $id);
+                break;
+            case Payment::class:
+                return $this->transformId('payments', $id);
+                break;
+            case Product::class:
+                return $this->transformId('products', $id);
+                break;
+            case Quote::class:
+                return $this->transformId('quotes', $id);
+                break;
+            case RecurringInvoice::class:
+                return $this->transformId('recurring_invoices', $id);
+                break;
+            case Company::class:
+                return $this->transformId('clients', $id);
+                break;
+
+            
+            default:
+                # code...
+                break;
+        }
     }
 
     private function paymentablesImport()
