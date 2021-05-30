@@ -65,7 +65,7 @@ class ImportCompanyTest extends TestCase
 {
     use MakesHash;
     use DatabaseTransactions;
-    
+
     public $account;
     public $company;
     public $backup_json_object;
@@ -101,6 +101,13 @@ class ImportCompanyTest extends TestCase
 
         $this->backup_json_object = json_decode(file_get_contents($backup_json_file));
 
+        Credit::all()->each(function($credit){
+            $credit->forceDelete();
+        });
+
+        CreditInvitation::all()->each(function($credit){
+            $credit->forceDelete();
+        });
     }
 
     public function testBackupJsonRead()
@@ -671,7 +678,7 @@ class ImportCompanyTest extends TestCase
             ['user_id', 'client_contact_id', 'company_id', 'id', 'hashed_id', 'credit_id'], 
             [
                 ['users' => 'user_id'], 
-                ['quotes' => 'credit_id'],
+                ['credits' => 'credit_id'],
                 ['client_contacts' => 'client_contact_id'],
             ], 
             'credit_invitations',
