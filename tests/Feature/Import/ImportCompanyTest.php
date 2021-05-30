@@ -48,6 +48,7 @@ use App\Models\User;
 use App\Models\Vendor;
 use App\Models\VendorContact;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
@@ -63,7 +64,8 @@ use Tests\TestCase;
 class ImportCompanyTest extends TestCase
 {
     use MakesHash;
-
+    use DatabaseTransactions;
+    
     public $account;
     public $company;
     public $backup_json_object;
