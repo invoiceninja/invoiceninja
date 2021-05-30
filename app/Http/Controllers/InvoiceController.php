@@ -845,13 +845,11 @@ class InvoiceController extends BaseController
      */
     public function deliveryNote(ShowInvoiceRequest $request, Invoice $invoice)
     {
+        
         $file = $invoice->service()->getInvoiceDeliveryNote($invoice, $invoice->invitations->first()->contact);
         
-        try {
-       return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
-        } catch (\Exception $e) {
-            return response(['message' => 'Oops, something went wrong. Make sure you have symlink to storage/ in public/ directory.'], 500);
-        }
+        return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
+
     }
 
     /**
