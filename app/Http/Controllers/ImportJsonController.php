@@ -11,7 +11,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Export\StoreExportRequest;
+use App\Http\Requests\Import\ImportJsonRequest;
 use App\Jobs\Company\CompanyExport;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Response;
@@ -53,7 +53,7 @@ class ImportJsonController extends BaseController
      *       ),
      *     )
      */
-    public function index(StoreExportRequest $request)
+    public function index(ImportJsonRequest $request)
     {
 
         // CompanyExport::dispatch(auth()->user()->getCompany(), auth()->user());
