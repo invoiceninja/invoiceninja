@@ -283,7 +283,6 @@ class ImportCompanyTest extends TestCase
             $obj_array = (array)$obj;
             unset($obj_array['user_id']);
             unset($obj_array['company_id']);
-            unset($obj_array['account_id']);
             unset($obj_array['hashed_id']);
             unset($obj_array['id']);
             unset($obj_array['tax_rate_id']);
@@ -315,10 +314,8 @@ class ImportCompanyTest extends TestCase
             $obj_array = (array)$obj;
             unset($obj_array['user_id']);
             unset($obj_array['company_id']);
-            unset($obj_array['account_id']);
             unset($obj_array['hashed_id']);
             unset($obj_array['id']);
-            unset($obj_array['tax_rate_id']);
 
             $new_obj = ExpenseCategory::firstOrNew(
                         ['name' => $obj->name, 'company_id' => $this->company->id],
