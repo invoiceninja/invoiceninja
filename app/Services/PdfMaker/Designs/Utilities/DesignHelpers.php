@@ -321,6 +321,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     public static function parseMarkdownToHtml(string $markdown): ?string
     {
+        // Use setting to determinate if parsing should be done.
+        // 'parse_markdown_on_pdfs'
+
         $converter = new CommonMarkConverter([
             'allow_unsafe_links' => false,
         ]);
