@@ -15,6 +15,7 @@ use App\Events\Client\ClientWasCreated;
 use App\Events\Client\ClientWasUpdated;
 use App\Factory\ClientFactory;
 use App\Filters\ClientFilters;
+use App\Http\Requests\Client\AdjustClientLedgerRequest;
 use App\Http\Requests\Client\CreateClientRequest;
 use App\Http\Requests\Client\DestroyClientRequest;
 use App\Http\Requests\Client\EditClientRequest;
@@ -636,10 +637,13 @@ class ClientController extends BaseController
      *       ),
      *     )
      */
-    
-    public function adjustLedger(Request $request, Client $client)
+    //@deprecated - not available    
+    public function adjustLedger(AdjustClientLedgerRequest $request, Client $client)
     {
+        // $adjustment = $request->input('adjustment');
+        // $notes = $request->input('notes');
 
+        // $client->service()->updateBalance
     }
 
 }
