@@ -29,10 +29,12 @@ use App\Models\CompanyLedger;
 use App\Models\CompanyUser;
 use App\Models\Credit;
 use App\Models\CreditInvitation;
+use App\Models\Design;
 use App\Models\Document;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\GroupSetting;
+use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Models\Payment;
 use App\Models\PaymentTerm;
@@ -43,11 +45,13 @@ use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoice;
 use App\Models\RecurringInvoiceInvitation;
 use App\Models\Subscription;
+use App\Models\Task;
 use App\Models\TaskStatus;
 use App\Models\TaxRate;
 use App\Models\User;
 use App\Models\Vendor;
 use App\Models\VendorContact;
+use App\Models\Webhook;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Bus\Queueable;
@@ -106,15 +110,16 @@ class CompanyImport implements ShouldQueue
         'quote_invitations',
         'credits',
         'credit_invitations',
-        'payments',
         'expenses',
         'tasks',
-        'documents',
-        'webhooks',
+        'payments',
         'activities',
         'backups',
-        'system_logs',
         'company_ledger',
+        'designs',
+        'documents',
+        'webhooks',
+        'system_logs',
     ];
 
     /**
@@ -440,80 +445,336 @@ class CompanyImport implements ShouldQueue
 
     private function import_invoices()
     {
-        
+
+        $this->genericImport(Invoice::class, 
+            ['user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'recurring_id','status'], 
+            [
+                ['users' => 'user_id'], 
+                ['users' => 'assigned_user_id'], 
+                ['recurring_invoices' => 'recurring_id'],
+                ['clients' => 'client_id'],
+                ['subscriptions' => 'subscription_id'],
+                ['projects' => 'project_id'],
+                ['vendors' => 'vendor_id'],
+            ], 
+            'invoices',
+            'number');
+
+        return $this;        
     }
 
     private function import_invoice_invitations()
     {
-        
+
+
+        $this->genericImport(InvoiceInvitation::class, 
+            ['user_id', 'client_contact_id', 'company_id', 'id', 'hashed_id', 'invoice_id'], 
+            [
+                ['users' => 'user_id'], 
+                ['invoices' => 'invoice_id'],
+                ['client_contacts' => 'client_contact_id'],
+            ], 
+            'invoice_invitations',
+            'key');
+
+        return $this;        
     }
 
     private function import_quotes()
     {
-        
+
+        $this->genericImport(Quote::class, 
+            ['user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'recurring_id','status'], 
+            [
+                ['users' => 'user_id'], 
+                ['users' => 'assigned_user_id'], 
+                ['recurring_invoices' => 'recurring_id'],
+                ['clients' => 'client_id'],
+                ['subscriptions' => 'subscription_id'],
+                ['projects' => 'project_id'],
+                ['vendors' => 'vendor_id'],
+            ], 
+            'quotes',
+            'number');
+
+        return $this;
+
     }
 
     private function import_quote_invitations()
     {
-        
+
+        $this->genericImport(QuoteInvitation::class, 
+            ['user_id', 'client_contact_id', 'company_id', 'id', 'hashed_id', 'quote_id'], 
+            [
+                ['users' => 'user_id'], 
+                ['quotes' => 'quote_id'],
+                ['client_contacts' => 'client_contact_id'],
+            ], 
+            'quote_invitations',
+            'key');
+
+
+        return $this;        
     }
 
     private function import_credits()
     {
-        
+
+
+        $this->genericImport(Credit::class, 
+            ['user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'recurring_id','status'], 
+            [
+                ['users' => 'user_id'], 
+                ['users' => 'assigned_user_id'], 
+                ['recurring_invoices' => 'recurring_id'],
+                ['clients' => 'client_id'],
+                ['subscriptions' => 'subscription_id'],
+                ['projects' => 'project_id'],
+                ['vendors' => 'vendor_id'],
+            ], 
+            'credits',
+            'number');
+
+            return $this;        
     }
 
     private function import_credit_invitations()
     {
-        
-    }
 
-    private function import_payments()
-    {
-        
-    }
+        $this->genericImport(CreditInvitation::class, 
+            ['user_id', 'client_contact_id', 'company_id', 'id', 'hashed_id', 'credit_id'], 
+            [
+                ['users' => 'user_id'], 
+                ['credits' => 'credit_id'],
+                ['client_contacts' => 'client_contact_id'],
+            ], 
+            'credit_invitations',
+            'key');
 
+            return $this;        
+    }
 
     private function import_expenses()
     {
-        
+
+
+        $this->genericImport(Expense::class, 
+            ['assigned_user_id', 'user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'project_id','vendor_id'], 
+            [
+                ['users' => 'user_id'], 
+                ['users' => 'assigned_user_id'], 
+                ['clients' => 'client_id'],
+                ['projects' => 'project_id'],
+                ['vendors' => 'vendor_id'],
+            ], 
+            'expenses',
+            'number');
+
+        return $this;
+
     }
 
     private function import_tasks()
     {
-        
+
+        $this->genericImport(Task::class, 
+            ['assigned_user_id', 'user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'invoice_id','project_id'], 
+            [
+                ['users' => 'user_id'], 
+                ['users' => 'assigned_user_id'], 
+                ['clients' => 'client_id'],
+                ['projects' => 'project_id'],
+                ['invoices' => 'invoice_id'],
+            ], 
+            'tasks',
+            'number');
+
+        return $this;        
     }
 
-    private function import_documents()
+    private function import_payments()
     {
-        
-    }
 
-    private function import_webhooks()
-    {
+        $this->genericImport(Payment::class, 
+            ['assigned_user_id', 'user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'client_contact_id','invitation_id','vendor_id','paymentables'], 
+            [
+                ['users' => 'user_id'], 
+                ['users' => 'assigned_user_id'], 
+                ['clients' => 'client_id'],
+                ['client_contacts' => 'client_contact_id'],
+                ['vendors' => 'vendor_id'],
+                ['invoice_invitations' => 'invitation_id'],
+                ['company_gateways' => 'company_gateway_id'],
+            ], 
+            'payments',
+            'number');
         
+        $this->paymentablesImport();
+
+        return $this;
     }
 
     private function import_activities()
     {
-        
+
+        $activities = [];
+
+        foreach($this->backup_file->activities as $activity)
+        {
+            $activity->account_id = $this->account->id;
+            $activities[] = $activity;
+        }
+
+        $this->backup_file->activities = $activities;
+
+        $this->genericImport(Activity::class, 
+            [
+                'user_id',
+                'company_id',
+                'client_id',
+                'client_contact_id',
+                'project_id',
+                'vendor_id',
+                'payment_id',
+                'invoice_id',
+                'credit_id',
+                'invitation_id',
+                'task_id',
+                'expense_id',
+                'token_id',
+                'quote_id',
+                'subscription_id',
+                'recurring_invoice_id',
+                'hashed_id',
+                'company_id',
+            ], 
+            [
+                ['users' => 'user_id'], 
+                ['clients' => 'client_id'],
+                ['client_contacts' => 'client_contact_id'],
+                ['projects' => 'project_id'],
+                ['vendors' => 'vendor_id'],
+                ['payments' => 'payment_id'],
+                ['invoices' => 'invoice_id'],
+                ['credits' => 'credit_id'],
+                ['tasks' => 'task_id'],
+                ['expenses' => 'expense_id'],
+                ['quotes' => 'quote_id'],
+                ['subscriptions' => 'subscription_id'],
+                ['recurring_invoices' => 'recurring_invoice_id'],
+                ['invitations' => 'invitation_id'],
+            ], 
+            'activities',
+            'created_at');
+
+        return $this;
+
     }
 
     private function import_backups()
     {
-        
-    }    
 
-    private function import_system_logs()
-    {
-        
-    }
+        $this->genericImportWithoutCompany(Backup::class, 
+            ['activity_id','hashed_id'], 
+            [
+                ['activities' => 'activity_id'], 
+            ], 
+            'backups',
+            'created_at');
+
+
+        return $this;        
+    }  
 
     private function import_company_ledger()
     {
+
+        $this->genericImport(CompanyLedger::class, 
+            ['company_id', 'user_id', 'client_id', 'activity_id', 'id','account_id'], 
+            [
+                ['users' => 'user_id'], 
+                ['clients' => 'client_id'],
+                ['activities' => 'activity_id'],
+            ], 
+            'company_ledger',
+            'created_at');
+
+        return $this;
         
     }
-      
+
+    private function import_designs()
+    {
+        
+        $this->genericImport(Design::class, 
+            ['company_id', 'user_id'], 
+            [
+                ['users' => 'user_id'],
+            ], 
+            'designs',
+            'name');
+
+        return $this;
+
+    }
+
+    private function import_documents()
+    {
+
+        foreach($this->backup_file->documents as $document)
+        {
+
+            $new_document = new Document();
+            $new_document->user_id = $this->transformId('users', $document->user_id);
+            $new_document->assigned_user_id = $this->transformId('users', $document->assigned_user_id);
+            $new_document->company_id = $this->company->id;
+            $new_document->project_id = $this->transformId('projects', $document->project_id);
+            $new_document->vendor_id = $this->transformId('vendors', $document->vendor_id);
+            $new_document->url = $document->url;
+            $new_document->preview = $document->preview;
+            $new_document->name = $document->name;
+            $new_document->type = $document->type;
+            $new_document->disk = $document->disk;
+            $new_document->hash = $document->hash;
+            $new_document->size = $document->size;
+            $new_document->width = $document->width;
+            $new_document->height = $document->height;
+            $new_document->is_default = $document->is_default;
+            $new_document->custom_value1 = $document->custom_value1;
+            $new_document->custom_value2 = $document->custom_value2;
+            $new_document->custom_value3 = $document->custom_value3;
+            $new_document->custom_value4 = $document->custom_value4;
+            $new_document->deleted_at = $document->deleted_at;
+            $new_document->documentable_id = $this->transformDocumentId($document->documentable_id, $document->documentable_type);
+            $new_document->documentable_type = $document->documentable_type;
+
+            $new_document->save(['timestamps' => false]);
+        
+        }
+
+        return $this;
+    }
+
+    private function import_webhooks()
+    {
+
+        $this->genericImport(Webhook::class, 
+            ['company_id', 'user_id'], 
+            [
+                ['users' => 'user_id'],
+            ], 
+            'webhooks',
+            'created_at');
+
+        return $this;
+    }
+
+
+    private function import_system_logs()
+    {
+        return $this;
+    }
 
     private function import_users()
     {
@@ -563,40 +824,7 @@ class CompanyImport implements ShouldQueue
 
     }
 
-    private function documentsImport()
-    {
 
-        foreach($this->backup_json_object->documents as $document)
-        {
-
-            $new_document = new Document();
-            $new_document->user_id = $this->transformId('users', $document->user_id);
-            $new_document->assigned_user_id = $this->transformId('users', $document->assigned_user_id);
-            $new_document->company_id = $this->company->id;
-            $new_document->project_id = $this->transformId('projects', $document->project_id);
-            $new_document->vendor_id = $this->transformId('vendors', $document->vendor_id);
-            $new_document->url = $document->url;
-            $new_document->preview = $document->preview;
-            $new_document->name = $document->name;
-            $new_document->type = $document->type;
-            $new_document->disk = $document->disk;
-            $new_document->hash = $document->hash;
-            $new_document->size = $document->size;
-            $new_document->width = $document->width;
-            $new_document->height = $document->height;
-            $new_document->is_default = $document->is_default;
-            $new_document->custom_value1 = $document->custom_value1;
-            $new_document->custom_value2 = $document->custom_value2;
-            $new_document->custom_value3 = $document->custom_value3;
-            $new_document->custom_value4 = $document->custom_value4;
-            $new_document->deleted_at = $document->deleted_at;
-            $new_document->documentable_id = $this->transformDocumentId($document->documentable_id, $document->documentable_type);
-            $new_document->documentable_type = $document->documentable_type;
-
-            $new_document->save(['timestamps' => false]);
-        
-        }
-    }
 
     private function transformDocumentId($id, $type)
     {
@@ -645,7 +873,7 @@ class CompanyImport implements ShouldQueue
     private function paymentablesImport()
     {
 
-        foreach($this->backup_json_object->payments as $payment)
+        foreach($this->backup_file->payments as $payment)
         {
 
             foreach($payment->paymentables as $paymentable_obj)
@@ -664,6 +892,8 @@ class CompanyImport implements ShouldQueue
                 $paymentable->save(['timestamps' => false]);
             }
         }
+
+        return $this;
     }
 
     private function convertPaymentableId($type, $id)
@@ -689,7 +919,7 @@ class CompanyImport implements ShouldQueue
 
         $class::unguard();
 
-        foreach($this->backup_json_object->{$object_property} as $obj)
+        foreach($this->backup_file->{$object_property} as $obj)
         {
             /* Remove unwanted keys*/
             $obj_array = (array)$obj;
@@ -749,7 +979,7 @@ class CompanyImport implements ShouldQueue
 
         $class::unguard();
 
-        foreach($this->backup_json_object->{$object_property} as $obj)
+        foreach($this->backup_file->{$object_property} as $obj)
         {
             /* Remove unwanted keys*/
             $obj_array = (array)$obj;
@@ -797,7 +1027,7 @@ class CompanyImport implements ShouldQueue
 
         $class::unguard();
 
-        foreach($this->backup_json_object->{$object_property} as $obj)
+        foreach($this->backup_file->{$object_property} as $obj)
         {
             /* Remove unwanted keys*/
             $obj_array = (array)$obj;
