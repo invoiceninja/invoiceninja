@@ -163,7 +163,7 @@ class SetupController extends Controller
 
             /* Create the first account. */
             if (Account::count() == 0) {
-                CreateAccount::dispatchNow($request->all());
+                CreateAccount::dispatchNow($request->all(), $request->getClientIp());
             }
 
             VersionCheck::dispatchNow();
