@@ -486,7 +486,8 @@ class SubscriptionService
     /**
      * Handle a plan change where no payment is required
      * 
-     * @param  array $data 
+     * @param  array $data
+     * @deprecated - no usage found
      */
     public function handlePlanChangeNoPayment($data)
     {
@@ -655,7 +656,7 @@ class SubscriptionService
             $status = $response->getStatusCode();
 
             //$response_body = $response->getReasonPhrase();
-            $body = array_merge($body, ['status' => $status, 'response_body' => $response_body]);
+            //$body = array_merge($body, ['status' => $status, 'response_body' => $response_body]);
 
         }
 
