@@ -17,6 +17,7 @@ use App\Models\CreditInvitation;
 use App\Models\InvoiceInvitation;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
+use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
 use App\Utils\Traits\MakesDates;
 use Exception;
 use Illuminate\Support\Facades\App;
@@ -121,7 +122,7 @@ class HtmlEngine
         if ($this->entity_string == 'invoice' || $this->entity_string == 'recurring_invoice') {
             $data['$entity'] = ['value' => '', 'label' => ctrans('texts.invoice')];
             $data['$number'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.invoice_number')];
-            $data['$entity.terms'] = ['value' => $this->entity->terms ?: '', 'label' => ctrans('texts.invoice_terms')];
+            $data['$entity.terms'] = ['value' => DesignHelpers::parseMarkdownToHtml($this->entity->terms ?: '') ?: '', 'label' => ctrans('texts.invoice_terms')];
             $data['$terms'] = &$data['$entity.terms'];
             $data['$view_link'] = ['value' => '<a class="button" href="'.$this->invitation->getLink().'">'.ctrans('texts.view_invoice').'</a>', 'label' => ctrans('texts.view_invoice')];
             $data['$view_url'] = ['value' => $this->invitation->getLink(), 'label' => ctrans('texts.view_invoice')];
@@ -200,7 +201,7 @@ class HtmlEngine
         $data['$invoice.custom2'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice2', $this->entity->custom_value2, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice2')];
         $data['$invoice.custom3'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice3', $this->entity->custom_value3, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice3')];
         $data['$invoice.custom4'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice4', $this->entity->custom_value4, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice4')];
-        $data['$invoice.public_notes'] = ['value' => $this->entity->public_notes ?: '', 'label' => ctrans('texts.public_notes')];
+        $data['$invoice.public_notes'] = ['value' => DesignHelpers::parseMarkdownToHtml($this->entity->public_notes ?: '') ?: '', 'label' => ctrans('texts.public_notes')];
         $data['$entity.public_notes'] = &$data['$invoice.public_notes'];
         $data['$public_notes'] = &$data['$invoice.public_notes'];
 
@@ -374,7 +375,7 @@ class HtmlEngine
         $data['$description'] = ['value' => '', 'label' => ctrans('texts.description')];
 
         //$data['$entity_footer'] = ['value' => $this->client->getSetting("{$this->entity_string}_footer"), 'label' => ''];
-        $data['$entity_footer'] = ['value' => $this->entity->footer, 'label' => ''];
+        $data['$entity_footer'] = ['value' => DesignHelpers::parseMarkdownToHtml($this->entity->footer ?: ''), 'label' => ''];
 
         $data['$page_size'] = ['value' => $this->settings->page_size, 'label' => ''];
         $data['$page_layout'] = ['value' => property_exists($this->settings, 'page_layout') ? $this->settings->page_layout : 'Portrait', 'label' => ''];
