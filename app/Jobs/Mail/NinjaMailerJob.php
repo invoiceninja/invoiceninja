@@ -154,9 +154,9 @@ class NinjaMailerJob implements ShouldQueue
         App::forgetInstance('mail.manager'); //singletons must be destroyed!
         App::forgetInstance('mailer');
         App::forgetInstance('laravelgmail');
-
+        $t = app('translator');
         /* Inject custom translations if any exist */
-        Lang::replace(Ninja::transformTranslations($this->nmo->settings));
+        $t->replace(Ninja::transformTranslations($this->nmo->settings));
 
         switch ($this->nmo->settings->email_sending_method) {
             case 'default':

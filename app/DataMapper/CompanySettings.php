@@ -68,7 +68,7 @@ class CompanySettings extends BaseSettings
     public $inclusive_taxes = false; //@implemented
     public $quote_footer = ''; //@implmented
 
-    public $translations; //@TODO not used anywhere
+    public $translations; 
 
     public $counter_number_applied = 'when_saved'; // when_saved , when_sent //@implemented
     public $quote_number_applied = 'when_saved'; // when_saved , when_sent //@implemented

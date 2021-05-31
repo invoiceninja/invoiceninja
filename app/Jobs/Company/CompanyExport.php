@@ -25,6 +25,7 @@ use App\Models\RecurringInvoice;
 use App\Models\RecurringInvoiceInvitation;
 use App\Models\User;
 use App\Models\VendorContact;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -489,6 +490,10 @@ class CompanyExport implements ShouldQueue
         $zip->addFromString("backup.json", json_encode($this->export_data));
         $zip->close();
 
+        if(Ninja::isHosted()) {
+            Storage::disk(config('filesystems.default'))->put('backups/'.$file_name, file_get_contents($zip_path));
+        }
+
         $nmo = new NinjaMailerObject;
         $nmo->mailable = new DownloadBackup(Storage::disk(config('filesystems.default'))->url('backups/'.$file_name), $this->company);
         $nmo->to_user = $this->user;
@@ -498,6 +503,7 @@ class CompanyExport implements ShouldQueue
         NinjaMailerJob::dispatch($nmo);
 
         UnlinkFile::dispatch(config('filesystems.default'), 'backups/'.$file_name)->delay(now()->addHours(1));
+        UnlinkFile::dispatch('public', 'backups/'.$file_name)->delay(now()->addHours(1));
     }
 
 }
