@@ -13,12 +13,14 @@
 namespace App\Http\Controllers\Gateways;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\Gateways\Checkout3ds\Checkout3dsRequest;
 
 class Checkout3dsController extends Controller
 {
-    public function index(Request $request)
+    public function index(Checkout3dsRequest $request, string $company_key, string $company_gateway_id, string $hash)
     {
-        return $request->all();
+        return $request->getCompanyGateway()
+            ->driver($request->getClient())
+            ->process3dsConfirmation($request);
     }
 }

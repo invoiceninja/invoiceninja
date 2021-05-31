@@ -13,6 +13,7 @@
 namespace App\PaymentDrivers;
 
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Http\Requests\Gateways\Checkout3ds\Checkout3dsRequest;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
@@ -287,6 +288,11 @@ class CheckoutComPaymentDriver extends BaseDriver
     }
 
     public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment = null)
+    {
+        return true;
+    }
+
+    public function process3dsConfirmation(Checkout3dsRequest $request)
     {
         $this->init();
         $this->setPaymentHash($request->getPaymentHash());
