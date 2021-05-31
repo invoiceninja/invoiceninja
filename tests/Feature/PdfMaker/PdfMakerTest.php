@@ -297,10 +297,7 @@ class PdfMakerTest extends TestCase
                 'labels' => [],
                 'values' => [],
             ],
-            'options' => [
-                'all_pages_header' => true,
-                'all_pages_footer' => true,
-            ],
+            'options' => [],
         ];
 
         $maker = new PdfMaker($state);

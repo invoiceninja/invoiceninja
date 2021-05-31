@@ -89,7 +89,7 @@ class Phantom
         $pdf = CurlUtils::get($phantom_url);
 
         $this->checkMime($pdf, $invitation, $entity);
-        
+
         $instance = Storage::disk(config('filesystems.default'))->put($file_path, $pdf);
 
         return $file_path;
@@ -99,7 +99,7 @@ class Phantom
     {
         $hash = Str::random(32);
         Cache::put($hash, $html, 300);
-        
+
         $url = route('tmp_pdf', ['hash' => $hash]);
         info($url);
         $key = config('ninja.phantomjs_key');
@@ -188,10 +188,7 @@ nlog($pdf);
                 '$product' => $design->design->product,
             ]),
             'variables' => $html->generateLabelsAndValues(),
-            'options' => [
-                'all_pages_header' => $entity_obj->client->getSetting('all_pages_header'),
-                'all_pages_footer' => $entity_obj->client->getSetting('all_pages_footer'),
-            ],
+            'options' => [],
         ];
 
         $maker = new PdfMakerService($state);

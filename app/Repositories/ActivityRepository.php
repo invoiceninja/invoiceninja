@@ -70,9 +70,9 @@ class ActivityRepository extends BaseRepository
      */
     public function createBackup($entity, $activity)
     {
-        
+
         if($entity instanceof User){
-            
+
         }
         else if ($entity->company->is_disabled) {
             return;
@@ -80,9 +80,9 @@ class ActivityRepository extends BaseRepository
 
         $backup = new Backup();
 
-        if (get_class($entity) == Invoice::class 
-            || get_class($entity) == Quote::class 
-            || get_class($entity) == Credit::class 
+        if (get_class($entity) == Invoice::class
+            || get_class($entity) == Quote::class
+            || get_class($entity) == Credit::class
             || get_class($entity) == RecurringInvoice::class
         ) {
             $contact = $entity->client->primary_contact()->first();
@@ -149,10 +149,7 @@ class ActivityRepository extends BaseRepository
                 '$product' => $design->design->product,
             ]),
             'variables' => $html->generateLabelsAndValues(),
-            'options' => [
-                'all_pages_header' => $entity->client->getSetting('all_pages_header'),
-                'all_pages_footer' => $entity->client->getSetting('all_pages_footer'),
-            ],
+            'options' => [],
         ];
 
         $maker = new PdfMakerService($state);

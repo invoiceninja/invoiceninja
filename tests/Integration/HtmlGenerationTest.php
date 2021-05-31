@@ -79,10 +79,7 @@ class HtmlGenerationTest extends TestCase
                 '$product' => $design->design->product,
             ]),
             'variables' => $html->generateLabelsAndValues(),
-            'options' => [
-                'all_pages_header' => $entity->client->getSetting('all_pages_header'),
-                'all_pages_footer' => $entity->client->getSetting('all_pages_footer'),
-            ],
+            'options' => [],
         ];
 
         $maker = new PdfMakerService($state);

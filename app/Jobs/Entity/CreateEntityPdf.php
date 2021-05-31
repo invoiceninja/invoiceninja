@@ -87,7 +87,7 @@ class CreateEntityPdf implements ShouldQueue
         $this->contact = $invitation->contact;
 
         $this->disk = $disk;
-        
+
         // $this->disk = $disk ?? config('filesystems.default');
     }
 
@@ -95,7 +95,7 @@ class CreateEntityPdf implements ShouldQueue
     {
         /* Set the locale*/
         App::setLocale($this->contact->preferredLocale());
-        
+
         /* Forget the singleton*/
         App::forgetInstance('translator');
 
@@ -157,10 +157,7 @@ class CreateEntityPdf implements ShouldQueue
                 'variables' => $variables,
             ]),
             'variables' => $variables,
-            'options' => [
-                'all_pages_header' => $this->entity->client->getSetting('all_pages_header'),
-                'all_pages_footer' => $this->entity->client->getSetting('all_pages_footer'),
-            ],
+            'options' => [],
         ];
 
         $maker = new PdfMakerService($state);
@@ -192,9 +189,9 @@ class CreateEntityPdf implements ShouldQueue
         if ($pdf) {
 
             try{
-    
+
                 Storage::disk($this->disk)->put($file_path, $pdf);
-                
+
             }
             catch(\Exception $e)
             {
@@ -211,5 +208,5 @@ class CreateEntityPdf implements ShouldQueue
     {
 
     }
-    
+
 }
