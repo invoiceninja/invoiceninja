@@ -330,4 +330,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
         return $converter->convertToHtml($markdown);
     }
+
+    public function processMarkdownOnLineItems(array &$items)
+    {
+        // Use setting to determinate if parsing should be done.
+        // 'parse_markdown_on_pdfs'
+
+        foreach ($items as $key => $item) {
+            foreach ($item as $variable => $value) {
+                $item[$variable] = DesignHelpers::parseMarkdownToHtml($value ?? '');
+            }
+
+            $items[$key] = $item;
+        }
+    }
 }
