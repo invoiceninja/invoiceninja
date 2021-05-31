@@ -22,6 +22,7 @@ use App\Mail\DownloadInvoices;
 use App\Models\Activity;
 use App\Models\Client;
 use App\Models\ClientContact;
+use App\Models\ClientGatewayToken;
 use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\CompanyLedger;
@@ -31,6 +32,7 @@ use App\Models\CreditInvitation;
 use App\Models\Document;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
+use App\Models\GroupSetting;
 use App\Models\InvoiceInvitation;
 use App\Models\Payment;
 use App\Models\PaymentTerm;
@@ -41,8 +43,10 @@ use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoice;
 use App\Models\RecurringInvoiceInvitation;
 use App\Models\Subscription;
+use App\Models\TaskStatus;
 use App\Models\TaxRate;
 use App\Models\User;
+use App\Models\Vendor;
 use App\Models\VendorContact;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
@@ -87,18 +91,22 @@ class CompanyImport implements ShouldQueue
         'task_statuses',
         'clients',
         'client_contacts',
-        'products',
         'vendors',
         'projects',
+        'products',
         'company_gateways',
         'client_gateway_tokens',
         'group_settings',
-        'credits',
-        'invoices',
-        'recurring_invoices',
-        'quotes',
-        'payments',
         'subscriptions',
+        'recurring_invoices',
+        'recurring_invoice_invitations',
+        'invoices',
+        'invoice_invitations',
+        'quotes',
+        'quote_invitations',
+        'credits',
+        'credit_invitations',
+        'payments',
         'expenses',
         'tasks',
         'documents',
@@ -271,45 +279,181 @@ class CompanyImport implements ShouldQueue
 
     private function import_task_statuses()
     {
+
+        $this->genericImport(TaskStatus::class, 
+            ['user_id', 'company_id', 'id', 'hashed_id'], 
+            [['users' => 'user_id']], 
+            'task_statuses',
+            'name');
+
+        return $this;
         
     }
 
     private function import_clients()
     {
+
+        $this->genericImport(Client::class, 
+            ['user_id', 'assigned_user_id', 'company_id', 'id', 'hashed_id', 'gateway_tokens', 'contacts', 'documents'], 
+            [['users' => 'user_id'], ['users' => 'assigned_user_id']], 
+            'clients',
+            'number');
+
+        return $this;
         
     }
 
     private function import_client_contacts()
     {
-        
-    }
 
-    private function import_products()
-    {
+        $this->genericImport(ClientContact::class, 
+            ['user_id', 'assigned_user_id', 'company_id', 'id', 'hashed_id'], 
+            [['users' => 'user_id'], ['users' => 'assigned_user_id']], 
+            'client_contacts',
+            'email');
+
+        return $this;
         
     }
 
     private function import_vendors()
     {
-        
+
+        $this->genericImport(Vendor::class, 
+            ['user_id', 'assigned_user_id', 'company_id', 'id', 'hashed_id'], 
+            [['users' => 'user_id'], ['users' =>'assigned_user_id']], 
+            'vendors',
+            'number');
+
+        return $this;
     }
 
     private function import_projects()
     {
-        
+
+        $this->genericImport(Project::class, 
+            ['user_id', 'assigned_user_id', 'company_id', 'id', 'hashed_id','client_id'], 
+            [['users' => 'user_id'], ['users' =>'assigned_user_id'], ['clients' => 'client_id']], 
+            'projects',
+            'number');
+     
+        return $this;   
+    }
+
+    private function import_products()
+    {
+
+        $this->genericNewClassImport(Product::class,
+            ['user_id', 'company_id', 'hashed_id', 'id'],
+            [['users' => 'user_id'], ['users' =>'assigned_user_id'], ['vendors' => 'vendor_id'], ['projects' => 'project_id']],
+            'products' 
+        );
+
+        return $this;        
     }
 
     private function import_company_gateways()
     {
-        
+
+        $this->genericNewClassImport(CompanyGateway::class,
+            ['user_id', 'company_id', 'hashed_id', 'id'],
+            [['users' => 'user_id']],
+            'company_gateways' 
+        );
+
+        return $this;        
     }
 
     private function import_client_gateway_tokens()
     {
-        
+
+        $this->genericNewClassImport(ClientGatewayToken::class, 
+            ['company_id', 'id', 'hashed_id','client_id'], 
+            [['clients' => 'client_id']], 
+            'client_gateway_tokens');
+
+        return $this;        
     }
 
     private function import_group_settings()
+    {
+
+        $this->genericImport(GroupSetting::class, 
+            ['user_id', 'company_id', 'id', 'hashed_id',], 
+            [['users' => 'user_id']], 
+            'group_settings',
+            'name');
+
+        return $this;        
+    }
+
+    private function import_subscriptions()
+    {
+        
+        $this->genericImport(Subscription::class, 
+            ['user_id', 'assigned_user_id', 'company_id', 'id', 'hashed_id',], 
+            [['group_settings' => 'group_id'], ['users' => 'user_id'], ['users' => 'assigned_user_id']], 
+            'subscriptions',
+            'name');
+
+        return $this;        
+    }
+
+    private function import_recurring_invoices()
+    {
+
+        $this->genericImport(RecurringInvoice::class, 
+            ['user_id', 'assigned_user_id', 'company_id', 'id', 'hashed_id', 'client_id','subscription_id','project_id','vendor_id','status'], 
+            [
+                ['subscriptions' => 'subscription_id'], 
+                ['users' => 'user_id'], 
+                ['users' => 'assigned_user_id'],
+                ['clients' => 'client_id'],
+                ['projects' => 'project_id'],
+                ['vendors' => 'vendor_id'],
+                ['clients' => 'client_id'],
+            ], 
+            'recurring_invoices',
+            'number');
+
+        return $this;
+
+    }
+
+    private function import_recurring_invoice_invitations()
+    {
+
+
+        $this->genericImport(RecurringInvoiceInvitation::class, 
+            ['user_id', 'client_contact_id', 'company_id', 'id', 'hashed_id', 'recurring_invoice_id'], 
+            [
+                ['users' => 'user_id'], 
+                ['recurring_invoices' => 'recurring_invoice_id'],
+                ['client_contacts' => 'client_contact_id'],
+            ], 
+            'recurring_invoice_invitations',
+            'key');
+
+        return $this;
+
+    }
+
+    private function import_invoices()
+    {
+        
+    }
+
+    private function import_invoice_invitations()
+    {
+        
+    }
+
+    private function import_quotes()
+    {
+        
+    }
+
+    private function import_quote_invitations()
     {
         
     }
@@ -319,22 +463,7 @@ class CompanyImport implements ShouldQueue
         
     }
 
-    private function import_invoices()
-    {
-        
-    }
-
-    private function import_recurring_invoices()
-    {
-        
-    }
-
-    private function import_quotes()
-    {
-        
-    }
-
-    private function import_quotes()
+    private function import_credit_invitations()
     {
         
     }
@@ -344,10 +473,6 @@ class CompanyImport implements ShouldQueue
         
     }
 
-    private function import_subscriptions()
-    {
-        
-    }
 
     private function import_expenses()
     {
