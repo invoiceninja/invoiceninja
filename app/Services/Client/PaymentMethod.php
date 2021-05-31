@@ -188,7 +188,7 @@ class PaymentMethod
 
                 $fee_label = $gateway->calcGatewayFeeLabel($this->amount, $this->client, $gateway_type_id);
 
-                if(!$gateway_type_id){
+                if(!$gateway_type_id || (GatewayType::CUSTOM == $gateway_type_id)){
 
                     $this->payment_urls[] = [
                         'label' => $gateway->getConfigField('name') . $fee_label,

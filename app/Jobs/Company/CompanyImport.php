@@ -147,10 +147,23 @@ class CompanyImport implements ShouldQueue
 
         $this->backup_file = Cache::get($this->hash);
 
-        if ( empty( $this->import_object ) ) 
+        if ( empty( $this->backup_file ) ) 
             throw new \Exception('No import data found, has the cache expired?');
         
         $this->backup_file = base64_decode($this->backup_file);
+
+
+        if(array_key_exists('import_settings', $request) && $request['import_settings'] == 'true') {
+            $this->preFlightChecks()->importSettings();
+        }
+
+        if(array_key_exists('import_data', $request) && $request['import_data'] == 'true') {
+
+            $this->preFlightChecks()
+                 ->purgeCompanyData()
+                 ->importData();
+
+        }
 
     }
 
@@ -191,6 +204,7 @@ class CompanyImport implements ShouldQueue
         $this->company->tasks()->forceDelete();
         $this->company->vendors()->forceDelete();
         $this->company->expenses()->forceDelete();
+        $this->company->subscriptions()->forceDelete();
 
         $this->company->save();
 
@@ -225,6 +239,8 @@ class CompanyImport implements ShouldQueue
             $this->{$method}();
 
         }
+
+        return $this;
 
     }
 

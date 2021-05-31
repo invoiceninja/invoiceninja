@@ -84,7 +84,7 @@ class ImportJsonController extends BaseController
         $file_location = public_path("storage/backups/$filename/backup.json");
 
         if (! file_exists($file_location)) 
-            throw new NonExistingMigrationFile('Backup file does not exist, or it is corrupted.');
+            throw new NonExistingMigrationFile('Backup file does not exist, or is corrupted.');
         
         $data = json_decode(file_get_contents($file_location));
 
