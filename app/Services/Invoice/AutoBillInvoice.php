@@ -40,6 +40,8 @@ class AutoBillInvoice extends AbstractService
 
     public function run()
     {
+        $is_partial = false;
+
         /* Is the invoice payable? */
         if (! $this->invoice->isPayable()) 
             return $this->invoice;
@@ -57,6 +59,8 @@ class AutoBillInvoice extends AbstractService
 
         /* Determine $amount */
         if ($this->invoice->partial > 0) {
+            $is_partial = true;
+            $invoice_total = $this->invoice->amount;
             $amount = $this->invoice->partial;
         } elseif ($this->invoice->balance > 0) {
             $amount = $this->invoice->balance;
@@ -77,7 +81,10 @@ class AutoBillInvoice extends AbstractService
         //$fee = $gateway_token->gateway->calcGatewayFee($amount, $gateway_token->gateway_type_id, $this->invoice->uses_inclusive_taxes);
         $this->invoice = $this->invoice->service()->addGatewayFee($gateway_token->gateway, $gateway_token->gateway_type_id, $amount)->save();
 
-        $fee = $this->invoice->amount - $amount;
+        if($is_partial)
+            $fee = $this->invoice->amount - $invoice_total;
+        else
+            $fee = $this->invoice->amount - $amount;
 
         /* Build payment hash */
         $payment_hash = PaymentHash::create([
@@ -340,68 +347,4 @@ class AutoBillInvoice extends AbstractService
         return $this;
     }
 
-    /**
-     * Removes any existing unpaid gateway fees
-     * due to previous payment failure.
-     *
-     * @return $this
-     */
-    // private function purgeStaleGatewayFees()
-    // {
-    //     $starting_amount = $this->invoice->amount;
-
-    //     $line_items = $this->invoice->line_items;
-
-    //     $new_items = [];
-
-    //     foreach($line_items as $item)
-    //     {
-
-    //       if($item->type_id != 3)
-    //         $new_items[] = $item;
-
-    //     }
-
-    //     $this->invoice->line_items = $new_items;
-    //     $this->invoice->save();
-
-    //     $this->invoice = $this->invoice->calc()->getInvoice();
-
-    //     if($starting_amount != $this->invoice->amount && $this->invoice->status_id != Invoice::STATUS_DRAFT){
-    //         $this->invoice->client->service()->updateBalance($this->invoice->amount - $starting_amount)->save();
-    //         $this->invoice->ledger()->updateInvoiceBalance($this->invoice->amount - $starting_amount, 'Invoice balance updated after stale gateway fee removed')->save();
-    //     }
-
-    //     return $this;
-    // }
-
-    // /**
-    //  * Checks whether a given gateway token is able
-    //  * to process the payment after passing through the
-    //  * fees and limits check.
-    //  *
-    //  * @param  CompanyGateway $cg     The CompanyGateway instance
-    //  * @param  float          $amount The amount to be paid
-    //  * @return bool
-    //  */
-    // public function validGatewayLimits($cg, $amount) : bool
-    // {
-    //     if (isset($cg->fees_and_limits)) {
-    //         $fees_and_limits = $cg->fees_and_limits->{'1'};
-    //     } else {
-    //         return true;
-    //     }
-
-    //     if ((property_exists($fees_and_limits, 'min_limit')) && $fees_and_limits->min_limit !== null && $amount < $fees_and_limits->min_limit) {
-    //         info("amount {$amount} less than ".$fees_and_limits->min_limit);
-    //         $passes = false;
-    //     } elseif ((property_exists($fees_and_limits, 'max_limit')) && $fees_and_limits->max_limit !== null && $amount > $fees_and_limits->max_limit) {
-    //         info("amount {$amount} greater than ".$fees_and_limits->max_limit);
-    //         $passes = false;
-    //     } else {
-    //         $passes = true;
-    //     }
-
-    //     return $passes;
-    // }
 }

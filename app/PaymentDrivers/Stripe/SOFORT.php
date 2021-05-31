@@ -92,7 +92,8 @@ class SOFORT
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_SUCCESS,
             SystemLog::TYPE_STRIPE,
-            $this->stripe->client
+            $this->stripe->client,
+            $this->stripe->client->company,
         );
 
         return redirect()->route('client.payments.show', ['payment' => $this->stripe->encodePrimaryKey($payment->id)]);
@@ -101,8 +102,6 @@ class SOFORT
     public function processUnsuccessfulPayment()
     {
         $server_response = $this->stripe->payment_hash->data;
-
-        PaymentFailureMailer::dispatch($this->stripe->client, $server_response->redirect_status, $this->stripe->client->company, $server_response->amount);
 
         PaymentFailureMailer::dispatch(
             $this->stripe->client,
@@ -121,7 +120,8 @@ class SOFORT
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_FAILURE,
             SystemLog::TYPE_STRIPE,
-            $this->stripe->client
+            $this->stripe->client,
+            $this->stripe->client->company,
         );
 
         throw new PaymentFailed('Failed to process the payment.', 500);

@@ -394,6 +394,7 @@ class BaseDriver extends AbstractPaymentDriver
             SystemLog::EVENT_GATEWAY_ERROR,
             $gateway::SYSTEM_LOG_TYPE,
             $gateway->client,
+            $gateway->client->company,
         );
 
         throw new PaymentFailed($error, $e->getCode());
@@ -527,6 +528,7 @@ class BaseDriver extends AbstractPaymentDriver
             SystemLog::EVENT_GATEWAY_SUCCESS,
             $gateway_const,
             $this->client,
+            $this->client->company,
         );
     }
 }

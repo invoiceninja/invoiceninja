@@ -103,6 +103,15 @@ class Activity extends StaticModel
         'deleted_at' => 'timestamp',
     ];
 
+    protected $appends = [
+        'hashed_id',
+    ];
+
+    public function getHashedIdAttribute()
+    {
+        return $this->encodePrimaryKey($this->id);
+    }
+    
     public function getEntityType()
     {
         return self::class;

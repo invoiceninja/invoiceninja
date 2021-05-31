@@ -34,7 +34,9 @@ class PortalComposer
         $view->with($this->portalData());
 
         if (auth()->user()) {
-            Lang::replace(Ninja::transformTranslations(auth()->user()->client->getMergedSettings()));
+            App::forgetInstance('translator');
+            $t = app('translator');
+            $t->replace(Ninja::transformTranslations(auth()->user()->client->getMergedSettings()));
         }
     }
 
@@ -82,9 +84,7 @@ class PortalComposer
         $data[] = ['title' => ctrans('texts.subscriptions'), 'url' => 'client.subscriptions.index', 'icon' => 'calendar'];
 
         if (auth()->user('contact')->client->getSetting('enable_client_portal_tasks')) {
-            $data[] = ['title' => ctrans('texts.tasks'), 'url' => 'client.dashboard', 'icon' => 'clock'];
-
-            // TODO: Update when 'tasks' module is available in client portal.
+            $data[] = ['title' => ctrans('texts.tasks'), 'url' => 'client.tasks.index', 'icon' => 'clock'];
         }
 
         return $data;

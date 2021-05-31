@@ -169,4 +169,27 @@ abstract class QueryFilters
 
         return $this->builder->where('created_at', '>=', $created_at);
     }
+
+    public function is_deleted($value)
+    {
+
+        return $this->builder->where('is_deleted', $value);
+
+    }
+
+    public function filter_deleted_clients($value)
+    {
+
+        if($value == 'true'){
+
+            return $this->builder->whereHas('client', function (Builder $query) {
+
+              $query->where('is_deleted', 0);
+              
+            });
+
+        }
+
+        return $this->builder;
+    }
 }

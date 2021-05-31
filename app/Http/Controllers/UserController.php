@@ -63,9 +63,11 @@ class UserController extends BaseController
      */
     public function __construct(UserRepository $user_repo)
     {
+
         parent::__construct();
 
         $this->user_repo = $user_repo;
+
     }
 
     /**
@@ -209,11 +211,12 @@ class UserController extends BaseController
 
         $ct = CreateCompanyToken::dispatchNow($company, $user, $user_agent);
 
-            nlog("in the store method of the usercontroller class");
-
         event(new UserWasCreated($user, auth()->user(), $company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
-        return $this->itemResponse($user->fresh());
+        $user->setCompany($company);
+        $user->company_id = $company->id;
+        
+        return $this->itemResponse($user);
     }
 
     /**
@@ -376,7 +379,6 @@ class UserController extends BaseController
      */
     public function update(UpdateUserRequest $request, User $user)
     {
-
         $old_company_user = $user->company_user;
         $old_user = json_encode($user);
         $old_user_email = $user->getOriginal('email');

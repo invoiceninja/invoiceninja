@@ -67,12 +67,15 @@ class UpdateUserLastLogin implements ShouldQueue
             $user->save();
         }
 
+        $arr = json_encode(['ip' => $ip]);
+
         SystemLogger::dispatch(
-            $ip,
+            $arr,
             SystemLog::CATEGORY_SECURITY,
             SystemLog::EVENT_USER,
             SystemLog::TYPE_LOGIN_SUCCESS,
-            $event->company->clients()->first(),
+            null,
+            $event->company,
         );
 
     }

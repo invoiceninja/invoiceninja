@@ -64,7 +64,7 @@ class CreateEntityPdf implements ShouldQueue
      *
      * @param $invitation
      */
-    public function __construct($invitation)
+    public function __construct($invitation, $disk = 'public')
     {
         $this->invitation = $invitation;
 
@@ -86,22 +86,26 @@ class CreateEntityPdf implements ShouldQueue
 
         $this->contact = $invitation->contact;
 
-        $this->disk = $disk ?? config('filesystems.default');
+        $this->disk = $disk;
+        
+        // $this->disk = $disk ?? config('filesystems.default');
     }
 
     public function handle()
     {
-        /* Set the locale*/
-        App::setLocale($this->contact->preferredLocale());
         
         /* Forget the singleton*/
         App::forgetInstance('translator');
 
         /* Init a new copy of the translator*/
         $t = app('translator');
+        /* Set the locale*/
+        App::setLocale($this->contact->preferredLocale());
+
+        // nlog($this->entity->client->getMergedSettings());
 
         /* Set customized translations _NOW_ */
-        Lang::replace(Ninja::transformTranslations($this->entity->client->getMergedSettings()));
+        $t->replace(Ninja::transformTranslations($this->entity->client->getMergedSettings()));
 
         $this->entity->service()->deletePdf();
 
@@ -192,12 +196,12 @@ class CreateEntityPdf implements ShouldQueue
             try{
     
                 Storage::disk($this->disk)->put($file_path, $pdf);
-    
+                
             }
             catch(\Exception $e)
             {
 
-                throw new FilePermissionsFailure('Could not write the PDF, permission issues!');
+                throw new FilePermissionsFailure($e->getMessage());
 
             }
         }
@@ -209,8 +213,5 @@ class CreateEntityPdf implements ShouldQueue
     {
 
     }
-    // public function failed(\Exception $exception)
-    // {
-    //     nlog("help!");
-    // }
+    
 }

@@ -53,6 +53,6 @@ class RegisterRequest extends FormRequest
             return $company;
         }
 
-        abort(404);
+        abort(404, 'Register request not found.');
     }
 }

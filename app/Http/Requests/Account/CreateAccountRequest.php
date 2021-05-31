@@ -40,13 +40,13 @@ class CreateAccountRequest extends Request
             'password'          => 'required|string|min:6',
             'email'             => 'bail|required|email:rfc,dns',
             'email'             => new NewUniqueUserRule(),
-            'privacy_policy'    => 'required',
-            'terms_of_service'  => 'required',
+            'privacy_policy'    => 'required|boolean',
+            'terms_of_service'  => 'required|boolean',
         ];
     }
 
     protected function prepareForValidation()
-    {
+    {nlog($this->all());
         $input = $this->all();
 
         $input['user_agent'] = request()->server('HTTP_USER_AGENT');

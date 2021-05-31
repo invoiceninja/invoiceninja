@@ -149,6 +149,6 @@ class PaymentMethodController extends Controller
             return $gateway = auth()->user()->client->getBankTransferGateway();
         }
 
-        return abort(404);
+        abort(404, 'Gateway not found.');
     }
 }

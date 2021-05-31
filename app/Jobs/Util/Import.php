@@ -17,6 +17,7 @@ use App\Exceptions\MigrationValidatorFailed;
 use App\Exceptions\ProcessingMigrationArchiveFailed;
 use App\Exceptions\ResourceDependencyMissing;
 use App\Exceptions\ResourceNotAvailableForMigration;
+use App\Factory\ClientContactFactory;
 use App\Factory\ClientFactory;
 use App\Factory\CompanyLedgerFactory;
 use App\Factory\CreditFactory;
@@ -29,6 +30,7 @@ use App\Factory\TaxRateFactory;
 use App\Factory\UserFactory;
 use App\Factory\VendorFactory;
 use App\Http\Requests\Company\UpdateCompanyRequest;
+use App\Http\ValidationRules\User\AttachableUser;
 use App\Http\ValidationRules\ValidCompanyGatewayFeesAndLimitsRule;
 use App\Http\ValidationRules\ValidUserForCompany;
 use App\Jobs\Company\CreateCompanyTaskStatuses;
@@ -209,6 +211,9 @@ class Import implements ShouldQueue
             $this->{$method}($data[$import]);
         }
 
+        // if(Ninja::isHosted() && array_key_exists('ninja_tokens', $data))
+        //     $this->processNinjaTokens($data['ninja_tokens']);
+
         $this->setInitialCompanyLedgerBalances();
         
         // $this->fixClientBalances();
@@ -221,6 +226,7 @@ class Import implements ShouldQueue
                 ->send(new MigrationCompleted($this->company, implode("<br>",$check_data)));
         }
         catch(\Exception $e) {
+
             nlog($e->getMessage());
         }
         
@@ -291,6 +297,12 @@ class Import implements ShouldQueue
         }
 
         $data = $this->transformCompanyData($data);
+
+        if(Ninja::isHosted() && strlen($data['subdomain']) > 1) {
+
+            if(!MultiDB::checkDomainAvailable($data['subdomain']))
+                $data['subdomain'] = MultiDB::randomSubdomainGenerator();
+        }
 
         $rules = (new UpdateCompanyRequest())->rules();
 
@@ -415,12 +427,9 @@ class Import implements ShouldQueue
         $rules = [
             '*.first_name' => ['string'],
             '*.last_name' => ['string'],
-            '*.email' => ['distinct'],
+            //'*.email' => ['distinct'],
+            '*.email' => ['distinct', 'email', new ValidUserForCompany()],
         ];
-
-        // if (config('ninja.db.multi_db_enabled')) {
-        //     array_push($rules['*.email'], new ValidUserForCompany());
-        // }
 
         $validator = Validator::make($data, $rules);
 
@@ -1261,7 +1270,7 @@ class Import implements ShouldQueue
                 $modified['fees_and_limits'] = $this->cleanFeesAndLimits($modified['fees_and_limits']);
             }
 
-            if(Ninja::isHosted() && $modified['gateway_key'] == 'd14dd26a37cecc30fdd65700bfb55b23'){
+            else if(Ninja::isHosted() && $modified['gateway_key'] == 'd14dd26a37cecc30fdd65700bfb55b23'){
                 $modified['gateway_key'] = 'd14dd26a47cecc30fdd65700bfb67b34';
                 $modified['fees_and_limits'] = [];
             }
@@ -1293,6 +1302,8 @@ class Import implements ShouldQueue
 
             $modified['company_id'] = $this->company->id;
             $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
+            $modified['company_gateway_id'] = $this->transformId('company_gateways', $resource['company_gateway_id']);
+            
             //$modified['user_id'] = $this->processUserId($resource);
 
             $cgt = ClientGatewayToken::Create($modified);
@@ -1612,6 +1623,9 @@ class Import implements ShouldQueue
                  ->batch();
 
         info(print_r($exception->getMessage(), 1));
+
+        if(Ninja::isHosted())
+            app('sentry')->captureException($exception);
     }
 
 
@@ -1634,6 +1648,78 @@ class Import implements ShouldQueue
         $response = $client->request('GET', $url);
 
         return $response->getBody();
+    }
+
+    private function buildNewUserPlan() 
+    {
+        $current_db = config('database.default');
+
+        nlog($this->company);
+        
+        $local_company = Company::on($current_db)->where('company_key', $this->company->company_key)->first();
+
+        MultiDB::setDb('db-ninja-01');
+        $ninja_company = Company::find(config('ninja.ninja_default_company_id'));
+
+        /* If we already have a record of this user - move along. */
+        if($client_contact = ClientContact::where(['email' => $this->user->email, 'company_id' => $ninja_company->id])->first())
+            return $client_contact->client;
+
+        $ninja_client = ClientFactory::create($ninja_company->id, $ninja_company->owner()->id);
+        $ninja_client->name = $this->user->present()->name();
+        $ninja_client->address1 = $local_company->settings->address1;
+        $ninja_client->address2 = $local_company->settings->address2;
+        $ninja_client->city = $local_company->settings->city;
+        $ninja_client->postal_code = $local_company->settings->postal_code;
+        $ninja_client->state = $local_company->settings->state;
+        $ninja_client->country_id = $local_company->settings->country_id;
+        $ninja_client->custom_value1 = $local_company->company_key;
+
+        $ninja_client->save();
+
+        $ninja_client_contact = ClientContactFactory::create($ninja_company->id, $ninja_company->owner()->id);
+        $ninja_client_contact->first_name = $this->user->first_name;
+        $ninja_client_contact->last_name = $this->user->last_name;
+        $ninja_client_contact->client_id = $ninja_client->id;
+        $ninja_client_contact->email = $this->user->email;
+        $ninja_client_contact->phone = $this->user->phone;
+        $ninja_client_contact->save();
+
+
+        MultiDB::setDb($current_db);
+
+        return $ninja_client;
+    }
+
+    private function processNinjaTokens(array $data)
+    {
+        $current_db = config('database.default');
+        $local_company = Company::on($current_db)->where('company_key', $this->company->company_key)->first();
+
+        MultiDB::setDb('db-ninja-01');
+
+        if($existing_client = Client::where('custom_value1', $local_company->company_key)->first())
+            $ninja_client = $existing_client;
+        else
+            $ninja_client = $this->buildNewUserPlan();
+
+        foreach($data as $token)
+        {
+            //get invoiceninja company_id
+            $ninja_company = Company::where('id', config('ninja.ninja_default_company_id'))->first();
+
+            $token['company_id'] = $ninja_company->id;
+            $token['client_id'] = $ninja_client->id;/////
+            $token['user_id'] = $ninja_company->owner()->id;
+            $token['company_gateway_id'] = config('ninja.ninja_default_company_gateway_id');
+            //todo
+            
+            ClientGatewayToken::unguard();
+            $cgt = ClientGatewayToken::Create($token);
+            ClientGatewayToken::reguard();
+        }
+
+        MultiDB::setDb($current_db);
     }
 
 

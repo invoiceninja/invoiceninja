@@ -21,6 +21,8 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Task;
 use App\Services\Client\ClientService;
+use App\Services\Invoice\UpdateReminder;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
@@ -243,6 +245,13 @@ class InvoiceService
 
         return $this;
     }
+    
+    public function setReminder($settings = null)
+    {
+        $this->invoice = (new UpdateReminder($this->invoice, $settings))->run();
+
+        return $this;
+    }
 
     public function setStatus($status)
     {
@@ -301,6 +310,10 @@ class InvoiceService
         //UnlinkFile::dispatchNow(config('filesystems.default'), $this->invoice->client->invoice_filepath() . $this->invoice->numberFormatter().'.pdf');
         Storage::disk(config('filesystems.default'))->delete($this->invoice->client->invoice_filepath() . $this->invoice->numberFormatter().'.pdf');
         
+        if(Ninja::isHosted()) {
+            Storage::disk('public')->delete($this->invoice->client->invoice_filepath() . $this->invoice->numberFormatter().'.pdf');
+        }
+
         return $this;
     }
 
@@ -419,7 +432,7 @@ class InvoiceService
 
         return $this;
     }
-    
+
     /**
      * Saves the invoice.
      * @return Invoice object

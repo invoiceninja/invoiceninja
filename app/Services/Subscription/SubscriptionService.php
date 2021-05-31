@@ -238,6 +238,8 @@ class SubscriptionService
      */
     private function calculateProRataRefund($invoice) :float
     {
+        if(!$this->invoice->date)
+            return 0;
         
         $start_date = Carbon::parse($invoice->date);
 
@@ -664,7 +666,8 @@ class SubscriptionService
                 SystemLog::CATEGORY_WEBHOOK,
                 SystemLog::EVENT_WEBHOOK_RESPONSE,
                 SystemLog::TYPE_WEBHOOK_RESPONSE,
-                $client,
+                $client, 
+                $client->company,
             );
 
         return $response;

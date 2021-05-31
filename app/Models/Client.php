@@ -40,7 +40,6 @@ class Client extends BaseModel implements HasLocalePreference
         'private_notes',
         'user_id',
         'company_id',
-//        'settings',
         'last_login',
     ];
 

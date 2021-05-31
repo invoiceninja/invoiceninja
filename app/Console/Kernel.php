@@ -11,8 +11,9 @@
 
 namespace App\Console;
 
-use App\Jobs\Cron\SubscriptionCron;
+use App\Jobs\Cron\AutoBillCron;
 use App\Jobs\Cron\RecurringInvoicesCron;
+use App\Jobs\Cron\SubscriptionCron;
 use App\Jobs\Ninja\AdjustEmailQuota;
 use App\Jobs\Ninja\CompanySizeCheck;
 use App\Jobs\Util\ReminderJob;
@@ -46,7 +47,7 @@ class Kernel extends ConsoleKernel
 
         $schedule->job(new VersionCheck)->daily();
 
-        $schedule->command('ninja:check-data')->daily()->withoutOverlapping();
+        $schedule->command('ninja:check-data --database=db-ninja-01')->daily()->withoutOverlapping();
 
         $schedule->job(new ReminderJob)->daily()->withoutOverlapping();
 
@@ -58,6 +59,8 @@ class Kernel extends ConsoleKernel
 
         $schedule->job(new RecurringInvoicesCron)->hourly()->withoutOverlapping();
         
+        $schedule->job(new AutoBillCron)->dailyAt('00:30')->withoutOverlapping();        
+
         $schedule->job(new SchedulerCheck)->everyFiveMinutes();
 
         /* Run hosted specific jobs */
@@ -65,6 +68,7 @@ class Kernel extends ConsoleKernel
 
             $schedule->job(new AdjustEmailQuota)->daily()->withoutOverlapping();
             $schedule->job(new SendFailedEmails)->daily()->withoutOverlapping();
+            $schedule->command('ninja:check-data --database=db-ninja-02')->daily()->withoutOverlapping();
 
         }
 

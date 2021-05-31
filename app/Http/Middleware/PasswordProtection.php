@@ -31,7 +31,7 @@ class PasswordProtection
      */
     public function handle($request, Closure $next)
     {
-    
+   
         $error = [
             'message' => 'Invalid Password',
             'errors' => new stdClass,
@@ -44,9 +44,9 @@ class PasswordProtection
         else
             $timeout = $timeout/1000;
 
-        if (Cache::get(auth()->user()->hashed_id.'_logged_in')) {
+        if (Cache::get(auth()->user()->hashed_id.'_'.auth()->user()->account_id.'_logged_in')) {
 
-            Cache::put(auth()->user()->hashed_id.'_logged_in', Str::random(64), $timeout);
+            Cache::put(auth()->user()->hashed_id.'_'.auth()->user()->account_id.'_logged_in', Str::random(64), $timeout);
 
             return $next($request);
 
@@ -68,12 +68,13 @@ class PasswordProtection
                 //If OAuth and user also has a password set  - check both
                 if ($existing_user = MultiDB::hasUser($query) && auth()->user()->has_password && Hash::check(auth()->user()->password, $request->header('X-API-PASSWORD'))) {
 
-                    Cache::put(auth()->user()->hashed_id.'_logged_in', Str::random(64), $timeout);
+                    Cache::put(auth()->user()->hashed_id.'_'.auth()->user()->account_id.'_logged_in', Str::random(64), $timeout);
+
                     return $next($request);
                 }
                 elseif($existing_user = MultiDB::hasUser($query) && !auth()->user()->has_password){
 
-                    Cache::put(auth()->user()->hashed_id.'_logged_in', Str::random(64), $timeout);
+                    Cache::put(auth()->user()->hashed_id.'_'.auth()->user()->account_id.'_logged_in', Str::random(64), $timeout);
                     return $next($request);                    
                 }
             }
@@ -83,7 +84,7 @@ class PasswordProtection
 
         }elseif ($request->header('X-API-PASSWORD') && Hash::check($request->header('X-API-PASSWORD'), auth()->user()->password))  {
 
-            Cache::put(auth()->user()->hashed_id.'_logged_in', Str::random(64), $timeout);
+            Cache::put(auth()->user()->hashed_id.'_'.auth()->user()->account_id.'_logged_in', Str::random(64), $timeout);
 
             return $next($request);
 

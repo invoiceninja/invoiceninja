@@ -22,8 +22,15 @@ class CreditController extends Controller
 
     public function show(ShowCreditRequest $request, Credit $credit)
     {
-        return $this->render('credits.show', [
-            'credit' => $credit,
-        ]);
+        set_time_limit(0);
+
+        $data = ['credit' => $credit];
+
+
+        if ($request->query('mode') === 'fullscreen') {
+            return render('credits.show-fullscreen', $data);
+        }
+
+        return $this->render('credits.show', $data);
     }
 }

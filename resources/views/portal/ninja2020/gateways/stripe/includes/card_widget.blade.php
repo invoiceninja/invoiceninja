@@ -12,4 +12,6 @@
     @endunless
 </div>
 
-@include('portal.ninja2020.gateways.includes.save_card')
+@unless(isset($show_save_method) && $show_save_method == false)
+    @include('portal.ninja2020.gateways.includes.save_card')
+@endunless
