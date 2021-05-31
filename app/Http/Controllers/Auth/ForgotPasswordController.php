@@ -132,8 +132,11 @@ class ForgotPasswordController extends Controller
             : $this->sendResetLinkFailedResponse($request, $response);
     }
 
-    public function showLinkRequestForm()
+    public function showLinkRequestForm(Request $request)
     {
-        return $this->render('auth.passwords.request', ['root' => 'themes']);
+        $account_id = $request->get('account_id');
+        $account = Account::find($account_id);
+        
+        return $this->render('auth.passwords.request', ['root' => 'themes', 'account' => $account]);
     }
 }
