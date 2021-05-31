@@ -34,6 +34,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::post('claim_license', 'LicenseController@index')->name('license.index');
 
     Route::resource('clients', 'ClientController'); // name = (clients. index / create / show / update / destroy / edit
+    Route::put('clients/{client}/adjust_ledger', 'ClientController@adjustLedger')->name('clients.adjust_ledger');
     Route::put('clients/{client}/upload', 'ClientController@upload')->name('clients.upload');
     Route::post('clients/bulk', 'ClientController@bulk')->name('clients.bulk');
 
