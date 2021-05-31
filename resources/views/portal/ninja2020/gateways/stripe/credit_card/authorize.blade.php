@@ -30,7 +30,7 @@
         {{ ctrans('texts.credit_card') }}
     @endcomponent
 
-    @include('portal.ninja2020.gateways.stripe.includes.card_widget')
+    @include('portal.ninja2020.gateways.stripe.includes.card_widget', ['show_save_method' => false])
 
     @component('portal.ninja2020.gateways.includes.pay_now', ['id' => 'authorize-card'])
         {{ ctrans('texts.add_payment_method') }}

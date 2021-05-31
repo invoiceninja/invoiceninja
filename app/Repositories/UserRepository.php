@@ -114,7 +114,7 @@ class UserRepository extends BaseRepository
         }
         $user->restore();
 
-        return $user;
+        return $user->fresh();
     }
 
     public function destroy(array $data, User $user)

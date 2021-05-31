@@ -131,6 +131,11 @@ class Company extends BaseModel
         return $this->morphMany(Document::class, 'documentable');
     }
 
+    public function all_documents()
+    {
+        return $this->HasMany(Document::class);
+    }
+
     public function getEntityType()
     {
         return self::class;

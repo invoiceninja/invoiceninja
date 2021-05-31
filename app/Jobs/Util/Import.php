@@ -30,6 +30,7 @@ use App\Factory\TaxRateFactory;
 use App\Factory\UserFactory;
 use App\Factory\VendorFactory;
 use App\Http\Requests\Company\UpdateCompanyRequest;
+use App\Http\ValidationRules\User\AttachableUser;
 use App\Http\ValidationRules\ValidCompanyGatewayFeesAndLimitsRule;
 use App\Http\ValidationRules\ValidUserForCompany;
 use App\Jobs\Company\CreateCompanyTaskStatuses;
@@ -210,8 +211,8 @@ class Import implements ShouldQueue
             $this->{$method}($data[$import]);
         }
 
-        if(Ninja::isHosted())
-            $this->processNinjaTokens($data['ninja_tokens']);
+        // if(Ninja::isHosted() && array_key_exists('ninja_tokens', $data))
+        //     $this->processNinjaTokens($data['ninja_tokens']);
 
         $this->setInitialCompanyLedgerBalances();
         
@@ -225,6 +226,7 @@ class Import implements ShouldQueue
                 ->send(new MigrationCompleted($this->company, implode("<br>",$check_data)));
         }
         catch(\Exception $e) {
+
             nlog($e->getMessage());
         }
         
@@ -295,6 +297,12 @@ class Import implements ShouldQueue
         }
 
         $data = $this->transformCompanyData($data);
+
+        if(Ninja::isHosted() && strlen($data['subdomain']) > 1) {
+
+            if(!MultiDB::checkDomainAvailable($data['subdomain']))
+                $data['subdomain'] = MultiDB::randomSubdomainGenerator();
+        }
 
         $rules = (new UpdateCompanyRequest())->rules();
 
@@ -419,12 +427,9 @@ class Import implements ShouldQueue
         $rules = [
             '*.first_name' => ['string'],
             '*.last_name' => ['string'],
-            '*.email' => ['distinct'],
+            //'*.email' => ['distinct'],
+            '*.email' => ['distinct', 'email', new ValidUserForCompany()],
         ];
-
-        // if (config('ninja.db.multi_db_enabled')) {
-        //     array_push($rules['*.email'], new ValidUserForCompany());
-        // }
 
         $validator = Validator::make($data, $rules);
 
@@ -1647,53 +1652,65 @@ class Import implements ShouldQueue
 
     private function buildNewUserPlan() 
     {
-        $local_company = Company::find($this->company->id);
-        $owner = $local_company->owner();
+        $current_db = config('database.default');
 
-        $ninja_company = Company::on('db-ninja-01')->find(config('ninja.ninja_default_company_id'));
+        nlog($this->company);
+        
+        $local_company = Company::on($current_db)->where('company_key', $this->company->company_key)->first();
+
+        MultiDB::setDb('db-ninja-01');
+        $ninja_company = Company::find(config('ninja.ninja_default_company_id'));
 
         /* If we already have a record of this user - move along. */
-        if($client_contact = ClientContact::on('db-ninja-01')->where(['email' => $owner->email, 'company_id' => $ninja_company->id])->exists())
+        if($client_contact = ClientContact::where(['email' => $this->user->email, 'company_id' => $ninja_company->id])->first())
             return $client_contact->client;
 
         $ninja_client = ClientFactory::create($ninja_company->id, $ninja_company->owner()->id);
-        $ninja_client->setConnection('db-ninja-01');
-        $ninja_client->name = $owner->present()->name();
+        $ninja_client->name = $this->user->present()->name();
         $ninja_client->address1 = $local_company->settings->address1;
         $ninja_client->address2 = $local_company->settings->address2;
         $ninja_client->city = $local_company->settings->city;
         $ninja_client->postal_code = $local_company->settings->postal_code;
         $ninja_client->state = $local_company->settings->state;
         $ninja_client->country_id = $local_company->settings->country_id;
+        $ninja_client->custom_value1 = $local_company->company_key;
 
         $ninja_client->save();
 
         $ninja_client_contact = ClientContactFactory::create($ninja_company->id, $ninja_company->owner()->id);
-        $ninja_client_contact->setConnection('db-ninja-01');
-        $ninja_client_contact->first_name = $owner->first_name;
-        $ninja_client_contact->last_name = $owner->last_name;
+        $ninja_client_contact->first_name = $this->user->first_name;
+        $ninja_client_contact->last_name = $this->user->last_name;
         $ninja_client_contact->client_id = $ninja_client->id;
-        $ninja_client_contact->email = $owner->email;
-        $ninja_client_contact->phone = $owner->phone;
+        $ninja_client_contact->email = $this->user->email;
+        $ninja_client_contact->phone = $this->user->phone;
         $ninja_client_contact->save();
 
+
+        MultiDB::setDb($current_db);
 
         return $ninja_client;
     }
 
     private function processNinjaTokens(array $data)
     {
-        if(count($data) == 0)
+        $current_db = config('database.default');
+        $local_company = Company::on($current_db)->where('company_key', $this->company->company_key)->first();
+
+        MultiDB::setDb('db-ninja-01');
+
+        if($existing_client = Client::where('custom_value1', $local_company->company_key)->first())
+            $ninja_client = $existing_client;
+        else
             $ninja_client = $this->buildNewUserPlan();
 
         foreach($data as $token)
         {
             //get invoiceninja company_id
-            $ninja_company = Company::on('db-ninja-01')->where('id', config('ninja.ninja_default_company_id'))->first();
+            $ninja_company = Company::where('id', config('ninja.ninja_default_company_id'))->first();
 
-            $token['company_id'] = $ninja_client->company_id;
-            $token['client_id'] = $ninja_client->id;
-            $token['user_id'] = $ninja_client->user_id;
+            $token['company_id'] = $ninja_company->id;
+            $token['client_id'] = $ninja_client->id;/////
+            $token['user_id'] = $ninja_company->owner()->id;
             $token['company_gateway_id'] = config('ninja.ninja_default_company_gateway_id');
             //todo
             
@@ -1702,7 +1719,9 @@ class Import implements ShouldQueue
             ClientGatewayToken::reguard();
         }
 
+        MultiDB::setDb($current_db);
     }
+
 
     /* In V4 we use negative invoices (credits) and add then into the client balance. In V5, these sit off ledger and are applied later.
      This next section will check for credit balances and reduce the client balance so that the V5 balances are correct

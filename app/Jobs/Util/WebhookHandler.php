@@ -35,9 +35,9 @@ class WebhookHandler implements ShouldQueue
 
     private $company;
 
-    public $tries = 5; //number of retries
+    public $tries = 3; //number of retries
 
-    public $backoff = 5; //seconds to wait until retry
+    public $backoff = 10; //seconds to wait until retry
 
     public $deleteWhenMissingModels = true;
 

@@ -47,9 +47,9 @@ class NinjaMailerJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash;
 
-    public $tries = 5; //number of retries
+    public $tries = 3; //number of retries
 
-    public $backoff = 5; //seconds to wait until retry
+    public $backoff = 10; //seconds to wait until retry
 
     public $deleteWhenMissingModels = true;
 
@@ -63,6 +63,7 @@ class NinjaMailerJob implements ShouldQueue
     {
 
         $this->nmo = $nmo;
+        $this->override = $override;
 
     }
 
@@ -105,7 +106,7 @@ class NinjaMailerJob implements ShouldQueue
 
         //send email
         try {
-            nlog("trying to send");
+            nlog("trying to send to {$this->nmo->to_user->email} ". now()->toDateTimeString());
             
             Mail::to($this->nmo->to_user->email)
                 ->send($this->nmo->mailable);

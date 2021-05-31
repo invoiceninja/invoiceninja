@@ -31,6 +31,7 @@ use App\Models\User;
 use App\Transformers\CompanyUserTransformer;
 use App\Utils\Ninja;
 use App\Utils\Traits\UserSessionAttributes;
+use App\Utils\Traits\User\LoginCache;
 use Google_Client;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
@@ -55,6 +56,7 @@ class LoginController extends BaseController
 
     use AuthenticatesUsers;
     use UserSessionAttributes;
+    use LoginCache;
 
     protected $entity_type = CompanyUser::class;
 
@@ -178,8 +180,7 @@ class LoginController extends BaseController
 
             event(new UserLoggedIn($user, $user->account->default_company, Ninja::eventVars($user->id)));
 
-            //if user has 2fa enabled - lets check this now:
-
+            //2FA
             if($user->google_2fa_secret && $request->has('one_time_password'))
             {
                 $google2fa = new Google2FA();
@@ -203,14 +204,7 @@ class LoginController extends BaseController
 
             $user->setCompany($user->account->default_company);
 
-            $timeout = $user->company()->default_password_timeout;
-
-            if($timeout == 0)
-                $timeout = 30*60*1000*1000;
-            else
-                $timeout = $timeout/1000;
-
-            Cache::put($user->hashed_id.'_'.$user->account_id.'_logged_in', Str::random(64), $timeout);
+            $this->setLoginCache($user);
 
             $cu = CompanyUser::query()
                   ->where('user_id', auth()->user()->id);
@@ -228,7 +222,7 @@ class LoginController extends BaseController
             });
 
             return $this->timeConstrainedResponse($cu);
-            // return $this->listResponse($cu);
+
 
         } else {
 
@@ -351,6 +345,7 @@ class LoginController extends BaseController
 
         if (is_array($user)) {
 
+            //
             $query = [
                 'oauth_user_id' => $google->harvestSubField($user),
                 'oauth_provider_id'=> 'google',
@@ -361,14 +356,7 @@ class LoginController extends BaseController
                 Auth::login($existing_user, true);
                 $existing_user->setCompany($existing_user->account->default_company);
 
-                $timeout = $existing_user->company()->default_password_timeout;
-
-                if($timeout == 0)
-                    $timeout = 30*60*1000*1000;
-                else
-                    $timeout = $timeout/1000;
-
-                Cache::put($existing_user->hashed_id.'_'.$existing_user->account_id.'_logged_in', Str::random(64), $timeout);
+                $this->setLoginCache($existing_user);
 
                 $cu = CompanyUser::query()
                                   ->where('user_id', auth()->user()->id);
@@ -384,10 +372,68 @@ class LoginController extends BaseController
                 return $this->timeConstrainedResponse($cu);
                 
             }
+
+            //If this is a result user/email combo - lets add their OAuth details details
+            if($existing_login_user = MultiDB::hasUser(['email' => $google->harvestEmail($user)]))
+            {
+                Auth::login($existing_login_user, true);
+                $existing_login_user->setCompany($existing_login_user->account->default_company);
+
+                $this->setLoginCache($existing_login_user);
+
+                auth()->user()->update([
+                    'oauth_user_id' => $google->harvestSubField($user),
+                    'oauth_provider_id'=> 'google',
+                    ]);
+            
+                $cu = CompanyUser::query()
+                                  ->where('user_id', auth()->user()->id);
+
+                $cu->first()->account->companies->each(function ($company) use($cu){
+
+                    if($company->tokens()->where('is_system', true)->count() == 0)
+                    {
+                        CreateCompanyToken::dispatchNow($company, $cu->first()->user, request()->server('HTTP_USER_AGENT'));
+                    }
+                });
+
+                return $this->timeConstrainedResponse($cu);
+            }
+
         }
 
         if ($user) {
             
+            //check the user doesn't already exist in some form
+
+            if($existing_login_user = MultiDB::hasUser(['email' => $google->harvestEmail($user)]))
+            {
+                Auth::login($existing_login_user, true);
+                $existing_login_user->setCompany($existing_login_user->account->default_company);
+
+                $this->setLoginCache($existing_login_user);
+
+                auth()->user()->update([
+                    'oauth_user_id' => $google->harvestSubField($user),
+                    'oauth_provider_id'=> 'google',
+                    ]);
+            
+                $cu = CompanyUser::query()
+                                  ->where('user_id', auth()->user()->id);
+
+                $cu->first()->account->companies->each(function ($company) use($cu){
+
+                    if($company->tokens()->where('is_system', true)->count() == 0)
+                    {
+                        CreateCompanyToken::dispatchNow($company, $cu->first()->user, request()->server('HTTP_USER_AGENT'));
+                    }
+                });
+
+                return $this->timeConstrainedResponse($cu);
+            }
+
+
+            //user not found anywhere - lets sign them up.
             $name = OAuth::splitName($google->harvestName($user));
 
             $new_account = [
@@ -403,21 +449,14 @@ class LoginController extends BaseController
 
             MultiDB::setDefaultDatabase();
 
-            $account = CreateAccount::dispatchNow($new_account);
+            $account = CreateAccount::dispatchNow($new_account, request()->getClientIp());
 
             Auth::login($account->default_company->owner(), true);
 
             auth()->user()->email_verified_at = now();
             auth()->user()->save();
 
-            $timeout = auth()->user()->company()->default_password_timeout;
-
-                if($timeout == 0)
-                    $timeout = 30*60*1000*1000;
-                else
-                    $timeout = $timeout/1000;
-
-            Cache::put(auth()->user()->hashed_id.'_'.auth()->user()->account_id.'_logged_in', Str::random(64), $timeout);
+            $this->setLoginCache(auth()->user());
 
             $cu = CompanyUser::whereUserId(auth()->user()->id);
 
@@ -436,5 +475,63 @@ class LoginController extends BaseController
         ->json(['message' => ctrans('texts.invalid_credentials')], 401)
         ->header('X-App-Version', config('ninja.app_version'))
         ->header('X-Api-Version', config('ninja.minimum_client_version'));
+    }
+
+    public function redirectToProvider(string $provider)
+    {
+        //'https://www.googleapis.com/auth/gmail.send','email','profile','openid'
+        $scopes = [];
+        
+        if($provider == 'google'){
+            $scopes = ['https://www.googleapis.com/auth/gmail.send','email','profile','openid'];
+        }
+
+        if (request()->has('code')) {
+            return $this->handleProviderCallback($provider);
+        } else {
+            return Socialite::driver($provider)->scopes($scopes)->redirect();
+        }
+    }
+
+    public function handleProviderCallback(string $provider)
+    {
+        $socialite_user = Socialite::driver($provider)
+                                    ->stateless()
+                                    ->user();
+
+        // if($user = OAuth::handleAuth($socialite_user, $provider))
+        // {
+        //     Auth::login($user, true);
+
+        //     return redirect($this->redirectTo);
+        // }
+        // else if(MultiDB::checkUserEmailExists($socialite_user->getEmail()))
+        // {
+        //     Session::flash('error', 'User exists in system, but not with this authentication method'); //todo add translations
+
+        //     return view('auth.login');
+        // }
+        // else {
+        //     //todo
+        //     $name = OAuth::splitName($socialite_user->getName());
+
+        //     $new_account = [
+        //         'first_name' => $name[0],
+        //         'last_name' => $name[1],
+        //         'password' => '',
+        //         'email' => $socialite_user->getEmail(),
+        //         'oauth_user_id' => $socialite_user->getId(),
+        //         'oauth_provider_id' => $provider
+        //     ];
+
+        //     $account = CreateAccount::dispatchNow($new_account);
+
+        //     Auth::login($account->default_company->owner(), true);
+
+        //     $cookie = cookie('db', $account->default_company->db);
+
+        //     return redirect($this->redirectTo)->withCookie($cookie);
+        // }
+
     }
 }

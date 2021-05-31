@@ -2,17 +2,17 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('client', 'Auth\ContactLoginController@showLoginForm')->name('client.catchall'); //catch all
+Route::get('client', 'Auth\ContactLoginController@showLoginForm')->name('client.catchall')->middleware(['domain_db', 'contact_account','locale']); //catch all
 
-Route::get('client/login', 'Auth\ContactLoginController@showLoginForm')->name('client.login')->middleware('locale');
+Route::get('client/login', 'Auth\ContactLoginController@showLoginForm')->name('client.login')->middleware(['domain_db', 'contact_account','locale']);
 Route::post('client/login', 'Auth\ContactLoginController@login')->name('client.login.submit');
 
-Route::get('client/register/{company_key?}', 'Auth\ContactRegisterController@showRegisterForm')->name('client.register');
+Route::get('client/register/{company_key?}', 'Auth\ContactRegisterController@showRegisterForm')->name('client.register')->middleware(['domain_db', 'contact_account','locale']);
 Route::post('client/register/{company_key?}', 'Auth\ContactRegisterController@register');
 
-Route::get('client/password/reset', 'Auth\ContactForgotPasswordController@showLinkRequestForm')->name('client.password.request')->middleware('locale');
+Route::get('client/password/reset', 'Auth\ContactForgotPasswordController@showLinkRequestForm')->name('client.password.request')->middleware(['domain_db', 'contact_account','locale']);
 Route::post('client/password/email', 'Auth\ContactForgotPasswordController@sendResetLinkEmail')->name('client.password.email')->middleware('locale');
-Route::get('client/password/reset/{token}', 'Auth\ContactResetPasswordController@showResetForm')->name('client.password.reset')->middleware('locale');
+Route::get('client/password/reset/{token}', 'Auth\ContactResetPasswordController@showResetForm')->name('client.password.reset')->middleware(['domain_db', 'contact_account','locale']);
 Route::post('client/password/reset', 'Auth\ContactResetPasswordController@reset')->name('client.password.update')->middleware('locale');
 
 Route::get('view/{entity_type}/{invitation_key}', 'ClientPortal\EntityViewController@index')->name('client.entity_view');

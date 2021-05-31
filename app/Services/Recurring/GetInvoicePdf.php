@@ -41,7 +41,7 @@ class GetInvoicePdf extends AbstractService
 
         $file_path = $path.$this->entity->hashed_id.'.pdf';
 
-        $disk = config('filesystems.default');
+        $disk = 'public';
 
         $file = Storage::disk($disk)->exists($file_path);
 
@@ -49,12 +49,6 @@ class GetInvoicePdf extends AbstractService
             $file_path = CreateEntityPdf::dispatchNow($invitation);
         }
 
-
-        /* Copy from remote disk to local when using cloud file storage. */
-        if(config('filesystems.default') == 's3')
-            return TempFile::path(Storage::disk($disk)->url($file_path));
-
-        // return Storage::disk($disk)->url($file_path);
         return Storage::disk($disk)->path($file_path);
     }
 }

@@ -18,6 +18,7 @@ use Auth;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class ContactKeyLogin
 {
@@ -42,6 +43,9 @@ class ContactKeyLogin
             if (MultiDB::findAndSetDbByContactKey($request->segment(3))) {
 
             if($client_contact = ClientContact::where('contact_key', $request->segment(3))->first()){
+                if(empty($client_contact->email))
+                    $client_contact->email = Str::random(6) . "@example.com"; $client_contact->save();
+
                 Auth::guard('contact')->login($client_contact, true);
                 return redirect()->to('client/dashboard');
              }
@@ -49,6 +53,10 @@ class ContactKeyLogin
             }
         } elseif ($request->segment(2) && $request->segment(2) == 'key_login' && $request->segment(3)) {
             if ($client_contact = ClientContact::where('contact_key', $request->segment(3))->first()) {
+  
+                  if(empty($client_contact->email))
+                    $client_contact->email = Str::random(6) . "@example.com"; $client_contact->save();
+    
                 auth()->guard('contact')->login($client_contact, true);
                 return redirect()->to('client/dashboard');
             }
@@ -56,19 +64,36 @@ class ContactKeyLogin
             if (MultiDB::findAndSetDbByClientHash($request->input('client_hash'))) {
 
                 if($client = Client::where('client_hash', $request->input('client_hash'))->first()){
-                    auth()->guard('contact')->login($client->primary_contact()->first(), true);
+        
+                $primary_contact = $client->primary_contact()->first();
+
+                if(empty($primary_contact->email))
+                    $primary_contact->email = Str::random(6) . "@example.com"; $primary_contact->save();
+
+                    auth()->guard('contact')->login($primary_contact, true);
                     return redirect()->to('client/dashboard');
                 }
             }
         } elseif ($request->has('client_hash')) {
             if ($client = Client::where('client_hash', $request->input('client_hash'))->first()) {
-                Auth::guard('contact')->login($client->primary_contact()->first(), true);
+
+                $primary_contact = $client->primary_contact()->first();
+                
+                if(empty($primary_contact->email))
+                    $primary_contact->email = Str::random(6) . "@example.com"; $primary_contact->save();
+
+                    auth()->guard('contact')->login($primary_contact, true);
+
                 return redirect()->to('client/dashboard');
             }
         } elseif ($request->segment(2) && $request->segment(2) == 'magic_link' && $request->segment(3)) {
             $contact_email = Cache::get($request->segment(3));
             if($client_contact = ClientContact::where('email', $contact_email)->first()){
-                Auth::guard('contact')->login($client_contact, true);
+               
+                 if(empty($client_contact->email))
+                    $client_contact->email = Str::random(6) . "@example.com"; $client_contact->save();
+    
+                auth()->guard('contact')->login($client_contact, true);
 
                 if ($request->query('redirect') && !empty($request->query('redirect'))) {
                     return redirect()->to($request->query('redirect'));

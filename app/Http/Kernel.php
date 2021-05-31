@@ -16,6 +16,7 @@ use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\CheckClientExistence;
 use App\Http\Middleware\CheckForMaintenanceMode;
 use App\Http\Middleware\ClientPortalEnabled;
+use App\Http\Middleware\ContactAccount;
 use App\Http\Middleware\ContactKeyLogin;
 use App\Http\Middleware\ContactRegister;
 use App\Http\Middleware\ContactSetDb;
@@ -141,6 +142,7 @@ class Kernel extends HttpKernel
         'api_secret_check' => ApiSecretCheck::class,
         'contact_token_auth' => ContactTokenAuth::class,
         'contact_db' => ContactSetDb::class,
+        'contact_account' => ContactAccount::class,
         'domain_db' => SetDomainNameDb::class,
         'email_db' => SetEmailDb::class,
         'invite_db' => SetInviteDb::class,
@@ -182,5 +184,6 @@ class Kernel extends HttpKernel
         PasswordProtection::class,
         Locale::class,
         SubstituteBindings::class,
+        ContactAccount::class,
     ];
 }

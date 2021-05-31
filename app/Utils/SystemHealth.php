@@ -25,7 +25,7 @@ use Illuminate\Support\Facades\Queue;
 class SystemHealth
 {
     private static $extensions = [
-        'mysqli',
+        // 'mysqli',
         'gd',
         'curl',
         'zip',
@@ -34,7 +34,7 @@ class SystemHealth
         'mbstring',
         'xml',
         'bcmath',
-        'mysqlnd',
+        // 'mysqlnd',
         //'intl', //todo double check whether we need this for email dns validation
     ];
 

@@ -52,6 +52,6 @@ class ContactRegister
             return $next($request);
         }
 
-        return abort(404);
+        abort(404, 'ContactRegister Middlware');
     }
 }

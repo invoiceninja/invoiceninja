@@ -40,6 +40,10 @@ class ExportCompanyTest extends TestCase
         $this->makeTestData();
 
         $this->withoutExceptionHandling();
+
+        if (! config('ninja.testvars.stripe')) {
+            $this->markTestSkipped('Cannot write to TMP - skipping');
+        }
     }
 
     public function testCompanyExport()

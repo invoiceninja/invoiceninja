@@ -19,13 +19,11 @@ use Tests\TestCase;
 
 /**
  * @test
- * @covers  App\Utils\Traits\MakesReminders
  */
 class CheckRemindersTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
-    use MakesReminders;
 
     public function setUp() :void
     {
@@ -51,8 +49,10 @@ class CheckRemindersTest extends TestCase
         $settings->num_days_reminder3 = 1;
 
         $this->company->settings = $settings;
+        $this->company->save();
+
         $this->invoice->service()->markSent();
-        $this->invoice->setReminder($settings);
+        $this->invoice->service()->setReminder($settings)->save();
 
         $this->assertEquals(0, Carbon::now()->addDays(7)->diffInDays($this->invoice->next_send_date));
     }
@@ -75,7 +75,7 @@ class CheckRemindersTest extends TestCase
 
         $this->company->settings = $settings;
         $this->invoice->service()->markSent()->setStatus(Invoice::STATUS_PAID);
-        $this->invoice->setReminder($settings);
+        $this->invoice->service()->setReminder($settings)->save();
 
         $this->assertEquals($this->invoice->next_send_date, null);
     }
@@ -98,7 +98,7 @@ class CheckRemindersTest extends TestCase
 
         $this->company->settings = $settings;
         $this->invoice->service()->markSent();
-        $this->invoice->setReminder($settings);
+        $this->invoice->service()->setReminder($settings)->save();
 
         $this->assertEquals(0, Carbon::parse($this->invoice->due_date)->subDays(29)->diffInDays($this->invoice->next_send_date));
     }
@@ -118,7 +118,7 @@ class CheckRemindersTest extends TestCase
 
         $this->company->settings = $settings;
         $this->invoice->service()->markSent();
-        $this->invoice->setReminder($settings);
+        $this->invoice->service()->setReminder($settings)->save();
 
         $this->assertEquals(0, Carbon::parse($this->invoice->due_date)->addDays(1)->diffInDays($this->invoice->next_send_date));
     }
@@ -141,7 +141,7 @@ class CheckRemindersTest extends TestCase
 
         $this->company->settings = $settings;
         $this->invoice->service()->markSent();
-        $this->invoice->setReminder($settings);
+        $this->invoice->service()->setReminder($settings)->save();
 
         $this->assertEquals($this->invoice->next_send_date, null);
     }
@@ -164,7 +164,7 @@ class CheckRemindersTest extends TestCase
 
         $this->company->settings = $settings;
         $this->invoice->service()->markSent();
-        $this->invoice->setReminder($settings);
+        $this->invoice->service()->setReminder($settings)->save();
 
         $this->assertEquals($this->invoice->next_send_date, null);
     }
