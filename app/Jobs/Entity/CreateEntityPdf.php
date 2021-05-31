@@ -93,17 +93,19 @@ class CreateEntityPdf implements ShouldQueue
 
     public function handle()
     {
-        /* Set the locale*/
-        App::setLocale($this->contact->preferredLocale());
         
         /* Forget the singleton*/
         App::forgetInstance('translator');
 
         /* Init a new copy of the translator*/
         $t = app('translator');
+        /* Set the locale*/
+        App::setLocale($this->contact->preferredLocale());
+
+        // nlog($this->entity->client->getMergedSettings());
 
         /* Set customized translations _NOW_ */
-        Lang::replace(Ninja::transformTranslations($this->entity->client->getMergedSettings()));
+        $t->replace(Ninja::transformTranslations($this->entity->client->getMergedSettings()));
 
         $this->entity->service()->deletePdf();
 

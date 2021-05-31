@@ -34,7 +34,9 @@ class PortalComposer
         $view->with($this->portalData());
 
         if (auth()->user()) {
-            Lang::replace(Ninja::transformTranslations(auth()->user()->client->getMergedSettings()));
+            App::forgetInstance('translator');
+            $t = app('translator');
+            $t->replace(Ninja::transformTranslations(auth()->user()->client->getMergedSettings()));
         }
     }
 
