@@ -112,6 +112,7 @@ class Kernel extends HttpKernel
             VerifyCsrfToken::class,
             SubstituteBindings::class,
             QueryLogging::class,
+            Cors::class,
         ],
         'shop' => [
             'throttle:120,1',
