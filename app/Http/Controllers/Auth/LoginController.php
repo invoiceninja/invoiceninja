@@ -490,7 +490,7 @@ class LoginController extends BaseController
         if (request()->has('code')) {
             return $this->handleProviderCallback($provider);
         } else {
-            return Socialite::driver($provider)->scopes($scopes)->redirect();
+            return Socialite::driver($provider)->with(['redirect_uri' => "/auth/google"])->scopes($scopes)->redirect();
         }
     }
 
@@ -500,39 +500,41 @@ class LoginController extends BaseController
                                     ->stateless()
                                     ->user();
 
-        // if($user = OAuth::handleAuth($socialite_user, $provider))
-        // {
-        //     Auth::login($user, true);
+        if($user = OAuth::handleAuth($socialite_user, $provider))
+        {
+            Auth::login($user, true);
 
-        //     return redirect($this->redirectTo);
-        // }
-        // else if(MultiDB::checkUserEmailExists($socialite_user->getEmail()))
-        // {
-        //     Session::flash('error', 'User exists in system, but not with this authentication method'); //todo add translations
+            return redirect($this->redirectTo);
+        }
+        else if(MultiDB::checkUserEmailExists($socialite_user->getEmail()))
+        {
+            Session::flash('error', 'User exists in system, but not with this authentication method'); //todo add translations
 
-        //     return view('auth.login');
-        // }
-        // else {
-        //     //todo
-        //     $name = OAuth::splitName($socialite_user->getName());
+            return view('auth.login');
+        }
+        else {
+            //todo
+            $name = OAuth::splitName($socialite_user->getName());
 
-        //     $new_account = [
-        //         'first_name' => $name[0],
-        //         'last_name' => $name[1],
-        //         'password' => '',
-        //         'email' => $socialite_user->getEmail(),
-        //         'oauth_user_id' => $socialite_user->getId(),
-        //         'oauth_provider_id' => $provider
-        //     ];
+            $update_user = [
+                'first_name' => $name[0],
+                'last_name' => $name[1],
+                'password' => '',
+                'email' => $socialite_user->getEmail(),
+                'oauth_user_id' => $socialite_user->getId(),
+                'oauth_provider_id' => $providerm
+                'oauth_user_token' => $socialite_user->refreshToken,
+            ];
 
-        //     $account = CreateAccount::dispatchNow($new_account);
 
-        //     Auth::login($account->default_company->owner(), true);
+            // $account = CreateAccount::dispatchNow($new_account);
 
-        //     $cookie = cookie('db', $account->default_company->db);
+            // Auth::login($account->default_company->owner(), true);
 
-        //     return redirect($this->redirectTo)->withCookie($cookie);
-        // }
+            // $cookie = cookie('db', $account->default_company->db);
+
+            return redirect('/#/');
+        }
 
     }
 }
