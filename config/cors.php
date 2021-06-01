@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'paths' => ['api/*'],
+    'paths' => ['livewire/*'],
 
     'allowed_methods' => ['*'],
 

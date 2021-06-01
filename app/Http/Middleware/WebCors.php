@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Support\Facades\Response;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
-class Cors
+class WebCors
 {
     public function handle($request, Closure $next)
     {
@@ -24,7 +24,7 @@ class Cors
 
         $response = $next($request);
 
-        $response->headers->set('Access-Control-Allow-Origin', '*');
+        $response->headers->set('Access-Control-Allow-Origin', $request->getSchemeAndHttpHost());
         $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
         $response->headers->set('Access-Control-Allow-Headers', 'X-API-COMPANY-KEY,X-API-SECRET,X-API-TOKEN,X-API-PASSWORD,DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,X-CSRF-TOKEN,X-LIVEWIRE');
         $response->headers->set('Access-Control-Expose-Headers', 'X-APP-VERSION,X-MINIMUM-CLIENT-VERSION');

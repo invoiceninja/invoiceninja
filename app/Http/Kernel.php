@@ -41,6 +41,7 @@ use App\Http\Middleware\TrustProxies;
 use App\Http\Middleware\UrlSetDb;
 use App\Http\Middleware\UserVerified;
 use App\Http\Middleware\VerifyCsrfToken;
+use App\Http\Middleware\WebCors;
 use Illuminate\Auth\Middleware\AuthenticateWithBasicAuth;
 use Illuminate\Auth\Middleware\Authorize;
 use Illuminate\Auth\Middleware\EnsureEmailIsVerified;
@@ -70,8 +71,9 @@ class Kernel extends HttpKernel
         TrimStrings::class,
         ConvertEmptyStringsToNull::class,
         TrustProxies::class,
-        //\Fruitcake\Cors\HandleCors::class,
+        // \Fruitcake\Cors\HandleCors::class,
         Cors::class,
+        WebCors::class,
 
     ];
 
@@ -90,7 +92,7 @@ class Kernel extends HttpKernel
             VerifyCsrfToken::class,
             SubstituteBindings::class,
             QueryLogging::class,
-            Cors::class,
+            WebCors::class,
         ],
 
         'api' => [
