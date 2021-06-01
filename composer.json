@@ -30,7 +30,7 @@
         "ext-dom": "*",
         "ext-json": "*",
         "ext-libxml": "*",
-        "asm/php-ansible": "dev-master",
+        "asm/php-ansible": "dev-main",
         "authorizenet/authorizenet": "^2.0",
         "bacon/bacon-qr-code": "^2.0",
         "beganovich/snappdf": "^1.0",

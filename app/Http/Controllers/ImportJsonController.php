@@ -91,6 +91,6 @@ class ImportJsonController extends BaseController
         unlink($file_contents);
         unlink($file_location);
 
-        return $data
+        return $data;
     }
 }
