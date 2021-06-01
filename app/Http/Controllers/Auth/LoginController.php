@@ -38,6 +38,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
+use Laravel\Socialite\Facades\Socialite;
 use PragmaRX\Google2FA\Google2FA;
 use Turbo124\Beacon\Facades\LightLogs;
 
