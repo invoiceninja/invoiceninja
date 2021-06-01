@@ -522,7 +522,7 @@ class LoginController extends BaseController
                 'password' => '',
                 'email' => $socialite_user->getEmail(),
                 'oauth_user_id' => $socialite_user->getId(),
-                'oauth_provider_id' => $providerm
+                'oauth_provider_id' => $provider,
                 'oauth_user_token' => $socialite_user->refreshToken,
             ];
 
