@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Gateways\Checkout3ds;
 
 use App\Models\Client;
+use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\PaymentHash;
 use App\Utils\Traits\MakesHash;
@@ -34,18 +35,23 @@ class Checkout3dsRequest extends FormRequest
         ];
     }
 
+    public function getCompany()
+    {
+        return Company::where('company_key', $this->company_key)->first();
+    }
+
     public function getCompanyGateway()
     {
-        return CompanyGateway::findOrFail($this->decodePrimaryKey($this->company_gateway_id));
+        return CompanyGateway::find($this->decodePrimaryKey($this->company_gateway_id));
     }
 
     public function getPaymentHash()
     {
-        return PaymentHash::where('hash', $this->hash)->firstOrFail();
+        return PaymentHash::where('hash', $this->hash)->first();
     }
 
     public function getClient()
     {
-        return Client::findOrFail($this->getPaymentHash()->data->client_id);
+        return Client::find($this->getPaymentHash()->data->client_id);
     }
 }
