@@ -490,7 +490,7 @@ class LoginController extends BaseController
         if (request()->has('code')) {
             return $this->handleProviderCallback($provider);
         } else {
-            return Socialite::driver($provider)->with(['redirect_uri' => "/auth/google"])->scopes($scopes)->redirect();
+            return Socialite::driver($provider)->with(['redirect_uri' => config('ninja.app_url')."/auth/google"])->scopes($scopes)->redirect();
         }
     }
 
@@ -502,19 +502,8 @@ class LoginController extends BaseController
 
         if($user = OAuth::handleAuth($socialite_user, $provider))
         {
-            Auth::login($user, true);
 
-            return redirect($this->redirectTo);
-        }
-        else if(MultiDB::checkUserEmailExists($socialite_user->getEmail()))
-        {
-            Session::flash('error', 'User exists in system, but not with this authentication method'); //todo add translations
-
-            return view('auth.login');
-        }
-        else {
-            //todo
-            $name = OAuth::splitName($socialite_user->getName());
+            nlog('found user and updating their user record');
 
             $update_user = [
                 'first_name' => $name[0],
@@ -526,15 +515,13 @@ class LoginController extends BaseController
                 'oauth_user_token' => $socialite_user->refreshToken,
             ];
 
+            $user->update($update_user);
 
-            // $account = CreateAccount::dispatchNow($new_account);
-
-            // Auth::login($account->default_company->owner(), true);
-
-            // $cookie = cookie('db', $account->default_company->db);
-
-            return redirect('/#/');
+        }
+        else {
+            nlog("user not found for oauth");
         }
 
+        return redirect('/#/');
     }
 }
