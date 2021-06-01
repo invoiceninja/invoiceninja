@@ -244,6 +244,10 @@ class BaseDriver extends AbstractPaymentDriver
         if (property_exists($this->payment_hash->data, 'billing_context')) {
             $billing_subscription = \App\Models\Subscription::find($this->payment_hash->data->billing_context->subscription_id);
 
+            // To access campaign hash => $this->payment_hash->data->billing_context->campaign;
+            // To access campaign data => Cache::get(CAMPAIGN_HASH)
+            // To access utm data => session()->get('utm-' . CAMPAIGN_HASH);
+
             (new SubscriptionService($billing_subscription))->completePurchase($this->payment_hash);
         }
 
