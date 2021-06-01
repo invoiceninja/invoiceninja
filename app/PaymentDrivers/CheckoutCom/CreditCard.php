@@ -144,7 +144,7 @@ class CreditCard
         if ($this->checkout->client->currency()->code == 'EUR' || $this->checkout->company_gateway->getConfigField('threeds')) {
             $payment->{'3ds'} = ['enabled' => true];
 
-            $payment->{'success_url'} = route('payment_webhook', [
+            $payment->{'success_url'} = route('checkout.3ds_redirect', [
                 'company_key' => $this->checkout->client->company->company_key,
                 'company_gateway_id' => $this->checkout->company_gateway->hashed_id,
                 'hash' => $this->checkout->payment_hash->hash,

@@ -100,14 +100,15 @@ class PaymentWebhookRequest extends Request
     /**
      * Resolve client from payment hash.
      *
-     * @return null|\App\Models\Client
+     * @return null|\App\Models\Client|bool
      */
     public function getClient()
     {
         $hash = $this->getPaymentHash();
 
-        if($hash)
+        if($hash) {
             return Client::find($hash->data->client_id)->firstOrFail();
+        }
 
         return false;
     }

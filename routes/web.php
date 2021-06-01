@@ -37,3 +37,5 @@ Route::group(['middleware' => ['url_db']], function () {
 
 Route::get('stripe/signup/{token}', 'StripeConnectController@initialize')->name('stripe_connect.initialization');
 Route::get('stripe/completed', 'StripeConnectController@completed')->name('stripe_connect.return');
+
+Route::get('checkout/3ds_redirect/{company_key}/{company_gateway_id}/{hash}', 'Gateways\Checkout3dsController@index')->name('checkout.3ds_redirect');
