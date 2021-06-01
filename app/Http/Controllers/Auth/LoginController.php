@@ -38,6 +38,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
+use Laravel\Socialite\Facades\Socialite;
 use PragmaRX\Google2FA\Google2FA;
 use Turbo124\Beacon\Facades\LightLogs;
 
@@ -489,49 +490,37 @@ class LoginController extends BaseController
         if (request()->has('code')) {
             return $this->handleProviderCallback($provider);
         } else {
-            return Socialite::driver($provider)->scopes($scopes)->redirect();
+            return Socialite::driver($provider)->with(['redirect_uri' => config('ninja.app_url')."/auth/google"])->scopes($scopes)->redirect();
         }
     }
 
     public function handleProviderCallback(string $provider)
     {
         $socialite_user = Socialite::driver($provider)
-                                    ->stateless()
                                     ->user();
 
-        // if($user = OAuth::handleAuth($socialite_user, $provider))
-        // {
-        //     Auth::login($user, true);
+        if($user = OAuth::handleAuth($socialite_user, $provider))
+        {
 
-        //     return redirect($this->redirectTo);
-        // }
-        // else if(MultiDB::checkUserEmailExists($socialite_user->getEmail()))
-        // {
-        //     Session::flash('error', 'User exists in system, but not with this authentication method'); //todo add translations
+            nlog('found user and updating their user record');
 
-        //     return view('auth.login');
-        // }
-        // else {
-        //     //todo
-        //     $name = OAuth::splitName($socialite_user->getName());
+            $update_user = [
+                'first_name' => $name[0],
+                'last_name' => $name[1],
+                'password' => '',
+                'email' => $socialite_user->getEmail(),
+                'oauth_user_id' => $socialite_user->getId(),
+                'oauth_provider_id' => $provider,
+                'oauth_user_token' => $socialite_user->refreshToken,
+            ];
 
-        //     $new_account = [
-        //         'first_name' => $name[0],
-        //         'last_name' => $name[1],
-        //         'password' => '',
-        //         'email' => $socialite_user->getEmail(),
-        //         'oauth_user_id' => $socialite_user->getId(),
-        //         'oauth_provider_id' => $provider
-        //     ];
+            $user->update($update_user);
 
-        //     $account = CreateAccount::dispatchNow($new_account);
+        }
+        else {
+            nlog("user not found for oauth");
+        }
 
-        //     Auth::login($account->default_company->owner(), true);
-
-        //     $cookie = cookie('db', $account->default_company->db);
-
-        //     return redirect($this->redirectTo)->withCookie($cookie);
-        // }
-
+        return redirect('/#/');
     }
 }

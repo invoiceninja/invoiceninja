@@ -34,9 +34,9 @@ class SystemHealthTest extends TestCase
 
         $this->assertTrue((bool) $results['system_health']);
 
-        $this->assertTrue($results['extensions'][0]['mysqli']);
-        $this->assertTrue($results['extensions'][1]['gd']);
-        $this->assertTrue($results['extensions'][2]['curl']);
-        $this->assertTrue($results['extensions'][3]['zip']);
+        // $this->assertTrue($results['extensions'][0]['mysqli']);
+        $this->assertTrue($results['extensions'][0]['gd']);
+        $this->assertTrue($results['extensions'][1]['curl']);
+        $this->assertTrue($results['extensions'][2]['zip']);
     }
 }

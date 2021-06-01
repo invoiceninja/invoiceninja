@@ -13,6 +13,7 @@ namespace App\Http\ViewComposers;
 
 use App\Utils\Ninja;
 use App\Utils\TranslationHelper;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\View\View;
 
@@ -34,7 +35,9 @@ class PortalComposer
         $view->with($this->portalData());
 
         if (auth()->user()) {
-            Lang::replace(Ninja::transformTranslations(auth()->user()->client->getMergedSettings()));
+            App::forgetInstance('translator');
+            $t = app('translator');
+            $t->replace(Ninja::transformTranslations(auth()->user()->client->getMergedSettings()));
         }
     }
 

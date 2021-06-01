@@ -25,6 +25,7 @@ use App\Models\RecurringInvoice;
 use App\Models\RecurringInvoiceInvitation;
 use App\Models\User;
 use App\Models\VendorContact;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -121,7 +122,7 @@ class CompanyExport implements ShouldQueue
             $user->account_id = $this->encodePrimaryKey($user->account_id);
             // $user->id = $this->encodePrimaryKey($user->id);
 
-            return $user;
+            return $user->makeVisible(['id']);
 
         })->all();
 
@@ -205,26 +206,27 @@ class CompanyExport implements ShouldQueue
             $credit = $this->transformBasicEntities($credit);
             $credit = $this->transformArrayOfKeys($credit, ['recurring_id','client_id', 'vendor_id', 'project_id', 'design_id', 'subscription_id','invoice_id']);
 
-            return $credit;
+            return $credit->makeVisible(['id']);
 
         })->all();
 
 
         $this->export_data['credit_invitations'] = CreditInvitation::where('company_id', $this->company->id)->withTrashed()->cursor()->map(function ($credit){
 
-            $credit = $this->transformArrayOfKeys($credit, ['company_id', 'user_id', 'client_contact_id', 'recurring_invoice_id']);
+            $credit = $this->transformArrayOfKeys($credit, ['company_id', 'user_id', 'client_contact_id', 'credit_id']);
 
-            return $credit;
+            return $credit->makeVisible(['id']);
 
         })->all();
 
         $this->export_data['designs'] = $this->company->user_designs->makeHidden(['id'])->all();
 
-        $this->export_data['documents'] = $this->company->documents->map(function ($document){
+        $this->export_data['documents'] = $this->company->all_documents->map(function ($document){
 
-            $document = $this->transformArrayOfKeys($document, ['user_id', 'assigned_user_id', 'company_id', 'project_id', 'vendor_id']);
+            $document = $this->transformArrayOfKeys($document, ['user_id', 'assigned_user_id', 'company_id', 'project_id', 'vendor_id','documentable_id']);
+            $document->hashed_id = $this->encodePrimaryKey($document->id);
 
-            return $document;
+            return $document->makeVisible(['id']);
 
         })->all();
 
@@ -232,7 +234,7 @@ class CompanyExport implements ShouldQueue
 
             $expense_category = $this->transformArrayOfKeys($expense_category, ['user_id', 'company_id']);
             
-            return $expense_category;
+            return $expense_category->makeVisible(['id']);
 
         })->all();
 
@@ -242,7 +244,7 @@ class CompanyExport implements ShouldQueue
             $expense = $this->transformBasicEntities($expense);
             $expense = $this->transformArrayOfKeys($expense, ['vendor_id', 'invoice_id', 'client_id', 'category_id', 'recurring_expense_id','project_id']);
 
-            return $expense;
+            return $expense->makeVisible(['id']);
 
         })->all();
 
@@ -250,7 +252,7 @@ class CompanyExport implements ShouldQueue
 
             $gs = $this->transformArrayOfKeys($gs, ['user_id', 'company_id']);
 
-            return $gs;
+            return $gs->makeVisible(['id']);
 
         })->all();
 
@@ -260,16 +262,20 @@ class CompanyExport implements ShouldQueue
             $invoice = $this->transformBasicEntities($invoice);
             $invoice = $this->transformArrayOfKeys($invoice, ['recurring_id','client_id', 'vendor_id', 'project_id', 'design_id', 'subscription_id']);
 
-            return $invoice;
+            return $invoice->makeVisible(['id',
+                                        'private_notes',
+                                        'user_id',
+                                        'client_id',
+                                        'company_id',]);
 
         })->all();
 
 
         $this->export_data['invoice_invitations'] = InvoiceInvitation::where('company_id', $this->company->id)->withTrashed()->cursor()->map(function ($invoice){
 
-            $invoice = $this->transformArrayOfKeys($invoice, ['company_id', 'user_id', 'client_contact_id', 'recurring_invoice_id']);
+            $invoice = $this->transformArrayOfKeys($invoice, ['company_id', 'user_id', 'client_contact_id', 'invoice_id']);
 
-            return $invoice;
+            return $invoice->makeVisible(['id']);
 
         })->all();
 
@@ -281,18 +287,13 @@ class CompanyExport implements ShouldQueue
 
         })->makeHidden(['id'])->all();
 
-        $this->export_data['paymentables'] = $this->company->payments()->with('paymentables')->cursor()->map(function ($paymentable){
-
-            $paymentable = $this->transformArrayOfKeys($paymentable, ['payment_id','paymentable_id']);
-
-            return $paymentable;
-
-        })->all();
 
         $this->export_data['payments'] = $this->company->payments->map(function ($payment){
 
             $payment = $this->transformBasicEntities($payment);
             $payment = $this->transformArrayOfKeys($payment, ['client_id','project_id', 'vendor_id', 'client_contact_id', 'invitation_id', 'company_gateway_id']);
+
+            $payment->paymentables = $this->transformPaymentable($payment);
 
             return $payment->makeVisible(['id']);
             
@@ -312,7 +313,7 @@ class CompanyExport implements ShouldQueue
             $project = $this->transformBasicEntities($project);
             $project = $this->transformArrayOfKeys($project, ['client_id']);
 
-            return $project;
+            return $project->makeVisible(['id']);
 
         })->all();
 
@@ -321,25 +322,26 @@ class CompanyExport implements ShouldQueue
             $quote = $this->transformBasicEntities($quote);
             $quote = $this->transformArrayOfKeys($quote, ['invoice_id','recurring_id','client_id', 'vendor_id', 'project_id', 'design_id', 'subscription_id']);
 
-            return $quote;
+            return $quote->makeVisible(['id']);
 
         })->all();
 
 
         $this->export_data['quote_invitations'] = QuoteInvitation::where('company_id', $this->company->id)->withTrashed()->cursor()->map(function ($quote){
 
-            $quote = $this->transformArrayOfKeys($quote, ['company_id', 'user_id', 'client_contact_id', 'recurring_invoice_id']);
+            $quote = $this->transformArrayOfKeys($quote, ['company_id', 'user_id', 'client_contact_id', 'quote_id']);
 
-            return $quote;
+            return $quote->makeVisible(['id']);
 
         })->all();
 
 
-        $this->export_data['recurring_invoices'] = $this->company->recurring_invoices->map(function ($ri){
+        $this->export_data['recurring_invoices'] = $this->company->recurring_invoices->makeVisible(['id'])->map(function ($ri){
 
             $ri = $this->transformBasicEntities($ri);
             $ri = $this->transformArrayOfKeys($ri, ['client_id', 'vendor_id', 'project_id', 'design_id', 'subscription_id']);
-            return $ri;
+            
+            return $ri->makeVisible(['id']);
 
         })->all();
 
@@ -357,7 +359,13 @@ class CompanyExport implements ShouldQueue
             $subscription = $this->transformBasicEntities($subscription);
             $subscription->group_id = $this->encodePrimaryKey($subscription->group_id);
 
-            return $subscription;
+            return $subscription->makeVisible([ 'id',
+                                                'user_id',
+                                                'assigned_user_id',
+                                                'company_id',
+                                                'product_ids',
+                                                'recurring_product_ids',
+                                                'group_id']);
 
         })->all();
 
@@ -376,7 +384,7 @@ class CompanyExport implements ShouldQueue
             $task = $this->transformBasicEntities($task);
             $task = $this->transformArrayOfKeys($task, ['client_id', 'invoice_id', 'project_id', 'status_id']);
 
-            return $task;
+            return $task->makeVisible(['id']);
 
         })->all();
 
@@ -401,7 +409,7 @@ class CompanyExport implements ShouldQueue
 
         $this->export_data['vendors'] = $this->company->vendors->map(function ($vendor){
 
-            return $this->transformBasicEntities($vendor);
+            return $this->transformBasicEntities($vendor)->makeVisible(['id']);
 
         })->all();
 
@@ -411,7 +419,7 @@ class CompanyExport implements ShouldQueue
             $vendor = $this->transformBasicEntities($vendor);
             $vendor->vendor_id = $this->encodePrimaryKey($vendor->vendor_id);
 
-            return $vendor;
+            return $vendor->makeVisible(['id']);
 
         })->all();
 
@@ -425,7 +433,7 @@ class CompanyExport implements ShouldQueue
         })->makeHidden(['id'])->all();
 
         //write to tmp and email to owner();
-
+        
         $this->zipAndSend();  
 
         return true;      
@@ -434,7 +442,7 @@ class CompanyExport implements ShouldQueue
     private function transformBasicEntities($model)
     {
 
-        return $this->transformArrayOfKeys($model, ['id', 'user_id', 'assigned_user_id', 'company_id']);
+        return $this->transformArrayOfKeys($model, ['user_id', 'assigned_user_id', 'company_id']);
 
     }
 
@@ -446,6 +454,24 @@ class CompanyExport implements ShouldQueue
         }
 
         return $model;
+
+    }
+
+    private function transformPaymentable($payment)
+    {
+
+        $new_arr = [];
+
+        foreach($payment->paymentables as $paymentable)
+        {
+
+            $paymentable->payment_id = $this->encodePrimaryKey($paymentable->payment_id);
+            $paymentable->paymentable_id = $this->encodePrimaryKey($paymentable->paymentable_id);
+
+            $new_arr[] = $paymentable;
+        }
+
+        return $new_arr;
 
     }
 
@@ -464,6 +490,10 @@ class CompanyExport implements ShouldQueue
         $zip->addFromString("backup.json", json_encode($this->export_data));
         $zip->close();
 
+        if(Ninja::isHosted()) {
+            Storage::disk(config('filesystems.default'))->put('backups/'.$file_name, file_get_contents($zip_path));
+        }
+
         $nmo = new NinjaMailerObject;
         $nmo->mailable = new DownloadBackup(Storage::disk(config('filesystems.default'))->url('backups/'.$file_name), $this->company);
         $nmo->to_user = $this->user;
@@ -473,6 +503,7 @@ class CompanyExport implements ShouldQueue
         NinjaMailerJob::dispatch($nmo);
 
         UnlinkFile::dispatch(config('filesystems.default'), 'backups/'.$file_name)->delay(now()->addHours(1));
+        UnlinkFile::dispatch('public', 'backups/'.$file_name)->delay(now()->addHours(1));
     }
 
 }

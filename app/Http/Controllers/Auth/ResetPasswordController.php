@@ -12,6 +12,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Account;
 use Illuminate\Foundation\Auth\ResetsPasswords;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -52,7 +53,10 @@ class ResetPasswordController extends Controller
 
     public function showResetForm(Request $request, $token = null)
     {
-        return $this->render('auth.passwords.reset', ['root' => 'themes', 'token' => $token]);
+        $account_id = $request->get('account_id');
+        $account = Account::find($account_id);
+        
+        return $this->render('auth.passwords.reset', ['root' => 'themes', 'token' => $token, 'account' => $account]);
     }
 
     /**

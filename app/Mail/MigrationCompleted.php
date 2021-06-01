@@ -41,8 +41,8 @@ class MigrationCompleted extends Mailable
         $result = $this->from(config('mail.from.address'), config('mail.from.name'))
                     ->view('email.import.completed', $data);
 
-        if($this->company->invoices->count() >=1)
-            $result->attach($this->company->invoices->first()->pdf_file_path());
+        // if($this->company->invoices->count() >=1)
+        //     $result->attach($this->company->invoices->first()->pdf_file_path());
 
         return $result;
     }

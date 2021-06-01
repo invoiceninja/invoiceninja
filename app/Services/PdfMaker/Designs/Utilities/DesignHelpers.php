@@ -321,10 +321,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
     public static function parseMarkdownToHtml(string $markdown): ?string
     {
+        // Use setting to determinate if parsing should be done.
+        // 'parse_markdown_on_pdfs'
+
         $converter = new CommonMarkConverter([
             'allow_unsafe_links' => false,
         ]);
 
         return $converter->convertToHtml($markdown);
+    }
+
+    public function processMarkdownOnLineItems(array &$items)
+    {
+        // Use setting to determinate if parsing should be done.
+        // 'parse_markdown_on_pdfs'
+
+        foreach ($items as $key => $item) {
+            foreach ($item as $variable => $value) {
+                $item[$variable] = DesignHelpers::parseMarkdownToHtml($value ?? '');
+            }
+
+            $items[$key] = $item;
+        }
     }
 }

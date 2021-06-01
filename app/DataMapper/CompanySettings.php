@@ -68,7 +68,7 @@ class CompanySettings extends BaseSettings
     public $inclusive_taxes = false; //@implemented
     public $quote_footer = ''; //@implmented
 
-    public $translations; //@TODO not used anywhere
+    public $translations; 
 
     public $counter_number_applied = 'when_saved'; // when_saved , when_sent //@implemented
     public $quote_number_applied = 'when_saved'; // when_saved , when_sent //@implemented
@@ -245,8 +245,8 @@ class CompanySettings extends BaseSettings
 
     public $hide_paid_to_date = false; //@TODO where?
     public $embed_documents = false; //@TODO where?
-    public $all_pages_header = false; //@implemented
-    public $all_pages_footer = false; //@implemented
+    public $all_pages_header = false; //@deprecated 31-05-2021
+    public $all_pages_footer = false; //@deprecated 31-05-2021
     public $pdf_variables = ''; //@implemented
 
     public $portal_custom_head = ''; //@TODO @BEN
