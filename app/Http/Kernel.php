@@ -41,7 +41,6 @@ use App\Http\Middleware\TrustProxies;
 use App\Http\Middleware\UrlSetDb;
 use App\Http\Middleware\UserVerified;
 use App\Http\Middleware\VerifyCsrfToken;
-use App\Http\Middleware\WebCors;
 use Illuminate\Auth\Middleware\AuthenticateWithBasicAuth;
 use Illuminate\Auth\Middleware\Authorize;
 use Illuminate\Auth\Middleware\EnsureEmailIsVerified;
@@ -73,7 +72,6 @@ class Kernel extends HttpKernel
         TrustProxies::class,
         // \Fruitcake\Cors\HandleCors::class,
         Cors::class,
-        WebCors::class,
 
     ];
 
@@ -87,12 +85,10 @@ class Kernel extends HttpKernel
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
             StartSession::class,
-            // \Illuminate\Session\Middleware\AuthenticateSession::class,
             ShareErrorsFromSession::class,
             VerifyCsrfToken::class,
             SubstituteBindings::class,
             QueryLogging::class,
-            WebCors::class,
         ],
 
         'api' => [
@@ -167,6 +163,7 @@ class Kernel extends HttpKernel
 
 
     protected $middlewarePriority = [
+        Cors::class,
         SetDomainNameDb::class,
         SetDb::class,
         SetWebDb::class,

@@ -44,7 +44,7 @@ class SchedulerCheck implements ShouldQueue
         {
 
              try {
-                Artisan::call('migrate', ['--force' => true]);
+                Artisan::call('migrate', ['--force' => 'true']);
             } catch (\Exception $e) {
                 nlog("I wasn't able to migrate the data.");
                 nlog($e->getMessage());
