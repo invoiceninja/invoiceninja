@@ -91,14 +91,15 @@
         overflow-wrap: break-word;
     }
 
-    h3 {
+    h3, .task-time-details {
         display: block;
         margin-top: 5px;
         color: grey;
         font-weight: normal;
         font-size: 100% !important;
-    } /** Backwards compatibilty with version 4. */
-    
+    } /** Backwards compatibility with version 4. */
+
+
     #product-table > thead,
     #delivery-note-table > thead,
     #task-table > thead {
@@ -227,7 +228,7 @@
 
 <div id="footer">
     <p data-ref="total_table-footer">$entity_footer</p>
-    
+
     <script>
         // Clear up space a bit, if [product-table, tasks-table, delivery-note-table] isn't present.
         document.addEventListener('DOMContentLoaded', () => {
