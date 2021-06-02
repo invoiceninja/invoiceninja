@@ -65,12 +65,12 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $middleware = [
-        \Fruitcake\Cors\HandleCors::class,
         CheckForMaintenanceMode::class,
         ValidatePostSize::class,
         TrimStrings::class,
         ConvertEmptyStringsToNull::class,
         TrustProxies::class,
+        // \Fruitcake\Cors\HandleCors::class,
         Cors::class,
 
     ];
@@ -105,6 +105,7 @@ class Kernel extends HttpKernel
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
             StartSession::class,
+            // \Illuminate\Session\Middleware\AuthenticateSession::class,
             ShareErrorsFromSession::class,
             VerifyCsrfToken::class,
             SubstituteBindings::class,
@@ -162,9 +163,6 @@ class Kernel extends HttpKernel
 
     protected $middlewarePriority = [
         Cors::class,
-        AddQueuedCookiesToResponse::class,
-        VerifyCsrfToken::class,
-        StartSession::class,
         SetDomainNameDb::class,
         SetDb::class,
         SetWebDb::class,
