@@ -40,8 +40,10 @@ class ContactKeyLogin
         }
 
         if ($request->segment(2) && $request->segment(2) == 'magic_link' && $request->segment(3)) {
-            $contact_email = Cache::get($request->segment(3));
-            if($client_contact = ClientContact::where('email', $contact_email)->first()){
+            $payload = Cache::get($request->segment(3));
+            $contact_email = $payload['email'];
+            
+            if($client_contact = ClientContact::where('email', $contact_email)->where('company_id', $payload['company_id'])->first()){
                
                  if(empty($client_contact->email))
                     $client_contact->email = Str::random(6) . "@example.com"; $client_contact->save();
