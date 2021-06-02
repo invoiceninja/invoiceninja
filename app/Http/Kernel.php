@@ -101,6 +101,7 @@ class Kernel extends HttpKernel
             'throttle:60,1',
             'bindings',
             'query_logging',
+            Cors::class,
         ],
         'client' => [
             EncryptCookies::class,
@@ -111,6 +112,7 @@ class Kernel extends HttpKernel
             VerifyCsrfToken::class,
             SubstituteBindings::class,
             QueryLogging::class,
+            Cors::class,
         ],
         'shop' => [
             'throttle:120,1',
@@ -125,6 +127,7 @@ class Kernel extends HttpKernel
             ShareErrorsFromSession::class,
             SubstituteBindings::class,
             QueryLogging::class,
+            // VerifyCsrfToken::class,
         ],
     ];
 
@@ -194,5 +197,6 @@ class Kernel extends HttpKernel
         Locale::class,
         SubstituteBindings::class,
         ContactAccount::class,
+        VerifyCsrfToken::class,
     ];
 }
