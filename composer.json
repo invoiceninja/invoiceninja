@@ -43,6 +43,7 @@
         "doctrine/dbal": "^2.10",
         "fakerphp/faker": "^1.14",
         "fideloper/proxy": "^4.2",
+        "fruitcake/laravel-cors": "^2.0",
         "google/apiclient": "^2.7",
         "guzzlehttp/guzzle": "^7.0.1",
         "hashids/hashids": "^4.0",
