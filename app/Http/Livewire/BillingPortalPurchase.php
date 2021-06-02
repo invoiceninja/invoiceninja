@@ -14,11 +14,12 @@ namespace App\Http\Livewire;
 use App\Factory\ClientFactory;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
+use App\Libraries\MultiDB;
 use App\Mail\ContactPasswordlessLogin;
 use App\Models\Client;
-use App\Models\Subscription;
 use App\Models\ClientContact;
 use App\Models\Invoice;
+use App\Models\Subscription;
 use App\Repositories\ClientContactRepository;
 use App\Repositories\ClientRepository;
 use Illuminate\Support\Facades\App;
@@ -163,6 +164,13 @@ class BillingPortalPurchase extends Component
     public $passwordless_login_btn = false;
 
     /**
+     * Instance of company.
+     *
+     * @var Company
+     */
+    public $company
+
+    /**
      * Campaign reference.
      *
      * @var string|null
@@ -171,6 +179,8 @@ class BillingPortalPurchase extends Component
 
     public function mount()
     {
+        MultiDB::setDb($this->company->db);
+
         $this->price = $this->subscription->price;
 
         if (request()->query('coupon')) {
@@ -444,7 +454,7 @@ class BillingPortalPurchase extends Component
             ->first();
 
         $mailer = new NinjaMailerObject();
-        $mailer->mailable = new ContactPasswordlessLogin($this->email, (string)route('client.subscription.purchase', $this->subscription->hashed_id) . '?coupon=' . $this->coupon);
+        $mailer->mailable = new ContactPasswordlessLogin($this->email, $this->subscription->company->id, (string)route('client.subscription.purchase', $this->subscription->hashed_id) . '?coupon=' . $this->coupon);
         $mailer->company = $this->subscription->company;
         $mailer->settings = $this->subscription->company->settings;
         $mailer->to_user = $contact;
