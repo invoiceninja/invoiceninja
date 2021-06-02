@@ -54,8 +54,9 @@ return [
     |
     */
 
-    'asset_url' => env('ASSETS_URL', config('app.url')),
+    //'asset_url' => env('ASSETS_URL', config('app.url')),
 
+     'asset_url' => '',
     /*
     |--------------------------------------------------------------------------
     | Livewire Endpoint Middleware Group
