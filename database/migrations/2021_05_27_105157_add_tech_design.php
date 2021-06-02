@@ -14,12 +14,27 @@ class AddTechDesign extends Migration
     public function up()
     {
         if (Ninja::isHosted()) {
-            return Design::create(['id' => 10, 'name' => 'Tech', 'user_id' => null, 'company_id' => null, 'is_custom' => false, 'design' => '', 'is_active' => true]);
+            $design = new Design();
+
+            $design->id = 10;
+            $design->name = 'Tech';
+            $design->is_custom = false;
+            $design->design = '';
+            $design->is_active = true;
+
+            $design->save();
+        } elseif (Design::count() !== 0) {
+            $design = new Design();
+
+            $design->name = 'Tech';
+            $design->is_custom = false;
+            $design->design = '';
+            $design->is_active = true;
+
+            $design->save();
         }
 
-        if (Design::count() !== 0) {
-            return Design::create(['name' => 'Tech', 'user_id' => null, 'company_id' => null, 'is_custom' => false, 'design' => '', 'is_active' => true]);
-        }
+        \Illuminate\Support\Facades\Artisan::call('ninja:design-update');
     }
 
     /**
