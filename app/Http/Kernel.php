@@ -117,6 +117,15 @@ class Kernel extends HttpKernel
             'bindings',
             'query_logging',
         ],
+        'livewire' => [
+            Cors::class,
+            EncryptCookies::class,
+            AddQueuedCookiesToResponse::class,
+            StartSession::class,
+            ShareErrorsFromSession::class,
+            SubstituteBindings::class,
+            QueryLogging::class,
+        ],
     ];
 
     /**
