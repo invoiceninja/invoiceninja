@@ -27,6 +27,7 @@ class ContactPasswordlessLogin extends Mailable
      */
     public $email;
 
+    public $url;
     /**
      * Create a new message instance.
      *
