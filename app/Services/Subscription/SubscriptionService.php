@@ -317,7 +317,7 @@ class SubscriptionService
 
         $days_in_frequency = $this->getDaysInFrequency();
 
-        nlog("days to charge = {$days_to_charge} fays in frequency = {$days_in_frequency}");
+        nlog("days to charge = {$days_to_charge} days in frequency = {$days_in_frequency}");
 
         $pro_rata_charge = round(($days_to_charge/$days_in_frequency) * $invoice->amount ,2);
 
@@ -631,7 +631,7 @@ class SubscriptionService
     public function triggerWebhook($context)
     {
         if (empty($this->subscription->webhook_configuration['post_purchase_url']) || empty($this->subscription->webhook_configuration['post_purchase_rest_method'])) {
-            return true;
+            return ['status_code' => 200];
         }
 
         $response = false;
