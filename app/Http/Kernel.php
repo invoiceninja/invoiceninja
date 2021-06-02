@@ -125,6 +125,7 @@ class Kernel extends HttpKernel
             ShareErrorsFromSession::class,
             SubstituteBindings::class,
             QueryLogging::class,
+            VerifyCsrfToken::class,
         ],
     ];
 
@@ -194,5 +195,6 @@ class Kernel extends HttpKernel
         Locale::class,
         SubstituteBindings::class,
         ContactAccount::class,
+        VerifyCsrfToken::class,
     ];
 }
