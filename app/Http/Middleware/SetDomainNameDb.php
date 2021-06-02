@@ -86,6 +86,7 @@ class SetDomainNameDb
 
         }
 
+        config(['app.url' => $request->getSchemeAndHttpHost()]);
 
         return $next($request);
     }
