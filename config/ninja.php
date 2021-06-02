@@ -152,6 +152,7 @@ return [
     'ninja_stripe_client_id' => env('NINJA_STRIPE_CLIENT_ID', null),
     'ninja_default_company_id' => env('NINJA_COMPANY_ID', null),
     'ninja_default_company_gateway_id' => env('NINJA_COMPANY_GATEWAY_ID', null),
+    'ninja_hosted_secret' => env('NINJA_HOSTED_SECRET', null),
     'pdf_generator' => env('PDF_GENERATOR', false),
     'internal_queue_enabled' => env('INTERNAL_QUEUE_ENABLED', true),
 ];
