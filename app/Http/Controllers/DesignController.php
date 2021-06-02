@@ -25,6 +25,7 @@ use App\Transformers\DesignTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Str;
 
 /**
  * Class DesignController.
@@ -412,6 +413,7 @@ class DesignController extends BaseController
     {
         //may not need these destroy routes as we are using actions to 'archive/delete'
         $design->is_deleted = true;
+        $design->name = $design->name . "_deleted_" . Str::random(5);
         $design->delete();
         $design->save();
 
