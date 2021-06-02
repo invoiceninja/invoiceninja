@@ -13,7 +13,7 @@ Route::post('client/register/{company_key?}', 'Auth\ContactRegisterController@re
 Route::get('client/password/reset', 'Auth\ContactForgotPasswordController@showLinkRequestForm')->name('client.password.request')->middleware(['domain_db', 'contact_account','locale']);
 Route::post('client/password/email', 'Auth\ContactForgotPasswordController@sendResetLinkEmail')->name('client.password.email')->middleware('locale');
 Route::get('client/password/reset/{token}', 'Auth\ContactResetPasswordController@showResetForm')->name('client.password.reset')->middleware(['domain_db', 'contact_account','locale']);
-Route::post('client/password/reset', 'Auth\ContactResetPasswordController@reset')->name('client.password.update')->middleware('locale');
+Route::post('client/password/reset', 'Auth\ContactResetPasswordController@reset')->name('client.password.update')->middleware(['domain_db', 'contact_account','locale']);
 
 Route::get('view/{entity_type}/{invitation_key}', 'ClientPortal\EntityViewController@index')->name('client.entity_view');
 Route::get('view/{entity_type}/{invitation_key}/password', 'ClientPortal\EntityViewController@password')->name('client.entity_view.password');
