@@ -631,7 +631,7 @@ class SubscriptionService
     public function triggerWebhook($context)
     {
         if (empty($this->subscription->webhook_configuration['post_purchase_url']) || empty($this->subscription->webhook_configuration['post_purchase_rest_method'])) {
-            return ['status_code' => 200];
+            return ["message" => "Success", "status_code" => 200];
         }
 
         $response = false;
@@ -652,10 +652,7 @@ class SubscriptionService
         }
         else {
 
-            $status = $response->getStatusCode();
-
-            //$response_body = $response->getReasonPhrase();
-            //$body = array_merge($body, ['status' => $status, 'response_body' => $response_body]);
+            $body = $response->getStatusCode();
 
         }
 
