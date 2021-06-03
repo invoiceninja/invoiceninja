@@ -168,7 +168,7 @@ class BillingPortalPurchase extends Component
      *
      * @var Company
      */
-    public $company
+    public $company;
 
     /**
      * Campaign reference.
