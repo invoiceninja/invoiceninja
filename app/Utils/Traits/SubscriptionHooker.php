@@ -40,7 +40,7 @@ trait  SubscriptionHooker
                 RequestOptions::JSON => ['body' => $body], RequestOptions::ALLOW_REDIRECTS => false
             ]);
 
-            return json_decode($response->getBody(),true));
+            return json_decode($response->getBody(),true);
         }
         catch(\Exception $e)
         {
