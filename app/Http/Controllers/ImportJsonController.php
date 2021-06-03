@@ -56,7 +56,7 @@ class ImportJsonController extends BaseController
      *       ),
      *     )
      */
-    public function index(ImportJsonRequest $request)
+    public function import(ImportJsonRequest $request)
     {
 
         $import_file = $request->file('files');
