@@ -36,6 +36,7 @@ use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Illuminate\Validation\ValidationException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -50,6 +51,7 @@ class Handler extends ExceptionHandler
         //Swift_TransportException::class,
         MaxAttemptsExceededException::class,
         CommandNotFoundException::class,
+        ValidationException::class,
     ];
 
     /**

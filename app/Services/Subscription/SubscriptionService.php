@@ -667,7 +667,10 @@ class SubscriptionService
                 $client->company,
             );
 
-        return $response;
+        if(is_array($body))
+          return $response;
+        else
+          return ['message' => 'There was a problem encountered with the webhook', 'status_code' => 500];
 
     }
 
