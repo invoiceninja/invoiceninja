@@ -1115,10 +1115,14 @@ class CompanyImport implements ShouldQueue
             return null;
 
         if (! array_key_exists($resource, $this->ids)) {
+            nlog($this->ids);
+            nlog($this->backup_file->payments);
             throw new \Exception("Resource {$resource} not available.");
         }
 
         if (! array_key_exists("{$old}", $this->ids[$resource])) {
+            nlog($this->ids);
+            nlog($this->backup_file->payments);
             throw new \Exception("Missing {$resource} key: {$old}");
         }
 
