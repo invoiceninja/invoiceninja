@@ -79,7 +79,6 @@ class CreateAccount
 
         $sp035a66 = CreateCompany::dispatchNow($this->request, $sp794f3f);
         $sp035a66->load('account');
-        $sp035a66->settings = $this->processSettings($sp035a66->settings);
         $sp794f3f->default_company_id = $sp035a66->id;
         $sp794f3f->save();
 
