@@ -116,11 +116,12 @@ class CreateAccount
 
     private function processSettings($settings)
     {
-        if(Ninja::isHosted() && Cache::get('currencies') && $data = unserialize(@file_get_contents('http://www.geoplugin.net/php.gp?ip=' . $this->client_ip)))
+        if(Ninja::isHosted() && Cache::get('currencies'))
         {
 
-            $currency_code = strtolower($data['geoplugin_currencyCode']);
-            $country_code = strtolower($data['geoplugin_countryCode']);
+            //&& $data = unserialize(@file_get_contents('http://www.geoplugin.net/php.gp?ip=' . $this->client_ip))
+            // $currency_code = strtolower($data['geoplugin_currencyCode']);
+            // $country_code = strtolower($data['geoplugin_countryCode']);
 
             $currency = Cache::get('currencies')->filter(function ($item) use ($currency_code) {
                 return strtolower($item->code) == $currency_code;
@@ -146,7 +147,7 @@ class CreateAccount
                 $settings->language_id = (string)$language->id;
             }
 
-            $timezone = Timezone::where('name', $data['geoplugin_timezone'])->first();
+            //$timezone = Timezone::where('name', $data['geoplugin_timezone'])->first();
 
             if($timezone) {
                 $settings->timezone_id = (string)$timezone->id;
