@@ -40,6 +40,7 @@ use App\Models\Payment;
 use App\Models\PaymentTerm;
 use App\Models\Paymentable;
 use App\Models\Product;
+use App\Models\Project;
 use App\Models\Quote;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoice;
@@ -59,6 +60,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use ZipArchive;
@@ -150,14 +152,15 @@ class CompanyImport implements ShouldQueue
         if ( empty( $this->backup_file ) ) 
             throw new \Exception('No import data found, has the cache expired?');
         
-        $this->backup_file = base64_decode($this->backup_file);
+        $this->backup_file = json_decode(base64_decode($this->backup_file));
 
+        // nlog($this->backup_file);
 
-        if(array_key_exists('import_settings', $request) && $request['import_settings'] == 'true') {
+        if(array_key_exists('import_settings', $this->request_array) && $this->request_array['import_settings'] == 'true') {
             $this->preFlightChecks()->importSettings();
         }
 
-        if(array_key_exists('import_data', $request) && $request['import_data'] == 'true') {
+        if(array_key_exists('import_data', $this->request_array) && $this->request_array['import_data'] == 'true') {
 
             $this->preFlightChecks()
                  ->purgeCompanyData()
@@ -177,7 +180,6 @@ class CompanyImport implements ShouldQueue
     private function preFlightChecks()
     {
     	//check the file version and perform any necessary adjustments to the file in order to proceed - needed when we change schema
-    	
     	if($this->current_app_version != $this->backup_file->app_version)
         {
             //perform some magic here
@@ -328,8 +330,8 @@ class CompanyImport implements ShouldQueue
     {
 
         $this->genericImport(ClientContact::class, 
-            ['user_id', 'assigned_user_id', 'company_id', 'id', 'hashed_id'], 
-            [['users' => 'user_id'], ['users' => 'assigned_user_id']], 
+            ['user_id', 'company_id', 'id', 'hashed_id'], 
+            [['users' => 'user_id'], ['clients' => 'client_id']], 
             'client_contacts',
             'email');
 
@@ -802,9 +804,14 @@ class CompanyImport implements ShouldQueue
             if(User::where('email', $user->email)->where('account_id', '!=', $this->account->id)->exists())
                 throw new ImportCompanyFailed("{$user->email} is already in the system attached to a different account");
 
+            $user_array = (array)$user;
+            unset($user_array['laravel_through_key']);
+            unset($user_array['hashed_id']);
+            unset($user_array['id']);
+
             $new_user = User::firstOrNew(
                 ['email' => $user->email],
-                (array)$user,
+                $user_array,
             );
 
             $new_user->account_id = $this->account->id;
@@ -824,11 +831,14 @@ class CompanyImport implements ShouldQueue
 
         foreach($this->backup_file->company_users as $cu)
         {
-            $user_id = $this->transformId($cu->user_id);
+            $user_id = $this->transformId('users', $cu->user_id);
+
+            $cu_array = (array)$cu;
+            unset($cu_array['id']);
 
             $new_cu = CompanyUser::firstOrNew(
-                        ['user_id' => $user_id, 'company_id', $this->company->id],
-                        (array)$cu,
+                        ['user_id' => $user_id, 'company_id' => $this->company->id],
+                        $cu_array,
                     );
 
             $new_cu->account_id = $this->account->id;
