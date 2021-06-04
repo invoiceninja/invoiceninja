@@ -18,6 +18,7 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
+use ZipArchive;
 
 class ImportJsonController extends BaseController
 {
