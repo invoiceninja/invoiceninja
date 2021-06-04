@@ -92,10 +92,7 @@ trait PdfMakerUtilities
             $contains_html = false;
 
             if (isset($child['content'])) {
-                // Commented cause it keeps adding <br> at the end, if markdown parsing is turned on.
-                // Should update with 'parse_markdown_on_pdfs' setting.
-
-                // $child['content'] = nl2br($child['content']);
+                 $child['content'] = nl2br($child['content']);
             }
 
             // "/\/[a-z]*>/i" -> checks for HTML-like tags:

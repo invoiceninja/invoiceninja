@@ -120,9 +120,7 @@ class Design extends BaseDesign
             ],
             'footer-elements' => [
                 'id' => 'footer',
-                'elements' => [
-                    $this->sharedFooterElements(),
-                ],
+                'elements' => [],
             ],
         ];
     }
