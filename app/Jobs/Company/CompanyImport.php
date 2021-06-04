@@ -646,24 +646,8 @@ class CompanyImport implements ShouldQueue
 
         $this->backup_file->activities = $activities;
 
-        $this->genericImport(Activity::class, 
+        $this->genericNewClassImport(Activity::class, 
             [
-                'user_id',
-                'company_id',
-                'client_id',
-                'client_contact_id',
-                'project_id',
-                'vendor_id',
-                'payment_id',
-                'invoice_id',
-                'credit_id',
-                'invitation_id',
-                'task_id',
-                'expense_id',
-                'token_id',
-                'quote_id',
-                'subscription_id',
-                'recurring_invoice_id',
                 'hashed_id',
                 'company_id',
             ], 
@@ -683,8 +667,7 @@ class CompanyImport implements ShouldQueue
                 ['recurring_invoices' => 'recurring_invoice_id'],
                 ['invitations' => 'invitation_id'],
             ], 
-            'activities',
-            'created_at');
+            'activities');
 
         return $this;
 
@@ -955,16 +938,18 @@ class CompanyImport implements ShouldQueue
 
             $activity_invitation_key = false;
 
-            if($class instanceof Activity){
+            if($class == 'App\Models\Activity'){
 
                 if(isset($obj->invitation_id)){
-
+nlog($obj);
                     if(isset($obj->invoice_id))
                         $activity_invitation_key = 'invoice_invitations';
                     elseif(isset($obj->quote_id))
                         $activity_invitation_key = 'quote_invitations';
                     elseif($isset($obj->credit_id))
                         $activity_invitation_key  = 'credit_invitations';
+                    else
+                        $activity_invitation_key = false;
                 }
 
             }
@@ -974,14 +959,20 @@ class CompanyImport implements ShouldQueue
             {
                 foreach($transform as $key => $value)
                 {
-                    if($class instanceof Activity && $activity_invitation_key)
+                    if($class == 'App\Models\Activity' && $activity_invitation_key){
                         $key = $activity_invitation_key;
+                        nlog($class);
+                        nlog("{$value} - {$key}");
+                        nlog($obj->{$value});
+                        nlog($activity_invitation_key);
+                    }
                     
+
                     $obj_array["{$value}"] = $this->transformId($key, $obj->{$value});
                 }    
             }
 
-            if($class instanceof CompanyGateway) {
+            if($class == 'App\Models\CompanyGateway') {
                 $obj_array['config'] = encrypt($obj_array['config']);
             }
 
@@ -1116,13 +1107,13 @@ class CompanyImport implements ShouldQueue
 
         if (! array_key_exists($resource, $this->ids)) {
             nlog($this->ids);
-            nlog($this->backup_file->payments);
+            // nlog($this->backup_file->payments);
             throw new \Exception("Resource {$resource} not available.");
         }
 
         if (! array_key_exists("{$old}", $this->ids[$resource])) {
             nlog($this->ids);
-            nlog($this->backup_file->payments);
+           // nlog($this->backup_file->company_gateways);
             throw new \Exception("Missing {$resource} key: {$old}");
         }
 
