@@ -152,7 +152,7 @@ class Kernel extends HttpKernel
         'api_db' => SetDb::class,
         'company_key_db' => SetDbByCompanyKey::class,
         'locale' => Locale::class,
-        'contact.register' => ContactRegister::class,
+        'contact_register' => ContactRegister::class,
         'shop_token_auth' => ShopTokenAuth::class,
         'phantom_secret' => PhantomSecret::class,
         'contact_key_login' => ContactKeyLogin::class,

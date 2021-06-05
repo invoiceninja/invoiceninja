@@ -15,7 +15,7 @@ class ContactRegisterController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['guest', 'contact.register']);
+        $this->middleware(['guest']);
     }
 
     public function showRegisterForm(string $company_key = '')
