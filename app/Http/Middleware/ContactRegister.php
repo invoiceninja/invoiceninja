@@ -33,7 +33,7 @@ class ContactRegister
 
             if($company)
             {
-                abort_unless($company->getSetting('enable_client_registration'), 404);
+                abort_unless($company->client_can_register, 404);
 
                 $request->merge(['key' => $company->company_key]);
 
@@ -49,7 +49,7 @@ class ContactRegister
 
         if($company = Company::where($query)->first())
         {
-            abort_unless($company->getSetting('enable_client_registration'), 404);
+            abort_unless($company->client_can_register, 404);
 
             $request->merge(['key' => $company->company_key]);
 
