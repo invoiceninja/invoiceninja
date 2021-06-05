@@ -928,6 +928,10 @@ class Import implements ShouldQueue
             }
 
             $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
+
+            if($this->tryTransformingId('invoices', $resource['invoice_id']))
+                $modified['invoice_id'] = $this->transformId('invoices', $resource['invoice_id']);
+
             $modified['user_id'] = $this->processUserId($resource);
 
             $modified['company_id'] = $this->company->id;
@@ -1566,6 +1570,7 @@ class Import implements ShouldQueue
      */
     public function transformId($resource, string $old): int
     {
+
         if (! array_key_exists($resource, $this->ids)) {
             info(print_r($resource, 1));
             throw new Exception("Resource {$resource} not available.");
@@ -1650,76 +1655,13 @@ class Import implements ShouldQueue
         return $response->getBody();
     }
 
-    private function buildNewUserPlan() 
-    {
-        $current_db = config('database.default');
 
-        nlog($this->company);
-        
-        $local_company = Company::on($current_db)->where('company_key', $this->company->company_key)->first();
-
-        MultiDB::setDb('db-ninja-01');
-        $ninja_company = Company::find(config('ninja.ninja_default_company_id'));
-
-        /* If we already have a record of this user - move along. */
-        if($client_contact = ClientContact::where(['email' => $this->user->email, 'company_id' => $ninja_company->id])->first())
-            return $client_contact->client;
-
-        $ninja_client = ClientFactory::create($ninja_company->id, $ninja_company->owner()->id);
-        $ninja_client->name = $this->user->present()->name();
-        $ninja_client->address1 = $local_company->settings->address1;
-        $ninja_client->address2 = $local_company->settings->address2;
-        $ninja_client->city = $local_company->settings->city;
-        $ninja_client->postal_code = $local_company->settings->postal_code;
-        $ninja_client->state = $local_company->settings->state;
-        $ninja_client->country_id = $local_company->settings->country_id;
-        $ninja_client->custom_value1 = $local_company->company_key;
-
-        $ninja_client->save();
-
-        $ninja_client_contact = ClientContactFactory::create($ninja_company->id, $ninja_company->owner()->id);
-        $ninja_client_contact->first_name = $this->user->first_name;
-        $ninja_client_contact->last_name = $this->user->last_name;
-        $ninja_client_contact->client_id = $ninja_client->id;
-        $ninja_client_contact->email = $this->user->email;
-        $ninja_client_contact->phone = $this->user->phone;
-        $ninja_client_contact->save();
-
-
-        MultiDB::setDb($current_db);
-
-        return $ninja_client;
-    }
 
     private function processNinjaTokens(array $data)
     {
-        $current_db = config('database.default');
-        $local_company = Company::on($current_db)->where('company_key', $this->company->company_key)->first();
+        if(Ninja::isHosted())
+            \Modules\Admin\Jobs\Account\NinjaUser::dispatch($data, $this->company);
 
-        MultiDB::setDb('db-ninja-01');
-
-        if($existing_client = Client::where('custom_value1', $local_company->company_key)->first())
-            $ninja_client = $existing_client;
-        else
-            $ninja_client = $this->buildNewUserPlan();
-
-        foreach($data as $token)
-        {
-            //get invoiceninja company_id
-            $ninja_company = Company::where('id', config('ninja.ninja_default_company_id'))->first();
-
-            $token['company_id'] = $ninja_company->id;
-            $token['client_id'] = $ninja_client->id;/////
-            $token['user_id'] = $ninja_company->owner()->id;
-            $token['company_gateway_id'] = config('ninja.ninja_default_company_gateway_id');
-            //todo
-            
-            ClientGatewayToken::unguard();
-            $cgt = ClientGatewayToken::Create($token);
-            ClientGatewayToken::reguard();
-        }
-
-        MultiDB::setDb($current_db);
     }
 
 
