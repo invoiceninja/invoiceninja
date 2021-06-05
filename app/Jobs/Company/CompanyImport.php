@@ -20,6 +20,7 @@ use App\Libraries\MultiDB;
 use App\Mail\DownloadBackup;
 use App\Mail\DownloadInvoices;
 use App\Models\Activity;
+use App\Models\Backup;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\ClientGatewayToken;
@@ -677,7 +678,7 @@ class CompanyImport implements ShouldQueue
     {
 
         $this->genericImportWithoutCompany(Backup::class, 
-            ['activity_id','hashed_id'], 
+            ['hashed_id','id'], 
             [
                 ['activities' => 'activity_id'], 
             ], 
@@ -696,7 +697,7 @@ class CompanyImport implements ShouldQueue
             [
                 ['users' => 'user_id'], 
                 ['clients' => 'client_id'],
-                ['activities' => 'activity_id'],
+                // ['activities' => 'activity_id'],
             ], 
             'company_ledger',
             'created_at');
@@ -941,15 +942,14 @@ class CompanyImport implements ShouldQueue
             if($class == 'App\Models\Activity'){
 
                 if(isset($obj->invitation_id)){
-nlog($obj);
+
                     if(isset($obj->invoice_id))
                         $activity_invitation_key = 'invoice_invitations';
                     elseif(isset($obj->quote_id))
                         $activity_invitation_key = 'quote_invitations';
                     elseif($isset($obj->credit_id))
                         $activity_invitation_key  = 'credit_invitations';
-                    else
-                        $activity_invitation_key = false;
+
                 }
 
             }
@@ -959,15 +959,10 @@ nlog($obj);
             {
                 foreach($transform as $key => $value)
                 {
-                    if($class == 'App\Models\Activity' && $activity_invitation_key){
+                    if($class == 'App\Models\Activity' && $activity_invitation_key && $key == 'invitations'){
                         $key = $activity_invitation_key;
-                        nlog($class);
-                        nlog("{$value} - {$key}");
-                        nlog($obj->{$value});
-                        nlog($activity_invitation_key);
                     }
                     
-
                     $obj_array["{$value}"] = $this->transformId($key, $obj->{$value});
                 }    
             }
@@ -1106,14 +1101,13 @@ nlog($obj);
             return null;
 
         if (! array_key_exists($resource, $this->ids)) {
-            nlog($this->ids);
-            // nlog($this->backup_file->payments);
+            // nlog($this->ids);
             throw new \Exception("Resource {$resource} not available.");
         }
 
         if (! array_key_exists("{$old}", $this->ids[$resource])) {
-            nlog($this->ids);
-           // nlog($this->backup_file->company_gateways);
+            // nlog($this->ids[$resource]);
+            nlog("searching for {$old} in {$resource}");
             throw new \Exception("Missing {$resource} key: {$old}");
         }
 
