@@ -241,7 +241,7 @@ class CheckData extends Command
 
         if ($this->option('fix') == 'true') {
             foreach ($clients as $client) {
-                $this->logMessage("Fixing missing contacts #{$client->id}");
+                $this->logMessage("Fixing missing primary contacts #{$client->id}");
                 
                 $new_contact = ClientContactFactory::create($client->company_id, $client->user_id);
                 $new_contact->client_id = $client->id;
