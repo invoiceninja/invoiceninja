@@ -1,4 +1,4 @@
-<?php
+.register<?php
 
 use Illuminate\Support\Facades\Route;
 
@@ -8,7 +8,7 @@ Route::get('client/login', 'Auth\ContactLoginController@showLoginForm')->name('c
 Route::post('client/login', 'Auth\ContactLoginController@login')->name('client.login.submit');
 
 Route::get('client/register/{company_key?}', 'Auth\ContactRegisterController@showRegisterForm')->name('client.register')->middleware(['domain_db', 'contact_account','locale']);
-Route::post('client/register/{company_key?}', 'Auth\ContactRegisterController@register');
+Route::post('client/register/{company_key?}', 'Auth\ContactRegisterController@register')->middleware(['domain_db', 'contact_account','locale']);
 
 Route::get('client/password/reset', 'Auth\ContactForgotPasswordController@showLinkRequestForm')->name('client.password.request')->middleware(['domain_db', 'contact_account','locale']);
 Route::post('client/password/email', 'Auth\ContactForgotPasswordController@sendResetLinkEmail')->name('client.password.email')->middleware('locale');
