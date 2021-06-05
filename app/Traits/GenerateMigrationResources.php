@@ -840,7 +840,13 @@ info("get company");
         return 1;
 
     }
-
+/**
+    const STATUS_DRAFT = 1;
+    const STATUS_SENT = 2;
+    const STATUS_APPROVED = 3;
+    const STATUS_CONVERTED = 4;
+    const STATUS_EXPIRED = -1;
+ */
     private function transformQuoteStatusId($quote)
     {
         if(!$quote->is_public)
@@ -1058,6 +1064,7 @@ info("get company");
                 'tax_name2' => $quote->tax_name2,
                 'tax_rate1' => $quote->tax_rate1,
                 'tax_rate2' => $quote->tax_rate2,
+                'invoice_id' => $quote->quote_invoice_id,
                 'custom_surcharge1' => $quote->custom_value1 ?: '',
                 'custom_surcharge2' => $quote->custom_value2 ?: '',
                 'custom_value1' => $quote->custom_text_value1 ?: '',
