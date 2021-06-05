@@ -236,8 +236,20 @@ class CheckData extends Command
             $clients->where('clients.id', '=', $this->option('client_id'));
         }
 
-        $clients = $clients->get(['clients.id', DB::raw('count(client_contacts.id)')]);
+        $clients = $clients->get(['clients.id', 'clients.user_id', 'clients.company_id']);
         $this->logMessage($clients->count().' clients without a single primary contact');
+
+        if ($this->option('fix') == 'true') {
+            foreach ($clients as $client) {
+                $this->logMessage("Fixing missing contacts #{$client->id}");
+                
+                $new_contact = ClientContactFactory::create($client->company_id, $client->user_id);
+                $new_contact->client_id = $client->id;
+                $new_contact->contact_key = Str::random(40);
+                $new_contact->is_primary = true;
+                $new_contact->save();
+            }
+        }
 
         if ($clients->count() > 0) {
             $this->isValid = false;
