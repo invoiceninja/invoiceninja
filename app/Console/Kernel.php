@@ -16,6 +16,7 @@ use App\Jobs\Cron\RecurringInvoicesCron;
 use App\Jobs\Cron\SubscriptionCron;
 use App\Jobs\Ninja\AdjustEmailQuota;
 use App\Jobs\Ninja\CompanySizeCheck;
+use App\Jobs\Util\DiskCleanup;
 use App\Jobs\Util\ReminderJob;
 use App\Jobs\Util\SchedulerCheck;
 use App\Jobs\Util\SendFailedEmails;
@@ -46,6 +47,8 @@ class Kernel extends ConsoleKernel
     {
 
         $schedule->job(new VersionCheck)->daily();
+
+        $schedule->job(new DiskCleanup)->daily()->withoutOverlapping();
 
         $schedule->command('ninja:check-data --database=db-ninja-01')->daily()->withoutOverlapping();
 
