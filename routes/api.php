@@ -163,6 +163,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 
     Route::get('settings/enable_two_factor', 'TwoFactorController@setupTwoFactor');
     Route::post('settings/enable_two_factor', 'TwoFactorController@enableTwoFactor');
+    Route::post('settings/disable_two_factor', 'TwoFactorController@disableTwoFactor');
 
     Route::resource('vendors', 'VendorController'); // name = (vendors. index / create / show / update / destroy / edit
     Route::post('vendors/bulk', 'VendorController@bulk')->name('vendors.bulk');
