@@ -252,7 +252,7 @@ class HtmlEngine
         $data['$client.address2'] = &$data['$address2'];
         $data['$client_address'] = ['value' => $this->client->present()->address() ?: '&nbsp;', 'label' => ctrans('texts.address')];
         $data['$client.address'] = &$data['$client_address'];
-        $data['$client.postal_code'] = $this->client->postal_code;
+        $data['$client.postal_code'] = ['value' => $this->client->postal_code ?: '&nbsp;', 'label' => ctrans('texts.postal_code')];
         $data['$client.id_number'] = &$data['$id_number'];
         $data['$client.vat_number'] = &$data['$vat_number'];
         $data['$client.website'] = &$data['$website'];
