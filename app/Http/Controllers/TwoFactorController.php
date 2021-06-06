@@ -71,4 +71,12 @@ class TwoFactorController extends BaseController
         
     }
     
+    public function disableTwoFactor()
+    {
+        $user = auth()->user();
+        $user->google_2fa_secret = null;
+        $user->save();
+
+        return $this->itemResponse($user);
+    }
 }
