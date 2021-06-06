@@ -28,6 +28,7 @@ use Exception;
 use Illuminate\Console\Command;
 use Mail;
 use Symfony\Component\Console\Input\InputOption;
+use Illuminate\Support\Str;
 
 /*
 
