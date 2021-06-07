@@ -1,36 +1,10 @@
-@component('email.template.master', ['design' => 'light', 'settings' =>$settings])
+@component('email.template.admin-light', ['logo' => $logo, 'settings' => $settings])
+    <div class="center">
+        <h1>{{ ctrans('texts.download') }}</h1>
+        <p>{{ ctrans('texts.download_timeframe') }}</p>
 
-@slot('header')
-    @component('email.components.header', ['p' => '', 'logo' => $logo])
-    	@lang('texts.download')
-    @endcomponent
-
-@endslot
-
-
-@if(isset($greeting))
-<p style="padding-top:20px">{{ $greeting }}</p>
-@endif
-
-<p style="padding-top:20px">
-@lang('texts.download_timeframe')
-</p>
-
-<p style="padding-top:20px">
-    @component('email.components.button', ['url' => $url])
-        @lang('texts.download')
-    @endcomponent
-</p>
-
-@slot('signature')
-    InvoiceNinja (contact@invoiceninja.com)
-@endslot
-
-@if(!$whitelabel)
-	@slot('footer')
-	    @component('email.components.footer', ['url' => 'https://invoiceninja.com', 'url_text' => '&copy; InvoiceNinja'])
-	        For any info, please visit InvoiceNinja.
-	    @endcomponent
-	@endslot
-@endif
+        <a target="_blank" class="button" href="{{ $url }}">
+            {{ ctrans('texts.download') }}
+        </a>
+    </div>
 @endcomponent

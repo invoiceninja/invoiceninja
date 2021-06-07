@@ -28,14 +28,11 @@ class DownloadInvoices extends Mailable
     public function build()
     {
         return $this->from(config('mail.from.address'), config('mail.from.name'))
-                    ->subject(ctrans('texts.download_files'))
-                    ->markdown(
-                        'email.admin.download_files',
-                        [
-                            'url' => $this->file_path,
-                            'logo' => $this->company->present()->logo,
-                            'whitelabel' => $this->company->account->isPaid() ? true : false,
-                        ]
-                    );
+            ->subject(ctrans('texts.download_files'))
+            ->view('email.admin.download_files', [
+                'url' => $this->file_path,
+                'logo' => $this->company->present()->logo,
+                'whitelabel' => (bool)$this->company->account->isPaid(),
+            ]);
     }
 }
