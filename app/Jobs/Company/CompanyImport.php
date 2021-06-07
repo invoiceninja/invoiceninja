@@ -159,8 +159,6 @@ class CompanyImport implements ShouldQueue
 
         // nlog($this->backup_file);
 
-
-
         if(array_key_exists('import_settings', $this->request_array) && $this->request_array['import_settings'] == 'true') {
             $this->preFlightChecks()->importSettings();
         }
@@ -189,7 +187,9 @@ class CompanyImport implements ShouldQueue
             return true;
 
         $backup_users = $this->backup_file->users;
+
         $company_users = $this->company->users;
+        
         $company_owner = $this->company->owner();
 
         if(Ninja::isFreeHostedClient()){
@@ -203,12 +203,10 @@ class CompanyImport implements ShouldQueue
             }
 
             $backup_users_emails = array_column($backup_users, 'email');
+
             $company_users_emails = $company_users->pluck('email')->toArray();
 
             $existing_user_count = count(array_intersect($backup_users_emails, $company_users_emails));
-
-            if($existing_user_count == 1)
-                return true;
 
             if($existing_user_count > 1){
 
@@ -218,6 +216,7 @@ class CompanyImport implements ShouldQueue
                 if($this->account->plan == 'enterprise'){
 
                     $total_import_users = count($backup_users_emails);
+
                     $account_plan_num_user = $this->account->num_users;
 
                     if($total_import_users > $account_plan_num_user){
@@ -230,6 +229,18 @@ class CompanyImport implements ShouldQueue
 
             if(strlen($this->message) > 1){
                 return false;
+            }
+
+            if(Ninja::isFreeHostedClient() && count($this->backup_file->clients) > config('ninja.quotas.free.clients')){
+
+                $client_count = count($this->backup_file->clients);
+
+                $client_limit = config('ninja.quotas.free.clients');
+
+                $this->message = "You are attempting to import ({$client_count}) clients, your current plan allows a total of ({$client_limit})";
+                
+                return false;
+
             }
 
             return true;
