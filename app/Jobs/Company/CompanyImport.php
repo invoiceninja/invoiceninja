@@ -151,6 +151,8 @@ class CompanyImport implements ShouldQueue
     	$this->company = Company::where('company_key', $this->company->company_key)->firstOrFail();
         $this->account = $this->company->account;
 
+        nlog("Company ID = {$this->company->id}");
+        
         $this->backup_file = Cache::get($this->hash);
 
         if ( empty( $this->backup_file ) ) 
