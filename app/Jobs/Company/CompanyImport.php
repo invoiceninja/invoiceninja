@@ -19,6 +19,7 @@ use App\Jobs\Util\UnlinkFile;
 use App\Libraries\MultiDB;
 use App\Mail\DownloadBackup;
 use App\Mail\DownloadInvoices;
+use App\Mail\Import\CompanyImportFailure;
 use App\Models\Activity;
 use App\Models\Backup;
 use App\Models\Client;
@@ -88,6 +89,8 @@ class CompanyImport implements ShouldQueue
 
     private $request_array = [];
 
+    private $message = '';
+
     private $importables = [
         // 'company',
         'users',
@@ -148,6 +151,8 @@ class CompanyImport implements ShouldQueue
     	$this->company = Company::where('company_key', $this->company->company_key)->firstOrFail();
         $this->account = $this->company->account;
 
+        nlog("Company ID = {$this->company->id}");
+
         $this->backup_file = Cache::get($this->hash);
 
         if ( empty( $this->backup_file ) ) 
@@ -163,14 +168,97 @@ class CompanyImport implements ShouldQueue
 
         if(array_key_exists('import_data', $this->request_array) && $this->request_array['import_data'] == 'true') {
 
-            $this->preFlightChecks()
-                 ->purgeCompanyData()
-                 ->importData();
+            try{
+
+                $this->preFlightChecks()
+                     ->purgeCompanyData()
+                     ->importData();
+
+             }
+             catch(\Exception $e){
+
+                info($e->getMessage());
+
+             }
 
         }
 
     }
 
+    /**
+     * On the hosted platform we cannot allow the 
+     * import to start if there are users > plan number
+     * due to entity user_id dependencies
+     *     
+     * @return bool
+     */
+    private function checkUserCount()
+    {
+
+        if(Ninja::isSelfHost())
+            return true;
+
+        $backup_users = $this->backup_file->users;
+
+        $company_users = $this->company->users;
+        
+        $company_owner = $this->company->owner();
+
+        if(Ninja::isFreeHostedClient()){
+
+            if(count($backup_users) > 1){
+                $this->message = 'Only one user can be in the import for a Free Account';
+            }
+
+            if(count($backup_users) == 1 && $company_owner->email != $backup_users[0]->email) {
+                $this->message = 'Account emails do not match. Account owner email must match backup user email';
+            }
+
+            $backup_users_emails = array_column($backup_users, 'email');
+
+            $company_users_emails = $company_users->pluck('email')->toArray();
+
+            $existing_user_count = count(array_intersect($backup_users_emails, $company_users_emails));
+
+            if($existing_user_count > 1){
+
+                if($this->account->plan == 'pro')
+                    $this->message = 'Pro plan is limited to one user, you have multiple users in the backup file';
+
+                if($this->account->plan == 'enterprise'){
+
+                    $total_import_users = count($backup_users_emails);
+
+                    $account_plan_num_user = $this->account->num_users;
+
+                    if($total_import_users > $account_plan_num_user){
+
+                        $this->message = "Total user count ({$total_import_users}) greater than your plan allows ({$account_plan_num_user})";
+                    }
+
+                }
+            }
+
+            if(strlen($this->message) > 1){
+                return false;
+            }
+
+            if(Ninja::isFreeHostedClient() && count($this->backup_file->clients) > config('ninja.quotas.free.clients')){
+
+                $client_count = count($this->backup_file->clients);
+
+                $client_limit = config('ninja.quotas.free.clients');
+
+                $this->message = "You are attempting to import ({$client_count}) clients, your current plan allows a total of ({$client_limit})";
+                
+                return false;
+
+            }
+
+            return true;
+        }
+
+    }
 
     //check if this is a complete company import OR if it is selective
     /*
@@ -186,6 +274,18 @@ class CompanyImport implements ShouldQueue
             //perform some magic here
         }
 
+
+        if(!$this->checkUserCount())
+        {
+            $nmo = new NinjaMailerObject;
+            $nmo->mailable = new CompanyImportFailure($this->company, $this->message);
+            $nmo->company = $this->company;
+            $nmo->settings = $this->company->settings;
+            $nmo->to_user = $this->company->owner();
+            NinjaMailerJob::dispatchNow($nmo);
+
+            throw new \Exception('Company import check failed');
+        }
 
     	return $this;
     }
@@ -239,6 +339,8 @@ class CompanyImport implements ShouldQueue
 
             $method = "import_{$import}";
 
+            nlog($method);
+            
             $this->{$method}();
 
         }

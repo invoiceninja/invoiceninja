@@ -47,7 +47,7 @@
                                 @if($settings->client_portal_allow_under_payment || $settings->client_portal_allow_over_payment)
                                     <button class="button button-primary bg-primary">{{ ctrans('texts.pay_now') }}</button>
                                 @else
-                                    @livewire('pay-now-dropdown', ['total' => $invoice->partial > 0 ? $invoice->partial : $invoice->balance])
+                                    @livewire('pay-now-dropdown', ['total' => $invoice->partial > 0 ? $invoice->partial : $invoice->balance, 'company' => $company])
                                 @endif
                             </div>
                         </div>

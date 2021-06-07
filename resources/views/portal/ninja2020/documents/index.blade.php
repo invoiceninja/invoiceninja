@@ -14,5 +14,5 @@
         @csrf
     </form>
     
-    @livewire('documents-table', ['client' => $client])
+    @livewire('documents-table', ['client' => $client, 'company' => $company])
 @endsection

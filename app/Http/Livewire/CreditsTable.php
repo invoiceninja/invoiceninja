@@ -12,6 +12,7 @@
 
 namespace App\Http\Livewire;
 
+use App\Libraries\MultiDB;
 use App\Models\Credit;
 use App\Utils\Traits\WithSorting;
 use Livewire\Component;
@@ -23,6 +24,13 @@ class CreditsTable extends Component
     use WithSorting;
 
     public $per_page = 10;
+
+    public $company;
+    
+    public function mount()
+    {
+        MultiDB::setDb($this->company->db);
+    }
 
     public function render()
     {
