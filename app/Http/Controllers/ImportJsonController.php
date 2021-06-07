@@ -65,6 +65,8 @@ class ImportJsonController extends BaseController
         $contents = $this->unzipFile($import_file->getPathname());
 
         $hash = Str::random(32);
+    
+        nlog($hash);
 
         Cache::put( $hash, base64_encode( $contents ), 3600 );
 
