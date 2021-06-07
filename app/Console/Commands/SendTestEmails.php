@@ -17,6 +17,10 @@ use App\Factory\ClientFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceInvitationFactory;
 use App\Jobs\Invoice\CreateEntityPdf;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
+use App\Mail\DownloadInvoices;
+use App\Mail\Migration\MaxCompanies;
 use App\Mail\TemplateEmail;
 use App\Models\Account;
 use App\Models\Client;
@@ -60,9 +64,44 @@ class SendTestEmails extends Command
      */
     public function handle()
     {
-        $this->sendTemplateEmails('plain');
-        $this->sendTemplateEmails('light');
-        $this->sendTemplateEmails('dark');
+        $faker = Factory::create();
+
+        $account = Account::factory()->create();
+
+        $user = User::factory()->create([
+            'account_id' => $account->id,
+            'confirmation_code' => '123',
+            'email' => $faker->safeEmail,
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+        ]);
+
+        $company = Company::factory()->create([
+            'account_id' => $account->id,
+        ]);
+
+        $user->companies()->attach($company->id, [
+            'account_id' => $account->id,
+            'is_owner' => 1,
+            'is_admin' => 1,
+            'is_locked' => 0,
+            'permissions' => '',
+            'notifications' => CompanySettings::notificationDefaults(),
+            //'settings' => DefaultSettings::userSettings(),
+            'settings' => null,
+        ]);
+
+        $nmo = new NinjaMailerObject;
+        $nmo->mailable = new DownloadInvoices('https://google.com', $user->account->companies()->first());
+        $nmo->company = $user->account->companies()->first();
+        $nmo->settings = $user->account->companies()->first()->settings;
+        $nmo->to_user = $user;
+
+        NinjaMailerJob::dispatch($nmo);
+
+        // $this->sendTemplateEmails('plain');
+        // $this->sendTemplateEmails('light');
+        // $this->sendTemplateEmails('dark');
     }
 
     private function sendTemplateEmails($template)
