@@ -19,6 +19,7 @@ use App\Jobs\Util\UnlinkFile;
 use App\Libraries\MultiDB;
 use App\Mail\DownloadBackup;
 use App\Mail\DownloadInvoices;
+use App\Mail\Import\CompanyImportFailure;
 use App\Models\Activity;
 use App\Models\Backup;
 use App\Models\Client;
@@ -165,9 +166,18 @@ class CompanyImport implements ShouldQueue
 
         if(array_key_exists('import_data', $this->request_array) && $this->request_array['import_data'] == 'true') {
 
-            $this->preFlightChecks()
-                 ->purgeCompanyData()
-                 ->importData();
+            try{
+
+                $this->preFlightChecks()
+                     ->purgeCompanyData()
+                     ->importData();
+
+             }
+             catch(\Exception $e){
+
+                info($e->getMessage());
+
+             }
 
         }
 
@@ -262,6 +272,18 @@ class CompanyImport implements ShouldQueue
             //perform some magic here
         }
 
+
+        if(!$this->checkUserCount())
+        {
+            $nmo = new NinjaMailerObject;
+            $nmo->mailable = new CompanyImportFailure($this->company, $this->message);
+            $nmo->company = $this->company;
+            $nmo->settings = $this->company->settings;
+            $nmo->to_user = $this->company->owner();
+            NinjaMailerJob::dispatchNow($nmo);
+
+            throw new \Exception('Company import check failed');
+        }
 
     	return $this;
     }

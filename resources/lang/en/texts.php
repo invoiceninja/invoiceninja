@@ -4254,6 +4254,8 @@ $LANG = array(
     'account_passwordless_login' => 'Account passwordless login',
     'user_duplicate_error' => 'Cannot add the same user to the same company',
     'user_cross_linked_error' => 'User exists but cannot be crossed linked to multiple accounts',
+    'company_import_failure_subject' => 'Error importing :company',
+    'company_import_failure_body' => 'There was an error importing the company data, the error message was:',
 );
 
 return $LANG;
