@@ -88,6 +88,8 @@ class CompanyImport implements ShouldQueue
 
     private $request_array = [];
 
+    private $message = '';
+
     private $importables = [
         // 'company',
         'users',
@@ -157,6 +159,8 @@ class CompanyImport implements ShouldQueue
 
         // nlog($this->backup_file);
 
+
+
         if(array_key_exists('import_settings', $this->request_array) && $this->request_array['import_settings'] == 'true') {
             $this->preFlightChecks()->importSettings();
         }
@@ -171,6 +175,67 @@ class CompanyImport implements ShouldQueue
 
     }
 
+    /**
+     * On the hosted platform we cannot allow the 
+     * import to start if there are users > plan number
+     * due to entity user_id dependencies
+     *     
+     * @return bool
+     */
+    private function checkUserCount()
+    {
+
+        if(Ninja::isSelfHost())
+            return true;
+
+        $backup_users = $this->backup_file->users;
+        $company_users = $this->company->users;
+        $company_owner = $this->company->owner();
+
+        if(Ninja::isFreeHostedClient()){
+
+            if(count($backup_users) > 1){
+                $this->message = 'Only one user can be in the import for a Free Account';
+            }
+
+            if(count($backup_users) == 1 && $company_owner->email != $backup_users[0]->email) {
+                $this->message = 'Account emails do not match. Account owner email must match backup user email';
+            }
+
+            $backup_users_emails = array_column($backup_users, 'email');
+            $company_users_emails = $company_users->pluck('email')->toArray();
+
+            $existing_user_count = count(array_intersect($backup_users_emails, $company_users_emails));
+
+            if($existing_user_count == 1)
+                return true;
+
+            if($existing_user_count > 1){
+
+                if($this->account->plan == 'pro')
+                    $this->message = 'Pro plan is limited to one user, you have multiple users in the backup file';
+
+                if($this->account->plan == 'enterprise'){
+
+                    $total_import_users = count($backup_users_emails);
+                    $account_plan_num_user = $this->account->num_users;
+
+                    if($total_import_users > $account_plan_num_user){
+
+                        $this->message = "Total user count ({$total_import_users}) greater than your plan allows ({$account_plan_num_user})";
+                    }
+
+                }
+            }
+
+            if(strlen($this->message) > 1){
+                return false;
+            }
+
+            return true;
+        }
+
+    }
 
     //check if this is a complete company import OR if it is selective
     /*
