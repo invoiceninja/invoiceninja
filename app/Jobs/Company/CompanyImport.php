@@ -152,7 +152,7 @@ class CompanyImport implements ShouldQueue
         $this->account = $this->company->account;
 
         nlog("Company ID = {$this->company->id}");
-        
+
         $this->backup_file = Cache::get($this->hash);
 
         if ( empty( $this->backup_file ) ) 
@@ -339,6 +339,8 @@ class CompanyImport implements ShouldQueue
 
             $method = "import_{$import}";
 
+            nlog($method);
+            
             $this->{$method}();
 
         }
