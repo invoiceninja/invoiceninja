@@ -340,7 +340,7 @@ class CompanyImport implements ShouldQueue
             $method = "import_{$import}";
 
             nlog($method);
-            
+
             $this->{$method}();
 
         }
@@ -383,6 +383,8 @@ class CompanyImport implements ShouldQueue
                         $obj_array,
                     );
 
+            $new_obj->company_id = $this->company->id;
+            $new_obj->user_id = $user_id;
             $new_obj->save(['timestamps' => false]);
             
         }
