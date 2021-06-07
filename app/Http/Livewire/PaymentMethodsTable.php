@@ -5,6 +5,7 @@
 
 namespace App\Http\Livewire;
 
+use App\Libraries\MultiDB;
 use App\Models\ClientGatewayToken;
 use App\Utils\Traits\WithSorting;
 use Livewire\Component;
@@ -16,10 +17,16 @@ class PaymentMethodsTable extends Component
     use WithSorting;
 
     public $per_page = 10;
+    
     public $client;
 
+    public $company;
+    
     public function mount($client)
     {
+    
+        MultiDB::setDb($this->company->db);
+
         $this->client = $client;
     }
 

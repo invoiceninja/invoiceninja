@@ -13,6 +13,6 @@
 
 @section('body')
     <div class="flex flex-col">
-        @livewire('credits-table')
+        @livewire('credits-table', ['company' => $company])
     </div>
 @endsection
