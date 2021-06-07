@@ -840,7 +840,13 @@ info("get company");
         return 1;
 
     }
-
+/**
+    const STATUS_DRAFT = 1;
+    const STATUS_SENT = 2;
+    const STATUS_APPROVED = 3;
+    const STATUS_CONVERTED = 4;
+    const STATUS_EXPIRED = -1;
+ */
     private function transformQuoteStatusId($quote)
     {
 
@@ -1059,6 +1065,7 @@ info("get company");
                 'tax_name2' => $quote->tax_name2,
                 'tax_rate1' => $quote->tax_rate1,
                 'tax_rate2' => $quote->tax_rate2,
+                'invoice_id' => $quote->quote_invoice_id,
                 'custom_surcharge1' => $quote->custom_value1 ?: '',
                 'custom_surcharge2' => $quote->custom_value2 ?: '',
                 'custom_value1' => $quote->custom_text_value1 ?: '',
@@ -1371,6 +1378,9 @@ info("translated gateway_type = {$translated_gateway_type}");
                     'custom_value2' => '',
                     'custom_value3' => '',
                     'custom_value4' => '',
+                    'created_at' => $account_gateway->created_at ? Carbon::parse($account_gateway->created_at)->toDateString() : null,
+                    'updated_at' => $account_gateway->updated_at ? Carbon::parse($account_gateway->updated_at)->toDateString() : null,
+                    'deleted_at' => $account_gateway->deleted_at ? Carbon::parse($account_gateway->deleted_at)->toDateString() : null,
                 ];
             // }
         }
