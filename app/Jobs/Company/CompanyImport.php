@@ -154,6 +154,7 @@ class CompanyImport implements ShouldQueue
         $this->account = $this->company->account;
 
         nlog("Company ID = {$this->company->id}");
+        nlog("Hash ID = {$this->hash}");
 
         $this->backup_file = Cache::get($this->hash);
 
