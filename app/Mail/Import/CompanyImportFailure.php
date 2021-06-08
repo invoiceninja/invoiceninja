@@ -53,12 +53,11 @@ class CompanyImportFailure extends Mailable
     {
         $this->settings = $this->company->settings;
         $this->logo = $this->company->present()->logo();
-        $this->title = ctrans('texts.max_companies');
-        $this->message = ctrans('texts.max_companies_desc');
+        $this->title = ctrans('texts.company_import_failure_subject', ['company' => $this->company->present()->name()]);
         $this->whitelabel = $this->company->account->isPaid();
 
         return $this->from(config('mail.from.address'), config('mail.from.name'))
-                    ->subject(ctrans('texts.company_import_failure_subject'))
-                    ->view('email.migration.max_companies');
+                    ->subject(ctrans('texts.company_import_failure_subject', ['company' => $this->company->present()->name()]))
+                    ->view('email.import.import_failure');
     }
 }
