@@ -164,17 +164,18 @@ class CompanyImport implements ShouldQueue
         $this->backup_file = json_decode(base64_decode($this->backup_file));
 
         // nlog($this->backup_file);
+        $this->checkUserCount();
 
         if(array_key_exists('import_settings', $this->request_array) && $this->request_array['import_settings'] == 'true') {
-            $this->checkUserCount()->preFlightChecks()->importSettings();
+            
+            $this->preFlightChecks()->importSettings();
         }
 
         if(array_key_exists('import_data', $this->request_array) && $this->request_array['import_data'] == 'true') {
 
             try{
 
-                $this->checkUserCount()
-                     ->preFlightChecks()
+                $this->preFlightChecks()
                      ->purgeCompanyData()
                      ->importData();
 
