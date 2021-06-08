@@ -258,7 +258,6 @@ class CompanyImport implements ShouldQueue
 
             }
 
-            $this->pre_flight_checks_pass =  true;
         }
 
         return $this;
@@ -278,7 +277,7 @@ class CompanyImport implements ShouldQueue
             //perform some magic here
         }
         
-        if(!$this->pre_flight_checks_pass)
+        if($this->pre_flight_checks_pass === false)
         {
             $nmo = new NinjaMailerObject;
             $nmo->mailable = new CompanyImportFailure($this->company, $this->message);
@@ -348,6 +347,8 @@ class CompanyImport implements ShouldQueue
             $this->{$method}();
 
         }
+
+            nlog("finished importing company data");
 
         return $this;
 
