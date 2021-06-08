@@ -278,7 +278,7 @@ class CompanyImport implements ShouldQueue
             //perform some magic here
         }
         
-        if($this->pre_flight_checks_pass === false)
+        if(!$this->pre_flight_checks_pass)
         {
             $nmo = new NinjaMailerObject;
             $nmo->mailable = new CompanyImportFailure($this->company, $this->message);
