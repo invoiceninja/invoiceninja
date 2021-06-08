@@ -207,7 +207,7 @@ class Account extends BaseModel
             return false;
         }
 
-        return $this->plan == 'free';
+        return $this->plan == 'free' || is_null($this->plan);
     }
 
     public function isEnterpriseClient()
