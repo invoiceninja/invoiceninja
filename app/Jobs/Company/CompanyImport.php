@@ -208,10 +208,12 @@ class CompanyImport implements ShouldQueue
 
             if(count($backup_users) > 1){
                 $this->message = 'Only one user can be in the import for a Free Account';
+                return false;
             }
 
             if(count($backup_users) == 1 && $company_owner->email != $backup_users[0]->email) {
                 $this->message = 'Account emails do not match. Account owner email must match backup user email';
+                return false;
             }
 
             $backup_users_emails = array_column($backup_users, 'email');
@@ -222,8 +224,10 @@ class CompanyImport implements ShouldQueue
 
             if($existing_user_count > 1){
 
-                if($this->account->plan == 'pro')
+                if($this->account->plan == 'pro'){
                     $this->message = 'Pro plan is limited to one user, you have multiple users in the backup file';
+                    return false;
+                }
 
                 if($this->account->plan == 'enterprise'){
 
@@ -232,8 +236,8 @@ class CompanyImport implements ShouldQueue
                     $account_plan_num_user = $this->account->num_users;
 
                     if($total_import_users > $account_plan_num_user){
-
                         $this->message = "Total user count ({$total_import_users}) greater than your plan allows ({$account_plan_num_user})";
+                        return false;
                     }
 
                 }
@@ -284,7 +288,7 @@ class CompanyImport implements ShouldQueue
             $nmo->to_user = $this->company->owner();
             NinjaMailerJob::dispatchNow($nmo);
 
-            throw new \Exception('Company import check failed');
+            throw new \Exception($this->message);
         }
 
     	return $this;
