@@ -4,7 +4,7 @@
         @include('email.components.header', ['logo' => $logo])
     @endslot
 
-    <h2>{{ctrans('texts.company_import_failure_subject')}}</h2>
+    <h2>{{ $title }}</h2>
 
     <p>{{ctrans('texts.company_import_failure_body')}}</p>
 
