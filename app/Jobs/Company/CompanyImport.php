@@ -210,10 +210,15 @@ class CompanyImport implements ShouldQueue
 
         if($this->company->account->isFreeHostedClient()){
 
+            nlog("This is a free account");
+            nlog("Backup user count = ".count($backup_users));
+
             if(count($backup_users) > 1){
                 $this->message = 'Only one user can be in the import for a Free Account';
                 $this->pre_flight_checks_pass = false;
             }
+
+            nlog("backup users email = " . $backup_users[0]->email);
 
             if(count($backup_users) == 1 && $company_owner->email != $backup_users[0]->email) {
                 $this->message = 'Account emails do not match. Account owner email must match backup user email';
@@ -225,6 +230,8 @@ class CompanyImport implements ShouldQueue
             $company_users_emails = $company_users->pluck('email')->toArray();
 
             $existing_user_count = count(array_intersect($backup_users_emails, $company_users_emails));
+
+            nlog("existing user count = {$existing_user_count}");
 
             if($existing_user_count > 1){
 
@@ -248,6 +255,8 @@ class CompanyImport implements ShouldQueue
             }
 
             if($this->company->account->isFreeHostedClient() && count($this->backup_file->clients) > config('ninja.quotas.free.clients')){
+                
+                nlog("client quota busted");
 
                 $client_count = count($this->backup_file->clients);
 
