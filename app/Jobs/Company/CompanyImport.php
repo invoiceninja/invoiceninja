@@ -91,6 +91,8 @@ class CompanyImport implements ShouldQueue
 
     public $message = '';
 
+    public $pre_flight_checks_pass = true;
+
     private $importables = [
         // 'company',
         'users',
@@ -196,7 +198,7 @@ class CompanyImport implements ShouldQueue
     {
 
         if(Ninja::isSelfHost())
-            return true;
+            $this->pre_flight_checks_pass = true;
 
         $backup_users = $this->backup_file->users;
 
@@ -208,12 +210,12 @@ class CompanyImport implements ShouldQueue
 
             if(count($backup_users) > 1){
                 $this->message = 'Only one user can be in the import for a Free Account';
-                return false;
+                $this->pre_flight_checks_pass =  false;
             }
 
             if(count($backup_users) == 1 && $company_owner->email != $backup_users[0]->email) {
                 $this->message = 'Account emails do not match. Account owner email must match backup user email';
-                return false;
+                $this->pre_flight_checks_pass =  false;
             }
 
             $backup_users_emails = array_column($backup_users, 'email');
@@ -226,7 +228,7 @@ class CompanyImport implements ShouldQueue
 
                 if($this->account->plan == 'pro'){
                     $this->message = 'Pro plan is limited to one user, you have multiple users in the backup file';
-                    return false;
+                    $this->pre_flight_checks_pass =  false;
                 }
 
                 if($this->account->plan == 'enterprise'){
@@ -237,7 +239,7 @@ class CompanyImport implements ShouldQueue
 
                     if($total_import_users > $account_plan_num_user){
                         $this->message = "Total user count ({$total_import_users}) greater than your plan allows ({$account_plan_num_user})";
-                        return false;
+                        $this->pre_flight_checks_pass =  false;
                     }
 
                 }
@@ -251,13 +253,14 @@ class CompanyImport implements ShouldQueue
 
                 $this->message = "You are attempting to import ({$client_count}) clients, your current plan allows a total of ({$client_limit})";
                 
-                return false;
+                $this->pre_flight_checks_pass =  false;
 
             }
 
-            return true;
+            $this->pre_flight_checks_pass =  true;
         }
 
+        return $this;
     }
 
     //check if this is a complete company import OR if it is selective
@@ -273,9 +276,10 @@ class CompanyImport implements ShouldQueue
         {
             //perform some magic here
         }
+        
+        $this->checkUserCount();
 
-
-        if(!$this->checkUserCount())
+        if(!$this->pre_flight_checks_pass)
         {
             $nmo = new NinjaMailerObject;
             $nmo->mailable = new CompanyImportFailure($this->company, $this->message);
