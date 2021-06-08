@@ -208,7 +208,6 @@ class CompanyImport implements ShouldQueue
         
         $company_owner = $this->company->owner();
 
-        if($this->company->account->isFreeHostedClient()){
 
             nlog("This is a free account");
             nlog("Backup user count = ".count($backup_users));
@@ -268,7 +267,6 @@ class CompanyImport implements ShouldQueue
 
             }
 
-        }
 
         nlog($this->message);
         nlog($this->pre_flight_checks_pass);
