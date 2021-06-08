@@ -89,7 +89,7 @@ class CompanyImport implements ShouldQueue
 
     private $request_array = [];
 
-    private $message = '';
+    public $message = '';
 
     private $importables = [
         // 'company',
