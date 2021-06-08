@@ -165,14 +165,15 @@ class CompanyImport implements ShouldQueue
         // nlog($this->backup_file);
 
         if(array_key_exists('import_settings', $this->request_array) && $this->request_array['import_settings'] == 'true') {
-            $this->preFlightChecks()->importSettings();
+            $this->checkUserCount()->preFlightChecks()->importSettings();
         }
 
         if(array_key_exists('import_data', $this->request_array) && $this->request_array['import_data'] == 'true') {
 
             try{
 
-                $this->preFlightChecks()
+                $this->checkUserCount()
+                     ->preFlightChecks()
                      ->purgeCompanyData()
                      ->importData();
 
@@ -277,8 +278,6 @@ class CompanyImport implements ShouldQueue
             //perform some magic here
         }
         
-        $this->checkUserCount();
-
         if(!$this->pre_flight_checks_pass)
         {
             $nmo = new NinjaMailerObject;
