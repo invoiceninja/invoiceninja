@@ -58,6 +58,6 @@ class CompanyImportFailure extends Mailable
 
         return $this->from(config('mail.from.address'), config('mail.from.name'))
                     ->subject(ctrans('texts.company_import_failure_subject', ['company' => $this->company->present()->name()]))
-                    ->view('email.import.import_failure');
+                    ->view('email.import.import_failure', ['user_message' => $this->user_message, 'title' => $this->title]);
     }
 }
