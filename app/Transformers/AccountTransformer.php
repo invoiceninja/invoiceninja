@@ -15,6 +15,7 @@ use App\Models\Account;
 use App\Models\Company;
 use App\Models\CompanyUser;
 use App\Models\User;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 
 /**
