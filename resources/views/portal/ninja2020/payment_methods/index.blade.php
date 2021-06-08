@@ -3,6 +3,6 @@
 
 @section('body')
     <div class="flex flex-col">
-        @livewire('payment-methods-table', ['client' => $client])
+        @livewire('payment-methods-table', ['client' => $client, 'company' => $company])
     </div>
 @endsection

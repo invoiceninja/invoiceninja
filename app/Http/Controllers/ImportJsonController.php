@@ -18,6 +18,7 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
+use ZipArchive;
 
 class ImportJsonController extends BaseController
 {
@@ -56,7 +57,7 @@ class ImportJsonController extends BaseController
      *       ),
      *     )
      */
-    public function index(ImportJsonRequest $request)
+    public function import(ImportJsonRequest $request)
     {
 
         $import_file = $request->file('files');
@@ -64,10 +65,12 @@ class ImportJsonController extends BaseController
         $contents = $this->unzipFile($import_file->getPathname());
 
         $hash = Str::random(32);
+    
+        nlog($hash);
 
         Cache::put( $hash, base64_encode( $contents ), 3600 );
 
-        CompanyImport::dispatch(auth()->user()->getCompany(), auth()->user(), $hash, $request->all());
+        CompanyImport::dispatch(auth()->user()->getCompany(), auth()->user(), $hash, $request->except('files'))->delay(now()->addMinutes(1));
 
         return response()->json(['message' => 'Processing'], 200);
 
@@ -86,11 +89,11 @@ class ImportJsonController extends BaseController
         if (! file_exists($file_location)) 
             throw new NonExistingMigrationFile('Backup file does not exist, or is corrupted.');
         
-        $data = json_decode(file_get_contents($file_location));
+        $data = file_get_contents($file_location);
 
         unlink($file_contents);
         unlink($file_location);
 
-        return $data
+        return $data;
     }
 }

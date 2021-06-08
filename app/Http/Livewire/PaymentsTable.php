@@ -12,6 +12,7 @@
 
 namespace App\Http\Livewire;
 
+use App\Libraries\MultiDB;
 use App\Models\Payment;
 use App\Utils\Traits\WithSorting;
 use Livewire\Component;
@@ -23,11 +24,17 @@ class PaymentsTable extends Component
     use WithPagination;
 
     public $per_page = 10;
+
     public $user;
 
+    public $company;
+    
     public function mount()
     {
+        MultiDB::setDb($this->company->db);
+
         $this->user = auth()->user();
+
     }
 
     public function render()

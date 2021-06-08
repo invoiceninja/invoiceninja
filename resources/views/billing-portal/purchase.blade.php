@@ -2,7 +2,7 @@
 @section('meta_title', ctrans('texts.purchase'))
 
 @section('body')
-    @livewire('billing-portal-purchase', ['subscription' => $subscription, 'contact' => auth('contact')->user(), 'hash' => $hash, 'request_data' => $request_data])
+    @livewire('billing-portal-purchase', ['subscription' => $subscription, 'company' => $subscription->company, 'contact' => auth('contact')->user(), 'hash' => $hash, 'request_data' => $request_data, 'campaign' => request()->query('campaign') ?? null])
 @stop
 
 @push('footer')

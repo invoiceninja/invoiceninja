@@ -133,7 +133,7 @@ class Company extends BaseModel
 
     public function all_documents()
     {
-        return $this->HasMany(Document::class);
+        return $this->hasMany(Document::class);
     }
 
     public function getEntityType()

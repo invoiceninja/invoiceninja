@@ -769,7 +769,7 @@ class ImportCompanyTest extends TestCase
 
         $this->backup_json_object->activities = $activities;
 
-        $this->genericImport(Activity::class, 
+        $this->genericNewClassImport(Activity::class, 
             [
                 'user_id',
                 'company_id',
@@ -806,8 +806,7 @@ class ImportCompanyTest extends TestCase
                 ['recurring_invoices' => 'recurring_invoice_id'],
                 ['invitations' => 'invitation_id'],
             ], 
-            'activities',
-            'created_at');
+            'activities');
 
         $this->assertEquals(25, Activity::count());
 

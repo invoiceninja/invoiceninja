@@ -18,12 +18,17 @@ class MagicLink
 {
 
     //return a magic login link URL
-    public static function create($email, $url = null) :string
+    public static function create($email, $company_id, $url = null) :string
     {
         $magic_key = Str::random(64);
         $timeout = 600; //seconds
 
-        Cache::add($magic_key, $email, $timeout);
+        $payload = [
+        	'email' => $email, 
+        	'company_id' => $company_id,
+        ];
+
+        Cache::add($magic_key, $payload, $timeout);
 
         return route('client.contact_magic_link', ['magic_link' => $magic_key, 'redirect' => $url]);
     }

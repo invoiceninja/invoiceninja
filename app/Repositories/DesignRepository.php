@@ -11,9 +11,22 @@
 
 namespace App\Repositories;
 
+use App\Models\Design;
+use Illuminate\Support\Str;
+
 /**
  * Class for DesignRepository .
  */
 class DesignRepository extends BaseRepository
 {
+
+    public function delete($design) :Design
+    {
+
+        $design->name = $design->name . "_deleted_" . Str::random(5);
+
+        parent::delete($design);
+
+        return $design;
+    }
 }

@@ -14,8 +14,8 @@ return [
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', 'invoicing.co'),
-    'app_version' => '5.1.70',
-    'app_tag' => '5.1.70-release',
+    'app_version' => '5.1.72',
+    'app_tag' => '5.1.72-release',
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', ''),
@@ -152,6 +152,7 @@ return [
     'ninja_stripe_client_id' => env('NINJA_STRIPE_CLIENT_ID', null),
     'ninja_default_company_id' => env('NINJA_COMPANY_ID', null),
     'ninja_default_company_gateway_id' => env('NINJA_COMPANY_GATEWAY_ID', null),
+    'ninja_hosted_secret' => env('NINJA_HOSTED_SECRET', null),
     'pdf_generator' => env('PDF_GENERATOR', false),
     'internal_queue_enabled' => env('INTERNAL_QUEUE_ENABLED', true),
 ];

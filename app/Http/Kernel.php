@@ -70,7 +70,7 @@ class Kernel extends HttpKernel
         TrimStrings::class,
         ConvertEmptyStringsToNull::class,
         TrustProxies::class,
-        //\Fruitcake\Cors\HandleCors::class,
+        // \Fruitcake\Cors\HandleCors::class,
         Cors::class,
 
     ];
@@ -85,7 +85,6 @@ class Kernel extends HttpKernel
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
             StartSession::class,
-            // \Illuminate\Session\Middleware\AuthenticateSession::class,
             ShareErrorsFromSession::class,
             VerifyCsrfToken::class,
             SubstituteBindings::class,
@@ -96,7 +95,6 @@ class Kernel extends HttpKernel
             'throttle:300,1',
             'bindings',
             'query_logging',
-            Cors::class,
         ],
         'contact' => [
             'throttle:60,1',
@@ -154,7 +152,7 @@ class Kernel extends HttpKernel
         'api_db' => SetDb::class,
         'company_key_db' => SetDbByCompanyKey::class,
         'locale' => Locale::class,
-        'contact.register' => ContactRegister::class,
+        'contact_register' => ContactRegister::class,
         'shop_token_auth' => ShopTokenAuth::class,
         'phantom_secret' => PhantomSecret::class,
         'contact_key_login' => ContactKeyLogin::class,
@@ -164,6 +162,7 @@ class Kernel extends HttpKernel
 
 
     protected $middlewarePriority = [
+        Cors::class,
         SetDomainNameDb::class,
         SetDb::class,
         SetWebDb::class,

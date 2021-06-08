@@ -50,6 +50,7 @@ class Handler extends ExceptionHandler
         //Swift_TransportException::class,
         MaxAttemptsExceededException::class,
         CommandNotFoundException::class,
+        ValidationException::class,
     ];
 
     /**

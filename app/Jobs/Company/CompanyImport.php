@@ -19,7 +19,9 @@ use App\Jobs\Util\UnlinkFile;
 use App\Libraries\MultiDB;
 use App\Mail\DownloadBackup;
 use App\Mail\DownloadInvoices;
+use App\Mail\Import\CompanyImportFailure;
 use App\Models\Activity;
+use App\Models\Backup;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\ClientGatewayToken;
@@ -40,6 +42,7 @@ use App\Models\Payment;
 use App\Models\PaymentTerm;
 use App\Models\Paymentable;
 use App\Models\Product;
+use App\Models\Project;
 use App\Models\Quote;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoice;
@@ -59,6 +62,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use ZipArchive;
@@ -84,6 +88,10 @@ class CompanyImport implements ShouldQueue
     public $ids = [];
 
     private $request_array = [];
+
+    public $message = '';
+
+    public $pre_flight_checks_pass = true;
 
     private $importables = [
         // 'company',
@@ -145,28 +153,128 @@ class CompanyImport implements ShouldQueue
     	$this->company = Company::where('company_key', $this->company->company_key)->firstOrFail();
         $this->account = $this->company->account;
 
+        nlog("Company ID = {$this->company->id}");
+        nlog("Hash ID = {$this->hash}");
+
         $this->backup_file = Cache::get($this->hash);
 
         if ( empty( $this->backup_file ) ) 
             throw new \Exception('No import data found, has the cache expired?');
         
-        $this->backup_file = base64_decode($this->backup_file);
+        $this->backup_file = json_decode(base64_decode($this->backup_file));
 
+        // nlog($this->backup_file);
 
-        if(array_key_exists('import_settings', $request) && $request['import_settings'] == 'true') {
-            $this->preFlightChecks()->importSettings();
+        if(array_key_exists('import_settings', $this->request_array) && $this->request_array['import_settings'] == 'true') {
+            $this->checkUserCount()->preFlightChecks()->importSettings();
         }
 
-        if(array_key_exists('import_data', $request) && $request['import_data'] == 'true') {
+        if(array_key_exists('import_data', $this->request_array) && $this->request_array['import_data'] == 'true') {
 
-            $this->preFlightChecks()
-                 ->purgeCompanyData()
-                 ->importData();
+            try{
+
+                $this->checkUserCount()
+                     ->preFlightChecks()
+                     ->purgeCompanyData()
+                     ->importData();
+
+             }
+             catch(\Exception $e){
+
+                info($e->getMessage());
+
+             }
 
         }
 
     }
 
+    /**
+     * On the hosted platform we cannot allow the 
+     * import to start if there are users > plan number
+     * due to entity user_id dependencies
+     *     
+     * @return bool
+     */
+    private function checkUserCount()
+    {
+
+        if(Ninja::isSelfHost())
+            $this->pre_flight_checks_pass = true;
+
+        $backup_users = $this->backup_file->users;
+
+        $company_users = $this->company->users;
+        
+        $company_owner = $this->company->owner();
+
+        if($this->company->account->isFreeHostedClient()){
+
+            nlog("This is a free account");
+            nlog("Backup user count = ".count($backup_users));
+
+            if(count($backup_users) > 1){
+                $this->message = 'Only one user can be in the import for a Free Account';
+                $this->pre_flight_checks_pass = false;
+            }
+
+            nlog("backup users email = " . $backup_users[0]->email);
+
+            if(count($backup_users) == 1 && $company_owner->email != $backup_users[0]->email) {
+                $this->message = 'Account emails do not match. Account owner email must match backup user email';
+                $this->pre_flight_checks_pass = false;
+            }
+
+            $backup_users_emails = array_column($backup_users, 'email');
+
+            $company_users_emails = $company_users->pluck('email')->toArray();
+
+            $existing_user_count = count(array_intersect($backup_users_emails, $company_users_emails));
+
+            nlog("existing user count = {$existing_user_count}");
+
+            if($existing_user_count > 1){
+
+                if($this->account->plan == 'pro'){
+                    $this->message = 'Pro plan is limited to one user, you have multiple users in the backup file';
+                    $this->pre_flight_checks_pass = false;
+                }
+
+                if($this->account->plan == 'enterprise'){
+
+                    $total_import_users = count($backup_users_emails);
+
+                    $account_plan_num_user = $this->account->num_users;
+
+                    if($total_import_users > $account_plan_num_user){
+                        $this->message = "Total user count ({$total_import_users}) greater than your plan allows ({$account_plan_num_user})";
+                        $this->pre_flight_checks_pass = false;
+                    }
+
+                }
+            }
+
+            if($this->company->account->isFreeHostedClient() && count($this->backup_file->clients) > config('ninja.quotas.free.clients')){
+                
+                nlog("client quota busted");
+
+                $client_count = count($this->backup_file->clients);
+
+                $client_limit = config('ninja.quotas.free.clients');
+
+                $this->message = "You are attempting to import ({$client_count}) clients, your current plan allows a total of ({$client_limit})";
+                
+                $this->pre_flight_checks_pass = false;
+
+            }
+
+        }
+
+        nlog($this->message);
+        nlog($this->pre_flight_checks_pass);
+
+        return $this;
+    }
 
     //check if this is a complete company import OR if it is selective
     /*
@@ -177,12 +285,23 @@ class CompanyImport implements ShouldQueue
     private function preFlightChecks()
     {
     	//check the file version and perform any necessary adjustments to the file in order to proceed - needed when we change schema
-    	
     	if($this->current_app_version != $this->backup_file->app_version)
         {
             //perform some magic here
         }
+        
+        if($this->pre_flight_checks_pass === false)
+        {
+            $nmo = new NinjaMailerObject;
+            $nmo->mailable = new CompanyImportFailure($this->company, $this->message);
+            $nmo->company = $this->company;
+            $nmo->settings = $this->company->settings;
+            $nmo->to_user = $this->company->owner();
+            NinjaMailerJob::dispatchNow($nmo);
 
+            nlog($this->message);
+            throw new \Exception($this->message);
+        }
 
     	return $this;
     }
@@ -236,9 +355,13 @@ class CompanyImport implements ShouldQueue
 
             $method = "import_{$import}";
 
+            nlog($method);
+
             $this->{$method}();
 
         }
+
+            nlog("finished importing company data");
 
         return $this;
 
@@ -278,6 +401,8 @@ class CompanyImport implements ShouldQueue
                         $obj_array,
                     );
 
+            $new_obj->company_id = $this->company->id;
+            $new_obj->user_id = $user_id;
             $new_obj->save(['timestamps' => false]);
             
         }
@@ -328,8 +453,8 @@ class CompanyImport implements ShouldQueue
     {
 
         $this->genericImport(ClientContact::class, 
-            ['user_id', 'assigned_user_id', 'company_id', 'id', 'hashed_id'], 
-            [['users' => 'user_id'], ['users' => 'assigned_user_id']], 
+            ['user_id', 'company_id', 'id', 'hashed_id'], 
+            [['users' => 'user_id'], ['clients' => 'client_id']], 
             'client_contacts',
             'email');
 
@@ -644,24 +769,8 @@ class CompanyImport implements ShouldQueue
 
         $this->backup_file->activities = $activities;
 
-        $this->genericImport(Activity::class, 
+        $this->genericNewClassImport(Activity::class, 
             [
-                'user_id',
-                'company_id',
-                'client_id',
-                'client_contact_id',
-                'project_id',
-                'vendor_id',
-                'payment_id',
-                'invoice_id',
-                'credit_id',
-                'invitation_id',
-                'task_id',
-                'expense_id',
-                'token_id',
-                'quote_id',
-                'subscription_id',
-                'recurring_invoice_id',
                 'hashed_id',
                 'company_id',
             ], 
@@ -681,8 +790,7 @@ class CompanyImport implements ShouldQueue
                 ['recurring_invoices' => 'recurring_invoice_id'],
                 ['invitations' => 'invitation_id'],
             ], 
-            'activities',
-            'created_at');
+            'activities');
 
         return $this;
 
@@ -692,7 +800,7 @@ class CompanyImport implements ShouldQueue
     {
 
         $this->genericImportWithoutCompany(Backup::class, 
-            ['activity_id','hashed_id'], 
+            ['hashed_id','id'], 
             [
                 ['activities' => 'activity_id'], 
             ], 
@@ -711,7 +819,7 @@ class CompanyImport implements ShouldQueue
             [
                 ['users' => 'user_id'], 
                 ['clients' => 'client_id'],
-                ['activities' => 'activity_id'],
+                // ['activities' => 'activity_id'],
             ], 
             'company_ledger',
             'created_at');
@@ -802,9 +910,14 @@ class CompanyImport implements ShouldQueue
             if(User::where('email', $user->email)->where('account_id', '!=', $this->account->id)->exists())
                 throw new ImportCompanyFailed("{$user->email} is already in the system attached to a different account");
 
+            $user_array = (array)$user;
+            unset($user_array['laravel_through_key']);
+            unset($user_array['hashed_id']);
+            unset($user_array['id']);
+
             $new_user = User::firstOrNew(
                 ['email' => $user->email],
-                (array)$user,
+                $user_array,
             );
 
             $new_user->account_id = $this->account->id;
@@ -824,11 +937,14 @@ class CompanyImport implements ShouldQueue
 
         foreach($this->backup_file->company_users as $cu)
         {
-            $user_id = $this->transformId($cu->user_id);
+            $user_id = $this->transformId('users', $cu->user_id);
+
+            $cu_array = (array)$cu;
+            unset($cu_array['id']);
 
             $new_cu = CompanyUser::firstOrNew(
-                        ['user_id' => $user_id, 'company_id', $this->company->id],
-                        (array)$cu,
+                        ['user_id' => $user_id, 'company_id' => $this->company->id],
+                        $cu_array,
                     );
 
             $new_cu->account_id = $this->account->id;
@@ -945,7 +1061,7 @@ class CompanyImport implements ShouldQueue
 
             $activity_invitation_key = false;
 
-            if($class instanceof Activity){
+            if($class == 'App\Models\Activity'){
 
                 if(isset($obj->invitation_id)){
 
@@ -955,6 +1071,7 @@ class CompanyImport implements ShouldQueue
                         $activity_invitation_key = 'quote_invitations';
                     elseif($isset($obj->credit_id))
                         $activity_invitation_key  = 'credit_invitations';
+
                 }
 
             }
@@ -964,14 +1081,15 @@ class CompanyImport implements ShouldQueue
             {
                 foreach($transform as $key => $value)
                 {
-                    if($class instanceof Activity && $activity_invitation_key)
+                    if($class == 'App\Models\Activity' && $activity_invitation_key && $key == 'invitations'){
                         $key = $activity_invitation_key;
+                    }
                     
                     $obj_array["{$value}"] = $this->transformId($key, $obj->{$value});
                 }    
             }
 
-            if($class instanceof CompanyGateway) {
+            if($class == 'App\Models\CompanyGateway') {
                 $obj_array['config'] = encrypt($obj_array['config']);
             }
 
@@ -1105,10 +1223,13 @@ class CompanyImport implements ShouldQueue
             return null;
 
         if (! array_key_exists($resource, $this->ids)) {
+            // nlog($this->ids);
             throw new \Exception("Resource {$resource} not available.");
         }
 
         if (! array_key_exists("{$old}", $this->ids[$resource])) {
+            // nlog($this->ids[$resource]);
+            nlog("searching for {$old} in {$resource}");
             throw new \Exception("Missing {$resource} key: {$old}");
         }
 
