@@ -243,10 +243,6 @@ class CompanyImport implements ShouldQueue
                 }
             }
 
-            if(strlen($this->message) > 1){
-                return false;
-            }
-
             if($this->company->account->isFreeHostedClient() && count($this->backup_file->clients) > config('ninja.quotas.free.clients')){
 
                 $client_count = count($this->backup_file->clients);
