@@ -11,7 +11,11 @@
             <h3 class="panel-title">{!! trans('texts.welcome_to_the_new_version') !!}</h3>
         </div>
         <div class="panel-body">
-            <h4>{!! trans('texts.migration_auth_label') !!}</h4><br/>
+            @if(Utils::isNinjaProd())
+            <h4>{!! trans('texts.migration_create_account_notice') !!}</h4><br/>
+            @else
+            <h4>{!! trans('texts.migration_auth_label')!!}</h4>
+            @endif
             <form action="{{ url('/migration/auth') }}" method="post" id="auth-form">
                 {{ csrf_field() }}
 
@@ -25,11 +29,13 @@
                     <input type="password" name="password" class="form form-control">
                 </div>
 
-                <div class="form-group">
-                    <label for="api_secret">{!! trans('texts.api_secret') !!}</label>
-                    <input type="api_secret" name="api_secret" class="form form-control">
-                    <small>{!! trans('texts.migration_api_secret_notice') !!}</small>
-                </div>
+                @if(!Utils::isNinjaProd())
+                    <div class="form-group">
+                        <label for="api_secret">{!! trans('texts.api_secret') !!}</label>
+                        <input type="api_secret" name="api_secret" class="form form-control">
+                        <small>{!! trans('texts.migration_api_secret_notice') !!}</small>
+                    </div>
+                @endif
             </form>
         </div>
         <div class="panel-footer text-right">

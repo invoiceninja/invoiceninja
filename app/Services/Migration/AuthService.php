@@ -53,18 +53,18 @@ class AuthService
 
         $body = Body::json($data);
 
-        try {
-            $response = Request::post($this->getUrl(), $this->getHeaders(), $body);
+        $response = Request::post($this->getUrl(), $this->getHeaders(), $body);
 
+        if (in_array($response->code, [401])) {
+            info($response->raw_body);
+
+            $this->isSuccessful = false;
+            $this->processErrors($response->body->message);
+        } elseif (in_array($response->code, [200])) {
             $this->isSuccessful = true;
             $this->token = $response->body->data[0]->token->token;
-
-            if (in_array($response->code, [401, 422, 500])) {
-                $this->isSuccessful = false;
-                $this->processErrors($response->body);
-            }
-        } catch (\Exception $e) {
-            info($e->getMessage());
+        } else {
+            info($response->raw_body);
 
             $this->isSuccessful = false;
             $this->errors = [trans('texts.migration_went_wrong')];
@@ -118,7 +118,7 @@ class AuthService
 
     private function processErrors($errors)
     {
-        $array = (array) $errors;
+        $array = (array)$errors;
 
         $this->errors = $array;
     }

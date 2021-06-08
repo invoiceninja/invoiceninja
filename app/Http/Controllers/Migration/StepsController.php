@@ -2,18 +2,19 @@
 
 namespace App\Http\Controllers\Migration;
 
+use App\Http\Controllers\BaseController;
+use App\Http\Requests\MigrationAuthRequest;
+use App\Http\Requests\MigrationCompaniesRequest;
+use App\Http\Requests\MigrationEndpointRequest;
+use App\Http\Requests\MigrationTypeRequest;
 use App\Libraries\Utils;
+use App\Models\Account;
+use App\Services\Migration\AuthService;
+use App\Services\Migration\CompanyService;
+use App\Services\Migration\CompleteService;
 use App\Traits\GenerateMigrationResources;
 use Illuminate\Support\Facades\Auth;
-use App\Services\Migration\AuthService;
-use App\Http\Controllers\BaseController;
-use App\Services\Migration\CompanyService;
-use App\Http\Requests\MigrationAuthRequest;
-use App\Http\Requests\MigrationTypeRequest;
-use App\Services\Migration\CompleteService;
-use App\Http\Requests\MigrationEndpointRequest;
-use App\Http\Requests\MigrationCompaniesRequest;
-use App\Models\Account;
+use Illuminate\Support\Facades\Storage;
 
 class StepsController extends BaseController
 {
@@ -65,9 +66,16 @@ class StepsController extends BaseController
         session()->put('MIGRATION_TYPE', $request->option);
 
         if ($request->option == 0) {
+
+            session()->put('MIGRATION_ENDPOINT', 'https://invoicing.co');
+
             return redirect(
-                url('/migration/endpoint')
+                url('/migration/auth')
             );
+
+            // return redirect(
+            //     url('/migration/endpoint')
+            // );
         }
 
         return redirect(
@@ -94,7 +102,7 @@ class StepsController extends BaseController
             );
         }
 
-        session()->put('MIGRATION_ENDPOINT', $request->endpoint);
+        session()->put('MIGRATION_ENDPOINT', rtrim($request->endpoint,'/'));
 
         return redirect(
             url('/migration/auth')
@@ -168,14 +176,22 @@ class StepsController extends BaseController
             );
         }
 
-        $migrationData = $this->generateMigrationData($request->all());
+        try {
+            $migrationData = $this->generateMigrationData($request->all());
 
-        $completeService = (new CompleteService(session('MIGRATION_ACCOUNT_TOKEN')))
-            ->data($migrationData)
-            ->endpoint(session('MIGRATION_ENDPOINT'))
-            ->start();
+            $completeService = (new CompleteService(session('MIGRATION_ACCOUNT_TOKEN')))
+                ->data($migrationData)
+                ->endpoint(session('MIGRATION_ENDPOINT'))
+                ->start();
+        }
+        finally {
+        
+            if ($completeService->isSuccessful()) {
+                return view('migration.completed');
+            }
 
-        return view('migration.completed');
+            return view('migration.completed', ['customMessage' => $completeService->getErrors()[0]]);
+        }
     }
 
     public function completed()
@@ -211,6 +227,8 @@ class StepsController extends BaseController
      */
     public function generateMigrationData(array $data): array
     {
+        set_time_limit(0);
+
         $migrationData = [];
 
         foreach ($data['companies'] as $company) {
@@ -232,6 +250,8 @@ class StepsController extends BaseController
                 'tax_rates' => $this->getTaxRates(),
                 'payment_terms' => $this->getPaymentTerms(),
                 'clients' => $this->getClients(),
+                'company_gateways' => $this->getCompanyGateways(),
+                'client_gateway_tokens' => $this->getClientGatewayTokens(),
                 'vendors' => $this->getVendors(),
                 'projects' => $this->getProjects(),
                 'products' => $this->getProducts(),
@@ -241,18 +261,20 @@ class StepsController extends BaseController
                 'quotes' => $this->getQuotes(),
                 'payments' => array_merge($this->getPayments(), $this->getCredits()),
                 'documents' => $this->getDocuments(),
-                'company_gateways' => $this->getCompanyGateways(),
-                'client_gateway_tokens' => $this->getClientGatewayTokens(),
                 'expense_categories' => $this->getExpenseCategories(),
                 'task_statuses' => $this->getTaskStatuses(),
                 'expenses' => $this->getExpenses(),
                 'tasks' => $this->getTasks(),
                 'documents' => $this->getDocuments(),
+                'ninja_tokens' => $this->getNinjaToken(),
             ];
 
-            $localMigrationData['force'] = array_key_exists('force', $company) ? true : false;
+            $localMigrationData['force'] = array_key_exists('force', $company);
 
-            $file = storage_path("migrations/{$fileName}.zip");
+            Storage::makeDirectory('migrations');
+            $file = Storage::path("migrations/{$fileName}.zip");
+
+            //$file = storage_path("migrations/{$fileName}.zip");
 
             ksort($localMigrationData);
 
