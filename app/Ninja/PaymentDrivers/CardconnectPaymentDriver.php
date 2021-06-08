@@ -25,13 +25,14 @@ class CardconnectPaymentDriver extends BasePaymentDriver
     {
         parent::__construct($accountGateway, $invitation, $gatewayType);
 
-        // var_dump($accountGateway->config);
-        $config = Crypt::decrypt($accountGateway->config);
-        $config = json_decode($config);
+        if(!empty($accountGateway) && !empty($accountGateway->config)){
+            $config = Crypt::decrypt($accountGateway->config);
+            $config = json_decode($config);
 
-        $server = 'https://'.$config->apiHost.':'.$config->apiPort.'/';
+            $server = 'https://'.$config->apiHost.':'.$config->apiPort.'/';
 
-        $this->cardconnect = new CardPointe($config->merchantId, $config->apiUsername, $config->apiPassword, $server);
+            $this->cardconnect = new CardPointe($config->merchantId, $config->apiUsername, $config->apiPassword, $server);
+        }
     }
 
     public function gatewayTypes()
