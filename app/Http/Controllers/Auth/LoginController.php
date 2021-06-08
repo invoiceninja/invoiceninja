@@ -214,7 +214,7 @@ class LoginController extends BaseController
                 return response()->json(['message' => 'User not linked to any companies'], 403);
 
             /* Ensure the user has a valid token */
-            $user->company_users->each(function ($company_user){
+            $user->company_users->each(function ($company_user) use($request){
 
                 if($company_user->tokens->count() == 0){
                     CreateCompanyToken::dispatchNow($company_user->company, $company_user->user, $request->server('HTTP_USER_AGENT'));
