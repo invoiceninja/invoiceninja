@@ -300,7 +300,10 @@ class BankAccountService extends BaseService
                 'expense_date' => $transaction['date'],
                 'transaction_id' => $transaction['id'],
                 'bank_id' => $bankId,
-                'should_be_invoiced' => true,
+                'should_be_invoiced' => false,
+                'mark_paid' => true,
+                'payment_type_id' => 4,
+                'payment_date' => $transaction['date'],
             ]);
             $countExpenses++;
         }
