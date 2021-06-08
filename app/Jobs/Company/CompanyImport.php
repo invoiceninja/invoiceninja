@@ -288,6 +288,7 @@ class CompanyImport implements ShouldQueue
             $nmo->to_user = $this->company->owner();
             NinjaMailerJob::dispatchNow($nmo);
 
+            nlog($this->message);
             throw new \Exception($this->message);
         }
 
