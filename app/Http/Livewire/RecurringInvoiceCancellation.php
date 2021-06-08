@@ -12,6 +12,7 @@
 
 namespace App\Http\Livewire;
 
+use App\Libraries\MultiDB;
 use App\Models\RecurringInvoice;
 use Livewire\Component;
 
@@ -22,6 +23,18 @@ class RecurringInvoiceCancellation extends Component
      */
     public $invoice;
 
+    public $company;
+    
+    public function mount()
+    {
+        MultiDB::setDb($this->company->db);
+    }
+
+    public function render()
+    {
+        return render('components.livewire.recurring-invoice-cancellation');
+    }
+
     public function processCancellation()
     {
         if ($this->invoice->subscription) {
@@ -31,8 +44,5 @@ class RecurringInvoiceCancellation extends Component
         return redirect()->route('client.recurring_invoices.request_cancellation', ['recurring_invoice' => $this->invoice->hashed_id]);
     }
 
-    public function render()
-    {
-        return render('components.livewire.recurring-invoice-cancellation');
-    }
+
 }

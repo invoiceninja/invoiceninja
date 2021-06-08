@@ -254,7 +254,7 @@ class CompanySettings extends BaseSettings
     public $portal_custom_footer = ''; //@TODO @BEN
     public $portal_custom_js = ''; //@TODO @BEN
 
-    public $client_can_register = false; //@implemented
+    public $client_can_register = false; //@deorecated 04/06/2021
     public $client_portal_terms = ''; //@TODO @BEN
     public $client_portal_privacy_policy = ''; //@TODO @BEN
     public $client_portal_enable_uploads = false; //@implemented

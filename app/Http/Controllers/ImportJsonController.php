@@ -65,10 +65,12 @@ class ImportJsonController extends BaseController
         $contents = $this->unzipFile($import_file->getPathname());
 
         $hash = Str::random(32);
+    
+        nlog($hash);
 
         Cache::put( $hash, base64_encode( $contents ), 3600 );
 
-        CompanyImport::dispatch(auth()->user()->getCompany(), auth()->user(), $hash, $request->except('files'));
+        CompanyImport::dispatch(auth()->user()->getCompany(), auth()->user(), $hash, $request->except('files'))->delay(now()->addMinutes(1));
 
         return response()->json(['message' => 'Processing'], 200);
 

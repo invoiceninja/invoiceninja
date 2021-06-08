@@ -12,6 +12,7 @@
 
 namespace App\Http\Livewire;
 
+use App\Libraries\MultiDB;
 use App\Models\Quote;
 use App\Utils\Traits\WithSorting;
 use Livewire\Component;
@@ -23,7 +24,16 @@ class QuotesTable extends Component
     use WithPagination;
 
     public $per_page = 10;
+
     public $status = [];
+
+    public $company;
+    
+    public function mount()
+    {
+        MultiDB::setDb($this->company->db);
+
+    }
 
     public function render()
     {

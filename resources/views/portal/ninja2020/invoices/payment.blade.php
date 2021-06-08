@@ -19,7 +19,7 @@
             <div class="col-span-6 md:col-start-2 md:col-span-4">
                 <div class="flex justify-end">
                     <div class="flex justify-end mb-2">
-                        @livewire('pay-now-dropdown', ['total' => $total])
+                        @livewire('pay-now-dropdown', ['total' => $total, 'company' => $company])
                     </div>
                 </div>
 

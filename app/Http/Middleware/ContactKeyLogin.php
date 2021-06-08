@@ -46,7 +46,7 @@ class ContactKeyLogin
             if($client_contact = ClientContact::where('email', $contact_email)->where('company_id', $payload['company_id'])->first()){
                
                  if(empty($client_contact->email))
-                    $client_contact->email = Str::random(6) . "@example.com"; $client_contact->save();
+                    $client_contact->email = Str::random(15) . "@example.com"; $client_contact->save();
     
                 auth()->guard('contact')->login($client_contact, true);
 
