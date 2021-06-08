@@ -11,7 +11,9 @@
 
 namespace App\DataMapper\Analytics;
 
-class DbQuery
+use Turbo124\Beacon\ExampleMetric\GenericMixedMetric;
+
+class DbQuery extends GenericMixedMetric
 {
     /**
      * The type of Sample.

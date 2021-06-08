@@ -11,7 +11,9 @@
 
 namespace App\DataMapper\Analytics;
 
-class AccountCreated
+use Turbo124\Beacon\ExampleMetric\GenericCounter;
+
+class AccountCreated extends GenericCounter
 {
     /**
      * The type of Sample.

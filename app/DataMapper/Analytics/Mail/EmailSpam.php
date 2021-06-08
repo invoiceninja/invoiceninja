@@ -11,7 +11,9 @@
 
 namespace App\DataMapper\Analytics\Mail;
 
-class EmailSpam
+use Turbo124\Beacon\ExampleMetric\GenericMixedMetric;
+
+class EmailSpam extends GenericMixedMetric
 {
     /**
      * The type of Sample.

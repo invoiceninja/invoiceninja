@@ -11,7 +11,9 @@
 
 namespace App\DataMapper\Analytics\Mail;
 
-class EmailBounce
+use Turbo124\Beacon\ExampleMetric\GenericMixedMetric;
+
+class EmailBounce extends GenericMixedMetric
 {
     /**
      * The type of Sample.

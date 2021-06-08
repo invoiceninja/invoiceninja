@@ -12,6 +12,7 @@
 
 namespace App\Http\Livewire;
 
+use App\Factory\CompanyGatewayFactory;
 use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\User;
@@ -48,6 +49,7 @@ class WepaySignup extends Component
         'country' => ['required'],
         'ach' => ['sometimes'],
         'wepay_payment_tos_agree' => ['accepted'],
+        'debit_cards' => ['sometimes'],
     ];
 
     public function mount()
@@ -77,22 +79,29 @@ class WepaySignup extends Component
 
     public function submit()
     {
+        $data = $this->validate($this->rules);
+
         //need to create or get a new WePay CompanyGateway
-        $cg = CompanyGateway::where('id', 49)
+        $cg = CompanyGateway::where('gateway_key', '8fdeed552015b3c7b44ed6c8ebd9e992')
                             ->where('company_id', $this->company->id)
                             ->firstOrNew();
 
         if(!$cg->id) {
-
+            $cg = CompanyGatewayFactory::create($this->company->id, $this->user->id);
+            $cg->gateway_key = '8fdeed552015b3c7b44ed6c8ebd9e992';
+            $cg->require_cvv = false;
+            $cg->require_billing_address = false;
+            $cg->require_shipping_address = false;
+            $cg->update_details = false;
+            $cg->config = encrypt(config('ninja.testvars.checkout'));
+            $cg->save();
         }
-
-        $data = $this->validate($this->rules);
 
         $this->saved = ctrans('texts.processing');
 
-        $wepay_driver = new WePayPaymentDriver(new CompanyGateway, null, null);
+        $wepay_driver = new WePayPaymentDriver($cg, null, null);
 
-        $wepay_driver->init();
+        $wepay = $wepay_driver->init()->wepay;
 
         $user_details = [
             'client_id' => config('ninja.wepay.client_id'),
@@ -107,7 +116,7 @@ class WepaySignup extends Component
             'scope' => 'manage_accounts,collect_payments,view_user,preapprove_payments,send_money',
         ];
 
-        $wepay_user = $wepay_driver->request('user/register/', $user_details);
+        $wepay_user = $wepay->request('user/register/', $user_details);
 
         $access_token = $wepay_user->access_token;
 
@@ -120,7 +129,7 @@ class WepaySignup extends Component
                 'description' => ctrans('texts.wepay_account_description'),
                 'theme_object' => json_decode('{"name":"Invoice Ninja","primary_color":"0b4d78","secondary_color":"0b4d78","background_color":"f8f8f8","button_color":"33b753"}'),
                 'callback_uri' => route('payment_webhook', ['company_key' => $this->company->company_key, 'company_gateway_id' => $cg->hashed_id]),
-                'rbits' => $this->company->present()->rBits,
+                'rbits' => $this->company->rBits(),
                 'country' => $data['country'],
             ];
 
@@ -144,5 +153,19 @@ class WepaySignup extends Component
                 }
             }
 
+            $config = [
+                'userId' => $wepay_user->user_id,
+                'accessToken' => $access_token,
+                'tokenType' => $wepay_user->token_type,
+                'tokenExpires' => $access_token_expires,
+                'accountId' => $wepay_account->account_id,
+                'state' => $wepay_account->state,
+                'testMode' => config('ninja.wepay.environment') == 'staging',
+                'country' => $data['country'],
+            ];
+
+            $cg->setConfig($config);
+            $cg->save();
     }
+
 }

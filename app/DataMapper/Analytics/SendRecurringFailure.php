@@ -11,7 +11,9 @@
 
 namespace App\DataMapper\Analytics;
 
-class SendRecurringFailure
+use Turbo124\Beacon\ExampleMetric\GenericMixedMetric;
+
+class SendRecurringFailure extends GenericMixedMetric
 {
     /**
      * The type of Sample.

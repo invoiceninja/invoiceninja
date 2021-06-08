@@ -11,7 +11,9 @@
 
 namespace App\DataMapper\Analytics;
 
-class MigrationFailure
+use Turbo124\Beacon\ExampleMetric\GenericMixedMetric;
+
+class MigrationFailure extends GenericMixedMetric
 {
     /**
      * The type of Sample.
