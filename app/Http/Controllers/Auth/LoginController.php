@@ -213,14 +213,23 @@ class LoginController extends BaseController
             if(!$cu->exists())
                 return response()->json(['message' => 'User not linked to any companies'], 403);
 
-            $cu->first()->account->companies->each(function ($company) use($cu, $request){
+            /* Ensure the user has a valid token */
+            $user->company_users->each(function ($company_user){
 
-                if($company->tokens()->where('is_system', true)->count() == 0)
-                {
-                    CreateCompanyToken::dispatchNow($company, $cu->first()->user, $request->server('HTTP_USER_AGENT'));
+                if($company_user->tokens->count() == 0){
+                    CreateCompanyToken::dispatchNow($company_user->company, $company_user->user, $request->server('HTTP_USER_AGENT'));
                 }
 
             });
+
+            // $cu->first()->account->companies->each(function ($company) use($cu, $request){
+
+            //     if($company->tokens()->where('is_system', true)->count() == 0)
+            //     {
+            //         CreateCompanyToken::dispatchNow($company, $cu->first()->user, $request->server('HTTP_USER_AGENT'));
+            //     }
+
+            // });
 
             return $this->timeConstrainedResponse($cu);
 
