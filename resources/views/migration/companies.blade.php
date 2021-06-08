@@ -25,7 +25,7 @@
                 </div>
                 <div class="form-group">
                     <label for="companies[{{ $company['company_key'] }}][force]">
-                        <input type="checkbox" id="companies[{{ $company['company_key'] }}][force]" name="companies[{{ $company['company_key'] }}][force]">
+                        <input type="checkbox" onclick="document.getElementById('{{ $company['company_key'] }}').checked = true" id="companies[{{ $company['company_key'] }}][force]" name="companies[{{ $company['company_key'] }}][force]">
                         <small>{!! trans('texts.force_migration') !!}</small>
                     </label>
                 </div>

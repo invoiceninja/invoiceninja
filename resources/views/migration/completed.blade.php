@@ -9,8 +9,7 @@
             <h3 class="panel-title">{!! trans('texts.welcome_to_the_new_version') !!}</h3>
         </div>
         <div class="panel-body">
-            Migration has started. We'll update you with status, on your company e-mail.
-            <!-- Note: This message needs edit, like next instructions, etc. -->
+            {{ $customMessage ?? 'Migration has started. We\'ll update you with status, on your company e-mail.' }}
         </div>
     </div>
 
