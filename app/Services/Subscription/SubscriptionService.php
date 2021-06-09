@@ -630,7 +630,7 @@ class SubscriptionService
      */
     public function triggerWebhook($context)
     {
-        if (empty($this->subscription->webhook_configuration['post_purchase_url']) || empty($this->subscription->webhook_configuration['post_purchase_rest_method'])) {
+        if (empty($this->subscription->webhook_configuration['post_purchase_url']) || is_null($this->subscription->webhook_configuration['post_purchase_url']) || strlen($this->subscription->webhook_configuration['post_purchase_url']) < 1) {
             return ["message" => "Success", "status_code" => 200];
         }
 
