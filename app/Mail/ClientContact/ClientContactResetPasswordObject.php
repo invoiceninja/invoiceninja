@@ -34,7 +34,7 @@ class ClientContactResetPasswordObject
 
         $data = [
             'title' => ctrans('texts.your_password_reset_link'),
-            'message' => ctrans('texts.reset_password'),
+            'content' => ctrans('texts.reset_password'),
             'url' => route('client.password.reset', ['token' => $this->token, 'email' => $this->client_contact->email]),
             'button' => ctrans('texts.reset'),
             'signature' => $this->company->settings->email_signature,
