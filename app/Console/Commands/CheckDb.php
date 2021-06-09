@@ -128,9 +128,10 @@ class CheckDb extends Command
 
         foreach($this->entities as $entity) {
 
-
+            $this->LogMessage("V5_DB1");
+            
             $count_db_1 = $entity::on('db-ninja-01')->count();
-            $count_db_2 = $entity::on('db-ninja-02')->count();
+            $count_db_2 = $entity::on('db-ninja-02a')->count();
 
             $diff = $count_db_1 - $count_db_2;
 
@@ -138,9 +139,25 @@ class CheckDb extends Command
 
             if($diff != 0)
                 $this->logMessage("{$entity} out of sync!!!!!");
-            
+
         }
 
+
+        foreach($this->entities as $entity) {
+
+            $this->LogMessage("V5_DB2");
+
+            $count_db_1 = $entity::on('db-ninja-02')->count();
+            $count_db_2 = $entity::on('db-ninja-01a')->count();
+
+            $diff = $count_db_1 - $count_db_2;
+
+            $this->logMessage("{$entity} DB1: {$count_db_1} - DB2: {$count_db_2} - diff = {$diff}");
+
+            if($diff != 0)
+                $this->logMessage("{$entity} out of sync!!!!!");
+
+        }
     }
 
     private function logMessage($str)
