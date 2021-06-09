@@ -4259,6 +4259,8 @@ $LANG = array(
     'login_link_requested_label' => 'Login link requested',
     'login_link_requested' => 'There was a request to login using link. If you did not request this, it\'s safe to ignore it.',
     'invoices_backup_subject' => 'Your invoices are ready for download',
+    'migration_failed_label' => 'Migration failed',
+    'migration_failed' => 'Looks like something went wrong with the migration for the following company:',
 );
 
 return $LANG;
