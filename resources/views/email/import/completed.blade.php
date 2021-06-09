@@ -1,6 +1,6 @@
-@component('email.template.admin-light', ['logo' => 'https://www.invoiceninja.com/wp-content/uploads/2015/10/logo-white-horizontal-1.png', 'settings' => $settings])
+@component('email.template.admin', ['logo' => $logo, 'settings' => $settings])
     <div class="center">
-        <h1>Import completed</h1>
+        <h1>{{ ctrans('texts.import_complete') }}</h1>
         <p>Hello, here is the output of your recent import job.</p>
 
         <p><b>If your logo imported correctly it will display below. If it didn't import, you'll need to reupload your logo</b></p>
@@ -98,7 +98,8 @@
 
         <a href="{{ url('/') }}" target="_blank" class="button">{{ ctrans('texts.account_login')}}</a>
 
-        <p>{{ ctrans('texts.email_signature')}}<br/> {{ ctrans('texts.email_from') }}</p>
+        <p>{{ ctrans('texts.email_signature')}}</p>
+        <p>{{ ctrans('texts.email_from') }}</p>
     </div>
 @endcomponent
 
