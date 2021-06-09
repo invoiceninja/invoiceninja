@@ -14,6 +14,7 @@ namespace App\Http\Requests\User;
 use App\DataMapper\DefaultSettings;
 use App\Factory\UserFactory;
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\Ninja\CanAddUserRule;
 use App\Http\ValidationRules\User\AttachableUser;
 use App\Http\ValidationRules\ValidUserForCompany;
 use App\Libraries\MultiDB;
