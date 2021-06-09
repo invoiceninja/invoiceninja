@@ -98,7 +98,7 @@ class PayPalExpressPaymentDriver extends BaseDriver
 
         $message = [
             'server_response' => $response->getMessage(),
-            'data' => $this->checkout->payment_hash->data,
+            'data' => $this->payment_hash->data,
         ];
 
         SystemLogger::dispatch(
