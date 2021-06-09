@@ -12,23 +12,27 @@
 
 namespace App\Mail\Gateways;
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Models\Company;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
 class ACHVerificationNotification extends Mailable
 {
-    use Queueable, SerializesModels;
+    use SerializesModels;
+
+    /**
+     * @var Company
+     */
+    public $company;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(Company $company)
     {
-        //
+        $this->company = $company;
     }
 
     /**
@@ -38,6 +42,11 @@ class ACHVerificationNotification extends Mailable
      */
     public function build()
     {
-        return $this->view('email.gateways.ach-verification-notification');
+        return $this
+            ->subject(ctrans('texts.ach_verification_notification_label'))
+            ->view('email.gateways.ach-verification-notification', [
+                'logo' => $this->company->present()->logo(),
+                'settings' => $this->company->settings,
+            ]);
     }
 }

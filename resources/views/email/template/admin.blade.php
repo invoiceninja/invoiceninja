@@ -17,7 +17,7 @@
             supported-color-schemes: light dark;
         }
 
-        @if($settings->email_style === 'dark')
+        @if(isset($settings) && $settings->email_style === 'dark')
             body,
             [data-ogsc] {
                 background-color: #1a1a1a !important;
