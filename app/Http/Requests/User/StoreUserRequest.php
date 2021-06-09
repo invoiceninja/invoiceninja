@@ -18,6 +18,7 @@ use App\Http\ValidationRules\User\AttachableUser;
 use App\Http\ValidationRules\ValidUserForCompany;
 use App\Libraries\MultiDB;
 use App\Models\User;
+use App\Utils\Ninja;
 use Illuminate\Validation\Rule;
 
 class StoreUserRequest extends Request
@@ -45,8 +46,7 @@ class StoreUserRequest extends Request
             $rules['email'] = ['email', new AttachableUser()];
         }
 
-
-        if (auth()->user()->company()->account->isFreeHostedClient()) {
+        if (Ninja::isHosted()) {
             $rules['hosted_users'] = new CanAddUserRule(auth()->user()->company()->account);
         }
 
