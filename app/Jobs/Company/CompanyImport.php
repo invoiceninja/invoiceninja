@@ -93,6 +93,10 @@ class CompanyImport implements ShouldQueue
 
     public $pre_flight_checks_pass = true;
 
+    public $force_user_coalesce = false;
+
+    public $company_owner;
+
     private $importables = [
         // 'company',
         'users',
@@ -141,6 +145,7 @@ class CompanyImport implements ShouldQueue
     public function __construct(Company $company, User $user, string $hash, array $request_array)
     {
         $this->company = $company;
+        $this->user = $user;
         $this->hash = $hash;
         $this->request_array = $request_array;
         $this->current_app_version = config('ninja.app_version');
@@ -152,6 +157,7 @@ class CompanyImport implements ShouldQueue
 
     	$this->company = Company::where('company_key', $this->company->company_key)->firstOrFail();
         $this->account = $this->company->account;
+        $this->company_owner = $this->company->owner();
 
         nlog("Company ID = {$this->company->id}");
         nlog("Hash ID = {$this->hash}");
@@ -167,7 +173,7 @@ class CompanyImport implements ShouldQueue
         $this->checkUserCount();
 
         if(array_key_exists('import_settings', $this->request_array) && $this->request_array['import_settings'] == 'true') {
-            
+
             $this->preFlightChecks()->importSettings();
         }
 
@@ -207,22 +213,21 @@ class CompanyImport implements ShouldQueue
 
         $company_users = $this->company->users;
         
-        $company_owner = $this->company->owner();
-
-
             nlog("This is a free account");
             nlog("Backup user count = ".count($backup_users));
 
             if(count($backup_users) > 1){
-                $this->message = 'Only one user can be in the import for a Free Account';
-                $this->pre_flight_checks_pass = false;
+                // $this->message = 'Only one user can be in the import for a Free Account';
+                // $this->pre_flight_checks_pass = false;
+                $this->force_user_coalesce = true;
             }
 
             nlog("backup users email = " . $backup_users[0]->email);
 
-            if(count($backup_users) == 1 && $company_owner->email != $backup_users[0]->email) {
-                $this->message = 'Account emails do not match. Account owner email must match backup user email';
-                $this->pre_flight_checks_pass = false;
+            if(count($backup_users) == 1 && $this->company_owner->email != $backup_users[0]->email) {
+                // $this->message = 'Account emails do not match. Account owner email must match backup user email';
+                // $this->pre_flight_checks_pass = false;
+                $this->force_user_coalesce = true;
             }
 
             $backup_users_emails = array_column($backup_users, 'email');
@@ -236,8 +241,9 @@ class CompanyImport implements ShouldQueue
             if($existing_user_count > 1){
 
                 if($this->account->plan == 'pro'){
-                    $this->message = 'Pro plan is limited to one user, you have multiple users in the backup file';
-                    $this->pre_flight_checks_pass = false;
+                    // $this->message = 'Pro plan is limited to one user, you have multiple users in the backup file';
+                    // $this->pre_flight_checks_pass = false;
+                    $this->force_user_coalesce = true;
                 }
 
                 if($this->account->plan == 'enterprise'){
@@ -267,10 +273,6 @@ class CompanyImport implements ShouldQueue
                 $this->pre_flight_checks_pass = false;
 
             }
-
-
-        nlog($this->message);
-        nlog($this->pre_flight_checks_pass);
 
         return $this;
     }
@@ -1216,10 +1218,21 @@ class CompanyImport implements ShouldQueue
         return implode(",", $tmp_arr);
     }
 
+    /* Transform all IDs from old to new
+     *
+     * In the case of users - we need to check if the system
+     * is attempting to migrate resources above their quota,
+     *
+     * ie. > 50 clients or more than 1 user 
+    */
     private function transformId(string $resource, ?string $old): ?int
     {
         if(empty($old))
             return null;
+
+        if ($resource == 'users' && $this->force_user_coalesce){
+            return $this->company_owner->id;
+        }
 
         if (! array_key_exists($resource, $this->ids)) {
             // nlog($this->ids);
