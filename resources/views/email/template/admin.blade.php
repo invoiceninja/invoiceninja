@@ -4,20 +4,20 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <title>Verify your account</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="color-scheme" content="light dark">
     <meta name="supported-color-schemes" content="light dark">
     <style>
         @import url("https://use.typekit.net/zxn7pho.css");
     </style>
+
     <style type="text/css">
         :root {
             color-scheme: light dark;
             supported-color-schemes: light dark;
         }
 
-        @media (prefers-color-scheme: dark) {
+        @if($settings->email_style === 'dark')
             body,
             [data-ogsc] {
                 background-color: #1a1a1a !important;
@@ -65,7 +65,7 @@
             [data-ogsc] .btn-white {
                 background-color: #fefefe !important;
             }
-        }
+        @endif
 
         /** Content-specific styles. **/
         #content .button {
