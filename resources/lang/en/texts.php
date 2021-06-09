@@ -4255,7 +4255,9 @@ $LANG = array(
     'user_duplicate_error' => 'Cannot add the same user to the same company',
     'user_cross_linked_error' => 'User exists but cannot be crossed linked to multiple accounts',
     'ach_verification_notification_label' => 'ACH verification',
-    'ach_verification_notification' => 'Connecting bank accounts require verification. Stripe will automatically sends two small deposits for this purpose. These deposits take 1-2 business days to appear on the customer\'s online statement.'
+    'ach_verification_notification' => 'Connecting bank accounts require verification. Stripe will automatically sends two small deposits for this purpose. These deposits take 1-2 business days to appear on the customer\'s online statement.',
+    'login_link_requested_label' => 'Login link requested',
+    'login_link_requested' => 'There was a request to login using link. If you did not request this, it\'s safe to ignore it.',
 );
 
 return $LANG;
