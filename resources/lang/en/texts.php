@@ -4258,6 +4258,7 @@ $LANG = array(
     'ach_verification_notification' => 'Connecting bank accounts require verification. Stripe will automatically sends two small deposits for this purpose. These deposits take 1-2 business days to appear on the customer\'s online statement.',
     'login_link_requested_label' => 'Login link requested',
     'login_link_requested' => 'There was a request to login using link. If you did not request this, it\'s safe to ignore it.',
+    'invoices_backup_subject' => 'Your invoices are ready for download',
 );
 
 return $LANG;

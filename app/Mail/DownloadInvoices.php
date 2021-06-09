@@ -29,10 +29,12 @@ class DownloadInvoices extends Mailable
     {
         return $this->from(config('mail.from.address'), config('mail.from.name'))
             ->subject(ctrans('texts.download_files'))
-            ->view('email.admin.download_files', [
+            ->view('email.admin.download_invoices', [
                 'url' => $this->file_path,
                 'logo' => $this->company->present()->logo,
-                'whitelabel' => (bool)$this->company->account->isPaid(),
+                'whitelabel' => $this->company->account->isPaid() ? true : false,
+                'settings' => $this->company->settings,
+                'greeting' => $this->company->present()->name(),
             ]);
     }
 }
