@@ -135,10 +135,8 @@ class CheckDb extends Command
 
             $diff = $count_db_1 - $count_db_2;
 
-            $this->logMessage("{$entity} DB1: {$count_db_1} - DB2: {$count_db_2} - diff = {$diff}");
-
             if($diff != 0)
-                $this->logMessage("{$entity} out of sync!!!!!");
+                $this->logMessage("{$entity} DB1: {$count_db_1} - DB2: {$count_db_2} - diff = {$diff}");
 
         }
 
@@ -152,10 +150,8 @@ class CheckDb extends Command
 
             $diff = $count_db_1 - $count_db_2;
 
-            $this->logMessage("{$entity} DB1: {$count_db_1} - DB2: {$count_db_2} - diff = {$diff}");
-
             if($diff != 0)
-                $this->logMessage("{$entity} out of sync!!!!!");
+                $this->logMessage("{$entity} DB1: {$count_db_1} - DB2: {$count_db_2} - diff = {$diff}");
 
         }
     }
