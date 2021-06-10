@@ -34,7 +34,7 @@ class OAuth
      * @param Socialite $user
      * @return bool|\App\Models\User|\App\Libraries\App\Models\User|null
      */
-    public static function handleAuth($socialite_user)
+    public static function handleAuth($socialite_user, $provider)
     {
         /** 1. Ensure user arrives on the correct provider **/
         $query = [
