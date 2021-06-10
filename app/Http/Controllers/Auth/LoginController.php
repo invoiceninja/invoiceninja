@@ -513,11 +513,12 @@ class LoginController extends BaseController
         {
 
             nlog('found user and updating their user record');
+            $name = OAuth::splitName($socialite_user->getName());
 
             $update_user = [
                 'first_name' => $name[0],
                 'last_name' => $name[1],
-                'password' => '',
+                // 'password' => '',
                 'email' => $socialite_user->getEmail(),
                 'oauth_user_id' => $socialite_user->getId(),
                 'oauth_provider_id' => $provider,
