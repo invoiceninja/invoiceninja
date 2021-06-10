@@ -15,6 +15,7 @@ use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\Models\Presenters\ClientPresenter;
 use App\Services\Client\ClientService;
+use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
@@ -32,6 +33,7 @@ class Client extends BaseModel implements HasLocalePreference
     use SoftDeletes;
     use Filterable;
     use GeneratesCounter;
+    use AppSetup;
 
     protected $presenter = ClientPresenter::class;
 
@@ -233,6 +235,9 @@ class Client extends BaseModel implements HasLocalePreference
 
         $languages = Cache::get('languages');
 
+        if(!$languages)
+            $this->buildCache(true);
+
         return $languages->filter(function ($item) {
             return $item->id == $this->getSetting('language_id');
         })->first();
@@ -256,6 +261,9 @@ class Client extends BaseModel implements HasLocalePreference
     public function currency()
     {
         $currencies = Cache::get('currencies');
+
+        if(!$currencies)
+            $this->buildCache(true);
 
         return $currencies->filter(function ($item) {
             return $item->id == $this->getSetting('currency_id');
@@ -622,6 +630,9 @@ class Client extends BaseModel implements HasLocalePreference
     {
         $languages = Cache::get('languages');
 
+        if(!$languages)
+            $this->buildCache(true);
+        
         return $languages->filter(function ($item) {
             return $item->id == $this->getSetting('language_id');
         })->first()->locale;
