@@ -695,4 +695,18 @@ class Client extends BaseModel implements HasLocalePreference
     {
         return $this->hasMany(Payment::class);
     }
+
+    public function timezone_offset()
+    {
+        $entity_send_time = $this->getSetting('entity_send_time');
+
+        if($entity_send_time == 0)
+            return 0;
+
+        $timezone = $this->company->timezone();
+
+        $offset = $timezone->utc_offset + ($entity_send_time * 3600);
+
+        return $offset;
+    }
 }

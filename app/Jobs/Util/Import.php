@@ -929,7 +929,7 @@ class Import implements ShouldQueue
 
             $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
 
-            if(array_key_exists('invoice_id', $resource) && $this->tryTransformingId('invoices', $resource['invoice_id']))
+            if(array_key_exists('invoice_id', $resource) && isset($resource['invoice_id']) && $this->tryTransformingId('invoices', $resource['invoice_id']))
                 $modified['invoice_id'] = $this->transformId('invoices', $resource['invoice_id']);
 
             $modified['user_id'] = $this->processUserId($resource);
