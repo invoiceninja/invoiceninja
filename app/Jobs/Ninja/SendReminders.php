@@ -178,16 +178,17 @@ class SendReminders implements ShouldQueue
      */
     private function calculateScheduledDate($invoice, $schedule_reminder, $num_days_reminder) :?Carbon
     {
+        $offset = $invoice->client->timezone_offset();
 
         switch ($schedule_reminder) {
             case 'after_invoice_date':
-                return Carbon::parse($invoice->date)->addDays($num_days_reminder)->startOfDay();
+                return Carbon::parse($invoice->date)->addDays($num_days_reminder)->startOfDay()->addSeconds($offset);
                 break;
             case 'before_due_date':
-                return Carbon::parse($invoice->due_date)->subDays($num_days_reminder)->startOfDay();
+                return Carbon::parse($invoice->due_date)->subDays($num_days_reminder)->startOfDay()->addSeconds($offset);
                 break;
             case 'after_due_date':
-                return Carbon::parse($invoice->due_date)->addDays($num_days_reminder)->startOfDay();
+                return Carbon::parse($invoice->due_date)->addDays($num_days_reminder)->startOfDay()->addSeconds($offset);
                 break;
             default:
                 return null;

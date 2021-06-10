@@ -256,31 +256,33 @@ class RecurringInvoice extends BaseModel
 
     public function nextDateByFrequency($date)
     {
+        $offset = $this->client->timezone_offset();
+
         switch ($this->frequency_id) {
             case self::FREQUENCY_DAILY:
-                return Carbon::parse($date)->addDay();
+                return Carbon::parse($date)->startOfDay()->addDay()->addSeconds($offset);
             case self::FREQUENCY_WEEKLY:
-                return Carbon::parse($date)->addWeek();
+                return Carbon::parse($date)->startOfDay()->addWeek()->addSeconds($offset);
             case self::FREQUENCY_TWO_WEEKS:
-                return Carbon::parse($date)->addWeeks(2);
+                return Carbon::parse($date)->startOfDay()->addWeeks(2)->addSeconds($offset);
             case self::FREQUENCY_FOUR_WEEKS:
-                return Carbon::parse($date)->addWeeks(4);
+                return Carbon::parse($date)->startOfDay()->addWeeks(4)->addSeconds($offset);
             case self::FREQUENCY_MONTHLY:
-                return Carbon::parse($date)->addMonthNoOverflow();
+                return Carbon::parse($date)->startOfDay()->addMonthNoOverflow()->addSeconds($offset);
             case self::FREQUENCY_TWO_MONTHS:
-                return Carbon::parse($date)->addMonthsNoOverflow(2);
+                return Carbon::parse($date)->startOfDay()->addMonthsNoOverflow(2)->addSeconds($offset);
             case self::FREQUENCY_THREE_MONTHS:
-                return Carbon::parse($date)->addMonthsNoOverflow(3);
+                return Carbon::parse($date)->startOfDay()->addMonthsNoOverflow(3)->addSeconds($offset);
             case self::FREQUENCY_FOUR_MONTHS:
-                return Carbon::parse($date)->addMonthsNoOverflow(4);
+                return Carbon::parse($date)->startOfDay()->addMonthsNoOverflow(4)->addSeconds($offset);
             case self::FREQUENCY_SIX_MONTHS:
-                return Carbon::parse($date)->addMonthsNoOverflow(6);
+                return Carbon::parse($date)->addMonthsNoOverflow(6)->addSeconds($offset);
             case self::FREQUENCY_ANNUALLY:
-                return Carbon::parse($date)->addYear();
+                return Carbon::parse($date)->startOfDay()->addYear()->addSeconds($offset);
             case self::FREQUENCY_TWO_YEARS:
-                return Carbon::parse($date)->addYears(2);
+                return Carbon::parse($date)->startOfDay()->addYears(2)->addSeconds($offset);
             case self::FREQUENCY_THREE_YEARS:
-                return Carbon::parse($date)->addYears(3);
+                return Carbon::parse($date)->startOfDay()->addYears(3)->addSeconds($offset);
             default:
                 return null;
         }

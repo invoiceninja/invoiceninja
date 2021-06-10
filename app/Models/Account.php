@@ -105,9 +105,6 @@ class Account extends BaseModel
         return $this->hasOne(Company::class, 'id', 'default_company_id');
     }
 
-    /**
-     * @return BelongsTo
-     */
     public function payment()
     {
         return $this->belongsTo(Payment::class)->withTrashed();
@@ -323,4 +320,5 @@ class Account extends BaseModel
             ];
         }
     }
+
 }
