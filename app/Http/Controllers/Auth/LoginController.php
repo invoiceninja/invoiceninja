@@ -495,7 +495,7 @@ class LoginController extends BaseController
 
         if($provider == 'google'){
             $scopes = ['https://www.googleapis.com/auth/gmail.send','email','profile','openid'];
-            $parameters = ['access_type' => 'offline', 'redirect_uri' => config('ninja.app_url')."/auth/google"];
+            $parameters = ['access_type' => 'offline', "prompt" => "consent select_account", 'redirect_uri' => config('ninja.app_url')."/auth/google"];
         }
 
         if (request()->has('code')) {
