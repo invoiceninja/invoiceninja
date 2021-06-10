@@ -4261,6 +4261,7 @@ $LANG = array(
     'invoices_backup_subject' => 'Your invoices are ready for download',
     'migration_failed_label' => 'Migration failed',
     'migration_failed' => 'Looks like something went wrong with the migration for the following company:',
+    'client_email_company_contact_label' => 'If you have any questions please contact us, we\'re here to help!',
 );
 
 return $LANG;
