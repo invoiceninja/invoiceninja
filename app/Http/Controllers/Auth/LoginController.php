@@ -506,6 +506,7 @@ class LoginController extends BaseController
     public function handleProviderCallback(string $provider)
     {
         $socialite_user = Socialite::driver($provider)
+                                    ->with(['redirect_uri' => config('ninja.app_url')."/auth/google"])
                                     ->user();
 
         if($user = OAuth::handleAuth($socialite_user, $provider))
