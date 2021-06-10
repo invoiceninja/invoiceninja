@@ -30,6 +30,7 @@ use App\Transformers\RecurringInvoiceTransformer;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -204,6 +205,15 @@ class RecurringInvoiceController extends BaseController
         $recurring_invoice = $this->recurring_invoice_repo->save($request->all(), RecurringInvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
         event(new RecurringInvoiceWasCreated($recurring_invoice, $recurring_invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+
+        if($recurring_invoice->client->getSetting('entity_send_time') > 0){
+            
+            $timezone = $this->company->timezone();
+            $offset = $timezone->utc_offset + ($this->client->getSetting('entity_send_time') * 3600);
+
+            $recurring_invoice->next_send_date = Carbon::parse($recurring_invoice->next_send_date)->addSeconds($offset);
+            $recurring_invoice->save();
+        }
 
         return $this->itemResponse($recurring_invoice);
     }
