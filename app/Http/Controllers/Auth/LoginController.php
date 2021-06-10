@@ -491,23 +491,23 @@ class LoginController extends BaseController
     {
         //'https://www.googleapis.com/auth/gmail.send','email','profile','openid'
         $scopes = [];
-        
+        $parameters = [];
+
         if($provider == 'google'){
-            $scopes = ['gmail.send','email','profile','openid'];
+            $scopes = ['https://www.googleapis.com/auth/gmail.send','email','profile','openid'];
+            $parameters = ['access_type' => 'offline', 'redirect_uri' => config('ninja.app_url')."/auth/google"];
         }
 
         if (request()->has('code')) {
             return $this->handleProviderCallback($provider);
         } else {
-            return Socialite::driver($provider)->with(['redirect_uri' => config('ninja.app_url')."/auth/google"])->scopes($scopes)->redirect();
+            return Socialite::driver($provider)->with($parameters)->scopes($scopes)->redirect();
         }
     }
 
     public function handleProviderCallback(string $provider)
     {
-        $socialite_user = Socialite::driver($provider)
-                                    ->with(['redirect_uri' => config('ninja.app_url')."/auth/google"])
-                                    ->user();
+        $socialite_user = Socialite::driver($provider)->user();
 
         if($user = OAuth::handleAuth($socialite_user, $provider))
         {
