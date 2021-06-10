@@ -489,11 +489,13 @@ class LoginController extends BaseController
 
     public function redirectToProvider(string $provider)
     {
-        //'https://www.googleapis.com/auth/gmail.send','email','profile','openid'
+
         $scopes = [];
+
         $parameters = [];
 
         if($provider == 'google'){
+
             $scopes = ['https://www.googleapis.com/auth/gmail.send','email','profile','openid'];
             $parameters = ['access_type' => 'offline', "prompt" => "consent select_account", 'redirect_uri' => config('ninja.app_url')."/auth/google"];
         }
@@ -508,6 +510,7 @@ class LoginController extends BaseController
     public function handleProviderCallback(string $provider)
     {
         $socialite_user = Socialite::driver($provider)->user();
+
         $oauth_user_token = '';
 
             if($socialite_user->refreshToken){
@@ -517,7 +520,7 @@ class LoginController extends BaseController
                 $client->setClientSecret(config('ninja.auth.google.client_secret'));
                 $client->fetchAccessTokenWithRefreshToken($socialite_user->refreshToken);
                 $oauth_user_token = $client->getAccessToken();
-                
+
             }
 
         if($user = OAuth::handleAuth($socialite_user, $provider))
@@ -529,7 +532,6 @@ class LoginController extends BaseController
             $update_user = [
                 'first_name' => $name[0],
                 'last_name' => $name[1],
-                // 'password' => '',
                 'email' => $socialite_user->getEmail(),
                 'oauth_user_id' => $socialite_user->getId(),
                 'oauth_provider_id' => $provider,
