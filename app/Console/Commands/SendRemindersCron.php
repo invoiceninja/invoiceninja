@@ -89,7 +89,7 @@ class SendRemindersCron extends Command
                           ->cursor();
     
         $invoices->each(function ($invoice) {
-            WebHookHandler::dispatch(Webhook::EVENT_LATE_INVOICE, $invoice, $invoice->company);
+            WebhookHandler::dispatch(Webhook::EVENT_LATE_INVOICE, $invoice, $invoice->company);
             
         });
 
@@ -99,7 +99,7 @@ class SendRemindersCron extends Command
                           ->cursor();
     
         $quotes->each(function ($quote) {
-            WebHookHandler::dispatch(Webhook::EVENT_EXPIRED_QUOTE, $quote, $quote->company);
+            WebhookHandler::dispatch(Webhook::EVENT_EXPIRED_QUOTE, $quote, $quote->company);
         });
     }
 

@@ -109,9 +109,8 @@ class EmailEntity implements ShouldQueue
 
         App::setLocale($this->invitation->contact->preferredLocale());
 
-
         $nmo = new NinjaMailerObject;
-        $nmo->mailable = new TemplateEmail($this->email_entity_builder,$this->invitation->contact, $this->invitation);
+        $nmo->mailable = new TemplateEmail($this->email_entity_builder, $this->invitation->contact, $this->invitation);
         $nmo->company = $this->company;
         $nmo->settings = $this->settings;
         $nmo->to_user = $this->invitation->contact;
