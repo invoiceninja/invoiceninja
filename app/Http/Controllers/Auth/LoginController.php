@@ -508,6 +508,17 @@ class LoginController extends BaseController
     public function handleProviderCallback(string $provider)
     {
         $socialite_user = Socialite::driver($provider)->user();
+        $oauth_user_token = '';
+
+            if($socialite_user->refreshToken){
+
+                $client = new Google_Client();
+                $client->setClientId(config('ninja.auth.google.client_id'));
+                $client->setClientSecret(config('ninja.auth.google.client_secret'));
+                $client->fetchAccessTokenWithRefreshToken($socialite_user->refreshToken);
+                $oauth_user_token = $client->getAccessToken();
+                
+            }
 
         if($user = OAuth::handleAuth($socialite_user, $provider))
         {
@@ -522,7 +533,8 @@ class LoginController extends BaseController
                 'email' => $socialite_user->getEmail(),
                 'oauth_user_id' => $socialite_user->getId(),
                 'oauth_provider_id' => $provider,
-                'oauth_user_token' => $socialite_user->refreshToken,
+                'oauth_user_token' => $oauth_user_token,
+                'oauth_user_refresh_token' => $socialite_user->refreshToken 
             ];
 
             $user->update($update_user);
