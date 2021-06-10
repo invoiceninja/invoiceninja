@@ -493,7 +493,7 @@ class LoginController extends BaseController
         $scopes = [];
         
         if($provider == 'google'){
-            $scopes = ['https://www.googleapis.com/auth/gmail.send','email','profile','openid'];
+            $scopes = ['gmail.send','email','profile','openid'];
         }
 
         if (request()->has('code')) {
