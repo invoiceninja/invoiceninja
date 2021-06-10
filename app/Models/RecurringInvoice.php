@@ -222,8 +222,7 @@ class RecurringInvoice extends BaseModel
             return null;
         }
         
-        $timezone = $this->company->timezone();
-        $offset = $timezone->utc_offset + ($this->client->getSetting('entity_send_time') * 3600);
+        $offset = $this->client->timezone_offset();
 
         switch ($this->frequency_id) {
             case self::FREQUENCY_DAILY:

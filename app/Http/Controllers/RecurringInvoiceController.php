@@ -206,14 +206,11 @@ class RecurringInvoiceController extends BaseController
 
         event(new RecurringInvoiceWasCreated($recurring_invoice, $recurring_invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
-        if($recurring_invoice->client->getSetting('entity_send_time') > 0){
             
-            $timezone = $this->company->timezone();
-            $offset = $timezone->utc_offset + ($this->client->getSetting('entity_send_time') * 3600);
-
-            $recurring_invoice->next_send_date = Carbon::parse($recurring_invoice->next_send_date)->addSeconds($offset);
-            $recurring_invoice->save();
-        }
+        $offset = $recurring_invoice->client->timezone_offset();
+        $recurring_invoice->next_send_date = Carbon::parse($recurring_invoice->next_send_date)->addSeconds($offset);
+        $recurring_invoice->save();
+        
 
         return $this->itemResponse($recurring_invoice);
     }
