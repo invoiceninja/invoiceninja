@@ -698,6 +698,8 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function timezone_offset()
     {
+        $offset = 0;
+
         $entity_send_time = $this->getSetting('entity_send_time');
 
         if($entity_send_time == 0)
@@ -705,7 +707,8 @@ class Client extends BaseModel implements HasLocalePreference
 
         $timezone = $this->company->timezone();
 
-        $offset = $timezone->utc_offset + ($entity_send_time * 3600);
+        $offset -= $timezone->utc_offset;
+        $offset += ($entity_send_time * 3600);
 
         return $offset;
     }
