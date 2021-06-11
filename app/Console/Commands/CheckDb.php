@@ -126,9 +126,9 @@ class CheckDb extends Command
     public function handle()
     {
 
-        foreach($this->entities as $entity) {
+        $this->LogMessage("Checking - V5_DB1");
 
-            $this->LogMessage("V5_DB1");
+        foreach($this->entities as $entity) {
             
             $count_db_1 = $entity::on('db-ninja-01')->count();
             $count_db_2 = $entity::on('db-ninja-02a')->count();
@@ -140,10 +140,9 @@ class CheckDb extends Command
 
         }
 
+        $this->LogMessage("Checking - V5_DB2");
 
         foreach($this->entities as $entity) {
-
-            $this->LogMessage("V5_DB2");
 
             $count_db_1 = $entity::on('db-ninja-02')->count();
             $count_db_2 = $entity::on('db-ninja-01a')->count();

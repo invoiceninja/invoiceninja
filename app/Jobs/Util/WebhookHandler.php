@@ -8,6 +8,7 @@
  *
  * @license https://opensource.org/licenses/AAL
  */
+
 namespace App\Jobs\Util;
 
 use App\Jobs\Util\SystemLogger;

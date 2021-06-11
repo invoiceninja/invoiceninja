@@ -77,7 +77,7 @@ class ReminderTest extends TestCase
         $this->invoice->service()->markSent();
         $this->invoice->service()->setReminder($settings)->save();
 
-        $this->assertEquals($this->invoice->next_send_date, Carbon::now()->addDays(7)->format('Y-m-d'));
+        $this->assertEquals(Carbon::parse($this->invoice->next_send_date)->format('Y-m-d'), Carbon::now()->addDays(7)->format('Y-m-d'));
 
      //   ReminderJob::dispatchNow();
     }
@@ -106,7 +106,7 @@ class ReminderTest extends TestCase
 
         $this->invoice->fresh();
 
-        $this->assertEquals($this->invoice->next_send_date, now()->format('Y-m-d'));
+        $this->assertEquals(Carbon::parse($this->invoice->next_send_date)->format('Y-m-d'), now()->format('Y-m-d'));
         
     }
 
@@ -136,7 +136,7 @@ class ReminderTest extends TestCase
 
         $this->invoice->fresh();
         
-        $this->assertEquals($this->invoice->next_send_date, now()->format('Y-m-d'));
+        $this->assertEquals(Carbon::parse($this->invoice->next_send_date)->format('Y-m-d'), now()->format('Y-m-d'));
         
     }
 

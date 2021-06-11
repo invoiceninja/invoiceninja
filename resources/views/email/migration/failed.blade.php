@@ -7,12 +7,11 @@
     <p>Looks like your migration failed. Here's the error message:</p>
 
     <pre>
-    	@if(\App\Utils\Ninja::isHosted())
+    	@if(\App\Utils\Ninja::isSelfHost())
 	        {!! $exception->getMessage() !!}
             {!! $content !!}
     	@else
-        {!! $exception->getMessage() !!}
-        {!! $content !!}
+        <p>Please contact us at contact@invoiceninja.com for more information on this error.</p>
         @endif
     </pre>
 @endcomponent
