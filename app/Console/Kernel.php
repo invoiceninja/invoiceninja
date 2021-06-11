@@ -52,7 +52,7 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('ninja:check-data --database=db-ninja-01')->daily()->withoutOverlapping();
 
-        $schedule->job(new ReminderJob)->daily()->withoutOverlapping();
+        $schedule->job(new ReminderJob)->hourly()->withoutOverlapping();
 
         $schedule->job(new CompanySizeCheck)->daily()->withoutOverlapping();
 

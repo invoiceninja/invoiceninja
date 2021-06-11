@@ -50,6 +50,9 @@ class InvoiceEmailEngine extends BaseEmailEngine
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->client->getMergedSettings()));
 
+        if($this->reminder_template == 'endless_reminder')
+            $this->reminder_template = 'reminder_endless';
+
         if (is_array($this->template_data) &&  array_key_exists('body', $this->template_data) && strlen($this->template_data['body']) > 0) {
             $body_template = $this->template_data['body'];
         } elseif (strlen($this->client->getSetting('email_template_'.$this->reminder_template)) > 0) {
