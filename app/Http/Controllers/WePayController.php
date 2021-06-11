@@ -23,40 +23,27 @@ use Illuminate\Support\Facades\Cache;
 class WePayController extends BaseController
 {
     use MakesHash;
+    
     /**
      * Initialize WePay Signup.
      */
     public function signup(string $token)
     {
 
-        // $hash = [
-        //     'user_id' => auth()->user()->id,
-        //     'company_key'=> auth()->user()->company()->company_key,
-        //     'context' => $request->input('context'),
-        // ];
-
         $hash = Cache::get($token);
 
-        //temporarily comment this out
-        // if(!$hash)
-        //     abort(400, 'Link expired');
-        // MultiDB::findAndSetDbByCompanyKey($hash['company_key']);
-        // $data['user_id'] = $this->encodePrimaryKey($hash['user_id']);
-        // $data['company_key'] = $hash['company_key'];
+        MultiDB::findAndSetDbByCompanyKey($hash['company_key']);
 
-        /* Mock Data - in production we will be passed the correct company*/
-        $user = User::first();
+        $user = User::findOrFail($hash['user_id']);
+
+        $company = Company::where('company_key', $hash['company_key'])->firstOrFail();
+
         $data['user_id'] = $user->id;
-        $data['company'] = $user->account->companies()->first();
+        $data['company'] = $company;
 
         $wepay_driver = new WePayPaymentDriver(new CompanyGateway, null, null);
 
         return $wepay_driver->setup($data);
-
-    }
-
-    public function processSignup(Request $request)
-    {
 
     }
 
