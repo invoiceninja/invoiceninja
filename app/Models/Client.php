@@ -15,6 +15,7 @@ use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\Models\Presenters\ClientPresenter;
 use App\Services\Client\ClientService;
+use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
@@ -32,6 +33,7 @@ class Client extends BaseModel implements HasLocalePreference
     use SoftDeletes;
     use Filterable;
     use GeneratesCounter;
+    use AppSetup;
 
     protected $presenter = ClientPresenter::class;
 
@@ -230,13 +232,16 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function language()
     {
-        //return Language::find($this->getSetting('language_id'));
 
         $languages = Cache::get('languages');
+
+        if(!$languages)
+            $this->buildCache(true);
 
         return $languages->filter(function ($item) {
             return $item->id == $this->getSetting('language_id');
         })->first();
+
     }
 
     public function locale()
@@ -256,6 +261,9 @@ class Client extends BaseModel implements HasLocalePreference
     public function currency()
     {
         $currencies = Cache::get('currencies');
+
+        if(!$currencies)
+            $this->buildCache(true);
 
         return $currencies->filter(function ($item) {
             return $item->id == $this->getSetting('currency_id');
@@ -622,6 +630,9 @@ class Client extends BaseModel implements HasLocalePreference
     {
         $languages = Cache::get('languages');
 
+        if(!$languages)
+            $this->buildCache(true);
+        
         return $languages->filter(function ($item) {
             return $item->id == $this->getSetting('language_id');
         })->first()->locale;
@@ -683,5 +694,22 @@ class Client extends BaseModel implements HasLocalePreference
     public function payments()
     {
         return $this->hasMany(Payment::class);
+    }
+
+    public function timezone_offset()
+    {
+        $offset = 0;
+
+        $entity_send_time = $this->getSetting('entity_send_time');
+
+        if($entity_send_time == 0)
+            return 0;
+
+        $timezone = $this->company->timezone();
+
+        $offset -= $timezone->utc_offset;
+        $offset += ($entity_send_time * 3600);
+
+        return $offset;
     }
 }

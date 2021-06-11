@@ -489,38 +489,54 @@ class LoginController extends BaseController
 
     public function redirectToProvider(string $provider)
     {
-        //'https://www.googleapis.com/auth/gmail.send','email','profile','openid'
+
         $scopes = [];
-        
+
+        $parameters = [];
+
         if($provider == 'google'){
+
             $scopes = ['https://www.googleapis.com/auth/gmail.send','email','profile','openid'];
+            $parameters = ['access_type' => 'offline', "prompt" => "consent select_account", 'redirect_uri' => config('ninja.app_url')."/auth/google"];
         }
 
         if (request()->has('code')) {
             return $this->handleProviderCallback($provider);
         } else {
-            return Socialite::driver($provider)->with(['redirect_uri' => config('ninja.app_url')."/auth/google"])->scopes($scopes)->redirect();
+            return Socialite::driver($provider)->with($parameters)->scopes($scopes)->redirect();
         }
     }
 
     public function handleProviderCallback(string $provider)
     {
-        $socialite_user = Socialite::driver($provider)
-                                    ->user();
+        $socialite_user = Socialite::driver($provider)->user();
+
+        $oauth_user_token = '';
+
+            if($socialite_user->refreshToken){
+
+                $client = new Google_Client();
+                $client->setClientId(config('ninja.auth.google.client_id'));
+                $client->setClientSecret(config('ninja.auth.google.client_secret'));
+                $client->fetchAccessTokenWithRefreshToken($socialite_user->refreshToken);
+                $oauth_user_token = $client->getAccessToken();
+
+            }
 
         if($user = OAuth::handleAuth($socialite_user, $provider))
         {
 
             nlog('found user and updating their user record');
+            $name = OAuth::splitName($socialite_user->getName());
 
             $update_user = [
                 'first_name' => $name[0],
                 'last_name' => $name[1],
-                'password' => '',
                 'email' => $socialite_user->getEmail(),
                 'oauth_user_id' => $socialite_user->getId(),
                 'oauth_provider_id' => $provider,
-                'oauth_user_token' => $socialite_user->refreshToken,
+                'oauth_user_token' => $oauth_user_token,
+                'oauth_user_refresh_token' => $socialite_user->refreshToken 
             ];
 
             $user->update($update_user);

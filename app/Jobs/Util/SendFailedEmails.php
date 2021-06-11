@@ -64,7 +64,7 @@ class SendFailedEmails implements ShouldQueue
 
             if ($invitation->invoice) {
                 if ($invitation->contact->send_email && $invitation->contact->email) {
-                    EmailEntity::dispatch($invitation, $invitation->company, $job_meta_array['reminder_template']);
+                    EmailEntity::dispatch($invitation, $invitation->company, $job_meta_array['reminder_template'])->delay(now()->addSeconds(60));
                 }
             }
         });
