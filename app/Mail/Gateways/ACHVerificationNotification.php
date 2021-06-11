@@ -47,6 +47,7 @@ class ACHVerificationNotification extends Mailable
             ->view('email.gateways.ach-verification-notification', [
                 'logo' => $this->company->present()->logo(),
                 'settings' => $this->company->settings,
+                'company' => $this->company,
             ]);
     }
 }

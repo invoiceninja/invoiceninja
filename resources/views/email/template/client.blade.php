@@ -111,15 +111,21 @@
                 </tr>
                 <tr>
                     <td>
-                        <div style="border: 1px solid #c2c2c2; border-top: none; border-bottom: none;" id="content">
-                            <div style="padding-top: 10px;"></div>
+                        <div style="border: 1px solid #c2c2c2; border-top: none; border-bottom: none; padding: 20px;" id="content">
+                                <div style="padding-top: 10px;"></div>
 
-                            {{ $slot }}
-                        </div>
+                                {{ $slot}}
+
+                                <div>
+                                    <a href="#"
+                                        style="display: inline-block;background-color: #0091ea; color: #ffffff; text-transform: uppercase;letter-spacing: 2px; text-decoration: none; font-size: 13px; font-weight: 600;">
+                                    </a>
+                                </div>
+                           </div>
                     </td>
                 </tr>
 
-                @if(isset($company) & $company instanceof \App\Models\Company)
+                @if(isset($company) && $company instanceof \App\Models\Company)
                 <tr>
                     <td>
                         <div class="dark-bg dark-text-white"
@@ -146,6 +152,10 @@
                                 <p style="text-align: center; color: #ffffff; font-size: 10px;
                             font-family: Verdana, Geneva, Tahoma, sans-serif;">© {{ date('Y') }} Invoice Ninja, All
                                     Rights Reserved
+                                </p>
+                            @else
+                                <p style="text-align: center; color: #ffffff; font-size: 10px; font-family: Verdana, Geneva, Tahoma, sans-serif;">
+                                    © {{ date('Y') }} Invoice Ninja, All Rights Reserved
                                 </p>
                             @endif
                         </div>
