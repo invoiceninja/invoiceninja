@@ -16,6 +16,7 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\SystemLog;
+use App\PaymentDrivers\WePay\ACH;
 use App\PaymentDrivers\WePay\CreditCard;
 use App\PaymentDrivers\WePay\Setup;
 use App\Utils\Traits\MakesHash;
@@ -26,18 +27,25 @@ class WePayPaymentDriver extends BaseDriver
 {
     use MakesHash;
 
-    public $refundable = true; //does this gateway support refunds?
+    /* Does this gateway support refunds? */
+    public $refundable = true; 
 
-    public $token_billing = true; //does this gateway support token billing?
+    /* Does this gateway support token billing? */
+    public $token_billing = true; 
 
-    public $can_authorise_credit_card = true; //does this gateway support authorizations?
+    /* Does this gateway support authorizations? */
+    public $can_authorise_credit_card = true; 
 
-    public $wepay; //initialized gateway
+    /* Initialized gateway */
+    public $wepay; 
 
-    public $payment_method; //initialized payment method
+    /* Initialized payment method */
+    public $payment_method; 
 
+    /* Maps the Payment Gateway Type - to its implementation */
     public static $methods = [
-        GatewayType::CREDIT_CARD => CreditCard::class, //maps GatewayType => Implementation class
+        GatewayType::CREDIT_CARD => CreditCard::class,
+        GatewayType::BANK_TRANSFER => ACH::class,
     ];
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_WEPAY; 
@@ -63,16 +71,40 @@ class WePayPaymentDriver extends BaseDriver
         
     }
 
+    /**
+     * Return the gateway types that have been enabled
+     * 
+     * @return array
+     */
+    public function gatewayTypes(): array
+    {
+        $types = [];
+
+        if($this->company_gateway->fees_and_limits->{GatewayType::BANK_TRANSFER}->is_enabled)
+            $types[] = GatewayType::CREDIT_CARD;
+
+        if($this->company_gateway->fees_and_limits->{GatewayType::BANK_TRANSFER}->is_enabled)
+            $types[] = GatewayType::BANK_TRANSFER;
+
+        return $types;
+    }
+
+    /**
+     * Setup the gateway
+     * 
+     * @param  array $data user_id + company
+     * @return view
+     */
     public function setup(array $data)
     {
         return (new Setup($this))->boot($data);
     }
 
-    public function processSetup(Request $request)
-    {
-        return (new Setup($this))->processSignup($request);
-    }
-
+    /**
+     * Set the payment method
+     * 
+     * @param int $payment_method_id Alias of GatewayType
+     */
     public function setPaymentMethod($payment_method_id)
     {
         $class = self::$methods[$payment_method_id];

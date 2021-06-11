@@ -14,7 +14,7 @@ namespace App\PaymentDrivers\WePay;
 
 use App\PaymentDrivers\WePayPaymentDriver;
 
-class CreditCard
+class ACH
 {
     public $wepay;
 
@@ -25,22 +25,7 @@ class CreditCard
 
     public function authorizeView($data)
     {
-        return render('gateways.wepay.authorize.authorize', $data);
+
     }
- 
-
- 	public function authorizeResponse($data)
- 	{
- 		//https://developer.wepay.com/api/api-calls/credit_card#authorize
-
-		// authorize the credit card
-		$response = $this->wepay->request('credit_card/authorize', array(
-		    'client_id'          => $account_id,
-		    'client_secret'      => 'A vacation home rental',
-		    'credit_card_id'     => 'goods',
-		));
-
-		// display the response
-		print_r($response);
- 	}   
+    
 }
