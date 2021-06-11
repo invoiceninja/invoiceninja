@@ -12,9 +12,12 @@
 
 namespace App\Http\Livewire;
 
+use App\DataMapper\FeesAndLimits;
 use App\Factory\CompanyGatewayFactory;
+use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\CompanyGateway;
+use App\Models\GatewayType;
 use App\Models\User;
 use App\PaymentDrivers\WePayPaymentDriver;
 use Illuminate\Support\Facades\Hash;
@@ -54,8 +57,10 @@ class WepaySignup extends Component
 
     public function mount()
     {
+        MultiDB::setDb($this->company->db);
+
         $user = User::find($this->user_id);
-        $this->company = Company::where('company_key', $this->company_key)->firstOrFail();
+        $this->company = Company::where('company_key', $this->company->company_key)->first();
             
         $this->fill([
             'wepay_payment_tos_agree' => '',
@@ -87,6 +92,11 @@ class WepaySignup extends Component
                             ->firstOrNew();
 
         if(!$cg->id) {
+
+            $fees_and_limits = new \stdClass;
+            $fees_and_limits->{GatewayType::CREDIT_CARD} = new FeesAndLimits;
+            $fees_and_limits->{GatewayType::BANK_TRANSFER} = new FeesAndLimits;
+            
             $cg = CompanyGatewayFactory::create($this->company->id, $this->user->id);
             $cg->gateway_key = '8fdeed552015b3c7b44ed6c8ebd9e992';
             $cg->require_cvv = false;
@@ -94,7 +104,9 @@ class WepaySignup extends Component
             $cg->require_shipping_address = false;
             $cg->update_details = false;
             $cg->config = encrypt(config('ninja.testvars.checkout'));
+            $cg->fees_and_limits = $fees_and_limits;
             $cg->save();
+
         }
 
         $this->saved = ctrans('texts.processing');
@@ -139,7 +151,7 @@ class WepaySignup extends Component
             } elseif ($data['country'] == 'GB') {
                 $account_details['currencies'] = ['GBP'];
             }
-
+ 
             $wepay_account = $wepay->request('account/create/', $account_details);
 
             try {
@@ -149,8 +161,11 @@ class WepaySignup extends Component
                 if ($ex->getMessage() == 'This access_token is already approved.') {
                     $confirmation_required = false;
                 } else {
-                    throw $ex;
+                    request()->session()->flash('message', $ex->getMessage());
                 }
+
+                nlog("failed in try catch ");
+                nlog($ex->getMessage());
             }
 
             $config = [
@@ -166,6 +181,20 @@ class WepaySignup extends Component
 
             $cg->setConfig($config);
             $cg->save();
+
+            if ($confirmation_required) {
+                request()->session()->flash('message', trans('texts.created_wepay_confirmation_required'));
+            } else {
+                $update_uri = $wepay->request('/account/get_update_uri', [
+                    'account_id' => $wepay_account->account_id,
+                    'redirect_uri' => config('ninja.app_url'),
+                ]);
+
+                return redirect($update_uri->uri);
+            }
+
+
+        return redirect()->to('/wepay/finished');
     }
 
 }

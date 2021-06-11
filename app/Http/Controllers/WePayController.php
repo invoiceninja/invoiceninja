@@ -44,10 +44,10 @@ class WePayController extends BaseController
         // $data['user_id'] = $this->encodePrimaryKey($hash['user_id']);
         // $data['company_key'] = $hash['company_key'];
 
+        /* Mock Data - in production we will be passed the correct company*/
         $user = User::first();
         $data['user_id'] = $user->id;
-
-        $data['company_key'] = $user->account->companies()->first()->company_key;
+        $data['company'] = $user->account->companies()->first();
 
         $wepay_driver = new WePayPaymentDriver(new CompanyGateway, null, null);
 
@@ -58,5 +58,10 @@ class WePayController extends BaseController
     public function processSignup(Request $request)
     {
 
+    }
+
+    public function finished()
+    {
+        return render('gateways.wepay.signup.finished');
     }
 }

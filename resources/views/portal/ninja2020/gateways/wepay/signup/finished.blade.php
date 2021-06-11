@@ -6,7 +6,16 @@
         <img src="{{ asset('images/wepay.svg') }}" alt="We Pay">
     </div>
 
-    @livewire('wepay-signup', ['user_id' => $user_id, 'company' => $company])
+    <div class="flex flex-col justify-center items-center mt-10">
+        	<h1>Wepay setup complete:</h1>
+    </div>
+
+    <div class="flex flex-col justify-center items-center mt-10">
+    	@if(isset($message))
+    	{{ $message ?? '' }}
+    	@endif
+    </div>
+    </div>
 @endsection
 
 @push('footer')
