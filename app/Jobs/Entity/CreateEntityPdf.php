@@ -114,16 +114,16 @@ class CreateEntityPdf implements ShouldQueue
         $entity_design_id = '';
 
         if ($this->entity instanceof Invoice) {
-            $path = $this->entity->client->invoice_filepath();
+            $path = $this->entity->client->invoice_filepath($this->invitation);
             $entity_design_id = 'invoice_design_id';
         } elseif ($this->entity instanceof Quote) {
-            $path = $this->entity->client->quote_filepath();
+            $path = $this->entity->client->quote_filepath($this->invitation);
             $entity_design_id = 'quote_design_id';
         } elseif ($this->entity instanceof Credit) {
-            $path = $this->entity->client->credit_filepath();
+            $path = $this->entity->client->credit_filepath($this->invitation);
             $entity_design_id = 'credit_design_id';
         } elseif ($this->entity instanceof RecurringInvoice) {
-            $path = $this->entity->client->recurring_invoice_filepath();
+            $path = $this->entity->client->recurring_invoice_filepath($this->invitation);
             $entity_design_id = 'invoice_design_id';
         }
 

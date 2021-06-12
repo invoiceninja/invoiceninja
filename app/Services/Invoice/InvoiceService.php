@@ -307,12 +307,15 @@ class InvoiceService
 
     public function deletePdf()
     {
+        $this->invoice->invitations->each(function ($invitation){
 
-        Storage::disk(config('filesystems.default'))->delete($this->invoice->client->invoice_filepath() . $this->invoice->numberFormatter().'.pdf');
-        
-        if(Ninja::isHosted()) {
-            Storage::disk('public')->delete($this->invoice->client->invoice_filepath() . $this->invoice->numberFormatter().'.pdf');
-        }
+            Storage::disk(config('filesystems.default'))->delete($this->invoice->client->invoice_filepath($invitation) . $this->invoice->numberFormatter().'.pdf');
+            
+            if(Ninja::isHosted()) {
+                Storage::disk('public')->delete($this->invoice->client->invoice_filepath($invitation) . $this->invoice->numberFormatter().'.pdf');
+            }
+
+        });
 
         return $this;
     }

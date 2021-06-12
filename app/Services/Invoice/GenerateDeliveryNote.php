@@ -60,14 +60,15 @@ class GenerateDeliveryNote
             ? $this->invoice->design_id
             : $this->decodePrimaryKey($this->invoice->client->getSetting('invoice_design_id'));
 
-        $file_path = sprintf('%s%s_delivery_note.pdf', $this->invoice->client->invoice_filepath(), $this->invoice->number);
+        $invitation = $this->invoice->invitations->first();
+        $file_path = sprintf('%s%s_delivery_note.pdf', $this->invoice->client->invoice_filepath($invitation), $this->invoice->number);
 
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
             return (new Phantom)->generate($this->invoice->invitations->first());
         }
 
         $design = Design::find($design_id);
-        $html = new HtmlEngine($this->invoice->invitations->first());
+        $html = new HtmlEngine($invitation);
 
         if ($design->is_custom) {
             $options = ['custom_partials' => json_decode(json_encode($design->design), true)];

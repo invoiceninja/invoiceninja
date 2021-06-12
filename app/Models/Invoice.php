@@ -409,7 +409,7 @@ class Invoice extends BaseModel
         if(!$invitation)
             throw new \Exception('Hard fail, could not create an invitation - is there a valid contact?');
 
-        $file_path = $this->client->invoice_filepath().$this->numberFormatter().'.pdf';
+        $file_path = $this->client->invoice_filepath($invitation).$this->numberFormatter().'.pdf';
 
         if(Ninja::isHosted() && $portal && Storage::disk(config('filesystems.default'))->exists($file_path)){
             return Storage::disk(config('filesystems.default'))->{$type}($file_path);
