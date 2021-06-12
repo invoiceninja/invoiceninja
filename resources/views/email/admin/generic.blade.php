@@ -13,7 +13,13 @@
         @endisset
 
         <div style="margin-top: 10px; margin-bottom: 30px;">
-            {{ $content }}
+            @isset($content)
+                {{ $content }}
+            @endisset
+
+            @isset($slot)
+                {{ $slot }}
+            @endisset
         </div>
 
         @isset($additional_info)
