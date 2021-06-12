@@ -37,7 +37,7 @@ class GetCreditPdf extends AbstractService
             $this->contact = $this->credit->client->primary_contact()->first();
         }
 
-        $path = $this->credit->client->credit_filepath();
+        $path = $this->credit->client->credit_filepath($this->invitation);
 
         $file_path = $path.$this->credit->numberFormatter().'.pdf';
 

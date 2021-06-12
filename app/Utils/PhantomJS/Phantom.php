@@ -62,19 +62,19 @@ class Phantom
         $entity_obj = $invitation->{$entity};
 
         if ($entity == 'invoice') {
-            $path = $entity_obj->client->invoice_filepath();
+            $path = $entity_obj->client->invoice_filepath($invitation);
         }
 
         if ($entity == 'quote') {
-            $path = $entity_obj->client->quote_filepath();
+            $path = $entity_obj->client->quote_filepath($invitation);
         }
 
         if ($entity == 'credit') {
-            $path = $entity_obj->client->credit_filepath();
+            $path = $entity_obj->client->credit_filepath($invitation);
         }
 
         if ($entity == 'recurring_invoice') {
-            $path = $entity_obj->client->recurring_invoice_filepath();
+            $path = $entity_obj->client->recurring_invoice_filepath($invitation);
         }
 
         $file_path = $path.$entity_obj->numberFormatter().'.pdf';

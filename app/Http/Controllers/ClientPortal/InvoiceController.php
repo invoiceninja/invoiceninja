@@ -164,8 +164,9 @@ class InvoiceController extends Controller
 
         //if only 1 pdf, output to buffer for download
         if ($invoices->count() == 1) {
-
-           $file = $invoices->first()->pdf_file_path();
+            $invoice = $invoices->first();
+            $invitation = $invoice->invitations->first();
+           $file = $invoice->pdf_file_path($invitation);
            return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);;
 
         }

@@ -307,12 +307,15 @@ class InvoiceService
 
     public function deletePdf()
     {
-        //UnlinkFile::dispatchNow(config('filesystems.default'), $this->invoice->client->invoice_filepath() . $this->invoice->numberFormatter().'.pdf');
-        Storage::disk(config('filesystems.default'))->delete($this->invoice->client->invoice_filepath() . $this->invoice->numberFormatter().'.pdf');
-        
-        if(Ninja::isHosted()) {
-            Storage::disk('public')->delete($this->invoice->client->invoice_filepath() . $this->invoice->numberFormatter().'.pdf');
-        }
+        $this->invoice->invitations->each(function ($invitation){
+
+            Storage::disk(config('filesystems.default'))->delete($this->invoice->client->invoice_filepath($invitation) . $this->invoice->numberFormatter().'.pdf');
+            
+            if(Ninja::isHosted()) {
+                Storage::disk('public')->delete($this->invoice->client->invoice_filepath($invitation) . $this->invoice->numberFormatter().'.pdf');
+            }
+
+        });
 
         return $this;
     }
@@ -351,8 +354,17 @@ class InvoiceService
      * PDF when it is updated etc.
      * @return InvoiceService
      */
-    public function touchPdf()
+    public function touchPdf($force = false)
     {
+        if($force){
+
+            $this->invoice->invitations->each(function ($invitation) {
+                CreateEntityPdf::dispatchNow($invitation);
+            });
+
+            return $this;
+        }
+
         $this->invoice->invitations->each(function ($invitation) {
             CreateEntityPdf::dispatch($invitation);
         });
