@@ -1,3 +1,7 @@
+@php
+    $primary_color = isset($settings) ? $settings->primary_color : '#4caf50';
+@endphp
+
 <!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en-US">
@@ -70,7 +74,7 @@
         /** Content-specific styles. **/
         #content .button {
             display: inline-block;
-            background-color: #0091ea;
+            background-color: {{ $primary_color }};
             color: #ffffff;
             text-transform: uppercase;
             letter-spacing: 2px;
@@ -134,7 +138,7 @@
                     </td>
                 </tr>
                 <tr class="dark-bg"
-                    style="background-color: #0091ea; border: 1px solid #c2c2c2; border-top: none; border-bottom-color: #0091ea;">
+                    style="background-color: {{ $primary_color }}; border: 1px solid #c2c2c2; border-top: none; border-bottom-color: {{ $primary_color }};">
                     <td>
                         <div style="text-align: center; margin-top: 25px;">
                             <h2
@@ -145,27 +149,27 @@
 
                         <div style="text-align:center; margin-bottom: 35px; margin-top: 25px;">
                             <a href="https://forum.invoiceninja.com" target="_blank" class="btn-white"
-                               style="vertical-align: middle;display: inline-block;background-color: #ffffff; color: #0091ea; display: inline-block; text-decoration: none;  width: 100px; text-align: center; font-size: 12px; height: 35px; line-height: 35px; margin-left: 10px; margin-right: 10px;">
+                               style="vertical-align: middle;display: inline-block;background-color: #ffffff; color: {{ $primary_color }}; display: inline-block; text-decoration: none;  width: 100px; text-align: center; font-size: 12px; height: 35px; line-height: 35px; margin-left: 10px; margin-right: 10px;">
                                 <img style="width: 13px; margin-right: 4px; display: inline-block; vertical-align:middle;" src="{{ asset('images/emails/forum.png') }}">
                                 <span>Forums</span>
                             </a>
 
 
                             <a href="http://slack.invoiceninja.com/" target="_blank" class="btn-white"
-                               style="vertical-align: middle;display: inline-block;background-color: #ffffff; color: #0091ea; display: inline-block; text-decoration: none;  width: 100px; text-align: center; font-size: 12px; height: 35px; line-height: 35px; margin-left: 10px; margin-right: 10px;">
+                               style="vertical-align: middle;display: inline-block;background-color: #ffffff; color: {{ $primary_color }}; display: inline-block; text-decoration: none;  width: 100px; text-align: center; font-size: 12px; height: 35px; line-height: 35px; margin-left: 10px; margin-right: 10px;">
                                 <img style="width: 13px; margin-right: 4px; display: inline-block; vertical-align:middle;" src="{{ asset('images/emails/slack.png') }}">
                                 <span>Slack</span>
                             </a>
 
 
                             <a href="https://www.invoiceninja.com/contact/" target="_blank" class="btn-white"
-                               style="vertical-align: middle;display: inline-block;background-color: #ffffff; color: #0091ea; display: inline-block; text-decoration: none;  width: 100px; text-align: center; font-size: 12px; height: 35px; line-height: 35px; margin-left: 10px; margin-right: 10px;">
+                               style="vertical-align: middle;display: inline-block;background-color: #ffffff; color: {{ $primary_color }}; display: inline-block; text-decoration: none;  width: 100px; text-align: center; font-size: 12px; height: 35px; line-height: 35px; margin-left: 10px; margin-right: 10px;">
                                 <img style="width: 13px; margin-right: 4px; display: inline-block; vertical-align:middle;" src="{{ asset('images/emails/email.png') }}">
                                 <span>E-mail</span>
                             </a>
 
                             <a href="https://invoiceninja.github.io/" target="_blank" class="btn-white"
-                               style="vertical-align: middle;display: inline-block;background-color: #ffffff; color: #0091ea; display: inline-block; text-decoration: none;  width: 100px; text-align: center; font-size: 12px; height: 35px; line-height: 35px; margin-left: 10px; margin-right: 10px;">
+                               style="vertical-align: middle;display: inline-block;background-color: #ffffff; color: {{ $primary_color }}; display: inline-block; text-decoration: none;  width: 100px; text-align: center; font-size: 12px; height: 35px; line-height: 35px; margin-left: 10px; margin-right: 10px;">
                                 <span>Support Docs</span>
                             </a>
                         </div>
