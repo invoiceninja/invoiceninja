@@ -74,13 +74,11 @@ class GmailTransport extends Transport
             
             }
 
-
         } 
 
         $this->gmail->send();
 
         $this->sendPerformed($message);
-
 
         return $this->numberOfRecipients($message);
     }
