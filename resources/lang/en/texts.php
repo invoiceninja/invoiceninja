@@ -4262,6 +4262,8 @@ $LANG = array(
     'migration_failed_label' => 'Migration failed',
     'migration_failed' => 'Looks like something went wrong with the migration for the following company:',
     'client_email_company_contact_label' => 'If you have any questions please contact us, we\'re here to help!',
+    'quote_was_approved_label' => 'Quote was approved',
+    'quote_was_approved' => 'We would like to inform you that quote was approved.',
 );
 
 return $LANG;
