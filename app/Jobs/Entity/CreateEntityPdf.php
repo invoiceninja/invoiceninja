@@ -192,7 +192,9 @@ class CreateEntityPdf implements ShouldQueue
         if ($pdf) {
 
             try{
-    
+                
+                nlog($file_path);
+
                 Storage::disk($this->disk)->put($file_path, $pdf);
                 
             }
