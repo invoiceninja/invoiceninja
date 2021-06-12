@@ -57,6 +57,7 @@ class ContactPasswordlessLogin extends Mailable
             ->view('email.billing.passwordless-login', [
                 'logo' => $this->company->present()->logo(),
                 'settings' => $this->company->settings,
+                'company' => $this->company->settings,
             ]);
     }
 }
