@@ -48,6 +48,7 @@ class ImportCompleted extends Mailable
         $data = array_merge($this->data, [
             'logo' => $this->company->present()->logo(),
             'settings' => $this->company->settings,
+            'company' => $this->company,
         ]);
 
         return $this
