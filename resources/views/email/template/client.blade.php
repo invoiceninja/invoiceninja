@@ -1,3 +1,8 @@
+@php
+    $primary_color = isset($settings) ? $settings->primary_color : '#4caf50';
+@endphp
+
+
 <!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en-US">
@@ -57,7 +62,7 @@
          /** Content-specific styles. **/
         #content .button {
             display: inline-block;
-            background-color: #0091ea;
+            background-color: {{ $primary_color }};
             color: #ffffff;
             text-transform: uppercase;
             letter-spacing: 2px;
@@ -118,7 +123,7 @@
 
                                 <div>
                                     <a href="#"
-                                        style="display: inline-block;background-color: #0091ea; color: #ffffff; text-transform: uppercase;letter-spacing: 2px; text-decoration: none; font-size: 13px; font-weight: 600;">
+                                        style="display: inline-block;background-color: {{ $primary_color }}; color: #ffffff; text-transform: uppercase;letter-spacing: 2px; text-decoration: none; font-size: 13px; font-weight: 600;">
                                     </a>
                                 </div>
                            </div>
