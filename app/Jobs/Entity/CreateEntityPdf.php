@@ -105,6 +105,7 @@ class CreateEntityPdf implements ShouldQueue
         /* Set customized translations _NOW_ */
         $t->replace(Ninja::transformTranslations($this->entity->client->getMergedSettings()));
 
+        /*This line of code hurts... it deletes ALL $entity PDFs... this causes a race condition when trying to send an email*/
         // $this->entity->service()->deletePdf();
 
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
