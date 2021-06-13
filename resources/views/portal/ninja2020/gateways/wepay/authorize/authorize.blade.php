@@ -1,6 +1,9 @@
 @extends('portal.ninja2020.layout.payments', ['gateway_title' => ctrans('texts.credit_card'), 'card_title' => ctrans('texts.credit_card')])
 
 @section('gateway_head')
+    <meta name="year-invalid" content="{{ ctrans('texts.year_invalid') }}">
+    <meta name="month-invalid" content="{{ ctrans('texts.month_invalid') }}">
+    <meta name="credit-card-invalid" content="{{ ctrans('texts.credit_card_invalid') }}">
 
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
     <script src="{{ asset('js/clients/payments/card-js.min.js') }}"></script>
@@ -18,41 +21,22 @@
         <input type="hidden" name="gateway_response" id="gateway_response">
         <input type="hidden" name="is_default" id="is_default">
     </form>
-<table>
-    <tr>
-        <td>Name: </td>
-        <td><input id="name" type="text"></td>
-    </tr>
-    <tr>
-        <td>Email: </td>
-        <td><input id="email" type="text"></td>
-    </tr>
-    <tr>
-        <td>Credit Card Number: </td>
-        <td><input id="cc-number" type="text"></td>
-    </tr>
-    <tr>
-        <td>Expiration Month: </td>
-        <td><input id="cc-month" type="text"></td>
-    </tr>
-    <tr>
-        <td>Expiration Year: </td>
-        <td><input id="cc-year" type="text"></td>
-    </tr>
-    <tr>
-        <td>CVV: </td>
-        <td><input id="cc-cvv" type="text"></td>
-    </tr>
-    <tr>
-        <td>Postal Code: </td>
-        <td><input id="postal_code" type="text"></td>
-    </tr>
-    <tr>
-        <td></td>
-        <td><input type="submit" name="Submit" value="Submit" id="cc-submit"></td>
-    </tr>
-</table>
 
+    @if(!Request::isSecure())
+        <p class="alert alert-failure">{{ ctrans('texts.https_required') }}</p>
+    @endif
+
+    <div class="alert alert-failure mb-4" hidden id="errors"></div>
+
+    @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.method')])
+        {{ ctrans('texts.credit_card') }}
+    @endcomponent
+
+    @include('portal.ninja2020.gateways.wepay.includes.credit_card')
+
+    @component('portal.ninja2020.gateways.includes.pay_now', ['id' => 'card_button'])
+        {{ ctrans('texts.add_payment_method') }}
+    @endcomponent
 @endsection
 
 @section('gateway_footer')
@@ -76,16 +60,16 @@
     };
 
     // Attach the event to the DOM
-    addEvent(d.id('cc-submit'), 'click', function() {
-        var userName = [valueById('name')].join(' ');
+    addEvent(d.id('card_button'), 'click', function() {
+        var userName = [valueById('cardholder_name')].join(' ');
             response = WePay.credit_card.create({
-            "client_id":        118711,
-            "user_name":        valueById('name'),
+            "client_id":        valueById('client_id'),
+            "user_name":        valueById('cardholder_name'),
             "email":            valueById('email'),
-            "cc_number":        valueById('cc-number'),
-            "cvv":              valueById('cc-cvv'),
-            "expiration_month": valueById('cc-month'),
-            "expiration_year":  valueById('cc-year'),
+            "cc_number":        valueById('card-number'),
+            "cvv":              valueById('cvv'),
+            "expiration_month": valueById('expiration_month'),
+            "expiration_year":  valueById('expiration_year'),
             "address": {
                 "postal_code": valueById('postal_code')
             }

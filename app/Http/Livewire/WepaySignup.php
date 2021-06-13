@@ -124,7 +124,7 @@ class WepaySignup extends Component
             'original_ip' => request()->ip(),
             'original_device' => request()->server('HTTP_USER_AGENT'),
             'tos_acceptance_time' => time(),
-            'redirect_uri' => route('wepay.process_signup'),
+            'redirect_uri' => route('wepay.finished'),
             'scope' => 'manage_accounts,collect_payments,view_user,preapprove_payments,send_money',
         ];
 

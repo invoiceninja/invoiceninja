@@ -13,6 +13,7 @@
 namespace App\Http\Controllers;
 
 use App\Libraries\MultiDB;
+use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\User;
 use App\PaymentDrivers\WePayPaymentDriver;

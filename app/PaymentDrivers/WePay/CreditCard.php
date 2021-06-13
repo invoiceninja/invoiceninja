@@ -25,6 +25,8 @@ class CreditCard
 
     public function authorizeView($data)
     {
+        $data['gateway'] = $this->wepay;
+        
         return render('gateways.wepay.authorize.authorize', $data);
     }
  
