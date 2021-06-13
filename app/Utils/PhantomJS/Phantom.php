@@ -90,6 +90,9 @@ class Phantom
 
         $this->checkMime($pdf, $invitation, $entity);
         
+        if(!Storage::exists($path))
+            Storage::makeDirectory($path, 0775);
+                
         $instance = Storage::disk(config('filesystems.default'))->put($file_path, $pdf);
 
         return $file_path;
@@ -117,8 +120,6 @@ class Phantom
     {
 
         $finfo = new \finfo(FILEINFO_MIME);
-
-nlog($pdf);
 
         if($finfo->buffer($pdf) != 'application/pdf; charset=binary')
         {
