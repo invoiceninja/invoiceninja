@@ -9,7 +9,15 @@
 @endsection
 
 @section('gateway_content')
+    <form action="{{ route('client.payment_methods.store', ['method' => App\Models\GatewayType::CREDIT_CARD]) }}"
+          method="post" id="server_response">
+        @csrf
 
+        <input type="hidden" name="company_gateway_id" value="{{ $gateway->company_gateway->id }}">
+        <input type="hidden" name="payment_method_id" value="1">
+        <input type="hidden" name="gateway_response" id="gateway_response">
+        <input type="hidden" name="is_default" id="is_default">
+    </form>
 <table>
     <tr>
         <td>Name: </td>

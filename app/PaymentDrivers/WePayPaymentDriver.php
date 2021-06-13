@@ -114,6 +114,10 @@ class WePayPaymentDriver extends BaseDriver
 
     public function authorizeView(array $data)
     {
+        $data['gateway'] = $this->wepay;
+        // $data['public_client_id'] = $this->authorize->init()->getPublicClientKey();
+        // $data['api_login_id'] = $this->authorize->company_gateway->getConfigField('apiLoginId');
+
         return $this->payment_method->authorizeView($data); //this is your custom implementation from here
     }
 
