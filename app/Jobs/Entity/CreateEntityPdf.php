@@ -105,7 +105,7 @@ class CreateEntityPdf implements ShouldQueue
         /* Set customized translations _NOW_ */
         $t->replace(Ninja::transformTranslations($this->entity->client->getMergedSettings()));
 
-        $this->entity->service()->deletePdf();
+        // $this->entity->service()->deletePdf();
 
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
             return (new Phantom)->generate($this->invitation);

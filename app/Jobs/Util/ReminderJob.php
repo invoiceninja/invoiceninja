@@ -60,7 +60,7 @@ class ReminderJob implements ShouldQueue
                 $invoice->service()->touchReminder($reminder_template)->save();
 
                 $invoice->invitations->each(function ($invitation) use ($invoice, $reminder_template) {
-                    EmailEntity::dispatch($invitation, $invitation->company, $reminder_template)->delay(now()->addSeconds(60));
+                    EmailEntity::dispatch($invitation, $invitation->company, $reminder_template);
                     nlog("Firing reminder email for invoice {$invoice->number}");
                 });
 

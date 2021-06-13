@@ -213,7 +213,7 @@ class SendReminders implements ShouldQueue
             if ($this->checkSendSetting($invoice, $template) && $invoice->company->account->hasFeature(Account::FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
                 nlog("firing email");
 
-                EmailEntity::dispatchNow($invitation, $invitation->company, $template)->delay(now()->addSeconds(60));
+                EmailEntity::dispatchNow($invitation, $invitation->company, $template);
                 
             }
         });

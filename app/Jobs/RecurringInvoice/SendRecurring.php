@@ -96,7 +96,7 @@ class SendRecurring implements ShouldQueue
             if ($invitation->contact && strlen($invitation->contact->email) >=1) {
 
                 try{
-                    EmailEntity::dispatch($invitation, $invoice->company)->delay(now()->addSeconds(60));
+                    EmailEntity::dispatch($invitation, $invoice->company);
                 }
                 catch(\Exception $e) {
                     nlog($e->getMessage());
