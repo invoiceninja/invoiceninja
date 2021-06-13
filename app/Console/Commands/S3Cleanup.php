@@ -43,23 +43,20 @@ class S3Cleanup extends Command
         $c1 = Company::on('db-ninja-01')->pluck('company_key');
         $c2 = Company::on('db-ninja-02')->pluck('company_key');
 
-        $merged = $c1->merge($c2);
+        $merged = $c1->merge($c2)->toArray();
 
-        $c3 = Storage::disk(config('filesystems.default'))->directories();
-
-        $diff = $merged->diff($c3);
+        $directories = Storage::disk(config('filesystems.default'))->directories();
 
         $this->LogMessage("Disk Cleanup");
 
-        $this->logMessage("Folders to delete = ". $c1->count());
-
-        $diff->each(function ($dir){
-        
-            $this->logMessage("Deleting $dir");
-
-            Storage::deleteDirectory($dir);
-
-        });
+            foreach($directories as $dir)
+            {
+                if(!in_array($dir, $merged))
+                {
+                    $this->logMessage("Deleting $dir");
+                    Storage::disk(config('filesystems.default'))->deleteDirectory($dir);
+                }
+            }        
 
         $this->logMessage("exiting");
 
