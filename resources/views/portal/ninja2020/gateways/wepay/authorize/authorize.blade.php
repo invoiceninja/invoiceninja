@@ -44,7 +44,7 @@
 <script type="text/javascript" src="https://static.wepay.com/min/js/tokenization.4.latest.js"></script>
 <script type="text/javascript">
 (function() {
-    WePay.set_endpoint("stage"); // change to "production" when live
+    WePay.set_endpoint({{ config('ninja.wepay.environment') }}); // change to "production" when live
 
     // Shortcuts
     var d = document;
@@ -63,7 +63,7 @@
     addEvent(d.id('card_button'), 'click', function() {
         var userName = [valueById('cardholder_name')].join(' ');
             response = WePay.credit_card.create({
-            "client_id":        valueById('client_id'),
+            "client_id":        {{ config('ninja.wepay.client_id') }},
             "user_name":        valueById('cardholder_name'),
             "email":            valueById('email'),
             "cc_number":        valueById('card-number'),
@@ -80,6 +80,11 @@
             } else {
                 // call your own app's API to save the token inside the data;
                 // show a success page
+                var token = response.credit_card_id;
+                // Insert the token into the form so it gets submitted to the server
+                $form.append($('<input type="hidden" name="source_token"/>').val(token));
+                // and submit
+                $form.get(0).submit();
             }
         });
     });
