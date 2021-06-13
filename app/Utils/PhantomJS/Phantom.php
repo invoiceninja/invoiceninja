@@ -90,8 +90,8 @@ class Phantom
 
         $this->checkMime($pdf, $invitation, $entity);
         
-        if(!Storage::exists($path))
-            Storage::makeDirectory($path, 0775);
+        if(!Storage::disk(config('filesystems.default'))->exists($path))
+            Storage::disk(config('filesystems.default'))->makeDirectory($path, 0775);
                 
         $instance = Storage::disk(config('filesystems.default'))->put($file_path, $pdf);
 
