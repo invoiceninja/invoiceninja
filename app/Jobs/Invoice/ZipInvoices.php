@@ -78,28 +78,32 @@ class ZipInvoices implements ShouldQueue
         // create a new zipstream object
         $file_name = date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.invoices')).'.zip';
 
-        $path = $this->invoices->first()->client->invoice_filepath();
+        $invoice = $this->invoices->first();
+        $invitation = $invoice->invitations->first();
+
+        $path = $invoice->client->invoice_filepath($invitation);
 
         $zip = new ZipStream($file_name, $options);
 
         foreach ($this->invoices as $invoice) {
-            $zip->addFileFromPath(basename($invoice->pdf_file_path()), TempFile::path($invoice->pdf_file_path()));
+            //$zip->addFileFromPath(basename($invoice->pdf_file_path()), TempFile::path($invoice->pdf_file_path()));
+            $zip->addFileFromPath(basename($invoice->pdf_file_path($invitation)), $invoice->pdf_file_path());
         }
 
         $zip->finish();
 
-        Storage::disk(config('filesystems.default'))->put($path.$file_name, $tempStream);
+        Storage::disk('public')->put($path.$file_name, $tempStream);
 
         fclose($tempStream);
 
         $nmo = new NinjaMailerObject;
-        $nmo->mailable = new DownloadInvoices(Storage::disk(config('filesystems.default'))->url($path.$file_name), $this->company);
+        $nmo->mailable = new DownloadInvoices(Storage::disk('public')->url($path.$file_name), $this->company);
         $nmo->to_user = $this->user;
         $nmo->settings = $this->settings;
         $nmo->company = $this->company;
         
         NinjaMailerJob::dispatch($nmo);
         
-        UnlinkFile::dispatch(config('filesystems.default'), $path.$file_name)->delay(now()->addHours(1));
+        UnlinkFile::dispatch('public', $path.$file_name)->delay(now()->addHours(1));
     }
 }

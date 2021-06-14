@@ -14,10 +14,12 @@ namespace App\Http\Requests\User;
 use App\DataMapper\DefaultSettings;
 use App\Factory\UserFactory;
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\Ninja\CanAddUserRule;
 use App\Http\ValidationRules\User\AttachableUser;
 use App\Http\ValidationRules\ValidUserForCompany;
 use App\Libraries\MultiDB;
 use App\Models\User;
+use App\Utils\Ninja;
 use Illuminate\Validation\Rule;
 
 class StoreUserRequest extends Request
@@ -45,8 +47,7 @@ class StoreUserRequest extends Request
             $rules['email'] = ['email', new AttachableUser()];
         }
 
-
-        if (auth()->user()->company()->account->isFreeHostedClient()) {
+        if (Ninja::isHosted()) {
             $rules['hosted_users'] = new CanAddUserRule(auth()->user()->company()->account);
         }
 
@@ -59,10 +60,6 @@ class StoreUserRequest extends Request
 
 //unique user rule - check company_user table for user_id / company_id  / account_id if none exist we can add the user. ELSE return false
 
-//nlog($this->all());
-//nlog($this->input('company_user.account'));
-// nlog($this->input('company_user.account.id'));
-// nlog($this->input('company_user.account.id'));
 
         if (isset($input['company_user'])) {
             if (! isset($input['company_user']['is_admin'])) {

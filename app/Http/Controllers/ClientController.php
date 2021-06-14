@@ -15,6 +15,7 @@ use App\Events\Client\ClientWasCreated;
 use App\Events\Client\ClientWasUpdated;
 use App\Factory\ClientFactory;
 use App\Filters\ClientFilters;
+use App\Http\Requests\Client\AdjustClientLedgerRequest;
 use App\Http\Requests\Client\CreateClientRequest;
 use App\Http\Requests\Client\DestroyClientRequest;
 use App\Http\Requests\Client\EditClientRequest;
@@ -282,7 +283,7 @@ class ClientController extends BaseController
 
         $this->uploadLogo($request->file('company_logo'), $client->company, $client);
 
-        event(new ClientWasUpdated($client, $client->company, Ninja::eventVars(auth()->user()->id)));
+        event(new ClientWasUpdated($client, $client->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($client->fresh());
     }
@@ -378,9 +379,18 @@ class ClientController extends BaseController
 
         $client->load('contacts', 'primary_contact');
 
+        /* Set the client country to the company if none is set */
+        if(!$client->country_id && strlen($client->company->settings->country_id) > 1){
+
+            $client->country_id = $client->company->settings->country_id;
+        
+            $client->save();
+        
+        }
+
         $this->uploadLogo($request->file('company_logo'), $client->company, $client);
 
-        event(new ClientWasCreated($client, $client->company, Ninja::eventVars(auth()->user()->id)));
+        event(new ClientWasCreated($client, $client->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($client);
     }
@@ -583,6 +593,66 @@ class ClientController extends BaseController
 
         return $this->itemResponse($client->fresh());
 
+    }
+
+/**
+     * Update the specified resource in storage.
+     *
+     * @param UploadClientRequest $request
+     * @param Client $client
+     * @return Response
+     *
+     *
+     *
+     * @OA\Put(
+     *      path="/api/v1/clients/{id}/adjust_ledger",
+     *      operationId="adjustLedger",
+     *      tags={"clients"},
+     *      summary="Adjust the client ledger to rebalance",
+     *      description="Adjust the client ledger to rebalance",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Client Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the client object",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Client"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
+    //@deprecated - not available    
+    public function adjustLedger(AdjustClientLedgerRequest $request, Client $client)
+    {
+        // $adjustment = $request->input('adjustment');
+        // $notes = $request->input('notes');
+
+        // $client->service()->updateBalance
     }
 
 }

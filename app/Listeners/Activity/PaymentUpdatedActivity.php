@@ -48,7 +48,7 @@ class PaymentUpdatedActivity implements ShouldQueue
 
         $fields = new stdClass;
 
-        $user_id = $event->event_vars['user_id'] ?: $event->payment->user_id;
+$user_id = array_key_exists('user_id', $event->event_vars) ? $event->event_vars['user_id'] : $event->payment->user_id;
 
         $fields->payment_id = $payment->id;
         $fields->client_id = $payment->client_id;

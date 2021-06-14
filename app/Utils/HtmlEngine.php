@@ -17,6 +17,7 @@ use App\Models\CreditInvitation;
 use App\Models\InvoiceInvitation;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
+use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
 use App\Utils\Traits\MakesDates;
 use Exception;
 use Illuminate\Support\Facades\App;
@@ -180,6 +181,7 @@ class HtmlEngine
         $data['$amount_due'] = ['value' => &$data['$total']['value'], 'label' => ctrans('texts.amount_due')];
         $data['$quote.total'] = &$data['$total'];
         $data['$invoice.total'] = ['value' => Number::formatMoney($this->entity_calc->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.invoice_total')];
+        $data['$invoice_total_raw'] = ['value' => $this->entity_calc->getTotal(), 'label' => ctrans('texts.invoice_total')];
         $data['$invoice.amount'] = &$data['$total'];
         $data['$quote.amount'] = ['value' => Number::formatMoney($this->entity_calc->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.quote_total')];
         $data['$credit.total'] = ['value' => Number::formatMoney($this->entity_calc->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.credit_total')];
@@ -214,6 +216,7 @@ class HtmlEngine
         $data['$quote_no'] = &$data['$quote.number'];
         $data['$quote.quote_no'] = &$data['$quote.number'];
         $data['$quote.valid_until'] = ['value' => $this->translateDate($this->entity->due_date, $this->client->date_format(), $this->entity->client->locale()), 'label' => ctrans('texts.valid_until')];
+        $data['$valid_until'] = &$data['$quote.valid_until'];
         $data['$credit_amount'] = ['value' => Number::formatMoney($this->entity_calc->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.credit_amount')];
         $data['$credit_balance'] = ['value' => Number::formatMoney($this->entity->balance, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.credit_balance')];
         $data['$quote.custom1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice1', $this->entity->custom_value1, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice1')];
@@ -231,6 +234,10 @@ class HtmlEngine
         $data['$client2'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'client2', $this->client->custom_value2, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'client2')];
         $data['$client3'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'client3', $this->client->custom_value3, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'client3')];
         $data['$client4'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'client4', $this->client->custom_value4, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'client4')];
+        $data['$client.custom1'] = &$data['$client1'];
+        $data['$client.custom2'] = &$data['$client2'];
+        $data['$client.custom3'] = &$data['$client3'];
+        $data['$client.custom4'] = &$data['$client4'];
         $data['$address1'] = ['value' => $this->client->address1 ?: '&nbsp;', 'label' => ctrans('texts.address1')];
         $data['$address2'] = ['value' => $this->client->address2 ?: '&nbsp;', 'label' => ctrans('texts.address2')];
         $data['$id_number'] = ['value' => $this->client->id_number ?: '&nbsp;', 'label' => ctrans('texts.id_number')];
@@ -246,6 +253,7 @@ class HtmlEngine
         $data['$client.address2'] = &$data['$address2'];
         $data['$client_address'] = ['value' => $this->client->present()->address() ?: '&nbsp;', 'label' => ctrans('texts.address')];
         $data['$client.address'] = &$data['$client_address'];
+        $data['$client.postal_code'] = ['value' => $this->client->postal_code ?: '&nbsp;', 'label' => ctrans('texts.postal_code')];
         $data['$client.id_number'] = &$data['$id_number'];
         $data['$client.vat_number'] = &$data['$vat_number'];
         $data['$client.website'] = &$data['$website'];
@@ -305,6 +313,11 @@ class HtmlEngine
         $data['$company2'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company2', $this->settings->custom_value2, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'company2')];
         $data['$company3'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company3', $this->settings->custom_value3, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'company3')];
         $data['$company4'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company4', $this->settings->custom_value4, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'company4')];
+
+        $data['$company.custom1'] = &$data['$company1'];
+        $data['$company.custom2'] = &$data['$company2'];
+        $data['$company.custom3'] = &$data['$company3'];
+        $data['$company.custom4'] = &$data['$company4'];
 
         $data['$custom_surcharge1'] = ['value' => Number::formatMoney($this->entity->custom_surcharge1, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'surcharge1')];
         $data['$custom_surcharge2'] = ['value' => Number::formatMoney($this->entity->custom_surcharge2, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'surcharge2')];
@@ -378,6 +391,8 @@ class HtmlEngine
 
         $data['$page_size'] = ['value' => $this->settings->page_size, 'label' => ''];
         $data['$page_layout'] = ['value' => property_exists($this->settings, 'page_layout') ? $this->settings->page_layout : 'Portrait', 'label' => ''];
+
+        $data['$tech_hero_image'] = ['value' => asset('images/pdf-designs/tech-hero-image.jpg'), 'label' => ''];
 
         $arrKeysLength = array_map('strlen', array_keys($data));
         array_multisort($arrKeysLength, SORT_DESC, $data);
@@ -460,7 +475,7 @@ class HtmlEngine
         $country = Country::find($this->settings->country_id);
 
         if ($country) {
-            return $country->name;
+            return ctrans('texts.country_' . $country->name);
         }
 
         return '&nbsp;';

@@ -106,7 +106,8 @@ class TemplateEngine
         }
 
         App::forgetInstance('translator');
-        Lang::replace(Ninja::transformTranslations($this->settings));
+        $t = app('translator');
+        $t->replace(Ninja::transformTranslations($this->settings));
 
         return $this;
     }

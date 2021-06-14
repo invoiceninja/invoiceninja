@@ -90,7 +90,7 @@ class CreditCard
             $state['store_card'] = false;
         }
 
-        $state['payment_intent'] = PaymentIntent::retrieve($state['server_response']->id);
+        $state['payment_intent'] = PaymentIntent::retrieve($state['server_response']->id, $this->stripe->stripe_connect_auth);
         $state['customer'] = $state['payment_intent']->customer;
 
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, $state);
@@ -141,7 +141,8 @@ class CreditCard
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_SUCCESS,
             SystemLog::TYPE_STRIPE,
-            $this->stripe->client
+            $this->stripe->client,
+            $this->stripe->client->company,
         );
 
         return redirect()->route('client.payments.show', ['payment' => $this->stripe->encodePrimaryKey($payment->id)]);
@@ -168,7 +169,8 @@ class CreditCard
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_FAILURE,
             SystemLog::TYPE_STRIPE,
-            $this->stripe->client
+            $this->stripe->client,
+            $this->stripe->client->company,
         );
 
         throw new PaymentFailed('Failed to process the payment.', 500);

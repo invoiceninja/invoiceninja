@@ -201,7 +201,7 @@ class CreditController extends BaseController
                          ->fillDefaults()
                          ->save();
 
-        event(new CreditWasCreated($credit, $credit->company, Ninja::eventVars(auth()->user()->id)));
+        event(new CreditWasCreated($credit, $credit->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($credit);
     }
@@ -378,7 +378,7 @@ class CreditController extends BaseController
 
         $credit->service()->deletePdf();
         
-        event(new CreditWasUpdated($credit, $credit->company, Ninja::eventVars(auth()->user()->id)));
+        event(new CreditWasUpdated($credit, $credit->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($credit);
     }
@@ -535,11 +535,9 @@ class CreditController extends BaseController
                     return $this->itemResponse($credit);
                 }
                 break;
-            case 'download':
-                    return response()->streamDownload(function () use ($credit) {
-                        echo file_get_contents($credit->pdf_file_path());
-                    }, basename($credit->pdf_file_path()), ['Cache-Control:' => 'no-cache']);
-                //return response()->download(TempFile::path($credit->pdf_file_path()), basename($credit->pdf_file_path()));
+            case 'download':    
+                $file = $credit->pdf_file_path();
+                return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
               break;
             case 'archive':
                 $this->credit_repository->archive($credit);
@@ -589,7 +587,7 @@ class CreditController extends BaseController
 
         $file_path = $credit->service()->getCreditPdf($invitation);
 
-        return response()->download($file_path, basename($file_path), ['Cache-Control:' => 'no-cache']);
+        return response()->download($file_path, basename($file_path), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
     }
 
     /**

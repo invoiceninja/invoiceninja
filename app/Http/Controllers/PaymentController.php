@@ -385,7 +385,7 @@ class PaymentController extends BaseController
 
         $payment = $this->payment_repo->save($request->all(), $payment);
 
-        event(new PaymentWasUpdated($payment, $payment->company, Ninja::eventVars(auth()->user()->id)));
+        event(new PaymentWasUpdated($payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         return $this->itemResponse($payment);
     }
 

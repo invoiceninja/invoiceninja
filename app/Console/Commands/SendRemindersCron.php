@@ -12,12 +12,12 @@
 namespace App\Console\Commands;
 
 use App\Jobs\Ninja\SendReminders;
-use App\Jobs\Util\WebHookHandler;
 use App\Libraries\MultiDB;
 use App\Models\Invoice;
 use App\Models\Quote;
 use App\Models\Webhook;
 use Illuminate\Console\Command;
+use App\Jobs\Util\WebhookHandler;
 
 class SendRemindersCron extends Command
 {
@@ -54,8 +54,8 @@ class SendRemindersCron extends Command
     {
         SendReminders::dispatchNow();
 
-        $this->webHookOverdueInvoices();
-        $this->webHookExpiredQuotes();
+       $this->webHookOverdueInvoices();
+       $this->webHookExpiredQuotes();
     }
 
     private function webHookOverdueInvoices()
@@ -89,7 +89,8 @@ class SendRemindersCron extends Command
                           ->cursor();
     
         $invoices->each(function ($invoice) {
-            WebHookHandler::dispatch(Webhook::EVENT_LATE_INVOICE, $invoice, $invoice->company);
+            WebhookHandler::dispatch(Webhook::EVENT_LATE_INVOICE, $invoice, $invoice->company);
+            
         });
 
         $quotes = Quote::where('is_deleted', 0)
@@ -98,7 +99,7 @@ class SendRemindersCron extends Command
                           ->cursor();
     
         $quotes->each(function ($quote) {
-            WebHookHandler::dispatch(Webhook::EVENT_EXPIRED_QUOTE, $quote, $quote->company);
+            WebhookHandler::dispatch(Webhook::EVENT_EXPIRED_QUOTE, $quote, $quote->company);
         });
     }
 

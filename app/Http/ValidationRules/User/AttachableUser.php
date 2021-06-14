@@ -20,6 +20,7 @@ use Illuminate\Contracts\Validation\Rule;
  */
 class AttachableUser implements Rule
 {
+    public $message;
 
     public function __construct()
     {
@@ -39,7 +40,7 @@ class AttachableUser implements Rule
      */
     public function message()
     {
-        return "Cannot add the same user to the same company";
+        return $this->message;
     }
 
     /**
@@ -57,15 +58,22 @@ class AttachableUser implements Rule
         if(!$user)
             return true;
 
-        $user_already_attached =  CompanyUser::query()
+        $user_already_attached = CompanyUser::query()
                                     ->where('user_id', $user->id)
                                     ->where('account_id',$user->account_id)
                                     ->where('company_id', auth()->user()->company()->id)
                                     ->exists();
 
-        if($user_already_attached)
+        //If the user is already attached or isn't link to this account - return false
+        if($user_already_attached) {
+            $this->message = ctrans('texts.user_duplicate_error');
             return false;
+        } 
 
+        if($user->account_id != auth()->user()->account_id){
+            $this->message = ctrans('texts.user_cross_linked_error');
+            return false;            
+        }
 
         return true;
     }

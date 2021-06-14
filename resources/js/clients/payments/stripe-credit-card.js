@@ -17,18 +17,30 @@ class StripeCreditCard {
     }
 
     setupStripe() {
-        this.stripe = Stripe(this.key);
 
-        if(this.stripeConnect)
-            this.stripe.stripeAccount = this.stripeConnect;
-
+        if (this.stripeConnect){
+           // this.stripe.stripeAccount = this.stripeConnect;
+           
+           this.stripe = Stripe(this.key, {
+              stripeAccount: this.stripeConnect,
+            }); 
+           
+        }
+        else {
+            this.stripe = Stripe(this.key);
+        }
+        
         this.elements = this.stripe.elements();
 
         return this;
     }
 
     createElement() {
-        this.cardElement = this.elements.create('card');
+        this.cardElement = this.elements.create('card', {
+            value: {
+                postalCode: document.querySelector('meta[name=client-postal-code]').content,
+            }
+        });
 
         return this;
     }
@@ -198,15 +210,19 @@ class StripeCreditCard {
 }
 
 const publishableKey =
-    document.querySelector('meta[name="stripe-publishable-key"]').content ?? '';
+    document.querySelector('meta[name="stripe-publishable-key"]')?.content ?? '';
 
 const secret =
-    document.querySelector('meta[name="stripe-secret"]').content ?? '';
+    document.querySelector('meta[name="stripe-secret"]')?.content ?? '';
 
 const onlyAuthorization =
-    document.querySelector('meta[name="only-authorization"]').content ?? '';
+    document.querySelector('meta[name="only-authorization"]')?.content ?? '';
 
-const stripeConnect = 
-    document.querySelector('meta[name="stripe-account-id"]').content;
+const stripeConnect =
+    document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
 
-new StripeCreditCard(publishableKey, secret, onlyAuthorization, stripeConnect).handle();
+let s = new StripeCreditCard(publishableKey, secret, onlyAuthorization, stripeConnect);
+
+s.handle();
+
+Livewire.on('passed-required-fields-check', () => s.handle());

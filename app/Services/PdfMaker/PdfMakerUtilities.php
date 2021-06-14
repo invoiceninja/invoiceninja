@@ -62,30 +62,9 @@ trait PdfMakerUtilities
             }
 
             if (isset($element['elements'])) {
-                $sorted = $this->processChildrenOrder($element['elements']);
-
-                $this->createElementContent($node, $sorted);
+                $this->createElementContent($node, $element['elements']);
             }
         }
-    }
-
-    public function processChildrenOrder(array $children)
-    {
-        $processed = [];
-
-        foreach ($children as $child) {
-            if (!isset($child['order'])) {
-                $child['order'] = 0;
-            }
-
-            $processed[] = $child;
-        }
-
-        usort($processed, function ($a, $b) {
-            return $a['order'] <=> $b['order'];
-        });
-
-        return $processed;
     }
 
     public function updateElementProperty($element, string $attribute, ?string $value)
@@ -113,7 +92,10 @@ trait PdfMakerUtilities
             $contains_html = false;
 
             if (isset($child['content'])) {
-                $child['content'] = nl2br($child['content']);
+                // Commented cause it keeps adding <br> at the end, if markdown parsing is turned on.
+                // Should update with 'parse_markdown_on_pdfs' setting.
+
+                 $child['content'] = nl2br($child['content']);
             }
 
             // "/\/[a-z]*>/i" -> checks for HTML-like tags:
@@ -154,9 +136,7 @@ trait PdfMakerUtilities
             }
 
             if (isset($child['elements'])) {
-                $sorted = $this->processChildrenOrder($child['elements']);
-
-                $this->createElementContent($_child, $sorted);
+                $this->createElementContent($_child, $child['elements']);
             }
         }
     }

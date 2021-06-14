@@ -14,7 +14,7 @@ context('Payment methods', () => {
         cy.visit('/client/payment_methods');
 
         cy.get('body')
-            .find('span')
+            .find('[data-ref=meta-title]')
             .first()
             .should('contain.text', 'Payment Method');
     });

@@ -284,7 +284,7 @@ class TaskController extends BaseController
         if($task->status_order != $old_task->status_order)
             $this->task_repo->sortStatuses($old_task, $task);
 
-        event(new TaskWasUpdated($task, $task->company, Ninja::eventVars(auth()->user()->id)));
+        event(new TaskWasUpdated($task, $task->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($task->fresh());
     }
@@ -378,7 +378,7 @@ class TaskController extends BaseController
     {
         $task = $this->task_repo->save($request->all(), TaskFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
-        event(new TaskWasCreated($task, $task->company, Ninja::eventVars(auth()->user()->id)));
+        event(new TaskWasCreated($task, $task->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($task);
     }
@@ -631,6 +631,7 @@ class TaskController extends BaseController
 
             $task_status = TaskStatus::where('id', $this->decodePrimaryKey($task_status_hashed_id))
                                      ->where('company_id', auth()->user()->company()->id)
+                                     ->withTrashed()
                                      ->first();
 
             $task_status->status_order = $key;
@@ -643,18 +644,13 @@ class TaskController extends BaseController
 
             $sort_status_id = $this->decodePrimaryKey($key);
             
-            // nlog($task_list);
-
             foreach ($task_list as $key => $task)
             {
-
-                // nlog($task);
                 
                 $task_record = Task::where('id', $this->decodePrimaryKey($task))
                              ->where('company_id', auth()->user()->company()->id)
+                             ->withTrashed()
                              ->first();
-
-                // nlog($task_record->id);
                 
                 $task_record->status_order = $key;
                 $task_record->status_id = $sort_status_id;
@@ -663,6 +659,6 @@ class TaskController extends BaseController
 
         }
 
-        return response()->json(['message' => 'Ok'],200);
+        return response()->json(['message' => 'Ok'], 200);
     }
 }

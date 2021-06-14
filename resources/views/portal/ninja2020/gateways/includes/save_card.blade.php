@@ -16,12 +16,12 @@
                        value="true"/>
                 <span class="ml-1 cursor-pointer">{{ ctrans('texts.yes') }}</span>
             </label>
-            <label>
+            <labecoml>
                 <input type="radio" class="form-radio cursor-pointer" name="token-billing-checkbox"
                        id="proxy_is_default"
                        value="false" checked />
                 <span class="ml-1 cursor-pointer">{{ ctrans('texts.no') }}</span>
-            </label>
+            </labecoml>
         </dd>
     </div>
 @else

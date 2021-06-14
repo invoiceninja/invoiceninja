@@ -11,12 +11,14 @@
 
 namespace App\Transformers;
 
+use App\Models\Activity;
 use App\Models\Backup;
 use App\Models\Client;
 use App\Models\Document;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Models\Payment;
+use App\Transformers\ActivityTransformer;
 use App\Utils\Traits\MakesHash;
 
 class InvoiceTransformer extends EntityTransformer
@@ -33,6 +35,7 @@ class InvoiceTransformer extends EntityTransformer
         'history',
         'payments',
         'client',
+        'activities',
     //    'documents',
     ];
 
@@ -80,6 +83,14 @@ class InvoiceTransformer extends EntityTransformer
         return $this->includeCollection($invoice->documents, $transformer, Document::class);
     }
 
+    public function includeActivities(Invoice $invoice)
+    {
+        $transformer = new ActivityTransformer($this->serializer);
+
+        return $this->includeCollection($invoice->activities, $transformer, Activity::class);
+    }
+
+
     public function transform(Invoice $invoice)
     {
         return [
@@ -103,7 +114,7 @@ class InvoiceTransformer extends EntityTransformer
             'po_number' => $invoice->po_number ?: '',
             'date' => $invoice->date ?: '',
             'last_sent_date' => $invoice->last_sent_date ?: '',
-            'next_send_date' => $invoice->date ?: '',
+            'next_send_date' => $invoice->next_send_date ?: '',
             'due_date' => $invoice->due_date ?: '',
             'terms' => $invoice->terms ?: '',
             'public_notes' => $invoice->public_notes ?: '',
@@ -143,7 +154,7 @@ class InvoiceTransformer extends EntityTransformer
             'reminder_last_sent' => $invoice->reminder_last_sent ?: '',
             'paid_to_date' => (float) $invoice->paid_to_date,
             'subscription_id' => $this->encodePrimaryKey($invoice->subscription_id),
-
+            'auto_bill_enabled' => (bool) $invoice->auto_bill_enabled,
         ];
     }
 }

@@ -11,10 +11,12 @@
 
 namespace App\Transformers;
 
+use App\Models\Activity;
 use App\Models\Backup;
 use App\Models\Credit;
 use App\Models\CreditInvitation;
 use App\Models\Document;
+use App\Transformers\ActivityTransformer;
 use App\Utils\Traits\MakesHash;
 
 class CreditTransformer extends EntityTransformer
@@ -31,7 +33,15 @@ class CreditTransformer extends EntityTransformer
         'history',
     //    'client',
         'documents',
+        'activities',
     ];
+
+    public function includeActivities(Credit $credit)
+    {
+        $transformer = new ActivityTransformer($this->serializer);
+
+        return $this->includeCollection($credit->activities, $transformer, Activity::class);
+    }
 
     public function includeHistory(Credit $credit)
     {
@@ -98,7 +108,7 @@ class CreditTransformer extends EntityTransformer
             'po_number' => $credit->po_number ?: '',
             'date' => $credit->date ?: '',
             'last_sent_date' => $credit->last_sent_date ?: '',
-            'next_send_date' => $credit->date ?: '',
+            'next_send_date' => $credit->next_send_date ?: '',
             'reminder1_sent' => $credit->reminder1_sent ?: '',
             'reminder2_sent' => $credit->reminder2_sent ?: '',
             'reminder3_sent' => $credit->reminder3_sent ?: '',

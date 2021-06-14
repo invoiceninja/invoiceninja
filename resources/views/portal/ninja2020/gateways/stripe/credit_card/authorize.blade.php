@@ -1,11 +1,18 @@
 @extends('portal.ninja2020.layout.payments', ['gateway_title' => 'Credit card', 'card_title' => 'Credit card'])
 
 @section('gateway_head')
-    <meta name="stripe-publishable-key" content="{{ $gateway->getPublishableKey() }}">
+
+    @if($gateway->getConfigField('account_id'))
     <meta name="stripe-account-id" content="{{ $gateway->getConfigField('account_id') }}">
+    <meta name="stripe-publishable-key" content="{{ config('ninja.ninja_stripe_publishable_key') }}">
+    @else
+    <meta name="stripe-publishable-key" content="{{ $gateway->getPublishableKey() }}">
+    @endif
     <meta name="stripe-secret" content="{{ $intent->client_secret }}">
     <meta name="only-authorization" content="true">
     <meta name="stripe-token" content="">
+    <meta name="client-postal-code" content="{{ $client->postal_code ?? '' }}">
+
 @endsection
 
 @section('gateway_content')
@@ -23,7 +30,7 @@
         {{ ctrans('texts.credit_card') }}
     @endcomponent
 
-    @include('portal.ninja2020.gateways.stripe.includes.card_widget')
+    @include('portal.ninja2020.gateways.stripe.includes.card_widget', ['show_save_method' => false])
 
     @component('portal.ninja2020.gateways.includes.pay_now', ['id' => 'authorize-card'])
         {{ ctrans('texts.add_payment_method') }}

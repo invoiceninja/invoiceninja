@@ -21,6 +21,6 @@ trait Utilities
 
     public function convertToStripeAmount($amount, $precision)
     {
-        return $amount * pow(10, $precision);
+        return (int)($amount * pow(10, $precision));
     }
 }

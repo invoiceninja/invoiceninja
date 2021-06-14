@@ -160,4 +160,36 @@ abstract class QueryFilters
             return $this->builder->whereClientId(auth('contact')->user()->client->id);
         }
     }
+
+    public function created_at($value)
+    {
+        $created_at = $value ? $value : 0;
+
+        $created_at = date('Y-m-d H:i:s', $value);
+
+        return $this->builder->where('created_at', '>=', $created_at);
+    }
+
+    public function is_deleted($value)
+    {
+
+        return $this->builder->where('is_deleted', $value);
+
+    }
+
+    public function filter_deleted_clients($value)
+    {
+
+        if($value == 'true'){
+
+            return $this->builder->whereHas('client', function (Builder $query) {
+
+              $query->where('is_deleted', 0);
+              
+            });
+
+        }
+
+        return $this->builder;
+    }
 }

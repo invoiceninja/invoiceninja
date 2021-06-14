@@ -18,7 +18,7 @@ Route::group(['middleware' => ['api_secret_check']], function () {
     Route::post('api/v1/oauth_login', 'Auth\LoginController@oauthApiLogin');
 });
 
-Route::group(['middleware' => ['api_secret_check', 'email_db']], function () {
+Route::group(['middleware' => ['api_secret_check','email_db']], function () {
     Route::post('api/v1/login', 'Auth\LoginController@apiLogin')->name('login.submit');
     Route::post('api/v1/reset_password', 'Auth\ForgotPasswordController@sendResetLinkEmail');
 });
@@ -34,6 +34,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::post('claim_license', 'LicenseController@index')->name('license.index');
 
     Route::resource('clients', 'ClientController'); // name = (clients. index / create / show / update / destroy / edit
+    Route::put('clients/{client}/adjust_ledger', 'ClientController@adjustLedger')->name('clients.adjust_ledger');
     Route::put('clients/{client}/upload', 'ClientController@upload')->name('clients.upload');
     Route::post('clients/bulk', 'ClientController@bulk')->name('clients.bulk');
 
@@ -75,6 +76,8 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::put('expenses/{expense}/upload', 'ExpenseController@upload');
     Route::post('expenses/bulk', 'ExpenseController@bulk')->name('expenses.bulk');
 
+    Route::post('export', 'ExportController@index')->name('export.index');
+
     Route::resource('expense_categories', 'ExpenseCategoryController'); // name = (expense_categories. index / create / show / update / destroy / edit
     Route::post('expense_categories/bulk', 'ExpenseCategoryController@bulk')->name('expense_categories.bulk');
 
@@ -82,6 +85,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::post('group_settings/bulk', 'GroupSettingController@bulk');
 
     Route::post('import', 'ImportController@import')->name('import.import');
+    Route::post('import_json', 'ImportJsonController@import')->name('import.import_json');
     Route::post('preimport', 'ImportController@preimport')->name('import.preimport');
 
     Route::resource('invoices', 'InvoiceController'); // name = (invoices. index / create / show / update / destroy / edit
@@ -159,6 +163,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 
     Route::get('settings/enable_two_factor', 'TwoFactorController@setupTwoFactor');
     Route::post('settings/enable_two_factor', 'TwoFactorController@enableTwoFactor');
+    Route::post('settings/disable_two_factor', 'TwoFactorController@disableTwoFactor');
 
     Route::resource('vendors', 'VendorController'); // name = (vendors. index / create / show / update / destroy / edit
     Route::post('vendors/bulk', 'VendorController@bulk')->name('vendors.bulk');
@@ -181,6 +186,9 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     // Route::post('hooks', 'SubscriptionController@subscribe')->name('hooks.subscribe');
     // Route::delete('hooks/{subscription_id}', 'SubscriptionController@unsubscribe')->name('hooks.unsubscribe');
 
+    Route::post('stripe/update_payment_methods', 'StripeController@update')->middleware('password_protected')->name('stripe.update');
+    Route::post('stripe/import_customers', 'StripeController@import')->middleware('password_protected')->name('stripe.import');
+
     Route::resource('subscriptions', 'SubscriptionController');
     Route::post('subscriptions/bulk', 'SubscriptionController@bulk')->name('subscriptions.bulk');
 
@@ -191,15 +199,7 @@ Route::match(['get', 'post'], 'payment_webhook/{company_key}/{company_gateway_id
     ->name('payment_webhook');
 
 Route::post('api/v1/postmark_webhook', 'PostMarkController@webhook');
-
 Route::get('token_hash_router', 'OneTimeTokenController@router');
-
 Route::get('webcron', 'WebCronController@index');
-
-Route::group(['middleware' => ['locale']], function () {
-    Route::get('stripe_connect/{token}', 'StripeConnectController@initialize')->name('stripe_connect.initialization');
-    Route::get('stripe_connect/completed', 'StripeConnectController@completed')->name('stripe_connect.return');
-
-});
 
 Route::fallback('BaseController@notFound');

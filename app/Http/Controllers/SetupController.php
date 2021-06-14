@@ -163,7 +163,7 @@ class SetupController extends Controller
 
             /* Create the first account. */
             if (Account::count() == 0) {
-                CreateAccount::dispatchNow($request->all());
+                CreateAccount::dispatchNow($request->all(), $request->getClientIp());
             }
 
             VersionCheck::dispatchNow();
@@ -275,7 +275,9 @@ class SetupController extends Controller
 
     public function update()
     {
-
+        // if(Ninja::isHosted())
+        //     return redirect('/');
+    
         // if( Ninja::isNinja() || !request()->has('secret') || (request()->input('secret') != config('ninja.update_secret')) )
         if(!request()->has('secret') || (request()->input('secret') != config('ninja.update_secret')) )
             return redirect('/');
@@ -288,6 +290,11 @@ class SetupController extends Controller
         $cacheServices = base_path('bootstrap/cache/services.php');
         if (file_exists($cacheServices)) {
             unlink ($cacheServices);
+        }
+
+        $cacheRoute = base_path('bootstrap/cache/routes-v7.php');
+        if (file_exists($cacheRoute)) {
+            unlink ($cacheRoute);
         }
 
         Artisan::call('clear-compiled');

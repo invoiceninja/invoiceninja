@@ -52,7 +52,6 @@ class InvitationTest extends TestCase
         try {
 
         $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->put('/api/v1/invoices/'.$this->encodePrimaryKey($this->invoice->id), $this->invoice->toArray());
         } catch (\Exception $e) {

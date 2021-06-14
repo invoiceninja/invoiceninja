@@ -218,7 +218,7 @@ class InvoiceController extends BaseController
                            ->triggeredActions($request)
                            ->save();
 
-        event(new InvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars(auth()->user()->id)));
+        event(new InvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         
         return $this->itemResponse($invoice);
     }
@@ -399,7 +399,7 @@ class InvoiceController extends BaseController
         
         $invoice->service()->deletePdf();
 
-        event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars(auth()->user()->id)));
+        event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($invoice);
     }
@@ -671,10 +671,10 @@ class InvoiceController extends BaseController
                 }
                 break;
             case 'download':
-                    return response()->streamDownload(function () use ($invoice) {
-                        echo file_get_contents($invoice->pdf_file_path());
-                    }, basename($invoice->pdf_file_path()), ['Cache-Control:' => 'no-cache']);
-                    //return response()->download(TempFile::path($invoice->pdf_file_path()), basename($invoice->pdf_file_path()));
+
+               $file = $invoice->pdf_file_path();
+               return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
+
                 break;
             case 'restore':
                 $this->invoice_repo->restore($invoice);
@@ -793,9 +793,10 @@ class InvoiceController extends BaseController
         $contact = $invitation->contact;
         $invoice = $invitation->invoice;
 
-        $file_path = $invoice->service()->getInvoicePdf($contact);
+        $file = $invoice->service()->getInvoicePdf($contact);
 
-        return response()->download($file_path, basename($file_path), ['Cache-Control:' => 'no-cache']);
+        return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);;
+
     }
 
     /**
@@ -844,16 +845,11 @@ class InvoiceController extends BaseController
      */
     public function deliveryNote(ShowInvoiceRequest $request, Invoice $invoice)
     {
-        $file_path = $invoice->service()->getInvoiceDeliveryNote($invoice, $invoice->invitations->first()->contact);
         
-        try {
-            $file = public_path("storage/{$file_path}");
+        $file = $invoice->service()->getInvoiceDeliveryNote($invoice, $invoice->invitations->first()->contact);
+        
+        return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
 
-
-            return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache']);
-        } catch (\Exception $e) {
-            return response(['message' => 'Oops, something went wrong. Make sure you have symlink to storage/ in public/ directory.'], 500);
-        }
     }
 
     /**

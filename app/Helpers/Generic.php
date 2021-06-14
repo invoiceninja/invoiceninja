@@ -30,6 +30,7 @@ function nlog($output, $context = []): void
         }
 
         $trace = debug_backtrace();
+        //nlog( debug_backtrace()[1]['function']);
         // \Illuminate\Support\Facades\Log::channel('invoiceninja')->info(print_r($trace[1]['class'],1), []);
         \Illuminate\Support\Facades\Log::channel('invoiceninja')->info($output, $context);
     

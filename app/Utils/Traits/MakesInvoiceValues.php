@@ -318,33 +318,21 @@ trait MakesInvoiceValues
                 $data[$key][$table_type.'.discount'] = '';
             }
 
-            if (isset($item->tax_rate1) && $item->tax_rate1 > 0) {
+            // Previously we used to check for tax_rate value,
+            // but that's no longer necessary.
+
+            if (isset($item->tax_rate1)) {
                 $data[$key][$table_type.'.tax_rate1'] = round($item->tax_rate1, 2).'%';
                 $data[$key][$table_type.'.tax1'] = &$data[$key][$table_type.'.tax_rate1'];
             }
 
-            if (isset($item->tax_rate2) && $item->tax_rate2 > 0) {
+            if (isset($item->tax_rate2)) {
                 $data[$key][$table_type.'.tax_rate2'] = round($item->tax_rate2, 2).'%';
                 $data[$key][$table_type.'.tax2'] = &$data[$key][$table_type.'.tax_rate2'];
             }
 
-            if (isset($item->tax_rate3) && $item->tax_rate3 > 0) {
+            if (isset($item->tax_rate3)) {
                 $data[$key][$table_type.'.tax_rate3'] = round($item->tax_rate3, 2).'%';
-                $data[$key][$table_type.'.tax3'] = &$data[$key][$table_type.'.tax_rate3'];
-            }
-
-            if (isset($item->tax_rate1) && $item->tax_rate1 == 0) {
-                $data[$key][$table_type.'.tax_rate1'] = '';
-                $data[$key][$table_type.'.tax1'] = &$data[$key][$table_type.'.tax_rate1'];
-            }
-
-            if (isset($item->tax_rate2) && $item->tax_rate2 == 0) {
-                $data[$key][$table_type.'.tax_rate2'] = '';
-                $data[$key][$table_type.'.tax2'] = &$data[$key][$table_type.'.tax_rate2'];
-            }
-
-            if (isset($item->tax_rate3) && $item->tax_rate3 == 0) {
-                $data[$key][$table_type.'.tax_rate3'] = '';
                 $data[$key][$table_type.'.tax3'] = &$data[$key][$table_type.'.tax_rate3'];
             }
 

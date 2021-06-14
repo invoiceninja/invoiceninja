@@ -1,8 +1,12 @@
 @extends('portal.ninja2020.layout.payments', ['gateway_title' => 'ACH', 'card_title' => 'ACH'])
 
 @section('gateway_head')
-    <meta name="stripe-publishable-key" content="{{ $gateway->company_gateway->getPublishableKey() }}">
+    @if($gateway->company_gateway->getConfigField('account_id'))
     <meta name="stripe-account-id" content="{{ $gateway->company_gateway->getConfigField('account_id') }}">
+    <meta name="stripe-publishable-key" content="{{ config('ninja.ninja_stripe_publishable_key') }}">
+    @else
+    <meta name="stripe-publishable-key" content="{{ $gateway->company_gateway->getPublishableKey() }}">
+    @endif
 @endsection
 
 @section('gateway_content')
@@ -64,7 +68,7 @@
 
     @component('portal.ninja2020.components.general.card-element-single')
         <input type="checkbox" class="form-checkbox mr-1" id="accept-terms" required>
-        <label for="accept-terms" class="cursor-pointer">{{ ctrans('texts.ach_authorization', ['company' => auth()->user()->company->present()->name, 'email' => auth()->user()->company->email]) }}</label>
+        <label for="accept-terms" class="cursor-pointer">{{ ctrans('texts.ach_authorization', ['company' => auth()->user()->company->present()->name, 'email' => auth('contact')->user()->client->company->settings->email]) }}</label>
     @endcomponent
 
     @component('portal.ninja2020.gateways.includes.pay_now', ['id' => 'save-button'])

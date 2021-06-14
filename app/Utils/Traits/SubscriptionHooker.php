@@ -40,14 +40,13 @@ trait  SubscriptionHooker
                 RequestOptions::JSON => ['body' => $body], RequestOptions::ALLOW_REDIRECTS => false
             ]);
 
-            return array_merge($body, ['exception' => json_decode($response->getBody(),true), 'status_code' => $response->getStatusCode()]);
+            return array_merge($body, json_decode($response->getBody(),true));
         }
         catch(\Exception $e)
         {
-            //;
-            // dd($e);
-            $body = array_merge($body, ['exception' => ['message' => $e->getMessage(), 'status_code' => 500]]);
-            return $body;
+
+            return array_merge($body, ['message' => $e->getMessage(), 'status_code' => 500]);
+
         }
 
 	}

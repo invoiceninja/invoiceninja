@@ -16,26 +16,17 @@ class Cors
             // ALLOW OPTIONS METHOD
             $headers = [
                 'Access-Control-Allow-Methods'=> 'POST, GET, OPTIONS, PUT, DELETE',
-                'Access-Control-Allow-Headers'=> 'X-API-COMPANY-KEY,X-CLIENT-VERSION,X-API-SECRET,X-API-TOKEN,X-API-PASSWORD,DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range',
+                'Access-Control-Allow-Headers'=> 'X-API-COMPANY-KEY,X-CLIENT-VERSION,X-API-SECRET,X-API-TOKEN,X-API-PASSWORD,DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,X-CSRF-TOKEN,X-XSRF-TOKEN,X-LIVEWIRE',
             ];
 
             return Response::make('OK', 200, $headers);
         }
 
-        /* Work around for file downloads where the response cannot contain have headers set */
-        // if($request instanceOf BinaryFileResponse)
-        //   return $next($request);
-        // else
-        // return $next($request)
-        //   ->header('Access-Control-Allow-Origin', '*')
-        //   ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-        //   ->header('Access-Control-Allow-Headers', 'X-API-SECRET,X-API-TOKEN,DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range');
-
         $response = $next($request);
 
         $response->headers->set('Access-Control-Allow-Origin', '*');
         $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-        $response->headers->set('Access-Control-Allow-Headers', 'X-API-COMPANY-KEY,X-API-SECRET,X-API-TOKEN,X-API-PASSWORD,DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range');
+        $response->headers->set('Access-Control-Allow-Headers', 'X-API-COMPANY-KEY,X-API-SECRET,X-API-TOKEN,X-API-PASSWORD,DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,X-CSRF-TOKEN,X-XSRF-TOKEN,X-LIVEWIRE');
         $response->headers->set('Access-Control-Expose-Headers', 'X-APP-VERSION,X-MINIMUM-CLIENT-VERSION');
         $response->headers->set('X-APP-VERSION', config('ninja.app_version'));
         $response->headers->set('X-MINIMUM-CLIENT-VERSION', config('ninja.minimum_client_version'));

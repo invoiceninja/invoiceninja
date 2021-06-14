@@ -1,7 +1,7 @@
-<footer class="bg-white px-4 py-5 shadow px-4 sm:px-6 md:px-8 flex justify-center border border-gray-200 justify-between items-center" x-data="{ privacy: false, tos: false }">
+<footer class="bg-white px-4 py-5 shadow px-4 sm:px-6 md:px-8 flex justify-center border-t border-gray-200 justify-between items-center" x-data="{ privacy: false, tos: false }">
     <section>
         <span class="text-xs md:text-sm text-gray-700">{{ ctrans('texts.footer_label', ['company' => auth('contact')->user() ? (auth('contact')->user()->user->account->isPaid() ? auth('contact')->user()->company->present()->name() : 'Invoice Ninja') : 'Invoice Ninja', 'year' => date('Y')])  }}</span>
-        
+
         <div class="flex items-center space-x-2">
             @if(strlen($client->getSetting('client_portal_privacy_policy')) > 1)
                 <a x-on:click="privacy = true; tos = false" href="#" class="button-link text-sm primary-color flex items-center">{{ __('texts.privacy_policy')}}</a>
@@ -36,4 +36,6 @@
             {!! $client->getSetting('client_portal_terms') !!}
         @endcomponent
     @endif
+
+    <div class="bg-gray-200 hidden"></div>
 </footer>

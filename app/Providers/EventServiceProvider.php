@@ -68,6 +68,11 @@ use App\Events\Quote\QuoteWasEmailed;
 use App\Events\Quote\QuoteWasRestored;
 use App\Events\Quote\QuoteWasUpdated;
 use App\Events\Quote\QuoteWasViewed;
+use App\Events\RecurringInvoice\RecurringInvoiceWasArchived;
+use App\Events\RecurringInvoice\RecurringInvoiceWasCreated;
+use App\Events\RecurringInvoice\RecurringInvoiceWasDeleted;
+use App\Events\RecurringInvoice\RecurringInvoiceWasRestored;
+use App\Events\RecurringInvoice\RecurringInvoiceWasUpdated;
 use App\Events\Subscription\SubscriptionWasArchived;
 use App\Events\Subscription\SubscriptionWasCreated;
 use App\Events\Subscription\SubscriptionWasDeleted;
@@ -164,6 +169,11 @@ use App\Listeners\Quote\QuoteEmailedNotification;
 use App\Listeners\Quote\QuoteRestoredActivity;
 use App\Listeners\Quote\QuoteViewedActivity;
 use App\Listeners\Quote\ReachWorkflowSettings;
+use App\Listeners\RecurringInvoice\CreateRecurringInvoiceActivity;
+use App\Listeners\RecurringInvoice\RecurringInvoiceArchivedActivity;
+use App\Listeners\RecurringInvoice\RecurringInvoiceDeletedActivity;
+use App\Listeners\RecurringInvoice\RecurringInvoiceRestoredActivity;
+use App\Listeners\RecurringInvoice\UpdateRecurringInvoiceActivity;
 use App\Listeners\SendVerificationNotification;
 use App\Listeners\User\ArchivedUserActivity;
 use App\Listeners\User\CreatedUserActivity;
@@ -399,6 +409,21 @@ class EventServiceProvider extends ServiceProvider
         ],
         QuoteWasRestored::class => [
             QuoteRestoredActivity::class,
+        ],
+        RecurringInvoiceWasUpdated::class => [
+            UpdateRecurringInvoiceActivity::class,
+        ],
+        RecurringInvoiceWasCreated::class => [
+            CreateRecurringInvoiceActivity::class,
+        ],
+        RecurringInvoiceWasDeleted::class => [
+            RecurringInvoiceDeletedActivity::class,
+        ],
+        RecurringInvoiceWasArchived::class => [
+            RecurringInvoiceArchivedActivity::class,
+        ],
+        RecurringInvoiceWasRestored::class => [
+            RecurringInvoiceRestoredActivity::class,
         ],
         TaskWasCreated::class => [
             CreatedTaskActivity::class,

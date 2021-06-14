@@ -12,6 +12,7 @@
 
 namespace App\Http\Livewire;
 
+use App\Libraries\MultiDB;
 use App\Models\ClientContact;
 use App\Models\Subscription;
 use Illuminate\Support\Facades\Cache;
@@ -71,8 +72,12 @@ class SubscriptionPlanSwitch extends Component
      */
     public $hash;
 
+    public $company;
+    
     public function mount()
     {
+        MultiDB::setDb($this->company->db);
+        
         $this->total = $this->amount;
 
         $this->methods = $this->contact->client->service()->getPaymentMethods($this->amount);

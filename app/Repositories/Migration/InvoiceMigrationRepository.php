@@ -23,6 +23,7 @@ use App\Models\RecurringInvoiceInvitation;
 use App\Repositories\BaseRepository;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
+use Illuminate\Support\Carbon;
 use ReflectionClass;
 
 /**
@@ -59,6 +60,12 @@ class InvoiceMigrationRepository extends BaseRepository
 
         $tmp_data = $data;
 
+        if(array_key_exists('tax_rate1', $tmp_data) && is_null($tmp_data['tax_rate1']))
+            $tmp_data['tax_rate1'] = 0;
+
+        if(array_key_exists('tax_rate2', $tmp_data) && is_null($tmp_data['tax_rate2']))
+            $tmp_data['tax_rate2'] = 0;
+
         /* We need to unset some variable as we sometimes unguard the model */
 
         if (isset($tmp_data['invitations'])) {
@@ -71,14 +78,15 @@ class InvoiceMigrationRepository extends BaseRepository
 
         $model->fill($tmp_data);
         $model->status_id = $tmp_data['status_id'];
-        
-        if(array_key_exists('created_at', $data))
-            $model->created_at = $data['created_at'];
 
-        if(array_key_exists('updated_at', $data))
-            $model->updated_at = $data['updated_at'];
+        if($tmp_data['created_at'])
+            $model->created_at = Carbon::parse($tmp_data['created_at']);
+
+        if($tmp_data['updated_at'])
+            $model->updated_at = Carbon::parse($tmp_data['updated_at']);
 
         $model->save(['timestamps' => false]);
+
 
         if (array_key_exists('documents', $data)) {
             $this->saveDocuments($data['documents'], $model);
@@ -137,10 +145,6 @@ class InvoiceMigrationRepository extends BaseRepository
                 $model->design_id = $this->decodePrimaryKey($client->getSetting('invoice_design_id'));
             }
 
-            
-            if ($model->company->update_products) {
-                //UpdateOrCreateProduct::dispatchNow($model->line_items, $model, $model->company);
-            }
         }
 
         if ($class->name == Credit::class) {

@@ -12,6 +12,7 @@
 
 namespace App\Http\Livewire;
 
+use App\Libraries\MultiDB;
 use App\Models\Invoice;
 use App\Utils\Traits\WithSorting;
 use Carbon\Carbon;
@@ -26,8 +27,12 @@ class InvoicesTable extends Component
 
     public $status = [];
 
+    public $company;
+    
     public function mount()
     {
+        MultiDB::setDb($this->company->db);
+
         $this->sort_asc = false;
 
         $this->sort_field = 'date';
@@ -38,7 +43,8 @@ class InvoicesTable extends Component
         $local_status = [];
 
         $query = Invoice::query()
-            ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc');
+            ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
+            ->where('is_deleted', false);
 
         if (in_array('paid', $this->status)) {
             $local_status[] = Invoice::STATUS_PAID;

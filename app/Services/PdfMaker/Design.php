@@ -346,6 +346,8 @@ class Design extends BaseDesign
 
         $items = $this->transformLineItems($this->entity->line_items, $type);
 
+//        $this->processMarkdownOnLineItems($items);
+
         if (count($items) == 0) {
             return [];
         }
@@ -432,10 +434,6 @@ class Design extends BaseDesign
             ? $this->context['variables']
             : ['values' => ['$entity.public_notes' => $this->entity->public_notes, '$entity.terms' => $this->entity->terms, '$entity_footer' => $this->entity->footer], 'labels' => []];
 
-        if ($this->type == 'delivery_note') {
-            return [];
-        }
-
         $variables = $this->context['pdf_variables']['total_columns'];
 
         $elements = [
@@ -452,6 +450,10 @@ class Design extends BaseDesign
             ]],
             ['element' => 'div', 'properties' => ['class' => 'totals-table-right-side'], 'elements' => []],
         ];
+
+        if ($this->type == 'delivery_note') {
+            return $elements;
+        }
 
         foreach (['discount'] as $property) {
             $variable = sprintf('%s%s', '$', $property);

@@ -27,7 +27,7 @@ class PaymentWebhookRequest extends Request
 
     public function authorize()
     {
-        MultiDB::findAndSetDbByCompanyKey($this->getCompany()->company_key);
+        MultiDB::findAndSetDbByCompanyKey($this->company_key);
 
         return true;
     }
@@ -45,7 +45,7 @@ class PaymentWebhookRequest extends Request
      * @param mixed $id
      * @return null|\App\Models\CompanyGateway
      */
-    public function getCompanyGateway(): ?CompanyGateway
+    public function getCompanyGateway()
     {
         return CompanyGateway::findOrFail($this->decodePrimaryKey($this->company_gateway_id));
     }
@@ -56,13 +56,13 @@ class PaymentWebhookRequest extends Request
      * @param string $hash
      * @return null|\App\Models\PaymentHash
      */
-    public function getPaymentHash(): ?PaymentHash
+    public function getPaymentHash()
     {
         if ($this->query('hash')) {
             return PaymentHash::where('hash', $this->query('hash'))->firstOrFail();
         }
 
-        return null;
+        return false;
     }
 
     /**
@@ -94,19 +94,23 @@ class PaymentWebhookRequest extends Request
 
         // If none of previously done logics is correct, we'll just display
         // not found page.
-        abort(404);
+        return false;
     }
 
     /**
      * Resolve client from payment hash.
      *
-     * @return null|\App\Models\Client
+     * @return null|\App\Models\Client|bool
      */
-    public function getClient(): ?Client
+    public function getClient()
     {
         $hash = $this->getPaymentHash();
 
-        return Client::find($hash->data->client_id)->firstOrFail();
+        if($hash) {
+            return Client::find($hash->data->client_id)->firstOrFail();
+        }
+
+        return false;
     }
 
     /**

@@ -33,9 +33,6 @@ class ClientFactory
         $client->client_hash = Str::random(40);
         $client->settings = ClientSettings::defaults();
 
-        // $client_contact = ClientContactFactory::create($company_id, $user_id);
-        // $client->contacts->add($client_contact);
-
         return $client;
     }
 }

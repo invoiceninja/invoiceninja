@@ -14,6 +14,7 @@ namespace App\Exceptions;
 use App\Exceptions\FilePermissionsFailure;
 use App\Exceptions\InternalPDFFailure;
 use App\Exceptions\PhantomPDFFailure;
+use App\Utils\Ninja;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
@@ -49,6 +50,7 @@ class Handler extends ExceptionHandler
         //Swift_TransportException::class,
         MaxAttemptsExceededException::class,
         CommandNotFoundException::class,
+        ValidationException::class,
     ];
 
     /**
@@ -75,7 +77,28 @@ class Handler extends ExceptionHandler
             return;
         }
 
-        if (app()->bound('sentry') && $this->shouldReport($exception)) {
+        if(Ninja::isHosted()){
+
+            app('sentry')->configureScope(function (Scope $scope): void {
+
+                if(auth()->guard('contact') && auth()->guard('contact')->user())
+                    $key = auth()->guard('contact')->user()->company->account->key;
+                elseif (auth()->guard('user') && auth()->guard('user')->user()) 
+                    $key = auth()->user()->account->key;
+                else
+                    $key = 'Anonymous';
+                
+                 $scope->setUser([
+                        'id'    => 'Hosted_User',
+                        'email' => 'hosted@invoiceninja.com',
+                        'name'  => $key,
+                    ]);
+            });
+
+                app('sentry')->captureException($exception);
+
+        }
+        elseif (app()->bound('sentry') && $this->shouldReport($exception)) {
             app('sentry')->configureScope(function (Scope $scope): void {
                 if (auth()->guard('contact') && auth()->guard('contact')->user() && auth()->guard('contact')->user()->company->account->report_errors) {
                     $scope->setUser([

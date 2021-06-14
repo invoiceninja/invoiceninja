@@ -42,7 +42,7 @@
         </div>
 
         <!-- Payment box -->
-        @livewire('subscription-plan-switch', compact('recurring_invoice', 'subscription', 'target', 'contact', 'amount'))
+        @livewire('subscription-plan-switch', compact('recurring_invoice', 'subscription', 'target', 'contact', 'amount', 'company'))
     </div>
 @endsection
 

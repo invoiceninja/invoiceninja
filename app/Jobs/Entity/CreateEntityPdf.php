@@ -64,7 +64,7 @@ class CreateEntityPdf implements ShouldQueue
      *
      * @param $invitation
      */
-    public function __construct($invitation)
+    public function __construct($invitation, $disk = 'public')
     {
         $this->invitation = $invitation;
 
@@ -86,34 +86,45 @@ class CreateEntityPdf implements ShouldQueue
 
         $this->contact = $invitation->contact;
 
-        $this->disk = $disk ?? config('filesystems.default');
+        $this->disk = $disk;
+        
+        // $this->disk = $disk ?? config('filesystems.default');
     }
 
     public function handle()
     {
-        App::setLocale($this->contact->preferredLocale());
+        
+        /* Forget the singleton*/
         App::forgetInstance('translator');
-        Lang::replace(Ninja::transformTranslations($this->entity->client->getMergedSettings()));
 
-        $this->entity->service()->deletePdf();
+        /* Init a new copy of the translator*/
+        $t = app('translator');
+        /* Set the locale*/
+        App::setLocale($this->contact->preferredLocale());
 
-        if (config('ninja.phantomjs_pdf_generation')) {
+        /* Set customized translations _NOW_ */
+        $t->replace(Ninja::transformTranslations($this->entity->client->getMergedSettings()));
+
+        /*This line of code hurts... it deletes ALL $entity PDFs... this causes a race condition when trying to send an email*/
+        // $this->entity->service()->deletePdf();
+
+        if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
             return (new Phantom)->generate($this->invitation);
         }
 
         $entity_design_id = '';
 
         if ($this->entity instanceof Invoice) {
-            $path = $this->entity->client->invoice_filepath();
+            $path = $this->entity->client->invoice_filepath($this->invitation);
             $entity_design_id = 'invoice_design_id';
         } elseif ($this->entity instanceof Quote) {
-            $path = $this->entity->client->quote_filepath();
+            $path = $this->entity->client->quote_filepath($this->invitation);
             $entity_design_id = 'quote_design_id';
         } elseif ($this->entity instanceof Credit) {
-            $path = $this->entity->client->credit_filepath();
+            $path = $this->entity->client->credit_filepath($this->invitation);
             $entity_design_id = 'credit_design_id';
         } elseif ($this->entity instanceof RecurringInvoice) {
-            $path = $this->entity->client->recurring_invoice_filepath();
+            $path = $this->entity->client->recurring_invoice_filepath($this->invitation);
             $entity_design_id = 'invoice_design_id';
         }
 
@@ -163,7 +174,7 @@ class CreateEntityPdf implements ShouldQueue
 
         try {
 
-            if(config('ninja.invoiceninja_hosted_pdf_generation')){
+            if(config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja'){
                 $pdf = (new NinjaPdf())->build($maker->getCompiledHTML(true));
             }
             else {
@@ -182,14 +193,19 @@ class CreateEntityPdf implements ShouldQueue
         if ($pdf) {
 
             try{
-    
+                
+                if(!Storage::disk($this->disk)->exists($path))
+                    Storage::disk($this->disk)->makeDirectory($path, 0775);
+
+                nlog($file_path);
+                
                 Storage::disk($this->disk)->put($file_path, $pdf);
-    
+                
             }
             catch(\Exception $e)
             {
 
-                throw new FilePermissionsFailure('Could not write the PDF, permission issues!');
+                throw new FilePermissionsFailure($e->getMessage());
 
             }
         }
@@ -201,8 +217,5 @@ class CreateEntityPdf implements ShouldQueue
     {
 
     }
-    // public function failed(\Exception $exception)
-    // {
-    //     nlog("help!");
-    // }
+    
 }

@@ -19,7 +19,7 @@
             <div class="col-span-6 md:col-start-2 md:col-span-4">
                 <div class="flex justify-end">
                     <div class="flex justify-end mb-2">
-                        @livewire('pay-now-dropdown', ['total' => $total])
+                        @livewire('pay-now-dropdown', ['total' => $total, 'company' => $company])
                     </div>
                 </div>
 
@@ -47,20 +47,9 @@
                             </div>
                             @endif
 
-                            @if(!empty($invoice->due_date) && !is_null($invoice->due_date))
                             <div class="px-4 py-5 bg-white sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                 <dt class="text-sm font-medium leading-5 text-gray-500">
-                                    {{ ctrans('texts.due_date') }}
-                                </dt>
-                                <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                                    {{ $invoice->due_date }}
-                                </dd>
-                            </div>
-                            @endif
-
-                            <div class="px-4 py-5 bg-white sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                <dt class="text-sm font-medium leading-5 text-gray-500">
-                                    {{ ctrans('texts.additional_info') }}
+                                    {{ ctrans('texts.invoice_date') }}
                                 </dt>
                                 <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
                                     @if($invoice->po_number)
@@ -73,10 +62,21 @@
                                 </dd>
                             </div>
 
+                            @if(!empty($invoice->due_date) && !is_null($invoice->due_date))
+                            <div class="px-4 py-5 bg-white sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                <dt class="text-sm font-medium leading-5 text-gray-500">
+                                    {{ ctrans('texts.due_date') }}
+                                </dt>
+                                <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+                                    {{ $invoice->due_date }}
+                                </dd>
+                            </div>
+                            @endif
+
                             @if(!empty($invoice->amount) && !is_null($invoice->amount))
                             <div class="px-4 py-5 bg-white sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                 <dt class="text-sm font-medium leading-5 text-gray-500">
-                                    {{ ctrans('texts.amount') }}
+                                    {{ ctrans('texts.payment_amount') }}
                                 </dt>
                                 <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2 flex flex-col">
                                     <!-- App\Utils\Number::formatMoney($invoice->amount, $invoice->client) -->

@@ -142,7 +142,7 @@ class AccountController extends BaseController
      */
     public function store(CreateAccountRequest $request)
     {
-        $account = CreateAccount::dispatchNow($request->all());
+        $account = CreateAccount::dispatchNow($request->all(), $request->getClientIp());
 
         if (! ($account instanceof Account)) {
             return $account;

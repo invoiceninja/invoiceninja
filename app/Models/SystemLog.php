@@ -67,6 +67,8 @@ class SystemLog extends Model
     const TYPE_CUSTOM = 306;
     const TYPE_WEPAY = 309;
     
+    const TYPE_BRAINTREE = 307;
+
     const TYPE_QUOTA_EXCEEDED = 400;
     const TYPE_UPSTREAM_FAILURE = 401;
 
@@ -78,6 +80,9 @@ class SystemLog extends Model
     const TYPE_MODIFIED = 701;
     const TYPE_DELETED = 702;
 
+    const TYPE_LOGIN_SUCCESS = 800;
+    const TYPE_LOGIN_FAILURE = 801;
+    
     protected $fillable = [
         'client_id',
         'company_id',

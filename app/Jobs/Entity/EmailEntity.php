@@ -109,9 +109,8 @@ class EmailEntity implements ShouldQueue
 
         App::setLocale($this->invitation->contact->preferredLocale());
 
-
         $nmo = new NinjaMailerObject;
-        $nmo->mailable = new TemplateEmail($this->email_entity_builder,$this->invitation->contact, $this->invitation);
+        $nmo->mailable = new TemplateEmail($this->email_entity_builder, $this->invitation->contact, $this->invitation);
         $nmo->company = $this->company;
         $nmo->settings = $this->settings;
         $nmo->to_user = $this->invitation->contact;
@@ -144,7 +143,7 @@ class EmailEntity implements ShouldQueue
     {
         switch ($this->entity_string) {
             case 'invoice':
-                event(new InvoiceWasEmailedAndFailed($this->invitation, $this->company, $message, $this->reminder_template, Ninja::eventVars(auth()->user()->id)));
+                event(new InvoiceWasEmailedAndFailed($this->invitation, $this->company, $message, $this->reminder_template, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
                 break;
 
             default:

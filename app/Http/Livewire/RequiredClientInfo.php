@@ -13,6 +13,7 @@
 
 namespace App\Http\Livewire;
 
+use App\Libraries\MultiDB;
 use App\Models\ClientContact;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -65,7 +66,12 @@ class RequiredClientInfo extends Component
 
     public $show_form = false;
 
-    public function mount() {}
+    public $company;
+    
+    public function mount()
+    {
+        MultiDB::setDb($this->company->db);
+    }
 
     public function handleSubmit(array $data): bool
     {
@@ -88,7 +94,9 @@ class RequiredClientInfo extends Component
         }
 
         if ($this->updateClientDetails($data)) {
-            $this->emit('passed-required-fields-check');
+            $this->emit('passed-required-fields-check', [
+                'client_postal_code' => $this->contact->client->postal_code,
+            ]);
 
             return true;
         }

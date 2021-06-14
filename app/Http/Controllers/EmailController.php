@@ -132,7 +132,7 @@ class EmailController extends BaseController
                 $entity_obj->service()->markSent()->save();
 
                 EmailEntity::dispatch($invitation->fresh(), $invitation->company, $template, $data)
-                            ->delay(now()->addSeconds(5));
+                            ->delay(now()->addSeconds(30));
                 
             }
 
@@ -157,7 +157,7 @@ class EmailController extends BaseController
             $this->entity_transformer = QuoteTransformer::class;
 
             if ($entity_obj->invitations->count() >= 1) 
-                event(new QuoteWasEmailed($entity_obj->invitations->first(), $entity_obj->company, Ninja::eventVars(auth()->user()->id), 'quote'));
+                event(new QuoteWasEmailed($entity_obj->invitations->first(), $entity_obj->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), 'quote'));
             
         }
 
@@ -166,7 +166,7 @@ class EmailController extends BaseController
             $this->entity_transformer = CreditTransformer::class;
 
             if ($entity_obj->invitations->count() >= 1) 
-                event(new CreditWasEmailed($entity_obj->invitations->first(), $entity_obj->company, Ninja::eventVars(auth()->user()->id), 'credit'));
+                event(new CreditWasEmailed($entity_obj->invitations->first(), $entity_obj->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), 'credit'));
             
         }
 

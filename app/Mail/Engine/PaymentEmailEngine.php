@@ -12,6 +12,7 @@
 namespace App\Mail\Engine;
 
 use App\DataMapper\EmailTemplateDefaults;
+use App\Models\Account;
 use App\Utils\Helpers;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
@@ -71,6 +72,16 @@ class PaymentEmailEngine extends BaseEmailEngine
             ->setFooter('')
             ->setViewLink('')
             ->setViewText('');
+
+        if ($this->client->getSetting('pdf_email_attachment') !== false && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
+
+            $this->payment->invoices->each(function ($invoice){
+                
+                $this->setAttachments([$invoice->pdf_file_path($invoice->invitations->first())]);
+
+            });
+
+        }
 
         return $this;
     }

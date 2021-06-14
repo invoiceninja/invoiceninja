@@ -94,6 +94,27 @@ return [
             'prefix_indexes' => true,
             'strict'         => env('DB_STRICT', false),
             'engine'         => 'InnoDB ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8',
+            //  'options'   => array(
+            //     PDO::ATTR_EMULATE_PREPARES => true
+            // ),
+        ],
+
+        'db-ninja-01a' => [
+            'driver'         => 'mysql',
+            'host'           => env('DB_HOST1', env('DB_HOST', '127.0.0.1')),
+            'database'       => env('DB_DATABASE2', env('DB_DATABASE', 'forge')),
+            'username'       => env('DB_USERNAME2', env('DB_USERNAME', 'forge')),
+            'password'       => env('DB_PASSWORD2', env('DB_PASSWORD', '')),
+            'port'           => env('DB_PORT1', env('DB_PORT', '3306')),
+            'charset'        => 'utf8mb4',
+            'collation'      => 'utf8mb4_unicode_ci',
+            'prefix'         => '',
+            'prefix_indexes' => true,
+            'strict'         => env('DB_STRICT', false),
+            'engine'         => 'InnoDB ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8',
+            //  'options'   => array(
+            //     PDO::ATTR_EMULATE_PREPARES => true
+            // ),
         ],
 
         'db-ninja-02' => [
@@ -109,6 +130,27 @@ return [
             'prefix_indexes' => true,
             'strict'         => env('DB_STRICT', false),
             'engine'         => 'InnoDB ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8',
+            //  'options'   => array(
+            //     PDO::ATTR_EMULATE_PREPARES => true
+            // ),
+        ],
+
+        'db-ninja-02a' => [
+            'driver'         => 'mysql',
+            'host'           => env('DB_HOST2', env('DB_HOST', '127.0.0.1')),
+            'database'       => env('DB_DATABASE1', env('DB_DATABASE', 'forge')),
+            'username'       => env('DB_USERNAME1', env('DB_USERNAME', 'forge')),
+            'password'       => env('DB_PASSWORD1', env('DB_PASSWORD', '')),
+            'port'           => env('DB_PORT2', env('DB_PORT', '3306')),
+            'charset'        => 'utf8mb4',
+            'collation'      => 'utf8mb4_unicode_ci',
+            'prefix'         => '',
+            'prefix_indexes' => true,
+            'strict'         => env('DB_STRICT', false),
+            'engine'         => 'InnoDB ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8',
+            //  'options'   => array(
+            //     PDO::ATTR_EMULATE_PREPARES => true
+            // ),
         ],
     ],
 

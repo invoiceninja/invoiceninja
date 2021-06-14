@@ -15,12 +15,23 @@
             <div>
                 <dl>
                     @if(!empty($payment->clientPaymentDate()) && !is_null($payment->clientPaymentDate()))
-                        <div class="px-4 py-5 bg-gray-50 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <div class="px-4 py-5 bg-white sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                             <dt class="text-sm font-medium leading-5 text-gray-500">
                                 {{ ctrans('texts.payment_date') }}
                             </dt>
                             <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
                                 {{ $payment->clientPaymentDate() }}
+                            </dd>
+                        </div>
+                    @endif
+
+                    @if(!empty($payment->number) && !is_null($payment->number))
+                        <div class="px-4 py-5 bg-white sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium leading-5 text-gray-500">
+                                {{ ctrans('texts.number') }}
+                            </dt>
+                            <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+                                {{ $payment->number }}
                             </dd>
                         </div>
                     @endif
@@ -39,7 +50,7 @@
                     @endif
 
                     @if(!empty(optional($payment->type)->name) && !is_null(optional($payment->type)->name))
-                        <div class="px-4 py-5 bg-gray-50 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <div class="px-4 py-5 bg-white sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                             <dt class="text-sm font-medium leading-5 text-gray-500">
                                 {{ ctrans('texts.method') }}
                             </dt>
@@ -61,7 +72,7 @@
                     @endif
 
                     @if(!empty($payment->status_id) && !is_null($payment->status_id))
-                        <div class="px-4 py-5 bg-gray-50 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <div class="px-4 py-5 bg-white sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                             <dt class="text-sm font-medium leading-5 text-gray-500">
                                 {{ ctrans('texts.status') }}
                             </dt>
@@ -96,7 +107,7 @@
             <div>
                 <dl>
                     @foreach($payment->invoices as $invoice)
-                        <div class="px-4 py-5 bg-gray-50 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <div class="px-4 py-5 bg-white sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                             <dt class="text-sm font-medium leading-5 text-gray-500">
                                 {{ ctrans('texts.invoice_number') }}
                             </dt>

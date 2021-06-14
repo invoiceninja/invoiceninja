@@ -14,7 +14,7 @@ namespace App\Jobs\Ninja;
 use App\DataMapper\InvoiceItem;
 use App\Events\Invoice\InvoiceWasEmailed;
 use App\Jobs\Entity\EmailEntity;
-use App\Jobs\Util\WebHookHandler;
+use App\Jobs\Util\WebhookHandler;
 use App\Libraries\MultiDB;
 use App\Models\Account;
 use App\Models\Invoice;
@@ -84,7 +84,7 @@ class SendReminders implements ShouldQueue
                 
             if (in_array($reminder_template, ['reminder1', 'reminder2', 'reminder3', 'endless_reminder'])) {
                 $this->sendReminder($invoice, $reminder_template);
-                WebHookHandler::dispatch(Webhook::EVENT_REMIND_INVOICE, $invoice, $invoice->company);
+                WebhookHandler::dispatch(Webhook::EVENT_REMIND_INVOICE, $invoice, $invoice->company);
             }
         });
     }
@@ -128,9 +128,9 @@ class SendReminders implements ShouldQueue
         $set_reminder3 = false;
 
         if ((int)$settings->schedule_reminder1 > 0) {
-            $next_reminder_date = $this->calculateScheduledDate($invoice, (int)$settings->schedule_reminder1, (int)$settings->num_days_reminder1);
+            $next_reminder_date = $this->calculateScheduledDate($invoice, $settings->schedule_reminder1, (int)$settings->num_days_reminder1);
 
-            if ($next_reminder_date->gt(Carbon::parse($invoice->last_sent_date)));
+            if ($next_reminder_date && $next_reminder_date->gt(Carbon::parse($invoice->last_sent_date)));
             $dates->push($next_reminder_date);
 
             if (!$invoice->reminder1_sent) {
@@ -139,20 +139,20 @@ class SendReminders implements ShouldQueue
         }
 
         if ((int)$settings->num_days_reminder2 > 0) {
-            $next_reminder_date = $this->calculateScheduledDate($invoice, (int)$settings->schedule_reminder2, (int)$settings->num_days_reminder2);
+            $next_reminder_date = $this->calculateScheduledDate($invoice, $settings->schedule_reminder2, (int)$settings->num_days_reminder2);
 
-            if ($next_reminder_date->gt(Carbon::parse($invoice->last_sent_date)));
+            if ($next_reminder_date && $next_reminder_date->gt(Carbon::parse($invoice->last_sent_date)));
             $dates->push($next_reminder_date);
 
             if (!$invoice->reminder2_sent) {
-                $set_reminder3 = true;
+                $set_reminder2 = true;
             }
         }
 
         if ((int)$settings->num_days_reminder3 > 0) {
-            $next_reminder_date = $this->calculateScheduledDate($invoice, (int)$settings->schedule_reminder3, (int)$settings->num_days_reminder3);
+            $next_reminder_date = $this->calculateScheduledDate($invoice, $settings->schedule_reminder3, (int)$settings->num_days_reminder3);
 
-            if ($next_reminder_date->gt(Carbon::parse($invoice->last_sent_date)));
+            if ($next_reminder_date && $next_reminder_date->gt(Carbon::parse($invoice->last_sent_date)));
             $dates->push($next_reminder_date);
 
             if (!$invoice->reminder3_sent) {
@@ -178,15 +178,17 @@ class SendReminders implements ShouldQueue
      */
     private function calculateScheduledDate($invoice, $schedule_reminder, $num_days_reminder) :?Carbon
     {
+        $offset = $invoice->client->timezone_offset();
+
         switch ($schedule_reminder) {
             case 'after_invoice_date':
-                return Carbon::parse($invoice->date)->addDays($num_days_reminder)->startOfDay();
+                return Carbon::parse($invoice->date)->addDays($num_days_reminder)->startOfDay()->addSeconds($offset);
                 break;
             case 'before_due_date':
-                return Carbon::parse($invoice->due_date)->subDays($num_days_reminder)->startOfDay();
+                return Carbon::parse($invoice->due_date)->subDays($num_days_reminder)->startOfDay()->addSeconds($offset);
                 break;
             case 'after_due_date':
-                return Carbon::parse($invoice->due_date)->addDays($num_days_reminder)->startOfDay();
+                return Carbon::parse($invoice->due_date)->addDays($num_days_reminder)->startOfDay()->addSeconds($offset);
                 break;
             default:
                 return null;
@@ -212,6 +214,7 @@ class SendReminders implements ShouldQueue
                 nlog("firing email");
 
                 EmailEntity::dispatchNow($invitation, $invitation->company, $template);
+                
             }
         });
 
@@ -219,15 +222,16 @@ class SendReminders implements ShouldQueue
         if ($this->checkSendSetting($invoice, $template)) {
             event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars(), $template));
         }
-            
+    
         $invoice->last_sent_date = now();
         $invoice->next_send_date = $this->calculateNextSendDate($invoice);
 
         if (in_array($template, ['reminder1', 'reminder2', 'reminder3'])) {
             $invoice->{$template."_sent"} = now();
         }
+        $invoice->service()->touchReminder($template)->save();
 
-        $invoice->save();
+        // $invoice->save();
     }
 
     /**

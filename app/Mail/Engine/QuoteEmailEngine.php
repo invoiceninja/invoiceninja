@@ -45,7 +45,11 @@ class QuoteEmailEngine extends BaseEmailEngine
     public function build()
     {
         App::forgetInstance('translator');
-        Lang::replace(Ninja::transformTranslations($this->client->getMergedSettings()));
+        $t = app('translator');
+        $t->replace(Ninja::transformTranslations($this->client->getMergedSettings()));
+
+        if($this->reminder_template == 'endless_reminder')
+            $this->reminder_template = 'reminder_endless';        
         
         if (is_array($this->template_data) &&  array_key_exists('body', $this->template_data) && strlen($this->template_data['body']) > 0) {
             $body_template = $this->template_data['body'];
@@ -97,8 +101,11 @@ class QuoteEmailEngine extends BaseEmailEngine
 
 
         if ($this->client->getSetting('pdf_email_attachment') !== false && $this->quote->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
-            $this->setAttachments([$this->quote->pdf_file_path()]);
-            //$this->setAttachments(['path' => $this->quote->pdf_file_path(), 'name' => basename($this->quote->pdf_file_path())]);
+
+            if(Ninja::isHosted())
+                $this->setAttachments([$this->quote->pdf_file_path($this->invitation, 'url', true)]);
+            else
+                $this->setAttachments([$this->quote->pdf_file_path($this->invitation)]);
 
         }
 
@@ -107,7 +114,10 @@ class QuoteEmailEngine extends BaseEmailEngine
 
             // Storage::url
             foreach($this->quote->documents as $document){
-                // $this->setAttachments(['path'=>$document->filePath(),'name'=>$document->name]);
+                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => $document->type]]);
+            }
+
+            foreach($this->quote->company->documents as $document){
                 $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => $document->type]]);
             }
 

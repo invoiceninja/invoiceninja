@@ -13,6 +13,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Libraries\MultiDB;
+use App\Models\Account;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -104,8 +105,7 @@ class ForgotPasswordController extends Controller
      */
     public function sendResetLinkEmail(Request $request)
     {
-        //MultiDB::userFindAndSetDb($request->input('email'));
-        
+        MultiDB::userFindAndSetDb($request->input('email'));
         $user = MultiDB::hasUser(['email' => $request->input('email')]);
 
         $this->validateEmail($request);
@@ -115,9 +115,13 @@ class ForgotPasswordController extends Controller
         // need to show to the user. Finally, we'll send out a proper response.
         $response = $this->broker()->sendResetLink(
             $this->credentials($request)
-        );
+        );        
 
         if ($request->ajax()) {
+
+            if($response == Password::RESET_THROTTLED)
+                return response()->json(['message' => ctrans('passwords.throttled'), 'status' => false], 429);
+
             return $response == Password::RESET_LINK_SENT
                 ? response()->json(['message' => 'Reset link sent to your email.', 'status' => true], 201)
                 : response()->json(['message' => 'Email not found', 'status' => false], 401);
@@ -128,8 +132,11 @@ class ForgotPasswordController extends Controller
             : $this->sendResetLinkFailedResponse($request, $response);
     }
 
-    public function showLinkRequestForm()
+    public function showLinkRequestForm(Request $request)
     {
-        return $this->render('auth.passwords.request', ['root' => 'themes']);
+        $account_id = $request->get('account_id');
+        $account = Account::find($account_id);
+        
+        return $this->render('auth.passwords.request', ['root' => 'themes', 'account' => $account]);
     }
 }

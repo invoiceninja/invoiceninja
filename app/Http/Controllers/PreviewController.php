@@ -99,9 +99,10 @@ class PreviewController extends BaseController
 
             $entity_obj->load('client');
 
-            App::setLocale($entity_obj->client->primary_contact()->preferredLocale());
             App::forgetInstance('translator');
-            Lang::replace(Ninja::transformTranslations($entity_obj->client->getMergedSettings()));
+            $t = app('translator');
+            App::setLocale($entity_obj->client->primary_contact()->preferredLocale());
+            $t->replace(Ninja::transformTranslations($entity_obj->client->getMergedSettings()));
 
             $html = new HtmlEngine($entity_obj->invitations()->first());
 
@@ -131,11 +132,11 @@ class PreviewController extends BaseController
             }
 
             //if phantom js...... inject here..
-            if (config('ninja.phantomjs_pdf_generation')) {
+            if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
                 return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
             }
             
-            if(config('ninja.invoiceninja_hosted_pdf_generation')){
+            if(config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja'){
                 return (new NinjaPdf())->build($maker->getCompiledHTML(true));
             }
 
@@ -151,7 +152,8 @@ class PreviewController extends BaseController
     private function blankEntity()
     {
         App::forgetInstance('translator');
-        Lang::replace(Ninja::transformTranslations(auth()->user()->company()->settings));
+        $t = app('translator');
+        $t->replace(Ninja::transformTranslations(auth()->user()->company()->settings));
 
         DB::beginTransaction();
 

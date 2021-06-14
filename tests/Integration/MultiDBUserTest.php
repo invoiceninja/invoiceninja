@@ -19,6 +19,7 @@ use App\Models\CompanyUser;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 /**
@@ -32,6 +33,8 @@ class MultiDBUserTest extends TestCase
     public function setUp() :void
     {
         parent::setUp();
+
+        $this->withoutExceptionHandling();
 
         if (! config('ninja.db.multi_db_enabled')) {
             $this->markTestSkipped('Multi DB not enabled - skipping');
@@ -191,6 +194,8 @@ class MultiDBUserTest extends TestCase
                 ],
         ];
 
+        $response = false;
+
         try {
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
@@ -200,10 +205,11 @@ class MultiDBUserTest extends TestCase
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
             $this->assertNotNull($message);
+            nlog($message);
         }
 
         if ($response) {
-            $response->assertStatus(302);
+            $response->assertStatus(403);
         }
     }
 
@@ -242,5 +248,8 @@ class MultiDBUserTest extends TestCase
     {
         DB::connection('db-ninja-01')->table('users')->delete();
         DB::connection('db-ninja-02')->table('users')->delete();
+
+        config(['database.default' => config('ninja.db.default')]);
+
     }
 }

@@ -26,6 +26,7 @@
     .header-wrapper {
         display: grid;
         grid-template-columns: 1.5fr 1fr 1fr;
+        gap: 20px;
         background-color: #2d2c2a;
         padding: 3rem;
         color: white;
@@ -33,7 +34,7 @@
     }
 
     .company-logo {
-        height: 6rem;
+        zoom: 50%; /** Adapt the zoom size, if you think it's necessary. **/
     }
 
     #company-details,
@@ -140,6 +141,7 @@
     }
 
     #table-totals {
+        margin-top: 1rem;
         display: grid;
         grid-template-columns: 2fr 1fr;
         padding-top: .5rem;
@@ -189,19 +191,6 @@
         font-size: 1.5rem;
     }
 
-    table.page-container {
-        page-break-after: always;
-        min-width: 100%;
-    }
-
-    thead.page-header {
-        display: table-header-group;
-    }
-
-    tfoot.page-footer {
-        display: table-footer-group;
-    }
-
     .footer-wrapper {
         margin-top: 1rem;
         background-color: #2d2c2a;
@@ -219,38 +208,51 @@
     [data-ref="total_table-footer"] {
         padding-top: 0.5rem
     }
+
+    /** Repeating header & footer styling. */
+    table {
+        width: 100%;
+    }
+
+    table.print-content {}
+
+    table.print-content th,
+    table.print-content td {
+        padding: .2rem .4rem;
+        text-align: left;
+        vertical-align: top;
+        border-top: 1px solid #dee2e6;
+    }
+
+    @media print {
+        .print-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+        }
+
+        .no-print {
+            display: none
+        }
+    }
 </style>
 
-<table class="page-container">
-    <thead class="page-header">
+<table>
+    <!-- Start Header -->
+    <thead>
     <tr>
-        <th class="page-header-cell">
+        <td>
             <div class="header-wrapper" id="header">
                 <img class="company-logo" src="$company.logo" alt="$company.name logo"/>
                 <div id="company-details"></div>
                 <div id="company-address"></div>
             </div>
-        </th>
-    </tr>
-    </thead>
-
-    <tfoot class="page-footer">
-    <tr>
-        <td class="page-footer-cell">
-            <div class="footer-wrapper" id="footer">
-                <div>
-                    <p data-ref="total_table-footer">$entity_footer</p>
-                </div>
-                <div> <!-- #2 column --> </div>
-                <div> <!-- #3 column --> </div>
-            </div>
         </td>
     </tr>
-    </tfoot>
-
-    <tbody class="page-content">
+    </thead>
+    <!-- End Header -->
     <tr>
-        <td class="page-content-cell" id="body">
+        <td id="body">
             <div class="client-entity-wrapper">
                 <div class="client-wrapper-left-side">
                     <h4 class="entity-label">$entity_label</h4>
@@ -264,14 +266,48 @@
                 </div>
             </div>
 
-            <table id="product-table" cellspacing="0"></table>
+            <!-- Start Print Content -->
+            <table id="product-table" cellspacing="0" class="print-content"></table>
 
-            <table id="task-table" cellspacing="0"></table>
+            <table id="task-table" cellspacing="0" class="print-content"></table>
 
-            <div id="table-totals" cellspacing="0"></div>
-
-            <table id="delivery-note-table" cellspacing="0"></table>
+            <table id="delivery-note-table" cellspacing="0" class="print-content"></table>
+            <!-- End Print Content -->
         </td>
     </tr>
-    </tbody>
+    <tr>
+        <td>
+            <div id="table-totals" cellspacing="0"></div>
+        </td>
+    </tr>
+    <!-- Start Space For Footer -->
+    <tfoot>
+    <tr>
+        <td style="height: 180px">
+            <!-- Leave this empty and don't remove it. This space is where footer placed on print. -->
+        </td>
+    </tr>
+    </tfoot>
+    <!-- End Space For Footer -->
 </table>
+
+<!-- Start Footer -->
+<div class="footer-wrapper print-footer" id="footer">
+    <div>
+        <p data-ref="total_table-footer">$entity_footer</p>
+
+        <script>
+            // Clear up space a bit, if [product-table, tasks-table, delivery-note-table] isn't present.
+            document.addEventListener('DOMContentLoaded', () => {
+                ['product-table', 'task-table', 'delivery-note-table'].forEach((tableIdentifier) => {
+                    document.getElementById(tableIdentifier).childElementCount === 0
+                        ? document.getElementById(tableIdentifier).style.display = 'none'
+                        : '';
+                });
+            });
+        </script>
+    </div>
+    <div> <!-- #2 column --> </div>
+    <div> <!-- #3 column --> </div>
+</div>
+<!-- End Footer -->

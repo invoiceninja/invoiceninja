@@ -5,7 +5,7 @@
         </svg>
     </button>
     <div class="flex-1 px-3 md:px-8 flex justify-between items-center">
-        <span class="text-xl text-gray-900">@yield('meta_title')</span>
+        <span class="text-xl text-gray-900" data-ref="meta-title">@yield('meta_title')</span>
         <div class="flex items-center md:ml-6 md:mr-2">
             @if($multiple_contacts->count() > 1)
             <div class="relative inline-block text-left" x-data="{ open: false }">
@@ -23,7 +23,7 @@
                     <div class="rounded bg-white shadow-xs">
                         <div class="py-1">
                             @foreach($multiple_contacts as $contact)
-                                <a data-turbolinks="false" href="{{ route('client.switch_company', $contact->hashed_id) }}" class="block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900">{{ $contact->company->present()->name }}</a>
+                                <a data-turbolinks="false" href="{{ route('client.switch_company', $contact->hashed_id) }}" class="block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900">{{ $contact->company->present()->name() }} - {{ $contact->client->present()->name()}}</a>
                             @endforeach
                         </div>
                     </div>

@@ -65,10 +65,12 @@ class CompanySettings extends BaseSettings
     public $auto_convert_quote = true; //@implemented
     public $auto_email_invoice = true; //@only used for Recurring Invoices, if set to false, we never send?
 
+    public $entity_send_time = 0;
+
     public $inclusive_taxes = false; //@implemented
     public $quote_footer = ''; //@implmented
 
-    public $translations; //@TODO not used anywhere
+    public $translations; 
 
     public $counter_number_applied = 'when_saved'; // when_saved , when_sent //@implemented
     public $quote_number_applied = 'when_saved'; // when_saved , when_sent //@implemented
@@ -202,7 +204,7 @@ class CompanySettings extends BaseSettings
     public $schedule_reminder2 = ''; // (enum: after_invoice_date, before_due_date, after_due_date) implmemented
     public $schedule_reminder3 = ''; // (enum: after_invoice_date, before_due_date, after_due_date) implmemented
 
-    public $reminder_send_time = 32400; //number of seconds from UTC +0 to send reminders @TODO
+    public $reminder_send_time = 0; //number of seconds from UTC +0 to send reminders @TODO
 
     public $late_fee_amount1 = 0; //@implemented
     public $late_fee_amount2 = 0; //@implemented
@@ -245,8 +247,8 @@ class CompanySettings extends BaseSettings
 
     public $hide_paid_to_date = false; //@TODO where?
     public $embed_documents = false; //@TODO where?
-    public $all_pages_header = false; //@implemented
-    public $all_pages_footer = false; //@implemented
+    public $all_pages_header = false; //@deprecated 31-05-2021
+    public $all_pages_footer = false; //@deprecated 31-05-2021
     public $pdf_variables = ''; //@implemented
 
     public $portal_custom_head = ''; //@TODO @BEN
@@ -254,7 +256,7 @@ class CompanySettings extends BaseSettings
     public $portal_custom_footer = ''; //@TODO @BEN
     public $portal_custom_js = ''; //@TODO @BEN
 
-    public $client_can_register = false; //@implemented
+    public $client_can_register = false; //@deorecated 04/06/2021
     public $client_portal_terms = ''; //@TODO @BEN
     public $client_portal_privacy_policy = ''; //@TODO @BEN
     public $client_portal_enable_uploads = false; //@implemented
@@ -266,6 +268,7 @@ class CompanySettings extends BaseSettings
     public $hide_empty_columns_on_pdf = false;
 
     public static $casts = [
+        'entity_send_time'                   => 'int',
         'shared_invoice_credit_counter'      => 'bool',
         'reply_to_name'                      => 'string',
         'hide_empty_columns_on_pdf'          => 'bool',
@@ -667,8 +670,9 @@ class CompanySettings extends BaseSettings
                 '$custom_surcharge4',
                 '$total_taxes',
                 '$line_taxes',
-                '$paid_to_date',
                 '$total',
+                '$paid_to_date',
+                '$outstanding',
             ],
         ];
 

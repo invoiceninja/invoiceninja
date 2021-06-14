@@ -14,7 +14,7 @@ describe('Quotes', () => {
         cy.visit('/client/quotes');
 
         cy.get('body')
-            .find('span')
+            .find('[data-ref=meta-title]')
             .first()
             .should('contain.text', 'Quotes');
     });

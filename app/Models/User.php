@@ -81,7 +81,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'custom_value3',
         'custom_value4',
         'is_deleted',
-        'google_2fa_secret',
+        // 'google_2fa_secret',
     ];
 
     /**
@@ -159,8 +159,6 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function setCompany($company)
     {
-        config(['ninja.company_id' => $company->id]);
-
         $this->company = $company;
     }
 
@@ -169,16 +167,30 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getCompany()
     {
-        if ($this->company) {
-            return $this->company;
-        }
 
-        if (request()->header('X-API-TOKEN')) {
-            $company_token = CompanyToken::whereRaw('BINARY `token`= ?', [request()->header('X-API-TOKEN')])->first();
+        if ($this->company){
+
+            return $this->company;
+        
+        }
+        elseif (request()->header('X-API-TOKEN')) {
+            $company_token = CompanyToken::with(['company'])->whereRaw('BINARY `token`= ?', [request()->header('X-API-TOKEN')])->first();
+
             return $company_token->company;
         }
 
-        return Company::find(config('ninja.company_id'));
+
+        // return false;
+        throw new \Exception('No Company Found');
+        //return Company::find(config('ninja.company_id'));
+    }
+
+    public function companyIsSet()
+    {
+        if($this->company)
+            return true;
+
+        return false;
     }
 
     /**
@@ -395,7 +407,7 @@ class User extends Authenticatable implements MustVerifyEmail
         $nmo->settings = $this->account->default_company->settings;
         $nmo->company = $this->account->default_company;
 
-        NinjaMailerJob::dispatch($nmo);
+        NinjaMailerJob::dispatch($nmo, true);
 
         //$this->notify(new ResetPasswordNotification($token));
     }

@@ -54,14 +54,14 @@
         padding-bottom: 0.5rem;
     }
 
-    .company-logo {
-        height: 5rem;
-    }
-
     .logo-client-wrapper {
         margin: 3rem 2rem;
         display: grid;
         grid-template-columns: 1.5fr 1fr;
+    }
+
+    .company-logo {
+        zoom: 50%; /** Adapt the zoom size, if you think it's necessary. **/
     }
 
     #client-details {
@@ -227,40 +227,50 @@
         margin-top: 2rem;
         margin-bottom: 2rem
     }
+
+    /** Repeating header & footer styling. */
+    table {
+        width: 100%;
+    }
+
+    table.print-content {}
+
+    table.print-content th,
+    table.print-content td {
+        padding: .2rem .4rem;
+        text-align: left;
+        vertical-align: top;
+        border-top: 1px solid #dee2e6;
+    }
+
+    @media print {
+        .print-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+        }
+
+        .no-print {
+            display: none
+        }
+    }
 </style>
 
-<table class="page-container">
-    <thead class="page-header">
+<table>
+    <!-- Start Header -->
+    <thead>
     <tr>
-        <th class="page-header-cell">
+        <td>
             <div class="header-container" id="header">
                 <h1 class="company-name">$company.name</h1>
                 <table id="entity-details" cellspacing="0"></table>
             </div>
-        </th>
-    </tr>
-    </thead>
-    <tfoot class="page-footer">
-    <tr>
-        <td class="page-footer-cell">
-            <div class="footer-info">
-                <div style="margin-top: 195px"></div>
-                <div class="footer-wrapper" id="footer">
-                    <div class="footer-content">
-                        <div>
-                            <p data-ref="total_table-footer">$entity_footer</p>
-                        </div>
-                        <div id="company-details"></div>
-                        <div id="company-address"></div>
-                    </div>
-                </div>
-            </div>
         </td>
     </tr>
-    </tfoot>
-    <tbody class="page-content">
+    </thead>
+    <!-- End Header -->
     <tr>
-        <td class="page-content-cell" id="body">
+        <td id="body">
             <div class="logo-client-wrapper">
                 <img
                     class="company-logo"
@@ -271,14 +281,50 @@
                 <div id="client-details"></div>
             </div>
 
+            <!-- Start Print Content -->
             <div class="table-wrapper">
-                <table id="product-table" cellspacing="0"></table>
-                <table id="task-table" cellspacing="0"></table>
-                <table id="delivery-note-table" cellspacing="0"></table>
+                <table id="product-table" cellspacing="0" class="print-content"></table>
+                <table id="task-table" cellspacing="0" class="print-content"></table>
+                <table id="delivery-note-table" cellspacing="0" class="print-content"></table>
             </div>
-
+            <!-- End Print Content -->
+        </td>
+    </tr>
+    <tr>
+        <td>
             <div id="table-totals" cellspacing="0"></div>
         </td>
     </tr>
-    </tbody>
+    <!-- Start Space For Footer -->
+    <tfoot>
+    <tr>
+        <td style="height: 230px">
+            <!-- Leave this empty and don't remove it. This space is where footer placed on print -->
+        </td>
+    </tr>
+    </tfoot>
+    <!-- End Space For Footer -->
 </table>
+
+<!-- Start Footer -->
+<div class="footer-wrapper print-footer" id="footer">
+    <div class="footer-content">
+        <div>
+            <p data-ref="total_table-footer">$entity_footer</p>
+
+            <script>
+                // Clear up space a bit, if [product-table, tasks-table, delivery-note-table] isn't present.
+                document.addEventListener('DOMContentLoaded', () => {
+                    ['product-table', 'task-table', 'delivery-note-table'].forEach((tableIdentifier) => {
+                        document.getElementById(tableIdentifier).childElementCount === 0
+                            ? document.getElementById(tableIdentifier).style.display = 'none'
+                            : '';
+                    });
+                });
+            </script>
+        </div>
+        <div id="company-details"></div>
+        <div id="company-address"></div>
+    </div>
+</div>
+<!-- End Footer -->

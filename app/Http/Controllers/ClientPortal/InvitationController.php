@@ -55,18 +55,21 @@ class InvitationController extends Controller
                                     ->firstOrFail();
 
         /* Return early if we have the correct client_hash embedded */
+        $client_contact = $invitation->contact;
+
+        if(empty($client_contact->email))
+            $client_contact->email = Str::random(15) . "@example.com"; $client_contact->save();
 
         if (request()->has('client_hash') && request()->input('client_hash') == $invitation->contact->client->client_hash) {
-            auth()->guard('contact')->login($invitation->contact, true);
+            auth()->guard('contact')->login($client_contact, true);
 
         } elseif ((bool) $invitation->contact->client->getSetting('enable_client_portal_password') !== false) {
-
-            //If no contact password is set - this will cause a 401 error - instead redirect to the client.login route
             $this->middleware('auth:contact');
             return redirect()->route('client.login');
 
         } else {
-            auth()->guard('contact')->login($invitation->contact, true);
+            nlog("else - default - login contact");
+            auth()->guard('contact')->login($client_contact, true);
         }
 
 

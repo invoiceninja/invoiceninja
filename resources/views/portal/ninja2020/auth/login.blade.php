@@ -8,15 +8,23 @@
 
 @section('body')
     <div class="grid lg:grid-cols-3">
-        @if(\App\Models\Account::count() > 0 && !\App\Models\Account::first()->isPaid())
-        <div class="hidden lg:block col-span-1 bg-red-100 h-screen">
-            <img src="https://www.invoiceninja.com/wp-content/uploads/2018/04/bg-home2018b.jpg"
-                 class="w-full h-screen object-cover"
-                 alt="Background image">
-        </div>
+        @if($account && !$account->isPaid())
+            <div class="hidden lg:block col-span-1 bg-red-100 h-screen">
+                <img src="{{ asset('images/client-portal-new-image.jpg') }}"
+                     class="w-full h-screen object-cover"
+                     alt="Background image">
+            </div>
         @endif
         <div class="col-span-2 h-screen flex">
             <div class="m-auto md:w-1/2 lg:w-1/4">
+
+                @if($account && !$account->isPaid())
+                    <div>
+                        <img src="{{ asset('images/invoiceninja-black-logo-2.png') }}"
+                             class="border-b border-gray-100 h-18 pb-4" alt="Invoice Ninja logo">
+                    </div>
+                @endif
+
                 <div class="flex flex-col">
                     <h1 class="text-center text-3xl">{{ ctrans('texts.client_portal') }}</h1>
                     <form action="{{ route('client.login') }}" method="post" class="mt-6">
@@ -54,9 +62,14 @@
                             </button>
                         </div>
                     </form>
+
+                    @if(!is_null($company) && $company->client_can_register)
+                        <div class="mt-5 text-center">
+                            <a class="button-link text-sm" href="{{ route('client.register') }}">{{ ctrans('texts.register_label') }}</a>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
-    </div>
     </div>
 @endsection

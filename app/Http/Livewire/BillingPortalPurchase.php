@@ -14,11 +14,12 @@ namespace App\Http\Livewire;
 use App\Factory\ClientFactory;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
+use App\Libraries\MultiDB;
 use App\Mail\ContactPasswordlessLogin;
 use App\Models\Client;
-use App\Models\Subscription;
 use App\Models\ClientContact;
 use App\Models\Invoice;
+use App\Models\Subscription;
 use App\Repositories\ClientContactRepository;
 use App\Repositories\ClientRepository;
 use Illuminate\Support\Facades\App;
@@ -162,8 +163,24 @@ class BillingPortalPurchase extends Component
      */
     public $passwordless_login_btn = false;
 
+    /**
+     * Instance of company.
+     *
+     * @var Company
+     */
+    public $company;
+
+    /**
+     * Campaign reference.
+     *
+     * @var string|null
+     */
+    public $campaign;
+
     public function mount()
     {
+        MultiDB::setDb($this->company->db);
+
         $this->price = $this->subscription->price;
 
         if (request()->query('coupon')) {
@@ -181,14 +198,16 @@ class BillingPortalPurchase extends Component
     {
         $this->validate();
 
-        $contact = ClientContact::where('email', $this->email)->first();
+        $contact = ClientContact::where('email', $this->email)
+            ->where('company_id', $this->subscription->company_id)
+            ->first();
 
         if ($contact && $this->steps['existing_user'] === false) {
             return $this->steps['existing_user'] = true;
         }
 
         if ($contact && $this->steps['existing_user']) {
-            $attempt = Auth::guard('contact')->attempt(['email' => $this->email, 'password' => $this->password]);
+            $attempt = Auth::guard('contact')->attempt(['email' => $this->email, 'password' => $this->password, 'company_id' => $this->subscription->company_id]);
 
             return $attempt
                 ? $this->getPaymentMethods($contact)
@@ -260,7 +279,7 @@ class BillingPortalPurchase extends Component
      */
     protected function getPaymentMethods(ClientContact $contact): self
     {
-        Auth::guard('contact')->login($contact);
+        Auth::guard('contact')->login($contact, true);
 
         $this->contact = $contact;
 
@@ -270,8 +289,8 @@ class BillingPortalPurchase extends Component
 
             return $this;
         }
-        
-        if((int)$this->subscription->price == 0)
+
+        if ((int)$this->subscription->price == 0)
             $this->steps['payment_required'] = false;
         else
             $this->steps['fetched_payment_methods'] = true;
@@ -330,22 +349,22 @@ class BillingPortalPurchase extends Component
 
         $is_eligible = $this->subscription->service()->isEligible($this->contact);
 
-        if ($is_eligible['exception']['message'] != 'Success') {
+        if (is_array($is_eligible) && $is_eligible['message'] != 'Success') {
             $this->steps['not_eligible'] = true;
-            $this->steps['not_eligible_message'] = $is_eligible['exception']['message'];
+            $this->steps['not_eligible_message'] = $is_eligible['message'];
             $this->steps['show_loading_bar'] = false;
 
             return;
         }
 
         Cache::put($this->hash, [
-                'subscription_id' => $this->subscription->id,
-                'email' => $this->email ?? $this->contact->email,
-                'client_id' => $this->contact->client->id,
-                'invoice_id' => $this->invoice->id,
-                'context' => 'purchase',
-                now()->addMinutes(60)]
-        );
+            'subscription_id' => $this->subscription->id,
+            'email' => $this->email ?? $this->contact->email,
+            'client_id' => $this->contact->client->id,
+            'invoice_id' => $this->invoice->id,
+            'context' => 'purchase',
+            'campaign' => $this->campaign,
+        ], now()->addMinutes(60));
 
         $this->emit('beforePaymentEventsCompleted');
     }
@@ -368,11 +387,11 @@ class BillingPortalPurchase extends Component
     public function handlePaymentNotRequired()
     {
 
-       $is_eligible = $this->subscription->service()->isEligible($this->contact);
-
+        $is_eligible = $this->subscription->service()->isEligible($this->contact);
+        
         if ($is_eligible['status_code'] != 200) {
             $this->steps['not_eligible'] = true;
-            $this->steps['not_eligible_message'] = $is_eligible['exception']['message'];
+            $this->steps['not_eligible_message'] = $is_eligible['message'];
             $this->steps['show_loading_bar'] = false;
 
             return;
@@ -432,7 +451,7 @@ class BillingPortalPurchase extends Component
             ->first();
 
         $mailer = new NinjaMailerObject();
-        $mailer->mailable = new ContactPasswordlessLogin($this->email, (string)route('client.subscription.purchase', $this->subscription->hashed_id) . '?coupon=' . $this->coupon);
+        $mailer->mailable = new ContactPasswordlessLogin($this->email, $this->subscription->company->id, (string)route('client.subscription.purchase', $this->subscription->hashed_id) . '?coupon=' . $this->coupon);
         $mailer->company = $this->subscription->company;
         $mailer->settings = $this->subscription->company->settings;
         $mailer->to_user = $contact;

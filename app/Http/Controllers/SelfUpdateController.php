@@ -79,7 +79,6 @@ class SelfUpdateController extends BaseController
         if (file_exists($cacheServices)) { unlink ($cacheServices); }
 
         Artisan::call('clear-compiled');
-        Artisan::call('cache:clear');
         Artisan::call('route:clear');
         Artisan::call('view:clear');
         Artisan::call('config:clear');

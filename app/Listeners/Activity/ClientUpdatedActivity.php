@@ -45,7 +45,7 @@ class ClientUpdatedActivity implements ShouldQueue
 
         $fields = new stdClass;
 
-        $user_id = $event->event_vars['user_id'] ?: $event->client->user_id;
+        $user_id = array_key_exists('user_id', $event->event_vars) ? $event->event_vars['user_id'] : $event->client->user_id;
 
         $fields->client_id = $client->id;
         $fields->user_id = $user_id;

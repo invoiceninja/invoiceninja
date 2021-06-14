@@ -177,7 +177,7 @@ class SubscriptionController extends BaseController
     {
         $subscription = $this->subscription_repo->save($request->all(), SubscriptionFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
-        event(new SubscriptionWasCreated($subscription, $subscription->company, Ninja::eventVars(auth()->user()->id)));
+        event(new SubscriptionWasCreated($subscription, $subscription->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($subscription);
     }
@@ -352,7 +352,7 @@ class SubscriptionController extends BaseController
 
         $subscription = $this->subscription_repo->save($request->all(), $subscription);
 
-        event(new SubscriptionWasUpdated($subscription, $subscription->company, Ninja::eventVars(auth()->user()->id)));
+        event(new SubscriptionWasUpdated($subscription, $subscription->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($subscription);
     }

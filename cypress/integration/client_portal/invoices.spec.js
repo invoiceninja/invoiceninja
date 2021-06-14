@@ -14,7 +14,7 @@ context('Invoices', () => {
         cy.visit('/client/invoices');
 
         cy.get('body')
-            .find('span')
+            .find('[data-ref=meta-title]')
             .first()
             .should('contain.text', 'Invoices');
     });

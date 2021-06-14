@@ -96,8 +96,8 @@ class CSVImport implements ShouldQueue {
 		MultiDB::setDb( $this->company->db );
 
 		Auth::login( $this->company->owner(), true );
-
-		$this->company->owner()->setCompany( $this->company );
+		
+		auth()->user()->setCompany($this->company);
 
 		$this->buildMaps();
 
@@ -293,10 +293,14 @@ class CSVImport implements ShouldQueue {
 									],
 								];
 
-								$payment_repository->save(
-									$payment_data,
-									PaymentFactory::create( $this->company->id, $invoice->user_id, $invoice->client_id )
-								);
+								/* Make sure we don't apply any payments to invoices with a Zero Amount*/
+								if($invoice->amount > 0)
+								{
+									$payment_repository->save(
+										$payment_data,
+										PaymentFactory::create( $this->company->id, $invoice->user_id, $invoice->client_id )
+									);
+								}
 							}
 						}
 					}

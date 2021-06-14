@@ -11,10 +11,12 @@
 
 namespace App\Console;
 
-use App\Jobs\Cron\SubscriptionCron;
+use App\Jobs\Cron\AutoBillCron;
 use App\Jobs\Cron\RecurringInvoicesCron;
+use App\Jobs\Cron\SubscriptionCron;
 use App\Jobs\Ninja\AdjustEmailQuota;
 use App\Jobs\Ninja\CompanySizeCheck;
+use App\Jobs\Util\DiskCleanup;
 use App\Jobs\Util\ReminderJob;
 use App\Jobs\Util\SchedulerCheck;
 use App\Jobs\Util\SendFailedEmails;
@@ -46,9 +48,11 @@ class Kernel extends ConsoleKernel
 
         $schedule->job(new VersionCheck)->daily();
 
-        $schedule->command('ninja:check-data')->daily()->withoutOverlapping();
+        $schedule->job(new DiskCleanup)->daily()->withoutOverlapping();
 
-        $schedule->job(new ReminderJob)->daily()->withoutOverlapping();
+        $schedule->command('ninja:check-data --database=db-ninja-01')->daily()->withoutOverlapping();
+
+        $schedule->job(new ReminderJob)->hourly()->withoutOverlapping();
 
         $schedule->job(new CompanySizeCheck)->daily()->withoutOverlapping();
 
@@ -58,6 +62,8 @@ class Kernel extends ConsoleKernel
 
         $schedule->job(new RecurringInvoicesCron)->hourly()->withoutOverlapping();
         
+        $schedule->job(new AutoBillCron)->dailyAt('00:30')->withoutOverlapping();        
+
         $schedule->job(new SchedulerCheck)->everyFiveMinutes();
 
         /* Run hosted specific jobs */
@@ -65,12 +71,15 @@ class Kernel extends ConsoleKernel
 
             $schedule->job(new AdjustEmailQuota)->daily()->withoutOverlapping();
             $schedule->job(new SendFailedEmails)->daily()->withoutOverlapping();
+            $schedule->command('ninja:check-data --database=db-ninja-02')->daily()->withoutOverlapping();
 
         }
 
-        if(config('queue.default') == 'database' && Ninja::isSelfHost()) {
+        if(config('queue.default') == 'database' && Ninja::isSelfHost() && config('ninja.internal_queue_enabled') && !config('ninja.is_docker')) {
+
             $schedule->command('queue:work')->everyMinute()->withoutOverlapping();
             $schedule->command('queue:restart')->everyFiveMinutes()->withoutOverlapping(); 
+            
         }
 
     }

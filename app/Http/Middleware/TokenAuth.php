@@ -49,7 +49,6 @@ class TokenAuth
             | us to decouple a $user and their attached companies completely.
             |
             */
-            $user->setCompany($company_token->company);
 
             app('queue')->createPayloadUsing(function () use ($company_token) {
                 return ['db' => $company_token->company->db];
@@ -67,8 +66,7 @@ class TokenAuth
 
             //stateless, don't remember the user.
             auth()->login($user, false);
-
-            event(new UserLoggedIn($user, $company_token->company, Ninja::eventVars()));
+            auth()->user()->setCompany($company_token->company);
 
         } else {
             $error = [

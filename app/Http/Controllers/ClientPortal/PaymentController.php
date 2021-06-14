@@ -243,7 +243,7 @@ class PaymentController extends Controller
                 ->get();
         }
 
-        $hash_data = ['invoices' => $payable_invoices->toArray(), 'credits' => $credit_totals];
+        $hash_data = ['invoices' => $payable_invoices->toArray(), 'credits' => $credit_totals, 'amount_with_fee' => max(0, (($invoice_totals + $fee_totals) - $credit_totals))];
 
         if ($request->query('hash')) {
             $hash_data['billing_context'] = Cache::get($request->query('hash'));
@@ -290,7 +290,8 @@ class PaymentController extends Controller
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_ERROR,
                 SystemLog::TYPE_FAILURE,
-                auth('contact')->user()->client
+                auth('contact')->user()->client,
+                auth('contact')->user()->client->company
             );
 
             throw new PaymentFailed($e->getMessage());
@@ -303,24 +304,12 @@ class PaymentController extends Controller
 
         $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$request->payment_hash])->first();
 
-        try {
             return $gateway
                 ->driver(auth()->user()->client)
                 ->setPaymentMethod($request->input('payment_method_id'))
                 ->setPaymentHash($payment_hash)
                 ->checkRequirements()
                 ->processPaymentResponse($request);
-        } catch (\Exception $e) {
-            SystemLogger::dispatch(
-                $e->getMessage(),
-                SystemLog::CATEGORY_GATEWAY_RESPONSE,
-                SystemLog::EVENT_GATEWAY_FAILURE,
-                SystemLog::TYPE_FAILURE,
-                auth('contact')->user()->client
-            );
-
-            throw new PaymentFailed($e->getMessage());
-        }
     }
 
     /**

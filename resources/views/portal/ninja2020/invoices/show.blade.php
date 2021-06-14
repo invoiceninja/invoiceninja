@@ -2,7 +2,7 @@
 @section('meta_title', ctrans('texts.view_invoice'))
 
 @push('head')
-    <meta name="pdf-url" content="{{ $invoice->pdf_file_path() }}">
+    <meta name="pdf-url" content="{{ $invoice->pdf_file_path(null, 'url', true) }}">
     <meta name="show-invoice-terms" content="{{ $settings->show_accept_invoice_terms ? true : false }}">
     <meta name="require-invoice-signature" content="{{ $client->user->account->hasFeature(\App\Models\Account::FEATURE_INVOICE_SETTINGS) && $settings->require_invoice_signature }}">
     <script src="{{ asset('js/vendor/pdf.js/pdf.min.js') }}"></script>
@@ -47,7 +47,7 @@
                                 @if($settings->client_portal_allow_under_payment || $settings->client_portal_allow_over_payment)
                                     <button class="button button-primary bg-primary">{{ ctrans('texts.pay_now') }}</button>
                                 @else
-                                    @livewire('pay-now-dropdown', ['total' => $invoice->partial > 0 ? $invoice->partial : $invoice->balance])
+                                    @livewire('pay-now-dropdown', ['total' => $invoice->partial > 0 ? $invoice->partial : $invoice->balance, 'company' => $company])
                                 @endif
                             </div>
                         </div>
@@ -174,7 +174,7 @@
         </section>
     </div>
 
-    <iframe src="{{ $invoice->pdf_file_path() }}" class="h-screen w-full border-0 hidden lg:block mt-4"></iframe>
+    <iframe src="{{ $invoice->pdf_file_path(null, 'url', true) }}" class="h-screen w-full border-0 hidden lg:block mt-4"></iframe>
 
     <div class="flex justify-center">
         <canvas id="pdf-placeholder" class="shadow rounded-lg bg-white lg:hidden mt-4 p-4"></canvas>

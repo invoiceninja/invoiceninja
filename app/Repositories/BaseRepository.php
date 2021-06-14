@@ -55,7 +55,7 @@ class BaseRepository
         $className = $this->getEventClass($entity, 'Archived');
 
         if (class_exists($className)) {
-            event(new $className($entity, $entity->company, Ninja::eventVars(auth()->user()->id)));
+            event(new $className($entity, $entity->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         }
     }
 
@@ -81,7 +81,7 @@ class BaseRepository
         $className = $this->getEventClass($entity, 'Restored');
 
         if (class_exists($className)) {
-            event(new $className($entity, $fromDeleted, $entity->company, Ninja::eventVars(auth()->user()->id)));
+            event(new $className($entity, $fromDeleted, $entity->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         }
     }
 
@@ -102,7 +102,7 @@ class BaseRepository
         $className = $this->getEventClass($entity, 'Deleted');
 
         if (class_exists($className) && ! ($entity instanceof Company)) {
-            event(new $className($entity, $entity->company, Ninja::eventVars(auth()->user()->id)));
+            event(new $className($entity, $entity->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         }
     }
 
@@ -169,9 +169,13 @@ class BaseRepository
      */
     protected function alternativeSave($data, $model)
     {
-
-        if (array_key_exists('client_id', $data)) //forces the client_id if it doesn't exist
+        //forces the client_id if it doesn't exist
+        if(array_key_exists('client_id', $data)) 
             $model->client_id = $data['client_id'];
+
+        //pickup changes here to recalculate reminders
+        if($model instanceof Invoice && ($model->isDirty('date') || $model->isDirty('due_date')))
+            $model->service()->setReminder()->save();
 
         $client = Client::where('id', $model->client_id)->withTrashed()->first();    
 
@@ -189,7 +193,7 @@ class BaseRepository
             $data = array_merge($company_defaults, $data);
         }
 
-        $tmp_data = $data; //preserves the $data arrayss
+        $tmp_data = $data; //preserves the $data array
 
         /* We need to unset some variable as we sometimes unguard the model */
         if (isset($tmp_data['invitations'])) 
@@ -301,11 +305,10 @@ class BaseRepository
 
         /* Perform model specific tasks */
         if ($model instanceof Invoice) {
-
-nlog("in base");
-nlog($state['finished_amount']);
-nlog($state['starting_amount']);
-nlog($model->status_id);
+            
+            nlog("Finished amount = " . $state['finished_amount']);
+            nlog("Starting amount = " . $state['starting_amount']);
+            nlog("Diff = " . ($state['finished_amount'] - $state['starting_amount']));
 
             if (($state['finished_amount'] != $state['starting_amount']) && ($model->status_id != Invoice::STATUS_DRAFT)) {
 

@@ -98,7 +98,7 @@ class PayPalExpressPaymentDriver extends BaseDriver
 
         $message = [
             'server_response' => $response->getMessage(),
-            'data' => $this->checkout->payment_hash->data,
+            'data' => $this->payment_hash->data,
         ];
 
         SystemLogger::dispatch(
@@ -106,7 +106,8 @@ class PayPalExpressPaymentDriver extends BaseDriver
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_FAILURE,
             SystemLog::TYPE_PAYPAL,
-            $this->client
+            $this->client,
+            $this->client->company,
         );
 
         throw new PaymentFailed($response->getMessage(), $response->getCode());
@@ -117,7 +118,7 @@ class PayPalExpressPaymentDriver extends BaseDriver
         $this->initializeOmnipayGateway();
 
         $response = $this->omnipay_gateway
-            ->completePurchase(['amount' => $this->payment_hash->data->amount])
+            ->completePurchase(['amount' => $this->payment_hash->data->amount, 'currency' => $this->client->getCurrencyCode()])
             ->send();
 
         if ($response->isCancelled()) {
@@ -140,7 +141,8 @@ class PayPalExpressPaymentDriver extends BaseDriver
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_SUCCESS,
                 SystemLog::TYPE_PAYPAL,
-                $this->client
+                $this->client,
+                $this->client->company,
             );
 
             return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
@@ -162,7 +164,8 @@ class PayPalExpressPaymentDriver extends BaseDriver
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_FAILURE,
                 SystemLog::TYPE_PAYPAL,
-                $this->client
+                $this->client,
+                $this->client->company,
             );
 
             throw new PaymentFailed($response->getMessage(), $response->getCode());

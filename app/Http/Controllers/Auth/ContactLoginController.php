@@ -13,7 +13,9 @@ namespace App\Http\Controllers\Auth;
 
 use App\Events\Contact\ContactLoggedIn;
 use App\Http\Controllers\Controller;
+use App\Models\Account;
 use App\Models\ClientContact;
+use App\Models\Company;
 use App\Utils\Ninja;
 use Auth;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
@@ -31,9 +33,21 @@ class ContactLoginController extends Controller
         $this->middleware('guest:contact', ['except' => ['logout']]);
     }
 
-    public function showLoginForm()
+    public function showLoginForm(Request $request)
     {
-        return $this->render('auth.login');
+        if ($request->subdomain) {
+            $company = Company::where('subdomain', $request->subdomain)->first();
+        } elseif (Ninja::isSelfHost()) {
+            $company = Account::first()->default_company;
+        } else {
+            $company = null;
+        }
+
+        $account_id = $request->get('account_id');
+        $account = Account::find($account_id);
+
+        return $this->render('auth.login', ['account' => $account, 'company' => $company]);
+
     }
 
     public function login(Request $request)

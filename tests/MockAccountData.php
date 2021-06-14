@@ -128,6 +128,7 @@ trait MockAccountData
      */
     public function makeTestData()
     {
+        config(['database.default' => config('ninja.db.default')]);
 
         /* Warm up the cache !*/
         $cached_tables = config('ninja.cached_tables');
@@ -191,10 +192,10 @@ trait MockAccountData
 
         if (! $user) {
             $user = User::factory()->create([
-                                'account_id' => $this->account->id,
-                                'confirmation_code' => $this->createDbHash(config('database.default')),
-                                'email' => 'user@example.com',
-                            ]);
+                'account_id' => $this->account->id,
+                'confirmation_code' => $this->createDbHash(config('database.default')),
+                'email' => 'user@example.com',
+            ]);
         }
 
         $user->password = Hash::make('ALongAndBriliantPassword');

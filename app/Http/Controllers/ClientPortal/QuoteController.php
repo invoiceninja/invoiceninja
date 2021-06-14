@@ -44,7 +44,7 @@ class QuoteController extends Controller
         ];
 
         if ($request->query('mode') === 'fullscreen') {
-            return response()->file($quote->pdf_file_path(null, 'path'));
+            return render('quotes.show-fullscreen', $data);
         }
 
         return $this->render('quotes.show', $data);
@@ -76,10 +76,9 @@ class QuoteController extends Controller
         }
 
         if ($quotes->count() == 1) {
-            return response()->streamDownload(function () use ($invoices) {
-                echo file_get_contents($invoices->first()->pdf_file_path());
-            }, basename($invoices->first()->pdf_file_path()), ['Cache-Control:' => 'no-cache']);
-            //return response()->download(TempFile::path($invoices->first()->pdf_file_path()), basename($quotes->first()->pdf_file_path()));
+
+           $file = $quotes->first()->pdf_file_path();
+           return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
         }
 
         // enable output of HTTP headers

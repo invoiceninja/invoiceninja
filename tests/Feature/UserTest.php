@@ -54,6 +54,10 @@ class UserTest extends TestCase
             ThrottleRequests::class,
             PasswordProtection::class
         );
+
+        // if (config('ninja.testvars.travis') !== false) {
+        //     $this->markTestSkipped('Skip test for Travis');
+        // }
     }
 
     public function testUserList()
@@ -97,15 +101,16 @@ class UserTest extends TestCase
 
     public function testUserAttachAndDetach()
     {
+
         $this->withoutMiddleware(PasswordProtection::class);
 
-        $user = UserFactory::create($this->account->id);
-        $user->first_name = 'Test';
-        $user->last_name = 'Palloni';
-        $user->email = $this->default_email;
-        $user->save();
-
-        $data = $user->toArray();
+        $data = [
+            'first_name' => 'Test',
+            'last_name' => 'Palloni',
+            'email' => $this->default_email,
+        ];
+        
+        $response = false;
 
         try {
         $response = $this->withHeaders([
@@ -117,10 +122,13 @@ class UserTest extends TestCase
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
             nlog($message);
+            var_dump($message);
             $this->assertNotNull($message);
         }
 
         $response->assertStatus(200);
+
+        $arr = $response->json();
 
         // $this->assertNotNull($user->company_user);
         // $this->assertEquals($user->company_user->company_id, $this->company->id);
@@ -128,14 +136,17 @@ class UserTest extends TestCase
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-                    'X-API-PASSWORD' => 'ALongAndBriliantPassword',
-        ])->delete('/api/v1/users/'.$this->encodePrimaryKey($user->id).'/detach_from_company?include=company_user');
+                'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+        ])->delete('/api/v1/users/'.$arr['data']['id'].'/detach_from_company?include=company_user');
 
         $response->assertStatus(200);
 
-        $cu = CompanyUser::whereUserId($user->id)->whereCompanyId($this->company->id)->first();
-        $ct = CompanyToken::whereUserId($user->id)->whereCompanyId($this->company->id)->first();
+        $user_id = $this->decodePrimaryKey($arr['data']['id']);
 
+        $cu = CompanyUser::whereUserId($user_id)->whereCompanyId($this->company->id)->first();
+        $ct = CompanyToken::whereUserId($user_id)->whereCompanyId($this->company->id)->first();
+        $user = User::find($user_id);
+        
         $this->assertNull($cu);
         $this->assertNull($ct);
         $this->assertNotNull($user);
@@ -165,14 +176,12 @@ class UserTest extends TestCase
         $cu->save();
 
         /*Create New Blank User and Attach to Company 2*/
-        $new_user = UserFactory::create($this->account->id);
-        $new_user->first_name = 'Test';
-        $new_user->last_name = 'Palloni';
-        $new_user->email = $this->default_email;
-        $new_user->save();
-
-        $data = $new_user->toArray();
-
+        $data = [
+            'first_name' => 'Test',
+            'last_name' => 'Palloni',
+            'email' => $this->default_email,
+        ];
+        
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $company_token->token,

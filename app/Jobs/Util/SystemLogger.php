@@ -11,7 +11,9 @@
 
 namespace App\Jobs\Util;
 
+use App\Libraries\MultiDB;
 use App\Models\Client;
+use App\Models\Company;
 use App\Models\SystemLog;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -33,21 +35,32 @@ class SystemLogger implements ShouldQueue
 
     protected $client;
 
-    public function __construct($log, $category_id, $event_id, $type_id, ?Client $client)
+    protected $company;
+
+    public function __construct($log, $category_id, $event_id, $type_id, ?Client $client, Company $company)
     {
         $this->log = $log;
         $this->category_id = $category_id;
         $this->event_id = $event_id;
         $this->type_id = $type_id;
         $this->client = $client;
+        $this->company = $company;
     }
 
     public function handle() :void
     {
+        if(!$this->company)
+            return;
+
+        MultiDB::setDb($this->company->db);
+
+        $client_id = $this->client ? $this->client->id : null;
+        $user_id = $this->client ? $this->client->user_id : $this->company->owner()->id;
+
         $sl = [
-            'client_id' => $this->client->id,
-            'company_id' => $this->client->company->id,
-            'user_id' => $this->client->user_id,
+            'client_id' => $client_id,
+            'company_id' => $this->company->id,
+            'user_id' => $user_id,
             'log' => $this->log,
             'category_id' => $this->category_id,
             'event_id' => $this->event_id,

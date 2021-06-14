@@ -112,10 +112,10 @@ class RefundPayment
         if (isset($this->refund_data['invoices'])) {
             foreach ($this->refund_data['invoices'] as $invoice) {
                 $fields->invoice_id = $invoice['invoice_id'];
-                $activity_repo->save($fields, $this->payment, Ninja::eventVars(auth()->user()->id));
+                $activity_repo->save($fields, $this->payment, Ninja::eventVars(auth()->user() ? auth()->user()->id : null));
             }
         } else {
-            $activity_repo->save($fields, $this->payment, Ninja::eventVars(auth()->user()->id));
+            $activity_repo->save($fields, $this->payment, Ninja::eventVars(auth()->user() ? auth()->user()->id : null));
         }
 
         return $this;

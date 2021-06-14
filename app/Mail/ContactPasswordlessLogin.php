@@ -12,6 +12,7 @@
 
 namespace App\Mail;
 
+use App\Models\Company;
 use App\Utils\ClientPortal\MagicLink;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -20,14 +21,13 @@ use Illuminate\Queue\SerializesModels;
 
 class ContactPasswordlessLogin extends Mailable
 {
-    use Queueable, SerializesModels;
 
     /**
      * @var string
      */
     public $email;
 
-    public $url = 'https://google.com';
+    public $url;
 
     /**
      * Create a new message instance.
@@ -35,11 +35,11 @@ class ContactPasswordlessLogin extends Mailable
      * @param string $email
      * @param string $redirect
      */
-    public function __construct(string $email, string $redirect = '')
+    public function __construct(string $email, $company_id, string $redirect = '')
     {
         $this->email = $email;
 
-        $this->url = MagicLink::create($email, $redirect);
+        $this->url = MagicLink::create($email, $company_id, $redirect);
     }
 
     /**
@@ -49,6 +49,8 @@ class ContactPasswordlessLogin extends Mailable
      */
     public function build()
     {
-        return $this->view('email.billing.passwordless-login');
+        return $this
+            ->subject(ctrans('texts.account_passwordless_login'))
+            ->view('email.billing.passwordless-login');
     }
 }

@@ -12,6 +12,7 @@
 namespace App\Models;
 
 use App\Models\Presenters\CompanyPresenter;
+use App\Models\User;
 use App\Services\Notification\NotificationService;
 use App\Utils\Ninja;
 use App\Utils\Traits\CompanySettingsSaver;
@@ -20,8 +21,8 @@ use App\Utils\Traits\ThrottlesEmail;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notification;
-use Laracasts\Presenter\PresentableTrait;
 use Illuminate\Support\Facades\Cache;
+use Laracasts\Presenter\PresentableTrait;
 
 class Company extends BaseModel
 {
@@ -88,6 +89,7 @@ class Company extends BaseModel
         'oauth_password_required',
         'invoice_task_datelog',
         'default_password_timeout',
+        'show_task_end_date',
     ];
 
     protected $hidden = [
@@ -129,6 +131,11 @@ class Company extends BaseModel
         return $this->morphMany(Document::class, 'documentable');
     }
 
+    public function all_documents()
+    {
+        return $this->hasMany(Document::class);
+    }
+
     public function getEntityType()
     {
         return self::class;
@@ -147,6 +154,11 @@ class Company extends BaseModel
     public function account()
     {
         return $this->belongsTo(Account::class);
+    }
+
+    public function client_contacts()
+    {
+        return $this->hasMany(ClientContact::class)->withTrashed();
     }
 
     public function users()
@@ -201,6 +213,12 @@ class Company extends BaseModel
     {
         return $this->hasMany(Vendor::class)->withTrashed();
     }
+
+    public function all_activities()
+    {
+        return $this->hasMany(Activity::class);
+    }
+
 
     public function activities()
     {
@@ -300,9 +318,19 @@ class Company extends BaseModel
         return $this->hasMany(Design::class)->whereCompanyId($this->id)->orWhere('company_id', null);
     }
 
+    public function user_designs()
+    {
+        return $this->hasMany(Design::class);
+    }
+
     public function payment_terms()
     {
         return $this->hasMany(PaymentTerm::class)->whereCompanyId($this->id)->orWhere('company_id', null);
+    }
+
+    public function user_payment_terms()
+    {
+        return $this->hasMany(PaymentTerm::class);
     }
 
     /**
@@ -410,9 +438,7 @@ class Company extends BaseModel
 
     public function owner()
     {
-        $c = $this->company_users->where('is_owner', true)->first();
-
-        return User::find($c->user_id);
+        return $this->company_users->where('is_owner', true)->first()->user;
     }
 
     public function resolveRouteBinding($value, $field = null)
@@ -422,12 +448,12 @@ class Company extends BaseModel
 
     public function domain()
     {
-        if (Ninja::isNinja()) {
+        if (Ninja::isHosted()) {
 
             if($this->portal_mode == 'domain')
                 return $this->portal_domain;
 
-            return "https://{$this->subdomain}" . config('ninja.app_domain');
+            return "https://{$this->subdomain}." . config('ninja.app_domain');
         }
 
         return config('ninja.app_url');

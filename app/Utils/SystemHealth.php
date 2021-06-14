@@ -17,6 +17,7 @@ use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Queue;
 
 /**
  * Class SystemHealth.
@@ -24,7 +25,7 @@ use Illuminate\Support\Facades\Mail;
 class SystemHealth
 {
     private static $extensions = [
-        'mysqli',
+        // 'mysqli',
         'gd',
         'curl',
         'zip',
@@ -33,7 +34,7 @@ class SystemHealth
         'mbstring',
         'xml',
         'bcmath',
-        'mysqlnd',
+        // 'mysqlnd',
         //'intl', //todo double check whether we need this for email dns validation
     ];
 
@@ -80,7 +81,19 @@ class SystemHealth
             'open_basedir' => (bool)self::checkOpenBaseDir(),
             'mail_mailer' => (string)self::checkMailMailer(),
             'flutter_renderer' => (string)config('ninja.flutter_canvas_kit'),
+            'jobs_pending' => (int) Queue::size(),
+            'pdf_engine' => (string) self::getPdfEngine(),
         ];
+    }
+
+    public static function getPdfEngine()
+    {
+        if(config('ninja.invoiceninja_hosted_pdf_generation'))
+            return 'Invoice Ninja Hosted PDF Generator';
+        elseif(config('ninja.phantomjs_pdf_generation'))
+            return 'Phantom JS Web Generator';
+        else
+            return 'SnapPDF PDF Generator';
     }
 
     public static function checkMailMailer()

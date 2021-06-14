@@ -13,6 +13,7 @@
 namespace App\PaymentDrivers;
 
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Http\Requests\Gateways\Checkout3ds\Checkout3dsRequest;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
@@ -282,11 +283,16 @@ class CheckoutComPaymentDriver extends BaseDriver
                 'message' => $message,
             ];
 
-            SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_CHECKOUT, $this->client);
+            SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_CHECKOUT, $this->client, $this->client->company);
         }
     }
 
     public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment = null)
+    {
+        return true;
+    }
+
+    public function process3dsConfirmation(Checkout3dsRequest $request)
     {
         $this->init();
         $this->setPaymentHash($request->getPaymentHash());

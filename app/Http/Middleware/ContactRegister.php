@@ -19,16 +19,43 @@ class ContactRegister
      */
     public function handle($request, Closure $next)
     {
-        // Resolving based on subdomain. Used in version 5 hosted platform.
-        if ($request->subdomain) {
-            $company = Company::where('subdomain', $request->subdomain)->firstOrFail();
 
-            abort_unless($company->getSetting('enable_client_registration'), 404);
+        if (strpos($request->getHost(), 'invoicing.co') !== false) 
+        {
+            $subdomain = explode('.', $request->getHost())[0];
+            
+            $query = [
+                'subdomain' => $subdomain,
+                'portal_mode' => 'subdomain',
+            ];
+
+            $company = Company::where($query)->first();
+
+            if($company)
+            {
+                abort_unless($company->client_can_register, 404);
+
+                $request->merge(['key' => $company->company_key]);
+
+                return $next($request);
+            }
+
+        }
+
+       $query = [
+            'portal_domain' => $request->getSchemeAndHttpHost(),
+            'portal_mode' => 'domain',
+        ];
+
+        if($company = Company::where($query)->first())
+        {
+            abort_unless($company->client_can_register, 404);
 
             $request->merge(['key' => $company->company_key]);
 
             return $next($request);
         }
+
 
         // For self-hosted platforms with multiple companies, resolving is done using company key
         // if it doesn't resolve using a domain.
@@ -52,6 +79,6 @@ class ContactRegister
             return $next($request);
         }
 
-        return abort(404);
+        abort(404, 'ContactRegister Middlware');
     }
 }

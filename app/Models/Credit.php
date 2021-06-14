@@ -128,6 +128,11 @@ class Credit extends BaseModel
         return $this->hasManyThrough(Backup::class, Activity::class);
     }
 
+    public function activities()
+    {
+        return $this->hasMany(Activity::class)->orderBy('id', 'DESC')->take(300);
+    }
+
     public function company()
     {
         return $this->belongsTo(Company::class);
@@ -246,23 +251,37 @@ class Credit extends BaseModel
         $this->save();
     }
 
-    public function pdf_file_path($invitation = null)
+    public function pdf_file_path($invitation = null, string $type = 'path', bool $portal = false)
     {
-        $storage_path = Storage::url($this->client->credit_filepath().$this->numberFormatter().'.pdf');
-
-        if (Storage::exists($this->client->credit_filepath().$this->numberFormatter().'.pdf')) {
-            return $storage_path;
-        }
-
         if (! $invitation) {
-            event(new CreditWasUpdated($this, $this->company, Ninja::eventVars(auth()->user()->id)));
-            CreateEntityPdf::dispatchNow($this->invitations->first());
-        } else {
-            event(new CreditWasUpdated($this, $this->company, Ninja::eventVars(auth()->user()->id)));
-            CreateEntityPdf::dispatchNow($invitation);
+
+            if($this->invitations()->exists())
+                $invitation = $this->invitations()->first();
+            else{
+                $this->service()->createInvitations();
+                $invitation = $this->invitations()->first();
+            }
+
         }
 
-        return $storage_path;
+        if(!$invitation)
+            throw new \Exception('Hard fail, could not create an invitation - is there a valid contact?');
+
+        $file_path = $this->client->credit_filepath($invitation).$this->numberFormatter().'.pdf';
+
+        if(Ninja::isHosted() && $portal && Storage::disk(config('filesystems.default'))->exists($file_path)){
+            return Storage::disk(config('filesystems.default'))->{$type}($file_path);
+        }
+        elseif(Ninja::isHosted() && $portal){
+            $file_path = CreateEntityPdf::dispatchNow($invitation,config('filesystems.default'));
+            return Storage::disk(config('filesystems.default'))->{$type}($file_path);
+        }
+        
+        if(Storage::disk('public')->exists($file_path))
+            return Storage::disk('public')->{$type}($file_path);
+
+        $file_path = CreateEntityPdf::dispatchNow($invitation);
+            return Storage::disk('public')->{$type}($file_path);
     }
 
     public function markInvitationsSent()

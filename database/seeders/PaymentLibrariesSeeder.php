@@ -12,6 +12,7 @@ namespace Database\Seeders;
 
 use App\Models\Gateway;
 use App\Models\GatewayType;
+use App\Utils\Ninja;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
@@ -95,8 +96,14 @@ class PaymentLibrariesSeeder extends Seeder
 
         Gateway::query()->update(['visible' => 0]);
 
-        Gateway::whereIn('id', [1,15,20,39,55,49])->update(['visible' => 1]);
+        Gateway::whereIn('id', [1,15,20,39,55,50])->update(['visible' => 1]);
 
+        if (Ninja::isHosted()) {
+            Gateway::whereIn('id', [20])->update(['visible' => 0]);
+            Gateway::whereIn('id', [56])->update(['visible' => 1]);
+            Gateway::whereIn('id', [49])->update(['visible' => 1]);
+        }
+        
         Gateway::all()->each(function ($gateway) {
             $gateway->site_url = $gateway->getHelp();
             $gateway->save();
