@@ -392,7 +392,8 @@ class InvoiceService
                 $this->invoice->reminder_last_sent = now()->format('Y-m-d');
                 break;
             default:
-                // code...
+                $this->invoice->reminder1_sent = now()->format('Y-m-d');
+                $this->invoice->reminder_last_sent = now()->format('Y-m-d');
                 break;
         }
 
