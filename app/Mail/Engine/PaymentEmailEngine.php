@@ -77,7 +77,7 @@ class PaymentEmailEngine extends BaseEmailEngine
 
             $this->payment->invoices->each(function ($invoice){
                 
-                $this->setAttachments([$invoice->pdf_file_path()]);
+                $this->setAttachments([$invoice->pdf_file_path($invoice->invitations->first())]);
 
             });
 

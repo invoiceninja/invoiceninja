@@ -58,7 +58,7 @@ class UpdatePaymentMethods
 
     // }
 
-    private function updateMethods(Customer $customer, Client $client)
+    public function updateMethods(Customer $customer, Client $client)
     {
                 $card_methods = PaymentMethod::all([
                     'customer' => $customer->id,
@@ -145,7 +145,7 @@ class UpdatePaymentMethods
 
     }
 
-    private function buildPaymentMethodMeta(PaymentMethod $method, GatewayType $type_id)
+    private function buildPaymentMethodMeta(PaymentMethod $method, $type_id)
     {
 
         switch ($type_id) {

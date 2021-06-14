@@ -638,24 +638,28 @@ class Client extends BaseModel implements HasLocalePreference
         })->first()->locale;
     }
 
-    public function invoice_filepath()
-    {
-        return $this->company->company_key.'/'.$this->client_hash.'/invoices/';
+    public function invoice_filepath($invitation)
+    {   
+        $contact_key = $invitation->contact->contact_key;
+        return $this->company->company_key.'/'.$this->client_hash.'/'.$contact_key.'/invoices/';
     }
 
-    public function quote_filepath()
+    public function quote_filepath($invitation)
     {
-        return $this->company->company_key.'/'.$this->client_hash.'/quotes/';
+        $contact_key = $invitation->contact->contact_key;
+        return $this->company->company_key.'/'.$this->client_hash.'/'.$contact_key.'/quotes/';
     }
 
-    public function credit_filepath()
+    public function credit_filepath($invitation)
     {
-        return $this->company->company_key.'/'.$this->client_hash.'/credits/';
+        $contact_key = $invitation->contact->contact_key;
+        return $this->company->company_key.'/'.$this->client_hash.'/'.$contact_key.'/credits/';
     }
 
-    public function recurring_invoice_filepath()
+    public function recurring_invoice_filepath($invitation)
     {
-        return $this->company->company_key.'/'.$this->client_hash.'/recurring_invoices/';
+        $contact_key = $invitation->contact->contact_key;
+        return $this->company->company_key.'/'.$this->client_hash.'/'.$contact_key.'/recurring_invoices/';
     }
 
     public function company_filepath()

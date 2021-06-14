@@ -101,9 +101,9 @@ class CreditEmailEngine extends BaseEmailEngine
         if ($this->client->getSetting('pdf_email_attachment') !== false && $this->credit->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
 
             if(Ninja::isHosted())
-                $this->setAttachments([$this->credit->pdf_file_path(null, 'url', true)]);
+                $this->setAttachments([$this->credit->pdf_file_path($this->invitation, 'url', true)]);
             else
-                $this->setAttachments([$this->credit->pdf_file_path()]);
+                $this->setAttachments([$this->credit->pdf_file_path($this->invitation)]);
             
         }
 

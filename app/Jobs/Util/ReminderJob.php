@@ -53,14 +53,18 @@ class ReminderJob implements ShouldQueue
 
     private function processReminders()
     {
-        Invoice::whereDate('next_send_date', '<=', now())->with('invitations')->cursor()->each(function ($invoice) {
+        Invoice::whereDate('next_send_date', '<=', now())
+                 ->where('is_deleted', 0)
+                 ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                 ->where('balance', '>', 0)
+                 ->with('invitations')->cursor()->each(function ($invoice) {
 
             if ($invoice->isPayable()) {
                 $reminder_template = $invoice->calculateTemplate('invoice');
                 $invoice->service()->touchReminder($reminder_template)->save();
 
                 $invoice->invitations->each(function ($invitation) use ($invoice, $reminder_template) {
-                    EmailEntity::dispatch($invitation, $invitation->company, $reminder_template)->delay(now()->addSeconds(60));
+                    EmailEntity::dispatch($invitation, $invitation->company, $reminder_template);
                     nlog("Firing reminder email for invoice {$invoice->number}");
                 });
 

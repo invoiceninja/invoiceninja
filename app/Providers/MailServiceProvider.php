@@ -24,7 +24,7 @@ class MailServiceProvider extends MailProvider
     protected function registerIlluminateMailer()
     {
         $this->app->singleton('mail.manager', function($app) {
-            return  new GmailTransportManager($app);
+            return new GmailTransportManager($app);
         });
 
         // $this->app->bind('mail.manager', function($app) {
