@@ -53,19 +53,19 @@
 
                         <div class="radio mr-4">
                             <input class="form-radio cursor-pointer" type="radio" value="US" name="country" checked
-                                   wire:model="country">
+                                   wire:model.defer="country">
                             <span>{{ ctrans('texts.country_United States') }}</span>
                         </div>
 
                         <div class="radio mr-4">
                             <input class="form-radio cursor-pointer" type="radio" value="CA" name="country"
-                                   wire:model="country">
+                                   wire:model.defer="country">
                             <span>{{ ctrans('texts.country_Canada') }}</span>
                         </div>
 
                         <div class="radio mr-4">
                             <input class="form-radio cursor-pointer" type="radio" value="GB" name="country"
-                                   wire:model="country">
+                                   wire:model.defer="country">
                             <span>{{ ctrans('texts.country_United Kingdom') }}</span>
                         </div>
 
@@ -76,7 +76,7 @@
                             <label for="country" class="input-label">@lang('texts.debit_cards')</label>
 
                             <div class="checkbox">
-                                <input class="form-checkbox cursor-pointer mr-2" type="checkbox" name="debit_cards" value="1" wire:model="debit_cards">
+                                <input class="form-checkbox cursor-pointer mr-2" type="checkbox" name="debit_cards" value="1" wire:model.defer="debit_cards">
                                 <span>{{ ctrans('texts.accept_debit_cards') }}</span>
                             </div>
                         </div>
@@ -95,7 +95,7 @@
                     <div class="col-span-6 sm:col-span-4">
                         <label for="country" class="input-label"></label>
                         <div class="checkbox">
-                            <input class="form-checkbox cursor-pointer mr-2" type="checkbox" name="wepay_payment_tos_agree" value="1" wire:model="wepay_payment_tos_agree">
+                            <input class="form-checkbox cursor-pointer mr-2" type="checkbox" name="wepay_payment_tos_agree" value="1" wire:model.defer="wepay_payment_tos_agree">
                             <span>{!! ctrans('texts.wepay_payment_tos_agree', ['terms' => $terms, 'privacy_policy' => $privacy_policy]) !!}</span>
                         </div>
                         @error('wepay_payment_tos_agree')

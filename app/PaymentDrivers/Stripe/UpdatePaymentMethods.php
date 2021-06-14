@@ -58,7 +58,7 @@ class UpdatePaymentMethods
 
     // }
 
-    private function updateMethods(Customer $customer, Client $client)
+    public function updateMethods(Customer $customer, Client $client)
     {
                 $card_methods = PaymentMethod::all([
                     'customer' => $customer->id,
