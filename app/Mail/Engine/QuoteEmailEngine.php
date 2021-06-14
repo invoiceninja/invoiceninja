@@ -103,9 +103,9 @@ class QuoteEmailEngine extends BaseEmailEngine
         if ($this->client->getSetting('pdf_email_attachment') !== false && $this->quote->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
 
             if(Ninja::isHosted())
-                $this->setAttachments([$this->quote->pdf_file_path(null, 'url', true)]);
+                $this->setAttachments([$this->quote->pdf_file_path($this->invitation, 'url', true)]);
             else
-                $this->setAttachments([$this->quote->pdf_file_path()]);
+                $this->setAttachments([$this->quote->pdf_file_path($this->invitation)]);
 
         }
 

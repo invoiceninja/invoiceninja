@@ -35,7 +35,7 @@ class GetInvoicePdf extends AbstractService
 
         $invitation = $this->invoice->invitations->where('client_contact_id', $this->contact->id)->first();
 
-        $path = $this->invoice->client->invoice_filepath();
+        $path = $this->invoice->client->invoice_filepath($invitation);
 
         $file_path = $path.$this->invoice->numberFormatter().'.pdf';
 

@@ -78,13 +78,16 @@ class ZipInvoices implements ShouldQueue
         // create a new zipstream object
         $file_name = date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.invoices')).'.zip';
 
-        $path = $this->invoices->first()->client->invoice_filepath();
+        $invoice = $this->invoices->first();
+        $invitation = $invoice->invitations->first();
+
+        $path = $invoice->client->invoice_filepath($invitation);
 
         $zip = new ZipStream($file_name, $options);
 
         foreach ($this->invoices as $invoice) {
             //$zip->addFileFromPath(basename($invoice->pdf_file_path()), TempFile::path($invoice->pdf_file_path()));
-            $zip->addFileFromPath(basename($invoice->pdf_file_path()), $invoice->pdf_file_path());
+            $zip->addFileFromPath(basename($invoice->pdf_file_path($invitation)), $invoice->pdf_file_path());
         }
 
         $zip->finish();
