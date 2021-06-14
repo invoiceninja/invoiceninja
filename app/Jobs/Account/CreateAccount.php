@@ -104,7 +104,10 @@ class CreateAccount
         //todo implement SLACK notifications
         //$sp035a66->notification(new NewAccountCreated($spaa9f78, $sp035a66))->ninja();
 
-        VersionCheck::dispatchNow();
+        if(Ninja::isHosted())
+            \Modules\Admin\Jobs\Account\NinjaUser::dispatch([], $sp035a66);
+
+        VersionCheck::dispatch();
 
         LightLogs::create(new AnalyticsAccountCreated())
                  ->increment()
@@ -117,10 +120,6 @@ class CreateAccount
     {
         if(Ninja::isHosted() && Cache::get('currencies'))
         {
-
-            //&& $data = unserialize(@file_get_contents('http://www.geoplugin.net/php.gp?ip=' . $this->client_ip))
-            // $currency_code = strtolower($data['geoplugin_currencyCode']);
-            // $country_code = strtolower($data['geoplugin_countryCode']);
 
             $currency = Cache::get('currencies')->filter(function ($item) use ($currency_code) {
                 return strtolower($item->code) == $currency_code;
@@ -145,8 +144,6 @@ class CreateAccount
             if ($language) {
                 $settings->language_id = (string)$language->id;
             }
-
-            //$timezone = Timezone::where('name', $data['geoplugin_timezone'])->first();
 
             if($timezone) {
                 $settings->timezone_id = (string)$timezone->id;
