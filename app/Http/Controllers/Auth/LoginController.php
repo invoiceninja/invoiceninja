@@ -222,14 +222,9 @@ class LoginController extends BaseController
 
             });
 
-            // $cu->first()->account->companies->each(function ($company) use($cu, $request){
-
-            //     if($company->tokens()->where('is_system', true)->count() == 0)
-            //     {
-            //         CreateCompanyToken::dispatchNow($company, $cu->first()->user, $request->server('HTTP_USER_AGENT'));
-            //     }
-
-            // });
+            /*On the hosted platform, only owners can login for free/pro accounts*/
+            if(Ninja::isHosted() && !$cu->first()->is_owner && !$user->account->isEnterpriseClient())
+                return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
 
             return $this->timeConstrainedResponse($cu);
 
@@ -318,6 +313,9 @@ class LoginController extends BaseController
         if($request->has('current_company') && $request->input('current_company') == 'true')
           $cu->where("company_id", $company_token->company_id);
 
+        if(Ninja::isHosted() && !$cu->first()->is_owner && !$cu->first()->user->account->isEnterpriseClient())
+            return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
+
         return $this->refreshResponse($cu);
     }
 
@@ -379,6 +377,9 @@ class LoginController extends BaseController
                     }
                 });
 
+                if(Ninja::isHosted() && !$cu->first()->is_owner && !$existing_user->account->isEnterpriseClient())
+                    return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
+
                 return $this->timeConstrainedResponse($cu);
                 
             }
@@ -406,6 +407,9 @@ class LoginController extends BaseController
                         CreateCompanyToken::dispatchNow($company, $cu->first()->user, request()->server('HTTP_USER_AGENT'));
                     }
                 });
+
+                if(Ninja::isHosted() && !$cu->first()->is_owner && !$existing_login_user->account->isEnterpriseClient())
+                    return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
 
                 return $this->timeConstrainedResponse($cu);
             }
@@ -438,6 +442,9 @@ class LoginController extends BaseController
                         CreateCompanyToken::dispatchNow($company, $cu->first()->user, request()->server('HTTP_USER_AGENT'));
                     }
                 });
+
+                if(Ninja::isHosted() && !$cu->first()->is_owner && !$existing_login_user->account->isEnterpriseClient())
+                    return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
 
                 return $this->timeConstrainedResponse($cu);
             }
@@ -477,6 +484,9 @@ class LoginController extends BaseController
                     CreateCompanyToken::dispatchNow($company, $cu->first()->user, request()->server('HTTP_USER_AGENT'));
                 }
             });
+
+            if(Ninja::isHosted() && !$cu->first()->is_owner && !auth()->user()->account->isEnterpriseClient())
+                return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
 
             return $this->timeConstrainedResponse($cu);
         }
