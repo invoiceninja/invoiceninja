@@ -12,6 +12,7 @@
 
 namespace App\PaymentDrivers;
 
+use App\Exceptions\PaymentFailed;
 use App\Factory\PaymentFactory;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
 use App\Http\Requests\Request;
@@ -490,9 +491,7 @@ class StripePaymentDriver extends BaseDriver
             return PaymentMethod::retrieve($source, $this->stripe_connect_auth);
 
         } catch (ApiErrorException | Exception $e) {
-
-            return $this->processInternallyFailedPayment($this, $e);
-
+            throw new PaymentFailed($e->getMessage(), $e->getCode());
         }
     }
 
