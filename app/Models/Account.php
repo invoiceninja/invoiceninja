@@ -105,9 +105,6 @@ class Account extends BaseModel
         return $this->hasOne(Company::class, 'id', 'default_company_id');
     }
 
-    /**
-     * @return BelongsTo
-     */
     public function payment()
     {
         return $this->belongsTo(Payment::class)->withTrashed();
@@ -207,7 +204,7 @@ class Account extends BaseModel
             return false;
         }
 
-        return $this->plan == 'free';
+        return $this->plan == 'free' || is_null($this->plan);
     }
 
     public function isEnterpriseClient()
@@ -323,4 +320,5 @@ class Account extends BaseModel
             ];
         }
     }
+
 }

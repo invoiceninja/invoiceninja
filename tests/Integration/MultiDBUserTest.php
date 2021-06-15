@@ -194,6 +194,8 @@ class MultiDBUserTest extends TestCase
                 ],
         ];
 
+        $response = false;
+
         try {
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
@@ -203,7 +205,7 @@ class MultiDBUserTest extends TestCase
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
             $this->assertNotNull($message);
-
+            nlog($message);
         }
 
         if ($response) {

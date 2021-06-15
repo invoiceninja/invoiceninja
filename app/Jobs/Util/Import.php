@@ -212,7 +212,7 @@ class Import implements ShouldQueue
         }
 
         // if(Ninja::isHosted() && array_key_exists('ninja_tokens', $data))
-        //     $this->processNinjaTokens($data['ninja_tokens']);
+        $this->processNinjaTokens($data['ninja_tokens']);
 
         $this->setInitialCompanyLedgerBalances();
         
@@ -929,7 +929,7 @@ class Import implements ShouldQueue
 
             $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
 
-            if(array_key_exists('invoice_id', $resource) && $this->tryTransformingId('invoices', $resource['invoice_id']))
+            if(array_key_exists('invoice_id', $resource) && isset($resource['invoice_id']) && $this->tryTransformingId('invoices', $resource['invoice_id']))
                 $modified['invoice_id'] = $this->transformId('invoices', $resource['invoice_id']);
 
             $modified['user_id'] = $this->processUserId($resource);
@@ -1659,8 +1659,10 @@ class Import implements ShouldQueue
 
     private function processNinjaTokens(array $data)
     {
+        nlog("attempting to process Ninja Tokens");
+
         if(Ninja::isHosted())
-            \Modules\Admin\Jobs\Account\NinjaUser::dispatch($data, $this->company);
+            \Modules\Admin\Jobs\Account\NinjaUser::dispatchNow($data, $this->company);
 
     }
 

@@ -12,6 +12,7 @@
 
 namespace App\Http\Livewire;
 
+use App\Libraries\MultiDB;
 use Livewire\Component;
 
 class PayNowDropdown extends Component
@@ -20,8 +21,12 @@ class PayNowDropdown extends Component
 
     public $methods;
 
+    public $company;
+    
     public function mount(int $total)
     {
+        MultiDB::setDb($this->company->db);
+
         $this->total = $total;
 
         $this->methods = auth()->user()->client->service()->getPaymentMethods($total);

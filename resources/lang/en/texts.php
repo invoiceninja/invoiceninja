@@ -4264,6 +4264,8 @@ $LANG = array(
     'client_email_company_contact_label' => 'If you have any questions please contact us, we\'re here to help!',
     'quote_was_approved_label' => 'Quote was approved',
     'quote_was_approved' => 'We would like to inform you that quote was approved.',
+    'company_import_failure_subject' => 'Error importing :company',
+    'company_import_failure_body' => 'There was an error importing the company data, the error message was:',
 );
 
 return $LANG;

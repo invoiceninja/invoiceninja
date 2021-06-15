@@ -65,6 +65,8 @@ class CompanySettings extends BaseSettings
     public $auto_convert_quote = true; //@implemented
     public $auto_email_invoice = true; //@only used for Recurring Invoices, if set to false, we never send?
 
+    public $entity_send_time = 0;
+
     public $inclusive_taxes = false; //@implemented
     public $quote_footer = ''; //@implmented
 
@@ -266,6 +268,7 @@ class CompanySettings extends BaseSettings
     public $hide_empty_columns_on_pdf = false;
 
     public static $casts = [
+        'entity_send_time'                   => 'int',
         'shared_invoice_credit_counter'      => 'bool',
         'reply_to_name'                      => 'string',
         'hide_empty_columns_on_pdf'          => 'bool',

@@ -379,6 +379,15 @@ class ClientController extends BaseController
 
         $client->load('contacts', 'primary_contact');
 
+        /* Set the client country to the company if none is set */
+        if(!$client->country_id && strlen($client->company->settings->country_id) > 1){
+
+            $client->country_id = $client->company->settings->country_id;
+        
+            $client->save();
+        
+        }
+
         $this->uploadLogo($request->file('company_logo'), $client->company, $client);
 
         event(new ClientWasCreated($client, $client->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));

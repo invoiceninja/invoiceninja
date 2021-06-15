@@ -19,6 +19,7 @@ use App\Jobs\Util\UnlinkFile;
 use App\Libraries\MultiDB;
 use App\Mail\DownloadBackup;
 use App\Mail\DownloadInvoices;
+use App\Mail\Import\CompanyImportFailure;
 use App\Models\Activity;
 use App\Models\Backup;
 use App\Models\Client;
@@ -88,6 +89,14 @@ class CompanyImport implements ShouldQueue
 
     private $request_array = [];
 
+    public $message = '';
+
+    public $pre_flight_checks_pass = true;
+
+    public $force_user_coalesce = false;
+
+    public $company_owner;
+
     private $importables = [
         // 'company',
         'users',
@@ -136,6 +145,7 @@ class CompanyImport implements ShouldQueue
     public function __construct(Company $company, User $user, string $hash, array $request_array)
     {
         $this->company = $company;
+        $this->user = $user;
         $this->hash = $hash;
         $this->request_array = $request_array;
         $this->current_app_version = config('ninja.app_version');
@@ -147,6 +157,10 @@ class CompanyImport implements ShouldQueue
 
     	$this->company = Company::where('company_key', $this->company->company_key)->firstOrFail();
         $this->account = $this->company->account;
+        $this->company_owner = $this->company->owner();
+
+        nlog("Company ID = {$this->company->id}");
+        nlog("Hash ID = {$this->hash}");
 
         $this->backup_file = Cache::get($this->hash);
 
@@ -156,21 +170,112 @@ class CompanyImport implements ShouldQueue
         $this->backup_file = json_decode(base64_decode($this->backup_file));
 
         // nlog($this->backup_file);
+        $this->checkUserCount();
 
         if(array_key_exists('import_settings', $this->request_array) && $this->request_array['import_settings'] == 'true') {
+
             $this->preFlightChecks()->importSettings();
         }
 
         if(array_key_exists('import_data', $this->request_array) && $this->request_array['import_data'] == 'true') {
 
-            $this->preFlightChecks()
-                 ->purgeCompanyData()
-                 ->importData();
+            try{
+
+                $this->preFlightChecks()
+                     ->purgeCompanyData()
+                     ->importData();
+
+             }
+             catch(\Exception $e){
+
+                info($e->getMessage());
+
+             }
 
         }
 
     }
 
+    /**
+     * On the hosted platform we cannot allow the 
+     * import to start if there are users > plan number
+     * due to entity user_id dependencies
+     *     
+     * @return bool
+     */
+    private function checkUserCount()
+    {
+
+        if(Ninja::isSelfHost())
+            $this->pre_flight_checks_pass = true;
+
+        $backup_users = $this->backup_file->users;
+
+        $company_users = $this->company->users;
+        
+            nlog("This is a free account");
+            nlog("Backup user count = ".count($backup_users));
+
+            if(count($backup_users) > 1){
+                // $this->message = 'Only one user can be in the import for a Free Account';
+                // $this->pre_flight_checks_pass = false;
+                //$this->force_user_coalesce = true;
+            }
+
+            nlog("backup users email = " . $backup_users[0]->email);
+
+            if(count($backup_users) == 1 && $this->company_owner->email != $backup_users[0]->email) {
+                // $this->message = 'Account emails do not match. Account owner email must match backup user email';
+                // $this->pre_flight_checks_pass = false;
+                // $this->force_user_coalesce = true;
+            }
+
+            $backup_users_emails = array_column($backup_users, 'email');
+
+            $company_users_emails = $company_users->pluck('email')->toArray();
+
+            $existing_user_count = count(array_intersect($backup_users_emails, $company_users_emails));
+
+            nlog("existing user count = {$existing_user_count}");
+
+            if($existing_user_count > 1){
+
+                if($this->account->plan == 'pro'){
+                    // $this->message = 'Pro plan is limited to one user, you have multiple users in the backup file';
+                    // $this->pre_flight_checks_pass = false;
+                   // $this->force_user_coalesce = true;
+                }
+
+                if($this->account->plan == 'enterprise'){
+
+                    $total_import_users = count($backup_users_emails);
+
+                    $account_plan_num_user = $this->account->num_users;
+
+                    if($total_import_users > $account_plan_num_user){
+                        $this->message = "Total user count ({$total_import_users}) greater than your plan allows ({$account_plan_num_user})";
+                        $this->pre_flight_checks_pass = false;
+                    }
+
+                }
+            }
+
+            if($this->company->account->isFreeHostedClient() && count($this->backup_file->clients) > config('ninja.quotas.free.clients')){
+                
+                nlog("client quota busted");
+
+                $client_count = count($this->backup_file->clients);
+
+                $client_limit = config('ninja.quotas.free.clients');
+
+                $this->message = "You are attempting to import ({$client_count}) clients, your current plan allows a total of ({$client_limit})";
+                
+                $this->pre_flight_checks_pass = false;
+
+            }
+
+        return $this;
+    }
 
     //check if this is a complete company import OR if it is selective
     /*
@@ -185,7 +290,19 @@ class CompanyImport implements ShouldQueue
         {
             //perform some magic here
         }
+        
+        if($this->pre_flight_checks_pass === false)
+        {
+            $nmo = new NinjaMailerObject;
+            $nmo->mailable = new CompanyImportFailure($this->company, $this->message);
+            $nmo->company = $this->company;
+            $nmo->settings = $this->company->settings;
+            $nmo->to_user = $this->company->owner();
+            NinjaMailerJob::dispatchNow($nmo);
 
+            nlog($this->message);
+            throw new \Exception($this->message);
+        }
 
     	return $this;
     }
@@ -239,9 +356,13 @@ class CompanyImport implements ShouldQueue
 
             $method = "import_{$import}";
 
+            nlog($method);
+
             $this->{$method}();
 
         }
+
+            nlog("finished importing company data");
 
         return $this;
 
@@ -281,6 +402,8 @@ class CompanyImport implements ShouldQueue
                         $obj_array,
                     );
 
+            $new_obj->company_id = $this->company->id;
+            $new_obj->user_id = $user_id;
             $new_obj->save(['timestamps' => false]);
             
         }
@@ -1095,10 +1218,21 @@ class CompanyImport implements ShouldQueue
         return implode(",", $tmp_arr);
     }
 
+    /* Transform all IDs from old to new
+     *
+     * In the case of users - we need to check if the system
+     * is attempting to migrate resources above their quota,
+     *
+     * ie. > 50 clients or more than 1 user 
+    */
     private function transformId(string $resource, ?string $old): ?int
     {
         if(empty($old))
             return null;
+
+        if ($resource == 'users' && $this->force_user_coalesce){
+            return $this->company_owner->id;
+        }
 
         if (! array_key_exists($resource, $this->ids)) {
             // nlog($this->ids);

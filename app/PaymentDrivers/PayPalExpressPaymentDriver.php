@@ -98,7 +98,7 @@ class PayPalExpressPaymentDriver extends BaseDriver
 
         $message = [
             'server_response' => $response->getMessage(),
-            'data' => $this->checkout->payment_hash->data,
+            'data' => $this->payment_hash->data,
         ];
 
         SystemLogger::dispatch(
@@ -187,7 +187,7 @@ class PayPalExpressPaymentDriver extends BaseDriver
             'cancelUrl' => $this->client->company->domain() . '/client/invoices',
             'description' => implode(',', collect($this->payment_hash->data->invoices)
                 ->map(function ($invoice) {
-                    return sprintf('%s: %s', ctrans('texts.invoice_number'), $invoice->number);
+                    return sprintf('%s: %s', ctrans('texts.invoice_number'), $invoice->invoice_number);
                 })->toArray()),
             'transactionId' => $this->payment_hash->hash . '-' . time(),
             'ButtonSource' => 'InvoiceNinja_SP',

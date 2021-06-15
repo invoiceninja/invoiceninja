@@ -213,14 +213,18 @@ class LoginController extends BaseController
             if(!$cu->exists())
                 return response()->json(['message' => 'User not linked to any companies'], 403);
 
-            $cu->first()->account->companies->each(function ($company) use($cu, $request){
+            /* Ensure the user has a valid token */
+            $user->company_users->each(function ($company_user) use($request){
 
-                if($company->tokens()->where('is_system', true)->count() == 0)
-                {
-                    CreateCompanyToken::dispatchNow($company, $cu->first()->user, $request->server('HTTP_USER_AGENT'));
+                if($company_user->tokens->count() == 0){
+                    CreateCompanyToken::dispatchNow($company_user->company, $company_user->user, $request->server('HTTP_USER_AGENT'));
                 }
 
             });
+
+            /*On the hosted platform, only owners can login for free/pro accounts*/
+            if(Ninja::isHosted() && !$cu->first()->is_owner && !$user->account->isEnterpriseClient())
+                return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
 
             return $this->timeConstrainedResponse($cu);
 
@@ -309,6 +313,9 @@ class LoginController extends BaseController
         if($request->has('current_company') && $request->input('current_company') == 'true')
           $cu->where("company_id", $company_token->company_id);
 
+        if(Ninja::isHosted() && !$cu->first()->is_owner && !$cu->first()->user->account->isEnterpriseClient())
+            return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
+
         return $this->refreshResponse($cu);
     }
 
@@ -370,6 +377,9 @@ class LoginController extends BaseController
                     }
                 });
 
+                if(Ninja::isHosted() && !$cu->first()->is_owner && !$existing_user->account->isEnterpriseClient())
+                    return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
+
                 return $this->timeConstrainedResponse($cu);
                 
             }
@@ -397,6 +407,9 @@ class LoginController extends BaseController
                         CreateCompanyToken::dispatchNow($company, $cu->first()->user, request()->server('HTTP_USER_AGENT'));
                     }
                 });
+
+                if(Ninja::isHosted() && !$cu->first()->is_owner && !$existing_login_user->account->isEnterpriseClient())
+                    return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
 
                 return $this->timeConstrainedResponse($cu);
             }
@@ -429,6 +442,9 @@ class LoginController extends BaseController
                         CreateCompanyToken::dispatchNow($company, $cu->first()->user, request()->server('HTTP_USER_AGENT'));
                     }
                 });
+
+                if(Ninja::isHosted() && !$cu->first()->is_owner && !$existing_login_user->account->isEnterpriseClient())
+                    return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
 
                 return $this->timeConstrainedResponse($cu);
             }
@@ -469,6 +485,9 @@ class LoginController extends BaseController
                 }
             });
 
+            if(Ninja::isHosted() && !$cu->first()->is_owner && !auth()->user()->account->isEnterpriseClient())
+                return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
+
             return $this->timeConstrainedResponse($cu);
         }
 
@@ -480,38 +499,54 @@ class LoginController extends BaseController
 
     public function redirectToProvider(string $provider)
     {
-        //'https://www.googleapis.com/auth/gmail.send','email','profile','openid'
+
         $scopes = [];
-        
+
+        $parameters = [];
+
         if($provider == 'google'){
+
             $scopes = ['https://www.googleapis.com/auth/gmail.send','email','profile','openid'];
+            $parameters = ['access_type' => 'offline', "prompt" => "consent select_account", 'redirect_uri' => config('ninja.app_url')."/auth/google"];
         }
 
         if (request()->has('code')) {
             return $this->handleProviderCallback($provider);
         } else {
-            return Socialite::driver($provider)->with(['redirect_uri' => config('ninja.app_url')."/auth/google"])->scopes($scopes)->redirect();
+            return Socialite::driver($provider)->with($parameters)->scopes($scopes)->redirect();
         }
     }
 
     public function handleProviderCallback(string $provider)
     {
-        $socialite_user = Socialite::driver($provider)
-                                    ->user();
+        $socialite_user = Socialite::driver($provider)->user();
+
+        $oauth_user_token = '';
+
+            if($socialite_user->refreshToken){
+
+                $client = new Google_Client();
+                $client->setClientId(config('ninja.auth.google.client_id'));
+                $client->setClientSecret(config('ninja.auth.google.client_secret'));
+                $client->fetchAccessTokenWithRefreshToken($socialite_user->refreshToken);
+                $oauth_user_token = $client->getAccessToken();
+
+            }
 
         if($user = OAuth::handleAuth($socialite_user, $provider))
         {
 
             nlog('found user and updating their user record');
+            $name = OAuth::splitName($socialite_user->getName());
 
             $update_user = [
                 'first_name' => $name[0],
                 'last_name' => $name[1],
-                'password' => '',
                 'email' => $socialite_user->getEmail(),
                 'oauth_user_id' => $socialite_user->getId(),
                 'oauth_provider_id' => $provider,
-                'oauth_user_token' => $socialite_user->refreshToken,
+                'oauth_user_token' => $oauth_user_token,
+                'oauth_user_refresh_token' => $socialite_user->refreshToken 
             ];
 
             $user->update($update_user);
