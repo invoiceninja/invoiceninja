@@ -56,7 +56,7 @@ class ImportCustomers
         }   
 
         /* Now call the update payment methods handler*/
-        $this->stripe->updateAllPaymentMethods();
+        // $this->stripe->updateAllPaymentMethods();
 
     }
 

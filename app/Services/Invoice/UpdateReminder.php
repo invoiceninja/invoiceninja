@@ -126,7 +126,7 @@ class UpdateReminder extends AbstractService
                 $date_collection->push($reminder_date); 
         }
 
-        if($date_collection->count() >=1)
+        if($date_collection->count() >=1 && $date_collection->sort()->first()->gte(now()))
             $this->invoice->next_send_date = $date_collection->sort()->first();
         else
             $this->invoice->next_send_date = null;
