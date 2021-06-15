@@ -44,8 +44,11 @@
 <script type="text/javascript" src="https://static.wepay.com/min/js/tokenization.4.latest.js"></script>
 <script type="text/javascript">
 (function() {
-    WePay.set_endpoint({{ config('ninja.wepay.environment') }}); // change to "production" when live
-
+    @if(config('ninja.wepay.environment') == 'staging')
+    WePay.set_endpoint("stage"); // change to "production" when live
+    @else
+    WePay.set_endpoint("production"); // change to "production" when live
+    @endif
     // Shortcuts
     var d = document;
         d.id = d.getElementById,
@@ -60,18 +63,20 @@
     };
 
     // Attach the event to the DOM
-    addEvent(d.id('card_button'), 'click', function() {
+    addEvent(document.getElementById('card_button'), 'click', function() {
+
+        var myCard = $('#my-card');
         var userName = [valueById('cardholder_name')].join(' ');
             response = WePay.credit_card.create({
-            "client_id":        {{ config('ninja.wepay.client_id') }},
+            "client_id":        "{{ config('ninja.wepay.client_id') }}",
             "user_name":        valueById('cardholder_name'),
-            "email":            valueById('email'),
-            "cc_number":        valueById('card-number'),
-            "cvv":              valueById('cvv'),
-            "expiration_month": valueById('expiration_month'),
-            "expiration_year":  valueById('expiration_year'),
+            "email":            "{{ $contact->email }}",
+            "cc_number":        myCard.CardJs('cardNumber'),
+            "cvv":              myCard.CardJs('cvc'),
+            "expiration_month": myCard.CardJs('expiryMonth'),
+            "expiration_year":  myCard.CardJs('expiryYear'),
             "address": {
-                "postal_code": valueById('postal_code')
+                "postal_code": "{{ $contact->client->postal_code }}"
             }
         }, function(data) {
             if (data.error) {

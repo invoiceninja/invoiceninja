@@ -31,15 +31,17 @@ class CreditCard
     }
  
 
- 	public function authorizeResponse($data)
+ 	public function authorizeResponse($request)
  	{
  		//https://developer.wepay.com/api/api-calls/credit_card#authorize
 
+        $data = $request->all();
 		// authorize the credit card
 		$response = $this->wepay->request('credit_card/authorize', array(
-		    'client_id'          => $account_id,
-		    'client_secret'      => 'A vacation home rental',
-		    'credit_card_id'     => 'goods',
+            'account_id'         => $this->wepay->company_gateway->getConfigField('accountId'),
+		    'client_id'          => config('ninja.wepay.client_id'),
+		    'client_secret'      => config('ninja.wepay.client_secret'),
+		    'credit_card_id'     => $data['source_token'],
 		));
 
 		// display the response

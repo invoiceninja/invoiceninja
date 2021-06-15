@@ -51,7 +51,8 @@ class PaymentMethodController extends Controller
         $gateway = $this->getClientGateway();
 
         $data['gateway'] = $gateway;
-
+        $data['client'] = auth()->user()->client;
+        
         return $gateway
             ->driver(auth()->user()->client)
             ->setPaymentMethod($request->query('method'))
