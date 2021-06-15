@@ -7,7 +7,6 @@
 
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
     <script src="{{ asset('js/clients/payments/card-js.min.js') }}"></script>
-
     <link href="{{ asset('css/card-js.min.css') }}" rel="stylesheet" type="text/css">
 @endsection
 
@@ -20,6 +19,7 @@
         <input type="hidden" name="payment_method_id" value="1">
         <input type="hidden" name="gateway_response" id="gateway_response">
         <input type="hidden" name="is_default" id="is_default">
+        <input type="hidden" name="credit_card_id" id="credit_card_id">
     </form>
 
     @if(!Request::isSecure())
@@ -66,6 +66,7 @@
     addEvent(document.getElementById('card_button'), 'click', function() {
 
         var myCard = $('#my-card');
+
         var userName = [valueById('cardholder_name')].join(' ');
             response = WePay.credit_card.create({
             "client_id":        "{{ config('ninja.wepay.client_id') }}",
@@ -81,15 +82,22 @@
         }, function(data) {
             if (data.error) {
                 console.log(data);
-                // handle error response
+                // handle error response error_description
+                let errors = document.getElementById('errors');
+                 errors.textContent = '';
+                 errors.textContent = data.error_description;
+                 errors.hidden = false;
             } else {
                 // call your own app's API to save the token inside the data;
                 // show a success page
-                var token = response.credit_card_id;
+                var token = data.credit_card_id;
                 // Insert the token into the form so it gets submitted to the server
-                $form.append($('<input type="hidden" name="source_token"/>').val(token));
-                // and submit
-                $form.get(0).submit();
+                // console.log(data);
+
+                document.querySelector('input[name="credit_card_id"]').value = token;
+                        
+                document.getElementById('server_response').submit();
+
             }
         });
     });

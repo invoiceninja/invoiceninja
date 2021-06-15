@@ -114,6 +114,8 @@ class WePayPaymentDriver extends BaseDriver
 
     public function authorizeView(array $data)
     {
+        $this->init();
+
         $data['gateway'] = $this->wepay;
         $client = $data['client'];
         $contact = $client->primary_contact()->first() ? $client->primary_contact()->first() : $lient->contacts->first();
@@ -127,6 +129,8 @@ class WePayPaymentDriver extends BaseDriver
 
     public function authorizeResponse($request)
     {
+        $this->init();
+        
         return $this->payment_method->authorizeResponse($request);  //this is your custom implementation from here
     }
 
