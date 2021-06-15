@@ -119,7 +119,8 @@
                         <div style="border: 1px solid #c2c2c2; border-top: none; border-bottom: none; padding: 20px;" id="content">
                                 <div style="padding-top: 10px;"></div>
 
-                                {{ $slot}}
+                                {{ $slot ?? '' }}
+                                {!! $body ?? '' !!}
 
                                 <div>
                                     <a href="#"

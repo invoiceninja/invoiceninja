@@ -49,7 +49,8 @@ class TemplateEmail extends Mailable
 
     public function build()
     {
-        $template_name = 'email.template.'.$this->build_email->getTemplate();
+        // $template_name = 'email.template.'.$this->build_email->getTemplate();
+        $template_name = 'email.template.client';
 
         if($this->build_email->getTemplate() == 'custom') {
             $this->build_email->setBody(str_replace('$body', $this->build_email->getBody(), $this->client->getSetting('email_style_custom')));
@@ -100,6 +101,7 @@ class TemplateEmail extends Mailable
                 'settings' => $settings,
                 'company' => $company,
                 'whitelabel' => $this->client->user->account->isPaid() ? true : false,
+                'logo' => $this->company->present()->logo(),
             ])
             ->withSwiftMessage(function ($message) use($company){
                 $message->getHeaders()->addTextHeader('Tag', $company->company_key);
