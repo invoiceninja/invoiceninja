@@ -508,10 +508,10 @@ class StripePaymentDriver extends BaseDriver
      * the respective tokens in the system.
      *
      */
-    // public function updateAllPaymentMethods()
-    // {
-    //     return (new UpdatePaymentMethods($this))->run();
-    // }
+    public function updateAllPaymentMethods()
+    {
+        return (new UpdatePaymentMethods($this))->run();
+    }
 
     /**
      * Imports stripe customers and their payment methods
