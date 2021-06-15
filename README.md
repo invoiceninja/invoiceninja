@@ -92,5 +92,5 @@ For information on how contribute to Invoice Ninja, please see our [contributing
 * [Mike Skaggs](https://github.com/titan-fail)
 
 ## License
-Invoice Ninja is released under the Attribution Assurance License.  
+Invoice Ninja is released under the Elastic License 2.0
 See [LICENSE](LICENSE) for details.
