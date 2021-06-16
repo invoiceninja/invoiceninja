@@ -6,7 +6,7 @@
  *
  * @copyright Copyright (c) 2021. Credit Ninja LLC (https://creditninja.com)
  *
- * @license https://opensource.org/licenses/AAL
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Observers;

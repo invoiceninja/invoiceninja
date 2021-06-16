@@ -7,7 +7,7 @@
  *
  * @copyright Copyright (c) 2021. Entity Ninja LLC (https://entityninja.com)
  *
- * @license https://opensource.org/licenses/AAL
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Jobs\Entity;
