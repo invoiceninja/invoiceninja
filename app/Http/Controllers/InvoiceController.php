@@ -793,9 +793,8 @@ class InvoiceController extends BaseController
         $contact = $invitation->contact;
         $invoice = $invitation->invoice;
 
-        $file = $invoice->service()->getInvoicePdf($contact);
-
-        return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);;
+        $file = $invoice->pdf_file_path($invitation);
+            return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
 
     }
 
