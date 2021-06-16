@@ -4266,6 +4266,7 @@ $LANG = array(
     'quote_was_approved' => 'We would like to inform you that quote was approved.',
     'company_import_failure_subject' => 'Error importing :company',
     'company_import_failure_body' => 'There was an error importing the company data, the error message was:',
+    'recurring_invoice_due_date' => 'Due Date',
 );
 
 return $LANG;
