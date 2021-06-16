@@ -346,7 +346,7 @@ class Design extends BaseDesign
 
         $items = $this->transformLineItems($this->entity->line_items, $type);
 
-//        $this->processMarkdownOnLineItems($items);
+        //        $this->processMarkdownOnLineItems($items);
 
         if (count($items) == 0) {
             return [];
@@ -498,6 +498,15 @@ class Design extends BaseDesign
                         ['element' => 'span', 'content', 'content' => Number::formatMoney($tax['total'], $this->context['client']), 'properties' => ['data-ref' => 'totals-table-line_tax_' . $i]],
                     ]];
                 }
+            } elseif (Str::startsWith($variable, '$custom_surcharge')) {
+                $_variable = ltrim($variable, '$'); // $custom_surcharge1 -> custom_surcharge1
+
+                $visible = $this->entity->{$_variable} == '0';
+
+                $elements[1]['elements'][] = ['element' => 'div', 'elements' => [
+                    ['element' => 'span', 'content' => $variable . '_label', 'properties' => ['hidden' => $visible, 'data-ref' => 'totals_table-' . substr($variable, 1) . '-label']],
+                    ['element' => 'span', 'content' => $variable, 'properties' => ['hidden' => $visible, 'data-ref' => 'totals_table-' . substr($variable, 1)]],
+                ]];
             } elseif (Str::startsWith($variable, '$custom')) {
                 $field = explode('_', $variable);
                 $visible = is_object($this->client->company->custom_fields) && property_exists($this->client->company->custom_fields, $field[1]) && !empty($this->client->company->custom_fields->{$field[1]});
