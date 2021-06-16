@@ -44,4 +44,5 @@ class BouncedEmail extends Mailable
                 ->subject($subject);
 
     }
+    
 }
