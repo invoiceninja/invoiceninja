@@ -57,7 +57,7 @@ class CreditCard
 		));
 
 		// display the response
-        //nlog($response);
+        // nlog($response);
         
         if(in_array($response->state, ['new', 'authorized'])){
 
