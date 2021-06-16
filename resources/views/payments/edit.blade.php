@@ -104,6 +104,11 @@
                         ->text(trans('texts.email_receipt'))
                         ->value(1) !!}
             @endif
+            
+            {!! Former::checkbox('payment_discount_remaining_balance')
+               ->text(trans('texts.payment_discount_remaining_balance'))
+               ->label(' ')
+               ->value(1) !!}
 
             </div>
             </div>
