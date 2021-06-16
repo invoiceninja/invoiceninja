@@ -1,4 +1,4 @@
-@component('email.template.admin', ['design' => 'light', 'settings' => $settings, 'logo' => $logo])
+@component('email.template.client', ['design' => 'light', 'settings' => $settings, 'logo' => $logo, 'company' => $company ?? ''])
     <div class="center">
         @isset($greeting)
             <p>{{ $greeting }}</p>
@@ -13,13 +13,7 @@
         @endisset
 
         <div style="margin-top: 10px; margin-bottom: 30px;">
-            @isset($content)
-                {{ $content }}
-            @endisset
-
-            @isset($slot)
-                {{ $slot }}
-            @endisset
+            {{ $content }}
         </div>
 
         @isset($additional_info)

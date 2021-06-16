@@ -35,7 +35,7 @@ class ClientContactRequestCancellationObject
 
         $data = [
             'title' => ctrans('texts.recurring_cancellation_request', ['contact' => $this->client_contact->present()->name()]),
-            'message' => ctrans('texts.recurring_cancellation_request_body', ['contact' => $this->client_contact->present()->name(), 'client' => $this->client_contact->client->present()->name(), 'invoice' => $this->recurring_invoice->number]),
+            'content' => ctrans('texts.recurring_cancellation_request_body', ['contact' => $this->client_contact->present()->name(), 'client' => $this->client_contact->client->present()->name(), 'invoice' => $this->recurring_invoice->number]),
             'url' => config('ninja.web_url'),
             'button' => ctrans('texts.account_login'),
             'signature' => $this->company->settings->email_signature,
