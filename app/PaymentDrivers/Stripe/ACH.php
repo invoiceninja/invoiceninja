@@ -67,12 +67,12 @@ class ACH
         $client_gateway_token = $this->storePaymentMethod($source, $request->input('method'), $customer);
 
         $mailer = new NinjaMailerObject();
-        $mailer->mailable = new ACHVerificationNotification();
+        $mailer->mailable = new ACHVerificationNotification(auth('contact')->user()->client->company);
         $mailer->company = auth('contact')->user()->client->company;
         $mailer->settings = auth('contact')->user()->client->company->settings;
         $mailer->to_user = auth('contact')->user();
 
-        NinjaMailerJob::dispatchNow($mailer);
+        NinjaMailerJob::dispatch($mailer);
 
         return redirect()->route('client.payment_methods.verification', ['payment_method' => $client_gateway_token->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
     }
