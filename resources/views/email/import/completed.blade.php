@@ -70,7 +70,7 @@
         <p><b>{{ ctrans('texts.documents') }}:</b> {{ count($company->documents) }} </p>
     @endif
 
-    @if($check_data)
+    @if(isset($check_data))
     <p><b>Data Quality:</b></p>
     <p> {!! $check_data !!} </p>
     @endif
