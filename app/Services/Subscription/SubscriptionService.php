@@ -484,33 +484,6 @@ class SubscriptionService
     }
 
     /**
-     * Handle a plan change where no payment is required
-     * 
-     * @param  array $data
-     * @deprecated - no usage found
-     */
-    public function handlePlanChangeNoPayment($data)
-    {
-
-        $recurring_invoice = $this->createNewRecurringInvoice($data['recurring_invoice']);
-
-            $context = [
-                'context' => 'change_plan',
-                'recurring_invoice' => $recurring_invoice->hashed_id,
-                'invoice' => $this->encodePrimaryKey($payment_hash->fee_invoice_id),
-                'client' => $recurring_invoice->client->hashed_id,
-                'subscription' => $this->subscription->hashed_id,
-                'contact' => auth('contact')->user()->hashed_id,
-            ];
-
-            $response = $this->triggerWebhook($context);
-
-            // nlog($response);
-
-            return $this->handleRedirect('/client/recurring_invoices/'.$recurring_invoice->hashed_id);
-    }
-
-    /**
      * Creates a credit note if the plan change requires
      *
      * @param  Invoice $last_invoice
