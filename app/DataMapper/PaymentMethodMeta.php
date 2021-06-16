@@ -27,4 +27,7 @@ class PaymentMethodMeta
 
     /** @var int */
     public $type;
+
+    /** @var string */
+    public $state;
 }

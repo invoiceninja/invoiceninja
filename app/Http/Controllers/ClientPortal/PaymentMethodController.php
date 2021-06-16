@@ -92,9 +92,9 @@ class PaymentMethodController extends Controller
 
     public function verify(ClientGatewayToken $payment_method)
     {
-        $gateway = $this->getClientGateway();
-
-        return $gateway
+//        $gateway = $this->getClientGateway();
+        
+        return $payment_method->gateway
             ->driver(auth()->user()->client)
             ->setPaymentMethod(request()->query('method'))
             ->verificationView($payment_method);
@@ -102,9 +102,9 @@ class PaymentMethodController extends Controller
 
     public function processVerification(Request $request, ClientGatewaytoken $payment_method)
     {
-        $gateway = $this->getClientGateway();
+        // $gateway = $this->getClientGateway();
 
-        return $gateway
+        return $payment_method->gateway
             ->driver(auth()->user()->client)
             ->setPaymentMethod(request()->query('method'))
             ->processVerification($request, $payment_method);
@@ -118,9 +118,9 @@ class PaymentMethodController extends Controller
      */
     public function destroy(ClientGatewayToken $payment_method)
     {
-        $gateway = $this->getClientGateway();
+        // $gateway = $this->getClientGateway();
 
-        $gateway
+        $payment_method->gateway
             ->driver(auth()->user()->client)
             ->setPaymentMethod(request()->query('method'))
             ->detach($payment_method);

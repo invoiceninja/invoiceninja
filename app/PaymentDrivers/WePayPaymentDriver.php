@@ -134,6 +134,20 @@ class WePayPaymentDriver extends BaseDriver
         return $this->payment_method->authorizeResponse($request);  //this is your custom implementation from here
     }
 
+    public function verificationView(ClientGatewayToken $cgt)
+    {
+        $this->init();
+
+        return $this->payment_method->verificationView($cgt);
+    }
+
+    public function processVerification(Request $request, ClientGatewayToken $cgt)
+    {
+        $this->init();
+
+        return $this->payment_method->processVerification($request, $cgt);
+    }
+
     public function processPaymentView(array $data)
     {
         return $this->payment_method->paymentView($data);  //this is your custom implementation from here

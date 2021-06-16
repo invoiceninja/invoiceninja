@@ -43,5 +43,15 @@
 @endsection
 
 @push('footer')
+    <script>
+        Array
+            .from(document.getElementsByClassName('toggle-payment-with-token'))
+            .forEach((element) => element.addEventListener('click', (element) => {
+                document.querySelector('input[name=source]').value = element.target.dataset.token;
+            }));
 
+        document.getElementById('pay-now').addEventListener('click', function () {
+            document.getElementById('server-response').submit();
+        });
+    </script>
 @endpush

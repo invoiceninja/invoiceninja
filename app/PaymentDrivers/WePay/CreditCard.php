@@ -89,6 +89,34 @@ class CreditCard
  	}  
 
 
+    public function paymentView(array $data)
+    {
+        $data['gateway'] = $this->wepay_payment_driver;
+
+        return render('gateways.wepay.credit_card.pay', $data);
+    }
+
+    public function paymentResponse(PaymentResponseRequest $request)
+    {
+
+
+        // // charge the credit card
+        // $response = $wepay->request('checkout/create', array(
+        //     'account_id'          => $account_id,
+        //     'amount'              => '25.50',
+        //     'currency'            => 'USD',
+        //     'short_description'   => 'A vacation home rental',
+        //     'type'                => 'goods',
+        //     'payment_method'      => array(
+        //         'type'            => 'credit_card',
+        //         'credit_card'     => array(
+        //             'id'          => $credit_card_id
+        //         )
+        //     )
+        // ));
+
+    }
+
     private function storePaymentMethod($response, $payment_method_id)
     {
 
@@ -108,6 +136,8 @@ class CreditCard
         $this->wepay_payment_driver->storeGatewayToken($data);
 
     } 
+
+
 
 }
 

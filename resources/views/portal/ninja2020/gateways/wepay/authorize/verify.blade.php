@@ -9,11 +9,11 @@
         @csrf
         <input type="hidden" name="token" value="{{ $token->token }}">
 
-        @component('portal.ninja2020.components.general.card-element', ['title' => '#1 ' . ctrans('texts.amount')])
+        @component('portal.ninja2020.components.general.card-element', ['title' => '#1 ' . ctrans('texts.amount_cents')])
             <input type="text" name="transactions[]" class="w-full input" required data-cy="verification-1st">
         @endcomponent
 
-        @component('portal.ninja2020.components.general.card-element', ['title' => '#2 ' . ctrans('texts.amount')])
+        @component('portal.ninja2020.components.general.card-element', ['title' => '#2 ' . ctrans('texts.amount_cents')])
             <input type="text" name="transactions[]" class="w-full input" required data-cy="verification-2nd">
         @endcomponent
 

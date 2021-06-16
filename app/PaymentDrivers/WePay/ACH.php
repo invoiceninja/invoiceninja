@@ -13,13 +13,16 @@
 namespace App\PaymentDrivers\WePay;
 
 use App\Exceptions\PaymentFailed;
-use Illuminate\Http\Request;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\PaymentDrivers\WePayPaymentDriver;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Http\Request;
 
 class ACH
 {
+    use MakesHash;
+
     public $wepay_payment_driver;
 
     public function __construct(WePayPaymentDriver $wepay_payment_driver)
@@ -115,15 +118,30 @@ class ACH
      */
     public function processVerification(Request $request, ClientGatewayToken $token)
     {
+        $transactions = $request->input('transactions');
 
-        $response = $this->wepay_payment_driver->wepay->request('payment_bank/verify', [
-            'client_id'          => config('ninja.wepay.client_id'),
-            'client_secret'      => config('ninja.wepay.client_secret'),
-            'payment_bank_id'    => $token->token,
-            'type'               => 'microdeposits',
-            'microdeposits'      => $request->input('transactions'),
-        ]);
+        $transformed_transactions = [];
 
+        foreach($transactions as $transaction)
+            $transformed_transactions[] = (int)$transaction;
+
+        try {
+        
+            $response = $this->wepay_payment_driver->wepay->request('payment_bank/verify', [
+                'client_id'          => config('ninja.wepay.client_id'),
+                'client_secret'      => config('ninja.wepay.client_secret'),
+                'payment_bank_id'    => $token->token,
+                'type'               => 'microdeposits',
+                'microdeposits'      => $transformed_transactions,
+            ]);
+        
+        }
+        catch(\Exception $e){
+
+            return redirect()->route('client.payment_methods.verification', ['payment_method' => $token->hashed_id, 'method' => GatewayType::BANK_TRANSFER])
+                      ->with('error', $e->getMessage());
+        
+        }
         /*
         {
             "payment_bank_id": 12345,
@@ -132,20 +150,23 @@ class ACH
             "state": "authorized"
         }
         */
-       
+       nlog($response);
+
        //$meta = $token->meta;
         if($response->state == "authorized")
         {
-
-            $token->routing_number = $response->state;
+            $meta = $token->meta;
+            $meta->state = $response->state;
+            $token->meta;
             $token->save();
 
-            redirect()->route('client.payment_methods.index');
+            return redirect()->route('client.payment_methods.index');
 
         }
         else{
-            redirect()->route('client.payment_methods.verification', ['id' => $token->hashed_id, 'method' => GatewayType::BANK_TRANSFER])
-                      ->withErrors(['errors', ctrans('verification_failed')]);
+         
+          return redirect()->route('client.payment_methods.verification', ['payment_method' => $token->hashed_id, 'method' => GatewayType::BANK_TRANSFER])
+                      ->with('error', ctrans('texts.verification_failed'));   
         }
     }
 
@@ -166,7 +187,42 @@ class ACH
     {
         nlog($request->all());
         
-        redirect()->route('client.payment_methods.verification', ['id' => $token->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
+        $token = ClientGatewayToken::find($this->decodePrimaryKey($request->input('source')));
+        $token_meta = $token->meta;
+
+        if($token_meta->state != "authorized")
+            return redirect()->route('client.payment_methods.verification', ['payment_method' => $token->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
+
+
+
+
+
+
+// response = wepay.call('/checkout/create', {
+//     'account_id': account_id,
+//     'amount': '25.50',
+//     'short_description': 'A vacation home rental',
+//     'type': 'GOODS', 
+//     'payment_method': {
+//         'type': 'payment_bank',
+//         'payment_bank': {
+//             'id': 20000061
+//         }
+//     }
+// })
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         // $this->stripe->init();
 
@@ -242,12 +298,12 @@ class ACH
         $payment_meta->brand = (string) $response->bank_name;
         $payment_meta->last4 = (string) $response->account_last_four;
         $payment_meta->type = GatewayType::BANK_TRANSFER;
+        $payment_meta->state = $response->state;
 
         $data = [
             'payment_meta' => $payment_meta,
             'token' => $response->payment_bank_id,
             'payment_method_id' => $payment_method_id,
-            'routing_number' => $response->state,
         ];
 
         $this->wepay_payment_driver->storeGatewayToken($data);

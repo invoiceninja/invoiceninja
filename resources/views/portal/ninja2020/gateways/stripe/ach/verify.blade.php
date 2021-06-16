@@ -10,11 +10,11 @@
         <input type="hidden" name="customer" value="{{ $token->gateway_customer_reference }}">
         <input type="hidden" name="source" value="{{ $token->token }}">
 
-        @component('portal.ninja2020.components.general.card-element', ['title' => '#1 ' . ctrans('texts.amount')])
+        @component('portal.ninja2020.components.general.card-element', ['title' => '#1 ' . ctrans('texts.amount_cents')])
             <input type="text" name="transactions[]" class="w-full input" required data-cy="verification-1st">
         @endcomponent
 
-        @component('portal.ninja2020.components.general.card-element', ['title' => '#2 ' . ctrans('texts.amount')])
+        @component('portal.ninja2020.components.general.card-element', ['title' => '#2 ' . ctrans('texts.amount_cents')])
             <input type="text" name="transactions[]" class="w-full input" required data-cy="verification-2nd">
         @endcomponent
 

@@ -4256,6 +4256,7 @@ $LANG = array(
     'user_cross_linked_error' => 'User exists but cannot be crossed linked to multiple accounts',
     'company_import_failure_subject' => 'Error importing :company',
     'company_import_failure_body' => 'There was an error importing the company data, the error message was:',
+    'amount_cents' => 'Amount in pennies,pence or cents'
 );
 
 return $LANG;

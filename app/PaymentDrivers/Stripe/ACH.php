@@ -167,7 +167,7 @@ class ACH
             return $this->processUnsuccessfulPayment($state);
         } catch (Exception $e) {
             if ($e instanceof CardException) {
-                return redirect()->route('client.payment_methods.verification', ['id' => ClientGatewayToken::first()->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
+                return redirect()->route('client.payment_methods.verification', ['payment_method' => ClientGatewayToken::first()->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
             }
 
             throw new PaymentFailed($e->getMessage(), $e->getCode());
