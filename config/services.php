@@ -77,4 +77,5 @@ return [
         'client_secret' => env('BITBUCKET_CLIENT_SECRET'),
         'redirect' => env('BITBUCKET_OAUTH_REDIRECT'),
     ],
+    'postmark' => env('POSTMARK_SECRET'),
 ];
