@@ -80,6 +80,9 @@ class TemplateEmail extends Mailable
 
         $this->from(config('mail.from.address'), $this->company->present()->name());
 
+        if (strlen($settings->bcc_email) > 1)
+            $this->bcc(explode(",",$settings->bcc_email));
+
         $this->subject($this->build_email->getSubject())
             ->text('email.template.plain', [
                 'body' => $this->build_email->getBody(),
@@ -105,9 +108,6 @@ class TemplateEmail extends Mailable
                 $message->invitation = $this->invitation;
             });
 
-        //conditionally attach files
-        // if ($settings->pdf_email_attachment !== false && ! empty($this->build_email->getAttachments())) {
-
             //hosted | plan check here
             foreach ($this->build_email->getAttachments() as $file) {
 
@@ -117,7 +117,6 @@ class TemplateEmail extends Mailable
                     $this->attach($file['path'], ['as' => $file['name'], 'mime' => $file['mime']]);
 
             }
-        // }
 
         return $this;
     }
