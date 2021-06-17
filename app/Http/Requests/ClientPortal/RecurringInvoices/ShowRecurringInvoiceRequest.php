@@ -9,19 +9,23 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Http\Requests\ClientPortal;
+namespace App\Http\Requests\ClientPortal\RecurringInvoices;
 
 use App\Http\Requests\Request;
+use App\Http\ViewComposers\PortalComposer;
 
 class ShowRecurringInvoiceRequest extends Request
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
     public function authorize() : bool
     {
-        return auth()->user()->client->id === $this->recurring_invoice->client_id;
+        return auth('contact')->user()->client->id === $this->recurring_invoice->client_id
+            && auth('contact')->user()->company->enabled_modules & PortalComposer::MODULE_RECURRING_INVOICES;
+    }
+
+    public function rules()
+    {
+        return [
+            //
+        ];
     }
 }
