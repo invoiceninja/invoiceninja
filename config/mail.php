@@ -73,6 +73,9 @@ return [
         'gmail' => [
             'transport' => 'gmail',
         ],
+        'cocopostmark' => [
+            'transport' => 'cocopostmark',
+        ],
 
     ],
 
