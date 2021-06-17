@@ -104,11 +104,8 @@ class NinjaMailerJob implements ShouldQueue
 
         if (strlen($this->nmo->settings->bcc_email) > 1) {
             
-            foreach(explode(",", $this->nmo->settings->bcc_email) as $bcc){
-                $bcc_list[] = [$bcc, 'Blind Copy'];
-            } 
+            $bcc_list = explode(",", $this->nmo->settings->bcc_email);
 
-            // $this->nmo->mailable->bcc($bcc_list);
         }
         
 
