@@ -28,10 +28,7 @@ class MailServiceProvider extends MailProvider
 
     public function boot()
     {
-        $this->app->afterResolving('mail.manager', function (GmailTransportManager $mailManager) {
-            $mailManager->getSwiftMailer()->registerPlugin($this->app->make(CssInlinerPlugin::class));
-            return $mailManager;
-        });
+        app('mail.manager')->getSwiftMailer()->registerPlugin($this->app->make(CssInlinerPlugin::class));
     }
 
     protected function registerIlluminateMailer()
