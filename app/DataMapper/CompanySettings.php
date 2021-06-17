@@ -152,8 +152,8 @@ class CompanySettings extends BaseSettings
     public $email_sending_method = 'default'; //enum 'default','gmail' //@implemented
     public $gmail_sending_user_id = '0'; //@implemented
 
-    public $reply_to_email = ''; //@TODO
-    public $reply_to_name = ''; //@TODO
+    public $reply_to_email = ''; //@implemented
+    public $reply_to_name = ''; //@implemented
     public $bcc_email = ''; //@TODO
     public $pdf_email_attachment = false; //@implemented
     public $ubl_email_attachment = false; //@implemented
