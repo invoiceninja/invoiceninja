@@ -33,7 +33,7 @@ class MailServiceProvider extends MailProvider
 
     protected function registerIlluminateMailer()
     {
-        
+
         $this->app->singleton('mail.manager', function($app) {
             return new GmailTransportManager($app);
         });
@@ -50,7 +50,12 @@ class MailServiceProvider extends MailProvider
             );
 
         });
-        
+    
+        $this->app->afterResolving('mail.manager', function (MailManager $mailManager) {
+            $mailManager->getSwiftMailer()->registerPlugin($this->app->make(CssInlinerPlugin::class));
+            return $mailManager;
+        });
+                
     }
     
     protected function guzzle(array $config): HttpClient
