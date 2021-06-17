@@ -22,6 +22,22 @@ use Illuminate\View\View;
  */
 class PortalComposer
 {
+    public const MODULE_RECURRING_INVOICES = 1;
+    public const MODULE_CREDITS = 2;
+    public const MODULE_QUOTES = 4;
+    public const MODULE_TASKS = 8;
+    public const MODULE_EXPENSES = 16;
+    public const MODULE_PROJECTS = 32;
+    public const MODULE_VENDORS = 64;
+    public const MODULE_TICKETS = 128;
+    public const MODULE_PROPOSALS = 256;
+    public const MODULE_RECURRING_EXPENSES = 512;
+    public const MODULE_RECURRING_TASKS = 1024;
+    public const MODULE_RECURRING_QUOTES = 2048;
+    public const MODULE_INVOICES = 4096;
+    public const MODULE_PROFORMAL_INVOICES = 8192;
+    public const MODULE_PURCHASE_ORDERS = 16384;
+
     public $settings;
 
     /**
@@ -69,17 +85,31 @@ class PortalComposer
 
     private function sidebarMenu() :array
     {
+        $enabled_modules = auth('contact')->user()->company->enabled_modules;
         $data = [];
 
-        //@todo wire this back in when we are happy with dashboard.
-        // if($this->settings->enable_client_portal_dashboard == TRUE)
+        // TODO: Enable dashboard once it's completed.
+        // $this->settings->enable_client_portal_dashboard
+        // $data[] = [ 'title' => ctrans('texts.dashboard'), 'url' => 'client.dashboard', 'icon' => 'activity'];
 
-//        $data[] = [ 'title' => ctrans('texts.dashboard'), 'url' => 'client.dashboard', 'icon' => 'activity'];
-        $data[] = ['title' => ctrans('texts.invoices'), 'url' => 'client.invoices.index', 'icon' => 'file-text'];
-        $data[] = ['title' => ctrans('texts.recurring_invoices'), 'url' => 'client.recurring_invoices.index', 'icon' => 'file'];
+        if (self::MODULE_INVOICES & $enabled_modules) {
+            $data[] = ['title' => ctrans('texts.invoices'), 'url' => 'client.invoices.index', 'icon' => 'file-text'];
+        }
+
+        if (self::MODULE_RECURRING_INVOICES & $enabled_modules) {
+            $data[] = ['title' => ctrans('texts.recurring_invoices'), 'url' => 'client.recurring_invoices.index', 'icon' => 'file'];
+        }
+
         $data[] = ['title' => ctrans('texts.payments'), 'url' => 'client.payments.index', 'icon' => 'credit-card'];
-        $data[] = ['title' => ctrans('texts.quotes'), 'url' => 'client.quotes.index', 'icon' => 'align-left'];
-        $data[] = ['title' => ctrans('texts.credits'), 'url' => 'client.credits.index', 'icon' => 'credit-card'];
+
+        if (self::MODULE_QUOTES & $enabled_modules) {
+            $data[] = ['title' => ctrans('texts.quotes'), 'url' => 'client.quotes.index', 'icon' => 'align-left'];
+        }
+
+        if (self::MODULE_CREDITS & $enabled_modules) {
+            $data[] = ['title' => ctrans('texts.credits'), 'url' => 'client.credits.index', 'icon' => 'credit-card'];
+        }
+
         $data[] = ['title' => ctrans('texts.payment_methods'), 'url' => 'client.payment_methods.index', 'icon' => 'shield'];
         $data[] = ['title' => ctrans('texts.documents'), 'url' => 'client.documents.index', 'icon' => 'download'];
         $data[] = ['title' => ctrans('texts.subscriptions'), 'url' => 'client.subscriptions.index', 'icon' => 'calendar'];

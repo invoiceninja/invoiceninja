@@ -12,8 +12,9 @@
 namespace App\Http\Controllers\ClientPortal;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ClientPortal\ProcessInvoicesInBulkRequest;
-use App\Http\Requests\ClientPortal\ShowInvoiceRequest;
+use App\Http\Requests\ClientPortal\Invoices\ShowInvoicesRequest;
+use App\Http\Requests\ClientPortal\Invoices\ProcessInvoicesInBulkRequest;
+use App\Http\Requests\ClientPortal\Invoices\ShowInvoiceRequest;
 use App\Models\Invoice;
 use App\Utils\Number;
 use App\Utils\TempFile;
@@ -33,7 +34,7 @@ class InvoiceController extends Controller
      *
      * @return Factory|View
      */
-    public function index()
+    public function index(ShowInvoicesRequest $request)
     {
         return $this->render('invoices.index');
     }

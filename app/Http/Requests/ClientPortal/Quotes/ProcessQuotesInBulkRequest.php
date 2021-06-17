@@ -10,31 +10,23 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace App\Http\Requests\ClientPortal\Tasks;
+namespace App\Http\Requests\ClientPortal\Quotes;
 
+use App\Http\ViewComposers\PortalComposer;
 use Illuminate\Foundation\Http\FormRequest;
+use function auth;
 
-class ShowTasksRequest extends FormRequest
+class ProcessQuotesInBulkRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
     public function authorize()
     {
-        return (bool)auth()->user('contact')->client->getSetting('enable_client_portal_tasks');
+        return auth('contact')->user()->company->enabled_modules & PortalComposer::MODULE_QUOTES;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
     public function rules()
     {
         return [
-            //
+            'quotes' => ['array'],
         ];
     }
 }
