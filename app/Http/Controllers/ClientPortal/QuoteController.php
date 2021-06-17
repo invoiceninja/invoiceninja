@@ -1,11 +1,22 @@
 <?php
 
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
+
 namespace App\Http\Controllers\ClientPortal;
 
 use App\Events\Quote\QuoteWasApproved;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ClientPortal\ProcessQuotesInBulkRequest;
-use App\Http\Requests\ClientPortal\ShowQuoteRequest;
+use App\Http\Requests\ClientPortal\Quotes\ProcessQuotesInBulkRequest;
+use App\Http\Requests\ClientPortal\Quotes\ShowQuotesRequest;
+use App\Http\Requests\ClientPortal\Quotes\ShowQuoteRequest;
 use App\Jobs\Invoice\InjectSignature;
 use App\Models\Quote;
 use App\Utils\Ninja;
@@ -25,7 +36,7 @@ class QuoteController extends Controller
      *
      * @return Factory|View
      */
-    public function index()
+    public function index(ShowQuotesRequest $request)
     {
         return $this->render('quotes.index');
     }
