@@ -35,9 +35,9 @@ class MailServiceProvider extends MailProvider
     {
 
         $this->app->singleton('mail.manager', function($app) {
-            $mailManager = new GmailTransportManager($app);
-            $mailManager->getSwiftMailer()->registerPlugin($this->app->make(CssInlinerPlugin::class));
-            return $mailManager;
+            $manager = new GmailTransportManager($app);
+            $manager->getSwiftMailer()->registerPlugin($this->app->make(CssInlinerPlugin::class));
+            return $manager;
         });
 
         $this->app->bind('mailer', function ($app) {
@@ -53,6 +53,24 @@ class MailServiceProvider extends MailProvider
 
         });
     
+        $this->app->extend('mail.manager', function(GmailTransportManager $manager) {
+
+            $manager->extend('cocopostmark', function() {
+
+                return new PostmarkTransport(
+                $this->guzzle(config('postmark.guzzle', [])),
+                config('postmark.secret')
+                );
+
+                $manager->getSwiftMailer()->registerPlugin($this->app->make(CssInlinerPlugin::class));
+            });
+
+            return $manager;
+        
+        });
+
+
+
         // $this->app->afterResolving('mail.manager', function (GmailTransportManager $mailManager) {
         //     $mailManager->getSwiftMailer()->registerPlugin($this->app->make(CssInlinerPlugin::class));
         //     return $mailManager;
