@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Requests\ClientPortal;
+namespace App\Http\Requests\ClientPortal\Credits;
 
+use App\Http\ViewComposers\PortalComposer;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ShowCreditRequest extends FormRequest
@@ -13,7 +14,8 @@ class ShowCreditRequest extends FormRequest
      */
     public function authorize()
     {
-        return !$this->credit->is_deleted;
+        return !$this->credit->is_deleted
+            && auth('contact')->user()->company->enabled_modules & PortalComposer::MODULE_CREDITS;
     }
 
     /**
