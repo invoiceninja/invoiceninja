@@ -46,6 +46,8 @@ class GmailTransport extends Transport
         $this->gmail = null;
         $this->gmail = new Mail;
 
+        nlog($message->getBcc());
+
         /*We should nest the token in the message and then discard it as needed*/
         $token = $message->getHeaders()->get('GmailToken')->getValue();
         
