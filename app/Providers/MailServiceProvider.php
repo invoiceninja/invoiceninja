@@ -3,10 +3,11 @@
 namespace App\Providers;
 
 use App\Helpers\Mail\GmailTransportManager;
+use App\Utils\CssInlinerPlugin;
 use Coconuts\Mail\PostmarkTransport;
+use GuzzleHttp\Client as HttpClient;
 use Illuminate\Mail\MailServiceProvider as MailProvider;
 use Illuminate\Mail\TransportManager;
-use GuzzleHttp\Client as HttpClient;
 
 class MailServiceProvider extends MailProvider
 {
@@ -18,7 +19,7 @@ class MailServiceProvider extends MailProvider
 
     public function boot()
     {
-
+        
     }
 
     protected function registerIlluminateMailer()
@@ -27,21 +28,23 @@ class MailServiceProvider extends MailProvider
             return new GmailTransportManager($app);
         });
 
-        // $this->app->bind('mail.manager', function($app) {
-        //     return  new GmailTransportManager($app);
-        // });
-        
         $this->app->bind('mailer', function ($app) {
             return $app->make('mail.manager')->mailer();
         });
 
         $this->app['mail.manager']->extend('postmark', function () {
+
             return new PostmarkTransport(
                 $this->guzzle(config('postmark.guzzle', [])),
                 config('postmark.secret')
             );
+
         });
         
+        $this->app->afterResolving('mail.manager', function (GmailTransportManager $mailManager) {
+            $mailManager->getSwiftMailer()->registerPlugin($this->app->make(CssInlinerPlugin::class));
+            return $mailManager;
+        });
     }
     
     protected function guzzle(array $config): HttpClient
@@ -57,6 +60,7 @@ class MailServiceProvider extends MailProvider
     {
         return [
             'mail.manager',
-            'mailer'        ];
+            'mailer'        
+        ];
     }
 }

@@ -3,10 +3,11 @@
 
 @section('body')
     <div class="grid lg:grid-cols-12 py-8">
-        <div class="col-span-12 lg:col-span-6 lg:col-start-4 xl:col-span-4 xl:col-start-5 px-6">
+        <div class="col-span-12 lg:col-span-8 lg:col-start-3 xl:col-span-6 xl:col-start-4 px-6">
             <div class="flex justify-center">
                 <img class="h-32 w-auto" src="{{ $company->present()->logo() }}" alt="{{ ctrans('texts.logo') }}">
             </div>
+            <h1 class="text-center text-3xl mt-8">{{ ctrans('texts.register') }}</h1>
             <h1 class="text-center text-3xl mt-8">{{ ctrans('texts.register') }}</h1>
             <p class="block text-center text-gray-600">{{ ctrans('texts.register_label') }}</p>
 

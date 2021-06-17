@@ -414,7 +414,7 @@ class Invoice extends BaseModel
         if(Ninja::isHosted() && $portal && Storage::disk(config('filesystems.default'))->exists($file_path)){
             return Storage::disk(config('filesystems.default'))->{$type}($file_path);
         }
-        elseif(Ninja::isHosted() && $portal){
+        elseif(Ninja::isHosted()){
             $file_path = CreateEntityPdf::dispatchNow($invitation, config('filesystems.default'));
             return Storage::disk(config('filesystems.default'))->{$type}($file_path);
         }
