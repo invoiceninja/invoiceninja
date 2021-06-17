@@ -80,9 +80,6 @@ class TemplateEmail extends Mailable
 
         $this->from(config('mail.from.address'), $this->company->present()->name());
 
-        // if (strlen($settings->bcc_email) > 1)
-        //     $this->bcc(explode(",",$settings->bcc_email), 'BCC');
-
         $this->subject($this->build_email->getSubject())
             ->text('email.template.plain', [
                 'body' => $this->build_email->getBody(),
