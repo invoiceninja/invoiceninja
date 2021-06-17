@@ -20,6 +20,11 @@
                             {{ ctrans('texts.description') }}
                         </span>
                     </th>
+                    <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary">
+                        <span role="button" wire:click="sortBy('description')" class="cursor-pointer">
+                            {{ ctrans('texts.project') }}
+                        </span>
+                    </th>
                     <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white uppercase tracking-wider">
                         <span role="button" wire:click="sortBy('status_id')" class="cursor-pointer">
                             {{ ctrans('texts.status') }}
@@ -37,6 +42,9 @@
                     <tr class="bg-white group hover:bg-gray-100">
                         <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
                             {{ \Illuminate\Support\Str::limit($task->description, 80) }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                            {{ optional($task->project)->name }}
                         </td>
                         <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
                             {{ optional($task->status)->name }}
