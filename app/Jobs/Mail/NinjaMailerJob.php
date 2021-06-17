@@ -59,6 +59,8 @@ class NinjaMailerJob implements ShouldQueue
 
     public $company;
 
+    private $mailer;
+
     public function __construct(NinjaMailerObject $nmo, bool $override = false)
     {
 
@@ -108,7 +110,8 @@ class NinjaMailerJob implements ShouldQueue
         try {
             nlog("trying to send to {$this->nmo->to_user->email} ". now()->toDateTimeString());
             
-            Mail::to($this->nmo->to_user->email)
+            Mail::mailer($this->mailer)
+                ->to($this->nmo->to_user->email)
                 ->send($this->nmo->mailable);
 
             LightLogs::create(new EmailSuccess($this->nmo->company->company_key))
@@ -151,18 +154,19 @@ class NinjaMailerJob implements ShouldQueue
     {
         /* Singletons need to be rebooted each time just in case our Locale is changing*/
         App::forgetInstance('translator');
-        App::forgetInstance('mail.manager'); //singletons must be destroyed!
-        App::forgetInstance('mailer');
-        App::forgetInstance('laravelgmail');
+        // App::forgetInstance('mail.manager'); //singletons must be destroyed!
+        // App::forgetInstance('mailer');
+        // App::forgetInstance('laravelgmail');
         $t = app('translator');
         /* Inject custom translations if any exist */
         $t->replace(Ninja::transformTranslations($this->nmo->settings));
 
         switch ($this->nmo->settings->email_sending_method) {
             case 'default':
-                //config(['mail.driver' => config('mail.default')]);
+                $this->mailer = config('mail.default');
                 break;
             case 'gmail':
+                $this->mailer = 'gmail';
                 $this->setGmailMailer();
                 break;
             default:
@@ -204,8 +208,8 @@ class NinjaMailerJob implements ShouldQueue
          *  just for this request.
         */
 
-        config(['mail.driver' => 'gmail']);
-        (new MailServiceProvider(app()))->register();
+        // config(['mail.driver' => 'gmail']);
+        // (new MailServiceProvider(app()))->register();
 
         $token = $user->oauth_user_token->access_token;
 

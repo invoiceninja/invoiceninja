@@ -1,4 +1,13 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 
 namespace App\Providers;
 
@@ -33,9 +42,9 @@ class MailCssInlinerServiceProvider extends ServiceProvider
             return new CssInlinerPlugin([]);
         });
 
-        // $this->app->afterResolving('mail.manager', function (MailManager $mailManager) {
-        //     $mailManager->getSwiftMailer()->registerPlugin($this->app->make(CssInlinerPlugin::class));
-        //     return $mailManager;
-        // });
+        $this->app->afterResolving('mail.manager', function (MailManager $mailManager) {
+            $mailManager->getSwiftMailer()->registerPlugin($this->app->make(CssInlinerPlugin::class));
+            return $mailManager;
+        });
     }
 }

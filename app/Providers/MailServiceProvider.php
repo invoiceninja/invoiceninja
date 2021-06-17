@@ -1,4 +1,13 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 
 namespace App\Providers;
 
@@ -24,6 +33,7 @@ class MailServiceProvider extends MailProvider
 
     protected function registerIlluminateMailer()
     {
+        
         $this->app->singleton('mail.manager', function($app) {
             return new GmailTransportManager($app);
         });
@@ -32,7 +42,7 @@ class MailServiceProvider extends MailProvider
             return $app->make('mail.manager')->mailer();
         });
 
-        $this->app['mail.manager']->extend('postmark', function () {
+        $this->app['mail.manager']->extend('cocopostmark', function () {
 
             return new PostmarkTransport(
                 $this->guzzle(config('postmark.guzzle', [])),
@@ -41,10 +51,6 @@ class MailServiceProvider extends MailProvider
 
         });
         
-        $this->app->afterResolving('mail.manager', function (GmailTransportManager $mailManager) {
-            $mailManager->getSwiftMailer()->registerPlugin($this->app->make(CssInlinerPlugin::class));
-            return $mailManager;
-        });
     }
     
     protected function guzzle(array $config): HttpClient
