@@ -14,12 +14,12 @@ class MailServiceProvider extends MailProvider
 
     public function register()
     {
+        $this->registerIlluminateMailer();
     }
 
     public function boot()
     {
-        $this->registerIlluminateMailer();
-
+        
     }
 
     protected function registerIlluminateMailer()
@@ -33,7 +33,7 @@ class MailServiceProvider extends MailProvider
         });
 
         $this->app['mail.manager']->extend('postmark', function () {
-            
+
             return new PostmarkTransport(
                 $this->guzzle(config('postmark.guzzle', [])),
                 config('postmark.secret')
