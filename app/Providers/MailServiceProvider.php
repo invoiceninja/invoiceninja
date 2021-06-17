@@ -32,11 +32,13 @@ class MailServiceProvider extends MailProvider
             return $app->make('mail.manager')->mailer();
         });
 
-        $this->app['mail.manager']->extend('postmark', function () {
-            return new PostmarkTransport(
+        $this->app['mail.manager']->extend('postmark', function ($app, $postmark) {
+            $postmark = new PostmarkTransport(
                 $this->guzzle(config('postmark.guzzle', [])),
                 config('postmark.secret')
             );
+
+            return $postmark;
         });
         
         $this->app->afterResolving('mail.manager', function (GmailTransportManager $mailManager) {
