@@ -33,9 +33,9 @@ class MailCssInlinerServiceProvider extends ServiceProvider
             return new CssInlinerPlugin([]);
         });
 
-        $this->app->afterResolving('mail.manager', function (MailManager $mailManager) {
-            $mailManager->getSwiftMailer()->registerPlugin($this->app->make(CssInlinerPlugin::class));
-            return $mailManager;
-        });
+        // $this->app->afterResolving('mail.manager', function (MailManager $mailManager) {
+        //     $mailManager->getSwiftMailer()->registerPlugin($this->app->make(CssInlinerPlugin::class));
+        //     return $mailManager;
+        // });
     }
 }
