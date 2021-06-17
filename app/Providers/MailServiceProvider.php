@@ -35,7 +35,9 @@ class MailServiceProvider extends MailProvider
     {
 
         $this->app->singleton('mail.manager', function($app) {
-            return new GmailTransportManager($app);
+            $mailManager = new GmailTransportManager($app);
+            $mailManager->getSwiftMailer()->registerPlugin($this->app->make(CssInlinerPlugin::class));
+            return $mailManager;
         });
 
         $this->app->bind('mailer', function ($app) {
@@ -51,11 +53,11 @@ class MailServiceProvider extends MailProvider
 
         });
     
-        $this->app->afterResolving('mail.manager', function (GmailTransportManager $mailManager) {
-            $mailManager->getSwiftMailer()->registerPlugin($this->app->make(CssInlinerPlugin::class));
-            return $mailManager;
-        });
-                
+        // $this->app->afterResolving('mail.manager', function (GmailTransportManager $mailManager) {
+        //     $mailManager->getSwiftMailer()->registerPlugin($this->app->make(CssInlinerPlugin::class));
+        //     return $mailManager;
+        // });
+
     }
     
     protected function guzzle(array $config): HttpClient
