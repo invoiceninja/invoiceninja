@@ -98,24 +98,12 @@ class NinjaMailerJob implements ShouldQueue
             $this->nmo->mailable->replyTo($this->company->owner()->email, $this->company->owner()->present()->name());
         }
 
-        $this->nmo->mailable->bcc('poop@gmail.com', 'hi');
-
-        $bcc_list = [];
-
-        if (strlen($this->nmo->settings->bcc_email) > 1) {
-            
-            $bcc_list = explode(",", $this->nmo->settings->bcc_email);
-
-        }
-        
-
         //send email
         try {
             nlog("trying to send to {$this->nmo->to_user->email} ". now()->toDateTimeString());
             
             Mail::mailer($this->mailer)
                 ->to($this->nmo->to_user->email)
-                ->bcc($bcc_list)
                 ->send($this->nmo->mailable);
 
             LightLogs::create(new EmailSuccess($this->nmo->company->company_key))
