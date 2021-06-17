@@ -14,6 +14,7 @@ namespace App\Mail\Engine;
 use App\DataMapper\EmailTemplateDefaults;
 use App\Models\Account;
 use App\Utils\Helpers;
+use App\Utils\Ninja;
 use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 
@@ -77,7 +78,10 @@ class PaymentEmailEngine extends BaseEmailEngine
 
             $this->payment->invoices->each(function ($invoice){
                 
-                $this->setAttachments([$invoice->pdf_file_path($invoice->invitations->first())]);
+                if(Ninja::isHosted())
+                    $this->setAttachments([$invoice->pdf_file_path($invoice->invitations->first(), 'url', true)]);
+                else
+                    $this->setAttachments([$invoice->pdf_file_path($invoice->invitations->first())]);
 
             });
 
