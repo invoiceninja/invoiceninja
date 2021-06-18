@@ -154,11 +154,15 @@
                     <td>
                         <div class="dark-bg-base"
                              style="padding-top: 10px;padding-bottom: 10px; background-color: #242424; border: 1px solid #c2c2c2; border-top-color: #242424; border-bottom-color: #242424;">
-                            @if(isset($company) && !$company->account->isPaid())
-                                <p style="text-align: center; color: #ffffff; font-size: 10px;
-                            font-family: Verdana, Geneva, Tahoma, sans-serif;">© {{ date('Y') }} Invoice Ninja, All
-                                    Rights Reserved
-                                </p>
+                            @if(isset($company))
+                                @if($company->account->isPaid())
+                                    <p style="text-align: center; color: #ffffff; font-size: 10px;
+                            font-family: Verdana, Geneva, Tahoma, sans-serif;">© {{ date('Y') }} {{ $company->present()->name() }}, All Rights Reserved</p>
+                                @else
+                                    <p style="text-align: center; color: #ffffff; font-size: 10px; font-family: Verdana, Geneva, Tahoma, sans-serif;">
+                                        © {{ date('Y') }} Invoice Ninja, All Rights Reserved
+                                    </p>
+                                @endif
                             @else
                                 <p style="text-align: center; color: #ffffff; font-size: 10px; font-family: Verdana, Geneva, Tahoma, sans-serif;">
                                     © {{ date('Y') }} Invoice Ninja, All Rights Reserved
