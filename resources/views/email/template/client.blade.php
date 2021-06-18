@@ -121,6 +121,8 @@
 
                                 {{ $slot ?? '' }}
                                 {!! $body ?? '' !!}
+                                
+                                {!! $signature ?? '' !!}
 
                                 <div>
                                     <a href="#"
