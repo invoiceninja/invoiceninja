@@ -6,12 +6,13 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://opensource.org/licenses/AAL
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Http\Requests\ClientPortal;
+namespace App\Http\Requests\ClientPortal\Invoices;
 
 use App\Http\Requests\Request;
+use App\Http\ViewComposers\PortalComposer;
 
 class ShowInvoiceRequest extends Request
 {
@@ -22,6 +23,7 @@ class ShowInvoiceRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth('contact')->user()->client->id == $this->invoice->client_id;
+        return auth('contact')->user()->client->id == $this->invoice->client_id
+            &&  auth('contact')->user()->company->enabled_modules & PortalComposer::MODULE_INVOICES;
     }
 }

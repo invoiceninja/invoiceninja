@@ -6,13 +6,15 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://opensource.org/licenses/AAL
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Http\Controllers\ClientPortal;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ClientPortal\ShowRecurringInvoiceRequest;
+use App\Http\Requests\ClientPortal\RecurringInvoices\RequestCancellationRequest;
+use App\Http\Requests\ClientPortal\RecurringInvoices\ShowRecurringInvoicesRequest;
+use App\Http\Requests\ClientPortal\RecurringInvoices\ShowRecurringInvoiceRequest;
 use App\Jobs\Mail\NinjaMailer;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
@@ -23,7 +25,6 @@ use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Contracts\View\Factory;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
@@ -40,7 +41,7 @@ class RecurringInvoiceController extends Controller
      *
      * @return Factory|View
      */
-    public function index()
+    public function index(ShowRecurringInvoicesRequest $request)
     {
         return $this->render('recurring_invoices.index');
     }
@@ -59,7 +60,7 @@ class RecurringInvoiceController extends Controller
         ]);
     }
 
-    public function requestCancellation(Request $request, RecurringInvoice $recurring_invoice)
+    public function requestCancellation(RequestCancellationRequest $request, RecurringInvoice $recurring_invoice)
     {
         if (is_null($recurring_invoice->subscription_id) || optional($recurring_invoice->subscription)->allow_cancellation) {
             $nmo = new NinjaMailerObject;

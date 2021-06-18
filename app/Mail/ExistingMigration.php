@@ -39,7 +39,8 @@ class ExistingMigration extends Mailable
         $this->logo = $this->company->present()->logo();
         $this->company_name = $this->company->present()->name();
 
-         return $this->from(config('mail.from.address'), config('mail.from.name'))
-                    ->view('email.migration.existing');
+        return $this
+            ->from(config('mail.from.address'), config('mail.from.name'))
+            ->view('email.migration.existing');
     }
 }

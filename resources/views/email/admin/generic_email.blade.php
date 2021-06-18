@@ -1,28 +1,15 @@
-@component('email.template.master', ['design' => 'light', 'settings' =>$settings])
+@component('email.template.admin', ['settings' => $settings, 'logo' => $logo])
+    <div class="center">
+        <h1>{{ $title }}</h1>
 
-@slot('header')
-    @component('email.components.header', ['p' => $title, 'logo' => $logo])
-    @endcomponent
-@endslot
+        {{ ctrans("texts.{$body}") }}
 
-@slot('greeting')
-	@lang($body)
-@endslot
+        @isset($view_link)
+            <a class="button" href="{{ $view_link}}" target="_blank">{{{ $view_text }}}</a>
+        @endisset
 
-    @if(isset($view_link))
-    @component('email.components.button', ['url' => $view_link])
-        {{ $view_text }}
-    @endcomponent
-    @endif
-
-    @if(isset($signature))
-    {{ $signature }}
-    @endif
-
-@slot('footer')
-    @component('email.components.footer', ['url' => 'https://invoiceninja.com', 'url_text' => '&copy; InvoiceNinja'])
-        For any info, please visit InvoiceNinja.
-    @endcomponent
-@endslot
-
+        @isset($signature)
+            <p>{{ $signature }}</p>
+        @endisset
+    </div>
 @endcomponent

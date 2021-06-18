@@ -1,32 +1,33 @@
-@component('email.template.master', ['design' => 'light', 'settings' => $settings])
+@component('email.template.admin', ['design' => 'light', 'settings' => $settings, 'logo' => $logo])
+    <div class="center">
+        @isset($greeting)
+            <p>{{ $greeting }}</p>
+        @endisset
 
-    @slot('header')
-        @include('email.components.header', ['logo' => $logo])
-    @endslot
+        @isset($title)
+            <h1>{{ $title }}</h1>
+        @endisset
 
-    @if(isset($greeting))
-    <p>{{ $greeting }}</p>
-    @endif
+        @isset($h2)
+            <h2>{{ $title }}</h2>
+        @endisset
 
-    <h2>{{ $title }}</h2>
+        <div style="margin-top: 10px; margin-bottom: 30px;">
+            @isset($content)
+                {{ $content }}
+            @endisset
 
-    <p>{{ $message }}</p>
+            @isset($slot)
+                {{ $slot }}
+            @endisset
+        </div>
 
-    @if(isset($additional_info))
+        @isset($additional_info)
+            <p>{{ $additional_info }}</p>
+        @endisset
 
-        <p> {{ $additional_info }}</p>
-
-    @endif
-
-    @component('email.components.button', ['url' => $url])
-        @lang($button)
-    @endcomponent
-
-    @if(isset($whitelabel) && !$whitelabel)
-        @slot('footer')
-            @component('email.components.footer', ['url' => 'https://invoiceninja.com', 'url_text' => '&copy; InvoiceNinja'])
-                For any info, please visit InvoiceNinja.
-            @endcomponent
-        @endslot
-    @endif
+        @isset($url)
+            <a href="{{ $url }}" class="button" target="_blank">{{ ctrans($button) }}</a>
+        @endisset
+    </div>
 @endcomponent

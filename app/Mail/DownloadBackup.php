@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -6,7 +7,7 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://opensource.org/licenses/AAL
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Mail;
@@ -38,16 +39,13 @@ class DownloadBackup extends Mailable
         $company = Company::where('company_key', $this->company->company_key)->first();
 
         return $this->from(config('mail.from.address'), config('mail.from.name'))
-                    ->subject(ctrans('texts.download_backup_subject', ['company' => $company->present()->name()]))
-                    ->markdown(
-                        'email.admin.download_files',
-                        [
-                            'url' => $this->file_path,
-                            'logo' => $company->present()->logo,
-                            'whitelabel' => $company->account->isPaid() ? true : false,
-                            'settings' => $company->settings,
-                            'greeting' => $company->present()->name(),
-                        ]
-                    );
+            ->subject(ctrans('texts.download_backup_subject', ['company' => $company->present()->name()]))
+            ->view('email.admin.download_files', [
+                'url' => $this->file_path,
+                'logo' => $company->present()->logo,
+                'whitelabel' => $company->account->isPaid() ? true : false,
+                'settings' => $company->settings,
+                'greeting' => $company->present()->name(),
+            ]);
     }
 }

@@ -7,7 +7,7 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://opensource.org/licenses/AAL
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Mail;
@@ -21,13 +21,14 @@ use Illuminate\Queue\SerializesModels;
 
 class ContactPasswordlessLogin extends Mailable
 {
-
-    /**
-     * @var string
-     */
+    /** @var string */
     public $email;
 
+    /** @var string */
     public $url;
+
+    /** @var Company */
+    public $company;
 
     /**
      * Create a new message instance.
@@ -35,11 +36,13 @@ class ContactPasswordlessLogin extends Mailable
      * @param string $email
      * @param string $redirect
      */
-    public function __construct(string $email, $company_id, string $redirect = '')
+    public function __construct(string $email, Company $company, string $redirect = '')
     {
         $this->email = $email;
 
-        $this->url = MagicLink::create($email, $company_id, $redirect);
+        $this->company = $company;
+
+        $this->url = MagicLink::create($email, $company->id, $redirect);
     }
 
     /**
@@ -51,6 +54,10 @@ class ContactPasswordlessLogin extends Mailable
     {
         return $this
             ->subject(ctrans('texts.account_passwordless_login'))
-            ->view('email.billing.passwordless-login');
+            ->view('email.billing.passwordless-login', [
+                'logo' => $this->company->present()->logo(),
+                'settings' => $this->company->settings,
+                'company' => $this->company->settings,
+            ]);
     }
 }

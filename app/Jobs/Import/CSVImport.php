@@ -6,7 +6,7 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://opensource.org/licenses/AAL
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Jobs\Import;
@@ -133,7 +133,7 @@ class CSVImport implements ShouldQueue {
 		];
 
 		$nmo = new NinjaMailerObject;
-		$nmo->mailable = new ImportCompleted( $data );
+		$nmo->mailable = new ImportCompleted($this->company, $data);
 		$nmo->company = $this->company;
 		$nmo->settings = $this->company->settings;
 		$nmo->to_user = $this->company->owner();
