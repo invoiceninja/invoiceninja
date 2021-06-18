@@ -49,18 +49,10 @@ jobs:
           sudo rm -rf bootstrap/cache/*
           sudo rm -rf node_modules
           sudo rm -rf .git
-      # - name: Prune Git History
-      #   run: |
-      #     sudo git gc
-      #     sudo git gc --aggressive
-      #     sudo git prune
-      - name: Build project # This would actually build your project, using zip for an example artifact
+
+      - name: Build project
         run: |
           zip -r ./invoiceninja.zip .* -x "../*"
-      
-      - name: Get tag name
-        id: get_tag_name
-        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
       
       - name: Release
         uses: softprops/action-gh-release@v1
