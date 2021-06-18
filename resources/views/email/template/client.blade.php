@@ -122,7 +122,9 @@
                                 {{ $slot ?? '' }}
                                 {!! $body ?? '' !!}
                                 
-                                {!! nl2br($signature) ?? '' !!}
+                                @isset($signature)
+                                    {{ nl2br($signature) }}
+                                @endisset
 
                                 <div>
                                     <a href="#"
