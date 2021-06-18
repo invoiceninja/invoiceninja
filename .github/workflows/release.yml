@@ -49,36 +49,16 @@ jobs:
           sudo rm -rf bootstrap/cache/*
           sudo rm -rf node_modules
           sudo rm -rf .git
-      # - name: Prune Git History
-      #   run: |
-      #     sudo git gc
-      #     sudo git gc --aggressive
-      #     sudo git prune
-      - name: Build project # This would actually build your project, using zip for an example artifact
+
+      - name: Build project
         run: |
           zip -r ./invoiceninja.zip .* -x "../*"
       
-      - name: Get tag name
-        id: get_tag_name
-        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}-release
-      
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.get_tag_name.outputs.VERSION }}
-          release_name: Release ${{ steps.get_tag_name.outputs.VERSION }}
-          draft: false
-          prerelease: false
-      - name: Upload Release Asset
-        id: upload-release-asset 
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{secrets.RELEASE_TOKEN}}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-          asset_path: ./invoiceninja.zip
-          asset_name: invoiceninja.zip
-          asset_content_type: application/zip
+          files: |
+            invoiceninja.zip
