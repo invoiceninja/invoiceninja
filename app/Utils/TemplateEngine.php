@@ -6,7 +6,7 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://opensource.org/licenses/AAL
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Utils;
@@ -194,6 +194,7 @@ class TemplateEngine
         $data['title'] = '';
         $data['body'] = '$body';
         $data['footer'] = '';
+        $data['logo'] = auth()->user()->company()->present()->logo();
 
         $data = array_merge($data, Helpers::sharedEmailVariables($this->entity_obj->client));
 
@@ -211,8 +212,14 @@ class TemplateEngine
             } else {
                 $wrapper = '';
             }
-        } else {
+        } 
+        elseif ($email_style == 'plain') {
             $wrapper = view($this->getTemplatePath($email_style), $data)->render();
+            $injection = '';
+            $wrapper = str_replace('<head>', $injection, $wrapper);
+        }
+        else {
+            $wrapper = view($this->getTemplatePath('client'), $data)->render();
             $injection = '';
             $wrapper = str_replace('<head>', $injection, $wrapper);
         }

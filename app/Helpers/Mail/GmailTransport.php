@@ -6,7 +6,7 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://opensource.org/licenses/AAL
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Helpers\Mail;
@@ -45,6 +45,8 @@ class GmailTransport extends Transport
         /* For some reason the Injected Mail class carries cached tokens, so we need to reinit the Mail class*/
         $this->gmail = null;
         $this->gmail = new Mail;
+
+        nlog($message->getBcc());
 
         /*We should nest the token in the message and then discard it as needed*/
         $token = $message->getHeaders()->get('GmailToken')->getValue();

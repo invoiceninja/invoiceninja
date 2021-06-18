@@ -6,7 +6,7 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://opensource.org/licenses/AAL
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Mail;
@@ -17,18 +17,11 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-// class BouncedEmail extends Mailable implements ShouldQueue
 class BouncedEmail extends Mailable 
 {
-    //use Queueable, SerializesModels;
 
     public $invitation;
 
-    /**
-     * Create a new message instance.
-     *
-     * @param $invitation
-     */
     public function __construct($invitation)
     {
         $this->invitation = $invitation;
@@ -51,4 +44,5 @@ class BouncedEmail extends Mailable
                 ->subject($subject);
 
     }
+    
 }

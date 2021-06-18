@@ -1,12 +1,22 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 
 namespace App\Providers;
 
 use App\Helpers\Mail\GmailTransportManager;
+use App\Utils\CssInlinerPlugin;
 use Coconuts\Mail\PostmarkTransport;
+use GuzzleHttp\Client as HttpClient;
 use Illuminate\Mail\MailServiceProvider as MailProvider;
 use Illuminate\Mail\TransportManager;
-use GuzzleHttp\Client as HttpClient;
 
 class MailServiceProvider extends MailProvider
 {
@@ -18,30 +28,29 @@ class MailServiceProvider extends MailProvider
 
     public function boot()
     {
-
+        app('mail.manager')->getSwiftMailer()->registerPlugin($this->app->make(CssInlinerPlugin::class));
     }
 
     protected function registerIlluminateMailer()
     {
+
         $this->app->singleton('mail.manager', function($app) {
             return new GmailTransportManager($app);
         });
 
-        // $this->app->bind('mail.manager', function($app) {
-        //     return  new GmailTransportManager($app);
-        // });
-        
         $this->app->bind('mailer', function ($app) {
             return $app->make('mail.manager')->mailer();
         });
 
-        $this->app['mail.manager']->extend('postmark', function () {
+        $this->app['mail.manager']->extend('cocopostmark', function () {
+
             return new PostmarkTransport(
                 $this->guzzle(config('postmark.guzzle', [])),
                 config('postmark.secret')
             );
+
         });
-        
+
     }
     
     protected function guzzle(array $config): HttpClient
@@ -57,6 +66,7 @@ class MailServiceProvider extends MailProvider
     {
         return [
             'mail.manager',
-            'mailer'        ];
+            'mailer'        
+        ];
     }
 }

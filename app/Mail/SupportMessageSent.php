@@ -62,10 +62,11 @@ class SupportMessageSent extends Mailable
         return $this->from(config('mail.from.address'), config('mail.from.name')) 
                 ->replyTo($user->email, $user->present()->name())
                 ->subject($subject)
-                ->markdown('email.support.message', [
+                ->view('email.support.message', [
                     'message' => $this->message,
                     'system_info' => $system_info,
                     'laravel_log' => $log_lines,
+                    'logo' => $company->present()->logo(),
                 ]);
     }
 }

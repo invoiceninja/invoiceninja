@@ -4254,8 +4254,19 @@ $LANG = array(
     'account_passwordless_login' => 'Account passwordless login',
     'user_duplicate_error' => 'Cannot add the same user to the same company',
     'user_cross_linked_error' => 'User exists but cannot be crossed linked to multiple accounts',
+    'ach_verification_notification_label' => 'ACH verification',
+    'ach_verification_notification' => 'Connecting bank accounts require verification. Stripe will automatically sends two small deposits for this purpose. These deposits take 1-2 business days to appear on the customer\'s online statement.',
+    'login_link_requested_label' => 'Login link requested',
+    'login_link_requested' => 'There was a request to login using link. If you did not request this, it\'s safe to ignore it.',
+    'invoices_backup_subject' => 'Your invoices are ready for download',
+    'migration_failed_label' => 'Migration failed',
+    'migration_failed' => 'Looks like something went wrong with the migration for the following company:',
+    'client_email_company_contact_label' => 'If you have any questions please contact us, we\'re here to help!',
+    'quote_was_approved_label' => 'Quote was approved',
+    'quote_was_approved' => 'We would like to inform you that quote was approved.',
     'company_import_failure_subject' => 'Error importing :company',
     'company_import_failure_body' => 'There was an error importing the company data, the error message was:',
+    'recurring_invoice_due_date' => 'Due Date',
 );
 
 return $LANG;

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -6,11 +7,12 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://opensource.org/licenses/AAL
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Mail\Import;
 
+use App\Models\Company;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -19,6 +21,9 @@ class ImportCompleted extends Mailable
 {
     // use Queueable, SerializesModels;
 
+    /** @var Company */
+    public $company;
+
     /**
      * Create a new message instance.
      *
@@ -26,8 +31,10 @@ class ImportCompleted extends Mailable
      */
     public $data;
 
-    public function __construct($data)
+    public function __construct(Company $company, $data)
     {
+        $this->company = $company;
+
         $this->data = $data;
     }
 
@@ -38,7 +45,14 @@ class ImportCompleted extends Mailable
      */
     public function build()
     {
-        return $this->from(config('mail.from.address'), config('mail.from.name'))
-                    ->view('email.import.completed', $this->data);
+        $data = array_merge($this->data, [
+            'logo' => $this->company->present()->logo(),
+            'settings' => $this->company->settings,
+            'company' => $this->company,
+        ]);
+
+        return $this
+            ->from(config('mail.from.address'), config('mail.from.name'))
+            ->view('email.import.completed', $data);
     }
 }

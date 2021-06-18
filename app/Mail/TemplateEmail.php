@@ -6,7 +6,7 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://opensource.org/licenses/AAL
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Mail;
@@ -49,7 +49,8 @@ class TemplateEmail extends Mailable
 
     public function build()
     {
-        $template_name = 'email.template.'.$this->build_email->getTemplate();
+        // $template_name = 'email.template.'.$this->build_email->getTemplate();
+        $template_name = 'email.template.client';
 
         if($this->build_email->getTemplate() == 'custom') {
             $this->build_email->setBody(str_replace('$body', $this->build_email->getBody(), $this->client->getSetting('email_style_custom')));
@@ -80,7 +81,7 @@ class TemplateEmail extends Mailable
         $this->from(config('mail.from.address'), $this->company->present()->name());
 
         if (strlen($settings->bcc_email) > 1)
-            $this->bcc($settings->bcc_email, $settings->bcc_email);
+            $this->bcc(explode(",",$settings->bcc_email));
 
         $this->subject($this->build_email->getSubject())
             ->text('email.template.plain', [
@@ -100,14 +101,12 @@ class TemplateEmail extends Mailable
                 'settings' => $settings,
                 'company' => $company,
                 'whitelabel' => $this->client->user->account->isPaid() ? true : false,
+                'logo' => $this->company->present()->logo(),
             ])
             ->withSwiftMessage(function ($message) use($company){
                 $message->getHeaders()->addTextHeader('Tag', $company->company_key);
                 $message->invitation = $this->invitation;
             });
-
-        //conditionally attach files
-        // if ($settings->pdf_email_attachment !== false && ! empty($this->build_email->getAttachments())) {
 
             //hosted | plan check here
             foreach ($this->build_email->getAttachments() as $file) {
@@ -118,7 +117,6 @@ class TemplateEmail extends Mailable
                     $this->attach($file['path'], ['as' => $file['name'], 'mime' => $file['mime']]);
 
             }
-        // }
 
         return $this;
     }

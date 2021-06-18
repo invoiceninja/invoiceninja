@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -6,7 +7,7 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://opensource.org/licenses/AAL
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Mail\User;
@@ -35,10 +36,10 @@ class UserNotificationMailer extends Mailable
     public function build()
     {
         return $this->from(config('mail.from.address'), config('mail.from.name'))
-                    ->subject($this->mail_obj->subject)
-                    ->markdown($this->mail_obj->markdown, $this->mail_obj->data)
-                    ->withSwiftMessage(function ($message) {
-                        $message->getHeaders()->addTextHeader('Tag', $this->mail_obj->tag);
-                    });
+            ->subject($this->mail_obj->subject)
+            ->view($this->mail_obj->markdown, $this->mail_obj->data)
+            ->withSwiftMessage(function ($message) {
+                $message->getHeaders()->addTextHeader('Tag', $this->mail_obj->tag);
+            });
     }
 }

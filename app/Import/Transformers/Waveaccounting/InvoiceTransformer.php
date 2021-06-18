@@ -6,7 +6,7 @@
  *
  * @copyright Copyright (c) 2021. client Ninja LLC (https://clientninja.com)
  *
- * @license https://opensource.org/licenses/AAL
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Import\Transformers\Waveaccounting;
