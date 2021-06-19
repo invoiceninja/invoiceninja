@@ -10,13 +10,13 @@
     <form action="{{ route('client.payments.response') }}" method="post" id="server-response">
         @csrf
         <input type="hidden" name="gateway_response">
-        <input type="hidden" name="store_card">
+        <input type="hidden" name="store_card" id="store_card">
         <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
 
         <input type="hidden" name="company_gateway_id" value="{{ $gateway->getCompanyGatewayId() }}">
         <input type="hidden" name="payment_method_id" value="1">
 
-        <input type="hidden" name="token">
+        <input type="hidden" name="token" id="token" value="">
     </form>
 
     <div class="alert alert-failure mb-4" hidden id="errors"></div>
@@ -114,14 +114,6 @@
     }
     /* handle the switch between token and cc */
 
-    /* Attach store card value to form */
-    let storeCard = document.querySelector('input[name=token-billing-checkbox]:checked');
-
-    if (storeCard) {
-        document.getElementById("store_card").value = storeCard.value;
-    }
-    /* Attach store card value to form */
-
     /* Pay Now Button */
     let payNowButton = document.getElementById('pay-now');
 
@@ -130,8 +122,16 @@
             .addEventListener('click', (e) => {
                 let token = document.getElementById('token').value;
 
+                /* Attach store card value to form */
+                let storeCard = document.querySelector('input[name=token-billing-checkbox]:checked');
+
+                if (storeCard) {
+                    document.getElementById("store_card").value = storeCard.value;
+                }
+                /* Attach store card value to form */
+
                 if(token){
-                    handleTokenPayment($token)
+                    handleTokenPayment(token)
                 }
                 else{
                     handleCardPayment();
@@ -144,11 +144,11 @@
 
 
 
-    function handleTokenPayment($token)
+    function handleTokenPayment(token)
     {
 
-        document.querySelector('input[name="credit_card_id"]').value = token;                      
-        document.getElementById('server_response').submit();
+        document.querySelector('input[name="token"]').value = token;                      
+        document.getElementById('server-response').submit();
 
     }
 
@@ -230,8 +230,8 @@
 
                 var token = data.credit_card_id;
 
-                document.querySelector('input[name="credit_card_id"]').value = token;                      
-                document.getElementById('server_response').submit();
+                document.querySelector('input[name="token"]').value = token;                      
+                document.getElementById('server-response').submit();
 
             }
         });

@@ -13,6 +13,7 @@
 namespace App\PaymentDrivers\WePay;
 
 use App\Exceptions\PaymentFailed;
+use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Models\GatewayType;
 use App\PaymentDrivers\WePayPaymentDriver;
 
@@ -98,24 +99,79 @@ class CreditCard
 
     public function paymentResponse(PaymentResponseRequest $request)
     {
-
-nlog($request->all());
-        // // charge the credit card
-        // $response = $wepay->request('checkout/create', array(
-        //     'account_id'          => $account_id,
-        //     'amount'              => '25.50',
-        //     'currency'            => 'USD',
-        //     'short_description'   => 'A vacation home rental',
-        //     'type'                => 'goods',
-        //     'payment_method'      => array(
-        //         'type'            => 'credit_card',
-        //         'credit_card'     => array(
-        //             'id'          => $credit_card_id
-        //         )
-        //     )
-        // ));
+        // USD, CAD, and GBP.
+        nlog($request->all());
+        // charge the credit card
+        $response = $this->wepay_payment_driver->wepay->request('checkout/create', array(
+            'account_id'          => $this->wepay_payment_driver->company_gateway->getConfigField('accountId'),
+            'amount'              => $this->wepay_payment_driver->payment_hash->data->amount_with_fee,
+            'currency'            => $this->wepay_payment_driver->client->getCurrencyCode(),
+            'short_description'   => 'A vacation home rental',
+            'type'                => 'goods',
+            'payment_method'      => array(
+                'type'            => 'credit_card',
+                'credit_card'     => array(
+                    'id'          => $data['token']
+                )
+            )
+        ));
 
     }
+
+/*
+https://developer.wepay.com/api/api-calls/checkout
+{
+    "checkout_id": 649945633,
+    "account_id": 1548718026,
+    "type": "donation",
+    "short_description": "test checkout",
+    "currency": "USD",
+    "amount": 20,
+    "state": "authorized",
+    "soft_descriptor": "WPY*Wolverine",
+    "auto_release": true,
+    "create_time": 1463589958,
+    "gross": 20.88,
+    "reference_id": null,
+    "callback_uri": null,
+    "long_description": null,
+    "delivery_type": null,
+    "initiated_by": "merchant",
+    "in_review": false,
+    "fee": {
+        "app_fee": 0,
+        "processing_fee": 0.88,
+        "fee_payer": "payer"
+    },
+    "chargeback": {
+        "amount_charged_back": 0,
+        "dispute_uri": null
+    },
+    "refund": {
+        "amount_refunded": 0,
+        "refund_reason": null
+    },
+    "payment_method": {
+        "type": "credit_card",
+        "credit_card": {
+            "id": 1684847614,
+            "data": {
+                "emv_receipt": null,
+                "signature_url": null
+            },
+            "auto_release": false
+        }
+    },
+    "hosted_checkout": null,
+    "payer": {
+        "email": "test@example.com",
+        "name": "Mr Smith",
+        "home_address": null
+    },
+    "npo_information": null,
+    "payment_error": null
+}
+ */
 
     private function storePaymentMethod($response, $payment_method_id)
     {
