@@ -37,7 +37,7 @@ class UpdateInvoicePayment
     {
         $paid_invoices = $this->payment_hash->invoices();
 
-        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($paid_invoices, 'invoice_id')))->get();
+        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($paid_invoices, 'invoice_id')))->withTrashed()->get();
 
         collect($paid_invoices)->each(function ($paid_invoice) use ($invoices) {
 

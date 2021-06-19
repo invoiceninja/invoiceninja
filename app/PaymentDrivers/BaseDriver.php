@@ -188,7 +188,7 @@ class BaseDriver extends AbstractPaymentDriver
     public function attachInvoices(Payment $payment, PaymentHash $payment_hash): Payment
     {
         $paid_invoices = $payment_hash->invoices();
-        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($paid_invoices, 'invoice_id')))->get();
+        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($paid_invoices, 'invoice_id')))->withTrashed()->get();
         $payment->invoices()->sync($invoices);
 
         $invoices->each(function ($invoice) use ($payment) {

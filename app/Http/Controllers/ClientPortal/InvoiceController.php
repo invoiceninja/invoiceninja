@@ -89,6 +89,7 @@ class InvoiceController extends Controller
     {
         $invoices = Invoice::whereIn('id', $ids)
                             ->whereClientId(auth()->user()->client->id)
+                            ->withTrashed()
                             ->get();
 
         //filter invoices which are payable
