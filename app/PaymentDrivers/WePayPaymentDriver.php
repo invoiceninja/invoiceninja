@@ -11,6 +11,7 @@
 
 namespace App\PaymentDrivers;
 
+use App\Http\Requests\Payments\PaymentWebhookRequest;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
@@ -120,9 +121,6 @@ class WePayPaymentDriver extends BaseDriver
         $client = $data['client'];
         $contact = $client->primary_contact()->first() ? $client->primary_contact()->first() : $lient->contacts->first();
         $data['contact'] = $contact;
-        // $data['contact'] = $this->company_gateway
-        // $data['public_client_id'] = $this->authorize->init()->getPublicClientKey();
-        // $data['api_login_id'] = $this->authorize->company_gateway->getConfigField('apiLoginId');
 
         return $this->payment_method->authorizeView($data); //this is your custom implementation from here
     }
@@ -168,6 +166,99 @@ class WePayPaymentDriver extends BaseDriver
         return $this->payment_method->yourTokenBillingImplmentation(); //this is your custom implementation from here
     }
 
+    public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment = null)
+    {
+        $this->init();
+
+        $input = $request->all();
+
+        $accountId = $this->company_gateway->getConfigField('accountId');
+
+        foreach (array_keys($input) as $key) {
+            if ('_id' == substr($key, -3)) {
+                $objectType = substr($key, 0, -3);
+                $objectId = $input[$key];
+                break;
+            }
+        }
+
+        if (! isset($objectType)) {
+            throw new Exception('Could not find object id parameter');
+        }
+
+        if ($objectType == 'credit_card') {
+            $payment_method = ClientGatewayToken::where('token', $objectId)->first();
+
+            if (! $paymentMethod) 
+                throw new \Exception('Unknown payment method');
+
+            $source = $this->wepay->request('credit_card', array(
+                'client_id'          => config('ninja.wepay.client_id'),
+                'client_secret'      => config('ninja.wepay.client_secret'),
+                'credit_card_id'     => (int)$objectId,
+            ));
+
+            if ($source->state == 'deleted') {
+                $payment_method->delete();
+            } else {
+                //$this->paymentService->convertPaymentMethodFromWePay($source, null, $paymentMethod)->save();
+            }
+
+            return 'Processed successfully';
+        } elseif ($objectType == 'account') {
+            if ($accountId != $objectId) {
+                throw new \Exception('Unknown account');
+            }
+
+            $wepayAccount = $this->wepay->request('account', array(
+                'account_id'     => (int)$objectId,
+            ));
+
+            if ($wepayAccount->state == 'deleted') {
+                $this->company_gateway->delete();
+            } else {
+                $config->state = $wepayAccount->state;
+                $this->company_gateway->setConfig($config);
+                $this->company_gateway->save();
+            }
+
+            return ['message' => 'Processed successfully'];
+        } elseif ($objectType == 'checkout') {
+            $payment = Payment::where('company_id', $this->company_gateway->company_id)
+                              ->where('transaction_reference', '=', $objectId)
+                              ->first();
+
+            if (! $payment) {
+                throw new Exception('Unknown payment');
+            }
+
+            if ($payment->is_deleted) {
+                throw new \Exception('Payment is deleted');
+            }
+
+            $checkout = $this->wepay->request('checkout', array(
+                'checkout_id' => intval($objectId),
+            ));
+
+            if ($checkout->state == 'captured') {
+                $payment->status_id = Payment::STATUS_COMPLETED;
+                $payment->save();
+            } elseif ($checkout->state == 'cancelled') {
+                $payment->service()->deletePayment()->save();
+            } elseif ($checkout->state == 'failed') {                
+                $payment->status_id = Payment::STATUS_FAILED;
+                $payment->save();
+            }
+
+            return 'Processed successfully';
+        } else {
+            return 'Ignoring event';
+        }
+
+
+
+        return true;
+    }
 
 
 
