@@ -84,9 +84,82 @@
     };
 
     let errors = document.getElementById('errors');
+        
+    /* handle the switch between token and cc */
+    Array
+        .from(document.getElementsByClassName('toggle-payment-with-token'))
+        .forEach((element) => element.addEventListener('click', (e) => {
+            document
+                .getElementById('save-card--container').style.display = 'none';
+            document
+                .getElementById('wepay--credit-card-container').style.display = 'none';
+
+            document
+                .getElementById('token').value = e.target.dataset.token;
+        }));
+
+    let payWithCreditCardToggle = document.getElementById('toggle-payment-with-credit-card');
+
+    if (payWithCreditCardToggle) {
+        payWithCreditCardToggle
+            .addEventListener('click', () => {
+                document
+                    .getElementById('save-card--container').style.display = 'grid';
+                document
+                    .getElementById('wepay--credit-card-container').style.display = 'flex';
+
+                document
+                    .getElementById('token').value = null;
+            });
+    }
+    /* handle the switch between token and cc */
+
+    /* Attach store card value to form */
+    let storeCard = document.querySelector('input[name=token-billing-checkbox]:checked');
+
+    if (storeCard) {
+        document.getElementById("store_card").value = storeCard.value;
+    }
+    /* Attach store card value to form */
+
+    /* Pay Now Button */
+    let payNowButton = document.getElementById('pay-now');
+
+    if (payNowButton) {
+        payNowButton
+            .addEventListener('click', (e) => {
+                let token = document.getElementById('token').value;
+
+                if(token){
+                    handleTokenPayment($token)
+                }
+                else{
+                    handleCardPayment();
+                }
+            });
+                
+    }
+    /* Pay Now Button */
+
+
+
+
+    function handleTokenPayment($token)
+    {
+
+        document.querySelector('input[name="credit_card_id"]').value = token;                      
+        document.getElementById('server_response').submit();
+
+    }
+
+
+
+
+
+
 
     // Attach the event to the DOM
-    addEvent(document.getElementById('card_button'), 'click', function() {
+    function handleCardPayment(){
 
         var myCard = $('#my-card');
 
@@ -162,7 +235,7 @@
 
             }
         });
-    });
+    }
 
 })();
 </script>
