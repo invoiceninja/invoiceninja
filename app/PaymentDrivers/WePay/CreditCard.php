@@ -99,7 +99,7 @@ class CreditCard
     public function paymentResponse(PaymentResponseRequest $request)
     {
 
-
+nlog($request->all());
         // // charge the credit card
         // $response = $wepay->request('checkout/create', array(
         //     'account_id'          => $account_id,
