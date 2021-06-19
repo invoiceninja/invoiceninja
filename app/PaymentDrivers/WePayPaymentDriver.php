@@ -65,8 +65,8 @@ class WePayPaymentDriver extends BaseDriver
 
         if ($this->company_gateway) 
             $this->wepay = new WePay($this->company_gateway->getConfigField('accessToken'));
-
-        $this->wepay = new WePay(null);
+        else
+            $this->wepay = new WePay(null);
         
         return $this;
         
@@ -148,11 +148,15 @@ class WePayPaymentDriver extends BaseDriver
 
     public function processPaymentView(array $data)
     {
+        $this->init();
+
         return $this->payment_method->paymentView($data);  //this is your custom implementation from here
     }
 
     public function processPaymentResponse($request)
     {
+        $this->init();
+
         return $this->payment_method->paymentResponse($request); //this is your custom implementation from here
     }
 

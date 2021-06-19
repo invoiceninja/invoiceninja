@@ -99,9 +99,40 @@ class CreditCard
 
     public function paymentResponse(PaymentResponseRequest $request)
     {
+        nlog("payment response");
+        $this->wepay_payment_driver->init();
+
+        //it could be an existing token or a new credit_card_id that needs to be converted into a wepay token
+        if($request->has('credit_card_id') && $request->input('credit_card_id'))
+        {
+            nlog("authorize the card first!");
+
+            $response = $this->wepay_payment_driver->wepay->request('credit_card/authorize', array(
+                'client_id'          => config('ninja.wepay.client_id'),
+                'client_secret'      => config('ninja.wepay.client_secret'),
+                'credit_card_id'     => (int)$request->input('credit_card_id'),
+            ));
+
+            $credit_card_id = (int)$response->credit_card_id;
+
+            if(in_array($response->state, ['new', 'authorized']) && boolval($request->input('store_card'))){
+
+                $this->storePaymentMethod($response, GatewayType::CREDIT_CARD);
+
+            }
+
+        }
+        else {
+
+            $credit_card_id = (int)$request->input('token');
+
+        }
+
         // USD, CAD, and GBP.
         nlog($request->all());
         // charge the credit card
+        nlog($this->wepay_payment_driver->wepay);
+        
         $response = $this->wepay_payment_driver->wepay->request('checkout/create', array(
             'account_id'          => $this->wepay_payment_driver->company_gateway->getConfigField('accountId'),
             'amount'              => $this->wepay_payment_driver->payment_hash->data->amount_with_fee,
@@ -111,12 +142,36 @@ class CreditCard
             'payment_method'      => array(
                 'type'            => 'credit_card',
                 'credit_card'     => array(
-                    'id'          => $data['token']
+                    'id'          => $credit_card_id
                 )
             )
         ));
 
+        print_r($response);
+
+        if(in_array($response->state, ['authorized', 'captured'])){
+            //success
+            nlog("success");
+        }
+
+        if(in_array($response->state, ['released', 'cancelled', 'failed', 'expired'])){
+            //some type of failure
+            nlog("failure");
+        }
+
     }
+
+/*
+new The checkout was created by the application. This state typically indicates that checkouts created in WePay's hosted checkout flow are waiting for the payer to submit their information. 
+authorized  The payer entered their payment info and confirmed the payment on WePay. WePay has successfully charged the card.
+captured    The payment has been reserved from the payer.
+released    The payment has been credited to the payee account. Note that the released state may be active although there are active partial refunds or partial chargebacks.
+cancelled   The payment has been cancelled by the payer, payee, or application.
+refunded    The payment was captured and then refunded by the payer, payee, or application. The payment has been debited from the payee account.
+charged back    The payment has been charged back by the payer and the payment has been debited from the payee account.
+failed  The payment has failed.
+expired Checkouts expire if they remain in the new state for more than 30 minutes (e.g., they have been abandoned).
+ */
 
 /*
 https://developer.wepay.com/api/api-calls/checkout

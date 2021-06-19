@@ -17,6 +17,7 @@
         <input type="hidden" name="payment_method_id" value="1">
 
         <input type="hidden" name="token" id="token" value="">
+        <input type="hidden" name="credit_card_id" id="credit_card_id" value="">
     </form>
 
     <div class="alert alert-failure mb-4" hidden id="errors"></div>
@@ -147,6 +148,7 @@
     function handleTokenPayment(token)
     {
 
+        document.querySelector('input[name="credit_card_id"]').value = null;                      
         document.querySelector('input[name="token"]').value = token;                      
         document.getElementById('server-response').submit();
 
@@ -230,6 +232,7 @@
 
                 var token = data.credit_card_id;
 
+                document.querySelector('input[name="credit_card_id"]').value = null;                      
                 document.querySelector('input[name="token"]').value = token;                      
                 document.getElementById('server-response').submit();
 
