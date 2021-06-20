@@ -1173,10 +1173,14 @@ class Import implements ShouldQueue
 
                 if($try_quote && array_key_exists('quotes', $this->ids) ) {
                     
-                    $quote_id = $this->transformId('quotes', $resource['invoice_id']);
-                    $entity = Quote::where('id', $quote_id)->withTrashed()->first();
-                    $exception = $e;
-
+                    try{
+                        $quote_id = $this->transformId('quotes', $resource['invoice_id']);
+                        $entity = Quote::where('id', $quote_id)->withTrashed()->first();
+                    }
+                    catch(\Exception $e){
+                        nlog("i couldn't find the quote document {$resource['invoice_id']}, perhaps it is a quote?");
+                        nlog($e->getMessage());
+                    }
                 }
                 
                 if(!$entity)
