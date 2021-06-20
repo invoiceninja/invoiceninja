@@ -72,7 +72,7 @@
                     </div>
 
                     @if($country == 'CA')
-                        <div class="col-span-6 sm:col-span-4">
+                        <div class="col-span-6 sm:col-span-4 {{ $country != 'CA' ? 'hidden' : 'block' }}">
                             <label for="country" class="input-label">@lang('texts.debit_cards')</label>
 
                             <div class="checkbox">
@@ -82,15 +82,16 @@
                         </div>
                     @endif
 
-                    <!--
-                    <div class="col-span-6 sm:col-span-4">
+                    
+                    @if($country == 'US')
+                    <div class="col-span-6 sm:col-span-4 {{ $country != 'US' ? 'hidden' : 'block' }}">
                         <label for="country" class="input-label">@lang('texts.ach')</label>
                         <div class="checkbox">
                             <input class="form-checkbox cursor-pointer mr-2" type="checkbox" name="ach" value="1" wire:model="ach">
                             <span>{{ ctrans('texts.enable_ach')}}</span>
                         </div>
                     </div>
-                    -->
+                    @endif
 
                     <div class="col-span-6 sm:col-span-4">
                         <label for="country" class="input-label"></label>
@@ -281,5 +282,4 @@
             </div>
         </div>
     </form>
-
 </div>

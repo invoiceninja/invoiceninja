@@ -161,6 +161,17 @@ class BaseDriver extends AbstractPaymentDriver
     }
 
     /**
+     * Detaches a payment method from the gateway
+     * 
+     * @param  ClientGatewayToken $token The gateway token
+     * @return bool                      boolean response
+     */
+    public function detach(ClientGatewayToken $token)
+    {
+        return true;
+    }
+
+    /**
      * Set the inbound request payment method type for access.
      *
      * @param int $payment_method_id The Payment Method ID
