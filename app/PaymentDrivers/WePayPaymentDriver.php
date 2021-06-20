@@ -265,6 +265,27 @@ class WePayPaymentDriver extends BaseDriver
     }
 
 
+    public function detach(ClientGatewayToken $token)
+    {
+        /*Bank accounts cannot be deleted - only CC*/
+        if($token->gateway_type_id == 2)
+            return true;
+
+        $this->init();
+
+        $response = $this->wepay->request('/credit_card/delete', [
+            'client_id'          => config('ninja.wepay.client_id'),
+            'client_secret'      => config('ninja.wepay.client_secret'),
+            'credit_card_id'     => intval($token->token),
+        ]);
+
+        if ($response->state == 'deleted') {
+            return true;
+        } else {
+            throw new \Exception(trans('texts.failed_remove_payment_method'));
+        }
+    }
+
 
     public function getClientRequiredFields(): array
     {

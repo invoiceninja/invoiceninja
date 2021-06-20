@@ -198,6 +198,7 @@ class ACH
             return redirect()->route('client.payment_methods.verification', ['payment_method' => $token->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
 
         $response = $this->wepay_payment_driver->wepay->request('checkout/create', array(
+            'callback_uri'        => route('payment_webhook', ['company_key' => $this->wepay_payment_driver->company_gateway->company->company_key, 'company_gateway_id' => $this->wepay_payment_driver->company_gateway->hashed_id]),
             'unique_id'           => Str::random(40),
             'account_id'          => $this->wepay_payment_driver->company_gateway->getConfigField('accountId'),
             'amount'              => $this->wepay_payment_driver->payment_hash->data->amount_with_fee,

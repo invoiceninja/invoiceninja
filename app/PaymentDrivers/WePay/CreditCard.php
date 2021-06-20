@@ -117,6 +117,7 @@ use WePayCommon;
             nlog("authorize the card first!");
 
             $response = $this->wepay_payment_driver->wepay->request('credit_card/authorize', array(
+                'callback_uri'        => route('payment_webhook', ['company_key' => $this->wepay_payment_driver->company_gateway->company->company_key, 'company_gateway_id' => $this->wepay_payment_driver->company_gateway->hashed_id]),
                 'client_id'          => config('ninja.wepay.client_id'),
                 'client_secret'      => config('ninja.wepay.client_secret'),
                 'credit_card_id'     => (int)$request->input('credit_card_id'),
@@ -141,6 +142,7 @@ use WePayCommon;
         nlog($request->all());
         // charge the credit card
         $response = $this->wepay_payment_driver->wepay->request('checkout/create', array(
+            'callback_uri'        => route('payment_webhook', ['company_key' => $this->wepay_payment_driver->company_gateway->company->company_key, 'company_gateway_id' => $this->wepay_payment_driver->company_gateway->hashed_id]),
             'unique_id'           => Str::random(40),
             'account_id'          => $this->wepay_payment_driver->company_gateway->getConfigField('accountId'),
             'amount'              => $this->wepay_payment_driver->payment_hash->data->amount_with_fee,
