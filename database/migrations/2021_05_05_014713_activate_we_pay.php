@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Gateway;
+use App\Utils\Ninja;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -14,7 +15,7 @@ class ActivateWePay extends Migration
      */
     public function up()
     {
-        if(Gateway::count() >=1)
+        if(Gateway::count() >=1 && Ninja::isHosted())
             Gateway::whereIn('id', [49])->update(['visible' => true]);
     }
 
