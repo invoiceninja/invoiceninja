@@ -160,11 +160,6 @@ class WePayPaymentDriver extends BaseDriver
         return $this->payment_method->paymentResponse($request); //this is your custom implementation from here
     }
 
-    public function refund(Payment $payment, $amount, $return_client_response = false)
-    {
-        return $this->payment_method->yourRefundImplementationHere(); //this is your custom implementation from here
-    }
-
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
         return $this->payment_method->yourTokenBillingImplmentation(); //this is your custom implementation from here
@@ -264,6 +259,27 @@ class WePayPaymentDriver extends BaseDriver
         return true;
     }
 
+    public function refund(Payment $payment, $amount, $return_client_response = false)
+    {
+        
+        $this->init();
+
+        $response = $this->wepay->request('checkout/refund', array(
+            'checkout_id'   => $payment->transaction_reference,
+            'refund_reason' => 'Refund',
+            'amount'        => $amount
+        ));
+
+
+            return [
+                        'transaction_reference' => $response->checkout_id,
+                        'transaction_response' => json_encode($response),
+                        'success' => $response->state == 'refunded' ? true : false,
+                        'description' => 'refund',
+                        'code' => 0,
+                    ];
+        
+    }
 
     public function detach(ClientGatewayToken $token)
     {
