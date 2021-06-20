@@ -121,6 +121,13 @@
     if (payNowButton) {
         payNowButton
             .addEventListener('click', (e) => {
+
+                payNowButton.disabled = true;
+
+                payNowButton.querySelector('svg').classList.remove('hidden');
+                payNowButton.querySelector('span').classList.add('hidden');
+
+
                 let token = document.getElementById('token').value;
 
                 /* Attach store card value to form */
@@ -164,6 +171,7 @@
     function handleCardPayment(){
 
         var myCard = $('#my-card');
+        let payNowButton = document.getElementById('pay-now');
 
         if(document.getElementById('cardholder_name') == "") {
             document.getElementById('cardholder_name').focus();
@@ -196,11 +204,7 @@
             return;
         }
  
-        cardButton = document.getElementById('card_button');
-        cardButton.disabled = true;
 
-        cardButton.querySelector('svg').classList.remove('hidden');
-        cardButton.querySelector('span').classList.add('hidden');
 
         var userName = [valueById('cardholder_name')].join(' ');
             response = WePay.credit_card.create({
@@ -219,10 +223,10 @@
             if (data.error) {
                 //console.log(data);
                 // handle error response error_description
-                cardButton = document.getElementById('card_button');
-                cardButton.disabled = false;
-                cardButton.querySelector('svg').classList.add('hidden');
-                cardButton.querySelector('span').classList.remove('hidden'); 
+
+                payNowButton.disabled = false;
+                payNowButton.querySelector('svg').classList.add('hidden');
+                payNowButton.querySelector('span').classList.remove('hidden'); 
                 
                 errors.textContent = '';
                 errors.textContent = data.error_description;

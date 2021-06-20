@@ -164,7 +164,7 @@ class CreditCard
         if(in_array($response->state, ['authorized', 'captured'])){
             //success
             nlog("success");
-            $payment_status = ($response->status == 'authorized') ? Payment::STATUS_COMPLETED : Payment:STATUS_PENDING;
+            $payment_status = $response->status == 'authorized' ? Payment::STATUS_COMPLETED : Payment::STATUS_PENDING;
 
             $this->processSuccessfulPayment($response, $payment_status);
         }
@@ -173,7 +173,7 @@ class CreditCard
             //some type of failure
             nlog("failure");
 
-            $payment_status = ($response->status == 'cancelled') ? Payment::STATUS_CANCELLED : Payment:STATUS_FAILED;
+            $payment_status = $response->status == 'cancelled' ? Payment::STATUS_CANCELLED : Payment::STATUS_FAILED;
 
             $this->processUnSuccessfulPayment($response, $payment_status);
         }
