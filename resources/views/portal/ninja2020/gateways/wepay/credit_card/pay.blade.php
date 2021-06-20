@@ -236,8 +236,8 @@
 
                 var token = data.credit_card_id;
 
-                document.querySelector('input[name="credit_card_id"]').value = null;                      
-                document.querySelector('input[name="token"]').value = token;                      
+                document.querySelector('input[name="credit_card_id"]').value = token;                      
+                document.querySelector('input[name="token"]').value = null;                      
                 document.getElementById('server-response').submit();
 
             }

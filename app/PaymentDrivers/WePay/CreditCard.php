@@ -120,6 +120,9 @@ class CreditCard
 
             $credit_card_id = (int)$response->credit_card_id;
 
+nlog($response->state);
+nlog(boolval($request->input('store_card')));
+
             if(in_array($response->state, ['new', 'authorized']) && boolval($request->input('store_card'))){
 
                 $this->storePaymentMethod($response, GatewayType::CREDIT_CARD);
@@ -164,16 +167,16 @@ class CreditCard
         if(in_array($response->state, ['authorized', 'captured'])){
             //success
             nlog("success");
-            $payment_status = $response->status == 'authorized' ? Payment::STATUS_COMPLETED : Payment::STATUS_PENDING;
+            $payment_status = $response->state == 'authorized' ? Payment::STATUS_COMPLETED : Payment::STATUS_PENDING;
 
-            $this->processSuccessfulPayment($response, $payment_status);
+            return $this->processSuccessfulPayment($response, $payment_status);
         }
 
         if(in_array($response->state, ['released', 'cancelled', 'failed', 'expired'])){
             //some type of failure
             nlog("failure");
 
-            $payment_status = $response->status == 'cancelled' ? Payment::STATUS_CANCELLED : Payment::STATUS_FAILED;
+            $payment_status = $response->state == 'cancelled' ? Payment::STATUS_CANCELLED : Payment::STATUS_FAILED;
 
             $this->processUnSuccessfulPayment($response, $payment_status);
         }
@@ -252,7 +255,7 @@ https://developer.wepay.com/api/api-calls/checkout
 
         $data = [
             'payment_type' => PaymentType::CREDIT_CARD_OTHER,
-            'amount' => $response->gross,
+            'amount' => $response->amount,
             'transaction_reference' => $response->checkout_id,
             'gateway_type_id' => GatewayType::CREDIT_CARD,
         ];
@@ -301,7 +304,7 @@ https://developer.wepay.com/api/api-calls/checkout
 
     private function storePaymentMethod($response, $payment_method_id)
     {
-
+nlog("storing card");
         $payment_meta = new \stdClass;
         $payment_meta->exp_month = (string) $response->expiration_month;
         $payment_meta->exp_year = (string) $response->expiration_year;
