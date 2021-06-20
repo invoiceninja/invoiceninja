@@ -90,6 +90,7 @@ class PaymentRepository extends BaseRepository {
                     $client->service()->updatePaidToDate($_credit_totals)->save();
                 }
             }
+
         }
 
         /*Fill the payment*/
@@ -184,6 +185,10 @@ class PaymentRepository extends BaseRepository {
      */
     private function processExchangeRates($data, $payment)
     {
+
+        if(array_key_exists('exchange_rate', $data) && isset($data['exchange_rate']))
+            return $payment;
+
         $client = Client::find($data['client_id']);
 
         $client_currency = $client->getSetting('currency_id');
