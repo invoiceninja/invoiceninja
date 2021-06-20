@@ -21,9 +21,13 @@ use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\WePayPaymentDriver;
+use App\PaymentDrivers\WePay\WePayCommon;
+use Illuminate\Support\Str;
 
 class CreditCard
 {
+use WePayCommon;
+
     public $wepay_payment_driver;
 
     public function __construct(WePayPaymentDriver $wepay_payment_driver)
@@ -98,6 +102,7 @@ class CreditCard
     public function paymentView(array $data)
     {
         $data['gateway'] = $this->wepay_payment_driver;
+        $data['description'] = ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number');
 
         return render('gateways.wepay.credit_card.pay', $data);
     }
@@ -105,7 +110,6 @@ class CreditCard
     public function paymentResponse(PaymentResponseRequest $request)
     {
         nlog("payment response");
-        $this->wepay_payment_driver->init();
 
         //it could be an existing token or a new credit_card_id that needs to be converted into a wepay token
         if($request->has('credit_card_id') && $request->input('credit_card_id'))
@@ -119,9 +123,6 @@ class CreditCard
             ));
 
             $credit_card_id = (int)$response->credit_card_id;
-
-nlog($response->state);
-nlog(boolval($request->input('store_card')));
 
             if(in_array($response->state, ['new', 'authorized']) && boolval($request->input('store_card'))){
 
@@ -140,6 +141,7 @@ nlog(boolval($request->input('store_card')));
         nlog($request->all());
         // charge the credit card
         $response = $this->wepay_payment_driver->wepay->request('checkout/create', array(
+            'unique_id'           => Str::random(40),
             'account_id'          => $this->wepay_payment_driver->company_gateway->getConfigField('accountId'),
             'amount'              => $this->wepay_payment_driver->payment_hash->data->amount_with_fee,
             'currency'            => $this->wepay_payment_driver->client->getCurrencyCode(),
@@ -169,7 +171,7 @@ nlog(boolval($request->input('store_card')));
             nlog("success");
             $payment_status = $response->state == 'authorized' ? Payment::STATUS_COMPLETED : Payment::STATUS_PENDING;
 
-            return $this->processSuccessfulPayment($response, $payment_status);
+            return $this->processSuccessfulPayment($response, $payment_status, GatewayType::CREDIT_CARD);
         }
 
         if(in_array($response->state, ['released', 'cancelled', 'failed', 'expired'])){
@@ -250,57 +252,6 @@ https://developer.wepay.com/api/api-calls/checkout
 }
  */
 
-    private function processSuccessfulPayment($response, $payment_status)
-    {
-
-        $data = [
-            'payment_type' => PaymentType::CREDIT_CARD_OTHER,
-            'amount' => $response->amount,
-            'transaction_reference' => $response->checkout_id,
-            'gateway_type_id' => GatewayType::CREDIT_CARD,
-        ];
-
-        $payment = $this->wepay_payment_driver->createPayment($data, $payment_status);
-
-         SystemLogger::dispatch(
-            ['response' => $this->wepay_payment_driver->payment_hash->data->server_response, 'data' => $data],
-            SystemLog::CATEGORY_GATEWAY_RESPONSE,
-            SystemLog::EVENT_GATEWAY_SUCCESS,
-            SystemLog::TYPE_WEPAY,
-            $this->wepay_payment_driver->client,
-            $this->wepay_payment_driver->client->company,
-        );
-
-        return redirect()->route('client.payments.show', ['payment' => $this->wepay_payment_driver->encodePrimaryKey($payment->id)]);
-    }
-
-    private function processUnSuccessfulPayment($response, $payment_status)
-    {
-        PaymentFailureMailer::dispatch($this->wepay_payment_driver->client, $response->state, $this->wepay_payment_driver->client->company, $response->gross);
-
-        PaymentFailureMailer::dispatch(
-            $this->wepay_payment_driver->client,
-            $response,
-            $this->wepay_payment_driver->client->company,
-            $response->gross
-        );
-
-        $message = [
-            'server_response' => $response,
-            'data' => $this->wepay_payment_driver->payment_hash->data,
-        ];
-
-        SystemLogger::dispatch(
-            $message,
-            SystemLog::CATEGORY_GATEWAY_RESPONSE,
-            SystemLog::EVENT_GATEWAY_FAILURE,
-            SystemLog::TYPE_WEPAY,
-            $this->wepay_payment_driver->client,
-            $this->wepay_payment_driver->client->company,
-        );
-
-        throw new PaymentFailed('Failed to process the payment.', 500);
-    }
 
     private function storePaymentMethod($response, $payment_method_id)
     {

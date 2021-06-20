@@ -15,13 +15,17 @@ namespace App\PaymentDrivers\WePay;
 use App\Exceptions\PaymentFailed;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
+use App\Models\Payment;
 use App\PaymentDrivers\WePayPaymentDriver;
+use App\PaymentDrivers\WePay\WePayCommon;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class ACH
 {
     use MakesHash;
+    use WePayCommon;
 
     public $wepay_payment_driver;
 
@@ -193,101 +197,49 @@ class ACH
         if($token_meta->state != "authorized")
             return redirect()->route('client.payment_methods.verification', ['payment_method' => $token->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
 
+        $response = $this->wepay_payment_driver->wepay->request('checkout/create', array(
+            'unique_id'           => Str::random(40),
+            'account_id'          => $this->wepay_payment_driver->company_gateway->getConfigField('accountId'),
+            'amount'              => $this->wepay_payment_driver->payment_hash->data->amount_with_fee,
+            'currency'            => $this->wepay_payment_driver->client->getCurrencyCode(),
+            'short_description'   => 'A vacation home rental',
+            'type'                => 'goods',
+            'payment_method'      => array(
+                'type'            => 'payment_bank',
+                'payment_bank'     => array(
+                    'id'          => $token->token
+                )
+            )
+        ));
 
+                /* Merge all data and store in the payment hash*/
+        $state = [
+            'server_response' => $response,
+            'payment_hash' => $request->payment_hash,
+        ];
 
+        $state = array_merge($state, $request->all());
+        $this->wepay_payment_driver->payment_hash->data = array_merge((array) $this->wepay_payment_driver->payment_hash->data, $state); 
+        $this->wepay_payment_driver->payment_hash->save();
 
+        if(in_array($response->state, ['authorized', 'captured'])){
+            //success
+            nlog("success");
+            $payment_status = $response->state == 'authorized' ? Payment::STATUS_COMPLETED : Payment::STATUS_PENDING;
 
+            return $this->processSuccessfulPayment($response, $payment_status, GatewayType::BANK_TRANSFER);
+        }
 
-// response = wepay.call('/checkout/create', {
-//     'account_id': account_id,
-//     'amount': '25.50',
-//     'short_description': 'A vacation home rental',
-//     'type': 'GOODS', 
-//     'payment_method': {
-//         'type': 'payment_bank',
-//         'payment_bank': {
-//             'id': 20000061
-//         }
-//     }
-// })
+        if(in_array($response->state, ['released', 'cancelled', 'failed', 'expired'])){
+            //some type of failure
+            nlog("failure");
 
+            $payment_status = $response->state == 'cancelled' ? Payment::STATUS_CANCELLED : Payment::STATUS_FAILED;
 
+            $this->processUnSuccessfulPayment($response, $payment_status);
+        }
 
-
-
-
-
-
-
-
-
-
-
-
-        // $this->stripe->init();
-
-        // $source = ClientGatewayToken::query()
-        //     ->where('id', $this->decodePrimaryKey($request->source))
-        //     ->where('company_id', auth('contact')->user()->client->company->id)
-        //     ->first();
-
-        // if (!$source) {
-        //     throw new PaymentFailed(ctrans('texts.payment_token_not_found'), 401);
-        // }
-
-        // $state = [
-        //     'payment_method' => $request->payment_method_id,
-        //     'gateway_type_id' => $request->company_gateway_id,
-        //     'amount' => $this->stripe->convertToStripeAmount($request->amount, $this->stripe->client->currency()->precision),
-        //     'currency' => $request->currency,
-        //     'customer' => $request->customer,
-        // ];
-
-        // $state = array_merge($state, $request->all());
-        // $state['source'] = $source->token;
-
-        // $this->stripe->payment_hash->data = array_merge((array)$this->stripe->payment_hash->data, $state);
-        // $this->stripe->payment_hash->save();
-
-        // try {
-        //     $state['charge'] = \Stripe\Charge::create([
-        //         'amount' => $state['amount'],
-        //         'currency' => $state['currency'],
-        //         'customer' => $state['customer'],
-        //         'source' => $state['source'],
-        //     ], $this->stripe->stripe_connect_auth);
-
-        //     $state = array_merge($state, $request->all());
-
-        //     $this->stripe->payment_hash->data = array_merge((array)$this->stripe->payment_hash->data, $state);
-        //     $this->stripe->payment_hash->save();
-
-        //     if ($state['charge']->status === 'pending' && is_null($state['charge']->failure_message)) {
-        //         return $this->processPendingPayment($state);
-        //     }
-
-        //     return $this->processUnsuccessfulPayment($state);
-        // } catch (Exception $e) {
-        //     if ($e instanceof CardException) {
-        //         return redirect()->route('client.payment_methods.verification', ['id' => ClientGatewayToken::first()->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
-        //     }
-
-        //     throw new PaymentFailed($e->getMessage(), $e->getCode());
-        // }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     private function storePaymentMethod($response, $payment_method_id)
     {
