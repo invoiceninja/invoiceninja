@@ -238,34 +238,32 @@
 			</div>
 		</div>
 
-		@if (Utils::isSelfHost() || request()->show_migration)
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					<h3 class="panel-title">{!! trans('texts.migrate_to_next_version') !!}</h3>
-				</div>
-				<div class="panel-body">
-					<div class="form-group">
-						<label for="modules" class="control-label col-lg-4 col-sm-4"></label>
-						<div class="col-lg-8 col-sm-8">
-							<div class="help-block">{{ trans('texts.migrate_intro_text')}}</div><br/>
-							<div class="help-block">
-								Watch these YouTube videos to see some of the many new features added:<br/>
-								• <a href="https://www.youtube.com/watch?v=h_IMJLmVmuY&ab_channel=InvoiceNinja" target="_blank">What's new in Invoice Ninja v5</a><br/>
-								• <a href="https://www.youtube.com/watch?v=NgwCxIMry54&ab_channel=InvoiceNinja" target="_blank">More new features in v5</a><br/>
-							</div><br/>
-							@if(Auth::user()->eligibleForMigration())
-								<a class="btn btn-primary btn-lg"
-									href="{{ url('/migration/start') }}">{!! trans('texts.start_migration') !!}</a>
-							@else
-								{{ trans('texts.not_allowed') }}
-							@endif
-							<br/>
-							<a href="https://invoiceninja.github.io/docs/migration/" target="_blank">{{ trans('texts.learn_more') }}</a><br/>
-						</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title">{!! trans('texts.migrate_to_next_version') !!}</h3>
+			</div>
+			<div class="panel-body">
+				<div class="form-group">
+					<label for="modules" class="control-label col-lg-4 col-sm-4"></label>
+					<div class="col-lg-8 col-sm-8">
+						<div class="help-block">{{ trans('texts.migrate_intro_text')}}</div><br/>
+						<div class="help-block">
+							Watch these YouTube videos to see some of the many new features added:<br/>
+							• <a href="https://www.youtube.com/watch?v=h_IMJLmVmuY&ab_channel=InvoiceNinja" target="_blank">What's new in Invoice Ninja v5</a><br/>
+							• <a href="https://www.youtube.com/watch?v=NgwCxIMry54&ab_channel=InvoiceNinja" target="_blank">More new features in v5</a><br/>
+						</div><br/>
+						@if(Auth::user()->eligibleForMigration())
+							<a class="btn btn-primary btn-lg"
+								href="{{ url('/migration/start') }}">{!! trans('texts.start_migration') !!}</a>
+						@else
+							{{ trans('texts.not_allowed') }}
+						@endif
+						<br/>
+						<a href="https://invoiceninja.github.io/docs/migration/" target="_blank">{{ trans('texts.learn_more') }}</a><br/>
 					</div>
 				</div>
 			</div>
-		@endif
+		</div>
 
 		{!! Former::close() !!}
 
