@@ -484,7 +484,7 @@ class CompanyExport implements ShouldQueue
         
         if(!Storage::disk(config('filesystems.default'))->exists($path))
             Storage::disk(config('filesystems.default'))->makeDirectory($path, 0775);
-        
+
         $zip_path = public_path('storage/backups/'.$file_name);
         $zip = new \ZipArchive();
 

@@ -101,8 +101,9 @@ class PaymentLibrariesSeeder extends Seeder
         if (Ninja::isHosted()) {
             Gateway::whereIn('id', [20])->update(['visible' => 0]);
             Gateway::whereIn('id', [56])->update(['visible' => 1]);
+            Gateway::whereIn('id', [49])->update(['visible' => 1]);
         }
-
+        
         Gateway::all()->each(function ($gateway) {
             $gateway->site_url = $gateway->getHelp();
             $gateway->save();
