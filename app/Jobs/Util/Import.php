@@ -218,8 +218,6 @@ class Import implements ShouldQueue
         
         // $this->fixClientBalances();
         $check_data = CheckCompanyData::dispatchNow($this->company, md5(time()));
-
-
         
         try{
             Mail::to($this->user->email, $this->user->name())
@@ -1642,7 +1640,6 @@ class Import implements ShouldQueue
 
     public function exec($method, $url, $data)
     {
-        nlog($this->token);
 
         $client =  new \GuzzleHttp\Client(['headers' => 
             [ 
