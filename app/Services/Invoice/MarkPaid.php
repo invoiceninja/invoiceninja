@@ -16,12 +16,14 @@ use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
 use App\Jobs\Invoice\InvoiceWorkflowSettings;
 use App\Jobs\Payment\EmailPayment;
+use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\AbstractService;
 use App\Services\Client\ClientService;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
+use Illuminate\Support\Carbon;
 
 class MarkPaid extends AbstractService
 {
@@ -63,6 +65,8 @@ class MarkPaid extends AbstractService
         /* Create a payment relationship to the invoice entity */
         $payment->save();
 
+        $this->setExchangeRate($payment);
+        
         $payment->invoices()->attach($this->invoice->id, [
             'amount' => $payment->amount,
         ]);
@@ -95,5 +99,23 @@ class MarkPaid extends AbstractService
         InvoiceWorkflowSettings::dispatchNow($this->invoice);
 
         return $this->invoice;
+    }
+
+    private function setExchangeRate(Payment $payment)
+    {
+
+        $client_currency = $payment->client->getSetting('currency_id');
+        $company_currency = $payment->client->company->settings->currency_id;
+
+        if ($company_currency != $client_currency) {
+
+            $exchange_rate = new CurrencyApi();
+
+            $payment->exchange_rate = $exchange_rate->exchangeRate($client_currency, $company_currency, Carbon::parse($payment->date));
+            $payment->exchange_currency_id = $client_currency;
+            $payment->save();
+
+        }
+
     }
 }
