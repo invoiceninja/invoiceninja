@@ -53,6 +53,8 @@ class ReminderJob implements ShouldQueue
 
     private function processReminders()
     {
+        nlog("Sending invoice reminders " . now()->format('Y-m-d h:i:s'));
+
         Invoice::whereDate('next_send_date', '<=', now())
                  ->where('is_deleted', 0)
                  ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
