@@ -629,7 +629,7 @@ class SubscriptionService
 
         }
 
-        $client = \App\Models\Client::find($this->decodePrimaryKey($body['client']));
+        $client = Client::where('id', $this->decodePrimaryKey($body['client']))->withTrashed()->first();
 
             SystemLogger::dispatch(
                 $body,
@@ -639,6 +639,7 @@ class SubscriptionService
                 $client,
                 $client->company,
             );
+        
 
         if(is_array($body))
           return $response;
