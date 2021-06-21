@@ -66,7 +66,7 @@ class SupportMessageSent extends Mailable
                 ->replyTo($user->email, $user->present()->name())
                 ->subject($subject)
                 ->view('email.support.message', [
-                    'message' => $this->support_message,
+                    'support_message' => $this->support_message,
                     'system_info' => $system_info,
                     'laravel_log' => $log_lines,
                     'logo' => $company->present()->logo(),
