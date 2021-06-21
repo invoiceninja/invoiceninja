@@ -7,8 +7,7 @@
 
     <form method="POST">
         @csrf
-        <input type="hidden" name="customer" value="{{ $token->gateway_customer_reference }}">
-        <input type="hidden" name="source" value="{{ $token->token }}">
+        <input type="hidden" name="token" value="{{ $token->token }}">
 
         @component('portal.ninja2020.components.general.card-element', ['title' => '#1 ' . ctrans('texts.amount_cents')])
             <input type="text" name="transactions[]" class="w-full input" required data-cy="verification-1st">

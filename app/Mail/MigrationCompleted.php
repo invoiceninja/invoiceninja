@@ -37,7 +37,8 @@ class MigrationCompleted extends Mailable
         $data['company'] = $this->company->fresh();
         $data['whitelabel'] = $this->company->account->isPaid() ? true : false;
         $data['check_data'] = $this->check_data;
-
+        $data['logo'] = $this->company->present()->logo();
+        
         $result = $this->from(config('mail.from.address'), config('mail.from.name'))
                     ->view('email.import.completed', $data);
 

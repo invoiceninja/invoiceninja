@@ -179,8 +179,6 @@ class LoginController extends BaseController
 
             $user = $this->guard()->user();
 
-            event(new UserLoggedIn($user, $user->account->default_company, Ninja::eventVars($user->id)));
-
             //2FA
             if($user->google_2fa_secret && $request->has('one_time_password'))
             {
@@ -225,6 +223,8 @@ class LoginController extends BaseController
             /*On the hosted platform, only owners can login for free/pro accounts*/
             if(Ninja::isHosted() && !$cu->first()->is_owner && !$user->account->isEnterpriseClient())
                 return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
+
+            event(new UserLoggedIn($user, $user->account->default_company, Ninja::eventVars($user->id)));
 
             return $this->timeConstrainedResponse($cu);
 

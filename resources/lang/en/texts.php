@@ -4267,6 +4267,7 @@ $LANG = array(
     'company_import_failure_subject' => 'Error importing :company',
     'company_import_failure_body' => 'There was an error importing the company data, the error message was:',
     'recurring_invoice_due_date' => 'Due Date',
+    'amount_cents' => 'Amount in pennies,pence or cents',
 );
 
 return $LANG;
