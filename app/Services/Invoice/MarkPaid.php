@@ -66,7 +66,7 @@ class MarkPaid extends AbstractService
         $payment->save();
 
         $this->setExchangeRate($payment);
-        
+
         $payment->invoices()->attach($this->invoice->id, [
             'amount' => $payment->amount,
         ]);
@@ -74,6 +74,7 @@ class MarkPaid extends AbstractService
         $this->invoice->next_send_date = null;
         
         $this->invoice->service()
+                ->setExchangeRate()
                 ->updateBalance($payment->amount * -1)
                 ->updatePaidToDate($payment->amount)
                 ->setStatus(Invoice::STATUS_PAID)
