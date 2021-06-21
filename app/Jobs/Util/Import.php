@@ -214,6 +214,8 @@ class Import implements ShouldQueue
         // if(Ninja::isHosted() && array_key_exists('ninja_tokens', $data))
         $this->processNinjaTokens($data['ninja_tokens']);
 
+        $this->fixData();
+
         $this->setInitialCompanyLedgerBalances();
         
         // $this->fixClientBalances();
@@ -243,6 +245,41 @@ class Import implements ShouldQueue
         info('Completed🚀🚀🚀🚀🚀 at '.now());
 
         unlink($this->file_path);
+    }
+
+    private function fixData()
+    {
+
+        $this->company->clients()->withTrashed()->where('is_deleted', 0)->cursor()->each(function ($client) {
+            $total_invoice_payments = 0;
+            $credit_total_applied = 0;
+
+            foreach ($client->invoices()->where('is_deleted', false)->where('status_id', '>', 1)->get() as $invoice) {
+
+                $total_amount = $invoice->payments()->where('is_deleted', false)->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])->get()->sum('pivot.amount');
+                $total_refund = $invoice->payments()->where('is_deleted', false)->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])->get()->sum('pivot.refunded');
+
+                $total_invoice_payments += ($total_amount - $total_refund);
+            }
+
+            // 10/02/21
+            foreach ($client->payments as $payment) {
+                $credit_total_applied += $payment->paymentables()->where('paymentable_type', App\Models\Credit::class)->get()->sum(\DB::raw('amount'));
+            }
+
+            if ($credit_total_applied < 0) {
+                $total_invoice_payments += $credit_total_applied;
+            } 
+
+
+            if (round($total_invoice_payments, 2) != round($client->paid_to_date, 2)) {
+
+                $client->paid_to_date = $total_invoice_payments;
+                $client->save();
+                
+            }
+        });
+
     }
 
     private function setInitialCompanyLedgerBalances()
