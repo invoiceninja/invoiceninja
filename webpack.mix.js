@@ -77,6 +77,10 @@ mix.js("resources/js/app.js", "public/js")
     .js(
         "resources/js/clients/payments/wepay-credit-card.js",
         "public/js/clients/payments/wepay-credit-card.js"
+    )
+    .js(
+        "resources/js/clients/payment_methods/wepay-bank-account.js",
+        "public/js/clients/payment_methods/wepay-bank-account.js"
     );
 
 mix.copyDirectory('node_modules/card-js/card-js.min.css', 'public/css/card-js.min.css');
