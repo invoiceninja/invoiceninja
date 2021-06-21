@@ -13,13 +13,13 @@ class SupportMessageSent extends Mailable
 {
  //   use Queueable, SerializesModels;
 
-    public $message;
+    public $support_message;
 
     public $send_logs;
 
-    public function __construct($message, $send_logs)
+    public function __construct($support_message, $send_logs)
     {
-        $this->message = $message;
+        $this->support_message = $support_message;
         $this->send_logs = $send_logs;
     }
 
@@ -66,7 +66,7 @@ class SupportMessageSent extends Mailable
                 ->replyTo($user->email, $user->present()->name())
                 ->subject($subject)
                 ->view('email.support.message', [
-                    'message' => $this->message,
+                    'message' => $this->support_message,
                     'system_info' => $system_info,
                     'laravel_log' => $log_lines,
                     'logo' => $company->present()->logo(),
