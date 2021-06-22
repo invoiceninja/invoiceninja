@@ -178,7 +178,14 @@ class NinjaMailerJob implements ShouldQueue
         $google = (new Google())->init();
 
         try{
+
+            if ($google->getClient()->isAccessTokenExpired()) {
+                $google->refreshToken($user);
+                $user = $user->fresh();
+            }
+
             $google->getClient()->setAccessToken(json_encode($user->oauth_user_token));
+
         }
         catch(\Exception $e) {
             $this->logMailError('Gmail Token Invalid', $this->company->clients()->first());
@@ -186,9 +193,7 @@ class NinjaMailerJob implements ShouldQueue
             return $this->setMailDriver();
         }
 
-        if ($google->getClient()->isAccessTokenExpired()) {
-            $google->refreshToken($user);
-        }
+
 
         /*
          *  Now that our token is refreshed and valid we can boot the
