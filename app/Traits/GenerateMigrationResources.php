@@ -849,11 +849,12 @@ info("get company");
  */
     private function transformQuoteStatusId($quote)
     {
-        if(!$quote->is_public)
-            return 1;
 
         if($quote->quote_invoice_id)
             return 4;
+
+        if(!$quote->is_public)
+            return 1;
 
         switch ($quote->invoice_status_id) {
             case 1:
@@ -899,7 +900,7 @@ info("get company");
 
         switch ($status) {
             case 1:
-                return 2;
+                return 1;
                 break;
             case 2:
                 return 2;

@@ -1,47 +1,47 @@
-Copyright (c) 2018 by Hillel Coren
-Invoice Ninja * https://www.invoiceninja.com
-"CREATE. SEND. GET PAID"
+Elastic License 2.0 (ELv2)
+Elastic License
 
-All Rights Reserved
-ATTRIBUTION ASSURANCE LICENSE (adapted from the original BSD license)
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the conditions below are met.
-These conditions require a modest attribution to InvoiceNinja.com (the
-"Author"), who hopes that its promotional value may help justify the
-thousands of dollars in otherwise billable time invested in writing
-this and other freely available, open-source software.
+Acceptance
+By using the software, you agree to all of the terms and conditions below.
 
-1. Redistributions of source code, in whole or part and with or without
-modification (the "Code"), must prominently display this GPG-signed
-text in verifiable form.
-2. Redistributions of the Code in binary form must be accompanied by
-this GPG-signed text in any documentation and, each time the resulting
-executable program or a program dependent thereon is launched, a
-prominent display (e.g., splash screen or banner text) of the Author's
-attribution information, which includes:
-(a) Name ("Hillel Coren"),
-(b) Professional identification ("Invoice Ninja"), and
-(c) URL ("https://www.invoiceninja.com").
-3. Neither the name nor any trademark of the Author may be used to
-endorse or promote products derived from this software without specific
-prior written permission.
-4. Users are entirely responsible, to the exclusion of the Author and
-any other persons, for compliance with (1) regulations set by owners or
-administrators of employed equipment, (2) licensing terms of any other
-software, and (3) local regulations regarding use, including those
-regarding import, export, and use of encryption software.
+Copyright License
+The licensor grants you a non-exclusive, royalty-free, worldwide, non-sublicensable, non-transferable license to use, copy, distribute, make available, and prepare derivative works of the software, in each case subject to the limitations and conditions below
 
-THIS FREE SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
-EVENT SHALL THE AUTHOR OR ANY CONTRIBUTOR BE LIABLE FOR
-ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-EFFECTS OF UNAUTHORIZED OR MALICIOUS NETWORK ACCESS;
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
-AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
-IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+Limitations
+You may not provide the software to third parties as a hosted or managed service, where the service provides users with access to any substantial set of the features or functionality of the software.
+
+You may not move, change, disable, or circumvent the license key functionality in the software, and you may not remove or obscure any functionality in the software that is protected by the license key.
+
+You may not alter, remove, or obscure any licensing, copyright, or other notices of the licensor in the software. Any use of the licensor’s trademarks is subject to applicable law.
+
+Patents
+The licensor grants you a license, under any patent claims the licensor can license, or becomes able to license, to make, have made, use, sell, offer for sale, import and have imported the software, in each case subject to the limitations and conditions in this license. This license does not cover any patent claims that you cause to be infringed by modifications or additions to the software. If you or your company make any written claim that the software infringes or contributes to infringement of any patent, your patent license for the software granted under these terms ends immediately. If your company makes such a claim, your patent license ends immediately for work on behalf of your company.
+
+Notices
+You must ensure that anyone who gets a copy of any part of the software from you also gets a copy of these terms.
+
+If you modify the software, you must include in any modified copies of the software prominent notices stating that you have modified the software.
+
+No Other Rights
+These terms do not imply any licenses other than those expressly granted in these terms.
+
+Termination
+If you use the software in violation of these terms, such use is not licensed, and your licenses will automatically terminate. If the licensor provides you with a notice of your violation, and you cease all violation of this license no later than 30 days after you receive that notice, your licenses will be reinstated retroactively. However, if you violate these terms after such reinstatement, any additional violation of these terms will cause your licenses to terminate automatically and permanently.
+
+No Liability
+As far as the law allows, the software comes as is, without any warranty or condition, and the licensor will not be liable to you for any damages arising out of these terms or the use or nature of the software, under any kind of legal claim.
+
+Definitions
+The licensor is the entity offering these terms, and the software is the software the licensor makes available under these terms, including any portion of it.
+
+you refers to the individual or entity agreeing to these terms.
+
+your company is any legal entity, sole proprietorship, or other kind of organization that you work for, plus all organizations that have control over, are under the control of, or are under common control with that organization. control means ownership of substantially all the assets of an entity, or the power to direct its management and policies by vote, contract, or otherwise. Control can be direct or indirect.
+
+your licenses are all the licenses granted to you for the software under these terms.
+
+use means anything you do with the software requiring one of your licenses.
+
+trademark means trademarks, service marks, and similar rights.
+
+For more information regarding the interpretation of this license please see here: https://invoiceninja.github.io/docs/legal/license/

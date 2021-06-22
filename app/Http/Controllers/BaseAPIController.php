@@ -24,7 +24,7 @@ use Utils;
  *     @SWG\Info(
  *         version="1.0.0",
  *         title="Invoice Ninja API",
- *         description="An open-source invoicing and time-tracking app built with Laravel",
+ *         description="A source-available invoicing and time-tracking app built with Laravel",
  *         termsOfService="",
  *         @SWG\Contact(
  *             email="contact@invoiceninja.com"
