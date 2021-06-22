@@ -67,7 +67,7 @@ class CheckData extends Command
     /**
      * @var string
      */
-    protected $signature = 'ninja:check-data {--database=} {--fix=} {--client_id=}';
+    protected $signature = 'ninja:check-data {--database=} {--fix=} {--client_id=} {--paid_to_date=}';
 
     /**
      * @var string
@@ -339,6 +339,11 @@ class CheckData extends Command
                 $this->logMessage($client->present()->name.' id = # '.$client->id." - Paid to date does not match Client Paid To Date = {$client->paid_to_date} - Invoice Payments = {$total_invoice_payments}");
 
                 $this->isValid = false;
+
+                if($this->option('paid_to_date')){
+                    $client->paid_to_date = $total_invoice_payments;
+                    $client->save();
+                }
             }
         });
 
