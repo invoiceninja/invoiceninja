@@ -84,7 +84,7 @@ class CompanyLedgerTest extends TestCase
 
         $settings = CompanySettings::defaults();
 
-        $settings->company_logo = 'https://www.invoiceninja.com/wp-content/uploads/2019/01/InvoiceNinja-Logo-Round-300x300.png';
+        $settings->company_logo = asset('images/new_logo.png');
         $settings->website = 'www.invoiceninja.com';
         $settings->address1 = 'Address 1';
         $settings->address2 = 'Address 2';

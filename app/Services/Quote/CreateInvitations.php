@@ -15,6 +15,7 @@ use App\Factory\ClientContactFactory;
 use App\Factory\QuoteInvitationFactory;
 use App\Models\Quote;
 use App\Models\QuoteInvitation;
+use Illuminate\Support\Str;
 
 class CreateInvitations
 {

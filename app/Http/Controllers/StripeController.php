@@ -29,7 +29,6 @@ class StripeController extends BaseController
 
 		}
 
-		
 		return response()->json(['message' => 'Unauthorized'], 403);
 	}
 
@@ -44,7 +43,6 @@ class StripeController extends BaseController
 			return response()->json(['message' => 'Processing'], 200);
 
 		}
-
 		
 		return response()->json(['message' => 'Unauthorized'], 403);
 	}

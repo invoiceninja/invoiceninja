@@ -59,6 +59,8 @@ class Payment extends BaseModel
         'date',
         'transaction_reference',
         'number',
+        'exchange_currency_id',
+        'exchange_rate',
         // 'is_manual',
         'private_notes',
         'custom_value1',
