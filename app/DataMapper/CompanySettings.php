@@ -28,6 +28,7 @@ class CompanySettings extends BaseSettings
     public $lock_invoices = 'off'; //off,when_sent,when_paid //@implemented
 
     public $enable_client_portal_tasks = false; //@ben to implement
+    public $show_all_tasks_client_portal = 'all'; // all, uninvoiced, invoiced
     public $enable_client_portal_password = false; //@implemented
     public $enable_client_portal = true; //@implemented
     public $enable_client_portal_dashboard = false; // @TODO There currently is no dashboard so this is pending
@@ -268,6 +269,7 @@ class CompanySettings extends BaseSettings
     public $hide_empty_columns_on_pdf = false;
 
     public static $casts = [
+        'show_all_tasks_client_portal'       => 'string',
         'entity_send_time'                   => 'int',
         'shared_invoice_credit_counter'      => 'bool',
         'reply_to_name'                      => 'string',

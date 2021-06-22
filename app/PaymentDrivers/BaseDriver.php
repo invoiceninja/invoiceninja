@@ -161,6 +161,17 @@ class BaseDriver extends AbstractPaymentDriver
     }
 
     /**
+     * Detaches a payment method from the gateway
+     * 
+     * @param  ClientGatewayToken $token The gateway token
+     * @return bool                      boolean response
+     */
+    public function detach(ClientGatewayToken $token)
+    {
+        return true;
+    }
+
+    /**
      * Set the inbound request payment method type for access.
      *
      * @param int $payment_method_id The Payment Method ID
@@ -188,7 +199,7 @@ class BaseDriver extends AbstractPaymentDriver
     public function attachInvoices(Payment $payment, PaymentHash $payment_hash): Payment
     {
         $paid_invoices = $payment_hash->invoices();
-        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($paid_invoices, 'invoice_id')))->get();
+        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($paid_invoices, 'invoice_id')))->withTrashed()->get();
         $payment->invoices()->sync($invoices);
 
         $invoices->each(function ($invoice) use ($payment) {

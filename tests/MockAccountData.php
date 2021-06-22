@@ -167,7 +167,7 @@ trait MockAccountData
 
         $settings = CompanySettings::defaults();
 
-        $settings->company_logo = 'https://www.invoiceninja.com/wp-content/uploads/2019/01/InvoiceNinja-Logo-Round-300x300.png';
+        $settings->company_logo = asset('images/new_logo.png');
         $settings->website = 'www.invoiceninja.com';
         $settings->address1 = 'Address 1';
         $settings->address2 = 'Address 2';
@@ -199,7 +199,7 @@ trait MockAccountData
         }
 
         $user->password = Hash::make('ALongAndBriliantPassword');
-        
+
         $user_id = $user->id;
         $this->user = $user;
 
@@ -292,7 +292,7 @@ trait MockAccountData
 
         $this->task->status_id = TaskStatus::where('company_id', $this->company->id)->first()->id;
         $this->task->save();
-        
+
         $this->expense_category = ExpenseCategory::factory()->create([
             'user_id' => $user_id,
             'company_id' => $this->company->id,
@@ -562,7 +562,7 @@ trait MockAccountData
             $data[1]['fee_tax_rate3'] = 0;
             $data[1]['fee_cap'] = '';
             $data[1]['is_enabled'] = true;
-            
+
             $cg = new CompanyGateway;
             $cg->company_id = $this->company->id;
             $cg->user_id = $user_id;

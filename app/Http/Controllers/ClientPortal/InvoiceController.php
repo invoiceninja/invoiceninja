@@ -89,6 +89,7 @@ class InvoiceController extends Controller
     {
         $invoices = Invoice::whereIn('id', $ids)
                             ->whereClientId(auth()->user()->client->id)
+                            ->withTrashed()
                             ->get();
 
         //filter invoices which are payable
@@ -167,7 +168,8 @@ class InvoiceController extends Controller
         if ($invoices->count() == 1) {
             $invoice = $invoices->first();
             $invitation = $invoice->invitations->first();
-           $file = $invoice->pdf_file_path($invitation);
+           //$file = $invoice->pdf_file_path($invitation);
+           $file = $invoice->service()->getInvoicePdf(auth()->user());
            return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);;
 
         }

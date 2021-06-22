@@ -3970,7 +3970,7 @@ $LANG = array(
      'details_of_recurring_invoice' => 'Here are some details about recurring invoice',
      'cancellation' => 'Cancellation',
      'about_cancellation' => 'In case you want to stop the recurring invoice, please click the request the cancellation.',
-     'cancellation_warning' => 'Warning! You are requesting a cancellation of this service.\n Your service may be cancelled with no further notification to you.',
+     'cancellation_warning' => 'Warning! You are requesting a cancellation of this service. Your service may be cancelled with no further notification to you.',
      'cancellation_pending' => 'Cancellation pending, we\'ll be in touch!',
      'list_of_payments' => 'List of payments',
      'payment_details' => 'Details of the payment',
@@ -4267,6 +4267,7 @@ $LANG = array(
     'company_import_failure_subject' => 'Error importing :company',
     'company_import_failure_body' => 'There was an error importing the company data, the error message was:',
     'recurring_invoice_due_date' => 'Due Date',
+    'amount_cents' => 'Amount in pennies,pence or cents',
 );
 
 return $LANG;

@@ -67,7 +67,7 @@ class CheckData extends Command
     /**
      * @var string
      */
-    protected $signature = 'ninja:check-data {--database=} {--fix=} {--client_id=}';
+    protected $signature = 'ninja:check-data {--database=} {--fix=} {--client_id=} {--paid_to_date=}';
 
     /**
      * @var string
@@ -77,6 +77,10 @@ class CheckData extends Command
     protected $log = '';
 
     protected $isValid = true;
+
+    protected $wrong_paid_to_dates = 0;
+
+    protected $wrong_balances = 0;
 
     public function handle()
     {
@@ -305,10 +309,10 @@ class CheckData extends Command
 
     private function checkPaidToDates()
     {
-        $wrong_paid_to_dates = 0;
+        $this->wrong_paid_to_dates = 0;
         $credit_total_applied = 0;
 
-        Client::withTrashed()->where('is_deleted', 0)->cursor()->each(function ($client) use ($wrong_paid_to_dates, $credit_total_applied) {
+        Client::withTrashed()->where('is_deleted', 0)->cursor()->each(function ($client) use ($credit_total_applied) {
             $total_invoice_payments = 0;
 
             foreach ($client->invoices()->where('is_deleted', false)->where('status_id', '>', 1)->get() as $invoice) {
@@ -330,25 +334,30 @@ class CheckData extends Command
 
 
             if (round($total_invoice_payments, 2) != round($client->paid_to_date, 2)) {
-                $wrong_paid_to_dates++;
+                $this->wrong_paid_to_dates++;
 
                 $this->logMessage($client->present()->name.' id = # '.$client->id." - Paid to date does not match Client Paid To Date = {$client->paid_to_date} - Invoice Payments = {$total_invoice_payments}");
 
                 $this->isValid = false;
+
+                if($this->option('paid_to_date')){
+                    $this->logMessage("# {$client->id} " . $client->present()->name.' - '.$client->number." Fixing {$client->paid_to_date} to {$total_invoice_payments}");
+                    $client->paid_to_date = $total_invoice_payments;
+                    $client->save();
+                }
             }
         });
 
-        $this->logMessage("{$wrong_paid_to_dates} clients with incorrect paid to dates");
+        $this->logMessage("{$this->wrong_paid_to_dates} clients with incorrect paid to dates");
     }
 
     private function checkInvoicePayments()
     {
-        $wrong_balances = 0;
-        $wrong_paid_to_dates = 0;
+        $this->wrong_balances = 0;
 
-        Client::cursor()->where('is_deleted', 0)->each(function ($client) use ($wrong_balances) {
+        Client::cursor()->where('is_deleted', 0)->each(function ($client) {
             
-            $client->invoices->where('is_deleted', false)->whereIn('status_id', '!=', Invoice::STATUS_DRAFT)->each(function ($invoice) use ($wrong_balances, $client) {
+            $client->invoices->where('is_deleted', false)->whereIn('status_id', '!=', Invoice::STATUS_DRAFT)->each(function ($invoice) use ($client) {
                 $total_amount = $invoice->payments()->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED])->get()->sum('pivot.amount');
                 $total_refund = $invoice->payments()->get()->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED])->sum('pivot.refunded');
                 $total_credit = $invoice->credits()->get()->sum('amount');
@@ -357,7 +366,7 @@ class CheckData extends Command
                 $calculated_paid_amount = $invoice->amount - $invoice->balance - $total_credit;
 
                 if ((string)$total_paid != (string)($invoice->amount - $invoice->balance - $total_credit)) {
-                    $wrong_balances++;
+                    $this->wrong_balances++;
 
                     $this->logMessage($client->present()->name.' - '.$client->id." - Total Amount = {$total_amount} != Calculated Total = {$calculated_paid_amount} - Total Refund = {$total_refund} Total credit = {$total_credit}");
 
@@ -367,13 +376,13 @@ class CheckData extends Command
             
         });
 
-        $this->logMessage("{$wrong_balances} clients with incorrect invoice balances");
+        $this->logMessage("{$this->wrong_balances} clients with incorrect invoice balances");
     }
 
     private function checkClientBalances()
     {
-        $wrong_balances = 0;
-        $wrong_paid_to_dates = 0;
+        $this->wrong_balances = 0;
+        $this->wrong_paid_to_dates = 0;
 
         foreach (Client::cursor()->where('is_deleted', 0) as $client) {
             //$invoice_balance = $client->invoices->where('is_deleted', false)->where('status_id', '>', 1)->sum('balance');
@@ -387,14 +396,14 @@ class CheckData extends Command
             $ledger = CompanyLedger::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
 
             if ($ledger && (string) $invoice_balance != (string) $client->balance) {
-                $wrong_paid_to_dates++;
+                $this->wrong_paid_to_dates++;
                 $this->logMessage($client->present()->name.' - '.$client->id." - calculated client balances do not match Invoice Balances = {$invoice_balance} - Client Balance = ".rtrim($client->balance, '0'). " Ledger balance = {$ledger->balance}");
 
                 $this->isValid = false;
             }
         }
 
-        $this->logMessage("{$wrong_paid_to_dates} clients with incorrect client balances");
+        $this->logMessage("{$this->wrong_paid_to_dates} clients with incorrect client balances");
     }
 
     //fix for client balances = 
@@ -406,8 +415,8 @@ class CheckData extends Command
 
     private function checkInvoiceBalances()
     {
-        $wrong_balances = 0;
-        $wrong_paid_to_dates = 0;
+        $this->wrong_balances = 0;
+        $this->wrong_paid_to_dates = 0;
 
         foreach (Client::where('is_deleted', 0)->cursor() as $client) {
             $invoice_balance = $client->invoices()->where('is_deleted', false)->where('status_id', '>', 1)->get()->sum('balance');
@@ -419,14 +428,14 @@ class CheckData extends Command
             $ledger = CompanyLedger::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
 
             if ($ledger && number_format($invoice_balance, 4) != number_format($client->balance, 4)) {
-                $wrong_balances++;
+                $this->wrong_balances++;
                 $this->logMessage("# {$client->id} " . $client->present()->name.' - '.$client->number." - Balance Failure - Invoice Balances = {$invoice_balance} Client Balance = {$client->balance} Ledger Balance = {$ledger->balance}");
 
                 $this->isValid = false;
             }
         }
 
-        $this->logMessage("{$wrong_balances} clients with incorrect balances");
+        $this->logMessage("{$this->wrong_balances} clients with incorrect balances");
     }
 
     private function checkLogoFiles()

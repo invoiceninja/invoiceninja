@@ -8,10 +8,11 @@ const RESOURCES = {
 "version.json": "9fe5b22a16f39b766c8fdc35a24b3efa",
 "favicon.ico": "51636d3a390451561744c42188ccd628",
 "manifest.json": "ce1b79950eb917ea619a0a30da27c6a3",
-"assets/AssetManifest.json": "659dcf9d1baf3aed3ab1b9c42112bf8f",
+"assets/AssetManifest.json": "7e49562f32e24a9e2557fe4178a84b79",
 "assets/packages/material_design_icons_flutter/lib/fonts/materialdesignicons-webfont.ttf": "174c02fc4609e8fc4389f5d21f16a296",
 "assets/fonts/MaterialIcons-Regular.otf": "1288c9e28052e028aba623321f7826ac",
 "assets/assets/images/google-icon.png": "0f118259ce403274f407f5e982e681c3",
+"assets/assets/images/icon.png": "090f69e23311a4b6d851b3880ae52541",
 "assets/assets/images/payment_types/solo.png": "2030c3ccaccf5d5e87916a62f5b084d6",
 "assets/assets/images/payment_types/laser.png": "b4e6e93dd35517ac429301119ff05868",
 "assets/assets/images/payment_types/maestro.png": "e533b92bfb50339fdbfa79e3dfe81f08",
@@ -27,11 +28,10 @@ const RESOURCES = {
 "assets/assets/images/payment_types/dinerscard.png": "06d85186ba858c18ab7c9caa42c92024",
 "assets/assets/images/payment_types/mastercard.png": "6f6cdc29ee2e22e06b1ac029cb52ef71",
 "assets/assets/images/payment_types/other.png": "d936e11fa3884b8c9f1bd5c914be8629",
-"assets/assets/images/logo.png": "090f69e23311a4b6d851b3880ae52541",
 "assets/NOTICES": "687b68d41e137cfbdee105c0b9be3e9d",
 "assets/FontManifest.json": "cf3c681641169319e61b61bd0277378f",
 "favicon.png": "dca91c54388f52eded692718d5a98b8b",
-"main.dart.js": "9bf3809dd480b5fa14847777a68f7833",
+"main.dart.js": "1225d7da63eaf3817e25a8b6726635cc",
 "/": "23224b5e03519aaa87594403d54412cf"
 };
 
