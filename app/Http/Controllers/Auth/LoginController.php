@@ -300,7 +300,6 @@ class LoginController extends BaseController
         $cu = CompanyUser::query()
                           ->where('user_id', $company_token->user_id);
 
-
         $cu->first()->account->companies->each(function ($company) use($cu, $request){
 
             if($company->tokens()->where('is_system', true)->count() == 0)
@@ -308,7 +307,6 @@ class LoginController extends BaseController
                 CreateCompanyToken::dispatchNow($company, $cu->first()->user, $request->server('HTTP_USER_AGENT'));
             }
         });
-
 
         if($request->has('current_company') && $request->input('current_company') == 'true')
           $cu->where("company_id", $company_token->company_id);
@@ -361,6 +359,9 @@ class LoginController extends BaseController
 
             if ($existing_user = MultiDB::hasUser($query)) {
 
+                if(!$existing_user->account)
+                    return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
+
                 Auth::login($existing_user, true);
                 $existing_user->setCompany($existing_user->account->default_company);
 
@@ -387,6 +388,9 @@ class LoginController extends BaseController
             //If this is a result user/email combo - lets add their OAuth details details
             if($existing_login_user = MultiDB::hasUser(['email' => $google->harvestEmail($user)]))
             {
+                if(!$existing_login_user->account)
+                    return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
+
                 Auth::login($existing_login_user, true);
                 $existing_login_user->setCompany($existing_login_user->account->default_company);
 
@@ -422,6 +426,9 @@ class LoginController extends BaseController
 
             if($existing_login_user = MultiDB::hasUser(['email' => $google->harvestEmail($user)]))
             {
+                if(!$existing_login_user->account)
+                    return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
+                
                 Auth::login($existing_login_user, true);
                 $existing_login_user->setCompany($existing_login_user->account->default_company);
 
