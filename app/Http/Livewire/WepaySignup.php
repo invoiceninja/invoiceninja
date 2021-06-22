@@ -105,6 +105,7 @@ class WepaySignup extends Component
             $cg->update_details = false;
             $cg->config = encrypt(config('ninja.testvars.checkout'));
             $cg->fees_and_limits = $fees_and_limits;
+            $cg->token_billing = 'always';
             $cg->save();
 
         }

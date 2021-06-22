@@ -43,7 +43,7 @@ class RecurringInvoicesCron
         nlog("Sending recurring invoices ".Carbon::now()->format('Y-m-d h:i:s'));
 
         if (! config('ninja.db.multi_db_enabled')) {
-            $recurring_invoices = RecurringInvoice::whereDate('next_send_date', '<=', now())
+            $recurring_invoices = RecurringInvoice::whereDate('next_send_date', '<=', now()->toDateTimeString())
                                                         ->whereNotNull('next_send_date')
                                                         ->where('status_id', RecurringInvoice::STATUS_ACTIVE)
                                                         ->where('remaining_cycles', '!=', '0')
@@ -64,7 +64,7 @@ class RecurringInvoicesCron
             foreach (MultiDB::$dbs as $db) {
                 MultiDB::setDB($db);
 
-                $recurring_invoices = RecurringInvoice::whereDate('next_send_date', '<=', now())
+                $recurring_invoices = RecurringInvoice::whereDate('next_send_date', '<=', now()->toDateTimeString())
                                                         ->whereNotNull('next_send_date')
                                                         ->where('status_id', RecurringInvoice::STATUS_ACTIVE)
                                                         ->where('remaining_cycles', '!=', '0')

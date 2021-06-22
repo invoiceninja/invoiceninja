@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -98,6 +97,7 @@ class StripeConnectController extends BaseController
         $company_gateway->gateway_key = 'd14dd26a47cecc30fdd65700bfb67b34';
         $company_gateway->fees_and_limits = $fees_and_limits;
         $company_gateway->setConfig([]);
+        $company_gateway->token_billing = 'always';
         // $company_gateway->save();
 
         $payload = [
