@@ -341,6 +341,7 @@ class CheckData extends Command
                 $this->isValid = false;
 
                 if($this->option('paid_to_date')){
+                    $this->logMessage("# {$client->id} " . $client->present()->name.' - '.$client->number." Fixing {$client->paid_to_date} to {$total_invoice_payments}");
                     $client->paid_to_date = $total_invoice_payments;
                     $client->save();
                 }
