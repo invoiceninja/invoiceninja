@@ -28,7 +28,7 @@ class CompanySettings extends BaseSettings
     public $lock_invoices = 'off'; //off,when_sent,when_paid //@implemented
 
     public $enable_client_portal_tasks = false; //@ben to implement
-    public $show_all_tasks_client_portal = 'all'; // all, uninvoiced, invoiced
+    public $show_all_tasks_client_portal = 'invoiced'; // all, uninvoiced, invoiced
     public $enable_client_portal_password = false; //@implemented
     public $enable_client_portal = true; //@implemented
     public $enable_client_portal_dashboard = false; // @TODO There currently is no dashboard so this is pending
