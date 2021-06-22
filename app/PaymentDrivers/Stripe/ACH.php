@@ -13,6 +13,7 @@
 namespace App\PaymentDrivers\Stripe;
 
 use App\Exceptions\PaymentFailed;
+use App\Http\Requests\ClientPortal\PaymentMethod\VerifyPaymentMethodRequest;
 use App\Http\Requests\Request;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
@@ -87,7 +88,7 @@ class ACH
         return render('gateways.stripe.ach.verify', $data);
     }
 
-    public function processVerification(Request $request, ClientGatewayToken $token)
+    public function processVerification(VerifyPaymentMethodRequest $request, ClientGatewayToken $token)
     {
         $this->stripe->init();
 

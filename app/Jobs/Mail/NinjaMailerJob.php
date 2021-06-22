@@ -101,7 +101,8 @@ class NinjaMailerJob implements ShouldQueue
         //send email
         try {
             nlog("trying to send to {$this->nmo->to_user->email} ". now()->toDateTimeString());
-            
+            nlog("Using mailer => ". $this->mailer);
+
             Mail::mailer($this->mailer)
                 ->to($this->nmo->to_user->email)
                 ->send($this->nmo->mailable);
@@ -146,11 +147,7 @@ class NinjaMailerJob implements ShouldQueue
     {
         /* Singletons need to be rebooted each time just in case our Locale is changing*/
         App::forgetInstance('translator');
-        // App::forgetInstance('mail.manager'); //singletons must be destroyed!
-        // App::forgetInstance('mailer');
-        // App::forgetInstance('laravelgmail');
         $t = app('translator');
-        /* Inject custom translations if any exist */
         $t->replace(Ninja::transformTranslations($this->nmo->settings));
 
         switch ($this->nmo->settings->email_sending_method) {
@@ -165,7 +162,6 @@ class NinjaMailerJob implements ShouldQueue
                 break;
         }
 
-        (new MailServiceProvider(app()))->register();
     }
 
     private function setGmailMailer()
