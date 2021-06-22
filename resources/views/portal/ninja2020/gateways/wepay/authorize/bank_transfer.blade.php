@@ -1,7 +1,11 @@
 @extends('portal.ninja2020.layout.payments', ['gateway_title' => ctrans('texts.credit_card'), 'card_title' => ctrans('texts.bank_transfer')])
 
 @section('gateway_head')
+    <meta name="wepay-environment" content="{{ config('ninja.wepay.environment') }}">
+    <meta name="wepay-client-id" content="{{ config('ninja.wepay.client_id') }}">
+    <meta name="contact-email" content="{{ $contact->email }}">
 
+    <script type="text/javascript" src="https://static.wepay.com/min/js/tokenization.4.latest.js"></script>
 @endsection
 
 @section('gateway_content')
@@ -17,55 +21,12 @@
 
     <div class="alert alert-failure mb-4" hidden id="errors"></div>
 
+    @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.method')])
+        {{ ctrans('texts.bank_account') }}
+    @endcomponent
+
 @endsection
 
 @section('gateway_footer')
-
-<script type="text/javascript" src="https://static.wepay.com/min/js/tokenization.4.latest.js"></script>
-
-<script type="text/javascript">
-    (function() {
-        @if(config('ninja.wepay.environment') == 'staging')
-        WePay.set_endpoint("stage"); 
-        @else
-        WePay.set_endpoint("production");
-        @endif
-
-        window.onload = function(){
-
-            response = WePay.bank_account.create({
-                'client_id': "{{ config('ninja.wepay.client_id') }}",
-                'email': "{{ $contact->email }}"
-            }, function(data){
-                if(data.error) {
-                    console.log("Pop-up closing: ")
-                    errors.textContent = '';
-                    errors.textContent = data.error_description;
-                    errors.hidden = false;
-                    } else {
-                    // call your own app's API to save the token inside the data;
-                    // show a success page
-                        console.log(data);
-                        document.querySelector('input[name="bank_account_id"]').value = data.bank_account_id;                      
-                        document.getElementById('server_response').submit();
-                    }
-                }, function(data){
-                    if(data.error) {
-                       console.log("Pop-up opening: ");
-                       console.log(data);
-                       // handle error response
-                        errors.textContent = '';
-                        errors.textContent = data.error_description;
-                        errors.hidden = false;
-                       } else {
-                   // call your own app's API to save the token inside the data;
-                   // show a success page
-                 }
-             }
-             );
-        };
-
-    })();
-</script>
-
+    <script src="{{ asset('js/clients/payment_methods/wepay-bank-account.js') }}"></script>
 @endsection
