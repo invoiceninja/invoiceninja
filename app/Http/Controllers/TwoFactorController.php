@@ -12,6 +12,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Transformers\UserTransformer;
 use Crypt;
 use PragmaRX\Google2FA\Google2FA;
 
