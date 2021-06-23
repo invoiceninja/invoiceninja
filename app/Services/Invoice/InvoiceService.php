@@ -377,23 +377,28 @@ class InvoiceService
     {
         switch ($reminder_template) {
             case 'reminder1':
-                $this->invoice->reminder1_sent = now()->format('Y-m-d');
-                $this->invoice->reminder_last_sent = now()->format('Y-m-d');
+                $this->invoice->reminder1_sent = now();
+                $this->invoice->reminder_last_sent = now();
+                $this->invoice->last_sent_date = now();
                 break;
             case 'reminder2':
-                $this->invoice->reminder2_sent = now()->format('Y-m-d');
-                $this->invoice->reminder_last_sent = now()->format('Y-m-d');
+                $this->invoice->reminder2_sent = now();
+                $this->invoice->reminder_last_sent = now();
+                $this->invoice->last_sent_date = now();
                 break;
             case 'reminder3':
-                $this->invoice->reminder3_sent = now()->format('Y-m-d');
-                $this->invoice->reminder_last_sent = now()->format('Y-m-d');
+                $this->invoice->reminder3_sent = now();
+                $this->invoice->reminder_last_sent = now();
+                $this->invoice->last_sent_date = now();
                 break;
             case 'endless_reminder':
-                $this->invoice->reminder_last_sent = now()->format('Y-m-d');
+                $this->invoice->reminder_last_sent = now();
+                $this->invoice->last_sent_date = now();
                 break;
             default:
-                $this->invoice->reminder1_sent = now()->format('Y-m-d');
-                $this->invoice->reminder_last_sent = now()->format('Y-m-d');
+                $this->invoice->reminder1_sent = now();
+                $this->invoice->reminder_last_sent = now();
+                $this->invoice->last_sent_date = now();
                 break;
         }
 
