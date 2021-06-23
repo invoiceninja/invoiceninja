@@ -398,7 +398,6 @@ class CompanySettings extends BaseSettings
         'email_template_reminder2'           => 'string',
         'email_template_reminder3'           => 'string',
         'email_template_reminder_endless'    => 'string',
-        'enable_client_portal_password'      => 'bool',
         'inclusive_taxes'                    => 'bool',
         'invoice_number_pattern'             => 'string',
         'invoice_number_counter'             => 'integer',

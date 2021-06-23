@@ -11,11 +11,16 @@
 
 namespace App\Http\Controllers;
 
-use PragmaRX\Google2FA\Google2FA;
+use App\Models\User;
 use Crypt;
+use PragmaRX\Google2FA\Google2FA;
 
 class TwoFactorController extends BaseController
 {
+    protected $entity_type = User::class;
+
+    protected $entity_transformer = UserTransformer::class;
+    
     public function setupTwoFactor()
     {
         $user = auth()->user();
