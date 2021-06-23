@@ -6,6 +6,7 @@ use App\Http\Controllers\BaseController;
 use App\Http\Requests\MigrationAuthRequest;
 use App\Http\Requests\MigrationCompaniesRequest;
 use App\Http\Requests\MigrationEndpointRequest;
+use App\Http\Requests\MigrationForwardRequest;
 use App\Http\Requests\MigrationTypeRequest;
 use App\Libraries\Utils;
 use App\Models\Account;
@@ -15,6 +16,8 @@ use App\Services\Migration\CompleteService;
 use App\Traits\GenerateMigrationResources;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Validator;
+use Illuminate\Http\Request;
 
 class StepsController extends BaseController
 {
@@ -81,6 +84,28 @@ class StepsController extends BaseController
         return redirect(
             url('/migration/endpoint')
         );
+    }
+
+    public function forwardUrl(Request $request)
+    {
+
+        $rules = [
+            'url' => 'nullable|url',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $account = \Auth::user()->account;
+        $account->forward_url_for_v5 = rtrim($request->input('url'),'/');
+        $account->save();
+
+        return back();
     }
 
     public function endpoint()
