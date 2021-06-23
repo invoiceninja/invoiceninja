@@ -211,7 +211,51 @@ info("get company");
             'auto_archive_quote' => $this->account->auto_archive_quote ? (bool) $this->account->auto_archive_quote : false,
             'auto_email_invoice' => $this->account->auto_email_invoice ? (bool) $this->account->auto_email_invoice : false,
             'counter_padding' => $this->account->invoice_number_padding ?: 4,
+            'reply_to_email' => $this->account->account_email_settings->reply_to_email ?: '',
+            'bcc_email' => $this->account->account_email_settings->bcc_email ?: '',
+            'email_subject_invoice' => $this->account->account_email_settings->email_subject_invoice ?: '',
+            'email_subject_quote' => $this->account->account_email_settings->email_subject_quote ?: '',
+            'email_subject_payment' => $this->account->account_email_settings->email_subject_payment ?: '',
+            'email_template_invoice' => $this->account->account_email_settings->email_template_invoice ?: '',
+            'email_template_quote' => $this->account->account_email_settings->email_template_quote ?: '',
+            'email_template_payment' => $this->account->account_email_settings->email_template_payment ?: '',
+            'email_subject_reminder1' => $this->account->account_email_settings->email_subject_reminder1 ?: '',
+            'email_subject_reminder2' => $this->account->account_email_settings->email_subject_reminder2 ?: '',
+            'email_subject_reminder3' => $this->account->account_email_settings->email_subject_reminder3 ?: '',
+            'email_subject_reminder_endless' => $this->account->account_email_settings->email_subject_reminder4 ?: '',
+            'email_template_reminder1' => $this->account->account_email_settings->email_template_reminder1 ?: '',
+            'email_template_reminder2' => $this->account->account_email_settings->email_template_reminder2 ?: '',
+            'email_template_reminder3' => $this->account->account_email_settings->email_template_reminder3 ?: '',
+            'email_template_reminder_endless' => $this->account->account_email_settings->email_template_reminder4 ?: '',
+            'late_fee_amount1' => $this->account->account_email_settings->late_fee1_amount ?: 0,
+            'late_fee_amount2' => $this->account->account_email_settings->late_fee2_amount ?: 0,
+            'late_fee_amount3' => $this->account->account_email_settings->late_fee3_amount ?: 0,
+            'late_fee_percent1' => $this->account->account_email_settings->late_fee1_percent ?: 0,
+            'late_fee_percent2' => $this->account->account_email_settings->late_fee2_percent ?: 0,
+            'late_fee_percent3' => $this->account->account_email_settings->late_fee3_percent ?: 0,
+            'enable_reminder1' => $this->account->enable_reminder1 ? true : false,
+            'enable_reminder2' => $this->account->enable_reminder2 ? true : false,
+            'enable_reminder3' => $this->account->enable_reminder3 ? true : false,
+            'enable_reminder_endless' => $this->account->enable_reminder4 ? true : false,
+            'num_days_reminder1' => $this->account->num_days_reminder1 ?: 0,
+            'num_days_reminder2' => $this->account->num_days_reminder2 ?: 0,
+            'num_days_reminder3' => $this->account->num_days_reminder3 ?: 0,
+            'schedule_reminder1' => $this->buildReminderString($this->account->direction_reminder1, $this->account->field_reminder1),
+            'schedule_reminder2' => $this->buildReminderString($this->account->direction_reminder2, $this->account->field_reminder2),
+            'schedule_reminder3' => $this->buildReminderString($this->account->direction_reminder3, $this->account->field_reminder3),
+            'endless_reminder_frequency_id' => $this->account->account_email_settings->reset_counter_frequency_id ? $this->transformFrequencyId($this->account->account_email_settings->reset_counter_frequency_id) : 0,
+            'email_signature' => $this->account->email_footer ?: '',
         ];
+    }
+
+    private function buildReminderString($direction, $field)
+    {
+
+        $direction_string = $direction == 1 ? "after_" : "before_";
+        $field_string = $field == 1 ? "due_date" : "invoice_date";
+
+        return $direction_string.$field_string;
+
     }
 
     public function getTaxRates()
