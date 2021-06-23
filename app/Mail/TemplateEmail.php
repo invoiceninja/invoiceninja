@@ -63,9 +63,9 @@ class TemplateEmail extends Mailable
                 DesignHelpers::parseMarkdownToHtml($this->build_email->getBody())
             );
 
-            $this->build_email->setBody(
-                TemplateEngine::wrapElementsIntoTables('<div id="content-wrapper"></div>', $this->build_email->getBody(), $settings)
-            );
+//            $this->build_email->setBody(
+//                TemplateEngine::wrapElementsIntoTables('<div id="content-wrapper"></div>', $this->build_email->getBody(), $settings)
+//            );
         }
 
         $company = $this->client->company;

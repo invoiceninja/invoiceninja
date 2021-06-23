@@ -212,7 +212,7 @@ class TemplateEngine
             } else {
                 $wrapper = '';
             }
-        } 
+        }
         elseif ($email_style == 'plain') {
             $wrapper = view($this->getTemplatePath($email_style), $data)->render();
             $injection = '';
@@ -226,7 +226,7 @@ class TemplateEngine
 
         $data = [
             'subject' => $this->subject,
-            'body' => $email_style == 'custom' ? $this->body : self::wrapElementsIntoTables(strtr('<div id="content-wrapper"></div>', ['$body' => '']), $this->body, $this->entity_obj->client->getMergedSettings()),
+            'body' => $this->body,
             'wrapper' => $wrapper,
             'raw_body' => $this->raw_body,
             'raw_subject' => $this->raw_subject
