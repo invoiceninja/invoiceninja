@@ -60,7 +60,9 @@ class GmailTransport extends Transport
         $this->gmail->message($message->getBody());
 
         $this->gmail->cc($message->getCc());
-        $this->gmail->bcc(array_keys($message->getBcc()));
+
+        if(is_array($message->getBcc()))
+            $this->gmail->bcc(array_keys($message->getBcc()));
 
         foreach ($message->getChildren() as $child) 
         {
