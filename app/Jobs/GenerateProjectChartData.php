@@ -30,8 +30,8 @@ class GenerateProjectChartData extends Job
         $endTimestamp = max(time(), strtotime($project->due_date));
         $count = 0;
         $duration = 0;
-
-        foreach ($project->tasks as $task) {
+        $tasks = Task::where([['project_id', $project->id], ['is_deleted', false]])->withTrashed()->get();
+        foreach ($tasks as $task) {
             $parts = json_decode($task->time_log) ?: [];
 
             if (! count($parts)) {
