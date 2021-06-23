@@ -568,12 +568,20 @@ trait GeneratesCounter
         $search[] = '{$client_counter}';
         $replace[] = $counter;
 
+        $search[] = '{$clientCounter}';
+        $replace[] = $counter;
+
         $search[] = '{$group_counter}';
         $replace[] = $counter;
 
-        if (strstr($pattern, '{$user_id}')) {
+        $search[] = '{$year}';
+        $replace[] = date('Y');
+        
+        if (strstr($pattern, '{$user_id}') || strstr($pattern, '{$userId}')) {
             $user_id = $entity->user_id ? $entity->user_id : 0;
             $search[] = '{$user_id}';
+            $replace[] = str_pad(($user_id), 2, '0', STR_PAD_LEFT);
+            $search[] = '{$userId}';
             $replace[] = str_pad(($user_id), 2, '0', STR_PAD_LEFT);
         }
 
@@ -624,7 +632,13 @@ trait GeneratesCounter
             $search[] = '{$client_custom1}';
             $replace[] = $client->custom_value1;
 
+            $search[] = '{$clientCustom1}';
+            $replace[] = $client->custom_value1;
+
             $search[] = '{$client_custom2}';
+            $replace[] = $client->custom_value2;
+
+            $search[] = '{$clientCustom2}';
             $replace[] = $client->custom_value2;
 
             $search[] = '{$client_custom3}';
@@ -637,6 +651,9 @@ trait GeneratesCounter
             $replace[] = $client->number;
 
             $search[] = '{$client_id_number}';
+            $replace[] = $client->id_number;
+
+            $search[] = '{$clientIdNumber}';
             $replace[] = $client->id_number;
         }
 

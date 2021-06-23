@@ -161,7 +161,7 @@ class ACH
         {
             $meta = $token->meta;
             $meta->state = $response->state;
-            $token->meta;
+            $token->meta = $meta;
             $token->save();
 
             return redirect()->route('client.payment_methods.index');
