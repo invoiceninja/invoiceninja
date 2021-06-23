@@ -277,7 +277,8 @@
 					<label for="modules" class="control-label col-lg-4 col-sm-4"></label>
 					<div class="col-lg-8 col-sm-8">
 						<div class="help-block">
-							Once you are ready to forward your customers, enter your client portal URL for V5 here:<br/>
+							Once you are ready to forward your customers, enter your client portal URL for V5 here:<br/><br/>
+							<b>Please note once enabled. Your V4 account will become disabled. This means that your recurring invoices and any reminders will no longer fire from V4.</b> <br/><br/>To renable your V4 installation simply set the forwarding url to a blank/empty value.
 						</div><br/>
 					</div>
         		</div>

@@ -15,6 +15,7 @@ class AddForwardUrlForV5 extends Migration
     {
         Schema::table('accounts', function ($table) {
              $table->text('forward_url_for_v5')->default('');
+             $table->boolean('is_disabled')->default(false);
          });
     }
 

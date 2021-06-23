@@ -171,7 +171,7 @@ info("get company");
             'all_pages_footer' => $this->account->all_pages_footer ? (bool) $this->account->all_pages_footer : true,
             'all_pages_header' => $this->account->all_pages_header ? (bool) $this->account->all_pages_header : true,
             'show_currency_code' => $this->account->show_currency_code ? (bool) $this->account->show_currency_code : false,
-            'enable_client_portal_password' => $this->account->enable_portal_password ? (bool) $this->account->enable_portal_password : true,
+            'enable_client_portal_password' => $this->account->enable_portal_password ? (bool) $this->account->enable_portal_password : false,
             'send_portal_password' => $this->account->send_portal_password ? (bool) $this->account->send_portal_password : false,
             'recurring_number_prefix' => $this->account->recurring_invoice_number_prefix ? $this->account->recurring_invoice_number_prefix : 'R',
             'enable_client_portal' => $this->account->enable_client_portal ? (bool) $this->account->enable_client_portal : false,

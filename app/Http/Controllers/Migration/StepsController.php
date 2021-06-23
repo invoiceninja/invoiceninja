@@ -102,6 +102,14 @@ class StepsController extends BaseController
         }
 
         $account = \Auth::user()->account;
+
+        if(strlen($request->input('url')) == 0) {
+            $account->is_disabled = false;
+        }
+        else {
+            $account->is_disabled = true;
+        }
+
         $account->forward_url_for_v5 = rtrim($request->input('url'),'/');
         $account->save();
 
@@ -201,22 +209,28 @@ class StepsController extends BaseController
             );
         }
 
+        $completeService = (new CompleteService(session('MIGRATION_ACCOUNT_TOKEN')));
+
         try {
             $migrationData = $this->generateMigrationData($request->all());
 
-            $completeService = (new CompleteService(session('MIGRATION_ACCOUNT_TOKEN')))
-                ->data($migrationData)
+            
+                $completeService->data($migrationData)
                 ->endpoint(session('MIGRATION_ENDPOINT'))
                 ->start();
         }
-        finally {
+        catch(\Exception $e){
+            info($e->getMessage());
+            return view('migration.completed', ['customMessage' => $e->getMessage()]);
+        }
+     
         
             if ($completeService->isSuccessful()) {
                 return view('migration.completed');
             }
 
             return view('migration.completed', ['customMessage' => $completeService->getErrors()[0]]);
-        }
+        
     }
 
     public function completed()
