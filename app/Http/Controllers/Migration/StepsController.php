@@ -101,17 +101,17 @@ class StepsController extends BaseController
                 ->withInput();
         }
 
-        $account = \Auth::user()->account;
+        $account_settings = \Auth::user()->account->account_email_settings;
 
         if(strlen($request->input('url')) == 0) {
-            $account->is_disabled = false;
+            $account_settings->is_disabled = false;
         }
         else {
-            $account->is_disabled = true;
+            $account_settings->is_disabled = true;
         }
 
-        $account->forward_url_for_v5 = rtrim($request->input('url'),'/');
-        $account->save();
+        $account_settings->forward_url_for_v5 = rtrim($request->input('url'),'/');
+        $account_settings->save();
 
         return back();
     }

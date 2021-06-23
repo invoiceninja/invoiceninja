@@ -285,7 +285,7 @@
 				<div class="form-group">                    
                     <label for="url"  class="control-label col-lg-4 col-sm-4 text-right">{!! trans('texts.url') !!}</label>
                     <div class="col-lg-8 col-sm-8">
-                    <input type="text" name="url" placeholder="https://subdomain.invoicing.co" class="form form-control" value="{{ $account->forward_url_for_v5}}">
+                    <input type="text" name="url" placeholder="https://subdomain.invoicing.co" class="form form-control" value="{{ $account->account_email_settings->forward_url_for_v5}}">
 		        	@if($errors->has('url')) 
 		                <div class="col-sm-5">
 		                    @foreach ($errors->get('url') as $message)

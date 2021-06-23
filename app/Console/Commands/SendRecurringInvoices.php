@@ -71,7 +71,7 @@ class SendRecurringInvoices extends Command
 
         foreach ($accounts as $account) {
 
-            if(!$account->is_disabled)
+            if(!$account->account_email_settings->is_disabled)
                 $account->checkCounterReset();
         }
     }
@@ -97,7 +97,7 @@ class SendRecurringInvoices extends Command
 
             $account = $recurInvoice->account;
 
-            if($account->is_disabled){
+            if($account->account_email_settings->is_disabled){
                 continue;
             }
 
@@ -134,7 +134,7 @@ class SendRecurringInvoices extends Command
         foreach ($expenses as $expense) {
             $shouldSendToday = $expense->shouldSendToday();
 
-            if (! $shouldSendToday || $expense->account->is_disabled) {
+            if (! $shouldSendToday || $expense->account->account_email_settings->is_disabled) {
                 continue;
             }
 
