@@ -46,8 +46,6 @@ class GmailTransport extends Transport
         $this->gmail = null;
         $this->gmail = new Mail;
 
-        nlog(array_keys($message->getBcc()));
-
         /*We should nest the token in the message and then discard it as needed*/
         $token = $message->getHeaders()->get('GmailToken')->getValue();
         
@@ -66,8 +64,6 @@ class GmailTransport extends Transport
 
         foreach ($message->getChildren() as $child) 
         {
-
-            nlog("trying to attach");
 
             if($child->getContentType() != 'text/plain')
             {
