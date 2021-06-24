@@ -86,7 +86,7 @@ class CreditCard
             'merchant_key' => $this->payfast->company_gateway->getConfigField('merchantKey'),
             'return_url' => route('client.payment_methods.index'),
             'cancel_url' => route('client.payment_methods.index'),
-            'notify_url' => $this->company_gateway->webhookUrl(),
+            'notify_url' => $this->payfast->company_gateway->webhookUrl(),
             'amount' => 0,
             'item_name' => 'pre-auth',
             'subscription_type' => 2,
