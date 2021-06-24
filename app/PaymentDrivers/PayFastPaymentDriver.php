@@ -40,9 +40,6 @@ class PayFastPaymentDriver extends BaseDriver
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_PAYFAST; 
 
-    //Live: https://www.payfast.co.za/eng/process
-    //Sandbox: https://sandbox.payfast.co.za/eng/process
-    
     public function gatewayTypes(): array
     {
         $types = [];
@@ -52,6 +49,14 @@ class PayFastPaymentDriver extends BaseDriver
         return $types;
     }
     
+    public function endpointUrl()
+    {
+        if($this->company_gateway->getConfigField('testMode'))
+            return 'https://sandbox.payfast.co.za/eng/process';
+
+        return 'https://www.payfast.co.za/eng/process';
+    }
+
     public function init()
     {
 

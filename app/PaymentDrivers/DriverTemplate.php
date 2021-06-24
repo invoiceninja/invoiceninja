@@ -39,6 +39,22 @@ class DriverTemplate extends BaseDriver
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_STRIPE; //define a constant for your gateway ie TYPE_YOUR_CUSTOM_GATEWAY - set the const in the SystemLog model
 
+    public function init()
+    {
+        return $this; /* This is where you boot the gateway with your auth credentials*/
+    }
+
+    /* Returns an array of gateway types for the payment gateway */
+    public function gatewayTypes(): array
+    {
+        $types = [];
+
+            $types[] = GatewayType::CREDIT_CARD;
+
+        return $types;
+    }
+
+    /* Sets the payment method initialized */
     public function setPaymentMethod($payment_method_id)
     {
         $class = self::$methods[$payment_method_id];

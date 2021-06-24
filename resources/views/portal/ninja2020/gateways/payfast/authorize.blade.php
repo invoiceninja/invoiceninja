@@ -6,7 +6,7 @@
 @endsection
 
 @section('gateway_content')
-    <form action="https://sandbox.payfast.co.za/eng/process" method="post">
+    <form action="{{ $payment_endpoint_url }}" method="post">
         <input type="hidden" name="merchant_id" value="{{ $merchant_id }}">
         <input type="hidden" name="merchant_key" value="{{ $merchant_key }}">
         <input type="hidden" name="return_url" value="{{ $return_url }}">

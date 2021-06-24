@@ -95,6 +95,7 @@ class CreditCard
 
         $data['signature'] = $this->payfast->generateSignature($data);
         $data['gateway'] = $this->payfast;
+        $data['payment_endpoint_url'] = $this->payfast->endpointUrl();
 
         return render('gateways.payfast.authorize', $data);
     }
