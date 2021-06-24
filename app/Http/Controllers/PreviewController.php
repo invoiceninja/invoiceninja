@@ -155,7 +155,7 @@ class PreviewController extends BaseController
         $t = app('translator');
         $t->replace(Ninja::transformTranslations(auth()->user()->company()->settings));
 
-        DB::beginTransaction();
+        DB::connection(config('database.default'))->beginTransaction();
 
         $client = Client::factory()->create([
                 'user_id' => auth()->user()->id,
@@ -230,7 +230,7 @@ class PreviewController extends BaseController
             
         $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), auth()->user()->company());
 
-        DB::rollBack();
+        DB::connection(config('database.default'))->rollBack();
 
         $response = Response::make($file_path, 200);
         $response->header('Content-Type', 'application/pdf');
