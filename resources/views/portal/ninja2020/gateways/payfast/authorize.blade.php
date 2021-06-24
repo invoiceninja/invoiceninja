@@ -6,7 +6,7 @@
 @endsection
 
 @section('gateway_content')
-    <form action="{{ $payment_endpoint_url }}" method="post">
+    <form action="{{ $payment_endpoint_url }}" method="post" id="server_response">
         <input type="hidden" name="merchant_id" value="{{ $merchant_id }}">
         <input type="hidden" name="merchant_key" value="{{ $merchant_key }}">
         <input type="hidden" name="return_url" value="{{ $return_url }}">
@@ -17,7 +17,7 @@
         <input type="hidden" name="subscription_type" value="{{ $subscription_type }}"> 
         <input type="hidden" name="passphrase" value="{{ $passphrase }}"> 
         <input type="hidden" name="signature" value="{{ $signature }}">    
-
+    
     @if(!Request::isSecure())
         <p class="alert alert-failure">{{ ctrans('texts.https_required') }}</p>
     @endif
@@ -28,10 +28,10 @@
         {{ ctrans('texts.credit_card') }}
     @endcomponent
 
-    @component('portal.ninja2020.gateways.includes.pay_now', ['id' => 'card_button'])
+    @component('portal.ninja2020.gateways.includes.pay_now', ['id' => 'server_response'])
         {{ ctrans('texts.add_payment_method') }}
     @endcomponent
-    </form> 
+   </form> 
 @endsection
 
 @section('gateway_footer')
