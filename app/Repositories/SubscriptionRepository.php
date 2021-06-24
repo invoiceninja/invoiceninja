@@ -13,6 +13,7 @@
 namespace App\Repositories;
 
 
+use App\DataMapper\ClientSettings;
 use App\DataMapper\InvoiceItem;
 use App\Factory\InvoiceFactory;
 use App\Models\Client;
@@ -53,6 +54,7 @@ class SubscriptionRepository extends BaseRepository
                 'company_id' => $subscription->company_id,
                 'group_settings_id' => $subscription->group_id,
                 'country_id' => $subscription->company->settings->country_id,
+                'settings' => ClientSettings::defaults(),
             ]);
 
         $contact = ClientContact::factory()->create([
