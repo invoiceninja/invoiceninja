@@ -1,6 +1,6 @@
 <div class="grid grid-cols-12">
     <div class="col-span-12 lg:col-span-6 bg-gray-50 flex flex-col items-center">
-        <div class="w-full p-10 lg:w-1/2 lg:mt-24 lg:p-0">
+        <div class="w-full p-10 lg:mt-24 md:max-w-3xl">
             <img class="h-8" src="{{ $subscription->company->present()->logo }}"
                  alt="{{ $subscription->company->present()->name }}">
 
