@@ -18,6 +18,7 @@ use App\Models\PaymentHash;
 use App\Models\SystemLog;
 use App\PaymentDrivers\PayFast\CreditCard;
 use App\Utils\Traits\MakesHash;
+use \PayFastPayment;
 
 class PayFastPaymentDriver extends BaseDriver
 {
@@ -39,17 +40,33 @@ class PayFastPaymentDriver extends BaseDriver
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_PAYFAST; 
 
+    //Live: https://www.payfast.co.za/eng/process
+    //Sandbox: https://sandbox.payfast.co.za/eng/process
+    
+    public function gatewayTypes(): array
+    {
+        $types = [];
+
+            $types[] = GatewayType::CREDIT_CARD;
+
+        return $types;
+    }
+    
     public function init()
     {
 
-        $this->payfast = new PayFastPayment(
-            [
-                'merchantId' => $this->company_gateway->getConfigField('merchantId'),
-                'merchantKey' => $this->company_gateway->getConfigField('merchantKey'),
-                'passPhrase' => $this->company_gateway->getConfigField('passPhrase'),
-                'testMode' => $this->company_gateway->getConfigField('testMode')
-            ]
-        );
+        try{
+            $this->payfast = new PayFastPayment(
+                [
+                    'merchantId' => $this->company_gateway->getConfigField('merchantId'),
+                    'merchantKey' => $this->company_gateway->getConfigField('merchantKey'),
+                    'passPhrase' => $this->company_gateway->getConfigField('passPhrase'),
+                    'testMode' => $this->company_gateway->getConfigField('testMode')
+                ]
+            );
+        } catch(Exception $e) {
+            echo 'There was an exception: '.$e->getMessage();
+        }
 
         return $this;
     }
@@ -90,4 +107,21 @@ class PayFastPaymentDriver extends BaseDriver
     {
         return $this->payment_method->yourTokenBillingImplmentation(); //this is your custom implementation from here
     }
+
+    public function generateSignature($data, $passPhrase = null) 
+    {
+        // Create parameter string
+        $pfOutput = '';
+        foreach( $data as $key => $val ) {
+            if($val !== '') {
+                $pfOutput .= $key .'='. urlencode( trim( $val ) ) .'&';
+            }
+        }
+        // Remove last ampersand
+        $getString = substr( $pfOutput, 0, -1 );
+        if( $passPhrase !== null ) {
+            $getString .= '&passphrase='. urlencode( trim( $passPhrase ) );
+        }
+        return md5( $getString );
+    } 
 }
