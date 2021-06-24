@@ -17,6 +17,7 @@
         <input type="hidden" name="subscription_type" value="{{ $subscription_type }}"> 
         <input type="hidden" name="passphrase" value="{{ $passphrase }}"> 
         <input type="hidden" name="signature" value="{{ $signature }}">    
+
     
     @if(!Request::isSecure())
         <p class="alert alert-failure">{{ ctrans('texts.https_required') }}</p>
@@ -28,9 +29,15 @@
         {{ ctrans('texts.credit_card') }}
     @endcomponent
 
-    @component('portal.ninja2020.gateways.includes.pay_now', ['id' => 'server_response'])
-        {{ ctrans('texts.add_payment_method') }}
-    @endcomponent
+    <div class="bg-white px-4 py-5 flex justify-end">
+        <button
+            type="submit"
+            id="{{ $id ?? 'pay-now' }}"
+            class="button button-primary bg-primary {{ $class ?? '' }}">
+            <span>{{ ctrans('texts.add_payment_method') }}</span>
+        </button>
+    </div>
+
    </form> 
 @endsection
 

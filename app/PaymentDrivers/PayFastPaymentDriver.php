@@ -128,5 +128,12 @@ class PayFastPaymentDriver extends BaseDriver
             $getString .= '&passphrase='. urlencode( trim( $passPhrase ) );
         }
         return md5( $getString );
+    }
+
+    public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment = null)
+    {
+
+        nlog($request->all());
+        return response()->json([], 200);
     } 
 }

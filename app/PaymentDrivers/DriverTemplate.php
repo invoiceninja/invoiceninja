@@ -11,6 +11,7 @@
 
 namespace App\PaymentDrivers;
 
+use App\Http\Requests\Payments\PaymentWebhookRequest;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
@@ -90,5 +91,9 @@ class DriverTemplate extends BaseDriver
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
         return $this->payment_method->yourTokenBillingImplmentation(); //this is your custom implementation from here
+    }
+
+    public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment = null)
+    {
     }
 }
