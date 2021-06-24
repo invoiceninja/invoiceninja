@@ -21,8 +21,6 @@ class PaymentWebhookController extends Controller
     public function __invoke(PaymentWebhookRequest $request, string $company_key, string $company_gateway_id)
     {
 
-    	// MultiDB::findAndSetDbByCompanyKey($company_key);
-
         $payment = $request->getPayment();
         
         if(!$payment)
