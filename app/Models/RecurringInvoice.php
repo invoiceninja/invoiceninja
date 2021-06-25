@@ -224,6 +224,13 @@ class RecurringInvoice extends BaseModel
         
         $offset = $this->client->timezone_offset();
 
+        /* 
+        As we are firing at UTC+0 if our offset is negative it is technically firing the day before so we always need
+        to add ON a day - a day = 86400 seconds
+        */
+        if($offset < 0)
+            $offset += 86400;
+
         switch ($this->frequency_id) {
             case self::FREQUENCY_DAILY:
                 return Carbon::parse($this->next_send_date)->startOfDay()->addDay()->addSeconds($offset);
