@@ -59,6 +59,21 @@
             </div>
         </div>
 
+        @if($invoice->auto_bill === 'optin' || $invoice->auto_bill === 'optout')
+            <div class="bg-white shadow overflow-hidden lg:rounded-lg mt-4">
+                <div class="flex flex-col md:flex-row items-start justify-between px-4 py-5 sm:p-6">
+                    <div>
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">Auto Bill</h3>
+                        <p class="mt-1 max-w-2xl text-sm leading-5 text-gray-500">Change your update bill preferences.</p>
+                    </div>
+
+                    <div class="flex mt-4 space-x-2">
+                        @livewire('recurring-invoices.update-auto-billing', ['invoice' => $invoice])
+                    </div>
+                </div>
+            </div>
+        @endif
+
         @if(is_null($invoice->subscription_id) || optional($invoice->subscription)->allow_cancellation)
             <div class="bg-white shadow sm:rounded-lg mt-4">
                 <div class="px-4 py-5 sm:p-6">
