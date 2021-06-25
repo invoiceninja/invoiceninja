@@ -428,16 +428,13 @@ class RecurringInvoice extends BaseModel
                 'due_date' => $next_due_date_string
             ];
 
-            $next_send_date = $this->nextDateByFrequency($next_send_date->format('Y-m-d'));
+            /* Fixes the timeshift in case the offset is negative which cause a infinite loop due to UTC +0*/
+            if($this->client->timezone_offset() < 0){
+                $next_send_date = $this->nextDateByFrequency($next_send_date->addDay()->format('Y-m-d'));
+            }
+            else
+                $next_send_date = $this->nextDateByFrequency($next_send_date->format('Y-m-d'));
         }
-
-        /*If no due date is set - unset the due_date value */
-        // if(!$this->due_date_days || $this->due_date_days == 0){
-
-        //     foreach($data as $key => $value)
-        //         $data[$key]['due_date'] = '';
-
-        // }
 
         return $data;
     }
