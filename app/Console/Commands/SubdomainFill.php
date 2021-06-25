@@ -60,36 +60,36 @@ class SubdomainFill extends Command
         });
 
 
-        $db1 = Company::on('db-ninja-01')->get();
+        // $db1 = Company::on('db-ninja-01')->get();
 
-        $db1->each(function ($company){
+        // $db1->each(function ($company){
 
-            $db2 = Company::on('db-ninja-02a')->find($company->id);
+        //     $db2 = Company::on('db-ninja-02a')->find($company->id);
 
-            if($db2)
-            {
-                $db2->subdomain = $company->subdomain;
-                $db2->save();
-            }
+        //     if($db2)
+        //     {
+        //         $db2->subdomain = $company->subdomain;
+        //         $db2->save();
+        //     }
             
-        });
+        // });
 
 
-        $db1 = null;
-        $db2 = null;
+        // $db1 = null;
+        // $db2 = null;
 
-        $db2 = Company::on('db-ninja-02')->get();
+        // $db2 = Company::on('db-ninja-02')->get();
 
-        $db2->each(function ($company){
+        // $db2->each(function ($company){
 
-            $db1 = Company::on('db-ninja-01a')->find($company->id);
+        //     $db1 = Company::on('db-ninja-01a')->find($company->id);
 
-            if($db1)
-            {
-                $db1->subdomain = $company->subdomain;
-                $db1->save();
-            }
-        });
+        //     if($db1)
+        //     {
+        //         $db1->subdomain = $company->subdomain;
+        //         $db1->save();
+        //     }
+        // });
     }
 
 }
