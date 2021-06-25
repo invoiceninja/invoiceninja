@@ -189,7 +189,7 @@ class ACH
 
     public function paymentResponse($request)
     {
-        nlog($request->all());
+        // nlog($request->all());
         
         $token = ClientGatewayToken::find($this->decodePrimaryKey($request->input('source')));
         $token_meta = $token->meta;

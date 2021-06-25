@@ -45,6 +45,7 @@ class RecurringInvoicesCron
         if (! config('ninja.db.multi_db_enabled')) {
             $recurring_invoices = RecurringInvoice::where('next_send_date', '<=', now()->toDateTimeString())
                                                         ->whereNotNull('next_send_date')
+                                                        ->whereNull('deleted_at')
                                                         ->where('status_id', RecurringInvoice::STATUS_ACTIVE)
                                                         ->where('remaining_cycles', '!=', '0')
                                                         ->with('company')
@@ -66,6 +67,7 @@ class RecurringInvoicesCron
 
                 $recurring_invoices = RecurringInvoice::where('next_send_date', '<=', now()->toDateTimeString())
                                                         ->whereNotNull('next_send_date')
+                                                        ->whereNull('deleted_at')
                                                         ->where('status_id', RecurringInvoice::STATUS_ACTIVE)
                                                         ->where('remaining_cycles', '!=', '0')
                                                         ->with('company')
