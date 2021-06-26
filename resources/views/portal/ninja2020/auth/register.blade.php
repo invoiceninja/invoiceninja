@@ -8,7 +8,6 @@
                 <img class="h-32 w-auto" src="{{ $company->present()->logo() }}" alt="{{ ctrans('texts.logo') }}">
             </div>
             <h1 class="text-center text-3xl mt-8">{{ ctrans('texts.register') }}</h1>
-            <h1 class="text-center text-3xl mt-8">{{ ctrans('texts.register') }}</h1>
             <p class="block text-center text-gray-600">{{ ctrans('texts.register_label') }}</p>
 
             <form action="{{ route('client.register', request()->route('company_key')) }}" method="POST" x-data="{ more: false }">
