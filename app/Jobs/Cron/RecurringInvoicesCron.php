@@ -76,7 +76,7 @@ class RecurringInvoicesCron
                 nlog(now()->format('Y-m-d') . ' Sending Recurring Invoices. Count = '.$recurring_invoices->count().' On Database # '.$db);
 
                 $recurring_invoices->each(function ($recurring_invoice, $key) {
-                    nlog("Current date = " . now()->format("Y-m-d") . " Recurring date = " .$recurring_invoice->next_send_date);
+                    nlog("Current date = " . now()->format("Y-m-d") . " Recurring date = " .$recurring_invoice->next_send_date ." Recurring #id = ". $recurring_invoice->id);
 
                     if (!$recurring_invoice->company->is_disabled) {
                         SendRecurring::dispatchNow($recurring_invoice, $recurring_invoice->company->db);
