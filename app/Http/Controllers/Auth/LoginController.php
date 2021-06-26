@@ -201,6 +201,14 @@ class LoginController extends BaseController
                     ->header('X-Api-Version', config('ninja.minimum_client_version'));
             }
 
+            /* If for some reason we lose state on the default company ie. a company is deleted - always make sure we can default to a company*/
+            if(!$user->account->default_company){
+                $account = $user->account;
+                $account->default_company_id = $user->companies->first()->id;
+                $account->save();
+                $user = $user->fresh();
+            }
+
             $user->setCompany($user->account->default_company);
 
             $this->setLoginCache($user);

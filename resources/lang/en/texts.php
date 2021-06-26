@@ -4268,6 +4268,10 @@ $LANG = array(
     'company_import_failure_body' => 'There was an error importing the company data, the error message was:',
     'recurring_invoice_due_date' => 'Due Date',
     'amount_cents' => 'Amount in pennies,pence or cents',
+    'default_payment_method_label' => 'Default Payment Method',
+    'default_payment_method' => 'Make this your preferred way of paying.',
+    'already_default_payment_method' => 'This is your preferred way of paying.',
+    'auto_bill_disabled' => 'Auto Bill Disabled',
 );
 
 return $LANG;

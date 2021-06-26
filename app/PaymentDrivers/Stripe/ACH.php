@@ -13,6 +13,7 @@
 namespace App\PaymentDrivers\Stripe;
 
 use App\Exceptions\PaymentFailed;
+use App\Http\Requests\ClientPortal\PaymentMethod\VerifyPaymentMethodRequest;
 use App\Http\Requests\Request;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
@@ -67,7 +68,7 @@ class ACH
         $client_gateway_token = $this->storePaymentMethod($source, $request->input('method'), $customer);
 
         $mailer = new NinjaMailerObject();
-        $mailer->mailable = new ACHVerificationNotification(auth('contact')->user()->client->company);
+        $mailer->mailable = new ACHVerificationNotification(auth('contact')->user()->client->company, route('client.payment_methods.verification', ['payment_method' => $client_gateway_token->hashed_id, 'method' => GatewayType::BANK_TRANSFER]));
         $mailer->company = auth('contact')->user()->client->company;
         $mailer->settings = auth('contact')->user()->client->company->settings;
         $mailer->to_user = auth('contact')->user();
@@ -79,6 +80,12 @@ class ACH
 
     public function verificationView(ClientGatewayToken $token)
     {
+        if (isset($token->meta->state) && $token->meta->state === 'authorized') {
+            return redirect()
+                ->route('client.payment_methods.show', $token->hashed_id)
+                ->with('message', __('texts.payment_method_verified'));
+        }
+
         $data = [
             'token' => $token,
             'gateway' => $this->stripe,
@@ -87,8 +94,14 @@ class ACH
         return render('gateways.stripe.ach.verify', $data);
     }
 
-    public function processVerification(Request $request, ClientGatewayToken $token)
+    public function processVerification($request, ClientGatewayToken $token)
     {
+        if (isset($token->meta->state) && $token->meta->state === 'authorized') {
+            return redirect()
+                ->route('client.payment_methods.show', $token->hashed_id)
+                ->with('message', __('texts.payment_method_verified'));
+        }
+
         $this->stripe->init();
 
         $bank_account = Customer::retrieveSource($request->customer, $request->source, $this->stripe->stripe_connect_auth);
@@ -96,12 +109,14 @@ class ACH
         try {
             $bank_account->verify(['amounts' => request()->transactions]);
 
-            $token->meta->verified_at = now();
+            $meta = $token->meta;
+            $meta->state = 'authorized';
+            $token->meta = $meta;
             $token->save();
 
             return redirect()
-                ->route('client.invoices.index')
-                ->with('success', __('texts.payment_method_verified'));
+                ->route('client.payment_methods.show', $token->hashed_id)
+                ->with('message', __('texts.payment_method_verified'));
         } catch (CardException $e) {
             return back()->with('error', $e->getMessage());
         }

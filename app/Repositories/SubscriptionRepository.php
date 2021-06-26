@@ -13,6 +13,7 @@
 namespace App\Repositories;
 
 
+use App\DataMapper\ClientSettings;
 use App\DataMapper\InvoiceItem;
 use App\Factory\InvoiceFactory;
 use App\Models\Client;
@@ -44,8 +45,8 @@ class SubscriptionRepository extends BaseRepository
     private function calculatePrice($subscription) :array
     {
 
-		DB::beginTransaction();
-
+		// DB::beginTransaction();
+        DB::connection(config('database.default'))->beginTransaction();
 		$data = [];
 
         $client = Client::factory()->create([
@@ -53,6 +54,7 @@ class SubscriptionRepository extends BaseRepository
                 'company_id' => $subscription->company_id,
                 'group_settings_id' => $subscription->group_id,
                 'country_id' => $subscription->company->settings->country_id,
+                'settings' => ClientSettings::defaults(),
             ]);
 
         $contact = ClientContact::factory()->create([
@@ -88,8 +90,9 @@ class SubscriptionRepository extends BaseRepository
 
         $data['promo_price'] = $invoice->calc()->getTotal();
 
-        DB::rollBack();
-
+        // DB::rollBack();
+        DB::connection(config('database.default'))->rollBack();
+        
         return $data;
     }
 

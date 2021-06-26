@@ -266,18 +266,17 @@ class WePayPaymentDriver extends BaseDriver
 
         $response = $this->wepay->request('checkout/refund', array(
             'checkout_id'   => $payment->transaction_reference,
-            'refund_reason' => 'Refund',
+            'refund_reason' => 'Refund by merchant',
             'amount'        => $amount
         ));
 
-
-            return [
-                        'transaction_reference' => $response->checkout_id,
-                        'transaction_response' => json_encode($response),
-                        'success' => $response->state == 'refunded' ? true : false,
-                        'description' => 'refund',
-                        'code' => 0,
-                    ];
+        return [
+            'transaction_reference' => $response->checkout_id,
+            'transaction_response' => json_encode($response),
+            'success' => $response->state == 'refunded' ? true : false,
+            'description' => 'refund',
+            'code' => 0,
+        ];
         
     }
 

@@ -211,7 +211,7 @@ class PayPalExpressPaymentDriver extends BaseDriver
 
                 return new Item([
                     'name' => $lineItem->product_key,
-                    'description' => substr($lineItem->notes, 0, 100),
+                    'description' => substr(strip_tags($lineItem->notes), 0, 100),
                     'price' => $lineItem->cost,
                     'quantity' => $lineItem->quantity,
                 ]);

@@ -113,7 +113,9 @@ class MarkPaid extends AbstractService
             $exchange_rate = new CurrencyApi();
 
             $payment->exchange_rate = $exchange_rate->exchangeRate($client_currency, $company_currency, Carbon::parse($payment->date));
-            $payment->exchange_currency_id = $client_currency;
+            //$payment->exchange_currency_id = $client_currency; // 23/06/2021
+            $payment->exchange_currency_id = $company_currency;
+        
             $payment->save();
 
         }

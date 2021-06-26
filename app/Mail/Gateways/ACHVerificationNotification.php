@@ -26,13 +26,20 @@ class ACHVerificationNotification extends Mailable
     public $company;
 
     /**
+     * @var string
+     */
+    public $url;
+
+    /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(Company $company)
+    public function __construct(Company $company, string $url)
     {
         $this->company = $company;
+
+        $this->url = $url;
     }
 
     /**

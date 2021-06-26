@@ -90,6 +90,10 @@
         #content .center {
             text-align: center;
         }
+
+        #content .left {
+            text-align: left !important;
+        }
     </style>
 </head>
 
@@ -116,15 +120,11 @@
                 </tr>
                 <tr>
                     <td>
-                        <div style="border: 1px solid #c2c2c2; border-top: none; border-bottom: none; padding: 20px;" id="content">
+                        <div style="border: 1px solid #c2c2c2; border-top: none; border-bottom: none; padding: 20px; text-align: center" id="content">
                                 <div style="padding-top: 10px;"></div>
 
                                 {{ $slot ?? '' }}
                                 {!! $body ?? '' !!}
-                                
-                                @isset($signature)
-                                    {{ nl2br($signature) }}
-                                @endisset
 
                                 <div>
                                     <a href="#"
@@ -135,24 +135,27 @@
                     </td>
                 </tr>
 
-                @if(isset($company) && $company instanceof \App\Models\Company)
                 <tr>
                     <td>
                         <div class="dark-bg dark-text-white"
                              style="text-align: center; padding-top: 10px; padding-bottom: 25px; background-color: #f9f9f9; border: 1px solid #c2c2c2; border-top: none; border-bottom-color: #f9f9f9;">
-                            <p style="font-size: 15px; color: #2e2e2e; font-family: 'roboto', Arial, Helvetica, sans-serif; font-weight: 400; margin-bottom: 30px;">
-                                {{ ctrans('texts.client_email_company_contact_label') }}
-                            </p>
-                            <p style="font-size: 15px; color: #2e2e2e; font-family: 'roboto', Arial, Helvetica, sans-serif; font-weight: 500; margin-bottom:0;">
-                                {{ $company->present()->name() }}</p>
-                            <p style="font-size: 15px; color: #2e2e2e; font-family: 'roboto', Arial, Helvetica, sans-serif; font-weight: 400; margin-top: 5px;">
-                                <span>{{ $company->settings->phone }}</span>
-                                <span style="font-weight: 500"> {{ $company->settings->website }}</span>
-                            </p>
+                            @isset($signature)
+                                <p style="font-size: 15px; color: #2e2e2e; font-family: 'roboto', Arial, Helvetica, sans-serif; font-weight: 400; margin-bottom: 30px;">
+                                    {!! nl2br($signature) !!}
+                                </p>
+                            @endisset
+
+                            @if(isset($company) && $company instanceof \App\Models\Company)
+                                <p style="font-size: 15px; color: #2e2e2e; font-family: 'roboto', Arial, Helvetica, sans-serif; font-weight: 500; margin-bottom:0;">
+                                    {{ $company->present()->name() }}</p>
+                                <p style="font-size: 15px; color: #2e2e2e; font-family: 'roboto', Arial, Helvetica, sans-serif; font-weight: 400; margin-top: 5px;">
+                                    <span>{{ $company->settings->phone }}</span>
+                                    <span style="font-weight: 500"> {{ $company->settings->website }}</span>
+                                </p>
+                            @endif
                         </div>
                     </td>
                 </tr>
-                @endif
 
                 <tr>
                     <td>
