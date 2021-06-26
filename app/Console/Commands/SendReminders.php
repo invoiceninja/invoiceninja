@@ -109,7 +109,7 @@ class SendReminders extends Command
 
         /** @var Invoice $invoice */
         foreach ($delayedAutoBillInvoices as $invoice) {
-            if ($invoice->isPaid()) {
+            if ($invoice->isPaid() || $invoice->account->is_deleted) {
                 continue;
             }
 
@@ -128,7 +128,7 @@ class SendReminders extends Command
         $this->info(date('r ') . $accounts->count() . ' accounts found with fees enabled');
 
         foreach ($accounts as $account) {
-            if (! $account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
+            if (! $account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS) || $account->account_email_settings->is_disabled) {
                 continue;
             }
 
@@ -155,7 +155,7 @@ class SendReminders extends Command
         $this->info(date('r ') . count($accounts) . ' accounts found with reminders enabled');
 
         foreach ($accounts as $account) {
-            if (! $account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
+            if (! $account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS) || $account->account_email_settings->is_disabled) {
                 continue;
             }
 
@@ -201,7 +201,7 @@ class SendReminders extends Command
             $account = $scheduledReport->account;
             $account->loadLocalizationSettings();
 
-            if (! $account->hasFeature(FEATURE_REPORTS)) {
+            if (! $account->hasFeature(FEATURE_REPORTS) || $account->account_email_settings->is_disabled) {
                 continue;
             }
 

@@ -67,6 +67,17 @@ class ClientPortalController extends BaseController
         $client = $invoice->client;
         $account = $invoice->account;
 
+        /* Forward requests from V4 to V5 if the domain is set */
+        if(strlen($account->account_email_settings->forward_url_for_v5) >1){
+
+            if ($invoice->isType(INVOICE_TYPE_QUOTE)) 
+                $entity = 'quote';
+            else
+                $entity = 'invoice';
+
+            return redirect($account->account_email_settings->forward_url_for_v5."/client/".$entity."/".$invitationKey);
+        }
+
         if (request()->silent) {
             session(['silent:' . $client->id => true]);
             return redirect(request()->url() . (request()->borderless ? '?borderless=true' : ''));

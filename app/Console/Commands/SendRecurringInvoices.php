@@ -70,7 +70,9 @@ class SendRecurringInvoices extends Command
             ->get();
 
         foreach ($accounts as $account) {
-            $account->checkCounterReset();
+
+            if(!$account->account_email_settings->is_disabled)
+                $account->checkCounterReset();
         }
     }
 
@@ -94,6 +96,11 @@ class SendRecurringInvoices extends Command
             $this->info(date('r') . ' Processing Invoice: '. $recurInvoice->id);
 
             $account = $recurInvoice->account;
+
+            if($account->account_email_settings->is_disabled){
+                continue;
+            }
+
             $account->loadLocalizationSettings($recurInvoice->client);
             Auth::loginUsingId($recurInvoice->activeUser()->id);
 
@@ -127,7 +134,7 @@ class SendRecurringInvoices extends Command
         foreach ($expenses as $expense) {
             $shouldSendToday = $expense->shouldSendToday();
 
-            if (! $shouldSendToday) {
+            if (! $shouldSendToday || $expense->account->account_email_settings->is_disabled) {
                 continue;
             }
 

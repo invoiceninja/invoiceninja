@@ -6,6 +6,7 @@ use App\Http\Controllers\BaseController;
 use App\Http\Requests\MigrationAuthRequest;
 use App\Http\Requests\MigrationCompaniesRequest;
 use App\Http\Requests\MigrationEndpointRequest;
+use App\Http\Requests\MigrationForwardRequest;
 use App\Http\Requests\MigrationTypeRequest;
 use App\Libraries\Utils;
 use App\Models\Account;
@@ -15,6 +16,8 @@ use App\Services\Migration\CompleteService;
 use App\Traits\GenerateMigrationResources;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Validator;
+use Illuminate\Http\Request;
 
 class StepsController extends BaseController
 {
@@ -81,6 +84,36 @@ class StepsController extends BaseController
         return redirect(
             url('/migration/endpoint')
         );
+    }
+
+    public function forwardUrl(Request $request)
+    {
+
+        $rules = [
+            'url' => 'nullable|url',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $account_settings = \Auth::user()->account->account_email_settings;
+
+        if(strlen($request->input('url')) == 0) {
+            $account_settings->is_disabled = false;
+        }
+        else {
+            $account_settings->is_disabled = true;
+        }
+
+        $account_settings->forward_url_for_v5 = rtrim($request->input('url'),'/');
+        $account_settings->save();
+
+        return back();
     }
 
     public function endpoint()
@@ -176,22 +209,28 @@ class StepsController extends BaseController
             );
         }
 
+        $completeService = (new CompleteService(session('MIGRATION_ACCOUNT_TOKEN')));
+
         try {
             $migrationData = $this->generateMigrationData($request->all());
 
-            $completeService = (new CompleteService(session('MIGRATION_ACCOUNT_TOKEN')))
-                ->data($migrationData)
+            
+                $completeService->data($migrationData)
                 ->endpoint(session('MIGRATION_ENDPOINT'))
                 ->start();
         }
-        finally {
+        catch(\Exception $e){
+            info($e->getMessage());
+            return view('migration.completed', ['customMessage' => $e->getMessage()]);
+        }
+     
         
             if ($completeService->isSuccessful()) {
                 return view('migration.completed');
             }
 
             return view('migration.completed', ['customMessage' => $completeService->getErrors()[0]]);
-        }
+        
     }
 
     public function completed()
