@@ -77,7 +77,7 @@ class Handler extends ExceptionHandler
             return;
         }
 
-        if(Ninja::isHosted()){
+        if(Ninja::isHosted() && !($exception instanceof ValidationException)){
 
             app('sentry')->configureScope(function (Scope $scope): void {
 

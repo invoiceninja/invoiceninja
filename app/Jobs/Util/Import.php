@@ -337,6 +337,10 @@ class Import implements ShouldQueue
 
             if(!MultiDB::checkDomainAvailable($data['subdomain']))
                 $data['subdomain'] = MultiDB::randomSubdomainGenerator();
+
+            if(strlen($data['subdomain']) == 0)
+                $data['subdomain'] = MultiDB::randomSubdomainGenerator();
+
         }
 
         $rules = (new UpdateCompanyRequest())->rules();
