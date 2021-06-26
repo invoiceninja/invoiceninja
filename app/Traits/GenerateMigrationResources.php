@@ -245,7 +245,33 @@ info("get company");
             'schedule_reminder3' => $this->buildReminderString($this->account->direction_reminder3, $this->account->field_reminder3),
             'endless_reminder_frequency_id' => $this->account->account_email_settings->reset_counter_frequency_id ? $this->transformFrequencyId($this->account->account_email_settings->reset_counter_frequency_id) : 0,
             'email_signature' => $this->account->email_footer ?: '',
+            'email_style' => $this->getEmailStyle($this->account->email_design_id),
+            'custom_message_dashboard' => $this->account->customMessage('dashboard'),
+            'custom_message_unpaid_invoice' => $this->account->customMessage('unpaid_invoice'),
+            'custom_message_paid_invoice' => $this->account->customMessage('paid_invoice'),
+            'custom_message_unapproved_quote' => $this->account->customMessage('unapproved_quote'),
         ];
+    }
+
+    private function getEmailStyle($id){
+
+        switch ($id) {
+            case 1:
+                return 'plain';
+                break;
+            case 2:
+                return 'light';
+                break;
+            case 3:
+                return 'dark';
+                break;
+
+            default:
+                return 'light';
+
+                break;
+        }
+
     }
 
     private function buildReminderString($direction, $field)
