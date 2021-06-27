@@ -40,6 +40,8 @@
                             {{ ctrans('texts.date') }}
                         </p>
                     </th>
+                    <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white uppercase tracking-wider">
+                    </th>
                 </tr>
                 </thead>
                 <tbody>
@@ -62,6 +64,12 @@
                         </td>
                         <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
                             {{ $recurring_invoice->formatDate($recurring_invoice->date, $recurring_invoice->client->date_format()) }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                            <a href="{{ route('client.recurring_invoice.show', $recurring_invoice->hashed_id) }}"
+                               class="button-link text-primary">
+                                {{ ctrans('texts.view') }}
+                            </a>
                         </td>
                     </tr>
                 @empty
