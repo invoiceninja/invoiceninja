@@ -129,7 +129,7 @@ class UpdateReminder extends AbstractService
 
         if ($this->invoice->last_sent_date &&
             (int)$this->settings->endless_reminder_frequency_id > 0) {
-            $reminder_date = $this->addTimeInterval($this->invoice->last_sent_date, (int)$this->settings->num_days_reminder3)->addSeconds($offset);
+            $reminder_date = $this->addTimeInterval($this->invoice->last_sent_date, (int)$this->settings->endless_reminder_frequency_id)->addSeconds($offset);
 
             if ($reminder_date->gt(Carbon::parse($this->invoice->next_send_date)));
                 $date_collection->push($reminder_date); 
