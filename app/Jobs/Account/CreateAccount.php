@@ -78,7 +78,7 @@ class CreateAccount
         $sp794f3f->save();
 
         if(Ninja::isHosted())
-            $sp794f3f->startTrial();
+            $sp794f3f->startTrial('pro');
 
         $sp035a66 = CreateCompany::dispatchNow($this->request, $sp794f3f);
         $sp035a66->load('account');

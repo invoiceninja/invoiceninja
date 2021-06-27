@@ -4272,6 +4272,7 @@ $LANG = array(
     'default_payment_method' => 'Make this your preferred way of paying.',
     'already_default_payment_method' => 'This is your preferred way of paying.',
     'auto_bill_disabled' => 'Auto Bill Disabled',
+    'select_payment_method' => 'Select a payment method:',
 );
 
 return $LANG;

@@ -96,8 +96,9 @@ class SubscriptionRepository extends BaseRepository
         return $data;
     }
 
-    public function generateLineItems($subscription, $is_recurring = false)
+    public function generateLineItems($subscription, $is_recurring = false, $is_credit = false)
     {
+        $multiplier = $is_credit ? -1 : 1;
 
     	$line_items = [];
 
@@ -105,13 +106,13 @@ class SubscriptionRepository extends BaseRepository
         {
             foreach($subscription->service()->products() as $product)
             {
-                $line_items[] = (array)$this->makeLineItem($product);
+                $line_items[] = (array)$this->makeLineItem($product, $multiplier);
             }
         }
         
         foreach($subscription->service()->recurring_products() as $product)
         {
-            $line_items[] = (array)$this->makeLineItem($product);
+            $line_items[] = (array)$this->makeLineItem($product, $multiplier);
         }
 
     	$line_items = $this->cleanItems($line_items);
@@ -120,13 +121,13 @@ class SubscriptionRepository extends BaseRepository
 
     }
 
-    private function makeLineItem($product)
+    private function makeLineItem($product, $multiplier)
     {
         $item = new InvoiceItem;
         $item->quantity = $product->quantity;
         $item->product_key = $product->product_key;
         $item->notes = $product->notes;
-        $item->cost = $product->price;
+        $item->cost = $product->price*$multiplier;
         $item->tax_rate1 = $product->tax_rate1 ?: 0;
         $item->tax_name1 = $product->tax_name1 ?: '';
         $item->tax_rate2 = $product->tax_rate2 ?: 0;

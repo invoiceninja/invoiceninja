@@ -214,11 +214,11 @@ class SubscriptionService
 
         if ($outstanding->count() == 0){
             //nothing outstanding
-            return $target->price - $this->calculateProRataRefund($outstanding_invoice);
+            return $target->price - $this->calculateProRataRefundForSubscription($outstanding_invoice);
         }
         elseif ($outstanding->count() == 1){
             //user has multiple amounts outstanding
-            return $target->price - $this->calculateProRataRefund($outstanding_invoice);
+            return $target->price - $this->calculateProRataRefundForSubscription($outstanding_invoice);
         }
         elseif ($outstanding->count() > 1) {
             //user is changing plan mid frequency cycle
@@ -229,6 +229,35 @@ class SubscriptionService
         return null;
 
     }
+
+    /**
+     * We refund unused days left.
+     *
+     * @param  Invoice $invoice
+     * @return float
+     */
+    private function calculateProRataRefundForSubscription($invoice) :float
+    {
+        if(!$invoice->date)
+            return 0;
+
+        $start_date = Carbon::parse($invoice->date);
+
+        $current_date = now();
+
+        $days_of_subscription_used = $start_date->diffInDays($current_date);
+
+        $days_in_frequency = $this->getDaysInFrequency();
+
+        $pro_rata_refund = round((($days_in_frequency - $days_of_subscription_used)/$days_in_frequency) * $this->subscription->price ,2);
+
+        // nlog("days in frequency = {$days_in_frequency} - days of subscription used {$days_of_subscription_used}");
+        // nlog("invoice amount = {$invoice->amount}");
+        // nlog("pro rata refund = {$pro_rata_refund}");
+
+        return $pro_rata_refund;
+
+    }    
 
     /**
      * We refund unused days left.
@@ -250,6 +279,10 @@ class SubscriptionService
         $days_in_frequency = $this->getDaysInFrequency();
 
         $pro_rata_refund = round((($days_in_frequency - $days_of_subscription_used)/$days_in_frequency) * $invoice->amount ,2);
+
+        // nlog("days in frequency = {$days_in_frequency} - days of subscription used {$days_of_subscription_used}");
+        // nlog("invoice amount = {$invoice->amount}");
+        // nlog("pro rata refund = {$pro_rata_refund}");
 
         return $pro_rata_refund;
 
@@ -384,6 +417,44 @@ class SubscriptionService
 
     }
 
+    public function changePlanPaymentCheck($data)
+    {
+
+        $recurring_invoice = $data['recurring_invoice'];
+        $old_subscription = $data['subscription'];
+        $target_subscription = $data['target'];
+
+        $pro_rata_charge_amount = 0;
+        $pro_rata_refund_amount = 0;
+
+        $last_invoice = Invoice::where('subscription_id', $recurring_invoice->subscription_id)
+                                         ->where('client_id', $recurring_invoice->client_id)
+                                         ->where('is_deleted', 0)
+                                         ->withTrashed()
+                                         ->orderBy('id', 'desc')
+                                         ->first();
+
+        if($last_invoice->balance > 0)
+        {
+            $pro_rata_charge_amount = $this->calculateProRataCharge($last_invoice, $old_subscription);
+            nlog("pro rata charge = {$pro_rata_charge_amount}");
+
+        }
+        else
+        {
+            $pro_rata_refund_amount = $this->calculateProRataRefund($last_invoice, $old_subscription) * -1;
+            nlog("pro rata refund = {$pro_rata_refund_amount}");
+        }
+
+        $total_payable = $pro_rata_refund_amount + $pro_rata_charge_amount + $this->subscription->price;
+
+        if($total_payable > 0)
+            return true;
+
+        return false;
+
+    }
+
     /**
      * When changing plans, we need to generate a pro rata invoice
      *
@@ -392,6 +463,7 @@ class SubscriptionService
      */
     public function createChangePlanInvoice($data)
     {
+
         $recurring_invoice = $data['recurring_invoice'];
         $old_subscription = $data['subscription'];
         $target_subscription = $data['target'];
@@ -500,7 +572,7 @@ class SubscriptionService
         $credit->date = now()->format('Y-m-d');
         $credit->subscription_id = $this->subscription->id;
 
-        $line_items = $subscription_repo->generateLineItems($target);
+        $line_items = $subscription_repo->generateLineItems($target, false, true);
 
         $credit->line_items = array_merge($line_items, $this->calculateProRataRefundItems($last_invoice, true));
 
