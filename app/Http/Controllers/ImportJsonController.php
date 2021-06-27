@@ -11,6 +11,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\NonExistingMigrationFile;
 use App\Http\Requests\Import\ImportJsonRequest;
 use App\Jobs\Company\CompanyExport;
 use App\Jobs\Company\CompanyImport;
