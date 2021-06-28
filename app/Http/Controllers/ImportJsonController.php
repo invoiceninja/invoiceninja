@@ -66,9 +66,9 @@ class ImportJsonController extends BaseController
 
         $file_location = $this->unzipFile($import_file->getPathname());
 
-        if(Ninja::isHosted())
-            CompanyImport::dispatch(auth()->user()->getCompany(), auth()->user(), $file_location, $request->except('files'))->onQueue('himem'); 
-        else
+        // if(Ninja::isHosted())
+        //     CompanyImport::dispatch(auth()->user()->getCompany(), auth()->user(), $file_location, $request->except('files'))->onQueue('himem'); 
+        // else
             CompanyImport::dispatch(auth()->user()->getCompany(), auth()->user(), $file_location, $request->except('files')); 
 
         return response()->json(['message' => 'Processing'], 200);
