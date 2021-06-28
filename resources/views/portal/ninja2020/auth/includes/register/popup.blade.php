@@ -21,7 +21,7 @@
                     {{ $title }}
                 </h3>
                 <div class="mt-2">
-                    <p class="text-sm leading-5 text-gray-500">
+                    <p class="text-sm leading-5 text-gray-500 h-64 overflow-y-scroll">
                         {{ $content }}
                     </p>
                 </div>
