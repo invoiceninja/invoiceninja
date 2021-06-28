@@ -227,6 +227,21 @@ class Account extends BaseModel
         return $plan_details && $plan_details['trial'];
     }
 
+    public function startTrial($plan)
+    {
+        if (! Ninja::isNinja()) {
+            return;
+        }
+
+        if ($this->trial_started && $this->trial_started != '0000-00-00') {
+            return;
+        }
+
+        $this->trial_plan = $plan;
+        $this->trial_started = now();
+        $this->save();
+    }
+
     public function getPlanDetails($include_inactive = false, $include_trial = true)
     {
         $plan = $this->plan;

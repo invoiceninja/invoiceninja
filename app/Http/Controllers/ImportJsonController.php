@@ -11,6 +11,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\NonExistingMigrationFile;
 use App\Http\Requests\Import\ImportJsonRequest;
 use App\Jobs\Company\CompanyExport;
 use App\Jobs\Company\CompanyImport;
@@ -70,7 +71,7 @@ class ImportJsonController extends BaseController
 
         Cache::put( $hash, base64_encode( $contents ), 3600 );
 
-        CompanyImport::dispatch(auth()->user()->getCompany(), auth()->user(), $hash, $request->except('files'))->delay(now()->addMinutes(1));
+        CompanyImport::dispatch(auth()->user()->getCompany(), auth()->user(), $hash, $request->except('files'))->delay(now()->addMinutes(1))->onQueue('himem');;
 
         return response()->json(['message' => 'Processing'], 200);
 
