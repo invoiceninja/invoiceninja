@@ -73,6 +73,10 @@ class CompanyImport implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash;
 
+    public $tries = 1;
+
+    public $timeout = 0;
+    
     protected $current_app_version;
 
     private $account;
