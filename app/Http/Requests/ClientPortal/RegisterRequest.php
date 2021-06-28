@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\ClientPortal;
 
+use App\Libraries\MultiDB;
 use App\Models\Account;
 use App\Models\Company;
 use App\Utils\Ninja;
@@ -36,10 +37,11 @@ class RegisterRequest extends FormRequest
     }
 
     public function company()
-    {
-        if ($this->subdomain) {
-            return Company::where('subdomain', $this->subdomain)->firstOrFail();
-        }
+    {   
+
+        //this should be all we need, the rest SHOULD be redundant because of our Middleware
+        if ($this->key)
+            return Company::where('company_key', $this->key)->first();
 
         if ($this->company_key) {
             return Company::where('company_key', $this->company_key)->firstOrFail();
@@ -48,11 +50,34 @@ class RegisterRequest extends FormRequest
         if (!$this->route()->parameter('company_key') && Ninja::isSelfHost()) {
             $company = Account::first()->default_company;
 
-            abort_unless($company->client_can_register, 404);
+            if(!$company->client_can_register)
+                abort(403, "This page is restricted");
 
             return $company;
         }
 
-        abort(404, 'Register request not found.');
+        if (Ninja::isHosted()) {
+
+            $subdomain = explode('.', $this->getHost())[0];
+            
+            $query = [
+                'subdomain' => $subdomain,
+                'portal_mode' => 'subdomain',
+            ];
+
+            if($company = MultiDB::findAndSetDbByDomain($query))
+                return $company;
+            
+            $query = [
+                'portal_domain' => $this->getSchemeAndHttpHost(),
+                'portal_mode' => 'domain',
+            ];
+
+            if($company = MultiDB::findAndSetDbByDomain($query))
+                return $company;
+
+        }
+
+        abort(400, 'Register request not found.');
     }
 }
