@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Libraries\Utils;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Utils;
@@ -32,6 +33,7 @@ class Kernel extends ConsoleKernel
         'App\Console\Commands\CalculatePayouts',
         'App\Console\Commands\UpdateKey',
         'App\Console\Commands\ExportMigrations',
+        'App\Console\Commands\SyncAccounts',
     ];
 
     /**
@@ -55,5 +57,15 @@ class Kernel extends ConsoleKernel
             ->command('ninja:send-reminders --force')
             ->sendOutputTo($logFile)
             ->daily();
+
+        if(Utils::isNinjaProd())
+        {
+
+            $schedule
+                ->command('ninja:sync-v5')
+                ->withoutOverlapping()
+                ->daily();        
+                    
+        }
     }
 }

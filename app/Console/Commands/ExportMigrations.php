@@ -101,6 +101,7 @@ class ExportMigrations extends Command
             'expenses' => $this->getExpenses(),
             'tasks' => $this->getTasks(),
             'documents' => $this->getDocuments(),
+            'ninja_tokens' => $this->getNinjaToken(),
         ];
 
         $file = storage_path("migrations/{$fileName}.zip");
