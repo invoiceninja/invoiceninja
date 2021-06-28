@@ -9,7 +9,7 @@
                 <h3 class="text-xl leading-6 font-medium text-gray-900">
                     {{ ctrans('texts.terms') }}
                 </h3>
-                <div class="mt-4">
+                <div class="mt-4 h-64 overflow-y-scroll">
                     @foreach($entities as $entity)
                         <div class="mb-4">
                             <p class="text-sm leading-6 font-medium text-gray-500">{{ $entity_type }} {{ $entity->number }}:</p>
