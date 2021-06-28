@@ -15,6 +15,7 @@ use App\Exceptions\NonExistingMigrationFile;
 use App\Http\Requests\Import\ImportJsonRequest;
 use App\Jobs\Company\CompanyExport;
 use App\Jobs\Company\CompanyImport;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
@@ -63,15 +64,12 @@ class ImportJsonController extends BaseController
 
         $import_file = $request->file('files');
 
-        $contents = $this->unzipFile($import_file->getPathname());
+        $file_location = $this->unzipFile($import_file->getPathname());
 
-        $hash = Str::random(32);
-    
-        nlog($hash);
-
-        Cache::put( $hash, base64_encode( $contents ), 3600 );
-
-        CompanyImport::dispatch(auth()->user()->getCompany(), auth()->user(), $hash, $request->except('files'))->delay(now()->addMinutes(1))->onQueue('himem');;
+        if(Ninja::isHosted())
+            CompanyImport::dispatch(auth()->user()->getCompany(), auth()->user(), $file_location, $request->except('files'))->onQueue('himem'); 
+        else
+            CompanyImport::dispatch(auth()->user()->getCompany(), auth()->user(), $file_location, $request->except('files')); 
 
         return response()->json(['message' => 'Processing'], 200);
 
@@ -90,11 +88,12 @@ class ImportJsonController extends BaseController
         if (! file_exists($file_location)) 
             throw new NonExistingMigrationFile('Backup file does not exist, or is corrupted.');
         
-        $data = file_get_contents($file_location);
+        //$data = file_get_contents($file_location);
 
-        unlink($file_contents);
-        unlink($file_location);
+        return $file_location;
+        //unlink($file_contents);
+        //unlink($file_location);
 
-        return $data;
+        //return $data;
     }
 }
