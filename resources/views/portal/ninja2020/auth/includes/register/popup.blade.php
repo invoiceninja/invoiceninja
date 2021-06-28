@@ -1,4 +1,5 @@
-<a class="button-link" x-on:click="{{ $property }} = true" href="#">{{ ctrans("texts.$property") }}</a>
+<a class="button-link underline" x-on:click="{{ $property }} = true" href="#">{{ ctrans("texts.$property") }}</a>
+
 <span class="text-gray-300">/</span>
 
 <div x-show="{{ $property }}" class="fixed bottom-0 inset-x-0 px-4 pb-4 sm:inset-0 sm:flex sm:items-center sm:justify-center">

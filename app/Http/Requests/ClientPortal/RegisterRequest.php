@@ -27,17 +27,23 @@ class RegisterRequest extends FormRequest
      */
     public function rules()
     {
-        return [
+        $rules = [
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'phone' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email:rfc,dns', 'max:255'],
             'password' => ['required', 'string', 'min:6', 'confirmed'],
         ];
+
+        if ($this->company()->settings->client_portal_terms || $this->company()->settings->client_portal_privacy_policy) {
+            $rules['terms'] = ['required'];
+        }
+
+        return $rules;
     }
 
     public function company()
-    {   
+    {
 
         //this should be all we need, the rest SHOULD be redundant because of our Middleware
         if ($this->key)
@@ -59,7 +65,7 @@ class RegisterRequest extends FormRequest
         if (Ninja::isHosted()) {
 
             $subdomain = explode('.', $this->getHost())[0];
-            
+
             $query = [
                 'subdomain' => $subdomain,
                 'portal_mode' => 'subdomain',
@@ -67,7 +73,7 @@ class RegisterRequest extends FormRequest
 
             if($company = MultiDB::findAndSetDbByDomain($query))
                 return $company;
-            
+
             $query = [
                 'portal_domain' => $this->getSchemeAndHttpHost(),
                 'portal_mode' => 'domain',
