@@ -12,6 +12,7 @@
 
 namespace App\Services\PdfMaker;
 
+use App\Models\Credit;
 use App\Models\Quote;
 use App\Services\PdfMaker\Designs\Utilities\BaseDesign;
 use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
@@ -192,6 +193,10 @@ class Design extends BaseDesign
 
         if ($this->entity instanceof Quote) {
             $variables = $this->context['pdf_variables']['quote_details'];
+        }
+
+        if ($this->entity instanceof Credit) {
+            $variables = $this->context['pdf_variables']['credit_details'];
         }
 
         $elements = [];
