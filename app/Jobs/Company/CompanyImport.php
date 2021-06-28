@@ -85,7 +85,7 @@ class CompanyImport implements ShouldQueue
 
     public $user;
 
-    private $hash;
+    private $file_location;
 
     public $backup_file;
 
@@ -146,11 +146,11 @@ class CompanyImport implements ShouldQueue
      * @param string $hash - the cache hash of the import data.
      * @param array $request->all()
      */
-    public function __construct(Company $company, User $user, string $hash, array $request_array)
+    public function __construct(Company $company, User $user, string $file_location, array $request_array)
     {
         $this->company = $company;
         $this->user = $user;
-        $this->hash = $hash;
+        $this->file_location = $file_location;
         $this->request_array = $request_array;
         $this->current_app_version = config('ninja.app_version');
     }
@@ -164,14 +164,14 @@ class CompanyImport implements ShouldQueue
         $this->company_owner = $this->company->owner();
 
         nlog("Company ID = {$this->company->id}");
-        nlog("Hash ID = {$this->hash}");
+        nlog("file_location ID = {$this->file_location}");
 
-        $this->backup_file = Cache::get($this->hash);
+        // $this->backup_file = Cache::get($this->hash);
 
-        if ( empty( $this->backup_file ) ) 
+        if ( empty( $this->file_location ) ) 
             throw new \Exception('No import data found, has the cache expired?');
         
-        $this->backup_file = json_decode(base64_decode($this->backup_file));
+        $this->backup_file = json_decode(file_get_contents($this->file_location));
 
         // nlog($this->backup_file);
         $this->checkUserCount();
@@ -197,6 +197,8 @@ class CompanyImport implements ShouldQueue
              }
 
         }
+
+        unlink($this->file_location);
 
     }
 
