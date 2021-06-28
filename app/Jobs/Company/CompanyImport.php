@@ -385,7 +385,7 @@ class CompanyImport implements ShouldQueue
 
         foreach($this->importables as $import){
 
-            $method = "import_{$import} ";
+            $method = "import_{$import}";
 
             nlog($method);
 
@@ -1147,6 +1147,10 @@ class CompanyImport implements ShouldQueue
 
         foreach($this->backup_file->{$object_property} as $obj)
         {
+
+            if(is_null($obj))
+                continue;
+            
             /* Remove unwanted keys*/
             $obj_array = (array)$obj;
             foreach($unset as $un){
@@ -1274,7 +1278,8 @@ class CompanyImport implements ShouldQueue
             // nlog($this->ids[$resource]);
             nlog("searching for {$old} in {$resource}");
 
-            nlog("If we are missing a user - default to the company owner")
+            nlog("If we are missing a user - default to the company owner");
+            
             if($resource == 'users')
                 return $this->company_owner->id;
 
