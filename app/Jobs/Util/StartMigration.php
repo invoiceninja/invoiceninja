@@ -92,16 +92,6 @@ class StartMigration implements ShouldQueue
         $archive = $zip->open(public_path("storage/{$this->filepath}"));
         $filename = pathinfo($this->filepath, PATHINFO_FILENAME);
 
-            // if($this->company->id == $this->company->account->default_company_id)
-            // {
-            //     $new_default_company = $this->company->account->companies->first();
-
-            //     if ($new_default_company) {
-            //         $this->company->account->default_company_id = $new_default_company->id;
-            //         $this->company->account->save();
-            //     }
-            // }
-
         $update_product_flag = $this->company->update_products;
 
         $this->company->update_products = false;
@@ -128,9 +118,6 @@ class StartMigration implements ShouldQueue
             Import::dispatchNow($file, $this->company, $this->user);
 
             Storage::deleteDirectory(public_path("storage/migrations/{$filename}"));
-
-            // $this->company->account->default_company_id = $this->company->id;
-            // $this->company->account->save();
 
             $this->company->update_products = $update_product_flag;
             $this->company->save();

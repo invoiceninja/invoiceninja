@@ -56,6 +56,7 @@ use App\Models\Vendor;
 use App\Models\VendorContact;
 use App\Models\Webhook;
 use App\Utils\Ninja;
+use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -171,7 +172,10 @@ class CompanyImport implements ShouldQueue
         if ( empty( $this->file_location ) ) 
             throw new \Exception('No import data found, has the cache expired?');
         
-        $this->backup_file = json_decode(file_get_contents($this->file_location));
+        // $this->backup_file = json_decode(file_get_contents($this->file_location));
+        $tmp_file = $this->unzipFile();
+
+        $this->backup_file = json_decode(file_get_contents($tmp_file));
 
         // nlog($this->backup_file);
         $this->checkUserCount();
@@ -198,9 +202,30 @@ class CompanyImport implements ShouldQueue
 
         }
 
-        unlink($this->file_location);
+        unlink($tmp_file);
 
     }
+
+    private function unzipFile()
+    {
+        $path = TempFile::filePath(Storage::get($this->file_location), basename($this->file_location));
+
+        $zip = new ZipArchive();
+        $archive = $zip->open($path);
+
+        $file_path = sys_get_temp_dir().'/'.sha1(microtime());
+
+        $zip->extractTo($file_path);
+        $zip->close();
+        $file_location = "{$file_path}/backup.json";
+
+        if (! file_exists($file_location)) 
+            throw new NonExistingMigrationFile('Backup file does not exist, or is corrupted.');
+
+        return $file_location;
+
+    }
+
 
     /**
      * On the hosted platform we cannot allow the 
@@ -1122,6 +1147,10 @@ class CompanyImport implements ShouldQueue
 
         foreach($this->backup_file->{$object_property} as $obj)
         {
+
+            if(is_null($obj))
+                continue;
+            
             /* Remove unwanted keys*/
             $obj_array = (array)$obj;
             foreach($unset as $un){
@@ -1248,6 +1277,12 @@ class CompanyImport implements ShouldQueue
         if (! array_key_exists("{$old}", $this->ids[$resource])) {
             // nlog($this->ids[$resource]);
             nlog("searching for {$old} in {$resource}");
+
+            nlog("If we are missing a user - default to the company owner");
+            
+            if($resource == 'users')
+                return $this->company_owner->id;
+
             throw new \Exception("Missing {$resource} key: {$old}");
         }
 

@@ -20,6 +20,7 @@ use App\Jobs\Util\SubscriptionWebhookHandler;
 use App\Jobs\Util\SystemLogger;
 use App\Models\Client;
 use App\Models\ClientContact;
+use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\PaymentHash;
 use App\Models\Product;
@@ -212,6 +213,16 @@ class SubscriptionService
                                          ->orderBy('id', 'desc')
                                          ->first();
 
+         //sometimes the last document could be a credit if the user is paying for their service with credits.
+        if(!$outstanding_invoice){
+        
+        $outstanding_invoice = Credit::where('subscription_id', $this->subscription->id)
+                                         ->where('client_id', $recurring_invoice->client_id)
+                                         ->where('is_deleted', 0)
+                                         ->orderBy('id', 'desc')
+                                         ->first();
+        
+        }
         if ($outstanding->count() == 0){
             //nothing outstanding
             return $target->price - $this->calculateProRataRefundForSubscription($outstanding_invoice);
