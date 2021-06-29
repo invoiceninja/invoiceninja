@@ -72,11 +72,15 @@ class CheckoutComPaymentDriver extends BaseDriver
     /**
      * Returns the default gateway type.
      */
-    public function gatewayTypes()
+    public function gatewayTypes(): array
     {
-        return [
-            GatewayType::CREDIT_CARD,
-        ];
+        $types = [];
+
+        if ($this->company_gateway->fees_and_limits->{GatewayType::CREDIT_CARD}->is_enabled) {
+            $types[] = GatewayType::CREDIT_CARD;
+        }
+
+        return $types;
     }
 
     /**
@@ -232,7 +236,7 @@ class CheckoutComPaymentDriver extends BaseDriver
                     'transaction_reference' => $response->id,
                 ];
 
-                $payment = $this->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);
+                $payment = $this->createPayment($data, Payment::STATUS_COMPLETED);
 
                 SystemLogger::dispatch(
                     ['response' => $response, 'data' => $data],
@@ -269,11 +273,11 @@ class CheckoutComPaymentDriver extends BaseDriver
 
                 return false;
             }
-        } catch (\Exception | CheckoutHttpException $e) {
+        } catch (Exception | CheckoutHttpException $e) {
             $this->unWindGatewayFees($payment_hash);
             $message = $e instanceof CheckoutHttpException
-                    ? $e->getBody()
-                    : $e->getMessage();
+                ? $e->getBody()
+                : $e->getMessage();
 
             $data = [
                 'status' => '',
