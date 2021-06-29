@@ -522,7 +522,7 @@ class SubscriptionService
      */
     private function handlePlanChange($payment_hash)
     {
-
+nlog("handle plan change");
         $old_recurring_invoice = RecurringInvoice::find($payment_hash->data->billing_context->recurring_invoice);
 
         $recurring_invoice = $this->createNewRecurringInvoice($old_recurring_invoice);

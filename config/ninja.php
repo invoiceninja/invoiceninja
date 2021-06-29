@@ -15,7 +15,7 @@ return [
     'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', 'invoicing.co'),
     'app_version' => '5.2.7',
-    'app_tag' => '5.2.7-release',
+    'app_tag' => '5.2.7',
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', ''),
