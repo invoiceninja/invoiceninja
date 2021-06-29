@@ -11,6 +11,9 @@
 
 namespace App\Mail\ClientContact;
 
+use App\Utils\Ninja;
+use Illuminate\Support\Facades\App;
+
 class ClientContactResetPasswordObject
 {
 
@@ -31,6 +34,12 @@ class ClientContactResetPasswordObject
 
     public function build()
     {
+
+        App::forgetInstance('translator');
+        $t = app('translator');
+        App::setLocale($this->client_contact->preferredLocale());
+        $t->replace(Ninja::transformTranslations($this->client_contact->client->getMergedSettings()));
+
 
         $data = [
             'title' => ctrans('texts.your_password_reset_link'),
