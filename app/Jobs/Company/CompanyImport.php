@@ -20,6 +20,7 @@ use App\Libraries\MultiDB;
 use App\Mail\DownloadBackup;
 use App\Mail\DownloadInvoices;
 use App\Mail\Import\CompanyImportFailure;
+use App\Mail\Import\ImportCompleted;
 use App\Models\Activity;
 use App\Models\Backup;
 use App\Models\Client;
@@ -193,6 +194,17 @@ class CompanyImport implements ShouldQueue
                      ->purgeCompanyData()
                      ->importData();
 
+                $data = [
+                    'errors'  => []
+                ];
+
+                $nmo = new NinjaMailerObject;
+                $nmo->mailable = new ImportCompleted($this->company, $data);
+                $nmo->company = $this->company;
+                $nmo->settings = $this->company->settings;
+                $nmo->to_user = $this->company->owner();
+                NinjaMailerJob::dispatchNow($nmo);
+
              }
              catch(\Exception $e){
 
@@ -324,14 +336,9 @@ class CompanyImport implements ShouldQueue
         
         if($this->pre_flight_checks_pass === false)
         {
-            $nmo = new NinjaMailerObject;
-            $nmo->mailable = new CompanyImportFailure($this->company, $this->message);
-            $nmo->company = $this->company;
-            $nmo->settings = $this->company->settings;
-            $nmo->to_user = $this->company->owner();
-            NinjaMailerJob::dispatchNow($nmo);
 
-            nlog($this->message);
+            $this->sendImportMail($this->message);
+
             throw new \Exception($this->message);
         }
 
@@ -393,7 +400,7 @@ class CompanyImport implements ShouldQueue
 
         }
 
-            nlog("finished importing company data");
+        nlog("finished importing company data");
 
         return $this;
 
@@ -1150,7 +1157,7 @@ class CompanyImport implements ShouldQueue
 
             if(is_null($obj))
                 continue;
-            
+
             /* Remove unwanted keys*/
             $obj_array = (array)$obj;
             foreach($unset as $un){
@@ -1271,6 +1278,8 @@ class CompanyImport implements ShouldQueue
 
         if (! array_key_exists($resource, $this->ids)) {
             // nlog($this->ids);
+            
+            $this->sendImportMail("The Import failed due to missing data in the import file. Resource {$resource} not available.");
             throw new \Exception("Resource {$resource} not available.");
         }
 
@@ -1283,6 +1292,8 @@ class CompanyImport implements ShouldQueue
             if($resource == 'users')
                 return $this->company_owner->id;
 
+            $this->sendImportMail("The Import failed due to missing data in the import file. Resource {$resource} not available.");
+
             throw new \Exception("Missing {$resource} key: {$old}");
         }
 
@@ -1290,4 +1301,15 @@ class CompanyImport implements ShouldQueue
     }
 
 
+    private function sendImportMail($message){
+
+
+            $nmo = new NinjaMailerObject;
+            $nmo->mailable = new CompanyImportFailure($this->company, $message);
+            $nmo->company = $this->company;
+            $nmo->settings = $this->company->settings;
+            $nmo->to_user = $this->company->owner();
+            NinjaMailerJob::dispatchNow($nmo);
+
+    }
 }
