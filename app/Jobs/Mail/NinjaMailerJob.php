@@ -71,10 +71,10 @@ class NinjaMailerJob implements ShouldQueue
 
     public function handle()
     {
-        /*If we are migrating data we don't want to fire any emails*/
-        if ($this->nmo->company->is_disabled && !$this->override) 
-            return true;
         
+        if($this->preFlightChecksFail())
+            return;
+
         /*Set the correct database*/
         MultiDB::setDb($this->nmo->company->db);
 
@@ -213,6 +213,19 @@ class NinjaMailerJob implements ShouldQueue
                 $message->getHeaders()->addTextHeader('GmailToken', $token);     
              });
 
+    }
+
+    private function preFlightChecksFail()
+    {
+        /* If we are migrating data we don't want to fire any emails */
+        if ($this->nmo->company->is_disabled && !$this->override) 
+            return true;
+
+        /* On the hosted platform we set default contacts a @example.com email address - we shouldn't send emails to these types of addresses */
+        if(Ninja::isHosted() && strpos($this->nmo->to_user->email, '@example.com') !== false)
+            return true;
+
+        return false;
     }
 
     private function logMailError($errors, $recipient_object)

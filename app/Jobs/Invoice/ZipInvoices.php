@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
+use ZipArchive;
 
 class ZipInvoices implements ShouldQueue
 {
@@ -68,42 +69,84 @@ class ZipInvoices implements ShouldQueue
      * @throws \ZipStream\Exception\FileNotReadableException
      * @throws \ZipStream\Exception\OverflowException
      */
+    // public function handle()
+    // {
+    //     $tempStream = fopen('php://memory', 'w+');
+
+    //     $options = new Archive();
+    //     $options->setOutputStream($tempStream);
+
+    //     // create a new zipstream object
+    //     $file_name = date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.invoices')).'.zip';
+
+    //     $invoice = $this->invoices->first();
+    //     $invitation = $invoice->invitations->first();
+
+    //     $path = $invoice->client->invoice_filepath($invitation);
+
+    //     $zip = new ZipStream($file_name, $options);
+
+    //     foreach ($this->invoices as $invoice) {
+    //         //$zip->addFileFromPath(basename($invoice->pdf_file_path()), TempFile::path($invoice->pdf_file_path()));
+    //         $zip->addFileFromPath(basename($invoice->pdf_file_path($invitation)), $invoice->pdf_file_path());
+    //     }
+
+    //     $zip->finish();
+
+    //     Storage::disk('public')->put($path.$file_name, $tempStream);
+
+    //     fclose($tempStream);
+
+    //     $nmo = new NinjaMailerObject;
+    //     $nmo->mailable = new DownloadInvoices(Storage::disk('public')->url($path.$file_name), $this->company);
+    //     $nmo->to_user = $this->user;
+    //     $nmo->settings = $this->settings;
+    //     $nmo->company = $this->company;
+        
+    //     NinjaMailerJob::dispatch($nmo);
+        
+    //     UnlinkFile::dispatch('public', $path.$file_name)->delay(now()->addHours(1));
+    // }
+
     public function handle()
     {
-        $tempStream = fopen('php://memory', 'w+');
+        # create new zip object
+        $zip = new ZipArchive();
 
-        $options = new Archive();
-        $options->setOutputStream($tempStream);
-
-        // create a new zipstream object
+        $invitation = $this->invoices->first()->invitations->first();
+        $path = $this->invoices->first()->client->invoice_filepath($invitation);
         $file_name = date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.invoices')).'.zip';
+        
+        $tmp_file = @tempnam('.', '');
+        $zip->open($tmp_file , ZipArchive::OVERWRITE);
 
-        $invoice = $this->invoices->first();
-        $invitation = $invoice->invitations->first();
-
-        $path = $invoice->client->invoice_filepath($invitation);
-
-        $zip = new ZipStream($file_name, $options);
-
+        # loop through each file
         foreach ($this->invoices as $invoice) {
-            //$zip->addFileFromPath(basename($invoice->pdf_file_path()), TempFile::path($invoice->pdf_file_path()));
-            $zip->addFileFromPath(basename($invoice->pdf_file_path($invitation)), $invoice->pdf_file_path());
+            
+            $inv = $invoice->invitations->first();
+
+            # download file
+            $download_file = file_get_contents($invoice->pdf_file_path($inv, 'url', true));
+
+            #add it to the zip
+            $zip->addFromString(basename($invoice->pdf_file_path($inv)), $download_file);
         }
 
-        $zip->finish();
-
-        Storage::disk('public')->put($path.$file_name, $tempStream);
-
-        fclose($tempStream);
+        # close zip
+        $zip->close();
+        
+        Storage::put($path.$file_name, file_get_contents($tmp_file));
 
         $nmo = new NinjaMailerObject;
-        $nmo->mailable = new DownloadInvoices(Storage::disk('public')->url($path.$file_name), $this->company);
+        $nmo->mailable = new DownloadInvoices(Storage::url($path.$file_name), $this->company);
         $nmo->to_user = $this->user;
         $nmo->settings = $this->settings;
         $nmo->company = $this->company;
         
         NinjaMailerJob::dispatch($nmo);
         
-        UnlinkFile::dispatch('public', $path.$file_name)->delay(now()->addHours(1));
+        nlog("sending email");
+
+        UnlinkFile::dispatch(config('filesystems.default'), $path.$file_name)->delay(now()->addHours(1));
     }
 }
