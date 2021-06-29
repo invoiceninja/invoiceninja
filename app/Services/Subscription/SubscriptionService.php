@@ -455,7 +455,7 @@ class SubscriptionService
                                  ->orderBy('id', 'desc')
                                  ->first();
 
-            $is_credit = true
+            $is_credit = true;
         }
 
         if($is_credit)
