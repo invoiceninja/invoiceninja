@@ -32,7 +32,9 @@ use App\PaymentDrivers\Stripe\UpdatePaymentMethods;
 use App\PaymentDrivers\Stripe\Utilities;
 use App\Utils\Traits\MakesHash;
 use Exception;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Carbon;
+use Laracasts\Presenter\Exceptions\PresenterException;
 use Stripe\Account;
 use Stripe\Customer;
 use Stripe\Exception\ApiErrorException;
@@ -52,7 +54,7 @@ class StripePaymentDriver extends BaseDriver
 
     public $can_authorise_credit_card = true;
 
-    /** @var \Stripe\StripeClient */
+    /** @var StripeClient */
     public $stripe;
 
     protected $customer_reference = 'customerReferenceParam';
@@ -112,11 +114,12 @@ class StripePaymentDriver extends BaseDriver
     public function gatewayTypes(): array
     {
         $types = [
-            GatewayType::CREDIT_CARD,
             GatewayType::CRYPTO,
-//            GatewayType::SEPA, // TODO: Missing implementation
-//            GatewayType::APPLE_PAY, // TODO:: Missing implementation
         ];
+
+        if ($this->company_gateway->fees_and_limits->{GatewayType::CREDIT_CARD}->is_enabled) {
+            $types[] = GatewayType::CREDIT_CARD;
+        }
 
         if ($this->client
             && isset($this->client->country)
@@ -126,7 +129,8 @@ class StripePaymentDriver extends BaseDriver
 
         if ($this->client
             && isset($this->client->country)
-            && in_array($this->client->country->iso_3166_3, ['USA'])) {
+            && in_array($this->client->country->iso_3166_3, ['USA'])
+            && $this->company_gateway->fees_and_limits->{GatewayType::BANK_TRANSFER}->is_enabled) {
             $types[] = GatewayType::BANK_TRANSFER;
         }
 
@@ -193,7 +197,7 @@ class StripePaymentDriver extends BaseDriver
             $fields[] = ['name' => 'client_state', 'label' => ctrans('texts.state'), 'type' => 'text', 'validation' => 'required'];
             $fields[] = ['name' => 'client_country_id', 'label' => ctrans('texts.country'), 'type' => 'text', 'validation' => 'required'];
         }
-        
+
         $fields[] = ['name' => 'client_postal_code', 'label' => ctrans('texts.postal_code'), 'type' => 'text', 'validation' => 'required'];
 
         if ($this->company_gateway->require_shipping_address) {
@@ -213,7 +217,7 @@ class StripePaymentDriver extends BaseDriver
      * Proxy method to pass the data into payment method authorizeView().
      *
      * @param array $data
-     * @return \Illuminate\Http\RedirectResponse|mixed
+     * @return RedirectResponse|mixed
      */
     public function authorizeView(array $data)
     {
@@ -224,7 +228,7 @@ class StripePaymentDriver extends BaseDriver
      * Processes the gateway response for credit card authorization.
      *
      * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\RedirectResponse|mixed
+     * @return RedirectResponse|mixed
      */
     public function authorizeResponse($request)
     {
@@ -235,7 +239,7 @@ class StripePaymentDriver extends BaseDriver
      * Process the payment with gateway.
      *
      * @param array $data
-     * @return \Illuminate\Http\RedirectResponse|mixed
+     * @return RedirectResponse|mixed
      */
     public function processPaymentView(array $data)
     {
@@ -293,7 +297,7 @@ class StripePaymentDriver extends BaseDriver
      * Finds or creates a Stripe Customer object.
      *
      * @return null|Customer A Stripe customer object
-     * @throws \Laracasts\Presenter\Exceptions\PresenterException
+     * @throws PresenterException
      * @throws ApiErrorException
      */
     public function findOrCreateCustomer(): ?Customer
