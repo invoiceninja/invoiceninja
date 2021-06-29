@@ -309,6 +309,9 @@ class SubscriptionService
      */
     private function calculateProRataRefundItems($invoice, $is_credit = false) :array
     {
+        if(!$invoice)
+            return [];
+
         /* depending on whether we are creating an invoice or a credit*/
         $multiplier = $is_credit ? 1 : -1;
 
@@ -444,6 +447,8 @@ class SubscriptionService
                                          ->withTrashed()
                                          ->orderBy('id', 'desc')
                                          ->first();
+        if(!$last_invoice)
+            return true;
 
         if($last_invoice->balance > 0)
         {
@@ -489,7 +494,10 @@ class SubscriptionService
                                          ->orderBy('id', 'desc')
                                          ->first();
 
-        if($last_invoice->balance > 0)
+        if(!$last_invoice){
+            //do nothing
+        }
+        else if($last_invoice->balance > 0)
         {
             $pro_rata_charge_amount = $this->calculateProRataCharge($last_invoice, $old_subscription);
             nlog("pro rata charge = {$pro_rata_charge_amount}");
@@ -514,7 +522,7 @@ class SubscriptionService
      */
     private function handlePlanChange($payment_hash)
     {
-
+nlog("handle plan change");
         $old_recurring_invoice = RecurringInvoice::find($payment_hash->data->billing_context->recurring_invoice);
 
         $recurring_invoice = $this->createNewRecurringInvoice($old_recurring_invoice);
