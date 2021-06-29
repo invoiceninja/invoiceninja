@@ -385,8 +385,6 @@ class SubscriptionService
         $pro_rata_charge_amount = 0;
         $pro_rata_refund_amount = 0;
 
-        $is_credit = false;
-
         $last_invoice = Invoice::where('subscription_id', $recurring_invoice->subscription_id)
                                          ->where('client_id', $recurring_invoice->client_id)
                                          ->where('is_deleted', 0)
@@ -394,24 +392,7 @@ class SubscriptionService
                                          ->orderBy('id', 'desc')
                                          ->first();
 
-        if(!$last_invoice)
-        {
-            $last_invoice = Credit::where('subscription_id', $recurring_invoice->subscription_id)
-                                 ->where('client_id', $recurring_invoice->client_id)
-                                 ->where('is_deleted', 0)
-                                 ->withTrashed()
-                                 ->orderBy('id', 'desc')
-                                 ->first();
-
-            $is_credit = true;
-        }
-
-        if($is_credit)
-        {
-            $pro_rata_refund_amount = $this->calculateProRataRefund($last_invoice, $old_subscription) * -1;
-            nlog("pro rata refund = {$pro_rata_refund_amount}");
-        }
-        elseif($last_invoice->balance > 0)
+        if($last_invoice->balance > 0)
         {
             $pro_rata_charge_amount = $this->calculateProRataCharge($last_invoice, $old_subscription);
             nlog("pro rata charge = {$pro_rata_charge_amount}");
@@ -456,7 +437,6 @@ class SubscriptionService
 
         $pro_rata_charge_amount = 0;
         $pro_rata_refund_amount = 0;
-        $is_credit = false;
 
         $last_invoice = Invoice::where('subscription_id', $recurring_invoice->subscription_id)
                                          ->where('client_id', $recurring_invoice->client_id)
@@ -465,24 +445,7 @@ class SubscriptionService
                                          ->orderBy('id', 'desc')
                                          ->first();
 
-        if(!$last_invoice)
-        {
-            $last_invoice = Credit::where('subscription_id', $recurring_invoice->subscription_id)
-                                 ->where('client_id', $recurring_invoice->client_id)
-                                 ->where('is_deleted', 0)
-                                 ->withTrashed()
-                                 ->orderBy('id', 'desc')
-                                 ->first();
-
-            $is_credit = true;
-        }
-
-        if($is_credit)
-        {
-            $pro_rata_refund_amount = $this->calculateProRataRefund($last_invoice, $old_subscription) * -1;
-            nlog("pro rata refund = {$pro_rata_refund_amount}");
-        }
-        elseif($last_invoice->balance > 0)
+        if($last_invoice->balance > 0)
         {
             $pro_rata_charge_amount = $this->calculateProRataCharge($last_invoice, $old_subscription);
             nlog("pro rata charge = {$pro_rata_charge_amount}");
