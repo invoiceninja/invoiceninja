@@ -319,7 +319,10 @@ class PaymentController extends Controller
      * @return Response         The response view
      */
     public function credit_response(Request $request)
-    {
+    {   
+        nlog("credit response");
+        nlog($request->all());
+        
         $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$request->input('payment_hash')])->first();
 
         /* Hydrate the $payment */
