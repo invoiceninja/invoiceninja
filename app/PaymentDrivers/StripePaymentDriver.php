@@ -115,11 +115,8 @@ class StripePaymentDriver extends BaseDriver
     {
         $types = [
             GatewayType::CRYPTO,
-        ];
-
-        if ($this->company_gateway->fees_and_limits->{GatewayType::CREDIT_CARD}->is_enabled) {
-            $types[] = GatewayType::CREDIT_CARD;
-        }
+            GatewayType::CREDIT_CARD
+        ];        
 
         if ($this->client
             && isset($this->client->country)
@@ -130,7 +127,7 @@ class StripePaymentDriver extends BaseDriver
         if ($this->client
             && isset($this->client->country)
             && in_array($this->client->country->iso_3166_3, ['USA'])
-            && $this->company_gateway->fees_and_limits->{GatewayType::BANK_TRANSFER}->is_enabled) {
+            ) {
             $types[] = GatewayType::BANK_TRANSFER;
         }
 

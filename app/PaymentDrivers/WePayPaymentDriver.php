@@ -81,11 +81,8 @@ class WePayPaymentDriver extends BaseDriver
     {
         $types = [];
 
-        if($this->company_gateway->fees_and_limits->{GatewayType::BANK_TRANSFER}->is_enabled)
-            $types[] = GatewayType::CREDIT_CARD;
-
-        if($this->company_gateway->fees_and_limits->{GatewayType::BANK_TRANSFER}->is_enabled)
-            $types[] = GatewayType::BANK_TRANSFER;
+        $types[] = GatewayType::CREDIT_CARD;
+        $types[] = GatewayType::BANK_TRANSFER;
 
         return $types;
     }
