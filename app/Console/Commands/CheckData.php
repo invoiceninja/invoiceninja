@@ -321,10 +321,17 @@ class CheckData extends Command
 
             foreach ($client->invoices()->where('is_deleted', false)->where('status_id', '>', 1)->get() as $invoice) {
 
-                $total_amount = $invoice->payments()->where('is_deleted', false)->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])->get()->sum('pivot.amount');
-                $total_refund = $invoice->payments()->where('is_deleted', false)->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])->get()->sum('pivot.refunded');
+                // $total_amount = $invoice->payments()->where('is_deleted', false)->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])->get()->sum('pivot.amount');
+                // $total_refund = $invoice->payments()->where('is_deleted', false)->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])->get()->sum('pivot.refunded');
 
-                $total_invoice_payments += ($total_amount - $total_refund);
+                // $total_invoice_payments += ($total_amount - $total_refund);
+
+                $total_invoice_payments += $invoice->payments()
+                                                    ->where('is_deleted', false)->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
+                                                    ->selectRaw('sum(paymentables.amount - paymentables.refunded) as p')
+                                                    ->pluck('p')
+                                                    ->first();
+
             }
 
             //commented IN 27/06/2021 - sums ALL client payments AND the unapplied amounts to match the client paid to date
@@ -339,7 +346,12 @@ class CheckData extends Command
 
             // 10/02/21
             foreach ($client->payments as $payment) {
-                $credit_total_applied += $payment->paymentables()->where('paymentable_type', App\Models\Credit::class)->get()->sum(DB::raw('amount'));
+                // $credit_total_applied += $payment->paymentables()->where('paymentable_type', App\Models\Credit::class)->get()->sum(DB::raw('amount'));
+            $credit_total_applied += $payment->paymentables()
+                                            ->where('paymentable_type', App\Models\Credit::class)
+                                            ->selectRaw('sum(paymentables.amount - paymentables.refunded) as p')
+                                            ->pluck('p')
+                                            ->first();
             }
 
             if ($credit_total_applied < 0) {
@@ -372,17 +384,25 @@ class CheckData extends Command
         Client::cursor()->where('is_deleted', 0)->each(function ($client) {
             
             $client->invoices->where('is_deleted', false)->whereIn('status_id', '!=', Invoice::STATUS_DRAFT)->each(function ($invoice) use ($client) {
-                $total_amount = $invoice->payments()->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED])->get()->sum('pivot.amount');
-                $total_refund = $invoice->payments()->get()->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED])->sum('pivot.refunded');
+                // $total_amount = $invoice->payments()->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED])->get()->sum('pivot.amount');
+                // $total_refund = $invoice->payments()->get()->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED])->sum('pivot.refunded');
+
+                $total_paid = $invoice->payments()
+                                    ->where('is_deleted', false)->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
+                                    ->selectRaw('sum(paymentables.amount - paymentables.refunded) as p')
+                                    ->pluck('p')
+                                    ->first();
+
+                // $total_paid = $total_amount - $total_refund;
+
                 $total_credit = $invoice->credits()->get()->sum('amount');
 
-                $total_paid = $total_amount - $total_refund;
                 $calculated_paid_amount = $invoice->amount - $invoice->balance - $total_credit;
 
                 if ((string)$total_paid != (string)($invoice->amount - $invoice->balance - $total_credit)) {
                     $this->wrong_balances++;
 
-                    $this->logMessage($client->present()->name.' - '.$client->id." - Total Amount = {$total_amount} != Calculated Total = {$calculated_paid_amount} - Total Refund = {$total_refund} Total credit = {$total_credit}");
+                    $this->logMessage($client->present()->name.' - '.$client->id." - Total Paid = {$total_paid} != Calculated Total = {$calculated_paid_amount}");
 
                     $this->isValid = false;
                 }
