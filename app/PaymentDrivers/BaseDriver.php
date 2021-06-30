@@ -553,9 +553,17 @@ class BaseDriver extends AbstractPaymentDriver
     {
         $types = [];
 
-        if ($this->company_gateway->fees_and_limits->{$type}->is_enabled) {
-            $types[] = $type;
-        }
+        // if($type == GatewayType::BANK_TRANSFER && $this->company_gateway->fees_and_limits->{GatewayType::BANK_TRANSFER}->is_enabled)
+        // {
+        //     $types[] = $type;    
+        // }
+        // elseif($type == GatewayType::CREDIT_CARD && $this->company_gateway->fees_and_limits->{GatewayType::CREDIT_CARD}->is_enabled)
+        // {
+        //     $types[] = $type;    
+        // }
+
+        $types[] = GatewayType::CREDIT_CARD;
+        $types[] = GatewayType::BANK_TRANSFER;
 
         return $types;
     }
