@@ -384,18 +384,25 @@ class CheckData extends Command
         Client::cursor()->where('is_deleted', 0)->each(function ($client) {
             
             $client->invoices->where('is_deleted', false)->whereIn('status_id', '!=', Invoice::STATUS_DRAFT)->each(function ($invoice) use ($client) {
-                $total_amount = $invoice->payments()->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED])->get()->sum('pivot.amount');
-                $total_refund = $invoice->payments()->get()->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED])->sum('pivot.refunded');
-                $total_credit = $invoice->credits()->get()->sum('amount');
+                // $total_amount = $invoice->payments()->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED])->get()->sum('pivot.amount');
+                // $total_refund = $invoice->payments()->get()->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED])->sum('pivot.refunded');
 
-                $total_paid = $total_amount - $total_refund;
+                $total_paid = $invoice->payments()
+                                    ->where('is_deleted', false)->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
+                                    ->selectRaw('sum(paymentables.amount - paymentables.refunded) as p')
+                                    ->pluck('p')
+                                    ->first();
+
+                // $total_paid = $total_amount - $total_refund;
+
+                $total_credit = $invoice->credits()->get()->sum('amount');
 
                 $calculated_paid_amount = $invoice->amount - $invoice->balance - $total_credit;
 
                 if ((string)$total_paid != (string)($invoice->amount - $invoice->balance - $total_credit)) {
                     $this->wrong_balances++;
 
-                    $this->logMessage($client->present()->name.' - '.$client->id." - Total Amount = {$total_amount} != Calculated Total = {$calculated_paid_amount} - Total Refund = {$total_refund} Total credit = {$total_credit}");
+                    $this->logMessage($client->present()->name.' - '.$client->id." - Total Paid = {$total_paid} != Calculated Total = {$calculated_paid_amount}");
 
                     $this->isValid = false;
                 }
