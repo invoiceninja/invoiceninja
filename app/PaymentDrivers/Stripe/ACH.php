@@ -128,7 +128,7 @@ class ACH
         $data['currency'] = $this->stripe->client->getCurrencyCode();
         $data['payment_method_id'] = GatewayType::BANK_TRANSFER;
         $data['customer'] = $this->stripe->findOrCreateCustomer();
-        $data['amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision);
+        $data['amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency());
 
         return render('gateways.stripe.ach.pay', $data);
     }
@@ -151,7 +151,7 @@ class ACH
         $state = [
             'payment_method' => $request->payment_method_id,
             'gateway_type_id' => $request->company_gateway_id,
-            'amount' => $this->stripe->convertToStripeAmount($request->amount, $this->stripe->client->currency()->precision),
+            'amount' => $this->stripe->convertToStripeAmount($request->amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
             'currency' => $request->currency,
             'customer' => $request->customer,
         ];
@@ -196,7 +196,7 @@ class ACH
         $data = [
             'payment_method' => $state['source'],
             'payment_type' => PaymentType::ACH,
-            'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->amount, $this->stripe->client->currency()->precision),
+            'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
             'transaction_reference' => $state['charge']->id,
             'gateway_type_id' => GatewayType::BANK_TRANSFER,
         ];
