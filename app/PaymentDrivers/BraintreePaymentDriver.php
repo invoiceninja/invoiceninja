@@ -72,12 +72,9 @@ class BraintreePaymentDriver extends BaseDriver
     {
         $types = [
             GatewayType::PAYPAL,
+            GatewayType::CREDIT_CARD
         ];
-
-        if ($this->company_gateway->fees_and_limits->{GatewayType::CREDIT_CARD}->is_enabled) {
-            $types[] = GatewayType::CREDIT_CARD;
-        }
-
+        
         return $types;
     }
 

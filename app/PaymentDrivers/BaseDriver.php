@@ -26,6 +26,7 @@ use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\ClientGatewayToken;
 use App\Models\CompanyGateway;
+use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
@@ -545,5 +546,17 @@ class BaseDriver extends AbstractPaymentDriver
             $this->client,
             $this->client->company,
         );
+    }
+
+    /* Performs an extra iterate on the gatewayTypes() array and passes back only the enabled gateways*/
+    public function gatewayTypeEnabled(GatewayType $type)
+    {
+        $types = [];
+
+        if ($this->company_gateway->fees_and_limits->{$type}->is_enabled) {
+            $types[] = $type;
+        }
+
+        return $types;
     }
 }

@@ -76,10 +76,8 @@ class CheckoutComPaymentDriver extends BaseDriver
     {
         $types = [];
 
-        if ($this->company_gateway->fees_and_limits->{GatewayType::CREDIT_CARD}->is_enabled) {
-            $types[] = GatewayType::CREDIT_CARD;
-        }
-
+        $types[] = GatewayType::CREDIT_CARD;
+        
         return $types;
     }
 

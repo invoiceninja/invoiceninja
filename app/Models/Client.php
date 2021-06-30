@@ -407,7 +407,7 @@ class Client extends BaseModel implements HasLocalePreference
         }
 
         foreach ($gateways as $gateway) {
-            if (in_array(GatewayType::CREDIT_CARD, $gateway->driver($this)->gatewayTypes())) {
+            if (in_array(GatewayType::CREDIT_CARD, $gateway->driver($this)->gatewayTypeEnabled(GatewayType::CREDIT_CARD))) {
                 return $gateway;
             }
         }
@@ -432,11 +432,11 @@ class Client extends BaseModel implements HasLocalePreference
         }
 
         foreach ($gateways as $gateway) {
-            if ($this->currency()->code == 'USD' && in_array(GatewayType::BANK_TRANSFER, $gateway->driver($this)->gatewayTypes())) {
+            if ($this->currency()->code == 'USD' && in_array(GatewayType::BANK_TRANSFER, $gateway->driver($this)->gatewayTypeEnabled(GatewayType::BANK_TRANSFER))) {
                 return $gateway;
             }
 
-            if ($this->currency()->code == 'EUR' && in_array(GatewayType::SEPA, $gateway->driver($this)->gatewayTypes())) {
+            if ($this->currency()->code == 'EUR' && in_array(GatewayType::SEPA, $gateway->driver($this)->gatewayTypeEnabled(GatewayType::SEPA))) {
                 return $gateway;
             }
         }
