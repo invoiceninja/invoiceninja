@@ -49,7 +49,7 @@ class PaymentService
     }
 
     public function sendEmail($contact = null)
-    {
+    {nlog("merp");
         return (new SendEmail($this->payment, $contact))->run();
     }
 
