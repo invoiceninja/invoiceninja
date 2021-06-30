@@ -549,7 +549,7 @@ class BaseDriver extends AbstractPaymentDriver
     }
 
     /* Performs an extra iterate on the gatewayTypes() array and passes back only the enabled gateways*/
-    public function gatewayTypeEnabled(GatewayType $type)
+    public function gatewayTypeEnabled($type)
     {
         $types = [];
 
