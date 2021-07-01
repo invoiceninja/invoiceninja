@@ -74,8 +74,6 @@
     <script>
         Livewire.on('passed-required-fields-check', (event) => {
             if (event.hasOwnProperty('client_postal_code')) {
-                console.log('Got POSTCODE');
-
                 document.querySelector('meta[name=client-postal-code]').content = event.client_postal_code;
             }
         });
