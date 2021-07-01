@@ -32,9 +32,9 @@ class SetDocumentDb
             'errors' => new stdClass,
         ];
 
-        if ($request->has('document_hash') && config('ninja.db.multi_db_enabled')) {
+        if (config('ninja.db.multi_db_enabled')) {
             
-            if (! MultiDB::documentFindAndSetDb($request->input('document_hash'))) 
+            if (! MultiDB::documentFindAndSetDb($request->segment(2))) 
                 return response()->json($error, 400);
             
         }
