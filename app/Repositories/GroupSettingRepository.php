@@ -29,9 +29,7 @@ class GroupSettingRepository extends BaseRepository
             $group_setting->save();
         }
 
-        nlog($data['settings']);
-
-        if(count((array)$data['settings']) == 0){
+        if(!array_key_exists('settings', $data) || count((array)$data['settings']) == 0){
             $settings = new \stdClass;
             $settings->entity = Client::class;
             $group_setting->settings = $settings;

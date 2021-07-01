@@ -35,6 +35,7 @@ class ClientGatewayToken extends BaseModel
         'gateway_customer_reference',
         'gateway_type_id',
         'meta',
+        'client_id',
     ];
 
     public function getEntityType()
