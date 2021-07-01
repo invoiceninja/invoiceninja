@@ -159,7 +159,9 @@ class PaymentRepository extends BaseRepository {
 
             if (array_key_exists('email_receipt', $data) && $data['email_receipt'] == true) 
                 $payment->service()->sendEmail();
-			
+			elseif(!array_key_exists('email_receipt', $data) && $payment->client->getSetting('client_manual_payment_notification'))
+                $payment->service()->sendEmail();
+
             event( new PaymentWasCreated( $payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null) ) );
 		}
 
