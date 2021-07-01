@@ -14,67 +14,76 @@ namespace Tests\ClientPortal;
 
 
 use App\Http\Livewire\CreditsTable;
+use App\Models\Account;
+use App\Models\Client;
+use App\Models\ClientContact;
+use App\Models\Company;
 use App\Models\Credit;
-use App\Utils\Traits\MakesHash;
+use App\Models\User;
 use Faker\Factory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Support\Facades\Session;
 use Livewire\Livewire;
-use Tests\MockAccountData;
 use Tests\TestCase;
 
 class CreditsTest extends TestCase
 {
-    use MakesHash;
     use DatabaseTransactions;
-    use MockAccountData;
 
     public function setUp(): void
     {
         parent::setUp();
 
-        Session::start();
-
         $this->faker = Factory::create();
-
-        Model::reguard();
-
-        $this->makeTestData();
     }
 
     public function testShowingOnlyQuotesWithDueDateLessOrEqualToNow()
     {
+        $account = Account::factory()->create();
+
+        $user = User::factory()->create(
+            ['account_id' => $account->id, 'email' => $this->faker->safeEmail]
+        );
+
+        $company = Company::factory()->create(['account_id' => $account->id]);
+
+        $client = Client::factory()->create(['company_id' => $company->id, 'user_id' => $user->id]);
+
+        ClientContact::factory()->count(2)->create([
+            'user_id' => $user->id,
+            'client_id' => $client->id,
+            'company_id' => $company->id,
+        ]);
+
         Credit::factory()->create([
-            'user_id' => $this->user->id,
-            'company_id' => $this->company->id,
-            'client_id' => $this->client->id,
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'client_id' => $client->id,
             'number' => 'testing-number-01',
             'due_date' => now()->subDays(5),
             'status_id' => Credit::STATUS_SENT,
         ]);
 
         Credit::factory()->create([
-            'user_id' => $this->user->id,
-            'company_id' => $this->company->id,
-            'client_id' => $this->client->id,
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'client_id' => $client->id,
             'number' => 'testing-number-02',
             'due_date' => now(),
             'status_id' => Credit::STATUS_SENT,
         ]);
 
         Credit::factory()->create([
-            'user_id' => $this->user->id,
-            'company_id' => $this->company->id,
-            'client_id' => $this->client->id,
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'client_id' => $client->id,
             'number' => 'testing-number-03',
             'due_date' => now()->addDays(5),
             'status_id' => Credit::STATUS_SENT,
         ]);
 
-        $this->actingAs($this->client->contacts->first(), 'contact');
+        $this->actingAs($client->contacts->first(), 'contact');
 
-        Livewire::test(CreditsTable::class, ['company' => $this->company])
+        Livewire::test(CreditsTable::class, ['company' => $company])
             ->assertSee('testing-number-01')
             ->assertSee('testing-number-02')
             ->assertDontSee('testing-number-03');
