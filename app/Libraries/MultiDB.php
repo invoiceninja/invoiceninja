@@ -206,6 +206,24 @@ class MultiDB
         return false;
     }
 
+    public static function documentFindAndSetDb($hash) : bool
+    {
+        $current_db = config('database.default');  
+
+        //multi-db active
+        foreach (self::$dbs as $db) {
+            
+            if (Document::on($db)->where('hash', $hash)->count() >= 1){ 
+                self::setDb($db);
+                return true;
+            }
+
+        }
+
+        self::setDB($current_db);
+        return false;
+    }
+
     public static function findAndSetDb($token) :bool
     {
         $current_db = config('database.default');  

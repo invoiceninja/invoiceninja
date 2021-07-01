@@ -16,19 +16,21 @@ use App\Factory\ClientContactFactory;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
+use App\Models\Company;
 use App\Models\CompanyLedger;
 use App\Models\Contact;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Models\Payment;
+use App\Models\Paymentable;
 use App\Utils\Ninja;
 use DB;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 use Mail;
 use Symfony\Component\Console\Input\InputOption;
-use Illuminate\Support\Str;
 
 /*
 
@@ -98,6 +100,7 @@ class CheckData extends Command
         $this->checkInvoiceBalances();
         $this->checkInvoicePayments();
         $this->checkPaidToDates();
+        // $this->checkPaidToCompanyDates();
         $this->checkClientBalances();
         $this->checkContacts();
         $this->checkCompanyData();
@@ -311,6 +314,36 @@ class CheckData extends Command
         }
     }
 
+    // private function checkPaidToCompanyDates()
+    // {
+    //     Company::cursor()->each(function ($company){
+
+    //     $payments = Payment::where('is_deleted', 0)
+    //                        ->where('company_id', $company->id)
+    //                        ->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED])
+    //                        ->pluck('id');
+
+    //     $unapplied = Payment::where('is_deleted', 0)
+    //                         ->where('company_id', $company->id)
+    //                         ->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
+    //                         ->sum(\DB::Raw('amount - applied'));
+
+    //     $paymentables = Paymentable::whereIn('payment_id', $payments)->sum(\DB::Raw('amount - refunded'));
+
+    //     $client_paid_to_date = Client::where('company_id', $company->id)->where('is_deleted', 0)->withTrashed()->sum('paid_to_date');
+
+    //     $total_payments = $paymentables + $unapplied;
+
+    //      if (round($total_payments, 2) != round($client_paid_to_date, 2)) {
+    //             $this->wrong_paid_to_dates++;
+
+    //             $this->logMessage($company->present()->name.' id = # '.$company->id." - Paid to date does not match Client Paid To Date = {$client_paid_to_date} - Invoice Payments = {$total_payments}");
+    //         }
+
+    //     });
+
+    // }
+
     private function checkPaidToDates()
     {
         $this->wrong_paid_to_dates = 0;
@@ -337,12 +370,10 @@ class CheckData extends Command
             //commented IN 27/06/2021 - sums ALL client payments AND the unapplied amounts to match the client paid to date
             $p = Payment::where('client_id', $client->id)
             ->where('is_deleted', 0)
-            ->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED]);
+            ->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
+            ->sum(DB::Raw('amount - applied'));
 
-            $total_amount = $p->sum('amount');
-            $total_applied = $p->sum('applied');
-
-            $total_invoice_payments += ($total_amount - $total_applied);
+            $total_invoice_payments += $p;
 
             // 10/02/21
             foreach ($client->payments as $payment) {
