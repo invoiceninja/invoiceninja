@@ -45,13 +45,13 @@ class CreditsTest extends TestCase
 
     public function testShowingOnlyQuotesWithDueDateLessOrEqualToNow()
     {
-        // Create two credits, one with due_date in future, one with now, one with less than now.
         Credit::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
             'client_id' => $this->client->id,
             'number' => 'testing-number-01',
             'due_date' => now()->subDays(5),
+            'status_id' => Credit::STATUS_SENT,
         ]);
 
         Credit::factory()->create([
@@ -60,6 +60,7 @@ class CreditsTest extends TestCase
             'client_id' => $this->client->id,
             'number' => 'testing-number-02',
             'due_date' => now(),
+            'status_id' => Credit::STATUS_SENT,
         ]);
 
         Credit::factory()->create([
@@ -68,15 +69,12 @@ class CreditsTest extends TestCase
             'client_id' => $this->client->id,
             'number' => 'testing-number-03',
             'due_date' => now()->addDays(5),
+            'status_id' => Credit::STATUS_SENT,
         ]);
 
-        $this->actingAs($this->client);
+        $this->actingAs($this->client->contacts->first(), 'contact');
 
-        //   Argument 1 passed to Illuminate\Foundation\Testing\TestCase::actingAs() must implement interface
-        // Illuminate\Contracts\Auth\Authenticatable, instance of App\Models\Client given,
-        // called in /var/www/html/tests/ClientPortal/CreditsTest.php on line 65
-
-        Livewire::test(CreditsTable::class)
+        Livewire::test(CreditsTable::class, ['company' => $this->company])
             ->assertSee('testing-number-01')
             ->assertSee('testing-number-02')
             ->assertDontSee('testing-number-03');
