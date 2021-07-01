@@ -393,6 +393,10 @@ class Import implements ShouldQueue
             foreach ($data['settings'] as $key => $value) {
                 if ($key == 'invoice_design_id' || $key == 'quote_design_id' || $key == 'credit_design_id') {
                     $value = $this->encodePrimaryKey($value);
+
+                    if(!$value)
+                        $value = $this->encodePrimaryKey(1);
+                    
                 }
 
                 if ($key == 'payment_terms' && $key = '') {
