@@ -2,7 +2,6 @@
 
 namespace App\Console;
 
-use App\Libraries\Utils;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Utils;
