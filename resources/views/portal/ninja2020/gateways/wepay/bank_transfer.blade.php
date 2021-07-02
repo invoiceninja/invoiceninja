@@ -53,5 +53,14 @@
         document.getElementById('pay-now').addEventListener('click', function () {
             document.getElementById('server-response').submit();
         });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            let firstAccount = document
+                .querySelector('.toggle-payment-with-token')
+
+            firstAccount.checked = true;
+
+            document.querySelector('input[name=source]').value = firstAccount.dataset.token;
+        });
     </script>
 @endpush

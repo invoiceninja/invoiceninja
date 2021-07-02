@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Models\Language;
 use App\Models\Presenters\CompanyPresenter;
 use App\Models\User;
 use App\Services\Notification\NotificationService;

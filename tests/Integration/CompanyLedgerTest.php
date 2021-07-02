@@ -97,6 +97,7 @@ class CompanyLedgerTest extends TestCase
         $settings->vat_number = 'vat number';
         $settings->id_number = 'id number';
         $settings->timezone_id = '1';
+        $settings->language_id = '1';
 
         $this->company->settings = $settings;
         $this->company->save();

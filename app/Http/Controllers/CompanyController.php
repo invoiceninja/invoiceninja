@@ -476,8 +476,10 @@ class CompanyController extends BaseController
     {
         $company_count = $company->account->companies->count();
         $account = $company->account;
+        $account_key = $account->key;
 
         if ($company_count == 1) {
+
             $company->company_users->each(function ($company_user) {
                 $company_user->user->forceDelete();
                 $company_user->forceDelete();
@@ -485,9 +487,13 @@ class CompanyController extends BaseController
 
             $account->delete();
 
+            if(Ninja::isHosted())
+                \Modules\Admin\Jobs\Account\NinjaDeletedAccount::dispatch($account_key);
+
             LightLogs::create(new AccountDeleted())
                      ->increment()
                      ->batch();
+
         } else {
             $company_id = $company->id;
 

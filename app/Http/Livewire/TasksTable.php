@@ -26,17 +26,26 @@ class TasksTable extends Component
     public $per_page = 10;
 
     public $company;
-    
+
     public function mount()
     {
         MultiDB::setDb($this->company->db);
     }
-    
+
     public function render()
     {
         $query = Task::query()
-            ->where('client_id', auth('contact')->user()->client->id)
-            ->whereNotNull('invoice_id')
+            ->where('client_id', auth('contact')->user()->client->id);
+
+        if ($this->company->getSetting('show_all_tasks_client_portal') === 'invoiced') {
+            $query = $query->whereNotNull('invoice_id');
+        }
+
+        if ($this->company->getSetting('show_all_tasks_client_portal') === 'uninvoiced') {
+            $query = $query->whereNull('invoice_id');
+        }
+
+        $query = $query
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
             ->paginate($this->per_page);
 

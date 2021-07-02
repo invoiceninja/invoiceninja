@@ -7,6 +7,8 @@
 @endpush
 
 @section('body')
+    @include('portal.ninja2020.components.entity-documents', ['entity' => $credit])
+
     <div class="flex items-center justify-between">
         <section class="flex items-center">
             <div class="items-center" style="display: none" id="pagination-button-container">

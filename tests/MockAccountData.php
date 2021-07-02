@@ -396,6 +396,8 @@ trait MockAccountData
         $this->credit->line_items = $this->buildLineItems();
         $this->credit->amount = 10;
         $this->credit->balance = 10;
+        
+        // $this->credit->due_date = now()->addDays(200);
 
         $this->credit->tax_name1 = '';
         $this->credit->tax_name2 = '';

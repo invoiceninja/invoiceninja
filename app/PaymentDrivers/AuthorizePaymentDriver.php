@@ -54,11 +54,11 @@ class AuthorizePaymentDriver extends BaseDriver
     /**
      * Returns the gateway types.
      */
-    public function gatewayTypes() :array
+    public function gatewayTypes(): array
     {
-        $types = [
-            GatewayType::CREDIT_CARD,
-        ];
+        $types = [];
+
+            $types[] = GatewayType::CREDIT_CARD;
 
         return $types;
     }

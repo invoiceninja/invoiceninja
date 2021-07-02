@@ -109,11 +109,11 @@ class SetupController extends Controller
             'REQUIRE_HTTPS' => $request->input('https') ? 'true' : 'false',
             'APP_DEBUG' => 'false',
 
-            'DB_HOST1' => $request->input('db_host'),
-            'DB_PORT1' => $request->input('db_port'),
-            'DB_DATABASE1' => $request->input('db_database'),
-            'DB_USERNAME1' => $request->input('db_username'),
-            'DB_PASSWORD1' => $request->input('db_password'),
+            'DB_HOST' => $request->input('db_host'),
+            'DB_PORT' => $request->input('db_port'),
+            'DB_DATABASE' => $request->input('db_database'),
+            'DB_USERNAME' => $request->input('db_username'),
+            'DB_PASSWORD' => $request->input('db_password'),
 
             'MAIL_MAILER' => $mail_driver,
             'MAIL_PORT' => $request->input('mail_port'),
@@ -125,6 +125,7 @@ class SetupController extends Controller
             'MAIL_PASSWORD' => $request->input('mail_password'),
 
             'NINJA_ENVIRONMENT' => 'selfhost',
+            'DB_CONNECTION' => 'mysql',
         ];
 
         if (config('ninja.db.multi_db_enabled')) {
@@ -133,11 +134,11 @@ class SetupController extends Controller
 
         if (config('ninja.preconfigured_install')) {
             // Database connection was already configured. Don't let the user override it.
-            unset($env_values['DB_HOST1']);
-            unset($env_values['DB_PORT1']);
-            unset($env_values['DB_DATABASE1']);
-            unset($env_values['DB_USERNAME1']);
-            unset($env_values['DB_PASSWORD1']);
+            unset($env_values['DB_HOST']);
+            unset($env_values['DB_PORT']);
+            unset($env_values['DB_DATABASE']);
+            unset($env_values['DB_USERNAME']);
+            unset($env_values['DB_PASSWORD']);
         }
 
         try {
