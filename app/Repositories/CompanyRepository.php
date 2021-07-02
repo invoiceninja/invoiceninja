@@ -52,7 +52,7 @@ class CompanyRepository extends BaseRepository
         if(array_key_exists('account1', $fields))
             $fields['company1'] = $fields['account1'];
 
-        if(array_key_exists('company2', $fields))
+        if(array_key_exists('account2', $fields))
             $fields['company2'] = $fields['account2'];
 
         if(array_key_exists('invoice1', $fields))
