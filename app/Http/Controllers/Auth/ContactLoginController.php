@@ -35,8 +35,9 @@ class ContactLoginController extends Controller
 
     public function showLoginForm(Request $request)
     {
-        if ($request->subdomain) {
-            $company = Company::where('subdomain', $request->subdomain)->first();
+        if (strpos($request->getHost(), 'invoicing.co') !== false) {
+            $subdomain = explode('.', $request->getHost())[0];
+            $company = Company::where('subdomain', $subdomain)->first();
         } elseif (Ninja::isSelfHost()) {
             $company = Account::first()->default_company;
         } else {
