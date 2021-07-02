@@ -15,6 +15,7 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Models\Credit;
 use App\Models\User;
+use Tests\MockUnitData;
 use Tests\TestCase;
 
 /**
@@ -22,58 +23,45 @@ use Tests\TestCase;
  */
 class CreditBalanceTest extends TestCase
 {
+    use MockUnitData;
+
     public function setUp() :void
     {
         parent::setUp();
-        $this->faker = \Faker\Factory::create();
+    
+        $this->makeTestData();
     }
 
     public function testCreditBalance()
     {
 
-        $account = Account::factory()->create();
-        $user = User::factory()->create(
-            ['account_id' => $account->id, 'email' => $this->faker->safeEmail]
-        );
-
-        $company = Company::factory()->create(['account_id' => $account->id]);
-        $client = Client::factory()->create(['company_id' => $company->id, 'user_id' => $user->id]);
-
         $credit = Credit::factory()->create([
-            'user_id' => $user->id,
-            'company_id' => $company->id,
-            'client_id' => $client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
             'balance' => 10,
             'number' => 'testing-number-01',
             'status_id' => Credit::STATUS_SENT,
         ]);
 
-        $this->assertEquals($client->service()->getCreditBalance(), 10);
+        $this->assertEquals($this->client->service()->getCreditBalance(), 10);
     }
 
 
     public function testExpiredCreditBalance()
     {
 
-        $account = Account::factory()->create();
-        $user = User::factory()->create(
-            ['account_id' => $account->id, 'email' => $this->faker->safeEmail]
-        );
-
-        $company = Company::factory()->create(['account_id' => $account->id]);
-        $client = Client::factory()->create(['company_id' => $company->id, 'user_id' => $user->id]);
-
         $credit = Credit::factory()->create([
-            'user_id' => $user->id,
-            'company_id' => $company->id,
-            'client_id' => $client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
             'balance' => 10,
             'due_date' => now()->addDays(5),
             'number' => 'testing-number-02',
             'status_id' => Credit::STATUS_SENT,
         ]);
 
-        $this->assertEquals($client->service()->getCreditBalance(), 0);
+        $this->assertEquals($this->client->service()->getCreditBalance(), 0);
         
     }
 }
