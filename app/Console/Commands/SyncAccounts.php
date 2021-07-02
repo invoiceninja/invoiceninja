@@ -61,7 +61,7 @@ class SyncAccounts extends Command
 
         $a = Company::whereIn('plan', ['pro', 'enterprise'])
                             ->with('accounts')
-                            ->chunk(100)->each(function ($company) use ($data){
+                            ->cursor()->each(function ($company) use ($data){
 
                                 $accounts = $company->accounts->pluck('account_key');
 
