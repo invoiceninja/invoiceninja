@@ -51,6 +51,7 @@ class ClientService
         $credits = $this->client->credits
                       ->where('is_deleted', false)
                       ->where('balance', '>', 0)
+                      ->where('due_date', '<=', now())
                       ->sortBy('created_at');
 
         return Number::roundValue($credits->sum('balance'), $this->client->currency()->precision);
