@@ -38,6 +38,7 @@ class CreditsTable extends Component
             ->where('client_id', auth('contact')->user()->client->id)
             ->where('status_id', '<>', Credit::STATUS_DRAFT)
             ->whereDate('due_date', '<=', now())
+            ->orWhere('due_date', NULL)
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
             ->paginate($this->per_page);
 
