@@ -26,6 +26,7 @@ use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\ClientGatewayToken;
 use App\Models\CompanyGateway;
+use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
@@ -545,5 +546,25 @@ class BaseDriver extends AbstractPaymentDriver
             $this->client,
             $this->client->company,
         );
+    }
+
+    /* Performs an extra iterate on the gatewayTypes() array and passes back only the enabled gateways*/
+    public function gatewayTypeEnabled($type)
+    {
+        $types = [];
+
+        // if($type == GatewayType::BANK_TRANSFER && $this->company_gateway->fees_and_limits->{GatewayType::BANK_TRANSFER}->is_enabled)
+        // {
+        //     $types[] = $type;    
+        // }
+        // elseif($type == GatewayType::CREDIT_CARD && $this->company_gateway->fees_and_limits->{GatewayType::CREDIT_CARD}->is_enabled)
+        // {
+        //     $types[] = $type;    
+        // }
+
+        $types[] = GatewayType::CREDIT_CARD;
+        $types[] = GatewayType::BANK_TRANSFER;
+
+        return $types;
     }
 }

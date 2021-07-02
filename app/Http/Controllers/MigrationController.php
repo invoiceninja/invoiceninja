@@ -387,7 +387,6 @@ class MigrationController extends BaseController
                 else
                     StartMigration::dispatch($migration_file, $user, $fresh_company);
 
-
         }
 
     }

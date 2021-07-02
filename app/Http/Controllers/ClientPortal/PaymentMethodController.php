@@ -14,7 +14,7 @@ namespace App\Http\Controllers\ClientPortal;
 
 use App\Events\Payment\Methods\MethodDeleted;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ClientPortal\CreatePaymentMethodRequest;
+use App\Http\Requests\ClientPortal\PaymentMethod\CreatePaymentMethodRequest;
 use App\Http\Requests\Request;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
@@ -52,7 +52,7 @@ class PaymentMethodController extends Controller
 
         $data['gateway'] = $gateway;
         $data['client'] = auth()->user()->client;
-        
+
         return $gateway
             ->driver(auth()->user()->client)
             ->setPaymentMethod($request->query('method'))
@@ -93,7 +93,7 @@ class PaymentMethodController extends Controller
     public function verify(ClientGatewayToken $payment_method)
     {
 //        $gateway = $this->getClientGateway();
-        
+
         return $payment_method->gateway
             ->driver(auth()->user()->client)
             ->setPaymentMethod(request()->query('method'))

@@ -11,14 +11,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\NonExistingMigrationFile;
 use App\Http\Requests\Import\ImportJsonRequest;
 use App\Jobs\Company\CompanyExport;
 use App\Jobs\Company\CompanyImport;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use ZipArchive;
+use Illuminate\Support\Facades\Storage;
 
 class ImportJsonController extends BaseController
 {
@@ -60,40 +63,19 @@ class ImportJsonController extends BaseController
     public function import(ImportJsonRequest $request)
     {
 
-        $import_file = $request->file('files');
+        $file_location = $request->file('files')
+            ->storeAs(
+                'migrations',
+                $request->file('files')->getClientOriginalName()
+            );
 
-        $contents = $this->unzipFile($import_file->getPathname());
-
-        $hash = Str::random(32);
-    
-        nlog($hash);
-
-        Cache::put( $hash, base64_encode( $contents ), 3600 );
-
-        CompanyImport::dispatch(auth()->user()->getCompany(), auth()->user(), $hash, $request->except('files'))->delay(now()->addMinutes(1));
+        if(Ninja::isHosted())
+            CompanyImport::dispatch(auth()->user()->getCompany(), auth()->user(), $file_location, $request->except('files'))->onQueue('migration');
+        else
+            CompanyImport::dispatch(auth()->user()->getCompany(), auth()->user(), $file_location, $request->except('files'));
 
         return response()->json(['message' => 'Processing'], 200);
 
     }
 
-    private function unzipFile($file_contents)
-    {
-        $zip = new ZipArchive();
-        $archive = $zip->open($file_contents);
-
-        $filename = pathinfo($file_contents, PATHINFO_FILENAME);
-        $zip->extractTo(public_path("storage/backups/{$filename}"));
-        $zip->close();
-        $file_location = public_path("storage/backups/$filename/backup.json");
-
-        if (! file_exists($file_location)) 
-            throw new NonExistingMigrationFile('Backup file does not exist, or is corrupted.');
-        
-        $data = file_get_contents($file_location);
-
-        unlink($file_contents);
-        unlink($file_location);
-
-        return $data;
-    }
 }

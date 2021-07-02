@@ -90,24 +90,40 @@ class SubscriptionPlanSwitch extends Component
         
         $this->state['show_loading_bar'] = true;
 
-            $this->state['invoice'] = $this->target->service()->createChangePlanInvoice([
+            $payment_required = $this->target->service()->changePlanPaymentCheck([
                 'recurring_invoice' => $this->recurring_invoice,
                 'subscription' => $this->subscription,
                 'target' => $this->target,
                 'hash' => $this->hash,
             ]);
 
-            Cache::put($this->hash, [
-                'subscription_id' => $this->target->id,
-                'target_id' => $this->target->id,
-                'recurring_invoice' => $this->recurring_invoice->id,
-                'client_id' => $this->recurring_invoice->client->id,
-                'invoice_id' => $this->state['invoice']->id,
-                'context' => 'change_plan',
-                now()->addMinutes(60)]
-            );
+            if($payment_required)
+            {
 
-        $this->state['payment_initialised'] = true;
+                $this->state['invoice'] = $this->target->service()->createChangePlanInvoice([
+                    'recurring_invoice' => $this->recurring_invoice,
+                    'subscription' => $this->subscription,
+                    'target' => $this->target,
+                    'hash' => $this->hash,
+                ]);
+
+                Cache::put($this->hash, [
+                    'subscription_id' => $this->target->id,
+                    'target_id' => $this->target->id,
+                    'recurring_invoice' => $this->recurring_invoice->id,
+                    'client_id' => $this->recurring_invoice->client->id,
+                    'invoice_id' => $this->state['invoice']->id,
+                    'context' => 'change_plan',
+                    now()->addMinutes(60)]
+                );
+
+                $this->state['payment_initialised'] = true;
+                
+            }
+            else
+                $this->handlePaymentNotRequired();
+
+
 
         $this->emit('beforePaymentEventsCompleted');
     }

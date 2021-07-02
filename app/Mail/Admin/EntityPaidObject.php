@@ -12,7 +12,9 @@
 namespace App\Mail\Admin;
 
 use App\Mail\Engine\PaymentEmailEngine;
+use App\Utils\Ninja;
 use App\Utils\Number;
+use Illuminate\Support\Facades\App;
 use stdClass;
 
 class EntityPaidObject
@@ -35,6 +37,15 @@ class EntityPaidObject
 
     public function build()
     {
+
+        App::forgetInstance('translator');
+        /* Init a new copy of the translator*/
+        $t = app('translator');
+        /* Set the locale*/
+        App::setLocale($this->company->getLocale());
+        /* Set customized translations _NOW_ */
+        $t->replace(Ninja::transformTranslations($this->company->settings));
+
         $mail_obj = new stdClass;
         $mail_obj->amount = $this->getAmount();
         $mail_obj->subject = $this->getSubject();

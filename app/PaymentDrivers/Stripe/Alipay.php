@@ -37,7 +37,7 @@ class Alipay
         $data['gateway'] = $this->stripe;
         $data['return_url'] = $this->buildReturnUrl();
         $data['currency'] = $this->stripe->client->getCurrencyCode();
-        $data['stripe_amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision);
+        $data['stripe_amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency());
         $data['invoices'] = $this->stripe->payment_hash->invoices();
 
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['stripe_amount' => $data['stripe_amount']]);
@@ -74,7 +74,7 @@ class Alipay
         $data = [
             'payment_method' => $this->stripe->payment_hash->data->source,
             'payment_type' => PaymentType::ALIPAY,
-            'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision),
+            'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
             'transaction_reference' => $source,
             'gateway_type_id' => GatewayType::ALIPAY,
 
@@ -104,7 +104,7 @@ class Alipay
             $this->stripe->client,
             $server_response,
             $this->stripe->client->company,
-            $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision)
+            $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency())
         );
 
         $message = [

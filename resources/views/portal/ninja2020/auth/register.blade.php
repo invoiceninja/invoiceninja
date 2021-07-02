@@ -8,7 +8,6 @@
                 <img class="h-32 w-auto" src="{{ $company->present()->logo() }}" alt="{{ ctrans('texts.logo') }}">
             </div>
             <h1 class="text-center text-3xl mt-8">{{ ctrans('texts.register') }}</h1>
-            <h1 class="text-center text-3xl mt-8">{{ ctrans('texts.register') }}</h1>
             <p class="block text-center text-gray-600">{{ ctrans('texts.register_label') }}</p>
 
             <form action="{{ route('client.register', request()->route('company_key')) }}" method="POST" x-data="{ more: false }">
@@ -29,11 +28,15 @@
                                 <input type="checkbox" name="terms" class="form-checkbox mr-2 cursor-pointer" checked>
                                 <span class="text-sm text-gray-800">
 
-                                {{ ctrans('texts.i_agree') }}
+                                {{ ctrans('texts.i_agree_to_the') }}
                             @endif
 
                             @includeWhen(!empty($company->settings->client_portal_terms), 'portal.ninja2020.auth.includes.register.popup', ['property' => 'terms_of_service', 'title' => ctrans('texts.terms_of_service'), 'content' => $company->settings->client_portal_terms])
                             @includeWhen(!empty($company->settings->client_portal_privacy_policy), 'portal.ninja2020.auth.includes.register.popup', ['property' => 'privacy_policy', 'title' => ctrans('texts.privacy_policy'), 'content' => $company->settings->client_portal_privacy_policy])
+
+                            @error('terms')
+                                <p class="text-red-600">{{ $message }}</p>
+                            @enderror
                         </span>
                     </span>
 

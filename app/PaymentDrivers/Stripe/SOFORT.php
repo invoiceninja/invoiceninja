@@ -40,7 +40,7 @@ class SOFORT
     {
         $data['gateway'] = $this->stripe;
         $data['return_url'] = $this->buildReturnUrl();
-        $data['stripe_amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision);
+        $data['stripe_amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency());
         $data['client'] = $this->stripe->client;
         $data['country'] = $this->stripe->client->country->iso_3166_2;
 
@@ -80,7 +80,7 @@ class SOFORT
         $data = [
             'payment_method' => $this->stripe->payment_hash->data->source,
             'payment_type' => PaymentType::SOFORT,
-            'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision),
+            'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
             'transaction_reference' => $source,
             'gateway_type_id' => GatewayType::SOFORT,
         ];
@@ -107,7 +107,7 @@ class SOFORT
             $this->stripe->client,
             $server_response,
             $this->stripe->client->company,
-            $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision)
+            $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency())
         );
 
         $message = [

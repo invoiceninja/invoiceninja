@@ -15,6 +15,7 @@ use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\CompanyToken;
+use App\Models\Document;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -196,6 +197,24 @@ class MultiDB
         foreach (self::$dbs as $db) {
             
             if (User::on($db)->where('email', $email)->count() >= 1){ 
+                self::setDb($db);
+                return true;
+            }
+
+        }
+
+        self::setDB($current_db);
+        return false;
+    }
+
+    public static function documentFindAndSetDb($hash) : bool
+    {
+        $current_db = config('database.default');  
+
+        //multi-db active
+        foreach (self::$dbs as $db) {
+            
+            if (Document::on($db)->where('hash', $hash)->count() >= 1){ 
                 self::setDb($db);
                 return true;
             }
