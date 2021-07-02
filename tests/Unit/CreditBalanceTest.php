@@ -14,6 +14,7 @@ use App\Models\Account;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Credit;
+use App\Models\CreditInvitation;
 use App\Models\User;
 use Tests\MockUnitData;
 use Tests\TestCase;
@@ -28,7 +29,11 @@ class CreditBalanceTest extends TestCase
     public function setUp() :void
     {
         parent::setUp();
-    
+        
+        Credit::all()->each(function ($credit){
+            $credit->forceDelete();
+        });
+
         $this->makeTestData();
     }
 
