@@ -349,15 +349,27 @@ class CheckData extends Command
         $this->wrong_paid_to_dates = 0;
         $credit_total_applied = 0;
 
-        Client::withTrashed()->where('is_deleted', 0)->cursor()->each(function ($client) use ($credit_total_applied) {
+
+        $clients = DB::table('clients')
+                    ->leftJoin('payments', function($join) {
+                        $join->on('payments.client_id', '=', 'clients.id')
+                            ->where('payments.is_deleted', 0)
+                            ->whereIn('payments.status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED]);
+                    })
+                    ->where('clients.is_deleted',0)
+                    ->where('clients.updated_at', '>', now()->subDays(2))
+                    ->groupBy('clients.id')
+                    ->havingRaw('clients.paid_to_date != sum(coalesce(payments.amount - payments.refunded, 0))')
+                    ->get(['clients.id', 'clients.paid_to_date', DB::raw('sum(coalesce(payments.amount - payments.refunded, 0)) as amount')]);
+
+        /* Due to accounting differences we need to perform a second loop here to ensure there actually is an issue */
+        $clients->each(function ($client_record) use ($credit_total_applied) {
+            
+            $client = Client::find($client_record->id);
+
             $total_invoice_payments = 0;
 
             foreach ($client->invoices()->where('is_deleted', false)->where('status_id', '>', 1)->get() as $invoice) {
-
-                // $total_amount = $invoice->payments()->where('is_deleted', false)->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])->get()->sum('pivot.amount');
-                // $total_refund = $invoice->payments()->where('is_deleted', false)->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])->get()->sum('pivot.refunded');
-
-                // $total_invoice_payments += ($total_amount - $total_refund);
 
                 $total_invoice_payments += $invoice->payments()
                                                     ->where('is_deleted', false)->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
@@ -377,18 +389,17 @@ class CheckData extends Command
 
             // 10/02/21
             foreach ($client->payments as $payment) {
-                // $credit_total_applied += $payment->paymentables()->where('paymentable_type', App\Models\Credit::class)->get()->sum(DB::raw('amount'));
-            $credit_total_applied += $payment->paymentables()
-                                            ->where('paymentable_type', App\Models\Credit::class)
-                                            ->selectRaw('sum(paymentables.amount - paymentables.refunded) as p')
-                                            ->pluck('p')
-                                            ->first();
+
+                $credit_total_applied += $payment->paymentables()
+                                                ->where('paymentable_type', App\Models\Credit::class)
+                                                ->selectRaw('sum(paymentables.amount - paymentables.refunded) as p')
+                                                ->pluck('p')
+                                                ->first();
             }
 
             if ($credit_total_applied < 0) {
                 $total_invoice_payments += $credit_total_applied;
             } 
-
 
             if (round($total_invoice_payments, 2) != round($client->paid_to_date, 2)) {
                 $this->wrong_paid_to_dates++;
@@ -412,7 +423,7 @@ class CheckData extends Command
     {
         $this->wrong_balances = 0;
 
-        Client::cursor()->where('is_deleted', 0)->each(function ($client) {
+        Client::cursor()->where('is_deleted', 0)->where('clients.updated_at', '>', now()->subDays(2))->each(function ($client) {
             
             $client->invoices->where('is_deleted', false)->whereIn('status_id', '!=', Invoice::STATUS_DRAFT)->each(function ($invoice) use ($client) {
                 // $total_amount = $invoice->payments()->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED])->get()->sum('pivot.amount');
@@ -449,7 +460,7 @@ class CheckData extends Command
         $this->wrong_balances = 0;
         $this->wrong_paid_to_dates = 0;
 
-        foreach (Client::cursor()->where('is_deleted', 0) as $client) {
+        foreach (Client::cursor()->where('is_deleted', 0)->where('clients.updated_at', '>', now()->subDays(2)) as $client) {
             //$invoice_balance = $client->invoices->where('is_deleted', false)->where('status_id', '>', 1)->sum('balance');
             $invoice_balance = Invoice::where('client_id', $client->id)->where('is_deleted', false)->where('status_id', '>', 1)->withTrashed()->sum('balance');
             $credit_balance = Credit::where('client_id', $client->id)->where('is_deleted', false)->withTrashed()->sum('balance');
@@ -483,12 +494,9 @@ class CheckData extends Command
         $this->wrong_balances = 0;
         $this->wrong_paid_to_dates = 0;
 
-        foreach (Client::where('is_deleted', 0)->cursor() as $client) {
-            $invoice_balance = $client->invoices()->where('is_deleted', false)->where('status_id', '>', 1)->get()->sum('balance');
-            $credit_balance = $client->credits()->where('is_deleted', false)->get()->sum('balance');
-
-            // if($client->balance != $invoice_balance)
-            //     $invoice_balance -= $credit_balance;//doesn't make sense to remove the credit amount
+        foreach (Client::where('is_deleted', 0)->where('clients.updated_at', '>', now()->subDays(2))->cursor() as $client) {
+            $invoice_balance = $client->invoices()->where('is_deleted', false)->where('status_id', '>', 1)->sum('balance');
+            $credit_balance = $client->credits()->where('is_deleted', false)->sum('balance');
 
             $ledger = CompanyLedger::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
 
