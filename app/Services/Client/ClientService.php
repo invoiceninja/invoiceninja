@@ -48,21 +48,24 @@ class ClientService
 
     public function getCreditBalance() :float
     {
-        $credits = $this->client->credits
+        $credits = $this->client->credits()
                       ->where('is_deleted', false)
                       ->where('balance', '>', 0)
-                      ->where('due_date', '<=', now())
-                      ->sortBy('created_at');
+                      ->whereDate('due_date', '<=', now()->format('Y-m-d'))
+                      ->orWhere('due_date', NULL)
+                      ->orderBy('created_at','ASC');
 
         return Number::roundValue($credits->sum('balance'), $this->client->currency()->precision);
     }
 
     public function getCredits() :Collection
     {
-        return $this->client->credits
+        return $this->client->credits()
                   ->where('is_deleted', false)
                   ->where('balance', '>', 0)
-                  ->sortBy('created_at');
+                  ->whereDate('due_date', '<=', now()->format('Y-m-d'))
+                  ->orWhere('due_date', NULL)
+                  ->orderBy('created_at','ASC');
     }
 
     public function getPaymentMethods(float $amount)
