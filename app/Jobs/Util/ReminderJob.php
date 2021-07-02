@@ -62,6 +62,10 @@ class ReminderJob implements ShouldQueue
                  ->where('is_deleted', 0)
                  ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                  ->where('balance', '>', 0)
+                 ->whereHas('client', function ($query) {
+                     $query->where('is_deleted',0)
+                           ->where('deleted_at', NULL);
+                 })
                  ->with('invitations')->cursor()->each(function ($invoice) {
 
             if ($invoice->isPayable()) {
