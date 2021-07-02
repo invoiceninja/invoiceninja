@@ -6,7 +6,7 @@ use Laravel\Dusk\Browser;
 use Tests\Browser\Pages\ClientPortal\Login;
 use Tests\DuskTestCase;
 
-class InvoicesTest extends DuskTestCase
+class RecurringInvoices extends DuskTestCase
 {
     protected function setUp(): void
     {
@@ -20,11 +20,11 @@ class InvoicesTest extends DuskTestCase
     public function testPageLoads()
     {
         $this->browse(function (Browser $browser) {
-           $browser
-               ->visit(new Login())
-               ->auth()
-               ->visitRoute('client.invoices.index')
-               ->assertSee('Invoices');
+            $browser
+                ->visit(new Login())
+                ->auth()
+                ->visitRoute('client.recurring_invoices.index')
+                ->assertSee('Recurring Invoices');
         });
     }
 }
