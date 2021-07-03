@@ -137,9 +137,9 @@ class ReverseInvoiceTest extends TestCase
 
         $this->invoice = $this->invoice->service()->markPaid()->save();
 
-        $this->assertEquals($this->client->balance, ($this->invoice->balance * -1));
-        $this->assertEquals($this->client->paid_to_date, ($client_paid_to_date + $invoice_balance));
-        $this->assertEquals(0, $this->invoice->balance);
+        $this->assertEquals($this->client->fresh()->balance, ($this->invoice->balance * -1));
+        $this->assertEquals($this->client->fresh()->paid_to_date, ($client_paid_to_date + $invoice_balance));
+        $this->assertEquals(0, $this->invoice->fresh()->balance);
         $this->assertEquals(Invoice::STATUS_PAID, $this->invoice->status_id);
 
         $this->invoice = $this->invoice->service()->handleReversal()->save();
@@ -163,7 +163,7 @@ class ReverseInvoiceTest extends TestCase
 
         $this->assertEquals(Invoice::STATUS_REVERSED, $this->invoice->status_id);
         $this->assertEquals(0, $this->invoice->balance);
-        $this->assertEquals($this->client->paid_to_date, ($client_paid_to_date));
-        $this->assertEquals($this->client->balance, ($client_balance - $invoice_balance));
+        $this->assertEquals($this->client->fresh()->paid_to_date, ($client_paid_to_date));
+        $this->assertEquals($this->client->fresh()->balance, ($client_balance - $invoice_balance));
     }
 }
