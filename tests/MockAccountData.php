@@ -333,6 +333,8 @@ trait MockAccountData
         $this->invoice->setRelation('company', $this->company);
 
         $this->invoice->save();
+        
+        $this->invoice->load("client");
 
         InvoiceInvitation::factory()->create([
                 'user_id' => $this->invoice->user_id,
@@ -589,6 +591,10 @@ trait MockAccountData
             $cg->config = encrypt(config('ninja.testvars.stripe'));
             $cg->save();
         }
+
+
+        $this->client = $this->client->fresh();
+        $this->invoice = $this->invoice->fresh();
     }
 
     /**
