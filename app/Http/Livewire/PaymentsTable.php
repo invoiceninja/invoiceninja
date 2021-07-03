@@ -41,6 +41,7 @@ class PaymentsTable extends Component
     {
         $query = Payment::query()
             ->with('type', 'client')
+            ->where('company_id', $this->company->id)
             ->where('client_id', auth('contact')->user()->client->id)
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
             ->paginate($this->per_page);

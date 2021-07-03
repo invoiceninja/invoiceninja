@@ -12,6 +12,7 @@
 
 namespace App\Http\Livewire;
 
+use App\Libraries\MultiDB;
 use App\Models\RecurringInvoice;
 use App\Utils\Traits\WithSorting;
 use Livewire\Component;
@@ -23,8 +24,12 @@ class RecurringInvoicesTable extends Component
 
     public $per_page = 10;
 
+    public $company;
+    
     public function mount()
     {
+        MultiDB::setDb($this->company->db);
+
         $this->sort_asc = false;
 
         $this->sort_field = 'date';
@@ -36,6 +41,7 @@ class RecurringInvoicesTable extends Component
 
         $query = $query
             ->where('client_id', auth('contact')->user()->client->id)
+            ->where('company_id', $this->company->id)
             ->whereIn('status_id', [RecurringInvoice::STATUS_PENDING, RecurringInvoice::STATUS_ACTIVE, RecurringInvoice::STATUS_PAUSED,RecurringInvoice::STATUS_COMPLETED])
             ->orderBy('status_id', 'asc')
             ->with('client')
