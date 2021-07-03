@@ -172,13 +172,14 @@ class GeneratesCounterTest extends TestCase
 
     public function testInvoiceNumberValue()
     {
-        $invoice_number = $this->getNextInvoiceNumber($this->client, $this->invoice);
+
+        $invoice_number = $this->getNextInvoiceNumber($this->client->fresh(), $this->invoice->fresh());
+
+        $this->assertEquals($invoice_number, '0007');
+
+        $invoice_number = $this->getNextInvoiceNumber($this->client->fresh(), $this->invoice->fresh());
 
         $this->assertEquals($invoice_number, '0008');
-
-        $invoice_number = $this->getNextInvoiceNumber($this->client, $this->invoice);
-
-        $this->assertEquals($invoice_number, '0009');
     }
 
     public function testQuoteNumberValue()
@@ -335,13 +336,13 @@ class GeneratesCounterTest extends TestCase
         $cliz->settings = ClientSettings::defaults();
         $cliz->save();
 
-        $invoice_number = $this->getNextInvoiceNumber($cliz, $this->invoice);
+        $invoice_number = $this->getNextInvoiceNumber($cliz->fresh(), $this->invoice);
+
+        $this->assertEquals($invoice_number, '0007');
+
+        $invoice_number = $this->getNextInvoiceNumber($cliz->fresh(), $this->invoice);
 
         $this->assertEquals($invoice_number, '0008');
-
-        $invoice_number = $this->getNextInvoiceNumber($cliz, $this->invoice);
-
-        $this->assertEquals($invoice_number, '0009');
     }
 
     public function testClientNumber()

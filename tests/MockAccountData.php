@@ -350,7 +350,8 @@ trait MockAccountData
                 'invoice_id' => $this->invoice->id,
             ]);
 
-        $this->invoice->service()->markSent();
+        $this->invoice->fresh()->service()->markSent();
+        // $this->invoice->service()->markSent();
 
         $this->quote = Quote::factory()->create([
                 'user_id' => $user_id,
