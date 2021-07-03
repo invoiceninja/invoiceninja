@@ -34,6 +34,7 @@ class PaymentMethodsTable extends Component
     {
         $query = ClientGatewayToken::query()
             ->with('gateway_type')
+            ->where('company_id', $this->company->id)
             ->where('client_id', $this->client->id)
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
             ->paginate($this->per_page);
