@@ -44,6 +44,7 @@ class InvoicesTable extends Component
 
         $query = Invoice::query()
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
+            ->where('company_id', $this->company->id)
             ->where('is_deleted', false);
 
         if (in_array('paid', $this->status)) {
