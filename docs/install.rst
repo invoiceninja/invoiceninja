@@ -14,7 +14,7 @@ Detailed Guides
 
 - Debian and Nginx: `rosehosting.com <https://www.rosehosting.com/blog/how-to-install-invoice-ninja-on-debian-9/>`_
 
-- Debian 10 and Nginx: `atlantic.net <https://www.atlantic.net/vps-hosting/how-to-install-invoice-ninja-on-debian-10/>`
+- Debian 10 and Nginx: `atlantic.net <https://www.atlantic.net/vps-hosting/how-to-install-invoice-ninja-on-debian-10/>`_
 
 - CentOS and Nginx: `rosehosting.com <https://www.rosehosting.com/blog/how-to-install-invoice-ninja-on-centos-7/>`_
 
