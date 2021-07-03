@@ -65,8 +65,10 @@ class ClientService
         return $this->client->credits()
                   ->where('is_deleted', false)
                   ->where('balance', '>', 0)
-                  ->whereDate('due_date', '<=', now()->format('Y-m-d'))
-                  ->orWhere('due_date', NULL)
+                  ->where(function ($query){
+                        $query->whereDate('due_date', '<=', now()->format('Y-m-d'))
+                              ->orWhereNull('due_date');
+                  })
                   ->orderBy('created_at','ASC');
     }
 
