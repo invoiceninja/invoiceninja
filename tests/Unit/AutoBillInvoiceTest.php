@@ -33,6 +33,7 @@ class AutoBillInvoiceTest extends TestCase
 
     public function testAutoBillFunctionality()
     {
+
         $this->assertEquals($this->client->balance, 10);
         $this->assertEquals($this->client->paid_to_date, 0);
         $this->assertEquals($this->client->credit_balance, 10);
@@ -42,9 +43,9 @@ class AutoBillInvoiceTest extends TestCase
         $this->assertNotNull($this->invoice->payments());
         $this->assertEquals(10, $this->invoice->payments()->sum('payments.amount'));
 
-        $this->assertEquals($this->client->balance, 0);
-        $this->assertEquals($this->client->paid_to_date, 10);
-        $this->assertEquals($this->client->credit_balance, 0);
+        $this->assertEquals($this->client->fresh()->balance, 0);
+        $this->assertEquals($this->client->fresh()->paid_to_date, 10);
+        $this->assertEquals($this->client->fresh()->credit_balance, 0);
     }
 
 

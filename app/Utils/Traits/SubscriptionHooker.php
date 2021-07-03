@@ -35,6 +35,9 @@ trait  SubscriptionHooker
             'headers' => $headers,
         ]);
 
+        nlog("method name must be a string");
+        nlog($subscription->webhook_configuration['post_purchase_rest_method']);
+
         try {
             $response = $client->{$subscription->webhook_configuration['post_purchase_rest_method']}($subscription->webhook_configuration['post_purchase_url'],[
                 RequestOptions::JSON => ['body' => $body], RequestOptions::ALLOW_REDIRECTS => false
