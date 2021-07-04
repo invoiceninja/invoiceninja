@@ -13,6 +13,7 @@ namespace App\Models;
 
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
+use App\Models\CompanyGateway;
 use App\Models\Presenters\ClientPresenter;
 use App\Services\Client\ClientService;
 use App\Utils\Traits\AppSetup;
@@ -215,6 +216,11 @@ class Client extends BaseModel implements HasLocalePreference
         return $this->hasMany(Invoice::class)->withTrashed();
     }
 
+    public function recurring_invoices()
+    {
+        return $this->hasMany(RecurringInvoice::class)->withTrashed();
+    }
+
     public function shipping_country()
     {
         return $this->belongsTo(Country::class, 'shipping_country_id', 'id');
@@ -407,7 +413,7 @@ class Client extends BaseModel implements HasLocalePreference
         }
 
         foreach ($gateways as $gateway) {
-            if (in_array(GatewayType::CREDIT_CARD, $gateway->driver($this)->gatewayTypes())) {
+            if (in_array(GatewayType::CREDIT_CARD, $gateway->driver($this)->gatewayTypeEnabled(GatewayType::CREDIT_CARD))) {
                 return $gateway;
             }
         }
@@ -417,35 +423,57 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function getBankTransferGateway() :?CompanyGateway
     {
-        $company_gateways = $this->getSetting('company_gateway_ids');
+        $pms = $this->service()->getPaymentMethods(0);
 
-        if (strlen($company_gateways) >= 1) {
-            $transformed_ids = $this->transformKeys(explode(',', $company_gateways));
-            $gateways = $this->company
-                             ->company_gateways
-                             ->whereIn('id', $transformed_ids)
-                             ->sortby(function ($model) use ($transformed_ids) {
-                                 return array_search($model->id, $transformed_ids);
-                             });
-        } else {
-            $gateways = $this->company->company_gateways;
+        if($this->currency()->code == 'USD' && in_array(GatewayType::BANK_TRANSFER, array_column($pms, 'gateway_type_id'))){
+
+            foreach($pms as $pm){
+                if($pm['gateway_type_id'] == GatewayType::BANK_TRANSFER)
+                    return CompanyGateway::find($pm['company_gateway_id']);
+            }
+
         }
 
-        foreach ($gateways as $gateway) {
-            if ($this->currency()->code == 'USD' && in_array(GatewayType::BANK_TRANSFER, $gateway->driver($this)->gatewayTypes())) {
-                return $gateway;
+        if($this->currency()->code == 'EUR' && in_array(GatewayType::BANK_TRANSFER, array_column($pms, 'gateway_type_id'))){
+        
+            foreach($pms as $pm){
+                if($pm['gateway_type_id'] == GatewayType::SEPA)
+                    return CompanyGateway::find($pm['company_gateway_id']);
             }
 
-            if ($this->currency()->code == 'EUR' && in_array(GatewayType::SEPA, $gateway->driver($this)->gatewayTypes())) {
-                return $gateway;
-            }
         }
 
         return null;
+        // $company_gateways = $this->getSetting('company_gateway_ids');
+
+        // if (strlen($company_gateways) >= 1) {
+        //     $transformed_ids = $this->transformKeys(explode(',', $company_gateways));
+        //     $gateways = $this->company
+        //                      ->company_gateways
+        //                      ->whereIn('id', $transformed_ids)
+        //                      ->sortby(function ($model) use ($transformed_ids) {
+        //                          return array_search($model->id, $transformed_ids);
+        //                      });
+        // } else {
+        //     $gateways = $this->company->company_gateways;
+        // }
+
+        // foreach ($gateways as $gateway) {
+        //     if ($this->currency()->code == 'USD' && in_array(GatewayType::BANK_TRANSFER, $gateway->driver($this)->gatewayTypeEnabled(GatewayType::BANK_TRANSFER))) {
+        //         return $gateway;
+        //     }
+
+        //     if ($this->currency()->code == 'EUR' && in_array(GatewayType::SEPA, $gateway->driver($this)->gatewayTypeEnabled(GatewayType::SEPA))) {
+        //         return $gateway;
+        //     }
+        // }
+
+        // return null;
     }
 
     public function getBankTransferMethodType()
     {
+
         if ($this->currency()->code == 'USD') {
             return GatewayType::BANK_TRANSFER;
         }

@@ -81,11 +81,8 @@ class WePayPaymentDriver extends BaseDriver
     {
         $types = [];
 
-        if($this->company_gateway->fees_and_limits->{GatewayType::BANK_TRANSFER}->is_enabled)
-            $types[] = GatewayType::CREDIT_CARD;
-
-        if($this->company_gateway->fees_and_limits->{GatewayType::BANK_TRANSFER}->is_enabled)
-            $types[] = GatewayType::BANK_TRANSFER;
+        $types[] = GatewayType::CREDIT_CARD;
+        $types[] = GatewayType::BANK_TRANSFER;
 
         return $types;
     }
@@ -266,18 +263,17 @@ class WePayPaymentDriver extends BaseDriver
 
         $response = $this->wepay->request('checkout/refund', array(
             'checkout_id'   => $payment->transaction_reference,
-            'refund_reason' => 'Refund',
+            'refund_reason' => 'Refund by merchant',
             'amount'        => $amount
         ));
 
-
-            return [
-                        'transaction_reference' => $response->checkout_id,
-                        'transaction_response' => json_encode($response),
-                        'success' => $response->state == 'refunded' ? true : false,
-                        'description' => 'refund',
-                        'code' => 0,
-                    ];
+        return [
+            'transaction_reference' => $response->checkout_id,
+            'transaction_response' => json_encode($response),
+            'success' => $response->state == 'refunded' ? true : false,
+            'description' => 'refund',
+            'code' => 0,
+        ];
         
     }
 

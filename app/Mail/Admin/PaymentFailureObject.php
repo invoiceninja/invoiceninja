@@ -12,9 +12,11 @@
 namespace App\Mail\Admin;
 
 use App\Models\Invoice;
+use App\Utils\Ninja;
 use App\Utils\Number;
 use App\Utils\Traits\MakesHash;
 use stdClass;
+use Illuminate\Support\Facades\App;
 
 class PaymentFailureObject
 {
@@ -55,6 +57,14 @@ class PaymentFailureObject
     public function build()
     {
 
+        App::forgetInstance('translator');
+        /* Init a new copy of the translator*/
+        $t = app('translator');
+        /* Set the locale*/
+        App::setLocale($this->company->getLocale());
+        /* Set customized translations _NOW_ */
+        $t->replace(Ninja::transformTranslations($this->company->settings));
+        
         // $this->invoices = Invoice::whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->get();
 
         $mail_obj = new stdClass;

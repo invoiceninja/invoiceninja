@@ -25,6 +25,8 @@ use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Braintree\CreditCard;
 use App\PaymentDrivers\Braintree\PayPal;
+use Braintree\Gateway;
+use Exception;
 use Illuminate\Http\Request;
 
 class BraintreePaymentDriver extends BaseDriver
@@ -36,7 +38,7 @@ class BraintreePaymentDriver extends BaseDriver
     public $can_authorise_credit_card = true;
 
     /**
-     * @var \Braintree\Gateway;
+     * @var Gateway;
      */
     public $gateway;
 
@@ -49,7 +51,7 @@ class BraintreePaymentDriver extends BaseDriver
 
     public function init(): void
     {
-        $this->gateway = new \Braintree\Gateway([
+        $this->gateway = new Gateway([
             'environment' => $this->company_gateway->getConfigField('testMode') ? 'sandbox' : 'production',
             'merchantId' => $this->company_gateway->getConfigField('merchantId'),
             'publicKey' => $this->company_gateway->getConfigField('publicKey'),
@@ -68,10 +70,12 @@ class BraintreePaymentDriver extends BaseDriver
 
     public function gatewayTypes(): array
     {
-        return [
-            GatewayType::CREDIT_CARD,
+        $types = [
             GatewayType::PAYPAL,
+            GatewayType::CREDIT_CARD
         ];
+        
+        return $types;
     }
 
     public function authorizeView($data)
@@ -126,11 +130,11 @@ class BraintreePaymentDriver extends BaseDriver
             return [
                 'transaction_reference' => $response->id,
                 'transaction_response' => json_encode($response),
-                'success' => (bool) $response->success,
+                'success' => (bool)$response->success,
                 'description' => $response->status,
                 'code' => 0,
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return [
                 'transaction_reference' => null,
                 'transaction_response' => json_encode($e->getMessage()),
@@ -174,7 +178,7 @@ class BraintreePaymentDriver extends BaseDriver
                 'gateway_type_id' => GatewayType::CREDIT_CARD,
             ];
 
-            $payment = $this->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);
+            $payment = $this->createPayment($data, Payment::STATUS_COMPLETED);
 
             SystemLogger::dispatch(
                 ['response' => $result, 'data' => $data],

@@ -474,7 +474,7 @@ trait MakesInvoiceValues
                 }
 
                 if ($matches->keys()->first() == ':MONTH') {
-                    $output = \Carbon\Carbon::create()->month($output)->localeMonth;
+                    $output = \Carbon\Carbon::create()->month($output)->translatedFormat('F');
                 }
 
                 $value = preg_replace(

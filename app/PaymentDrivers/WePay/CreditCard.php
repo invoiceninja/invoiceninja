@@ -139,16 +139,21 @@ use WePayCommon;
         }
 
         // USD, CAD, and GBP.
-        nlog($request->all());
+        // nlog($request->all());
+
+        $app_fee = (config('ninja.wepay.fee_cc_multiplier') * $this->wepay_payment_driver->payment_hash->data->amount_with_fee) + config('ninja.wepay.fee_fixed');
         // charge the credit card
         $response = $this->wepay_payment_driver->wepay->request('checkout/create', array(
-            // 'callback_uri'        => route('payment_webhook', ['company_key' => $this->wepay_payment_driver->company_gateway->company->company_key, 'company_gateway_id' => $this->wepay_payment_driver->company_gateway->hashed_id]),
             'unique_id'           => Str::random(40),
             'account_id'          => $this->wepay_payment_driver->company_gateway->getConfigField('accountId'),
             'amount'              => $this->wepay_payment_driver->payment_hash->data->amount_with_fee,
             'currency'            => $this->wepay_payment_driver->client->getCurrencyCode(),
-            'short_description'   => 'A vacation home rental',
+            'short_description'   => 'Goods and services',
             'type'                => 'goods',
+            'fee'                 => [
+                'fee_payer' => config('ninja.wepay.fee_payer'),
+                'app_fee' => $app_fee,
+            ],
             'payment_method'      => array(
                 'type'            => 'credit_card',
                 'credit_card'     => array(

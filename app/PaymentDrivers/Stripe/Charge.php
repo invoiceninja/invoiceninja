@@ -68,7 +68,7 @@ class Charge
         try {
 
             $data = [
-              'amount' => $this->stripe->convertToStripeAmount($amount, $this->stripe->client->currency()->precision),
+              'amount' => $this->stripe->convertToStripeAmount($amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
               'currency' => $this->stripe->client->getCurrencyCode(),
               'payment_method' => $cgt->token,
               'customer' => $cgt->gateway_customer_reference,

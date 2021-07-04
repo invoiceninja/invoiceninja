@@ -333,6 +333,8 @@ trait MockAccountData
         $this->invoice->setRelation('company', $this->company);
 
         $this->invoice->save();
+        
+        $this->invoice->load("client");
 
         InvoiceInvitation::factory()->create([
                 'user_id' => $this->invoice->user_id,
@@ -348,7 +350,8 @@ trait MockAccountData
                 'invoice_id' => $this->invoice->id,
             ]);
 
-        $this->invoice->service()->markSent();
+        $this->invoice->fresh()->service()->markSent();
+        // $this->invoice->service()->markSent();
 
         $this->quote = Quote::factory()->create([
                 'user_id' => $user_id,
@@ -396,6 +399,8 @@ trait MockAccountData
         $this->credit->line_items = $this->buildLineItems();
         $this->credit->amount = 10;
         $this->credit->balance = 10;
+        
+        // $this->credit->due_date = now()->addDays(200);
 
         $this->credit->tax_name1 = '';
         $this->credit->tax_name2 = '';
@@ -587,6 +592,10 @@ trait MockAccountData
             $cg->config = encrypt(config('ninja.testvars.stripe'));
             $cg->save();
         }
+
+
+        $this->client = $this->client->fresh();
+        $this->invoice = $this->invoice->fresh();
     }
 
     /**

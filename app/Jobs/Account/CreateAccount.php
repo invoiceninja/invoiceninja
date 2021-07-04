@@ -28,6 +28,7 @@ use App\Models\Account;
 use App\Models\Timezone;
 use App\Notifications\Ninja\NewAccountCreated;
 use App\Utils\Ninja;
+use App\Utils\Traits\User\LoginCache;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -39,6 +40,7 @@ use Turbo124\Beacon\Facades\LightLogs;
 class CreateAccount
 {
     use Dispatchable;
+    use LoginCache;
 
     protected $request;
 
@@ -92,6 +94,8 @@ class CreateAccount
         }
 
         $spaa9f78->setCompany($sp035a66);
+        $this->setLoginCache($spaa9f78);
+
         $spafe62e = isset($this->request['token_name']) ? $this->request['token_name'] : request()->server('HTTP_USER_AGENT');
         $sp2d97e8 = CreateCompanyToken::dispatchNow($sp035a66, $spaa9f78, $spafe62e);
 

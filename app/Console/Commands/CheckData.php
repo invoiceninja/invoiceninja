@@ -16,19 +16,21 @@ use App\Factory\ClientContactFactory;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
+use App\Models\Company;
 use App\Models\CompanyLedger;
 use App\Models\Contact;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Models\Payment;
+use App\Models\Paymentable;
 use App\Utils\Ninja;
 use DB;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 use Mail;
 use Symfony\Component\Console\Input\InputOption;
-use Illuminate\Support\Str;
 
 /*
 
@@ -84,6 +86,8 @@ class CheckData extends Command
 
     public function handle()
     {
+        $time_start = microtime(true); 
+
         $database_connection = $this->option('database') ? $this->option('database') : 'Connected to Default DB';
         $fix_status = $this->option('fix') ? "Fixing Issues" : "Just checking issues ";
 
@@ -96,6 +100,7 @@ class CheckData extends Command
         $this->checkInvoiceBalances();
         $this->checkInvoicePayments();
         $this->checkPaidToDates();
+        // $this->checkPaidToCompanyDates();
         $this->checkClientBalances();
         $this->checkContacts();
         $this->checkCompanyData();
@@ -107,6 +112,8 @@ class CheckData extends Command
         }
 
         $this->logMessage('Done: '.strtoupper($this->isValid ? Account::RESULT_SUCCESS : Account::RESULT_FAILURE));
+        $this->logMessage('Total execution time in seconds: ' . (microtime(true) - $time_start));
+
         $errorEmail = config('ninja.error_email');
 
         if ($errorEmail) {
@@ -227,38 +234,38 @@ class CheckData extends Command
             }
         }
 
-        // check for more than one primary contact
-        $clients = DB::table('clients')
-                    ->leftJoin('client_contacts', function ($join) {
-                        $join->on('client_contacts.client_id', '=', 'clients.id')
-                            ->where('client_contacts.is_primary', '=', true)
-                            ->whereNull('client_contacts.deleted_at');
-                    })
-                    ->groupBy('clients.id')
-                    ->havingRaw('count(client_contacts.id) != 1');
+        // // check for more than one primary contact
+        // $clients = DB::table('clients')
+        //             ->leftJoin('client_contacts', function ($join) {
+        //                 $join->on('client_contacts.client_id', '=', 'clients.id')
+        //                     ->where('client_contacts.is_primary', '=', true)
+        //                     ->whereNull('client_contacts.deleted_at');
+        //             })
+        //             ->groupBy('clients.id')
+        //             ->havingRaw('count(client_contacts.id) != 1');
 
-        if ($this->option('client_id')) {
-            $clients->where('clients.id', '=', $this->option('client_id'));
-        }
+        // if ($this->option('client_id')) {
+        //     $clients->where('clients.id', '=', $this->option('client_id'));
+        // }
 
-        $clients = $clients->get(['clients.id', 'clients.user_id', 'clients.company_id']);
-        $this->logMessage($clients->count().' clients without a single primary contact');
+        // $clients = $clients->get(['clients.id', 'clients.user_id', 'clients.company_id']);
+        // // $this->logMessage($clients->count().' clients without a single primary contact');
 
-        if ($this->option('fix') == 'true') {
-            foreach ($clients as $client) {
-                $this->logMessage("Fixing missing primary contacts #{$client->id}");
+        // // if ($this->option('fix') == 'true') {
+        // //     foreach ($clients as $client) {
+        // //         $this->logMessage("Fixing missing primary contacts #{$client->id}");
                 
-                $new_contact = ClientContactFactory::create($client->company_id, $client->user_id);
-                $new_contact->client_id = $client->id;
-                $new_contact->contact_key = Str::random(40);
-                $new_contact->is_primary = true;
-                $new_contact->save();
-            }
-        }
+        // //         $new_contact = ClientContactFactory::create($client->company_id, $client->user_id);
+        // //         $new_contact->client_id = $client->id;
+        // //         $new_contact->contact_key = Str::random(40);
+        // //         $new_contact->is_primary = true;
+        // //         $new_contact->save();
+        // //     }
+        // // }
 
-        if ($clients->count() > 0) {
-            $this->isValid = false;
-        }
+        // if ($clients->count() > 0) {
+        //     $this->isValid = false;
+        // }
     }
 
     private function checkFailedJobs()
@@ -307,31 +314,92 @@ class CheckData extends Command
         }
     }
 
+    // private function checkPaidToCompanyDates()
+    // {
+    //     Company::cursor()->each(function ($company){
+
+    //     $payments = Payment::where('is_deleted', 0)
+    //                        ->where('company_id', $company->id)
+    //                        ->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED])
+    //                        ->pluck('id');
+
+    //     $unapplied = Payment::where('is_deleted', 0)
+    //                         ->where('company_id', $company->id)
+    //                         ->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
+    //                         ->sum(\DB::Raw('amount - applied'));
+
+    //     $paymentables = Paymentable::whereIn('payment_id', $payments)->sum(\DB::Raw('amount - refunded'));
+
+    //     $client_paid_to_date = Client::where('company_id', $company->id)->where('is_deleted', 0)->withTrashed()->sum('paid_to_date');
+
+    //     $total_payments = $paymentables + $unapplied;
+
+    //      if (round($total_payments, 2) != round($client_paid_to_date, 2)) {
+    //             $this->wrong_paid_to_dates++;
+
+    //             $this->logMessage($company->present()->name.' id = # '.$company->id." - Paid to date does not match Client Paid To Date = {$client_paid_to_date} - Invoice Payments = {$total_payments}");
+    //         }
+
+    //     });
+
+    // }
+
     private function checkPaidToDates()
     {
         $this->wrong_paid_to_dates = 0;
         $credit_total_applied = 0;
 
-        Client::withTrashed()->where('is_deleted', 0)->cursor()->each(function ($client) use ($credit_total_applied) {
+
+        $clients = DB::table('clients')
+                    ->leftJoin('payments', function($join) {
+                        $join->on('payments.client_id', '=', 'clients.id')
+                            ->where('payments.is_deleted', 0)
+                            ->whereIn('payments.status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED]);
+                    })
+                    ->where('clients.is_deleted',0)
+                    ->where('clients.updated_at', '>', now()->subDays(2))
+                    ->groupBy('clients.id')
+                    ->havingRaw('clients.paid_to_date != sum(coalesce(payments.amount - payments.refunded, 0))')
+                    ->get(['clients.id', 'clients.paid_to_date', DB::raw('sum(coalesce(payments.amount - payments.refunded, 0)) as amount')]);
+
+        /* Due to accounting differences we need to perform a second loop here to ensure there actually is an issue */
+        $clients->each(function ($client_record) use ($credit_total_applied) {
+            
+            $client = Client::find($client_record->id);
+
             $total_invoice_payments = 0;
 
             foreach ($client->invoices()->where('is_deleted', false)->where('status_id', '>', 1)->get() as $invoice) {
 
-                $total_amount = $invoice->payments()->where('is_deleted', false)->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])->get()->sum('pivot.amount');
-                $total_refund = $invoice->payments()->where('is_deleted', false)->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])->get()->sum('pivot.refunded');
+                $total_invoice_payments += $invoice->payments()
+                                                    ->where('is_deleted', false)->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
+                                                    ->selectRaw('sum(paymentables.amount - paymentables.refunded) as p')
+                                                    ->pluck('p')
+                                                    ->first();
 
-                $total_invoice_payments += ($total_amount - $total_refund);
             }
+
+            //commented IN 27/06/2021 - sums ALL client payments AND the unapplied amounts to match the client paid to date
+            $p = Payment::where('client_id', $client->id)
+            ->where('is_deleted', 0)
+            ->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
+            ->sum(DB::Raw('amount - applied'));
+
+            $total_invoice_payments += $p;
 
             // 10/02/21
             foreach ($client->payments as $payment) {
-                $credit_total_applied += $payment->paymentables()->where('paymentable_type', App\Models\Credit::class)->get()->sum(DB::raw('amount'));
+
+                $credit_total_applied += $payment->paymentables()
+                                                ->where('paymentable_type', App\Models\Credit::class)
+                                                ->selectRaw('sum(paymentables.amount - paymentables.refunded) as p')
+                                                ->pluck('p')
+                                                ->first();
             }
 
             if ($credit_total_applied < 0) {
                 $total_invoice_payments += $credit_total_applied;
             } 
-
 
             if (round($total_invoice_payments, 2) != round($client->paid_to_date, 2)) {
                 $this->wrong_paid_to_dates++;
@@ -355,20 +423,26 @@ class CheckData extends Command
     {
         $this->wrong_balances = 0;
 
-        Client::cursor()->where('is_deleted', 0)->each(function ($client) {
+        Client::cursor()->where('is_deleted', 0)->where('clients.updated_at', '>', now()->subDays(2))->each(function ($client) {
             
             $client->invoices->where('is_deleted', false)->whereIn('status_id', '!=', Invoice::STATUS_DRAFT)->each(function ($invoice) use ($client) {
-                $total_amount = $invoice->payments()->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED])->get()->sum('pivot.amount');
-                $total_refund = $invoice->payments()->get()->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED])->sum('pivot.refunded');
+
+                $total_paid = $invoice->payments()
+                                    ->where('is_deleted', false)->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
+                                    ->selectRaw('sum(paymentables.amount - paymentables.refunded) as p')
+                                    ->pluck('p')
+                                    ->first();
+
+                // $total_paid = $total_amount - $total_refund;
+
                 $total_credit = $invoice->credits()->get()->sum('amount');
 
-                $total_paid = $total_amount - $total_refund;
                 $calculated_paid_amount = $invoice->amount - $invoice->balance - $total_credit;
 
                 if ((string)$total_paid != (string)($invoice->amount - $invoice->balance - $total_credit)) {
                     $this->wrong_balances++;
 
-                    $this->logMessage($client->present()->name.' - '.$client->id." - Total Amount = {$total_amount} != Calculated Total = {$calculated_paid_amount} - Total Refund = {$total_refund} Total credit = {$total_credit}");
+                    $this->logMessage($client->present()->name.' - '.$client->id." - Total Paid = {$total_paid} != Calculated Total = {$calculated_paid_amount}");
 
                     $this->isValid = false;
                 }
@@ -379,12 +453,44 @@ class CheckData extends Command
         $this->logMessage("{$this->wrong_balances} clients with incorrect invoice balances");
     }
 
+
+
+        // $clients = DB::table('clients')
+        //             ->leftJoin('invoices', function($join){
+        //                 $join->on('invoices.client_id', '=', 'clients.id')
+        //                      ->where('invoices.is_deleted',0)
+        //                      ->where('invoices.status_id', '>', 1);
+        //             })
+        //             ->leftJoin('credits', function($join){
+        //                 $join->on('credits.client_id', '=', 'clients.id')
+        //                      ->where('credits.is_deleted',0)
+        //                      ->where('credits.status_id', '>', 1);
+        //             })
+        //             ->leftJoin('payments', function($join) {
+        //                 $join->on('payments.client_id', '=', 'clients.id')
+        //                     ->where('payments.is_deleted', 0)
+        //                     ->whereIn('payments.status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED]);
+        //             })
+        //             ->where('clients.is_deleted',0)
+        //             //->where('clients.updated_at', '>', now()->subDays(2))
+        //             ->groupBy('clients.id')
+        //             ->havingRaw('sum(coalesce(invoices.amount - invoices.balance - credits.amount)) != sum(coalesce(payments.amount - payments.refunded, 0))')
+        //             ->get(['clients.id', DB::raw('sum(coalesce(invoices.amount - invoices.balance - credits.amount)) as invoice_amount'), DB::raw('sum(coalesce(payments.amount - payments.refunded, 0)) as payment_amount')]);
+
+
+
+
+
+
+
+
+
     private function checkClientBalances()
     {
         $this->wrong_balances = 0;
         $this->wrong_paid_to_dates = 0;
 
-        foreach (Client::cursor()->where('is_deleted', 0) as $client) {
+        foreach (Client::cursor()->where('is_deleted', 0)->where('clients.updated_at', '>', now()->subDays(2)) as $client) {
             //$invoice_balance = $client->invoices->where('is_deleted', false)->where('status_id', '>', 1)->sum('balance');
             $invoice_balance = Invoice::where('client_id', $client->id)->where('is_deleted', false)->where('status_id', '>', 1)->withTrashed()->sum('balance');
             $credit_balance = Credit::where('client_id', $client->id)->where('is_deleted', false)->withTrashed()->sum('balance');
@@ -418,12 +524,9 @@ class CheckData extends Command
         $this->wrong_balances = 0;
         $this->wrong_paid_to_dates = 0;
 
-        foreach (Client::where('is_deleted', 0)->cursor() as $client) {
-            $invoice_balance = $client->invoices()->where('is_deleted', false)->where('status_id', '>', 1)->get()->sum('balance');
-            $credit_balance = $client->credits()->where('is_deleted', false)->get()->sum('balance');
-
-            // if($client->balance != $invoice_balance)
-            //     $invoice_balance -= $credit_balance;//doesn't make sense to remove the credit amount
+        foreach (Client::where('is_deleted', 0)->where('clients.updated_at', '>', now()->subDays(2))->cursor() as $client) {
+            $invoice_balance = $client->invoices()->where('is_deleted', false)->where('status_id', '>', 1)->sum('balance');
+            $credit_balance = $client->credits()->where('is_deleted', false)->sum('balance');
 
             $ledger = CompanyLedger::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
 

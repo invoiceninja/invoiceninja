@@ -13,6 +13,7 @@
 namespace App\Repositories;
 
 
+use App\DataMapper\ClientSettings;
 use App\DataMapper\InvoiceItem;
 use App\Factory\InvoiceFactory;
 use App\Models\Client;
@@ -44,8 +45,8 @@ class SubscriptionRepository extends BaseRepository
     private function calculatePrice($subscription) :array
     {
 
-		DB::beginTransaction();
-
+		// DB::beginTransaction();
+        DB::connection(config('database.default'))->beginTransaction();
 		$data = [];
 
         $client = Client::factory()->create([
@@ -53,6 +54,7 @@ class SubscriptionRepository extends BaseRepository
                 'company_id' => $subscription->company_id,
                 'group_settings_id' => $subscription->group_id,
                 'country_id' => $subscription->company->settings->country_id,
+                'settings' => ClientSettings::defaults(),
             ]);
 
         $contact = ClientContact::factory()->create([
@@ -88,13 +90,15 @@ class SubscriptionRepository extends BaseRepository
 
         $data['promo_price'] = $invoice->calc()->getTotal();
 
-        DB::rollBack();
-
+        // DB::rollBack();
+        DB::connection(config('database.default'))->rollBack();
+        
         return $data;
     }
 
-    public function generateLineItems($subscription, $is_recurring = false)
+    public function generateLineItems($subscription, $is_recurring = false, $is_credit = false)
     {
+        $multiplier = $is_credit ? -1 : 1;
 
     	$line_items = [];
 
@@ -102,13 +106,13 @@ class SubscriptionRepository extends BaseRepository
         {
             foreach($subscription->service()->products() as $product)
             {
-                $line_items[] = (array)$this->makeLineItem($product);
+                $line_items[] = (array)$this->makeLineItem($product, $multiplier);
             }
         }
         
         foreach($subscription->service()->recurring_products() as $product)
         {
-            $line_items[] = (array)$this->makeLineItem($product);
+            $line_items[] = (array)$this->makeLineItem($product, $multiplier);
         }
 
     	$line_items = $this->cleanItems($line_items);
@@ -117,13 +121,13 @@ class SubscriptionRepository extends BaseRepository
 
     }
 
-    private function makeLineItem($product)
+    private function makeLineItem($product, $multiplier)
     {
         $item = new InvoiceItem;
         $item->quantity = $product->quantity;
         $item->product_key = $product->product_key;
         $item->notes = $product->notes;
-        $item->cost = $product->price;
+        $item->cost = $product->price*$multiplier;
         $item->tax_rate1 = $product->tax_rate1 ?: 0;
         $item->tax_name1 = $product->tax_name1 ?: '';
         $item->tax_rate2 = $product->tax_rate2 ?: 0;

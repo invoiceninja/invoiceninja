@@ -4,7 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
+<<<<<<< HEAD
     "content-hash": "cadeb954feac99fb76194b0ded979cab",
+=======
+    "content-hash": "cc2b7b338c5d0b4ee700f965bf294772",
+>>>>>>> v5-develop
     "packages": [
         {
             "name": "asm/php-ansible",
@@ -2451,6 +2455,64 @@
             "time": "2020-04-13T13:17:36+00:00"
         },
         {
+            "name": "graylog2/gelf-php",
+            "version": "1.7.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bzikarsky/gelf-php.git",
+                "reference": "16cab667fa01e6e298af1ec3279fe08d43e40a96"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bzikarsky/gelf-php/zipball/16cab667fa01e6e298af1ec3279fe08d43e40a96",
+                "reference": "16cab667fa01e6e298af1ec3279fe08d43e40a96",
+                "shasum": ""
+            },
+            "require": {
+                "paragonie/constant_time_encoding": "^1|^2",
+                "php": ">=5.6",
+                "psr/log": "~1.0"
+            },
+            "provide": {
+                "psr/log-implementation": "~1.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^5.7|^6.5|^7.5",
+                "squizlabs/php_codesniffer": "^3.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.4.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Gelf\\": "src/Gelf"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Benjamin Zikarsky",
+                    "email": "benjamin@zikarsky.de"
+                },
+                {
+                    "name": "gelf-php contributors",
+                    "homepage": "https://github.com/bzikarsky/gelf-php/contributors"
+                }
+            ],
+            "description": "A php implementation to send log-messages to a GELF compatible backend like Graylog2.",
+            "support": {
+                "issues": "https://github.com/bzikarsky/gelf-php/issues",
+                "source": "https://github.com/bzikarsky/gelf-php/tree/1.7.0"
+            },
+            "time": "2021-02-04T09:05:55+00:00"
+        },
+        {
             "name": "guzzlehttp/guzzle",
             "version": "7.3.0",
             "source": {
@@ -2752,6 +2814,63 @@
                 "source": "https://github.com/vinkla/hashids/tree/4.1.0"
             },
             "time": "2020-11-26T19:24:33+00:00"
+        },
+        {
+            "name": "hedii/laravel-gelf-logger",
+            "version": "6.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/hedii/laravel-gelf-logger.git",
+                "reference": "231f6dfc41546bfe5e1e02bc85f98d0d5db811c1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/hedii/laravel-gelf-logger/zipball/231f6dfc41546bfe5e1e02bc85f98d0d5db811c1",
+                "reference": "231f6dfc41546bfe5e1e02bc85f98d0d5db811c1",
+                "shasum": ""
+            },
+            "require": {
+                "graylog2/gelf-php": "^1.6",
+                "illuminate/log": "^8.12",
+                "php": "^7.3|^8.0"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^6.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Hedii\\LaravelGelfLogger\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "hedii",
+                    "homepage": "https://hedichaibi.com"
+                }
+            ],
+            "description": "A Laravel package to send logs to a gelf compatible backend like graylog",
+            "keywords": [
+                "gelf",
+                "graylog",
+                "graylog2",
+                "hedii",
+                "laravel",
+                "laravel-gelf",
+                "log",
+                "logging",
+                "php",
+                "udp"
+            ],
+            "support": {
+                "issues": "https://github.com/hedii/laravel-gelf-logger/issues",
+                "source": "https://github.com/hedii/laravel-gelf-logger"
+            },
+            "time": "2020-11-30T09:39:06+00:00"
         },
         {
             "name": "http-interop/http-factory-guzzle",

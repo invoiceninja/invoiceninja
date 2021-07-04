@@ -11,8 +11,10 @@
 
 namespace App\Mail\Admin;
 
+use App\Utils\Ninja;
 use App\Utils\Number;
 use stdClass;
+use Illuminate\Support\Facades\App;
 
 class EntityCreatedObject
 {
@@ -39,6 +41,13 @@ class EntityCreatedObject
 
     public function build()
     {
+        App::forgetInstance('translator');
+        /* Init a new copy of the translator*/
+        $t = app('translator');
+        /* Set the locale*/
+        App::setLocale($this->entity->company->getLocale());
+        /* Set customized translations _NOW_ */
+        $t->replace(Ninja::transformTranslations($this->entity->company->settings));
 
         $this->contact = $this->entity->invitations()->first()->contact;
         $this->company = $this->entity->company;

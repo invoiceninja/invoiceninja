@@ -189,7 +189,7 @@ class ACH
 
     public function paymentResponse($request)
     {
-        nlog($request->all());
+        // nlog($request->all());
         
         $token = ClientGatewayToken::find($this->decodePrimaryKey($request->input('source')));
         $token_meta = $token->meta;
@@ -197,14 +197,20 @@ class ACH
         if($token_meta->state != "authorized")
             return redirect()->route('client.payment_methods.verification', ['payment_method' => $token->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
 
+        $app_fee = (config('ninja.wepay.fee_ach_multiplier') * $this->wepay_payment_driver->payment_hash->data->amount_with_fee) + config('ninja.wepay.fee_fixed');
+
         $response = $this->wepay_payment_driver->wepay->request('checkout/create', array(
             // 'callback_uri'        => route('payment_webhook', ['company_key' => $this->wepay_payment_driver->company_gateway->company->company_key, 'company_gateway_id' => $this->wepay_payment_driver->company_gateway->hashed_id]),
             'unique_id'           => Str::random(40),
             'account_id'          => $this->wepay_payment_driver->company_gateway->getConfigField('accountId'),
             'amount'              => $this->wepay_payment_driver->payment_hash->data->amount_with_fee,
             'currency'            => $this->wepay_payment_driver->client->getCurrencyCode(),
-            'short_description'   => 'A vacation home rental',
+            'short_description'   => 'Goods and Services',
             'type'                => 'goods',
+            'fee'                 => [
+                'fee_payer' => config('ninja.wepay.fee_payer'),
+                'app_fee' => $app_fee,
+            ],
             'payment_method'      => array(
                 'type'            => 'payment_bank',
                 'payment_bank'     => array(

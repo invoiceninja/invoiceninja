@@ -45,8 +45,13 @@ class RecurringInvoicesCron
         if (! config('ninja.db.multi_db_enabled')) {
             $recurring_invoices = RecurringInvoice::where('next_send_date', '<=', now()->toDateTimeString())
                                                         ->whereNotNull('next_send_date')
+                                                        ->whereNull('deleted_at')
                                                         ->where('status_id', RecurringInvoice::STATUS_ACTIVE)
                                                         ->where('remaining_cycles', '!=', '0')
+                                                        ->whereHas('client', function ($query) {
+                                                             $query->where('is_deleted',0)
+                                                                   ->where('deleted_at', NULL);
+                                                        })
                                                         ->with('company')
                                                         ->cursor();
 
@@ -66,15 +71,20 @@ class RecurringInvoicesCron
 
                 $recurring_invoices = RecurringInvoice::where('next_send_date', '<=', now()->toDateTimeString())
                                                         ->whereNotNull('next_send_date')
+                                                        ->whereNull('deleted_at')
                                                         ->where('status_id', RecurringInvoice::STATUS_ACTIVE)
                                                         ->where('remaining_cycles', '!=', '0')
+                                                        ->whereHas('client', function ($query) {
+                                                             $query->where('is_deleted',0)
+                                                                   ->where('deleted_at', NULL);
+                                                        })
                                                         ->with('company')
                                                         ->cursor();
 
                 nlog(now()->format('Y-m-d') . ' Sending Recurring Invoices. Count = '.$recurring_invoices->count().' On Database # '.$db);
 
                 $recurring_invoices->each(function ($recurring_invoice, $key) {
-                    nlog("Current date = " . now()->format("Y-m-d") . " Recurring date = " .$recurring_invoice->next_send_date);
+                    nlog("Current date = " . now()->format("Y-m-d") . " Recurring date = " .$recurring_invoice->next_send_date ." Recurring #id = ". $recurring_invoice->id);
 
                     if (!$recurring_invoice->company->is_disabled) {
                         SendRecurring::dispatchNow($recurring_invoice, $recurring_invoice->company->db);

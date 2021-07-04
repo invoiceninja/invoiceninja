@@ -11,6 +11,9 @@
 
 namespace App\Mail\RecurringInvoice;
 
+use App\Utils\Ninja;
+use Illuminate\Support\Facades\App;
+
 class ClientContactRequestCancellationObject
 {
 
@@ -32,6 +35,10 @@ class ClientContactRequestCancellationObject
 
     public function build()
     {
+
+        App::forgetInstance('translator');
+        $t = app('translator');
+        $t->replace(Ninja::transformTranslations($this->company->settings));
 
         $data = [
             'title' => ctrans('texts.recurring_cancellation_request', ['contact' => $this->client_contact->present()->name()]),

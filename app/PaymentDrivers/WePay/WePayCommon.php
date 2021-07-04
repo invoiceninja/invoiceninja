@@ -24,8 +24,13 @@ trait WePayCommon
     private function processSuccessfulPayment($response, $payment_status, $gateway_type)
     {
 
+        if($gateway_type == GatewayType::BANK_TRANSFER)
+            $payment_type = PaymentType::ACH;
+        else
+            $payment_type = PaymentType::CREDIT_CARD_OTHER;
+
         $data = [
-            'payment_type' => PaymentType::CREDIT_CARD_OTHER,
+            'payment_type' => $payment_type,
             'amount' => $response->amount,
             'transaction_reference' => $response->checkout_id,
             'gateway_type_id' => $gateway_type,

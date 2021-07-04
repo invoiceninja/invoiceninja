@@ -29,6 +29,7 @@ class CheckClientExistence
     public function handle(Request $request, Closure $next)
     {
         $multiple_contacts = ClientContact::query()
+            ->with('company','client')
             ->where('email', auth('contact')->user()->email)
             ->whereNotNull('email')
             ->where('email', '<>', '')

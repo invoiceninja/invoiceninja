@@ -37,8 +37,9 @@ class StoreClientGatewayTokenRequest extends Request
 
     public function rules()
     {
+        //ensure client is present
         $rules = [
-            'client_id' => 'required',
+            'client_id' => 'required|exists:clients,id,company_id,'.auth()->user()->company()->id,
             'company_gateway_id' => 'required',
             'gateway_type_id' => 'required|integer',
             'meta' => 'required',

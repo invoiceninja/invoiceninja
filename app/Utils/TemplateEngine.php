@@ -239,7 +239,7 @@ class TemplateEngine
 
     private function mockEntity()
     {
-        DB::beginTransaction();
+        DB::connection(config('database.default'))->beginTransaction();
 
         $client = Client::factory()->create([
                 'user_id' => auth()->user()->id,
@@ -277,6 +277,6 @@ class TemplateEngine
 
     private function tearDown()
     {
-        DB::rollBack();
+        DB::connection(config('database.default'))->rollBack();
     }
 }

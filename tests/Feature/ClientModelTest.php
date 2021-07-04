@@ -8,8 +8,10 @@
  *
  * @license https://opensource.org/licenses/AAL
  */
+
 namespace Tests\Feature;
 
+use App\Models\CompanyGateway;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\URL;
 use Tests\MockAccountData;
@@ -44,6 +46,8 @@ class ClientModelTest extends TestCase
         $amount = 40;
 
         $payment_methods = $this->client->service()->getPaymentMethods(40);
+
+        $this->assertGreaterThan(0, CompanyGateway::count());
 
         $this->assertEquals(1, count($payment_methods));
 

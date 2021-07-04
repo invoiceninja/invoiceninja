@@ -14,13 +14,24 @@ namespace App\PaymentDrivers\Stripe;
 
 trait Utilities
 {
-    public function convertFromStripeAmount($amount, $precision)
+    /*Helpers for currency conversions, NOTE* for some currencies we need to change behaviour */
+    public function convertFromStripeAmount($amount, $precision, $currency)
     {
+
+        if($currency->code == "JPY")
+            return $amount;
+
         return $amount / pow(10, $precision);
+
     }
 
-    public function convertToStripeAmount($amount, $precision)
+    public function convertToStripeAmount($amount, $precision, $currency)
     {
-        return (int)($amount * pow(10, $precision));
+
+       if($currency->code == "JPY")
+            return $amount; 
+
+        return round(($amount * pow(10, $precision)),0);
+
     }
 }
