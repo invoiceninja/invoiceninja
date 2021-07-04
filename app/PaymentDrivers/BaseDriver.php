@@ -546,4 +546,13 @@ class BaseDriver extends AbstractPaymentDriver
             $this->client->company,
         );
     }
+
+    public function genericWebhookUrl()
+    {
+        return route('payment_notification_webhook', [
+            'company_key' => $this->client->company->company_key, 
+            'company_gateway_id' => $this->company_gateway->id, 
+            'client' => $this->client->id,
+        ]);
+    }
 }

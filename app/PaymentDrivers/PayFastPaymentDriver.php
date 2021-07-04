@@ -40,6 +40,14 @@ class PayFastPaymentDriver extends BaseDriver
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_PAYFAST; 
 
+
+
+    //developer resources
+    //https://sandbox.payfast.co.za/
+
+
+
+
     public function gatewayTypes(): array
     {
         $types = [];
@@ -70,7 +78,7 @@ class PayFastPaymentDriver extends BaseDriver
                 ]
             );
         } catch(Exception $e) {
-            echo 'There was an exception: '.$e->getMessage();
+            echo '##PAYFAST## There was an exception: '.$e->getMessage();
         }
 
         return $this;
@@ -135,5 +143,6 @@ class PayFastPaymentDriver extends BaseDriver
 
         nlog($request->all());
         return response()->json([], 200);
+        
     } 
 }
