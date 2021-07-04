@@ -431,6 +431,10 @@ info("get company");
         foreach($agts as $agt) {
 
             $payment_method = $agt->default_payment_method;
+
+            if(!$payment_method)
+                continue;
+            
             $contact = Contact::where('id', $payment_method->contact_id)->withTrashed()->first();
 
             $transformed[] = [
