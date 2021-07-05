@@ -60,7 +60,7 @@ class ClientService
         return Number::roundValue($credits->sum('balance'), $this->client->currency()->precision);
     }
 
-    public function getCredits() :Collection
+    public function getCredits() 
     {
         return $this->client->credits()
                   ->where('is_deleted', false)
