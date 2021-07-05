@@ -230,102 +230,53 @@ class CreditCard
 
             $this->payfast->logSuccessfulGatewayResponse(['response' => json_decode($response_array), 'data' => $this->payfast->payment_hash], SystemLog::TYPE_PAYFAST);
 
-            return $this->processSuccessfulPayment();
+            return $this->processSuccessfulPayment($response_array);
         }
         else {
             $this->processUnsuccessfulPayment($response_array);
         }
     }
-}
 
-
-
-private function processSuccessfulPayment()
+    private function processSuccessfulPayment($response_array)
     {
-        $stripe_method = $this->stripe->getStripePaymentMethod($this->stripe->payment_hash->data->server_response->payment_method);
 
-        $data = [
-            'payment_method' => $this->stripe->payment_hash->data->server_response->payment_method,
-            'payment_type' => PaymentType::parseCardType(strtolower($stripe_method->card->brand)),
-            'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->server_response->amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
-            'transaction_reference' => optional($this->stripe->payment_hash->data->payment_intent->charges->data[0])->id,
-            'gateway_type_id' => GatewayType::CREDIT_CARD,
-        ];
+        $payment_record = [];
+        $payment_record['amount'] = $response_array['amount_gross'];
+        $payment_record['payment_type'] = PaymentType::CREDIT_CARD_OTHER;
+        $payment_record['gateway_type_id'] = GatewayType::CREDIT_CARD;
+        $payment_record['transaction_reference'] = $response_array['pf_payment_id'];
 
-        $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['amount' => $data['amount']]);
-        $this->stripe->payment_hash->save();
+        $payment = $this->payfast->createPayment($payment_record, Payment::STATUS_COMPLETED);
 
-        if ($this->stripe->payment_hash->data->store_card) {
-            $customer = new \stdClass;
-            $customer->id = $this->stripe->payment_hash->data->customer;
-
-            $this->stripe->attach($this->stripe->payment_hash->data->server_response->payment_method, $customer);
-
-            $stripe_method = $this->stripe->getStripePaymentMethod($this->stripe->payment_hash->data->server_response->payment_method);
-
-            $this->storePaymentMethod($stripe_method, $this->stripe->payment_hash->data->payment_method_id, $customer);
-        }
-
-        $payment = $this->stripe->createPayment($data, Payment::STATUS_COMPLETED);
-
-        SystemLogger::dispatch(
-            ['response' => $this->stripe->payment_hash->data->server_response, 'data' => $data],
-            SystemLog::CATEGORY_GATEWAY_RESPONSE,
-            SystemLog::EVENT_GATEWAY_SUCCESS,
-            SystemLog::TYPE_STRIPE,
-            $this->stripe->client,
-            $this->stripe->client->company,
-        );
-
-        return redirect()->route('client.payments.show', ['payment' => $this->stripe->encodePrimaryKey($payment->id)]);
+        return redirect()->route('client.payments.show', ['payment' => $this->payfast->encodePrimaryKey($payment->id)]);
     }
 
     private function processUnsuccessfulPayment($server_response)
     {
-        PaymentFailureMailer::dispatch($this->stripe->client, $server_response->cancellation_reason, $this->stripe->client->company, $server_response->amount);
+        PaymentFailureMailer::dispatch($this->payfast->client, $server_response->cancellation_reason, $this->payfast->client->company, $server_response->amount);
 
         PaymentFailureMailer::dispatch(
-            $this->stripe->client,
+            $this->payfast->client,
             $server_response,
-            $this->stripe->client->company,
-            $server_response->amount
+            $this->payfast->client->company,
+            $server_response['amount_gross']
         );
 
         $message = [
             'server_response' => $server_response,
-            'data' => $this->stripe->payment_hash->data,
+            'data' => $this->payfast->payment_hash->data,
         ];
 
         SystemLogger::dispatch(
             $message,
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_FAILURE,
-            SystemLog::TYPE_STRIPE,
-            $this->stripe->client,
-            $this->stripe->client->company,
+            SystemLog::TYPE_PAYFAST,
+            $this->payfast->client,
+            $this->payfast->client->company,
         );
 
         throw new PaymentFailed('Failed to process the payment.', 500);
     }
 
-    private function storePaymentMethod(PaymentMethod $method, $payment_method_id, $customer)
-    {
-        try {
-            $payment_meta = new \stdClass;
-            $payment_meta->exp_month = (string) $method->card->exp_month;
-            $payment_meta->exp_year = (string) $method->card->exp_year;
-            $payment_meta->brand = (string) $method->card->brand;
-            $payment_meta->last4 = (string) $method->card->last4;
-            $payment_meta->type = GatewayType::CREDIT_CARD;
-
-            $data = [
-                'payment_meta' => $payment_meta,
-                'token' => $method->id,
-                'payment_method_id' => $payment_method_id,
-            ];
-
-            $this->stripe->storeGatewayToken($data, ['gateway_customer_reference' => $customer->id]);
-        } catch (\Exception $e) {
-            return $this->stripe->processInternallyFailedPayment($this->stripe, $e);
-        }
-    }
+}
