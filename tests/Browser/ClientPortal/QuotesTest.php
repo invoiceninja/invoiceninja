@@ -44,13 +44,41 @@ class QuotesTest extends DuskTestCase
         });
     }
 
-    public function testClickingApproveWithoutQuotes()
+    public function testClickingApproveWithoutQuotesDoesntWork()
     {
         $this->browse(function (Browser $browser) {
             $browser
                 ->visitRoute('client.quotes.index')
                 ->press('Approve')
                 ->assertPathIs('/client/quotes');
+        });
+    }
+
+    public function testApprovingQuotes()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.quotes.index')
+                ->check('.form-check.form-check-child')
+                ->press('Approve')
+                ->assertPathIs('/client/quotes/approve')
+                ->press('Approve')
+                ->assertPathIs('/client/quotes')
+                ->assertSee('Quote(s) approved successfully.')
+                ->visitRoute('client.logout');
+        });
+    }
+
+    public function testQuotesWithSentStatusCanOnlyBeApproved()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.quotes.index')
+                ->check('.form-check.form-check-child')
+                ->press('Approve')
+                ->assertPathIs('/client/quotes')
+                ->assertDontSee('Quote(s) approved successfully.')
+                ->visitRoute('client.logout');
         });
     }
 }
