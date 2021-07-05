@@ -20,6 +20,7 @@ use App\PaymentDrivers\PayFast\CreditCard;
 use App\Utils\Traits\MakesHash;
 use \PayFastPayment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class PayFastPaymentDriver extends BaseDriver
 {
@@ -122,23 +123,66 @@ class PayFastPaymentDriver extends BaseDriver
         return $this->payment_method->yourTokenBillingImplmentation(); //this is your custom implementation from here
     }
 
-    public function generateSignature($data, $passPhrase = null) 
+    // public function generateSignature($data, $passPhrase = null) 
+    // {
+    //     // Create parameter string
+    //     $pfOutput = '';
+    //     foreach( $data as $key => $val ) {
+    //         if($val !== '') {
+    //             $pfOutput .= $key .'='. urlencode( trim( $val ) ) .'&';
+    //         }
+    //     }
+    //     // Remove last ampersand
+    //     $getString = substr( $pfOutput, 0, -1 );
+    //     if( $passPhrase !== null ) {
+    //         $getString .= '&passphrase='. urlencode( trim( $passPhrase ) );
+    //     }
+    //     nlog($getString);
+    //     return md5( $getString );
+    // }
+
+
+   protected function generateSignature($data, $passPhrase = null)
     {
-        // Create parameter string
-        $pfOutput = '';
-        foreach( $data as $key => $val ) {
-            if($val !== '') {
-                $pfOutput .= $key .'='. urlencode( trim( $val ) ) .'&';
+        $fields = array();
+
+        // specific order required by PayFast
+        // @see https://developers.payfast.co.za/documentation/#checkout-page
+        foreach (array('merchant_id', 'merchant_key', 'return_url', 'cancel_url', 'notify_url', 'name_first',
+                     'name_last', 'email_address', 'cell_number',
+                    /**
+                     * Transaction Details
+                     */
+                    'm_payment_id', 'amount', 'item_name', 'item_description',
+                    /**
+                     * Custom return data
+                     */
+                    'custom_int1', 'custom_int2', 'custom_int3', 'custom_int4', 'custom_int5',
+                    'custom_str1', 'custom_str2', 'custom_str3', 'custom_str4', 'custom_str5',
+                    /**
+                     * Email confirmation
+                     */
+                    'email_confirmation', 'confirmation_address',
+                    /**
+                     * Payment Method
+                     */
+                    'payment_method',
+                    /**
+                     * Subscriptions
+                     */
+                    'subscription_type', 'billing_date', 'recurring_amount', 'frequency', 'cycles',
+                    /**
+                     * Passphrase for md5 signature generation
+                     */
+                    'passphrase') as $key) {
+            if (!empty($data[$key])) {
+                $fields[$key] = $data[$key];
             }
         }
-        // Remove last ampersand
-        $getString = substr( $pfOutput, 0, -1 );
-        if( $passPhrase !== null ) {
-            $getString .= '&passphrase='. urlencode( trim( $passPhrase ) );
-        }
-        nlog($getString);
-        return md5( $getString );
+
+        return md5(http_build_query($fields));
     }
+
 
     public function processWebhookRequest(Request $request, Payment $payment = null)
     {
@@ -147,10 +191,17 @@ class PayFastPaymentDriver extends BaseDriver
         nlog($request->all());
         $data = $request->all();
 
-        if(array_key_exists('m_payment_id', $data) && $data['m_payment_id'] == 'pre-auth')
+        if(array_key_exists('m_payment_id', $data))
         {
-            return $this->setPaymentMethod(GatewayType::CREDIT_CARD)
-                       ->authorizeResponse($request);            
+            
+            $hash = Cache::get($data['m_payment_id']);
+
+            if($hash == 'cc_auth')
+            {
+                return $this->setPaymentMethod(GatewayType::CREDIT_CARD)
+                           ->authorizeResponse($request);            
+            }
+
         }
 
         return response()->json([], 200);
