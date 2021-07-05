@@ -100,10 +100,55 @@ class CreditCard
         return render('gateways.payfast.authorize', $data);
     }
 
+
+/*
+  'm_payment_id' => NULL,
+  'pf_payment_id' => '1409993',
+  'payment_status' => 'COMPLETE', 
+  'item_name' => 'pre-auth',
+  'item_description' => NULL,
+  'amount_gross' => '5.00',
+  'amount_fee' => '-2.53',
+  'amount_net' => '2.47',
+  'custom_str1' => NULL,
+  'custom_str2' => NULL,
+  'custom_str3' => NULL,
+  'custom_str4' => NULL,
+  'custom_str5' => NULL,
+  'custom_int1' => NULL,
+  'custom_int2' => NULL,
+  'custom_int3' => NULL,
+  'custom_int4' => NULL,
+  'custom_int5' => NULL,
+  'name_first' => NULL,
+  'name_last' => NULL,
+  'email_address' => NULL,
+  'merchant_id' => '10023100',
+  'token' => '34b66bc2-3c54-9590-03ea-42ee8b89922a',
+  'billing_date' => '2021-07-05',
+  'signature' => 'ebdb4ca937d0e3f43462841c0afc6ad9',
+  'q' => '/payment_notification_webhook/EhbnVYyzJZyccY85hcHIkIzNPI2rtHzznAyyyG73oSxZidAdN9gf8BvAKDomqeHp/4openRe7Az/WPe99p3eLy',
+)  
+ */
  	public function authorizeResponse($request)
  	{
-   
-    
+        $data = $request->all();
+
+        $cgt = [];
+        $cgt['token'] = $data['token'];
+        $cgt['payment_method_id'] = GatewayType::CREDIT_CARD;
+
+        $payment_meta = new \stdClass;
+        $payment_meta->exp_month = 'xx';
+        $payment_meta->exp_year = 'xx';
+        $payment_meta->brand = 'CC';
+        $payment_meta->last4 = 'xxxx';
+        $payment_meta->type = GatewayType::CREDIT_CARD;
+
+        $cgt['payment_meta'] = $payment_meta
+
+        $this->payfast->storeGatewayToken($cgt, []);
+        
  	}  
 
 
