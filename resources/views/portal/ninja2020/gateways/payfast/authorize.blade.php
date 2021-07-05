@@ -12,8 +12,10 @@
         <input type="hidden" name="return_url" value="{{ $return_url }}">
         <input type="hidden" name="cancel_url" value="{{ $cancel_url }}">
         <input type="hidden" name="notify_url" value="{{ $notify_url }}">
+        <input type="hidden" name="m_payment_id" value="{{ $m_payment_id }}">
         <input type="hidden" name="amount" value="{{ $amount }}">
         <input type="hidden" name="item_name" value="{{ $item_name }}">
+        <input type="hidden" name="item_description" value="{{ $item_description}}">
         <input type="hidden" name="subscription_type" value="{{ $subscription_type }}"> 
         <input type="hidden" name="passphrase" value="{{ $passphrase }}"> 
         <input type="hidden" name="signature" value="{{ $signature }}">    
