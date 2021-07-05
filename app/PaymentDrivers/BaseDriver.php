@@ -555,7 +555,8 @@ class BaseDriver extends AbstractPaymentDriver
             'company_gateway_id' => $this->company_gateway->id, 
             'client' => $this->client->id,
         ]);
-
+    }
+    
     /* Performs an extra iterate on the gatewayTypes() array and passes back only the enabled gateways*/
     public function gatewayTypeEnabled($type)
     {
