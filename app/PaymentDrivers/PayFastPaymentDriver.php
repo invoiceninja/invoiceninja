@@ -199,13 +199,13 @@ class PayFastPaymentDriver extends BaseDriver
             {
                 case 'cc_auth':
                     return $this->setPaymentMethod(GatewayType::CREDIT_CARD)
-                            ->authorizeResponse($request);   
+                                ->authorizeResponse($request);   
                     break;
                 
                 default:
-                    // code...
-                    // 
-                    //otherwise we processs a payment response here
+
+                    return $this->setPaymentMethod(GatewayType::CREDIT_CARD)
+                                ->processPaymentResponse($request);   
                     break;
             }
 
