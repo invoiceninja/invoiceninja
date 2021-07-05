@@ -15,16 +15,21 @@ class InvoicesTest extends DuskTestCase
         foreach (static::$browsers as $browser) {
             $browser->driver->manage()->deleteAllCookies();
         }
+
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visit(new Login())
+                ->auth();
+        });
     }
 
     public function testPageLoads()
     {
         $this->browse(function (Browser $browser) {
             $browser
-                ->visit(new Login())
-                ->auth()
                 ->visitRoute('client.invoices.index')
-                ->assertSee('Invoices');
+                ->assertSee('Invoices')
+                ->visitRoute('client.logout');
         });
     }
 
@@ -32,11 +37,10 @@ class InvoicesTest extends DuskTestCase
     {
         $this->browse(function (Browser $browser) {
             $browser
-                ->visit(new Login())
-                ->auth()
                 ->visitRoute('client.invoices.index')
                 ->press('Pay Now')
-                ->assertSee('No payable invoices selected. Make sure you are not trying to pay draft invoice or invoice with zero balance due.');
+                ->assertSee('No payable invoices selected. Make sure you are not trying to pay draft invoice or invoice with zero balance due.')
+                ->visitRoute('client.logout');
         });
     }
 
@@ -44,11 +48,22 @@ class InvoicesTest extends DuskTestCase
     {
         $this->browse(function (Browser $browser) {
             $browser
-                ->visit(new Login())
-                ->auth()
                 ->visitRoute('client.invoices.index')
                 ->press('Download')
-                ->assertSee('No items selected.');
+                ->assertSee('No items selected.')
+                ->visitRoute('client.logout');
+        });
+    }
+
+    public function testCheckingInvoiceAndClickingPayNow()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.invoices.index')
+                ->check('.form-check.form-check-child')
+                ->press('Pay Now')
+                ->assertPathIs('/client/invoices/payment')
+                ->visitRoute('client.logout');
         });
     }
 }
