@@ -204,6 +204,8 @@ class PayFastPaymentDriver extends BaseDriver
                 
                 default:
                     // code...
+                    // 
+                    //otherwise we processs a payment response here
                     break;
             }
 
