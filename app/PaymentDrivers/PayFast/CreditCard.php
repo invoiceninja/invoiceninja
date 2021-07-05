@@ -82,7 +82,7 @@ class CreditCard
 
     public function authorizeView($data)
     {
-        $hash = Cache::put(Str::random(32), 'cc_auth', 300);
+        // $hash = Cache::put(Str::random(32), 'cc_auth', 300);
 
         $data = [
             'merchant_id' => $this->payfast->company_gateway->getConfigField('merchantId'),
@@ -92,6 +92,7 @@ class CreditCard
             'notify_url' => $this->payfast->genericWebhookUrl(),
             'amount' => 5,
             'item_name' => 'pre-auth',
+            'item_description' => 'Pre authorization',
             'subscription_type' => 2,
             'passphrase' => $this->payfast->company_gateway->getConfigField('passphrase'),
         ];        
