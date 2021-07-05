@@ -21,6 +21,7 @@ use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\PayFastPaymentDriver;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Cache;
 
 class CreditCard
 {
@@ -81,6 +82,8 @@ class CreditCard
 
     public function authorizeView($data)
     {
+        $hash = Cache::put(Str::random(32), 'cc_auth', 300);
+
         $data = [
             'merchant_id' => $this->payfast->company_gateway->getConfigField('merchantId'),
             'merchant_key' => $this->payfast->company_gateway->getConfigField('merchantKey'),
@@ -88,9 +91,8 @@ class CreditCard
             'cancel_url' => route('client.payment_methods.index'),
             'notify_url' => $this->payfast->genericWebhookUrl(),
             'amount' => 5,
+            'm_payment_id' => $hash,
             'item_name' => 'pre-auth',
-            // 'item_description' => 'cc_auth',
-            'custom_str1' => 'cc_auth',
             'subscription_type' => 2,
             'passphrase' => $this->payfast->company_gateway->getConfigField('passphrase'),
         ];        

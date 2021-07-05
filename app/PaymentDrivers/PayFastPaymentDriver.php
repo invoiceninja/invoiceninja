@@ -20,6 +20,7 @@ use App\PaymentDrivers\PayFast\CreditCard;
 use App\Utils\Traits\MakesHash;
 use \PayFastPayment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class PayFastPaymentDriver extends BaseDriver
 {
@@ -146,10 +147,17 @@ class PayFastPaymentDriver extends BaseDriver
         nlog($request->all());
         $data = $request->all();
 
-        if(array_key_exists('custom_str1', $data) && $data['custom_str1'] == 'cc_auth')
+        if(array_key_exists('m_payment_id', $data))
         {
-            return $this->setPaymentMethod(GatewayType::CREDIT_CARD)
-                       ->authorizeResponse($request);            
+
+            $hash = Cache::get($data['m_payment_id']);
+            
+            if($hash == 'cc_auth')
+            {
+                return $this->setPaymentMethod(GatewayType::CREDIT_CARD)
+                            ->authorizeResponse($request);     
+            }       
+
         }
 
         return response()->json([], 200);
