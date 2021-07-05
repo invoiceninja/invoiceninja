@@ -95,12 +95,12 @@ class PayFastPaymentDriver extends BaseDriver
 
     public function authorizeView(array $data)
     {
-        return $this->payment_method->authorizeView($data); //this is your custom implementation from here
+        return $this->payment_method->authorizeView($data); 
     }
 
     public function authorizeResponse($request)
     {
-        return $this->payment_method->authorizeResponse($request);  //this is your custom implementation from here
+        return $this->payment_method->authorizeResponse($request);  
     }
 
     public function processPaymentView(array $data)
@@ -180,17 +180,13 @@ class PayFastPaymentDriver extends BaseDriver
             }
         }
 
-        nlog(md5(http_build_query($fields)));
-
         return md5(http_build_query($fields));
     }
 
 
     public function processWebhookRequest(Request $request, Payment $payment = null)
     {
-        // $this->init();
 
-        nlog($request->all());
         $data = $request->all();
 
         if(array_key_exists('m_payment_id', $data))

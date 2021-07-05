@@ -101,7 +101,6 @@ class CreditCard
         ];        
 
         $data['signature'] = $this->payfast->generateSignature($data);
-        nlog($data['signature']);
         $data['gateway'] = $this->payfast;
         $data['payment_endpoint_url'] = $this->payfast->endpointUrl();
 
@@ -155,14 +154,35 @@ class CreditCard
 
         $token = $this->payfast->storeGatewayToken($cgt, []);
 
-        nlog($token);
-
-                return response()->json([], 200);
+        return response()->json([], 200);
 
  	}  
 
 
 
+    public function paymentView($data)
+    {
 
+        $data = [
+            'merchant_id' => $this->payfast->company_gateway->getConfigField('merchantId'),
+            'merchant_key' => $this->payfast->company_gateway->getConfigField('merchantKey'),
+            'return_url' => route('client.payment_methods.index'),
+            'cancel_url' => route('client.payment_methods.index'),
+            'notify_url' => $this->payfast->genericWebhookUrl(),
+            'm_payment_id' => $data['hash'],
+            'amount' => $data['amount_with_fee'],
+            'item_name' => 'purchase',
+            'item_description' => ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number'),
+            'subscription_type' => 2,
+            'passphrase' => $this->payfast->company_gateway->getConfigField('passphrase'),
+        ];  
+
+        $data['signature'] = $this->payfast->generateSignature($data);
+        $data['gateway'] = $this->payfast;
+        $data['payment_endpoint_url'] = $this->payfast->endpointUrl();
+
+        return render('gateways.payfast.authorize', $data);
+
+    }
 }
 
