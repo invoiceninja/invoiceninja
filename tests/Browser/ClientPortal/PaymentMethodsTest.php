@@ -15,16 +15,21 @@ class PaymentMethodsTest extends DuskTestCase
         foreach (static::$browsers as $browser) {
             $browser->driver->manage()->deleteAllCookies();
         }
+
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visit(new Login())
+                ->auth();
+        });
     }
 
     public function testPageLoads()
     {
         $this->browse(function (Browser $browser) {
             $browser
-                ->visit(new Login())
-                ->auth()
                 ->visitRoute('client.payment_methods.index')
-                ->assertSee('Payment Methods');
+                ->assertSee('Payment Methods')
+                ->visitRoute('client.logout');
         });
     }
 }

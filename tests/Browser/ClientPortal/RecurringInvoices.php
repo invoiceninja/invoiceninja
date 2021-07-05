@@ -15,16 +15,21 @@ class RecurringInvoices extends DuskTestCase
         foreach (static::$browsers as $browser) {
             $browser->driver->manage()->deleteAllCookies();
         }
+
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visit(new Login())
+                ->auth();
+        });
     }
 
     public function testPageLoads()
     {
         $this->browse(function (Browser $browser) {
             $browser
-                ->visit(new Login())
-                ->auth()
                 ->visitRoute('client.recurring_invoices.index')
-                ->assertSee('Recurring Invoices');
+                ->assertSee('Recurring Invoices')
+                ->visitRoute('client.logout');
         });
     }
 }

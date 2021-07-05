@@ -15,16 +15,21 @@ class CreditsTest extends DuskTestCase
         foreach (static::$browsers as $browser) {
             $browser->driver->manage()->deleteAllCookies();
         }
+
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visit(new Login())
+                ->auth();
+        });
     }
 
     public function testPageLoads()
     {
         $this->browse(function (Browser $browser) {
             $browser
-                ->visit(new Login())
-                ->auth()
                 ->visitRoute('client.credits.index')
-                ->assertSee('Credits');
+                ->assertSee('Credits')
+                ->visitRoute('client.logout');
         });
     }
 }
