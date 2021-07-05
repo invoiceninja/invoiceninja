@@ -39,4 +39,16 @@ class InvoicesTest extends DuskTestCase
                 ->assertSee('No payable invoices selected. Make sure you are not trying to pay draft invoice or invoice with zero balance due.');
         });
     }
+
+    public function testClickingDownloadWithoutInvoices()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visit(new Login())
+                ->auth()
+                ->visitRoute('client.invoices.index')
+                ->press('Download')
+                ->assertSee('No items selected.');
+        });
+    }
 }
