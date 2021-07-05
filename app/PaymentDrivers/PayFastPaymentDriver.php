@@ -180,6 +180,8 @@ class PayFastPaymentDriver extends BaseDriver
             }
         }
 
+        nlog(md5(http_build_query($fields)));
+
         return md5(http_build_query($fields));
     }
 
@@ -193,7 +195,7 @@ class PayFastPaymentDriver extends BaseDriver
 
         if(array_key_exists('m_payment_id', $data))
         {
-            
+
             $hash = Cache::get($data['m_payment_id']);
 
             if($hash == 'cc_auth')
