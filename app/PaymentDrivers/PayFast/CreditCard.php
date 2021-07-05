@@ -223,7 +223,7 @@ class CreditCard
             'payment_hash' => $request->input('m_payment_id'),
         ];
 
-        $this->payfast->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, $state);
+        $this->payfast->payment_hash->data = array_merge((array) $this->payfast->payment_hash->data, $state);
         $this->payfast->payment_hash->save();
 
         if($response_array['payment_status'] == 'COMPLETE') {
