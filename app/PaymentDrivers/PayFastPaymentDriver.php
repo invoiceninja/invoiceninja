@@ -136,6 +136,7 @@ class PayFastPaymentDriver extends BaseDriver
         if( $passPhrase !== null ) {
             $getString .= '&passphrase='. urlencode( trim( $passPhrase ) );
         }
+        nlog($getString);
         return md5( $getString );
     }
 
@@ -145,7 +146,7 @@ class PayFastPaymentDriver extends BaseDriver
 
         nlog($request->all());
         $data = $request->all();
-       
+
         if(array_key_exists('m_payment_id', $data) && $data['m_payment_id'] == 'pre-auth')
         {
             return $this->setPaymentMethod(GatewayType::CREDIT_CARD)

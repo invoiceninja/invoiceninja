@@ -92,12 +92,12 @@ class CreditCard
             'notify_url' => $this->payfast->genericWebhookUrl(),
             'amount' => 5,
             'item_name' => 'pre-auth',
-            'item_description' => 'Pre authorization',
             'subscription_type' => 2,
             'passphrase' => $this->payfast->company_gateway->getConfigField('passphrase'),
         ];        
 
         $data['signature'] = $this->payfast->generateSignature($data);
+        nlog($data['signature']);
         $data['gateway'] = $this->payfast;
         $data['payment_endpoint_url'] = $this->payfast->endpointUrl();
 
