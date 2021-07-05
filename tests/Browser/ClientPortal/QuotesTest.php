@@ -12,6 +12,7 @@
 
 namespace Tests\Browser\ClientPortal;
 
+use App\Models\Quote;
 use Laravel\Dusk\Browser;
 use Tests\Browser\Pages\ClientPortal\Login;
 use Tests\DuskTestCase;
@@ -40,6 +41,16 @@ class QuotesTest extends DuskTestCase
                 ->visitRoute('client.quotes.index')
                 ->assertSee('Quotes')
                 ->visitRoute('client.logout');
+        });
+    }
+
+    public function testClickingApproveWithoutQuotes()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.quotes.index')
+                ->press('Approve')
+                ->assertPathIs('/client/quotes');
         });
     }
 }
