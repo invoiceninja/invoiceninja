@@ -19,6 +19,7 @@ use App\Models\SystemLog;
 use App\PaymentDrivers\PayFast\CreditCard;
 use App\Utils\Traits\MakesHash;
 use \PayFastPayment;
+use Illuminate\Http\Request;
 
 class PayFastPaymentDriver extends BaseDriver
 {
@@ -138,7 +139,7 @@ class PayFastPaymentDriver extends BaseDriver
         return md5( $getString );
     }
 
-    public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment = null)
+    public function processWebhookRequest(Request $request, Payment $payment = null)
     {
 
         nlog($request->all());
