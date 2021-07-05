@@ -145,10 +145,10 @@ class CreditCard
         $payment_meta->last4 = 'xxxx';
         $payment_meta->type = GatewayType::CREDIT_CARD;
 
-        $cgt['payment_meta'] = $payment_meta
+        $cgt['payment_meta'] = $payment_meta;
 
         $this->payfast->storeGatewayToken($cgt, []);
-        
+
  	}  
 
 
