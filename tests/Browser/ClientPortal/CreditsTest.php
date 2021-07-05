@@ -38,7 +38,7 @@ class CreditsTest extends DuskTestCase
         $this->browse(function (Browser $browser) {
             $browser
                 ->visitRoute('client.credits.index')
-                ->assertSee('Credits')
+                ->assertSeeIn('span[data-ref="meta-title"]', 'Credits')
                 ->visitRoute('client.logout');
         });
     }

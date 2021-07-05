@@ -39,7 +39,7 @@ class QuotesTest extends DuskTestCase
         $this->browse(function (Browser $browser) {
             $browser
                 ->visitRoute('client.quotes.index')
-                ->assertSee('Quotes')
+                ->assertSeeIn('span[data-ref="meta-title"]', 'Quotes')
                 ->visitRoute('client.logout');
         });
     }

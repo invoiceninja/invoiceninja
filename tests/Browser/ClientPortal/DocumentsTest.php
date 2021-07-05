@@ -38,7 +38,7 @@ class DocumentsTest extends DuskTestCase
         $this->browse(function (Browser $browser) {
             $browser
                 ->visitRoute('client.documents.index')
-                ->assertSee('Invoices')
+                ->assertSee('Documents')
                 ->visitRoute('client.logout');
         });
     }

@@ -38,7 +38,7 @@ class SubscriptionsTest extends DuskTestCase
         $this->browse(function (Browser $browser) {
             $browser
                 ->visitRoute('client.subscriptions.index')
-                ->assertSee('Invoices')
+                ->assertSeeIn('span[data-ref="meta-title"]', 'Subscriptions')
                 ->visitRoute('client.logout');
         });
     }

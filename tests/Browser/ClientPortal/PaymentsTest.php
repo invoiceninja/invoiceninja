@@ -38,7 +38,7 @@ class PaymentsTest extends DuskTestCase
         $this->browse(function (Browser $browser) {
             $browser
                 ->visitRoute('client.payments.index')
-                ->assertSee('Recurring Invoices')
+                ->assertSeeIn('span[data-ref="meta-title"]', 'Payments')
                 ->visitRoute('client.logout');
         });
     }

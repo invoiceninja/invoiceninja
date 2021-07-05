@@ -17,7 +17,7 @@ use Laravel\Dusk\Browser;
 use Tests\Browser\Pages\ClientPortal\Login;
 use Tests\DuskTestCase;
 
-class RecurringInvoices extends DuskTestCase
+class RecurringInvoicesTest extends DuskTestCase
 {
     protected function setUp(): void
     {
@@ -39,7 +39,7 @@ class RecurringInvoices extends DuskTestCase
         $this->browse(function (Browser $browser) {
             $browser
                 ->visitRoute('client.recurring_invoices.index')
-                ->assertSee('Recurring Invoices')
+                ->assertSeeIn('span[data-ref="meta-title"]', 'Recurring Invoices')
                 ->visitRoute('client.logout');
         });
     }

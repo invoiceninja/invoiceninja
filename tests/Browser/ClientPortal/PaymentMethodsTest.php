@@ -38,7 +38,7 @@ class PaymentMethodsTest extends DuskTestCase
         $this->browse(function (Browser $browser) {
             $browser
                 ->visitRoute('client.payment_methods.index')
-                ->assertSee('Payment Methods')
+                ->assertSeeIn('span[data-ref="meta-title"]', 'Payment Methods')
                 ->visitRoute('client.logout');
         });
     }
