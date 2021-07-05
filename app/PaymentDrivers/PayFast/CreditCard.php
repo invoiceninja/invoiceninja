@@ -164,7 +164,7 @@ class CreditCard
     public function paymentView($data)
     {
 
-        $data = [
+        $payfast_data = [
             'merchant_id' => $this->payfast->company_gateway->getConfigField('merchantId'),
             'merchant_key' => $this->payfast->company_gateway->getConfigField('merchantKey'),
             'return_url' => route('client.payment_methods.index'),
@@ -177,17 +177,17 @@ class CreditCard
             'passphrase' => $this->payfast->company_gateway->getConfigField('passphrase'),
         ];  
 
-        $data['signature'] = $this->payfast->generateSignature($data);
-        $data['gateway'] = $this->payfast;
-        $data['payment_endpoint_url'] = $this->payfast->endpointUrl();
+        $payfast_data['signature'] = $this->payfast->generateSignature($payfast_data);
+        $payfast_data['gateway'] = $this->payfast;
+        $payfast_data['payment_endpoint_url'] = $this->payfast->endpointUrl();
 
-        return render('gateways.payfast.pay', $data);
+        return render('gateways.payfast.pay', array_merge($data, $payfast_data));
 
     }
 
     public function processPaymentResponse(Request $request)
     {
-
+        dd($request->all());
     }
 }
 
