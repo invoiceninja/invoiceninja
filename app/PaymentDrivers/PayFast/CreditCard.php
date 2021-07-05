@@ -90,7 +90,7 @@ class CreditCard
             'amount' => 5,
             'item_name' => 'pre-auth',
             'item_description' => 'cc_auth',
-            'custom_str1' => 'cc_auth',
+            // 'custom_str1' => 'cc_auth',
             'subscription_type' => 2,
             'passphrase' => $this->payfast->company_gateway->getConfigField('passphrase'),
         ];        
