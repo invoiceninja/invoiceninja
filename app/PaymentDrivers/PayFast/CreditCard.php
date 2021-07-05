@@ -169,7 +169,7 @@ class CreditCard
             'return_url' => route('client.payment_methods.index'),
             'cancel_url' => route('client.payment_methods.index'),
             'notify_url' => $this->payfast->genericWebhookUrl(),
-            'm_payment_id' => $data['hash'],
+            'm_payment_id' => $data['payment_hash'],
             'amount' => $data['amount_with_fee'],
             'item_name' => 'purchase',
             'item_description' => ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number'),

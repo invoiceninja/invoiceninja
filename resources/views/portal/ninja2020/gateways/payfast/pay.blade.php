@@ -20,11 +20,6 @@
         <input type="hidden" name="passphrase" value="{{ $passphrase }}"> 
         <input type="hidden" name="signature" value="{{ $signature }}">    
 
-    
-    @if(!Request::isSecure())
-        <p class="alert alert-failure">{{ ctrans('texts.https_required') }}</p>
-    @endif
-
     <div class="alert alert-failure mb-4" hidden id="errors"></div>
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.method')])
