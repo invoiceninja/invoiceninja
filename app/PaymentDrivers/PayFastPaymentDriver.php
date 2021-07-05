@@ -142,7 +142,7 @@ class PayFastPaymentDriver extends BaseDriver
     // }
 
 
-   public function generateSignature($data, $passPhrase = null)
+   public function generateSignature($data)
     {
         $fields = array();
 
