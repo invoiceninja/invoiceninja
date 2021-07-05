@@ -174,7 +174,6 @@ class CreditCard
             'amount' => $data['amount_with_fee'],
             'item_name' => 'purchase',
             'item_description' => ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number'),
-            'subscription_type' => 2,
             'passphrase' => $this->payfast->company_gateway->getConfigField('passphrase'),
         ];  
 
@@ -182,7 +181,7 @@ class CreditCard
         $data['gateway'] = $this->payfast;
         $data['payment_endpoint_url'] = $this->payfast->endpointUrl();
 
-        return render('gateways.payfast.authorize', $data);
+        return render('gateways.payfast.pay', $data);
 
     }
 
