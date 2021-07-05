@@ -91,7 +91,6 @@ class CreditCard
             'cancel_url' => route('client.payment_methods.index'),
             'notify_url' => $this->payfast->genericWebhookUrl(),
             'amount' => 5,
-            'm_payment_id' => $hash,
             'item_name' => 'pre-auth',
             'subscription_type' => 2,
             'passphrase' => $this->payfast->company_gateway->getConfigField('passphrase'),
