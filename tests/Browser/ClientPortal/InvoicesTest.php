@@ -20,11 +20,23 @@ class InvoicesTest extends DuskTestCase
     public function testPageLoads()
     {
         $this->browse(function (Browser $browser) {
-           $browser
-               ->visit(new Login())
-               ->auth()
-               ->visitRoute('client.invoices.index')
-               ->assertSee('Invoices');
+            $browser
+                ->visit(new Login())
+                ->auth()
+                ->visitRoute('client.invoices.index')
+                ->assertSee('Invoices');
+        });
+    }
+
+    public function testClickingPayNowWithoutInvoices()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visit(new Login())
+                ->auth()
+                ->visitRoute('client.invoices.index')
+                ->press('Pay Now')
+                ->assertSee('No payable invoices selected. Make sure you are not trying to pay draft invoice or invoice with zero balance due.');
         });
     }
 }
