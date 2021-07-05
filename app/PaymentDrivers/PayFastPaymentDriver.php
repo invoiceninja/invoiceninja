@@ -188,17 +188,25 @@ class PayFastPaymentDriver extends BaseDriver
     {
 
         $data = $request->all();
+        nlog($data);
 
         if(array_key_exists('m_payment_id', $data))
         {
 
             $hash = Cache::get($data['m_payment_id']);
 
-            if($hash == 'cc_auth')
+            switch ($hash) 
             {
-                return $this->setPaymentMethod(GatewayType::CREDIT_CARD)
-                            ->authorizeResponse($request);            
+                case 'cc_auth':
+                    return $this->setPaymentMethod(GatewayType::CREDIT_CARD)
+                            ->authorizeResponse($request);   
+                    break;
+                
+                default:
+                    // code...
+                    break;
             }
+
 
         }
 
