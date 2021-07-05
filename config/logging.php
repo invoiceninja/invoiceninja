@@ -108,7 +108,6 @@ return [
         'gelf' => [
             'driver' => 'custom',
             
-
             'via' => \Hedii\LaravelGelfLogger\GelfLoggerFactory::class,
 
             // This optional option determines the processors that should be

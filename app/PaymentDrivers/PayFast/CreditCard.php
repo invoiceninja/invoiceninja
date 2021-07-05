@@ -89,6 +89,8 @@ class CreditCard
             'notify_url' => $this->payfast->genericWebhookUrl(),
             'amount' => 5,
             'item_name' => 'pre-auth',
+            'item_description' => 'cc_auth',
+            'custom_str1' => 'cc_auth',
             'subscription_type' => 2,
             'passphrase' => $this->payfast->company_gateway->getConfigField('passphrase'),
         ];        
@@ -100,36 +102,34 @@ class CreditCard
         return render('gateways.payfast.authorize', $data);
     }
 
-
-/*
-  'm_payment_id' => NULL,
-  'pf_payment_id' => '1409993',
-  'payment_status' => 'COMPLETE', 
-  'item_name' => 'pre-auth',
-  'item_description' => NULL,
-  'amount_gross' => '5.00',
-  'amount_fee' => '-2.53',
-  'amount_net' => '2.47',
-  'custom_str1' => NULL,
-  'custom_str2' => NULL,
-  'custom_str3' => NULL,
-  'custom_str4' => NULL,
-  'custom_str5' => NULL,
-  'custom_int1' => NULL,
-  'custom_int2' => NULL,
-  'custom_int3' => NULL,
-  'custom_int4' => NULL,
-  'custom_int5' => NULL,
-  'name_first' => NULL,
-  'name_last' => NULL,
-  'email_address' => NULL,
-  'merchant_id' => '10023100',
-  'token' => '34b66bc2-3c54-9590-03ea-42ee8b89922a',
-  'billing_date' => '2021-07-05',
-  'signature' => 'ebdb4ca937d0e3f43462841c0afc6ad9',
-  'q' => '/payment_notification_webhook/EhbnVYyzJZyccY85hcHIkIzNPI2rtHzznAyyyG73oSxZidAdN9gf8BvAKDomqeHp/4openRe7Az/WPe99p3eLy',
-)  
- */
+    /*
+      'm_payment_id' => NULL,
+      'pf_payment_id' => '1409993',
+      'payment_status' => 'COMPLETE', 
+      'item_name' => 'pre-auth',
+      'item_description' => NULL,
+      'amount_gross' => '5.00',
+      'amount_fee' => '-2.53',
+      'amount_net' => '2.47',
+      'custom_str1' => NULL,
+      'custom_str2' => NULL,
+      'custom_str3' => NULL,
+      'custom_str4' => NULL,
+      'custom_str5' => NULL,
+      'custom_int1' => NULL,
+      'custom_int2' => NULL,
+      'custom_int3' => NULL,
+      'custom_int4' => NULL,
+      'custom_int5' => NULL,
+      'name_first' => NULL,
+      'name_last' => NULL,
+      'email_address' => NULL,
+      'merchant_id' => '10023100',
+      'token' => '34b66bc2-3c54-9590-03ea-42ee8b89922a',
+      'billing_date' => '2021-07-05',
+      'signature' => 'ebdb4ca937d0e3f43462841c0afc6ad9',
+      'q' => '/payment_notification_webhook/EhbnVYyzJZyccY85hcHIkIzNPI2rtHzznAyyyG73oSxZidAdN9gf8BvAKDomqeHp/4openRe7Az/WPe99p3eLy',
+     */
  	public function authorizeResponse($request)
  	{
         $data = $request->all();
@@ -147,7 +147,11 @@ class CreditCard
 
         $cgt['payment_meta'] = $payment_meta;
 
-        $this->payfast->storeGatewayToken($cgt, []);
+        $token = $this->payfast->storeGatewayToken($cgt, []);
+
+        nlog($token);
+
+        return response()->json([], 200);
 
  	}  
 
