@@ -10,7 +10,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace Tests\ClientPortal;
+namespace Tests\Feature\ClientPortal;
 
 use App\Http\Livewire\CreditsTable;
 use App\Models\Account;
@@ -23,6 +23,7 @@ use Faker\Factory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Livewire\Livewire;
 use Tests\TestCase;
+use function now;
 
 class CreditsTest extends TestCase
 {
