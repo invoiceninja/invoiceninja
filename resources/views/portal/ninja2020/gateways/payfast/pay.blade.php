@@ -62,5 +62,13 @@
 @endsection
 
 @section('gateway_footer')
+<script>
 
+
+    document.getElementById('pay-now').addEventListener('click', function() {
+      document.getElementById('server_response').submit();
+    });
+
+</script>
 @endsection
+
