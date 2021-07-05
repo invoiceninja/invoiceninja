@@ -89,8 +89,8 @@ class CreditCard
             'notify_url' => $this->payfast->genericWebhookUrl(),
             'amount' => 5,
             'item_name' => 'pre-auth',
-            'item_description' => 'cc_auth',
-            // 'custom_str1' => 'cc_auth',
+            // 'item_description' => 'cc_auth',
+            'custom_str1' => 'cc_auth',
             'subscription_type' => 2,
             'passphrase' => $this->payfast->company_gateway->getConfigField('passphrase'),
         ];        
@@ -151,7 +151,7 @@ class CreditCard
 
         nlog($token);
 
-        return response()->json([], 200);
+                return response()->json([], 200);
 
  	}  
 
