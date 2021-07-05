@@ -22,6 +22,7 @@ use App\Models\SystemLog;
 use App\PaymentDrivers\PayFastPaymentDriver;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Http\Request;
 
 class CreditCard
 {
@@ -182,6 +183,11 @@ class CreditCard
         $data['payment_endpoint_url'] = $this->payfast->endpointUrl();
 
         return render('gateways.payfast.authorize', $data);
+
+    }
+
+    public function processPaymentResponse(Request $request)
+    {
 
     }
 }
