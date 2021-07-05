@@ -16,10 +16,13 @@ use App\Http\Requests\Payments\PaymentNotificationWebhookRequest;
 use App\Libraries\MultiDB;
 use App\Models\Client;
 use App\Models\CompanyGateway;
+use App\Utils\Traits\MakesHash;
 use Auth;
 
 class PaymentNotificationWebhookController extends Controller
 {
+    use MakesHash;
+    
     public function __invoke(PaymentNotificationWebhookRequest $request, string $company_key, string $company_gateway_id, string $client_hash)
     {
 
