@@ -185,7 +185,7 @@ class CreditCard
 
     }
 
-    public function processPaymentResponse(Request $request)
+    public function paymentResponse(Request $request)
     {
         dd($request->all());
     }
