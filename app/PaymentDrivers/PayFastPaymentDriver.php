@@ -188,7 +188,7 @@ class PayFastPaymentDriver extends BaseDriver
 
     public function processWebhookRequest(Request $request, Payment $payment = null)
     {
-        $this->init();
+        // $this->init();
 
         nlog($request->all());
         $data = $request->all();
@@ -201,7 +201,7 @@ class PayFastPaymentDriver extends BaseDriver
             if($hash == 'cc_auth')
             {
                 return $this->setPaymentMethod(GatewayType::CREDIT_CARD)
-                           ->authorizeResponse($request);            
+                            ->authorizeResponse($request);            
             }
 
         }
