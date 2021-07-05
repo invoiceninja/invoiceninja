@@ -167,7 +167,7 @@ class CreditCard
         $payfast_data = [
             'merchant_id' => $this->payfast->company_gateway->getConfigField('merchantId'),
             'merchant_key' => $this->payfast->company_gateway->getConfigField('merchantKey'),
-            'return_url' => route('client.payment_methods.index'),
+            'return_url' => route('client.payments.index'),
             'cancel_url' => route('client.payment_methods.index'),
             'notify_url' => $this->payfast->genericWebhookUrl(),
             'm_payment_id' => $data['payment_hash'],
