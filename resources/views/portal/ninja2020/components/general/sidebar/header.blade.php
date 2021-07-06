@@ -23,7 +23,10 @@
                     <div class="rounded bg-white shadow-xs">
                         <div class="py-1">
                             @foreach($multiple_contacts as $contact)
-                                <a data-turbolinks="false" href="{{ route('client.switch_company', $contact->hashed_id) }}" class="block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900">{{ $contact->company->present()->name() }} - {{ $contact->client->present()->name()}}</a>
+                                <a data-turbolinks="false"
+                                   href="{{ route('client.switch_company', $contact->hashed_id) }}"
+                                   class="block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900">{{ $contact->company->present()->name() }}
+                                    - {{ $contact->client->present()->name()}}</a>
                             @endforeach
                         </div>
                     </div>
@@ -32,18 +35,28 @@
             @endif
             <div @click.away="open = false" class="ml-3 relative" x-data="{ open: false }">
                 <div>
-                    <button @click="open = !open" class="max-w-xs flex items-center text-sm rounded-full focus:outline-none focus:shadow-outline">
-                        <img class="h-8 w-8 rounded-full" src="{{ auth()->user()->avatar() }}" alt="" />
+                    <button data-ref="client-profile-dropdown" @click="open = !open"
+                            class="max-w-xs flex items-center text-sm rounded-full focus:outline-none focus:shadow-outline">
+                        <img class="h-8 w-8 rounded-full" src="{{ auth()->user()->avatar() }}" alt=""/>
                         <span class="ml-2">{{ auth()->user()->present()->name() }}</span>
                     </button>
                 </div>
-                <div x-show="open" style="display:none;" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg">
+                <div x-show="open" style="display:none;" x-transition:enter="transition ease-out duration-100"
+                     x-transition:enter-start="transform opacity-0 scale-95"
+                     x-transition:enter-end="transform opacity-100 scale-100"
+                     x-transition:leave="transition ease-in duration-75"
+                     x-transition:leave-start="transform opacity-100 scale-100"
+                     x-transition:leave-end="transform opacity-0 scale-95"
+                     class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg">
                     <div class="py-1 rounded-md bg-white shadow-xs">
-                        <a href="{{ route('client.profile.edit', ['client_contact' => auth()->user()->hashed_id]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition ease-in-out duration-150">
+                        <a data-ref="client-profile-dropdown-settings"
+                           href="{{ route('client.profile.edit', ['client_contact' => auth()->user()->hashed_id]) }}"
+                           class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition ease-in-out duration-150">
                             {{ ctrans('texts.profile') }}
                         </a>
 
-                        <a href="{{ route('client.logout') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition ease-in-out duration-150">
+                        <a href="{{ route('client.logout') }}"
+                           class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition ease-in-out duration-150">
                             {{ ctrans('texts.logout') }}
                         </a>
                     </div>
