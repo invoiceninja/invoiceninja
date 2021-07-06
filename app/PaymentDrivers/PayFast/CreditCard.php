@@ -15,14 +15,16 @@ namespace App\PaymentDrivers\PayFast;
 use App\Exceptions\PaymentFailed;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
+use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
+use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\PayFastPaymentDriver;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class CreditCard
 {
@@ -158,8 +160,6 @@ class CreditCard
         return response()->json([], 200);
 
  	}  
-
-
 
     public function paymentView($data)
     {

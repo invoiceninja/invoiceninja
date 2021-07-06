@@ -17,10 +17,11 @@ use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\SystemLog;
 use App\PaymentDrivers\PayFast\CreditCard;
+use App\PaymentDrivers\PayFast\Token;
 use App\Utils\Traits\MakesHash;
-use \PayFastPayment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use \PayFastPayment;
 
 class PayFastPaymentDriver extends BaseDriver
 {
@@ -120,7 +121,7 @@ class PayFastPaymentDriver extends BaseDriver
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
-        return $this->payment_method->yourTokenBillingImplmentation(); //this is your custom implementation from here
+        return (new Token($this))->tokenBilling($cgt, $payment_hash);
     }
 
     // public function generateSignature($data, $passPhrase = null) 
