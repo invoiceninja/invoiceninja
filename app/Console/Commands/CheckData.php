@@ -365,7 +365,7 @@ class CheckData extends Command
         /* Due to accounting differences we need to perform a second loop here to ensure there actually is an issue */
         $clients->each(function ($client_record) use ($credit_total_applied) {
             
-            $client = Client::find($client_record->id);
+            $client = Client::withTrashed()->find($client_record->id);
 
             $total_invoice_payments = 0;
 
