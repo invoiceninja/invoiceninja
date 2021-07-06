@@ -594,6 +594,7 @@ class CheckData extends Command
                 'client',
                 'client_contact',
                 'payment',
+                'recurring_invoice',
             ],
             'invoices' => [
                 'client',
