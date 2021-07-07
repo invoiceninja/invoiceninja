@@ -206,7 +206,7 @@ class CreateEntityPdf implements ShouldQueue
                 
                 Storage::disk($this->disk)->put($file_path, $pdf);
                 
-                $path = Storage::disk($this->disk)->put($file_path);
+                $path = Storage::disk($this->disk)->path($file_path);
                 $url = Storage::disk($this->disk)->url($file_path);
 
                 info($path);
