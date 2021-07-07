@@ -34,6 +34,11 @@ trait PdfMaker
             $pdf->setChromiumPath(config('ninja.snappdf_chromium_path'));
         }
 
+        if (config('ninja.snappdf_chromium_arguments')) {
+            $pdf->clearChromiumArguments();
+            $pdf->addChromiumArguments(config('ninja.snappdf_chromium_arguments'));
+        }
+
         $generated  = $pdf
                         ->setHtml($html)
                         ->generate();

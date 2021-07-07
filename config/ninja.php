@@ -142,6 +142,7 @@ return [
     'log_pdf_html' => env('LOG_PDF_HTML', false),
     'expanded_logging' => env('EXPANDED_LOGGING', false),
     'snappdf_chromium_path' => env('SNAPPDF_CHROMIUM_PATH', false),
+    'snappdf_chromium_arguments' => env('SNAPPDF_CHROMIUM_ARGUMENTS', false),
     'v4_migration_version' => '4.5.35',
     'flutter_renderer' => env('FLUTTER_RENDERER', 'selfhosted-html'),
     'webcron_secret' => env('WEBCRON_SECRET', false),
