@@ -71,4 +71,18 @@ class ACHTest extends DuskTestCase
                 ->assertSee('Bank Transfer');
         });
     }
+
+    public function testPayingWithExistingACH()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.invoices.index')
+                ->click('@pay-now')
+                ->press('Pay Now')
+                ->clickLink('Bank Transfer')
+                ->click('.toggle-payment-with-token')
+                ->press('Pay Now')
+                ->waitForText('Details of the payment', 60);
+        });
+    }
 }
