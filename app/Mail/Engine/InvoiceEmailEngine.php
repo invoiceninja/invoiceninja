@@ -112,8 +112,8 @@ class InvoiceEmailEngine extends BaseEmailEngine
 
         if ($this->client->getSetting('pdf_email_attachment') !== false && $this->invoice->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
 
-            CreateEntityPdf::dispatchNow($invitation);
-            
+            CreateEntityPdf::dispatchNow($this->invitation);
+
             if(Ninja::isHosted())
                 $this->setAttachments([$this->invoice->pdf_file_path($this->invitation, 'url', true)]);
             else
