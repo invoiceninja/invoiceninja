@@ -243,7 +243,7 @@ class CompanySettings extends BaseSettings
     public $font_size = 7; //@implemented
     public $primary_font = 'Roboto';
     public $secondary_font = 'Roboto';
-    public $primary_color = '#142cb5';
+    public $primary_color = '#298AAB';
     public $secondary_color = '#7081e0';
 
     public $hide_paid_to_date = false; //@TODO where?
