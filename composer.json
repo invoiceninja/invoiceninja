@@ -33,7 +33,7 @@
         "asm/php-ansible": "dev-main",
         "authorizenet/authorizenet": "^2.0",
         "bacon/bacon-qr-code": "^2.0",
-        "beganovich/snappdf": "^1.0",
+        "beganovich/snappdf": "^1.7",
         "braintree/braintree_php": "^6.0",
         "checkout/checkout-sdk-php": "^1.0",
         "cleverit/ubl_invoice": "^1.3",
