@@ -12,6 +12,7 @@
 namespace App\Mail\Engine;
 
 use App\DataMapper\EmailTemplateDefaults;
+use App\Jobs\Entity\CreateEntityPdf;
 use App\Models\Account;
 use App\Utils\HtmlEngine;
 use App\Utils\Ninja;
@@ -111,12 +112,12 @@ class InvoiceEmailEngine extends BaseEmailEngine
 
         if ($this->client->getSetting('pdf_email_attachment') !== false && $this->invoice->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
 
+            CreateEntityPdf::dispatchNow($invitation);
+            
             if(Ninja::isHosted())
                 $this->setAttachments([$this->invoice->pdf_file_path($this->invitation, 'url', true)]);
             else
                 $this->setAttachments([$this->invoice->pdf_file_path($this->invitation)]);
-
-            // $this->setAttachments(['path' => $this->invoice->pdf_file_path(), 'name' => basename($this->invoice->pdf_file_path())]);
 
         }
 
