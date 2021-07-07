@@ -39,6 +39,7 @@ use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Class QuoteController.
@@ -676,8 +677,14 @@ class QuoteController extends BaseController
                 break;
             case 'download':
 
-               $file = $quote->pdf_file_path();
-               return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
+                //$file = $quote->pdf_file_path();
+                $file = $quote->service()->getQuotePdf();
+
+                return response()->streamDownload(function () use($file) {
+                        echo Storage::get($file);
+                },  basename($file));
+
+               //return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
 
                 break;
             case 'restore':
@@ -728,9 +735,14 @@ class QuoteController extends BaseController
         $contact = $invitation->contact;
         $quote = $invitation->quote;
 
-        $file_path = $quote->service()->getQuotePdf($contact);
+        $file = $quote->service()->getQuotePdf($contact);
+nlog($file);
 
-        return response()->download($file_path, basename($file_path), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
+        return response()->streamDownload(function () use($file) {
+                echo Storage::get($file);
+        },  basename($file));
+
+        // return response()->download($file_path, basename($file_path), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
     }
 
     /**

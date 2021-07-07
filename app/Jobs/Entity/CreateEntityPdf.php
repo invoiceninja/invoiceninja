@@ -86,9 +86,8 @@ class CreateEntityPdf implements ShouldQueue
 
         $this->contact = $invitation->contact;
 
-        //$this->disk = Ninja::isHosted() ? config('filesystems.default') : $disk;
-        $this->disk = $disk;
-        // $this->disk = $disk ?? config('filesystems.default');
+        $this->disk = Ninja::isHosted() ? config('filesystems.default') : $disk;
+
     }
 
     public function handle()
