@@ -102,6 +102,7 @@ return [
 
         'invoiceninja' => [
             'driver' => 'single',
+            'level' => 'debug',
             'path' => storage_path('logs/invoiceninja.log'),
         ],
 
