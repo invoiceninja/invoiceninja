@@ -43,4 +43,23 @@ class CreditCardTest extends DuskTestCase
                 ->assertSee('Checkout.com can be can saved as payment method for future use, once you complete your first transaction. Don\'t forget to check "Store credit card details" during payment process.');
         });
     }
+
+    public function testPayingWithNewCard()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.invoices.index')
+                ->click('@pay-now')
+                ->press('Pay Now')
+                ->clickLink('Credit Card')
+                ->withinFrame('iframe', function (Browser $browser) {
+                    $browser
+                        ->type('cardnumber', '4242424242424242')
+                        ->type('exp-date', '04/22')
+                        ->type('cvc', '100');
+                })
+                ->press('#pay-button')
+                ->waitForText('Details of the payment', 60);
+        });
+    }
 }
