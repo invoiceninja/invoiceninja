@@ -99,4 +99,17 @@ class CreditCardTest extends DuskTestCase
                 ->waitForText('Details of the payment', 60);
         });
     }
+
+    public function testRemoveCreditCard()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.payment_methods.index')
+                ->clickLink('View')
+                ->press('Remove Payment Method')
+                ->waitForText('Confirmation')
+                ->click('@confirm-payment-removal')
+                ->assertSee('Payment method has been successfully removed.');
+        });
+    }
 }
