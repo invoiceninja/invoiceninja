@@ -85,4 +85,18 @@ class CreditCardTest extends DuskTestCase
                 ->assertSee('4242');
         });
     }
+
+    public function testPayWithSavedCreditCard()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.invoices.index')
+                ->click('@pay-now')
+                ->press('Pay Now')
+                ->clickLink('Credit Card')
+                ->click('.toggle-payment-with-token')
+                ->click('#pay-now-with-token')
+                ->waitForText('Details of the payment', 60);
+        });
+    }
 }
