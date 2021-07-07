@@ -725,7 +725,7 @@ class InvoiceController extends BaseController
                 $invoice->service()->touchReminder($this->reminder_template)->deletePdf()->save();
 
                 $invoice->invitations->load('contact.client.country', 'invoice.client.country', 'invoice.company')->each(function ($invitation) use ($invoice) {
-                    EmailEntity::dispatch($invitation, $invoice->company, $this->reminder_template);
+                    EmailEntity::dispatch($invitation, $invoice->company, $this->reminder_template)->delay(now()->addSeconds(30));
                 });
 
                 if ($invoice->invitations->count() >= 1) {
