@@ -58,9 +58,9 @@ class CreditCardTest extends DuskTestCase
                         ->type('cvc', '242');
                 })
                 ->click('#pay-now')
-                ->waitForText('Details of the payment');
+                ->waitForText('Details of the payment', 60);
         });
-    }    
+    }
 
     public function testPayWithNewCardAndSaveForFutureUse()
     {
@@ -79,7 +79,7 @@ class CreditCardTest extends DuskTestCase
                 })
                 ->radio('#proxy_is_default', true)
                 ->click('#pay-now')
-                ->waitForText('Details of the payment')
+                ->waitForText('Details of the payment', 60)
                 ->visitRoute('client.payment_methods.index')
                 ->clickLink('View')
                 ->assertSee('4242');
@@ -96,7 +96,7 @@ class CreditCardTest extends DuskTestCase
                 ->click('@pay-with-1')
                 ->click('.toggle-payment-with-token')
                 ->click('#pay-now')
-                ->waitForText('Details of the payment');
+                ->waitForText('Details of the payment', 60);
         });
     }
 
@@ -110,6 +110,25 @@ class CreditCardTest extends DuskTestCase
                 ->waitForText('Confirmation')
                 ->click('@confirm-payment-removal')
                 ->assertSee('Payment method has been successfully removed.');
+        });
+    }
+
+    public function testAddingCreditCardStandalone()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.payment_methods.index')
+                ->press('Add Payment Method')
+                ->clickLink('Credit Card')
+                ->type('#cardholder-name', 'John Doe')
+                ->withinFrame('iframe', function (Browser $browser) {
+                    $browser
+                        ->type('cardnumber', '4242 4242 4242 4242')
+                        ->type('exp-date', '04/22')
+                        ->type('cvc', '242');
+                })
+                ->press('Add Payment Method')
+                ->waitForText('**** 4242');
         });
     }
 }
