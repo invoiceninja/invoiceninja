@@ -44,7 +44,7 @@ class CreditCardTest extends DuskTestCase
         });
     }
 
-    public function testPayingWithNewCard()
+    public function testPayWithNewCard()
     {
         $this->browse(function (Browser $browser) {
             $browser
@@ -60,6 +60,29 @@ class CreditCardTest extends DuskTestCase
                 })
                 ->press('#pay-button')
                 ->waitForText('Details of the payment', 60);
+        });
+    }
+
+    public function testPayWithNewCardAndSaveForFutureUse()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.invoices.index')
+                ->click('@pay-now')
+                ->press('Pay Now')
+                ->clickLink('Credit Card')
+                ->withinFrame('iframe', function (Browser $browser) {
+                    $browser
+                        ->type('cardnumber', '4242424242424242')
+                        ->type('exp-date', '04/22')
+                        ->type('cvc', '100');
+                })
+                ->radio('#proxy_is_default', true)
+                ->press('#pay-button')
+                ->waitForText('Details of the payment', 60)
+                ->visitRoute('client.payment_methods.index')
+                ->clickLink('View')
+                ->assertSee('4242');
         });
     }
 }
