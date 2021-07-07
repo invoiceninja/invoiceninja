@@ -19,6 +19,8 @@ class InvoiceItem
 
     public $product_key = '';
 
+    public $product_cost = 0;
+
     public $notes = '';
 
     public $discount = 0;
@@ -57,6 +59,7 @@ class InvoiceItem
         'type_id' => 'string',
         'quantity' => 'float',
         'cost' => 'float',
+        'product_cost' => 'float',
         'product_key' => 'string',
         'notes' => 'string',
         'discount' => 'float',
