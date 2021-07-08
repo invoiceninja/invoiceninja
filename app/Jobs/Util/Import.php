@@ -190,6 +190,9 @@ class Import implements ShouldQueue
     {
         set_time_limit(0);
 
+        nlog("Starting Migration");
+        nlog($this->user->email);
+        
         auth()->login($this->user, false);
         auth()->user()->setCompany($this->company);
 
