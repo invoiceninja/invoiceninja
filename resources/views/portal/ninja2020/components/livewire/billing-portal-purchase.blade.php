@@ -1,5 +1,5 @@
 <div class="grid grid-cols-12">
-    <div class="col-span-12 lg:col-span-6 bg-gray-50 flex flex-col items-center">
+    <div class="col-span-12 xl:col-span-8 bg-gray-50 flex flex-col items-center">
         <div class="w-full p-10 lg:mt-24 md:max-w-3xl">
             <img class="h-8" src="{{ $subscription->company->present()->logo }}"
                  alt="{{ $subscription->company->present()->name }}">
@@ -25,7 +25,6 @@
                             <div data-ref="price-and-quantity-container">
                                 <span
                                     data-ref="price">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }}</span>
-                                {{--                                <span data-ref="quantity" class="text-sm">(1x)</span>--}}
                             </div>
                         </div>
                     @endforeach
@@ -85,7 +84,7 @@
         </div>
     </div>
 
-    <div class="col-span-12 lg:col-span-6 bg-white lg:h-screen">
+    <div class="col-span-12 xl:col-span-4 bg-white lg:h-screen">
         <div class="grid grid-cols-12 flex flex-col p-10 lg:mt-48 lg:ml-16">
             <div class="col-span-12 w-full lg:col-span-6">
                 <h2 class="text-2xl font-bold tracking-wide">{{ $heading_text ?? ctrans('texts.login') }}</h2>
