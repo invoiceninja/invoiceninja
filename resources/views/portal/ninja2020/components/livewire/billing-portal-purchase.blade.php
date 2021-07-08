@@ -84,9 +84,9 @@
         </div>
     </div>
 
-    <div class="col-span-12 xl:col-span-4 bg-white lg:h-screen">
-        <div class="grid grid-cols-12 flex flex-col p-10 lg:mt-48 lg:ml-16">
-            <div class="col-span-12 w-full lg:col-span-6">
+    <div class="col-span-12 xl:col-span-4 bg-white flex flex-col items-center lg:h-screen">
+        <div class="w-full p-10 md:p-24 xl:mt-32 md:max-w-3xl">
+            <div class="col-span-12 w-full xl:col-span-9">
                 <h2 class="text-2xl font-bold tracking-wide">{{ $heading_text ?? ctrans('texts.login') }}</h2>
                 @if (session()->has('message'))
                     @component('portal.ninja2020.components.message')
