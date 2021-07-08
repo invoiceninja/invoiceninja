@@ -14,7 +14,7 @@
                 <div class="flex flex-col mt-8">
                     <p
                         class="mb-4 uppercase leading-4 tracking-wide inline-flex items-center rounded-full text-xs font-medium">
-                        One-time purchases:
+                        {{ ctrans('texts.one_time_purchases') }}
                     </p>
 
                     @foreach($subscription->service()->products() as $product)
@@ -35,7 +35,7 @@
                 <div class="flex flex-col mt-8">
                     <p
                         class="mb-4 uppercase leading-4 tracking-wide inline-flex items-center rounded-full text-xs font-medium">
-                        Recurring purchases:
+                        {{ ctrans('texts.recurring_purchases') }}
                     </p>
 
                     @foreach($subscription->service()->recurring_products() as $product)
@@ -178,12 +178,12 @@
 
                             <button wire:loading.attr="disabled" type="button" wire:click="passwordlessLogin"
                                     class="mt-4 text-sm active:outline-none focus:outline-none">
-                                Log in without password
+                                {{ ctrans('texts.login_without_password') }}
                             </button>
 
                             @if($steps['passwordless_login_sent'])
                                 <span
-                                    class="block mt-2 text-sm text-green-600">E-mail sent. Please check your inbox!</span>
+                                    class="block mt-2 text-sm text-green-600">{{ ctrans('texts.email_sent') }}</span>
                             @endif
                         @endif
 
@@ -199,7 +199,7 @@
                         </div>
 
                         <div class="relative flex justify-center text-sm leading-5">
-                            <span class="px-2 text-gray-700 bg-white">Have a coupon code?</span>
+                            <span class="px-2 text-gray-700 bg-white">{{ ctrans('texts.promo_code') }}</span>
                         </div>
                     </div>
 
@@ -210,7 +210,7 @@
                             <input type="text" wire:model.lazy="coupon" class="input w-full m-0"/>
                         </label>
 
-                        <button class="button button-primary bg-primary">Apply</button>
+                        <button class="button button-primary bg-primary">{{ ctrans('texts.apply') }}</button>
                     </form>
                 @endif
 
