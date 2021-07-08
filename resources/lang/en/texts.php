@@ -4277,6 +4277,7 @@ $LANG = array(
     'email_sent' => 'E-mail sent, please check your inbox.',
     'one_time_purchases' => 'One time purchases',
     'recurring_purchases' => 'Recurring purchases',
+    'you_might_be_interested_in_following' => 'You might be interested in following',
 );
 
 return $LANG;

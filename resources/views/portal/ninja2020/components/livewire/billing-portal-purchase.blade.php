@@ -81,6 +81,18 @@
                     <span>{{ ctrans('texts.client_portal') }}</span>
                 </a>
             @endif
+
+            @if($subscription->service()->getPlans()->count() - 1 > 1)
+                <div class="flex flex-col mt-10">
+                    <p class="mb-4 uppercase leading-4 tracking-wide inline-flex items-center rounded-full text-xs font-medium">
+                        {{ ctrans('texts.you_might_be_interested_in_following') }}:
+                    </p>
+
+                    @foreach($subscription->service()->getPlans() as $_subscription)
+                        <a class="block hover:underline" target="_blank" href="{{ route('client.subscription.purchase', $_subscription->hashed_id) }}">{{ $_subscription->name }}</a>
+                    @endforeach
+                </div>
+            @endif
         </div>
     </div>
 
