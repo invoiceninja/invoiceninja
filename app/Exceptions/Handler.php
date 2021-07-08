@@ -120,8 +120,7 @@ class Handler extends ExceptionHandler
             }
         }
 
-        // if(config('ninja.expanded_logging'))
-            parent::report($exception);
+        parent::report($exception);
 
     }
 
