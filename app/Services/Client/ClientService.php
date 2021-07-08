@@ -69,7 +69,7 @@ class ClientService
                         $query->whereDate('due_date', '<=', now()->format('Y-m-d'))
                               ->orWhereNull('due_date');
                   })
-                  ->orderBy('created_at','ASC');
+                  ->orderBy('created_at','ASC')->get();
     }
 
     public function getPaymentMethods(float $amount)
