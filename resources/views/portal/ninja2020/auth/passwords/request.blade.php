@@ -32,7 +32,8 @@
                             <input type="email" name="email" id="email"
                                    class="input"
                                    value="{{ request()->query('email') ?? old('email') }}"
-                                   autofocus>
+                                   autofocus
+                                   required>
                             @error('email')
                             <div class="validation validation-fail">
                                 {{ $message }}
