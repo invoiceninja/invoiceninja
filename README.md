@@ -4,14 +4,19 @@
 
 ![v5-develop phpunit](https://github.com/invoiceninja/invoiceninja/workflows/phpunit/badge.svg?branch=v5-develop)
 ![v5-stable phpunit](https://github.com/invoiceninja/invoiceninja/workflows/phpunit/badge.svg?branch=v5-stable)
-
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/d39acb4bf0f74a0698dc77f382769ba5)](https://www.codacy.com/app/turbo124/invoiceninja?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=invoiceninja/invoiceninja&amp;utm_campaign=Badge_Grade)
 
 # Invoice Ninja version 5! 
 
-## Quick Start
+## Preamble
 
-Currently the client portal and API are of alpha quality, to get started:
+Version 5 of Invoice Ninja is here! We've taken the best parts of version 4 and bolted on all of the most requested features to produce a invoicing application like no other. 
+
+The new interface has a lot more functionality so it isn't a carbon copy of v4, but once you get used to the new layout and functionality we are sure you will love it!
+
+If you have any questions, please join us on our [forum](https://forum.invoiceninja.com) or on [slack](https://invoiceninja.slack.com)
+
+## Quick Start
 
 ```bash
 git clone https://github.com/invoiceninja/invoiceninja.git
@@ -69,6 +74,8 @@ To improve chances of PRs being merged please include tests to ensure your code 
 
 API documentation is hosted using Swagger and can be found [HERE](https://app.swaggerhub.com/apis/invoiceninja/invoiceninja)
 
+Installation, Configuration and Troubleshooting documentation can be found [HERE] (https://invoiceninja.github.io)
+
 ## Credits
 * [Hillel Coren](https://hillelcoren.com/)
 * [David Bomba](https://github.com/turbo124)
@@ -85,10 +92,18 @@ API documentation is hosted using Swagger and can be found [HERE](https://app.sw
 
 ## Current work in progress
 
-Invoice Ninja is currently being written in a combination of Laravel for the API and Client Portal and Flutter for the front end management console. This will allow an immersive and consistent experience across any device: mobile, tablet or desktop.
+Invoice Ninja is written in a combination of technologies:
 
-To manage our workflow we will be creating separate branches for the client (Flutter) and server (Laravel API / Client Portal) and merge these into a release branch for deployments.
+API - Laravel
+Client Portal - Laravel + Tailwind
+Admin Portal - Flutter 
+
+This allows an immersive and consistent experience across any device: mobile, tablet or desktop.
+
+## Security
+
+If you find a security issue with this application please send an email to contact@invoiceninja.com Please follow responsible disclosure procedures if you detect an issue. For further information on responsible disclosure please read [here](https://cheatsheetseries.owasp.org/cheatsheets/Vulnerability_Disclosure_Cheat_Sheet.html)
 
 ## License
-Invoice Ninja is released under the Attribution Assurance License.  
+Invoice Ninja is released under the Elastic License.  
 See [LICENSE](LICENSE) for details.
