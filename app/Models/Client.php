@@ -13,6 +13,7 @@ namespace App\Models;
 
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
+use App\DataMapper\FeesAndLimits;
 use App\Models\CompanyGateway;
 use App\Models\Presenters\ClientPresenter;
 use App\Services\Client\ClientService;
@@ -430,6 +431,13 @@ class Client extends BaseModel implements HasLocalePreference
                 {
                     $cg = CompanyGateway::find($pm['company_gateway_id']);
 
+                    if($cg && !property_exists($cg->fees_and_limits, GatewayType::CREDIT_CARD)){
+                        $fees_and_limits = $cg->fees_and_limits;
+                        $fees_and_limits->{GatewayType::CREDIT_CARD} = new FeesAndLimits;
+                        $cg->fees_and_limits = $fees_and_limits;
+                        $cg->save();
+                    }
+
                     if($cg && $cg->fees_and_limits->{GatewayType::CREDIT_CARD}->is_enabled)
                         return $cg;
 
@@ -454,6 +462,13 @@ class Client extends BaseModel implements HasLocalePreference
                 if($pm['gateway_type_id'] == GatewayType::BANK_TRANSFER)
                 {
                     $cg = CompanyGateway::find($pm['company_gateway_id']);
+
+                    if($$cg && !property_exists($cg->fees_and_limits, GatewayType::BANK_TRANSFER)){
+                        $fees_and_limits = $cg->fees_and_limits;
+                        $fees_and_limits->{GatewayType::BANK_TRANSFER} = new FeesAndLimits;
+                        $cg->fees_and_limits = $fees_and_limits;
+                        $cg->save();
+                    }
 
                         if($cg && $cg->fees_and_limits->{GatewayType::BANK_TRANSFER}->is_enabled)
                             return $cg;
