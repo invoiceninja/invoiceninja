@@ -81,17 +81,23 @@ class Handler extends ExceptionHandler
 
             app('sentry')->configureScope(function (Scope $scope): void {
 
-                if(auth()->guard('contact') && auth()->guard('contact')->user())
+                $name = 'hosted@invoiceninja.com';
+
+                if(auth()->guard('contact') && auth()->guard('contact')->user()){
+                    $name = "Contact = ".auth()->guard('contact')->user()->email;
                     $key = auth()->guard('contact')->user()->company->account->key;
-                elseif (auth()->guard('user') && auth()->guard('user')->user()) 
+                }
+                elseif (auth()->guard('user') && auth()->guard('user')->user()){
+                    $name = "Admin = ".auth()->guard('user')->user()->email;                    
                     $key = auth()->user()->account->key;
+                } 
                 else
                     $key = 'Anonymous';
                 
                  $scope->setUser([
-                        'id'    => 'Hosted_User',
+                        'id'    => $key,
                         'email' => 'hosted@invoiceninja.com',
-                        'name'  => $key,
+                        'name'  => $name,
                     ]);
             });
 
