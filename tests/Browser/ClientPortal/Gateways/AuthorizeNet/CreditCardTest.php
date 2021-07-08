@@ -101,4 +101,22 @@ class CreditCardTest extends DuskTestCase
                 ->assertSee('Payment method has been successfully removed.');
         });
     }
+
+    public function testAddingCreditCardStandalone()
+    {
+        $this->markTestIncomplete("E00117 OTS Service Error 'Field validation error.'");
+
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.payment_methods.index')
+                ->press('Add Payment Method')
+                ->clickLink('Credit Card')
+                ->type('card-number', '4012888818888')
+                ->type('card-holders-name', 'John Doe')
+                ->type('.expiry', '12/28')
+                ->type('cvc', '900')
+                ->press('Add Payment Method')
+                ->waitForText('0027', 60);
+        });
+    }
 }
