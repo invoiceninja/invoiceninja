@@ -90,7 +90,7 @@
 
                     <div class="mt-4 space-x-2">
                         @foreach($subscription->service()->getPlans() as $_subscription)
-                            <a class="border mt-4 bg-white rounded py-2 px-4 hover:bg-gray-100" target="_blank" href="{{ route('client.subscription.purchase', $_subscription->hashed_id) }}">{{ $_subscription->name }}</a>
+                            <a class="border mt-4 bg-white rounded py-2 px-4 hover:bg-gray-100 text-sm" target="_blank" href="{{ route('client.subscription.purchase', $_subscription->hashed_id) }}">{{ $_subscription->name }}</a>
                         @endforeach
                     </div>
                 </div>
