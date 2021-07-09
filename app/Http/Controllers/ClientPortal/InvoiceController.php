@@ -24,6 +24,7 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\View\View;
 use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
+use Illuminate\Support\Facades\Storage;
 
 class InvoiceController extends Controller
 {
@@ -170,8 +171,10 @@ class InvoiceController extends Controller
             $invitation = $invoice->invitations->first();
            //$file = $invoice->pdf_file_path($invitation);
            $file = $invoice->service()->getInvoicePdf(auth()->user());
-           return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);;
-
+           // return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);;
+            return response()->streamDownload(function () use($file) {
+                    echo Storage::get($file);
+            },  basename($file));
         }
 
         // enable output of HTTP headers
