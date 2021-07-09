@@ -113,4 +113,15 @@ class CreditCardTest extends DuskTestCase
                 ->assertSee('Payment method has been successfully removed.');
         });
     }
+
+    public function testAddingPaymentMethodShouldntBePossible()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.payment_methods.index')
+                ->press('Add Payment Method')
+                ->clickLink('Credit Card')
+                ->assertSee('This payment method can be can saved for future use, once you complete your first transaction. Don\'t forget to check "Store credit card details" during payment process.');
+        });
+    }
 }
