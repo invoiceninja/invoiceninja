@@ -4273,6 +4273,11 @@ $LANG = array(
     'already_default_payment_method' => 'This is your preferred way of paying.',
     'auto_bill_disabled' => 'Auto Bill Disabled',
     'select_payment_method' => 'Select a payment method:',
+    'login_without_password' => 'Log in without password',
+    'email_sent' => 'E-mail sent, please check your inbox.',
+    'one_time_purchases' => 'One time purchases',
+    'recurring_purchases' => 'Recurring purchases',
+    'you_might_be_interested_in_following' => 'You might be interested in following',
 );
 
 return $LANG;
