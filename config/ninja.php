@@ -82,6 +82,7 @@ return [
         'checkout' => env('CHECKOUT_KEYS', ''),
         'travis' => env('TRAVIS', false),
         'test_email' => env('TEST_EMAIL', 'test@example.com'),
+        'wepay' => env('WEPAY_KEYS', ''),
     ],
     'contact' => [
         'email' => env('MAIL_FROM_ADDRESS'),

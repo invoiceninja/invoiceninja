@@ -696,6 +696,27 @@ class CreateSingleAccount extends Command
             $cg->fees_and_limits = $fees_and_limits;
             $cg->save();
         }
+
+        if (config('ninja.testvars.wepay') && ($this->gateway == 'all' || $this->gateway == 'wepay')) {
+            $cg = new CompanyGateway;
+            $cg->company_id = $company->id;
+            $cg->user_id = $user->id;
+            $cg->gateway_key = '8fdeed552015b3c7b44ed6c8ebd9e992';
+            $cg->require_cvv = true;
+            $cg->require_billing_address = true;
+            $cg->require_shipping_address = true;
+            $cg->update_details = true;
+            $cg->config = encrypt(config('ninja.testvars.wepay'));
+            $cg->save();
+
+            $gateway_types = $cg->driver(new Client)->gatewayTypes();
+
+            $fees_and_limits = new stdClass;
+            $fees_and_limits->{$gateway_types[0]} = new FeesAndLimits;
+
+            $cg->fees_and_limits = $fees_and_limits;
+            $cg->save();
+        }
     }
 
     private function createRecurringInvoice($client)
