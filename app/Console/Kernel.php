@@ -64,7 +64,7 @@ class Kernel extends ConsoleKernel
         
         $schedule->job(new AutoBillCron)->dailyAt('00:30')->withoutOverlapping();        
 
-        $schedule->job(new SchedulerCheck)->everyFiveMinutes();
+        $schedule->job(new SchedulerCheck)->daily()->withoutOverlapping();
 
         /* Run hosted specific jobs */
         if (Ninja::isHosted()) {

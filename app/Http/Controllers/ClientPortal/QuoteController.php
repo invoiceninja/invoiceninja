@@ -24,8 +24,10 @@ use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
+use Illuminate\Support\Facades\Storage;
 
 class QuoteController extends Controller
 {
@@ -46,7 +48,7 @@ class QuoteController extends Controller
      *
      * @param ShowQuoteRequest $request
      * @param Quote $quote
-     * @return Factory|View|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     * @return Factory|View|BinaryFileResponse
      */
     public function show(ShowQuoteRequest $request, Quote $quote)
     {
@@ -88,8 +90,11 @@ class QuoteController extends Controller
 
         if ($quotes->count() == 1) {
 
-           $file = $quotes->first()->pdf_file_path();
-           return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
+           $file = $quotes->first()->service()->getQuotePdf();
+           // return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
+           return response()->streamDownload(function () use($file) {
+                    echo Storage::get($file);
+            },  basename($file));
         }
 
         // enable output of HTTP headers
@@ -110,16 +115,18 @@ class QuoteController extends Controller
     protected function approve(array $ids, $process = false)
     {
         $quotes = Quote::whereIn('id', $ids)
-            ->whereClientId(auth()->user()->client->id)
+            ->where('client_id', auth('contact')->user()->client->id)
+            ->where('company_id', auth('contact')->user()->client->company_id)
+            ->where('status_id', Quote::STATUS_SENT)
             ->get();
 
-        if (! $quotes || $quotes->count() == 0) {
+        if (!$quotes || $quotes->count() == 0) {
             return redirect()->route('client.quotes.index');
         }
 
         if ($process) {
             foreach ($quotes as $quote) {
-                $quote->service()->approve(auth('contact')->user())->save();
+                $quote->service()->approve(auth()->user())->save();
                 event(new QuoteWasApproved(auth('contact')->user(), $quote, $quote->company, Ninja::eventVars()));
 
                 if (request()->has('signature') && !is_null(request()->signature) && !empty(request()->signature)) {

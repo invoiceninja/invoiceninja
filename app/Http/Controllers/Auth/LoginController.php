@@ -488,6 +488,8 @@ class LoginController extends BaseController
             auth()->user()->email_verified_at = now();
             auth()->user()->save();
 
+            auth()->user()->setCompany(auth()->user()->account->default_company);
+
             $this->setLoginCache(auth()->user());
 
             $cu = CompanyUser::whereUserId(auth()->user()->id);

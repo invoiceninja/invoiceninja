@@ -12,6 +12,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ClientPortal\Contact\ContactPasswordResetRequest;
 use App\Libraries\MultiDB;
 use App\Models\Account;
 use Illuminate\Contracts\View\Factory;
@@ -73,9 +74,8 @@ class ContactForgotPasswordController extends Controller
         return Password::broker('contacts');
     }
 
-    public function sendResetLinkEmail(Request $request)
+    public function sendResetLinkEmail(ContactPasswordResetRequest $request)
     {
-        //MultiDB::userFindAndSetDb($request->input('email'));
         
         $user = MultiDB::hasContact($request->input('email'));
 

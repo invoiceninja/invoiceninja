@@ -241,6 +241,11 @@ class SetupController extends Controller
                 $pdf->setChromiumPath(config('ninja.snappdf_chromium_path'));
             }
 
+            if (config('ninja.snappdf_chromium_arguments')) {
+                $pdf->clearChromiumArguments();
+                $pdf->addChromiumArguments(config('ninja.snappdf_chromium_arguments'));
+            }
+
             $pdf = $pdf
                 ->setHtml('GENERATING PDFs WORKS! Thank you for using Invoice Ninja!')
                 ->generate();

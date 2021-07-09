@@ -51,6 +51,11 @@ class QuoteService
 
         $this->quote->fresh();
 
+        if ($this->quote->client->getSetting('auto_archive_quote')) {
+            $quote_repo = new QuoteRepository();
+            $quote_repo->archive($this->quote);
+        }
+
         return $this;
     }
 
@@ -128,10 +133,6 @@ class QuoteService
 
     public function convertToInvoice()
     {
-
-        //to prevent circular references we need to explicit call this here.
-        // $mark_approved = new MarkApproved($this->quote->client);
-        // $this->quote = $mark_approved->run($this->quote);
 
         $this->convert();
 
