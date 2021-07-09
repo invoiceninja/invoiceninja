@@ -441,6 +441,10 @@ class CreateSingleAccount extends Command
 
         $invoice = $invoice_calc->getInvoice();
 
+        if ($this->gateway === 'braintree') {
+            $invoice->amount = 100; // Braintree sandbox only allows payments under 2,000 to complete successfully.
+        }
+
         $invoice->save();
         $invoice->service()->createInvitations()->markSent();
 
@@ -707,6 +711,27 @@ class CreateSingleAccount extends Command
             $cg->require_shipping_address = true;
             $cg->update_details = true;
             $cg->config = encrypt(config('ninja.testvars.wepay'));
+            $cg->save();
+
+            $gateway_types = $cg->driver(new Client)->gatewayTypes();
+
+            $fees_and_limits = new stdClass;
+            $fees_and_limits->{$gateway_types[0]} = new FeesAndLimits;
+
+            $cg->fees_and_limits = $fees_and_limits;
+            $cg->save();
+        }
+
+        if (config('ninja.testvars.braintree') && ($this->gateway == 'all' || $this->gateway == 'braintree')) {
+            $cg = new CompanyGateway;
+            $cg->company_id = $company->id;
+            $cg->user_id = $user->id;
+            $cg->gateway_key = 'f7ec488676d310683fb51802d076d713';
+            $cg->require_cvv = true;
+            $cg->require_billing_address = true;
+            $cg->require_shipping_address = true;
+            $cg->update_details = true;
+            $cg->config = encrypt(config('ninja.testvars.braintree'));
             $cg->save();
 
             $gateway_types = $cg->driver(new Client)->gatewayTypes();
