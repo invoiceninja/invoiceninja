@@ -33,6 +33,7 @@ use App\Utils\Traits\SavesDocuments;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Class RecurringInvoiceController.
@@ -500,9 +501,12 @@ class RecurringInvoiceController extends BaseController
         $contact = $invitation->contact;
         $recurring_invoice = $invitation->recurring_invoice;
 
-        $file_path = $recurring_invoice->service()->getInvoicePdf($contact);
+        $file = $recurring_invoice->service()->getInvoicePdf($contact);
 
-        return response()->download($file_path, basename($file_path), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
+        return response()->streamDownload(function () use($file) {
+                echo Storage::get($file);
+        },  basename($file));
+
     }
 
     /**

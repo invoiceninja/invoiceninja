@@ -672,8 +672,17 @@ class InvoiceController extends BaseController
                 break;
             case 'download':
 
-               $file = $invoice->pdf_file_path();
-               return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
+               // $file = $invoice->pdf_file_path();
+               // return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
+
+                $file = $invoice->service()->getInvoicePdf();
+
+               // return response()->download(Storage::get($file), basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
+
+                return response()->streamDownload(function () use($file) {
+                        echo Storage::get($file);
+                },  basename($file));
+
 
                 break;
             case 'restore':
@@ -722,10 +731,11 @@ class InvoiceController extends BaseController
                 }
 
                 //touch reminder1,2,3_sent + last_sent here if the email is a reminder.
-                $invoice->service()->touchReminder($this->reminder_template)->deletePdf()->save();
+                //$invoice->service()->touchReminder($this->reminder_template)->deletePdf()->save();
+                $invoice->service()->touchReminder($this->reminder_template)->markSent()->save();
 
                 $invoice->invitations->load('contact.client.country', 'invoice.client.country', 'invoice.company')->each(function ($invitation) use ($invoice) {
-                    EmailEntity::dispatch($invitation, $invoice->company, $this->reminder_template);
+                    EmailEntity::dispatch($invitation, $invoice->company, $this->reminder_template)->delay(now()->addSeconds(30));
                 });
 
                 if ($invoice->invitations->count() >= 1) {
@@ -795,8 +805,11 @@ class InvoiceController extends BaseController
 
         $file = $invoice->service()->getInvoicePdf($contact);
 
-            return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
+       // return response()->download(Storage::get($file), basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
 
+        return response()->streamDownload(function () use($file) {
+                echo Storage::get($file);
+        },  basename($file));
     }
 
     /**
@@ -848,7 +861,10 @@ class InvoiceController extends BaseController
         
         $file = $invoice->service()->getInvoiceDeliveryNote($invoice, $invoice->invitations->first()->contact);
         
-        return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
+        // return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
+        return response()->streamDownload(function () use($file) {
+                echo Storage::get($file);
+        },  basename($file));
 
     }
 

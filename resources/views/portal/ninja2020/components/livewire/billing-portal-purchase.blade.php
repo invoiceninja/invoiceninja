@@ -1,5 +1,5 @@
 <div class="grid grid-cols-12">
-    <div class="col-span-12 lg:col-span-6 bg-gray-50 flex flex-col items-center">
+    <div class="col-span-12 xl:col-span-8 bg-gray-50 flex flex-col items-center">
         <div class="w-full p-10 lg:mt-24 md:max-w-3xl">
             <img class="h-8" src="{{ $subscription->company->present()->logo }}"
                  alt="{{ $subscription->company->present()->name }}">
@@ -14,7 +14,7 @@
                 <div class="flex flex-col mt-8">
                     <p
                         class="mb-4 uppercase leading-4 tracking-wide inline-flex items-center rounded-full text-xs font-medium">
-                        One-time purchases:
+                        {{ ctrans('texts.one_time_purchases') }}
                     </p>
 
                     @foreach($subscription->service()->products() as $product)
@@ -25,7 +25,6 @@
                             <div data-ref="price-and-quantity-container">
                                 <span
                                     data-ref="price">{{ \App\Utils\Number::formatMoney($product->price, $subscription->company) }}</span>
-                                {{--                                <span data-ref="quantity" class="text-sm">(1x)</span>--}}
                             </div>
                         </div>
                     @endforeach
@@ -36,7 +35,7 @@
                 <div class="flex flex-col mt-8">
                     <p
                         class="mb-4 uppercase leading-4 tracking-wide inline-flex items-center rounded-full text-xs font-medium">
-                        Recurring purchases:
+                        {{ ctrans('texts.recurring_purchases') }}
                     </p>
 
                     @foreach($subscription->service()->recurring_products() as $product)
@@ -82,12 +81,26 @@
                     <span>{{ ctrans('texts.client_portal') }}</span>
                 </a>
             @endif
+
+            @if($subscription->service()->getPlans()->count() - 1 > 1)
+                <div class="flex flex-col mt-10">
+                    <p class="mb-4 uppercase leading-4 tracking-wide inline-flex items-center rounded-full text-xs font-medium">
+                        {{ ctrans('texts.you_might_be_interested_in_following') }}:
+                    </p>
+
+                    <div class="mt-4 space-x-2">
+                        @foreach($subscription->service()->getPlans() as $_subscription)
+                            <a class="border mt-4 bg-white rounded py-2 px-4 hover:bg-gray-100 text-sm" target="_blank" href="{{ route('client.subscription.purchase', $_subscription->hashed_id) }}">{{ $_subscription->name }}</a>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 
-    <div class="col-span-12 lg:col-span-6 bg-white lg:h-screen">
-        <div class="grid grid-cols-12 flex flex-col p-10 lg:mt-48 lg:ml-16">
-            <div class="col-span-12 w-full lg:col-span-6">
+    <div class="col-span-12 xl:col-span-4 bg-white flex flex-col items-center lg:h-screen">
+        <div class="w-full p-10 md:p-24 xl:mt-32 md:max-w-3xl">
+            <div class="col-span-12 w-full xl:col-span-9">
                 <h2 class="text-2xl font-bold tracking-wide">{{ $heading_text ?? ctrans('texts.login') }}</h2>
                 @if (session()->has('message'))
                     @component('portal.ninja2020.components.message')
@@ -179,12 +192,12 @@
 
                             <button wire:loading.attr="disabled" type="button" wire:click="passwordlessLogin"
                                     class="mt-4 text-sm active:outline-none focus:outline-none">
-                                Log in without password
+                                {{ ctrans('texts.login_without_password') }}
                             </button>
 
                             @if($steps['passwordless_login_sent'])
                                 <span
-                                    class="block mt-2 text-sm text-green-600">E-mail sent. Please check your inbox!</span>
+                                    class="block mt-2 text-sm text-green-600">{{ ctrans('texts.email_sent') }}</span>
                             @endif
                         @endif
 
@@ -200,7 +213,7 @@
                         </div>
 
                         <div class="relative flex justify-center text-sm leading-5">
-                            <span class="px-2 text-gray-700 bg-white">Have a coupon code?</span>
+                            <span class="px-2 text-gray-700 bg-white">{{ ctrans('texts.promo_code') }}</span>
                         </div>
                     </div>
 
@@ -211,7 +224,7 @@
                             <input type="text" wire:model.lazy="coupon" class="input w-full m-0"/>
                         </label>
 
-                        <button class="button button-primary bg-primary">Apply</button>
+                        <button class="button button-primary bg-primary">{{ ctrans('texts.apply') }}</button>
                     </form>
                 @endif
 

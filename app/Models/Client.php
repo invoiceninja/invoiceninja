@@ -13,6 +13,8 @@ namespace App\Models;
 
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
+use App\DataMapper\FeesAndLimits;
+use App\Models\CompanyGateway;
 use App\Models\Presenters\ClientPresenter;
 use App\Services\Client\ClientService;
 use App\Utils\Traits\AppSetup;
@@ -396,61 +398,131 @@ class Client extends BaseModel implements HasLocalePreference
      */
     public function getCreditCardGateway() :?CompanyGateway
     {
-        $company_gateways = $this->getSetting('company_gateway_ids');
+        // $company_gateways = $this->getSetting('company_gateway_ids');
 
-        /* It is very important to respect the order of the company_gateway_ids as they are ordered by priority*/
-        if (strlen($company_gateways) >= 1) {
-            $transformed_ids = $this->transformKeys(explode(',', $company_gateways));
-            $gateways = $this->company
-                             ->company_gateways
-                             ->whereIn('id', $transformed_ids)
-                             ->sortby(function ($model) use ($transformed_ids) {
-                                 return array_search($model->id, $transformed_ids);
-                             });
-        } else {
-            $gateways = $this->company->company_gateways;
-        }
+        // /* It is very important to respect the order of the company_gateway_ids as they are ordered by priority*/
+        // if (strlen($company_gateways) >= 1) {
+        //     $transformed_ids = $this->transformKeys(explode(',', $company_gateways));
+        //     $gateways = $this->company
+        //                      ->company_gateways
+        //                      ->whereIn('id', $transformed_ids)
+        //                      ->sortby(function ($model) use ($transformed_ids) {
+        //                          return array_search($model->id, $transformed_ids);
+        //                      });
+        // } else {
+        //     $gateways = $this->company->company_gateways;
+        // }
 
-        foreach ($gateways as $gateway) {
-            if (in_array(GatewayType::CREDIT_CARD, $gateway->driver($this)->gatewayTypeEnabled(GatewayType::CREDIT_CARD))) {
-                return $gateway;
+        // foreach ($gateways as $gateway) {
+        //     if (in_array(GatewayType::CREDIT_CARD, $gateway->driver($this)->gatewayTypeEnabled($gateway, GatewayType::CREDIT_CARD))) {
+        //         return $gateway;
+        //     }
+        // }
+
+        // return null;
+        // 
+
+        $pms = $this->service()->getPaymentMethods(0);
+
+            foreach($pms as $pm)
+            {
+
+                if($pm['gateway_type_id'] == GatewayType::CREDIT_CARD)
+                {
+                    $cg = CompanyGateway::find($pm['company_gateway_id']);
+
+                    if($cg && !property_exists($cg->fees_and_limits, GatewayType::CREDIT_CARD)){
+                        $fees_and_limits = $cg->fees_and_limits;
+                        $fees_and_limits->{GatewayType::CREDIT_CARD} = new FeesAndLimits;
+                        $cg->fees_and_limits = $fees_and_limits;
+                        $cg->save();
+                    }
+
+                    if($cg && $cg->fees_and_limits->{GatewayType::CREDIT_CARD}->is_enabled)
+                        return $cg;
+
+                }
+            
             }
-        }
 
-        return null;
+            return null;
+
+
     }
 
+    //todo refactor this  - it is only searching for existing tokens
     public function getBankTransferGateway() :?CompanyGateway
     {
-        $company_gateways = $this->getSetting('company_gateway_ids');
+        $pms = $this->service()->getPaymentMethods(0);
 
-        if (strlen($company_gateways) >= 1) {
-            $transformed_ids = $this->transformKeys(explode(',', $company_gateways));
-            $gateways = $this->company
-                             ->company_gateways
-                             ->whereIn('id', $transformed_ids)
-                             ->sortby(function ($model) use ($transformed_ids) {
-                                 return array_search($model->id, $transformed_ids);
-                             });
-        } else {
-            $gateways = $this->company->company_gateways;
+        if($this->currency()->code == 'USD' && in_array(GatewayType::BANK_TRANSFER, array_column($pms, 'gateway_type_id'))){
+
+            foreach($pms as $pm){
+
+                if($pm['gateway_type_id'] == GatewayType::BANK_TRANSFER)
+                {
+                    $cg = CompanyGateway::find($pm['company_gateway_id']);
+
+                    if($cg && !property_exists($cg->fees_and_limits, GatewayType::BANK_TRANSFER)){
+                        $fees_and_limits = $cg->fees_and_limits;
+                        $fees_and_limits->{GatewayType::BANK_TRANSFER} = new FeesAndLimits;
+                        $cg->fees_and_limits = $fees_and_limits;
+                        $cg->save();
+                    }
+
+                        if($cg && $cg->fees_and_limits->{GatewayType::BANK_TRANSFER}->is_enabled)
+                            return $cg;
+                }
+            }
+
         }
 
-        foreach ($gateways as $gateway) {
-            if ($this->currency()->code == 'USD' && in_array(GatewayType::BANK_TRANSFER, $gateway->driver($this)->gatewayTypeEnabled(GatewayType::BANK_TRANSFER))) {
-                return $gateway;
+        if($this->currency()->code == 'EUR' && in_array(GatewayType::BANK_TRANSFER, array_column($pms, 'gateway_type_id'))){
+        
+            foreach($pms as $pm){
+                
+                if($pm['gateway_type_id'] == GatewayType::SEPA)
+                {
+                    $cg = CompanyGateway::find($pm['company_gateway_id']);
+
+                        if($cg && $cg->fees_and_limits->{GatewayType::SEPA}->is_enabled)
+                            return $cg;
+                }
             }
 
-            if ($this->currency()->code == 'EUR' && in_array(GatewayType::SEPA, $gateway->driver($this)->gatewayTypeEnabled(GatewayType::SEPA))) {
-                return $gateway;
-            }
         }
 
         return null;
+        // $company_gateways = $this->getSetting('company_gateway_ids');
+
+        // if (strlen($company_gateways) >= 1) {
+        //     $transformed_ids = $this->transformKeys(explode(',', $company_gateways));
+        //     $gateways = $this->company
+        //                      ->company_gateways
+        //                      ->whereIn('id', $transformed_ids)
+        //                      ->sortby(function ($model) use ($transformed_ids) {
+        //                          return array_search($model->id, $transformed_ids);
+        //                      });
+        // } else {
+        //     $gateways = $this->company->company_gateways;
+        // }
+
+        // foreach ($gateways as $gateway) {
+        //     if ($this->currency()->code == 'USD' && in_array(GatewayType::BANK_TRANSFER, $gateway->driver($this)->gatewayTypeEnabled(GatewayType::BANK_TRANSFER))) {
+        //         return $gateway;
+        //     }
+
+        //     if ($this->currency()->code == 'EUR' && in_array(GatewayType::SEPA, $gateway->driver($this)->gatewayTypeEnabled(GatewayType::SEPA))) {
+        //         return $gateway;
+        //     }
+        // }
+
+        // return null;
     }
 
     public function getBankTransferMethodType()
     {
+
         if ($this->currency()->code == 'USD') {
             return GatewayType::BANK_TRANSFER;
         }

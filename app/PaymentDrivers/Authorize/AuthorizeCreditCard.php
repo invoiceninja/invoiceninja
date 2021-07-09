@@ -202,6 +202,7 @@ class AuthorizeCreditCard
     private function processFailedResponse($data, $request)
     {
         $response = $data['response'];
+        $amount = array_key_exists('amount_with_fee', $data) ? $data['amount_with_fee'] : 0;
 
         PaymentFailureMailer::dispatch($this->authorize->client, $response->getTransactionResponse()->getTransId(), $this->authorize->client->company, $data['amount_with_fee']);
 
