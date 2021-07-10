@@ -4,11 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-<<<<<<< HEAD
-    "content-hash": "16a38ffa3774d9d28a9f4c49366baac0",
-=======
-    "content-hash": "26f6cde504d8ed4276289151e695250e",
->>>>>>> payfast
+    "content-hash": "25a0cbf18fc238305c7ea640c49ba89a",
     "packages": [
         {
             "name": "asm/php-ansible",
@@ -163,29 +159,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-<<<<<<< HEAD
-            "version": "3.185.7",
+            "version": "3.185.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "7c0cd260e749374b5df247c4768c8f33f9a604e4"
+                "reference": "667a83e4a18cb75db3ce74162efc97123da96261"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/7c0cd260e749374b5df247c4768c8f33f9a604e4",
-                "reference": "7c0cd260e749374b5df247c4768c8f33f9a604e4",
-=======
-            "version": "3.185.6",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "35310302912fdc3b4a0e829b84424c41e3fd9727"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/35310302912fdc3b4a0e829b84424c41e3fd9727",
-                "reference": "35310302912fdc3b4a0e829b84424c41e3fd9727",
->>>>>>> payfast
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/667a83e4a18cb75db3ce74162efc97123da96261",
+                "reference": "667a83e4a18cb75db3ce74162efc97123da96261",
                 "shasum": ""
             },
             "require": {
@@ -260,15 +243,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-<<<<<<< HEAD
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.185.7"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.185.10"
             },
-            "time": "2021-07-06T18:16:14+00:00"
-=======
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.185.6"
-            },
-            "time": "2021-07-02T18:13:18+00:00"
->>>>>>> payfast
+            "time": "2021-07-09T19:21:22+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -2315,7 +2292,6 @@
         },
         {
             "name": "google/apiclient-services",
-<<<<<<< HEAD
             "version": "v0.202.0",
             "source": {
                 "type": "git",
@@ -2326,18 +2302,6 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/c72cb04fde47a2cc3336c1f513f9ff5db27ccc35",
                 "reference": "c72cb04fde47a2cc3336c1f513f9ff5db27ccc35",
-=======
-            "version": "v0.201.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/googleapis/google-api-php-client-services.git",
-                "reference": "ee1072221acf7c32e3de9b18e11fec3ab23ec38f"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/ee1072221acf7c32e3de9b18e11fec3ab23ec38f",
-                "reference": "ee1072221acf7c32e3de9b18e11fec3ab23ec38f",
->>>>>>> payfast
                 "shasum": ""
             },
             "require": {
@@ -2366,15 +2330,9 @@
             ],
             "support": {
                 "issues": "https://github.com/googleapis/google-api-php-client-services/issues",
-<<<<<<< HEAD
                 "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.202.0"
             },
             "time": "2021-07-03T11:20:23+00:00"
-=======
-                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.201.1"
-            },
-            "time": "2021-06-27T11:20:22+00:00"
->>>>>>> payfast
         },
         {
             "name": "google/auth",
@@ -3226,7 +3184,6 @@
         },
         {
             "name": "laravel/framework",
-<<<<<<< HEAD
             "version": "v8.49.2",
             "source": {
                 "type": "git",
@@ -3237,18 +3194,6 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/laravel/framework/zipball/d9b43ee080b4d51344b2e578aa667f85040471a2",
                 "reference": "d9b43ee080b4d51344b2e578aa667f85040471a2",
-=======
-            "version": "v8.49.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/laravel/framework.git",
-                "reference": "62aee1bfeefd82f160c7aa3b4c63cb2f053215c0"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/62aee1bfeefd82f160c7aa3b4c63cb2f053215c0",
-                "reference": "62aee1bfeefd82f160c7aa3b4c63cb2f053215c0",
->>>>>>> payfast
                 "shasum": ""
             },
             "require": {
@@ -3403,11 +3348,7 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-<<<<<<< HEAD
             "time": "2021-07-06T14:06:38+00:00"
-=======
-            "time": "2021-07-02T16:50:12+00:00"
->>>>>>> payfast
         },
         {
             "name": "laravel/slack-notification-channel",
@@ -4172,16 +4113,16 @@
         },
         {
             "name": "league/oauth1-client",
-            "version": "v1.9.0",
+            "version": "v1.9.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/oauth1-client.git",
-                "reference": "1e7e6be2dc543bf466236fb171e5b20e1b06aee6"
+                "reference": "19a3ce488bb1547c906209e8293199ec34eaa5b1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/oauth1-client/zipball/1e7e6be2dc543bf466236fb171e5b20e1b06aee6",
-                "reference": "1e7e6be2dc543bf466236fb171e5b20e1b06aee6",
+                "url": "https://api.github.com/repos/thephpleague/oauth1-client/zipball/19a3ce488bb1547c906209e8293199ec34eaa5b1",
+                "reference": "19a3ce488bb1547c906209e8293199ec34eaa5b1",
                 "shasum": ""
             },
             "require": {
@@ -4241,9 +4182,9 @@
             ],
             "support": {
                 "issues": "https://github.com/thephpleague/oauth1-client/issues",
-                "source": "https://github.com/thephpleague/oauth1-client/tree/v1.9.0"
+                "source": "https://github.com/thephpleague/oauth1-client/tree/v1.9.1"
             },
-            "time": "2021-01-20T01:40:53+00:00"
+            "time": "2021-07-07T22:54:46+00:00"
         },
         {
             "name": "league/omnipay",
@@ -4310,16 +4251,16 @@
         },
         {
             "name": "livewire/livewire",
-            "version": "v2.5.1",
+            "version": "v2.5.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/livewire/livewire.git",
-                "reference": "a4ffb135693e7982e5b982ca203f5dc7a7ae1126"
+                "reference": "1ca6757c78dbead4db7f52a72dabb8b27efcb3f6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/livewire/livewire/zipball/a4ffb135693e7982e5b982ca203f5dc7a7ae1126",
-                "reference": "a4ffb135693e7982e5b982ca203f5dc7a7ae1126",
+                "url": "https://api.github.com/repos/livewire/livewire/zipball/1ca6757c78dbead4db7f52a72dabb8b27efcb3f6",
+                "reference": "1ca6757c78dbead4db7f52a72dabb8b27efcb3f6",
                 "shasum": ""
             },
             "require": {
@@ -4370,7 +4311,7 @@
             "description": "A front-end framework for Laravel.",
             "support": {
                 "issues": "https://github.com/livewire/livewire/issues",
-                "source": "https://github.com/livewire/livewire/tree/v2.5.1"
+                "source": "https://github.com/livewire/livewire/tree/v2.5.3"
             },
             "funding": [
                 {
@@ -4378,7 +4319,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2021-06-15T13:24:48+00:00"
+            "time": "2021-07-08T13:58:45+00:00"
         },
         {
             "name": "maennchen/zipstream-php",
@@ -4690,7 +4631,6 @@
         },
         {
             "name": "myclabs/php-enum",
-<<<<<<< HEAD
             "version": "1.8.3",
             "source": {
                 "type": "git",
@@ -4701,18 +4641,6 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/myclabs/php-enum/zipball/b942d263c641ddb5190929ff840c68f78713e937",
                 "reference": "b942d263c641ddb5190929ff840c68f78713e937",
-=======
-            "version": "1.8.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/myclabs/php-enum.git",
-                "reference": "8bef486e885cae67ced6e43257300e8acc3f06ad"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/php-enum/zipball/8bef486e885cae67ced6e43257300e8acc3f06ad",
-                "reference": "8bef486e885cae67ced6e43257300e8acc3f06ad",
->>>>>>> payfast
                 "shasum": ""
             },
             "require": {
@@ -4747,11 +4675,7 @@
             ],
             "support": {
                 "issues": "https://github.com/myclabs/php-enum/issues",
-<<<<<<< HEAD
                 "source": "https://github.com/myclabs/php-enum/tree/1.8.3"
-=======
-                "source": "https://github.com/myclabs/php-enum/tree/1.8.2"
->>>>>>> payfast
             },
             "funding": [
                 {
@@ -4763,11 +4687,7 @@
                     "type": "tidelift"
                 }
             ],
-<<<<<<< HEAD
             "time": "2021-07-05T08:18:36+00:00"
-=======
-            "time": "2021-07-04T17:44:39+00:00"
->>>>>>> payfast
         },
         {
             "name": "nesbot/carbon",
@@ -7450,16 +7370,16 @@
         },
         {
             "name": "stripe/stripe-php",
-            "version": "v7.87.0",
+            "version": "v7.88.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stripe/stripe-php.git",
-                "reference": "9392f03cb8d8803bf8273378ce42d5cbbf1e24fc"
+                "reference": "7203d00ba9b09830c0c5d5c06a9558db43b8e0ea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/9392f03cb8d8803bf8273378ce42d5cbbf1e24fc",
-                "reference": "9392f03cb8d8803bf8273378ce42d5cbbf1e24fc",
+                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/7203d00ba9b09830c0c5d5c06a9558db43b8e0ea",
+                "reference": "7203d00ba9b09830c0c5d5c06a9558db43b8e0ea",
                 "shasum": ""
             },
             "require": {
@@ -7505,9 +7425,9 @@
             ],
             "support": {
                 "issues": "https://github.com/stripe/stripe-php/issues",
-                "source": "https://github.com/stripe/stripe-php/tree/v7.87.0"
+                "source": "https://github.com/stripe/stripe-php/tree/v7.88.0"
             },
-            "time": "2021-06-30T18:22:47+00:00"
+            "time": "2021-07-09T20:01:03+00:00"
         },
         {
             "name": "swiftmailer/swiftmailer",
