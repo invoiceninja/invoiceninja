@@ -95,6 +95,10 @@ class Token
 
         $header['signature'] = $this->genSig(array_merge($header, $body));
 
+        nlog($header['signature']);
+        nlog($header['timestamp']);
+        nlog($this->payfast->company_gateway->getConfigField('merchantId'));
+        
         $result = $this->send($header, $body, $cgt->token);
 
         nlog($result);
