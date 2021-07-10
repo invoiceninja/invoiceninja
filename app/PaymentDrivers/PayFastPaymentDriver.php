@@ -21,7 +21,6 @@ use App\PaymentDrivers\PayFast\Token;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use PayFastPayment;
 
 class PayFastPaymentDriver extends BaseDriver
 {
@@ -38,17 +37,14 @@ class PayFastPaymentDriver extends BaseDriver
     public $payment_method; //initialized payment method
 
     public static $methods = [
-        GatewayType::CREDIT_CARD => CreditCard::class, 
+        GatewayType::CREDIT_CARD => CreditCard::class,
     ];
 
-    const SYSTEM_LOG_TYPE = SystemLog::TYPE_PAYFAST; 
-
+    const SYSTEM_LOG_TYPE = SystemLog::TYPE_PAYFAST;
 
 
     //developer resources
     //https://sandbox.payfast.co.za/
-
-
 
 
     public function gatewayTypes(): array
@@ -59,7 +55,7 @@ class PayFastPaymentDriver extends BaseDriver
 
         return $types;
     }
-    
+
     public function endpointUrl()
     {
         if($this->company_gateway->getConfigField('testMode'))
@@ -73,7 +69,7 @@ class PayFastPaymentDriver extends BaseDriver
 
         try{
 
-            $this->payfast = new PayFastPayment(
+            $this->payfast = new \PayFast\PayFastPayment(
                 [
                     'merchantId' => $this->company_gateway->getConfigField('merchantId'),
                     'merchantKey' => $this->company_gateway->getConfigField('merchantKey'),
@@ -100,12 +96,12 @@ class PayFastPaymentDriver extends BaseDriver
 
     public function authorizeView(array $data)
     {
-        return $this->payment_method->authorizeView($data); 
+        return $this->payment_method->authorizeView($data);
     }
 
     public function authorizeResponse($request)
     {
-        return $this->payment_method->authorizeResponse($request);  
+        return $this->payment_method->authorizeResponse($request);
     }
 
     public function processPaymentView(array $data)
@@ -130,7 +126,7 @@ class PayFastPaymentDriver extends BaseDriver
         return (new Token($this))->tokenBilling($cgt, $payment_hash);
     }
 
-    // public function generateSignature($data, $passPhrase = null) 
+    // public function generateSignature($data, $passPhrase = null)
     // {
     //     // Create parameter string
     //     $pfOutput = '';
@@ -202,20 +198,20 @@ class PayFastPaymentDriver extends BaseDriver
 
             $hash = Cache::get($data['m_payment_id']);
 
-            switch ($hash) 
+            switch ($hash)
             {
                 case 'cc_auth':
                     return $this->setPaymentMethod(GatewayType::CREDIT_CARD)
-                                ->authorizeResponse($request);   
+                                ->authorizeResponse($request);
                     break;
-                
+
                 default:
-                
+
                     $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$data['m_payment_id']])->first();
 
                     return $this->setPaymentMethod(GatewayType::CREDIT_CARD)
                                 ->setPaymentHash($payment_hash)
-                                ->processPaymentResponse($request);   
+                                ->processPaymentResponse($request);
                     break;
             }
 
@@ -223,6 +219,6 @@ class PayFastPaymentDriver extends BaseDriver
         }
 
         return response()->json([], 200);
-        
-    } 
+
+    }
 }
