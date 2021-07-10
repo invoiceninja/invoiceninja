@@ -21,7 +21,7 @@ use App\PaymentDrivers\PayFast\Token;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use \PayFastPayment;
+use PayFastPayment;
 
 class PayFastPaymentDriver extends BaseDriver
 {
@@ -126,7 +126,7 @@ class PayFastPaymentDriver extends BaseDriver
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
         $this->init();
-        
+
         return (new Token($this))->tokenBilling($cgt, $payment_hash);
     }
 
