@@ -163,7 +163,7 @@ class Token
         ]);
 
         try {
-            $response = $client->post("https://sandbox.payfast.co.za/subscriptions/{$token}/adhoc",[
+            $response = $client->post("https://api.payfast.co.za/subscriptions/{$token}/adhoc?testing=true",[
                 RequestOptions::JSON => ['body' => $body], RequestOptions::ALLOW_REDIRECTS => false
             ]);
 
