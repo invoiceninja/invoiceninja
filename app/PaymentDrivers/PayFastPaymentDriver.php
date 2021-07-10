@@ -72,6 +72,7 @@ class PayFastPaymentDriver extends BaseDriver
     {
 
         try{
+
             $this->payfast = new PayFastPayment(
                 [
                     'merchantId' => $this->company_gateway->getConfigField('merchantId'),
@@ -80,8 +81,11 @@ class PayFastPaymentDriver extends BaseDriver
                     'testMode' => $this->company_gateway->getConfigField('testMode')
                 ]
             );
+
         } catch(Exception $e) {
+
             echo '##PAYFAST## There was an exception: '.$e->getMessage();
+            
         }
 
         return $this;

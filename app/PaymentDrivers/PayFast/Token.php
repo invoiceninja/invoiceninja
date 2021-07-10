@@ -91,7 +91,7 @@ class Token
             'passphrase' => $this->payfast->company_gateway->getConfigField('passphrase'),
         ];        
 
-        $header['signature'] = $this->payfast->genSig(array_merge($header, $body));
+        $header['signature'] = $this->genSig(array_merge($header, $body));
 
         $result = $this->send($header, $body, $cgt->token);
 
