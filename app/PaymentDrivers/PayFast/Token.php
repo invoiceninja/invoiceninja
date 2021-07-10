@@ -83,6 +83,8 @@ class Token
             'version' => 'v1',
 		];
 
+        nlog($header);
+
         $body = [
             'amount' => $amount,
             'item_name' => 'purchase',
