@@ -78,7 +78,7 @@ class Token
 		$amount = round(($amount * pow(10, $this->payfast->client->currency()->precision)),0);
 
 		$header =[
-            'merchant-id' => $this->payfast->company_gateway->getConfigField('merchantId'),
+            'merchant_id' => $this->payfast->company_gateway->getConfigField('merchantId'),
             'timestamp' => now()->format('c'),
             'version' => 'v1',
 		];
