@@ -85,7 +85,7 @@ class PayFastPaymentDriver extends BaseDriver
         } catch(Exception $e) {
 
             echo '##PAYFAST## There was an exception: '.$e->getMessage();
-            
+
         }
 
         return $this;
@@ -125,6 +125,8 @@ class PayFastPaymentDriver extends BaseDriver
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
+        $this->init();
+        
         return (new Token($this))->tokenBilling($cgt, $payment_hash);
     }
 
