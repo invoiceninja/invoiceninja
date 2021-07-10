@@ -64,6 +64,7 @@
         "maennchen/zipstream-php": "^1.2",
         "nwidart/laravel-modules": "^8.0",
         "omnipay/paypal": "^3.0",
+        "payfast/payfast-php-sdk": "^1.1",
         "pragmarx/google2fa": "^8.0",
         "predis/predis": "^1.1",
         "sentry/sentry-laravel": "^2",

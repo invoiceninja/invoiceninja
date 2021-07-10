@@ -548,6 +548,15 @@ class BaseDriver extends AbstractPaymentDriver
         );
     }
 
+    public function genericWebhookUrl()
+    {
+        return route('payment_notification_webhook', [
+            'company_key' => $this->client->company->company_key, 
+            'company_gateway_id' => $this->encodePrimaryKey($this->company_gateway->id), 
+            'client' => $this->encodePrimaryKey($this->client->id),
+        ]);
+    }
+
     /* Performs an extra iterate on the gatewayTypes() array and passes back only the enabled gateways*/
     public function gatewayTypeEnabled($type)
     {

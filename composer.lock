@@ -4,7 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
+<<<<<<< HEAD
     "content-hash": "16a38ffa3774d9d28a9f4c49366baac0",
+=======
+    "content-hash": "26f6cde504d8ed4276289151e695250e",
+>>>>>>> payfast
     "packages": [
         {
             "name": "asm/php-ansible",
@@ -159,6 +163,7 @@
         },
         {
             "name": "aws/aws-sdk-php",
+<<<<<<< HEAD
             "version": "3.185.7",
             "source": {
                 "type": "git",
@@ -169,6 +174,18 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/7c0cd260e749374b5df247c4768c8f33f9a604e4",
                 "reference": "7c0cd260e749374b5df247c4768c8f33f9a604e4",
+=======
+            "version": "3.185.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/aws/aws-sdk-php.git",
+                "reference": "35310302912fdc3b4a0e829b84424c41e3fd9727"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/35310302912fdc3b4a0e829b84424c41e3fd9727",
+                "reference": "35310302912fdc3b4a0e829b84424c41e3fd9727",
+>>>>>>> payfast
                 "shasum": ""
             },
             "require": {
@@ -243,9 +260,15 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
+<<<<<<< HEAD
                 "source": "https://github.com/aws/aws-sdk-php/tree/3.185.7"
             },
             "time": "2021-07-06T18:16:14+00:00"
+=======
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.185.6"
+            },
+            "time": "2021-07-02T18:13:18+00:00"
+>>>>>>> payfast
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -2292,6 +2315,7 @@
         },
         {
             "name": "google/apiclient-services",
+<<<<<<< HEAD
             "version": "v0.202.0",
             "source": {
                 "type": "git",
@@ -2302,6 +2326,18 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/c72cb04fde47a2cc3336c1f513f9ff5db27ccc35",
                 "reference": "c72cb04fde47a2cc3336c1f513f9ff5db27ccc35",
+=======
+            "version": "v0.201.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/googleapis/google-api-php-client-services.git",
+                "reference": "ee1072221acf7c32e3de9b18e11fec3ab23ec38f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/ee1072221acf7c32e3de9b18e11fec3ab23ec38f",
+                "reference": "ee1072221acf7c32e3de9b18e11fec3ab23ec38f",
+>>>>>>> payfast
                 "shasum": ""
             },
             "require": {
@@ -2330,9 +2366,15 @@
             ],
             "support": {
                 "issues": "https://github.com/googleapis/google-api-php-client-services/issues",
+<<<<<<< HEAD
                 "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.202.0"
             },
             "time": "2021-07-03T11:20:23+00:00"
+=======
+                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.201.1"
+            },
+            "time": "2021-06-27T11:20:22+00:00"
+>>>>>>> payfast
         },
         {
             "name": "google/auth",
@@ -3184,6 +3226,7 @@
         },
         {
             "name": "laravel/framework",
+<<<<<<< HEAD
             "version": "v8.49.2",
             "source": {
                 "type": "git",
@@ -3194,6 +3237,18 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/laravel/framework/zipball/d9b43ee080b4d51344b2e578aa667f85040471a2",
                 "reference": "d9b43ee080b4d51344b2e578aa667f85040471a2",
+=======
+            "version": "v8.49.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel/framework.git",
+                "reference": "62aee1bfeefd82f160c7aa3b4c63cb2f053215c0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/62aee1bfeefd82f160c7aa3b4c63cb2f053215c0",
+                "reference": "62aee1bfeefd82f160c7aa3b4c63cb2f053215c0",
+>>>>>>> payfast
                 "shasum": ""
             },
             "require": {
@@ -3348,7 +3403,11 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
+<<<<<<< HEAD
             "time": "2021-07-06T14:06:38+00:00"
+=======
+            "time": "2021-07-02T16:50:12+00:00"
+>>>>>>> payfast
         },
         {
             "name": "laravel/slack-notification-channel",
@@ -4631,6 +4690,7 @@
         },
         {
             "name": "myclabs/php-enum",
+<<<<<<< HEAD
             "version": "1.8.3",
             "source": {
                 "type": "git",
@@ -4641,6 +4701,18 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/myclabs/php-enum/zipball/b942d263c641ddb5190929ff840c68f78713e937",
                 "reference": "b942d263c641ddb5190929ff840c68f78713e937",
+=======
+            "version": "1.8.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/myclabs/php-enum.git",
+                "reference": "8bef486e885cae67ced6e43257300e8acc3f06ad"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/myclabs/php-enum/zipball/8bef486e885cae67ced6e43257300e8acc3f06ad",
+                "reference": "8bef486e885cae67ced6e43257300e8acc3f06ad",
+>>>>>>> payfast
                 "shasum": ""
             },
             "require": {
@@ -4675,7 +4747,11 @@
             ],
             "support": {
                 "issues": "https://github.com/myclabs/php-enum/issues",
+<<<<<<< HEAD
                 "source": "https://github.com/myclabs/php-enum/tree/1.8.3"
+=======
+                "source": "https://github.com/myclabs/php-enum/tree/1.8.2"
+>>>>>>> payfast
             },
             "funding": [
                 {
@@ -4687,7 +4763,11 @@
                     "type": "tidelift"
                 }
             ],
+<<<<<<< HEAD
             "time": "2021-07-05T08:18:36+00:00"
+=======
+            "time": "2021-07-04T17:44:39+00:00"
+>>>>>>> payfast
         },
         {
             "name": "nesbot/carbon",
@@ -5333,6 +5413,57 @@
                 "source": "https://github.com/paragonie/random_compat"
             },
             "time": "2020-10-15T08:29:30+00:00"
+        },
+        {
+            "name": "payfast/payfast-php-sdk",
+            "version": "v1.1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/PayFast/payfast-php-sdk.git",
+                "reference": "1372980e38f381b84eed7eb46a40d5819a4fe58c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/PayFast/payfast-php-sdk/zipball/1372980e38f381b84eed7eb46a40d5819a4fe58c",
+                "reference": "1372980e38f381b84eed7eb46a40d5819a4fe58c",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "guzzlehttp/guzzle": ">=6.0.0",
+                "php": ">=7.2.5"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PayFast\\": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Claire Grant",
+                    "email": "claire.grant@payfast.co.za"
+                }
+            ],
+            "description": "PayFast PHP Library",
+            "keywords": [
+                "api",
+                "onsite",
+                "payfast",
+                "php"
+            ],
+            "support": {
+                "issues": "https://github.com/PayFast/payfast-php-sdk/issues",
+                "source": "https://github.com/PayFast/payfast-php-sdk/tree/v1.1.2"
+            },
+            "time": "2021-03-15T19:58:26+00:00"
         },
         {
             "name": "php-http/client-common",
