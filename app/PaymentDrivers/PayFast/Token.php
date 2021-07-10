@@ -78,7 +78,7 @@ class Token
 		$amount = round(($amount * pow(10, $this->payfast->client->currency()->precision)),0);
 
 		$header =[
-            'merchant_id' => $this->payfast->company_gateway->getConfigField('merchantId'),
+            'merchant-id' => $this->payfast->company_gateway->getConfigField('merchantId'),
             'timestamp' => now()->format('c'),
             'version' => 'v1',
 		];
@@ -163,7 +163,7 @@ class Token
         ]);
 
         try {
-            $response = $client->post("https://api.payfast.co.za/subscriptions/{$token}/adhoc",[
+            $response = $client->post("https://sandbox.payfast.co.za/subscriptions/{$token}/adhoc",[
                 RequestOptions::JSON => ['body' => $body], RequestOptions::ALLOW_REDIRECTS => false
             ]);
 
