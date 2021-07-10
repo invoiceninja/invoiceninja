@@ -26,9 +26,9 @@ class PayFastPaymentDriver extends BaseDriver
 {
     use MakesHash;
 
-    public $refundable = true; //does this gateway support refunds?
+    public $refundable = false; //does this gateway support refunds?
 
-    public $token_billing = true; //does this gateway support token billing?
+    public $token_billing = false; //does this gateway support token billing?
 
     public $can_authorise_credit_card = true; //does this gateway support authorizations?
 
@@ -42,15 +42,14 @@ class PayFastPaymentDriver extends BaseDriver
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_PAYFAST;
 
-
     //developer resources
     //https://sandbox.payfast.co.za/
-
 
     public function gatewayTypes(): array
     {
         $types = [];
 
+        if($this->client->currency()->code == 'ZAR')
             $types[] = GatewayType::CREDIT_CARD;
 
         return $types;
@@ -116,34 +115,13 @@ class PayFastPaymentDriver extends BaseDriver
 
     public function refund(Payment $payment, $amount, $return_client_response = false)
     {
-        return $this->payment_method->yourRefundImplementationHere(); //this is your custom implementation from here
+        return false;
     }
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
-        $this->init();
-
         return (new Token($this))->tokenBilling($cgt, $payment_hash);
     }
-
-    // public function generateSignature($data, $passPhrase = null)
-    // {
-    //     // Create parameter string
-    //     $pfOutput = '';
-    //     foreach( $data as $key => $val ) {
-    //         if($val !== '') {
-    //             $pfOutput .= $key .'='. urlencode( trim( $val ) ) .'&';
-    //         }
-    //     }
-    //     // Remove last ampersand
-    //     $getString = substr( $pfOutput, 0, -1 );
-    //     if( $passPhrase !== null ) {
-    //         $getString .= '&passphrase='. urlencode( trim( $passPhrase ) );
-    //     }
-    //     nlog($getString);
-    //     return md5( $getString );
-    // }
-
 
    public function generateSignature($data)
     {
