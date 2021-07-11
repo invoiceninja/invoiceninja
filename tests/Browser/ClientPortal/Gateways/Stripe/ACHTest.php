@@ -36,6 +36,11 @@ class ACHTest extends DuskTestCase
                 ->auth();
         });
 
+        $this->disableCompanyGateways();
+
+        // Enable Stripe.
+        CompanyGateway::where('gateway_key', 'd14dd26a37cecc30fdd65700bfb55b23')->restore();
+
         // Enable ACH.
         $cg = CompanyGateway::where('gateway_key', 'd14dd26a37cecc30fdd65700bfb55b23')->firstOrFail();
         $fees_and_limits = $cg->fees_and_limits;
@@ -63,7 +68,7 @@ class ACHTest extends DuskTestCase
                 ->type('#account-number', '000123456789')
                 ->check('#accept-terms')
                 ->press('Add Payment Method')
-                ->waitForText('ACH (Verification)')
+                ->waitForText('ACH (Verification)', 60)
                 ->type('@verification-1st', '32')
                 ->type('@verification-2nd', '45')
                 ->press('Complete Verification')

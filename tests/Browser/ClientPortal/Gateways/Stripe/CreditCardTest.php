@@ -35,6 +35,11 @@ class CreditCardTest extends DuskTestCase
                 ->auth();
         });
 
+        $this->disableCompanyGateways();
+
+        // Enable Stripe.
+        CompanyGateway::where('gateway_key', 'd14dd26a37cecc30fdd65700bfb55b23')->restore();
+
         $cg = CompanyGateway::where('gateway_key', 'd14dd26a37cecc30fdd65700bfb55b23')->firstOrFail();
         $fees_and_limits = $cg->fees_and_limits;
         $fees_and_limits->{GatewayType::CREDIT_CARD} = new FeesAndLimits();

@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use App\Models\CompanyGateway;
 use Facebook\WebDriver\Chrome\ChromeOptions;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
@@ -57,5 +58,15 @@ abstract class DuskTestCase extends BaseTestCase
     {
         return isset($_SERVER['DUSK_HEADLESS_DISABLED']) ||
             isset($_ENV['DUSK_HEADLESS_DISABLED']);
+    }
+
+    /**
+     * Disable all company gateways, test classes should enable them per need.
+     *
+     * @return void
+     */
+    public function disableCompanyGateways()
+    {
+        CompanyGateway::where('company_id', 1)->delete();
     }
 }
