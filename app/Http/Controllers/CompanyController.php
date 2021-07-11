@@ -474,6 +474,10 @@ class CompanyController extends BaseController
      */
     public function destroy(DestroyCompanyRequest $request, Company $company)
     {
+
+        if(Ninja::isHosted() && config('ninja.ninja_default_company_id') == $company->id)
+            return response()->json(['message' => 'Cannot purge this company'], 400);
+        
         $company_count = $company->account->companies->count();
         $account = $company->account;
         $account_key = $account->key;
