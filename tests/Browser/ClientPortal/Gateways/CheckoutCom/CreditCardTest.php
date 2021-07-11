@@ -12,6 +12,7 @@
 
 namespace Tests\Browser\ClientPortal\Gateways\CheckoutCom;
 
+use App\Models\CompanyGateway;
 use Laravel\Dusk\Browser;
 use Tests\Browser\Pages\ClientPortal\Login;
 use Tests\DuskTestCase;
@@ -25,6 +26,10 @@ class CreditCardTest extends DuskTestCase
         foreach (static::$browsers as $browser) {
             $browser->driver->manage()->deleteAllCookies();
         }
+
+        $this->disableCompanyGateways();
+
+        CompanyGateway::where('gateway_key', '3758e7f7c6f4cecf0f4f348b9a00f456')->restore();
 
         $this->browse(function (Browser $browser) {
             $browser
