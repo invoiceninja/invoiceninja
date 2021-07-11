@@ -12,6 +12,7 @@
 
 namespace Tests\Browser\ClientPortal\Gateways\AuthorizeNet;
 
+use App\Models\CompanyGateway;
 use Laravel\Dusk\Browser;
 use Tests\Browser\Pages\ClientPortal\Login;
 use Tests\DuskTestCase;
@@ -35,6 +36,10 @@ class CreditCardTest extends DuskTestCase
                 ->visit(new Login())
                 ->auth();
         });
+
+        $this->disableCompanyGateways();
+
+        CompanyGateway::where('gateway_key', '3b6621f970ab18887c4f6dca78d3f8bb')->restore();
     }
 
     public function testPayWithNewCard()
@@ -56,6 +61,8 @@ class CreditCardTest extends DuskTestCase
 
     public function testPayWithNewCardAndSaveForFutureUse()
     {
+        $this->assertTrue(false);
+
         $this->browse(function (Browser $browser) {
             $browser
                 ->visitRoute('client.invoices.index')
