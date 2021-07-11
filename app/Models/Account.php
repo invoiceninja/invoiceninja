@@ -55,7 +55,7 @@ class Account extends BaseModel
         'promo_expires',
         'discount_expires',
         'trial_started',
-        'plan_expires'
+        // 'plan_expires'
     ];
 
     const PLAN_FREE = 'free';
@@ -118,6 +118,11 @@ class Account extends BaseModel
     public function company_users()
     {
         return $this->hasMany(CompanyUser::class);
+    }
+
+    public function owner()
+    {
+        return $this->hasMany(CompanyUser::class)->where('is_owner', true)->first() ? $this->hasMany(CompanyUser::class)->where('is_owner', true)->first()->user : false;
     }
 
     public function getPlan()

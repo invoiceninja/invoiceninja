@@ -11,6 +11,7 @@
 
 namespace App\PaymentDrivers;
 
+use App\Http\Requests\Payments\PaymentWebhookRequest;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
@@ -39,6 +40,22 @@ class DriverTemplate extends BaseDriver
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_STRIPE; //define a constant for your gateway ie TYPE_YOUR_CUSTOM_GATEWAY - set the const in the SystemLog model
 
+    public function init()
+    {
+        return $this; /* This is where you boot the gateway with your auth credentials*/
+    }
+
+    /* Returns an array of gateway types for the payment gateway */
+    public function gatewayTypes(): array
+    {
+        $types = [];
+
+            $types[] = GatewayType::CREDIT_CARD;
+
+        return $types;
+    }
+
+    /* Sets the payment method initialized */
     public function setPaymentMethod($payment_method_id)
     {
         $class = self::$methods[$payment_method_id];
@@ -74,5 +91,9 @@ class DriverTemplate extends BaseDriver
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
         return $this->payment_method->yourTokenBillingImplmentation(); //this is your custom implementation from here
+    }
+
+    public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment = null)
+    {
     }
 }
