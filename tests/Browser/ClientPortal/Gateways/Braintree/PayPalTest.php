@@ -12,6 +12,7 @@
 
 namespace Tests\Browser\ClientPortal\Gateways\Braintree;
 
+use App\Models\CompanyGateway;
 use Laravel\Dusk\Browser;
 use Tests\Browser\Pages\ClientPortal\Login;
 use Tests\DuskTestCase;
@@ -31,6 +32,10 @@ class PayPalTest extends DuskTestCase
                 ->visit(new Login())
                 ->auth();
         });
+
+        $this->disableCompanyGateways();
+
+        CompanyGateway::where('gateway_key', 'f7ec488676d310683fb51802d076d713')->restore();
     }
 
     public function testOffsitePayment()

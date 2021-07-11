@@ -35,6 +35,10 @@ class CreditCardTest extends DuskTestCase
                 ->auth();
         });
 
+        $this->disableCompanyGateways();
+
+        CompanyGateway::where('gateway_key', 'f7ec488676d310683fb51802d076d713')->restore();
+
         $cg = CompanyGateway::where('gateway_key', 'f7ec488676d310683fb51802d076d713')->firstOrFail();
         $fees_and_limits = $cg->fees_and_limits;
         $fees_and_limits->{GatewayType::CREDIT_CARD} = new FeesAndLimits();
@@ -51,7 +55,6 @@ class CreditCardTest extends DuskTestCase
                 ->press('Pay Now')
                 ->clickLink('Credit Card')
                 ->waitFor('#braintree-hosted-field-number', 60)
-                ->waitFor('##braintree-hosted-field-expirationDate', 60)
                 ->withinFrame('#braintree-hosted-field-number', function (Browser $browser) {
                     $browser->type('credit-card-number', '4111111111111111');
                 })
