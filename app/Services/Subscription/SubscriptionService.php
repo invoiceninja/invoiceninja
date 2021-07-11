@@ -77,7 +77,8 @@ class SubscriptionService
             $recurring_invoice->next_send_date = now();
             $recurring_invoice = $recurring_invoice_repo->save([], $recurring_invoice);
             $recurring_invoice->next_send_date = $recurring_invoice->nextSendDate();
-
+            $recurring_invoice->auto_bill = $this->subscription->auto_bill;
+            
             /* Start the recurring service */
             $recurring_invoice->service()
                               ->start()
