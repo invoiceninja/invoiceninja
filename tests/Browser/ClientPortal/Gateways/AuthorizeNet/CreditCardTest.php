@@ -61,8 +61,6 @@ class CreditCardTest extends DuskTestCase
 
     public function testPayWithNewCardAndSaveForFutureUse()
     {
-        $this->assertTrue(false);
-
         $this->browse(function (Browser $browser) {
             $browser
                 ->visitRoute('client.invoices.index')
