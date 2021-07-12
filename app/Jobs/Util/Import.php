@@ -1241,7 +1241,8 @@ class Import implements ShouldQueue
 
                 $try_quote = false;
                 $exception = false;
-
+                $entity = false;
+                
                 try{
                     $invoice_id = $this->transformId('invoices', $resource['invoice_id']);
                     $entity = Invoice::where('id', $invoice_id)->withTrashed()->first();
