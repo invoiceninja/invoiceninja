@@ -192,6 +192,8 @@ class Import implements ShouldQueue
 
         nlog("Starting Migration");
         nlog($this->user->email);
+        info("Starting Migration");
+        info($this->user->email);
         
         auth()->login($this->user, false);
         auth()->user()->setCompany($this->company);
