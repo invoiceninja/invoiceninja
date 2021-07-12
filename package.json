@@ -7,14 +7,11 @@
         "watch-poll": "npm run watch -- --watch-poll",
         "hot": "cross-env NODE_ENV=development node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --hot --config=node_modules/laravel-mix/setup/webpack.config.js",
         "prod": "npm run production",
-        "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
-        "test": "cypress run",
-        "test:gui": "cypress open"
+        "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
     },
     "devDependencies": {
         "@babel/compat-data": "7.9.0",
         "@babel/plugin-proposal-class-properties": "^7.13.0",
-        "cypress": "^4.12.1",
         "laravel-mix-purgecss": "^5.0.0",
         "vue-template-compiler": "^2.6.12"
     },
