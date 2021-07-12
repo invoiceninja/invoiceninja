@@ -14,6 +14,7 @@ namespace App\PaymentDrivers\WePay;
 use App\Exceptions\PaymentFailed;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
+use App\Models\GatewayType;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 

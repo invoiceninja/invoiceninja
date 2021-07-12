@@ -40,8 +40,6 @@ class CreditCardTest extends DuskTestCase
 
     public function testPayWithNewCard()
     {
-        $this->markTestSkipped('Issue with wrong parameter passing. Error 500 on backend.');
-
         $this->browse(function (Browser $browser) {
             $browser
                 ->visitRoute('client.invoices.index')
