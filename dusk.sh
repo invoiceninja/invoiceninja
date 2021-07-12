@@ -15,7 +15,7 @@ for TEST_CLASS in $GENERIC_TESTS; do
     php artisan ninja:create-single-account &> /dev/null
 
     echo "$ php artisan dusk $TEST_CLASS"
-    php artisan dusk --stop-on-failure $TEST_CLASS
+    php artisan dusk --stop-on-error --stop-on-failure $TEST_CLASS || exit 1
 
     echo "=========================================="
 done || exit 1
@@ -32,7 +32,7 @@ for TEST_CLASS in $GATEWAY_TESTS; do
     php artisan ninja:create-single-account &> /dev/null
 
     echo "$ php artisan dusk $TEST_CLASS"
-    php artisan dusk --stop-on-failure $TEST_CLASS
+    php artisan dusk --stop-on-error --stop-on-failure $TEST_CLASS || exit 1
 
     echo "=========================================="
 done || exit 1
