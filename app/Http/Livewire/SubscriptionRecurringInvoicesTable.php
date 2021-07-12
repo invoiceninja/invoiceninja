@@ -36,6 +36,7 @@ class SubscriptionRecurringInvoicesTable extends Component
     {
         $query = RecurringInvoice::query()
             ->where('client_id', auth('contact')->user()->client->id)
+            ->where('company_id', $this->company->id)
             ->whereNotNull('subscription_id')
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
             ->paginate($this->per_page);

@@ -33,7 +33,7 @@ class StoreTaskStatusRequest extends Request
         $input = $this->all();
 
             if(array_key_exists('color', $input) && is_null($input['color']))
-                $input['color'] = '#fff';
+                $input['color'] = '';
 
         $this->replace($input);
     }

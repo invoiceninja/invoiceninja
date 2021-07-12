@@ -43,6 +43,8 @@ class InvitationTest extends TestCase
             return $invitation->contact->is_primary == false;
         })->toArray();
 
+        $this->assertEquals(1, count($invites));
+
         $this->invoice->invitations = $invites;
 
         $this->invoice->line_items = [];
@@ -63,7 +65,7 @@ class InvitationTest extends TestCase
 
         $arr = $response->json();
 
-        $this->assertEquals(1, count($arr['data']['invitations']));
+        $this->assertEquals(2, count($arr['data']['invitations']));
 
         //test pushing a contact invitation back on
 

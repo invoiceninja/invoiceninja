@@ -52,7 +52,7 @@ class SupportMessageSent extends Mailable
 
         $account = auth()->user()->account;
 
-        $plan = $account->plan ?: 'Free Self Hosted';
+        $plan = $account->plan ?: 'Forever Free';
 
         $company = auth()->user()->company();
         $user = auth()->user();

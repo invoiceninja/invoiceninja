@@ -48,6 +48,8 @@ class ImportCsvTest extends TestCase
 
         $this->makeTestData();
 
+        $this->markTestSkipped('Skipping CSV Import to improve test speed');
+        
         $this->withoutExceptionHandling();
     }
 

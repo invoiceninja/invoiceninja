@@ -40,7 +40,9 @@ class HtmlGenerationTest extends TestCase
 
     public function testHtmlOutput()
     {
-        $html = $this->generateHtml($this->invoice);
+        $this->client->fresh();
+        
+        $html = $this->generateHtml($this->invoice->fresh());
 
         $this->assertNotNull($html);
     }

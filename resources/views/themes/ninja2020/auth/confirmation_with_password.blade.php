@@ -1,4 +1,4 @@
-@extends('portal.ninja2020.layout.clean')
+@extends('themes.ninja2020.clean')
 @section('meta_title', ctrans('texts.set_password'))
 
 @section('body')

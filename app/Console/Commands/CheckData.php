@@ -234,38 +234,38 @@ class CheckData extends Command
             }
         }
 
-        // check for more than one primary contact
-        $clients = DB::table('clients')
-                    ->leftJoin('client_contacts', function ($join) {
-                        $join->on('client_contacts.client_id', '=', 'clients.id')
-                            ->where('client_contacts.is_primary', '=', true)
-                            ->whereNull('client_contacts.deleted_at');
-                    })
-                    ->groupBy('clients.id')
-                    ->havingRaw('count(client_contacts.id) != 1');
+        // // check for more than one primary contact
+        // $clients = DB::table('clients')
+        //             ->leftJoin('client_contacts', function ($join) {
+        //                 $join->on('client_contacts.client_id', '=', 'clients.id')
+        //                     ->where('client_contacts.is_primary', '=', true)
+        //                     ->whereNull('client_contacts.deleted_at');
+        //             })
+        //             ->groupBy('clients.id')
+        //             ->havingRaw('count(client_contacts.id) != 1');
 
-        if ($this->option('client_id')) {
-            $clients->where('clients.id', '=', $this->option('client_id'));
-        }
+        // if ($this->option('client_id')) {
+        //     $clients->where('clients.id', '=', $this->option('client_id'));
+        // }
 
-        $clients = $clients->get(['clients.id', 'clients.user_id', 'clients.company_id']);
-        $this->logMessage($clients->count().' clients without a single primary contact');
+        // $clients = $clients->get(['clients.id', 'clients.user_id', 'clients.company_id']);
+        // // $this->logMessage($clients->count().' clients without a single primary contact');
 
-        if ($this->option('fix') == 'true') {
-            foreach ($clients as $client) {
-                $this->logMessage("Fixing missing primary contacts #{$client->id}");
+        // // if ($this->option('fix') == 'true') {
+        // //     foreach ($clients as $client) {
+        // //         $this->logMessage("Fixing missing primary contacts #{$client->id}");
                 
-                $new_contact = ClientContactFactory::create($client->company_id, $client->user_id);
-                $new_contact->client_id = $client->id;
-                $new_contact->contact_key = Str::random(40);
-                $new_contact->is_primary = true;
-                $new_contact->save();
-            }
-        }
+        // //         $new_contact = ClientContactFactory::create($client->company_id, $client->user_id);
+        // //         $new_contact->client_id = $client->id;
+        // //         $new_contact->contact_key = Str::random(40);
+        // //         $new_contact->is_primary = true;
+        // //         $new_contact->save();
+        // //     }
+        // // }
 
-        if ($clients->count() > 0) {
-            $this->isValid = false;
-        }
+        // if ($clients->count() > 0) {
+        //     $this->isValid = false;
+        // }
     }
 
     private function checkFailedJobs()
@@ -365,7 +365,7 @@ class CheckData extends Command
         /* Due to accounting differences we need to perform a second loop here to ensure there actually is an issue */
         $clients->each(function ($client_record) use ($credit_total_applied) {
             
-            $client = Client::find($client_record->id);
+            $client = Client::withTrashed()->find($client_record->id);
 
             $total_invoice_payments = 0;
 
@@ -594,6 +594,7 @@ class CheckData extends Command
                 'client',
                 'client_contact',
                 'payment',
+                'recurring_invoice',
             ],
             'invoices' => [
                 'client',

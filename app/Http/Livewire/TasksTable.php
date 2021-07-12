@@ -35,6 +35,7 @@ class TasksTable extends Component
     public function render()
     {
         $query = Task::query()
+            ->where('company_id', $this->company->id)
             ->where('client_id', auth('contact')->user()->client->id);
 
         if ($this->company->getSetting('show_all_tasks_client_portal') === 'invoiced') {

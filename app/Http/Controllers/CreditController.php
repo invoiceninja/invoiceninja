@@ -37,6 +37,7 @@ use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Class CreditController.
@@ -536,8 +537,14 @@ class CreditController extends BaseController
                 }
                 break;
             case 'download':    
-                $file = $credit->pdf_file_path();
-                return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
+                // $file = $credit->pdf_file_path();
+                $file = $credit->service()->getCreditPdf($credit->invitations->first());
+
+                // return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
+
+                return response()->streamDownload(function () use($file) {
+                        echo Storage::get($file);
+                },  basename($file));
               break;
             case 'archive':
                 $this->credit_repository->archive($credit);
@@ -585,9 +592,12 @@ class CreditController extends BaseController
         // $contact = $invitation->contact;
         $credit = $invitation->credit;
 
-        $file_path = $credit->service()->getCreditPdf($invitation);
-
-        return response()->download($file_path, basename($file_path), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
+        $file = $credit->service()->getCreditPdf($invitation);
+        
+        return response()->streamDownload(function () use($file) {
+                echo Storage::get($file);
+        },  basename($file));
+        // return response()->download($file_path, basename($file_path), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
     }
 
     /**

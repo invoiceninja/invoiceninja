@@ -221,8 +221,8 @@ class CompanyImport implements ShouldQueue
     private function unzipFile()
     {
         
-        if(mime_content_type(Storage::path($this->file_location)) == 'text/plain')
-            return Storage::path($this->file_location);
+        // if(mime_content_type(Storage::path($this->file_location)) == 'text/plain')
+        //     return Storage::path($this->file_location);
 
         $path = TempFile::filePath(Storage::get($this->file_location), basename($this->file_location));
 

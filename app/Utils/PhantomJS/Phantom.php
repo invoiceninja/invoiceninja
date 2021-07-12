@@ -26,9 +26,9 @@ use App\Utils\CurlUtils;
 use App\Utils\HtmlEngine;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class Phantom

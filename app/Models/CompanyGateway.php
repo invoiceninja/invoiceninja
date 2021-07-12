@@ -59,6 +59,17 @@ class CompanyGateway extends BaseModel
             16 => ['card' => 'images/credit_cards/Test-Discover-Icon.png', 'text' => 'Discover'],
         ];
 
+
+    // const TYPE_PAYPAL = 300;
+    // const TYPE_STRIPE = 301;
+    // const TYPE_LEDGER = 302;
+    // const TYPE_FAILURE = 303;
+    // const TYPE_CHECKOUT = 304;
+    // const TYPE_AUTHORIZE = 305;
+    // const TYPE_CUSTOM = 306;
+    // const TYPE_BRAINTREE = 307;
+    // const TYPE_WEPAY = 309;
+
     public $gateway_consts = [
         '38f2c48af60c7dd69e04248cbb24c36e' => 300,
         'd14dd26a37cecc30fdd65700bfb55b23' => 301,
@@ -66,6 +77,8 @@ class CompanyGateway extends BaseModel
         '3b6621f970ab18887c4f6dca78d3f8bb' => 305,
         '54faab2ab6e3223dbe848b1686490baa' => 306,
         'd14dd26a47cecc30fdd65700bfb67b34' => 301,
+        '8fdeed552015b3c7b44ed6c8ebd9e992' => 309,
+        'f7ec488676d310683fb51802d076d713' => 307,
     ];
 
     protected $touches = [];
@@ -358,6 +371,11 @@ class CompanyGateway extends BaseModel
         return $fee;
     }
 
+    public function webhookUrl()
+    {
+        return route('payment_webhook', ['company_key' => $this->company->company_key, 'company_gateway_id' => $this->hashed_id]);
+    }
+
     /**
      * we need to average out the gateway fees across all the invoices
      * so lets iterate.
@@ -399,4 +417,6 @@ class CompanyGateway extends BaseModel
         return $this
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
     }
+
+
 }
