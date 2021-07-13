@@ -18,12 +18,12 @@ class AddRecurringInvoiceIdToActivitiesTable extends Migration
         });
 
 
-        // if (!Schema::hasColumn('companies', 'show_task_end_date'))
-        // {
-        //     Schema::table('companies', function (Blueprint $table) {
-        //         $table->boolean('show_task_end_date')->default(false);
-        //     });
-        // }
+        if (!Schema::hasColumn('companies', 'show_task_end_date'))
+        {
+            Schema::table('companies', function (Blueprint $table) {
+                $table->boolean('show_task_end_date')->default(false);
+            });
+        }
 
     }
 
