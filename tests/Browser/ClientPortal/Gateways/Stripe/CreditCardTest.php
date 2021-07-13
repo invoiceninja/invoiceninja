@@ -54,7 +54,7 @@ class CreditCardTest extends DuskTestCase
                 ->visitRoute('client.invoices.index')
                 ->click('@pay-now')
                 ->click('@pay-now-dropdown')
-                ->click('@pay-with-1')
+                ->clickLink('Credit Card')
                 ->type('#cardholder-name', 'John Doe')
                 ->withinFrame('iframe', function (Browser $browser) {
                     $browser
@@ -74,7 +74,7 @@ class CreditCardTest extends DuskTestCase
                 ->visitRoute('client.invoices.index')
                 ->click('@pay-now')
                 ->click('@pay-now-dropdown')
-                ->click('@pay-with-1')
+                ->clickLink('Credit Card')
                 ->type('#cardholder-name', 'John Doe')
                 ->withinFrame('iframe', function (Browser $browser) {
                     $browser
@@ -98,7 +98,7 @@ class CreditCardTest extends DuskTestCase
                 ->visitRoute('client.invoices.index')
                 ->click('@pay-now')
                 ->click('@pay-now-dropdown')
-                ->click('@pay-with-1')
+                ->clickLink('Credit Card')
                 ->click('.toggle-payment-with-token')
                 ->click('#pay-now')
                 ->waitForText('Details of the payment', 60);
