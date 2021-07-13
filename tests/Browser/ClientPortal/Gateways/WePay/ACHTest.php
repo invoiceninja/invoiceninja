@@ -12,12 +12,14 @@
 
 namespace Tests\Browser\ClientPortal\Gateways\WePay;
 
+use App\DataMapper\FeesAndLimits;
 use App\Models\CompanyGateway;
+use App\Models\GatewayType;
 use Laravel\Dusk\Browser;
 use Tests\Browser\Pages\ClientPortal\Login;
 use Tests\DuskTestCase;
 
-class ACH extends DuskTestCase
+class ACHTest extends DuskTestCase
 {
     protected function setUp(): void
     {
@@ -31,6 +33,14 @@ class ACH extends DuskTestCase
 
         CompanyGateway::where('gateway_key', '8fdeed552015b3c7b44ed6c8ebd9e992')->restore();
 
+        // Enable ACH.
+        $cg = CompanyGateway::where('gateway_key', '8fdeed552015b3c7b44ed6c8ebd9e992')->firstOrFail();
+        $fees_and_limits = $cg->fees_and_limits;
+        $fees_and_limits->{GatewayType::BANK_TRANSFER} = new FeesAndLimits();
+
+        $cg->fees_and_limits = $fees_and_limits;
+        $cg->save();
+        
         $this->browse(function (Browser $browser) {
             $browser
                 ->visit(new Login())
