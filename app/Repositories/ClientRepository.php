@@ -58,7 +58,7 @@ class ClientRepository extends BaseRepository
             return $client;
         }
 
-        if(!$client->id && (!array_key_exists('country_id', $data) || empty($data['country_id']))){
+        if(!$client->id && auth()->user() && auth()->user()->company() && (!array_key_exists('country_id', $data) || empty($data['country_id']))){
             $data['country_id'] = auth()->user()->company()->settings->country_id;
         }
 
