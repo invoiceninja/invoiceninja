@@ -6,7 +6,7 @@ on:
     branches:
       - v5-client-portal-tests-dusk
 
-name: dusk
+name: laravel-dusk
 jobs:
   run:
     runs-on: ${{ matrix.operating-system }}
@@ -105,8 +105,5 @@ jobs:
     - name: Run Dusk Tests
       env:
         APP_URL: "http://127.0.0.1:8000"
-      run: bash dusk.sh generic
-
-      env:
         DB_PORT: ${{ job.services.mysql.ports[3306] }}
-    
+      run: bash dusk.sh generic
