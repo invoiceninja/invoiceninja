@@ -6,7 +6,7 @@ on:
     branches:
       - v5-develop
 
-name: phpunit
+name: dusk
 jobs:
   run:
     runs-on: ${{ matrix.operating-system }}
