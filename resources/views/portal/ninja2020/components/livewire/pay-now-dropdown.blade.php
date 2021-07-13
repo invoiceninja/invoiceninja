@@ -1,10 +1,10 @@
 <div>
     @unless(count($methods) == 0)
         <div x-data="{ open: false }" @keydown.window.escape="open = false" @click.away="open = false"
-             class="relative inline-block text-left" data-cy="payment-methods-dropdown">
+             class="relative inline-block text-left" dusk="payment-methods-dropdown">
             <div>
                 <div class="rounded-md shadow-sm">
-                    <button data-cy="pay-now-dropdown" @click="open = !open" type="button"
+                    <button dusk="pay-now-dropdown" @click="open = !open" type="button"
                             class="button button-primary bg-primary hover:bg-primary-darken inline-flex items-center">
                         {{ ctrans('texts.pay_now') }}
                         <svg class="w-5 h-5 ml-2 -mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -20,19 +20,19 @@
                     <div class="py-1">
                         @foreach($methods as $index => $method)
                             @if($method['label'] == 'Custom')
-                                <a href="#" @click="{ open = false }" data-cy="pay-with-custom"
+                                <a href="#" @click="{ open = false }" dusk="pay-with-custom"
                                    data-company-gateway-id="{{ $method['company_gateway_id'] }}"
                                    data-gateway-type-id="{{ $method['gateway_type_id'] }}"
                                    class="block px-4 py-2 text-sm leading-5 text-gray-700 dropdown-gateway-button hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900"
-                                   data-cy="payment-method">
+                                   dusk="payment-method">
                                     {{ \App\Models\CompanyGateway::find($method['company_gateway_id'])->firstOrFail()->getConfigField('name') }}
                                 </a>
                             @elseif($total > 0)
-                                <a href="#" @click="{ open = false }" data-cy="pay-with-{{ $index }}"
+                                <a href="#" @click="{ open = false }" dusk="pay-with-{{ $index }}"
                                    data-company-gateway-id="{{ $method['company_gateway_id'] }}"
                                    data-gateway-type-id="{{ $method['gateway_type_id'] }}"
                                    class="block px-4 py-2 text-sm leading-5 text-gray-700 dropdown-gateway-button hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900"
-                                   data-cy="payment-method">
+                                   dusk="payment-method">
                                     {{ $method['label'] }}
                                 </a>
                             @endif

@@ -11,11 +11,11 @@
         <input type="hidden" name="source" value="{{ $token->token }}">
 
         @component('portal.ninja2020.components.general.card-element', ['title' => '#1 ' . ctrans('texts.amount_cents')])
-            <input type="text" name="transactions[]" class="w-full input" required data-cy="verification-1st">
+            <input type="text" name="transactions[]" class="w-full input" required dusk="verification-1st">
         @endcomponent
 
         @component('portal.ninja2020.components.general.card-element', ['title' => '#2 ' . ctrans('texts.amount_cents')])
-            <input type="text" name="transactions[]" class="w-full input" required data-cy="verification-2nd">
+            <input type="text" name="transactions[]" class="w-full input" required dusk="verification-2nd">
         @endcomponent
 
         @component('portal.ninja2020.gateways.includes.pay_now', ['type' => 'submit'])

@@ -6,7 +6,7 @@
             </div>
         </div>
         <div class="mt-5 md:mt-0 md:col-span-2">
-            <form wire:submit.prevent="submit" method="POST" id="update_contact">
+            <form wire:submit.prevent="submit" method="POST" id="update_shipping_address">
                 @csrf
                 <div class="shadow overflow-hidden rounded">
                     <div class="px-4 py-5 bg-white sm:p-6">
