@@ -70,7 +70,7 @@ class StepsController extends BaseController
 
         if ($request->option == 0) {
 
-            session()->put('MIGRATION_ENDPOINT', 'https://invoicing.co');
+            session()->put('MIGRATION_ENDPOINT', 'https://v5-app1.invoicing.co');
 
             return redirect(
                 url('/migration/auth')
