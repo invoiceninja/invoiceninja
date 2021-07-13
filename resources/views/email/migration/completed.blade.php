@@ -1,4 +1,4 @@
-@component('email.template.admin', ['logo' => 'https://raw.githubusercontent.com/hillelcoren/invoice-ninja/master/public/images/round_logo.png', 'settings' => $settings])
+@component('email.template.admin', ['logo' => 'https://invoicing.co/images/invoiceninja-black-logo-2.png', 'settings' => $settings])
     <div class="center">
         <h1>{{ ctrans('texts.migration_completed')}}</h1>
         <p>{{ ctrans('texts.migration_completed_description')}}</p>
