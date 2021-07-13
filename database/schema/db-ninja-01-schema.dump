@@ -1957,3 +1957,5 @@ INSERT INTO `migrations` VALUES (78,'2021_05_30_100933_make_documents_assigned_u
 INSERT INTO `migrations` VALUES (79,'2021_06_10_221012_add_ninja_portal_column_to_accounts_table',2);
 INSERT INTO `migrations` VALUES (80,'2021_06_24_095942_payments_table_currency_nullable',2);
 INSERT INTO `migrations` VALUES (81,'2021_06_24_115919_update_designs',2);
+INSERT INTO `migrations` VALUES (82,'2021_07_08_115919_update_designs',3);
+INSERT INTO `migrations` VALUES (83,'2021_07_10_085821_activate_payfast_payment_driver',3);

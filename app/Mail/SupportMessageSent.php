@@ -62,7 +62,7 @@ class SupportMessageSent extends Mailable
         else
             $subject = "Self Host {$user->present()->name} - [{$plan} - {$company->db}]";
 
-        return $this->from(config('mail.from.address'), config('mail.from.name')) 
+        return $this->from(config('mail.from.address'), $user->present()->name()) 
                 ->replyTo($user->email, $user->present()->name())
                 ->subject($subject)
                 ->view('email.support.message', [
