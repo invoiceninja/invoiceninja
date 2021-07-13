@@ -82,7 +82,7 @@
                 </a>
             @endif
 
-            @if($subscription->service()->getPlans()->count() - 1 > 1)
+            @if($subscription->service()->getPlans()->count() > 1)
                 <div class="flex flex-col mt-10">
                     <p class="mb-4 uppercase leading-4 tracking-wide inline-flex items-center rounded-full text-xs font-medium">
                         {{ ctrans('texts.you_might_be_interested_in_following') }}:
