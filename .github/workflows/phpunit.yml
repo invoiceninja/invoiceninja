@@ -1,10 +1,10 @@
 on:
   push:
     branches:
-      - v5-develop
+      - v5-client-portal-tests-dusk
   pull_request:
     branches:
-      - v5-develop
+      - v5-client-portal-tests-dusk
 
 name: phpunit
 jobs:
