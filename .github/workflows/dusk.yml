@@ -97,7 +97,7 @@ jobs:
         npm i
         npm run production
     - name: Upgrade Chrome Driver
-      run: php artisan dusk:chrome-driver `/opt/google/chrome/chrome --version | cut -d " " -f3 | cut -d "." -f1`
+      run: php artisan dusk:driver --detect
     - name: Start Chrome Driver
       run: ./vendor/laravel/dusk/bin/chromedriver-linux &
     - name: Run Laravel Server
