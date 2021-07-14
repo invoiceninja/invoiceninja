@@ -122,10 +122,12 @@
                              style="background-color:#f9f9f9; border: 1px solid #c2c2c2; border-bottom: none; padding-bottom: 20px; border-top-left-radius: 3px; border-top-right-radius: 3px;">
                             <img class="logo-light"
                                  style="margin-top: 20px; max-width: 155px; display: block; margin-left: auto; margin-right: auto; "
-                                 src="{{ $logo ?? '' }}"/>
+                                 src="{{ $logo ?? '' }}"
+                                 width="155" />
                             <img class="logo-dark"
                                  style="display: none; margin-top: 20px; max-width: 155px; margin-left: auto; margin-right: auto; "
-                                 src="{{ $logo ?? '' }}"/>
+                                 src="{{ $logo ?? '' }}"
+                                 width="155" />
                         </div>
                     </td>
                 </tr>
@@ -150,21 +152,21 @@
                         <div style="text-align:center; margin-bottom: 35px; margin-top: 25px;">
                             <a href="https://forum.invoiceninja.com" target="_blank" class="btn-white"
                                style="vertical-align: middle;display: inline-block;background-color: #ffffff; color: {{ $primary_color }}; display: inline-block; text-decoration: none;  width: 100px; text-align: center; font-size: 12px; height: 35px; line-height: 35px; margin-left: 10px; margin-right: 10px;">
-                                <img style="width: 13px; margin-right: 4px; display: inline-block; vertical-align:middle;" src="{{ asset('images/emails/forum.png') }}">
+                                <img style="width: 13px; margin-right: 4px; display: inline-block; vertical-align:middle;" src="{{ asset('images/emails/forum.png') }}" width="13">
                                 <span>Forums</span>
                             </a>
 
 
                             <a href="http://slack.invoiceninja.com/" target="_blank" class="btn-white"
                                style="vertical-align: middle;display: inline-block;background-color: #ffffff; color: {{ $primary_color }}; display: inline-block; text-decoration: none;  width: 100px; text-align: center; font-size: 12px; height: 35px; line-height: 35px; margin-left: 10px; margin-right: 10px;">
-                                <img style="width: 13px; margin-right: 4px; display: inline-block; vertical-align:middle;" src="{{ asset('images/emails/slack.png') }}">
+                                <img style="width: 13px; margin-right: 4px; display: inline-block; vertical-align:middle;" src="{{ asset('images/emails/slack.png') }}" width="13">
                                 <span>Slack</span>
                             </a>
 
 
                             <a href="https://www.invoiceninja.com/contact/" target="_blank" class="btn-white"
                                style="vertical-align: middle;display: inline-block;background-color: #ffffff; color: {{ $primary_color }}; display: inline-block; text-decoration: none;  width: 100px; text-align: center; font-size: 12px; height: 35px; line-height: 35px; margin-left: 10px; margin-right: 10px;">
-                                <img style="width: 13px; margin-right: 4px; display: inline-block; vertical-align:middle;" src="{{ asset('images/emails/email.png') }}">
+                                <img style="width: 13px; margin-right: 4px; display: inline-block; vertical-align:middle;" src="{{ asset('images/emails/email.png') }}" width="13">
                                 <span>E-mail</span>
                             </a>
 
