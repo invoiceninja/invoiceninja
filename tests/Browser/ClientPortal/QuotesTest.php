@@ -93,4 +93,14 @@ class QuotesTest extends DuskTestCase
                 ->visitRoute('client.logout');
         });
     }
+
+    public function testNoQuotesAvailableForDownloadMessage()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.quotes.index')
+                ->press('Download')
+                ->assertSee('No quotes available for download.');
+        });
+    }
 }
