@@ -54,7 +54,7 @@ class Account extends BaseModel
         'deleted_at',
         'promo_expires',
         'discount_expires',
-        'trial_started',
+        // 'trial_started',
         // 'plan_expires'
     ];
 
