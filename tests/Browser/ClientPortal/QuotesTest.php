@@ -74,10 +74,22 @@ class QuotesTest extends DuskTestCase
         $this->browse(function (Browser $browser) {
             $browser
                 ->visitRoute('client.quotes.index')
+                ->clickLink('View')
+                ->assertSee('Only quotes with "Sent" status can be approved.')
+                ->visitRoute('client.logout');
+        });
+    }
+
+    public function testMessageForNonApprovableQuotesIsVisible()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.quotes.index')
                 ->check('.form-check.form-check-child')
                 ->press('Approve')
                 ->assertPathIs('/client/quotes')
                 ->assertDontSee('Quote(s) approved successfully.')
+                ->assertSee('Only quotes with "Sent" status can be approved.')
                 ->visitRoute('client.logout');
         });
     }
