@@ -1,6 +1,12 @@
 # Release notes
 
 ## [Unreleased (daily channel)](https://github.com/invoiceninja/invoiceninja/tree/v5-develop)
+## Added:
+- Client portal: Show message when trying to approve non-approvable quotes
+- Client portal: Remove "Approve" button from single quote page if quote is non-approvable
+
+## Fixed:
+- Client portal: Showing message instead of blank page when trying to download zero quotes.
 
 ## [v5.2.0-release](https://github.com/invoiceninja/invoiceninja/releases/tag/v5.2.0-release)
 ## Added:
