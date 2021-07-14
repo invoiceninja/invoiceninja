@@ -6,15 +6,30 @@
 ![v5-stable phpunit](https://github.com/invoiceninja/invoiceninja/workflows/phpunit/badge.svg?branch=v5-stable)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/d16c78aad8574466bf83232b513ef4fb)](https://www.codacy.com/gh/turbo124/invoiceninja/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=turbo124/invoiceninja&amp;utm_campaign=Badge_Grade)
 
-# Invoice Ninja version 5! 
+# Invoice Ninja 5
 
-## Preamble
+## [Hosted](https://www.invoiceninja.com) | [Self-Hosted](https://www.invoiceninja.org)
+
+### We're on Slack, join us at [slack.invoiceninja.com](http://slack.invoiceninja.com), [forum](https://forum.invoiceninja.com) or if you like [StackOverflow](https://stackoverflow.com/tags/invoice-ninja/)
+
+Just make sure to add the `invoice-ninja` tag to your question.
+
+## Introduction
 
 Version 5 of Invoice Ninja is here! We've taken the best parts of version 4 and bolted on all of the most requested features to produce a invoicing application like no other. 
 
 The new interface has a lot more functionality so it isn't a carbon copy of v4, but once you get used to the new layout and functionality we are sure you will love it!
 
-If you have any questions, please join us on our [forum](https://forum.invoiceninja.com) or on [slack](https://invoiceninja.slack.com)
+## Referral Program
+* Earn 50% of Pro & Enterprise Plans up to 4 years - [Learn more](https://www.invoiceninja.com/referral-program/)
+
+## Recommended Providers
+* [Stripe](https://stripe.com/)
+* [Postmark](https://postmarkapp.com/)
+
+## Development
+* [API Documentation](https://app.swaggerhub.com/apis/invoiceninja/invoiceninja)
+* [APP Documentation](https://invoiceninja.github.io/)
 
 ## Quick Start
 
@@ -89,16 +104,6 @@ Installation, Configuration and Troubleshooting documentation can be found [HERE
 * [Gianfranco Gasbarri](https://github.com/gincos)
 * [Clemens Mol](https://github.com/clemensmol)
 * [Benjamin Beganović](https://github.com/beganovich)
-
-## Current work in progress
-
-Invoice Ninja is written in a combination of technologies:
-
-API - Laravel
-Client Portal - Laravel + Tailwind
-Admin Portal - Flutter 
-
-This allows an immersive and consistent experience across any device: mobile, tablet or desktop.
 
 ## Security
 
