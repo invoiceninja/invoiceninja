@@ -12,6 +12,7 @@
 
 namespace Tests\Browser\ClientPortal\Gateways\WePay;
 
+use App\Models\Client;
 use App\Models\CompanyGateway;
 use Laravel\Dusk\Browser;
 use Tests\Browser\Pages\ClientPortal\Login;
@@ -36,6 +37,8 @@ class CreditCardTest extends DuskTestCase
                 ->visit(new Login())
                 ->auth();
         });
+
+        Client::first()->update(['postal_code' => 99501]);
     }
 
     public function testPayWithNewCard()
