@@ -261,7 +261,7 @@ class Account extends BaseModel
 
         if ($trial_plan && $include_trial) {
             $trial_started = $this->trial_started;
-            $trial_expires = $this->trial_started->addSeconds($this->trial_duration);
+            $trial_expires = Carbon::parse($this->trial_started)->addSeconds($this->trial_duration);
 
             if($trial_expires->greaterThan(now())){
                 $trial_active = true;

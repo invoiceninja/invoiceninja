@@ -581,4 +581,9 @@ class CompanyController extends BaseController
         return $this->itemResponse($company->fresh());
 
     }
+
+    // public function default(DefaultCompanyRequest $request, Company $company)
+    // {
+        
+    // }
 }
