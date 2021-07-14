@@ -100,6 +100,7 @@
                                                     type="text"
                                                     class="input mt-0 mr-4 relative"
                                                     name="payable_invoices[{{$key}}][amount]"
+                                                    dusk="underpayment-input"
                                                     value="{{ $invoice->partial > 0 ? $invoice->partial : $invoice->balance }}"/>
                                             </label>
                                         </div>

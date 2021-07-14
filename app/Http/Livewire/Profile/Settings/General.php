@@ -32,6 +32,7 @@ class General extends Component
         'first_name' => ['sometimes'],
         'last_name' => ['sometimes'],
         'email' => ['required', 'email'],
+        'phone' => ['sometimes'],
     ];
 
     public function mount()
