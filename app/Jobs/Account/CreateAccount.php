@@ -77,6 +77,8 @@ class CreateAccount
             $sp794f3f->key = Str::random(32);
         }
 
+        $sp794f3f->trial_started = now();
+        $sp794f3f->trial_plan = 'pro';
         $sp794f3f->save();
 
         $sp035a66 = CreateCompany::dispatchNow($this->request, $sp794f3f);
