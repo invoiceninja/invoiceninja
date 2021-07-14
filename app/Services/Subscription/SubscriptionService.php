@@ -906,4 +906,17 @@ nlog("handle plan change");
 
         return redirect($default_redirect);
     }
+
+    public function planPaid($invoice)
+    {
+            $context = [
+                'context' => 'plan_paid',
+                'subscription' => $this->subscription->hashed_id,
+                'recurring_invoice' => $invoice->recurring_invoice->hashed_id,
+                'client' => $invoice->client->hashed_id,
+                'contact' => $invoice->client->primary_contact()->first()->hashed_id,
+            ];
+
+            $this->triggerWebhook($context);
+    }
 }
