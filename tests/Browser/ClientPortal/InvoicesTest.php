@@ -12,6 +12,7 @@
 
 namespace Tests\Browser\ClientPortal;
 
+use App\Models\CompanyGateway;
 use Laravel\Dusk\Browser;
 use Tests\Browser\Pages\ClientPortal\Login;
 use Tests\DuskTestCase;
@@ -73,6 +74,27 @@ class InvoicesTest extends DuskTestCase
                 ->check('.form-check.form-check-child')
                 ->press('Pay Now')
                 ->assertPathIs('/client/invoices/payment')
+                ->visitRoute('client.logout');
+        });
+    }
+
+    public function testPayNowButtonIsntShowingWhenNoGatewaysConfigured()
+    {
+        $this->disableCompanyGateways();
+
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.invoices.index')
+                ->assertDontSee('Pay Now');
+        });
+
+        // Enable Stripe.
+        CompanyGateway::where('gateway_key', 'd14dd26a37cecc30fdd65700bfb55b23')->restore();
+
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.invoices.index')
+                ->assertSee('Pay Now')
                 ->visitRoute('client.logout');
         });
     }
