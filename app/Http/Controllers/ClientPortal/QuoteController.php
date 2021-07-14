@@ -121,7 +121,9 @@ class QuoteController extends Controller
             ->get();
 
         if (!$quotes || $quotes->count() == 0) {
-            return redirect()->route('client.quotes.index');
+            return redirect()
+                ->route('client.quotes.index')
+                ->with('message', ctrans('texts.quotes_with_status_sent_can_be_approved'));
         }
 
         if ($process) {
