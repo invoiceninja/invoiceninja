@@ -16,7 +16,10 @@
         <form action="{{ route('client.invoices.bulk') }}" method="post" id="bulkActions">
             @csrf
             <button type="submit" class="button button-primary bg-primary" name="action" value="download">{{ ctrans('texts.download') }}</button>
-            <button type="submit" class="button button-primary bg-primary" name="action" value="payment">{{ ctrans('texts.pay_now') }}</button>
+
+            @if(!empty(auth()->user()->client->service()->getPaymentMethods(0)))
+                <button type="submit" class="button button-primary bg-primary" name="action" value="payment">{{ ctrans('texts.pay_now') }}</button>
+            @endif
         </form>
     </div>
     <div class="flex flex-col mt-4">
