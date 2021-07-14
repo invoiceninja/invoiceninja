@@ -511,7 +511,7 @@ class SubscriptionService
 
         $total_payable = $pro_rata_refund_amount + $pro_rata_charge_amount + $this->subscription->price;
 
-        return $this->proRataInvoice($last_invoice, $target_subscription);
+        return $this->proRataInvoice($last_invoice, $target_subscription, $recurring_invoice->client_id);
 
     }
 
@@ -614,7 +614,7 @@ nlog("handle plan change");
      * @param  Subscription $target
      * @return Invoice
      */
-    private function proRataInvoice($last_invoice, $target)
+    private function proRataInvoice($last_invoice, $target, $client_id)
     {
         $subscription_repo = new SubscriptionRepository();
         $invoice_repo = new InvoiceRepository();
@@ -626,7 +626,7 @@ nlog("handle plan change");
         $invoice->line_items = array_merge($subscription_repo->generateLineItems($target), $this->calculateProRataRefundItems($last_invoice));
 
         $data = [
-            'client_id' => $last_invoice->client_id,
+            'client_id' => $client_id,
             'quantity' => 1,
             'date' => now()->format('Y-m-d'),
         ];
