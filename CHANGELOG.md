@@ -7,7 +7,8 @@
 - Client portal: Hide "Pay now" buttons if no gateways are configured
 
 ## Fixed:
-- Client portal: Showing message instead of blank page when trying to download zero quotes.
+- Client portal: Showing message instead of blank page when trying to download zero quotes
+- Client portal: Fixed bug with payment gateways after checking for required fields
 
 ## [v5.2.0-release](https://github.com/invoiceninja/invoiceninja/releases/tag/v5.2.0-release)
 ## Added:
