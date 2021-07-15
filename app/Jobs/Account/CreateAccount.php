@@ -81,6 +81,7 @@ class CreateAccount
         {
             $sp794f3f->trial_started = now();
             $sp794f3f->trial_plan = 'pro';
+            $sp794f3f->plan = 'pro';
             $sp794f3f->save();
         }
         

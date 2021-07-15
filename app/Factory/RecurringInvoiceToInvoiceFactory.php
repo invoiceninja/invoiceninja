@@ -38,6 +38,8 @@ class RecurringInvoiceToInvoiceFactory
         $invoice->tax_rate2 = $recurring_invoice->tax_rate2;
         $invoice->tax_name3 = $recurring_invoice->tax_name3;
         $invoice->tax_rate3 = $recurring_invoice->tax_rate3;
+        $invoice->total_taxes = $recurring_invoice->total_taxes;
+        $invoice->subscription_id = $recurring_invoice->subscription_id;
         $invoice->custom_value1 = $recurring_invoice->custom_value1;
         $invoice->custom_value2 = $recurring_invoice->custom_value2;
         $invoice->custom_value3 = $recurring_invoice->custom_value3;

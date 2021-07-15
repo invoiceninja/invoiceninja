@@ -47,27 +47,32 @@ class StoreCompanyGatewayRequest extends Request
 
         $gateway = Gateway::where('key', $input['gateway_key'])->first();
 
-        $default_gateway_fields = json_decode($gateway->fields);
+        if($gateway);
+        {
 
-        /*Force gateway properties */
-        if (isset($input['config']) && is_object(json_decode($input['config']))) {
+            $default_gateway_fields = json_decode($gateway->fields);
 
-            foreach (json_decode($input['config']) as $key => $value) {
+            /*Force gateway properties */
+            if (isset($input['config']) && is_object(json_decode($input['config']))) {
 
-                $default_gateway_fields->{$key} = $value;
+                foreach (json_decode($input['config']) as $key => $value) {
+
+                    $default_gateway_fields->{$key} = $value;
+
+                }
+
+                $input['config'] = json_encode($default_gateway_fields);
 
             }
 
-            $input['config'] = json_encode($default_gateway_fields);
-
+            if (isset($input['config'])) 
+                $input['config'] = encrypt($input['config']);
+            
+            if (isset($input['fees_and_limits'])) 
+                $input['fees_and_limits'] = $this->cleanFeesAndLimits($input['fees_and_limits']);
+        
         }
 
-        if (isset($input['config'])) 
-            $input['config'] = encrypt($input['config']);
-        
-        if (isset($input['fees_and_limits'])) 
-            $input['fees_and_limits'] = $this->cleanFeesAndLimits($input['fees_and_limits']);
-        
         $this->replace($input);
     }
 
