@@ -97,8 +97,6 @@ class SubscriptionService
 
             $response = $this->triggerWebhook($context);
 
-            // nlog($response);
-
             $this->handleRedirect('/client/recurring_invoices/'.$recurring_invoice->hashed_id);
 
         }
@@ -523,7 +521,8 @@ class SubscriptionService
      */
     private function handlePlanChange($payment_hash)
     {
-nlog("handle plan change");
+    nlog("handle plan change");
+
         $old_recurring_invoice = RecurringInvoice::find($payment_hash->data->billing_context->recurring_invoice);
 
         $recurring_invoice = $this->createNewRecurringInvoice($old_recurring_invoice);
@@ -916,10 +915,8 @@ nlog("handle plan change");
 
     public function planPaid($invoice)
     {
-        nlog("this is a plan that has been paid");
-
         $recurring_invoice_hashed_id = $invoice->recurring_invoice()->exists() ? $invoice->recurring_invoice->hashed_id : null;
-        
+
             $context = [
                 'context' => 'plan_paid',
                 'subscription' => $this->subscription->hashed_id,
@@ -928,11 +925,7 @@ nlog("handle plan change");
                 'contact' => $invoice->client->primary_contact()->first()->hashed_id,
             ];
 
-        nlog($context);
-
         $response = $this->triggerWebhook($context);
-
-        nlog($response);
 
         return true;
     }
