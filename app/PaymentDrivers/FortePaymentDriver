@@ -38,7 +38,7 @@ class CustomPaymentDriver extends BaseDriver
     private $forte_auth_organization_id="org_XXXXXX";
     private $forte_organization_id="org_XXXXXX";
     private $forte_location_id="loc_XXXXXXX";
-    *private $service_fee=3;
+    /*private $service_fee=3; */
 
     /**
      * Returns the gateway types.
