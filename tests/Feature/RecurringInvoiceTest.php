@@ -10,6 +10,8 @@
  */
 namespace Tests\Feature;
 
+use App\Factory\InvoiceToRecurringInvoiceFactory;
+use App\Factory\RecurringInvoiceToInvoiceFactory;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\RecurringInvoice;
@@ -154,5 +156,60 @@ class RecurringInvoiceTest extends TestCase
             ])->delete('/api/v1/recurring_invoices/'.$this->encodePrimaryKey($RecurringInvoice->id));
 
         $response->assertStatus(200);
+    }
+
+    public function testSubscriptionIdPassesToInvoice()
+    {
+        $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
+        $recurring_invoice->user_id = $this->user->id;
+        $recurring_invoice->next_send_date = \Carbon\Carbon::now()->addDays(10);
+        $recurring_invoice->status_id = RecurringInvoice::STATUS_ACTIVE;
+        $recurring_invoice->remaining_cycles = 2;
+        $recurring_invoice->next_send_date = \Carbon\Carbon::now()->addDays(10);
+        $recurring_invoice->save();
+
+        $recurring_invoice->number = $this->getNextRecurringInvoiceNumber($this->invoice->client, $this->invoice);
+        $recurring_invoice->subscription_id = 10;
+        $recurring_invoice->save();
+
+        $invoice = RecurringInvoiceToInvoiceFactory::create($recurring_invoice, $this->client);
+
+        $this->assertEquals(10, $invoice->subscription_id);
+    }
+
+    public function testSubscriptionIdPassesToInvoiceIfNull()
+    {
+        $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
+        $recurring_invoice->user_id = $this->user->id;
+        $recurring_invoice->next_send_date = \Carbon\Carbon::now()->addDays(10);
+        $recurring_invoice->status_id = RecurringInvoice::STATUS_ACTIVE;
+        $recurring_invoice->remaining_cycles = 2;
+        $recurring_invoice->next_send_date = \Carbon\Carbon::now()->addDays(10);
+        $recurring_invoice->save();
+
+        $recurring_invoice->number = $this->getNextRecurringInvoiceNumber($this->invoice->client, $this->invoice);
+        $recurring_invoice->save();
+
+        $invoice = RecurringInvoiceToInvoiceFactory::create($recurring_invoice, $this->client);
+
+        $this->assertEquals(null, $invoice->subscription_id);
+    }
+
+    public function testSubscriptionIdPassesToInvoiceIfNothingSet()
+    {
+        $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
+        $recurring_invoice->user_id = $this->user->id;
+        $recurring_invoice->next_send_date = \Carbon\Carbon::now()->addDays(10);
+        $recurring_invoice->status_id = RecurringInvoice::STATUS_ACTIVE;
+        $recurring_invoice->remaining_cycles = 2;
+        $recurring_invoice->next_send_date = \Carbon\Carbon::now()->addDays(10);
+        $recurring_invoice->save();
+
+        $recurring_invoice->number = $this->getNextRecurringInvoiceNumber($this->invoice->client, $this->invoice);
+        $recurring_invoice->save();
+
+        $invoice = RecurringInvoiceToInvoiceFactory::create($recurring_invoice, $this->client);
+
+        $this->assertEquals(null, $invoice->subscription_id);
     }
 }
