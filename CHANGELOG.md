@@ -5,6 +5,7 @@
 - Client portal: Show message when trying to approve non-approvable quotes
 - Client portal: Remove "Approve" button from single quote page if quote is non-approvable
 - Client portal: Hide "Pay now" buttons if no gateways are configured
+- Client portal: "Download" and "Open in new tab" buttons on documents show page
 
 ## Fixed:
 - Client portal: Showing message instead of blank page when trying to download zero quotes
