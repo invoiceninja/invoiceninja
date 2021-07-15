@@ -695,9 +695,13 @@ nlog("handle plan change");
      */
     public function triggerWebhook($context)
     {
+        nlog("trigger webook");
+
         if (empty($this->subscription->webhook_configuration['post_purchase_url']) || is_null($this->subscription->webhook_configuration['post_purchase_url']) || strlen($this->subscription->webhook_configuration['post_purchase_url']) < 1) {
             return ["message" => "Success", "status_code" => 200];
         }
+
+        nlog("past first if");
 
         $response = false;
 
@@ -708,6 +712,8 @@ nlog("handle plan change");
         ]);
 
         $response = $this->sendLoad($this->subscription, $body);
+
+        nlog("after response");
 
         /* Append the response to the system logger body */
         if(is_array($response)){
@@ -732,6 +738,7 @@ nlog("handle plan change");
                 $client->company,
             );
         
+        nlog("ready to fire back");
 
         if(is_array($body))
           return $response;
@@ -909,14 +916,24 @@ nlog("handle plan change");
 
     public function planPaid($invoice)
     {
+        nlog("this is a plan that has been paid");
+
+        $recurring_invoice_hashed_id = $invoice->recurring_invoice()->exists() ? $invoice->recurring_invoice->hashed_id : null;
+        
             $context = [
                 'context' => 'plan_paid',
                 'subscription' => $this->subscription->hashed_id,
-                'recurring_invoice' => $invoice->recurring_invoice->hashed_id,
+                'recurring_invoice' => $recurring_invoice_hashed_id,
                 'client' => $invoice->client->hashed_id,
                 'contact' => $invoice->client->primary_contact()->first()->hashed_id,
             ];
 
-            $this->triggerWebhook($context);
+        nlog($context);
+
+        $response = $this->triggerWebhook($context);
+
+        nlog($response);
+
+        return true;
     }
 }
