@@ -97,8 +97,6 @@ class SubscriptionService
 
             $response = $this->triggerWebhook($context);
 
-            // nlog($response);
-
             $this->handleRedirect('/client/recurring_invoices/'.$recurring_invoice->hashed_id);
 
         }
@@ -388,6 +386,7 @@ class SubscriptionService
 
         $pro_rata_charge_amount = 0;
         $pro_rata_refund_amount = 0;
+        $is_credit = false;
 
         $last_invoice = Invoice::where('subscription_id', $recurring_invoice->subscription_id)
                                          ->where('client_id', $recurring_invoice->client_id)
@@ -396,7 +395,22 @@ class SubscriptionService
                                          ->orderBy('id', 'desc')
                                          ->first();
 
-        if($last_invoice->balance > 0)
+        if(!$last_invoice){
+
+            $is_credit = true;
+
+            $last_invoice = Credit::where('subscription_id', $recurring_invoice->subscription_id)
+                                 ->where('client_id', $recurring_invoice->client_id)
+                                 ->where('is_deleted', 0)
+                                 ->withTrashed()
+                                 ->orderBy('id', 'desc')
+                                 ->first();            
+
+            $pro_rata_refund_amount = $this->calculateProRataRefund($last_invoice, $old_subscription);
+
+        }
+
+        elseif($last_invoice->balance > 0)
         {
             $pro_rata_charge_amount = $this->calculateProRataCharge($last_invoice, $old_subscription);
             nlog("pro rata charge = {$pro_rata_charge_amount}");
@@ -411,7 +425,7 @@ class SubscriptionService
 
         nlog("total payable = {$total_payable}");
 
-        $credit = $this->createCredit($last_invoice, $target_subscription);
+        $credit = $this->createCredit($last_invoice, $target_subscription, $is_credit);
 
         $new_recurring_invoice = $this->createNewRecurringInvoice($recurring_invoice);
 
@@ -523,26 +537,27 @@ class SubscriptionService
      */
     private function handlePlanChange($payment_hash)
     {
-nlog("handle plan change");
+        nlog("handle plan change");
+
         $old_recurring_invoice = RecurringInvoice::find($payment_hash->data->billing_context->recurring_invoice);
 
         $recurring_invoice = $this->createNewRecurringInvoice($old_recurring_invoice);
 
-            $context = [
-                'context' => 'change_plan',
-                'recurring_invoice' => $recurring_invoice->hashed_id,
-                'invoice' => $this->encodePrimaryKey($payment_hash->fee_invoice_id),
-                'client' => $recurring_invoice->client->hashed_id,
-                'subscription' => $this->subscription->hashed_id,
-                'contact' => auth('contact')->user()->hashed_id,
-            ];
+        $context = [
+            'context' => 'change_plan',
+            'recurring_invoice' => $recurring_invoice->hashed_id,
+            'invoice' => $this->encodePrimaryKey($payment_hash->fee_invoice_id),
+            'client' => $recurring_invoice->client->hashed_id,
+            'subscription' => $this->subscription->hashed_id,
+            'contact' => auth('contact')->user()->hashed_id,
+        ];
 
 
-            $response = $this->triggerWebhook($context);
+        $response = $this->triggerWebhook($context);
 
-            nlog($response);
+        nlog($response);
 
-            return $this->handleRedirect('/client/recurring_invoices/'.$recurring_invoice->hashed_id);
+        return $this->handleRedirect('/client/recurring_invoices/'.$recurring_invoice->hashed_id);
 
     }
 
@@ -553,7 +568,7 @@ nlog("handle plan change");
      * @param  RecurringInvoice $old_recurring_invoice
      * @return RecurringInvoice
      */
-    private function createNewRecurringInvoice($old_recurring_invoice) :RecurringInvoice
+    public function createNewRecurringInvoice($old_recurring_invoice) :RecurringInvoice
     {
 
         $old_recurring_invoice->service()->stop()->save();
@@ -582,8 +597,10 @@ nlog("handle plan change");
      * @param  Subscription $target
      * @return Credit
      */
-    private function createCredit($last_invoice, $target)
+    private function createCredit($last_invoice, $target, $is_credit = false)
     {
+
+        $last_invoice_is_credit = $is_credit ? false : true;
 
         $subscription_repo = new SubscriptionRepository();
         $credit_repo = new CreditRepository();
@@ -594,7 +611,7 @@ nlog("handle plan change");
 
         $line_items = $subscription_repo->generateLineItems($target, false, true);
 
-        $credit->line_items = array_merge($line_items, $this->calculateProRataRefundItems($last_invoice, true));
+        $credit->line_items = array_merge($line_items, $this->calculateProRataRefundItems($last_invoice, $last_invoice_is_credit));
 
         $data = [
             'client_id' => $last_invoice->client_id,
@@ -621,7 +638,7 @@ nlog("handle plan change");
 
         $invoice = InvoiceFactory::create($this->subscription->company_id, $this->subscription->user_id);
         $invoice->date = now()->format('Y-m-d');
-        $invoice->subscription_id = $this->subscription->id;
+        $invoice->subscription_id = $target->id;
 
         $invoice->line_items = array_merge($subscription_repo->generateLineItems($target), $this->calculateProRataRefundItems($last_invoice));
 
@@ -916,23 +933,18 @@ nlog("handle plan change");
 
     public function planPaid($invoice)
     {
-        nlog("this is a plan that has been paid");
-
         $recurring_invoice_hashed_id = $invoice->recurring_invoice()->exists() ? $invoice->recurring_invoice->hashed_id : null;
-        
+
             $context = [
                 'context' => 'plan_paid',
                 'subscription' => $this->subscription->hashed_id,
                 'recurring_invoice' => $recurring_invoice_hashed_id,
                 'client' => $invoice->client->hashed_id,
                 'contact' => $invoice->client->primary_contact()->first()->hashed_id,
+                'invoice' => $invoice->hashed_id,
             ];
 
-        nlog($context);
-
         $response = $this->triggerWebhook($context);
-
-        nlog($response);
 
         return true;
     }

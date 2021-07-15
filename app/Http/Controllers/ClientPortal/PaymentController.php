@@ -243,6 +243,10 @@ class PaymentController extends Controller
                 ->get();
         }
 
+        if(!$is_credit_payment){
+            $credit_totals = 0;
+        }
+
         $hash_data = ['invoices' => $payable_invoices->toArray(), 'credits' => $credit_totals, 'amount_with_fee' => max(0, (($invoice_totals + $fee_totals) - $credit_totals))];
 
         if ($request->query('hash')) {
@@ -257,11 +261,19 @@ class PaymentController extends Controller
 
         $payment_hash->save();
 
+        if($is_credit_payment){
+            $amount_with_fee = max(0, (($invoice_totals + $fee_totals) - $credit_totals));
+        }
+        else{
+            $credit_totals = 0;
+            $amount_with_fee = max(0, $invoice_totals + $fee_totals);    
+        }
+
         $totals = [
             'credit_totals' => $credit_totals,
             'invoice_totals' => $invoice_totals,
             'fee_total' => $fee_totals,
-            'amount_with_fee' => max(0, (($invoice_totals + $fee_totals) - $credit_totals)),
+            'amount_with_fee' => $amount_with_fee,
         ];
 
         $data = [
@@ -273,7 +285,7 @@ class PaymentController extends Controller
             'amount_with_fee' => $invoice_totals + $fee_totals,
         ];
 
-        if ($is_credit_payment) {
+        if ($is_credit_payment || $totals <= 0) {
             return $this->processCreditPayment($request, $data);
         }
 
