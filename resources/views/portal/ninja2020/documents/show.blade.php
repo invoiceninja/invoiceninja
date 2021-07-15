@@ -4,7 +4,7 @@
 @section('body')
 <div class="container mx-auto">
     <div class="grid grid-cols-12">
-        <div class="col-span-7 col-start-3">
+        <div class="col-span-12 lg:col-span-7 lg:col-start-3">
             <div class="bg-white shadow overflow-hidden sm:rounded-lg">
                 <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
                     <h3 class="text-lg leading-6 font-medium text-gray-900">
