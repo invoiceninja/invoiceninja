@@ -192,7 +192,7 @@ info("get company");
             'payment_terms' => $this->account->payment_terms ?: '',
             'reset_counter_frequency_id' => $this->account->reset_counter_frequency_id ? (string) $this->transformFrequencyId
             ($this->account->reset_counter_frequency_id) : '0',
-            'payment_type_id' => $this->account->payment_type_id ? (string) $this->account->payment_type_id : '1',
+            'payment_type_id' => $this->account->payment_type_id ? (string) $this->transformPaymentType($this->account->payment_type_id) : '1',
             'reset_counter_date' => $this->account->reset_counter_date ?: '',
             'tax_name1' => $this->account->tax_name1 ?: '',
             'tax_rate1' => $this->account->tax_rate1 ?: 0,
@@ -431,10 +431,6 @@ info("get company");
         foreach($agts as $agt) {
 
             $payment_method = $agt->default_payment_method;
-
-            if(!$payment_method)
-                continue;
-            
             $contact = Contact::where('id', $payment_method->contact_id)->withTrashed()->first();
 
             $transformed[] = [
@@ -1262,7 +1258,7 @@ info("get company");
     {
         switch ($payment_type_id) {
             case PAYMENT_TYPE_CREDIT:
-                return 1;
+                return 32;
             case PAYMENT_TYPE_ACH:
                 return 4;
             case PAYMENT_TYPE_VISA:
@@ -1283,6 +1279,8 @@ info("get company");
                 return 12;
             case PAYMENT_TYPE_PAYPAL:
                 return 13;
+            case 16:
+                return 15;    
             case PAYMENT_TYPE_CARTE_BLANCHE:
                 return 16;
             case PAYMENT_TYPE_UNIONPAY:
@@ -1774,7 +1772,7 @@ info("translated gateway_type = {$translated_gateway_type}");
                 'invoice_documents' => $expense->invoice_documents,
                 'invoice_id' => $expense->invoice_id,
                 'payment_date' =>  $expense->payment_date,
-                'payment_type_id' =>  $expense->payment_type_id,
+                'payment_type_id' =>  $this->transformPaymentType($expense->payment_type_id),
                 'private_notes' =>  $expense->private_notes,
                 'public_notes' =>  $expense->public_notes,
                 'recurring_expense_id' =>  $expense->recurring_expense_id,
