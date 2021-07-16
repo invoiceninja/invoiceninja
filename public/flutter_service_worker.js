@@ -4,7 +4,7 @@ const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 const RESOURCES = {
   "favicon.png": "dca91c54388f52eded692718d5a98b8b",
-"main.dart.js": "d2cfcffff601cdeaa6baafbe3eced048",
+"main.dart.js": "cdb25603ead5e872cc8dd7a58819380c",
 "/": "23224b5e03519aaa87594403d54412cf",
 "manifest.json": "ce1b79950eb917ea619a0a30da27c6a3",
 "assets/packages/material_design_icons_flutter/lib/fonts/materialdesignicons-webfont.ttf": "174c02fc4609e8fc4389f5d21f16a296",
@@ -29,7 +29,7 @@ const RESOURCES = {
 "assets/assets/images/payment_types/solo.png": "2030c3ccaccf5d5e87916a62f5b084d6",
 "assets/assets/images/payment_types/visa.png": "3ddc4a4d25c946e8ad7e6998f30fd4e3",
 "assets/AssetManifest.json": "7e49562f32e24a9e2557fe4178a84b79",
-"version.json": "0c3f126cb1158e4194ba2865ddd74c74",
+"version.json": "3f9e03374a3e78d2cab3afd8723d0993",
 "icons/Icon-192.png": "bb1cf5f6982006952211c7c8404ffbed",
 "icons/Icon-512.png": "0f9aff01367f0a0c69773d25ca16ef35",
 "favicon.ico": "51636d3a390451561744c42188ccd628"
