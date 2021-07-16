@@ -561,6 +561,7 @@ class Import implements ShouldQueue
         $model_query = (new $model())
                             ->query()
                             ->where($column, $value)
+                            ->where('company_id', $this->company->id)
                             ->exists();
 
         if($model_query)
