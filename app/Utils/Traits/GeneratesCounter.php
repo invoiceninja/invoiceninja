@@ -318,7 +318,7 @@ trait GeneratesCounter
      *
      * @return     bool             True if has shared counter, False otherwise.
      */
-    public function hasSharedCounter(Client $client, string $type) : bool 
+    public function hasSharedCounter(Client $client, string $type = 'quote') : bool 
     {
         if($type == 'quote')
             return (bool) $client->getSetting('shared_invoice_quote_counter');

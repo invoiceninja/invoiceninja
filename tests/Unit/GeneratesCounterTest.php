@@ -108,7 +108,7 @@ class GeneratesCounterTest extends TestCase
 
     public function testHasSharedCounter()
     {
-        $this->assertFalse($this->hasSharedCounter($this->client));
+        $this->assertFalse($this->hasSharedCounter($this->client,));
     }
 
     public function testHasTrueSharedCounter()
