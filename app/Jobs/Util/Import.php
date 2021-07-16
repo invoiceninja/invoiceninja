@@ -558,14 +558,12 @@ class Import implements ShouldQueue
     {
         $value = trim($value);
 
-        $model_query = (new $model())
-                            ->query()
-                            ->where($column, $value)
-                            ->where('company_id', $this->company->id)
-                            ->exists();
+        $model_query = $model::where($column, $value)
+                             ->where('company_id', $this->company->id)
+                             ->exists();
 
         if($model_query)
-            return $value.'_'. Str::random(5);
+            return $value . '_' . Str::random(5);
 
         return $value;
     }
@@ -1102,10 +1100,8 @@ class Import implements ShouldQueue
 
             $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
             $modified['user_id'] = $this->processUserId($resource);
-            //$modified['invoice_id'] = $this->transformId('invoices', $resource['invoice_id']);
             $modified['company_id'] = $this->company->id;
 
-            //unset($modified['invoices']);
             unset($modified['invoice_id']);
 
             if (isset($modified['invoices'])) {
@@ -1114,8 +1110,8 @@ class Import implements ShouldQueue
                         $modified['invoices'][$key]['invoice_id'] = $this->transformId('invoices', $invoice['invoice_id']);
                     } else {
                        nlog($modified['invoices']);
-                        // $modified['credits'][$key]['credit_id'] = $this->transformId('credits', $invoice['invoice_id']);
-                        // $modified['credits'][$key]['amount'] = $modified['invoices'][$key]['amount'];
+                       unset($modified['invoices']);
+                       //if the transformation didn't work - you _must_ unset this data as it will be incorrect!
                     }
                 }
             }
