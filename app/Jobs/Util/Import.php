@@ -558,14 +558,12 @@ class Import implements ShouldQueue
     {
         $value = trim($value);
 
-        $model_query = (new $model())
-                            ->query()
-                            ->where($column, $value)
-                            ->where('company_id', $this->company->id)
-                            ->exists();
+        $model_query = $model::where($column, $value)
+                             ->where('company_id', $this->company->id)
+                             ->exists();
 
         if($model_query)
-            return $value.'_'. Str::random(5);
+            return $value . '_' . Str::random(5);
 
         return $value;
     }
