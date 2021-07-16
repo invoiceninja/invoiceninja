@@ -72,9 +72,16 @@ class StepsController extends BaseController
 
             session()->put('MIGRATION_ENDPOINT', 'https://v5-app1.invoicing.co');
 
+
+            //refactor here to make this a little more magical
+            //
             return redirect(
-                url('/migration/auth')
+                url('/migration/companies')
             );
+
+            // return redirect(
+            //     url('/migration/auth')
+            // );
 
             // return redirect(
             //     url('/migration/endpoint')
@@ -207,6 +214,28 @@ class StepsController extends BaseController
             return redirect(
                 url($this->access['companies']['redirect'])
             );
+        }
+
+        if(Utils::isNinja())
+        {
+
+            //push a job with $request->all() and the auth()->user() reference;
+            //
+            //In that job we will
+            //
+            //Create data file
+            //
+            //Send along a custom protected route
+            //
+            //auth as the end user
+            //and process as per normal.
+            //
+            //we should include a success failure email to contact@ so we can follow up.
+         
+            if ($completeService->isSuccessful()) {
+                return view('migration.completed');
+            }
+   
         }
 
         $completeService = (new CompleteService(session('MIGRATION_ACCOUNT_TOKEN')));
