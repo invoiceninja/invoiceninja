@@ -6,6 +6,7 @@
 - Client portal: Remove "Approve" button from single quote page if quote is non-approvable
 - Client portal: Hide "Pay now" buttons if no gateways are configured
 - Client portal: "Download" and "Open in new tab" buttons on documents show page
+- Client portal: Make "Invoice Ninja" link clickable in footer
 
 ## Fixed:
 - Client portal: Showing message instead of blank page when trying to download zero quotes
