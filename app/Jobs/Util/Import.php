@@ -319,6 +319,12 @@ class Import implements ShouldQueue
         $account = $this->company->account;
         $account->fill($data);
         $account->save();
+
+        //Prevent hosted users being pushed into a trial
+        if(Ninja::isHosted() && $account->plan != ''){
+            $account->trial_plan = '';
+            $account->save();
+        }
     }
 
     /**
@@ -424,6 +430,9 @@ class Import implements ShouldQueue
 
     private function transformCompanyData(array $data): array
     {
+        nlog("pre transformed");
+        nlog($data['settings']);
+
         $company_settings = CompanySettings::defaults();
 
         if (array_key_exists('settings', $data)) {
@@ -445,6 +454,9 @@ class Import implements ShouldQueue
 
             $data['settings'] = $company_settings;
         }
+        
+        nlog("transformed Settings");
+        nlog($data['settings']);
 
         return $data;
     }
@@ -526,7 +538,7 @@ class Import implements ShouldQueue
 
             $user = $user_repository->save($modified, $this->fetchUser($resource['email']), true, true);
             $user->email_verified_at = now();
-            $user->confirmation_code = '';
+            // $user->confirmation_code = '';
 
             if($modified['deleted_at'])
                 $user->deleted_at = now();
@@ -560,6 +572,7 @@ class Import implements ShouldQueue
 
         $model_query = $model::where($column, $value)
                              ->where('company_id', $this->company->id)
+                             ->withTrashed()
                              ->exists();
 
         if($model_query)
