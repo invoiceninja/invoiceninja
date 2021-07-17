@@ -8,16 +8,17 @@ use App\Http\Requests\MigrationCompaniesRequest;
 use App\Http\Requests\MigrationEndpointRequest;
 use App\Http\Requests\MigrationForwardRequest;
 use App\Http\Requests\MigrationTypeRequest;
+use App\Jobs\HostedMigration;
 use App\Libraries\Utils;
 use App\Models\Account;
 use App\Services\Migration\AuthService;
 use App\Services\Migration\CompanyService;
 use App\Services\Migration\CompleteService;
 use App\Traits\GenerateMigrationResources;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Validator;
-use Illuminate\Http\Request;
 
 class StepsController extends BaseController
 {
@@ -48,6 +49,17 @@ class StepsController extends BaseController
      */
     public function start()
     {
+        if(Utils::isNinja()){
+            
+            session()->put('MIGRATION_ENDPOINT', 'https://v5-app1.invoicing.co');
+        //    session()->put('MIGRATION_ENDPOINT', 'http://ninja.test:8000');
+            session()->put('MIGRATION_ACCOUNT_TOKEN','');
+            session()->put('MIGRAITON_API_SECRET', null);
+
+            return $this->companies();
+
+        }
+
         return view('migration.start');
     }
 
@@ -68,13 +80,16 @@ class StepsController extends BaseController
     {
         session()->put('MIGRATION_TYPE', $request->option);
 
-        if ($request->option == 0) {
-
-            session()->put('MIGRATION_ENDPOINT', 'https://invoicing.co');
+        if ($request->option == 0 || $request->option == '0') {
 
             return redirect(
-                url('/migration/auth')
+                url('/migration/companies?hosted=true')
             );
+
+            //old
+            // return redirect(
+            //     url('/migration/auth')
+            // );
 
             // return redirect(
             //     url('/migration/endpoint')
@@ -118,6 +133,7 @@ class StepsController extends BaseController
 
     public function endpoint()
     {
+
         if ($this->shouldGoBack('endpoint')) {
             return redirect(
                 url($this->access['endpoint']['redirect'])
@@ -207,6 +223,16 @@ class StepsController extends BaseController
             return redirect(
                 url($this->access['companies']['redirect'])
             );
+        }
+        $bool = true;
+
+        if(Utils::isNinja())
+        {
+
+            $this->dispatch(new HostedMigration(auth()->user(), $request->all(), config('database.default')));
+            
+            return view('migration.completed');
+   
         }
 
         $completeService = (new CompleteService(session('MIGRATION_ACCOUNT_TOKEN')));

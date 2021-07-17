@@ -71,11 +71,21 @@ trait GenerateMigrationResources
 
     protected function getCompany()
     {
-info("get company");
+        info("get company");
+
+        $financial_year_start = null;
+        if($this->account->financial_year_start)
+        {
+            //2000-02-01 format
+            $exploded_date = explode("-", $this->account->financial_year_start);
+
+            $financial_year_start = (int)$exploded_date[1];
+
+        }
 
         return [
             'first_day_of_week' => $this->account->start_of_week,
-            'first_month_of_year' => $this->account->financial_year_start,
+            'first_month_of_year' => $financial_year_start,
             'version' => NINJA_VERSION,
             'referral_code' => $this->account->referral_code ?: '',
             'account_id' => $this->account->id,
@@ -130,10 +140,15 @@ info("get company");
     {
         info("get co settings");
 
+        $timezone_id = $this->account->timezone_id ? $this->account->timezone_id : 15;
+
+        if($timezone_id > 57)
+            $timezone_id = (string)($timezone_id - 1);
+
         return [
             'auto_bill' => $this->transformAutoBill($this->account->token_billing_id),
             'payment_terms' => $this->account->payment_terms ? (string) $this->account->payment_terms : '',
-            'timezone_id' => $this->account->timezone_id ? (string) $this->account->timezone_id : '15',
+            'timezone_id' => $timezone_id,
             'date_format_id' => $this->account->date_format_id ? (string) $this->account->date_format_id : '1',
             'currency_id' => $this->account->currency_id ? (string) $this->account->currency_id : '1',
             'name' => $this->account->name ?: trans('texts.untitled'),
@@ -192,7 +207,7 @@ info("get company");
             'payment_terms' => $this->account->payment_terms ?: '',
             'reset_counter_frequency_id' => $this->account->reset_counter_frequency_id ? (string) $this->transformFrequencyId
             ($this->account->reset_counter_frequency_id) : '0',
-            'payment_type_id' => $this->account->payment_type_id ? (string) $this->account->payment_type_id : '1',
+            'payment_type_id' => $this->account->payment_type_id ? (string) $this->transformPaymentType($this->account->payment_type_id) : '1',
             'reset_counter_date' => $this->account->reset_counter_date ?: '',
             'tax_name1' => $this->account->tax_name1 ?: '',
             'tax_rate1' => $this->account->tax_rate1 ?: 0,
@@ -363,8 +378,6 @@ info("get company");
 
     private function getClientSettings($client)
     {
-        info("get client settings");
-
 
         $settings = new \stdClass();
         $settings->currency_id = $client->currency_id ? (string) $client->currency_id : (string) $client->account->currency_id;
@@ -381,8 +394,7 @@ info("get company");
 
     protected function getClientContacts($client)
     {
-        info("get client contacts");
-
+     
         $contacts = Contact::where('client_id', $client->id)->withTrashed()->get();
 
         $transformed = [];
@@ -431,10 +443,6 @@ info("get company");
         foreach($agts as $agt) {
 
             $payment_method = $agt->default_payment_method;
-
-            if(!$payment_method)
-                continue;
-            
             $contact = Contact::where('id', $payment_method->contact_id)->withTrashed()->first();
 
             $transformed[] = [
@@ -999,7 +1007,7 @@ info("get company");
 
     public function getResourceInvitations($items, $resourceKeyId)
     {
-        info("get resource {$resourceKeyId} invitations");
+        // info("get resource {$resourceKeyId} invitations");
 
         $transformed = [];
 
@@ -1072,7 +1080,7 @@ info("get company");
 
     public function getInvoiceItems($items)
     {
-        info("get invoice items");
+        // info("get invoice items");
 
         $transformed = [];
 
@@ -1262,7 +1270,7 @@ info("get company");
     {
         switch ($payment_type_id) {
             case PAYMENT_TYPE_CREDIT:
-                return 1;
+                return 32;
             case PAYMENT_TYPE_ACH:
                 return 4;
             case PAYMENT_TYPE_VISA:
@@ -1283,6 +1291,8 @@ info("get company");
                 return 12;
             case PAYMENT_TYPE_PAYPAL:
                 return 13;
+            case 16:
+                return 15;    
             case PAYMENT_TYPE_CARTE_BLANCHE:
                 return 16;
             case PAYMENT_TYPE_UNIONPAY:
@@ -1396,12 +1406,9 @@ info("get company");
 
             $fees_and_limits = $this->transformFeesAndLimits($gateway_type);
 
-info("generated fees and limits = ");
-info(print_r($fees_and_limits,1));
 
             $translated_gateway_type = $this->translateGatewayTypeId($gateway_type);
 
-info("translated gateway_type = {$translated_gateway_type}");
 
             $fees->{$translated_gateway_type} = $fees_and_limits;
         }
@@ -1774,7 +1781,7 @@ info("translated gateway_type = {$translated_gateway_type}");
                 'invoice_documents' => $expense->invoice_documents,
                 'invoice_id' => $expense->invoice_id,
                 'payment_date' =>  $expense->payment_date,
-                'payment_type_id' =>  $expense->payment_type_id,
+                'payment_type_id' =>  $this->transformPaymentType($expense->payment_type_id),
                 'private_notes' =>  $expense->private_notes,
                 'public_notes' =>  $expense->public_notes,
                 'recurring_expense_id' =>  $expense->recurring_expense_id,

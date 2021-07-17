@@ -47,4 +47,6 @@ return [
         'subscription_key' => env('MSBOT_LUIS_SUBSCRIPTION_KEY'),
     ],
 
+    'ninja_hosted_secret' => env('NINJA_HOSTED_SECRET', false),
+
 ];
