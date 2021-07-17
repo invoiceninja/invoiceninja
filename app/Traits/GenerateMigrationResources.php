@@ -71,11 +71,21 @@ trait GenerateMigrationResources
 
     protected function getCompany()
     {
-info("get company");
+        info("get company");
+
+        $financial_year_start = null;
+        if($this->account->financial_year_start)
+        {
+            //2000-02-01 format
+            $exploded_date = explode("-", $this->account->financial_year_start);
+
+            $financial_year_start = (int)$exploded_date[1];
+
+        }
 
         return [
             'first_day_of_week' => $this->account->start_of_week,
-            'first_month_of_year' => $this->account->financial_year_start,
+            'first_month_of_year' => $financial_year_start,
             'version' => NINJA_VERSION,
             'referral_code' => $this->account->referral_code ?: '',
             'account_id' => $this->account->id,
@@ -130,10 +140,15 @@ info("get company");
     {
         info("get co settings");
 
+        $timezone_id = $this->account->timezone_id ? $this->account->timezone_id : 15;
+
+        if($timezone_id > 57)
+            $timezone_id = (string)($timezone_id - 1);
+
         return [
             'auto_bill' => $this->transformAutoBill($this->account->token_billing_id),
             'payment_terms' => $this->account->payment_terms ? (string) $this->account->payment_terms : '',
-            'timezone_id' => $this->account->timezone_id ? (string) $this->account->timezone_id : '15',
+            'timezone_id' => $timezone_id,
             'date_format_id' => $this->account->date_format_id ? (string) $this->account->date_format_id : '1',
             'currency_id' => $this->account->currency_id ? (string) $this->account->currency_id : '1',
             'name' => $this->account->name ?: trans('texts.untitled'),
