@@ -21,6 +21,7 @@ class HostedMigrationController extends Controller
 
     public function getAccount(Request $request)
     {
+
         if($request->header('X-API-HOSTED-SECRET') != config('ninja.ninja_hosted_secret'))
             return;
 
@@ -32,8 +33,7 @@ class HostedMigrationController extends Controller
                 return response()->json(['token' => $user->account->companies->first()->tokens->first()->token] ,200);
             }
 
-            
-            return response()->json(['error' => 'This user is not able to perform a migration. Please contact us at contact@invoiceninja.com to discuss.'], 401)
+            return response()->json(['error' => 'This user is not able to perform a migration. Please contact us at contact@invoiceninja.com to discuss.'], 401);
             
         }
 
