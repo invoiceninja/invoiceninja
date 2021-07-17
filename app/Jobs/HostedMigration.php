@@ -47,7 +47,7 @@ class HostedMigration extends Job
         //build the contents to be posted
 
         $completeService = (new CompleteService($this->migration_token));
-        
+
         $migrationData = $this->generateMigrationData($data);
 
         $completeService->data($migrationData)
@@ -67,7 +67,12 @@ class HostedMigration extends Job
         ];
 
         $body = [
+            'first_name' => $this->user->first_name,
+            'last_name' => $this->user->last_name,
             'email' => $this->user->email,
+            'privacy_policy' => true,
+            'terms_of_service' => true,
+            'password' => '',
         ];
 
         $response = Request::post($url, $headers, $body);
