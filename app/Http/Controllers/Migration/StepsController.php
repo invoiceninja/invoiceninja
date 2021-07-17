@@ -72,11 +72,10 @@ class StepsController extends BaseController
 
             session()->put('MIGRATION_ENDPOINT', 'https://v5-app1.invoicing.co');
 
-
             //refactor here to make this a little more magical
             //
             return redirect(
-                url('/migration/companies')
+                url('/migration/companies?hosted=true')
             );
 
             // return redirect(
@@ -216,7 +215,7 @@ class StepsController extends BaseController
             );
         }
 
-        if(Utils::isNinja())
+        if($request->has('hosted') && $request->input('hosted') == 'true')
         {
 
             //push a job with $request->all() and the auth()->user() reference;
@@ -231,7 +230,8 @@ class StepsController extends BaseController
             //and process as per normal.
             //
             //we should include a success failure email to contact@ so we can follow up.
-         
+            HostedMigration::dispatch(auth()->user(), $request->all(), config('database.default'));
+            
             if ($completeService->isSuccessful()) {
                 return view('migration.completed');
             }
