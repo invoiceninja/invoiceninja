@@ -319,6 +319,12 @@ class Import implements ShouldQueue
         $account = $this->company->account;
         $account->fill($data);
         $account->save();
+
+        //Prevent hosted users being pushed into a trial
+        if(Ninja::isHosted() && $account->plan != ''){
+            $account->trial_plan = '';
+            $account->save();
+        }
     }
 
     /**

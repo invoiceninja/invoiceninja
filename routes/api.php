@@ -206,4 +206,6 @@ Route::post('api/v1/postmark_webhook', 'PostMarkController@webhook');
 Route::get('token_hash_router', 'OneTimeTokenController@router');
 Route::get('webcron', 'WebCronController@index');
 
+Route::post('api/v1/get_migration_account', 'HostedMigration@getAccount');
+
 Route::fallback('BaseController@notFound');
