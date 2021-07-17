@@ -532,7 +532,7 @@ class Import implements ShouldQueue
 
             $user = $user_repository->save($modified, $this->fetchUser($resource['email']), true, true);
             $user->email_verified_at = now();
-            $user->confirmation_code = '';
+            // $user->confirmation_code = '';
 
             if($modified['deleted_at'])
                 $user->deleted_at = now();
