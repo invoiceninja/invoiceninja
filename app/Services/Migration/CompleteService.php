@@ -40,6 +40,7 @@ class CompleteService
 
     public function start()
     {
+        
         $files = [];
 
         foreach ($this->data as $companyKey => $companyData) {

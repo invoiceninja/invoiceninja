@@ -23,9 +23,7 @@ class HostedMigration extends Job
 
     private $v4_secret;
 
-    private $migration_token;
-
-    public $account;
+    public $migration_token;
 
     public function __construct(User $user, array $data, $db)
     {
@@ -40,18 +38,19 @@ class HostedMigration extends Job
      */
     public function handle()
     {
+
         config(['database.default' => $this->db]);
 
         //Create or get a token
         $this->getToken();
-        //build the contents to be posted
 
         $completeService = (new CompleteService($this->migration_token));
 
-        $migrationData = $this->generateMigrationData($data);
+        $migrationData = $this->generateMigrationData($this->data);
 
         $completeService->data($migrationData)
         ->endpoint('https://v5-app1.invoicing.co')
+        // ->endpoint('http://ninja.test:8000')
         ->start();
 
     }
@@ -59,6 +58,7 @@ class HostedMigration extends Job
     private function getToken()
     {
         $url = 'https://invoicing.co/api/v1/get_migration_account';
+        // $url = 'http://ninja.test:8000/api/v1/get_migration_account';
 
         $headers = [
             'X-API-HOSTED-SECRET' => $this->v4_secret,
@@ -75,13 +75,15 @@ class HostedMigration extends Job
             'password' => '',
         ];
 
+        $body = \Unirest\Request\Body::json($body);
+
         $response = Request::post($url, $headers, $body);
 
         if (in_array($response->code, [200])) {
             
-            $data = $response->body();
-
-            $this->migration_token = $data['token']; 
+            $data = $response->body;
+            info(print_r($data,1));
+            $this->migration_token = $data->token; 
 
         } else {
             info("getting token failed");
@@ -89,6 +91,7 @@ class HostedMigration extends Job
 
         }   
 
+        return $this;
     }
 
 

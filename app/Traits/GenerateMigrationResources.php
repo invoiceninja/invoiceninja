@@ -363,8 +363,6 @@ info("get company");
 
     private function getClientSettings($client)
     {
-        info("get client settings");
-
 
         $settings = new \stdClass();
         $settings->currency_id = $client->currency_id ? (string) $client->currency_id : (string) $client->account->currency_id;
@@ -381,8 +379,7 @@ info("get company");
 
     protected function getClientContacts($client)
     {
-        info("get client contacts");
-
+     
         $contacts = Contact::where('client_id', $client->id)->withTrashed()->get();
 
         $transformed = [];
@@ -995,7 +992,7 @@ info("get company");
 
     public function getResourceInvitations($items, $resourceKeyId)
     {
-        info("get resource {$resourceKeyId} invitations");
+        // info("get resource {$resourceKeyId} invitations");
 
         $transformed = [];
 
@@ -1068,7 +1065,7 @@ info("get company");
 
     public function getInvoiceItems($items)
     {
-        info("get invoice items");
+        // info("get invoice items");
 
         $transformed = [];
 
@@ -1394,12 +1391,9 @@ info("get company");
 
             $fees_and_limits = $this->transformFeesAndLimits($gateway_type);
 
-info("generated fees and limits = ");
-info(print_r($fees_and_limits,1));
 
             $translated_gateway_type = $this->translateGatewayTypeId($gateway_type);
 
-info("translated gateway_type = {$translated_gateway_type}");
 
             $fees->{$translated_gateway_type} = $fees_and_limits;
         }
