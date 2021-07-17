@@ -940,7 +940,7 @@ class SubscriptionService
                 'subscription' => $this->subscription->hashed_id,
                 'recurring_invoice' => $recurring_invoice_hashed_id,
                 'client' => $invoice->client->hashed_id,
-                'contact' => $invoice->client->primary_contact()->first()->hashed_id,
+                'contact' => $invoice->client->primary_contact()->first() ? $invoice->client->contacts->first() : false,
                 'invoice' => $invoice->hashed_id,
             ];
 
