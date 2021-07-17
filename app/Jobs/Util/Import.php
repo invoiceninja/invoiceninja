@@ -430,6 +430,9 @@ class Import implements ShouldQueue
 
     private function transformCompanyData(array $data): array
     {
+        nlog("pre transformed");
+        nlog($data['settings']);
+
         $company_settings = CompanySettings::defaults();
 
         if (array_key_exists('settings', $data)) {
@@ -451,6 +454,9 @@ class Import implements ShouldQueue
 
             $data['settings'] = $company_settings;
         }
+        
+        nlog("transformed Settings");
+        nlog($data['settings']);
 
         return $data;
     }
@@ -566,6 +572,7 @@ class Import implements ShouldQueue
 
         $model_query = $model::where($column, $value)
                              ->where('company_id', $this->company->id)
+                             ->withTrashed()
                              ->exists();
 
         if($model_query)

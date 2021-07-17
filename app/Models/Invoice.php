@@ -93,6 +93,7 @@ class Invoice extends BaseModel
         'exchange_rate',
         'subscription_id',
         'auto_bill_enabled',
+        'uses_inclusive_taxes',
     ];
 
     protected $casts = [
