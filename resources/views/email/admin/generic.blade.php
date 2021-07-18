@@ -29,5 +29,9 @@
         @isset($url)
             <a href="{{ $url }}" class="button" target="_blank">{{ ctrans($button) }}</a>
         @endisset
+
+        @isset($signature)
+            <p>{!! nl2br($signature) !!}</p>
+        @endisset
     </div>
 @endcomponent

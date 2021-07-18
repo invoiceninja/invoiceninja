@@ -371,6 +371,11 @@ class CompanyGateway extends BaseModel
         return $fee;
     }
 
+    public function webhookUrl()
+    {
+        return route('payment_webhook', ['company_key' => $this->company->company_key, 'company_gateway_id' => $this->hashed_id]);
+    }
+
     /**
      * we need to average out the gateway fees across all the invoices
      * so lets iterate.
@@ -412,4 +417,6 @@ class CompanyGateway extends BaseModel
         return $this
             ->where('id', $this->decodePrimaryKey($value))->firstOrFail();
     }
+
+
 }

@@ -53,4 +53,24 @@ class DatesTest extends TestCase
 
         $this->assertEquals(7, $x);
     }
+
+    public function testFourteenDaysFromNow()
+    {
+        $date_in_past = '2020-01-01';
+
+        $date_in_future = Carbon::parse('2020-01-16');
+
+        $this->assertTrue($date_in_future->gt(Carbon::parse($date_in_past)->addDays(14)));
+
+    }
+
+    public function testThirteenteenDaysFromNow()
+    {
+        $date_in_past = '2020-01-01';
+
+        $date_in_future = Carbon::parse('2020-01-15');
+
+        $this->assertFalse($date_in_future->gt(Carbon::parse($date_in_past)->addDays(14)));
+
+    }
 }

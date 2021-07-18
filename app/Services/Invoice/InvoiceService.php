@@ -33,13 +33,9 @@ class InvoiceService
 
     private $invoice;
 
-    protected $client_service;
-
     public function __construct($invoice)
     {
         $this->invoice = $invoice;
-
-        $this->client_service = new ClientService($invoice->client);
     }
 
     /**
@@ -49,7 +45,7 @@ class InvoiceService
      */
     public function markPaid()
     {
-        $this->invoice = (new MarkPaid($this->client_service, $this->invoice))->run();
+        $this->invoice = (new MarkPaid($this->invoice))->run();
 
         return $this;
     }

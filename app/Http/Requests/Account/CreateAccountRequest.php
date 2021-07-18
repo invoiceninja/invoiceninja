@@ -46,7 +46,8 @@ class CreateAccountRequest extends Request
     }
 
     protected function prepareForValidation()
-    {nlog($this->all());
+    {
+        
         $input = $this->all();
 
         $input['user_agent'] = request()->server('HTTP_USER_AGENT');

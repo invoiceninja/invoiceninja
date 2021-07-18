@@ -16,6 +16,7 @@ use App\Models\Company;
 use App\Models\Credit;
 use App\Models\CreditInvitation;
 use App\Models\User;
+use App\Utils\Traits\AppSetup;
 use Tests\MockUnitData;
 use Tests\TestCase;
 
@@ -25,6 +26,7 @@ use Tests\TestCase;
 class CreditBalanceTest extends TestCase
 {
     use MockUnitData;
+    use AppSetup;
 
     public function setUp() :void
     {
@@ -35,6 +37,8 @@ class CreditBalanceTest extends TestCase
         });
 
         $this->makeTestData();
+    
+        $this->buildCache(true);
     }
 
     public function testCreditBalance()

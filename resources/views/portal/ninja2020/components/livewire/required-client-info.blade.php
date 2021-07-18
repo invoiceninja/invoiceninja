@@ -10,7 +10,7 @@
             </p>
         </div>
 
-        <form wire:submit.prevent="handleSubmit(Object.fromEntries(new FormData($event.target)))">
+        <form id="required-client-info-form" wire:submit.prevent="handleSubmit(Object.fromEntries(new FormData(document.getElementById('required-client-info-form'))))">
             @foreach($fields as $field)
                 @if(!array_key_exists('filled', $field))
                     @component('portal.ninja2020.components.general.card-element', ['title' => $field['label']])

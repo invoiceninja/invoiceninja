@@ -4277,7 +4277,10 @@ $LANG = array(
     'email_sent' => 'E-mail sent, please check your inbox.',
     'one_time_purchases' => 'One time purchases',
     'recurring_purchases' => 'Recurring purchases',
-    'you_might_be_interested_in_following' => 'You might be interested in following',
+    'you_might_be_interested_in_following' => 'You might be interested in the following',
+    'quotes_with_status_sent_can_be_approved' => 'Only quotes with "Sent" status can be approved.',
+    'no_quotes_available_for_download' => 'No quotes available for download.',
+    'copyright' => 'Copyright',
 );
 
 return $LANG;

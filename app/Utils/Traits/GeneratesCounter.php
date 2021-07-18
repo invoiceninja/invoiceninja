@@ -126,7 +126,7 @@ trait GeneratesCounter
                 break;
             case Quote::class:
 
-                if ($this->hasSharedCounter($client)) 
+                if ($this->hasSharedCounter($client, 'quote')) 
                     return 'invoice_number_counter';
                 
                 return 'quote_number_counter';
@@ -138,7 +138,7 @@ trait GeneratesCounter
                 return 'payment_number_counter';
                 break;
             case Credit::class:
-                if ($this->hasSharedCounter($client)) 
+                if ($this->hasSharedCounter($client, 'credit')) 
                     return 'invoice_number_counter';
             
                 return 'credit_number_counter';
@@ -318,9 +318,13 @@ trait GeneratesCounter
      *
      * @return     bool             True if has shared counter, False otherwise.
      */
-    public function hasSharedCounter(Client $client) : bool 
+    public function hasSharedCounter(Client $client, string $type = 'quote') : bool 
     {
-        return (bool) $client->getSetting('shared_invoice_quote_counter') || (bool) $client->getSetting('shared_invoice_credit_counter');
+        if($type == 'quote')
+            return (bool) $client->getSetting('shared_invoice_quote_counter');
+
+        if($type == 'credit')
+            return (bool) $client->getSetting('shared_invoice_credit_counter');
     }
 
     /**

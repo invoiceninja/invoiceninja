@@ -48,6 +48,9 @@ class CreateCompanyTaskStatuses
 
         MultiDB::setDb($this->company->db);
         
+        if(TaskStatus::where('company_id', $this->company->id)->count() > 0)
+            return;
+        
         $task_statuses = [
             ['name' => ctrans('texts.backlog'), 'company_id' => $this->company->id, 'user_id' => $this->user->id, 'created_at' => now(), 'updated_at' => now(), 'status_order' => 1],
             ['name' => ctrans('texts.ready_to_do'), 'company_id' => $this->company->id, 'user_id' => $this->user->id, 'created_at' => now(), 'updated_at' => now(), 'status_order' => 2],

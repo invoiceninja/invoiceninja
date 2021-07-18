@@ -54,8 +54,8 @@ class Account extends BaseModel
         'deleted_at',
         'promo_expires',
         'discount_expires',
-        'trial_started',
-        'plan_expires'
+        // 'trial_started',
+        // 'plan_expires'
     ];
 
     const PLAN_FREE = 'free';
@@ -118,6 +118,11 @@ class Account extends BaseModel
     public function company_users()
     {
         return $this->hasMany(CompanyUser::class);
+    }
+
+    public function owner()
+    {
+        return $this->hasMany(CompanyUser::class)->where('is_owner', true)->first() ? $this->hasMany(CompanyUser::class)->where('is_owner', true)->first()->user : false;
     }
 
     public function getPlan()
@@ -256,7 +261,7 @@ class Account extends BaseModel
 
         if ($trial_plan && $include_trial) {
             $trial_started = $this->trial_started;
-            $trial_expires = $this->trial_started->addSeconds($this->trial_duration);
+            $trial_expires = Carbon::parse($this->trial_started)->addSeconds($this->trial_duration);
 
             if($trial_expires->greaterThan(now())){
                 $trial_active = true;
