@@ -430,8 +430,6 @@ class Import implements ShouldQueue
 
     private function transformCompanyData(array $data): array
     {
-        nlog("pre transformed");
-        nlog($data['settings']);
 
         $company_settings = CompanySettings::defaults();
 
@@ -454,9 +452,7 @@ class Import implements ShouldQueue
 
             $data['settings'] = $company_settings;
         }
-        
-        nlog("transformed Settings");
-        nlog($data['settings']);
+
 
         return $data;
     }

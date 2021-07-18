@@ -57,9 +57,6 @@ class PasswordProtection
             $user = false;
             $google = new Google();
             $user = $google->getTokenResponse(request()->header('X-API-OAUTH-PASSWORD'));
-
-            nlog("user");
-            nlog($user);
             
             if (is_array($user)) {
                 
@@ -67,8 +64,6 @@ class PasswordProtection
                     'oauth_user_id' => $google->harvestSubField($user),
                     'oauth_provider_id'=> 'google'
                 ];
-
-                nlog($query);
 
                 //If OAuth and user also has a password set  - check both
                 if ($existing_user = MultiDB::hasUser($query) && auth()->user()->company()->oauth_password_required && auth()->user()->has_password && Hash::check(auth()->user()->password, $request->header('X-API-PASSWORD'))) {
