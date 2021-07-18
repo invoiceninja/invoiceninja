@@ -47,8 +47,6 @@ class InvitationViewedListener implements ShouldQueue
         $entity_name = lcfirst(class_basename($event->entity));
         $invitation = $event->invitation;
 
-        // $notification = new EntityViewedNotification($invitation, $entity_name);
-
         $nmo = new NinjaMailerObject;
         $nmo->mailable = new NinjaMailer( (new EntityViewedObject($invitation, $entity_name))->build() );
         $nmo->company = $invitation->company;
@@ -57,8 +55,9 @@ class InvitationViewedListener implements ShouldQueue
 
         foreach ($invitation->company->company_users as $company_user) {
             $entity_viewed = "{$entity_name}_viewed";
+            $entity_viewed_all = "{$entity_name}_viewed_all";
 
-            $methods = $this->findUserNotificationTypes($invitation, $company_user, $entity_name, ['all_notifications', $entity_viewed]);
+            $methods = $this->findUserNotificationTypes($invitation, $company_user, $entity_name, ['all_notifications', $entity_viewed, $entity_viewed_all]);
 
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
@@ -68,16 +67,7 @@ class InvitationViewedListener implements ShouldQueue
 
             }
 
-            // $notification->method = $methods;
-
-            // $company_user->user->notify($notification);
         }
 
-        // if (isset($invitation->company->slack_webhook_url)) {
-        //     $notification->method = ['slack'];
-
-            // Notification::route('slack', $invitation->company->slack_webhook_url)
-            //             ->notify($notification);
-        // }
     }
 }
