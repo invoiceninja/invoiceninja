@@ -46,7 +46,7 @@ return [
             'prefix'         => '',
             'prefix_indexes' => true,
             'strict'         => env('DB_STRICT', false),
-            'engine'         => 'InnoDB ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8',
+            // 'engine'         => 'InnoDB ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8',
         ],
 
         'sqlite' => [

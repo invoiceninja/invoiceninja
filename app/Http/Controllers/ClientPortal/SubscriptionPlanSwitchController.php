@@ -43,8 +43,7 @@ class SubscriptionPlanSwitchController extends Controller
          */
         if(is_null($amount))
             render('subscriptions.denied');
-
-
+        
         return render('subscriptions.switch', [
             'subscription' => $recurring_invoice->subscription,
             'recurring_invoice' => $recurring_invoice,

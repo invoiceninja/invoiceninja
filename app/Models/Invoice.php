@@ -93,6 +93,7 @@ class Invoice extends BaseModel
         'exchange_rate',
         'subscription_id',
         'auto_bill_enabled',
+        'uses_inclusive_taxes',
     ];
 
     protected $casts = [
@@ -165,7 +166,7 @@ class Invoice extends BaseModel
 
     public function recurring_invoice()
     {
-        return $this->belongsTo(RecurringInvoice::class)->withTrashed();
+        return $this->belongsTo(RecurringInvoice::class, 'recurring_id', 'id')->withTrashed();
     }
 
     public function assigned_user()

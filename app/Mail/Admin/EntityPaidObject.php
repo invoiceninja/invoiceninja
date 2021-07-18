@@ -91,7 +91,7 @@ class EntityPaidObject
                 'texts.notification_payment_paid_subject',
                 ['client' => $this->payment->client->present()->name()]
             ),
-            'message' => ctrans(
+            'content' => ctrans(
                 'texts.notification_payment_paid',
                 ['amount' => $amount,
                 'client' => $this->payment->client->present()->name(),

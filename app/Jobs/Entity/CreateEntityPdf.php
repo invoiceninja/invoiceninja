@@ -131,8 +131,8 @@ class CreateEntityPdf implements ShouldQueue
 
         $entity_design_id = $this->entity->design_id ? $this->entity->design_id : $this->decodePrimaryKey($this->entity->client->getSetting($entity_design_id));
 
-        if(!$this->company->account->hasFeature(Account::FEATURE_DIFFERENT_DESIGNS))
-            $entity_design_id = 2;
+        // if(!$this->company->account->hasFeature(Account::FEATURE_DIFFERENT_DESIGNS))
+        //     $entity_design_id = 2;
 
         $design = Design::find($entity_design_id);
 

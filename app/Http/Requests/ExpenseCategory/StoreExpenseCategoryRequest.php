@@ -43,7 +43,7 @@ class StoreExpenseCategoryRequest extends Request
         $input = $this->decodePrimaryKeys($input);
 
         if(array_key_exists('color', $input) && is_null($input['color']))
-            $input['color'] = '#fff';
+            $input['color'] = '';
 
         $this->replace($input);
     }

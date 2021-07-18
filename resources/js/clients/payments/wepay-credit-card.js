@@ -33,25 +33,25 @@ class WePayCreditCard {
             this.errors.hidden = false;
 
             return;
-        } else if (this.myCard.CardJs('cardNumber') === "") {
+        } else if (this.myCard.CardJs('cardNumber').replace(/[^\d]/g, '') === "") {
             document.getElementById('card_number').focus();
             this.errors.textContent = "Card number required.";
             this.errors.hidden = false;
 
             return;
-        } else if (this.myCard.CardJs('cvc') === "") {
+        } else if (this.myCard.CardJs('cvc').replace(/[^\d]/g, '') === "") {
             document.getElementById('cvv').focus();
             this.errors.textContent = "CVV number required.";
             this.errors.hidden = false;
 
             return;
-        } else if (this.myCard.CardJs('expiryMonth') === "") {
+        } else if (this.myCard.CardJs('expiryMonth').replace(/[^\d]/g, '') === "") {
             // document.getElementById('expiry_month').focus();
             this.errors.textContent = "Expiry Month number required.";
             this.errors.hidden = false;
 
             return;
-        } else if (this.myCard.CardJs('expiryYear') === "") {
+        } else if (this.myCard.CardJs('expiryYear').replace(/[^\d]/g, '') === "") {
             // document.getElementById('expiry_year').focus();
             this.errors.textContent = "Expiry Year number required.";
             this.errors.hidden = false;
@@ -77,10 +77,10 @@ class WePayCreditCard {
             client_id: document.querySelector('meta[name=wepay-client-id]').content,
             user_name: document.getElementById('cardholder_name').value,
             email: document.querySelector('meta[name=contact-email]').content,
-            cc_number: this.myCard.CardJs('cardNumber'),
-            cvv: this.myCard.CardJs('cvc'),
-            expiration_month: this.myCard.CardJs('expiryMonth'),
-            expiration_year: this.myCard.CardJs('expiryYear'),
+            cc_number: this.myCard.CardJs('cardNumber').replace(/[^\d]/g, ''),
+            cvv: this.myCard.CardJs('cvc').replace(/[^\d]/g, ''),
+            expiration_month: this.myCard.CardJs('expiryMonth').replace(/[^\d]/g, ''),
+            expiration_year: this.myCard.CardJs('expiryYear').replace(/[^\d]/g, ''),
             address: {
                 postal_code: document.querySelector(['meta[name=client-postal-code']).content,
             }
@@ -116,10 +116,10 @@ class WePayCreditCard {
             client_id: document.querySelector('meta[name=wepay-client-id]').content,
             user_name: document.getElementById('cardholder_name').value,
             email: document.querySelector('meta[name=contact-email]').content,
-            cc_number: this.myCard.CardJs('cardNumber'),
-            cvv: this.myCard.CardJs('cvc'),
-            expiration_month: this.myCard.CardJs('expiryMonth'),
-            expiration_year: this.myCard.CardJs('expiryYear'),
+            cc_number: this.myCard.CardJs('cardNumber').replace(/[^\d]/g, ''),
+            cvv: this.myCard.CardJs('cvc').replace(/[^\d]/g, ''),
+            expiration_month: this.myCard.CardJs('expiryMonth').replace(/[^\d]/g, ''),
+            expiration_year: this.myCard.CardJs('expiryYear').replace(/[^\d]/g, ''),
             address: {
                 postal_code: document.querySelector(['meta[name=client-postal-code']).content,
             }

@@ -510,7 +510,7 @@ class ClientController extends BaseController
         $action = request()->input('action');
 
         $ids = request()->input('ids');
-        $clients = Client::withTrashed()->find($this->transformKeys($ids));
+        $clients = Client::withTrashed()->whereIn('id', $this->transformKeys($ids))->cursor();
 
         $clients->each(function ($client, $key) use ($action) {
             if (auth()->user()->can('edit', $client)) {

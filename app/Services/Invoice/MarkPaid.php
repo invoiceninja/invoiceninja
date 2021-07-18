@@ -29,14 +29,10 @@ class MarkPaid extends AbstractService
 {
     use GeneratesCounter;
 
-    private $client_service;
-
     private $invoice;
 
-    public function __construct(ClientService $client_service, Invoice $invoice)
+    public function __construct(Invoice $invoice)
     {
-        $this->client_service = $client_service;
-
         $this->invoice = $invoice;
     }
 
@@ -92,7 +88,9 @@ class MarkPaid extends AbstractService
         $payment->ledger()
                 ->updatePaymentBalance($payment->amount * -1);
 
-        $this->client_service
+        $this->invoice
+            ->client
+            ->service()
             ->updateBalance($payment->amount * -1)
             ->updatePaidToDate($payment->amount)
             ->save();

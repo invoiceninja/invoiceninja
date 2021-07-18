@@ -470,7 +470,7 @@ class ProductController extends BaseController
 
         $ids = request()->input('ids');
 
-        $products = Product::withTrashed()->find($this->transformKeys($ids));
+        $products = Product::withTrashed()->whereIn('id', $this->transformKeys($ids))->cursor();
 
         $products->each(function ($product, $key) use ($action) {
             if (auth()->user()->can('edit', $product)) {

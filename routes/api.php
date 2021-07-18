@@ -198,8 +198,13 @@ Route::match(['get', 'post'], 'payment_webhook/{company_key}/{company_gateway_id
     ->middleware(['guest'])
     ->name('payment_webhook');
 
+Route::match(['get', 'post'], 'payment_notification_webhook/{company_key}/{company_gateway_id}/{client}', 'PaymentNotificationWebhookController')
+    ->middleware(['guest'])
+    ->name('payment_notification_webhook');
+
 Route::post('api/v1/postmark_webhook', 'PostMarkController@webhook');
 Route::get('token_hash_router', 'OneTimeTokenController@router');
 Route::get('webcron', 'WebCronController@index');
+Route::post('api/v1/get_migration_account', 'HostedMigrationController@getAccount')->middleware('guest');
 
 Route::fallback('BaseController@notFound');

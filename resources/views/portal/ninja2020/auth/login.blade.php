@@ -16,7 +16,7 @@
             </div>
         @endif
 
-        <div class="col-span-2 h-screen flex">
+        <div class="{{ $account && !$account->isPaid() ? 'col-span-2' : 'col-span-3' }} h-screen flex">
             <div class="m-auto md:w-1/2 lg:w-1/4">
                 @if($account && !$account->isPaid())
                     <div>

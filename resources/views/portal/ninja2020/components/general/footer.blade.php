@@ -1,10 +1,17 @@
 <footer class="bg-white px-4 py-5 shadow px-4 sm:px-6 md:px-8 flex justify-center border-t border-gray-200 justify-between items-center" x-data="{ privacy: false, tos: false }">
     <section>
-        <span class="text-xs md:text-sm text-gray-700">{{ ctrans('texts.footer_label', ['company' => auth('contact')->user() ? (auth('contact')->user()->user->account->isPaid() ? auth('contact')->user()->company->present()->name() : 'Invoice Ninja') : 'Invoice Ninja', 'year' => date('Y')])  }}</span>
+        @if(auth('contact')->user() && auth('contact')->user()->user->account->isPaid())
+            <span class="text-xs md:text-sm text-gray-700">{{ ctrans('texts.footer_label', ['company' => auth('contact')->user()->company->present()->name(), 'year' => date('Y')]) }}</span>
+        @else
+            <span href="https://invoiceninja.com" target="_blank" class="text-xs md:text-sm text-gray-700">
+                {{ ctrans('texts.copyright') }} &copy; {{ date('Y') }}
+                <a class="text-primary hover:underline" href="https://invoiceninja.com" target="_blank">Invoice Ninja</a>.
+            </span>
+        @endif
 
-        <div class="flex items-center space-x-2">
+        <div class="flex items-center">
             @if(strlen($client->getSetting('client_portal_privacy_policy')) > 1)
-                <a x-on:click="privacy = true; tos = false" href="#" class="button-link text-sm primary-color flex items-center">{{ __('texts.privacy_policy')}}</a>
+                <a x-on:click="privacy = true; tos = false" href="#" class="hover:underline text-sm primary-color flex items-center mr-2">{{ __('texts.privacy_policy')}}</a>
             @endif
 
             @if(strlen($client->getSetting('client_portal_privacy_policy')) > 1 && strlen($client->getSetting('client_portal_terms')) > 1)
@@ -14,7 +21,7 @@
             @endif
 
             @if(strlen($client->getSetting('client_portal_terms')) > 1)
-                <a x-on:click="privacy = false; tos = true" href="#" class="button-link text-sm primary-color flex items-center">{{ __('texts.terms')}}</a>
+                <a x-on:click="privacy = false; tos = true" href="#" class="hover:underline text-sm primary-color flex items-center mr-2">{{ __('texts.terms')}}</a>
             @endif
         </div>
     </section>

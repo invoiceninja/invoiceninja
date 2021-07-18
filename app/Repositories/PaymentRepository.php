@@ -80,6 +80,11 @@ class PaymentRepository extends BaseRepository {
 
                 $client->service()->updatePaidToDate($data['amount'])->save();
             }
+            elseif($data['amount'] >0){
+
+                //this fixes an edge case with unapplied payments
+                $client->service()->updatePaidToDate($data['amount'])->save();
+            }
 
             if (array_key_exists('credits', $data) && is_array($data['credits']) && count($data['credits']) > 0) {
                 $_credit_totals = array_sum(array_column($data['credits'], 'amount'));

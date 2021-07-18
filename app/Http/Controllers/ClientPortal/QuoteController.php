@@ -85,7 +85,9 @@ class QuoteController extends Controller
             ->get();
 
         if (! $quotes || $quotes->count() == 0) {
-            return;
+            return redirect()
+                ->route('client.quotes.index')
+                ->with('message', ctrans('texts.no_quotes_available_for_download'));
         }
 
         if ($quotes->count() == 1) {
@@ -121,7 +123,9 @@ class QuoteController extends Controller
             ->get();
 
         if (!$quotes || $quotes->count() == 0) {
-            return redirect()->route('client.quotes.index');
+            return redirect()
+                ->route('client.quotes.index')
+                ->with('message', ctrans('texts.quotes_with_status_sent_can_be_approved'));
         }
 
         if ($process) {
