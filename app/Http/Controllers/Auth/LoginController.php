@@ -16,6 +16,7 @@ use App\DataMapper\Analytics\LoginSuccess;
 use App\Events\User\UserLoggedIn;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Login\LoginRequest;
 use App\Jobs\Account\CreateAccount;
 use App\Jobs\Company\CreateCompanyToken;
 use App\Jobs\Util\SystemLogger;
@@ -156,7 +157,7 @@ class LoginController extends BaseController
      *       ),
      *     )
      */
-    public function apiLogin(Request $request)
+    public function apiLogin(LoginRequest $request)
     {
         $this->forced_includes = ['company_users'];
 
