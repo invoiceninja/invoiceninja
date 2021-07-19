@@ -25,7 +25,10 @@ use App\Jobs\Company\CreateCompany;
 use App\Jobs\Company\CreateCompanyPaymentTerms;
 use App\Jobs\Company\CreateCompanyTaskStatuses;
 use App\Jobs\Company\CreateCompanyToken;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Ninja\RefundCancelledAccount;
+use App\Mail\Company\CompanyDeleted;
 use App\Models\Account;
 use App\Models\Company;
 use App\Models\CompanyUser;
@@ -504,6 +507,15 @@ class CompanyController extends BaseController
             $company->company_users->each(function ($company_user){
                 $company_user->forceDelete();
             });
+                
+                $other_company = $company->account->companies->where('id', '!=', $company->id)->first();
+
+                $nmo = new NinjaMailerObject;
+                $nmo->mailable = new CompanyDeleted($company->present()->name, auth()->user(), $company->account, $company->settings);
+                $nmo->company = $other_company;
+                $nmo->settings = $other_company->settings;
+                $nmo->to_user = auth()->user();
+                NinjaMailerJob::dispatch($nmo);
 
             $company->delete();
 

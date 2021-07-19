@@ -4282,6 +4282,8 @@ $LANG = array(
     'no_quotes_available_for_download' => 'No quotes available for download.',
     'copyright' => 'Copyright',
     'user_created_user' => ':user created :created_user at :time',
+    'company_deleted' => 'Company deleted',
+    'company_deleted_body' => 'Company [ :company ] was deleted by :user',
 );
 
 return $LANG;
