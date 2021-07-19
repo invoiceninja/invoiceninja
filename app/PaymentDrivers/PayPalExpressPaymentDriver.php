@@ -199,7 +199,7 @@ class PayPalExpressPaymentDriver extends BaseDriver
     {
 
         $_invoice = collect($this->payment_hash->data->invoices)->first();
-        $invoice = Invoice::findOrFail($this->decodePrimaryKey($_invoice->invoice_id));
+        $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
 
         $line_item = collect($invoice->line_items)->first();
 

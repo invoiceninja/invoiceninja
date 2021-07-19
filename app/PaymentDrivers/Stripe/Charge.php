@@ -52,7 +52,7 @@ class Charge
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
-        $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->first();
+        $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->withTrashed()->first();
 
         if ($invoice) {
             $description = "Invoice {$invoice->number} for {$amount} for client {$this->stripe->client->present()->name()}";
