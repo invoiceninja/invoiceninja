@@ -170,4 +170,29 @@ class Ninja
 
     //     return implode('-', $parts);
     // }
+    // 
+    
+    /*
+     * Available - but not recommended for use
+     *
+     * This will guarantee a given string IS the correct format for a 
+     * base64 encoded string ,
+     * but can't guarantee that it is a base64 encoded string
+     *  
+     */
+    public static function isBase64Encoded(string $s) : bool
+    {
+
+    // Check if there are valid base64 characters
+    if (!preg_match('/^[a-zA-Z0-9\/\r\n+]*={0,2}$/', $s)) return false;
+    // Decode the string in strict mode and check the results
+    $decoded = base64_decode($s, true);
+    if(false === $decoded) return false;
+    // if string returned contains not printable chars
+    if (0 < preg_match('/((?![[:graph:]])(?!\s)(?!\p{L}))./', $decoded, $matched)) return false;
+    // Encode the string again
+    if(base64_encode($decoded) != $s) return false;
+    return true;
+
+    }
 }

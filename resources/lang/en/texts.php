@@ -4281,6 +4281,7 @@ $LANG = array(
     'quotes_with_status_sent_can_be_approved' => 'Only quotes with "Sent" status can be approved.',
     'no_quotes_available_for_download' => 'No quotes available for download.',
     'copyright' => 'Copyright',
+    'user_created_user' => ':user created :created_user at :time',
 );
 
 return $LANG;

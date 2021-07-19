@@ -47,8 +47,10 @@ class PasswordProtection
         //test if password if base64 encoded
         $x_api_password = $request->header('X-API-PASSWORD');
 
-        if(base64_decode(base64_encode($x_api_password)) === $x_api_password)
-            $x_api_password = base64_decode($x_api_password);
+        if($request->header('X-API-PASSWORD-BASE64'))
+        {
+            $x_api_password = base64_decode($request->header('X-API-PASSWORD-BASE64'));
+        }
 
         if (Cache::get(auth()->user()->hashed_id.'_'.auth()->user()->account_id.'_logged_in')) {
 
