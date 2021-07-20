@@ -116,7 +116,7 @@ class StoreClientRequest extends Request
 
         $input['settings'] = $settings;
 
-        if (isset($input['country_code'])) {
+        if (isset($input['country_code']) && strlen($input['country_code']) == 3) {
             $input['country_id'] = $this->getCountryCode($input['country_code']);
         }
 
@@ -144,7 +144,10 @@ class StoreClientRequest extends Request
             return $item->iso_3166_2 == $country_code || $item->iso_3166_3 == $country_code;
         })->first();
 
-        return (string) $country->id;
+        if($country)
+            return (string) $country->id;
+
+        return "";
     }
 
     private function getCurrencyCode($code)
