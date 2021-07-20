@@ -283,7 +283,7 @@ class BaseDriver extends AbstractPaymentDriver
         $fee_total = $this->payment_hash->fee_total;
 
         /*Hydrate invoices*/
-        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($payment_invoices, 'invoice_id')))->get();
+        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($payment_invoices, 'invoice_id')))->withTrashed()->get();
 
         $invoices->each(function ($invoice) use ($fee_total) {
             if (collect($invoice->line_items)->contains('type_id', '3')) {
@@ -303,7 +303,7 @@ class BaseDriver extends AbstractPaymentDriver
      */
     public function unWindGatewayFees(PaymentHash $payment_hash)
     {
-        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->get();
+        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
 
         $invoices->each(function ($invoice) {
             $invoice->service()->removeUnpaidGatewayFees();
@@ -384,7 +384,7 @@ class BaseDriver extends AbstractPaymentDriver
         $nmo->company = $gateway->client->company;
         $nmo->settings = $gateway->client->company->settings;
 
-        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->get();
+        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
 
         $invoices->each(function ($invoice){
 

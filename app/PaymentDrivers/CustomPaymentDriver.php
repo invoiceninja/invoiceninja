@@ -61,7 +61,7 @@ class CustomPaymentDriver extends BaseDriver
 
         if (count($this->payment_hash->invoices()) > 0) {
             $invoice_id = $this->decodePrimaryKey($this->payment_hash->invoices()[0]->invoice_id);
-            $invoice = Invoice::findOrFail($invoice_id);
+            $invoice = Invoice::withTrashed()->find($invoice_id);
 
             $variables = (new HtmlEngine($invoice->invitations->first()))->generateLabelsAndValues();
         }

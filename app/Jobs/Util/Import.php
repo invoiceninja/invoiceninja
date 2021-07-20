@@ -1139,7 +1139,10 @@ class Import implements ShouldQueue
             $payment->save(['timestamps' => false]);
 
             if (array_key_exists('company_gateway_id', $resource) && isset($resource['company_gateway_id']) && $resource['company_gateway_id'] != 'NULL') {
-                $payment->company_gateway_id = $this->transformId('company_gateways', $resource['company_gateway_id']);
+
+                if($this->tryTransformingId('company_gateways', $resource['company_gateway_id']))
+                    $payment->company_gateway_id = $this->transformId('company_gateways', $resource['company_gateway_id']);
+                
                 $payment->save();
             }
             
