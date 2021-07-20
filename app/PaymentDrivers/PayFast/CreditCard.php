@@ -248,7 +248,7 @@ class CreditCard
 
         $payment = $this->payfast->createPayment($payment_record, Payment::STATUS_COMPLETED);
 
-        return redirect()->route('client.payments.show', ['payment' => $this->payfast->encodePrimaryKey($payment->id)]);
+        //return redirect()->route('client.payments.show', ['payment' => $this->payfast->encodePrimaryKey($payment->id)]);
     }
 
     private function processUnsuccessfulPayment($server_response)

@@ -48,91 +48,99 @@ class UpdateReminder extends AbstractService
 
         if (is_null($this->invoice->reminder1_sent) &&
             $this->settings->schedule_reminder1 == 'after_invoice_date' &&
-            $this->settings->num_days_reminder1 > 0) {
+            $this->settings->enable_reminder1) {
             $reminder_date = Carbon::parse($this->invoice->date)->startOfDay()->addDays($this->settings->num_days_reminder1)->addSeconds($offset);
 
-            if ($reminder_date->gt(Carbon::parse($this->invoice->next_send_date)));
-                $date_collection->push($reminder_date);
+            if ($reminder_date->gt(Carbon::parse($this->invoice->next_send_date)))
+                $date_collection->push($reminder_date); 
         }
 
         if (is_null($this->invoice->reminder1_sent) &&
             $this->settings->schedule_reminder1 == 'before_due_date' &&
-            $this->settings->num_days_reminder1 > 0) {
+            $this->settings->enable_reminder1) {
             $reminder_date = Carbon::parse($this->invoice->due_date)->startOfDay()->subDays($this->settings->num_days_reminder1)->addSeconds($offset);
 
-            if ($reminder_date->gt(Carbon::parse($this->invoice->next_send_date)));
+            if ($reminder_date->gt(Carbon::parse($this->invoice->next_send_date)))
                 $date_collection->push($reminder_date); 
         }
 
         if (is_null($this->invoice->reminder1_sent) &&
             $this->settings->schedule_reminder1 == 'after_due_date' &&
-            $this->settings->num_days_reminder1 > 0) {
+            $this->settings->enable_reminder1) {
             $reminder_date = Carbon::parse($this->invoice->due_date)->startOfDay()->addDays($this->settings->num_days_reminder1)->addSeconds($offset);
 
-            if ($reminder_date->gt(Carbon::parse($this->invoice->next_send_date)));
-                $date_collection->push($reminder_date);  
+            if ($reminder_date->gt(Carbon::parse($this->invoice->next_send_date)))
+                $date_collection->push($reminder_date);
         }
 
         if (is_null($this->invoice->reminder2_sent) &&
             $this->settings->schedule_reminder2 == 'after_invoice_date' &&
-            $this->settings->num_days_reminder2 > 0) {
+            $this->settings->enable_reminder2) {
             $reminder_date = Carbon::parse($this->invoice->date)->startOfDay()->addDays($this->settings->num_days_reminder2)->addSeconds($offset);
 
-            if ($reminder_date->gt(Carbon::parse($this->invoice->next_send_date)));
+            if ($reminder_date->gt(Carbon::parse($this->invoice->next_send_date)))
                 $date_collection->push($reminder_date); 
         }
 
         if (is_null($this->invoice->reminder2_sent) &&
             $this->settings->schedule_reminder2 == 'before_due_date' &&
-            $this->settings->num_days_reminder2 > 0) {
+            $this->settings->enable_reminder2) {
             $reminder_date = Carbon::parse($this->invoice->due_date)->startOfDay()->subDays($this->settings->num_days_reminder2)->addSeconds($offset);
 
-            if ($reminder_date->gt(Carbon::parse($this->invoice->next_send_date)));
+            if ($reminder_date->gt(Carbon::parse($this->invoice->next_send_date)))
                 $date_collection->push($reminder_date); 
         }
 
         if (is_null($this->invoice->reminder2_sent) &&
             $this->settings->schedule_reminder2 == 'after_due_date' &&
-            $this->settings->num_days_reminder2 > 0) {
+            $this->settings->enable_reminder2) {
             $reminder_date = Carbon::parse($this->invoice->due_date)->startOfDay()->addDays($this->settings->num_days_reminder2)->addSeconds($offset);
 
-            if ($reminder_date->gt(Carbon::parse($this->invoice->next_send_date)));
+            if ($reminder_date->gt(Carbon::parse($this->invoice->next_send_date)))
                 $date_collection->push($reminder_date); 
         }
 
         if (is_null($this->invoice->reminder3_sent) &&
             $this->settings->schedule_reminder3 == 'after_invoice_date' &&
-            $this->settings->num_days_reminder3 > 0) {
+            $this->settings->enable_reminder3) {
             $reminder_date = Carbon::parse($this->invoice->date)->startOfDay()->addDays($this->settings->num_days_reminder3)->addSeconds($offset);
 
-            if ($reminder_date->gt(Carbon::parse($this->invoice->next_send_date)));
+            if ($reminder_date->gt(Carbon::parse($this->invoice->next_send_date)))
                 $date_collection->push($reminder_date); 
         }
 
         if (is_null($this->invoice->reminder3_sent) &&
             $this->settings->schedule_reminder3 == 'before_due_date' &&
-            $this->settings->num_days_reminder3 > 0) {
+            $this->settings->enable_reminder3) {
             $reminder_date = Carbon::parse($this->invoice->due_date)->startOfDay()->subDays($this->settings->num_days_reminder3)->addSeconds($offset);
 
-            if ($reminder_date->gt(Carbon::parse($this->invoice->next_send_date)));
+            if ($reminder_date->gt(Carbon::parse($this->invoice->next_send_date)))
                 $date_collection->push($reminder_date); 
         }
 
         if (is_null($this->invoice->reminder3_sent) &&
             $this->settings->schedule_reminder3 == 'after_due_date' &&
-            $this->settings->num_days_reminder3 > 0) {
+            $this->settings->enable_reminder3) {
             $reminder_date = Carbon::parse($this->invoice->due_date)->startOfDay()->addDays($this->settings->num_days_reminder3)->addSeconds($offset);
 
-            if ($reminder_date->gt(Carbon::parse($this->invoice->next_send_date)));
+            if ($reminder_date->gt(Carbon::parse($this->invoice->next_send_date)))
                 $date_collection->push($reminder_date); 
         }
 
         if ($this->invoice->last_sent_date &&
-            (int)$this->settings->endless_reminder_frequency_id > 0) {
-            $reminder_date = $this->addTimeInterval($this->invoice->last_sent_date, (int)$this->settings->endless_reminder_frequency_id)->addSeconds($offset);
+            $this->settings->enable_reminder_endless) {
 
-            if ($reminder_date->gt(Carbon::parse($this->invoice->next_send_date)));
-                $date_collection->push($reminder_date); 
+            $reminder_date = $this->addTimeInterval($this->invoice->last_sent_date, (int)$this->settings->endless_reminder_frequency_id);
+
+            if($reminder_date){
+
+                $reminder_date->addSeconds($offset);
+
+                if ($reminder_date->gt(Carbon::parse($this->invoice->next_send_date)))
+                    $date_collection->push($reminder_date); 
+
+            }
+
         }
 
         if($date_collection->count() >=1 && $date_collection->sort()->first()->gte(now()))
@@ -143,6 +151,20 @@ class UpdateReminder extends AbstractService
         return $this->invoice;
     }
 
+    private function testReminderValid($reminder_number, $reminder_schedule) :bool
+    {
+    
+        $reminder_sent = "reminder{$reminder_number}_sent";
+        $schedule_reminder = "schedule_reminder{$reminder_number}";
+        $enable_reminder = "enable_reminder{$reminder_number}";
+        $late_fee_amount = "late_fee_amount{$reminder_number}";
+        $late_fee_percent = "late_fee_percent{$reminder_number}";
+
+        return (is_null($this->invoice->{$reminder_sent}) && 
+            $this->settings->{$schedule_reminder} == $reminder_schedule && 
+            ($this->settings->{$enable_reminder} || $late_fee_percent > 0 || $late_fee_amount > 0));
+    
+    }
 
     private function addTimeInterval($date, $endless_reminder_frequency_id) :?Carbon
     {   

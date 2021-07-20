@@ -169,6 +169,7 @@ class PayFastPaymentDriver extends BaseDriver
     {
 
         $data = $request->all();
+        nlog("payfast");
         nlog($data);
 
         if(array_key_exists('m_payment_id', $data))
@@ -179,17 +180,23 @@ class PayFastPaymentDriver extends BaseDriver
             switch ($hash)
             {
                 case 'cc_auth':
-                    return $this->setPaymentMethod(GatewayType::CREDIT_CARD)
-                                ->authorizeResponse($request);
+                    $this->setPaymentMethod(GatewayType::CREDIT_CARD)
+                         ->authorizeResponse($request);
+                    
+                    return response()->json([], 200);
+
                     break;
 
                 default:
 
                     $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$data['m_payment_id']])->first();
 
-                    return $this->setPaymentMethod(GatewayType::CREDIT_CARD)
-                                ->setPaymentHash($payment_hash)
-                                ->processPaymentResponse($request);
+                    $this->setPaymentMethod(GatewayType::CREDIT_CARD)
+                         ->setPaymentHash($payment_hash)
+                         ->processPaymentResponse($request);
+            
+                    return response()->json([], 200);
+
                     break;
             }
 
