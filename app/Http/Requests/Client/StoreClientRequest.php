@@ -116,7 +116,7 @@ class StoreClientRequest extends Request
 
         $input['settings'] = $settings;
 
-        if (isset($input['country_code']) && strlen($input['country_code']) == 3) {
+        if (isset($input['country_code'])) {
             $input['country_id'] = $this->getCountryCode($input['country_code']);
         }
 
