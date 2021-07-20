@@ -46,7 +46,7 @@ class ValidRefundableRequest implements Rule
             return false;
         }
 
-        $payment = Payment::whereId($this->input['id'])->first();
+        $payment = Payment::whereId($this->input['id'])->withTrashed()->first();
 
         if (! $payment) {
             $this->error_msg = ctrans('texts.unable_to_retrieve_payment');
@@ -77,7 +77,7 @@ class ValidRefundableRequest implements Rule
 
     private function checkInvoiceIsPaymentable($invoice, $payment)
     {
-        $invoice = Invoice::whereId($invoice['invoice_id'])->whereCompanyId($payment->company_id)->first();
+        $invoice = Invoice::whereId($invoice['invoice_id'])->whereCompanyId($payment->company_id)->withTrashed()->first();
 
         if ($payment->invoices()->exists()) {
             $paymentable_invoice = $payment->invoices->where('id', $invoice->id)->first();
