@@ -83,6 +83,7 @@ class SystemHealth
             'flutter_renderer' => (string)config('ninja.flutter_canvas_kit'),
             'jobs_pending' => (int) Queue::size(),
             'pdf_engine' => (string) self::getPdfEngine(),
+            'queue' => (string) config('queue.default'),
         ];
     }
 

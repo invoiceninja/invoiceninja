@@ -663,6 +663,7 @@ class CompanySettings extends BaseSettings
                 '$task.line_total',
             ],
             'total_columns' => [
+                '$net_subtotal',
                 '$subtotal',
                 '$discount',
                 '$custom_surcharge1',

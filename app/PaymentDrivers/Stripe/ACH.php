@@ -60,7 +60,8 @@ class ACH
         $customer = $this->stripe->findOrCreateCustomer();
 
         try {
-            $source = $this->stripe->stripe->customers->createSource($customer->id, ['source' => $stripe_response->token->id]);
+            $source = Customer::createSource($customer->id, ['source' => $stripe_response->token->id], $this->stripe->stripe_connect_auth);
+            // $source = $this->stripe->stripe->customers->createSource($customer->id, ['source' => $stripe_response->token->id]);
         } catch (InvalidRequestException $e) {
             throw new PaymentFailed($e->getMessage(), $e->getCode());
         }

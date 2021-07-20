@@ -111,12 +111,9 @@ class WebhookHandler implements ShouldQueue
 
         try {
 
-        $response = $client->post($subscription->target_url, [
-                        RequestOptions::JSON => $data, // or 'json' => [...]
-                    ]);
-
-            if ($response->getStatusCode() == 410 || $response->getStatusCode() == 200)
-                $subscription->delete();
+            $response = $client->post($subscription->target_url, [
+                RequestOptions::JSON => $data, // or 'json' => [...]
+            ]);
 
             SystemLogger::dispatch(
                 $response,
@@ -127,10 +124,13 @@ class WebhookHandler implements ShouldQueue
                 $this->company
             );
 
+            // if ($response->getStatusCode() == 410 || $response->getStatusCode() == 200)
+            //     return true;// $subscription->delete();
+
         }
         catch(\Exception $e){
 
-        // nlog($e->getMessage());
+        nlog($e->getMessage());
 
                 SystemLogger::dispatch(
                 $e->getMessage(),
@@ -142,8 +142,6 @@ class WebhookHandler implements ShouldQueue
             );
 
         }
-
-
 
     }
 

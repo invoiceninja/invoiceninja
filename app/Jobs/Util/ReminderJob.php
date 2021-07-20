@@ -71,18 +71,20 @@ class ReminderJob implements ShouldQueue
             if ($invoice->isPayable()) {
                 $reminder_template = $invoice->calculateTemplate('invoice');
                 $invoice->service()->touchReminder($reminder_template)->save();
-                
                 $invoice = $this->calcLateFee($invoice, $reminder_template);
 
-                $invoice->invitations->each(function ($invitation) use ($invoice, $reminder_template) {
-                    EmailEntity::dispatch($invitation, $invitation->company, $reminder_template);
-                    nlog("Firing reminder email for invoice {$invoice->number}");
-                });
+                //check if this reminder needs to be emailed
+                if(in_array($reminder_template, ['reminder1','reminder2','reminder3']) && $invoice->client->getSetting("enable_".$reminder_template))
+                {
+                    $invoice->invitations->each(function ($invitation) use ($invoice, $reminder_template) {
+                        EmailEntity::dispatch($invitation, $invitation->company, $reminder_template);
+                        nlog("Firing reminder email for invoice {$invoice->number}");
+                    });
 
-                if ($invoice->invitations->count() > 0) {
-                    event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars(), $reminder_template));
+                    if ($invoice->invitations->count() > 0) {
+                        event(new InvoiceWasEmailed($invoice->invitations->first(), $invoice->company, Ninja::eventVars(), $reminder_template));
+                    }
                 }
-
                 $invoice->service()->setReminder()->save();
                 
             } else {

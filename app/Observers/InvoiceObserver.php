@@ -19,6 +19,8 @@ use App\Models\Webhook;
 
 class InvoiceObserver
 {
+    public $afterCommit = true;
+    
     /**
      * Handle the client "created" event.
      *
@@ -27,6 +29,7 @@ class InvoiceObserver
      */
     public function created(Invoice $invoice)
     {
+
         $subscriptions = Webhook::where('company_id', $invoice->company->id)
                             ->where('event_id', Webhook::EVENT_CREATE_INVOICE)
                             ->exists();

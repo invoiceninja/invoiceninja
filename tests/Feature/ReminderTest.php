@@ -86,9 +86,13 @@ class ReminderTest extends TestCase
     {
 
         $this->invoice->date = now()->subDays(2)->format('Y-m-d');
-        $this->invoice->due_date = Carbon::now()->addDays(30)->format('Y-m-d');
+
+        $this->invoice->due_date = now()->addDays(30)->format('Y-m-d');
         $this->invoice->reminder1_sent = now()->subDays(1)->format('Y-m-d');
-        
+        $this->invoice->last_sent_date = now()->subDays(1)->format('Y-m-d');
+        $this->invoice->next_send_date = now()->subDays(1)->format('Y-m-d');
+        $this->invoice->reminder2_sent = null;
+
         $settings = $this->company->settings;
         $settings->enable_reminder1 = true;
         $settings->schedule_reminder1 = 'after_invoice_date';
