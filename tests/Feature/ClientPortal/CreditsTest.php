@@ -12,6 +12,8 @@
 
 namespace Tests\Feature\ClientPortal;
 
+use App\DataMapper\ClientSettings;
+use App\DataMapper\CompanySettings;
 use App\Http\Livewire\CreditsTable;
 use App\Models\Account;
 use App\Models\Client;
@@ -19,6 +21,7 @@ use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Credit;
 use App\Models\User;
+use App\Utils\Traits\AppSetup;
 use Faker\Factory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Livewire\Livewire;
@@ -28,12 +31,14 @@ use function now;
 class CreditsTest extends TestCase
 {
     use DatabaseTransactions;
-
+    use AppSetup;
+    
     public function setUp(): void
     {
         parent::setUp();
 
         $this->faker = Factory::create();
+        $this->buildCache(true);
     }
 
     public function testShowingOnlyCreditsWithDueDateLessOrEqualToNow()
@@ -45,8 +50,12 @@ class CreditsTest extends TestCase
         );
 
         $company = Company::factory()->create(['account_id' => $account->id]);
+        $company->settings = CompanySettings::defaults();
+        $company->save();
 
         $client = Client::factory()->create(['company_id' => $company->id, 'user_id' => $user->id]);
+        $client->settings = ClientSettings::defaults();
+        $client->save();
 
         ClientContact::factory()->count(2)->create([
             'user_id' => $user->id,

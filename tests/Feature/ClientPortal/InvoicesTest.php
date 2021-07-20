@@ -20,6 +20,7 @@ use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\User;
+use App\Utils\Traits\AppSetup;
 use Faker\Factory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Livewire\Livewire;
@@ -28,12 +29,15 @@ use Tests\TestCase;
 class InvoicesTest extends TestCase
 {
     use DatabaseTransactions;
-
+    use AppSetup;
+    
     public function setUp(): void
     {
         parent::setUp();
 
         $this->faker = Factory::create();
+        $this->buildCache(true);
+
     }
 
     public function testInvoiceTableFilters()
