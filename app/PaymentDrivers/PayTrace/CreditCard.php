@@ -23,12 +23,14 @@ use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\PayFastPaymentDriver;
 use App\PaymentDrivers\PaytracePaymentDriver;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class CreditCard
 {
+    use MakesHash;
 
     public $paytrace_driver;
 
@@ -135,7 +137,14 @@ class CreditCard
 
     public function paymentView($data)
     {
+        $data['client_key'] = $this->paytrace_driver->getAuthToken();
+        $data['gateway'] = $this->paytrace_driver;
 
+        //do i store the card?
+        //
+        //do i use a token?
+        //
+        //is it a new card?
 
         return render('gateways.paytrace.pay', $data);
 
@@ -146,7 +155,16 @@ class CreditCard
     {
         $response_array = $request->all();
 
+        if($request->token)
+            $this->processTokenPayment($request);
 
+        if ($request->has('store_card') && $request->input('store_card') === true) {
+
+            //create customer
+            
+        }
+
+        // charge CC
 
         // if($response_array['payment_status'] == 'COMPLETE') {
 
@@ -159,12 +177,33 @@ class CreditCard
         // }
     }
 
+
+    public function processTokenPayment($request)
+    {
+
+        $data = [
+            'customer_id' => $request->token,
+            'integrator_id' => '959195xd1CuC',
+            'amount' => $request->input('amount_with_fee'),
+        ];
+
+        $response = $this->paytrace_driver->gatewayRequest('/v1/transactions/sale/by_customer', $data);
+
+        if($response->success){
+            $this->paytrace_driver->logSuccessfulGatewayResponse(['response' => $response, 'data' => $this->paytrace_driver->payment_hash], SystemLog::TYPE_PAYTRACE);
+
+            return $this->processSuccessfulPayment($response);
+        }
+
+        return $this->processUnsuccessfulPayment($response);
+    }
+
     private function processSuccessfulPayment($response_array)
     {
 
 
 
-        // $payment = $this->paytrace_driver->createPayment($payment_record, Payment::STATUS_COMPLETED);
+        $payment = $this->paytrace_driver->createPayment($payment_record, Payment::STATUS_COMPLETED);
 
 
     }
