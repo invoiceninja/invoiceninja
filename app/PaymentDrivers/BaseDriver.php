@@ -479,7 +479,7 @@ class BaseDriver extends AbstractPaymentDriver
             $this->client->company,
         );
 
-        throw new PaymentFailed($error, $error_code);
+        throw new PaymentFailed($error, 500);
     }
 
 

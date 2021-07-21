@@ -15,7 +15,7 @@
         <input type="hidden" name="amount_with_fee" id="amount_with_fee" value="{{ $total['amount_with_fee'] }}"/>
         <input type="txt" id=HPF_Token name= HPF_Token hidden>
         <input type="txt" id=enc_key name= enc_key hidden>
-    </form>
+
 
     <div class="alert alert-failure mb-4" hidden id="errors"></div>
 
@@ -52,14 +52,13 @@
 
     @include('portal.ninja2020.gateways.includes.save_card')
 
-
     <div class="w-screen items-center" id="paytrace--credit-card-container">
 
         <div id='pt_hpf_form'><!--iframe sensitive data payment fields inserted here--></div>
 
     </div>
-    @include('portal.ninja2020.gateways.includes.pay_now')
-
+    @include('portal.ninja2020.gateways.includes.pay_now', ['type' => 'submit'])
+    </form>
 @endsection
 
 @section('gateway_footer')
@@ -82,9 +81,6 @@
             .getElementById('token').value = e.target.dataset.token;
     }));
 
-    var tokens = document.getElementsByClassName('toggle-payment-with-token');
-    tokens[0].click();
-
     let payWithCreditCardToggle = document.getElementById('toggle-payment-with-credit-card');
 
     if (payWithCreditCardToggle) {
@@ -97,12 +93,12 @@
 
                 document
                     .getElementById('token').value = null;
-
                     token_payment = false;
             });
     }
 
-
+    var tokens = document.getElementsByClassName('toggle-payment-with-token');
+    tokens[0].click();
 
   // Minimal Protect.js setup call
 PTPayment.setup({

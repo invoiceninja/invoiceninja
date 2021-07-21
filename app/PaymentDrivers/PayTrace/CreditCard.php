@@ -17,6 +17,7 @@ use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
+use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
@@ -168,10 +169,12 @@ class CreditCard
 
         //process a regular charge here:
         $data = [
-            'hpf_token' => $data['HPF_Token'],
-            'enc_key' => $data['enc_key'],
+            'hpf_token' => $response_array['HPF_Token'],
+            'enc_key' => $response_array['enc_key'],
             'integrator_id' => '959195xd1CuC',
             'billing_address' => $this->buildBillingAddress(),
+            'amount' => $request->input('amount_with_fee'),
+            'invoice_id' => $this->harvestInvoiceId(),
         ];        
 
         $response = $this->paytrace_driver->gatewayRequest('/v1/transactions/sale/pt_protect', $data);
@@ -202,12 +205,21 @@ class CreditCard
 
         return $this->processUnsuccessfulPayment($response);
     }
+    
+    private function harvestInvoiceId()
+    {
+        $_invoice = collect($this->paytrace_driver->payment_hash->data->invoices)->first();
+        $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
+
+        if($invoice)
+            return ctrans('texts.invoice_number') . "# " . $invoice->number;
+
+        return ctrans('texts.invoice_number') . "####";
+    }
 
     private function processSuccessfulPayment($response)
     {
         $amount = array_sum(array_column($this->paytrace_driver->payment_hash->invoices(), 'amount')) + $this->paytrace_driver->payment_hash->fee_total;
-
-        $response = $response_array;
 
         $payment_record = [];
         $payment_record['amount'] = $amount;
@@ -223,8 +235,12 @@ class CreditCard
 
     private function processUnsuccessfulPayment($response)
     {
-
+        
         $error = $response->status_message;
+
+        if(property_exists($response, 'approval_message') && $response->approval_message)
+            $error .= " - {$response->approval_message}";
+
         $error_code = property_exists($response, 'approval_message') ? $response->approval_message : 'Undefined code';
 
         $data = [
@@ -234,6 +250,7 @@ class CreditCard
         ];
 
         return $this->paytrace_driver->processUnsuccessfulTransaction($data);
+
     }
 
 }
