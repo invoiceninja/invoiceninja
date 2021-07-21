@@ -19,7 +19,7 @@ class ActivatePaytracePaymentDriver extends Migration
 
         if($paytrace)
         {
-            $fields = $paytrace->fields;
+            $fields = json_decode($paytrace->fields);
             $fields->integratorId = "";
 
             $paytrace->fields = $fields;

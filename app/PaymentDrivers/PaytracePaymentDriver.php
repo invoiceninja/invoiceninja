@@ -98,7 +98,6 @@ class PaytracePaymentDriver extends BaseDriver
 
         $response = $this->gatewayRequest('/v1/transactions/refund/to_customer', $data);
 
-
         if($response && $response->success)
         {
 
@@ -113,7 +112,6 @@ class PaytracePaymentDriver extends BaseDriver
                 ];
 
         }
-
 
         SystemLogger::dispatch(['server_response' => $response, 'data' => $data], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_PAYTRACE, $this->client, $this->client->company);
 
