@@ -84,9 +84,9 @@ PTPayment.setup({
 }).then(function(instance){
 
 
-    PTPayment.getControl("securityCode").label.text("CSC");
-    PTPayment.getControl("creditCard").label.text("CC#");
-    PTPayment.getControl("expiration").label.text("Exp Date");
+    PTPayment.getControl("securityCode").label.text("{!! ctrans('texts.cvv')!!}");
+    PTPayment.getControl("creditCard").label.text("{!! ctrans('texts.card_number')!!}");
+    PTPayment.getControl("expiration").label.text("{!! ctrans('texts.expires')!!}");
     //PTPayment.style({'cc': {'label_color': 'red'}});
     //PTPayment.style({'code': {'label_color': 'red'}});
     //PTPayment.style({'exp': {'label_color': 'red'}});
@@ -100,12 +100,15 @@ PTPayment.setup({
 
     // To trigger the validation of sensitive data payment fields within the iframe before calling the tokenization process:
     PTPayment.validate(function(validationErrors) {
+
     if (validationErrors.length >= 1) {
-    if (validationErrors[0]['responseCode'] == '35') {
-     // Handle validation Errors here
-     // This is an example of using dynamic styling to show the Credit card number entered is invalid
-     instance.style({'cc': {'border_color': 'red'}});
-    }
+
+        let errors = document.getElementById('errors');
+
+        errors.textContent = '';
+        errors.textContent = validationErrors[0].description;
+        errors.hidden = false;
+
     } else {
      // no error so tokenize
      instance.process()
@@ -123,9 +126,7 @@ PTPayment.setup({
 
 
 function handleError(err){
-
-
-  document.write(JSON.stringify(err));
+    document.write(JSON.stringify(err));
 }
 
 function submitPayment(r){

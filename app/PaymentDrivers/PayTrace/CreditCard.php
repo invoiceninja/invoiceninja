@@ -51,8 +51,6 @@ class CreditCard
  	{
         $data = $request->all();
         
-        nlog($data);
-
         $post_data = [
             'customer_id' => Str::random(32),
             'hpf_token' => $data['HPF_Token'],
@@ -67,8 +65,6 @@ class CreditCard
             ],
         ];
         
-        nlog($post_data);
-
         //  "_token" => "Vl1xHflBYQt9YFSaNCPTJKlY5x3rwcFE9kvkw71I"
         //   "company_gateway_id" => "1"
         //   "HPF_Token" => "e484a92c-90ed-4468-ac4d-da66824c75de"
@@ -93,16 +89,49 @@ class CreditCard
 
         // dd($response);
 
-  // +"success": true
-  // +"response_code": 160
-  // +"status_message": "The customer profile for PLS5U60OoLUfQXzcmtJYNefPA0gTthzT/11 was successfully created."
-  // +"customer_id": "PLS5U60OoLUfQXzcmtJYNefPA0gTthzT"
+          // +"success": true
+          // +"response_code": 160
+          // +"status_message": "The customer profile for PLS5U60OoLUfQXzcmtJYNefPA0gTthzT/11 was successfully created."
+          // +"customer_id": "PLS5U60OoLUfQXzcmtJYNefPA0gTthzT"
+
+        // if(!$response->success)
+            //handle failure
+            
+        $cgt = [];
+        $cgt['token'] = $response->customer_id;
+        $cgt['payment_method_id'] = GatewayType::CREDIT_CARD;
+
+        $profile = $this->getCustomerProfile($response->customer_id);
+
+        $payment_meta = new \stdClass;
+        $payment_meta->exp_month = $profile->credit_card->expiration_month;
+        $payment_meta->exp_year = $profile->credit_card->expiration_year;
+        $payment_meta->brand = 'CC';
+        $payment_meta->last4 = $profile->credit_card->masked_number;
+        $payment_meta->type = GatewayType::CREDIT_CARD;
+
+        $cgt['payment_meta'] = $payment_meta;
+
+        $token = $this->paytrace_driver->storeGatewayToken($cgt, []);
 
 
         // make a cc card out of that bra
         return redirect()->route('client.payment_methods.index');
 
  	}  
+
+
+    private function getCustomerProfile($customer_id)
+    {
+        $profile = $this->paytrace_driver->gatewayRequest('/v1/customer/export', [
+            'integrator_id' => '959195xd1CuC',
+            'customer_id' => $customer_id,
+            // 'include_bin' => true,
+        ]);
+
+        return $profile->customers[0];
+        
+    }
 
     public function paymentView($data)
     {

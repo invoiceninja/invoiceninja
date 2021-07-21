@@ -123,20 +123,21 @@ class PaytracePaymentDriver extends BaseDriver
     public function getAuthToken()
     {
 
-            $headers = $this->generateAuthHeaders();
+        $headers = $this->generateAuthHeaders();
 
-            $response = CurlUtils::post('https://api.paytrace.com/v1/payment_fields/token/create', [], $headers);
+        $response = CurlUtils::post('https://api.paytrace.com/v1/payment_fields/token/create', [], $headers);
 
-            $response = json_decode($response);
+        $response = json_decode($response);
 
-            if($response)
-                return $response->clientKey;
+        if($response)
+            return $response->clientKey;
 
         return false;
     }
 
     public function gatewayRequest($uri, $data, $headers = false)
     {
+        
         $base_url = "https://api.paytrace.com{$uri}";
 
         $headers = $this->generateAuthHeaders();
@@ -149,5 +150,6 @@ class PaytracePaymentDriver extends BaseDriver
             return $response;
 
         return false;
+
     }
 }
