@@ -81,6 +81,9 @@ class Gateway extends StaticModel
             case 1:
                 return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true]];//Authorize.net
                 break;
+            case 1:
+                return [GatewayType::CREDIT_CARD => ['refund' => false, 'token_billing' => false]];//Payfast
+                break;
             case 15:
                 return [GatewayType::PAYPAL => ['refund' => true, 'token_billing' => false]]; //Paypal
                 break;
@@ -95,6 +98,8 @@ class Gateway extends StaticModel
             case 39:
                 return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true]]; //Checkout
                 break;
+            case 46:
+                return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true]]; //Paytrace
             case 49:
                 return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true],
                     GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true]]; //WePay
