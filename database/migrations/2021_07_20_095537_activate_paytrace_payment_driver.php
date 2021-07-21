@@ -14,7 +14,19 @@ class ActivatePaytracePaymentDriver extends Migration
      */
     public function up()
     {
-        Gateway::query()->where('id', 46)->update(['visible' => true, 'provider' => 'Paytrace']);
+
+        $paytrace = Gateway::find(46);
+
+        if($paytrace)
+        {
+            $fields = $paytrace->fields;
+            $fields->integratorId = "";
+
+            $paytrace->fields = $fields;
+            $paytrace->provider = 'Paytrace';
+            $paytrace->visible = true;
+            $paytrace->save();
+        }
     }
 
     /**

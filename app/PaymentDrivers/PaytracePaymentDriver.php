@@ -15,6 +15,7 @@ use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentHash;
+use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\PayTrace\CreditCard;
 use App\Utils\CurlUtils;
@@ -85,12 +86,90 @@ class PaytracePaymentDriver extends BaseDriver
 
     public function refund(Payment $payment, $amount, $return_client_response = false)
     {
-        return $this->payment_method->yourRefundImplementationHere(); //this is your custom implementation from here
+        $cgt = ClientGatewayToken::where('company_gateway_id', $payment->company_gateway_id)
+                                 ->where('gateway_type_id', $payment->gateway_type_id)
+                                 ->first();
+
+        $data = [
+            'amount' => $amount,
+            'customer_id' => $cgt->token,
+            'integrator_id' => '959195xd1CuC'
+        ];
+
+        $response = $this->gatewayRequest('/v1/transactions/refund/to_customer', $data);
+
+
+        if($response && $response->success)
+        {
+
+            SystemLogger::dispatch(['server_response' => $response, 'data' => $data], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_PAYTRACE, $this->client, $this->client->company);
+
+                return [
+                    'transaction_reference' => $response->transaction_id,
+                    'transaction_response' => json_encode($response),
+                    'success' => true,
+                    'description' => $response->status_message,
+                    'code' => $response->response_code,
+                ];
+
+        }
+
+
+        SystemLogger::dispatch(['server_response' => $response, 'data' => $data], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_PAYTRACE, $this->client, $this->client->company);
+
+        return [
+            'transaction_reference' => null,
+            'transaction_response' => json_encode($response),
+            'success' => false,
+            'description' => $response->status_message,
+            'code' => 422,
+        ];
+
     }
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
-        return $this->payment_method->yourTokenBillingImplmentation(); //this is your custom implementation from here
+        $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
+
+        $data = [
+            'customer_id' => $cgt->token,
+            'integrator_id' => '959195xd1CuC',
+            'amount' => $amount,
+        ];
+
+        $response = $this->gatewayRequest('/v1/transactions/sale/by_customer', $data);
+
+        if($response && $response->success)
+        {
+            $data = [
+                'gateway_type_id' => $cgt->gateway_type_id,
+                'payment_type' => PaymentType::CREDIT_CARD_OTHER,
+                'transaction_reference' => $response->transaction_id,
+                'amount' => $amount,
+            ];
+
+            $payment = $this->createPayment($data);
+            $payment->meta = $cgt->meta;
+            $payment->save();
+
+            $payment_hash->payment_id = $payment->id;
+            $payment_hash->save();
+
+            return $payment;
+        }
+
+        $error = $response->status_message;
+
+        if(property_exists($response, 'approval_message') && $response->approval_message)
+            $error .= " - {$response->approval_message}";
+
+        $data = [
+            'response' => $response,
+            'error' => $error,
+            'error_code' => 500,
+        ];
+
+        $this->processUnsuccessfulTransaction($data, false);
     }
 
     public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment = null)

@@ -431,8 +431,8 @@ class BaseDriver extends AbstractPaymentDriver
         return false;
     }
 
-    /*Generic Global unsuccessful transaction method*/
-    public function processUnsuccessfulTransaction($response)
+    /*Generic Global unsuccessful transaction method when the client is present*/
+    public function processUnsuccessfulTransaction($response, $client_present = true)
     {
         $error = $response['error'];
         $error_code = $response['error_code'];
@@ -479,7 +479,9 @@ class BaseDriver extends AbstractPaymentDriver
             $this->client->company,
         );
 
-        throw new PaymentFailed($error, 500);
+        if($client_present)
+            throw new PaymentFailed($error, 500);
+
     }
 
 

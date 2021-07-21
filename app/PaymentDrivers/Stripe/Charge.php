@@ -74,7 +74,7 @@ class Charge
               'confirm' => true,
               'description' => $description,
             ];
-nlog($data);
+
             $response = $this->stripe->createPaymentIntent($data, $this->stripe->stripe_connect_auth);
             // $response = $local_stripe->paymentIntents->create($data);
 
