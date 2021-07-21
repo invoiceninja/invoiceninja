@@ -57,7 +57,7 @@
 
     .client-and-entity-wrapper {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: .75fr 1fr;
         padding: 1rem;
         border-top: 1px solid #d8d8d8;
         border-bottom: 1px solid #d8d8d8;
@@ -111,18 +111,12 @@
         padding-left: 1rem;
     }
 
-    #product-table > thead > tr > th:nth-last-child(1),
-    #delivery-note-table > thead > tr > th:nth-last-child(1),
-    #task-table > thead > tr > th:nth-last-child(1) {
-        text-align: right;
-    }
-
     #product-table > tbody > tr > td,
     #delivery-note-table > tbody > tr > td,
     #task-table > tbody > tr > td {
         border-top: 1px solid #d8d8d8;
         border-bottom: 1px solid #d8d8d8;
-        padding: 1rem;
+        padding: 1.5rem;
     }
 
     #product-table > tbody > tr > td:first-child,
@@ -152,20 +146,28 @@
         display: grid;
         grid-template-columns: 2fr 1fr;
         padding-top: .5rem;
+        padding-right: 1rem;
         gap: 80px;
     }
 
-    #table-totals .totals-table-right-side>* {
+    #table-totals .totals-table-right-side > * {
         display: grid;
         grid-template-columns: 1fr 1fr;
     }
 
     #table-totals>.totals-table-right-side>*> :nth-child(1) {
         text-align: left;
+        margin-top: .75rem;
     }
 
     #table-totals>.totals-table-right-side>*> :nth-child(2) {
         text-align: right;
+    }
+
+    #table-totals>.totals-table-right-side> * > :not([hidden]) ~ :not([hidden]) {
+        --tw-space-y-reverse: 0;
+        margin-top: calc(.75rem * calc(1 - var(--tw-space-y-reverse)));
+        margin-bottom: calc(.75rem * var(--tw-space-y-reverse));
     }
 
     #table-totals
