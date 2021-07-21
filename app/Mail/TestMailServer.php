@@ -19,13 +19,13 @@ class TestMailServer extends Mailable
 {
  //   use Queueable, SerializesModels;
 
-    public $message;
+    public $support_messages;
 
     public $from_email;
 
-    public function __construct($message, $from_email)
+    public function __construct($support_messages, $from_email)
     {
-        $this->message = $message;
+        $this->support_messages = $support_messages;
         $this->from_email = $from_email;
     }
 
@@ -39,7 +39,7 @@ class TestMailServer extends Mailable
         return $this->from(config('mail.from.address'), config('mail.from.name'))
             ->subject(ctrans('texts.email'))
             ->markdown('email.support.message', [
-                'message' => $this->message,
+                'support_message' => $this->support_messages,
                 'system_info' => '',
                 'laravel_log' => [],
             ]);
