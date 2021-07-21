@@ -1,4 +1,4 @@
-@component('email.template.admin', ['logo' => $Logo, 'settings' => $settings, 'company' => $company ?? ''])
+@component('email.template.admin', ['logo' => $logo, 'settings' => $settings, 'company' => $company ?? ''])
     <div class="center">
         <h1>{{ ctrans('texts.import_complete') }}</h1>
         <p>Hello, here is the output of your recent import job.</p>
