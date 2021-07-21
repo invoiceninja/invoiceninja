@@ -48,57 +48,57 @@ class CreditCard
         return render('gateways.paytrace.authorize', $data);
     }
 
+    // +"success": true
+    // +"response_code": 160
+    // +"status_message": "The customer profile for PLS5U60OoLUfQXzcmtJYNefPA0gTthzT/11 was successfully created."
+    // +"customer_id": "PLS5U60OoLUfQXzcmtJYNefPA0gTthzT"
 
+    //if(!$response->success)
+    //handle failure
+        
  	public function authorizeResponse($request)
  	{
         $data = $request->all();
         
+        $response = $this->createCustomer($data);   
+
+        return redirect()->route('client.payment_methods.index');
+
+ 	}  
+    
+    //  "_token" => "Vl1xHflBYQt9YFSaNCPTJKlY5x3rwcFE9kvkw71I"
+    //   "company_gateway_id" => "1"
+    //   "HPF_Token" => "e484a92c-90ed-4468-ac4d-da66824c75de"
+    //   "enc_key" => "zqz6HMHCXALWdX5hyBqrIbSwU7TBZ0FTjjLB3Cp0FQY="
+    //   "amount" => "Amount"
+    //   "q" => "/client/payment_methods"
+    //   "method" => "1"
+    // ]
+
+    // "customer_id":"customer789",
+    // "hpf_token":"e369847e-3027-4174-9161-fa0d4e98d318",
+    // "enc_key":"lI785yOBMet4Rt9o4NLXEyV84WBU3tdStExcsfoaOoo=",
+    // "integrator_id":"xxxxxxxxxx",
+    // "billing_address":{
+    //     "name":"Mark Smith",
+    //     "street_address":"8320 E. West St.",
+    //     "city":"Spokane",
+    //     "state":"WA",
+    //     "zip":"85284"
+    // }
+    
+    private function createCustomer($data)
+    {
         $post_data = [
             'customer_id' => Str::random(32),
             'hpf_token' => $data['HPF_Token'],
             'enc_key' => $data['enc_key'],
             'integrator_id' => '959195xd1CuC',
-            'billing_address' => [
-                'name' => $this->paytrace_driver->client->present()->name(),
-                'street_address' => $this->paytrace_driver->client->address1,
-                'city' => $this->paytrace_driver->client->city,
-                'state' => $this->paytrace_driver->client->state,
-                'zip' => $this->paytrace_driver->client->postal_code
-            ],
+            'billing_address' => $this->buildBillingAddress(),
         ];
-        
-        //  "_token" => "Vl1xHflBYQt9YFSaNCPTJKlY5x3rwcFE9kvkw71I"
-        //   "company_gateway_id" => "1"
-        //   "HPF_Token" => "e484a92c-90ed-4468-ac4d-da66824c75de"
-        //   "enc_key" => "zqz6HMHCXALWdX5hyBqrIbSwU7TBZ0FTjjLB3Cp0FQY="
-        //   "amount" => "Amount"
-        //   "q" => "/client/payment_methods"
-        //   "method" => "1"
-        // ]
 
-        // "customer_id":"customer789",
-        // "hpf_token":"e369847e-3027-4174-9161-fa0d4e98d318",
-        // "enc_key":"lI785yOBMet4Rt9o4NLXEyV84WBU3tdStExcsfoaOoo=",
-        // "integrator_id":"xxxxxxxxxx",
-        // "billing_address":{
-        //     "name":"Mark Smith",
-        //     "street_address":"8320 E. West St.",
-        //     "city":"Spokane",
-        //     "state":"WA",
-        //     "zip":"85284"
-        // }
         $response = $this->paytrace_driver->gatewayRequest('/v1/customer/pt_protect_create', $post_data);
 
-        // dd($response);
-
-          // +"success": true
-          // +"response_code": 160
-          // +"status_message": "The customer profile for PLS5U60OoLUfQXzcmtJYNefPA0gTthzT/11 was successfully created."
-          // +"customer_id": "PLS5U60OoLUfQXzcmtJYNefPA0gTthzT"
-
-        // if(!$response->success)
-            //handle failure
-            
         $cgt = [];
         $cgt['token'] = $response->customer_id;
         $cgt['payment_method_id'] = GatewayType::CREDIT_CARD;
@@ -116,12 +116,8 @@ class CreditCard
 
         $token = $this->paytrace_driver->storeGatewayToken($cgt, []);
 
-
-        // make a cc card out of that bra
-        return redirect()->route('client.payment_methods.index');
-
- 	}  
-
+        return $response;
+    }
 
     private function getCustomerProfile($customer_id)
     {
@@ -135,50 +131,59 @@ class CreditCard
         
     }
 
+    private function buildBillingAddress()
+    {
+        return [
+                'name' => $this->paytrace_driver->client->present()->name(),
+                'street_address' => $this->paytrace_driver->client->address1,
+                'city' => $this->paytrace_driver->client->city,
+                'state' => $this->paytrace_driver->client->state,
+                'zip' => $this->paytrace_driver->client->postal_code
+            ];
+    }
+
     public function paymentView($data)
     {
+
         $data['client_key'] = $this->paytrace_driver->getAuthToken();
         $data['gateway'] = $this->paytrace_driver;
-
-        //do i store the card?
-        //
-        //do i use a token?
-        //
-        //is it a new card?
 
         return render('gateways.paytrace.pay', $data);
 
     }
-
 
     public function paymentResponse(Request $request)
     {
         $response_array = $request->all();
 
         if($request->token)
-            $this->processTokenPayment($request);
+            $this->processTokenPayment($request->token, $request);
 
         if ($request->has('store_card') && $request->input('store_card') === true) {
 
-            //create customer
+            $response = $this->createCustomer($request->all());
             
+            $this->processTokenPayment($response->customer_id, $request);
         }
 
-        // charge CC
+        //process a regular charge here:
+        $data = [
+            'hpf_token' => $data['HPF_Token'],
+            'enc_key' => $data['enc_key'],
+            'integrator_id' => '959195xd1CuC',
+            'billing_address' => $this->buildBillingAddress(),
+        ];        
 
-        // if($response_array['payment_status'] == 'COMPLETE') {
+        $response = $this->paytrace_driver->gatewayRequest('/v1/transactions/sale/pt_protect', $data);
 
-        //     $this->payfast->logSuccessfulGatewayResponse(['response' => $response_array, 'data' => $this->paytrace_driver->payment_hash], SystemLog::TYPE_PAYFAST);
+        if($response->success)
+            return $this->processSuccessfulPayment($response);
 
-        //     return $this->processSuccessfulPayment($response_array);
-        // }
-        // else {
-        //     $this->processUnsuccessfulPayment($response_array);
-        // }
+        return $this->processUnsuccessfulPayment($response);
+
     }
 
-
-    public function processTokenPayment($request)
+    public function processTokenPayment($token, $request)
     {
 
         $data = [
@@ -198,42 +203,37 @@ class CreditCard
         return $this->processUnsuccessfulPayment($response);
     }
 
-    private function processSuccessfulPayment($response_array)
+    private function processSuccessfulPayment($response)
     {
+        $amount = array_sum(array_column($this->paytrace_driver->payment_hash->invoices(), 'amount')) + $this->paytrace_driver->payment_hash->fee_total;
 
+        $response = $response_array;
 
+        $payment_record = [];
+        $payment_record['amount'] = $amount;
+        $payment_record['payment_type'] = PaymentType::CREDIT_CARD_OTHER;
+        $payment_record['gateway_type_id'] = GatewayType::CREDIT_CARD;
+        $payment_record['transaction_reference'] = $response->transaction_id;
 
         $payment = $this->paytrace_driver->createPayment($payment_record, Payment::STATUS_COMPLETED);
 
+        return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
 
     }
 
-    private function processUnsuccessfulPayment($server_response)
+    private function processUnsuccessfulPayment($response)
     {
-        // PaymentFailureMailer::dispatch($this->paytrace_driver->client, $server_response->cancellation_reason, $this->paytrace_driver->client->company, $server_response->amount);
 
-        // PaymentFailureMailer::dispatch(
-        //     $this->paytrace_driver->client,
-        //     $server_response,
-        //     $this->paytrace_driver->client->company,
-        //     $server_response['amount_gross']
-        // );
+        $error = $response->status_message;
+        $error_code = property_exists($response, 'approval_message') ? $response->approval_message : 'Undefined code';
 
-        // $message = [
-        //     'server_response' => $server_response,
-        //     'data' => $this->paytrace_driver->payment_hash->data,
-        // ];
+        $data = [
+            'response' => $response,
+            'error' => $error,
+            'error_code' => $error_code,
+        ];
 
-        // SystemLogger::dispatch(
-        //     $message,
-        //     SystemLog::CATEGORY_GATEWAY_RESPONSE,
-        //     SystemLog::EVENT_GATEWAY_FAILURE,
-        //     SystemLog::TYPE_PAYFAST,
-        //     $this->payfast->client,
-        //     $this->payfast->client->company,
-        // );
-
-        // throw new PaymentFailed('Failed to process the payment.', 500);
+        return $this->paytrace_driver->processUnsuccessfulTransaction($data);
     }
 
 }

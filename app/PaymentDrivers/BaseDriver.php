@@ -431,6 +431,59 @@ class BaseDriver extends AbstractPaymentDriver
         return false;
     }
 
+    /*Generic Global unsuccessful transaction method*/
+    public function processUnsuccessfulTransaction($response)
+    {
+        $error = $response['error'];
+        $error_code = $response['error_code'];
+
+        $this->unWindGatewayFees($this->payment_hash);
+
+        PaymentFailureMailer::dispatch($this->client, $error, $this->client->company, $this->payment_hash->data->amount_with_fee);
+
+        $nmo = new NinjaMailerObject;
+        $nmo->mailable = new NinjaMailer( (new ClientPaymentFailureObject($this->client, $error, $this->client->company, $this->payment_hash))->build() );
+        $nmo->company = $this->client->company;
+        $nmo->settings = $this->client->company->settings;
+
+        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
+
+        $invoices->each(function ($invoice){
+
+            $invoice->service()->deletePdf();
+
+        });
+
+        $invoices->first()->invitations->each(function ($invitation) use ($nmo){
+
+            if ($invitation->contact->send_email && $invitation->contact->email) {
+
+                $nmo->to_user = $invitation->contact;
+                NinjaMailerJob::dispatch($nmo);
+
+            }
+
+        });
+
+        $message = [
+            'server_response' => $response,
+            'data' => $this->payment_hash->data,
+        ];
+
+        SystemLogger::dispatch(
+            $message,
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_FAILURE,
+            $this::SYSTEM_LOG_TYPE,
+            $this->client,
+            $this->client->company,
+        );
+
+        throw new PaymentFailed($error, $error_code);
+    }
+
+
+
     public function checkRequirements()
     {
         if ($this->company_gateway->require_billing_address) {
