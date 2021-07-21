@@ -115,7 +115,17 @@ class PaytracePaymentDriver extends BaseDriver
         {
             $auth_data = json_decode($response);
 
-            return $auth_data->access_token;
+            $headers = [];
+            $headers[] = 'Content-type: application/json';
+            $headers[] = 'Authorization: Bearer '.$auth_data->access_token;
+
+            $response = CurlUtils::post('https://api.paytrace.com/v1/payment_fields/token/create', [], $headers);
+
+            $response = json_decode($response);
+
+            if($response)
+                return $response->clientKey;
+
         }
 
         return false;
