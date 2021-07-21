@@ -98,8 +98,7 @@ class PaytracePaymentDriver extends BaseDriver
     }
 
     /*Helpers*/
-
-    public function getAuthToken()
+    private function generateAuthHeaders()
     {
 
         $url = 'https://api.paytrace.com/oauth/token';
@@ -111,13 +110,20 @@ class PaytracePaymentDriver extends BaseDriver
 
         $response = CurlUtils::post($url, $data, $headers = false);
 
-        if($response)
-        {
-            $auth_data = json_decode($response);
+        $auth_data = json_decode($response);
 
             $headers = [];
             $headers[] = 'Content-type: application/json';
             $headers[] = 'Authorization: Bearer '.$auth_data->access_token;
+
+        return $headers;
+
+    }
+
+    public function getAuthToken()
+    {
+
+            $headers = $this->generateAuthHeaders();
 
             $response = CurlUtils::post('https://api.paytrace.com/v1/payment_fields/token/create', [], $headers);
 
@@ -126,7 +132,21 @@ class PaytracePaymentDriver extends BaseDriver
             if($response)
                 return $response->clientKey;
 
-        }
+        return false;
+    }
+
+    public function gatewayRequest($uri, $data, $headers = false)
+    {
+        $base_url = "https://api.paytrace.com{$uri}";
+
+        $headers = $this->generateAuthHeaders();
+
+        $response = CurlUtils::post($base_url, json_encode($data), $headers);
+
+        $response = json_decode($response);
+
+        if($response)
+            return $response;
 
         return false;
     }

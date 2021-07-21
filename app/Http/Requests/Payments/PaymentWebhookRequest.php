@@ -74,9 +74,9 @@ class PaymentWebhookRequest extends Request
     {
         // For testing purposes we'll slow down the webhook processing by 2 seconds
         // to make sure webhook request doesn't came before our processing.
-        if (app()->environment() !== 'production') {
+        //if (app()->environment() !== 'production') {
             sleep(2);
-        }
+        //}
 
         // Some gateways, like Checkout, we can dynamically pass payment hash,
         // which we will resolve here and get payment information from it.

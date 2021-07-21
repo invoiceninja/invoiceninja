@@ -10,7 +10,8 @@
     @endif
 
     <div class="alert alert-failure mb-4" hidden id="errors"></div>
-    <form action="{{ route('client.payment_methods.store', ['method' => App\Models\GatewayType::CREDIT_CARD]) }}" id="ProtectForm">
+    <form action="{{ route('client.payment_methods.store', ['method' => App\Models\GatewayType::CREDIT_CARD]) }}"  method="post" id="server_response">
+        @csrf
 
     <div class="w-screen items-center">
 
@@ -18,11 +19,9 @@
 
     </div>
 
-
-            <input type="txt" id=HPF_Token name= HPF_Token hidden>
-            <input type="txt" id=enc_key name = enc_key hidden>
-            <input type="txt" id=amount name = amount value="Amount"><br><br>
-            <input type="submit" value="Submit" id="SubmitButton"/>
+    <input type="hidden" name="company_gateway_id" value="{{ $gateway->company_gateway->id }}">
+    <input type="txt" id=HPF_Token name= HPF_Token hidden>
+    <input type="txt" id=enc_key name= enc_key hidden>
 
     <div class="bg-white px-4 py-5 flex justify-end">
         <button
@@ -85,43 +84,40 @@ PTPayment.setup({
 }).then(function(instance){
 
 
- PTPayment.getControl("securityCode").label.text("CSC");
-                  PTPayment.getControl("creditCard").label.text("CC#");
-                  PTPayment.getControl("expiration").label.text("Exp Date");
-                  //PTPayment.style({'cc': {'label_color': 'red'}});
-                  //PTPayment.style({'code': {'label_color': 'red'}});
-                  //PTPayment.style({'exp': {'label_color': 'red'}});
-                  //PTPayment.style({'exp':{'type':'dropdown'}});
+    PTPayment.getControl("securityCode").label.text("CSC");
+    PTPayment.getControl("creditCard").label.text("CC#");
+    PTPayment.getControl("expiration").label.text("Exp Date");
+    //PTPayment.style({'cc': {'label_color': 'red'}});
+    //PTPayment.style({'code': {'label_color': 'red'}});
+    //PTPayment.style({'exp': {'label_color': 'red'}});
+    //PTPayment.style({'exp':{'type':'dropdown'}});
 
-                  //PTPayment.theme('horizontal');
-                  // this can be any event we chose. We will use the submit event and stop any default event handling and prevent event handling bubbling.
-                  document.getElementById("ProtectForm").addEventListener("submit",function(e){
-                   e.preventDefault();
-                   e.stopPropagation();
+    //PTPayment.theme('horizontal');
+    // this can be any event we chose. We will use the submit event and stop any default event handling and prevent event handling bubbling.
+    document.getElementById("server_response").addEventListener("submit",function(e){
+    e.preventDefault();
+    e.stopPropagation();
 
-                  // To trigger the validation of sensitive data payment fields within the iframe before calling the tokenization process:
-                  PTPayment.validate(function(validationErrors) {
-                   if (validationErrors.length >= 1) {
-                    if (validationErrors[0]['responseCode'] == '35') {
-                     // Handle validation Errors here
-                     // This is an example of using dynamic styling to show the Credit card number entered is invalid
-                     instance.style({'cc': {'border_color': 'red'}});
-                    }
-                   } else {
-                     // no error so tokenize
-                     instance.process()
-                     .then( (r) => {
-                        submitPayment(r);
-                        }, (err) => {
-                        handleError(err);
-                        });
-                   }
-              });
+    // To trigger the validation of sensitive data payment fields within the iframe before calling the tokenization process:
+    PTPayment.validate(function(validationErrors) {
+    if (validationErrors.length >= 1) {
+    if (validationErrors[0]['responseCode'] == '35') {
+     // Handle validation Errors here
+     // This is an example of using dynamic styling to show the Credit card number entered is invalid
+     instance.style({'cc': {'border_color': 'red'}});
+    }
+    } else {
+     // no error so tokenize
+     instance.process()
+     .then( (r) => {
+        submitPayment(r);
+        }, (err) => {
+        handleError(err);
+        });
+    }
+    });
 
-              });
-
-
-
+    });
 
 });
 
@@ -138,7 +134,8 @@ function submitPayment(r){
   var enc_key = document.getElementById("enc_key");
   hpf_token.value = r.message.hpf_token;
   enc_key.value = r.message.enc_key;
-  document.getElementById("ProtectForm").submit();
+
+  document.getElementById("server_response").submit();
 
 }
 
