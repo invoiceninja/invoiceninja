@@ -38,7 +38,7 @@ class CreditEmailedNotification implements ShouldQueue
     {
         MultiDB::setDb($event->company->db);
 
-        $first_notification_sent = true;
+        // $first_notification_sent = true;
 
         $credit = $event->invitation->credit;
         $credit->last_sent_date = now();
@@ -56,14 +56,15 @@ class CreditEmailedNotification implements ShouldQueue
 
             $methods = $this->findUserNotificationTypes($event->invitation, $company_user, 'credit', ['all_notifications', 'credit_sent', 'credit_sent_all']);
 
-            if (($key = array_search('mail', $methods)) !== false && $first_notification_sent === true) {
+            if (($key = array_search('mail', $methods)) !== false) {
+            // if (($key = array_search('mail', $methods))) {
                 unset($methods[$key]);
 
                 $nmo->to_user = $user;
 
                 NinjaMailerJob::dispatch($nmo);
 
-                $first_notification_sent = false;
+                // $first_notification_sent = false;
             }
 
             // $notification->method = $methods;
