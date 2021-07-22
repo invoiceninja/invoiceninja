@@ -17,7 +17,7 @@ class ExportMigrations extends Command
      *
      * @var string
      */
-    protected $signature = 'migrations:export {--user=} {--random=}';
+    protected $signature = 'migrations:export {--user=} {--email=} {--random=}';
 
     /**
      * The console command description.
@@ -46,8 +46,36 @@ class ExportMigrations extends Command
         $this->info('Note: Migrations will be stored inside of (storage/migrations) folder.');
 
         if($this->option('user')) {
-            $record = User::findOrFail($this->option('user'));
-            return $this->export($record);
+            $record = User::on(DB_NINJA_1)->find($this->option('user'));
+
+            if($record)
+                return $this->export($record);
+
+            $record = User::on(DB_NINJA_2)->find($this->option('user'));
+
+            if($record)
+                return $this->export($record);
+
+            
+            $this->info('I could not find that user - sorry');
+            return;
+        }
+
+
+        if($this->option('email')) {
+            $record = User::on(DB_NINJA_1)->where('email', $this->option('user'))->first();
+
+            if($record)
+                return $this->export($record);
+
+            $record = User::on(DB_NINJA_2)->where('email', $this->option('user'))->first();
+
+            if($record)
+                return $this->export($record);
+
+            
+            $this->info('I could not find that user by email - sorry');
+            return;
         }
 
         if($this->option('random')){
