@@ -29,20 +29,41 @@ use Illuminate\Support\Str;
 class CreditCard
 {
 
-    public $eway;
+    public $eway_driver;
 
-    public function __construct(EwayPaymentDriver $eway)
+    public function __construct(EwayPaymentDriver $eway_driver)
     {
-        $this->eway = $eway;
+        $this->eway_driver = $eway_driver;
     }
 
     public function authorizeView($data)
     {
 
+        $data['gateway'] = $this->eway_driver;
+        $data['api_key'] = $this->eway_driver->company_gateway->getConfigField('apiKey');
+        $data['public_api_key'] = 'epk-8C1675E6-8E07-4C86-8946-71B3DE390F44';
+
+        return render('gateways.eway.authorize', $data);
+
     }
 
     public function authorizeRequest($request)
     {
+
+        $transaction = [
+            'Title' => 'Mr.',
+            'FirstName' => 'John',
+            'LastName' => 'Smith',
+            'Country' => 'au',
+            'Payment' => [
+                'TotalAmount' => 0,
+            ],
+            'TransactionType' => \Eway\Rapid\Enum\TransactionType::PURCHASE,
+            'Method' => \Eway\Rapid\Enum\PaymentMethod::CREATE_TOKEN_CUSTOMER,
+            'SecuredCardData' => $request->input('SecuredCardData'),
+        ];
+
+        $response = $client->createTransaction(\Eway\Rapid\Enum\ApiMethod::DIRECT, $transaction);
 
     }
 

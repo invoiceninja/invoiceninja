@@ -18,6 +18,11 @@ class ActivateEwayPaymentDriver extends Migration
         {
             $eway->visible = true;
             $eway->provider = 'Eway';
+
+            $fields = json_decode($eway->fields);
+            $fields->publicApiKey = '';
+            $eway->fields = json_encode($fields);
+            
             $eway->save();
         }
 

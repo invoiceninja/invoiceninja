@@ -27,7 +27,7 @@ class PaymentLibrariesSeeder extends Seeder
 '],
             ['id' => 2, 'name' => 'CardSave', 'provider' => 'CardSave', 'key' => '46c5c1fed2c43acf4f379bae9c8b9f76', 'fields' => '{"merchantId":"","password":""}
 '],
-            ['id' => 3, 'name' => 'Eway Rapid', 'provider' => 'Eway', 'is_offsite' => true, 'key' => '944c20175bbe6b9972c05bcfe294c2c7', 'fields' => '{"apiKey":"","password":"","testMode":false}'],
+            ['id' => 3, 'name' => 'Eway Rapid', 'provider' => 'Eway', 'is_offsite' => true, 'key' => '944c20175bbe6b9972c05bcfe294c2c7', 'fields' => '{"apiKey":"","password":"","publicApiKey":"",testMode":false}'],
             ['id' => 4, 'name' => 'FirstData Connect', 'provider' => 'FirstData_Connect', 'key' => '4e0ed0d34552e6cb433506d1ac03a418', 'fields' => '{"storeId":"","sharedSecret":"","testMode":false}'],
             ['id' => 5, 'name' => 'Migs ThreeParty', 'provider' => 'Migs_ThreeParty', 'key' => '513cdc81444c87c4b07258bc2858d3fa', 'fields' => '{"merchantId":"","merchantAccessCode":"","secureHash":""}'],
             ['id' => 6, 'name' => 'Migs TwoParty', 'provider' => 'Migs_TwoParty', 'key' => '99c2a271b5088951334d1302e038c01a', 'fields' => '{"merchantId":"","merchantAccessCode":"","secureHash":""}'],
