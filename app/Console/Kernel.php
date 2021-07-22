@@ -64,7 +64,12 @@ class Kernel extends ConsoleKernel
                 ->command('ninja:sync-v5')
                 ->withoutOverlapping()
                 ->daily();        
-                    
+            
+            
+            // $schedule
+            //     ->command('ninja:force-migrate-v5')
+            //     ->everyMinute()
+            //     ->withoutOverlapping();   
         }
     }
 }
