@@ -193,8 +193,6 @@ class NinjaMailerJob implements ShouldQueue
             return $this->setMailDriver();
         }
 
-
-
         /*
          *  Now that our token is refreshed and valid we can boot the
          *  mail driver at runtime and also set the token which will persist

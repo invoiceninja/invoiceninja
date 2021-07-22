@@ -100,7 +100,6 @@ class CompanyTest extends TestCase
         $settings->invoice_design_id = '2';
         $settings->quote_design_id = '1';
 
-nlog($settings);
         $company->settings = $settings;
 
         $response = $this->withHeaders([
