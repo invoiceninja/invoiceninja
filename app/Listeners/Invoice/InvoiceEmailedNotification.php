@@ -66,7 +66,6 @@ class InvoiceEmailedNotification implements ShouldQueue
             if (($key = array_search('mail', $methods))) {
                 unset($methods[$key]);
 
-                
                 $nmo->to_user = $user;
 
                 NinjaMailerJob::dispatch($nmo);
