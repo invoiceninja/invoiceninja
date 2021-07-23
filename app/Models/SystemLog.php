@@ -68,6 +68,7 @@ class SystemLog extends Model
     const TYPE_BRAINTREE = 307;
     const TYPE_WEPAY = 309;
     const TYPE_PAYFAST = 310;
+    const TYPE_MOLLIE = 311;
     
 
     const TYPE_QUOTA_EXCEEDED = 400;

@@ -18,7 +18,9 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\SystemLog;
+use App\PaymentDrivers\Mollie\CreditCard;
 use App\Utils\Traits\MakesHash;
+use Mollie\Api\MollieApiClient;
 
 class MolliePaymentDriver extends BaseDriver
 {
@@ -40,7 +42,7 @@ class MolliePaymentDriver extends BaseDriver
     public $can_authorise_credit_card = true;
 
     /**
-     * @var mixed
+     * @var MollieApiClient
      */
     public $gateway;
 
@@ -56,14 +58,19 @@ class MolliePaymentDriver extends BaseDriver
         GatewayType::CREDIT_CARD => CreditCard::class,
     ];
 
-    const SYSTEM_LOG_TYPE = SystemLog::TYPE_STRIPE;
+    const SYSTEM_LOG_TYPE = SystemLog::TYPE_MOLLIE;
 
-    public function init()
+    public function init(): self
     {
+        $this->gateway = new MollieApiClient();
+
+        $this->gateway->setApiKey(
+            $this->company_gateway->getConfigField('apiKey'),
+        );
+
         return $this;
     }
 
-    /* Returns an array of gateway types for the payment gateway */
     public function gatewayTypes(): array
     {
         $types = [];
@@ -76,7 +83,9 @@ class MolliePaymentDriver extends BaseDriver
     public function setPaymentMethod($payment_method_id)
     {
         $class = self::$methods[$payment_method_id];
+
         $this->payment_method = new $class($this);
+
         return $this;
     }
 
