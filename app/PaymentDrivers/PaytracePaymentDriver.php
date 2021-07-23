@@ -11,6 +11,7 @@
 
 namespace App\PaymentDrivers;
 
+use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
@@ -86,17 +87,18 @@ class PaytracePaymentDriver extends BaseDriver
 
     public function refund(Payment $payment, $amount, $return_client_response = false)
     {
-        $cgt = ClientGatewayToken::where('company_gateway_id', $payment->company_gateway_id)
-                                 ->where('gateway_type_id', $payment->gateway_type_id)
-                                 ->first();
+        // $cgt = ClientGatewayToken::where('company_gateway_id', $payment->company_gateway_id)
+        //                          ->where('gateway_type_id', $payment->gateway_type_id)
+        //                          ->first();
 
         $data = [
             'amount' => $amount,
-            'customer_id' => $cgt->token,
+            //'customer_id' => $cgt->token,
+            'transaction_id' => $payment->transaction_reference,
             'integrator_id' => '959195xd1CuC'
         ];
 
-        $response = $this->gatewayRequest('/v1/transactions/refund/to_customer', $data);
+        $response = $this->gatewayRequest('/v1/transactions/refund/for_transaction', $data);
 
         if($response && $response->success)
         {
@@ -181,8 +183,10 @@ class PaytracePaymentDriver extends BaseDriver
         $url = 'https://api.paytrace.com/oauth/token';
         $data = [
             'grant_type' => 'password',
-            'username' => $this->company_gateway->getConfigField('username'),
-            'password' => $this->company_gateway->getConfigField('password')
+            'username' => config('ninja.testvars.paytrace.username'),
+            'password' => config('ninja.testvars.paytrace.password'),
+            //'username' => $this->company_gateway->getConfigField('username'),
+            //'password' => $this->company_gateway->getConfigField('password')
         ];
 
         $response = CurlUtils::post($url, $data, $headers = false);

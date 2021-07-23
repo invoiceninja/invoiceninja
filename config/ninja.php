@@ -84,6 +84,10 @@ return [
         'test_email' => env('TEST_EMAIL', 'test@example.com'),
         'wepay' => env('WEPAY_KEYS', ''),
         'braintree' => env('BRAINTREE_KEYS', ''),
+        'paytrace' => [
+            'username' => env('PAYTRACE_U', ''),
+            'password' => env('PAYTRACE_P','')
+        ],
     ],
     'contact' => [
         'email' => env('MAIL_FROM_ADDRESS'),

@@ -146,22 +146,14 @@ PTPayment.setup({
     PTPayment.getControl("securityCode").label.text("{!! ctrans('texts.cvv')!!}");
     PTPayment.getControl("creditCard").label.text("{!! ctrans('texts.card_number')!!}");
     PTPayment.getControl("expiration").label.text("{!! ctrans('texts.expires')!!}");
-    //PTPayment.style({'cc': {'label_color': 'red'}});
-    //PTPayment.style({'code': {'label_color': 'red'}});
-    //PTPayment.style({'exp': {'label_color': 'red'}});
-    //PTPayment.style({'exp':{'type':'dropdown'}});
 
-    //PTPayment.theme('horizontal');
-    // this can be any event we chose. We will use the submit event and stop any default event handling and prevent event handling bubbling.
     document.getElementById("server_response").addEventListener("submit",function(e){
     e.preventDefault();
     e.stopPropagation();
 
-    // To trigger the validation of sensitive data payment fields within the iframe before calling the tokenization process:
     PTPayment.validate(function(validationErrors) {
 
-    if (validationErrors.length >= 1 && token_payment == false) {
-
+    if (validationErrors.length >= 1 && !token_payment) {
         let errors = document.getElementById('errors');
 
         errors.textContent = '';
@@ -170,6 +162,11 @@ PTPayment.setup({
 
     } else {
      // no error so tokenize
+     if(token_payment){
+
+        tokenPayment();
+     } 
+     
      instance.process()
      .then( (r) => {
         submitPayment(r);
@@ -200,5 +197,11 @@ function submitPayment(r){
 
 }
 
+
+function tokenPayment(){
+
+      document.getElementById("server_response").submit();
+      return false;
+}
 </script>
 @endsection
