@@ -114,10 +114,10 @@ class HostedMigration extends Job
                 
                 //set activate URL
                 $account_email_settings = $this->account->account_email_settings;
-                $account_email_settings->account_email_settings->forward_url_for_v5 = "https://ninja_user{$this->account->id}.invoicing.co";
+                $account_email_settings->account_email_settings->forward_url_for_v5 = "https://invoiceninja-{$this->account->id}.invoicing.co";
                 $account_email_settings->save();
 
-                $this->account->subdomain = "ninja_user{$this->account->id}";
+                $this->account->subdomain = "invoiceninja-{$this->account->id}";
             }
 
             $date = date('Y-m-d');
