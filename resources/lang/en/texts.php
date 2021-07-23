@@ -1750,6 +1750,7 @@ $LANG = array(
     'lang_Danish' => 'Danish',
     'lang_Dutch' => 'Dutch',
     'lang_English' => 'English',
+    'lang_English - United States' => 'English',
     'lang_French' => 'French',
     'lang_French - Canada' => 'French - Canada',
     'lang_German' => 'German',
