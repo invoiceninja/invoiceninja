@@ -25,11 +25,14 @@ class HostedMigration extends Job
 
     public $migration_token;
 
-    public function __construct(User $user, array $data, $db)
+    private $forced;
+
+    public function __construct(User $user, array $data, $db, $forced = false)
     {
         $this->user = $user;
         $this->data = $data;
         $this->db = $db;
+        $this->forced = $forced;
         $this->v4_secret = config('ninja.ninja_hosted_secret');
     }
 
@@ -105,6 +108,17 @@ class HostedMigration extends Job
             $account = Account::where('account_key', $company['id'])->firstOrFail();
 
             $this->account = $account;
+
+            if($this->forced){
+                //forced migration - we need to set this v4 account as inactive.
+                
+                //set activate URL
+                $account_email_settings = $this->account->account_email_settings;
+                $account_email_settings->account_email_settings->forward_url_for_v5 = "https://invoiceninja-{$this->account->id}.invoicing.co";
+                $account_email_settings->save();
+
+                $this->account->subdomain = "invoiceninja-{$this->account->id}";
+            }
 
             $date = date('Y-m-d');
             $accountKey = $this->account->account_key;
