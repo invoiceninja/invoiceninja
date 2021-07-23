@@ -84,6 +84,7 @@ return [
         'test_email' => env('TEST_EMAIL', 'test@example.com'),
         'wepay' => env('WEPAY_KEYS', ''),
         'braintree' => env('BRAINTREE_KEYS', ''),
+        'mollie' => env('MOLLIE_KEYS', ''),
     ],
     'contact' => [
         'email' => env('MAIL_FROM_ADDRESS'),
