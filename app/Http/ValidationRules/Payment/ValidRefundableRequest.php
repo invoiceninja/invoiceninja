@@ -80,7 +80,7 @@ class ValidRefundableRequest implements Rule
         $invoice = Invoice::whereId($invoice['invoice_id'])->whereCompanyId($payment->company_id)->withTrashed()->first();
 
         if ($payment->invoices()->exists()) {
-            $paymentable_invoice = $payment->invoices->where('invoice_id', $invoice->id)->first();
+            $paymentable_invoice = $payment->invoices->where('id', $invoice->id)->first();
 
             if (! $paymentable_invoice) {
                 $this->error_msg = ctrans('texts.invoice_not_related_to_payment', ['invoice' => $invoice->hashed_id]);
