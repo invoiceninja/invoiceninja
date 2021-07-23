@@ -94,7 +94,7 @@ class CreditCard
             'customer_id' => Str::random(32),
             'hpf_token' => $data['HPF_Token'],
             'enc_key' => $data['enc_key'],
-            'integrator_id' => '959195xd1CuC',
+            'integrator_id' =>  $this->company_gateway->getConfigField('integratorId'),
             'billing_address' => $this->buildBillingAddress(),
         ];
 
@@ -123,7 +123,7 @@ class CreditCard
     private function getCustomerProfile($customer_id)
     {
         $profile = $this->paytrace_driver->gatewayRequest('/v1/customer/export', [
-            'integrator_id' => '959195xd1CuC',
+            'integrator_id' =>  $this->company_gateway->getConfigField('integratorId'),
             'customer_id' => $customer_id,
             // 'include_bin' => true,
         ]);
@@ -171,7 +171,7 @@ class CreditCard
         $data = [
             'hpf_token' => $response_array['HPF_Token'],
             'enc_key' => $response_array['enc_key'],
-            'integrator_id' => '959195xd1CuC',
+            'integrator_id' =>  $this->company_gateway->getConfigField('integratorId'),
             'billing_address' => $this->buildBillingAddress(),
             'amount' => $request->input('amount_with_fee'),
             'invoice_id' => $this->harvestInvoiceId(),
@@ -191,7 +191,7 @@ class CreditCard
 
         $data = [
             'customer_id' => $request->token,
-            'integrator_id' => '959195xd1CuC',
+            'integrator_id' =>  $this->company_gateway->getConfigField('integratorId'),
             'amount' => $request->input('amount_with_fee'),
         ];
 

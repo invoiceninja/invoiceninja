@@ -133,7 +133,7 @@ class PaytracePaymentDriver extends BaseDriver
 
         $data = [
             'customer_id' => $cgt->token,
-            'integrator_id' => '959195xd1CuC',
+            'integrator_id' =>  $this->company_gateway->getConfigField('integratorId'),
             'amount' => $amount,
         ];
 
@@ -183,10 +183,8 @@ class PaytracePaymentDriver extends BaseDriver
         $url = 'https://api.paytrace.com/oauth/token';
         $data = [
             'grant_type' => 'password',
-            'username' => config('ninja.testvars.paytrace.username'),
-            'password' => config('ninja.testvars.paytrace.password'),
-            //'username' => $this->company_gateway->getConfigField('username'),
-            //'password' => $this->company_gateway->getConfigField('password')
+            'username' => $this->company_gateway->getConfigField('username'),
+            'password' => $this->company_gateway->getConfigField('password')
         ];
 
         $response = CurlUtils::post($url, $data, $headers = false);
