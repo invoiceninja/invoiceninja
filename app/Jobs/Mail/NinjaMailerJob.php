@@ -112,6 +112,10 @@ class NinjaMailerJob implements ShouldQueue
 
         } catch (\Exception $e) {
 
+            // if($e instanceof GuzzleHttp\Exception\ClientException){
+
+            // }
+            
             nlog("error failed with {$e->getMessage()}");
 
             if($this->nmo->entity)
