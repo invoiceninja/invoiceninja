@@ -30,7 +30,10 @@ class CompanyPresenter extends EntityPresenter
         //return $this->entity->name ?: ctrans('texts.untitled_account');
     }
 
-    public function logo($settings = null)
+    /*
+    @deprecated
+     */
+    public function logo2($settings = null)
     {
         if (! $settings) {
             $settings = $this->entity->settings;
@@ -42,6 +45,21 @@ class CompanyPresenter extends EntityPresenter
             return url('') . $settings->company_logo;
         else
             return asset('images/new_logo.png');
+
+    }
+
+    public function logo($settings = null)
+    {
+        if (! $settings) {
+            $settings = $this->entity->settings;
+        }
+
+        if(strlen($settings->company_logo) >= 1 && (strpos($settings->company_logo, 'http') !== false))
+            return "data:image/png;base64, ". base64_encode(file_get_contents($settings->company_logo));
+        else if(strlen($settings->company_logo) >= 1)
+            return "data:image/png;base64, ". base64_encode(file_get_contents(url('') . $settings->company_logo));
+        else
+            return "data:image/png;base64, ". base64_encode(file_get_contents(asset('images/new_logo.png')));
 
     }
 
