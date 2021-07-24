@@ -4286,6 +4286,7 @@ $LANG = array(
     'user_created_user' => ':user created :created_user at :time',
     'company_deleted' => 'Company deleted',
     'company_deleted_body' => 'Company [ :company ] was deleted by :user',
+    'back_to' => 'Back to :url',
 );
 
 return $LANG;
