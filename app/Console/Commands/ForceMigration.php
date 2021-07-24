@@ -76,6 +76,9 @@ class ForceMigration extends Command
             }
 
             $this->dispatch(new HostedMigration($user, $data, $db, true));
+
+            $company->is_migrated = true;
+            $company->save();
         }
 
     }
