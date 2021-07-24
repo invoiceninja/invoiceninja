@@ -58,6 +58,7 @@ class ForceMigration extends Command
         $data = [];
 
         $company = Company::where('plan', 'free')
+                            ->where('is_migrated', false)
                             ->with('accounts')
                             ->first();
 
