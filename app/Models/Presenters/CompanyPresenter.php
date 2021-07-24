@@ -30,10 +30,8 @@ class CompanyPresenter extends EntityPresenter
         //return $this->entity->name ?: ctrans('texts.untitled_account');
     }
 
-    /*
-    @deprecated
-     */
-    public function logo2($settings = null)
+
+    public function logo($settings = null)
     {
         if (! $settings) {
             $settings = $this->entity->settings;
@@ -48,7 +46,10 @@ class CompanyPresenter extends EntityPresenter
 
     }
 
-    public function logo($settings = null)
+    /**
+     * Test for using base64 encoding
+     */
+    public function logo2($settings = null)
     {
         if (! $settings) {
             $settings = $this->entity->settings;
