@@ -240,8 +240,12 @@ class PreviewController extends BaseController
             //else
             $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), auth()->user()->company());
 
-            return response()->download($file_path, basename($file_path), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
+            //return response()->download($file_path, basename($file_path), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
 
+        $response = Response::make($file_path, 200);
+        $response->header('Content-Type', 'application/pdf');
+
+        return $response;
 
     }
 
