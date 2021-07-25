@@ -27,7 +27,6 @@ class CompanyPresenter extends EntityPresenter
 
         return $this->settings->name ?: ctrans('texts.untitled_account');
 
-        //return $this->entity->name ?: ctrans('texts.untitled_account');
     }
 
 
@@ -49,7 +48,7 @@ class CompanyPresenter extends EntityPresenter
     /**
      * Test for using base64 encoding
      */
-    public function logo2($settings = null)
+    public function logo_base64($settings = null)
     {
         if (! $settings) {
             $settings = $this->entity->settings;
