@@ -114,7 +114,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::post('payment_terms/bulk', 'PaymentTermController@bulk')->name('payment_terms.bulk');
 
     Route::post('preview', 'PreviewController@show')->name('preview.show');
-    Route::post('live_preview', 'PreviewController@live')->name('preview.show');
+    Route::post('live_preview', 'PreviewController@live')->name('preview.live');
 
     Route::resource('products', 'ProductController'); // name = (products. index / create / show / update / destroy / edit
     Route::post('products/bulk', 'ProductController@bulk')->name('products.bulk');
