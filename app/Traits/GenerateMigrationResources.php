@@ -443,6 +443,10 @@ trait GenerateMigrationResources
         foreach($agts as $agt) {
 
             $payment_method = $agt->default_payment_method;
+
+            if(!$payment_method)
+                continue;
+
             $contact = Contact::where('id', $payment_method->contact_id)->withTrashed()->first();
 
             $transformed[] = [
@@ -1630,6 +1634,9 @@ trait GenerateMigrationResources
         foreach ($payment_methods as $payment_method) {
             $contact = Contact::where('id', $payment_method->contact_id)->withTrashed()->first();
             $agt = AccountGatewayToken::where('id', $payment_method->account_gateway_token_id)->withTrashed()->first();
+
+            if(!$contact && !$agt)
+                continue;
 
             $transformed[] = [
                 'id' => $payment_method->id,

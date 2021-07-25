@@ -57,9 +57,16 @@ class ForceMigration extends Command
     {
         $data = [];
 
-        $company = Company::where('plan', 'free')
-                            ->with('accounts')
-                            ->first();
+        $company = Company::on(DB_NINJA_1)
+                          ->whereNull('plan')
+                          ->orWhereIn('plan', ['','free'])
+                          ->whereHas('accounts', function ($query){
+                            $query->where('account_key', 'NOT LIKE', substr(NINJA_ACCOUNT_KEY, 0, 30) . '%');
+                          })
+                          ->with('accounts')
+                          ->withCount('accounts')
+                          ->having('accounts_count', '>=', 1)
+                          ->first();
 
         $user = $company->accounts->first()->users()->whereNull('public_id')->orWhere('public_id', 0)->first();
         $db = DB_NINJA_1;
@@ -71,10 +78,12 @@ class ForceMigration extends Command
 
                 $data['companies'][$key]['id'] = $account->id;
 
-
             }
 
             $this->dispatch(new HostedMigration($user, $data, $db, true));
+
+            $company->is_migrated = true;
+            $company->save();
         }
 
     }
