@@ -4,7 +4,7 @@
     @keydown.window.escape="sidebarOpen = false"
     id="main-sidebar">
 
-    @if($client->getSetting('client_portal_enable'))
+    @if($settings->enable_client_portal)
     <!-- Off-canvas menu for mobile -->
     @include('portal.ninja2020.components.general.sidebar.mobile')
 

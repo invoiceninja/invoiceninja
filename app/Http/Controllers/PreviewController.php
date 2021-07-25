@@ -13,12 +13,14 @@ namespace App\Http\Controllers;
 
 use App\Factory\InvoiceFactory;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
+use App\Http\Requests\Preview\PreviewInvoiceRequest;
 use App\Jobs\Util\PreviewPdf;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Repositories\InvoiceRepository;
+use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\PdfMaker\Design;
 use App\Services\PdfMaker\PdfMaker;
 use App\Utils\HostedPDF\NinjaPdf;
@@ -31,7 +33,6 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Response;
-use App\Services\PdfMaker\Design as PdfMakerDesign;
 
 class PreviewController extends BaseController
 {
@@ -153,7 +154,7 @@ class PreviewController extends BaseController
         return $this->blankEntity();
     }
 
-    public function live(StoreInvoiceRequest $request)
+    public function live(PreviewInvoiceRequest $request)
     {
         if(request()->input('entity') == 'invoice'){
             $repo = new InvoiceRepository();
