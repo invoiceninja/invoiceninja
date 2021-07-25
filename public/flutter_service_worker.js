@@ -4,7 +4,7 @@ const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 const RESOURCES = {
   "favicon.png": "dca91c54388f52eded692718d5a98b8b",
-"main.dart.js": "75f8213a8fdaeba96a79d1b04eecf66a",
+"main.dart.js": "d4e208e045668f5093d46a8c876a2b73",
 "/": "23224b5e03519aaa87594403d54412cf",
 "manifest.json": "ce1b79950eb917ea619a0a30da27c6a3",
 "assets/packages/material_design_icons_flutter/lib/fonts/materialdesignicons-webfont.ttf": "174c02fc4609e8fc4389f5d21f16a296",
@@ -13,6 +13,7 @@ const RESOURCES = {
 "assets/fonts/MaterialIcons-Regular.otf": "1288c9e28052e028aba623321f7826ac",
 "assets/assets/images/google-icon.png": "0f118259ce403274f407f5e982e681c3",
 "assets/assets/images/icon.png": "090f69e23311a4b6d851b3880ae52541",
+"assets/assets/images/logo.png": "e5f46d5a78e226e7a9553d4ca6f69219",
 "assets/assets/images/payment_types/jcb.png": "07e0942d16c5592118b72e74f2f7198c",
 "assets/assets/images/payment_types/unionpay.png": "7002f52004e0ab8cc0b7450b0208ccb2",
 "assets/assets/images/payment_types/carteblanche.png": "d936e11fa3884b8c9f1bd5c914be8629",
@@ -28,7 +29,7 @@ const RESOURCES = {
 "assets/assets/images/payment_types/mastercard.png": "6f6cdc29ee2e22e06b1ac029cb52ef71",
 "assets/assets/images/payment_types/solo.png": "2030c3ccaccf5d5e87916a62f5b084d6",
 "assets/assets/images/payment_types/visa.png": "3ddc4a4d25c946e8ad7e6998f30fd4e3",
-"assets/AssetManifest.json": "7e49562f32e24a9e2557fe4178a84b79",
+"assets/AssetManifest.json": "753bba1dee0531d5fad970b5ce1d296d",
 "version.json": "3f9e03374a3e78d2cab3afd8723d0993",
 "icons/Icon-192.png": "bb1cf5f6982006952211c7c8404ffbed",
 "icons/Icon-512.png": "0f9aff01367f0a0c69773d25ca16ef35",
