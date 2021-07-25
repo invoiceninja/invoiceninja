@@ -1,5 +1,5 @@
 API (VERSION 4)
-==========
+===============
 
 **Please note this is for the V4 API, if you are looking for V5 API documentation please go here** https://app.swaggerhub.com/apis/invoiceninja/invoiceninja
 
