@@ -26,6 +26,8 @@ class SubdomainController extends BaseController
         'docs',
         'client_domain',
         'custom_domain',
+        'preview',
+        'invoiceninja',
     ];
 
     public function __construct()
