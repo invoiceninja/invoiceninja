@@ -164,17 +164,7 @@ class PreviewController extends BaseController
             DB::connection(config('database.default'))->beginTransaction();
 
             $entity = ucfirst(request()->input('entity'));
-
-            // $class = "App\Models\\$entity";
-
-            // $entity_obj = $class::whereId($this->decodePrimaryKey(request()->input('entity_id')))->company()->first();
-
-          //  if (! $entity_obj) {
-
             $entity_obj = $repo->save(request()->all(), $factory);
-
-           // }
-
             $entity_obj->load('client');
 
             App::forgetInstance('translator');
@@ -238,10 +228,8 @@ class PreviewController extends BaseController
                 return (new NinjaPdf())->build($maker->getCompiledHTML(true));
             }
 
-            //else
             $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), auth()->user()->company());
 
-            //return response()->download($file_path, basename($file_path), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
 
         $response = Response::make($file_path, 200);
         $response->header('Content-Type', 'application/pdf');
