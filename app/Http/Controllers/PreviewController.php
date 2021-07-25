@@ -149,6 +149,84 @@ class PreviewController extends BaseController
         return $this->blankEntity();
     }
 
+    public function live()
+    {
+        if (request()->has('entity') &&
+            request()->has('entity_id') &&
+            ! empty(request()->input('entity')) &&
+            ! empty(request()->input('entity_id')) &&
+            request()->has('body')) {
+            $design_object = json_decode(json_encode(request()->input('design')));
+
+            if (! is_object($design_object)) {
+                return response()->json(['message' => ctrans('texts.invalid_design_object')], 400);
+            }
+
+            $entity = ucfirst(request()->input('entity'));
+
+            $class = "App\Models\\$entity";
+
+            $pdf_class = "App\Jobs\\$entity\\Create{$entity}Pdf";
+
+            $entity_obj = $class::whereId($this->decodePrimaryKey(request()->input('entity_id')))->company()->first();
+
+            if (! $entity_obj) {
+                return $this->blankEntity();
+            }
+
+            $entity_obj->load('client');
+
+            App::forgetInstance('translator');
+            $t = app('translator');
+            App::setLocale($entity_obj->client->primary_contact()->preferredLocale());
+            $t->replace(Ninja::transformTranslations($entity_obj->client->getMergedSettings()));
+
+            $html = new HtmlEngine($entity_obj->invitations()->first());
+
+            $design_namespace = 'App\Services\PdfMaker\Designs\\'.request()->design['name'];
+
+            $design_class = new $design_namespace();
+
+            $state = [
+                'template' => $design_class->elements([
+                    'client' => $entity_obj->client,
+                    'entity' => $entity_obj,
+                    'pdf_variables' => (array) $entity_obj->company->settings->pdf_variables,
+                    'products' => request()->design['design']['product'],
+                ]),
+                'variables' => $html->generateLabelsAndValues(),
+            ];
+
+            $design = new Design(request()->design['name']);
+            $maker = new PdfMaker($state);
+
+            $maker
+                ->design($design)
+                ->build();
+
+            if (request()->query('html') == 'true') {
+                return $maker->getCompiledHTML;
+            }
+
+            //if phantom js...... inject here..
+            if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
+                return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
+            }
+            
+            if(config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja'){
+                return (new NinjaPdf())->build($maker->getCompiledHTML(true));
+            }
+
+            //else
+            $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), auth()->user()->company());
+
+            return response()->download($file_path, basename($file_path), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
+        }
+
+        return $this->blankEntity();
+    }
+
+
     private function blankEntity()
     {
         App::forgetInstance('translator');
