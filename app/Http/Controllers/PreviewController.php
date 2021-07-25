@@ -164,15 +164,15 @@ class PreviewController extends BaseController
 
             $entity = ucfirst(request()->input('entity'));
 
-            $class = "App\Models\\$entity";
+            // $class = "App\Models\\$entity";
 
-            $entity_obj = $class::whereId($this->decodePrimaryKey(request()->input('entity_id')))->company()->first();
+            // $entity_obj = $class::whereId($this->decodePrimaryKey(request()->input('entity_id')))->company()->first();
 
-            if (! $entity_obj) {
+          //  if (! $entity_obj) {
 
             $entity_obj = $repo->save(request()->all(), $factory);
 
-            }
+           // }
 
             $entity_obj->load('client');
 
