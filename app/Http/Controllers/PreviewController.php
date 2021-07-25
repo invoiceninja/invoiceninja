@@ -11,11 +11,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Factory\InvoiceFactory;
+use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Jobs\Util\PreviewPdf;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
+use App\Repositories\InvoiceRepository;
 use App\Services\PdfMaker\Design;
 use App\Services\PdfMaker\PdfMaker;
 use App\Utils\HostedPDF\NinjaPdf;
@@ -28,6 +31,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Response;
+use App\Services\PdfMaker\Design as PdfMakerDesign;
 
 class PreviewController extends BaseController
 {
@@ -149,64 +153,80 @@ class PreviewController extends BaseController
         return $this->blankEntity();
     }
 
-    public function live()
+    public function live(StoreInvoiceRequest $request)
     {
-        if (request()->has('entity') &&
-            request()->has('entity_id') &&
-            ! empty(request()->input('entity')) &&
-            ! empty(request()->input('entity_id')) &&
-            request()->has('body')) {
-            $design_object = json_decode(json_encode(request()->input('design')));
+        if(request()->input('entity') == 'invoice'){
+            $repo = new InvoiceRepository();
+            $factory = InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        }
 
-            if (! is_object($design_object)) {
-                return response()->json(['message' => ctrans('texts.invalid_design_object')], 400);
-            }
+            DB::connection(config('database.default'))->beginTransaction();
 
             $entity = ucfirst(request()->input('entity'));
 
             $class = "App\Models\\$entity";
 
-            $pdf_class = "App\Jobs\\$entity\\Create{$entity}Pdf";
-
             $entity_obj = $class::whereId($this->decodePrimaryKey(request()->input('entity_id')))->company()->first();
 
             if (! $entity_obj) {
-                return $this->blankEntity();
+
+            $entity_obj = $repo->save(request()->all(), $factory);
+
             }
 
             $entity_obj->load('client');
 
             App::forgetInstance('translator');
             $t = app('translator');
-            App::setLocale($entity_obj->client->primary_contact()->preferredLocale());
+            App::setLocale($entity_obj->client->primary_contact()->first()->preferredLocale());
             $t->replace(Ninja::transformTranslations($entity_obj->client->getMergedSettings()));
 
             $html = new HtmlEngine($entity_obj->invitations()->first());
 
-            $design_namespace = 'App\Services\PdfMaker\Designs\\'.request()->design['name'];
+            $design = \App\Models\Design::find($entity_obj->design_id);
 
-            $design_class = new $design_namespace();
+            /* Catch all in case migration doesn't pass back a valid design */
+            if(!$design)
+                $design = Design::find(2);
+
+            if ($design->is_custom) {
+                $options = [
+                'custom_partials' => json_decode(json_encode($design->design), true)
+              ];
+                $template = new PdfMakerDesign(PdfDesignModel::CUSTOM, $options);
+            } else {
+                $template = new PdfMakerDesign(strtolower($design->name));
+            }
+
+            $variables = $html->generateLabelsAndValues();
 
             $state = [
-                'template' => $design_class->elements([
+                'template' => $template->elements([
                     'client' => $entity_obj->client,
                     'entity' => $entity_obj,
                     'pdf_variables' => (array) $entity_obj->company->settings->pdf_variables,
-                    'products' => request()->design['design']['product'],
+                    '$product' => $design->design->product,
+                    'variables' => $variables,
                 ]),
-                'variables' => $html->generateLabelsAndValues(),
+                'variables' => $variables,
+                'options' => [
+                    'all_pages_header' => $entity_obj->client->getSetting('all_pages_header'),
+                    'all_pages_footer' => $entity_obj->client->getSetting('all_pages_footer'),
+                ],
             ];
 
-            $design = new Design(request()->design['name']);
+
             $maker = new PdfMaker($state);
 
             $maker
-                ->design($design)
+                ->design($template)
                 ->build();
 
             if (request()->query('html') == 'true') {
                 return $maker->getCompiledHTML;
             }
+
+            DB::connection(config('database.default'))->rollBack();
 
             //if phantom js...... inject here..
             if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
@@ -221,9 +241,8 @@ class PreviewController extends BaseController
             $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), auth()->user()->company());
 
             return response()->download($file_path, basename($file_path), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
-        }
 
-        return $this->blankEntity();
+
     }
 
 
