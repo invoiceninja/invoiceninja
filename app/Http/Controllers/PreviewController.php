@@ -11,11 +11,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Factory\InvoiceFactory;
+use App\Http\Requests\Invoice\StoreInvoiceRequest;
+use App\Http\Requests\Preview\PreviewInvoiceRequest;
 use App\Jobs\Util\PreviewPdf;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
+use App\Repositories\InvoiceRepository;
+use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\PdfMaker\Design;
 use App\Services\PdfMaker\PdfMaker;
 use App\Utils\HostedPDF\NinjaPdf;
@@ -148,6 +153,103 @@ class PreviewController extends BaseController
 
         return $this->blankEntity();
     }
+
+    public function live(PreviewInvoiceRequest $request)
+    {
+        if(request()->input('entity') == 'invoice'){
+            $repo = new InvoiceRepository();
+            $factory = InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id);
+        }
+
+            DB::connection(config('database.default'))->beginTransaction();
+
+            $entity = ucfirst(request()->input('entity'));
+
+            // $class = "App\Models\\$entity";
+
+            // $entity_obj = $class::whereId($this->decodePrimaryKey(request()->input('entity_id')))->company()->first();
+
+          //  if (! $entity_obj) {
+
+            $entity_obj = $repo->save(request()->all(), $factory);
+
+           // }
+
+            $entity_obj->load('client');
+
+            App::forgetInstance('translator');
+            $t = app('translator');
+            App::setLocale($entity_obj->client->primary_contact()->first()->preferredLocale());
+            $t->replace(Ninja::transformTranslations($entity_obj->client->getMergedSettings()));
+
+            $html = new HtmlEngine($entity_obj->invitations()->first());
+
+            $design = \App\Models\Design::find($entity_obj->design_id);
+
+            /* Catch all in case migration doesn't pass back a valid design */
+            if(!$design)
+                $design = Design::find(2);
+
+            if ($design->is_custom) {
+                $options = [
+                'custom_partials' => json_decode(json_encode($design->design), true)
+              ];
+                $template = new PdfMakerDesign(PdfDesignModel::CUSTOM, $options);
+            } else {
+                $template = new PdfMakerDesign(strtolower($design->name));
+            }
+
+            $variables = $html->generateLabelsAndValues();
+
+            $state = [
+                'template' => $template->elements([
+                    'client' => $entity_obj->client,
+                    'entity' => $entity_obj,
+                    'pdf_variables' => (array) $entity_obj->company->settings->pdf_variables,
+                    '$product' => $design->design->product,
+                    'variables' => $variables,
+                ]),
+                'variables' => $variables,
+                'options' => [
+                    'all_pages_header' => $entity_obj->client->getSetting('all_pages_header'),
+                    'all_pages_footer' => $entity_obj->client->getSetting('all_pages_footer'),
+                ],
+            ];
+
+
+            $maker = new PdfMaker($state);
+
+            $maker
+                ->design($template)
+                ->build();
+
+            if (request()->query('html') == 'true') {
+                return $maker->getCompiledHTML;
+            }
+
+            DB::connection(config('database.default'))->rollBack();
+
+            //if phantom js...... inject here..
+            if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
+                return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
+            }
+            
+            if(config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja'){
+                return (new NinjaPdf())->build($maker->getCompiledHTML(true));
+            }
+
+            //else
+            $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), auth()->user()->company());
+
+            //return response()->download($file_path, basename($file_path), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
+
+        $response = Response::make($file_path, 200);
+        $response->header('Content-Type', 'application/pdf');
+
+        return $response;
+
+    }
+
 
     private function blankEntity()
     {

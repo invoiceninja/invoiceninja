@@ -238,6 +238,10 @@ class Import implements ShouldQueue
         /*After a migration first some basic jobs to ensure the system is up to date*/
         VersionCheck::dispatch();
         
+        $account = $this->company->account;
+        $account->default_company_id = $this->company->id;
+        $account->save();
+
             //company size check
             if ($this->company->invoices()->count() > 1000 || $this->company->products()->count() > 1000 || $this->company->clients()->count() > 1000) {
                 $this->company->is_large = true;

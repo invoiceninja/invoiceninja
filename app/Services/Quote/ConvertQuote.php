@@ -40,6 +40,7 @@ class ConvertQuote
         $invoice->fresh();
 
         $invoice->service()
+                ->fillDefaults()
                 // ->markSent()
                 // ->createInvitations()
                 ->save();
