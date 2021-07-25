@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Libraries\Utils;
 use App\Models\AccountGateway;
 use App\Models\AccountGatewaySettings;
 use App\Models\AccountGatewayToken;
@@ -432,6 +433,9 @@ trait GenerateMigrationResources
     {
         $transformed = [];
 
+        if(!Utils::isNinja())
+            return $transformed;
+        
         $ninja_client = Client::where('public_id', $this->account->id)->first();
 
         if(!$ninja_client)
