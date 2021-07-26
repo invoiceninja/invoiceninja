@@ -38,9 +38,11 @@ class VendorFilters extends QueryFilters
         return  $this->builder->where(function ($query) use ($filter) {
             $query->where('vendors.name', 'like', '%'.$filter.'%')
                           ->orWhere('vendors.id_number', 'like', '%'.$filter.'%')
-                          ->orWhere('vendor_contacts.first_name', 'like', '%'.$filter.'%')
-                          ->orWhere('vendor_contacts.last_name', 'like', '%'.$filter.'%')
-                          ->orWhere('vendor_contacts.email', 'like', '%'.$filter.'%')
+                          ->orWhereHas('contacts', function ($query) use($filter){
+                              $query->where('vendor_contacts.first_name', 'like', '%'.$filter.'%');
+                              $query->orWhere('vendor_contacts.last_name', 'like', '%'.$filter.'%');
+                              $query->orWhere('vendor_contacts.email', 'like', '%'.$filter.'%');
+                          })
                           ->orWhere('vendors.custom_value1', 'like', '%'.$filter.'%')
                           ->orWhere('vendors.custom_value2', 'like', '%'.$filter.'%')
                           ->orWhere('vendors.custom_value3', 'like', '%'.$filter.'%')
