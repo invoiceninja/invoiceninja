@@ -121,7 +121,7 @@ class EntitySentObject
             ctrans(
                 $this->template_subject,
                 [
-                        'client' => $this->contact->present()->name(),
+                        'client' => $this->contact->client->present()->name(),
                         'invoice' => $this->entity->number,
                     ]
             );
@@ -133,7 +133,7 @@ class EntitySentObject
                 $this->template_body,
                 [
                     'amount' => $this->getAmount(),
-                    'client' => $this->contact->present()->name(),
+                    'client' => $this->contact->client->present()->name(),
                     'invoice' => $this->entity->number,
                 ]
             );
