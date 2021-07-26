@@ -477,19 +477,19 @@ class Invoice extends BaseModel
     {
         switch ($reminder_template) {
             case 'invoice':
-                event(new InvoiceWasEmailed($invitation, $invitation->company, Ninja::eventVars(), $template));
+                event(new InvoiceWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), $template));
                 break;
             case 'reminder1':
-                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(), Activity::INVOICE_REMINDER1_SENT));
+                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), Activity::INVOICE_REMINDER1_SENT));
                 break;
             case 'reminder2':
-                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(), Activity::INVOICE_REMINDER2_SENT));
+                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), Activity::INVOICE_REMINDER2_SENT));
                 break;
             case 'reminder3':
-                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(), Activity::INVOICE_REMINDER3_SENT));
+                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), Activity::INVOICE_REMINDER3_SENT));
                 break;
             case 'reminder_endless':
-                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(), Activity::INVOICE_REMINDER_ENDLESS_SENT));
+                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), Activity::INVOICE_REMINDER_ENDLESS_SENT));
                 break;
             default:
                 # code...
