@@ -4,12 +4,14 @@ namespace App\PaymentDrivers\Mollie;
 
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\MolliePaymentDriver;
+use App\Utils\Number;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\View\View;
 
@@ -48,17 +50,21 @@ class CreditCard
      */
     public function paymentResponse(PaymentResponseRequest $request)
     {
-        $amount = number_format((float) $this->mollie->payment_hash->data->amount_with_fee, 2, '.', '');
+        $this->mollie->payment_hash->withData('gateway_type_id', GatewayType::CREDIT_CARD);
 
         try {
             $payment = $this->mollie->gateway->payments->create([
                 'amount' => [
                     'currency' => $this->mollie->client->currency()->code,
-                    'value' => $amount,
+                    'value' => Number::formatValue($this->mollie->payment_hash->data->amount_with_fee, $this->mollie->client->currency()),
                 ],
                 'description' => \sprintf('Hash: %s', $this->mollie->payment_hash->hash),
                 'redirectUrl' => 'https://webshop.example.org/order/12345/',
-                'webhookUrl'  => 'https://webshop.example.org/mollie-webhook/',
+                'webhookUrl'  => route('mollie.3ds_redirect', [
+                    'company_key' => $this->mollie->client->company->company_key,
+                    'company_gateway_id' => $this->mollie->company_gateway->hashed_id,
+                    'hash' => $this->mollie->payment_hash->hash,
+                ]),
                 'cardToken' => $request->token,
             ]);
 
@@ -72,12 +78,11 @@ class CreditCard
             }
 
             if ($payment->status === 'open') {
-                // Handle redirect payment
+                return redirect($payment->getCheckoutUrl());
             }
-
-            dd($payment);
-
         } catch (\Exception $e) {
+            $this->processUnsuccessfulPayment($e);
+
             throw new PaymentFailed($e->getMessage(), $e->getCode());
         }
     }
@@ -107,5 +112,24 @@ class CreditCard
         );
 
         return redirect()->route('client.payments.show', ['payment' => $this->mollie->encodePrimaryKey($payment_record->id)]);
+    }
+
+    public function processUnsuccessfulPayment(\Exception $e)
+    {
+        PaymentFailureMailer::dispatch(
+            $this->mollie->client,
+            $e->getMessage(),
+            $this->mollie->client->company,
+            $this->mollie->payment_hash->data->amount_with_fee
+        );
+
+        SystemLogger::dispatch(
+            $e->getMessage(),
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_FAILURE,
+            SystemLog::TYPE_MOLLIE,
+            $this->mollie->client,
+            $this->mollie->client->company,
+        );
     }
 }
