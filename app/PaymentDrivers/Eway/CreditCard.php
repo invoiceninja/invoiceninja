@@ -41,20 +41,34 @@ class CreditCard
 
         $data['gateway'] = $this->eway_driver;
         $data['api_key'] = $this->eway_driver->company_gateway->getConfigField('apiKey');
-        $data['public_api_key'] = 'epk-8C1675E6-8E07-4C86-8946-71B3DE390F44';
+        $data['public_api_key'] = $this->eway_driver->company_gateway->getConfigField('publicApiKey');
 
         return render('gateways.eway.authorize', $data);
 
     }
 
-    public function authorizeRequest($request)
+    public function authorizeResponse($request)
     {
 
-        $transaction = [
+        $this->eway_driver->init();
+
+    $transaction = [
+            'Reference' => 'A12345',
             'Title' => 'Mr.',
             'FirstName' => 'John',
             'LastName' => 'Smith',
+            'CompanyName' => 'Demo Shop 123',
+            'JobDescription' => 'PHP Developer',
+            'Street1' => 'Level 5',
+            'Street2' => '369 Queen Street',
+            'City' => 'Sydney',
+            'State' => 'NSW',
+            'PostalCode' => '2000',
             'Country' => 'au',
+            'Phone' => '09 889 0986',
+            'Mobile' => '09 889 6542',
+            'Email' => 'demo@example.org',
+            "Url" => "http://www.ewaypayments.com",
             'Payment' => [
                 'TotalAmount' => 0,
             ],
@@ -63,8 +77,9 @@ class CreditCard
             'SecuredCardData' => $request->input('SecuredCardData'),
         ];
 
-        $response = $client->createTransaction(\Eway\Rapid\Enum\ApiMethod::DIRECT, $transaction);
+        $response = $this->eway_driver->init()->eway->createCustomer(\Eway\Rapid\Enum\ApiMethod::DIRECT, $transaction);
 
+dd($response);
     }
 
     public function paymentView($data)

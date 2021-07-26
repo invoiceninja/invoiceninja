@@ -43,7 +43,7 @@ class EwayPaymentDriver extends BaseDriver
     public function init()
     {
         $apiKey = $this->company_gateway->getConfigField('apiKey');
-        $password = $this->company_gateway->getConfigField('password');
+        $apiPassword = $this->company_gateway->getConfigField('password');
         $apiEndpoint = $this->company_gateway->getConfigField('testMode') ? \Eway\Rapid\Client::MODE_SANDBOX : \Eway\Rapid\Client::MODE_PRODUCTION;
         $this->eway = \Eway\Rapid::createClient($apiKey, $apiPassword, $apiEndpoint);
 
@@ -70,12 +70,12 @@ class EwayPaymentDriver extends BaseDriver
 
     public function authorizeView(array $data)
     {
-        return $this->payment_method->authorizeView($data); //this is your custom implementation from here
+        return $this->payment_method->authorizeView($data);
     }
 
     public function authorizeResponse($request)
     {
-        return $this->payment_method->authorizeResponse($request);  //this is your custom implementation from here
+        return $this->payment_method->authorizeResponse($request);
     }
 
     public function processPaymentView(array $data)
