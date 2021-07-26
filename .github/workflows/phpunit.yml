@@ -6,10 +6,6 @@ on:
     branches:
       - v5-develop
 
-environment:
-  name: dev
-  url: https://ninja.test
-
 name: phpunit
 jobs:
   run:
@@ -38,6 +34,7 @@ jobs:
       NINJA_LICENSE: 123456
       TRAVIS: true
       MAIL_MAILER: log
+      APP_URL: http://ninja.test
 
     services:
       mariadb:
