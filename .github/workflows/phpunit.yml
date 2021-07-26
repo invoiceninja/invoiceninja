@@ -50,6 +50,11 @@ jobs:
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
     steps:
+    - name: Add hosts to /etc/hosts
+      run: |
+        sudo echo "127.0.0.1 ninja.test" | sudo tee -a /etc/hosts
+
+    steps:
     - name: Start mysql service
       run: |
         sudo /etc/init.d/mysql start
