@@ -47,28 +47,91 @@ class CreditCard
 
     }
 
+    /*
+    Eway\Rapid\Model\Response\CreateCustomerResponse {#2374 ▼
+  #fillable: array:16 [▶]
+  #errors: []
+  #attributes: array:11 [▼
+    "AuthorisationCode" => null
+    "ResponseCode" => "00"
+    "ResponseMessage" => "A2000"
+    "TransactionID" => null
+    "TransactionStatus" => false
+    "TransactionType" => "MOTO"
+    "BeagleScore" => null
+    "Verification" => Eway\Rapid\Model\Verification {#2553 ▼
+      #fillable: array:5 [▶]
+      #attributes: array:5 [▶]
+    }
+    "Customer" => Eway\Rapid\Model\Customer {#2504 ▼
+      #fillable: array:38 [▶]
+      #attributes: array:20 [▼
+        "CardDetails" => Eway\Rapid\Model\CardDetails {#2455 ▼
+          #fillable: array:8 [▶]
+          #attributes: array:7 [▼
+            "Number" => "411111XXXXXX1111"
+            "Name" => "Joey Diaz"
+            "ExpiryMonth" => "10"
+            "ExpiryYear" => "23"
+            "StartMonth" => null
+            "StartYear" => null
+            "IssueNumber" => null
+          ]
+        }
+        "TokenCustomerID" => 917047257342
+        "Reference" => "A12345"
+        "Title" => "Mr."
+        "FirstName" => "John"
+        "LastName" => "Smith"
+        "CompanyName" => "Demo Shop 123"
+        "JobDescription" => "PHP Developer"
+        "Street1" => "Level 5"
+        "Street2" => "369 Queen Street"
+        "City" => "Sydney"
+        "State" => "NSW"
+        "PostalCode" => "2000"
+        "Country" => "au"
+        "Email" => "demo@example.org"
+        "Phone" => "09 889 0986"
+        "Mobile" => "09 889 6542"
+        "Comments" => ""
+        "Fax" => ""
+        "Url" => "http://www.ewaypayments.com"
+      ]
+    }
+    "Payment" => Eway\Rapid\Model\Payment {#2564 ▼
+      #fillable: array:5 [▶]
+      #attributes: array:5 [▼
+        "TotalAmount" => 0
+        "InvoiceNumber" => ""
+        "InvoiceDescription" => ""
+        "InvoiceReference" => ""
+        "CurrencyCode" => "AUD"
+      ]
+    }
+    "Errors" => null
+  ]
+}
+     */
+
     public function authorizeResponse($request)
     {
 
-        $this->eway_driver->init();
-
-    $transaction = [
-            'Reference' => 'A12345',
-            'Title' => 'Mr.',
-            'FirstName' => 'John',
-            'LastName' => 'Smith',
-            'CompanyName' => 'Demo Shop 123',
-            'JobDescription' => 'PHP Developer',
-            'Street1' => 'Level 5',
-            'Street2' => '369 Queen Street',
-            'City' => 'Sydney',
-            'State' => 'NSW',
-            'PostalCode' => '2000',
-            'Country' => 'au',
-            'Phone' => '09 889 0986',
-            'Mobile' => '09 889 6542',
-            'Email' => 'demo@example.org',
-            "Url" => "http://www.ewaypayments.com",
+        $transaction = [
+            'Reference' => $this->eway_driver->client->number,
+            'Title' => '',
+            'FirstName' => $this->eway_driver->client->primary_contact()->present()->last_name(),
+            'LastName' => $this->eway_driver->client->primary_contact()->present()->first_name(),
+            'CompanyName' => $this->eway_driver->client->name,
+            'Street1' => $this->eway_driver->client->address1,
+            'Street2' => $this->eway_driver->client->address2,
+            'City' => $this->eway_driver->client->city,
+            'State' => $this->eway_driver->client->state,
+            'PostalCode' => $this->eway_driver->client->postal_code,
+            'Country' => $this->eway_driver->client->country->iso_3166_2,
+            'Phone' => $this->eway_driver->client->phone,
+            'Email' => $this->eway_driver->client->primary_contact()->email,
+            "Url" => $this->eway_driver->client->website,
             'Payment' => [
                 'TotalAmount' => 0,
             ],
@@ -79,7 +142,26 @@ class CreditCard
 
         $response = $this->eway_driver->init()->eway->createCustomer(\Eway\Rapid\Enum\ApiMethod::DIRECT, $transaction);
 
-dd($response);
+        nlog($response);
+
+        //success
+        $cgt = [];
+        $cgt['token'] = $data['token'];
+        $cgt['payment_method_id'] = GatewayType::CREDIT_CARD;
+
+        $payment_meta = new \stdClass;
+        $payment_meta->exp_month = 'xx';
+        $payment_meta->exp_year = 'xx';
+        $payment_meta->brand = 'CC';
+        $payment_meta->last4 = 'xxxx';
+        $payment_meta->type = GatewayType::CREDIT_CARD;
+
+        $cgt['payment_meta'] = $payment_meta;
+
+        $token = $this->eway_driver->storeGatewayToken($cgt, []);
+
+        return redirect()->route('client.payment_methods.index');
+
     }
 
     public function paymentView($data)
