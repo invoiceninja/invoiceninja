@@ -20,7 +20,6 @@ class PaymentHash extends Model
     protected $casts = [
         'data' => 'object',
     ];
-
     
     public function invoices()
     {
@@ -40,5 +39,13 @@ class PaymentHash extends Model
     public function fee_invoice()
     {
         return $this->belongsTo(Invoice::class, 'fee_invoice_id', 'id');
+    }
+
+    public function withData(string $property, $value): PaymentHash
+    {
+        $this->data = array_merge((array) $this->data, [$property => $value]);
+        $this->save();
+
+        return $this;
     }
 }
