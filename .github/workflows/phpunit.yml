@@ -54,7 +54,6 @@ jobs:
       run: |
         sudo echo "127.0.0.1 ninja.test" | sudo tee -a /etc/hosts
 
-    steps:
     - name: Start mysql service
       run: |
         sudo /etc/init.d/mysql start
