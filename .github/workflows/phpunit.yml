@@ -6,6 +6,10 @@ on:
     branches:
       - v5-develop
 
+environment:
+  name: dev
+  url: https://ninja.test
+
 name: phpunit
 jobs:
   run:
