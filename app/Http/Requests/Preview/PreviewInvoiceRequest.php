@@ -53,6 +53,7 @@ class PreviewInvoiceRequest extends Request
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
         $input['amount'] = 0;
         $input['balance'] = 0;
+        $input['number'] = null;
         
         $this->replace($input);
     }
