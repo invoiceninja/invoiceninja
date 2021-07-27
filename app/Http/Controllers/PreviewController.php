@@ -11,15 +11,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Factory\CreditFactory;
 use App\Factory\InvoiceFactory;
+use App\Factory\QuoteFactory;
+use App\Factory\RecurringInvoiceFactory;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Http\Requests\Preview\PreviewInvoiceRequest;
 use App\Jobs\Util\PreviewPdf;
 use App\Models\Client;
 use App\Models\ClientContact;
+use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
+use App\Models\Quote;
+use App\Models\RecurringInvoice;
+use App\Repositories\CreditRepository;
 use App\Repositories\InvoiceRepository;
+use App\Repositories\QuoteRepository;
+use App\Repositories\RecurringInvoiceRepository;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\PdfMaker\Design;
 use App\Services\PdfMaker\PdfMaker;
@@ -156,15 +165,40 @@ class PreviewController extends BaseController
 
     public function live(PreviewInvoiceRequest $request)
     {
-        if(request()->input('entity') == 'invoice'){
+        if($request->input('entity') == 'invoice'){
             $repo = new InvoiceRepository();
             $factory = InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id);
+            $class = Invoice::class;
         }
+        elseif($request->input('entity') == 'quote'){
+            $repo = new QuoteRepository();
+            $factory = QuoteFactory::create(auth()->user()->company()->id, auth()->user()->id);
+            $class = Quote::class;
 
+        }
+        elseif($request->input('entity') == 'credit'){
+            $repo = new CreditRepository();
+            $factory = CreditFactory::create(auth()->user()->company()->id, auth()->user()->id);
+            $class = Credit::class;
+        }
+        elseif($request->input('entity') == 'recurring_invoice'){
+            $repo = new RecurringInvoiceRepository();
+            $factory = RecurringInvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id);
+            $class = RecurringInvoice::class;
+        }
+            
             DB::connection(config('database.default'))->beginTransaction();
 
-            $entity = ucfirst(request()->input('entity'));
-            $entity_obj = $repo->save(request()->all(), $factory);
+            if($request->has('entity_id')){
+
+                $entity_obj = $class::whereId($this->decodePrimaryKey($request->input('entity_id')))->company()->first();
+                $entity_obj = $repo->save($request->all(), $entity_obj);
+
+            }
+            else {
+                $entity_obj = $repo->save($request->all(), $factory);
+            }
+
             $entity_obj->load('client');
 
             App::forgetInstance('translator');
