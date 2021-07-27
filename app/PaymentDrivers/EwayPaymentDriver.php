@@ -18,6 +18,7 @@ use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Eway\CreditCard;
+use App\PaymentDrivers\Eway\Token;
 use App\Utils\Traits\MakesHash;
 
 class EwayPaymentDriver extends BaseDriver
@@ -95,11 +96,28 @@ class EwayPaymentDriver extends BaseDriver
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
-        return $this->payment_method->yourTokenBillingImplmentation(); //this is your custom implementation from here
+        return (new Token($this))->tokenBilling($cgt, $payment_hash);
     }
 
     public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment = null)
     {
+    }
+
+    public function convertAmount($amount)
+    {
+        $precision = $this->client->currency()->precision;
+
+        if($precision == 0)
+            return $amount;
+
+        if($precision == 1)
+            return $amount*10;
+
+        if$precision == 2)
+            return $amount*100;
+
+
+        return $amount;
     }
 
     public function getClientRequiredFields(): array
