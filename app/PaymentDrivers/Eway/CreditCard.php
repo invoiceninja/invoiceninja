@@ -157,7 +157,7 @@ class CreditCard
         $payment_meta->exp_month = $response->Customer->CardDetails->ExpiryMonth;
         $payment_meta->exp_year = $response->Customer->CardDetails->ExpiryYear;
         $payment_meta->brand = 'CC';
-        $payment_meta->last4 = $response->Customer->CardDetails->Number;
+        $payment_meta->last4 = substr($response->Customer->CardDetails->Number, -4);;
         $payment_meta->type = GatewayType::CREDIT_CARD;
 
         $cgt['payment_meta'] = $payment_meta;
@@ -171,6 +171,11 @@ class CreditCard
     public function paymentView($data)
     {
     
+        $data['gateway'] = $this->eway_driver;
+        $data['public_api_key'] = $this->eway_driver->company_gateway->getConfigField('publicApiKey');
+
+        return render('gateways.eway.pay', $data);
+
     }
 
     public function processPaymentResponse($request)
