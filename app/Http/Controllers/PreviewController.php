@@ -203,7 +203,7 @@ class PreviewController extends BaseController
 
             App::forgetInstance('translator');
             $t = app('translator');
-            App::setLocale($entity_obj->client->primary_contact()->first()->preferredLocale());
+            App::setLocale($entity_obj->client->contacts()->first()->preferredLocale());
             $t->replace(Ninja::transformTranslations($entity_obj->client->getMergedSettings()));
 
             $html = new HtmlEngine($entity_obj->invitations()->first());
