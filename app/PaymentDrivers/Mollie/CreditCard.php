@@ -74,7 +74,7 @@ class CreditCard
                     SystemLog::TYPE_MOLLIE
                 );
 
-                $this->processSuccessfulPayment($payment);
+               return $this->processSuccessfulPayment($payment);
             }
 
             if ($payment->status === 'open') {
