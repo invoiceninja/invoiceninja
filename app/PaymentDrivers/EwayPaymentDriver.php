@@ -91,7 +91,40 @@ class EwayPaymentDriver extends BaseDriver
 
     public function refund(Payment $payment, $amount, $return_client_response = false)
     {
-        return $this->payment_method->yourRefundImplementationHere(); //this is your custom implementation from here
+
+        $refund = [
+            'Refund' => [
+                'TransactionID' => $payment->transaction_reference,
+                'TotalAmount' => $this->convertAmount($amount)
+            ],
+        ];
+
+        $response = $this->init()->eway->client->refund($refund);
+
+        $transaction_reference = '';
+        $refund_status = true;
+        $refund_message = '';
+        
+        if ($response->TransactionStatus) {
+            $transaction_reference = $response->TransactionID;
+        } else {
+            if ($response->getErrors()) {
+                foreach ($response->getErrors() as $error) {
+                    $refund_status = false;
+                    $refund_message = \Eway\Rapid::getMessage($error);
+                }
+            } else {
+                $refund_status = false;
+                $refund_message 'Sorry, your refund failed';
+            }
+        }
+        return [
+            'transaction_reference' => $response->TransactionID,
+            'transaction_response' => json_encode($response),
+            'success' => $refund_status,
+            'description' => $refund_message,
+            'code' => '',
+        ];
     }
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
