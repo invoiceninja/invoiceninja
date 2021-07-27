@@ -1,6 +1,6 @@
 {
     "/js/app.js": "/js/app.js?id=696e8203d5e8e7cf5ff5",
-    "/css/app.css": "/css/app.css?id=f4c07fdabcbe50c9f4be",
+    "/css/app.css": "/css/app.css?id=5d7e42fa72eef8af62f5",
     "/js/clients/invoices/action-selectors.js": "/js/clients/invoices/action-selectors.js?id=a09bb529b8e1826f13b4",
     "/js/clients/invoices/payment.js": "/js/clients/invoices/payment.js?id=8ce8955ba775ea5f47d1",
     "/js/clients/linkify-urls.js": "/js/clients/linkify-urls.js?id=0dc8c34010d09195d2f7",
@@ -11,6 +11,7 @@
     "/js/clients/payments/braintree-paypal.js": "/js/clients/payments/braintree-paypal.js?id=c35db3cbb65806ab6a8a",
     "/js/clients/payments/card-js.min.js": "/js/clients/payments/card-js.min.js?id=5469146cd629ea1b5c20",
     "/js/clients/payments/checkout-credit-card.js": "/js/clients/payments/checkout-credit-card.js?id=065e5450233cc5b47020",
+    "/js/clients/payments/paytrace-credit-card.js": "/js/clients/payments/paytrace-credit-card.js?id=c8d3808a4c02d1392e96",
     "/js/clients/payments/stripe-ach.js": "/js/clients/payments/stripe-ach.js?id=81c2623fc1e5769b51c7",
     "/js/clients/payments/stripe-alipay.js": "/js/clients/payments/stripe-alipay.js?id=665ddf663500767f1a17",
     "/js/clients/payments/stripe-credit-card.js": "/js/clients/payments/stripe-credit-card.js?id=f1719b79a2bb274d3f64",

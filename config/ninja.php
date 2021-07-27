@@ -86,7 +86,8 @@ return [
         'braintree' => env('BRAINTREE_KEYS', ''),
         'paytrace' => [
             'username' => env('PAYTRACE_U', ''),
-            'password' => env('PAYTRACE_P','')
+            'password' => env('PAYTRACE_P',''),
+            'decrypted' => env('PAYTRACE_KEYS', ''),
         ],
     ],
     'contact' => [

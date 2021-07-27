@@ -33,18 +33,18 @@ class CreditCard
 {
     use MakesHash;
 
-    public $paytrace_driver;
+    public $paytrace;
 
-    public function __construct(PaytracePaymentDriver $paytrace_driver)
+    public function __construct(PaytracePaymentDriver $paytrace)
     {
-        $this->paytrace_driver = $paytrace_driver;
+        $this->paytrace = $paytrace;
     }
 
     public function authorizeView($data)
     {
         
-        $data['client_key'] = $this->paytrace_driver->getAuthToken();
-        $data['gateway'] = $this->paytrace_driver;
+        $data['client_key'] = $this->paytrace->getAuthToken();
+        $data['gateway'] = $this->paytrace;
 
         return render('gateways.paytrace.authorize', $data);
     }
@@ -94,11 +94,11 @@ class CreditCard
             'customer_id' => Str::random(32),
             'hpf_token' => $data['HPF_Token'],
             'enc_key' => $data['enc_key'],
-            'integrator_id' =>  $this->company_gateway->getConfigField('integratorId'),
+            'integrator_id' =>  $this->paytrace->company_gateway->getConfigField('integratorId'),
             'billing_address' => $this->buildBillingAddress(),
         ];
 
-        $response = $this->paytrace_driver->gatewayRequest('/v1/customer/pt_protect_create', $post_data);
+        $response = $this->paytrace->gatewayRequest('/v1/customer/pt_protect_create', $post_data);
 
         $cgt = [];
         $cgt['token'] = $response->customer_id;
@@ -115,15 +115,15 @@ class CreditCard
 
         $cgt['payment_meta'] = $payment_meta;
 
-        $token = $this->paytrace_driver->storeGatewayToken($cgt, []);
+        $token = $this->paytrace->storeGatewayToken($cgt, []);
 
         return $response;
     }
 
     private function getCustomerProfile($customer_id)
     {
-        $profile = $this->paytrace_driver->gatewayRequest('/v1/customer/export', [
-            'integrator_id' =>  $this->company_gateway->getConfigField('integratorId'),
+        $profile = $this->paytrace->gatewayRequest('/v1/customer/export', [
+            'integrator_id' =>  $this->paytrace->company_gateway->getConfigField('integratorId'),
             'customer_id' => $customer_id,
             // 'include_bin' => true,
         ]);
@@ -135,19 +135,19 @@ class CreditCard
     private function buildBillingAddress()
     {
         return [
-                'name' => $this->paytrace_driver->client->present()->name(),
-                'street_address' => $this->paytrace_driver->client->address1,
-                'city' => $this->paytrace_driver->client->city,
-                'state' => $this->paytrace_driver->client->state,
-                'zip' => $this->paytrace_driver->client->postal_code
+                'name' => $this->paytrace->client->present()->name(),
+                'street_address' => $this->paytrace->client->address1,
+                'city' => $this->paytrace->client->city,
+                'state' => $this->paytrace->client->state,
+                'zip' => $this->paytrace->client->postal_code
             ];
     }
 
     public function paymentView($data)
     {
 
-        $data['client_key'] = $this->paytrace_driver->getAuthToken();
-        $data['gateway'] = $this->paytrace_driver;
+        $data['client_key'] = $this->paytrace->getAuthToken();
+        $data['gateway'] = $this->paytrace;
 
         return render('gateways.paytrace.pay', $data);
 
@@ -171,13 +171,13 @@ class CreditCard
         $data = [
             'hpf_token' => $response_array['HPF_Token'],
             'enc_key' => $response_array['enc_key'],
-            'integrator_id' =>  $this->company_gateway->getConfigField('integratorId'),
+            'integrator_id' =>  $this->paytrace->company_gateway->getConfigField('integratorId'),
             'billing_address' => $this->buildBillingAddress(),
             'amount' => $request->input('amount_with_fee'),
             'invoice_id' => $this->harvestInvoiceId(),
         ];        
 
-        $response = $this->paytrace_driver->gatewayRequest('/v1/transactions/sale/pt_protect', $data);
+        $response = $this->paytrace->gatewayRequest('/v1/transactions/sale/pt_protect', $data);
 
         if($response->success)
             return $this->processSuccessfulPayment($response);
@@ -195,10 +195,10 @@ class CreditCard
             'amount' => $request->input('amount_with_fee'),
         ];
 
-        $response = $this->paytrace_driver->gatewayRequest('/v1/transactions/sale/by_customer', $data);
+        $response = $this->paytrace->gatewayRequest('/v1/transactions/sale/by_customer', $data);
 
         if($response->success){
-            $this->paytrace_driver->logSuccessfulGatewayResponse(['response' => $response, 'data' => $this->paytrace_driver->payment_hash], SystemLog::TYPE_PAYTRACE);
+            $this->paytrace->logSuccessfulGatewayResponse(['response' => $response, 'data' => $this->paytrace->payment_hash], SystemLog::TYPE_PAYTRACE);
 
             return $this->processSuccessfulPayment($response);
         }
@@ -208,7 +208,7 @@ class CreditCard
     
     private function harvestInvoiceId()
     {
-        $_invoice = collect($this->paytrace_driver->payment_hash->data->invoices)->first();
+        $_invoice = collect($this->paytrace->payment_hash->data->invoices)->first();
         $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
 
         if($invoice)
@@ -219,7 +219,7 @@ class CreditCard
 
     private function processSuccessfulPayment($response)
     {
-        $amount = array_sum(array_column($this->paytrace_driver->payment_hash->invoices(), 'amount')) + $this->paytrace_driver->payment_hash->fee_total;
+        $amount = array_sum(array_column($this->paytrace->payment_hash->invoices(), 'amount')) + $this->paytrace->payment_hash->fee_total;
 
         $payment_record = [];
         $payment_record['amount'] = $amount;
@@ -227,7 +227,7 @@ class CreditCard
         $payment_record['gateway_type_id'] = GatewayType::CREDIT_CARD;
         $payment_record['transaction_reference'] = $response->transaction_id;
 
-        $payment = $this->paytrace_driver->createPayment($payment_record, Payment::STATUS_COMPLETED);
+        $payment = $this->paytrace->createPayment($payment_record, Payment::STATUS_COMPLETED);
 
         return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
 
@@ -249,7 +249,7 @@ class CreditCard
             'error_code' => $error_code,
         ];
 
-        return $this->paytrace_driver->processUnsuccessfulTransaction($data);
+        return $this->paytrace->processUnsuccessfulTransaction($data);
 
     }
 
