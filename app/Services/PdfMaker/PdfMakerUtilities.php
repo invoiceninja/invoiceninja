@@ -121,7 +121,7 @@ trait PdfMakerUtilities
                 $_child->setAttribute('data-state', 'encoded-html');
                 $_child->nodeValue = htmlspecialchars($child['content']);
             } else {
-                // .. in case string doesn't contaig any HTML, we'll just return
+                // .. in case string doesn't contain any HTML, we'll just return
                 // raw $content.
 
                 $_child = $this->document->createElement($child['element'], isset($child['content']) ? htmlspecialchars($child['content']) : '');
