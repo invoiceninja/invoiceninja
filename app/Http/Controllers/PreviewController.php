@@ -266,7 +266,7 @@ class PreviewController extends BaseController
 
 
         $response = Response::make($file_path, 200);
-        $response->header('Content-Type', 'application/pdf');
+        $response->headers->set('Content-Type', 'application/pdf');
 
         return $response;
 
