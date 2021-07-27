@@ -108,8 +108,10 @@ trait PdfMakerUtilities
                     continue;
                 }
 
-                $contains_html = preg_match("/\/[a-z]*>/i", $child['content'], $m) != 0;
+                $contains_html = preg_match('#(?<=<)\w+(?=[^<]*?>)#', $child['content'], $m) != 0;
             }
+
+            info(['contains_html' => $contains_html, 'content' => $child['content'] ?? '']);
 
             if ($contains_html) {
                 // If the element contains the HTML, we gonna display it as is. DOMDocument, is going to
