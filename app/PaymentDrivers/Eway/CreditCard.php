@@ -22,6 +22,7 @@ use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\EwayPaymentDriver;
+use App\PaymentDrivers\Eway\ErrorCode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
@@ -120,8 +121,8 @@ class CreditCard
         $transaction = [
             'Reference' => $this->eway_driver->client->number,
             'Title' => '',
-            'FirstName' => $this->eway_driver->client->primary_contact()->present()->last_name(),
-            'LastName' => $this->eway_driver->client->primary_contact()->present()->first_name(),
+            'FirstName' => $this->eway_driver->client->contacts()->first()->present()->last_name(),
+            'LastName' => $this->eway_driver->client->contacts()->first()->present()->first_name(),
             'CompanyName' => $this->eway_driver->client->name,
             'Street1' => $this->eway_driver->client->address1,
             'Street2' => $this->eway_driver->client->address2,
@@ -130,30 +131,33 @@ class CreditCard
             'PostalCode' => $this->eway_driver->client->postal_code,
             'Country' => $this->eway_driver->client->country->iso_3166_2,
             'Phone' => $this->eway_driver->client->phone,
-            'Email' => $this->eway_driver->client->primary_contact()->email,
+            'Email' => $this->eway_driver->client->contacts()->first()->email,
             "Url" => $this->eway_driver->client->website,
-            'Payment' => [
-                'TotalAmount' => 0,
-            ],
-            'TransactionType' => \Eway\Rapid\Enum\TransactionType::PURCHASE,
+            // 'Payment' => [
+            //     'TotalAmount' => 0,
+            // ],
+            // 'TransactionType' => \Eway\Rapid\Enum\TransactionType::PURCHASE,
             'Method' => \Eway\Rapid\Enum\PaymentMethod::CREATE_TOKEN_CUSTOMER,
             'SecuredCardData' => $request->input('SecuredCardData'),
         ];
 
         $response = $this->eway_driver->init()->eway->createCustomer(\Eway\Rapid\Enum\ApiMethod::DIRECT, $transaction);
 
-        nlog($response);
+        $response_status = ErrorCode::getStatus($response->ResponseMessage);
+
+        if(!$response_status['success'])
+          throw new PaymentFailed($response_status['message'], 400);
 
         //success
         $cgt = [];
-        $cgt['token'] = $data['token'];
+        $cgt['token'] = $response->Customer->TokenCustomerID;
         $cgt['payment_method_id'] = GatewayType::CREDIT_CARD;
 
         $payment_meta = new \stdClass;
-        $payment_meta->exp_month = 'xx';
-        $payment_meta->exp_year = 'xx';
+        $payment_meta->exp_month = $response->Customer->CardDetails->ExpiryMonth;
+        $payment_meta->exp_year = $response->Customer->CardDetails->ExpiryYear;
         $payment_meta->brand = 'CC';
-        $payment_meta->last4 = 'xxxx';
+        $payment_meta->last4 = $response->Customer->CardDetails->Number;
         $payment_meta->type = GatewayType::CREDIT_CARD;
 
         $cgt['payment_meta'] = $payment_meta;
