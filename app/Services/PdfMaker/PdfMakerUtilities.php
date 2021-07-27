@@ -95,7 +95,7 @@ trait PdfMakerUtilities
                 // Commented cause it keeps adding <br> at the end, if markdown parsing is turned on.
                 // Should update with 'parse_markdown_on_pdfs' setting.
 
-                 $child['content'] = nl2br($child['content']);
+                //  $child['content'] = nl2br($child['content']);
             }
 
             // "/\/[a-z]*>/i" -> checks for HTML-like tags:
@@ -121,7 +121,7 @@ trait PdfMakerUtilities
                 $_child->setAttribute('data-state', 'encoded-html');
                 $_child->nodeValue = htmlspecialchars($child['content']);
             } else {
-                // .. in case string doesn't contain any HTML, we'll just return
+                // .. in case string doesn't contaig any HTML, we'll just return
                 // raw $content.
 
                 $_child = $this->document->createElement($child['element'], isset($child['content']) ? htmlspecialchars($child['content']) : '');

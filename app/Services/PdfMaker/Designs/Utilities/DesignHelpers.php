@@ -12,6 +12,7 @@
 
 namespace App\Services\PdfMaker\Designs\Utilities;
 
+use App\Utils\MarkdownParser;
 use App\Utils\Traits\MakesHash;
 use DOMDocument;
 use DOMXPath;
@@ -338,7 +339,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         foreach ($items as $key => $item) {
             foreach ($item as $variable => $value) {
-                $item[$variable] = DesignHelpers::parseMarkdownToHtml($value ?? '');
+                $item[$variable] = MarkdownParser::parse($value ?? '');
             }
 
             $items[$key] = $item;
