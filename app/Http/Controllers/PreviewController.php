@@ -191,7 +191,7 @@ class PreviewController extends BaseController
 
             if($request->has('entity_id')){
 
-                $entity_obj = $class::whereId($this->decodePrimaryKey($request->input('entity_id')))->company()->first();
+                $entity_obj = $class::withTrashed()->whereId($this->decodePrimaryKey($request->input('entity_id')))->company()->first();
                 $entity_obj = $repo->save($request->all(), $entity_obj);
 
             }
