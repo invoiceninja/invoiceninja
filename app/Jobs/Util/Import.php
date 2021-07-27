@@ -535,6 +535,7 @@ class Import implements ShouldQueue
             $modified = $resource;
             unset($modified['id']);
             unset($modified['password']); //cant import passwords.
+            unset($modified['confirmation_code']); //cant import passwords.
 
             $user = $user_repository->save($modified, $this->fetchUser($resource['email']), true, true);
             $user->email_verified_at = now();

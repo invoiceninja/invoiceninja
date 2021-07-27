@@ -167,7 +167,7 @@ trait MockAccountData
 
         $settings = CompanySettings::defaults();
 
-        $settings->company_logo = '';
+        $settings->company_logo = 'https://app.invoiceninja.com/favicon-v2.png';
         // $settings->company_logo = asset('images/new_logo.png');
         $settings->website = 'www.invoiceninja.com';
         $settings->address1 = 'Address 1';
