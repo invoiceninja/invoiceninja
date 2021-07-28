@@ -43,7 +43,9 @@ class CreditViewedActivity implements ShouldQueue
 
         $fields = new stdClass;
 
-        $fields->user_id = $event->invitation->user_id;
+        $user_id = array_key_exists('user_id', $event->event_vars) ? $event->event_vars['user_id'] : $event->invitation->user_id;
+
+        $fields->user_id = $user_id;
         $fields->company_id = $event->invitation->company_id;
         $fields->activity_type_id = Activity::VIEW_CREDIT;
         $fields->client_id = $event->invitation->credit->client_id;
