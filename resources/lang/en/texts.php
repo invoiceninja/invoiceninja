@@ -41,6 +41,7 @@ $LANG = array(
     'quantity' => 'Quantity',
     'line_total' => 'Line Total',
     'subtotal' => 'Subtotal',
+    'net_subtotal' => 'Net',
     'paid_to_date' => 'Paid to Date',
     'balance_due' => 'Balance Due',
     'invoice_design_id' => 'Design',
@@ -1749,6 +1750,7 @@ $LANG = array(
     'lang_Danish' => 'Danish',
     'lang_Dutch' => 'Dutch',
     'lang_English' => 'English',
+    'lang_English - United States' => 'English',
     'lang_French' => 'French',
     'lang_French - Canada' => 'French - Canada',
     'lang_German' => 'German',
@@ -4284,6 +4286,7 @@ $LANG = array(
     'user_created_user' => ':user created :created_user at :time',
     'company_deleted' => 'Company deleted',
     'company_deleted_body' => 'Company [ :company ] was deleted by :user',
+    'back_to' => 'Back to :url',
 );
 
 return $LANG;

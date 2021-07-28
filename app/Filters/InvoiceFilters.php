@@ -13,6 +13,7 @@ namespace App\Filters;
 
 use App\Models\Invoice;
 use App\Models\User;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 
@@ -21,6 +22,7 @@ use Illuminate\Support\Carbon;
  */
 class InvoiceFilters extends QueryFilters
 {
+    use MakesHash;
     /**
      * Filter based on client status.
      *
@@ -65,6 +67,18 @@ class InvoiceFilters extends QueryFilters
         return $this->builder;
     }
 
+    public function client_id(string $client_id = '') :Builder
+    {
+        if (strlen($client_id) == 0) {
+            return $this->builder;
+        }
+
+        $this->builder->where('client_id', $this->decodePrimaryKey($client_id));
+
+        return $this->builder;
+        
+    }
+
     public function number(string $number) :Builder
     {
         return $this->builder->where('number', $number);
@@ -95,6 +109,7 @@ class InvoiceFilters extends QueryFilters
                           ->orWhere('invoices.custom_value4', 'like', '%'.$filter.'%');
         });
     }
+
 
     /**
      * Filters the list based on the status

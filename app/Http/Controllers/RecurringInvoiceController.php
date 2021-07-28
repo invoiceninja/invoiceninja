@@ -505,7 +505,7 @@ class RecurringInvoiceController extends BaseController
 
         return response()->streamDownload(function () use($file) {
                 echo Storage::get($file);
-        },  basename($file));
+        },  basename($file), ['Content-Type' => 'application/pdf']);
 
     }
 

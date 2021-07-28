@@ -163,6 +163,6 @@ class ActivityController extends BaseController
 
         return response()->streamDownload(function () use ($pdf) {
             echo $pdf;
-        }, $filename);
+        }, $filename, ['Content-Type' => 'application/pdf']);
     }
 }

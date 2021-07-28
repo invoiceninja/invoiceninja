@@ -34,7 +34,7 @@ class StoreCompanyGatewayRequest extends Request
     public function rules()
     {
         $rules = [
-            'gateway_key' => 'required',
+            'gateway_key' => 'required|alpha_num',
             'fees_and_limits' => new ValidCompanyGatewayFeesAndLimitsRule(),
         ];
 
@@ -45,9 +45,8 @@ class StoreCompanyGatewayRequest extends Request
     {
         $input = $this->all();
 
-        $gateway = Gateway::where('key', $input['gateway_key'])->first();
-
-        if($gateway);
+        
+        if($gateway = Gateway::where('key', $input['gateway_key'])->first())
         {
 
             $default_gateway_fields = json_decode($gateway->fields);

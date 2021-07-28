@@ -544,7 +544,7 @@ class CreditController extends BaseController
 
                 return response()->streamDownload(function () use($file) {
                         echo Storage::get($file);
-                },  basename($file));
+                },  basename($file), ['Content-Type' => 'application/pdf']);
               break;
             case 'archive':
                 $this->credit_repository->archive($credit);
@@ -596,8 +596,8 @@ class CreditController extends BaseController
         
         return response()->streamDownload(function () use($file) {
                 echo Storage::get($file);
-        },  basename($file));
-        // return response()->download($file_path, basename($file_path), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
+        },  basename($file), ['Content-Type' => 'application/pdf']);
+
     }
 
     /**

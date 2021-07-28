@@ -45,6 +45,43 @@ class CompanyGatewayApiTest extends TestCase
         Model::reguard();
     }
 
+    public function testCompanyGatewayEndPointsWithIncorrectFields()
+    {
+        $data = [
+            'config' => 'random config',
+            'gateway_key' => '',
+        ];
+
+        /* POST */
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/company_gateways', $data);
+
+        $response->assertStatus(302);
+
+    }
+
+
+    public function testCompanyGatewayEndPointsWithInvalidFields()
+    {
+        $data = [
+            'config' => 'random config',
+            'gateway_key' => '$#%^&*(',
+        ];
+
+        /* POST */
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/company_gateways', $data);
+
+        $response->assertStatus(302);
+
+    }
+
+
+
     public function testCompanyGatewayEndPoints()
     {
         $data = [

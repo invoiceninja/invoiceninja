@@ -69,8 +69,6 @@ class SetupController extends Controller
         }
 
         if ($check['system_health'] === false) {
-            nlog($check);
-
             return response('Oops, something went wrong. Check your logs.'); /* We should never reach this block, but just in case. */
         }
 

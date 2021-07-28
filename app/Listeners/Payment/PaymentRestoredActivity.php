@@ -43,9 +43,11 @@ class PaymentRestoredActivity implements ShouldQueue
 
         $fields = new stdClass;
 
+        $user_id = array_key_exists('user_id', $event->event_vars) ? $event->event_vars['user_id'] : $event->payment->user_id;
+
+        $fields->user_id = $user_id;
         $fields->payment_id = $event->payment->id;
         $fields->client_id = $event->payment->client_id;
-        $fields->user_id = $event->payment->user_id;
         $fields->company_id = $event->payment->company_id;
         $fields->activity_type_id = Activity::RESTORE_PAYMENT;
 

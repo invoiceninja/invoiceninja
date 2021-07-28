@@ -73,6 +73,14 @@
                             <a class="button-link text-sm" href="{{ route('client.register') }}">{{ ctrans('texts.register_label') }}</a>
                         </div>
                     @endif
+
+                    @if(!is_null($company) && !empty($company->getSetting('website')))
+                        <div class="mt-5 text-center">
+                            <a class="button-link text-sm" href="{{ $company->getSetting('website') }}">
+                                {{ ctrans('texts.back_to', ['url' => parse_url($company->getSetting('website'))['host'] ?? $company->getSetting('website') ]) }}
+                            </a>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

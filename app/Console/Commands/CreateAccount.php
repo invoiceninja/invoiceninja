@@ -91,6 +91,8 @@ class CreateAccount extends Command
         $account = Account::factory()->create();
         $company = Company::factory()->create([
             'account_id' => $account->id,
+            'portal_domain' => config('ninja.app_url'),
+            'portal_mode' => 'domain',
         ]);
 
         $account->default_company_id = $company->id;
