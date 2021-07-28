@@ -189,10 +189,11 @@ class PreviewController extends BaseController
             $class = RecurringInvoice::class;
         }
             
-            DB::connection(config('database.default'))->beginTransaction();
 
         try {
-            
+
+            DB::connection(config('database.default'))->beginTransaction();
+
             if($request->has('entity_id')){
 
                 $entity_obj = $class::withTrashed()->whereId($this->decodePrimaryKey($request->input('entity_id')))->company()->first();
@@ -251,9 +252,13 @@ class PreviewController extends BaseController
                 ->design($template)
                 ->build();
 
+            DB::connection(config('database.default'))->rollBack();
+
             if (request()->query('html') == 'true') {
                 return $maker->getCompiledHTML;
             }
+
+
         }
         catch(\Exception $e){
 
@@ -261,7 +266,6 @@ class PreviewController extends BaseController
 
         }
 
-            DB::connection(config('database.default'))->rollBack();
 
             //if phantom js...... inject here..
             if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
