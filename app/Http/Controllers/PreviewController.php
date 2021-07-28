@@ -191,6 +191,8 @@ class PreviewController extends BaseController
             
             DB::connection(config('database.default'))->beginTransaction();
 
+        try {
+            
             if($request->has('entity_id')){
 
                 $entity_obj = $class::withTrashed()->whereId($this->decodePrimaryKey($request->input('entity_id')))->company()->first();
@@ -252,6 +254,12 @@ class PreviewController extends BaseController
             if (request()->query('html') == 'true') {
                 return $maker->getCompiledHTML;
             }
+        }
+        catch(\Exception $e){
+
+            DB::connection(config('database.default'))->rollBack();
+
+        }
 
             DB::connection(config('database.default'))->rollBack();
 
