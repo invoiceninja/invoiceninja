@@ -11,6 +11,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DataMapper\Analytics\LivePreview;
 use App\Factory\CreditFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\QuoteFactory;
@@ -42,6 +43,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Response;
+use Turbo124\Beacon\Facades\LightLogs;
 
 class PreviewController extends BaseController
 {
@@ -265,8 +267,16 @@ class PreviewController extends BaseController
             $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), auth()->user()->company());
 
 
+            if(Ninja::isHosted())
+            {
+                LightLogs::create(new LivePreview())
+                         ->increment()
+                         ->batch();
+            }
+
+
         $response = Response::make($file_path, 200);
-        $response->headers->set('Content-Type', 'application/pdf');
+        $response->header('Content-Type', 'application/pdf');
 
         return $response;
 
