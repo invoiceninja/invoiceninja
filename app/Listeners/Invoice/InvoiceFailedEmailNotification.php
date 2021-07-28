@@ -58,7 +58,7 @@ class InvoiceFailedEmailNotification
 
             $methods = $this->findUserNotificationTypes($event->invitation, $company_user, 'invoice', ['all_notifications', 'invoice_sent', 'invoice_sent_all']);
 
-            if (($key = array_search('mail', $methods)) !== false && $first_notification_sent === true) {
+            if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
                 $nmo->to_user = $user;

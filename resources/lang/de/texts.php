@@ -41,6 +41,7 @@ $LANG = array(
     'quantity' => 'Menge',
     'line_total' => 'Summe',
     'subtotal' => 'Zwischensumme',
+    'net_subtotal' => 'Netto',
     'paid_to_date' => 'Bereits gezahlt',
     'balance_due' => 'Offener Betrag',
     'invoice_design_id' => 'Design',

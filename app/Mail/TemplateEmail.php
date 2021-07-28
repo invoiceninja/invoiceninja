@@ -107,7 +107,6 @@ class TemplateEmail extends Mailable
                 $message->invitation = $this->invitation;
             });
 
-            //hosted | plan check here
             foreach ($this->build_email->getAttachments() as $file) {
 
                 if(is_string($file))

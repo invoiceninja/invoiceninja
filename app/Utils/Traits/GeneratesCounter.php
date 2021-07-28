@@ -24,6 +24,7 @@ use App\Models\Task;
 use App\Models\Timezone;
 use App\Models\Vendor;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 
 /**
  * Class GeneratesCounter.
@@ -343,17 +344,24 @@ trait GeneratesCounter
     {
 
         $check = false;
+        $check_counter = 1;
 
         do {
+
             $number = $this->padCounter($counter, $padding);
 
             $number = $this->applyNumberPattern($entity, $number, $pattern);
 
             $number = $this->prefixCounter($number, $prefix);
 
-            $check = $class::whereCompanyId($entity->company_id)->whereNumber($number)->withTrashed()->first();
+            $check = $class::whereCompanyId($entity->company_id)->whereNumber($number)->withTrashed()->exists();
 
             $counter++;
+            $check_counter++;
+
+            if($check_counter > 100)
+                return $number . "_" . Str::random(5);
+
         } while ($check);
 
         return $number;
@@ -364,7 +372,7 @@ trait GeneratesCounter
     public function checkNumberAvailable($class, $entity, $number) :bool
     {
 
-        if ($entity = $class::whereCompanyId($entity->company_id)->whereNumber($number)->withTrashed()->first()) 
+        if ($entity = $class::whereCompanyId($entity->company_id)->whereNumber($number)->withTrashed()->exists()) 
             return false;
         
         return true;

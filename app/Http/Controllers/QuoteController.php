@@ -682,7 +682,7 @@ class QuoteController extends BaseController
 
                 return response()->streamDownload(function () use($file) {
                         echo Storage::get($file);
-                },  basename($file));
+                },  basename($file), ['Content-Type' => 'application/pdf']);
 
                //return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
 
@@ -736,11 +736,10 @@ class QuoteController extends BaseController
         $quote = $invitation->quote;
 
         $file = $quote->service()->getQuotePdf($contact);
-nlog($file);
 
         return response()->streamDownload(function () use($file) {
                 echo Storage::get($file);
-        },  basename($file));
+        },  basename($file), ['Content-Type' => 'application/pdf']);
 
         // return response()->download($file_path, basename($file_path), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
     }

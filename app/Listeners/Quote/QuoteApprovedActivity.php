@@ -43,9 +43,11 @@ class QuoteApprovedActivity implements ShouldQueue
 
         $fields = new stdClass;
 
+        $user_id = array_key_exists('user_id', $event->event_vars) ? $event->event_vars['user_id'] : $event->quote->user_id;
+
+        $fields->user_id = $user_id;
         $fields->quote_id = $event->quote->id;
         $fields->client_id = $event->quote->client_id;
-        $fields->user_id = $event->quote->user_id;
         $fields->client_contact_id = $event->contact->id;
         $fields->company_id = $event->quote->company_id;
         $fields->activity_type_id = Activity::APPROVE_QUOTE;

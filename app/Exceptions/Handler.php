@@ -187,7 +187,7 @@ class Handler extends ExceptionHandler
         } elseif ($exception instanceof NotFoundHttpException && $request->expectsJson()) {
             return response()->json(['message'=>'Route does not exist'], 404);
         } elseif ($exception instanceof MethodNotAllowedHttpException && $request->expectsJson()) {
-            return response()->json(['message'=>'Method not support for this route'], 404);
+            return response()->json(['message'=>'Method not supported for this route'], 404);
         } elseif ($exception instanceof ValidationException && $request->expectsJson()) {
             nlog($exception->validator->getMessageBag());
             return response()->json(['message' => 'The given data was invalid.', 'errors' => $exception->validator->getMessageBag()], 422);

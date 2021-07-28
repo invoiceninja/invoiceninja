@@ -300,7 +300,7 @@ class BaseRepository
             $model->partial = min($model->amount, $model->balance);
 
         /* Update product details if necessary */
-        if ($model->company->update_products) 
+        if ($model->company->update_products && $model->id) 
             UpdateOrCreateProduct::dispatch($model->line_items, $model, $model->company);
 
         /* Perform model specific tasks */
