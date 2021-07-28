@@ -142,6 +142,9 @@ class ACH
         }
         catch(\Exception $e){
 
+            nlog("we pay exception");
+            nlog($e->getMessage());
+            
             return redirect()->route('client.payment_methods.verification', ['payment_method' => $token->hashed_id, 'method' => GatewayType::BANK_TRANSFER])
                       ->with('error', $e->getMessage());
         
