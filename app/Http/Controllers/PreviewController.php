@@ -263,7 +263,7 @@ class PreviewController extends BaseController
         catch(\Exception $e){
 
             DB::connection(config('database.default'))->rollBack();
-
+            return;
         }
 
 
