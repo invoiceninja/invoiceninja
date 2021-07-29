@@ -107,7 +107,7 @@ class ConnectedAccountController extends BaseController
             $email = $google->harvestEmail($user);
 
             if(auth()->user()->email != $email && MultiDB::checkUserEmailExists($email))
-                return response()->json(['message' => ctrans('texts.email_already_register')], 400)
+                return response()->json(['message' => ctrans('texts.email_already_register')], 400);
 
             $connected_account = [
                 'email' => $email,

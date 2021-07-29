@@ -452,7 +452,7 @@ class Invoice extends BaseModel
                 return false;
                 break;
             case 'when_sent':
-                return $this->status_id == self::STATUS_DRAFT;
+                return $this->status_id == self::STATUS_SENT;
                 break;
             case 'when_paid':
                 return $this->status_id == self::STATUS_PAID || $this->status_id == self::STATUS_PARTIAL;

@@ -11,15 +11,25 @@
 
 namespace App\Http\Controllers;
 
+use App\DataMapper\Analytics\LivePreview;
+use App\Factory\CreditFactory;
 use App\Factory\InvoiceFactory;
+use App\Factory\QuoteFactory;
+use App\Factory\RecurringInvoiceFactory;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Http\Requests\Preview\PreviewInvoiceRequest;
 use App\Jobs\Util\PreviewPdf;
 use App\Models\Client;
 use App\Models\ClientContact;
+use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
+use App\Models\Quote;
+use App\Models\RecurringInvoice;
+use App\Repositories\CreditRepository;
 use App\Repositories\InvoiceRepository;
+use App\Repositories\QuoteRepository;
+use App\Repositories\RecurringInvoiceRepository;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\PdfMaker\Design;
 use App\Services\PdfMaker\PdfMaker;
@@ -33,6 +43,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Response;
+use Turbo124\Beacon\Facades\LightLogs;
 
 class PreviewController extends BaseController
 {
@@ -156,20 +167,48 @@ class PreviewController extends BaseController
 
     public function live(PreviewInvoiceRequest $request)
     {
-        if(request()->input('entity') == 'invoice'){
+        if($request->input('entity') == 'invoice'){
             $repo = new InvoiceRepository();
             $factory = InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id);
+            $class = Invoice::class;
         }
+        elseif($request->input('entity') == 'quote'){
+            $repo = new QuoteRepository();
+            $factory = QuoteFactory::create(auth()->user()->company()->id, auth()->user()->id);
+            $class = Quote::class;
+
+        }
+        elseif($request->input('entity') == 'credit'){
+            $repo = new CreditRepository();
+            $factory = CreditFactory::create(auth()->user()->company()->id, auth()->user()->id);
+            $class = Credit::class;
+        }
+        elseif($request->input('entity') == 'recurring_invoice'){
+            $repo = new RecurringInvoiceRepository();
+            $factory = RecurringInvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id);
+            $class = RecurringInvoice::class;
+        }
+            
+
+        try {
 
             DB::connection(config('database.default'))->beginTransaction();
 
-            $entity = ucfirst(request()->input('entity'));
-            $entity_obj = $repo->save(request()->all(), $factory);
+            if($request->has('entity_id')){
+
+                $entity_obj = $class::withTrashed()->whereId($this->decodePrimaryKey($request->input('entity_id')))->company()->first();
+                $entity_obj = $repo->save($request->all(), $entity_obj);
+
+            }
+            else {
+                $entity_obj = $repo->save($request->all(), $factory);
+            }
+
             $entity_obj->load('client');
 
             App::forgetInstance('translator');
             $t = app('translator');
-            App::setLocale($entity_obj->client->primary_contact()->first()->preferredLocale());
+            App::setLocale($entity_obj->client->contacts()->first()->preferredLocale());
             $t->replace(Ninja::transformTranslations($entity_obj->client->getMergedSettings()));
 
             $html = new HtmlEngine($entity_obj->invitations()->first());
@@ -213,11 +252,20 @@ class PreviewController extends BaseController
                 ->design($template)
                 ->build();
 
+            DB::connection(config('database.default'))->rollBack();
+
             if (request()->query('html') == 'true') {
                 return $maker->getCompiledHTML;
             }
 
+
+        }
+        catch(\Exception $e){
+
             DB::connection(config('database.default'))->rollBack();
+            return;
+        }
+
 
             //if phantom js...... inject here..
             if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
@@ -229,6 +277,14 @@ class PreviewController extends BaseController
             }
 
             $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), auth()->user()->company());
+
+
+            if(Ninja::isHosted())
+            {
+                LightLogs::create(new LivePreview())
+                         ->increment()
+                         ->batch();
+            }
 
 
         $response = Response::make($file_path, 200);
