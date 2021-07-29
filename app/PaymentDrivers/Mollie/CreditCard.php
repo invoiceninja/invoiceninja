@@ -11,7 +11,7 @@ use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\MolliePaymentDriver;
-use App\Utils\Number;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\View\View;
 
@@ -50,6 +50,8 @@ class CreditCard
      */
     public function paymentResponse(PaymentResponseRequest $request)
     {
+        dd($this->mollie->gateway->mandates->listForId('cst_6S77wEkuQT'));
+        
         // TODO: Unit tests.
         $amount = number_format((float) $this->mollie->payment_hash->data->amount_with_fee, 2, '.', '');
 
@@ -58,7 +60,16 @@ class CreditCard
             ->withData('client_id', $this->mollie->client->id);
 
         try {
+            $customer = $this->mollie->gateway->customers->create([
+                'name' => $this->mollie->client->name,
+                'metadata' => [
+                    'id' => $this->mollie->client->hashed_id,
+                ],
+            ]);
+
             $payment = $this->mollie->gateway->payments->create([
+                'customerId' => $customer->id,
+                'sequenceType' => 'first',
                 'amount' => [
                     'currency' => $this->mollie->client->currency()->code,
                     'value' => $amount,
@@ -79,7 +90,7 @@ class CreditCard
                     SystemLog::TYPE_MOLLIE
                 );
 
-               return $this->processSuccessfulPayment($payment);
+                return $this->processSuccessfulPayment($payment);
             }
 
             if ($payment->status === 'open') {
@@ -138,5 +149,28 @@ class CreditCard
         );
 
         throw new PaymentFailed($e->getMessage(), $e->getCode());
+    }
+
+    /**
+     * Show authorization page.
+     *  
+     * @param array $data 
+     * @return Factory|View 
+     */
+    public function authorizeView(array $data)
+    {
+        return render('gateways.mollie.credit_card.authorize', $data);
+    }
+
+    public function authorizeResponse($request)
+    {
+        $customer = $this->mollie->gateway->customers->create([
+            'name' => $this->mollie->client->name,
+            'metadata' => [
+                'id' => $this->mollie->client->hashed_id,
+            ],
+        ]);
+
+        // Save $customer->id to database..
     }
 }
