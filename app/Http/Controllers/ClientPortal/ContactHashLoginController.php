@@ -24,6 +24,17 @@ class ContactHashLoginController extends Controller
      */
     public function login(string $contact_key)
     {
+        if(request()->has('subscription') && $request->subscription == 'true') {
+
+            $recurring_invoice = RecurringInvoice::where('client_id', auth()->guard('contact')->client->id)
+                                                 ->whereNotNull('subscription_id')
+                                                 ->whereNull('deleted_at')
+                                                 ->first();
+
+            return route('client.recurring_invoice.show', $recurring_invoice->hashed_id);
+
+        }
+
         return redirect('/client/invoices');
     }
 
