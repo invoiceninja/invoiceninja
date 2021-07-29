@@ -12,6 +12,7 @@
 namespace App\Http\Controllers\ClientPortal;
 
 use App\Http\Controllers\Controller;
+use App\Models\RecurringInvoice;
 use Auth;
 
 class ContactHashLoginController extends Controller
