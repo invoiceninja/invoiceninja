@@ -28,6 +28,31 @@ ctrans('texts.credit_card')])
 
     @include('portal.ninja2020.gateways.includes.payment_details')
 
+    @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
+        @if(count($tokens) > 0)
+            @foreach($tokens as $token)
+                <label class="mr-4">
+                    <input
+                        type="radio"
+                        data-token="{{ $token->token }}"
+                        name="payment-type"
+                        class="form-radio cursor-pointer toggle-payment-with-token"/>
+                    <span class="ml-1 cursor-pointer">**** {{ optional($token->meta)->last4 }}</span>
+                </label>
+            @endforeach
+        @endif
+
+        <label>
+            <input
+                type="radio"
+                id="toggle-payment-with-credit-card"
+                class="form-radio cursor-pointer"
+                name="payment-type"
+                checked/>
+            <span class="ml-1 cursor-pointer">{{ __('texts.new_card') }}</span>
+        </label>
+    @endcomponent
+
     @component('portal.ninja2020.components.general.card-element-single')
         <div class="flex flex-col">
             <label for="card-number">
@@ -56,6 +81,14 @@ ctrans('texts.credit_card')])
                 </label>
             </div>
         </div>
+    @endcomponent
+
+    @component('portal.ninja2020.components.general.card-element-single')
+        <span class="text-sm text-gray-900">If you want to save the card for future purchases, please click on the 
+            <a href="{{ route('client.payment_methods.index') }}" class="underline text-primary">Payment methods</a> page and authorize the credit card manually.
+        </span>
+
+        <span class="text-sm text-gray-900">After that, come back to this page and select your payment method.</span>
     @endcomponent
 
     @include('portal.ninja2020.gateways.includes.pay_now')
