@@ -41,7 +41,7 @@ class PaymentHash extends Model
         return $this->belongsTo(Invoice::class, 'fee_invoice_id', 'id');
     }
 
-    public function withData(string $property, $value): PaymentHash
+    public function withData(string $property, $value): self
     {
         $this->data = array_merge((array) $this->data, [$property => $value]);
         $this->save();

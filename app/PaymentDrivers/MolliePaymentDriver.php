@@ -12,6 +12,7 @@
 
 namespace App\PaymentDrivers;
 
+use App\Http\Requests\Gateways\Mollie\Mollie3dsRequest;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
@@ -121,5 +122,20 @@ class MolliePaymentDriver extends BaseDriver
 
     public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment = null)
     {
+    }
+    
+    public function process3dsConfirmation(Mollie3dsRequest $request)
+    {
+        $this->init();
+
+        $this->setPaymentHash($request->getPaymentHash());
+
+        try {
+            $payment = $this->gateway->payments->get($request->getPaymentId());
+
+            return (new CreditCard($this))->processSuccessfulPayment($payment);
+        } catch(\Mollie\Api\Exceptions\ApiException $e) {
+            return (new CreditCard($this))->processUnsuccessfulPayment($e);
+        }
     }
 }

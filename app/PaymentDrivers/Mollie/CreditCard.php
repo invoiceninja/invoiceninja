@@ -50,21 +50,26 @@ class CreditCard
      */
     public function paymentResponse(PaymentResponseRequest $request)
     {
-        $this->mollie->payment_hash->withData('gateway_type_id', GatewayType::CREDIT_CARD);
+        // TODO: Unit tests.
+        $amount = number_format((float) $this->mollie->payment_hash->data->amount_with_fee, 2, '.', '');
+
+        $this->mollie->payment_hash
+            ->withData('gateway_type_id', GatewayType::CREDIT_CARD)
+            ->withData('client_id', $this->mollie->client->id);
 
         try {
             $payment = $this->mollie->gateway->payments->create([
                 'amount' => [
                     'currency' => $this->mollie->client->currency()->code,
-                    'value' => Number::formatValue($this->mollie->payment_hash->data->amount_with_fee, $this->mollie->client->currency()),
+                    'value' => $amount,
                 ],
                 'description' => \sprintf('Hash: %s', $this->mollie->payment_hash->hash),
-                'redirectUrl' => 'https://webshop.example.org/order/12345/',
-                'webhookUrl'  => route('mollie.3ds_redirect', [
+                'redirectUrl' => route('mollie.3ds_redirect', [
                     'company_key' => $this->mollie->client->company->company_key,
                     'company_gateway_id' => $this->mollie->company_gateway->hashed_id,
                     'hash' => $this->mollie->payment_hash->hash,
                 ]),
+                'webhookUrl'  => 'https://invoiceninja.com',
                 'cardToken' => $request->token,
             ]);
 
@@ -78,6 +83,8 @@ class CreditCard
             }
 
             if ($payment->status === 'open') {
+                $this->mollie->payment_hash->withData('payment_id', $payment->id);
+
                 return redirect($payment->getCheckoutUrl());
             }
         } catch (\Exception $e) {
@@ -87,10 +94,8 @@ class CreditCard
         }
     }
 
-    protected function processSuccessfulPayment(\Mollie\Api\Resources\Payment $payment)
+    public function processSuccessfulPayment(\Mollie\Api\Resources\Payment $payment)
     {
-        // Check if storing credit card is enabled
-
         $payment_hash = $this->mollie->payment_hash;
 
         $data = [
@@ -131,5 +136,7 @@ class CreditCard
             $this->mollie->client,
             $this->mollie->client->company,
         );
+
+        throw new PaymentFailed($e->getMessage(), $e->getCode());
     }
 }

@@ -12,10 +12,18 @@
 
 namespace App\Http\Requests\Gateways\Mollie;
 
+use App\Models\Client;
+use App\Models\ClientGatewayToken;
+use App\Models\Company;
+use App\Models\CompanyGateway;
+use App\Models\PaymentHash;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Http\FormRequest;
 
 class Mollie3dsRequest extends FormRequest
 {
+    use MakesHash;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -23,7 +31,7 @@ class Mollie3dsRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -36,5 +44,30 @@ class Mollie3dsRequest extends FormRequest
         return [
             //
         ];
+    }
+
+    public function getCompany(): ?Company
+    {
+        return Company::where('company_key', $this->company_key)->first();
+    }
+
+    public function getCompanyGateway(): ?CompanyGateway
+    {
+        return CompanyGateway::find($this->decodePrimaryKey($this->company_gateway_id));
+    }
+
+    public function getPaymentHash(): ?PaymentHash
+    {
+        return PaymentHash::where('hash', $this->hash)->first();
+    }
+
+    public function getClient(): ?Client
+    {
+        return Client::find($this->getPaymentHash()->data->client_id);
+    }
+
+    public function getPaymentId(): ?string
+    {
+        return $this->getPaymentHash()->data->payment_id;
     }
 }
