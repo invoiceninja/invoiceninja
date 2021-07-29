@@ -299,8 +299,8 @@ class BaseRepository
         if((int)$model->balance != 0 && $model->partial > $model->amount)
             $model->partial = min($model->amount, $model->balance);
 
-        /* Update product details if necessary */
-        if ($model->company->update_products && $model->id) 
+        /* Update product details if necessary - if we are inside a transaction - do nothing */
+        if ($model->company->update_products && $model->id && \DB::transactionLevel() == 0) 
             UpdateOrCreateProduct::dispatch($model->line_items, $model, $model->company);
 
         /* Perform model specific tasks */

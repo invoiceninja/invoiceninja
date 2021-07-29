@@ -76,7 +76,7 @@ class ContactForgotPasswordController extends Controller
 
     public function sendResetLinkEmail(ContactPasswordResetRequest $request)
     {
-        
+
         $user = MultiDB::hasContact($request->input('email'));
 
         $this->validateEmail($request);
