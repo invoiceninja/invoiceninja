@@ -456,6 +456,13 @@ class Design extends BaseDesign
             return $elements;
         }
 
+        if ($this->entity instanceof Quote) {
+            // We don't want to show Balanace due on the quotes.
+            if (in_array('$outstanding', $variables)) {
+                $variables = \array_diff($variables, ['$outstanding']);
+            }
+        }
+
         foreach (['discount'] as $property) {
             $variable = sprintf('%s%s', '$', $property);
 
