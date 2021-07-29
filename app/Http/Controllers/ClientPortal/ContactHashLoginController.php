@@ -32,7 +32,7 @@ class ContactHashLoginController extends Controller
                                                  ->whereNull('deleted_at')
                                                  ->first();
 
-            return route('client.recurring_invoice.show', $recurring_invoice->hashed_id);
+            return redirect()->route('client.recurring_invoice.show', $recurring_invoice->hashed_id);
 
         }
 
