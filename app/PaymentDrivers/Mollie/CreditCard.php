@@ -11,8 +11,8 @@ use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\MolliePaymentDriver;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class CreditCard
@@ -50,8 +50,6 @@ class CreditCard
      */
     public function paymentResponse(PaymentResponseRequest $request)
     {
-        dd($this->mollie->gateway->mandates->listForId('cst_6S77wEkuQT'));
-        
         // TODO: Unit tests.
         $amount = number_format((float) $this->mollie->payment_hash->data->amount_with_fee, 2, '.', '');
 
@@ -162,15 +160,14 @@ class CreditCard
         return render('gateways.mollie.credit_card.authorize', $data);
     }
 
-    public function authorizeResponse($request)
+    /**
+     * Handle authorization response.
+     * 
+     * @param mixed $request 
+     * @return RedirectResponse 
+     */
+    public function authorizeResponse($request): RedirectResponse
     {
-        $customer = $this->mollie->gateway->customers->create([
-            'name' => $this->mollie->client->name,
-            'metadata' => [
-                'id' => $this->mollie->client->hashed_id,
-            ],
-        ]);
-
-        // Save $customer->id to database..
+        return redirect()->route('client.payment_methods.index');
     }
 }
