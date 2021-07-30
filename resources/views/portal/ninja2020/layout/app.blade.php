@@ -30,15 +30,14 @@
             </script>
         @endif
 
-
         <!-- Title -->
-        @auth()
-            <title>@yield('meta_title', '') — {{ auth('contact')->user()->user->account->isPaid() ? auth('contact')->user()->company->present()->name() : 'Invoice Ninja' }}</title>
-        @endauth
-
-        @guest
-            <title>@yield('meta_title', '') — {{ config('app.name') }}</title>
-        @endguest
+        @if(isset($account) && !$account->isPaid())
+            <title>@yield('meta_title', '') — Invoice Ninja</title>
+        @elseif(isset($company) && !is_null($company))
+            <title>@yield('meta_title', '') — {{ $company->present()->name() }}</title>
+        @else
+            <title>@yield('meta_title', '')</title>
+        @endif
 
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">

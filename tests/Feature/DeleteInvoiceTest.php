@@ -172,10 +172,11 @@ class DeleteInvoiceTest extends TestCase
         $client_hash_id = $arr['data']['id'];
         $client = Client::find($this->decodePrimaryKey($client_hash_id));
         
+        //new client
         $this->assertEquals($client->balance, 0);
         $this->assertEquals($client->paid_to_date, 0);
-        //create new invoice.
 
+        //create new invoice.
         $line_items = [];
 
         $item = InvoiceItemFactory::create();
