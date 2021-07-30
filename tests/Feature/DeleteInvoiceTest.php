@@ -138,7 +138,7 @@ class DeleteInvoiceTest extends TestCase
         $payment->refund($data);
 
         $this->assertEquals(10, $payment->fresh()->refunded);
-  
+        $this->assertEquals(10, $invoice->client->fresh()->paid_to_date);
 
         //test balances
 
