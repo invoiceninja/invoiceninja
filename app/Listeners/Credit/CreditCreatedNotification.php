@@ -38,7 +38,7 @@ class CreditCreatedNotification implements ShouldQueue
     {
         MultiDB::setDb($event->company->db);
 
-        $first_notification_sent = true;
+        // $first_notification_sent = true;
 
         $credit = $event->credit;
 
@@ -60,7 +60,7 @@ class CreditCreatedNotification implements ShouldQueue
             $methods = $this->findUserNotificationTypes($credit->invitations()->first(), $company_user, 'credit', ['all_notifications', 'credit_created', 'credit_created_all']);
 
             /* If one of the methods is email then we fire the EntitySentMailer */
-            if (($key = array_search('mail', $methods)) !== false && $first_notification_sent === true) {
+            if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
                 
@@ -69,7 +69,7 @@ class CreditCreatedNotification implements ShouldQueue
                 NinjaMailerJob::dispatch($nmo);
                 
                 /* This prevents more than one notification being sent */
-                $first_notification_sent = false;
+                // $first_notification_sent = false;
             }
 
             /* Override the methods in the Notification Class */

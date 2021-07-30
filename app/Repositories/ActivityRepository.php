@@ -51,11 +51,11 @@ class ActivityRepository extends BaseRepository
         }
 
         if ($token_id = $this->getTokenId($event_vars)) {
-            $fields->token_id = $token_id;
+            $activity->token_id = $token_id;
         }
 
-        $fields->ip = $event_vars['ip'];
-        $fields->is_system = $event_vars['is_system'];
+        $activity->ip = $event_vars['ip'];
+        $activity->is_system = $event_vars['is_system'];
 
         $activity->save();
 

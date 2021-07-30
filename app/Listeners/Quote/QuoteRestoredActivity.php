@@ -43,7 +43,10 @@ class QuoteRestoredActivity implements ShouldQueue
 
         $fields = new stdClass;
 
-        $fields->quote_id = $event->quote->id;
+
+        $user_id = array_key_exists('user_id', $event->event_vars) ? $event->event_vars['user_id'] : $event->quote->user_id;
+
+        $fields->user_id = $user_id;
         $fields->client_id = $event->quote->client_id;
         $fields->user_id = $event->quote->user_id;
         $fields->company_id = $event->quote->company_id;

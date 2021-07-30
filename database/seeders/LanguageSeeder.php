@@ -24,7 +24,7 @@ class LanguageSeeder extends Seeder
         // https://www.loc.gov/standards/iso639-2/php/code_list.php
 
         $languages = [
-            ['id' => 1, 'name' => 'English', 'locale' => 'en'],
+            ['id' => 1, 'name' => 'English - United States', 'locale' => 'en'],
             ['id' => 2, 'name' => 'Italian', 'locale' => 'it'],
             ['id' => 3, 'name' => 'German', 'locale' => 'de'],
             ['id' => 4, 'name' => 'French', 'locale' => 'fr'],

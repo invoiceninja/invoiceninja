@@ -41,6 +41,7 @@ $LANG = array(
     'quantity' => 'Quantity',
     'line_total' => 'Line Total',
     'subtotal' => 'Subtotal',
+    'net_subtotal' => 'Net',
     'paid_to_date' => 'Paid to Date',
     'balance_due' => 'Balance Due',
     'invoice_design_id' => 'Design',

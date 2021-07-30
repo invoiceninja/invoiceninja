@@ -112,6 +112,10 @@ class NinjaMailerJob implements ShouldQueue
 
         } catch (\Exception $e) {
 
+            // if($e instanceof GuzzleHttp\Exception\ClientException){
+
+            // }
+            
             nlog("error failed with {$e->getMessage()}");
 
             if($this->nmo->entity)
@@ -192,8 +196,6 @@ class NinjaMailerJob implements ShouldQueue
             $this->nmo->settings->email_sending_method = 'default';
             return $this->setMailDriver();
         }
-
-
 
         /*
          *  Now that our token is refreshed and valid we can boot the

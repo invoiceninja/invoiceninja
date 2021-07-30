@@ -174,7 +174,7 @@ class InvoiceController extends Controller
            // return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);;
             return response()->streamDownload(function () use($file) {
                     echo Storage::get($file);
-            },  basename($file));
+            },  basename($file), ['Content-Type' => 'application/pdf']);
         }
 
         // enable output of HTTP headers

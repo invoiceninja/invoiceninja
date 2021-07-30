@@ -672,16 +672,11 @@ class InvoiceController extends BaseController
                 break;
             case 'download':
 
-               // $file = $invoice->pdf_file_path();
-               // return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
-
                 $file = $invoice->service()->getInvoicePdf();
-
-               // return response()->download(Storage::get($file), basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
 
                 return response()->streamDownload(function () use($file) {
                         echo Storage::get($file);
-                },  basename($file));
+                },  basename($file), ['Content-Type' => 'application/pdf']);
 
 
                 break;
@@ -805,11 +800,9 @@ class InvoiceController extends BaseController
 
         $file = $invoice->service()->getInvoicePdf($contact);
 
-       // return response()->download(Storage::get($file), basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
-
         return response()->streamDownload(function () use($file) {
                 echo Storage::get($file);
-        },  basename($file));
+        },  basename($file), ['Content-Type' => 'application/pdf']);
     }
 
     /**
@@ -861,10 +854,9 @@ class InvoiceController extends BaseController
         
         $file = $invoice->service()->getInvoiceDeliveryNote($invoice, $invoice->invitations->first()->contact);
         
-        // return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
         return response()->streamDownload(function () use($file) {
                 echo Storage::get($file);
-        },  basename($file));
+        },  basename($file), ['Content-Type' => 'application/pdf']);
 
     }
 

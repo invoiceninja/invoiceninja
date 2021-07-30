@@ -238,6 +238,10 @@ class Import implements ShouldQueue
         /*After a migration first some basic jobs to ensure the system is up to date*/
         VersionCheck::dispatch();
         
+        $account = $this->company->account;
+        $account->default_company_id = $this->company->id;
+        $account->save();
+
             //company size check
             if ($this->company->invoices()->count() > 1000 || $this->company->products()->count() > 1000 || $this->company->clients()->count() > 1000) {
                 $this->company->is_large = true;
@@ -531,6 +535,7 @@ class Import implements ShouldQueue
             $modified = $resource;
             unset($modified['id']);
             unset($modified['password']); //cant import passwords.
+            unset($modified['confirmation_code']); //cant import passwords.
 
             $user = $user_repository->save($modified, $this->fetchUser($resource['email']), true, true);
             $user->email_verified_at = now();

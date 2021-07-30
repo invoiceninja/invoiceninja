@@ -229,7 +229,7 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function system_logs()
     {
-        return $this->hasMany(SystemLog::class);
+        return $this->hasMany(SystemLog::class)->orderBy('id', 'desc');
     }
 
     public function timezone()

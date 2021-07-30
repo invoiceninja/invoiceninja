@@ -157,6 +157,7 @@
         display: grid;
         grid-template-columns: 2fr 1fr;
         padding-top: 0.5rem;
+        margin-right: .75rem;
         gap: 80px;
     }
 
@@ -167,6 +168,13 @@
 
     #table-totals>.totals-table-right-side>*> :nth-child(1) {
         text-align: left;
+        margin-top: .75rem;
+    }
+
+    #table-totals>.totals-table-right-side> * > :not([hidden]) ~ :not([hidden]) {
+        --tw-space-y-reverse: 0;
+        margin-top: calc(.75rem * calc(1 - var(--tw-space-y-reverse)));
+        margin-bottom: calc(.75rem * var(--tw-space-y-reverse));
     }
 
     #table-totals>.totals-table-right-side>*> :nth-child(2) {

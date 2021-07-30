@@ -52,17 +52,15 @@ class InvoiceCreatedNotification implements ShouldQueue
 
             /* The User */
             $user = $company_user->user;
-
             /* This is only here to handle the alternate message channels - ie Slack */
             // $notification = new EntitySentNotification($event->invitation, 'invoice');
 
             /* Returns an array of notification methods */
             $methods = $this->findUserNotificationTypes($invoice->invitations()->first(), $company_user, 'invoice', ['all_notifications', 'invoice_created', 'invoice_created_all']);
-
             /* If one of the methods is email then we fire the EntitySentMailer */
-            if (($key = array_search('mail', $methods)) !== false && $first_notification_sent === true) {
+            // if (($key = array_search('mail', $methods))) {
+            if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
-
                 
                 $nmo->to_user = $user;
 
@@ -70,6 +68,7 @@ class InvoiceCreatedNotification implements ShouldQueue
                 
                 /* This prevents more than one notification being sent */
                 $first_notification_sent = false;
+
             }
 
             /* Override the methods in the Notification Class */
