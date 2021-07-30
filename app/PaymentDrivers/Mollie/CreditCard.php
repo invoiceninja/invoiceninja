@@ -6,6 +6,7 @@ use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
+use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
@@ -57,6 +58,41 @@ class CreditCard
             ->withData('gateway_type_id', GatewayType::CREDIT_CARD)
             ->withData('client_id', $this->mollie->client->id);
 
+        if (!empty($request->token)) {
+            try {
+                $cgt = ClientGatewayToken::where('token', $request->token)->firstOrFail();
+
+                $payment = $this->mollie->gateway->payments->create([
+                    'amount' => [
+                        'currency' => $this->mollie->client->currency()->code,
+                        'value' => $amount,
+                    ],
+                    'mandateId' => $request->token,
+                    'customerId' => $cgt->gateway_customer_reference,
+                    'sequenceType' => 'recurring',
+                    'description' => \sprintf('Hash: %s', $this->mollie->payment_hash->hash),
+                    'webhookUrl'  => 'https://invoiceninja.com',
+                ]);
+
+                if ($payment->status === 'paid') {
+                    $this->mollie->logSuccessfulGatewayResponse(
+                        ['response' => $payment, 'data' => $this->mollie->payment_hash],
+                        SystemLog::TYPE_MOLLIE
+                    );
+
+                    return $this->processSuccessfulPayment($payment);
+                }
+
+                if ($payment->status === 'open') {
+                    $this->mollie->payment_hash->withData('payment_id', $payment->id);
+
+                    return redirect($payment->getCheckoutUrl());
+                }
+            } catch (\Exception $e) {
+                return $this->processUnsuccessfulPayment($e);
+            }
+        }
+
         try {
             $data = [
                 'amount' => [
@@ -70,7 +106,7 @@ class CreditCard
                     'hash' => $this->mollie->payment_hash->hash,
                 ]),
                 'webhookUrl'  => 'https://invoiceninja.com',
-                'cardToken' => $request->token,
+                'cardToken' => $request->gateway_response,
             ];
 
             if ($request->shouldStoreToken()) {
@@ -117,7 +153,7 @@ class CreditCard
     {
         $payment_hash = $this->mollie->payment_hash;
 
-        if ($payment_hash->data->shouldStoreToken) {
+        if (property_exists($payment_hash->data, 'shouldStoreToken') && $payment_hash->data->shouldStoreToken) {
             try {
                 $mandates = \iterator_to_array($this->mollie->gateway->mandates->listForId($payment_hash->data->mollieCustomerId));
             } catch (\Mollie\Api\Exceptions\ApiException $e) {
@@ -135,7 +171,7 @@ class CreditCard
                 'token' => $mandates[0]->id,
                 'payment_method_id' => GatewayType::CREDIT_CARD,
                 'payment_meta' =>  $payment_meta,
-            ]);
+            ], ['gateway_customer_reference' => $payment_hash->data->mollieCustomerId]);
         }
 
         $data = [

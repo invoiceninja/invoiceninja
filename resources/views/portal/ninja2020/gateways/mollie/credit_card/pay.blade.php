@@ -47,7 +47,7 @@ ctrans('texts.credit_card')])
     @endcomponent
 
     @component('portal.ninja2020.components.general.card-element-single')
-        <div class="flex flex-col">
+        <div class="flex flex-col" id="mollie--payment-container">
             <label for="card-number">
                 <span class="text-xs text-gray-900 uppercase">{{ ctrans('texts.card_number') }}</span>
                 <div class="input w-full" type="text" id="card-number"></div>
@@ -166,6 +166,12 @@ ctrans('texts.credit_card')])
             handlePayNowButton() {
                 document.getElementById('pay-now').disabled = true;
 
+                if (document.querySelector('input[name=token]').value !== '') {
+                    document.querySelector('input[name=gateway_response]').value = '';
+
+                    return document.getElementById('server-response').submit();
+                }
+
                 this.mollie.createToken().then(function(result) {
                     let token = result.token;
                     let error = result.error;
@@ -189,7 +195,9 @@ ctrans('texts.credit_card')])
                             tokenBillingCheckbox.value;
                     }
 
-                    document.querySelector('input[name=token]').value = token;
+                    document.querySelector('input[name=gateway_response]').value = token;
+                    document.querySelector('input[name=token]').value = '';
+
                     document.getElementById('server-response').submit();
                 });
             }
@@ -200,6 +208,22 @@ ctrans('texts.credit_card')])
                     .createCardNumberInput()
                     .createExpiryDateInput()
                     .createCvvInput();
+
+                Array
+                    .from(document.getElementsByClassName('toggle-payment-with-token'))
+                    .forEach((element) => element.addEventListener('click', (element) => {
+                        document.getElementById('mollie--payment-container').classList.add('hidden');
+                        document.getElementById('save-card--container').style.display = 'none';
+                        document.querySelector('input[name=token]').value = element.target.dataset.token;
+                    }));
+
+                document
+                    .getElementById('toggle-payment-with-credit-card')
+                    .addEventListener('click', (element) => {
+                        document.getElementById('mollie--payment-container').classList.remove('hidden');
+                        document.getElementById('save-card--container').style.display = 'grid';
+                        document.querySelector('input[name=token]').value = "";
+                    });
 
                 document
                     .getElementById('pay-now')
