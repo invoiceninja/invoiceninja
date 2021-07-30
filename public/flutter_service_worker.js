@@ -32,7 +32,7 @@ const RESOURCES = {
 "manifest.json": "ce1b79950eb917ea619a0a30da27c6a3",
 "version.json": "3f9e03374a3e78d2cab3afd8723d0993",
 "favicon.ico": "51636d3a390451561744c42188ccd628",
-"main.dart.js": "7be68e5fb0d55a6eed728d1d90468698",
+"main.dart.js": "caf19801f6b328c7461e3052bd777398",
 "/": "d389ab59423a76b2aaaa683ed382c78e"
 };
 
