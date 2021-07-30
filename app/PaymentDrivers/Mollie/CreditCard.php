@@ -31,9 +31,9 @@ class CreditCard
 
     /**
      * Show the page for credit card payments.
-     * 
-     * @param array $data 
-     * @return Factory|View 
+     *
+     * @param array $data
+     * @return Factory|View
      */
     public function paymentView(array $data)
     {
@@ -44,9 +44,9 @@ class CreditCard
 
     /**
      * Create a payment object.
-     * 
-     * @param PaymentResponseRequest $request 
-     * @return mixed 
+     *
+     * @param PaymentResponseRequest $request
+     * @return mixed
      */
     public function paymentResponse(PaymentResponseRequest $request)
     {
@@ -58,16 +58,7 @@ class CreditCard
             ->withData('client_id', $this->mollie->client->id);
 
         try {
-            $customer = $this->mollie->gateway->customers->create([
-                'name' => $this->mollie->client->name,
-                'metadata' => [
-                    'id' => $this->mollie->client->hashed_id,
-                ],
-            ]);
-
-            $payment = $this->mollie->gateway->payments->create([
-                'customerId' => $customer->id,
-                'sequenceType' => 'first',
+            $data = [
                 'amount' => [
                     'currency' => $this->mollie->client->currency()->code,
                     'value' => $amount,
@@ -80,7 +71,26 @@ class CreditCard
                 ]),
                 'webhookUrl'  => 'https://invoiceninja.com',
                 'cardToken' => $request->token,
-            ]);
+            ];
+
+            if ($request->shouldStoreToken()) {
+                $customer = $this->mollie->gateway->customers->create([
+                    'name' => $this->mollie->client->name,
+                    'email' => $this->mollie->client->present()->email(),
+                    'metadata' => [
+                        'id' => $this->mollie->client->hashed_id,
+                    ],
+                ]);
+
+                $data['customerId'] = $customer->id;
+                $data['sequenceType'] = 'first';
+
+                $this->mollie->payment_hash
+                    ->withData('mollieCustomerId', $customer->id)
+                    ->withData('shouldStoreToken', true);
+            }
+
+            $payment = $this->mollie->gateway->payments->create($data);
 
             if ($payment->status === 'paid') {
                 $this->mollie->logSuccessfulGatewayResponse(
@@ -106,6 +116,27 @@ class CreditCard
     public function processSuccessfulPayment(\Mollie\Api\Resources\Payment $payment)
     {
         $payment_hash = $this->mollie->payment_hash;
+
+        if ($payment_hash->data->shouldStoreToken) {
+            try {
+                $mandates = \iterator_to_array($this->mollie->gateway->mandates->listForId($payment_hash->data->mollieCustomerId));
+            } catch (\Mollie\Api\Exceptions\ApiException $e) {
+                return $this->processUnsuccessfulPayment($e);
+            }
+
+            $payment_meta = new \stdClass;
+            $payment_meta->exp_month = (string) $mandates[0]->details->cardExpiryDate;
+            $payment_meta->exp_year = (string) '';
+            $payment_meta->brand = (string) $mandates[0]->details->cardLabel;
+            $payment_meta->last4 = (string) $mandates[0]->details->cardNumber;
+            $payment_meta->type = GatewayType::CREDIT_CARD;
+
+            $this->mollie->storeGatewayToken([
+                'token' => $mandates[0]->id,
+                'payment_method_id' => GatewayType::CREDIT_CARD,
+                'payment_meta' =>  $payment_meta,
+            ]);
+        }
 
         $data = [
             'gateway_type_id' => GatewayType::CREDIT_CARD,
@@ -151,9 +182,9 @@ class CreditCard
 
     /**
      * Show authorization page.
-     *  
-     * @param array $data 
-     * @return Factory|View 
+     *
+     * @param array $data
+     * @return Factory|View
      */
     public function authorizeView(array $data)
     {
@@ -162,9 +193,9 @@ class CreditCard
 
     /**
      * Handle authorization response.
-     * 
-     * @param mixed $request 
-     * @return RedirectResponse 
+     *
+     * @param mixed $request
+     * @return RedirectResponse
      */
     public function authorizeResponse($request): RedirectResponse
     {
