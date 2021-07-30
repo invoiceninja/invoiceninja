@@ -118,27 +118,28 @@ class DeleteInvoiceTest extends TestCase
         $this->assertEquals(0, $invoice->client->balance);
         $this->assertEquals(20, $invoice->client->paid_to_date);
 
-/*
+
         //partially refund payment
         $payment = $invoice->fresh()->payments()->first();
 
         $data = [
-            'id' => $this->encodePrimaryKey($payment->id),
+            'id' => $payment->id,
             'amount' => 10,
             'invoices' => [
                 [
-                'invoice_id' => $invoice->hashed_id,
+                'invoice_id' => $invoice->id,
                 'amount' => 10,
                 ],
             ],
             'date' => '2020/12/12',
+            'gateway_refund' => false
         ];
 
         $payment->refund($data);
 
         $this->assertEquals(10, $payment->fresh()->refunded);
   
-*/
+
         //test balances
 
         //cancel invoice and paid_to_date
