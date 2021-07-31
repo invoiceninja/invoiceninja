@@ -62,4 +62,34 @@ class CreditCardTest extends DuskTestCase
                 ->waitForText('Details of the payment', 60);
         });
     }
+
+    public function testPayWithNewCreditCardAndSaveForFutureUse()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.invoices.index')
+                ->click('@pay-now')
+                ->press('Pay Now')
+                ->clickLink('Credit Card')
+                ->pause(5000)
+                ->withinFrame('iframe[name=cardNumber-input]', function (Browser $browser) {
+                    $browser->type('#cardNumber', '4242424242424242');
+                })
+                ->withinFrame('iframe[name=cardHolder-input]', function (Browser $browser) {
+                    $browser->type('#cardHolder', 'Invoice Ninja Test Suite');
+                })
+                ->withinFrame('iframe[name=expiryDate-input]', function (Browser $browser) {
+                    $browser->type('#expiryDate', '12/29');
+                })
+                ->withinFrame('iframe[name=verificationCode-input]', function (Browser $browser) {
+                    $browser->type('#verificationCode', '100');
+                })
+                ->radio('#proxy_is_default', true)
+                ->press('Pay Now')
+                ->waitForText('Details of the payment', 60)
+                ->visitRoute('client.payment_methods.index')
+                ->clickLink('View')
+                ->assertSee('4242');
+        });
+    }
 }
