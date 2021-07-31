@@ -54,6 +54,9 @@ class CompanyPresenter extends EntityPresenter
             $settings = $this->entity->settings;
         }
 
+        if(config('ninja.is_docker'))
+            return $this->logo($settings);
+
         $context_options =array(
             "ssl"=>array(
                "verify_peer"=>false,

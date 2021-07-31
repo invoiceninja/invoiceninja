@@ -293,7 +293,7 @@ class Import implements ShouldQueue
 
     private function setInitialCompanyLedgerBalances()
     {
-        Client::cursor()->each(function ($client) {
+        Client::where('company_id', $this->company->id)->cursor()->each(function ($client) {
 
             $invoice_balances = $client->invoices->where('is_deleted', false)->where('status_id', '>', 1)->sum('balance');
 

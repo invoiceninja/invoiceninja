@@ -40,9 +40,6 @@ class DeleteInvoiceTest extends TestCase
         );
     }
 
-
-
-
     public function testInvoiceDeletionAfterCancellation()
     {
         $data = [
@@ -137,18 +134,26 @@ class DeleteInvoiceTest extends TestCase
 
         $payment->refund($data);
 
+        //test balances
         $this->assertEquals(10, $payment->fresh()->refunded);
         $this->assertEquals(10, $invoice->client->fresh()->paid_to_date);
-
-        //test balances
+        $this->assertEquals(10, $invoice->fresh()->balance);
 
         //cancel invoice and paid_to_date
+        $invoice->fresh()->service()->handleCancellation()->save();
 
         //test balances and paid_to_date
+        $this->assertEquals(0, $invoice->fresh()->balance);
+        $this->assertEquals(0, $invoice->client->fresh()->balance);
+        $this->assertEquals(10, $invoice->client->fresh()->paid_to_date);
 
         //delete invoice
+        $invoice->fresh()->service()->markDeleted()->save();
 
         //test balances and paid_to_date
+        $this->assertEquals(0, $invoice->fresh()->balance);
+        $this->assertEquals(0, $invoice->client->fresh()->balance);
+        $this->assertEquals(0, $invoice->client->fresh()->paid_to_date);
 
     }
 
