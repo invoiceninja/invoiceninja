@@ -97,7 +97,7 @@ class CheckData extends Command
             $this->checkFailedJobs();
         }
 
-        $this->checkTranslations();
+        //$this->checkTranslations();
         $this->logMessage('Done: ' . strtoupper($this->isValid ? RESULT_SUCCESS : RESULT_FAILURE));
         $errorEmail = env('ERROR_EMAIL');
 
