@@ -107,12 +107,11 @@ class ReminderTest extends TestCase
      //   ReminderJob::dispatchNow();
     }
 
-
+    /* Cant set a reminder in the past so need to skip reminder 2 and go straigh to reminder 3*/
     public function testReminderNextSendRecalculation()
     {
 
         $this->invoice->date = now()->subDays(2)->format('Y-m-d');
-
         $this->invoice->due_date = now()->addDays(30)->format('Y-m-d');
         $this->invoice->reminder1_sent = now()->subDays(1)->format('Y-m-d');
         $this->invoice->last_sent_date = now()->subDays(1)->format('Y-m-d');
@@ -136,7 +135,7 @@ class ReminderTest extends TestCase
 
         $this->invoice->fresh();
 
-        $this->assertEquals(Carbon::parse($this->invoice->next_send_date)->format('Y-m-d'), now()->format('Y-m-d'));
+        $this->assertEquals(Carbon::parse($this->invoice->next_send_date)->format('Y-m-d'), now()->addDay()->format('Y-m-d'));
         
     }
 

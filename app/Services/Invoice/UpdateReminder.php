@@ -42,6 +42,9 @@ class UpdateReminder extends AbstractService
             return $this->invoice; //exit early
         }
 
+        if($this->invoice->next_send_date)
+            $this->invoice->next_send_date = null;
+
         $offset = $this->invoice->client->timezone_offset();
 
         $date_collection = collect();
@@ -52,7 +55,7 @@ class UpdateReminder extends AbstractService
             $reminder_date = Carbon::parse($this->invoice->date)->startOfDay()->addDays($this->settings->num_days_reminder1)->addSeconds($offset);
 
             if ($reminder_date->gt(Carbon::parse($this->invoice->next_send_date)))
-                $date_collection->push($reminder_date); 
+                $date_collection->push($reminder_date); nlog("settings reminder 1 after due date");
         }
 
         if (is_null($this->invoice->reminder1_sent) &&
@@ -61,7 +64,7 @@ class UpdateReminder extends AbstractService
             $reminder_date = Carbon::parse($this->invoice->due_date)->startOfDay()->subDays($this->settings->num_days_reminder1)->addSeconds($offset);
 
             if ($reminder_date->gt(Carbon::parse($this->invoice->next_send_date)))
-                $date_collection->push($reminder_date); 
+                $date_collection->push($reminder_date); nlog("settings reminder 1 before_due_date"); 
         }
 
         if (is_null($this->invoice->reminder1_sent) &&
@@ -70,7 +73,7 @@ class UpdateReminder extends AbstractService
             $reminder_date = Carbon::parse($this->invoice->due_date)->startOfDay()->addDays($this->settings->num_days_reminder1)->addSeconds($offset);
 
             if ($reminder_date->gt(Carbon::parse($this->invoice->next_send_date)))
-                $date_collection->push($reminder_date);
+                $date_collection->push($reminder_date); nlog("settings reminder 1 after_due_date");
         }
 
         if (is_null($this->invoice->reminder2_sent) &&
@@ -79,7 +82,7 @@ class UpdateReminder extends AbstractService
             $reminder_date = Carbon::parse($this->invoice->date)->startOfDay()->addDays($this->settings->num_days_reminder2)->addSeconds($offset);
 
             if ($reminder_date->gt(Carbon::parse($this->invoice->next_send_date)))
-                $date_collection->push($reminder_date); 
+                $date_collection->push($reminder_date); nlog("settings reminder 2 after_invoice_date = ".$reminder_date->format('Y-m-d'));
         }
 
         if (is_null($this->invoice->reminder2_sent) &&
@@ -88,7 +91,7 @@ class UpdateReminder extends AbstractService
             $reminder_date = Carbon::parse($this->invoice->due_date)->startOfDay()->subDays($this->settings->num_days_reminder2)->addSeconds($offset);
 
             if ($reminder_date->gt(Carbon::parse($this->invoice->next_send_date)))
-                $date_collection->push($reminder_date); 
+                $date_collection->push($reminder_date); nlog("settings reminder 2 before_due_date");
         }
 
         if (is_null($this->invoice->reminder2_sent) &&
@@ -97,7 +100,7 @@ class UpdateReminder extends AbstractService
             $reminder_date = Carbon::parse($this->invoice->due_date)->startOfDay()->addDays($this->settings->num_days_reminder2)->addSeconds($offset);
 
             if ($reminder_date->gt(Carbon::parse($this->invoice->next_send_date)))
-                $date_collection->push($reminder_date); 
+                $date_collection->push($reminder_date); nlog("settings reminder 2 after_due_date");
         }
 
         if (is_null($this->invoice->reminder3_sent) &&
@@ -106,7 +109,7 @@ class UpdateReminder extends AbstractService
             $reminder_date = Carbon::parse($this->invoice->date)->startOfDay()->addDays($this->settings->num_days_reminder3)->addSeconds($offset);
 
             if ($reminder_date->gt(Carbon::parse($this->invoice->next_send_date)))
-                $date_collection->push($reminder_date); 
+                $date_collection->push($reminder_date); nlog("settings reminder 3 after_invoice_date");
         }
 
         if (is_null($this->invoice->reminder3_sent) &&
@@ -115,7 +118,7 @@ class UpdateReminder extends AbstractService
             $reminder_date = Carbon::parse($this->invoice->due_date)->startOfDay()->subDays($this->settings->num_days_reminder3)->addSeconds($offset);
 
             if ($reminder_date->gt(Carbon::parse($this->invoice->next_send_date)))
-                $date_collection->push($reminder_date); 
+                $date_collection->push($reminder_date); nlog("settings reminder 3 before_due_date");
         }
 
         if (is_null($this->invoice->reminder3_sent) &&
@@ -124,7 +127,7 @@ class UpdateReminder extends AbstractService
             $reminder_date = Carbon::parse($this->invoice->due_date)->startOfDay()->addDays($this->settings->num_days_reminder3)->addSeconds($offset);
 
             if ($reminder_date->gt(Carbon::parse($this->invoice->next_send_date)))
-                $date_collection->push($reminder_date); 
+                $date_collection->push($reminder_date); nlog("settings reminder 3 after_due_date");
         }
 
         if ($this->invoice->last_sent_date &&
@@ -137,7 +140,7 @@ class UpdateReminder extends AbstractService
                 $reminder_date->addSeconds($offset);
 
                 if ($reminder_date->gt(Carbon::parse($this->invoice->next_send_date)))
-                    $date_collection->push($reminder_date); 
+                    $date_collection->push($reminder_date); nlog("settings endless reminder");
 
             }
 
