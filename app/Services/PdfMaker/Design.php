@@ -347,7 +347,7 @@ class Design extends BaseDesign
 
         $items = $this->transformLineItems($this->entity->line_items, $type);
 
-        //        $this->processMarkdownOnLineItems($items);
+        $this->processMarkdownOnLineItems($items);
 
         if (count($items) == 0) {
             return [];
@@ -454,6 +454,13 @@ class Design extends BaseDesign
 
         if ($this->type == 'delivery_note') {
             return $elements;
+        }
+
+        if ($this->entity instanceof Quote) {
+            // We don't want to show Balanace due on the quotes.
+            if (in_array('$outstanding', $variables)) {
+                $variables = \array_diff($variables, ['$outstanding']);
+            }
         }
 
         foreach (['discount'] as $property) {

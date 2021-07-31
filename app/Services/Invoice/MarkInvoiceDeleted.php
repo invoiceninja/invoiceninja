@@ -36,7 +36,7 @@ class MarkInvoiceDeleted extends AbstractService
         if ($this->invoice->is_deleted) {
             return $this->invoice;
         }
-             
+        
         $this->cleanup()
              ->setAdjustmentAmount()
              ->deletePaymentables()
@@ -86,6 +86,11 @@ class MarkInvoiceDeleted extends AbstractService
                                                 ->where('paymentable_id', $this->invoice->id)
                                                 ->sum(DB::raw('amount'));
 
+                $payment_adjustment -= $payment->paymentables
+                                                ->where('paymentable_type', '=', 'invoices')
+                                                ->where('paymentable_id', $this->invoice->id)
+                                                ->sum(DB::raw('refunded'));
+
                 $payment->amount -= $payment_adjustment;
                 $payment->applied -= $payment_adjustment;
                 $payment->save();
@@ -108,10 +113,19 @@ class MarkInvoiceDeleted extends AbstractService
                                                 ->where('paymentable_type', '=', 'invoices')
                                                 ->where('paymentable_id', $this->invoice->id)
                                                 ->sum(DB::raw('amount'));
+
+            $this->adjustment_amount -= $payment->paymentables
+                                                ->where('paymentable_type', '=', 'invoices')
+                                                ->where('paymentable_id', $this->invoice->id)
+                                                ->sum(DB::raw('refunded'));                                                
         }
 
 
-        $this->total_payments = $this->invoice->payments->sum('amount');
+        $this->total_payments = $this->invoice->payments->sum('amount') - $this->invoice->payments->sum('refunded');;
+        //$this->total_payments = $this->invoice->payments->sum('amount - refunded');
+
+nlog("adjustment amount = {$this->adjustment_amount}");
+nlog("total payments = {$this->total_payments}");
 
         return $this;
     }

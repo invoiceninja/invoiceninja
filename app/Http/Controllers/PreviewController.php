@@ -31,6 +31,7 @@ use App\Repositories\InvoiceRepository;
 use App\Repositories\QuoteRepository;
 use App\Repositories\RecurringInvoiceRepository;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
+use App\Services\PdfMaker\Design as PdfDesignModel;
 use App\Services\PdfMaker\Design;
 use App\Services\PdfMaker\PdfMaker;
 use App\Utils\HostedPDF\NinjaPdf;

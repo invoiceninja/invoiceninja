@@ -12,6 +12,7 @@
 namespace App\Http\Controllers\ClientPortal;
 
 use App\Http\Controllers\Controller;
+use App\Models\RecurringInvoice;
 use Auth;
 
 class ContactHashLoginController extends Controller
@@ -24,6 +25,17 @@ class ContactHashLoginController extends Controller
      */
     public function login(string $contact_key)
     {
+        if(request()->has('subscription') && $request->subscription == 'true') {
+
+            $recurring_invoice = RecurringInvoice::where('client_id', auth()->guard('contact')->client->id)
+                                                 ->whereNotNull('subscription_id')
+                                                 ->whereNull('deleted_at')
+                                                 ->first();
+
+            return redirect()->route('client.recurring_invoice.show', $recurring_invoice->hashed_id);
+
+        }
+
         return redirect('/client/invoices');
     }
 

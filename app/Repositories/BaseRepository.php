@@ -174,8 +174,8 @@ class BaseRepository
             $model->client_id = $data['client_id'];
 
         //pickup changes here to recalculate reminders
-        if($model instanceof Invoice && ($model->isDirty('date') || $model->isDirty('due_date')))
-            $model->service()->setReminder()->save();
+        //if($model instanceof Invoice && ($model->isDirty('date') || $model->isDirty('due_date')))
+           // $model->service()->setReminder()->save();
 
         $client = Client::where('id', $model->client_id)->withTrashed()->first();    
 
@@ -212,6 +212,9 @@ class BaseRepository
         $model->save();
 
         /* Model now persisted, now lets do some child tasks */
+
+        if($model instanceof Invoice)
+            $model->service()->setReminder()->save();
 
         /* Save any documents */
         if (array_key_exists('documents', $data)) 
@@ -299,8 +302,8 @@ class BaseRepository
         if((int)$model->balance != 0 && $model->partial > $model->amount)
             $model->partial = min($model->amount, $model->balance);
 
-        /* Update product details if necessary */
-        if ($model->company->update_products && $model->id) 
+        /* Update product details if necessary - if we are inside a transaction - do nothing */
+        if ($model->company->update_products && $model->id && \DB::transactionLevel() == 0) 
             UpdateOrCreateProduct::dispatch($model->line_items, $model, $model->company);
 
         /* Perform model specific tasks */

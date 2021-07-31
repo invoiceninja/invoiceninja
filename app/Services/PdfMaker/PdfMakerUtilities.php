@@ -92,30 +92,18 @@ trait PdfMakerUtilities
             $contains_html = false;
 
             if (isset($child['content'])) {
-                // Commented cause it keeps adding <br> at the end, if markdown parsing is turned on.
-                // Should update with 'parse_markdown_on_pdfs' setting.
-
-                 $child['content'] = nl2br($child['content']);
-            }
-
-            // "/\/[a-z]*>/i" -> checks for HTML-like tags:
-            // <my-tag></my-tag> => true
-            // <my-tag /> => true
-            // <my-tag> => false
-
-            if (isset($child['content'])) {
                 if (isset($child['is_empty']) && $child['is_empty'] === true) {
                     continue;
                 }
 
-                $contains_html = preg_match("/\/[a-z]*>/i", $child['content'], $m) != 0;
+                $contains_html = preg_match('#(?<=<)\w+(?=[^<]*?>)#', $child['content'], $m) != 0;
             }
 
             if ($contains_html) {
-                // If the element contains the HTML, we gonna display it as is. DOMDocument, is going to
-                // encode it for us, preventing any errors on the backend due processing stage.
+                // If the element contains the HTML, we gonna display it as is. Backend is going to
+                // encode it for us, preventing any errors on the processing stage.
                 // Later, we decode this using Javascript so it looks like it's normal HTML being injected.
-                // To get all elements that need frontend decoding, we use 'data-ref' property.
+                // To get all elements that need frontend decoding, we use 'data-state' property.
 
                 $_child = $this->document->createElement($child['element'], '');
                 $_child->setAttribute('data-state', 'encoded-html');

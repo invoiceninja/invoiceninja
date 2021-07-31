@@ -57,5 +57,13 @@
                 .querySelector('div[data-ref="gateway-container"]')
                 .scrollIntoView({behavior: "smooth"});
         });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            let toggleWithToken = document.querySelector('.toggle-payment-with-token');
+
+            if (toggleWithToken) {
+                toggleWithToken.click();
+            }
+        });
     </script>
 @endpush

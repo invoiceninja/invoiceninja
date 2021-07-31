@@ -198,6 +198,10 @@ class ClientContact extends Authenticatable implements HasLocalePreference
 
     public function sendPasswordResetNotification($token)
     {
+
+        $this->token = $token;
+        $this->save();
+
         $nmo = new NinjaMailerObject;
         $nmo->mailable = new NinjaMailer((new ClientContactResetPasswordObject($token, $this))->build());
         $nmo->to_user = $this;
