@@ -90,7 +90,7 @@ class HandleReversal extends AbstractService
         }
 
         /*If there is a payment linked, then the credit needs to be linked back to that payment in case of refund*/
-        if ($paymentables->count() > 0) {
+        if ($paymentables->count() > 0 && $credit) {
             $payment = $paymentables->first()->payment;
             $payment->credits()->save($credit);
 

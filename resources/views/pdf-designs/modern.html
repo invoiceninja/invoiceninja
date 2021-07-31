@@ -22,7 +22,7 @@
     p {
         margin: 0;
         padding: 0;
-        page-break-after: always;
+        /* page-break-after: always; */
     }
 
     .header-container {
@@ -260,6 +260,14 @@
         .no-print {
             display: none
         }
+    }
+
+    /** Markdown-specific styles. **/
+    #product-table h3,
+    #task-table h3,
+    #delivery-note-table h3 {
+        font-size: 1rem;
+        margin-bottom: 0;
     }
 </style>
 

@@ -40,6 +40,124 @@ class DeleteInvoiceTest extends TestCase
         );
     }
 
+    public function testInvoiceDeletionAfterCancellation()
+    {
+        $data = [
+            'name' => 'A Nice Client',
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/clients', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $client_hash_id = $arr['data']['id'];
+        $client = Client::find($this->decodePrimaryKey($client_hash_id));
+        
+        $this->assertEquals($client->balance, 0);
+        $this->assertEquals($client->paid_to_date, 0);
+        //create new invoice.
+
+        $line_items = [];
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 10;
+
+        $line_items[] = (array)$item;
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 10;
+
+        $line_items[] = (array)$item;
+
+        $invoice = [
+            'status_id' => 1,
+            'number' => '',
+            'discount' => 0,
+            'is_amount_discount' => 1,
+            'po_number' => '3434343',
+            'public_notes' => 'notes',
+            'is_deleted' => 0,
+            'custom_value1' => 0,
+            'custom_value2' => 0,
+            'custom_value3' => 0,
+            'custom_value4' => 0,
+            'client_id' => $client_hash_id,
+            'line_items' => (array)$line_items,
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/invoices/', $invoice)
+            ->assertStatus(200);
+
+        $arr = $response->json();
+    
+        $invoice_one_hashed_id = $arr['data']['id'];
+
+        $invoice = Invoice::find($this->decodePrimaryKey($invoice_one_hashed_id));
+
+        $invoice = $invoice->service()->markSent()->save();
+
+        $this->assertEquals(20, $invoice->balance);
+        $this->assertEquals(20, $invoice->client->balance);
+
+        $invoice = $invoice->service()->markPaid()->save();
+
+        $this->assertEquals(0, $invoice->balance);
+        $this->assertEquals(0, $invoice->client->balance);
+        $this->assertEquals(20, $invoice->client->paid_to_date);
+
+
+        //partially refund payment
+        $payment = $invoice->fresh()->payments()->first();
+
+        $data = [
+            'id' => $payment->id,
+            'amount' => 10,
+            'invoices' => [
+                [
+                'invoice_id' => $invoice->id,
+                'amount' => 10,
+                ],
+            ],
+            'date' => '2020/12/12',
+            'gateway_refund' => false
+        ];
+
+        $payment->refund($data);
+
+        //test balances
+        $this->assertEquals(10, $payment->fresh()->refunded);
+        $this->assertEquals(10, $invoice->client->fresh()->paid_to_date);
+        $this->assertEquals(10, $invoice->fresh()->balance);
+
+        //cancel invoice and paid_to_date
+        $invoice->fresh()->service()->handleCancellation()->save();
+
+        //test balances and paid_to_date
+        $this->assertEquals(0, $invoice->fresh()->balance);
+        $this->assertEquals(0, $invoice->client->fresh()->balance);
+        $this->assertEquals(10, $invoice->client->fresh()->paid_to_date);
+
+        //delete invoice
+        $invoice->fresh()->service()->markDeleted()->save();
+
+        //test balances and paid_to_date
+        $this->assertEquals(0, $invoice->fresh()->balance);
+        $this->assertEquals(0, $invoice->client->fresh()->balance);
+        $this->assertEquals(0, $invoice->client->fresh()->paid_to_date);
+
+    }
+
+
     /**
      * @covers App\Services\Invoice\MarkInvoiceDeleted
      */
@@ -172,10 +290,11 @@ class DeleteInvoiceTest extends TestCase
         $client_hash_id = $arr['data']['id'];
         $client = Client::find($this->decodePrimaryKey($client_hash_id));
         
+        //new client
         $this->assertEquals($client->balance, 0);
         $this->assertEquals($client->paid_to_date, 0);
-        //create new invoice.
 
+        //create new invoice.
         $line_items = [];
 
         $item = InvoiceItemFactory::create();
@@ -323,4 +442,16 @@ class DeleteInvoiceTest extends TestCase
         $this->assertEquals(40, $payment->fresh()->amount);
         $this->assertEquals(40, $client->fresh()->paid_to_date);
     }
+
+
+
+
+
+
+
+
+
+
+
+
 }
