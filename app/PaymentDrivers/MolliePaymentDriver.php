@@ -14,6 +14,7 @@ namespace App\PaymentDrivers;
 
 use App\Http\Requests\Gateways\Mollie\Mollie3dsRequest;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
+use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
@@ -123,7 +124,7 @@ class MolliePaymentDriver extends BaseDriver
     public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment = null)
     {
     }
-    
+
     public function process3dsConfirmation(Mollie3dsRequest $request)
     {
         $this->init();
@@ -134,8 +135,29 @@ class MolliePaymentDriver extends BaseDriver
             $payment = $this->gateway->payments->get($request->getPaymentId());
 
             return (new CreditCard($this))->processSuccessfulPayment($payment);
-        } catch(\Mollie\Api\Exceptions\ApiException $e) {
+        } catch (\Mollie\Api\Exceptions\ApiException $e) {
             return (new CreditCard($this))->processUnsuccessfulPayment($e);
+        }
+    }
+
+    public function detach(ClientGatewayToken $token)
+    {
+        $this->init();
+
+        try {
+            $this->gateway->mandates->revokeForId($token->gateway_customer_reference, $token->token);
+        } catch (\Mollie\Api\Exceptions\ApiException $e) {
+            SystemLogger::dispatch(
+                [
+                    'server_response' => $e->getMessage(),
+                    'data' => request()->all(),
+                ],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_MOLLIE,
+                $this->client,
+                $this->client->company
+            );
         }
     }
 }
