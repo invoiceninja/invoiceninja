@@ -174,8 +174,8 @@ class BaseRepository
             $model->client_id = $data['client_id'];
 
         //pickup changes here to recalculate reminders
-        if($model instanceof Invoice && ($model->isDirty('date') || $model->isDirty('due_date')))
-            $model->service()->setReminder()->save();
+        //if($model instanceof Invoice && ($model->isDirty('date') || $model->isDirty('due_date')))
+           // $model->service()->setReminder()->save();
 
         $client = Client::where('id', $model->client_id)->withTrashed()->first();    
 
@@ -212,6 +212,9 @@ class BaseRepository
         $model->save();
 
         /* Model now persisted, now lets do some child tasks */
+
+        if($model instanceof Invoice)
+            $model->service()->setReminder()->save();
 
         /* Save any documents */
         if (array_key_exists('documents', $data)) 

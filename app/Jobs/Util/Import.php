@@ -192,19 +192,17 @@ class Import implements ShouldQueue
 
         nlog("Starting Migration");
         nlog($this->user->email);
-        info("Starting Migration");
-        info($this->user->email);
+        nlog("Company ID = ");
+        nlog($this->company->id);
         
         auth()->login($this->user, false);
         auth()->user()->setCompany($this->company);
 
-        //   $jsonStream = \JsonMachine\JsonMachine::fromFile($this->file_path, "/data");
         $array = json_decode(file_get_contents($this->file_path), 1);
         $data = $array['data'];
 
         foreach ($this->available_imports as $import) {
             if (! array_key_exists($import, $data)) {
-                //throw new ResourceNotAvailableForMigration("Resource {$key} is not available for migration.");
                 info("Resource {$import} is not available for migration.");
                 continue;
             }
@@ -249,7 +247,17 @@ class Import implements ShouldQueue
             }
 
         // CreateCompanyPaymentTerms::dispatchNow($sp035a66, $spaa9f78);
-        CreateCompanyTaskStatuses::dispatchNow($this->company, $this->user);
+        // CreateCompanyTaskStatuses::dispatchNow($this->company, $this->user);
+
+        $task_statuses = [
+            ['name' => ctrans('texts.backlog'), 'company_id' => $this->company->id, 'user_id' => $this->user->id, 'created_at' => now(), 'updated_at' => now(), 'status_order' => 1],
+            ['name' => ctrans('texts.ready_to_do'), 'company_id' => $this->company->id, 'user_id' => $this->user->id, 'created_at' => now(), 'updated_at' => now(), 'status_order' => 2],
+            ['name' => ctrans('texts.in_progress'), 'company_id' => $this->company->id, 'user_id' => $this->user->id, 'created_at' => now(), 'updated_at' => now(), 'status_order' => 3],
+            ['name' => ctrans('texts.done'), 'company_id' => $this->company->id, 'user_id' => $this->user->id, 'created_at' => now(), 'updated_at' => now(), 'status_order' => 4],
+
+        ];
+
+        TaskStatus::insert($task_statuses);
 
         info('Completed🚀🚀🚀🚀🚀 at '.now());
 
@@ -293,7 +301,7 @@ class Import implements ShouldQueue
 
     private function setInitialCompanyLedgerBalances()
     {
-        Client::cursor()->each(function ($client) {
+        Client::where('company_id', $this->company->id)->cursor()->each(function ($client) {
 
             $invoice_balances = $client->invoices->where('is_deleted', false)->where('status_id', '>', 1)->sum('balance');
 
