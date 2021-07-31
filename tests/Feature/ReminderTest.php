@@ -82,6 +82,32 @@ class ReminderTest extends TestCase
      //   ReminderJob::dispatchNow();
     }
 
+    public function testReminderHitsScenarioH1()
+    {
+        $this->invoice->date = now()->format('Y-m-d');
+        $this->invoice->due_date = Carbon::now()->addDays(30)->format('Y-m-d');
+
+        $settings = $this->company->settings;
+        $settings->enable_reminder1 = true;
+        $settings->schedule_reminder1 = 'before_due_date';
+        $settings->num_days_reminder1 = 2;
+        $settings->enable_reminder2 = true;
+        $settings->schedule_reminder2 = 'after_due_date';
+        $settings->num_days_reminder2 = 14;
+        $settings->enable_reminder3 = true;
+        $settings->schedule_reminder3 = 'after_due_date';
+        $settings->num_days_reminder3 = 30;
+
+        $this->company->settings = $settings;
+        $this->invoice->service()->markSent();
+        $this->invoice->service()->setReminder($settings)->save();
+
+        $this->assertEquals(Carbon::parse($this->invoice->next_send_date)->format('Y-m-d'), Carbon::now()->addDays(30)->subDays(2)->format('Y-m-d'));
+
+     //   ReminderJob::dispatchNow();
+    }
+
+
     public function testReminderNextSendRecalculation()
     {
 
