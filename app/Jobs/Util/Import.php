@@ -91,6 +91,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Turbo124\Beacon\Facades\LightLogs;
+use Illuminate\Support\Facades\App;
 
 class Import implements ShouldQueue
 {
@@ -244,6 +245,10 @@ class Import implements ShouldQueue
 
         // $this->fixData();
         try{
+            App::forgetInstance('translator');
+            $t = app('translator');
+            $t->replace(Ninja::transformTranslations($this->company->settings));
+        
             Mail::to($this->user->email, $this->user->name())
                 ->send(new MigrationCompleted($this->company, implode("<br>",$check_data)));
         }
