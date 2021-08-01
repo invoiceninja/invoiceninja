@@ -15,7 +15,11 @@ use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\DataMapper\FeesAndLimits;
 use App\Models\CompanyGateway;
+use App\Models\Expense;
 use App\Models\Presenters\ClientPresenter;
+use App\Models\Project;
+use App\Models\Quote;
+use App\Models\Task;
 use App\Services\Client\ClientService;
 use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\GeneratesCounter;
@@ -153,6 +157,16 @@ class Client extends BaseModel implements HasLocalePreference
         return $this->hasMany(ClientGatewayToken::class);
     }
 
+    public function expenses()
+    {
+        return $this->hasMany(Expense::class)->withTrashed();
+    }
+
+    public function projects()
+    {
+        return $this->hasMany(Project::class)->withTrashed();
+    }
+
     /**
      * Retrieves the specific payment token per
      * gateway - per payment method.
@@ -215,6 +229,16 @@ class Client extends BaseModel implements HasLocalePreference
     public function invoices()
     {
         return $this->hasMany(Invoice::class)->withTrashed();
+    }
+
+    public function quotes()
+    {
+        return $this->hasMany(Quote::class)->withTrashed();
+    }
+
+    public function tasks()
+    {
+        return $this->hasMany(Task::class)->withTrashed();
     }
 
     public function recurring_invoices()
@@ -774,7 +798,7 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function payments()
     {
-        return $this->hasMany(Payment::class);
+        return $this->hasMany(Payment::class)->withTrashed();
     }
 
     public function timezone_offset()
