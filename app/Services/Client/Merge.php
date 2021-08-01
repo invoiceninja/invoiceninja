@@ -67,12 +67,11 @@ class Merge extends AbstractService
                 return $client_contact->email == $contact->email;
             });
 
-            if(!$exist)
+            if($exist)
             {
-                nlog("doesn't exist - merging");
-                $contact->client_id = $this->client->id;
+                $contact->delete();
                 $contact->save();
-            }
+            }    
 
         });
 
