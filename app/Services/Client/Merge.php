@@ -25,38 +25,61 @@ use App\Utils\Traits\MakesHash;
 
 class Merge extends AbstractService
 {
+    public $client;
 
-    public function __construct(Client $client)
+    public $mergable_client;
+
+    public function __construct(Client $client, Client $mergable_client)
     {
         $this->client = $client;
+        $this->mergable_client = $mergable_client;
     }
 
-    public function run(Client $mergable_client)
+    public function run()
     {
         
-        $this->client->balance += $mergable_client->balance;
-        $this->client->paid_to_date += $mergable_client->paid_to_date;
+        $this->client->balance += $this->mergable_client->balance;
+        $this->client->paid_to_date += $this->mergable_client->paid_to_date;
         $this->client->save();
 
-        $this->updateLedger($mergable_client->balance);
+        $this->updateLedger($this->mergable_client->balance);
 
-        $mergable_client->activities()->update(['client_id' => $this->client->id]);
-        $mergable_client->contacts()->update(['client_id' => $this->client->id]);
-        $mergable_client->gateway_tokens()->update(['client_id' => $this->client->id]);
-        $mergable_client->credits()->update(['client_id' => $this->client->id]);
-        $mergable_client->expenses()->update(['client_id' => $this->client->id]);
-        $mergable_client->invoices()->update(['client_id' => $this->client->id]);
-        $mergable_client->payments()->update(['client_id' => $this->client->id]);
-        $mergable_client->projects()->update(['client_id' => $this->client->id]);
-        $mergable_client->quotes()->update(['client_id' => $this->client->id]);
-        $mergable_client->recurring_invoices()->update(['client_id' => $this->client->id]);
-        $mergable_client->tasks()->update(['client_id' => $this->client->id]);
-        $mergable_client->contacts()->update(['client_id' => $this->client->id]);
-        $mergable_client->documents()->update(['client_id' => $this->client->id]);
+        $this->mergable_client->activities()->update(['client_id' => $this->client->id]);
+        $this->mergable_client->contacts()->update(['client_id' => $this->client->id]);
+        $this->mergable_client->gateway_tokens()->update(['client_id' => $this->client->id]);
+        $this->mergable_client->credits()->update(['client_id' => $this->client->id]);
+        $this->mergable_client->expenses()->update(['client_id' => $this->client->id]);
+        $this->mergable_client->invoices()->update(['client_id' => $this->client->id]);
+        $this->mergable_client->payments()->update(['client_id' => $this->client->id]);
+        $this->mergable_client->projects()->update(['client_id' => $this->client->id]);
+        $this->mergable_client->quotes()->update(['client_id' => $this->client->id]);
+        $this->mergable_client->recurring_invoices()->update(['client_id' => $this->client->id]);
+        $this->mergable_client->tasks()->update(['client_id' => $this->client->id]);
+        $this->mergable_client->documents()->update(['documentable_id' => $this->client->id]);
 
-        $mergable_client->forceDelete();
+        nlog("count =" .$this->mergable_client->contacts->count());
 
-        return $this;
+        /* Loop through contacts an only merge distinct contacts by email */
+        $this->mergable_client->contacts->each(function ($contact){
+
+            $exist = $this->client->contacts->contains(function ($client_contact) use($contact){
+                nlog("{$client_contact->email} == {$contact->email}");
+                return $client_contact->email == $contact->email;
+            });
+
+            if(!$exist)
+            {
+                nlog("doesn't exist - merging");
+                $contact->client_id = $this->client->id;
+                $contact->save();
+            }
+
+        });
+
+        nlog($this->client->contacts->fresh()->count());
+        $this->mergable_client->forceDelete();
+
+        return $this->client;
     }
 
     private function updateLedger($adjustment)
@@ -67,8 +90,6 @@ class Merge extends AbstractService
                                 ->orderBy('id', 'DESC')
                                 ->first();
     
-        $company_ledger = $this->ledger();
-
         if ($company_ledger) {
             $balance = $company_ledger->balance;
         }
@@ -76,9 +97,9 @@ class Merge extends AbstractService
         $company_ledger = CompanyLedgerFactory::create($this->client->company_id, $this->client->user_id);
         $company_ledger->client_id = $this->client->id;
         $company_ledger->adjustment = $adjustment;
-        $company_ledger->notes = "Balance update after merging " . $mergable_client->present()->name();
+        $company_ledger->notes = "Balance update after merging " . $this->mergable_client->present()->name();
         $company_ledger->balance = $balance + $adjustment;
-        $company_ledger->activity_id = Activity::UPDATE_CLIENT
+        $company_ledger->activity_id = Activity::UPDATE_CLIENT;
         $company_ledger->save();
 
     }

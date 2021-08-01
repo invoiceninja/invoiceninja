@@ -80,7 +80,9 @@ class ClientService
 
     public function merge(Client $mergable_client)
     {
-        return (new Merge($this->client))->run($mergable_client);
+        $this->client = (new Merge($this->client, $mergable_client))->run();
+
+        return $this;
     }
 
     public function save() :Client
