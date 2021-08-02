@@ -22,6 +22,8 @@ use App\Models\PaymentHash;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Mollie\CreditCard;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Support\Facades\Validator;
+use Mollie\Api\Exceptions\ApiException;
 use Mollie\Api\MollieApiClient;
 
 class MolliePaymentDriver extends BaseDriver
@@ -121,8 +123,38 @@ class MolliePaymentDriver extends BaseDriver
         return $this->payment_method->yourTokenBillingImplmentation();
     }
 
-    public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment = null)
+    public function processWebhookRequest(PaymentWebhookRequest $request)
     {
+        $validator = Validator::make($request->all(), [
+            'id' => ['required', 'starts_with:tr'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+        
+        $this->init();
+
+        $codes = [
+            'open' => Payment::STATUS_PENDING,
+            'canceled' => Payment::STATUS_CANCELLED,
+            'pending' => Payment::STATUS_PENDING,
+            'expired' => Payment::STATUS_CANCELLED,
+            'failed' => Payment::STATUS_FAILED,
+            'paid' => Payment::STATUS_COMPLETED,
+        ];
+
+        try {
+            $payment = $this->gateway->payments->get($request->id);
+
+            $record = Payment::where('transaction_reference', $payment->id)->firstOrFail();
+            $record->status_id = $codes[$payment->status];
+            $record->save();
+
+            return response()->json([], 200);
+        } catch(ApiException $e) {
+            return response()->json(['message' => $e->getMessage(), 'gatewayStatusCode' => $e->getCode()], 500);
+        }
     }
 
     public function process3dsConfirmation(Mollie3dsRequest $request)

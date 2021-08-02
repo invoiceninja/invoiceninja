@@ -71,7 +71,7 @@ class CreditCard
                     'customerId' => $cgt->gateway_customer_reference,
                     'sequenceType' => 'recurring',
                     'description' => \sprintf('Hash: %s', $this->mollie->payment_hash->hash),
-                    'webhookUrl'  => 'https://invoiceninja.com',
+                    'webhookUrl'  => $this->mollie->company_gateway->webhookUrl(),
                 ]);
 
                 if ($payment->status === 'paid') {
@@ -105,7 +105,7 @@ class CreditCard
                     'company_gateway_id' => $this->mollie->company_gateway->hashed_id,
                     'hash' => $this->mollie->payment_hash->hash,
                 ]),
-                'webhookUrl'  => 'https://invoiceninja.com',
+                'webhookUrl'  => $this->mollie->company_gateway->webhookUrl(),
                 'cardToken' => $request->gateway_response,
             ];
 
