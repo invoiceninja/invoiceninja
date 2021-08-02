@@ -312,7 +312,7 @@ class StripePaymentDriver extends BaseDriver
 
             $data['name'] = $this->client->present()->name();
             $data['phone'] = $this->client->present()->phone();
-
+            
             if (filter_var($this->client->present()->email(), FILTER_VALIDATE_EMAIL)) {
                 $data['email'] = $this->client->present()->email();
             }
