@@ -1400,7 +1400,10 @@ class Import implements ShouldQueue
                 NinjaMailerJob::dispatch($nmo);
 
                 $modified['gateway_key'] = 'd14dd26a47cecc30fdd65700bfb67b34';
-                $modified['fees_and_limits'] = [];
+                
+                //why do we set this to a blank array?
+                //$modified['fees_and_limits'] = [];
+
             }
 
             $company_gateway = CompanyGateway::create($modified);
