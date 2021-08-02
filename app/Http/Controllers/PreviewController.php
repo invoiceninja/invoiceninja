@@ -218,7 +218,7 @@ class PreviewController extends BaseController
 
             /* Catch all in case migration doesn't pass back a valid design */
             if(!$design)
-                $design = Design::find(2);
+                $design = \App\Models\Design::find(2);
 
             if ($design->is_custom) {
                 $options = [
