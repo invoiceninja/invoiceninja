@@ -52,7 +52,7 @@ class CreditCard
     public function paymentResponse(PaymentResponseRequest $request)
     {
         // TODO: Unit tests.
-        $amount = number_format((float) $this->mollie->payment_hash->data->amount_with_fee, 2, '.', '');
+        $amount = $this->mollie->convertToMollieAmount((float) $this->mollie->payment_hash->data->amount_with_fee);
 
         $this->mollie->payment_hash
             ->withData('gateway_type_id', GatewayType::CREDIT_CARD)

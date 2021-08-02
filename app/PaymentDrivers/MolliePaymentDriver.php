@@ -115,7 +115,7 @@ class MolliePaymentDriver extends BaseDriver
 
     public function refund(Payment $payment, $amount, $return_client_response = false)
     {
-        return $this->payment_method->yourRefundImplementationHere();
+        
     }
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
@@ -191,5 +191,16 @@ class MolliePaymentDriver extends BaseDriver
                 $this->client->company
             );
         }
+    }
+
+    /**
+     * Convert the amount to the format that Mollie supports.
+     * 
+     * @param mixed|float $amount 
+     * @return string 
+     */
+    public function convertToMollieAmount($amount): string
+    {
+        return \number_format((float) $amount, 2, '.', '');
     }
 }
