@@ -97,7 +97,7 @@
         </div>
         {!! Former::close() !!}
 
-        @if (Utils::allowNewAccounts() && ! strstr(session('url.intended'), 'time_tracker'))
+        @if (false && Utils::allowNewAccounts() && ! strstr(session('url.intended'), 'time_tracker'))
             <div class="row sign-up">
                 <div class="col-md-3 col-md-offset-3 col-xs-12">
                     <h3>{{trans('texts.not_a_member_yet')}}</h3>
