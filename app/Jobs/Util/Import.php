@@ -35,11 +35,14 @@ use App\Http\ValidationRules\ValidCompanyGatewayFeesAndLimitsRule;
 use App\Http\ValidationRules\ValidUserForCompany;
 use App\Jobs\Company\CreateCompanyTaskStatuses;
 use App\Jobs\Company\CreateCompanyToken;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Ninja\CheckCompanyData;
 use App\Jobs\Ninja\CompanySizeCheck;
 use App\Jobs\Util\VersionCheck;
 use App\Libraries\MultiDB;
 use App\Mail\MigrationCompleted;
+use App\Mail\Migration\StripeConnectMigration;
 use App\Models\Activity;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -87,11 +90,11 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Turbo124\Beacon\Facades\LightLogs;
-use Illuminate\Support\Facades\App;
 
 class Import implements ShouldQueue
 {
@@ -1386,7 +1389,16 @@ class Import implements ShouldQueue
                 $modified['fees_and_limits'] = $this->cleanFeesAndLimits($modified['fees_and_limits']);
             }
 
+            /* On Hosted platform we need to advise Stripe users to connect with Stripe Connect */
             if(Ninja::isHosted() && $modified['gateway_key'] == 'd14dd26a37cecc30fdd65700bfb55b23'){
+
+                $nmo = new NinjaMailerObject;
+                $nmo->mailable = new StripeConnectMigration($this->company);
+                $nmo->company = $this->company;
+                $nmo->settings = $this->company->settings;
+                $nmo->to_user = $this->user;
+                NinjaMailerJob::dispatch($nmo);
+
                 $modified['gateway_key'] = 'd14dd26a47cecc30fdd65700bfb67b34';
                 $modified['fees_and_limits'] = [];
             }

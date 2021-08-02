@@ -57,13 +57,10 @@ class Merge extends AbstractService
         $this->mergable_client->tasks()->update(['client_id' => $this->client->id]);
         $this->mergable_client->documents()->update(['documentable_id' => $this->client->id]);
 
-        nlog("count =" .$this->mergable_client->contacts->count());
-
         /* Loop through contacts an only merge distinct contacts by email */
         $this->mergable_client->contacts->each(function ($contact){
 
             $exist = $this->client->contacts->contains(function ($client_contact) use($contact){
-                nlog("{$client_contact->email} == {$contact->email}");
                 return $client_contact->email == $contact->email;
             });
 
@@ -75,7 +72,6 @@ class Merge extends AbstractService
 
         });
 
-        nlog($this->client->contacts->fresh()->count());
         $this->mergable_client->forceDelete();
 
         return $this->client;
