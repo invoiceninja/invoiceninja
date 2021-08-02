@@ -51,7 +51,6 @@ class CreditCard
      */
     public function paymentResponse(PaymentResponseRequest $request)
     {
-        // TODO: Unit tests.
         $amount = $this->mollie->convertToMollieAmount((float) $this->mollie->payment_hash->data->amount_with_fee);
 
         $this->mollie->payment_hash
