@@ -115,7 +115,56 @@ class MolliePaymentDriver extends BaseDriver
 
     public function refund(Payment $payment, $amount, $return_client_response = false)
     {
-        
+        $this->init();
+
+        try {
+            $payment = $this->gateway->payments->get($payment->transaction_reference);
+
+            $refund = $this->gateway->payments->refund($payment, [
+                'amount' => [
+                    'currency' => $this->client->currency()->code,
+                    'value' => $this->convertToMollieAmount((float) $amount),
+                ],
+            ]);
+
+            if ($refund->status === 'refunded') {
+                SystemLogger::dispatch(
+                    ['server_response' => $refund, 'data' => request()->all()],
+                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                    SystemLog::EVENT_GATEWAY_SUCCESS,
+                    SystemLog::TYPE_MOLLIE,
+                    $this->client,
+                    $this->client->company
+                );
+
+                return [
+                    'transaction_reference' => $refund->id,
+                    'transaction_response' => json_encode($refund),
+                    'success' => $refund->status === 'refunded' ? true : false,
+                    'description' => $refund->description,
+                    'code' => 200,
+                ];
+            }
+        } catch (ApiException $e) {
+            SystemLogger::dispatch(
+                ['server_response' => $refund, 'data' => request()->all()],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_MOLLIE,
+                $this->client,
+                $this->client->companyk
+            );
+
+            nlog($e->getMessage());
+
+            return [
+                'transaction_reference' => null,
+                'transaction_response' => $e->getMessage(),
+                'success' => false,
+                'description' => $e->getMessage(),
+                'code' => $e->getCode(),
+            ];
+        }
     }
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
@@ -132,7 +181,7 @@ class MolliePaymentDriver extends BaseDriver
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
-        
+
         $this->init();
 
         $codes = [
@@ -152,7 +201,7 @@ class MolliePaymentDriver extends BaseDriver
             $record->save();
 
             return response()->json([], 200);
-        } catch(ApiException $e) {
+        } catch (ApiException $e) {
             return response()->json(['message' => $e->getMessage(), 'gatewayStatusCode' => $e->getCode()], 500);
         }
     }
