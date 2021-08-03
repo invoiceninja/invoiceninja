@@ -119,7 +119,7 @@ class EmailEntity implements ShouldQueue
         $nmo->reminder_template = $this->reminder_template;
         $nmo->entity = $this->entity;
         
-        NinjaMailerJob::dispatch($nmo);
+        NinjaMailerJob::dispatchNow($nmo);
 
         /* Mark entity sent */
         $this->entity->service()->markSent()->save();
