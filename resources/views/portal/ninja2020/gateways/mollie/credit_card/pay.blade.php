@@ -2,6 +2,8 @@
 ctrans('texts.credit_card')])
 
 @section('gateway_head')
+    @dd($contact->preferredLocale())
+
     <meta name="mollie-testmode" content="{{ $gateway->company_gateway->getConfigField('testMode') }}">
     <meta name="mollie-publicId" content="{{ $gateway->company_gateway->getConfigField('publicId') }}">
 
@@ -91,9 +93,8 @@ ctrans('texts.credit_card')])
     <script>
         class _Mollie {
             constructor() {
-                this.mollie = Mollie('pfl_sFDNzkEdyw', {
-                    testmode: true,
-                    locale: 'en_US',
+                this.mollie = Mollie(document.querySelector('meta[name=mollie-publicId]')?.content, {
+                    testmode: document.querySelector('meta[name=mollie-testmode]')?.content,
                 });
             }
 
