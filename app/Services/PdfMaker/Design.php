@@ -160,6 +160,7 @@ class Design extends BaseDesign
 
         if ($this->type == 'delivery_note') {
             $elements = [
+                ['element' => 'p', 'content' => ctrans('texts.delivery_note'), 'properties' => ['data-ref' => 'delivery_note-label', 'style' => 'font-weight: bold; text-transform: uppercase']],
                 ['element' => 'p', 'content' => $this->entity->client->name, 'show_empty' => false, 'properties' => ['data-ref' => 'delivery_note-client.name']],
                 ['element' => 'p', 'content' => $this->entity->client->shipping_address1, 'show_empty' => false, 'properties' => ['data-ref' => 'delivery_note-client.shipping_address1']],
                 ['element' => 'p', 'content' => $this->entity->client->shipping_address2, 'show_empty' => false, 'properties' => ['data-ref' => 'delivery_note-client.shipping_address2']],
