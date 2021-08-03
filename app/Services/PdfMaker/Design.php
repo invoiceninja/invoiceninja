@@ -347,7 +347,7 @@ class Design extends BaseDesign
 
         $items = $this->transformLineItems($this->entity->line_items, $type);
 
-        $this->processMarkdownOnLineItems($items);
+        // $this->processMarkdownOnLineItems($items);
 
         if (count($items) == 0) {
             return [];
