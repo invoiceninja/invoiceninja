@@ -387,21 +387,23 @@ class StripePaymentDriver extends BaseDriver
         return $this->payment_method->processVerification($request, $payment_method);
     }
 
-    public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment)
+    public function processWebhookRequest(PaymentWebhookRequest $request)
     {
-        if ($request->type == 'source.chargeable') {
-            $payment->status_id = Payment::STATUS_COMPLETED;
-            $payment->save();
+        if ($request->type === 'charge.succeeded' || $request->type === 'source.chargeable') {
+            foreach ($request->data as $transaction) {
+                $payment = Payment::query()
+                        ->where('transaction_reference', $transaction['id'])
+                        ->where('company_id', $request->getCompany()->id)
+                        ->first();
+
+                if ($payment) {
+                    $payment->status_id = Payment::STATUS_COMPLETED;
+                    $payment->save();
+                }
+            }
         }
 
-        if ($request->type == 'charge.succeeded') {
-            $payment->status_id = Payment::STATUS_COMPLETED;
-            $payment->save();
-        }
-
-        // charge.failed, charge.refunded
-
-        return response([], 200);
+        return response()->json([], 200);
     }
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
