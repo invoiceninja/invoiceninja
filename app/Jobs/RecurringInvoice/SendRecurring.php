@@ -61,12 +61,22 @@ class SendRecurring implements ShouldQueue
 
         $invoice->date = now()->format('Y-m-d');
         
-        $invoice = $invoice->service()
-                           ->markSent()
-                           ->applyNumber()
-                           ->createInvitations()
-                           ->fillDefaults()
-                           ->save();
+        if($invoice->client->getSetting('auto_email_invoice'))
+        {
+            $invoice = $invoice->service()
+                               ->markSent()
+                               ->applyNumber()
+                               ->createInvitations()
+                               ->fillDefaults()
+                               ->save();
+                               
+        }
+        else{
+
+            $invoice = $invoice->service()
+                               ->fillDefaults()
+                               ->save();            
+        }
 
         nlog("updating recurring invoice dates");
         /* Set next date here to prevent a recurring loop forming */
