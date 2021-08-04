@@ -3,7 +3,7 @@ ctrans('texts.credit_card')])
 
 @section('gateway_head')
     <meta name="mollie-testmode" content="{{ $gateway->company_gateway->getConfigField('testMode') }}">
-    <meta name="mollie-publicId" content="{{ $gateway->company_gateway->getConfigField('publicId') }}">
+    <meta name="mollie-profileId" content="{{ $gateway->company_gateway->getConfigField('profileId') }}">
 
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
     <script src="{{ asset('js/clients/payments/card-js.min.js') }}"></script>
