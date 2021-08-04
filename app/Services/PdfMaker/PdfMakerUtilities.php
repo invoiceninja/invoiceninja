@@ -95,7 +95,7 @@ trait PdfMakerUtilities
                 $child['content'] = $this->commonmark->convertToHtml($child['content'] ?? '');
             }
 
-            $child['content'] = array_key_exists('content', $child) ? nl2br($child['content']) : '';
+            // $child['content'] = array_key_exists('content', $child) ? nl2br($child['content']) : '';
 
             if (isset($child['content'])) {
                 if (isset($child['is_empty']) && $child['is_empty'] === true) {
