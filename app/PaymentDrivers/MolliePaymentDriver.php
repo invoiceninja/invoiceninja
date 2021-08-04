@@ -145,6 +145,14 @@ class MolliePaymentDriver extends BaseDriver
                     'code' => 200,
                 ];
             }
+
+            return [
+                'transaction_reference' => $refund->id,
+                'transaction_response' => json_encode($refund),
+                'success' => true,
+                'description' => $refund->description,
+                'code' => 0,
+            ];
         } catch (ApiException $e) {
             SystemLogger::dispatch(
                 ['server_response' => $refund, 'data' => request()->all()],
