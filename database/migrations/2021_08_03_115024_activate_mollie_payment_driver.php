@@ -30,7 +30,7 @@ class ActivateMolliePaymentDriver extends Migration
 
             $fields = json_decode($mollie->fields);
             $fields->testMode = false;
-            $fields->publicId = '';
+            $fields->profileId = '';
 
             $mollie->fields = json_encode($fields);
             

@@ -11,10 +11,11 @@
 class _Mollie {
     constructor() {
         this.mollie = Mollie(
-            document.querySelector('meta[name=mollie-publicId]')?.content,
+            document.querySelector('meta[name=mollie-profileId]')?.content,
             {
                 testmode: document.querySelector('meta[name=mollie-testmode]')
                     ?.content,
+                locale: 'en_US',
             }
         );
     }
