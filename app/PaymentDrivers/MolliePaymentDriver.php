@@ -12,13 +12,17 @@
 
 namespace App\PaymentDrivers;
 
+use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Http\Requests\Gateways\Mollie\Mollie3dsRequest;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
+use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
+use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
+use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Mollie\CreditCard;
 use App\Utils\Traits\MakesHash;
@@ -177,7 +181,94 @@ class MolliePaymentDriver extends BaseDriver
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
-        return $this->payment_method->yourTokenBillingImplmentation();
+        $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
+        $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->withTrashed()->first();
+
+        if ($invoice) {
+            $description = "Invoice {$invoice->number} for {$amount} for client {$this->client->present()->name()}";
+        } else {
+            $description = "Payment with no invoice for amount {$amount} for client {$this->client->present()->name()}";
+        }
+
+        $request = new PaymentResponseRequest();
+        $request->setMethod('POST');
+        $request->request->add(['payment_hash' => $payment_hash->hash]);
+
+        $this->init();
+
+        try {
+            $payment = $this->gateway->payments->create([
+                'amount' => [
+                    'currency' => $this->client->currency()->code,
+                    'value' => $this->convertToMollieAmount($amount),
+                ],
+                'mandateId' => $cgt->token,
+                'customerId' => $cgt->gateway_customer_reference,
+                'sequenceType' => 'recurring',
+                'description' => $description,
+                'webhookUrl'  => $this->company_gateway->webhookUrl(),
+            ]);
+
+            if ($payment->status === 'paid') {
+                $this->confirmGatewayFee($request);
+
+                $data = [
+                    'payment_method' => $cgt->token,
+                    'payment_type' => PaymentType::CREDIT_CARD_OTHER,
+                    'amount' => $amount,
+                    'transaction_reference' => $payment->id,
+                    'gateway_type_id' => GatewayType::CREDIT_CARD,
+                ];
+
+                $payment = $this->createPayment($data, Payment::STATUS_COMPLETED);
+
+                SystemLogger::dispatch(
+                    ['response' => $payment, 'data' => $data],
+                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                    SystemLog::EVENT_GATEWAY_SUCCESS,
+                    SystemLog::TYPE_MOLLIE,
+                    $this->client
+                );
+
+                return $payment;
+            }
+
+            $this->unWindGatewayFees($payment_hash);
+
+            PaymentFailureMailer::dispatch(
+                $this->client,
+                $payment->details,
+                $this->client->company,
+                $amount
+            );
+
+            $message = [
+                'server_response' => $payment,
+                'data' => $payment_hash->data,
+            ];
+
+            SystemLogger::dispatch(
+                $message,
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_CHECKOUT,
+                $this->client
+            );
+
+            return false;
+        } catch (ApiException $e) {
+            $this->unWindGatewayFees($payment_hash);
+
+            $data = [
+                'status' => '',
+                'error_type' => '',
+                'error_code' => $e->getCode(),
+                'param' => '',
+                'message' => $e->getMessage(),
+            ];
+
+            SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_MOLLIE, $this->client, $this->client->company);
+        }
     }
 
     public function processWebhookRequest(PaymentWebhookRequest $request)
