@@ -105,7 +105,6 @@ class ACH
 
         $this->stripe->init();
 
-        // $bank_account = Customer::retrieveSource($request->customer, ['source' => $request->source], $this->stripe->stripe_connect_auth);
         $bank_account = Customer::retrieveSource($request->customer, $request->source, [], $this->stripe->stripe_connect_auth);
 
         try {

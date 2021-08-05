@@ -193,7 +193,7 @@ class PreviewController extends BaseController
 
         try {
 
-            DB::connection(config('database.default'))->beginTransaction();
+            DB::connection(auth()->user()->company()->db)->beginTransaction();
 
             if($request->has('entity_id')){
 
@@ -253,7 +253,7 @@ class PreviewController extends BaseController
                 ->design($template)
                 ->build();
 
-            DB::connection(config('database.default'))->rollBack();
+            DB::connection(auth()->user()->company()->db)->rollBack();
 
             if (request()->query('html') == 'true') {
                 return $maker->getCompiledHTML;
@@ -263,7 +263,7 @@ class PreviewController extends BaseController
         }
         catch(\Exception $e){
 
-            DB::connection(config('database.default'))->rollBack();
+            DB::connection(auth()->user()->company()->db)->rollBack();
             return;
         }
 
@@ -302,7 +302,7 @@ class PreviewController extends BaseController
         $t = app('translator');
         $t->replace(Ninja::transformTranslations(auth()->user()->company()->settings));
 
-        DB::connection(config('database.default'))->beginTransaction();
+        DB::connection(auth()->user()->company()->db)->beginTransaction();
 
         $client = Client::factory()->create([
                 'user_id' => auth()->user()->id,
@@ -377,7 +377,7 @@ class PreviewController extends BaseController
             
         $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), auth()->user()->company());
 
-        DB::connection(config('database.default'))->rollBack();
+        DB::connection(auth()->user()->company()->db)->rollBack();
 
         $response = Response::make($file_path, 200);
         $response->header('Content-Type', 'application/pdf');
