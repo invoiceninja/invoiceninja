@@ -76,6 +76,11 @@ class ClientFilters extends QueryFilters
         return $this->builder->where('id_number', $id_number);
     }
 
+    public function number(string $number):Builder
+    {
+        return $this->builder->where('number', $number);
+    }
+
     /**
      * Filter based on search text.
      *
