@@ -19,6 +19,7 @@ use App\Factory\RecurringInvoiceFactory;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Http\Requests\Preview\PreviewInvoiceRequest;
 use App\Jobs\Util\PreviewPdf;
+use App\Libraries\MultiDB;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Credit;
@@ -30,8 +31,8 @@ use App\Repositories\CreditRepository;
 use App\Repositories\InvoiceRepository;
 use App\Repositories\QuoteRepository;
 use App\Repositories\RecurringInvoiceRepository;
-use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\PdfMaker\Design as PdfDesignModel;
+use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\PdfMaker\Design;
 use App\Services\PdfMaker\PdfMaker;
 use App\Utils\HostedPDF\NinjaPdf;
@@ -168,6 +169,8 @@ class PreviewController extends BaseController
 
     public function live(PreviewInvoiceRequest $request)
     {
+        MultiDB::setDb(auth()->user()->company()->db);
+        
         if($request->input('entity') == 'invoice'){
             $repo = new InvoiceRepository();
             $factory = InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id);
