@@ -169,51 +169,53 @@ class PreviewController extends BaseController
 
     public function live(PreviewInvoiceRequest $request)
     {
-        MultiDB::setDb(auth()->user()->company()->db);
+        $company = auth()->user()->company();
+
+        MultiDB::setDb($company->db);
 
         info("preview db = ".auth()->user()->company()->db);
 
         if($request->input('entity') == 'invoice'){
             $repo = new InvoiceRepository();
-            $factory = InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id);
+            $factory = InvoiceFactory::create($company->id, auth()->user()->id);
             $class = Invoice::class;
         }
         elseif($request->input('entity') == 'quote'){
             $repo = new QuoteRepository();
-            $factory = QuoteFactory::create(auth()->user()->company()->id, auth()->user()->id);
+            $factory = QuoteFactory::create($company->id, auth()->user()->id);
             $class = Quote::class;
 
         }
         elseif($request->input('entity') == 'credit'){
             $repo = new CreditRepository();
-            $factory = CreditFactory::create(auth()->user()->company()->id, auth()->user()->id);
+            $factory = CreditFactory::create($company->id, auth()->user()->id);
             $class = Credit::class;
         }
         elseif($request->input('entity') == 'recurring_invoice'){
             $repo = new RecurringInvoiceRepository();
-            $factory = RecurringInvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id);
+            $factory = RecurringInvoiceFactory::create($company->id, auth()->user()->id);
             $class = RecurringInvoice::class;
         }
             
 
         try {
 
-            DB::connection(auth()->user()->company()->db)->beginTransaction();
+            DB::connection($company->db)->beginTransaction();
 
             if($request->has('entity_id')){
 
                 info("trying to find entity id = " . $this->decodePrimaryKey($request->input('entity_id')));
-                info("company id = " . auth()->user()->company()->id);
+                info("company id = " . $company->id);
 
-                $entity_obj = $class::on(auth()->user()->company()->db)
+                $entity_obj = $class::on($company->db)
                                     ->where('id', $this->decodePrimaryKey($request->input('entity_id')))
-                                    ->where('company_id', auth()->user()->company()->id)
+                                    ->where('company_id', $company->id)
                                     ->withTrashed()
                                     ->first();
 
                 if($entity_obj)
                     info("found a valid entity object");
-                
+
                 $entity_obj = $repo->save($request->all(), $entity_obj);
 
             }
@@ -269,7 +271,7 @@ class PreviewController extends BaseController
                 ->design($template)
                 ->build();
 
-            DB::connection(auth()->user()->company()->db)->rollBack();
+            DB::connection($company->db)->rollBack();
 
             if (request()->query('html') == 'true') {
                 return $maker->getCompiledHTML;
@@ -279,7 +281,7 @@ class PreviewController extends BaseController
         }
         catch(\Exception $e){
 
-            DB::connection(auth()->user()->company()->db)->rollBack();
+            DB::connection($company->db)->rollBack();
             return;
         }
 
@@ -293,7 +295,7 @@ class PreviewController extends BaseController
                 return (new NinjaPdf())->build($maker->getCompiledHTML(true));
             }
 
-            $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), auth()->user()->company());
+            $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), $company);
 
 
             if(Ninja::isHosted())
