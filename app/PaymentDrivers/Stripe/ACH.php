@@ -95,8 +95,12 @@ class ACH
         return render('gateways.stripe.ach.verify', $data);
     }
 
-    public function processVerification($request, ClientGatewayToken $token)
+    public function processVerification(Request $request, ClientGatewayToken $token)
     {
+        $request->validate([
+            'transactions.*' => ['integer', 'min:1'],
+        ]);
+
         if (isset($token->meta->state) && $token->meta->state === 'authorized') {
             return redirect()
                 ->route('client.payment_methods.show', $token->hashed_id)
