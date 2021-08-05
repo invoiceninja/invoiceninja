@@ -162,7 +162,7 @@ class PaymentRepository extends BaseRepository {
 
 		if ( ! $is_existing_payment && ! $this->import_mode ) {
 
-            if (array_key_exists('email_receipt', $data) && $data['email_receipt'] == true) 
+            if (array_key_exists('email_receipt', $data) && $data['email_receipt'] == 'true') 
                 $payment->service()->sendEmail();
 			elseif(!array_key_exists('email_receipt', $data) && $payment->client->getSetting('client_manual_payment_notification'))
                 $payment->service()->sendEmail();
