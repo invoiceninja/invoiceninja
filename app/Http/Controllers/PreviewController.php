@@ -203,6 +203,7 @@ class PreviewController extends BaseController
             if($request->has('entity_id')){
 
                 info("trying to find entity id = " . $this->decodePrimaryKey($request->input('entity_id')));
+                info("company id = " . auth()->user()->company()->id);
 
                 $entity_obj = $class::on(auth()->user()->company()->db)
                                     ->withTrashed()
