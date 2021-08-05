@@ -270,6 +270,7 @@ class PreviewController extends BaseController
             DB::connection(config('database.default'))->rollBack();
 
             if (request()->query('html') == 'true') {
+                DB::purge(config('database.default'));
                 return $maker->getCompiledHTML;
             }
 
@@ -278,6 +279,8 @@ class PreviewController extends BaseController
         catch(\Exception $e){
 
             DB::connection(config('database.default'))->rollBack();
+            DB::purge(config('database.default'));
+
             return;
         }
 
@@ -301,6 +304,7 @@ class PreviewController extends BaseController
                          ->batch();
             }
 
+            DB::purge(config('database.default'));
 
         $response = Response::make($file_path, 200);
         $response->header('Content-Type', 'application/pdf');
