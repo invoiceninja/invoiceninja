@@ -74,6 +74,8 @@ class PaymentMethod
                              ->company
                              ->company_gateways
                              ->whereIn('id', $transformed_ids)
+                             ->where('is_deleted', false)
+                             ->whereNull('deleted_at')
                              ->where('gateway_key', '!=', '54faab2ab6e3223dbe848b1686490baa')
                              ->sortby(function ($model) use ($transformed_ids) { //company gateways are sorted in order of priority
                                  return array_search($model->id, $transformed_ids);// this closure sorts for us
@@ -85,6 +87,7 @@ class PaymentMethod
                              ->company
                              ->company_gateways
                              ->where('gateway_key', '!=', '54faab2ab6e3223dbe848b1686490baa')
+                             ->whereNull('deleted_at')
                              ->where('is_deleted', false);
 
         }
@@ -107,6 +110,8 @@ class PaymentMethod
                              ->company
                              ->company_gateways
                              ->whereIn('id', $transformed_ids)
+                             ->where('is_deleted', false)
+                             ->whereNull('deleted_at')
                              ->where('gateway_key', '54faab2ab6e3223dbe848b1686490baa')
                              ->sortby(function ($model) use ($transformed_ids) { //company gateways are sorted in order of priority
                                  return array_search($model->id, $transformed_ids);// this closure sorts for us
@@ -118,6 +123,7 @@ class PaymentMethod
                              ->company
                              ->company_gateways
                              ->where('gateway_key', '54faab2ab6e3223dbe848b1686490baa')
+                             ->whereNull('deleted_at')
                              ->where('is_deleted', false);
 
         }
