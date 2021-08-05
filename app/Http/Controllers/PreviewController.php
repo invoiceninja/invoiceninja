@@ -200,7 +200,7 @@ class PreviewController extends BaseController
 
         try {
 
-            DB::connection($company->db)->beginTransaction();
+            DB::connection(config('database.default'))->beginTransaction();
 
             if($request->has('entity_id')){
 
@@ -267,7 +267,7 @@ class PreviewController extends BaseController
                 ->design($template)
                 ->build();
 
-            DB::connection($company->db)->rollBack();
+            DB::connection(config('database.default'))->rollBack();
 
             if (request()->query('html') == 'true') {
                 return $maker->getCompiledHTML;
@@ -277,7 +277,7 @@ class PreviewController extends BaseController
         }
         catch(\Exception $e){
 
-            DB::connection($company->db)->rollBack();
+            DB::connection(config('database.default'))->rollBack();
             return;
         }
 
