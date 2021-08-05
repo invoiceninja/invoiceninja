@@ -58,6 +58,16 @@
                 .scrollIntoView({behavior: "smooth"});
         });
 
+        Livewire.on('update-shipping-data', (event) => {
+            for (field in event) {
+                let element = document.querySelector(`input[name=${field}]`);
+
+                if (element) {
+                    element.value = event[field];
+                }
+            }
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
             let toggleWithToken = document.querySelector('.toggle-payment-with-token');
 
