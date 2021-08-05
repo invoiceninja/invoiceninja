@@ -206,8 +206,6 @@ class PreviewController extends BaseController
                                     ->where('company_id', auth()->user()->company()->id)
                                     ->first();
 
-                info(print_r($entity_obj,1));
-
                 $entity_obj = $repo->save($request->all(), $entity_obj);
 
             }
