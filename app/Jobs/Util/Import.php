@@ -1297,7 +1297,8 @@ class Import implements ShouldQueue
                 }
                 
                 if(!$entity)
-                    throw new Exception("Resource invoice/quote document not available.");
+                    continue;
+                    // throw new Exception("Resource invoice/quote document not available.");
 
 
             }
