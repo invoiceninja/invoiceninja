@@ -60,7 +60,8 @@ class SendRecurring implements ShouldQueue
         $invoice = RecurringInvoiceToInvoiceFactory::create($this->recurring_invoice, $this->recurring_invoice->client);
 
         $invoice->date = now()->format('Y-m-d');
-        
+        $invoice->due_date = $this->recurring_invoice->calculateDueDate(now()->format('Y-m-d'));
+
         if($invoice->client->getSetting('auto_email_invoice'))
         {
             $invoice = $invoice->service()
