@@ -37,7 +37,7 @@ class PreviewInvoiceRequest extends Request
     {
         $rules = [];
 
-        $rules['client_id'] = 'bail|required|exists:clients,id,company_id,'.auth()->user()->company()->id;
+        // $rules['client_id'] = 'bail|required|exists:clients,id,company_id,'.auth()->user()->company()->id;
 
         $rules['number'] = ['nullable'];
 
