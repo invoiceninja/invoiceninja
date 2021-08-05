@@ -204,9 +204,6 @@ class PreviewController extends BaseController
 
             if($request->has('entity_id')){
 
-                info("trying to find entity id = " . $this->decodePrimaryKey($request->input('entity_id')));
-                info("company id = " . $company->id);
-
                 $entity_obj = $class::on($company->db)
                                     ->where('id', $this->decodePrimaryKey($request->input('entity_id')))
                                     ->where('company_id', $company->id)
@@ -215,6 +212,8 @@ class PreviewController extends BaseController
 
                 if($entity_obj)
                     info("found a valid entity object");
+                else
+                    $entity_obj = $factory;
 
                 $entity_obj = $repo->save($request->all(), $entity_obj);
 
