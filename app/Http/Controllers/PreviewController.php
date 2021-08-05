@@ -200,13 +200,13 @@ class PreviewController extends BaseController
 
             if($request->has('entity_id')){
 
-                $entity_obj = $class::on(auth()->user()->company()->db)
-                                    ->withTrashed()
-                                    ->where('id', $this->decodePrimaryKey($request->input('entity_id')))
-                                    ->where('company_id', auth()->user()->company()->id)
-                                    ->first();
+                // $entity_obj = $class::on(auth()->user()->company()->db)
+                //                     ->withTrashed()
+                //                     ->where('id', $this->decodePrimaryKey($request->input('entity_id')))
+                //                     ->where('company_id', auth()->user()->company()->id)
+                //                     ->first();
 
-                $entity_obj = $repo->save($request->all(), $entity_obj);
+                $entity_obj = $repo->save($request->all(), $factory);
 
             }
             else {
