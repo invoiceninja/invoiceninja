@@ -206,11 +206,14 @@ class PreviewController extends BaseController
                 info("company id = " . auth()->user()->company()->id);
 
                 $entity_obj = $class::on(auth()->user()->company()->db)
-                                    ->withTrashed()
                                     ->where('id', $this->decodePrimaryKey($request->input('entity_id')))
                                     ->where('company_id', auth()->user()->company()->id)
+                                    ->withTrashed()
                                     ->first();
 
+                if($entity_obj)
+                    info("found a valid entity object");
+                
                 $entity_obj = $repo->save($request->all(), $entity_obj);
 
             }
