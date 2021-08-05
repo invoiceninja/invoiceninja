@@ -171,6 +171,8 @@ class PreviewController extends BaseController
     {
         MultiDB::setDb(auth()->user()->company()->db);
 
+        info("preview db = ".auth()->user()->company()->db);
+
         if($request->input('entity') == 'invoice'){
             $repo = new InvoiceRepository();
             $factory = InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id);
@@ -200,13 +202,15 @@ class PreviewController extends BaseController
 
             if($request->has('entity_id')){
 
-                // $entity_obj = $class::on(auth()->user()->company()->db)
-                //                     ->withTrashed()
-                //                     ->where('id', $this->decodePrimaryKey($request->input('entity_id')))
-                //                     ->where('company_id', auth()->user()->company()->id)
-                //                     ->first();
+                info("trying to find entity id = " . $this->decodePrimaryKey($request->input('entity_id')));
 
-                $entity_obj = $repo->save($request->all(), $factory);
+                $entity_obj = $class::on(auth()->user()->company()->db)
+                                    ->withTrashed()
+                                    ->where('id', $this->decodePrimaryKey($request->input('entity_id')))
+                                    ->where('company_id', auth()->user()->company()->id)
+                                    ->first();
+
+                $entity_obj = $repo->save($request->all(), $entity_obj);
 
             }
             else {
