@@ -170,7 +170,7 @@ class PreviewController extends BaseController
     public function live(PreviewInvoiceRequest $request)
     {
         MultiDB::setDb(auth()->user()->company()->db);
-        
+
         if($request->input('entity') == 'invoice'){
             $repo = new InvoiceRepository();
             $factory = InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id);
@@ -200,7 +200,7 @@ class PreviewController extends BaseController
 
             if($request->has('entity_id')){
 
-                $entity_obj = $class::withTrashed()->whereId($this->decodePrimaryKey($request->input('entity_id')))->company()->first();
+                $entity_obj = $class::on(auth()->user()->company()->db)->withTrashed()->whereId($this->decodePrimaryKey($request->input('entity_id')))->company()->first();
                 $entity_obj = $repo->save($request->all(), $entity_obj);
 
             }
