@@ -4,6 +4,7 @@ use App\Models\PaymentType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Eloquent\Model;
 
 class AddZellePaymentType extends Migration
 {
@@ -14,11 +15,14 @@ class AddZellePaymentType extends Migration
      */
     public function up()
     {
+        Model::unguard();
+
         $pt = PaymentType::where('name', 'Zelle')->first();
 
         if(!$pt){
 
             $payment_type = new PaymentType();
+            $payment_type->id = 33;
             $payment_type->name = 'Zelle';
             $payment_type->save();
         }
