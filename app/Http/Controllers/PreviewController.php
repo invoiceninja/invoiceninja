@@ -172,7 +172,8 @@ class PreviewController extends BaseController
         $company = auth()->user()->company();
 
         MultiDB::setDb($company->db);
-        DB::connection($company->db)->reconnect();
+        DB::purge($company->db);
+        
         info("preview db = ".$company->db);
         info(config('database.connections.db-ninja-01.database'));
 
