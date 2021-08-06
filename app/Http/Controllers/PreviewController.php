@@ -177,47 +177,43 @@ class PreviewController extends BaseController
 
         if($request->input('entity') == 'invoice'){
             $repo = new InvoiceRepository();
-            $factory = InvoiceFactory::create($company->id, auth()->user()->id);
+            $entity_obj = InvoiceFactory::create($company->id, auth()->user()->id);
             $class = Invoice::class;
         }
         elseif($request->input('entity') == 'quote'){
             $repo = new QuoteRepository();
-            $factory = QuoteFactory::create($company->id, auth()->user()->id);
+            $entity_obj = QuoteFactory::create($company->id, auth()->user()->id);
             $class = Quote::class;
 
         }
         elseif($request->input('entity') == 'credit'){
             $repo = new CreditRepository();
-            $factory = CreditFactory::create($company->id, auth()->user()->id);
+            $entity_obj = CreditFactory::create($company->id, auth()->user()->id);
             $class = Credit::class;
         }
         elseif($request->input('entity') == 'recurring_invoice'){
             $repo = new RecurringInvoiceRepository();
-            $factory = RecurringInvoiceFactory::create($company->id, auth()->user()->id);
+            $entity_obj = RecurringInvoiceFactory::create($company->id, auth()->user()->id);
             $class = RecurringInvoice::class;
         }
             
 
         try {
 
-            DB::connection(config('database.default'))->beginTransaction();
 
             if($request->has('entity_id')){
 
-                $entity_obj = $class::where('id', $this->decodePrimaryKey($request->input('entity_id')))
+                $entity_obj = $class::on(config('database.default'))
+                                    ->where('id', $this->decodePrimaryKey($request->input('entity_id')))
                                     ->where('company_id', $company->id)
                                     ->withTrashed()
                                     ->first();
 
-                if($entity_obj)
-                    info("found a valid entity object");
-
-                $entity_obj = $repo->save($request->all(), $entity_obj);
-
             }
-            else {
-                $entity_obj = $repo->save($request->all(), $factory);
-            }
+
+            DB::connection(config('database.default'))->beginTransaction();
+
+            $entity_obj = $repo->save($request->all(), $entity_obj);
 
             $entity_obj->load('client');
 
@@ -300,9 +296,7 @@ class PreviewController extends BaseController
                          ->increment()
                          ->batch();
             }
-            
-        DB::connection()->getDoctrineConnection()->close(); 
-        DB::disconnect();
+
 
         $response = Response::make($file_path, 200);
         $response->header('Content-Type', 'application/pdf');
