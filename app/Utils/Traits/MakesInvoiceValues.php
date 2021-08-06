@@ -358,6 +358,12 @@ trait MakesInvoiceValues
                 ':MONTH' => Carbon::createFromDate(now()->year, now()->month)->translatedFormat('F'),
                 ':YEAR' => now()->year,
                 ':QUARTER' => 'Q' . now()->quarter,
+                ':WEEK_BEFORE' => \sprintf(
+                    '%s %s %s',
+                    Carbon::now()->subDays(7)->translatedFormat($this->client->date_format()),
+                    ctrans('texts.to'),
+                    Carbon::now()->translatedFormat($this->client->date_format())
+                ),
                 ':WEEK' => \sprintf(
                     '%s %s %s', 
                     Carbon::now()->translatedFormat($this->client->date_format()), 
