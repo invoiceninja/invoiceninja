@@ -364,6 +364,12 @@ trait MakesInvoiceValues
                     ctrans('texts.to'),
                     Carbon::now()->translatedFormat($this->client->date_format())
                 ),
+                ':WEEK_AHEAD' => \sprintf(
+                    '%s %s %s',
+                    Carbon::now()->addDays(7)->translatedFormat($this->client->date_format()),
+                    ctrans('texts.to'),
+                    Carbon::now()->addDays(14)->translatedFormat($this->client->date_format())
+                ),
                 ':WEEK' => \sprintf(
                     '%s %s %s', 
                     Carbon::now()->translatedFormat($this->client->date_format()), 
