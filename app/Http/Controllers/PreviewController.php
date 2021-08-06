@@ -300,7 +300,9 @@ class PreviewController extends BaseController
                          ->increment()
                          ->batch();
             }
-
+            
+        DB::connection()->getDoctrineConnection()->close(); 
+        DB::disconnect();
 
         $response = Response::make($file_path, 200);
         $response->header('Content-Type', 'application/pdf');
