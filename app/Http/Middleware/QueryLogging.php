@@ -55,6 +55,8 @@ class QueryLogging
             // if($count > 150)
             //     nlog($queries);
             
+            info(print_r($queries,1));
+            
             $ip = '';
             
             if(request()->header('Cf-Connecting-Ip'))

@@ -171,11 +171,9 @@ class PreviewController extends BaseController
     {
         $company = auth()->user()->company();
 
-        DB::purge();
         MultiDB::setDb($company->db);
 
         info("preview db = ".$company->db);
-        info(config('database.connections.db-ninja-01.database'));
 
         if($request->input('entity') == 'invoice'){
             $repo = new InvoiceRepository();
