@@ -99,6 +99,10 @@ class AutoBillInvoice extends AbstractService
                                  ->setPaymentHash($payment_hash)
                                  ->tokenBilling($gateway_token, $payment_hash);
 
+        if($payment){
+            info("Auto Bill payment captured for ".$this->invoice->number);
+        }
+
         return $this->invoice;
     }
 

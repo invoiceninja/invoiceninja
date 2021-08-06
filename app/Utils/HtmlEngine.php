@@ -130,6 +130,7 @@ class HtmlEngine
             $data['$terms'] = &$data['$entity.terms'];
             $data['$view_link'] = ['value' => '<a class="button" href="'.$this->invitation->getLink().'">'.ctrans('texts.view_invoice').'</a>', 'label' => ctrans('texts.view_invoice')];
             $data['$viewLink'] = &$data['$view_link'];
+            $data['$viewButton'] = &$data['$view_link'];
             $data['$view_url'] = ['value' => $this->invitation->getLink(), 'label' => ctrans('texts.view_invoice')];
             $data['$date'] = ['value' => $this->translateDate($this->entity->date, $this->entity->client->date_format(), $this->entity->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.invoice_date')];
 
@@ -421,6 +422,10 @@ class HtmlEngine
         $data['$tech_hero_image'] = ['value' => asset('images/pdf-designs/tech-hero-image.jpg'), 'label' => ''];
         $data['$autoBill'] = ['value' => ctrans('texts.auto_bill_notification_placeholder'), 'label' => ''];
         $data['$auto_bill'] = &$data['$autoBill'];
+
+        /*Payment Aliases*/
+        $data['$paymentLink'] = ['value' => '<a class="button" href="'.$this->invitation->getLink().'">'.ctrans('texts.view_payment').'</a>', 'label' => ctrans('texts.view_payment')];
+        $data['$portalButton'] = &$data['$paymentLink'];
 
         $arrKeysLength = array_map('strlen', array_keys($data));
         array_multisort($arrKeysLength, SORT_DESC, $data);

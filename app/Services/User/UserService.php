@@ -39,7 +39,7 @@ class UserService
             $nmo->to_user = $this->user;
             $nmo->settings = $company->settings;
 
-            NinjaMailerJob::dispatch($nmo);
+            NinjaMailerJob::dispatch($nmo, true);
 
             Ninja::registerNinjaUser($this->user);
             

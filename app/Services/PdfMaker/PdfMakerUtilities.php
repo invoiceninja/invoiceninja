@@ -91,6 +91,12 @@ trait PdfMakerUtilities
         foreach ($children as $child) {
             $contains_html = false;
 
+            if ($child['element'] !== 'script') {
+                $child['content'] = $this->commonmark->convertToHtml($child['content'] ?? '');
+            }
+
+            // $child['content'] = array_key_exists('content', $child) ? nl2br($child['content']) : '';
+
             if (isset($child['content'])) {
                 if (isset($child['is_empty']) && $child['is_empty'] === true) {
                     continue;
