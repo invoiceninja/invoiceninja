@@ -173,8 +173,6 @@ class PreviewController extends BaseController
 
         MultiDB::setDb($company->db);
 
-        info("preview db = ".$company->db);
-
         if($request->input('entity') == 'invoice'){
             $repo = new InvoiceRepository();
             $entity_obj = InvoiceFactory::create($company->id, auth()->user()->id);
