@@ -172,8 +172,9 @@ class PreviewController extends BaseController
         $company = auth()->user()->company();
 
         MultiDB::setDb($company->db);
-
+        DB::connection($company->db)->reconnect();
         info("preview db = ".$company->db);
+        info(config('database.connections.db-ninja-01.database'));
 
         if($request->input('entity') == 'invoice'){
             $repo = new InvoiceRepository();
@@ -200,6 +201,7 @@ class PreviewController extends BaseController
 
         try {
 
+            DB::connection(config('database.default'))->beginTransaction();
 
             if($request->has('entity_id')){
 
@@ -210,8 +212,6 @@ class PreviewController extends BaseController
                                     ->first();
 
             }
-
-            DB::connection(config('database.default'))->beginTransaction();
 
             $entity_obj = $repo->save($request->all(), $entity_obj);
 
