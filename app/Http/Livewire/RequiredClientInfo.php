@@ -158,6 +158,37 @@ class RequiredClientInfo extends Component
         }
     }
 
+    public function showCopyBillingCheckbox(): bool
+    {
+        $fields = [];
+
+        collect($this->fields)->map(function ($field) use (&$fields) {
+            if (! array_key_exists('filled', $field)) {
+                $fields[] = $field['name'];
+            }
+        });
+
+        foreach ($fields as $field) {
+            if (Str::startsWith($field, 'client_shipping')) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function handleCopyBilling(): void
+    {
+        $this->emit('update-shipping-data', [
+            'client_shipping_address_line_1' => $this->contact->client->address1,
+            'client_shipping_address_line_2' => $this->contact->client->address2,
+            'client_shipping_city' => $this->contact->client->city,
+            'client_shipping_state' => $this->contact->client->state,
+            'client_shipping_postal_code' => $this->contact->client->postal_code,
+            'client_shipping_country_id' => $this->contact->client->country_id,
+        ]); 
+    }
+
     public function render()
     {
         count($this->fields) > 0

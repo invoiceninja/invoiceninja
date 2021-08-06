@@ -12,6 +12,8 @@
 
 namespace App\Services\PdfMaker;
 
+use League\CommonMark\CommonMarkConverter;
+
 class PdfMaker
 {
     use PdfMakerUtilities;
@@ -36,6 +38,9 @@ class PdfMaker
 
     private $options;
 
+    /** @var CommonMarkConverter */
+    protected $commonmark;
+
     public function __construct(array $data)
     {
         $this->data = $data;
@@ -43,6 +48,10 @@ class PdfMaker
         if (array_key_exists('options', $data)) {
             $this->options = $data['options'];
         }
+
+        $this->commonmark = new CommonMarkConverter([
+            'allow_unsafe_links' => false,
+        ]);
     }
 
     public function design(Design $design)

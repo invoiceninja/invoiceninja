@@ -60,13 +60,24 @@ class SendRecurring implements ShouldQueue
         $invoice = RecurringInvoiceToInvoiceFactory::create($this->recurring_invoice, $this->recurring_invoice->client);
 
         $invoice->date = now()->format('Y-m-d');
-        
-        $invoice = $invoice->service()
-                           ->markSent()
-                           ->applyNumber()
-                           ->createInvitations()
-                           ->fillDefaults()
-                           ->save();
+        $invoice->due_date = $this->recurring_invoice->calculateDueDate(now()->format('Y-m-d'));
+
+        if($invoice->client->getSetting('auto_email_invoice'))
+        {
+            $invoice = $invoice->service()
+                               ->markSent()
+                               ->applyNumber()
+                               ->createInvitations()
+                               ->fillDefaults()
+                               ->save();
+                               
+        }
+        else{
+
+            $invoice = $invoice->service()
+                               ->fillDefaults()
+                               ->save();            
+        }
 
         nlog("updating recurring invoice dates");
         /* Set next date here to prevent a recurring loop forming */
@@ -86,14 +97,14 @@ class SendRecurring implements ShouldQueue
         $this->recurring_invoice->save();
         
         //Admin notification for recurring invoice sent. 
-        if ($invoice->invitations->count() >= 1) {
+        if ($invoice->invitations->count() >= 1 ) {
             $invoice->entityEmailEvent($invoice->invitations->first(), 'invoice', 'email_template_invoice');
         }
     
         nlog("Invoice {$invoice->number} created");
 
         $invoice->invitations->each(function ($invitation) use ($invoice) {
-            if ($invitation->contact && strlen($invitation->contact->email) >=1) {
+            if ($invitation->contact && strlen($invitation->contact->email) >=1 && $invoice->client->getSetting('auto_email_invoice')) {
 
                 try{
                     EmailEntity::dispatch($invitation, $invoice->company);

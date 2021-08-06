@@ -12,6 +12,7 @@
 namespace App\Services\Client;
 
 use App\Models\Client;
+use App\Services\Client\Merge;
 use App\Services\Client\PaymentMethod;
 use App\Utils\Number;
 use Illuminate\Database\Eloquent\Collection;
@@ -75,6 +76,13 @@ class ClientService
     public function getPaymentMethods(float $amount)
     {
         return (new PaymentMethod($this->client, $amount))->run();
+    }
+
+    public function merge(Client $mergable_client)
+    {
+        $this->client = (new Merge($this->client, $mergable_client))->run();
+
+        return $this;
     }
 
     public function save() :Client

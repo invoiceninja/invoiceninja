@@ -4287,6 +4287,8 @@ $LANG = array(
     'company_deleted' => 'Company deleted',
     'company_deleted_body' => 'Company [ :company ] was deleted by :user',
     'back_to' => 'Back to :url',
+    'stripe_connect_migration_title' => 'Connect your Stripe Account',
+    'stripe_connect_migration_desc' => 'Invoice Ninja v5 uses Stripe Connect to link your Stripe account to Invoice Ninja. This provides an additional layer of security for your account. Now that you data has migrated, you will need to Authorize Stripe to accept payments in v5.<br><br>To do this, navigate to Settings > Online Payments > Configure Gateways. Click on Stripe Connect and then under Settings click Setup Gateway. This will take you to Stripe to authorize Invoice Ninja and on your return your account will be successfully linked!',
 );
 
 return $LANG;

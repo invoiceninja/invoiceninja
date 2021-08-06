@@ -35,11 +35,14 @@ use App\Http\ValidationRules\ValidCompanyGatewayFeesAndLimitsRule;
 use App\Http\ValidationRules\ValidUserForCompany;
 use App\Jobs\Company\CreateCompanyTaskStatuses;
 use App\Jobs\Company\CreateCompanyToken;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Ninja\CheckCompanyData;
 use App\Jobs\Ninja\CompanySizeCheck;
 use App\Jobs\Util\VersionCheck;
 use App\Libraries\MultiDB;
 use App\Mail\MigrationCompleted;
+use App\Mail\Migration\StripeConnectMigration;
 use App\Models\Activity;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -87,6 +90,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -214,41 +218,6 @@ class Import implements ShouldQueue
             $this->{$method}($data[$import]);
         }
 
-        // if(Ninja::isHosted() && array_key_exists('ninja_tokens', $data))
-        $this->processNinjaTokens($data['ninja_tokens']);
-
-        // $this->fixData();
-
-        $this->setInitialCompanyLedgerBalances();
-        
-        // $this->fixClientBalances();
-        $check_data = CheckCompanyData::dispatchNow($this->company, md5(time()));
-        
-        try{
-            Mail::to($this->user->email, $this->user->name())
-                ->send(new MigrationCompleted($this->company, implode("<br>",$check_data)));
-        }
-        catch(\Exception $e) {
-
-            nlog($e->getMessage());
-        }
-        
-        /*After a migration first some basic jobs to ensure the system is up to date*/
-        VersionCheck::dispatch();
-        
-        $account = $this->company->account;
-        $account->default_company_id = $this->company->id;
-        $account->save();
-
-            //company size check
-            if ($this->company->invoices()->count() > 1000 || $this->company->products()->count() > 1000 || $this->company->clients()->count() > 1000) {
-                $this->company->is_large = true;
-                $this->company->save();
-            }
-
-        // CreateCompanyPaymentTerms::dispatchNow($sp035a66, $spaa9f78);
-        // CreateCompanyTaskStatuses::dispatchNow($this->company, $this->user);
-
         $task_statuses = [
             ['name' => ctrans('texts.backlog'), 'company_id' => $this->company->id, 'user_id' => $this->user->id, 'created_at' => now(), 'updated_at' => now(), 'status_order' => 1],
             ['name' => ctrans('texts.ready_to_do'), 'company_id' => $this->company->id, 'user_id' => $this->user->id, 'created_at' => now(), 'updated_at' => now(), 'status_order' => 2],
@@ -258,6 +227,45 @@ class Import implements ShouldQueue
         ];
 
         TaskStatus::insert($task_statuses);
+
+        $account = $this->company->account;
+        $account->default_company_id = $this->company->id;
+        $account->save();
+
+        //company size check
+        if ($this->company->invoices()->count() > 1000 || $this->company->products()->count() > 1000 || $this->company->clients()->count() > 1000) {
+            $this->company->is_large = true;
+            $this->company->save();
+        }
+
+        $this->setInitialCompanyLedgerBalances();
+        
+        // $this->fixClientBalances();
+        $check_data = CheckCompanyData::dispatchNow($this->company, md5(time()));
+        
+        // if(Ninja::isHosted() && array_key_exists('ninja_tokens', $data))
+        $this->processNinjaTokens($data['ninja_tokens']);
+
+        // $this->fixData();
+        try{
+            App::forgetInstance('translator');
+            $t = app('translator');
+            $t->replace(Ninja::transformTranslations($this->company->settings));
+        
+            Mail::to($this->user->email, $this->user->name())
+                ->send(new MigrationCompleted($this->company, implode("<br>",$check_data)));
+        }
+        catch(\Exception $e) {
+            nlog($e->getMessage());
+        }
+        
+        /*After a migration first some basic jobs to ensure the system is up to date*/
+        VersionCheck::dispatch();
+        
+
+
+        // CreateCompanyPaymentTerms::dispatchNow($sp035a66, $spaa9f78);
+        // CreateCompanyTaskStatuses::dispatchNow($this->company, $this->user);
 
         info('Completed🚀🚀🚀🚀🚀 at '.now());
 
@@ -1289,7 +1297,8 @@ class Import implements ShouldQueue
                 }
                 
                 if(!$entity)
-                    throw new Exception("Resource invoice/quote document not available.");
+                    continue;
+                    // throw new Exception("Resource invoice/quote document not available.");
 
 
             }
@@ -1381,9 +1390,21 @@ class Import implements ShouldQueue
                 $modified['fees_and_limits'] = $this->cleanFeesAndLimits($modified['fees_and_limits']);
             }
 
+            /* On Hosted platform we need to advise Stripe users to connect with Stripe Connect */
             if(Ninja::isHosted() && $modified['gateway_key'] == 'd14dd26a37cecc30fdd65700bfb55b23'){
+
+                $nmo = new NinjaMailerObject;
+                $nmo->mailable = new StripeConnectMigration($this->company);
+                $nmo->company = $this->company;
+                $nmo->settings = $this->company->settings;
+                $nmo->to_user = $this->user;
+                NinjaMailerJob::dispatch($nmo);
+
                 $modified['gateway_key'] = 'd14dd26a47cecc30fdd65700bfb67b34';
-                $modified['fees_and_limits'] = [];
+                
+                //why do we set this to a blank array?
+                //$modified['fees_and_limits'] = [];
+
             }
 
             $company_gateway = CompanyGateway::create($modified);
