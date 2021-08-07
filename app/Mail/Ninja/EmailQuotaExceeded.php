@@ -52,6 +52,7 @@ class EmailQuotaExceeded extends Mailable
         $this->title = ctrans('texts.email_quota_exceeded_subject');
         $this->body = ctrans('texts.email_quota_exceeded_body', ['quota' => $this->company->account->getDailyEmailLimit()]);
         $this->whitelabel = $this->company->account->isPaid();
+        $this->replyTo('contact@invoiceninja.com', 'Contact');
 
         return $this->from(config('mail.from.address'), config('mail.from.name'))
                     ->subject(ctrans('texts.email_quota_exceeded_subject'))

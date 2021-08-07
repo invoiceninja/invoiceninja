@@ -13,6 +13,7 @@ namespace App\Models;
 
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
+use App\Mail\Ninja\EmailQuotaExceeded;
 use App\Models\Presenters\AccountPresenter;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
@@ -364,7 +365,7 @@ class Account extends BaseModel
             if(is_null(Cache::get("throttle_notified:{$this->key}"))) {
 
                 $nmo = new NinjaMailerObject;
-                $nmo->mailable = new MaxCompanies($account->companies()->first());
+                $nmo->mailable = new EmailQuotaExceeded($account->companies()->first());
                 $nmo->company = $account->companies()->first();
                 $nmo->settings = $account->companies()->first()->settings;
                 $nmo->to_user = $account->companies()->first()->owner();
