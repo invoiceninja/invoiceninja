@@ -40,6 +40,7 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Mail;
 use Turbo124\Beacon\Facades\LightLogs;
+use Illuminate\Support\Facades\Cache;
 
 /*Multi Mailer implemented*/
 
@@ -110,11 +111,10 @@ class NinjaMailerJob implements ShouldQueue
             LightLogs::create(new EmailSuccess($this->nmo->company->company_key))
                      ->batch();
 
+            /* Count the amount of emails sent across all the users accounts */
+            Cache::increment($this->company->account->key);
+
         } catch (\Exception $e) {
-
-            // if($e instanceof GuzzleHttp\Exception\ClientException){
-
-            // }
             
             nlog("error failed with {$e->getMessage()}");
 
@@ -227,6 +227,10 @@ class NinjaMailerJob implements ShouldQueue
         if(Ninja::isHosted() && strpos($this->nmo->to_user->email, '@example.com') !== false)
             return true;
 
+        /* On the hosted platform, if the user is over the email quotas, we do not send the email. */
+        //if(Ninja::isHosted())
+
+
         return false;
     }
 
@@ -254,4 +258,5 @@ class NinjaMailerJob implements ShouldQueue
         LightLogs::create($job_failure)
                  ->batch();
     }
+
 }
