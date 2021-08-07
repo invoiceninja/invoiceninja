@@ -228,7 +228,8 @@ class NinjaMailerJob implements ShouldQueue
             return true;
 
         /* On the hosted platform, if the user is over the email quotas, we do not send the email. */
-        //if(Ninja::isHosted())
+        if(Ninja::isHosted() && $this->company->account->emailQuotaExceeded())
+            return true;
 
 
         return false;

@@ -18,6 +18,7 @@ use Carbon\Carbon;
 use DateTime;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Laracasts\Presenter\PresentableTrait;
+use Illuminate\Support\Facades\Cache;
 
 class Account extends BaseModel
 {
@@ -339,6 +340,24 @@ class Account extends BaseModel
                 'active' => $trial_active,
             ];
         }
+    }
+
+    public function getDailyEmailLimit()
+    {
+        $limit = config('ninja.daily_email_limit');
+
+        $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 100;
+
+        return min($limit, 5000);
+    }
+
+
+    public function emailQuotaExceeded() :bool
+    {
+        if(is_null(Cache::get($this->key)))
+            return false;
+
+        return Cache::get($this->key) > $this->getDailyEmailLimit();
     }
 
 }
