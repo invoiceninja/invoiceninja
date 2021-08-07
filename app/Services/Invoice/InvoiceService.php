@@ -20,6 +20,7 @@ use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Task;
+use App\Repositories\BaseRepository;
 use App\Services\Client\ClientService;
 use App\Services\Invoice\UpdateReminder;
 use App\Utils\Ninja;
@@ -271,9 +272,8 @@ class InvoiceService
     {
         if ((int)$this->invoice->balance == 0) {
             
-            InvoiceWorkflowSettings::dispatchNow($this->invoice);
-
-            $this->setStatus(Invoice::STATUS_PAID);
+            $this->setStatus(Invoice::STATUS_PAID)->workFlow();
+            // InvoiceWorkflowSettings::dispatchNow($this->invoice);
         }
 
         if ($this->invoice->balance > 0 && $this->invoice->balance < $this->invoice->amount) {
@@ -445,6 +445,18 @@ class InvoiceService
         /* If client currency differs from the company default currency, then insert the client exchange rate on the model.*/
         if(!isset($this->invoice->exchange_rate) && $this->invoice->client->currency()->id != (int) $this->invoice->company->settings->currency_id)
             $this->invoice->exchange_rate = $this->invoice->client->currency()->exchange_rate;
+
+        return $this;
+    }
+
+    public function workFlow()
+    {
+
+        if ($this->invoice->status_id == Invoice::STATUS_PAID && $this->invoice->client->getSetting('auto_archive_invoice')) {
+            /* Throws: Payment amount xxx does not match invoice totals. */
+            $base_repository = new BaseRepository();
+            $base_repository->archive($this->invoice);
+        }
 
         return $this;
     }
