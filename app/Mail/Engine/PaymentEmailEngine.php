@@ -194,12 +194,14 @@ class PaymentEmailEngine extends BaseEmailEngine
 
         $data['$view_link'] = ['value' => '<a class="button" href="'.$this->payment->getLink().'">'.ctrans('texts.view_payment').'</a>', 'label' => ctrans('texts.view_payment')];
         $data['$paymentLink'] = &$data['$view_link'];
-        $data['$portalButton'] = &$data['$view_link'];
+        $data['$portalButton'] = ['value' => "<a href='{$this->payment->getPortalLink()}'>".ctrans('texts.login')."</a>", 'label' =>''];
+        $data['$portal_url'] = &$data['$portalButton'];
 
         $data['$view_url'] = ['value' => $this->payment->getLink(), 'label' => ctrans('texts.view_payment')];
         $data['$signature'] = ['value' => $this->settings->email_signature ?: '&nbsp;', 'label' => ''];
 
         $data['$invoices'] = ['value' => $this->formatInvoices(), 'label' => ctrans('texts.invoices')];
+        $data['$invoice_references'] = ['value' => $this->formatInvoiceReferences(), 'label' => ctrans('texts.invoices')];
 
         return $data;
     }
@@ -213,6 +215,25 @@ class PaymentEmailEngine extends BaseEmailEngine
         }
 
         return $invoice_list;
+    }
+
+    private function formatInvoiceReferences()
+    {
+
+        $invoice_list = '<br><br>';
+
+        foreach ($this->payment->invoices as $invoice) {
+            
+            $invoice_list .= ctrans('texts.po_number'). " {$invoice->po_number} <br>";
+            $invoice_list .= ctrans('texts.invoice_number_short') . " {$invoice->number} <br>";
+            $invoice_list .= ctrans('texts.invoice_amount') ." ". Number::formatMoney($invoice->pivot->amount, $this->client) . "<br>";
+            $invoice_list .= ctrans('texts.invoice_balance') ." ". Number::formatMoney($invoice->fresh()->balance, $this->client) . "<br>";
+            $invoice_list .= "-----<br>";
+
+        }
+
+        return $invoice_list;
+
     }
 
     public function makeValues() :array
