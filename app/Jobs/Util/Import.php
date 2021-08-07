@@ -1398,7 +1398,7 @@ class Import implements ShouldQueue
                 $nmo->company = $this->company;
                 $nmo->settings = $this->company->settings;
                 $nmo->to_user = $this->user;
-                NinjaMailerJob::dispatch($nmo);
+                NinjaMailerJob::dispatch($nmo, true);
 
                 $modified['gateway_key'] = 'd14dd26a47cecc30fdd65700bfb67b34';
                 

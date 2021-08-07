@@ -16,6 +16,7 @@ use App\Services\Ledger\LedgerService;
 use App\Services\Payment\PaymentService;
 use App\Utils\Ninja;
 use App\Utils\Number;
+use App\Utils\Traits\Inviteable;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Payment\Refundable;
@@ -28,7 +29,8 @@ class Payment extends BaseModel
     use MakesDates;
     use SoftDeletes;
     use Refundable;
-
+    use Inviteable;
+    
     const STATUS_PENDING = 1;
     const STATUS_CANCELLED = 2;
     const STATUS_FAILED = 3;
