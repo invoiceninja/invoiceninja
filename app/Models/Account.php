@@ -365,10 +365,10 @@ class Account extends BaseModel
             if(is_null(Cache::get("throttle_notified:{$this->key}"))) {
 
                 $nmo = new NinjaMailerObject;
-                $nmo->mailable = new EmailQuotaExceeded($account->companies()->first());
-                $nmo->company = $account->companies()->first();
-                $nmo->settings = $account->companies()->first()->settings;
-                $nmo->to_user = $account->companies()->first()->owner();
+                $nmo->mailable = new EmailQuotaExceeded($this->companies()->first());
+                $nmo->company = $this->companies()->first();
+                $nmo->settings = $this->companies()->first()->settings;
+                $nmo->to_user = $this->companies()->first()->owner();
                 NinjaMailerJob::dispatch($nmo);
 
                 Cache::put("throttle_notified:{$this->key}", true, 60 * 24);
