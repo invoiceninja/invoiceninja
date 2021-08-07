@@ -11,14 +11,16 @@
 
 namespace App\Models;
 
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
 use App\Models\Presenters\AccountPresenter;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Carbon\Carbon;
 use DateTime;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Laracasts\Presenter\PresentableTrait;
 use Illuminate\Support\Facades\Cache;
+use Laracasts\Presenter\PresentableTrait;
 
 class Account extends BaseModel
 {
@@ -357,7 +359,24 @@ class Account extends BaseModel
         if(is_null(Cache::get($this->key)))
             return false;
 
-        return Cache::get($this->key) > $this->getDailyEmailLimit();
+        if(Cache::get($this->key) > $this->getDailyEmailLimit()) {
+
+            if(is_null(Cache::get("throttle_notified:{$this->key}"))) {
+
+                $nmo = new NinjaMailerObject;
+                $nmo->mailable = new MaxCompanies($account->companies()->first());
+                $nmo->company = $account->companies()->first();
+                $nmo->settings = $account->companies()->first()->settings;
+                $nmo->to_user = $account->companies()->first()->owner();
+                NinjaMailerJob::dispatch($nmo);
+
+                Cache::put("throttle_notified:{$this->key}", true, 60 * 24);
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
 }

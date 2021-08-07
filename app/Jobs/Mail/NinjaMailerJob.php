@@ -72,15 +72,15 @@ class NinjaMailerJob implements ShouldQueue
 
     public function handle()
     {
-        
-        if($this->preFlightChecksFail())
-            return;
 
         /*Set the correct database*/
         MultiDB::setDb($this->nmo->company->db);
 
         /* Serializing models from other jobs wipes the primary key */
         $this->company = Company::where('company_key', $this->nmo->company->company_key)->first();
+
+        if($this->preFlightChecksFail())
+            return;
 
         /* Set the email driver */
         $this->setMailDriver();

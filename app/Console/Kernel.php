@@ -69,7 +69,7 @@ class Kernel extends ConsoleKernel
         /* Run hosted specific jobs */
         if (Ninja::isHosted()) {
 
-            $schedule->job(new AdjustEmailQuota)->daily()->withoutOverlapping();
+            $schedule->job(new AdjustEmailQuota)->dailyAt('23:00')->withoutOverlapping();
             $schedule->job(new SendFailedEmails)->daily()->withoutOverlapping();
             $schedule->command('ninja:check-data --database=db-ninja-02')->daily()->withoutOverlapping();
 
