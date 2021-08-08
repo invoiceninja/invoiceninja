@@ -12,7 +12,7 @@
 namespace App\Http\Controllers;
 
 use App\DataMapper\Analytics\EmailBounce;
-use App\DataMapper\Analytics\EmailSpam;
+use App\DataMapper\Analytics\Mail\EmailSpam;
 use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Models\CreditInvitation;
