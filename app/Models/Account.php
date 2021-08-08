@@ -28,6 +28,9 @@ class Account extends BaseModel
     use PresentableTrait;
     use MakesHash;
 
+    private $free_plan_email_quota = 250;
+
+    private $paid_plan_email_quota = 500;
     /**
      * @var string
      */
@@ -347,9 +350,15 @@ class Account extends BaseModel
 
     public function getDailyEmailLimit()
     {
-        $limit = config('ninja.daily_email_limit');
 
-        $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 100;
+        if($this->isPaid()){
+            $limit = $this->paid_plan_email_quota;
+            $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 50;
+        }
+        else{
+            $limit = $this->free_plan_email_quota;
+            $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 100;
+        }
 
         return min($limit, 5000);
     }
