@@ -65,6 +65,15 @@ class HomeController extends BaseController
      */
     public function invoiceNow()
     {
+        $url = 'https://invoicing.co';
+
+        if (Input::has('rc')) {
+            $url = $url . '?rc=' . Input::get('rc');
+        }
+
+        return Redirect::to($url);
+
+        /*
         // Track the referral/campaign code
         if (Input::has('rc')) {
             session([SESSION_REFERRAL_CODE => Input::get('rc')]);
@@ -76,6 +85,7 @@ class HomeController extends BaseController
         } else {
             return View::make('public.invoice_now');
         }
+        */
     }
 
     /**
