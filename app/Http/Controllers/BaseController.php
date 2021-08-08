@@ -736,6 +736,11 @@ class BaseController extends Controller
                 $data['report_errors'] = true;
             }
 
+            $data['rc'] = '';
+
+            if(request()->has('rc'))
+                $data['rc'] = request()->input('rc');
+
             $this->buildCache();
 
             return view('index.index', $data);
