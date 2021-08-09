@@ -157,14 +157,16 @@ class CreditCard
     {
         $response_array = $request->all();
 
-        if($request->token)
-            $this->processTokenPayment($request->token, $request);
+        if($request->token){
+            $token = ClientGatewayToken::find($this->decodePrimaryKey($request->token));
+            return $this->processTokenPayment($token->token, $request);
+        }
 
         if ($request->has('store_card') && $request->input('store_card') === true) {
 
             $response = $this->createCustomer($request->all());
             
-            $this->processTokenPayment($response->customer_id, $request);
+            return $this->processTokenPayment($response->customer_id, $request);
         }
 
         //process a regular charge here:
@@ -190,8 +192,8 @@ class CreditCard
     {
 
         $data = [
-            'customer_id' => $request->token,
-            'integrator_id' =>  $this->company_gateway->getConfigField('integratorId'),
+            'customer_id' => $token,
+            'integrator_id' =>  $this->paytrace->company_gateway->getConfigField('integratorId'),
             'amount' => $request->input('amount_with_fee'),
         ];
 
