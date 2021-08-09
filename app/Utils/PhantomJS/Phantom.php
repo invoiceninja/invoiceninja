@@ -193,6 +193,7 @@ class Phantom
                 'all_pages_header' => $entity_obj->client->getSetting('all_pages_header'),
                 'all_pages_footer' => $entity_obj->client->getSetting('all_pages_footer'),
             ],
+            'process_markdown' => $entity_obj->client->company->markdown_enabled,
         ];
 
         $maker = new PdfMakerService($state);
