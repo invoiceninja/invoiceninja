@@ -227,6 +227,10 @@ class NinjaMailerJob implements ShouldQueue
         if(Ninja::isHosted() && strpos($this->nmo->to_user->email, '@example.com') !== false)
             return true;
 
+        /* GMail users are uncapped */
+        if(Ninja::isHosted() && $this->nmo->settings->email_sending_method == 'gmail')
+            return false;
+
         /* On the hosted platform, if the user is over the email quotas, we do not send the email. */
         if(Ninja::isHosted() && $this->company->account->emailQuotaExceeded())
             return true;
