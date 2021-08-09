@@ -369,21 +369,26 @@ class Account extends BaseModel
         if(is_null(Cache::get($this->key)))
             return false;
 
-        if(Cache::get($this->key) > $this->getDailyEmailLimit()) {
+        try {
+            if(Cache::get($this->key) > $this->getDailyEmailLimit()) {
 
-            if(is_null(Cache::get("throttle_notified:{$this->key}"))) {
+                if(is_null(Cache::get("throttle_notified:{$this->key}"))) {
 
-                $nmo = new NinjaMailerObject;
-                $nmo->mailable = new EmailQuotaExceeded($this->companies()->first());
-                $nmo->company = $this->companies()->first();
-                $nmo->settings = $this->companies()->first()->settings;
-                $nmo->to_user = $this->companies()->first()->owner();
-                NinjaMailerJob::dispatch($nmo);
+                    $nmo = new NinjaMailerObject;
+                    $nmo->mailable = new EmailQuotaExceeded($this->companies()->first());
+                    $nmo->company = $this->companies()->first();
+                    $nmo->settings = $this->companies()->first()->settings;
+                    $nmo->to_user = $this->companies()->first()->owner();
+                    NinjaMailerJob::dispatch($nmo);
 
-                Cache::put("throttle_notified:{$this->key}", true, 60 * 24);
+                    Cache::put("throttle_notified:{$this->key}", true, 60 * 24);
+                }
+
+                return true;
             }
-
-            return true;
+        }
+        catch(\Exception $e){
+            \Sentry\captureMessage("I encountered an error with email quotas - defaulting to SEND");
         }
 
         return false;
