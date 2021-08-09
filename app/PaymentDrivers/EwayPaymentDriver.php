@@ -115,7 +115,7 @@ class EwayPaymentDriver extends BaseDriver
                 }
             } else {
                 $refund_status = false;
-                $refund_message 'Sorry, your refund failed';
+                $refund_message = 'Sorry, your refund failed';
             }
         }
         return [
@@ -146,7 +146,7 @@ class EwayPaymentDriver extends BaseDriver
         if($precision == 1)
             return $amount*10;
 
-        if$precision == 2)
+        if($precision == 2)
             return $amount*100;
 
 
