@@ -136,6 +136,7 @@ class PreviewController extends BaseController
                     'products' => request()->design['design']['product'],
                 ]),
                 'variables' => $html->generateLabelsAndValues(),
+                'process_markdown' => $entity_obj->client->company->markdown_enabled,
             ];
 
             $design = new Design(request()->design['name']);
@@ -251,6 +252,7 @@ class PreviewController extends BaseController
                     'all_pages_header' => $entity_obj->client->getSetting('all_pages_header'),
                     'all_pages_footer' => $entity_obj->client->getSetting('all_pages_footer'),
                 ],
+                'process_markdown' => $entity_obj->client->company->markdown_enabled,
             ];
 
 
@@ -362,6 +364,7 @@ class PreviewController extends BaseController
                 'products' => request()->design['design']['product'],
             ]),
             'variables' => $html->generateLabelsAndValues(),
+            'process_markdown' => $invoice->client->company->markdown_enabled,
         ];
 
         $maker = new PdfMaker($state);
