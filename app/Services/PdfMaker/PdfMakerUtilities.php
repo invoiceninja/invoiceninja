@@ -92,10 +92,12 @@ trait PdfMakerUtilities
             $contains_html = false;
 
             if ($child['element'] !== 'script') {
-                $child['content'] = $this->commonmark->convertToHtml($child['content'] ?? '');
+                if (array_key_exists('process_markdown', $this->data) && $this->data['process_markdown']) {
+                    $child['content'] = $this->commonmark->convertToHtml($child['content'] ?? '');
+                } else {
+                    $child['content'] = array_key_exists('content', $child) ? nl2br($child['content']) : '';
+                }
             }
-
-            // $child['content'] = array_key_exists('content', $child) ? nl2br($child['content']) : '';
 
             if (isset($child['content'])) {
                 if (isset($child['is_empty']) && $child['is_empty'] === true) {
