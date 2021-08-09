@@ -250,9 +250,10 @@ class ACH
     {
         try {
             $payment_meta = new \stdClass;
-            $payment_meta->brand = (string)sprintf('%s (%s)', $method->bank_name, ctrans('texts.ach'));
-            $payment_meta->last4 = (string)$method->last4;
+            $payment_meta->brand = (string) \sprintf('%s (%s)', $method->bank_name, ctrans('texts.ach'));
+            $payment_meta->last4 = (string) $method->last4;
             $payment_meta->type = GatewayType::BANK_TRANSFER;
+            $payment_meta->state = 'unauthorized';
 
             $data = [
                 'payment_meta' => $payment_meta,
