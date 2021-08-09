@@ -50,6 +50,7 @@ class Company extends BaseModel
     protected $presenter = CompanyPresenter::class;
 
     protected $fillable = [
+        'markdown_enabled',
         'calculate_expense_tax_by_amount',
         'invoice_expense_documents',
         'invoice_task_documents',

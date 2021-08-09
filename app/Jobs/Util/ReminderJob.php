@@ -30,6 +30,8 @@ class ReminderJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesReminders, MakesDates;
 
+    public $tries = 1;
+
     public function __construct()
     {
     }
@@ -48,6 +50,7 @@ class ReminderJob implements ShouldQueue
             //multiDB environment, need to
             foreach (MultiDB::$dbs as $db) {
                 MultiDB::setDB($db);
+                nlog("set db {$db}");
                 $this->processReminders();
             }
         }

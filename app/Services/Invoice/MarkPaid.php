@@ -95,7 +95,8 @@ class MarkPaid extends AbstractService
             ->updatePaidToDate($payment->amount)
             ->save();
 
-        InvoiceWorkflowSettings::dispatchNow($this->invoice);
+        $this->invoice->service()->workFlow()->save();
+        // InvoiceWorkflowSettings::dispatchNow($this->invoice);
 
         return $this->invoice;
     }

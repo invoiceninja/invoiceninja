@@ -71,7 +71,8 @@ class CreateAccount
         $sp794f3f = new Account();
         $sp794f3f->fill($this->request);
 
-        $sp794f3f->referral_code = Str::random(32);
+        if(array_key_exists('rc', $this->request))
+            $sp794f3f->referral_code = $this->request['rc'];
 
         if (! $sp794f3f->key) {
             $sp794f3f->key = Str::random(32);

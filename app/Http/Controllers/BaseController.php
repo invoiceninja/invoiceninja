@@ -730,11 +730,11 @@ class BaseController extends Controller
 
             $data = [];
 
-            if (Ninja::isSelfHost()) {
-                $data['report_errors'] = $account->report_errors;
-            } else {
-                $data['report_errors'] = true;
-            }
+            //pass report errors bool to front end
+            $data['report_errors'] = Ninja::isSelfHost() ? $account->report_errors : true;
+
+            //pass referral code to front end
+            $data['rc'] = request()->has('rc') ? request()->input('rc') : '';
 
             $this->buildCache();
 
