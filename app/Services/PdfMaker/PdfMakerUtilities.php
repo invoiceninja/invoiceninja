@@ -94,8 +94,6 @@ trait PdfMakerUtilities
             if ($child['element'] !== 'script') {
                 if (array_key_exists('process_markdown', $this->data) && $this->data['process_markdown']) {
                     $child['content'] = $this->commonmark->convertToHtml($child['content'] ?? '');
-                } else {
-                    $child['content'] = array_key_exists('content', $child) ? nl2br($child['content']) : '';
                 }
             }
 
