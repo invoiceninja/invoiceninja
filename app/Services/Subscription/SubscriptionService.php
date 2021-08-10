@@ -777,7 +777,15 @@ class SubscriptionService
      */
     public function products()
     {
-        return Product::whereIn('id', $this->transformKeys(explode(",", $this->subscription->product_ids)))->get();
+        if(!$this->subscription->product_ids)
+            return collect();
+
+        $keys = $this->transformKeys(explode(",", $this->subscription->product_ids));
+
+        if(is_array($keys))
+            return Product::whereIn('id', $keys)->get();
+        else
+            return Product::where('id', $keys)->get();
     }
 
     /**
@@ -788,7 +796,18 @@ class SubscriptionService
      */
     public function recurring_products()
     {
-        return Product::whereIn('id', $this->transformKeys(explode(",", $this->subscription->recurring_product_ids)))->get();
+        if(!$this->subscription->recurring_product_ids)
+            return collect();
+
+        $keys = $this->transformKeys(explode(",", $this->subscription->recurring_product_ids));
+
+        if(is_array($keys)){
+            return Product::whereIn('id', $keys)->get();
+        }
+        else{
+            return Product::where('id', $keys)->get();
+        }
+
     }
 
     /**
