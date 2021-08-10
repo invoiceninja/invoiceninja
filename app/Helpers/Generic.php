@@ -33,8 +33,14 @@ function nlog($output, $context = []): void
         $trace = debug_backtrace();
         //nlog( debug_backtrace()[1]['function']);
         // \Illuminate\Support\Facades\Log::channel('invoiceninja')->info(print_r($trace[1]['class'],1), []);
-        if(Ninja::isHosted()) 
-            info($output);
+        if(Ninja::isHosted()) {
+            try{
+                info($output);
+            }
+            catch(\Exception $e){
+
+            }
+        }
         else
             \Illuminate\Support\Facades\Log::channel('invoiceninja')->info($output, $context);
     
