@@ -133,6 +133,15 @@ class StartMigration implements ShouldQueue
             
             Mail::to($this->user->email, $this->user->name())->send(new MigrationFailed($e, $this->company, $e->getMessage()));
 
+            if(Ninja::isHosted()){
+
+                $migration_failed = new MigrationFailed($e, $this->company, $e->getMessage());
+                $migration_failed->is_system = true;
+                
+                Mail::to('contact@invoiceninja.com', 'Failed Migration')->send($migration_failed);
+
+            }
+
             if (app()->environment() !== 'production') {
                 info($e->getMessage());
             }

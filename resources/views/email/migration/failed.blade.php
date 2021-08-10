@@ -4,7 +4,7 @@
         <p>{{ ctrans('texts.migration_failed') }} {{ $company->present()->name() }}</p>
 
         <pre>
-            @if(\App\Utils\Ninja::isSelfHost())
+            @if(\App\Utils\Ninja::isSelfHost() || $is_system)
                 {!! $exception->getMessage() !!}
                 {!! $content !!}
             @else

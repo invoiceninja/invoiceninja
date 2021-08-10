@@ -37,6 +37,10 @@ class PaymentEmailEngine extends BaseEmailEngine
 
     private $helpers;
 
+    private $payment_template_body;
+
+    private $payment_template_subject;
+
     public function __construct($payment, $contact, $template_data = null)
     {
         $this->payment = $payment;
@@ -55,20 +59,22 @@ class PaymentEmailEngine extends BaseEmailEngine
         App::setLocale($this->contact->preferredLocale());
         $t->replace(Ninja::transformTranslations($this->client->getMergedSettings()));
 
+        $this->resolvePaymentTemplate();
+
         if (is_array($this->template_data) &&  array_key_exists('body', $this->template_data) && strlen($this->template_data['body']) > 0) {
             $body_template = $this->template_data['body'];
-        } elseif (strlen($this->client->getSetting('email_template_payment')) > 0) {
-            $body_template = $this->client->getSetting('email_template_payment');
+        } elseif (strlen($this->client->getSetting($this->payment_template_body)) > 0) {
+            $body_template = $this->client->getSetting($this->payment_template_body);
         } else {
-            $body_template = EmailTemplateDefaults::getDefaultTemplate('email_template_payment', $this->client->locale());
+            $body_template = EmailTemplateDefaults::getDefaultTemplate($this->payment_template_body, $this->client->locale());
         }
 
         if (is_array($this->template_data) &&  array_key_exists('subject', $this->template_data) && strlen($this->template_data['subject']) > 0) {
             $subject_template = $this->template_data['subject'];
-        } elseif (strlen($this->client->getSetting('email_subject_payment')) > 0) {
-            $subject_template = $this->client->getSetting('email_subject_payment');
+        } elseif (strlen($this->client->getSetting($this->payment_template_subject)) > 0) {
+            $subject_template = $this->client->getSetting($this->payment_template_subject);
         } else {
-            $subject_template = EmailTemplateDefaults::getDefaultTemplate('email_subject_payment', $this->client->locale());
+            $subject_template = EmailTemplateDefaults::getDefaultTemplate($this->payment_template_subject, $this->client->locale());
         }
 
         $this->setTemplate($this->client->getSetting('email_style'))
@@ -91,6 +97,34 @@ class PaymentEmailEngine extends BaseEmailEngine
 
             });
 
+        }
+
+        return $this;
+    }
+
+    /**
+     * Helper method to resolve which payment template
+     * to use. We need to check the invoice balances to
+     * determine if this is a partial payment, or full payment.
+     *     
+     * @return $this
+     */
+    private function resolvePaymentTemplate() 
+    {
+
+        $partial = $this->payment->invoices->contains(function ($invoice){
+
+            return $invoice->balance > 0;
+
+        });
+
+        if($partial){
+            $this->payment_template_body = "email_template_payment_partial";
+            $this->payment_template_subject = "email_subject_payment_partial";
+        }
+        else {
+            $this->payment_template_body = "email_template_payment";
+            $this->payment_template_subject = "email_subject_payment";
         }
 
         return $this;
