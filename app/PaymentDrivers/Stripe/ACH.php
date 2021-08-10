@@ -68,8 +68,15 @@ class ACH
 
         $client_gateway_token = $this->storePaymentMethod($source, $request->input('method'), $customer);
 
+        $verification = route('client.payment_methods.verification', ['payment_method' => $client_gateway_token->hashed_id, 'method' => GatewayType::BANK_TRANSFER], false);
+
         $mailer = new NinjaMailerObject();
-        $mailer->mailable = new ACHVerificationNotification(auth('contact')->user()->client->company, route('client.payment_methods.verification', ['payment_method' => $client_gateway_token->hashed_id, 'method' => GatewayType::BANK_TRANSFER]));
+
+        $mailer->mailable = new ACHVerificationNotification(
+            auth('contact')->user()->client->company, 
+            route('client.contact_login', ['contact_key' => auth('contact')->user()->contact_key, 'next' => $verification])
+        );
+
         $mailer->company = auth('contact')->user()->client->company;
         $mailer->settings = auth('contact')->user()->client->company->settings;
         $mailer->to_user = auth('contact')->user();

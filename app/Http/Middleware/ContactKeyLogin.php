@@ -71,11 +71,16 @@ class ContactKeyLogin
             }
         } elseif ($request->segment(2) && $request->segment(2) == 'key_login' && $request->segment(3)) {
             if ($client_contact = ClientContact::where('contact_key', $request->segment(3))->first()) {
-  
-                  if(empty($client_contact->email))
+                if(empty($client_contact->email)) {
                     $client_contact->email = Str::random(6) . "@example.com"; $client_contact->save();
+                }
     
                 auth()->guard('contact')->login($client_contact, true);
+
+                if ($request->query('next')) {
+                    return redirect($request->query('next'));
+                }
+
                 return redirect()->to('client/dashboard');
             }
         } elseif ($request->has('client_hash') && config('ninja.db.multi_db_enabled')) {
@@ -105,7 +110,6 @@ class ContactKeyLogin
                 return redirect()->to('client/dashboard');
             }
         }
-
 
         return $next($request);
     }
