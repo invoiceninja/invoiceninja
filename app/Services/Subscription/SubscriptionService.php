@@ -799,10 +799,10 @@ class SubscriptionService
     public function getPlans()
     {
         return Subscription::query()
-            ->where('company_id', $this->subscription->company_id)
-            ->where('group_id', $this->subscription->group_id)
-            ->where('id', '!=', $this->subscription->id)
-            ->get();
+                            ->where('company_id', $this->subscription->company_id)
+                            ->where('group_id', $this->subscription->group_id)
+                            ->where('id', '!=', $this->subscription->id)
+                            ->get();
     }
 
     /**

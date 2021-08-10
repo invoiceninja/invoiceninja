@@ -16,34 +16,28 @@ class AddMoreLanguages extends Migration
     {
         Language::unguard();
 
-        $language = Language::where(['locale' => 'ar'])->first();
+        $language = Language::find(29);
 
         if(!$language){
 
-            $language = new Language();
-            $language->id = 29;
-            $language->name = 'Arabic';
-            $language->save();
+            Language::create(['id' => 29, 'name' => 'Arabic', 'locale' => 'ar']);
+
         }
 
-       $language = Language::where(['locale' => 'fa'])->first();
+        $language = Language::find(30);
 
         if(!$language){
 
-            $language = new Language();
-            $language->id = 30;
-            $language->name = 'Persian';
-            $language->save();
+            Language::create(['id' => 30, 'name' => 'Persian', 'locale' => 'fa']);
+
         }
 
-       $language = Language::where(['locale' => 'lv_LV'])->first();
+        $language = Language::find(31);
 
         if(!$language){
 
-            $language = new Language();
-            $language->id = 31;
-            $language->name = 'Latvian';
-            $language->save();
+            Language::create(['id' => 31, 'name' => 'Latvian', 'locale' => 'lv_LV']);
+
         }
         
 
