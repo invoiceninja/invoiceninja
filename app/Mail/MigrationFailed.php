@@ -13,6 +13,8 @@ class MigrationFailed extends Mailable
 
     public $company;
 
+    public $is_system = false;
+
     /**
      * Create a new message instance.
      *
@@ -38,6 +40,7 @@ class MigrationFailed extends Mailable
             ->view('email.migration.failed', [
                 'logo' => $this->company->present()->logo(),
                 'settings' => $this->company->settings,
+                'is_system' => $this->is_system,
             ]);
     }
 }

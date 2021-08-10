@@ -363,6 +363,13 @@ class Account extends BaseModel
         return min($limit, 5000);
     }
 
+    public function emailsSent()
+    {
+        if(is_null(Cache::get($this->key)))
+            return 0;
+
+        return Cache::get($this->key);
+    } 
 
     public function emailQuotaExceeded() :bool
     {
