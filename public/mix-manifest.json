@@ -1,6 +1,6 @@
 {
     "/js/app.js": "/js/app.js?id=696e8203d5e8e7cf5ff5",
-    "/css/app.css": "/css/app.css?id=5d7e42fa72eef8af62f5",
+    "/css/app.css": "/css/app.css?id=56fdeb0a3b78b00b9a52",
     "/js/clients/invoices/action-selectors.js": "/js/clients/invoices/action-selectors.js?id=a09bb529b8e1826f13b4",
     "/js/clients/invoices/payment.js": "/js/clients/invoices/payment.js?id=8ce8955ba775ea5f47d1",
     "/js/clients/linkify-urls.js": "/js/clients/linkify-urls.js?id=0dc8c34010d09195d2f7",
@@ -11,6 +11,7 @@
     "/js/clients/payments/braintree-paypal.js": "/js/clients/payments/braintree-paypal.js?id=c35db3cbb65806ab6a8a",
     "/js/clients/payments/card-js.min.js": "/js/clients/payments/card-js.min.js?id=5469146cd629ea1b5c20",
     "/js/clients/payments/checkout-credit-card.js": "/js/clients/payments/checkout-credit-card.js?id=065e5450233cc5b47020",
+    "/js/clients/payments/mollie-credit-card.js": "/js/clients/payments/mollie-credit-card.js?id=73b66e88e2daabcd6549",
     "/js/clients/payments/paytrace-credit-card.js": "/js/clients/payments/paytrace-credit-card.js?id=c8d3808a4c02d1392e96",
     "/js/clients/payments/stripe-ach.js": "/js/clients/payments/stripe-ach.js?id=81c2623fc1e5769b51c7",
     "/js/clients/payments/stripe-alipay.js": "/js/clients/payments/stripe-alipay.js?id=665ddf663500767f1a17",
@@ -22,7 +23,5 @@
     "/js/clients/shared/multiple-downloads.js": "/js/clients/shared/multiple-downloads.js?id=5c35d28cf0a3286e7c45",
     "/js/clients/shared/pdf.js": "/js/clients/shared/pdf.js?id=fc3055d6a099f523ea98",
     "/js/setup/setup.js": "/js/setup/setup.js?id=8d454e7090f119552a6c",
-    "/css/card-js.min.css": "/css/card-js.min.css?id=62afeb675235451543ad",
-    "/js/admin.js": "/js/admin.js",
-    "/css/admin.css": "/css/admin.css"
+    "/css/card-js.min.css": "/css/card-js.min.css?id=62afeb675235451543ad"
 }

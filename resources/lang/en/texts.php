@@ -4295,6 +4295,7 @@ $LANG = array(
     'lang_Arabic' => 'Arabic',
     'lang_Persian' => 'Persian',
     'lang_Latvian' => 'Latvian',
+    'expiry_date' => 'Expiry date',
 );
 
 return $LANG;

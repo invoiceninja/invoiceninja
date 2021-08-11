@@ -122,7 +122,7 @@ class CompanyGateway extends BaseModel
     }
 
     /* This is the public entry point into the payment superclass */
-    public function driver(Client $client)
+    public function driver(Client $client = null)
     {
         $class = static::driver_class();
 
