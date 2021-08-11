@@ -60,6 +60,7 @@ class AdjustEmailQuota implements ShouldQueue
     {
 
         Account::query()->cursor()->each(function ($account){
+            nlog("resetting email quota for {$account->key}");
             Cache::forget($account->key);
             Cache::forget("throttle_notified:{$account->key}");
         });
