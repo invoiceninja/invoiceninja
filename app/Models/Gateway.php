@@ -106,8 +106,13 @@ class Gateway extends StaticModel
                 break;    
             case 50:
                 return [
-                    GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true],
+                    GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true], //Braintree
                     GatewayType::PAYPAL => ['refund' => true, 'token_billing' => true]
+                ];
+                break;
+            case 7:
+                return [
+                    GatewayType::CREDIT_CARD => ['refund' => false, 'token_billing' => true], // Mollie
                 ];
                 break;
             default:

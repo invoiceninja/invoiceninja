@@ -89,6 +89,7 @@ return [
             'password' => env('PAYTRACE_P',''),
             'decrypted' => env('PAYTRACE_KEYS', ''),
         ],
+        'mollie' => env('MOLLIE_KEYS', ''),
     ],
     'contact' => [
         'email' => env('MAIL_FROM_ADDRESS'),

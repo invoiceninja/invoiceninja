@@ -31,7 +31,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['id' => 4, 'name' => 'FirstData Connect', 'provider' => 'FirstData_Connect', 'key' => '4e0ed0d34552e6cb433506d1ac03a418', 'fields' => '{"storeId":"","sharedSecret":"","testMode":false}'],
             ['id' => 5, 'name' => 'Migs ThreeParty', 'provider' => 'Migs_ThreeParty', 'key' => '513cdc81444c87c4b07258bc2858d3fa', 'fields' => '{"merchantId":"","merchantAccessCode":"","secureHash":""}'],
             ['id' => 6, 'name' => 'Migs TwoParty', 'provider' => 'Migs_TwoParty', 'key' => '99c2a271b5088951334d1302e038c01a', 'fields' => '{"merchantId":"","merchantAccessCode":"","secureHash":""}'],
-            ['id' => 7, 'name' => 'Mollie', 'provider' => 'Mollie', 'is_offsite' => true, 'sort_order' => 8, 'key' => '1bd651fb213ca0c9d66ae3c336dc77e8', 'fields' => '{"apiKey":""}'],
+            ['id' => 7, 'name' => 'Mollie', 'provider' => 'Mollie', 'is_offsite' => true, 'sort_order' => 8, 'key' => '1bd651fb213ca0c9d66ae3c336dc77e8', 'fields' => '{"apiKey":"","profileId":"","testMode":false}'],
             ['id' => 8, 'name' => 'MultiSafepay', 'provider' => 'MultiSafepay', 'key' => 'c3dec814e14cbd7d86abd92ce6789f8c', 'fields' => '{"accountId":"","siteId":"","siteCode":"","testMode":false}'],
             ['id' => 9, 'name' => 'Netaxept', 'provider' => 'Netaxept', 'key' => '070dffc5ca94f4e66216e44028ebd52d', 'fields' => '{"merchantId":"","password":"","testMode":false}'],
             ['id' => 10, 'name' => 'NetBanx', 'provider' => 'NetBanx', 'key' => '334d419939c06bd99b4dfd8a49243f0f', 'fields' => '{"accountNumber":"","storeId":"","storePassword":"","testMode":false}'],
@@ -96,7 +96,7 @@ class PaymentLibrariesSeeder extends Seeder
 
         Gateway::query()->update(['visible' => 0]);
 
-        Gateway::whereIn('id', [1,15,20,39,46,55,50])->update(['visible' => 1]);
+        Gateway::whereIn('id', [1,7,15,20,39,46,55,50])->update(['visible' => 1]);
 
         if (Ninja::isHosted()) {
             Gateway::whereIn('id', [20])->update(['visible' => 0]);
