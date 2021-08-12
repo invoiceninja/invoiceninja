@@ -138,7 +138,7 @@ class CreditCard
             // ],
             // 'TransactionType' => \Eway\Rapid\Enum\TransactionType::PURCHASE,
             'Method' => \Eway\Rapid\Enum\PaymentMethod::CREATE_TOKEN_CUSTOMER,
-            'SecuredCardData' => $request->input('SecuredCardData'),
+            'SecuredCardData' => $request->input('securefieldcode'),
         ];
 
         $response = $this->eway_driver->init()->eway->createCustomer(\Eway\Rapid\Enum\ApiMethod::DIRECT, $transaction);
@@ -178,7 +178,8 @@ class CreditCard
 
     }
 
-    public function processPaymentResponse($request)
+
+    public function paymentResponse($request)
     {
         
     }
