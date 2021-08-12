@@ -134,7 +134,7 @@ class Account extends BaseModel
 
     public function getPlan()
     {
-        if(Carbon\Carbon::parse($this->plan_expires)->lt(now()))
+        if(Carbon::parse($this->plan_expires)->lt(now()))
             return '';
 
         return $this->plan ?: '';
