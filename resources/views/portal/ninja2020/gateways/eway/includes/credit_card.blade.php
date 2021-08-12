@@ -93,17 +93,20 @@ function securePanelCallback(event) {
     if (!event.fieldValid) {
         alert(getError(event.errors));
     } else {
-        var s = document.getElementById("securefieldcode");
+        var s = document.querySelector("input[name=securefieldcode]");
         s.value = event.secureFieldCode
+        console.log(s.value);
     }
 }
 
 function doneCallback() {
-    var form = document.getElementById("payment_form");
+    console.log("done call bak");
+    var form = document.getElementById("server-response");
     form.submit();
 }
 
 function saveAndSubmit() {
+    console.log("save and sub");
     eWAY.saveAllFields(doneCallback, 2000); 
     return false;
 }

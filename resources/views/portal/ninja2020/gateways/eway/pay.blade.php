@@ -12,6 +12,7 @@
         <input type="hidden" name="company_gateway_id" value="{{ $gateway->getCompanyGatewayId() }}">
         <input type="hidden" name="payment_method_id" value="1">
         <input type="hidden" name="token" id="token" value="">
+        <input type="hidden" name="securefieldcode" value="">
     </form>
 
     <div class="alert alert-failure mb-4" hidden id="errors"></div>

@@ -6,10 +6,10 @@ ctrans('texts.credit_card')])
 
 @section('gateway_content')
     <form action="{{ route('client.payment_methods.store', ['method' => App\Models\GatewayType::CREDIT_CARD]) }}"
-        method="post" id="payment_form">
+        method="post" id="server-response">
         @csrf
 
-        <input type="hidden" id="securefieldcode" name="SecuredCardData" value="" />
+        <input type="hidden" id="securefieldcode" name="securefieldcode" value="" />
         <input type="hidden" name="company_gateway_id" value="{{ $gateway->company_gateway->id }}">
         <input type="hidden" name="payment_method_id" value="1">
         
@@ -36,7 +36,7 @@ ctrans('texts.credit_card')])
     <!-- Your JS includes go here -->
 <script src="https://secure.ewaypayments.com/scripts/eWAY.min.js" data-init="false"></script>
 
-@include('portal.ninja2020.gateways.eway.includes.credt_card')
+@include('portal.ninja2020.gateways.eway.includes.credit_card')
 
 <script type="text/javascript">
 
