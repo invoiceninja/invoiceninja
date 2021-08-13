@@ -1,27 +1,26 @@
 <!DOCTYPE html>
 <html data-report-errors="{{ $report_errors }}" data-rc="{{ $rc }}">
 <head>
-    <!-- Source: https://github.com/invoiceninja/invoiceninja -->
-    <!-- Version: {{ config('ninja.app_version') }} -->
+  <!-- Source: https://github.com/invoiceninja/invoiceninja -->
+  <!-- Version: {{ config('ninja.app_version') }} -->
+  <base href="/">
   <meta charset="UTF-8">
-  <title>Invoice Ninja</title>
   <meta name="google-signin-client_id" content="{{ config('services.google.client_id') }}">
   <link rel="manifest" href="manifest.json?v={{ config('ninja.app_version') }}">
   <script src="{{ asset('js/pdf.min.js') }}"></script>
   <script type="text/javascript">
     pdfjsLib.GlobalWorkerOptions.workerSrc = "{{ asset('js/pdf.worker.min.js') }}";
   </script>
-</head>
-<body style="background-color:#888888;">
-
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="Invoice Clients, Track Work-Time, Get Paid Online.">
+  <!-- iOS meta tags & icons -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="invoiceninja_client">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <title>Invoice Ninja</title>
+  <link rel="manifest" href="manifest.json">
   <style>
-
-    /* fix for blurry fonts 
-    flt-glass-pane {
-        image-rendering: pixelated;
-    }
-    */
-   
     /* https://projects.lukehaas.me/css-loaders/ */
     .loader,
     .loader:before,
@@ -35,7 +34,7 @@
       animation: load7 1.8s infinite ease-in-out;
     }
     .loader {
-      color: #ffffff;
+      color: #FFFFFF;
       font-size: 10px;
       margin: 80px auto;
       position: relative;
@@ -80,85 +79,85 @@
         box-shadow: 0 2.5em 0 0;
       }
     }
-
   </style>
-
+</head>
+<body style="background-color:#888888;">
+  <!-- This script installs service_worker.js to provide PWA functionality to
+       application. For more information, see:
+       https://developers.google.com/web/fundamentals/primers/service-workers -->
   <script>
     @if (request()->clear_local)
       window.onload = function() {
         window.localStorage.clear();
       }
     @endif
-    
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('flutter_service_worker.js?v={{ config('ninja.app_version') }}');
-      });
-    }
-
-    document.addEventListener('DOMContentLoaded', function(event) {
-      document.getElementById('loader').style.display = 'none';
-    });
-
-    
-    function invokeServiceWorkerUpdateFlow() {
-      // you have a better UI here, reloading is not a great user experince here.
-      const confirmed = alert('New version of the app is available. Refresh now');
-      if (confirmed == true) {
-        window.location.reload();
+    var serviceWorkerVersion = null;
+    var scriptLoaded = false;
+    function loadMainDartJs() {
+      if (scriptLoaded) {
+        return;
       }
+      scriptLoaded = true;
+      var scriptTag = document.createElement('script');
+    @if(config('ninja.flutter_renderer') == 'hosted')
+        scriptTag.src = 'main.dart.js';
+    @else
+        scriptTag.src = 'main.foss.dart.js';
+    @endif
+      scriptTag.type = 'application/javascript';
+      document.body.append(scriptTag);
     }
-    async function handleServiceWorker() {
-      if ('serviceWorker' in navigator) {
-        // get the ServiceWorkerRegistration instance
-        const registration = await navigator.serviceWorker.getRegistration();
-        // (it is also returned from navigator.serviceWorker.register() function)
-
-        if (registration) {
-          // detect Service Worker update available and wait for it to become installed
-          registration.addEventListener('updatefound', () => {
-            if (registration.installing) {
-              // wait until the new Service worker is actually installed (ready to take over)
-              registration.installing.addEventListener('statechange', () => {
-                if (registration.waiting) {
-                  // if there's an existing controller (previous Service Worker), show the prompt
-                  if (navigator.serviceWorker.controller) {
-                    invokeServiceWorkerUpdateFlow(registration);
-                  } else {
-                    // otherwise it's the first install, nothing to do
-                    console.log('Service Worker initialized for the first time');
-                  }
+    if ('serviceWorker' in navigator) {
+      // Service workers are supported. Use them.
+      window.addEventListener('load', function () {
+        // Wait for registration to finish before dropping the <script> tag.
+        // Otherwise, the browser will load the script multiple times,
+        // potentially different versions.
+        var serviceWorkerUrl = 'flutter_service_worker.js?v=' + serviceWorkerVersion;
+        navigator.serviceWorker.register(serviceWorkerUrl)
+          .then((reg) => {
+            function waitForActivation(serviceWorker) {
+              serviceWorker.addEventListener('statechange', () => {
+                if (serviceWorker.state == 'activated') {
+                  console.log('Installed new service worker.');
+                  loadMainDartJs();
                 }
               });
             }
-          });
-
-          let refreshing = false;
-
-          // detect controller change and refresh the page
-          navigator.serviceWorker.addEventListener('controllerchange', () => {
-            if (!refreshing) {
-              window.location.reload();
-              refreshing = true;
+            if (!reg.active && (reg.installing || reg.waiting)) {
+              // No active web worker and we have installed or are installing
+              // one for the first time. Simply wait for it to activate.
+              waitForActivation(reg.installing ?? reg.waiting);
+            } else if (!reg.active.scriptURL.endsWith(serviceWorkerVersion)) {
+              // When the app updates the serviceWorkerVersion changes, so we
+              // need to ask the service worker to update.
+              console.log('New service worker available.');
+              reg.update();
+              waitForActivation(reg.installing);
+            } else {
+              // Existing service worker is still good.
+              console.log('Loading app from service worker.');
+              loadMainDartJs();
             }
           });
-        }
-      }
+        // If service worker doesn't succeed in a reasonable amount of time,
+        // fallback to plaint <script> tag.
+        setTimeout(() => {
+          if (!scriptLoaded) {
+            console.warn(
+              'Failed to load app from service worker. Falling back to plain <script> tag.',
+            );
+            loadMainDartJs();
+          }
+        }, 4000);
+      });
+    } else {
+      // Service workers not supported. Just drop the <script> tag.
+      loadMainDartJs();
     }
-
-    handleServiceWorker();
-  
   </script>
-
-  @if(config('ninja.flutter_renderer') == 'hosted')
-    <script defer src="main.dart.js?v={{ config('ninja.app_version') }}" type="application/javascript"></script>
-  @else
-    <script defer src="main.foss.dart.js?v={{ config('ninja.app_version') }}" type="application/javascript"></script>
-  @endif
-
   <center style="padding-top: 150px" id="loader">
     <div class="loader"></div>
   </center>
-
 </body>
 </html>

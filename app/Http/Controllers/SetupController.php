@@ -16,6 +16,7 @@ use App\Http\Requests\Setup\CheckDatabaseRequest;
 use App\Http\Requests\Setup\CheckMailRequest;
 use App\Http\Requests\Setup\StoreSetupRequest;
 use App\Jobs\Account\CreateAccount;
+use App\Jobs\Util\SchedulerCheck;
 use App\Jobs\Util\VersionCheck;
 use App\Models\Account;
 use App\Utils\CurlUtils;
@@ -279,10 +280,7 @@ class SetupController extends Controller
 
     public function update()
     {
-        // if(Ninja::isHosted())
-        //     return redirect('/');
-    
-        // if( Ninja::isNinja() || !request()->has('secret') || (request()->input('secret') != config('ninja.update_secret')) )
+
         if(!request()->has('secret') || (request()->input('secret') != config('ninja.update_secret')) )
             return redirect('/');
 
@@ -311,6 +309,8 @@ class SetupController extends Controller
 
         $this->buildCache(true);
 
+        SchedulerCheck::dispatchNow();
+        
         return redirect('/');
 
     }
