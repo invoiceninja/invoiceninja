@@ -22,6 +22,7 @@ use App\Models\Payment;
 use App\Models\Task;
 use App\Repositories\BaseRepository;
 use App\Services\Client\ClientService;
+use App\Services\Invoice\ApplyPaymentAmount;
 use App\Services\Invoice\UpdateReminder;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
@@ -47,6 +48,13 @@ class InvoiceService
     public function markPaid()
     {
         $this->invoice = (new MarkPaid($this->invoice))->run();
+
+        return $this;
+    }
+
+    public function applyPaymentAmount($amount)
+    {
+        $this->invoice = (new ApplyPaymentAmount($this->invoice, $amount))->run();
 
         return $this;
     }
