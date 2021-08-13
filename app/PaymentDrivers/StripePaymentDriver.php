@@ -390,6 +390,9 @@ class StripePaymentDriver extends BaseDriver
 
     public function processWebhookRequest(PaymentWebhookRequest $request)
     {
+        // Allow app to catch up with webhook request.
+        sleep(2);
+
         if ($request->type === 'charge.succeeded' || $request->type === 'source.chargeable') {
             foreach ($request->data as $transaction) {
                 $payment = Payment::query()
