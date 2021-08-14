@@ -50,6 +50,8 @@ class CreditCard
 
     public function authorizeResponse($request)
     {
+        $payment = false;
+
         $amount_money = new \Square\Models\Money();
         $amount_money->setAmount(100); //amount in cents
         $amount_money->setCurrency($this->square_driver->client->currency()->code);
@@ -67,8 +69,11 @@ class CreditCard
         $api_response = $this->square_driver->square->getPaymentsApi()->createPayment($body);
 
         if ($api_response->isSuccess()) {
-            $result = $api_response->getResult();
-            nlog($result);
+            // $result = $api_response->getResult();
+
+            $result = $api_response->getBody();
+            $payment = json_decode($result);
+
         } else {
             $errors = $api_response->getErrors();
             nlog($errors);
@@ -183,7 +188,7 @@ Success response looks like this:
 
         $body = new \Square\Models\CreateCardRequest(
             Str::random(32),
-            $request->sourceId,
+            $payment->payment->id,
             $card
         );
 
@@ -194,8 +199,13 @@ Success response looks like this:
 
         if ($api_response->isSuccess()) {
             $result = $api_response->getResult();
+            nlog($result->getBody());
+            nlog("ressy");
+            nlog($result);
         } else {
             $errors = $api_response->getErrors();
+            nlog("i got errors");
+            nlog($errors);
         }
 
 /**
@@ -229,14 +239,14 @@ Success response looks like this:
 */
 
         $cgt = [];
-        $cgt['token'] = $result->getCard()->getId();
+        $cgt['token'] = $result->getId();
         $cgt['payment_method_id'] = GatewayType::CREDIT_CARD;
 
         $payment_meta = new \stdClass;
-        $payment_meta->exp_month = $result->getCard()->getExpMonth();
-        $payment_meta->exp_year = $result->getCard()->getExpYear();
-        $payment_meta->brand = $result->getCard()->getCardBrand();
-        $payment_meta->last4 = $result->getCard()->getLast4();
+        $payment_meta->exp_month = $result->getExpMonth();
+        $payment_meta->exp_year = $result->getExpYear();
+        $payment_meta->brand = $result->getCardBrand();
+        $payment_meta->last4 = $result->getLast4();
         $payment_meta->type = GatewayType::CREDIT_CARD;
 
         $cgt['payment_meta'] = $payment_meta;
