@@ -56,6 +56,17 @@ class SendRecurring implements ShouldQueue
      */
     public function handle() : void
     {
+        //reset all contacts here
+        $this->recurring_invoice->client->contacts()->update(['send_email' => false]);
+
+        $this->recurring_invoice->invitations->each(function ($invitation){
+
+            $contact = $invitation->contact;
+            $contact->send_email = true;
+            $contact->save();
+            
+        });
+
         // Generate Standard Invoice
         $invoice = RecurringInvoiceToInvoiceFactory::create($this->recurring_invoice, $this->recurring_invoice->client);
 
@@ -67,7 +78,7 @@ class SendRecurring implements ShouldQueue
             $invoice = $invoice->service()
                                ->markSent()
                                ->applyNumber()
-                               ->createInvitations()
+                               ->createInvitations() //need to only link invitations to those in the recurring invoice
                                ->fillDefaults()
                                ->save();
                                

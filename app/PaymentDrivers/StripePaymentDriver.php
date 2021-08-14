@@ -195,8 +195,9 @@ class StripePaymentDriver extends BaseDriver
             $fields[] = ['name' => 'client_country_id', 'label' => ctrans('texts.country'), 'type' => 'text', 'validation' => 'required'];
         }
 
-        if($this->company_gateway->require_postal_code)
+        if($this->company_gateway->require_postal_code) {
             $fields[] = ['name' => 'client_postal_code', 'label' => ctrans('texts.postal_code'), 'type' => 'text', 'validation' => 'required'];
+        }
 
         if ($this->company_gateway->require_shipping_address) {
             $fields[] = ['name' => 'client_shipping_address_line_1', 'label' => ctrans('texts.shipping_address1'), 'type' => 'text', 'validation' => 'required'];
@@ -387,21 +388,23 @@ class StripePaymentDriver extends BaseDriver
         return $this->payment_method->processVerification($request, $payment_method);
     }
 
-    public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment)
+    public function processWebhookRequest(PaymentWebhookRequest $request)
     {
-        if ($request->type == 'source.chargeable') {
-            $payment->status_id = Payment::STATUS_COMPLETED;
-            $payment->save();
+        if ($request->type === 'charge.succeeded' || $request->type === 'source.chargeable') {
+            foreach ($request->data as $transaction) {
+                $payment = Payment::query()
+                        ->where('transaction_reference', $transaction['id'])
+                        ->where('company_id', $request->getCompany()->id)
+                        ->first();
+
+                if ($payment) {
+                    $payment->status_id = Payment::STATUS_COMPLETED;
+                    $payment->save();
+                }
+            }
         }
 
-        if ($request->type == 'charge.succeeded') {
-            $payment->status_id = Payment::STATUS_COMPLETED;
-            $payment->save();
-        }
-
-        // charge.failed, charge.refunded
-
-        return response([], 200);
+        return response()->json([], 200);
     }
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)

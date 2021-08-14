@@ -15,10 +15,14 @@ namespace App\Services\Quote;
 use App\Factory\CloneQuoteToInvoiceFactory;
 use App\Models\Quote;
 use App\Repositories\InvoiceRepository;
+use App\Utils\Traits\MakesHash;
 
 class ConvertQuote
 {
+    use MakesHash;
+
     private $client;
+
     private $invoice_repo;
 
     public function __construct($client)
@@ -34,7 +38,7 @@ class ConvertQuote
     public function run($quote)
     {
         $invoice = CloneQuoteToInvoiceFactory::create($quote, $quote->user_id);
-        $invoice->design_id = $this->client->getSetting('invoice_design_id');
+        $invoice->design_id = $this->decodePrimaryKey($this->client->getSetting('invoice_design_id'));
         $invoice = $this->invoice_repo->save([], $invoice);
         
         $invoice->fresh();

@@ -62,6 +62,7 @@ class UpdateClientRequest extends Request
             $rules['number'] = Rule::unique('clients')->where('company_id', auth()->user()->company()->id)->ignore($this->client->id);
 
         $rules['settings'] = new ValidClientGroupSettingsRule();
+        $rules['contacts'] = 'array';
         $rules['contacts.*.email'] = 'bail|nullable|distinct|sometimes|email';
         $rules['contacts.*.password'] = [
                                         'nullable',

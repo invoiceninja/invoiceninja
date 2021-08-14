@@ -37,6 +37,7 @@ class StripeCreditCard {
 
     createElement() {
         this.cardElement = this.elements.create('card', {
+            hidePostalCode: document.querySelector('meta[name=stripe-require-postal-code]')?.content === "0",
             value: {
                 postalCode: document.querySelector('meta[name=client-postal-code]').content,
             }

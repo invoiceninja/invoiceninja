@@ -70,7 +70,6 @@ class EmailPayment implements ShouldQueue
         if ($this->company->is_disabled) 
             return true;
         
-        
         if ($this->contact->email) {
 
             MultiDB::setDb($this->company->db);

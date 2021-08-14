@@ -168,7 +168,12 @@ class HtmlEngine
         $data['$invoice.discount'] = ['value' => Number::formatMoney($this->entity_calc->getTotalDiscount(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.discount')];
         $data['$discount'] = &$data['$invoice.discount'];
         $data['$subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getSubTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.subtotal')];
-        $data['$net_subtotal'] = ['value' => Number::formatMoney(($this->entity_calc->getSubTotal() - $this->entity->total_taxes), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.net_subtotal')];
+
+        if($this->entity->uses_inclusive_taxes)
+            $data['$net_subtotal'] = ['value' => Number::formatMoney(($this->entity_calc->getSubTotal() - $this->entity->total_taxes), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.net_subtotal')];
+        else
+            $data['$net_subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getSubTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.net_subtotal')];
+
         $data['$invoice.subtotal'] = &$data['$subtotal'];
 
         if ($this->entity->partial > 0) {
@@ -274,6 +279,7 @@ class HtmlEngine
         $data['$client_address'] = ['value' => $this->client->present()->address() ?: '&nbsp;', 'label' => ctrans('texts.address')];
         $data['$client.address'] = &$data['$client_address'];
         $data['$client.postal_code'] = ['value' => $this->client->postal_code ?: '&nbsp;', 'label' => ctrans('texts.postal_code')];
+        $data['$client.city'] = ['value' => $this->client->city ?: '&nbsp;', 'label' => ctrans('texts.city')];
         $data['$client.id_number'] = &$data['$id_number'];
         $data['$client.vat_number'] = &$data['$vat_number'];
         $data['$client.website'] = &$data['$website'];
