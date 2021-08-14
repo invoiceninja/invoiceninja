@@ -14,8 +14,8 @@ return [
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', 'invoicing.co'),
-    'app_version' => '5.2.17',
-    'app_tag' => '5.2.17',
+    'app_version' => '5.2.18',
+    'app_tag' => '5.2.18',
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', ''),
@@ -84,6 +84,12 @@ return [
         'test_email' => env('TEST_EMAIL', 'test@example.com'),
         'wepay' => env('WEPAY_KEYS', ''),
         'braintree' => env('BRAINTREE_KEYS', ''),
+        'paytrace' => [
+            'username' => env('PAYTRACE_U', ''),
+            'password' => env('PAYTRACE_P',''),
+            'decrypted' => env('PAYTRACE_KEYS', ''),
+        ],
+        'mollie' => env('MOLLIE_KEYS', ''),
     ],
     'contact' => [
         'email' => env('MAIL_FROM_ADDRESS'),

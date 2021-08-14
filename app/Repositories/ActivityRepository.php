@@ -153,6 +153,7 @@ class ActivityRepository extends BaseRepository
                 'all_pages_header' => $entity->client->getSetting('all_pages_header'),
                 'all_pages_footer' => $entity->client->getSetting('all_pages_footer'),
             ],
+            'process_markdown' => $entity->client->company->markdown_enabled,
         ];
 
         $maker = new PdfMakerService($state);

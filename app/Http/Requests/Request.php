@@ -134,7 +134,7 @@ class Request extends FormRequest
             }
         }
 
-        if (isset($input['contacts'])) {
+        if (isset($input['contacts']) && is_array($input['contacts'])) {
             foreach ($input['contacts'] as $key => $contact) {
                 if (array_key_exists('id', $contact) && is_numeric($contact['id'])) {
                     unset($input['contacts'][$key]['id']);

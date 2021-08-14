@@ -118,16 +118,22 @@ class PaymentMethodController extends Controller
      */
     public function destroy(ClientGatewayToken $payment_method)
     {
-        // $gateway = $this->getClientGateway();
 
-        $payment_method->gateway
-            ->driver(auth()->user()->client)
-            ->setPaymentMethod(request()->query('method'))
-            ->detach($payment_method);
+        if($payment_method->gateway()->exists()){
+
+            $payment_method->gateway
+                ->driver(auth()->user()->client)
+                ->setPaymentMethod(request()->query('method'))
+                ->detach($payment_method);
+
+        }
 
         try {
+
             event(new MethodDeleted($payment_method, auth('contact')->user()->company, Ninja::eventVars(auth('contact')->user()->id)));
+            
             $payment_method->delete();
+
         } catch (Exception $e) {
 
             nlog($e->getMessage());

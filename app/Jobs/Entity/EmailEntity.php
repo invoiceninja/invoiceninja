@@ -107,7 +107,10 @@ class EmailEntity implements ShouldQueue
         /* Set DB */
         MultiDB::setDB($this->company->db);
 
+        App::forgetInstance('translator');
+        $t = app('translator');
         App::setLocale($this->invitation->contact->preferredLocale());
+        $t->replace(Ninja::transformTranslations($this->settings));
 
         $nmo = new NinjaMailerObject;
         $nmo->mailable = new TemplateEmail($this->email_entity_builder, $this->invitation->contact, $this->invitation);

@@ -23,16 +23,16 @@ const RESOURCES = {
 "assets/assets/images/logo.png": "e5f46d5a78e226e7a9553d4ca6f69219",
 "assets/AssetManifest.json": "753bba1dee0531d5fad970b5ce1d296d",
 "assets/FontManifest.json": "cf3c681641169319e61b61bd0277378f",
-"assets/fonts/MaterialIcons-Regular.otf": "1288c9e28052e028aba623321f7826ac",
+"assets/fonts/MaterialIcons-Regular.otf": "4e6447691c9509f7acdbf8a931a85ca1",
 "assets/packages/material_design_icons_flutter/lib/fonts/materialdesignicons-webfont.ttf": "174c02fc4609e8fc4389f5d21f16a296",
-"assets/NOTICES": "687b68d41e137cfbdee105c0b9be3e9d",
+"assets/NOTICES": "f44f710ef9af0b68d977d458631873e1",
 "icons/Icon-192.png": "bb1cf5f6982006952211c7c8404ffbed",
 "icons/Icon-512.png": "0f9aff01367f0a0c69773d25ca16ef35",
 "favicon.png": "dca91c54388f52eded692718d5a98b8b",
 "manifest.json": "ce1b79950eb917ea619a0a30da27c6a3",
-"version.json": "3f9e03374a3e78d2cab3afd8723d0993",
+"version.json": "46d4015fc9abcefe5371cafcf2084173",
 "favicon.ico": "51636d3a390451561744c42188ccd628",
-"main.dart.js": "02238eed5a325865e74b8a1e7afd03a6",
+"main.dart.js": "7bcab146a5f6ade3cd027cc9e429f732",
 "/": "d389ab59423a76b2aaaa683ed382c78e"
 };
 
@@ -50,7 +50,7 @@ self.addEventListener("install", (event) => {
   return event.waitUntil(
     caches.open(TEMP).then((cache) => {
       return cache.addAll(
-        CORE.map((value) => new Request(value + '?revision=' + RESOURCES[value], {'cache': 'reload'})));
+        CORE.map((value) => new Request(value, {'cache': 'reload'})));
     })
   );
 });

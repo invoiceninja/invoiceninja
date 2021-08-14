@@ -232,7 +232,7 @@ class RefundPayment
 
         if (isset($this->refund_data['invoices']) && count($this->refund_data['invoices']) > 0) {
             foreach ($this->refund_data['invoices'] as $refunded_invoice) {
-                $invoice = Invoice::find($refunded_invoice['invoice_id']);
+                $invoice = Invoice::withTrashed()->find($refunded_invoice['invoice_id']);
 
                 $invoice->service()->updateBalance($refunded_invoice['amount'])->save();
                 $invoice->ledger()->updateInvoiceBalance($refunded_invoice['amount'], "Refund of payment # {$this->payment->number}")->save();

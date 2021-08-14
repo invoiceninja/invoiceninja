@@ -2,14 +2,16 @@
 
 @section('gateway_head')
     @if($gateway->company_gateway->getConfigField('account_id'))
-    <meta name="stripe-account-id" content="{{ $gateway->company_gateway->getConfigField('account_id') }}">
-    <meta name="stripe-publishable-key" content="{{ config('ninja.ninja_stripe_publishable_key') }}">
+        <meta name="stripe-account-id" content="{{ $gateway->company_gateway->getConfigField('account_id') }}">
+        <meta name="stripe-publishable-key" content="{{ config('ninja.ninja_stripe_publishable_key') }}">
     @else
-    <meta name="stripe-publishable-key" content="{{ $gateway->getPublishableKey() }}">
+        <meta name="stripe-publishable-key" content="{{ $gateway->getPublishableKey() }}">
     @endif
+
     <meta name="stripe-secret" content="{{ $intent->client_secret }}">
     <meta name="only-authorization" content="">
     <meta name="client-postal-code" content="{{ $client->postal_code ?? '' }}">
+    <meta name="stripe-require-postal-code" content="{{ $gateway->company_gateway->require_postal_code }}">
 @endsection
 
 @section('gateway_content')
