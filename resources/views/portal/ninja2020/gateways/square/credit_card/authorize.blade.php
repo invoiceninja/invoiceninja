@@ -31,6 +31,7 @@
     <script>
       const appId = "{{ $gateway->company_gateway->getConfigField('applicationId') }}";
       const locationId = "{{ $gateway->company_gateway->getConfigField('locationId') }}";
+      
  async function initializeCard(payments) {
    const card = await payments.card();
    await card.attach('#card-container'); 
