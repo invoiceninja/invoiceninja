@@ -8,13 +8,12 @@
     <form action="{{ route('client.payment_methods.store', ['method' => App\Models\GatewayType::CREDIT_CARD]) }}"
         method="post" id="server_response">
         @csrf
-        <input type="text" name="sourceId" hidden>
+        <input type="text" name="sourceId" id="sourceId" hidden>
    
-
     <div class="alert alert-failure mb-4" hidden id="errors"></div>
 
     @component('portal.ninja2020.components.general.card-element-single')
-              <div id="card-container"></div>
+            <div id="card-container"></div>
 
             <div id="payment-status-container"></div>
 
@@ -81,15 +80,6 @@
         return card;
       }
 
-      async function createPayment(token) {
-
-        document.getElementById('sourceId').value = token;
-        document.getElementById('server_response').submit();
-
-        const errorBody = await paymentResponse.text();
-        throw new Error(errorBody);
-      }
-
       async function tokenize(paymentMethod) {
         const tokenResult = await paymentMethod.tokenize();
         if (tokenResult.status === 'OK') {
@@ -154,10 +144,12 @@
             // disable the submit button as we await tokenization and make a payment request.
             cardButton.disabled = true;
             const token = await tokenize(paymentMethod);
-            const paymentResults = await createPayment(token);
+
+            document.getElementById('sourceId').value = token;
+            document.getElementById('server_response').submit();
+    
             displayPaymentResults('SUCCESS');
 
-            console.debug('Payment Success', paymentResults);
           } catch (e) {
             cardButton.disabled = false;
             displayPaymentResults('FAILURE');

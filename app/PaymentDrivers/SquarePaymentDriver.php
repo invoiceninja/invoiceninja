@@ -43,9 +43,9 @@ class SquarePaymentDriver extends BaseDriver
     public function init()
     {
 
-        $this->square = new Square\SquareClient([
+        $this->square = new \Square\SquareClient([
             'accessToken' => $this->company_gateway->getConfigField('accessToken'),
-            'environment' => $this->company_gateway->getConfigField('testMode') ? Square\Environment::SANDBOX : Square\Environment::PRODUCTION,
+            'environment' => $this->company_gateway->getConfigField('testMode') ? \Square\Environment::SANDBOX : \Square\Environment::PRODUCTION,
         ]);
 
         return $this; /* This is where you boot the gateway with your auth credentials*/

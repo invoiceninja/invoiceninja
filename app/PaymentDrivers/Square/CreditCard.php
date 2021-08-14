@@ -36,6 +36,7 @@ class CreditCard
     public function __construct(SquarePaymentDriver $square_driver)
     {
         $this->square_driver = $square_driver;
+        $this->square_driver->init();
     }
 
     public function authorizeView($data)
@@ -47,7 +48,7 @@ class CreditCard
 
     }
 
-    public function authorizeRequest($request)
+    public function authorizeResponse($request)
     {
         $amount_money = new \Square\Models\Money();
         $amount_money->setAmount(100); //amount in cents
@@ -63,12 +64,14 @@ class CreditCard
         $body->setLocationId($this->square_driver->company_gateway->getConfigField('locationId'));
         $body->setReferenceId(Str::random(16));
 
-        $api_response = $client->getPaymentsApi()->createPayment($body);
+        $api_response = $this->square_driver->square->getPaymentsApi()->createPayment($body);
 
         if ($api_response->isSuccess()) {
             $result = $api_response->getResult();
+            nlog($result);
         } else {
             $errors = $api_response->getErrors();
+            nlog($errors);
         }
 
 
@@ -135,7 +138,7 @@ Success response looks like this:
         $body->setGivenName($this->square_driver->client->present()->name());
         $body->setFamilyName('');
         $body->setEmailAddress($this->square_driver->client->present()->email());
-        $body->setAddress($address);
+        $body->setAddress($billing_address);
         $body->setPhoneNumber($this->square_driver->client->phone);
         $body->setReferenceId($this->square_driver->client->number);
         $body->setNote('Created by Invoice Ninja.');
@@ -147,8 +150,10 @@ Success response looks like this:
 
         if ($api_response->isSuccess()) {
             $result = $api_response->getResult();
+            nlog($result);
         } else {
             $errors = $api_response->getErrors();
+            nlog($errors);
         }
 
 /*Customer now created response
@@ -170,25 +175,28 @@ Success response looks like this:
 */
 
 
-$card = new \Square\Models\Card();
-$card->setCardholderName($this->square_driver->client->present()->name());
-$card->setBillingAddress($address);
-$card->setCustomerId($result->customer->id);
-$card->setReferenceId(Str::random(8));
+        $card = new \Square\Models\Card();
+        $card->setCardholderName($this->square_driver->client->present()->name());
+        $card->setBillingAddress($billing_address);
+        $card->setCustomerId($result->getCustomer()->getId());
+        $card->setReferenceId(Str::random(8));
 
-$body = new \Square\Models\CreateCardRequest(
-    Str::random(32),
-    $request->sourceId,
-    $card
-);
+        $body = new \Square\Models\CreateCardRequest(
+            Str::random(32),
+            $request->sourceId,
+            $card
+        );
 
-$api_response = $client->getCardsApi()->createCard($body);
+        $api_response = $this->square_driver
+                             ->square
+                             ->getCardsApi()
+                             ->createCard($body);
 
-if ($api_response->isSuccess()) {
-    $result = $api_response->getResult();
-} else {
-    $errors = $api_response->getErrors();
-}
+        if ($api_response->isSuccess()) {
+            $result = $api_response->getResult();
+        } else {
+            $errors = $api_response->getErrors();
+        }
 
 /**
  * 
@@ -220,17 +228,15 @@ if ($api_response->isSuccess()) {
 
 */
 
-
-
         $cgt = [];
-        $cgt['token'] = $result->card->id;
+        $cgt['token'] = $result->getCard()->getId();
         $cgt['payment_method_id'] = GatewayType::CREDIT_CARD;
 
         $payment_meta = new \stdClass;
-        $payment_meta->exp_month = $result->card->exp_month;
-        $payment_meta->exp_year = $result->card->exp_year;
-        $payment_meta->brand = $result->card->card_brand;
-        $payment_meta->last4 = $result->card->last_4;
+        $payment_meta->exp_month = $result->getCard()->getExpMonth();
+        $payment_meta->exp_year = $result->getCard()->getExpYear();
+        $payment_meta->brand = $result->getCard()->getCardBrand();
+        $payment_meta->last4 = $result->getCard()->getLast4();
         $payment_meta->type = GatewayType::CREDIT_CARD;
 
         $cgt['payment_meta'] = $payment_meta;
