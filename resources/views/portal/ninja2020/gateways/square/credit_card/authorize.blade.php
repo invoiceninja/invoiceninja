@@ -29,14 +29,14 @@
 
 <script type="text/javascript" src="https://sandbox.web.squarecdn.com/v1/square.js"></script>.
     <script>
-      const appId = "{{ $gateway->company_gateway->getConfigField('applicationId') }}";
-      const locationId = "{{ $gateway->company_gateway->getConfigField('locationId') }}";
-      
- async function initializeCard(payments) {
-   const card = await payments.card();
-   await card.attach('#card-container'); 
-   return card; 
- }
+        const appId = "{{ $gateway->company_gateway->getConfigField('applicationId') }}";
+        const locationId = "{{ $gateway->company_gateway->getConfigField('locationId') }}";
+
+         async function initializeCard(payments) {
+           const card = await payments.card();
+           await card.attach('#card-container'); 
+           return card; 
+         }
 
 document.addEventListener('DOMContentLoaded', async function () {
   if (!window.Square) {
