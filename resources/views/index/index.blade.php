@@ -3,7 +3,7 @@
 <head>
   <!-- Source: https://github.com/invoiceninja/invoiceninja -->
   <!-- Version: {{ config('ninja.app_version') }} -->
-  <base href="/">
+  <base href="{{ $_SERVER['REQUEST_URI'] }}">
   <meta charset="UTF-8">
   <meta name="google-signin-client_id" content="{{ config('services.google.client_id') }}">
   <link rel="manifest" href="manifest.json?v={{ config('ninja.app_version') }}">
