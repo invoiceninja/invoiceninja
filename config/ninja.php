@@ -90,6 +90,7 @@ return [
             'decrypted' => env('PAYTRACE_KEYS', ''),
         ],
         'mollie' => env('MOLLIE_KEYS', ''),
+        'square' => env('SQUARE_KEYS',''),
     ],
     'contact' => [
         'email' => env('MAIL_FROM_ADDRESS'),

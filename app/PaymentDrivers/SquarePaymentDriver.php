@@ -30,22 +30,22 @@ class SquarePaymentDriver extends BaseDriver
 
     public $can_authorise_credit_card = true; //does this gateway support authorizations?
 
-    public $square; //initialized gateway
+    public $square; 
 
-    public $payment_method; //initialized payment method
+    public $payment_method;
 
     public static $methods = [
         GatewayType::CREDIT_CARD => CreditCard::class, //maps GatewayType => Implementation class
     ];
 
-    const SYSTEM_LOG_TYPE = SystemLog::TYPE_SQUARE; //define a constant for your gateway ie TYPE_YOUR_CUSTOM_GATEWAY - set the const in the SystemLog model
+    const SYSTEM_LOG_TYPE = SystemLog::TYPE_SQUARE; 
 
     public function init()
     {
 
         $this->square = new Square\SquareClient([
-            'accessToken' => 'EAAAEHeoSxEUZWXCd0makP0-HA0V4OLZ-S-T2Gmc91llp08ColiOX9NpP-LQZIId',
-            'environment' => Square\Environment::SANDBOX,
+            'accessToken' => $this->company_gateway->getConfigField('accessToken'),
+            'environment' => $this->company_gateway->getConfigField('testMode') ? Square\Environment::SANDBOX : Square\Environment::PRODUCTION,
         ]);
 
         return $this; /* This is where you boot the gateway with your auth credentials*/
