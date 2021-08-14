@@ -86,7 +86,10 @@ class StripePaymentDriver extends BaseDriver
         {
             Stripe::setApiKey(config('ninja.ninja_stripe_key'));
 
-            $this->stripe_connect_auth = ["stripe_account" => $this->company_gateway->getConfigField('account_id')];
+            if(strlen($this->company_gateway->getConfigField('account_id')) > 1)
+                $this->stripe_connect_auth = ["stripe_account" => $this->company_gateway->getConfigField('account_id')];
+
+            throw new \Exception('Stripe Connect has not been configured');
         }
         else
         {
