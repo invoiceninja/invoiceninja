@@ -48,6 +48,9 @@ class ImportCustomers
 
         $this->update_payment_methods = new UpdatePaymentMethods($this->stripe);
 
+        if(strlen($this->stripe->company_gateway->getConfigField('account_id')) < 1)
+            throw new \Exception('Stripe Connect has not been configured');
+
         $customers = Customer::all([], $this->stripe->stripe_connect_auth);
 
         foreach($customers as $customer)
