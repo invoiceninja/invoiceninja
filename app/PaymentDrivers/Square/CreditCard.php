@@ -73,6 +73,7 @@ class CreditCard
 
             $result = $api_response->getBody();
             $payment = json_decode($result);
+            nlog($payment);
 
         } else {
             $errors = $api_response->getErrors();
@@ -178,7 +179,8 @@ Success response looks like this:
 }
 
 */
-
+        nlog("customer id = ".$result->getCustomer()->getId());
+        nlog("source_id = ".$payment->payment->id);
 
         $card = new \Square\Models\Card();
         $card->setCardholderName($this->square_driver->client->present()->name());
@@ -197,9 +199,13 @@ Success response looks like this:
                              ->getCardsApi()
                              ->createCard($body);
 
+        $card = false;
+
         if ($api_response->isSuccess()) {
-            $result = $api_response->getResult();
-            nlog($result->getBody());
+            $card = $api_response->getBody();
+            nlog($card);
+            $card = json_decode($card);
+
             nlog("ressy");
             nlog($result);
         } else {
@@ -239,22 +245,21 @@ Success response looks like this:
 */
 
         $cgt = [];
-        $cgt['token'] = $result->getId();
+        $cgt['token'] = $card->card->id;
         $cgt['payment_method_id'] = GatewayType::CREDIT_CARD;
 
         $payment_meta = new \stdClass;
-        $payment_meta->exp_month = $result->getExpMonth();
-        $payment_meta->exp_year = $result->getExpYear();
-        $payment_meta->brand = $result->getCardBrand();
-        $payment_meta->last4 = $result->getLast4();
+        $payment_meta->exp_month = $card->card->exp_month;
+        $payment_meta->exp_year = $card->card->exp_year;
+        $payment_meta->brand = $card->card->card_brand;
+        $payment_meta->last4 = $card->card->last_4;
         $payment_meta->type = GatewayType::CREDIT_CARD;
 
         $cgt['payment_meta'] = $payment_meta;
 
         $token = $this->square_driver->storeGatewayToken($cgt, []);
 
-
-        return back();
+        return redirect()->route('client.payment_methods.index');
     }
 
     public function paymentView($data)
