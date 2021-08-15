@@ -49,7 +49,7 @@ class Verify
     {
         $this->stripe->init();
 
-        if($this->stripe->stripe_connect && strlen($this->company_gateway->getConfigField('account_id')) < 1))
+        if($this->stripe->stripe_connect && strlen($this->company_gateway->getConfigField('account_id')) < 1)
             return response()->json("Stripe Connect not authenticated", 400);
 
         $customers = Customer::all([], $this->stripe->stripe_connect_auth);
