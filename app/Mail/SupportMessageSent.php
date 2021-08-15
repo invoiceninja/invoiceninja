@@ -54,6 +54,7 @@ class SupportMessageSent extends Mailable
 
         $priority = '';
         $plan = $account->plan ?: '';
+        $plan = ucfirst($plan);
 
         if(strlen($plan) >1)
             $priority = '[PRIORITY] ';
@@ -63,9 +64,9 @@ class SupportMessageSent extends Mailable
         $db = str_replace("db-ninja-", "", $company->db);
 
         if(Ninja::isHosted())
-            $subject = "{$priority}Hosted-{$db} :: {ucfirst($plan)} :: ".date('M jS, g:ia');
+            $subject = "{$priority}Hosted-{$db} :: {$plan} :: ".date('M jS, g:ia');
         else
-            $subject = "{$priority}Self Hosted :: {ucfirst($plan)} :: ".date('M jS, g:ia');
+            $subject = "{$priority}Self Hosted :: {$plan} :: ".date('M jS, g:ia');
 
         return $this->from(config('mail.from.address'), $user->present()->name()) 
                 ->replyTo($user->email, $user->present()->name())
