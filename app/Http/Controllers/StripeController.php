@@ -14,6 +14,7 @@ namespace App\Http\Controllers;
 
 use App\Jobs\Util\ImportStripeCustomers;
 use App\Jobs\Util\StripeUpdatePaymentMethods;
+use App\Models\Client;
 use App\Models\CompanyGateway;
 
 class StripeController extends BaseController

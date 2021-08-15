@@ -22,6 +22,7 @@ use App\Models\Currency;
 use App\Models\GatewayType;
 use App\PaymentDrivers\StripePaymentDriver;
 use App\PaymentDrivers\Stripe\UpdatePaymentMethods;
+use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 use Stripe\Customer;
 use Stripe\PaymentMethod;
@@ -29,6 +30,7 @@ use Stripe\PaymentMethod;
 class ImportCustomers
 {
     use MakesHash;
+    use GeneratesCounter;
 
     /** @var StripePaymentDriver */
     public $stripe;
@@ -123,6 +125,10 @@ class ImportCustomers
 
         $client->name = property_exists($customer, 'name') ? $customer->name : $customer->email;
 
+        if (!isset($client->number) || empty($client->number)) {
+            $client->number = $this->getNextClientNumber($client);
+        }
+        
         $client->save();
 
         $contact = ClientContactFactory::create($client->company_id, $client->user_id);
