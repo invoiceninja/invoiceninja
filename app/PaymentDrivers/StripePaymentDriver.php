@@ -89,8 +89,8 @@ class StripePaymentDriver extends BaseDriver
 
             if(strlen($this->company_gateway->getConfigField('account_id')) > 1)
                 $this->stripe_connect_auth = ["stripe_account" => $this->company_gateway->getConfigField('account_id')];
-
-            throw new \Exception('Stripe Connect has not been configured');
+            else
+                throw new \Exception('Stripe Connect has not been configured');
         }
         else
         {
