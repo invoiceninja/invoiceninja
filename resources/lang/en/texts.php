@@ -4287,6 +4287,8 @@ $LANG = array(
     'company_deleted' => 'Company deleted',
     'company_deleted_body' => 'Company [ :company ] was deleted by :user',
     'back_to' => 'Back to :url',
+    'cardholder_name' => 'Card holder name',
+    
 );
 
 return $LANG;

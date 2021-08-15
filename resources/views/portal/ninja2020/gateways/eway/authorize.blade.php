@@ -2,7 +2,11 @@
 ctrans('texts.credit_card')])
 
 @section('gateway_head')
-    <meta name="public-api-key" content="{{ $public_api_key }}" />
+    <meta name="public-api-key" content="{{ $public_api_key }}">
+    <meta name="translation-card-name" content="{{ ctrans('texts.cardholder_name') }}">
+    <meta name="translation-expiry_date" content="{{ ctrans('texts.date') }}">
+    <meta name="translation-card_number" content="{{ ctrans('texts.card_number') }}">
+    <meta name="translation-cvv" content="{{ ctrans('texts.cvv') }}">
 @endsection
 
 @section('gateway_content')
@@ -226,7 +230,7 @@ ctrans('texts.credit_card')])
                                         styles: "margin-top: 15px;",
                                         label: {
                                             fieldColSpan: 4,
-                                            text: "Card Name:",
+                                            text: document.querySelector('meta[name=translation-card-name]')?.content,
                                             styles: "",
                                         },
                                         field: {
@@ -241,7 +245,7 @@ ctrans('texts.credit_card')])
                                         styles: "margin-top: 15px;",
                                         label: {
                                             fieldColSpan: 4,
-                                            text: "Expiry:",
+                                            text: document.querySelector('meta[name=translation-expiry_date]')?.content,
                                             styles: "",
                                         },
                                         field: {
@@ -260,7 +264,7 @@ ctrans('texts.credit_card')])
                                         styles: "margin-top: 15px;",
                                         label: {
                                             fieldColSpan: 4,
-                                            text: "Card Number:",
+                                            text: document.querySelector('meta[name=translation-card_number]')?.content,
                                             styles: "",
                                         },
                                         field: {
@@ -274,7 +278,7 @@ ctrans('texts.credit_card')])
                                         styles: "margin-top: 15px;",
                                         label: {
                                             fieldColSpan: 4,
-                                            text: "CVV Number:",
+                                            text: document.querySelector('meta[name=translation-cvv]')?.content,
                                             styles: "",
                                         },
                                         field: {
