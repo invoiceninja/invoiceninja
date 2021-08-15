@@ -77,42 +77,12 @@ class CreditCard
             return $this->processUnsuccessfulPayment($errors);
         }
 
-        /* Step two - create the customer */
-        $billing_address = new \Square\Models\Address();
-        $billing_address->setAddressLine1($this->square_driver->client->address1);
-        $billing_address->setAddressLine2($this->square_driver->client->address2);
-        $billing_address->setLocality($this->square_driver->client->city);
-        $billing_address->setAdministrativeDistrictLevel1($this->square_driver->client->state);
-        $billing_address->setPostalCode($this->square_driver->client->postal_code);
-        $billing_address->setCountry($this->square_driver->client->country->iso_3166_2);
-
-        $body = new \Square\Models\CreateCustomerRequest();
-        $body->setGivenName($this->square_driver->client->present()->name());
-        $body->setFamilyName('');
-        $body->setEmailAddress($this->square_driver->client->present()->email());
-        $body->setAddress($billing_address);
-        $body->setPhoneNumber($this->square_driver->client->phone);
-        $body->setReferenceId($this->square_driver->client->number);
-        $body->setNote('Created by Invoice Ninja.');
-
-        $api_response = $this->square_driver
-                             ->square
-                             ->getCustomersApi()
-                             ->createCustomer($body);
-
-        if ($api_response->isSuccess()) {
-            $result = $api_response->getResult();
-
-        } else {
-            $errors = $api_response->getErrors();
-            return $this->processUnsuccessfulPayment($errors);
-        }
-
+    
         /* Step 3 create the card */
         $card = new \Square\Models\Card();
         $card->setCardholderName($this->square_driver->client->present()->name());
-        $card->setBillingAddress($billing_address);
-        $card->setCustomerId($result->getCustomer()->getId());
+        // $card->setBillingAddress($billing_address);
+        $card->setCustomerId($this->findOrCreateClient());
         $card->setReferenceId(Str::random(8));
 
         $body = new \Square\Models\CreateCardRequest(
@@ -211,19 +181,80 @@ class CreditCard
     }
 
 
-    /* Helpers */
-
-    /*
-      You will need some helpers to handle successful and unsuccessful responses
-
-      Some considerations after a succesful transaction include:
-
-      Logging of events: success +/- failure
-      Recording a payment 
-      Notifications
-     */
 
 
 
+    private function findOrCreateClient()
+    {
 
+        $email_address = new \Square\Models\CustomerTextFilter();
+        $email_address->setExact($this->square_driver->client->present()->email());
+
+        $filter = new \Square\Models\CustomerFilter();
+        $filter->setEmailAddress($email_address);
+
+        $query = new \Square\Models\CustomerQuery();
+        $query->setFilter($filter);
+
+        $body = new \Square\Models\SearchCustomersRequest();
+        $body->setQuery($query);
+
+        $api_response = $this->square_driver
+                             ->init()
+                             ->square
+                             ->getCustomersApi()
+                             ->searchCustomers($body);
+
+        $customers = false;
+
+        if ($api_response->isSuccess()) {
+            $customers = $api_response->getBody();
+            $customers = json_decode($customers);
+        } else {
+            $errors = $api_response->getErrors();
+        }
+
+        if($customers)
+            return $customers->customers[0]->id;
+
+        return $this->createClient();
+    }
+
+    private function createClient()
+    {
+
+        /* Step two - create the customer */
+        $billing_address = new \Square\Models\Address();
+        $billing_address->setAddressLine1($this->square_driver->client->address1);
+        $billing_address->setAddressLine2($this->square_driver->client->address2);
+        $billing_address->setLocality($this->square_driver->client->city);
+        $billing_address->setAdministrativeDistrictLevel1($this->square_driver->client->state);
+        $billing_address->setPostalCode($this->square_driver->client->postal_code);
+        $billing_address->setCountry($this->square_driver->client->country->iso_3166_2);
+
+        $body = new \Square\Models\CreateCustomerRequest();
+        $body->setGivenName($this->square_driver->client->present()->name());
+        $body->setFamilyName('');
+        $body->setEmailAddress($this->square_driver->client->present()->email());
+        $body->setAddress($billing_address);
+        $body->setPhoneNumber($this->square_driver->client->phone);
+        $body->setReferenceId($this->square_driver->client->number);
+        $body->setNote('Created by Invoice Ninja.');
+
+        $api_response = $this->square_driver
+                             ->init()
+                             ->square
+                             ->getCustomersApi()
+                             ->createCustomer($body);
+
+        if ($api_response->isSuccess()) {
+            $result = $api_response->getResult();
+            return $result->getCustomer()->getId();
+
+        } else {
+            $errors = $api_response->getErrors();
+            return $this->processUnsuccessfulPayment($errors);
+        }
+
+    }
 }
