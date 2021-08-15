@@ -12,6 +12,7 @@
 
 namespace App\PaymentDrivers\Stripe;
 
+use App\Exceptions\StripeConnectFailure;
 use App\Factory\ClientContactFactory;
 use App\Factory\ClientFactory;
 use App\Factory\ClientGatewayTokenFactory;
@@ -51,7 +52,7 @@ class ImportCustomers
         $this->update_payment_methods = new UpdatePaymentMethods($this->stripe);
 
         if(strlen($this->stripe->company_gateway->getConfigField('account_id')) < 1)
-            throw new \Exception('Stripe Connect has not been configured');
+                throw new StripeConnectFailure('Stripe Connect has not been configured');
 
         $customers = Customer::all([], $this->stripe->stripe_connect_auth);
 

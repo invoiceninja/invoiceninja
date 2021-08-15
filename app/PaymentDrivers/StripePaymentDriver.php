@@ -13,6 +13,7 @@
 namespace App\PaymentDrivers;
 
 use App\Exceptions\PaymentFailed;
+use App\Exceptions\StripeConnectFailure;
 use App\Factory\PaymentFactory;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
 use App\Http\Requests\Request;
@@ -90,7 +91,7 @@ class StripePaymentDriver extends BaseDriver
             if(strlen($this->company_gateway->getConfigField('account_id')) > 1)
                 $this->stripe_connect_auth = ["stripe_account" => $this->company_gateway->getConfigField('account_id')];
             else
-                throw new \Exception('Stripe Connect has not been configured');
+                throw new StripeConnectFailure('Stripe Connect has not been configured');
         }
         else
         {
