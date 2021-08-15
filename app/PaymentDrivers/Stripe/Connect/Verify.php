@@ -13,6 +13,7 @@
 namespace App\PaymentDrivers\Stripe\Connect;
 
 use App\Exceptions\PaymentFailed;
+use App\Exceptions\StripeConnectFailure;
 use App\Http\Requests\ClientPortal\PaymentMethod\VerifyPaymentMethodRequest;
 use App\Http\Requests\Request;
 use App\Jobs\Mail\NinjaMailerJob;
@@ -50,7 +51,7 @@ class Verify
         $this->stripe->init();
 
         if($this->stripe->stripe_connect && strlen($this->stripe->company_gateway->getConfigField('account_id')) < 1)
-            return response()->json("Stripe Connect not authenticated", 400);
+            throw new StripeConnectFailure('Stripe Connect has not been configured');
 
         $customers = Customer::all([], $this->stripe->stripe_connect_auth);
 
