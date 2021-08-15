@@ -37,6 +37,7 @@ class Verify
     use MakesHash;
 
     /** @var StripePaymentDriver */
+
     public $stripe;
 
     public function __construct(StripePaymentDriver $stripe)
@@ -44,11 +45,16 @@ class Verify
         $this->stripe = $stripe;
     }
 
-    public function verifyAccountLinked()
+    public function run()
     {
         $this->stripe->init();
 
-        $map = $this->stripe->company_gateway->client_gateway_tokens->map(function ($cgt){
+        if($this->stripe->stripe_connect && strlen($this->company_gateway->getConfigField('account_id')) < 1))
+            return response()->json("Stripe Connect not authenticated", 400);
+
+        $customers = Customer::all([], $this->stripe->stripe_connect_auth);
+
+        $stripe_customers = $this->stripe->company_gateway->client_gateway_tokens->map(function ($cgt){
 
             $customer = Customer::retrieve($cgt->gateway_customer_reference, $this->stripe->stripe_connect_auth);
 
@@ -59,6 +65,11 @@ class Verify
 
         });
 
-        return $map;
+        $data = [
+            'stripe_customer_count' => count($customers),
+            'stripe_customers' => $stripe_customers,
+        ];
+
+        return response()->json($data, 200);
     }
 }
