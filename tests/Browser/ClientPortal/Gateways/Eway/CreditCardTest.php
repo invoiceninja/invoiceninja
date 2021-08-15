@@ -91,6 +91,19 @@ class CreditCardTest extends DuskTestCase
         });
     }
 
+    public function testRemoveCreditCard()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.payment_methods.index')
+                ->clickLink('View')
+                ->press('Remove Payment Method')
+                ->waitForText('Confirmation')
+                ->click('@confirm-payment-removal')
+                ->assertSee('Payment method has been successfully removed.');
+        });
+    }
+
     public function testAddingCreditCardStandalone()
     {
         $this->browse(function (Browser $browser) {
@@ -107,19 +120,6 @@ class CreditCardTest extends DuskTestCase
                 })
                 ->press('Add Payment Method')
                 ->waitForText('**** 1111');
-        });
-    }
-
-    public function testRemoveCreditCard()
-    {
-        $this->browse(function (Browser $browser) {
-            $browser
-                ->visitRoute('client.payment_methods.index')
-                ->clickLink('View')
-                ->press('Remove Payment Method')
-                ->waitForText('Confirmation')
-                ->click('@confirm-payment-removal')
-                ->assertSee('Payment method has been successfully removed.');
         });
     }
 }
