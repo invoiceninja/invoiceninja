@@ -33,6 +33,26 @@ class CreditCardTest extends DuskTestCase
         });
     }
 
+    public function testPaymentWithNewCard()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.invoices.index')
+                ->click('@pay-now')
+                ->click('@pay-now-dropdown')
+                ->clickLink('Credit Card')
+                ->withinFrame('iframe', function (Browser $browser) {
+                    $browser
+                        ->type('EWAY_CARDNAME', 'Invoice Ninja')
+                        ->type('EWAY_CARDNUMBER', '4111 1111 1111 1111')
+                        ->type('EWAY_CARDEXPIRY', '04/22')
+                        ->type('EWAY_CARDCVN', '100');
+                })
+                ->click('#pay-now')
+                ->waitForText('Details of the payment', 60);
+        });
+    }
+
     public function testAddingCreditCardStandalone()
     {
         $this->browse(function (Browser $browser) {
