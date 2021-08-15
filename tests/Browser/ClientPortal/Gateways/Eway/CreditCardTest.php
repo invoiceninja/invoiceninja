@@ -32,4 +32,23 @@ class CreditCardTest extends DuskTestCase
                 ->auth();
         });
     }
+
+    public function testAddingCreditCardStandalone()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.payment_methods.index')
+                ->press('Add Payment Method')
+                ->clickLink('Credit Card')
+                ->withinFrame('iframe', function (Browser $browser) {
+                    $browser
+                        ->type('EWAY_CARDNAME', 'Invoice Ninja')
+                        ->type('EWAY_CARDNUMBER', '4111 1111 1111 1111')
+                        ->type('EWAY_CARDEXPIRY', '04/22')
+                        ->type('EWAY_CARDCVN', '100');
+                })
+                ->press('Add Payment Method')
+                ->waitForText('**** 1111');
+        });
+    }
 }
