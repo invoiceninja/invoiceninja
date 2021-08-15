@@ -13,6 +13,7 @@
 namespace App\PaymentDrivers;
 
 use App\Exceptions\PaymentFailed;
+use App\Exceptions\StripeConnectFailure;
 use App\Factory\PaymentFactory;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
 use App\Http\Requests\Request;
@@ -25,6 +26,7 @@ use App\Models\SystemLog;
 use App\PaymentDrivers\Stripe\ACH;
 use App\PaymentDrivers\Stripe\Alipay;
 use App\PaymentDrivers\Stripe\Charge;
+use App\PaymentDrivers\Stripe\Connect\Verify;
 use App\PaymentDrivers\Stripe\CreditCard;
 use App\PaymentDrivers\Stripe\ImportCustomers;
 use App\PaymentDrivers\Stripe\SOFORT;
@@ -86,7 +88,10 @@ class StripePaymentDriver extends BaseDriver
         {
             Stripe::setApiKey(config('ninja.ninja_stripe_key'));
 
-            $this->stripe_connect_auth = ["stripe_account" => $this->company_gateway->getConfigField('account_id')];
+            if(strlen($this->company_gateway->getConfigField('account_id')) > 1)
+                $this->stripe_connect_auth = ["stripe_account" => $this->company_gateway->getConfigField('account_id')];
+            else
+                throw new StripeConnectFailure('Stripe Connect has not been configured');
         }
         else
         {
@@ -532,5 +537,10 @@ class StripePaymentDriver extends BaseDriver
         return (new ImportCustomers($this))->run();
         //match clients based on the gateway_customer_reference column
 
+    }
+
+    public function verifyConnect()
+    {
+        return (new Verify($this))->run();
     }
 }
