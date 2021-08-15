@@ -50,6 +50,7 @@ class CreditCard
 
     public function authorizeResponse($request)
     {
+        /* Step one - process a $1 payment - but don't complete it*/
         $payment = false;
 
         $amount_money = new \Square\Models\Money();
@@ -69,69 +70,14 @@ class CreditCard
         $api_response = $this->square_driver->square->getPaymentsApi()->createPayment($body);
 
         if ($api_response->isSuccess()) {
-            // $result = $api_response->getResult();
-
             $result = $api_response->getBody();
             $payment = json_decode($result);
-            nlog($payment);
-
         } else {
             $errors = $api_response->getErrors();
-            nlog($errors);
+            return $this->processUnsuccessfulPayment($errors);
         }
 
-
-
-/*
-Success response looks like this:
-
-
-{
-  "payment": {
-    "id": "Dv9xlBgSgVB8i6eT0imRYFjcrOaZY",
-    "created_at": "2021-03-31T20:56:13.220Z",
-    "updated_at": "2021-03-31T20:56:13.411Z",
-    "amount_money": {
-      "amount": 100,
-      "currency": "USD"
-    },
-    "status": "COMPLETED",
-    "delay_duration": "PT168H",
-    "source_type": "CARD",
-    "card_details": {
-      "status": "CAPTURED",
-      "card": {
-        "card_brand": "AMERICAN_EXPRESS",
-        "last_4": "6550",
-        "exp_month": 3,
-        "exp_year": 2023,
-        "fingerprint": "sq-1-hPdOWUYtEMft3yQ",
-        "card_type": "CREDIT",
-        "prepaid_type": "NOT_PREPAID",
-        "bin": "371263"
-      },
-      "entry_method": "KEYED",
-      "cvv_status": "CVV_ACCEPTED",
-      "avs_status": "AVS_ACCEPTED",
-      "statement_description": "SQ *DEFAULT TEST ACCOUNT",
-      "card_payment_timeline": {
-        "authorized_at": "2021-03-31T20:56:13.334Z",
-        "captured_at": "2021-03-31T20:56:13.411Z"
-      }
-    },
-    "location_id": "VJN4XSBFTVPK9",
-    "total_money": {
-      "amount": 100,
-      "currency": "USD"
-    },
-    "approved_money": {
-      "amount": 100,
-      "currency": "USD"
-    }
-   }
-}
-*/
-
+        /* Step two - create the customer */
         $billing_address = new \Square\Models\Address();
         $billing_address->setAddressLine1($this->square_driver->client->address1);
         $billing_address->setAddressLine2($this->square_driver->client->address2);
@@ -156,32 +102,13 @@ Success response looks like this:
 
         if ($api_response->isSuccess()) {
             $result = $api_response->getResult();
-            nlog($result);
+
         } else {
             $errors = $api_response->getErrors();
-            nlog($errors);
+            return $this->processUnsuccessfulPayment($errors);
         }
 
-/*Customer now created response
-
-{
-  "customer": {
-    "id": "Q6VKKKGW8GWQNEYMDRMV01QMK8",
-    "created_at": "2021-03-31T18:27:07.803Z",
-    "updated_at": "2021-03-31T18:27:07Z",
-    "given_name": "Amelia",
-    "family_name": "Earhart",
-    "email_address": "Amelia.Earhart@example.com",
-    "preferences": {
-      "email_unsubscribed": false
-    }
-  }
-}
-
-*/
-        nlog("customer id = ".$result->getCustomer()->getId());
-        nlog("source_id = ".$payment->payment->id);
-
+        /* Step 3 create the card */
         $card = new \Square\Models\Card();
         $card->setCardholderName($this->square_driver->client->present()->name());
         $card->setBillingAddress($billing_address);
@@ -203,47 +130,14 @@ Success response looks like this:
 
         if ($api_response->isSuccess()) {
             $card = $api_response->getBody();
-            nlog($card);
             $card = json_decode($card);
-
-            nlog("ressy");
-            nlog($result);
         } else {
             $errors = $api_response->getErrors();
-            nlog("i got errors");
-            nlog($errors);
+
+            return $this->processUnsuccessfulPayment($errors);
         }
 
-/**
- * 
-{
-  "card": {
-    "id": "ccof:uIbfJXhXETSP197M3GB", //this is the token
-    "billing_address": {
-      "address_line_1": "500 Electric Ave",
-      "address_line_2": "Suite 600",
-      "locality": "New York",
-      "administrative_district_level_1": "NY",
-      "postal_code": "10003",
-      "country": "US"
-    },
-    "bin": "411111",
-    "card_brand": "VISA",
-    "card_type": "CREDIT",
-    "cardholder_name": "Amelia Earhart",
-    "customer_id": "Q6VKKKGW8GWQNEYMDRMV01QMK8",
-    "enabled": true,
-    "exp_month": 11,
-    "exp_year": 2018,
-    "last_4": "1111",
-    "prepaid_type": "NOT_PREPAID",
-    "reference_id": "user-id-1",
-    "version": 1
-  }
-}
-
-*/
-
+        /* Create the token in Invoice Ninja*/
         $cgt = [];
         $cgt['token'] = $card->card->id;
         $cgt['payment_method_id'] = GatewayType::CREDIT_CARD;
@@ -296,18 +190,20 @@ Success response looks like this:
 
     private function processUnsuccessfulPayment($response)
     {
-        /*Harvest your own errors here*/
-        // $error = $response->status_message;
-
-        // if(property_exists($response, 'approval_message') && $response->approval_message)
-        //     $error .= " - {$response->approval_message}";
-
-        // $error_code = property_exists($response, 'approval_message') ? $response->approval_message : 'Undefined code';
+        // array (
+        //   0 => 
+        //   Square\Models\Error::__set_state(array(
+        //      'category' => 'INVALID_REQUEST_ERROR',
+        //      'code' => 'INVALID_CARD_DATA',
+        //      'detail' => 'Invalid card data.',
+        //      'field' => 'source_id',
+        //   )),
+        // )  
 
         $data = [
             'response' => $response,
-            'error' => $error,
-            'error_code' => $error_code,
+            'error' => $response[0]['detail'],
+            'error_code' => '',
         ];
 
         return $this->square_driver->processUnsuccessfulTransaction($data);
