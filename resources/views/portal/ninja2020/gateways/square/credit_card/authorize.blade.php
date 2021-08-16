@@ -10,14 +10,14 @@
         @csrf
         <input type="text" name="sourceId" id="sourceId" hidden>
    
-    <div class="alert alert-failure mb-4" hidden id="errors"></div>
+      <div class="alert alert-failure mb-4" hidden id="errors"></div>
 
     @component('portal.ninja2020.components.general.card-element-single')
-            <div id="card-container"></div>
+      <div id="card-container"></div>
 
-            <div id="payment-status-container"></div>
+      <div id="payment-status-container"></div>
 
-         </form>
+    </form>
     @endcomponent
 
     @component('portal.ninja2020.gateways.includes.pay_now')
@@ -32,7 +32,7 @@
   @else
     <script type="text/javascript" src="https://web.squarecdn.com/v1/square.js"></script>
   @endif
-  
+
   <script>
     const appId = "{{ $gateway->company_gateway->getConfigField('applicationId') }}";
     const locationId = "{{ $gateway->company_gateway->getConfigField('locationId') }}";
