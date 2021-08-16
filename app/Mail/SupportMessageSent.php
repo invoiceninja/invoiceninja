@@ -53,7 +53,7 @@ class SupportMessageSent extends Mailable
         $account = auth()->user()->account;
 
         $priority = '';
-        $plan = $account->plan ?: '';
+        $plan = $account->plan ?: 'customer support';
         $plan = ucfirst($plan);
 
         if(strlen($plan) >1)
