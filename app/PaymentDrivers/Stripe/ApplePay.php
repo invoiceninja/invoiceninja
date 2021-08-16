@@ -48,7 +48,7 @@ class ApplePay
 
         $data['intent'] =  \Stripe\PaymentIntent::create([
                               'amount' => $data['stripe_amount'],
-                              'currency' => $this->stripe_driver->client->getCurrencyCode();,
+                              'currency' => $this->stripe_driver->client->getCurrencyCode(),
                             ], $this->stripe_driver->stripe_connect_auth);
 
         $this->stripe_driver->payment_hash->data = array_merge((array) $this->stripe_driver->payment_hash->data, ['stripe_amount' => $data['stripe_amount']]);
