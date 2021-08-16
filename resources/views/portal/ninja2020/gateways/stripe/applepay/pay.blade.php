@@ -1,4 +1,4 @@
-@extends('portal.ninja2020.layout.payments', ['gateway_title' => 'Alipay', 'card_title' => 'Alipay'])
+@extends('portal.ninja2020.layout.payments', ['gateway_title' => 'Apple Pay', 'card_title' => 'Apple Pay'])
 
 @section('gateway_head')
 
@@ -88,6 +88,7 @@
             stripe.confirmCardPayment(clientSecret).then(function(result) {
               if (result.error) {
                 // The payment failed -- ask your customer for a new payment method.
+                handleFailure(result.error)
               } else {
                 // The payment has succeeded.
                 handleSuccess(result);
@@ -106,6 +107,15 @@
       ).value = JSON.stringify(result.paymentIntent);
 
       document.getElementById('server-response').submit();
+    }
+
+    handleFailure(message) {
+        let errors = document.getElementById('errors');
+
+        errors.textContent = '';
+        errors.textContent = message;
+        errors.hidden = false;
+
     }
 
     </script>

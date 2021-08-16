@@ -22,6 +22,7 @@ use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
 use App\PaymentDrivers\Stripe\CreditCard;
+use App\Utils\Ninja;
 
 class ApplePay
 {
@@ -35,6 +36,8 @@ class ApplePay
 
     public function paymentView(array $data)
     {
+        $this->registerDomain();
+
         $data['gateway'] = $this->stripe_driver;
         $data['payment_hash'] = $this->stripe_driver->payment_hash->hash;
         $data['payment_method_id'] = GatewayType::APPLE_PAY;
@@ -75,7 +78,7 @@ class ApplePay
         $server_response = $this->stripe_driver->payment_hash->data->server_response;
 
         $response_handler = new CreditCard($this->stripe_driver);
-        
+
         if ($server_response->status == 'succeeded') {
 
             $this->stripe_driver->logSuccessfulGatewayResponse(['response' => json_decode($request->gateway_response), 'data' => $this->stripe_driver->payment_hash], SystemLog::TYPE_STRIPE);
@@ -88,4 +91,27 @@ class ApplePay
 
     }
 
+
+    private function registerDomain()
+    {
+        if(Ninja::isHosted())
+        {
+        
+            $domain = isset($this->stripe_driver->company_gateway->company->portal_domain) ? $this->stripe_driver->company_gateway->company->portal_domain : $this->stripe_driver->company_gateway->company->domain();
+
+            \Stripe\ApplePayDomain::create([
+              'domain_name' => $domain,
+            ], $this->stripe_driver->stripe_connect_auth);
+            
+        }
+        else {
+
+            \Stripe\ApplePayDomain::create([
+              'domain_name' => config('ninja.app_url'),
+            ]);
+
+        }
+
+    }   
 }
+
