@@ -178,9 +178,37 @@ class CreditCard
 
     }
 
-
+/*
+array:9 [▼
+  "_token" => "RpkUNg0gHYfzLKPCJG3EtmshGiwDUeytRG53b1Or"
+  "gateway_response" => null
+  "store_card" => true
+  "payment_hash" => "1wC7J7Jo1jagV5oBaWSxz7b2lSLsvVMp"
+  "company_gateway_id" => "6"
+  "payment_method_id" => "1"
+  "token" => null
+  "securefieldcode" => "F9802rbHYa0St-w3QpBXvNaiNFMNhmY7OmZimH-HROUzS1K0niXOlqXUzugz4mnTqJVqK"
+  "q" => "/client/payments/process/response"
+]
+ */
     public function paymentResponse($request)
     {
-        
+        dd($request->all());
+
+        $transaction = [
+            'Payment' => [
+                'TotalAmount' => 1000,
+            ],
+            'TransactionType' => \Eway\Rapid\Enum\TransactionType::PURCHASE,
+            'SecuredCardData' => '44DD7jYYyRgaQnVibOAsYbbFIYmSXbS6hmTxosAhG6CK1biw=',
+        ];
+
+        $response = $client->createTransaction(\Eway\Rapid\Enum\ApiMethod::DIRECT, $transaction);
+    }
+
+
+    private function convertAmountForEway($amount)
+    {
+      
     }
 }
