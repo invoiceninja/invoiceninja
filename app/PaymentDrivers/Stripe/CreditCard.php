@@ -108,7 +108,7 @@ class CreditCard
         return $this->processUnsuccessfulPayment($server_response);
     }
 
-    private function processSuccessfulPayment()
+    public function processSuccessfulPayment()
     {
         $stripe_method = $this->stripe->getStripePaymentMethod($this->stripe->payment_hash->data->server_response->payment_method);
 
@@ -148,7 +148,7 @@ class CreditCard
         return redirect()->route('client.payments.show', ['payment' => $this->stripe->encodePrimaryKey($payment->id)]);
     }
 
-    private function processUnsuccessfulPayment($server_response)
+    public function processUnsuccessfulPayment($server_response)
     {
         PaymentFailureMailer::dispatch($this->stripe->client, $server_response->cancellation_reason, $this->stripe->client->company, $server_response->amount);
 
