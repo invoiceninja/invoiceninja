@@ -5,10 +5,12 @@
 @endsection
 
 @section('gateway_content')
-    <form action="{{ route('client.payment_methods.store', ['method' => App\Models\GatewayType::CREDIT_CARD]) }}"
-        method="post" id="server_response">
+
+    <form action="{{ route('client.payment_methods.store', ['method' => App\Models\GatewayType::CREDIT_CARD]) }}" method="post" id="server_response">
         @csrf
+        <input type="hidden" name="store_card">
         <input type="text" name="sourceId" id="sourceId" hidden>
+    </form>
    
     <div class="alert alert-failure mb-4" hidden id="errors"></div>
 
@@ -21,7 +23,7 @@
     @endcomponent
 
     @component('portal.ninja2020.gateways.includes.pay_now')
-        {{ ctrans('texts.add_payment_method') }}
+        {{ ctrans('texts.pay_now') }}
     @endcomponent
 @endsection
 
@@ -32,7 +34,7 @@
   @else
     <script type="text/javascript" src="https://web.squarecdn.com/v1/square.js"></script>
   @endif
-  
+
   <script>
     const appId = "{{ $gateway->company_gateway->getConfigField('applicationId') }}";
     const locationId = "{{ $gateway->company_gateway->getConfigField('locationId') }}";
@@ -166,4 +168,4 @@
     });
   </script>
 
-  @endsection
+@endsection
