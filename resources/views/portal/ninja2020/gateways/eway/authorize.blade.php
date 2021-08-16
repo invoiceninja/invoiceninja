@@ -2,6 +2,11 @@
 ctrans('texts.credit_card')])
 
 @section('gateway_head')
+    <meta name="public-api-key" content="{{ $public_api_key }}">
+    <meta name="translation-card-name" content="{{ ctrans('texts.cardholder_name') }}">
+    <meta name="translation-expiry_date" content="{{ ctrans('texts.date') }}">
+    <meta name="translation-card_number" content="{{ ctrans('texts.card_number') }}">
+    <meta name="translation-cvv" content="{{ ctrans('texts.cvv') }}">
 @endsection
 
 @section('gateway_content')
@@ -9,49 +14,27 @@ ctrans('texts.credit_card')])
         method="post" id="server-response">
         @csrf
 
-        <input type="hidden" id="securefieldcode" name="securefieldcode" value="" />
+        <input type="hidden" id="securefieldcode" name="securefieldcode">
         <input type="hidden" name="company_gateway_id" value="{{ $gateway->company_gateway->id }}">
         <input type="hidden" name="payment_method_id" value="1">
-        
-        @if (!Request::isSecure())
-            <p class="alert alert-failure">{{ ctrans('texts.https_required') }}</p>
-        @endif
-
-        <div class="alert alert-failure mb-4" hidden id="errors"></div>
-
-        <!-- This is a generic credit card component utilizing CardJS -->
-        @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.method')])
-            {{ ctrans('texts.credit_card') }}
-        @endcomponent
-
-        <div id="eway-secure-panel"></div>
-
-        @component('portal.ninja2020.gateways.includes.pay_now', ['id' => 'authorize-card'])
-            {{ ctrans('texts.add_payment_method') }}
-        @endcomponent
     </form>
+
+    @if (!Request::isSecure())
+        <p class="alert alert-failure">{{ ctrans('texts.https_required') }}</p>
+    @endif
+
+    <div class="alert alert-failure mb-4" hidden id="errors"></div>
+
+    @component('portal.ninja2020.components.general.card-element-single')
+        <div id="eway-secure-panel"></div>
+    @endcomponent
+
+    @component('portal.ninja2020.gateways.includes.pay_now', ['id' => 'authorize-card', 'disabled' => true])
+        {{ ctrans('texts.add_payment_method') }}
+    @endcomponent
 @endsection
 
 @section('gateway_footer')
-    <!-- Your JS includes go here -->
-<script src="https://secure.ewaypayments.com/scripts/eWAY.min.js" data-init="false"></script>
-
-@include('portal.ninja2020.gateways.eway.includes.credit_card')
-
-<script type="text/javascript">
-
-window.onload = function() {
-    eWAY.setupSecureField(groupFieldConfig, securePanelCallback);
-};
-
-
-document
-.getElementById('authorize-card')
-.addEventListener('click', () => {
-    
-    saveAndSubmit();
-
-});
-
-</script>
+    <script src="https://secure.ewaypayments.com/scripts/eWAY.min.js" data-init="false"></script>
+    <script src="{{ asset('js/clients/payments/eway-credit-card.js') }}"></script>
 @endsection

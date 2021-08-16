@@ -1,6 +1,12 @@
-@extends('portal.ninja2020.layout.payments', ['gateway_title' => ctrans('texts.credit_card'), 'card_title' => ctrans('texts.credit_card')])
+@extends('portal.ninja2020.layout.payments', ['gateway_title' => ctrans('texts.credit_card'), 'card_title' =>
+ctrans('texts.credit_card')])
 
 @section('gateway_head')
+    <meta name="public-api-key" content="{{ $public_api_key }}">
+    <meta name="translation-card-name" content="{{ ctrans('texts.cardholder_name') }}">
+    <meta name="translation-expiry_date" content="{{ ctrans('texts.date') }}">
+    <meta name="translation-card_number" content="{{ ctrans('texts.card_number') }}">
+    <meta name="translation-cvv" content="{{ ctrans('texts.cvv') }}">
 @endsection
 
 @section('gateway_content')
@@ -24,72 +30,33 @@
     @include('portal.ninja2020.gateways.includes.payment_details')
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
-        @if(count($tokens) > 0)
-            @foreach($tokens as $token)
+        @if (count($tokens) > 0)
+            @foreach ($tokens as $token)
                 <label class="mr-4">
-                    <input
-                        type="radio"
-                        data-token="{{ $token->token }}"
-                        name="payment-type"
-                        class="form-radio cursor-pointer toggle-payment-with-token"/>
+                    <input type="radio" data-token="{{ $token->token }}" name="payment-type"
+                        class="form-radio cursor-pointer toggle-payment-with-token" />
                     <span class="ml-1 cursor-pointer">**** {{ optional($token->meta)->last4 }}</span>
                 </label>
             @endforeach
         @endisset
 
         <label>
-            <input
-                type="radio"
-                id="toggle-payment-with-credit-card"
-                class="form-radio cursor-pointer"
-                name="payment-type"
-                checked/>
+            <input type="radio" id="toggle-payment-with-credit-card" class="form-radio cursor-pointer" name="payment-type"
+                checked />
             <span class="ml-1 cursor-pointer">{{ __('texts.new_card') }}</span>
         </label>
     @endcomponent
 
-    <div id="eway-secure-panel">
-        
-        
+    @component('portal.ninja2020.components.general.card-element-single')
+        <div id="eway-secure-panel"></div>
+    @endcomponent
+
     @include('portal.ninja2020.gateways.includes.save_card')
-    </div>
 
-<!-- -->
-
-    @include('portal.ninja2020.gateways.includes.pay_now')
+    @include('portal.ninja2020.gateways.includes.pay_now', ['disabled' => true])
 @endsection
 
 @section('gateway_footer')
-
-    @include('portal.ninja2020.gateways.eway.includes.credit_card')
-<script src="https://secure.ewaypayments.com/scripts/eWAY.min.js" data-init="false"></script>
-
-
-<script type="text/javascript">
-
-    window.onload = function() {
-        eWAY.setupSecureField(groupFieldConfig, securePanelCallback);
-    };
-
-    document.getElementById('eway-secure-panel').hidden = true;
-
-
-
-            Array
-                .from(document.getElementsByClassName('toggle-payment-with-token'))
-                .forEach((element) => element.addEventListener('click', (e) => {
-                    document.getElementById('save-card--container').style.display = 'none';
-                    document.getElementById('eway-secure-panel').style.display = 'none';
-                    document.getElementById('token').value = e.target.dataset.token;
-                }));
-
-            document
-                .getElementById('toggle-payment-with-credit-card')
-                .addEventListener('click', (e) => {
-                    document.getElementById('save-card--container').style.display = 'grid';
-                    document.getElementById('eway-secure-panel').style.display = 'flex';
-                    document.getElementById('token').value = null;
-                });
-</script>
-
+    <script src="https://secure.ewaypayments.com/scripts/eWAY.min.js" data-init="false"></script>
+    <script src="{{ asset('js/clients/payments/eway-credit-card.js') }}"></script>
 @endsection
