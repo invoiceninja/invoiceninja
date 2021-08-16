@@ -130,9 +130,9 @@ class CreditCard
     {
 
         $data['gateway'] = $this->square_driver;
-        $data['client_token'] = $this->braintree->gateway->clientToken()->generate();
 
-        return render('gateways.braintree.credit_card.pay', $data);
+
+        return render('gateways.square.credit_card.pay', $data);
 
     }
 

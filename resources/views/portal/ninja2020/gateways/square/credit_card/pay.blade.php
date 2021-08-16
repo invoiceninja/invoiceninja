@@ -5,23 +5,25 @@
 @endsection
 
 @section('gateway_content')
-    <form action="{{ route('client.payment_methods.store', ['method' => App\Models\GatewayType::CREDIT_CARD]) }}"
-        method="post" id="server_response">
+
+    <form action="{{ route('client.payment_methods.store', ['method' => App\Models\GatewayType::CREDIT_CARD]) }}" method="post" id="server_response">
         @csrf
+        <input type="hidden" name="store_card">
         <input type="text" name="sourceId" id="sourceId" hidden>
+    </form>
    
-      <div class="alert alert-failure mb-4" hidden id="errors"></div>
+    <div class="alert alert-failure mb-4" hidden id="errors"></div>
 
     @component('portal.ninja2020.components.general.card-element-single')
-      <div id="card-container"></div>
+            <div id="card-container"></div>
 
-      <div id="payment-status-container"></div>
+            <div id="payment-status-container"></div>
 
-    </form>
+         </form>
     @endcomponent
 
     @component('portal.ninja2020.gateways.includes.pay_now')
-        {{ ctrans('texts.add_payment_method') }}
+        {{ ctrans('texts.pay_now') }}
     @endcomponent
 @endsection
 
@@ -166,4 +168,4 @@
     });
   </script>
 
-  @endsection
+@endsection
