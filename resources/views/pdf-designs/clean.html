@@ -156,7 +156,7 @@
     }
 
     #table-totals>.totals-table-right-side>*> :nth-child(1) {
-        text-align: left;
+        text-align: "$dir_text_align";
         margin-top: .75rem;
     }
 
@@ -248,7 +248,7 @@
 
     <p class="entity-label">$entity_label</p>
     <div class="client-and-entity-wrapper">
-        <table id="entity-details" cellspacing="0"></table>
+        <table id="entity-details" cellspacing="0" dir="$dir"></table>
 
         <div id="client-details"></div>
     </div>

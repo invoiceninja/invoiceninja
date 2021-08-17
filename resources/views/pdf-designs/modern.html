@@ -189,7 +189,7 @@
     }
 
     #table-totals>.totals-table-right-side>*> :nth-child(1) {
-        text-align: left;
+        text-align: "$dir_text_align";
         margin-top: .75rem;
     }
 
@@ -232,7 +232,7 @@
 
     [data-ref="total_table-footer"] {
         margin-top: 2rem;
-        margin-bottom: 2rem
+        margin-bottom: 2rem;
     }
 
     /** Repeating header & footer styling. */
@@ -307,7 +307,7 @@
         <td>
             <div class="header-container" id="header">
                 <h1 class="company-name">$company.name</h1>
-                <table id="entity-details" cellspacing="0"></table>
+                <table id="entity-details" cellspacing="0" dir="$dir"></table>
             </div>
         </td>
     </tr>
