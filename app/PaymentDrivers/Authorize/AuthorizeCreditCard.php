@@ -230,7 +230,7 @@ class AuthorizeCreditCard
             $logger_message,
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_ERROR,
-            $gateway::SYSTEM_LOG_TYPE,
+            SystemLog::TYPE_AUTHORIZE,
             $this->authorize->client,
             $this->authorize->client->company,
         );
