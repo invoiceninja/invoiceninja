@@ -433,9 +433,14 @@ class CompanyGatewayController extends BaseController
      */
     public function destroy(DestroyCompanyGatewayRequest $request, CompanyGateway $company_gateway)
     {
+
+        $company_gateway->driver(new Client)
+                         ->disconnect();
+
         $company_gateway->delete();
 
         return $this->itemResponse($company_gateway->fresh());
+        
     }
 
     /**

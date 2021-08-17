@@ -631,4 +631,9 @@ class BaseDriver extends AbstractPaymentDriver
 
         return $types;
     }
+
+    public function disconnect()
+    {
+        return true;
+    }
 }
