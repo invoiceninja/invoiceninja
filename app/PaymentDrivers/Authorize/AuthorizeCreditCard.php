@@ -204,9 +204,18 @@ class AuthorizeCreditCard
         $response = $data['response'];
         $amount = array_key_exists('amount_with_fee', $data) ? $data['amount_with_fee'] : 0;
 
-        PaymentFailureMailer::dispatch($this->authorize->client, $response->getTransId(), $this->authorize->client->company, $data['amount_with_fee']);
+        $code = "Error";
+        $description = "There was an error processing the payment";
 
-        throw new \Exception(ctrans('texts.error_title'));
+        if ($response->getErrors() != null) {
+            $code = $response->getErrors()[0]->getErrorCode();
+            $description = $response->getErrors()[0]->getErrorText();
+        }
+
+        PaymentFailureMailer::dispatch($this->authorize->client, $response->getTransId(), $this->authorize->client->company, $amount);
+
+        throw new PaymentFailed($description, $code);
+
     }
 
     private function formatGatewayResponse($data, $vars)
