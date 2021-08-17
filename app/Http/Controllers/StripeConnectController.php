@@ -80,6 +80,8 @@ class StripeConnectController extends BaseController
             nlog($e->getMessage());
         
         }
+        
+        MultiDB::findAndSetDbByCompanyKey($request->getTokenContent()['company_key']);
 
         $company = Company::where('company_key', $request->getTokenContent()['company_key'])->first();
 
