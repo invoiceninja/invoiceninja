@@ -55,6 +55,10 @@ trait CleanLineItems
                 //always cast the value!
                 $item[$key] = BaseSettings::castAttribute(InvoiceItem::$casts[$key], $item[$key]);
             }
+
+            if($item['type_id'] == '0')
+                $item['type_id'] ='1';
+
         }
 
         if (array_key_exists('id', $item)) {
