@@ -84,7 +84,7 @@
             </div>
         </div>
 
-        @if(optional($payment_method->meta)->state === 'unauthorized' && $payment_method->gateway_type_id === \App\Models\GatewayType::BANK_TRANSFER)
+        @if((optional($payment_method->meta)->state === 'unauthorized' || optional($payment_method->meta)->state === 'pending')  && $payment_method->gateway_type_id === \App\Models\GatewayType::BANK_TRANSFER)
             <div class="mt-4 mb-4 bg-white shadow sm:rounded-lg">
                 <div class="px-4 py-5 sm:p-6">
                     <div class="sm:flex sm:items-start sm:justify-between">
