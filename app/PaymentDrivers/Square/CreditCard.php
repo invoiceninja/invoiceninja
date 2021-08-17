@@ -136,9 +136,9 @@ class CreditCard
 
     }
 
-    public function processPaymentResponse($request)
+    public function paymentResponse($request)
     {
-        
+        // ..
     }
 
     /* This method is stubbed ready to go - you just need to harvest the equivalent 'transaction_reference' */
