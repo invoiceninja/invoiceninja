@@ -202,6 +202,10 @@ class BaseController extends Controller
         $transformer = new $this->entity_transformer($this->serializer);
         $updated_at = request()->has('updated_at') ? request()->input('updated_at') : 0;
 
+        if ($user->getCompany()->is_large && $updated_at == 0){
+          $updated_at = time();
+        }
+
         $updated_at = date('Y-m-d H:i:s', $updated_at);
 
         $query->with(

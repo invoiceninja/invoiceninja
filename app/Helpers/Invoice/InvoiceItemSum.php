@@ -81,8 +81,6 @@ class InvoiceItemSum
 
     private function push()
     {
-        nlog($this->sub_total . " + ". $this->getLineTotal());
-
         $this->sub_total += $this->getLineTotal();
 
         $this->line_items[] = $this->item;
@@ -124,9 +122,6 @@ class InvoiceItemSum
     private function calcTaxes()
     {
         $item_tax = 0;
-
-        // nlog(print_r($this->item,1));
-        // nlog(print_r($this->invoice,1));
 
         $amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount / 100));
         $item_tax_rate1_total = $this->calcAmountLineTax($this->item->tax_rate1, $amount);
