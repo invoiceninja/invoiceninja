@@ -214,6 +214,27 @@ class AuthorizeCreditCard
 
         PaymentFailureMailer::dispatch($this->authorize->client, $response->getTransId(), $this->authorize->client->company, $amount);
 
+        $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$request->input('payment_hash')])->firstOrFail();
+
+        $vars = [
+            'invoices' => $payment_hash->invoices(),
+            'amount' => array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total,
+        ];
+
+        $logger_message = [
+            'server_response' => $response->getErrors(),
+            'data' => $this->formatGatewayResponse($data, $vars),
+        ];
+
+        SystemLogger::dispatch(
+            $logger_message,
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_ERROR,
+            $gateway::SYSTEM_LOG_TYPE,
+            $this->authorize->client,
+            $this->authorize->client->company,
+        );
+
         throw new PaymentFailed($description, $code);
 
     }
