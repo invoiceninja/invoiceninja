@@ -547,4 +547,29 @@ class StripePaymentDriver extends BaseDriver
     {
         return (new Verify($this))->run();
     }
+
+    public function disconnect()
+    {
+        if(!$this->stripe_connect)
+            return true;
+
+        if(!strlen($this->company_gateway->getConfigField('account_id')) > 1 )
+            throw new StripeConnectFailure('Stripe Connect has not been configured');
+
+        Stripe::setApiKey(config('ninja.ninja_stripe_key'));
+
+        try {
+
+            \Stripe\OAuth::deauthorize([
+              'client_id' => config('ninja.ninja_stripe_client_id'),
+              'stripe_user_id' => $this->company_gateway->getConfigField('account_id'),
+            ]);
+
+        }
+        catch(\Exception $e){
+            throw new StripeConnectFailure('Unable to disconnect Stripe Connect');
+        }
+
+        return response()->json(['message' => 'success'], 200);
+    }
 }

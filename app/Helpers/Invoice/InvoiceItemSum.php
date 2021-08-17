@@ -81,6 +81,8 @@ class InvoiceItemSum
 
     private function push()
     {
+        nlog($this->sub_total . " + ". $this->getLineTotal());
+
         $this->sub_total += $this->getLineTotal();
 
         $this->line_items[] = $this->item;
@@ -103,7 +105,15 @@ class InvoiceItemSum
         if ($this->invoice->is_amount_discount) {
             $this->setLineTotal($this->getLineTotal() - $this->formatValue($this->item->discount, $this->currency->precision));
         } else {
-            $this->setLineTotal($this->getLineTotal() - $this->formatValue(round($this->item->line_total * ($this->item->discount / 100), 2), $this->currency->precision));
+
+            /*Test 16-08-2021*/
+            $discount = ($this->item->line_total * ($this->item->discount / 100));
+            $this->setLineTotal($this->formatValue(($this->getLineTotal() - $discount), $this->currency->precision));
+            /*Test 16-08-2021*/
+
+            //replaces the following
+
+            // $this->setLineTotal($this->getLineTotal() - $this->formatValue(round($this->item->line_total * ($this->item->discount / 100), 2), $this->currency->precision));
         }
 
         $this->item->is_amount_discount = $this->invoice->is_amount_discount;
