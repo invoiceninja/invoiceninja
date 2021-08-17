@@ -19,21 +19,22 @@ const RESOURCES = {
 "assets/assets/images/payment_types/dinerscard.png": "06d85186ba858c18ab7c9caa42c92024",
 "assets/assets/images/payment_types/mastercard.png": "6f6cdc29ee2e22e06b1ac029cb52ef71",
 "assets/assets/images/icon.png": "090f69e23311a4b6d851b3880ae52541",
-"assets/assets/images/google-icon.png": "0f118259ce403274f407f5e982e681c3",
-"assets/assets/images/logo.png": "e5f46d5a78e226e7a9553d4ca6f69219",
-"assets/AssetManifest.json": "753bba1dee0531d5fad970b5ce1d296d",
+"assets/assets/images/google_logo.png": "0f118259ce403274f407f5e982e681c3",
+"assets/assets/images/logo_light.png": "e5f46d5a78e226e7a9553d4ca6f69219",
+"assets/assets/images/logo_dark.png": "a233ed1d4d0f7414bf97a9a10f11fb0a",
+"assets/AssetManifest.json": "38d9aea341601f3a5c6fa7b5a1216ea5",
 "assets/FontManifest.json": "cf3c681641169319e61b61bd0277378f",
 "assets/fonts/MaterialIcons-Regular.otf": "4e6447691c9509f7acdbf8a931a85ca1",
 "assets/packages/material_design_icons_flutter/lib/fonts/materialdesignicons-webfont.ttf": "174c02fc4609e8fc4389f5d21f16a296",
-"assets/NOTICES": "f44f710ef9af0b68d977d458631873e1",
+"assets/NOTICES": "4d4db4724f228190d45706dc2890bfff",
 "icons/Icon-192.png": "bb1cf5f6982006952211c7c8404ffbed",
 "icons/Icon-512.png": "0f9aff01367f0a0c69773d25ca16ef35",
 "favicon.png": "dca91c54388f52eded692718d5a98b8b",
-"manifest.json": "ce1b79950eb917ea619a0a30da27c6a3",
+"manifest.json": "17bae385e59f59be709280b542203f8e",
 "version.json": "46d4015fc9abcefe5371cafcf2084173",
 "favicon.ico": "51636d3a390451561744c42188ccd628",
-"main.dart.js": "7bcab146a5f6ade3cd027cc9e429f732",
-"/": "d389ab59423a76b2aaaa683ed382c78e"
+"main.dart.js": "870ee0de972245c17e9db71991aecfc1",
+"/": "24783ba7c9b4ad6d85740d03acd4bf25"
 };
 
 // The application shell files that are downloaded before a service worker can

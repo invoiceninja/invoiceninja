@@ -433,6 +433,9 @@ class HtmlEngine
         $data['$paymentLink'] = ['value' => '<a class="button" href="'.$this->invitation->getLink().'">'.ctrans('texts.view_payment').'</a>', 'label' => ctrans('texts.view_payment')];
         $data['$portalButton'] = &$data['$paymentLink'];
 
+        $data['$dir'] = ['value' => optional($this->client->language())->locale === 'ar' ? 'rtl' : 'ltr', 'label' => ''];
+        $data['$dir_text_align'] = ['value' => optional($this->client->language())->locale === 'ar' ? 'right' : 'left', 'label' => ''];
+
         $arrKeysLength = array_map('strlen', array_keys($data));
         array_multisort($arrKeysLength, SORT_DESC, $data);
 

@@ -180,7 +180,7 @@ class CreditCard
             'transaction_reference' => $payment->id,
         ];
 
-        $payment_record = $this->mollie->createPayment($data, Payment::STATUS_COMPLETED);
+        $payment_record = $this->mollie->createPayment($data, $payment->status === 'paid' ? Payment::STATUS_COMPLETED : Payment::STATUS_PENDING);
 
         SystemLogger::dispatch(
             ['response' => $payment, 'data' => $data],

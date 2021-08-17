@@ -167,7 +167,7 @@
     }
 
     #table-totals>.totals-table-right-side>*> :nth-child(1) {
-        text-align: left;
+        text-align: "$dir_text_align";
         margin-top: .75rem;
     }
 
@@ -211,6 +211,16 @@
     #delivery-note-table h3 {
         font-size: 1rem;
         margin-bottom: 0;
+    }
+
+    .entity-details-wrapper > * {
+        direction: $dir;
+    }
+
+    .entity-details-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        direction: $dir;
     }
 
     /** Useful snippets, uncomment to enable. **/
@@ -271,30 +281,31 @@
 
     <h1 class="entity-label">$entity_label</h1>
     <div class="entity-details-wrapper">
-            <span>
-                <span
-                    class="entity-property-label"
-                    data-element="entity-details-wrapper-invoice-number-label"
-                >$entity_number_label:</span
-                >
+            <div>
+                <span class="entity-property-label" data-element="entity-details-wrapper-invoice-number-label">
+                    $entity_number_label:
+                </span>
                 <span class="entity-property-value">$entity_number</span>
-            </span>
-        <span>
+            </div>
+            
+            <div>
                 <span class="entity-property-label">$date_label:</span>
                 <span class="entity-property-value">$date</span>
-            </span>
-        <span>
+            </div>
+    
+            <div>
                 <span class="entity-property-label">$payment_due_label:</span>
                 <span class="entity-property-value">$payment_due</span>
-            </span>
-        <span>
+            </div>
+    
+            <div>
                 <span class="entity-property-label">$amount_due_label:</span>
                 <span
                     class="entity-property-value"
                     data-element="entity-details-wrapper-amount-due"
                 >$amount_due</span
                 >
-            </span>
+            </div>
     </div>
 
     <table id="product-table" cellspacing="0"></table>

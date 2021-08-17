@@ -450,7 +450,7 @@ class Design extends BaseDesign
                     ['element' => 'img', 'properties' => ['src' => '$invoiceninja.whitelabel', 'style' => 'height: 2.5rem;', 'hidden' => $this->entity->user->account->isPaid() ? 'true' : 'false', 'id' => 'invoiceninja-whitelabel-logo']],
                 ]],
             ]],
-            ['element' => 'div', 'properties' => ['class' => 'totals-table-right-side'], 'elements' => []],
+            ['element' => 'div', 'properties' => ['class' => 'totals-table-right-side', 'dir' => '$dir'], 'elements' => []],
         ];
 
         if ($this->type == 'delivery_note') {
