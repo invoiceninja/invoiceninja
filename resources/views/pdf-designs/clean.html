@@ -2,6 +2,7 @@
     :root {
         --primary-color: $primary_color;
         --secondary-color: $secondary_color;
+        --line-height: 1.6;
     }
 
     body {
@@ -35,6 +36,7 @@
     #company-details {
         display: flex;
         flex-direction: column;
+        line-height: var(--line-height);
     }
 
     #company-details > p:first-child {
@@ -44,10 +46,11 @@
     #company-address {
         display: flex;
         flex-direction: column;
+        line-height: var(--line-height);
     }
 
     .entity-label {
-        margin-top: 1rem;
+        margin-top: 2.5rem;
         text-transform: uppercase;
         padding-left: 1rem;
         margin-bottom: 1rem;
@@ -56,8 +59,7 @@
     }
 
     .client-and-entity-wrapper {
-        display: grid;
-        grid-template-columns: .75fr 1fr;
+        display: flex;
         padding: 1rem;
         border-top: 1px solid #d8d8d8;
         border-bottom: 1px solid #d8d8d8;
@@ -65,16 +67,21 @@
 
     #entity-details {
         text-align: left;
+        margin-right: 20px;
     }
 
     #entity-details > tr,
     #entity-details th {
         font-weight: normal;
+        padding-right: 15px;
+        padding-top: 2.5px;
+        padding-bottom: 2.5px;
     }
 
     #client-details {
         display: flex;
         flex-direction: column;
+        line-height: var(--line-height);
     }
 
     #client-details > :first-child {
@@ -242,11 +249,9 @@
 
 <div id="body">
     <div class="header-container">
-        <img
-            class="company-logo"
-            src="$company.logo"
-            alt="$company.name logo"
-        />
+       <div class="company-logo-container">
+            <img class="company-logo" src="$company.logo" alt="$company.name logo">
+       </div>
 
         <div id="company-details"></div>
         <div id="company-address"></div>
@@ -254,7 +259,9 @@
 
     <p class="entity-label">$entity_label</p>
     <div class="client-and-entity-wrapper">
-        <table id="entity-details" cellspacing="0" dir="$dir"></table>
+        <div>
+            <table id="entity-details" cellspacing="0" dir="$dir"></table>
+        </div>
 
         <div id="client-details"></div>
     </div>
