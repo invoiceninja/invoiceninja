@@ -138,6 +138,7 @@
     #table-totals>.totals-table-right-side>*> :nth-child(1) {
         text-align: "$dir_text_align";
         margin-top: .75rem;
+        padding-left: 7px;
     }
 
     #table-totals>.totals-table-right-side> * > :not([hidden]) ~ :not([hidden]) {
@@ -148,6 +149,7 @@
 
     #table-totals>.totals-table-right-side>*> :nth-child(2) {
         text-align: right;
+        padding-right: 7px;
     }
 
     #table-totals
@@ -182,6 +184,15 @@
     #delivery-note-table h3 {
         font-size: 1rem;
         margin-bottom: 0;
+    }
+
+    [data-ref="totals_table-outstanding-label"],
+    [data-ref="totals_table-outstanding"] {
+        background-color: #e6e6e6;
+        color: black;
+        padding-top: 7px;
+        padding-bottom: 7px;
+        padding-right: 7px;
     }
 
     /** Useful snippets, uncomment to enable. **/
