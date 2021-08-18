@@ -89,6 +89,7 @@ class EwayPaymentDriver extends BaseDriver
         return $this->payment_method->paymentResponse($request); //this is your custom implementation from here
     }
 
+    /* We need PCI compliance prior to enabling this */
     public function refund(Payment $payment, $amount, $return_client_response = false)
     {
 
@@ -99,7 +100,7 @@ class EwayPaymentDriver extends BaseDriver
             ],
         ];
 
-        $response = $this->init()->eway->client->refund($refund);
+        $response = $this->init()->eway->refund($refund);
 
         $transaction_reference = '';
         $refund_status = true;
@@ -118,6 +119,7 @@ class EwayPaymentDriver extends BaseDriver
                 $refund_message = 'Sorry, your refund failed';
             }
         }
+
         return [
             'transaction_reference' => $response->TransactionID,
             'transaction_response' => json_encode($response),

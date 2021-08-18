@@ -129,7 +129,7 @@ class CreditCard
         if(boolval($request->input('store_card')))
         {
             $token = $this->createEwayToken($request->input('securefieldcode'));
-            $payment = $this->tokenBilling($token, $this->eway_driver->payment_hash);
+            $payment = $this->tokenBilling($token->token, $this->eway_driver->payment_hash);
 
             return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
 
