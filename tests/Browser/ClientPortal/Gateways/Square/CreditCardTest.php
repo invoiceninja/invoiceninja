@@ -32,4 +32,25 @@ class CreditCardTest extends DuskTestCase
                 ->auth();
         });
     }
+
+    public function testPaymentWithNewCard()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.invoices.index')
+                ->click('@pay-now')
+                ->click('@pay-now-dropdown')
+                ->clickLink('Credit Card')
+                ->type('#cardholder-name', 'John Doe')
+                ->withinFrame('iframe', function (Browser $browser) {
+                    $browser
+                        ->type('#cardNumber', '4111 1111 1111 1111')
+                        ->type('#expirationDate', '04/22')
+                        ->type('#cvv', '1111')
+                        ->type('#postalCode', '12345');
+                })
+                ->click('#pay-now')
+                ->waitForText('Details of the payment', 60);
+        });
+    }
 }
