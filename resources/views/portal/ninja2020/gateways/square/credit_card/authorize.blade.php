@@ -32,48 +32,5 @@
         <script type="text/javascript" src="https://web.squarecdn.com/v1/square.js"></script>
     @endif
 
-    <script>
-        class SquareCreditCard {
-            constructor() {
-                this.appId = document.querySelector('meta[name=square-appId]').content;
-                this.locationId = document.querySelector('meta[name=square-locationId]').content;
-            }
-
-            async init() {
-                this.payments = Square.payments(this.appId, this.locationId);
-
-                this.card = await this.payments.card();
-
-                await this.card.attach('#card-container');
-            }
-
-            async completePaymentWithoutToken(e) {
-                document.getElementById('errors').hidden = true;
-                e.target.parentElement.disabled = true;
-
-                let result = await this.card.tokenize();
-
-                if (result.status === 'OK') {
-                    document.getElementById('sourceId').value = result.token;
-
-                    return document.getElementById('server_response').submit();
-                }
-
-                document.getElementById('errors').textContent = result.errors[0].message;
-                document.getElementById('errors').hidden = false;
-
-                e.target.parentElement.disabled = false;
-            }
-
-            async handle() {
-                await this.init();
-
-                document
-                    .getElementById('authorize-card')
-                    ?.addEventListener('click', (e) => this.completePaymentWithoutToken(e));
-            }
-        }
-
-        new SquareCreditCard().handle();
-    </script>
+    <script src="{{ asset('js/clients/payments/square-credit-card.js') }}"></script>
 @endsection
