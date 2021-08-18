@@ -88,9 +88,11 @@
                         {{ ctrans('texts.you_might_be_interested_in_following') }}:
                     </p>
 
-                    <div class="mt-4 space-x-2">
+                    <div class="mt-4">
                         @foreach($subscription->service()->getPlans() as $_subscription)
-                            <a class="border mt-4 bg-white rounded py-2 px-4 hover:bg-gray-100 text-sm" target="_blank" href="{{ route('client.subscription.purchase', $_subscription->hashed_id) }}">{{ $_subscription->name }}</a>
+                            <button class="mt-8 mr-2">
+                                <a class="border mt-4 bg-white rounded py-2 px-4 hover:bg-gray-100 text-sm" target="_blank" href="{{ route('client.subscription.purchase', $_subscription->hashed_id) }}">{{ $_subscription->name }}</a>
+                            </button>
                         @endforeach
                     </div>
                 </div>
