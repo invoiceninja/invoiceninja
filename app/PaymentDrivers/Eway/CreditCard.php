@@ -178,9 +178,58 @@ class CreditCard
 
     }
 
-
+/*
+array:9 [▼
+  "_token" => "RpkUNg0gHYfzLKPCJG3EtmshGiwDUeytRG53b1Or"
+  "gateway_response" => null
+  "store_card" => true
+  "payment_hash" => "1wC7J7Jo1jagV5oBaWSxz7b2lSLsvVMp"
+  "company_gateway_id" => "6"
+  "payment_method_id" => "1"
+  "token" => null
+  "securefieldcode" => "F9802rbHYa0St-w3QpBXvNaiNFMNhmY7OmZimH-HROUzS1K0niXOlqXUzugz4mnTqJVqK"
+  "q" => "/client/payments/process/response"
+]
+ */
     public function paymentResponse($request)
     {
-        
+        $state = [
+            'server_response' => $request->all(),
+        ];
+
+        $this->eway_driver->payment_hash->data = array_merge((array) $this->eway_driver->payment_hash->data, $state);
+        $this->eway_driver->payment_hash->save();
+
+        $transaction = [
+            'Payment' => [
+                'TotalAmount' => $this->convertAmountForEway(),
+            ],
+            'TransactionType' => \Eway\Rapid\Enum\TransactionType::PURCHASE,
+            'SecuredCardData' => $request->input('securefieldcode'),
+        ];
+
+        $response = $this->eway_driver->init()->eway->createTransaction(\Eway\Rapid\Enum\ApiMethod::DIRECT, $transaction);
+
+dd($response);
+
+        $response_status = ErrorCode::getStatus($response->ResponseMessage);
+
+        if(!$response_status['success'])
+          throw new PaymentFailed($response_status['message'], 400);
+
+
     }
+
+
+    private function convertAmountForEway()
+    {
+    
+        $amount = $this->eway_driver->payment_hash->data->amount_with_fee;
+
+        if(in_array($this->eway_driver->client->currency()->code, ['VND', 'JPY', 'KRW', 'GNF', 'IDR', 'PYG', 'RWF', 'UGX', 'VUV', 'XAF', 'XPF']))
+            return $amount;
+
+        return $amount * 100;
+    }
+
 }
