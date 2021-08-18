@@ -50,76 +50,17 @@ class CreditCard
 
     }
 
-    /*
-    Eway\Rapid\Model\Response\CreateCustomerResponse {#2374 ▼
-  #fillable: array:16 [▶]
-  #errors: []
-  #attributes: array:11 [▼
-    "AuthorisationCode" => null
-    "ResponseCode" => "00"
-    "ResponseMessage" => "A2000"
-    "TransactionID" => null
-    "TransactionStatus" => false
-    "TransactionType" => "MOTO"
-    "BeagleScore" => null
-    "Verification" => Eway\Rapid\Model\Verification {#2553 ▼
-      #fillable: array:5 [▶]
-      #attributes: array:5 [▶]
-    }
-    "Customer" => Eway\Rapid\Model\Customer {#2504 ▼
-      #fillable: array:38 [▶]
-      #attributes: array:20 [▼
-        "CardDetails" => Eway\Rapid\Model\CardDetails {#2455 ▼
-          #fillable: array:8 [▶]
-          #attributes: array:7 [▼
-            "Number" => "411111XXXXXX1111"
-            "Name" => "Joey Diaz"
-            "ExpiryMonth" => "10"
-            "ExpiryYear" => "23"
-            "StartMonth" => null
-            "StartYear" => null
-            "IssueNumber" => null
-          ]
-        }
-        "TokenCustomerID" => 917047257342
-        "Reference" => "A12345"
-        "Title" => "Mr."
-        "FirstName" => "John"
-        "LastName" => "Smith"
-        "CompanyName" => "Demo Shop 123"
-        "JobDescription" => "PHP Developer"
-        "Street1" => "Level 5"
-        "Street2" => "369 Queen Street"
-        "City" => "Sydney"
-        "State" => "NSW"
-        "PostalCode" => "2000"
-        "Country" => "au"
-        "Email" => "demo@example.org"
-        "Phone" => "09 889 0986"
-        "Mobile" => "09 889 6542"
-        "Comments" => ""
-        "Fax" => ""
-        "Url" => "http://www.ewaypayments.com"
-      ]
-    }
-    "Payment" => Eway\Rapid\Model\Payment {#2564 ▼
-      #fillable: array:5 [▶]
-      #attributes: array:5 [▼
-        "TotalAmount" => 0
-        "InvoiceNumber" => ""
-        "InvoiceDescription" => ""
-        "InvoiceReference" => ""
-        "CurrencyCode" => "AUD"
-      ]
-    }
-    "Errors" => null
-  ]
-}
-     */
-
     public function authorizeResponse($request)
     {
 
+        $token = $this->createEwayToken($request->input('securefieldcode'));
+
+        return redirect()->route('client.payment_methods.index');
+
+    }
+
+    private function createEwayToken($securefieldcode)
+    {
         $transaction = [
             'Reference' => $this->eway_driver->client->number,
             'Title' => '',
@@ -135,12 +76,8 @@ class CreditCard
             'Phone' => $this->eway_driver->client->phone,
             'Email' => $this->eway_driver->client->contacts()->first()->email,
             "Url" => $this->eway_driver->client->website,
-            // 'Payment' => [
-            //     'TotalAmount' => 0,
-            // ],
-            // 'TransactionType' => \Eway\Rapid\Enum\TransactionType::PURCHASE,
             'Method' => \Eway\Rapid\Enum\PaymentMethod::CREATE_TOKEN_CUSTOMER,
-            'SecuredCardData' => $request->input('securefieldcode'),
+            'SecuredCardData' => $securefieldcode,
         ];
 
         $response = $this->eway_driver->init()->eway->createCustomer(\Eway\Rapid\Enum\ApiMethod::DIRECT, $transaction);
@@ -166,8 +103,7 @@ class CreditCard
 
         $token = $this->eway_driver->storeGatewayToken($cgt, []);
 
-        return redirect()->route('client.payment_methods.index');
-
+        return $token;
     }
 
     public function paymentView($data)
@@ -180,27 +116,32 @@ class CreditCard
 
     }
 
-/*
-array:9 [▼
-  "_token" => "RpkUNg0gHYfzLKPCJG3EtmshGiwDUeytRG53b1Or"
-  "gateway_response" => null
-  "store_card" => true
-  "payment_hash" => "1wC7J7Jo1jagV5oBaWSxz7b2lSLsvVMp"
-  "company_gateway_id" => "6"
-  "payment_method_id" => "1"
-  "token" => null
-  "securefieldcode" => "F9802rbHYa0St-w3QpBXvNaiNFMNhmY7OmZimH-HROUzS1K0niXOlqXUzugz4mnTqJVqK"
-  "q" => "/client/payments/process/response"
-]
- */
     public function paymentResponse($request)
     {
+
         $state = [
             'server_response' => $request->all(),
         ];
 
         $this->eway_driver->payment_hash->data = array_merge((array) $this->eway_driver->payment_hash->data, $state);
         $this->eway_driver->payment_hash->save();
+
+        if(boolval($request->input('store_card')))
+        {
+            $token = $this->createEwayToken($request->input('securefieldcode'));
+            $payment = $this->tokenBilling($token, $this->eway_driver->payment_hash);
+
+            return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
+
+        }
+
+        if($request->token){
+
+            $payment = $this->tokenBilling($request->token, $this->eway_driver->payment_hash);
+
+            return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
+
+        }
 
         $transaction = [
             'Payment' => [
@@ -244,10 +185,11 @@ array:9 [▼
         return $payment;
     }
 
-    private function convertAmountForEway()
+    private function convertAmountForEway($amount = false)
     {
     
-        $amount = array_sum(array_column($this->eway_driver->payment_hash->invoices(), 'amount')) + $this->eway_driver->payment_hash->fee_total;
+        if(!$amount)
+            $amount = array_sum(array_column($this->eway_driver->payment_hash->invoices(), 'amount')) + $this->eway_driver->payment_hash->fee_total;
 
         if(in_array($this->eway_driver->client->currency()->code, ['VND', 'JPY', 'KRW', 'GNF', 'IDR', 'PYG', 'RWF', 'UGX', 'VUV', 'XAF', 'XPF']))
             return $amount;
@@ -273,4 +215,36 @@ array:9 [▼
 
     }
 
+
+    public function tokenBilling($token, $payment_hash)
+    {
+        $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
+
+        $transaction = [
+            'Customer' => [
+                'TokenCustomerID' => $token,
+            ],
+            'Payment' => [
+                'TotalAmount' => $this->convertAmountForEway($amount),
+            ],
+            'TransactionType' => \Eway\Rapid\Enum\TransactionType::RECURRING,
+        ];
+
+        $response = $this->eway_driver->init()->eway->createTransaction(\Eway\Rapid\Enum\ApiMethod::DIRECT, $transaction);
+
+        $response_status = ErrorCode::getStatus($response->ResponseMessage);
+
+        if(!$response_status['success']){
+
+            $this->logResponse($response, false);
+
+            throw new PaymentFailed($response_status['message'], 400);
+        }
+
+        $this->logResponse($response, true);
+
+        $payment = $this->storePayment($response);
+
+        return $payment;
+    }
 }
