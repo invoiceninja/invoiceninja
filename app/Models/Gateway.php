@@ -79,7 +79,7 @@ class Gateway extends StaticModel
     {
         switch ($this->id) {
             case 1:
-                return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true]];//Authorize.net
+                return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true]]; //Authorize.net
                 break;
             case 3:
                 return [GatewayType::CREDIT_CARD => ['refund' => false, 'token_billing' => true]];//eWay
