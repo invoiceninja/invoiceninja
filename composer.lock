@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d2beb37ff5fbee59ad4bb792e944eb10",
+    "content-hash": "bcd9405b1978cef268d732794883e91d",
     "packages": [
         {
             "name": "asm/php-ansible",
@@ -2222,6 +2222,61 @@
             "time": "2021-04-26T11:24:25+00:00"
         },
         {
+            "name": "gocardless/gocardless-pro",
+            "version": "4.12.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/gocardless/gocardless-pro-php.git",
+                "reference": "e63b97b215c27179023dd2e911133ee75e543fbd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/gocardless/gocardless-pro-php/zipball/e63b97b215c27179023dd2e911133ee75e543fbd",
+                "reference": "e63b97b215c27179023dd2e911133ee75e543fbd",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "guzzlehttp/guzzle": "^6.0 | ^7.0",
+                "php": ">=5.6"
+            },
+            "require-dev": {
+                "php-coveralls/php-coveralls": "^2.2",
+                "phpunit/phpunit": "^7.5",
+                "squizlabs/php_codesniffer": "^3.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "GoCardlessPro\\": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "GoCardless and contributors",
+                    "homepage": "https://github.com/gocardless/gocardless-pro-php/contributors"
+                }
+            ],
+            "description": "GoCardless Pro PHP Client Library",
+            "homepage": "https://gocardless.com/",
+            "keywords": [
+                "api",
+                "direct debit",
+                "gocardless"
+            ],
+            "support": {
+                "issues": "https://github.com/gocardless/gocardless-pro-php/issues",
+                "source": "https://github.com/gocardless/gocardless-pro-php/tree/v4.12.0"
+            },
+            "time": "2021-08-12T15:41:16+00:00"
+        },
+        {
             "name": "google/apiclient",
             "version": "v2.10.1",
             "source": {
@@ -4385,6 +4440,97 @@
                 "source": "https://github.com/maennchen/ZipStream-PHP/tree/master"
             },
             "time": "2019-07-17T11:01:58+00:00"
+        },
+        {
+            "name": "mollie/mollie-api-php",
+            "version": "v2.36.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mollie/mollie-api-php.git",
+                "reference": "19f69c116d47a3600f0ed629e0df925a43d3a8f5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mollie/mollie-api-php/zipball/19f69c116d47a3600f0ed629e0df925a43d3a8f5",
+                "reference": "19f69c116d47a3600f0ed629e0df925a43d3a8f5",
+                "shasum": ""
+            },
+            "require": {
+                "composer/ca-bundle": "^1.1",
+                "ext-curl": "*",
+                "ext-json": "*",
+                "ext-openssl": "*",
+                "php": ">=5.6"
+            },
+            "require-dev": {
+                "eloquent/liberator": "^2.0",
+                "friendsofphp/php-cs-fixer": "^3.0",
+                "guzzlehttp/guzzle": "^6.3 || ^7.0",
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.1 || ^8.5"
+            },
+            "suggest": {
+                "mollie/oauth2-mollie-php": "Use OAuth to authenticate with the Mollie API. This is needed for some endpoints. Visit https://docs.mollie.com/ for more information."
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Mollie\\Api\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Mollie B.V.",
+                    "email": "info@mollie.com"
+                }
+            ],
+            "description": "Mollie API client library for PHP. Mollie is a European Payment Service provider and offers international payment methods such as Mastercard, VISA, American Express and PayPal, and local payment methods such as iDEAL, Bancontact, SOFORT Banking, SEPA direct debit, Belfius Direct Net, KBC Payment Button and various gift cards such as Podiumcadeaukaart and fashioncheque.",
+            "homepage": "https://www.mollie.com/en/developers",
+            "keywords": [
+                "Apple Pay",
+                "CBC",
+                "Przelewy24",
+                "api",
+                "bancontact",
+                "banktransfer",
+                "belfius",
+                "belfius direct net",
+                "charges",
+                "creditcard",
+                "direct debit",
+                "fashioncheque",
+                "gateway",
+                "gift cards",
+                "ideal",
+                "inghomepay",
+                "intersolve",
+                "kbc",
+                "klarna",
+                "mistercash",
+                "mollie",
+                "paylater",
+                "payment",
+                "payments",
+                "paypal",
+                "paysafecard",
+                "podiumcadeaukaart",
+                "recurring",
+                "refunds",
+                "sepa",
+                "service",
+                "sliceit",
+                "sofort",
+                "sofortbanking",
+                "subscriptions"
+            ],
+            "support": {
+                "issues": "https://github.com/mollie/mollie-api-php/issues",
+                "source": "https://github.com/mollie/mollie-api-php/tree/v2.36.1"
+            },
+            "time": "2021-06-23T12:55:50+00:00"
         },
         {
             "name": "moneyphp/money",
@@ -14881,5 +15027,5 @@
     "platform-dev": {
         "php": "^7.3|^7.4|^8.0"
     },
-    "plugin-api-version": "2.1.0"
+    "plugin-api-version": "2.0.0"
 }

@@ -126,7 +126,7 @@ class ApplyPayment extends AbstractService
 
         });
 
-        $this->invoice->service()->applyNumber()->save();
+        $this->invoice->service()->applyNumber()->workFlow()->save();
 
         return $this->invoice;
     }

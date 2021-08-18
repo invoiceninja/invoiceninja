@@ -107,7 +107,10 @@ class EmailEntity implements ShouldQueue
         /* Set DB */
         MultiDB::setDB($this->company->db);
 
+        App::forgetInstance('translator');
+        $t = app('translator');
         App::setLocale($this->invitation->contact->preferredLocale());
+        $t->replace(Ninja::transformTranslations($this->settings));
 
         $nmo = new NinjaMailerObject;
         $nmo->mailable = new TemplateEmail($this->email_entity_builder, $this->invitation->contact, $this->invitation);
@@ -119,7 +122,7 @@ class EmailEntity implements ShouldQueue
         $nmo->reminder_template = $this->reminder_template;
         $nmo->entity = $this->entity;
         
-        NinjaMailerJob::dispatch($nmo);
+        NinjaMailerJob::dispatchNow($nmo);
 
         /* Mark entity sent */
         $this->entity->service()->markSent()->save();

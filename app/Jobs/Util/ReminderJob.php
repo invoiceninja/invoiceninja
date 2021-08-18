@@ -30,6 +30,8 @@ class ReminderJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesReminders, MakesDates;
 
+    public $tries = 1;
+
     public function __construct()
     {
     }
@@ -48,6 +50,7 @@ class ReminderJob implements ShouldQueue
             //multiDB environment, need to
             foreach (MultiDB::$dbs as $db) {
                 MultiDB::setDB($db);
+                nlog("set db {$db}");
                 $this->processReminders();
             }
         }
@@ -172,8 +175,11 @@ class ReminderJob implements ShouldQueue
         $invoice->line_items = $invoice_items;
 
         /**Refresh Invoice values*/
-        $invoice = $invoice->calc()->getInvoice();
-
+        $invoice->calc()->getInvoice()->save();
+        $invoice->fresh();
+        $invoice->service()->deletePdf();
+        
+        nlog("adjusting client balance and invoice balance by ". ($invoice->balance - $temp_invoice_balance));
         $invoice->client->service()->updateBalance($invoice->balance - $temp_invoice_balance)->save();
         $invoice->ledger()->updateInvoiceBalance($invoice->balance - $temp_invoice_balance, "Late Fee Adjustment for invoice {$invoice->number}");
 

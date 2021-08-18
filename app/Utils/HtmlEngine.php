@@ -130,6 +130,7 @@ class HtmlEngine
             $data['$terms'] = &$data['$entity.terms'];
             $data['$view_link'] = ['value' => '<a class="button" href="'.$this->invitation->getLink().'">'.ctrans('texts.view_invoice').'</a>', 'label' => ctrans('texts.view_invoice')];
             $data['$viewLink'] = &$data['$view_link'];
+            $data['$viewButton'] = &$data['$view_link'];
             $data['$view_url'] = ['value' => $this->invitation->getLink(), 'label' => ctrans('texts.view_invoice')];
             $data['$date'] = ['value' => $this->translateDate($this->entity->date, $this->entity->client->date_format(), $this->entity->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.invoice_date')];
 
@@ -167,7 +168,12 @@ class HtmlEngine
         $data['$invoice.discount'] = ['value' => Number::formatMoney($this->entity_calc->getTotalDiscount(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.discount')];
         $data['$discount'] = &$data['$invoice.discount'];
         $data['$subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getSubTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.subtotal')];
-        $data['$net_subtotal'] = ['value' => Number::formatMoney(($this->entity_calc->getSubTotal() - $this->entity->total_taxes), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.net_subtotal')];
+
+        if($this->entity->uses_inclusive_taxes)
+            $data['$net_subtotal'] = ['value' => Number::formatMoney(($this->entity_calc->getSubTotal() - $this->entity->total_taxes), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.net_subtotal')];
+        else
+            $data['$net_subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getSubTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.net_subtotal')];
+
         $data['$invoice.subtotal'] = &$data['$subtotal'];
 
         if ($this->entity->partial > 0) {
@@ -273,6 +279,7 @@ class HtmlEngine
         $data['$client_address'] = ['value' => $this->client->present()->address() ?: '&nbsp;', 'label' => ctrans('texts.address')];
         $data['$client.address'] = &$data['$client_address'];
         $data['$client.postal_code'] = ['value' => $this->client->postal_code ?: '&nbsp;', 'label' => ctrans('texts.postal_code')];
+        $data['$client.city'] = ['value' => $this->client->city ?: '&nbsp;', 'label' => ctrans('texts.city')];
         $data['$client.id_number'] = &$data['$id_number'];
         $data['$client.vat_number'] = &$data['$vat_number'];
         $data['$client.website'] = &$data['$website'];
@@ -421,6 +428,13 @@ class HtmlEngine
         $data['$tech_hero_image'] = ['value' => asset('images/pdf-designs/tech-hero-image.jpg'), 'label' => ''];
         $data['$autoBill'] = ['value' => ctrans('texts.auto_bill_notification_placeholder'), 'label' => ''];
         $data['$auto_bill'] = &$data['$autoBill'];
+
+        /*Payment Aliases*/
+        $data['$paymentLink'] = ['value' => '<a class="button" href="'.$this->invitation->getLink().'">'.ctrans('texts.view_payment').'</a>', 'label' => ctrans('texts.view_payment')];
+        $data['$portalButton'] = &$data['$paymentLink'];
+
+        $data['$dir'] = ['value' => optional($this->client->language())->locale === 'ar' ? 'rtl' : 'ltr', 'label' => ''];
+        $data['$dir_text_align'] = ['value' => optional($this->client->language())->locale === 'ar' ? 'right' : 'left', 'label' => ''];
 
         $arrKeysLength = array_map('strlen', array_keys($data));
         array_multisort($arrKeysLength, SORT_DESC, $data);

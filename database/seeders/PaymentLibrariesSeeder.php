@@ -31,7 +31,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['id' => 4, 'name' => 'FirstData Connect', 'provider' => 'FirstData_Connect', 'key' => '4e0ed0d34552e6cb433506d1ac03a418', 'fields' => '{"storeId":"","sharedSecret":"","testMode":false}'],
             ['id' => 5, 'name' => 'Migs ThreeParty', 'provider' => 'Migs_ThreeParty', 'key' => '513cdc81444c87c4b07258bc2858d3fa', 'fields' => '{"merchantId":"","merchantAccessCode":"","secureHash":""}'],
             ['id' => 6, 'name' => 'Migs TwoParty', 'provider' => 'Migs_TwoParty', 'key' => '99c2a271b5088951334d1302e038c01a', 'fields' => '{"merchantId":"","merchantAccessCode":"","secureHash":""}'],
-            ['id' => 7, 'name' => 'Mollie', 'provider' => 'Mollie', 'is_offsite' => true, 'sort_order' => 8, 'key' => '1bd651fb213ca0c9d66ae3c336dc77e8', 'fields' => '{"apiKey":""}'],
+            ['id' => 7, 'name' => 'Mollie', 'provider' => 'Mollie', 'is_offsite' => true, 'sort_order' => 8, 'key' => '1bd651fb213ca0c9d66ae3c336dc77e8', 'fields' => '{"apiKey":"","profileId":"","testMode":false}'],
             ['id' => 8, 'name' => 'MultiSafepay', 'provider' => 'MultiSafepay', 'key' => 'c3dec814e14cbd7d86abd92ce6789f8c', 'fields' => '{"accountId":"","siteId":"","siteCode":"","testMode":false}'],
             ['id' => 9, 'name' => 'Netaxept', 'provider' => 'Netaxept', 'key' => '070dffc5ca94f4e66216e44028ebd52d', 'fields' => '{"merchantId":"","password":"","testMode":false}'],
             ['id' => 10, 'name' => 'NetBanx', 'provider' => 'NetBanx', 'key' => '334d419939c06bd99b4dfd8a49243f0f', 'fields' => '{"accountNumber":"","storeId":"","storePassword":"","testMode":false}'],
@@ -70,7 +70,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['id' => 43, 'name' => 'Fasapay', 'provider' => 'Fasapay', 'key' => '1b2cef0e8c800204a29f33953aaf3360', 'fields' => ''],
             ['id' => 44, 'name' => 'Komoju', 'provider' => 'Komoju', 'key' => '7ea2d40ecb1eb69ef8c3d03e5019028a', 'fields' => '{"apiKey":"","accountId":"","paymentMethod":"credit_card","testMode":false,"locale":"en"}'],
             ['id' => 45, 'name' => 'Paysafecard', 'provider' => 'Paysafecard', 'key' => '70ab90cd6c5c1ab13208b3cef51c0894', 'fields' => '{"username":"","password":"","testMode":false}'],
-            ['id' => 46, 'name' => 'Paytrace', 'provider' => 'Paytrace_CreditCard', 'key' => 'bbd736b3254b0aabed6ad7fda1298c88', 'fields' => '{"username":"","password":"","testMode":false,"endpoint":"https:\/\/paytrace.com\/api\/default.pay"}'],
+            ['id' => 46, 'name' => 'Paytrace', 'provider' => 'Paytrace', 'key' => 'bbd736b3254b0aabed6ad7fda1298c88', 'fields' => '{"username":"","password":"","integratorId":"","testMode":false,"endpoint":"https:\/\/paytrace.com\/api\/default.pay"}'],
             ['id' => 47, 'name' => 'Secure Trading', 'provider' => 'SecureTrading', 'key' => '231cb401487b9f15babe04b1ac4f7a27', 'fields' => '{"siteReference":"","username":"","password":"","applyThreeDSecure":false,"accountType":"ECOM"}'],
             ['id' => 48, 'name' => 'SecPay', 'provider' => 'SecPay', 'key' => 'bad8699d581d9fa040e59c0bb721a76c', 'fields' => '{"mid":"","vpnPswd":"","remotePswd":"","usageType":"","confirmEmail":"","testStatus":"true","mailCustomer":"true","additionalOptions":""}'],
             ['id' => 49, 'name' => 'WePay', 'provider' => 'WePay', 'is_offsite' => false, 'sort_order' => 3, 'key' => '8fdeed552015b3c7b44ed6c8ebd9e992', 'fields' => '{"accountId":"","accessToken":"","type":"goods","testMode":false,"feePayer":"payee"}'],
@@ -96,7 +96,7 @@ class PaymentLibrariesSeeder extends Seeder
 
         Gateway::query()->update(['visible' => 0]);
 
-        Gateway::whereIn('id', [1,15,20,39,55,50])->update(['visible' => 1]);
+        Gateway::whereIn('id', [1,7,15,20,39,46,55,50])->update(['visible' => 1]);
 
         if (Ninja::isHosted()) {
             Gateway::whereIn('id', [20])->update(['visible' => 0]);

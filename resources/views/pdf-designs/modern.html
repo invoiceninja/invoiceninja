@@ -189,7 +189,7 @@
     }
 
     #table-totals>.totals-table-right-side>*> :nth-child(1) {
-        text-align: left;
+        text-align: "$dir_text_align";
         margin-top: .75rem;
     }
 
@@ -232,7 +232,7 @@
 
     [data-ref="total_table-footer"] {
         margin-top: 2rem;
-        margin-bottom: 2rem
+        margin-bottom: 2rem;
     }
 
     /** Repeating header & footer styling. */
@@ -269,6 +269,35 @@
         font-size: 1rem;
         margin-bottom: 0;
     }
+
+    /** Useful snippets, uncomment to enable. **/
+    
+    /** Hide company logo **/
+    /* .company-logo { display: none } */
+
+    /* Hide company details */
+    /* #company-details > * { display: none } */
+
+    /* Hide company address */
+    /* #company-address > * { display: none } */
+
+    /* Hide public notes */
+    /* [data-ref="total_table-public_notes"] { display: none } */
+
+    /* Hide terms label */
+    /* [data-ref="total_table-terms-label"] { display: none } */
+
+    /* Hide totals table */
+    /* #table-totals { display: none } */
+
+    /* Hide totals table left side */
+    /* #table-totals div:first-child > * { display: none !important } */
+
+    /* Hide totals table right side */
+    /* .totals-table-right-side { display: none } */
+
+    /** For more info, please check our docs: https://invoiceninja.github.io **/
+    /** To find out selectors on your own: https://invoiceninja.github.io/docs/custom-fields/#snippets **/
 </style>
 
 <table>
@@ -278,7 +307,7 @@
         <td>
             <div class="header-container" id="header">
                 <h1 class="company-name">$company.name</h1>
-                <table id="entity-details" cellspacing="0"></table>
+                <table id="entity-details" cellspacing="0" dir="$dir"></table>
             </div>
         </td>
     </tr>

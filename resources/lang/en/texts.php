@@ -4257,7 +4257,7 @@ $LANG = array(
     'user_duplicate_error' => 'Cannot add the same user to the same company',
     'user_cross_linked_error' => 'User exists but cannot be crossed linked to multiple accounts',
     'ach_verification_notification_label' => 'ACH verification',
-    'ach_verification_notification' => 'Connecting bank accounts require verification. Stripe will automatically sends two small deposits for this purpose. These deposits take 1-2 business days to appear on the customer\'s online statement.',
+    'ach_verification_notification' => 'Connecting bank accounts require verification. Payment gateway will automatically send two small deposits for this purpose. These deposits take 1-2 business days to appear on the customer\'s online statement.',
     'login_link_requested_label' => 'Login link requested',
     'login_link_requested' => 'There was a request to login using link. If you did not request this, it\'s safe to ignore it.',
     'invoices_backup_subject' => 'Your invoices are ready for download',
@@ -4287,6 +4287,15 @@ $LANG = array(
     'company_deleted' => 'Company deleted',
     'company_deleted_body' => 'Company [ :company ] was deleted by :user',
     'back_to' => 'Back to :url',
+    'stripe_connect_migration_title' => 'Connect your Stripe Account',
+    'stripe_connect_migration_desc' => 'Invoice Ninja v5 uses Stripe Connect to link your Stripe account to Invoice Ninja. This provides an additional layer of security for your account. Now that you data has migrated, you will need to Authorize Stripe to accept payments in v5.<br><br>To do this, navigate to Settings > Online Payments > Configure Gateways. Click on Stripe Connect and then under Settings click Setup Gateway. This will take you to Stripe to authorize Invoice Ninja and on your return your account will be successfully linked!',
+    'email_quota_exceeded_subject' => 'Account email quota exceeded.',
+    'email_quota_exceeded_body' => 'In a 24 hour period you have sent :quota emails. <br> We have paused your outbound emails.<br><br> Your email quota will reset at 23:00 UTC.',
+    'auto_bill_option' => 'Opt in or out of having this invoice automatically charged.',
+    'lang_Arabic' => 'Arabic',
+    'lang_Persian' => 'Persian',
+    'lang_Latvian' => 'Latvian',
+    'expiry_date' => 'Expiry date',
 );
 
 return $LANG;

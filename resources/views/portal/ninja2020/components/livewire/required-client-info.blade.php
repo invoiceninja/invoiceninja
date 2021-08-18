@@ -35,6 +35,16 @@
                 @endif
             @endforeach
 
+            @if($this->showCopyBillingCheckbox())
+                @component('portal.ninja2020.components.general.card-element-single')
+                    <div class="flex justify-end">
+                        <button type="button" class="bg-gray-100 px-2 py-1 text-sm rounded" wire:click="handleCopyBilling">
+                            {{ ctrans('texts.copy_billing') }}
+                        </button>
+                    </div>
+                @endcomponent
+            @endif
+
             @component('portal.ninja2020.components.general.card-element-single')
                 <div class="flex flex-col items-end">
                     <button class="button button-primary bg-primary">

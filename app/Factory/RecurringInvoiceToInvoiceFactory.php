@@ -29,7 +29,7 @@ class RecurringInvoiceToInvoiceFactory
         $invoice->public_notes = $recurring_invoice->public_notes;
         $invoice->private_notes = $recurring_invoice->private_notes;
         //$invoice->date = now()->format($client->date_format());
-        $invoice->due_date = $recurring_invoice->calculateDueDate($recurring_invoice->next_send_date);
+        //$invoice->due_date = $recurring_invoice->calculateDueDate(now());
         $invoice->is_deleted = $recurring_invoice->is_deleted;
         $invoice->line_items = $recurring_invoice->line_items;
         $invoice->tax_name1 = $recurring_invoice->tax_name1;

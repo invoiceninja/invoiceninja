@@ -167,7 +167,7 @@
     }
 
     #table-totals>.totals-table-right-side>*> :nth-child(1) {
-        text-align: left;
+        text-align: "$dir_text_align";
         margin-top: .75rem;
     }
 
@@ -212,6 +212,45 @@
         font-size: 1rem;
         margin-bottom: 0;
     }
+
+    .entity-details-wrapper > * {
+        direction: $dir;
+    }
+
+    .entity-details-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        direction: $dir;
+    }
+
+    /** Useful snippets, uncomment to enable. **/
+    
+    /** Hide company logo **/
+    /* .company-logo { display: none } */
+
+    /* Hide company details */
+    /* #company-details > * { display: none } */
+
+    /* Hide company address */
+    /* #company-address > * { display: none } */
+
+    /* Hide public notes */
+    /* [data-ref="total_table-public_notes"] { display: none } */
+
+    /* Hide terms label */
+    /* [data-ref="total_table-terms-label"] { display: none } */
+
+    /* Hide totals table */
+    /* #table-totals { display: none } */
+
+    /* Hide totals table left side */
+    /* #table-totals div:first-child > * { display: none !important } */
+
+    /* Hide totals table right side */
+    /* .totals-table-right-side { display: none } */
+
+    /** For more info, please check our docs: https://invoiceninja.github.io **/
+    /** To find out selectors on your own: https://invoiceninja.github.io/docs/custom-fields/#snippets **/
 </style>
 <div id="header"></div>
 
@@ -242,30 +281,31 @@
 
     <h1 class="entity-label">$entity_label</h1>
     <div class="entity-details-wrapper">
-            <span>
-                <span
-                    class="entity-property-label"
-                    data-element="entity-details-wrapper-invoice-number-label"
-                >$entity_number_label:</span
-                >
+            <div>
+                <span class="entity-property-label" data-element="entity-details-wrapper-invoice-number-label">
+                    $entity_number_label:
+                </span>
                 <span class="entity-property-value">$entity_number</span>
-            </span>
-        <span>
+            </div>
+            
+            <div>
                 <span class="entity-property-label">$date_label:</span>
                 <span class="entity-property-value">$date</span>
-            </span>
-        <span>
+            </div>
+    
+            <div>
                 <span class="entity-property-label">$payment_due_label:</span>
                 <span class="entity-property-value">$payment_due</span>
-            </span>
-        <span>
+            </div>
+    
+            <div>
                 <span class="entity-property-label">$amount_due_label:</span>
                 <span
                     class="entity-property-value"
                     data-element="entity-details-wrapper-amount-due"
                 >$amount_due</span
                 >
-            </span>
+            </div>
     </div>
 
     <table id="product-table" cellspacing="0"></table>

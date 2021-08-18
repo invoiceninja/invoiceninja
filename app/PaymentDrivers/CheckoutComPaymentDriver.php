@@ -332,7 +332,7 @@ class CheckoutComPaymentDriver extends BaseDriver
         }
     }
 
-    public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment = null)
+    public function processWebhookRequest(PaymentWebhookRequest $request)
     {
         return true;
     }

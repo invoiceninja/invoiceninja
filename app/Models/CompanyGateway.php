@@ -69,16 +69,20 @@ class CompanyGateway extends BaseModel
     // const TYPE_CUSTOM = 306;
     // const TYPE_BRAINTREE = 307;
     // const TYPE_WEPAY = 309;
+    // const TYPE_PAYFAST = 310;
+    // const TYPE_PAYTRACE = 311;
 
     public $gateway_consts = [
         '38f2c48af60c7dd69e04248cbb24c36e' => 300,
         'd14dd26a37cecc30fdd65700bfb55b23' => 301,
+        'd14dd26a47cecc30fdd65700bfb67b34' => 301,
         '3758e7f7c6f4cecf0f4f348b9a00f456' => 304,
         '3b6621f970ab18887c4f6dca78d3f8bb' => 305,
         '54faab2ab6e3223dbe848b1686490baa' => 306,
-        'd14dd26a47cecc30fdd65700bfb67b34' => 301,
-        '8fdeed552015b3c7b44ed6c8ebd9e992' => 309,
         'f7ec488676d310683fb51802d076d713' => 307,
+        '8fdeed552015b3c7b44ed6c8ebd9e992' => 309,
+        'd6814fc83f45d2935e7777071e629ef9' => 310,
+        'bbd736b3254b0aabed6ad7fda1298c88' => 311,
     ];
 
     protected $touches = [];
@@ -118,7 +122,7 @@ class CompanyGateway extends BaseModel
     }
 
     /* This is the public entry point into the payment superclass */
-    public function driver(Client $client)
+    public function driver(Client $client = null)
     {
         $class = static::driver_class();
 

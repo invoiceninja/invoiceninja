@@ -84,8 +84,34 @@
             </div>
         </div>
 
-        @livewire('payment-methods.update-default-method', ['token' => $payment_method, 'client' => $client])
+        @if((optional($payment_method->meta)->state === 'unauthorized' || optional($payment_method->meta)->state === 'pending')  && $payment_method->gateway_type_id === \App\Models\GatewayType::BANK_TRANSFER)
+            <div class="mt-4 mb-4 bg-white shadow sm:rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                    <div class="sm:flex sm:items-start sm:justify-between">
+                        <div>
+                            <h3 class="text-lg font-medium leading-6 text-gray-900">
+                                {{ ctrans('texts.verification')}}
+                            </h3>
+                            <div class="max-w-xl mt-2 text-sm leading-5 text-gray-500">
+                                <p>
+                                    {{ ctrans('texts.ach_verification_notification') }}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="mt-5 sm:mt-0 sm:ml-6 sm:flex-shrink-0 sm:flex sm:items-center">
+                            <div class="inline-flex rounded-md shadow-sm" x-data="{ open: false }">
+                                <a href="{{ route('client.payment_methods.verification', ['payment_method' => $payment_method->hashed_id, 'method' => \App\Models\GatewayType::BANK_TRANSFER]) }}" class="button button-primary bg-primary">
+                                    {{ ctrans('texts.complete_verification') }}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
 
+        @livewire('payment-methods.update-default-method', ['token' => $payment_method, 'client' => $client])
+        
         <div class="mt-4 mb-4 bg-white shadow sm:rounded-lg">
             <div class="px-4 py-5 sm:p-6">
                 <div class="sm:flex sm:items-start sm:justify-between">

@@ -40,6 +40,7 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Mail;
 use Turbo124\Beacon\Facades\LightLogs;
+use Illuminate\Support\Facades\Cache;
 
 /*Multi Mailer implemented*/
 
@@ -71,15 +72,15 @@ class NinjaMailerJob implements ShouldQueue
 
     public function handle()
     {
-        
-        if($this->preFlightChecksFail())
-            return;
 
         /*Set the correct database*/
         MultiDB::setDb($this->nmo->company->db);
 
         /* Serializing models from other jobs wipes the primary key */
         $this->company = Company::where('company_key', $this->nmo->company->company_key)->first();
+
+        if($this->preFlightChecksFail())
+            return;
 
         /* Set the email driver */
         $this->setMailDriver();
@@ -110,11 +111,10 @@ class NinjaMailerJob implements ShouldQueue
             LightLogs::create(new EmailSuccess($this->nmo->company->company_key))
                      ->batch();
 
+            /* Count the amount of emails sent across all the users accounts */
+            Cache::increment($this->company->account->key);
+
         } catch (\Exception $e) {
-
-            // if($e instanceof GuzzleHttp\Exception\ClientException){
-
-            // }
             
             nlog("error failed with {$e->getMessage()}");
 
@@ -227,6 +227,15 @@ class NinjaMailerJob implements ShouldQueue
         if(Ninja::isHosted() && strpos($this->nmo->to_user->email, '@example.com') !== false)
             return true;
 
+        /* GMail users are uncapped */
+        if(Ninja::isHosted() && $this->nmo->settings->email_sending_method == 'gmail')
+            return false;
+
+        /* On the hosted platform, if the user is over the email quotas, we do not send the email. */
+        if(Ninja::isHosted() && $this->company->account->emailQuotaExceeded())
+            return true;
+
+
         return false;
     }
 
@@ -254,4 +263,5 @@ class NinjaMailerJob implements ShouldQueue
         LightLogs::create($job_failure)
                  ->batch();
     }
+
 }

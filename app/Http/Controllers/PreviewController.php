@@ -19,6 +19,7 @@ use App\Factory\RecurringInvoiceFactory;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Http\Requests\Preview\PreviewInvoiceRequest;
 use App\Jobs\Util\PreviewPdf;
+use App\Libraries\MultiDB;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Credit;
@@ -30,8 +31,8 @@ use App\Repositories\CreditRepository;
 use App\Repositories\InvoiceRepository;
 use App\Repositories\QuoteRepository;
 use App\Repositories\RecurringInvoiceRepository;
-use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\PdfMaker\Design as PdfDesignModel;
+use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\PdfMaker\Design;
 use App\Services\PdfMaker\PdfMaker;
 use App\Utils\HostedPDF\NinjaPdf;
@@ -135,6 +136,7 @@ class PreviewController extends BaseController
                     'products' => request()->design['design']['product'],
                 ]),
                 'variables' => $html->generateLabelsAndValues(),
+                'process_markdown' => $entity_obj->client->company->markdown_enabled,
             ];
 
             $design = new Design(request()->design['name']);
@@ -168,25 +170,29 @@ class PreviewController extends BaseController
 
     public function live(PreviewInvoiceRequest $request)
     {
+        $company = auth()->user()->company();
+
+        MultiDB::setDb($company->db);
+
         if($request->input('entity') == 'invoice'){
             $repo = new InvoiceRepository();
-            $factory = InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id);
+            $entity_obj = InvoiceFactory::create($company->id, auth()->user()->id);
             $class = Invoice::class;
         }
         elseif($request->input('entity') == 'quote'){
             $repo = new QuoteRepository();
-            $factory = QuoteFactory::create(auth()->user()->company()->id, auth()->user()->id);
+            $entity_obj = QuoteFactory::create($company->id, auth()->user()->id);
             $class = Quote::class;
 
         }
         elseif($request->input('entity') == 'credit'){
             $repo = new CreditRepository();
-            $factory = CreditFactory::create(auth()->user()->company()->id, auth()->user()->id);
+            $entity_obj = CreditFactory::create($company->id, auth()->user()->id);
             $class = Credit::class;
         }
         elseif($request->input('entity') == 'recurring_invoice'){
             $repo = new RecurringInvoiceRepository();
-            $factory = RecurringInvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id);
+            $entity_obj = RecurringInvoiceFactory::create($company->id, auth()->user()->id);
             $class = RecurringInvoice::class;
         }
             
@@ -197,13 +203,15 @@ class PreviewController extends BaseController
 
             if($request->has('entity_id')){
 
-                $entity_obj = $class::withTrashed()->whereId($this->decodePrimaryKey($request->input('entity_id')))->company()->first();
-                $entity_obj = $repo->save($request->all(), $entity_obj);
+                $entity_obj = $class::on(config('database.default'))
+                                    ->where('id', $this->decodePrimaryKey($request->input('entity_id')))
+                                    ->where('company_id', $company->id)
+                                    ->withTrashed()
+                                    ->first();
 
             }
-            else {
-                $entity_obj = $repo->save($request->all(), $factory);
-            }
+
+            $entity_obj = $repo->save($request->all(), $entity_obj);
 
             $entity_obj->load('client');
 
@@ -218,7 +226,7 @@ class PreviewController extends BaseController
 
             /* Catch all in case migration doesn't pass back a valid design */
             if(!$design)
-                $design = Design::find(2);
+                $design = \App\Models\Design::find(2);
 
             if ($design->is_custom) {
                 $options = [
@@ -244,6 +252,7 @@ class PreviewController extends BaseController
                     'all_pages_header' => $entity_obj->client->getSetting('all_pages_header'),
                     'all_pages_footer' => $entity_obj->client->getSetting('all_pages_footer'),
                 ],
+                'process_markdown' => $entity_obj->client->company->markdown_enabled,
             ];
 
 
@@ -277,7 +286,7 @@ class PreviewController extends BaseController
                 return (new NinjaPdf())->build($maker->getCompiledHTML(true));
             }
 
-            $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), auth()->user()->company());
+            $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), $company);
 
 
             if(Ninja::isHosted())
@@ -302,7 +311,7 @@ class PreviewController extends BaseController
         $t = app('translator');
         $t->replace(Ninja::transformTranslations(auth()->user()->company()->settings));
 
-        DB::connection(config('database.default'))->beginTransaction();
+        DB::connection(auth()->user()->company()->db)->beginTransaction();
 
         $client = Client::factory()->create([
                 'user_id' => auth()->user()->id,
@@ -355,6 +364,7 @@ class PreviewController extends BaseController
                 'products' => request()->design['design']['product'],
             ]),
             'variables' => $html->generateLabelsAndValues(),
+            'process_markdown' => $invoice->client->company->markdown_enabled,
         ];
 
         $maker = new PdfMaker($state);
@@ -377,7 +387,7 @@ class PreviewController extends BaseController
             
         $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), auth()->user()->company());
 
-        DB::connection(config('database.default'))->rollBack();
+        DB::connection(auth()->user()->company()->db)->rollBack();
 
         $response = Response::make($file_path, 200);
         $response->header('Content-Type', 'application/pdf');

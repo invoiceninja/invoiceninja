@@ -37,6 +37,10 @@ class PaymentEmailEngine extends BaseEmailEngine
 
     private $helpers;
 
+    private $payment_template_body;
+
+    private $payment_template_subject;
+
     public function __construct($payment, $contact, $template_data = null)
     {
         $this->payment = $payment;
@@ -55,20 +59,22 @@ class PaymentEmailEngine extends BaseEmailEngine
         App::setLocale($this->contact->preferredLocale());
         $t->replace(Ninja::transformTranslations($this->client->getMergedSettings()));
 
+        $this->resolvePaymentTemplate();
+
         if (is_array($this->template_data) &&  array_key_exists('body', $this->template_data) && strlen($this->template_data['body']) > 0) {
             $body_template = $this->template_data['body'];
-        } elseif (strlen($this->client->getSetting('email_template_payment')) > 0) {
-            $body_template = $this->client->getSetting('email_template_payment');
+        } elseif (strlen($this->client->getSetting($this->payment_template_body)) > 0) {
+            $body_template = $this->client->getSetting($this->payment_template_body);
         } else {
-            $body_template = EmailTemplateDefaults::getDefaultTemplate('email_template_payment', $this->client->locale());
+            $body_template = EmailTemplateDefaults::getDefaultTemplate($this->payment_template_body, $this->client->locale());
         }
 
         if (is_array($this->template_data) &&  array_key_exists('subject', $this->template_data) && strlen($this->template_data['subject']) > 0) {
             $subject_template = $this->template_data['subject'];
-        } elseif (strlen($this->client->getSetting('email_subject_payment')) > 0) {
-            $subject_template = $this->client->getSetting('email_subject_payment');
+        } elseif (strlen($this->client->getSetting($this->payment_template_subject)) > 0) {
+            $subject_template = $this->client->getSetting($this->payment_template_subject);
         } else {
-            $subject_template = EmailTemplateDefaults::getDefaultTemplate('email_subject_payment', $this->client->locale());
+            $subject_template = EmailTemplateDefaults::getDefaultTemplate($this->payment_template_subject, $this->client->locale());
         }
 
         $this->setTemplate($this->client->getSetting('email_style'))
@@ -91,6 +97,34 @@ class PaymentEmailEngine extends BaseEmailEngine
 
             });
 
+        }
+
+        return $this;
+    }
+
+    /**
+     * Helper method to resolve which payment template
+     * to use. We need to check the invoice balances to
+     * determine if this is a partial payment, or full payment.
+     *     
+     * @return $this
+     */
+    private function resolvePaymentTemplate() 
+    {
+
+        $partial = $this->payment->invoices->contains(function ($invoice){
+
+            return $invoice->balance > 0;
+
+        });
+
+        if($partial){
+            $this->payment_template_body = "email_template_payment_partial";
+            $this->payment_template_subject = "email_subject_payment_partial";
+        }
+        else {
+            $this->payment_template_body = "email_template_payment";
+            $this->payment_template_subject = "email_subject_payment";
         }
 
         return $this;
@@ -133,6 +167,7 @@ class PaymentEmailEngine extends BaseEmailEngine
         $data['$email'] = ['value' => isset($this->contact) ? $this->contact->email : 'no contact email on record', 'label' => ctrans('texts.email')];
         $data['$client_name'] = ['value' => $this->client->present()->name() ?: '&nbsp;', 'label' => ctrans('texts.client_name')];
         $data['$client.name'] = &$data['$client_name'];
+        $data['$client'] = &$data['$client_name'];
         $data['$client.address1'] = &$data['$address1'];
         $data['$client.address2'] = &$data['$address2'];
         $data['$client_address'] = ['value' => $this->client->present()->address() ?: '&nbsp;', 'label' => ctrans('texts.address')];
@@ -164,6 +199,7 @@ class PaymentEmailEngine extends BaseEmailEngine
         $data['$contact.custom2'] = ['value' => isset($this->contact) ? $this->contact->custom_value2 : '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'contact1')];
         $data['$contact.custom3'] = ['value' => isset($this->contact) ? $this->contact->custom_value3 : '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'contact1')];
         $data['$contact.custom4'] = ['value' => isset($this->contact) ? $this->contact->custom_value4 : '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'contact1')];
+        $data['$firstName'] = &$data['$contact.first_name'];
 
         $data['$company.city_state_postal'] = ['value' => $this->company->present()->cityStateZip($this->settings->city, $this->settings->state, $this->settings->postal_code, false) ?: '&nbsp;', 'label' => ctrans('texts.city_state_postal')];
         $data['$company.postal_city_state'] = ['value' => $this->company->present()->cityStateZip($this->settings->city, $this->settings->state, $this->settings->postal_code, true) ?: '&nbsp;', 'label' => ctrans('texts.postal_city_state')];
@@ -191,9 +227,15 @@ class PaymentEmailEngine extends BaseEmailEngine
         $data['$company4'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company4', $this->settings->custom_value4, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'company4')];
 
         $data['$view_link'] = ['value' => '<a class="button" href="'.$this->payment->getLink().'">'.ctrans('texts.view_payment').'</a>', 'label' => ctrans('texts.view_payment')];
+        $data['$paymentLink'] = &$data['$view_link'];
+        $data['$portalButton'] = ['value' => "<a href='{$this->payment->getPortalLink()}'>".ctrans('texts.login')."</a>", 'label' =>''];
+        $data['$portal_url'] = &$data['$portalButton'];
+
         $data['$view_url'] = ['value' => $this->payment->getLink(), 'label' => ctrans('texts.view_payment')];
+        $data['$signature'] = ['value' => $this->settings->email_signature ?: '&nbsp;', 'label' => ''];
 
         $data['$invoices'] = ['value' => $this->formatInvoices(), 'label' => ctrans('texts.invoices')];
+        $data['$invoice_references'] = ['value' => $this->formatInvoiceReferences(), 'label' => ctrans('texts.invoices')];
 
         return $data;
     }
@@ -207,6 +249,25 @@ class PaymentEmailEngine extends BaseEmailEngine
         }
 
         return $invoice_list;
+    }
+
+    private function formatInvoiceReferences()
+    {
+
+        $invoice_list = '<br><br>';
+
+        foreach ($this->payment->invoices as $invoice) {
+            
+            $invoice_list .= ctrans('texts.po_number'). " {$invoice->po_number} <br>";
+            $invoice_list .= ctrans('texts.invoice_number_short') . " {$invoice->number} <br>";
+            $invoice_list .= ctrans('texts.invoice_amount') ." ". Number::formatMoney($invoice->pivot->amount, $this->client) . "<br>";
+            $invoice_list .= ctrans('texts.invoice_balance') ." ". Number::formatMoney($invoice->fresh()->balance, $this->client) . "<br>";
+            $invoice_list .= "-----<br>";
+
+        }
+
+        return $invoice_list;
+
     }
 
     public function makeValues() :array

@@ -263,6 +263,63 @@ class ClientTest extends TestCase
         $this->assertEquals($this->client->contacts->count(), 3);
     }
 
+    public function testClientCreationWithIllegalContactObject()
+    {
+
+        $account = Account::factory()->create();
+        $company = Company::factory()->create([
+                    'account_id' => $account->id,
+                     ]);
+
+        $account->default_company_id = $company->id;
+        $account->save();
+
+        $user = User::factory()->create([
+                'account_id' => $account->id,
+                'confirmation_code' => $this->createDbHash(config('database.default')),
+                'email' => 'whiz@gmail.com',
+
+            ]);
+
+        $user->companies()->attach($company->id, [
+                'account_id' => $account->id,
+                'is_owner' => 1,
+                'is_admin' => 1,
+                'notifications' => CompanySettings::notificationDefaults(),
+                'permissions' => '',
+                'settings' => '',
+                'is_locked' => 0,
+            ]);
+
+        $company_token = new CompanyToken;
+        $company_token->user_id = $user->id;
+        $company_token->company_id = $company->id;
+        $company_token->account_id = $account->id;
+        $company_token->name = $user->first_name.' '.$user->last_name;
+        $company_token->token = Str::random(64);
+        $company_token->save();
+
+        $this->token = $company_token->token;
+
+
+        $data = [
+                'name' => 'A loyal Client',
+                'contacts' => $this->faker->unique()->safeEmail,
+            ];
+
+        try{
+            $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $this->token,
+                ])->post('/api/v1/clients/', $data);
+        }catch (ValidationException $e) {
+            $message = json_decode($e->validator->getMessageBag(), 1);
+            $this->assertNotNull($message);
+        }
+
+
+    }
+
     public function testCreatingClientAndContacts()
     {
         $account = Account::factory()->create();

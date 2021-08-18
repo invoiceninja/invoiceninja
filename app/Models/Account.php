@@ -11,12 +11,16 @@
 
 namespace App\Models;
 
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
+use App\Mail\Ninja\EmailQuotaExceeded;
 use App\Models\Presenters\AccountPresenter;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Carbon\Carbon;
 use DateTime;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Cache;
 use Laracasts\Presenter\PresentableTrait;
 
 class Account extends BaseModel
@@ -24,6 +28,9 @@ class Account extends BaseModel
     use PresentableTrait;
     use MakesHash;
 
+    private $free_plan_email_quota = 250;
+
+    private $paid_plan_email_quota = 500;
     /**
      * @var string
      */
@@ -127,6 +134,9 @@ class Account extends BaseModel
 
     public function getPlan()
     {
+        if(Carbon::parse($this->plan_expires)->lt(now()))
+            return '';
+
         return $this->plan ?: '';
     }
 
@@ -339,6 +349,59 @@ class Account extends BaseModel
                 'active' => $trial_active,
             ];
         }
+    }
+
+    public function getDailyEmailLimit()
+    {
+
+        if($this->isPaid()){
+            $limit = $this->paid_plan_email_quota;
+            $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 50;
+        }
+        else{
+            $limit = $this->free_plan_email_quota;
+            $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 100;
+        }
+
+        return min($limit, 5000);
+    }
+
+    public function emailsSent()
+    {
+        if(is_null(Cache::get($this->key)))
+            return 0;
+
+        return Cache::get($this->key);
+    } 
+
+    public function emailQuotaExceeded() :bool
+    {
+        if(is_null(Cache::get($this->key)))
+            return false;
+
+        try {
+            if(Cache::get($this->key) > $this->getDailyEmailLimit()) {
+
+                if(is_null(Cache::get("throttle_notified:{$this->key}"))) {
+
+                    $nmo = new NinjaMailerObject;
+                    $nmo->mailable = new EmailQuotaExceeded($this->companies()->first());
+                    $nmo->company = $this->companies()->first();
+                    $nmo->settings = $this->companies()->first()->settings;
+                    $nmo->to_user = $this->companies()->first()->owner();
+                    NinjaMailerJob::dispatch($nmo);
+
+                    Cache::put("throttle_notified:{$this->key}", true, 60 * 24);
+                }
+
+                return true;
+            }
+        }
+        catch(\Exception $e){
+            \Sentry\captureMessage("I encountered an error with email quotas - defaulting to SEND");
+        }
+
+        return false;
     }
 
 }
