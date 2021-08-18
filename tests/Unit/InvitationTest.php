@@ -11,8 +11,10 @@
 namespace Tests\Unit;
 
 use App\Factory\InvoiceInvitationFactory;
+use App\Models\CompanyToken;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Validation\ValidationException;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -30,6 +32,9 @@ class InvitationTest extends TestCase
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
+
+        $this->withoutExceptionHandling();
+
     }
 
     public function testInvitationSanity()
@@ -54,9 +59,10 @@ class InvitationTest extends TestCase
         try {
 
         $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->put('/api/v1/invoices/'.$this->encodePrimaryKey($this->invoice->id), $this->invoice->toArray());
-        } catch (\Exception $e) {
+        } catch (ValidationException $e) {
 
             nlog($e->getMessage());
         }

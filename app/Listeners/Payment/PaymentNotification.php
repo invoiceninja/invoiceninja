@@ -100,7 +100,7 @@ class PaymentNotification implements ShouldQueue
         $currency_code = $client->getCurrencyCode();
 
         if (Ninja::isHosted()) {
-            $item .= ' [R]';
+            $item .= ' [R5]';
         }
 
         $base = "v=1&tid={$analytics_id}&cid={$client->id}&cu={$currency_code}&ti={$entity_number}";

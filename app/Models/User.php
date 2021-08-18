@@ -182,7 +182,6 @@ class User extends Authenticatable implements MustVerifyEmail
             return $company_token->company;
         }
 
-
         // return false;
         throw new \Exception('No Company Found');
         //return Company::find(config('ninja.company_id'));
