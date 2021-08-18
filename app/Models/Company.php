@@ -94,6 +94,7 @@ class Company extends BaseModel
         'invoice_task_datelog',
         'default_password_timeout',
         'show_task_end_date',
+        'use_comma_as_decimal_place',
     ];
 
     protected $hidden = [
