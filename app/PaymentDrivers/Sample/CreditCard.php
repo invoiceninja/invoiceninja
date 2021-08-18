@@ -10,7 +10,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\PaymentDrivers\Eway;
+namespace App\PaymentDrivers\Sample;
 
 use App\Exceptions\PaymentFailed;
 use App\Jobs\Mail\PaymentFailureMailer;

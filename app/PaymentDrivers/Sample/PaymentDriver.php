@@ -9,7 +9,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\PaymentDrivers;
+namespace App\PaymentDrivers\Sample;
 
 use App\Http\Requests\Payments\PaymentWebhookRequest;
 use App\Models\ClientGatewayToken;
