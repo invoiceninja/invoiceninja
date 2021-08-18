@@ -12,19 +12,12 @@
 
 namespace App\PaymentDrivers\Square;
 
-use App\Exceptions\PaymentFailed;
-use App\Jobs\Mail\PaymentFailureMailer;
-use App\Jobs\Util\SystemLogger;
-use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
-use App\Models\PaymentHash;
 use App\Models\PaymentType;
-use App\Models\SystemLog;
 use App\PaymentDrivers\SquarePaymentDriver;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class CreditCard
@@ -41,11 +34,9 @@ class CreditCard
 
     public function authorizeView($data)
     {
-
         $data['gateway'] = $this->square_driver;
 
         return render('gateways.square.credit_card.authorize', $data);
-
     }
 
     public function authorizeResponse($request)
@@ -128,12 +119,10 @@ class CreditCard
 
     public function paymentView($data)
     {
-
         $data['gateway'] = $this->square_driver;
 
 
         return render('gateways.square.credit_card.pay', $data);
-
     }
 
     public function paymentResponse($request)
@@ -155,20 +144,19 @@ class CreditCard
         $payment = $this->square_driver->createPayment($payment_record, Payment::STATUS_COMPLETED);
 
         return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
-
     }
 
     private function processUnsuccessfulPayment($response)
     {
         // array (
-        //   0 => 
+        //   0 =>
         //   Square\Models\Error::__set_state(array(
         //      'category' => 'INVALID_REQUEST_ERROR',
         //      'code' => 'INVALID_CARD_DATA',
         //      'detail' => 'Invalid card data.',
         //      'field' => 'source_id',
         //   )),
-        // )  
+        // )
 
         $data = [
             'response' => $response,
@@ -177,7 +165,6 @@ class CreditCard
         ];
 
         return $this->square_driver->processUnsuccessfulTransaction($data);
-
     }
 
 
@@ -186,7 +173,6 @@ class CreditCard
 
     private function findOrCreateClient()
     {
-
         $email_address = new \Square\Models\CustomerTextFilter();
         $email_address->setExact($this->square_driver->client->present()->email());
 
@@ -214,8 +200,9 @@ class CreditCard
             $errors = $api_response->getErrors();
         }
 
-        if($customers)
+        if ($customers) {
             return $customers->customers[0]->id;
+        }
 
         return $this->createClient();
     }
@@ -250,11 +237,9 @@ class CreditCard
         if ($api_response->isSuccess()) {
             $result = $api_response->getResult();
             return $result->getCustomer()->getId();
-
         } else {
             $errors = $api_response->getErrors();
             return $this->processUnsuccessfulPayment($errors);
         }
-
     }
 }
