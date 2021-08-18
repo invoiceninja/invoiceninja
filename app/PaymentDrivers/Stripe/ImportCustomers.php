@@ -144,6 +144,12 @@ class ImportCustomers
 
     public function match()
     {
+        $this->stripe->init();
+
+        $this->update_payment_methods = new UpdatePaymentMethods($this->stripe);
+
+        if(strlen($this->stripe->company_gateway->getConfigField('account_id')) < 1)
+                throw new StripeConnectFailure('Stripe Connect has not been configured');
 
         foreach($this->stripe->company_gateway->company->clients as $client)
         {
