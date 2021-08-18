@@ -159,7 +159,7 @@ class ImportCustomers
             if(count($searchResults) == 1)
             {
 
-            $cgt = ClientGatewayToken::where('gateway_customer_reference', $searchResults->data[0]->id)->where('company_id', $this->company_gateway->company->id)->exists();
+            $cgt = ClientGatewayToken::where('gateway_customer_reference', $searchResults->data[0]->id)->where('company_id', $this->stripe->company_gateway->company->id)->exists();
 
                 if(!$cgt)
                 {
