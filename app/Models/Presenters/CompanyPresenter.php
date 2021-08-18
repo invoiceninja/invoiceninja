@@ -71,6 +71,7 @@ class CompanyPresenter extends EntityPresenter
         else
             return "data:image/png;base64, ". base64_encode(file_get_contents(asset('images/new_logo.png'), false, stream_context_create($context_options)));
 
+
     }
 
     public function address($settings = null)

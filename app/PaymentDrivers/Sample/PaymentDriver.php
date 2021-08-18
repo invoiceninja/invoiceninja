@@ -17,10 +17,9 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\SystemLog;
-use App\PaymentDrivers\Stripe\CreditCard;
 use App\Utils\Traits\MakesHash;
 
-class DriverTemplate extends BaseDriver
+class PaymentDriver extends BaseDriver
 {
     use MakesHash;
 
@@ -85,12 +84,12 @@ class DriverTemplate extends BaseDriver
 
     public function refund(Payment $payment, $amount, $return_client_response = false)
     {
-        return $this->payment_method->yourRefundImplementationHere(); //this is your custom implementation from here
+        //this is your custom implementation from here
     }
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
-        return $this->payment_method->yourTokenBillingImplmentation(); //this is your custom implementation from here
+        //this is your custom implementation from here
     }
 
     public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment = null)

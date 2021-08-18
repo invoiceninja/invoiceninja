@@ -81,7 +81,10 @@ class Gateway extends StaticModel
             case 1:
                 return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true]];//Authorize.net
                 break;
-            case 1:
+            case 3:
+                return [GatewayType::CREDIT_CARD => ['refund' => false, 'token_billing' => true]];//eWay
+                break;   
+            case 11:
                 return [GatewayType::CREDIT_CARD => ['refund' => false, 'token_billing' => false]];//Payfast
                 break;
             case 15:
