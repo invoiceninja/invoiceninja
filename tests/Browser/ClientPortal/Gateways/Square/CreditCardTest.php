@@ -105,4 +105,24 @@ class CreditCardTest extends DuskTestCase
                 ->assertSee('Payment method has been successfully removed.');
         });
     }
+
+    public function testAddingCreditCardStandalone()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.payment_methods.index')
+                ->press('Add Payment Method')
+                ->clickLink('Credit Card')
+                ->type('#cardholder-name', 'John Doe')
+                ->withinFrame('iframe', function (Browser $browser) {
+                    $browser
+                        ->type('#cardNumber', '4111 1111 1111 1111')
+                        ->type('#expirationDate', '04/22')
+                        ->type('#cvv', '1111')
+                        ->type('#postalCode', '12345');
+                })
+                ->press('Add Payment Method')
+                ->waitForText('**** 1111');
+        });
+    }
 }
