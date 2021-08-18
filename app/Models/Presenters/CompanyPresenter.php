@@ -54,12 +54,19 @@ class CompanyPresenter extends EntityPresenter
             $settings = $this->entity->settings;
         }
 
+        $arrContextOptions=array(
+            "ssl"=>array(
+                "verify_peer"=>false,
+                "verify_peer_name"=>false,
+            ),
+        );  
+
         if(strlen($settings->company_logo) >= 1 && (strpos($settings->company_logo, 'http') !== false))
-            return "data:image/png;base64, ". base64_encode(file_get_contents($settings->company_logo));
+            return "data:image/png;base64, ". base64_encode(file_get_contents($settings->company_logo, false, stream_context_create($arrContextOptions)));
         else if(strlen($settings->company_logo) >= 1)
-            return "data:image/png;base64, ". base64_encode(file_get_contents(url('') . $settings->company_logo));
+            return "data:image/png;base64, ". base64_encode(file_get_contents(url('') . $settings->company_logo, false, stream_context_create($arrContextOptions)));
         else
-            return "data:image/png;base64, ". base64_encode(file_get_contents(asset('images/new_logo.png')));
+            return "data:image/png;base64, ". base64_encode(file_get_contents(asset('images/new_logo.png'), false, stream_context_create($arrContextOptions)));
 
     }
 
