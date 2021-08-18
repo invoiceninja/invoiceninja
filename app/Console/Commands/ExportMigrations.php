@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Traits\GenerateMigrationResources;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ExportMigrations extends Command
 {
@@ -63,12 +64,12 @@ class ExportMigrations extends Command
 
 
         if($this->option('email')) {
-            $record = User::on(DB_NINJA_1)->where('email', $this->option('user'))->first();
+            $record = User::on(DB_NINJA_1)->where('email', $this->option('email'))->first();
 
             if($record)
                 return $this->export($record);
 
-            $record = User::on(DB_NINJA_2)->where('email', $this->option('user'))->first();
+            $record = User::on(DB_NINJA_2)->where('email', $this->option('email'))->first();
 
             if($record)
                 return $this->export($record);
@@ -132,6 +133,7 @@ class ExportMigrations extends Command
             'ninja_tokens' => $this->getNinjaToken(),
         ];
 
+        Storage::makeDirectory('migrations');
         $file = storage_path("migrations/{$fileName}.zip");
 
         $zip = new \ZipArchive();
