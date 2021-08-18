@@ -68,6 +68,7 @@
             constructor() {
                 this.appId = document.querySelector('meta[name=square-appId]').content;
                 this.locationId = document.querySelector('meta[name=square-locationId]').content;
+                this.isLoaded = false;
             }
 
             async init() {
@@ -76,6 +77,8 @@
                 this.card = await this.payments.card();
 
                 await this.card.attach('#card-container');
+
+                this.isLoaded = true;
 
                 let iframeContainer = document.querySelector('.sq-card-iframe-container');
 
@@ -151,11 +154,13 @@
                 document
                     .getElementById('toggle-payment-with-credit-card')
                     .addEventListener('click', async (element) => {
-                        await this.init();
-
                         document.getElementById('card-container').classList.remove('hidden');
                         document.getElementById('save-card--container').style.display = 'grid';
                         document.querySelector('input[name=token]').value = "";
+
+                        if (!this.isLoaded) {
+                            await this.init();
+                        }
                     });
 
                 let toggleWithToken = document.querySelector('.toggle-payment-with-token');
