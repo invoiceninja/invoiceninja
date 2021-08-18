@@ -2,6 +2,7 @@
     :root {
         --primary-color: $primary_color;
         --secondary-color: $secondary_color;
+       --line-height: 1.6;
     }
 
     body {
@@ -26,6 +27,7 @@
         display: grid;
         grid-template-columns: 1.2fr 1.8fr;
         gap: 20px;
+        line-height: var(--line-height);
     }
 
     .header-wrapper .header-text-label {
@@ -223,6 +225,10 @@
         direction: $dir;
     }
 
+    [data-ref="product_table-product.unit_cost-td"] { text-align: right; }
+
+    [data-ref="totals_table-outstanding"] { color: var(--primary-color); }
+
     /** Useful snippets, uncomment to enable. **/
     
     /** Hide company logo **/
@@ -252,6 +258,7 @@
     /** For more info, please check our docs: https://invoiceninja.github.io **/
     /** To find out selectors on your own: https://invoiceninja.github.io/docs/custom-fields/#snippets **/
 </style>
+
 <div id="header"></div>
 
 <div id="body">

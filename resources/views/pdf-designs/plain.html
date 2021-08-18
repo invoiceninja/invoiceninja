@@ -2,6 +2,7 @@
     :root {
         --primary-color: $primary_color;
         --secondary-color: $secondary_color;
+        --line-height: 1.6; 
     }
 
     body {
@@ -25,6 +26,7 @@
     .header-wrapper {
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
+        line-height: var(--line-height);
     }
 
     .company-logo {
@@ -34,6 +36,7 @@
     .header-wrapper #company-address {
         display: flex;
         flex-direction: column;
+        line-height: var(--line-height);
     }
 
     .header-wrapper #entity-details {
@@ -62,6 +65,7 @@
     #client-details {
         display: flex;
         flex-direction: column;
+        line-height: var(--line-height);
     }
 
     #product-table,
@@ -134,6 +138,7 @@
     #table-totals>.totals-table-right-side>*> :nth-child(1) {
         text-align: "$dir_text_align";
         margin-top: .75rem;
+        padding-left: 7px;
     }
 
     #table-totals>.totals-table-right-side> * > :not([hidden]) ~ :not([hidden]) {
@@ -144,6 +149,7 @@
 
     #table-totals>.totals-table-right-side>*> :nth-child(2) {
         text-align: right;
+        padding-right: 7px;
     }
 
     #table-totals
@@ -180,6 +186,15 @@
         margin-bottom: 0;
     }
 
+    [data-ref="totals_table-outstanding-label"],
+    [data-ref="totals_table-outstanding"] {
+        background-color: #e6e6e6;
+        color: black;
+        padding-top: 7px;
+        padding-bottom: 7px;
+        padding-right: 7px;
+    }
+
     /** Useful snippets, uncomment to enable. **/
     
     /** Hide company logo **/
@@ -209,6 +224,7 @@
     /** For more info, please check our docs: https://invoiceninja.github.io **/
     /** To find out selectors on your own: https://invoiceninja.github.io/docs/custom-fields/#snippets **/
 </style>
+
 <div id="header"></div>
 
 <div id="body">

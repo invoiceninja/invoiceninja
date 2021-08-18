@@ -2,6 +2,7 @@
     :root {
         --primary-color: $primary_color;
         --secondary-color: $secondary_color;
+        --line-height: 1.6;
     }
 
     body {
@@ -26,11 +27,14 @@
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
         gap: 20px;
+        line-height: var(--line-height);
     }
 
     .company-logo {
         max-width: 65%;
     }
+
+    #entity-details p { margin-top: 5px; }
 
     .header-wrapper #client-details,
     .header-wrapper #company-details,
@@ -233,6 +237,7 @@
     /** For more info, please check our docs: https://invoiceninja.github.io **/
     /** To find out selectors on your own: https://invoiceninja.github.io/docs/custom-fields/#snippets **/
 </style>
+
 
 <div id="header"></div>
 

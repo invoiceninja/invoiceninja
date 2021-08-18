@@ -2,6 +2,7 @@
     :root {
         --primary-color: $primary_color;
         --secondary-color: $secondary_color;
+        --line-height: 1.6;
     }
 
     body {
@@ -31,10 +32,11 @@
         padding: 3rem;
         color: white;
         min-width: 100%;
+        line-height: var(--line-height);
     }
 
     .company-logo {
-        max-width: 65%;
+        max-width: 55%;
     }
 
     #company-details,
@@ -47,6 +49,7 @@
         margin: 2rem;
         display: flex;
         flex-direction: column;
+        line-height: var(--line-height);
     }
 
     #client-details > :first-child {
@@ -250,6 +253,10 @@
         font-size: 1rem;
         margin-bottom: 0;
     }
+
+     [data-ref="product_table-product.description-th"] { 
+          width: 23%;
+     }
 
     /** Useful snippets, uncomment to enable. **/
       
