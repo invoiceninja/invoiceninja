@@ -85,6 +85,7 @@ class GenerateDeliveryNote
                 'contact' => $this->contact,
             ], 'delivery_note'),
             'variables' => $html->generateLabelsAndValues(),
+            'process_markdown' => $this->invoice->client->company->markdown_enabled,
         ];
 
         $maker = new PdfMakerService($state);

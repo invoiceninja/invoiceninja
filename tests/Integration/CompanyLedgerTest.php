@@ -158,7 +158,8 @@ class CompanyLedgerTest extends TestCase
         $item = [];
         $item['quantity'] = 1;
         $item['cost'] = 10;
-
+        $item['type_id'] = "1";
+        
         $line_items[] = $item;
 
         $data = [

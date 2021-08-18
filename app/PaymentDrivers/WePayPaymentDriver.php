@@ -168,6 +168,8 @@ class WePayPaymentDriver extends BaseDriver
 
         $input = $request->all();
 
+        $config = $this->company_gateway->getConfig();
+
         $accountId = $this->company_gateway->getConfigField('accountId');
 
         foreach (array_keys($input) as $key) {

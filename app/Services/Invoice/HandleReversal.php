@@ -65,7 +65,8 @@ class HandleReversal extends AbstractService
 
         /* Generate a credit for the $total_paid amount */
         $notes = 'Credit for reversal of '.$this->invoice->number;
-
+        $credit = false;
+        
         if ($total_paid > 0) {
 
             $credit = CreditFactory::create($this->invoice->company_id, $this->invoice->user_id);

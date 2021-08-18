@@ -50,7 +50,8 @@ class MarkInvoiceDeleted extends AbstractService
 
     private function adjustLedger()
     {
-        $this->invoice->ledger()->updatePaymentBalance($this->adjustment_amount * -1, 'Invoice Deleted - reducing ledger balance'); //reduces the payment balance by payment totals
+        // $this->invoice->ledger()->updatePaymentBalance($this->adjustment_amount * -1, 'Invoice Deleted - reducing ledger balance'); //reduces the payment balance by payment totals
+        $this->invoice->ledger()->updatePaymentBalance($this->invoice->balance * -1, 'Invoice Deleted - reducing ledger balance'); //reduces the payment balance by payment totals
 
         return $this;
     }

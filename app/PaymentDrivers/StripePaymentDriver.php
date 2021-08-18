@@ -13,6 +13,7 @@
 namespace App\PaymentDrivers;
 
 use App\Exceptions\PaymentFailed;
+use App\Exceptions\StripeConnectFailure;
 use App\Factory\PaymentFactory;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
 use App\Http\Requests\Request;
@@ -24,7 +25,9 @@ use App\Models\PaymentHash;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Stripe\ACH;
 use App\PaymentDrivers\Stripe\Alipay;
+use App\PaymentDrivers\Stripe\ApplePay;
 use App\PaymentDrivers\Stripe\Charge;
+use App\PaymentDrivers\Stripe\Connect\Verify;
 use App\PaymentDrivers\Stripe\CreditCard;
 use App\PaymentDrivers\Stripe\ImportCustomers;
 use App\PaymentDrivers\Stripe\SOFORT;
@@ -70,7 +73,7 @@ class StripePaymentDriver extends BaseDriver
         GatewayType::BANK_TRANSFER => ACH::class,
         GatewayType::ALIPAY => Alipay::class,
         GatewayType::SOFORT => SOFORT::class,
-        GatewayType::APPLE_PAY => 1, // TODO
+        GatewayType::APPLE_PAY => ApplePay::class,
         GatewayType::SEPA => 1, // TODO
     ];
 
@@ -86,7 +89,10 @@ class StripePaymentDriver extends BaseDriver
         {
             Stripe::setApiKey(config('ninja.ninja_stripe_key'));
 
-            $this->stripe_connect_auth = ["stripe_account" => $this->company_gateway->getConfigField('account_id')];
+            if(strlen($this->company_gateway->getConfigField('account_id')) > 1)
+                $this->stripe_connect_auth = ["stripe_account" => $this->company_gateway->getConfigField('account_id')];
+            else
+                throw new StripeConnectFailure('Stripe Connect has not been configured');
         }
         else
         {
@@ -195,8 +201,9 @@ class StripePaymentDriver extends BaseDriver
             $fields[] = ['name' => 'client_country_id', 'label' => ctrans('texts.country'), 'type' => 'text', 'validation' => 'required'];
         }
 
-        if($this->company_gateway->require_postal_code)
+        if($this->company_gateway->require_postal_code) {
             $fields[] = ['name' => 'client_postal_code', 'label' => ctrans('texts.postal_code'), 'type' => 'text', 'validation' => 'required'];
+        }
 
         if ($this->company_gateway->require_shipping_address) {
             $fields[] = ['name' => 'client_shipping_address_line_1', 'label' => ctrans('texts.shipping_address1'), 'type' => 'text', 'validation' => 'required'];
@@ -387,21 +394,26 @@ class StripePaymentDriver extends BaseDriver
         return $this->payment_method->processVerification($request, $payment_method);
     }
 
-    public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment)
+    public function processWebhookRequest(PaymentWebhookRequest $request)
     {
-        if ($request->type == 'source.chargeable') {
-            $payment->status_id = Payment::STATUS_COMPLETED;
-            $payment->save();
+        // Allow app to catch up with webhook request.
+        sleep(2);
+
+        if ($request->type === 'charge.succeeded' || $request->type === 'source.chargeable') {
+            foreach ($request->data as $transaction) {
+                $payment = Payment::query()
+                        ->where('transaction_reference', $transaction['id'])
+                        ->where('company_id', $request->getCompany()->id)
+                        ->first();
+
+                if ($payment) {
+                    $payment->status_id = Payment::STATUS_COMPLETED;
+                    $payment->save();
+                }
+            }
         }
 
-        if ($request->type == 'charge.succeeded') {
-            $payment->status_id = Payment::STATUS_COMPLETED;
-            $payment->save();
-        }
-
-        // charge.failed, charge.refunded
-
-        return response([], 200);
+        return response()->json([], 200);
     }
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
@@ -529,5 +541,35 @@ class StripePaymentDriver extends BaseDriver
         return (new ImportCustomers($this))->run();
         //match clients based on the gateway_customer_reference column
 
+    }
+
+    public function verifyConnect()
+    {
+        return (new Verify($this))->run();
+    }
+
+    public function disconnect()
+    {
+        if(!$this->stripe_connect)
+            return true;
+
+        if(!strlen($this->company_gateway->getConfigField('account_id')) > 1 )
+            throw new StripeConnectFailure('Stripe Connect has not been configured');
+
+        Stripe::setApiKey(config('ninja.ninja_stripe_key'));
+
+        try {
+
+            \Stripe\OAuth::deauthorize([
+              'client_id' => config('ninja.ninja_stripe_client_id'),
+              'stripe_user_id' => $this->company_gateway->getConfigField('account_id'),
+            ]);
+
+        }
+        catch(\Exception $e){
+            throw new StripeConnectFailure('Unable to disconnect Stripe Connect');
+        }
+
+        return response()->json(['message' => 'success'], 200);
     }
 }

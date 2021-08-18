@@ -103,4 +103,31 @@ class ACHTest extends DuskTestCase
                 ->assertSee('Payment method has been successfully removed.');
         });
     }
+
+    public function testIntegerAndMinimumValueOnVerification()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.payment_methods.index')
+                ->press('Add Payment Method')
+                ->clickLink('Bank Account')
+                ->type('#account-holder-name', 'John Doe')
+                ->select('#country', 'US')
+                ->select('#currency', 'USD')
+                ->type('#routing-number', '110000000')
+                ->type('#account-number', '000123456789')
+                ->check('#accept-terms')
+                ->press('Add Payment Method')
+                ->waitForText('ACH (Verification)', 60)
+                ->type('@verification-1st', '0.1')
+                ->type('@verification-2nd', '0')
+                ->press('Complete Verification')
+                ->assertSee('The transactions.0 must be an integer')
+                ->assertSee('The transactions.1 must be at least 1')
+                ->type('@verification-1st', '32')
+                ->type('@verification-2nd', '45')
+                ->press('Complete Verification')
+                ->assertSee('Bank Transfer');
+        });
+    }
 }

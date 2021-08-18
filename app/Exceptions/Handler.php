@@ -14,6 +14,7 @@ namespace App\Exceptions;
 use App\Exceptions\FilePermissionsFailure;
 use App\Exceptions\InternalPDFFailure;
 use App\Exceptions\PhantomPDFFailure;
+use App\Exceptions\StripeConnectFailure;
 use App\Utils\Ninja;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -196,6 +197,8 @@ class Handler extends ExceptionHandler
         } elseif ($exception instanceof GenericPaymentDriverFailure && $request->expectsJson()) {
             return response()->json(['message' => $exception->getMessage()], 400);
         } elseif ($exception instanceof GenericPaymentDriverFailure) {
+            return response()->json(['message' => $exception->getMessage()], 400);
+        } elseif ($exception instanceof StripeConnectFailure) {
             return response()->json(['message' => $exception->getMessage()], 400);
         } 
 

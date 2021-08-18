@@ -43,7 +43,7 @@ class AutoBillCron
         set_time_limit(0);
 
         /* Get all invoices where the send date is less than NOW + 30 minutes() */
-        nlog("Performing Autobilling ".Carbon::now()->format('Y-m-d h:i:s'));
+        info("Performing Autobilling ".Carbon::now()->format('Y-m-d h:i:s'));
 
         if (! config('ninja.db.multi_db_enabled')) {
 
@@ -95,7 +95,7 @@ class AutoBillCron
 
     private function runAutoBiller(Invoice $invoice)
     {
-        nlog("Firing autobill for {$invoice->company_id} - {$invoice->number}");
+        info("Firing autobill for {$invoice->company_id} - {$invoice->number}");
         $invoice->service()->autoBill()->save();
     }
 }

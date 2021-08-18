@@ -44,6 +44,10 @@ class TriggeredActions extends AbstractService
             $this->invoice = $this->invoice->service()->markPaid()->save();
         }
 
+        if ($this->request->has('amount_paid') && is_numeric($this->request->input('amount_paid')) ) {
+            $this->invoice = $this->invoice->service()->applyPaymentAmount($this->request->input('amount_paid'))->save();
+        }
+
         if ($this->request->has('send_email') && $this->request->input('send_email') == 'true') {
             $this->sendEmail();
         }
@@ -52,6 +56,7 @@ class TriggeredActions extends AbstractService
             $this->invoice = $this->invoice->service()->markSent()->save();
         }
 
+        
         return $this->invoice;
     }
 

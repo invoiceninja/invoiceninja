@@ -160,6 +160,7 @@ class Design extends BaseDesign
 
         if ($this->type == 'delivery_note') {
             $elements = [
+                ['element' => 'p', 'content' => ctrans('texts.delivery_note'), 'properties' => ['data-ref' => 'delivery_note-label', 'style' => 'font-weight: bold; text-transform: uppercase']],
                 ['element' => 'p', 'content' => $this->entity->client->name, 'show_empty' => false, 'properties' => ['data-ref' => 'delivery_note-client.name']],
                 ['element' => 'p', 'content' => $this->entity->client->shipping_address1, 'show_empty' => false, 'properties' => ['data-ref' => 'delivery_note-client.shipping_address1']],
                 ['element' => 'p', 'content' => $this->entity->client->shipping_address2, 'show_empty' => false, 'properties' => ['data-ref' => 'delivery_note-client.shipping_address2']],
@@ -347,7 +348,7 @@ class Design extends BaseDesign
 
         $items = $this->transformLineItems($this->entity->line_items, $type);
 
-        $this->processMarkdownOnLineItems($items);
+        $this->processNewLines($items);
 
         if (count($items) == 0) {
             return [];
@@ -449,7 +450,7 @@ class Design extends BaseDesign
                     ['element' => 'img', 'properties' => ['src' => '$invoiceninja.whitelabel', 'style' => 'height: 2.5rem;', 'hidden' => $this->entity->user->account->isPaid() ? 'true' : 'false', 'id' => 'invoiceninja-whitelabel-logo']],
                 ]],
             ]],
-            ['element' => 'div', 'properties' => ['class' => 'totals-table-right-side'], 'elements' => []],
+            ['element' => 'div', 'properties' => ['class' => 'totals-table-right-side', 'dir' => '$dir'], 'elements' => []],
         ];
 
         if ($this->type == 'delivery_note') {
