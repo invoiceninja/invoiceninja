@@ -19,6 +19,7 @@ use App\PaymentDrivers\SquarePaymentDriver;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Square\Http\ApiResponse;
 
 class CreditCard
 {
@@ -127,26 +128,44 @@ class CreditCard
 
     public function paymentResponse($request)
     {
-        // ..
+        $amount_money = new \Square\Models\Money();
+        $amount_money->setAmount(100);
+        $amount_money->setCurrency($this->square_driver->client->currency()->code);
+
+        $body = new \Square\Models\CreatePaymentRequest($request->sourceId, Str::random(32), $amount_money);
+
+        $body->setAutocomplete(true);
+        $body->setLocationId($this->square_driver->company_gateway->getConfigField('locationId'));
+        $body->setReferenceId(Str::random(16));
+
+        /** @var ApiResponse */
+        $response = $this->square_driver->square->getPaymentsApi()->createPayment($body);
+
+        if ($response->isSuccess()) {
+            return $this->processSuccessfulPayment($response);
+        }
+
+        return $this->processUnsuccessfulPayment($response);
     }
 
-    /* This method is stubbed ready to go - you just need to harvest the equivalent 'transaction_reference' */
-    private function processSuccessfulPayment($response)
+    private function processSuccessfulPayment(ApiResponse $response)
     {
+        $body = json_decode($response->getBody());
+
         $amount = array_sum(array_column($this->square_driver->payment_hash->invoices(), 'amount')) + $this->square_driver->payment_hash->fee_total;
 
         $payment_record = [];
         $payment_record['amount'] = $amount;
         $payment_record['payment_type'] = PaymentType::CREDIT_CARD_OTHER;
         $payment_record['gateway_type_id'] = GatewayType::CREDIT_CARD;
-        // $payment_record['transaction_reference'] = $response->transaction_id;
+        $payment_record['transaction_reference'] = $body->payment->id;
 
         $payment = $this->square_driver->createPayment($payment_record, Payment::STATUS_COMPLETED);
 
         return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
     }
 
-    private function processUnsuccessfulPayment($response)
+    private function processUnsuccessfulPayment(ApiResponse $response)
     {
         // array (
         //   0 =>
