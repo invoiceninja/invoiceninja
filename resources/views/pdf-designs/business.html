@@ -57,8 +57,8 @@
     }
 
     .client-and-entity-wrapper {
-        display: grid;
-        grid-template-columns: 2fr 1.5fr;
+        display: flex;
+        justify-content: space-between;
         gap: 20px;
     }
 
@@ -81,6 +81,8 @@
         color: white;
         text-align: left;
     }
+
+    #entity-details p { margin-right: 20px; }
 
     #entity-details th {
         font-weight: normal;
