@@ -141,4 +141,36 @@ class ImportCustomers
 
         $this->update_payment_methods->updateMethods($customer, $client);
     }
+
+    public function match()
+    {
+
+        foreach($this->stripe->company_gateway->company->clients as $client)
+        {
+
+            $searchResults = \Stripe\Customer::all([
+                        "email" => $client->present()->email(),
+                        "limit" => 2,
+                        "starting_after" => null
+            ],$this->stripe->stripe_connect_auth);
+
+            // nlog(count($searchResults));
+          
+            if(count($searchResults) == 1)
+            {
+
+            $cgt = ClientGatewayToken::where('gateway_customer_reference', $searchResults->data[0]->id)->where('company_id', $this->company_gateway->company->id)->exists();
+
+                if(!$cgt)
+                {
+                    nlog("customer ".$searchResults->data[0]->id. " does not exist.");
+
+                    $this->update_payment_methods->updateMethods($searchResults->data[0], $client);
+
+                }
+            }
+          
+        }
+
+    }
 }
