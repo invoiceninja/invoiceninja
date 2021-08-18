@@ -193,22 +193,43 @@ array:9 [▼
  */
     public function paymentResponse($request)
     {
-        dd($request->all());
+        $state = [
+            'server_response' => $request->all(),
+        ];
+
+        $this->eway_driver->payment_hash->data = array_merge((array) $this->eway_driver->payment_hash->data, $state);
+        $this->eway_driver->payment_hash->save();
 
         $transaction = [
             'Payment' => [
-                'TotalAmount' => 1000,
+                'TotalAmount' => $this->convertAmountForEway(),
             ],
             'TransactionType' => \Eway\Rapid\Enum\TransactionType::PURCHASE,
-            'SecuredCardData' => '44DD7jYYyRgaQnVibOAsYbbFIYmSXbS6hmTxosAhG6CK1biw=',
+            'SecuredCardData' => $request->input('securefieldcode'),
         ];
 
-        $response = $client->createTransaction(\Eway\Rapid\Enum\ApiMethod::DIRECT, $transaction);
+        $response = $this->eway_driver->init()->eway->createTransaction(\Eway\Rapid\Enum\ApiMethod::DIRECT, $transaction);
+
+dd($response);
+
+        $response_status = ErrorCode::getStatus($response->ResponseMessage);
+
+        if(!$response_status['success'])
+          throw new PaymentFailed($response_status['message'], 400);
+
+
     }
 
 
-    private function convertAmountForEway($amount)
+    private function convertAmountForEway()
     {
-      
+    
+        $amount = $this->eway_driver->payment_hash->data->amount_with_fee;
+
+        if(in_array($this->eway_driver->client->currency()->code, ['VND', 'JPY', 'KRW', 'GNF', 'IDR', 'PYG', 'RWF', 'UGX', 'VUV', 'XAF', 'XPF']))
+            return $amount;
+
+        return $amount * 100;
     }
+
 }
