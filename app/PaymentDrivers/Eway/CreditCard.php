@@ -23,12 +23,14 @@ use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\EwayPaymentDriver;
 use App\PaymentDrivers\Eway\ErrorCode;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class CreditCard
 {
+    use MakesHash;
 
     public $eway_driver;
 
@@ -210,26 +212,65 @@ array:9 [▼
 
         $response = $this->eway_driver->init()->eway->createTransaction(\Eway\Rapid\Enum\ApiMethod::DIRECT, $transaction);
 
-dd($response);
-
         $response_status = ErrorCode::getStatus($response->ResponseMessage);
 
-        if(!$response_status['success'])
-          throw new PaymentFailed($response_status['message'], 400);
+        if(!$response_status['success']){
 
+            $this->logResponse($response, false);
+
+            throw new PaymentFailed($response_status['message'], 400);
+        }
+
+        $this->logResponse($response, true);
+
+        $payment = $this->storePayment($response);
+
+        return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
 
     }
 
+    private function storePayment($response)
+    {
+        $amount = array_sum(array_column($this->eway_driver->payment_hash->invoices(), 'amount')) + $this->eway_driver->payment_hash->fee_total;
+
+        $payment_record = [];
+        $payment_record['amount'] = $amount;
+        $payment_record['payment_type'] = PaymentType::CREDIT_CARD_OTHER;
+        $payment_record['gateway_type_id'] = GatewayType::CREDIT_CARD;
+        $payment_record['transaction_reference'] = $response->TransactionID;
+
+        $payment = $this->eway_driver->createPayment($payment_record);
+
+        return $payment;
+    }
 
     private function convertAmountForEway()
     {
     
-        $amount = $this->eway_driver->payment_hash->data->amount_with_fee;
+        $amount = array_sum(array_column($this->eway_driver->payment_hash->invoices(), 'amount')) + $this->eway_driver->payment_hash->fee_total;
 
         if(in_array($this->eway_driver->client->currency()->code, ['VND', 'JPY', 'KRW', 'GNF', 'IDR', 'PYG', 'RWF', 'UGX', 'VUV', 'XAF', 'XPF']))
             return $amount;
 
         return $amount * 100;
+    }
+
+    private function logResponse($response, $success = true)
+    {
+
+        $logger_message = [
+            'server_response' => $response,
+        ];
+
+        SystemLogger::dispatch(
+            $logger_message,
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            $success ? SystemLog::EVENT_GATEWAY_SUCCESS : SystemLog::EVENT_GATEWAY_FAILURE,
+            SystemLog::TYPE_EWAY,
+            $this->eway_driver->client,
+            $this->eway_driver->client->company,
+        );
+
     }
 
 }
