@@ -78,9 +78,7 @@ class SquareCreditCard {
     }
 
     async handle() {
-        if (document.querySelector('meta[name=square-authorize]')) {
-            await this.init();
-        }
+        await this.init();
 
         document
             .getElementById('authorize-card')
@@ -121,10 +119,6 @@ class SquareCreditCard {
                 document.getElementById('save-card--container').style.display =
                     'grid';
                 document.querySelector('input[name=token]').value = '';
-
-                if (!this.isLoaded) {
-                    await this.init();
-                }
             });
 
         let toggleWithToken = document.querySelector(
