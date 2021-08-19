@@ -95,7 +95,26 @@ class SquarePaymentDriver extends BaseDriver
 
     public function refund(Payment $payment, $amount, $return_client_response = false)
     {
-        //this is your custom implementation from here
+        $this->init();
+
+        $amount_money = new \Square\Models\Money();
+        $amount_money->setAmount($this->convertAmount($amount));
+        $amount_money->setCurrency($this->square_driver->client->currency()->code);
+
+        $body = new \Square\Models\RefundPaymentRequest(\Illuminate\Support\Str::random(32), $amount_money, $payment->transaction_reference);
+
+        /** @var ApiResponse */
+        $response = $this->square->getRefundsApi()->refund($body);
+
+        // if ($response->isSuccess()) {
+        //     return [
+        //         'transaction_reference' => $refund->action_id,
+        //         'transaction_response' => json_encode($response),
+        //         'success' => $checkout_payment->status == 'Refunded',
+        //         'description' => $checkout_payment->status,
+        //         'code' => $checkout_payment->http_code,
+        //     ];
+        // }
     }
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
