@@ -4,6 +4,7 @@
 @section('gateway_head')
     <meta name="square-appId" content="{{ $gateway->company_gateway->getConfigField('applicationId') }}">
     <meta name="square-locationId" content="{{ $gateway->company_gateway->getConfigField('locationId') }}">
+    <meta name="square-authorize" content="true">
 @endsection
 
 @section('gateway_content')
