@@ -132,6 +132,10 @@ class CreditCard
     public function paymentResponse(PaymentResponseRequest $request)
     {
         $token = $request->sourceId;
+        
+        $amount = $this->square_driver->convertAmount(
+            $this->square_driver->payment_hash->data->amount_with_fee
+        );
 
         if ($request->shouldUseToken()) {
             $cgt = ClientGatewayToken::where('token', $request->token)->first();
@@ -139,7 +143,7 @@ class CreditCard
         }
 
         $amount_money = new \Square\Models\Money();
-        $amount_money->setAmount(100);
+        $amount_money->setAmount($amount);
         $amount_money->setCurrency($this->square_driver->client->currency()->code);
 
         $body = new \Square\Models\CreatePaymentRequest($token, Str::random(32), $amount_money);

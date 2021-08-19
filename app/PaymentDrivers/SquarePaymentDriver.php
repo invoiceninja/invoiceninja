@@ -12,13 +12,18 @@
 namespace App\PaymentDrivers;
 
 use App\Http\Requests\Payments\PaymentWebhookRequest;
+use App\Jobs\Mail\PaymentFailureMailer;
+use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
+use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
+use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Square\CreditCard;
 use App\Utils\Traits\MakesHash;
+use Square\Http\ApiResponse;
 
 class SquarePaymentDriver extends BaseDriver
 {
@@ -30,7 +35,7 @@ class SquarePaymentDriver extends BaseDriver
 
     public $can_authorise_credit_card = true; //does this gateway support authorizations?
 
-    public $square; 
+    public $square;
 
     public $payment_method;
 
@@ -38,11 +43,10 @@ class SquarePaymentDriver extends BaseDriver
         GatewayType::CREDIT_CARD => CreditCard::class, //maps GatewayType => Implementation class
     ];
 
-    const SYSTEM_LOG_TYPE = SystemLog::TYPE_SQUARE; 
+    const SYSTEM_LOG_TYPE = SystemLog::TYPE_SQUARE;
 
     public function init()
     {
-
         $this->square = new \Square\SquareClient([
             'accessToken' => $this->company_gateway->getConfigField('accessToken'),
             'environment' => $this->company_gateway->getConfigField('testMode') ? \Square\Environment::SANDBOX : \Square\Environment::PRODUCTION,
@@ -56,7 +60,7 @@ class SquarePaymentDriver extends BaseDriver
     {
         $types = [];
 
-            $types[] = GatewayType::CREDIT_CARD;
+        $types[] = GatewayType::CREDIT_CARD;
 
         return $types;
     }
@@ -96,7 +100,76 @@ class SquarePaymentDriver extends BaseDriver
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
-        //this is your custom implementation from here
+        $this->init();
+
+        $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
+        $amount = $this->convertAmount($amount);
+
+        $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->withTrashed()->first();
+
+        if ($invoice) {
+            $description = "Invoice {$invoice->number} for {$amount} for client {$this->client->present()->name()}";
+        } else {
+            $description = "Payment with no invoice for amount {$amount} for client {$this->client->present()->name()}";
+        }
+
+        $amount_money = new \Square\Models\Money();
+        $amount_money->setAmount($amount);
+        $amount_money->setCurrency($this->client->currency()->code);
+
+        $body = new \Square\Models\CreatePaymentRequest($cgt->token, \Illuminate\Support\Str::random(32), $amount_money);
+
+        /** @var ApiResponse */
+        $response = $this->square->getPaymentsApi()->createPayment($body);
+        $body = json_decode($response->getBody());
+
+        if ($response->isSuccess()) {
+            $amount = array_sum(array_column($this->payment_hash->invoices(), 'amount')) + $this->payment_hash->fee_total;
+
+            $payment_record = [];
+            $payment_record['amount'] = $amount;
+            $payment_record['payment_type'] = PaymentType::CREDIT_CARD_OTHER;
+            $payment_record['gateway_type_id'] = GatewayType::CREDIT_CARD;
+            $payment_record['transaction_reference'] = $body->payment->id;
+
+            $payment = $this->createPayment($payment_record, Payment::STATUS_COMPLETED);
+
+            SystemLogger::dispatch(
+                ['response' => $response, 'data' => $payment_record],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_SUCCESS,
+                SystemLog::TYPE_CHECKOUT,
+                $this->client,
+                $this->client->company,
+            );
+
+            return $payment;
+        }
+
+        $this->unWindGatewayFees($payment_hash);
+
+        PaymentFailureMailer::dispatch(
+            $this->client,
+            $body->errors[0]->detail,
+            $this->client->company,
+            $amount
+        );
+
+        $message = [
+            'server_response' => $response,
+            'data' => $payment_hash->data,
+        ];
+
+        SystemLogger::dispatch(
+            $message,
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_FAILURE,
+            SystemLog::TYPE_SQUARE,
+            $this->client,
+            $this->client->company,
+        );
+
+        return false;
     }
 
     public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment = null)
@@ -146,5 +219,24 @@ class SquarePaymentDriver extends BaseDriver
 
 
         return $fields;
+    }
+
+    public function convertAmount($amount): bool
+    {
+        $precision = $this->client->currency()->precision;
+
+        if ($precision == 0) {
+            return $amount;
+        }
+
+        if ($precision == 1) {
+            return $amount*10;
+        }
+
+        if ($precision == 2) {
+            return $amount*100;
+        }
+
+        return $amount;
     }
 }
