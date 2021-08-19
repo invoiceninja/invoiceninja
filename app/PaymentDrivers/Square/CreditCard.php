@@ -12,12 +12,13 @@
 
 namespace App\PaymentDrivers\Square;
 
+use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\PaymentDrivers\SquarePaymentDriver;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Square\Http\ApiResponse;
 
@@ -113,7 +114,9 @@ class CreditCard
 
         $cgt['payment_meta'] = $payment_meta;
 
-        $token = $this->square_driver->storeGatewayToken($cgt, []);
+        $token = $this->square_driver->storeGatewayToken($cgt, [
+            'gateway_customer_reference' => $this->findOrCreateClient(),
+        ]);
 
         return redirect()->route('client.payment_methods.index');
     }
@@ -126,26 +129,82 @@ class CreditCard
         return render('gateways.square.credit_card.pay', $data);
     }
 
-    public function paymentResponse($request)
+    public function paymentResponse(PaymentResponseRequest $request)
     {
+        $token = $request->sourceId;
+
+        if ($request->shouldUseToken()) {
+            $cgt = ClientGatewayToken::where('token', $request->token)->first();
+            $token = $cgt->token;
+        }
+
         $amount_money = new \Square\Models\Money();
         $amount_money->setAmount(100);
         $amount_money->setCurrency($this->square_driver->client->currency()->code);
 
-        $body = new \Square\Models\CreatePaymentRequest($request->sourceId, Str::random(32), $amount_money);
+        $body = new \Square\Models\CreatePaymentRequest($token, Str::random(32), $amount_money);
 
         $body->setAutocomplete(true);
         $body->setLocationId($this->square_driver->company_gateway->getConfigField('locationId'));
         $body->setReferenceId(Str::random(16));
 
+        if ($request->shouldUseToken()) {
+            $body->setCustomerId($cgt->gateway_customer_reference);
+        }
+
         /** @var ApiResponse */
         $response = $this->square_driver->square->getPaymentsApi()->createPayment($body);
 
         if ($response->isSuccess()) {
+            if ($request->shouldStoreToken()) {
+                $this->storePaymentMethod($response);
+            }
+
             return $this->processSuccessfulPayment($response);
         }
 
         return $this->processUnsuccessfulPayment($response);
+    }
+
+    private function storePaymentMethod(ApiResponse $response)
+    {
+        $payment = \json_decode($response->getBody());
+
+        $card = new \Square\Models\Card();
+        $card->setCardholderName($this->square_driver->client->present()->name());
+        $card->setCustomerId($this->findOrCreateClient());
+        $card->setReferenceId(Str::random(8));
+
+        $body = new \Square\Models\CreateCardRequest(Str::random(32), $payment->payment->id, $card);
+
+        /** @var ApiResponse */
+        $api_response = $this->square_driver
+        ->square
+        ->getCardsApi()
+        ->createCard($body);
+
+        if (!$api_response->isSuccess()) {
+            return $this->processUnsuccessfulPayment($api_response);
+        }
+
+        $card = \json_decode($api_response->getBody());
+
+        $cgt = [];
+        $cgt['token'] = $card->card->id;
+        $cgt['payment_method_id'] = GatewayType::CREDIT_CARD;
+
+        $payment_meta = new \stdClass;
+        $payment_meta->exp_month = $card->card->exp_month;
+        $payment_meta->exp_year = $card->card->exp_year;
+        $payment_meta->brand = $card->card->card_brand;
+        $payment_meta->last4 = $card->card->last_4;
+        $payment_meta->type = GatewayType::CREDIT_CARD;
+
+        $cgt['payment_meta'] = $payment_meta;
+
+        $this->square_driver->storeGatewayToken($cgt, [
+            'gateway_customer_reference' => $this->findOrCreateClient(),
+        ]);
     }
 
     private function processSuccessfulPayment(ApiResponse $response)
@@ -167,19 +226,11 @@ class CreditCard
 
     private function processUnsuccessfulPayment(ApiResponse $response)
     {
-        // array (
-        //   0 =>
-        //   Square\Models\Error::__set_state(array(
-        //      'category' => 'INVALID_REQUEST_ERROR',
-        //      'code' => 'INVALID_CARD_DATA',
-        //      'detail' => 'Invalid card data.',
-        //      'field' => 'source_id',
-        //   )),
-        // )
+        $body = \json_decode($response->getBody());
 
         $data = [
             'response' => $response,
-            'error' => $response[0]['detail'],
+            'error' => $body->errors[0]->detail,
             'error_code' => '',
         ];
 
