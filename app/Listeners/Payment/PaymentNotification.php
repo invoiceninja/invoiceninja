@@ -80,7 +80,7 @@ class PaymentNotification implements ShouldQueue
     private function trackRevenue($event)
     {
         $payment = $event->payment;
-        $invoice = $payment->invoice;
+        $invoice = $payment->invoices()->exists() ? $payment->invoices->first() : false;
         $company = $payment->company;
 
         $analytics_id = $company->google_analytics_key;

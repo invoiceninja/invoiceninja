@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html data-report-errors="{{ $report_errors }}" data-rc="{{ $rc }}">
+<html data-report-errors="{{ $report_errors }}" data-rc="{{ $rc }}" data-build="{{ $build }}">
 <head>
     <!-- Source: https://github.com/invoiceninja/invoiceninja -->
     <!-- Version: {{ config('ninja.app_version') }} -->
@@ -150,11 +150,8 @@
   
   </script>
 
-  @if(config('ninja.flutter_renderer') == 'hosted')
-    <script defer src="main.dart.js?v={{ config('ninja.app_version') }}" type="application/javascript"></script>
-  @else
-    <script defer src="main.foss.dart.js?v={{ config('ninja.app_version') }}" type="application/javascript"></script>
-  @endif
+  <script defer src="{{ $path }}?v={{ config('ninja.app_version') }}" type="application/javascript"></script>
+
 
   <center style="padding-top: 150px" id="loader">
     <div class="loader"></div>
