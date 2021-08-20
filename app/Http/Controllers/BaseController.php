@@ -757,7 +757,7 @@ class BaseController extends Controller
         $build = '';
 
         if(request()->has('build')) {
-            $build = $request->input('build');
+            $build = request()->input('build');
         }
 
         switch ($build) {
