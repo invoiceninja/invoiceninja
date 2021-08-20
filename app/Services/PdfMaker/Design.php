@@ -17,13 +17,14 @@ use App\Models\Quote;
 use App\Services\PdfMaker\Designs\Utilities\BaseDesign;
 use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
 use App\Utils\Number;
+use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesInvoiceValues;
 use DOMDocument;
 use Illuminate\Support\Str;
 
 class Design extends BaseDesign
 {
-    use MakesInvoiceValues, DesignHelpers;
+    use MakesInvoiceValues, DesignHelpers, MakesDates;
 
     /** @var App\Models\Invoice || @var App\Models\Quote */
     public $entity;
@@ -43,6 +44,9 @@ class Design extends BaseDesign
     /** Construct options */
     public $options;
 
+    /** @var Invoice[] */
+    public $invoices;
+
     const BOLD = 'bold';
     const BUSINESS = 'business';
     const CLEAN = 'clean';
@@ -53,6 +57,9 @@ class Design extends BaseDesign
     const PLAIN = 'plain';
     const PLAYFUL = 'playful';
     const CUSTOM = 'custom';
+
+    const DELIVERY_NOTE = 'delivery_note';
+    const STATEMENT = 'statement';
 
     public function __construct(string $design = null, array $options = [])
     {
@@ -115,6 +122,10 @@ class Design extends BaseDesign
                 'id' => 'task-table',
                 'elements' => $this->taskTable(),
             ],
+            'statement-invoice-table' => [
+                'id' => 'statement-invoice-table',
+                'elements' => $this->statementInvoiceTable(),
+            ],
             'table-totals' => [
                 'id' => 'table-totals',
                 'elements' => $this->tableTotals(),
@@ -158,7 +169,7 @@ class Design extends BaseDesign
     {
         $elements = [];
 
-        if ($this->type == 'delivery_note') {
+        if ($this->type == self::DELIVERY_NOTE) {
             $elements = [
                 ['element' => 'p', 'content' => ctrans('texts.delivery_note'), 'properties' => ['data-ref' => 'delivery_note-label', 'style' => 'font-weight: bold; text-transform: uppercase']],
                 ['element' => 'p', 'content' => $this->entity->client->name, 'show_empty' => false, 'properties' => ['data-ref' => 'delivery_note-client.name']],
@@ -190,6 +201,19 @@ class Design extends BaseDesign
 
     public function entityDetails(): array
     {
+        if ($this->type === 'statement') {
+            return [
+                ['element' => 'tr', 'properties' => [], 'elements' => [
+                    ['element' => 'th', 'properties' => [], 'content' => '$statement_date_label'],
+                    ['element' => 'th', 'properties' => [], 'content' => '$statement_date'],
+                ]],
+                ['element' => 'tr', 'properties' => [], 'elements' => [
+                    ['element' => 'th', 'properties' => [], 'content' => '$balance_due_label'],
+                    ['element' => 'th', 'properties' => [], 'content' => '$balance_due'],
+                ]],
+            ]; 
+        }
+
         $variables = $this->context['pdf_variables']['invoice_details'];
 
         if ($this->entity instanceof Quote) {
@@ -203,7 +227,7 @@ class Design extends BaseDesign
         $elements = [];
 
         // We don't want to show account balance or invoice total on PDF.. or any amount with currency.
-        if ($this->type == 'delivery_note') {
+        if ($this->type == self::DELIVERY_NOTE) {
             $variables = array_filter($variables, function ($m) {
                 return !in_array($m, ['$invoice.balance_due', '$invoice.total']);
             });
@@ -231,7 +255,7 @@ class Design extends BaseDesign
 
     public function deliveryNoteTable(): array
     {
-        if ($this->type !== 'delivery_note') {
+        if ($this->type !== self::DELIVERY_NOTE) {
             return [];
         }
 
@@ -241,7 +265,7 @@ class Design extends BaseDesign
                 ['element' => 'th', 'content' => '$description_label', 'properties' => ['data-ref' => 'delivery_note-description_label']],
                 ['element' => 'th', 'content' => '$product.quantity_label', 'properties' => ['data-ref' => 'delivery_note-product.quantity_label']],
             ]],
-            ['element' => 'tbody', 'elements' => $this->buildTableBody('delivery_note')],
+            ['element' => 'tbody', 'elements' => $this->buildTableBody(self::DELIVERY_NOTE)],
         ];
     }
 
@@ -260,7 +284,7 @@ class Design extends BaseDesign
             return [];
         }
 
-        if ($this->type == 'delivery_note') {
+        if ($this->type === self::DELIVERY_NOTE || $this->type === self::STATEMENT) {
             return [];
         }
 
@@ -285,13 +309,40 @@ class Design extends BaseDesign
             return [];
         }
 
-        if ($this->type == 'delivery_note') {
+        if ($this->type === self::DELIVERY_NOTE || $this->type === self::STATEMENT) {
             return [];
         }
 
         return [
             ['element' => 'thead', 'elements' => $this->buildTableHeader('task')],
             ['element' => 'tbody', 'elements' => $this->buildTableBody('$task')],
+        ];
+    }
+
+    /**
+     * Parent method for building invoices table within statement.
+     *
+     * @return array
+     */
+    public function statementInvoiceTable(): array
+    {
+        $tbody = [];
+
+        foreach ($this->invoices as $invoice) {
+            $element = ['element' => 'tr', 'elements' => []];
+
+            $element['elements'][] = ['element' => 'td', 'content' => $invoice->number];
+            $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($invoice->date, $invoice->client->date_format(), $invoice->client->locale()) ?: '&nbsp;'];
+            $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($invoice->due_date, $invoice->client->date_format(), $invoice->client->locale()) ?: '&nbsp;'];
+            $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($invoice->calc()->getTotal(), $invoice->client) ?: '&nbsp;'];
+            $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($invoice->partial, $invoice->client) ?: '&nbsp;'];
+
+            $tbody[] = $element;
+        }
+
+        return [
+            ['element' => 'thead', 'elements' => $this->buildTableHeader('statement_invoice')],
+            ['element' => 'tbody', 'elements' => $tbody],
         ];
     }
 
@@ -354,7 +405,7 @@ class Design extends BaseDesign
             return [];
         }
 
-        if ($type == 'delivery_note') {
+        if ($type == self::DELIVERY_NOTE) {
             foreach ($items as $row) {
                 $element = ['element' => 'tr', 'elements' => []];
 
@@ -432,6 +483,22 @@ class Design extends BaseDesign
 
     public function tableTotals(): array
     {
+        if ($this->type === 'statement') {
+            return [
+                ['element' => 'div', 'properties' => ['style' => 'display: flex; flex-direction: column;'], 'elements' => [
+                    ['element' => 'div', 'properties' => ['style' => 'margin-top: 1.5rem; display: flex; align-items: flex-start;'], 'elements' => [
+                        ['element' => 'img', 'properties' => ['src' => '$invoiceninja.whitelabel', 'style' => 'height: 2.5rem;', 'hidden' => $this->entity->user->account->isPaid() ? 'true' : 'false', 'id' => 'invoiceninja-whitelabel-logo']],
+                    ]],
+                ]],
+                ['element' => 'div', 'properties' => ['class' => 'totals-table-right-side', 'dir' => '$dir'], 'elements' => [
+                    ['element' => 'div', 'elements' => [
+                        ['element' => 'span', 'content' => '$balance_due_label', 'properties' => ['data-ref' => 'total-table-balance-due-label']],
+                        ['element' => 'span', 'content' => '$balance_due', 'properties' => ['data-ref' => 'total-table-balance-due']],
+                    ]],
+                ]],
+            ];
+        }
+
         $_variables = array_key_exists('variables', $this->context)
             ? $this->context['variables']
             : ['values' => ['$entity.public_notes' => $this->entity->public_notes, '$entity.terms' => $this->entity->terms, '$entity_footer' => $this->entity->footer], 'labels' => []];
@@ -453,7 +520,7 @@ class Design extends BaseDesign
             ['element' => 'div', 'properties' => ['class' => 'totals-table-right-side', 'dir' => '$dir'], 'elements' => []],
         ];
 
-        if ($this->type == 'delivery_note') {
+        if ($this->type == self::DELIVERY_NOTE) {
             return $elements;
         }
 
