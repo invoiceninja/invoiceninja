@@ -150,7 +150,7 @@
   
   </script>
 
-  <script defer src="{{ $path }}dart.js?v={{ config('ninja.app_version') }}" type="application/javascript"></script>
+  <script defer src="{{ $path }}?v={{ config('ninja.app_version') }}" type="application/javascript"></script>
 
 
   <center style="padding-top: 150px" id="loader">
