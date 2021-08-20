@@ -740,6 +740,9 @@ class BaseController extends Controller
 
             //pass referral code to front end
             $data['rc'] = request()->has('rc') ? request()->input('rc') : '';
+            $data['build'] = request()->has('build') ? request()->input('build') : '';
+
+            $data['path'] = $this->setBuild();
 
             $this->buildCache();
 
@@ -747,6 +750,29 @@ class BaseController extends Controller
         }
 
         return redirect('/setup');
+    }
+
+    private function setBuild()
+    {
+        $build = '';
+
+        if(request()->has('build')) {
+            $build = $request->input('build');
+        }
+
+        switch ($build) {
+            case 'wasm':
+                return 'main.dart.wasm.js';
+            case 'foss':
+                return 'main.dart.foss.js';
+            case 'last':
+                return 'main.dart.last.js';
+            case 'next':
+                return 'main.dart.next.js';                                            
+            default:
+                return 'main.dart.js';
+        }
+
     }
 
     public function checkFeature($feature)
