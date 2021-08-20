@@ -757,18 +757,18 @@ class BaseController extends Controller
         $build = '';
 
         if(request()->has('build')) {
-            $build = $request->input('build');
+            $build = request()->input('build');
         }
 
         switch ($build) {
             case 'wasm':
-                return 'main.dart.wasm.js';
+                return 'main.wasm.dart.js';
             case 'foss':
-                return 'main.dart.foss.js';
+                return 'main.foss.dart.js';
             case 'last':
-                return 'main.dart.last.js';
+                return 'main.last.dart.js';
             case 'next':
-                return 'main.dart.next.js';                                            
+                return 'main.next.dart.js';                                            
             default:
                 return 'main.dart.js';
         }
