@@ -36,6 +36,11 @@ trait DesignHelpers
             $this->entity = $this->context['entity'];
         }
 
+        if (isset($this->context['invoices'])) {
+            $this->invoices = $this->context['invoices'];
+            $this->entity = $this->invoices->first();
+        }
+
         $this->document();
 
         return $this;
