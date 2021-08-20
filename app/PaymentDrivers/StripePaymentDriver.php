@@ -550,6 +550,11 @@ class StripePaymentDriver extends BaseDriver
         return (new ImportCustomers($this))->match();
     }
 
+    public function importCustomer($customer_id)
+    {
+        return (new ImportCustomers($this))->importCustomer($customer_id);
+    }
+
     public function verifyConnect()
     {
         return (new Verify($this))->run();

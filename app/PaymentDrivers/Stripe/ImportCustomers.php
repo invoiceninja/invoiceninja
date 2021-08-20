@@ -142,6 +142,32 @@ class ImportCustomers
         $this->update_payment_methods->updateMethods($customer, $client);
     }
 
+    public function importCustomer($customer_id)
+    {
+
+        $this->stripe->init();
+
+        $this->update_payment_methods = new UpdatePaymentMethods($this->stripe);
+
+        if(strlen($this->stripe->company_gateway->getConfigField('account_id')) < 1)
+                throw new StripeConnectFailure('Stripe Connect has not been configured');
+
+        $customer = Customer::retrieve($customer_id, $this->stripe_connect_auth);
+
+        if(!$customer)
+            return;
+
+        foreach($this->stripe->company_gateway->company->clients as $client)
+        {
+            if($client->present()->email() == $customer->email) {
+
+                $this->update_payment_methods->updateMethods($customer, $client);
+    
+            }
+        }
+
+    }
+
     public function match()
     {
         $this->stripe->init();
