@@ -403,11 +403,18 @@ class Import implements ShouldQueue
         $company_repository->save($data, $this->company);
 
         if (isset($data['settings']->company_logo) && strlen($data['settings']->company_logo) > 0) {
+            
             try {
                 $tempImage = tempnam(sys_get_temp_dir(), basename($data['settings']->company_logo));
                 copy($data['settings']->company_logo, $tempImage);
                 $this->uploadLogo($tempImage, $this->company, $this->company);
             } catch (\Exception $e) {
+
+                $settings = $this->company->settings;
+                $settings->company_logo = '';
+                $this->company->settings = $settings;
+                $this->company->save();
+
             }
         }
 
