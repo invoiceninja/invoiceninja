@@ -89,6 +89,10 @@ mix.js("resources/js/app.js", "public/js")
     .js(
         "resources/js/clients/payments/mollie-credit-card.js",
         "public/js/clients/payments/mollie-credit-card.js"
+    )
+    .js(
+        "resources/js/clients/payments/square-credit-card.js",
+        "public/js/clients/payments/square-credit-card.js"
     );
 
 mix.copyDirectory('node_modules/card-js/card-js.min.css', 'public/css/card-js.min.css');
