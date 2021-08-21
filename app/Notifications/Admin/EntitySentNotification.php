@@ -103,14 +103,14 @@ class EntitySentNotification extends Notification
                         "texts.notification_{$this->entity_name}_sent_subject",
                         [
                         'amount' => $amount,
-                        'client' => $this->contact->present()->name(),
+                        'client' => $this->contact->client->present()->name(),
                         'invoice' => $this->entity->number,
                     ]
                     ))
                     ->attachment(function ($attachment) use ($amount) {
                         $attachment->title(ctrans('texts.invoice_number_placeholder', ['invoice' => $this->entity->number]), $this->invitation->getAdminLink())
                                    ->fields([
-                                        ctrans('texts.client') => $this->contact->present()->name(),
+                                        ctrans('texts.client') => $this->contact->client->present()->name(),
                                         ctrans('texts.amount') => $amount,
                                     ]);
                     });

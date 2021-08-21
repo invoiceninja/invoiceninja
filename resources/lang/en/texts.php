@@ -4296,6 +4296,8 @@ $LANG = array(
     'lang_Persian' => 'Persian',
     'lang_Latvian' => 'Latvian',
     'expiry_date' => 'Expiry date',
+    'cardholder_name' => 'Card holder name',
+    
 );
 
 return $LANG;

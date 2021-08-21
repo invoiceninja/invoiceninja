@@ -40,5 +40,6 @@ trait Uploadable
                 $entity->save();
             }
         }
+
     }
 }

@@ -112,6 +112,7 @@ class BaseController extends Controller
           'company.groups',
           'company.payment_terms',
           'company.designs.company',
+          'company.expense_categories',
         ];
 
     public function __construct()
@@ -201,6 +202,10 @@ class BaseController extends Controller
 
         $transformer = new $this->entity_transformer($this->serializer);
         $updated_at = request()->has('updated_at') ? request()->input('updated_at') : 0;
+
+        if ($user->getCompany()->is_large && $updated_at == 0){
+          $updated_at = time();
+        }
 
         $updated_at = date('Y-m-d H:i:s', $updated_at);
 
@@ -735,6 +740,9 @@ class BaseController extends Controller
 
             //pass referral code to front end
             $data['rc'] = request()->has('rc') ? request()->input('rc') : '';
+            $data['build'] = request()->has('build') ? request()->input('build') : '';
+
+            $data['path'] = $this->setBuild();
 
             $this->buildCache();
 
@@ -742,6 +750,29 @@ class BaseController extends Controller
         }
 
         return redirect('/setup');
+    }
+
+    private function setBuild()
+    {
+        $build = '';
+
+        if(request()->has('build')) {
+            $build = request()->input('build');
+        }
+
+        switch ($build) {
+            case 'wasm':
+                return 'main.wasm.dart.js';
+            case 'foss':
+                return 'main.foss.dart.js';
+            case 'last':
+                return 'main.last.dart.js';
+            case 'next':
+                return 'main.next.dart.js';                                            
+            default:
+                return 'main.dart.js';
+        }
+
     }
 
     public function checkFeature($feature)

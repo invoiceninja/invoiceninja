@@ -93,6 +93,12 @@ class UpdatePaymentMethods
                     $this->addOrUpdateCard($method, $customer->id, $client, GatewayType::SOFORT);
                 }
 
+                //$this->importBankAccounts($customer, $client);
+    }
+
+    private function importBankAccounts($customer, $client)
+    {
+
     }
 
     // private function addOrUpdateBankAccount($bank_account, $customer_reference, Client $client)

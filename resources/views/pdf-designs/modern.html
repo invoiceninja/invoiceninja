@@ -1,31 +1,31 @@
 <style id="style">
-    :root {
-        --primary-color: $primary_color;
-        --secondary-color: $secondary_color;
-    }
+      :root {
+        --primary-color: #298aab;
+        --secondary-color: #7081e0;
+      }
 
-    body {
+      body {
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         font-family: Arial, Helvetica, sans-serif;
-        font-size: "$font_size";
+        font-size: "7px";
         margin: 0;
         padding: 0;
         zoom: 80%;
-    }
+      }
 
-    @page {
+      @page {
         margin: -0.22cm;
-        size: $page_size $page_layout;
-    }
+        size: A4 portrait;
+      }
 
-    p {
+      p {
         margin: 0;
         padding: 0;
         /* page-break-after: always; */
-    }
+      }
 
-    .header-container {
+      .header-container {
         background-color: var(--primary-color);
         color: white;
         display: grid;
@@ -33,111 +33,111 @@
         padding: 3rem;
         min-width: 100%;
         height: 160px;
-    }
+      }
 
-    .company-name {
+      .company-name {
         text-align: left;
-    }
+      }
 
-    .header-container .company-name {
+      .header-container .company-name {
         font-size: 2rem;
-    }
+      }
 
-    #entity-details {
+      #entity-details {
         text-align: left;
         color: #fff4e9 !important;
-    }
+      }
 
-    #entity-details > tr,
-    #entity-details th {
+      #entity-details > tr,
+      #entity-details th {
         font-weight: normal;
         padding-bottom: 0.5rem;
-    }
+      }
 
-    .logo-client-wrapper {
+      .logo-client-wrapper {
         margin: 3rem 2rem;
         display: grid;
         grid-template-columns: 1.5fr 1fr;
-    }
+      }
 
-    .company-logo {
-        max-width: 65%;
-    }
+      .company-logo {
+        max-width: 55%;
+      }
 
-    #client-details {
+      #client-details {
         display: flex;
         flex-direction: column;
-    }
+      }
 
-    #client-details > * {
+      #client-details > * {
         margin-bottom: 0.5rem;
-    }
+      }
 
-    .table-wrapper {
+      .table-wrapper {
         margin: 3rem 2rem;
-    }
+      }
 
-    #product-table,
-    #delivery-note-table,
-    #task-table {
+      #product-table,
+      #delivery-note-table,
+      #task-table {
         min-width: 100%;
         table-layout: fixed;
         overflow-wrap: break-word;
-    }
+      }
 
-    .task-time-details {
+      .task-time-details {
         display: block;
         margin-top: 5px;
         color: grey;
-    }
+      }
 
-    #product-table > thead,
-    #delivery-note-table > thead,
-    #task-table > thead {
+      #product-table > thead,
+      #delivery-note-table > thead,
+      #task-table > thead {
         text-align: left;
         width: 100%;
-    }
+      }
 
-    #product-table th + th,
-    #delivery-note-table th + th,
-    #task-table th + th {
+      #product-table th + th,
+      #delivery-note-table th + th,
+      #task-table th + th {
         border-left: 2px solid white;
-    }
+      }
 
-    #product-table > thead > tr > th,
-    #delivery-note-table > thead > tr > th,
-    #task-table > thead > tr > th {
+      #product-table > thead > tr > th,
+      #delivery-note-table > thead > tr > th,
+      #task-table > thead > tr > th {
         padding: 0.8rem;
         background-color: var(--secondary-color);
         color: white;
-    }
+      }
 
-    #product-table > thead > tr > th:last-child,
-    #delivery-note-table > thead > tr > th:last-child,
-    #task-table > thead > tr > th:last-child {
+      #product-table > thead > tr > th:last-child,
+      #delivery-note-table > thead > tr > th:last-child,
+      #task-table > thead > tr > th:last-child {
         text-align: right;
-    }
+      }
 
-    #product-table > tbody > tr > td,
-    #delivery-note-table > tbody > tr > td,
-    #task-table > tbody > tr > td {
+      #product-table > tbody > tr > td,
+      #delivery-note-table > tbody > tr > td,
+      #task-table > tbody > tr > td {
         border-bottom: 1px solid var(--secondary-color);
         padding: 1rem;
-    }
+      }
 
-    #product-table > tbody > tr > td:first-child,
-    #delivery-note-table > tbody > tr > td:first-child,
-    #task-table > tbody > tr > td:first-child {
+      #product-table > tbody > tr > td:first-child,
+      #delivery-note-table > tbody > tr > td:first-child,
+      #task-table > tbody > tr > td:first-child {
         font-weight: bold;
-    }
+      }
 
-    #product-table > tbody > tr > td:last-child,
-    #delivery-note-table > tbody > tr > td:last-child,
-    #task-table > tbody > tr > td:last-child {
+      #product-table > tbody > tr > td:last-child,
+      #delivery-note-table > tbody > tr > td:last-child,
+      #task-table > tbody > tr > td:last-child {
         text-align: right;
-    }
+      }
 
-    .footer-wrapper {
+      .footer-wrapper {
         margin-top: 1rem;
         background-color: var(--primary-color);
         padding-left: 3rem;
@@ -146,158 +146,170 @@
         width: 100%;
         position: fixed;
         bottom: 0;
-    }
+      }
 
-    .footer-content {
-        display: grid;
-        gap: 15px;
+      .footer-content {
+        display: flex;
+        gap: 20px;
         width: 100%;
-        grid-template-columns: 1fr 1fr 1fr;
+        /* grid-template-columns: 1fr 1fr 1fr; */
         color: #fff4e9;
         max-height: 140px;
-    }
+        justify-content: space-between;
+      }
 
-    #company-address,
-    #company-details {
+      .footer-company-details-address-wrapper {
+        display: flex;
+        gap: 25px;
+        margin-right: 150px;
+      }
+
+      #company-address,
+      #company-details {
         display: flex;
         flex-direction: column;
         margin-top: 2rem;
         margin-bottom: 2rem;
-    }
+      }
 
-    #company-address > *,
-    #company-details > * {
+      #company-address > *,
+      #company-details > * {
         margin-bottom: 0.5rem;
-    }
+      }
 
-    #table-totals {
+      #table-totals {
         page-break-inside: avoid;
-    }
+      }
 
-    #table-totals {
+      #table-totals {
         display: grid;
         grid-template-columns: 2fr 1fr;
-        padding-top: .5rem;
+        padding-top: 0.5rem;
         padding-left: 3rem;
         padding-right: 3rem;
         gap: 80px;
-    }
+      }
 
-    #table-totals .totals-table-right-side>* {
+      #table-totals .totals-table-right-side > * {
         display: grid;
         grid-template-columns: 1fr 1fr;
-    }
+      }
 
-    #table-totals>.totals-table-right-side>*> :nth-child(1) {
-        text-align: "$dir_text_align";
-        margin-top: .75rem;
-    }
+      #table-totals > .totals-table-right-side > * > :nth-child(1) {
+        text-align: "left";
+        margin-top: 0.75rem;
+      }
 
-    #table-totals>.totals-table-right-side> * > :not([hidden]) ~ :not([hidden]) {
+      #table-totals
+        > .totals-table-right-side
+        > *
+        > :not([hidden])
+        ~ :not([hidden]) {
         --tw-space-y-reverse: 0;
-        margin-top: calc(.75rem * calc(1 - var(--tw-space-y-reverse)));
-        margin-bottom: calc(.75rem * var(--tw-space-y-reverse));
-    }
+        margin-top: calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));
+        margin-bottom: calc(0.75rem * var(--tw-space-y-reverse));
+      }
 
-    #table-totals>.totals-table-right-side>*> :nth-child(2) {
+      #table-totals > .totals-table-right-side > * > :nth-child(2) {
         text-align: right;
-    }
+      }
 
-    #table-totals
-    > *
-    [data-element='product-table-balance-due-label'],
-    #table-totals
-    > *
-    [data-element='product-table-balance-due'] {
+      #table-totals > * [data-element="product-table-balance-due-label"],
+      #table-totals > * [data-element="product-table-balance-due"] {
         font-weight: bold;
         font-size: 1.3rem;
-    }
+      }
 
-    table.page-container {
+      table.page-container {
         page-break-after: always;
         min-width: 100%;
-    }
+      }
 
-    thead.page-header {
+      thead.page-header {
         display: table-header-group;
-    }
+      }
 
-    tfoot.page-footer {
+      tfoot.page-footer {
         display: table-footer-group;
-    }
+      }
 
-    .page-content-cell {
+      .page-content-cell {
         padding: 1rem;
-    }
+      }
 
-    [data-ref="total_table-footer"] {
+      [data-ref="total_table-footer"] {
         margin-top: 2rem;
         margin-bottom: 2rem;
-    }
+      }
 
-    /** Repeating header & footer styling. */
-    table {
+      /** Repeating header & footer styling. */
+      table {
         width: 100%;
-    }
+      }
 
-    table.print-content {}
+      table.print-content {
+      }
 
-    table.print-content th,
-    table.print-content td {
-        padding: .2rem .4rem;
+      table.print-content th,
+      table.print-content td {
+        padding: 0.2rem 0.4rem;
         text-align: left;
         vertical-align: top;
         border-top: 1px solid #dee2e6;
-    }
+      }
 
-    @media print {
+      @media print {
         .print-footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
+          position: fixed;
+          bottom: 0;
+          left: 0;
         }
 
         .no-print {
-            display: none
+          display: none;
         }
-    }
+      }
 
-    /** Markdown-specific styles. **/
-    #product-table h3,
-    #task-table h3,
-    #delivery-note-table h3 {
+      /** Markdown-specific styles. **/
+      #product-table h3,
+      #task-table h3,
+      #delivery-note-table h3 {
         font-size: 1rem;
         margin-bottom: 0;
-    }
+      }
 
-    /** Useful snippets, uncomment to enable. **/
-    
-    /** Hide company logo **/
-    /* .company-logo { display: none } */
+      [data-ref="product_table-product.description-th"] {
+        width: 23%;
+      }
 
-    /* Hide company details */
-    /* #company-details > * { display: none } */
+      /** Useful snippets, uncomment to enable. **/
 
-    /* Hide company address */
-    /* #company-address > * { display: none } */
+      /** Hide company logo **/
+      /* .company-logo { display: none } */
 
-    /* Hide public notes */
-    /* [data-ref="total_table-public_notes"] { display: none } */
+      /* Hide company details */
+      /* #company-details > * { display: none } */
 
-    /* Hide terms label */
-    /* [data-ref="total_table-terms-label"] { display: none } */
+      /* Hide company address */
+      /* #company-address > * { display: none } */
 
-    /* Hide totals table */
-    /* #table-totals { display: none } */
+      /* Hide public notes */
+      /* [data-ref="total_table-public_notes"] { display: none } */
 
-    /* Hide totals table left side */
-    /* #table-totals div:first-child > * { display: none !important } */
+      /* Hide terms label */
+      /* [data-ref="total_table-terms-label"] { display: none } */
 
-    /* Hide totals table right side */
-    /* .totals-table-right-side { display: none } */
+      /* Hide totals table */
+      /* #table-totals { display: none } */
 
-    /** For more info, please check our docs: https://invoiceninja.github.io **/
-    /** To find out selectors on your own: https://invoiceninja.github.io/docs/custom-fields/#snippets **/
+      /* Hide totals table left side */
+      /* #table-totals div:first-child > * { display: none !important } */
+
+      /* Hide totals table right side */
+      /* .totals-table-right-side { display: none } */
+
+      /** For more info, please check our docs: https://invoiceninja.github.io **/
+      /** To find out selectors on your own: https://invoiceninja.github.io/docs/custom-fields/#snippets **/
 </style>
 
 <table>
@@ -367,8 +379,10 @@
                 });
             </script>
         </div>
-        <div id="company-details"></div>
-        <div id="company-address"></div>
+        <div class="footer-company-details-address-wrapper">
+            <div id="company-details"></div>
+            <div id="company-address"></div>
+        </div>
     </div>
 </div>
 <!-- End Footer -->

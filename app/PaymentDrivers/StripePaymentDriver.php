@@ -83,7 +83,7 @@ class StripePaymentDriver extends BaseDriver
      * Initializes the Stripe API.
      * @return void
      */
-    public function init(): void
+    public function init()
     {
         if($this->stripe_connect)
         {
@@ -103,6 +103,8 @@ class StripePaymentDriver extends BaseDriver
             Stripe::setApiKey($this->company_gateway->getConfigField('apiKey'));
 
         }
+
+        return $this;
     }
 
     public function setPaymentMethod($payment_method_id)
@@ -541,6 +543,16 @@ class StripePaymentDriver extends BaseDriver
         return (new ImportCustomers($this))->run();
         //match clients based on the gateway_customer_reference column
 
+    }
+
+    public function importMatchedClients()
+    {
+        return (new ImportCustomers($this))->match();
+    }
+
+    public function importCustomer($customer_id)
+    {
+        return (new ImportCustomers($this))->importCustomer($customer_id);
     }
 
     public function verifyConnect()
