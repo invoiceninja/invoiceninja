@@ -29,7 +29,7 @@ class SquarePaymentDriver extends BaseDriver
 {
     use MakesHash;
 
-    public $refundable = true; //does this gateway support refunds?
+    public $refundable = false; //does this gateway support refunds?
 
     public $token_billing = true; //does this gateway support token billing?
 
@@ -240,7 +240,7 @@ class SquarePaymentDriver extends BaseDriver
         return $fields;
     }
 
-    public function convertAmount($amount): bool
+    public function convertAmount($amount)
     {
         $precision = $this->client->currency()->precision;
 
