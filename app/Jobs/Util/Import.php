@@ -712,6 +712,7 @@ class Import implements ShouldQueue
             $modified = $resource;
             $modified['company_id'] = $this->company->id;
             $modified['user_id'] = $this->processUserId($resource);
+            $modified['number'] = $this->checkUniqueConstraint(Vendor::class, 'number', $modified['number']);
 
             unset($modified['id']);
             unset($modified['contacts']);
