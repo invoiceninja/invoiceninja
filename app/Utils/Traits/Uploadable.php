@@ -40,13 +40,6 @@ trait Uploadable
                 $entity->save();
             }
         }
-        else{
-            /* Catch Failures */
-            $settings = $entity->settings;
-            $settings->company_logo = '';
-            $entity->settings = $settings;
-            $entity->save();
-        }
 
     }
 }
