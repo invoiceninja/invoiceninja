@@ -66,6 +66,11 @@ class SystemLog extends Model
     const TYPE_AUTHORIZE = 305;
     const TYPE_CUSTOM = 306;
     const TYPE_BRAINTREE = 307;
+    const TYPE_WEPAY = 309;
+    const TYPE_PAYFAST = 310;
+    const TYPE_PAYTRACE = 311;
+    const TYPE_MOLLIE = 312;
+    const TYPE_EWAY = 313;
 
     const TYPE_QUOTA_EXCEEDED = 400;
     const TYPE_UPSTREAM_FAILURE = 401;
@@ -110,4 +115,107 @@ class SystemLog extends Model
 
         return $query;
     }
+
+    public function getCategoryName()
+    {
+        switch ($this->category_id) {
+            case self::CATEGORY_GATEWAY_RESPONSE:
+                return "Gateway";
+            case self::CATEGORY_MAIL:
+                return "Mail";
+            case self::CATEGORY_WEBHOOK:
+                return "Webhook";            
+            case self::CATEGORY_PDF:
+                return "PDF";
+            case self::CATEGORY_SECURITY:
+                return "Security";
+                        
+            default:
+                return 'undefined';
+        }
+    }
+
+    public function getEventName()
+    {
+        switch ($this->event_id) {
+            case self::EVENT_PAYMENT_RECONCILIATION_FAILURE:
+                return "Payment reco failure";
+            case self::EVENT_PAYMENT_RECONCILIATION_SUCCESS:
+                return "Payment reco success";
+            case self::EVENT_GATEWAY_SUCCESS:
+                return "Success";            
+            case self::EVENT_GATEWAY_FAILURE:
+                return "Failure";
+            case self::EVENT_GATEWAY_ERROR:
+                return "Error";
+            case self::EVENT_MAIL_SEND:
+                return "Send";
+            case self::EVENT_MAIL_RETRY_QUEUE:
+                return "Retry";
+            case self::EVENT_MAIL_BOUNCED:
+                return "Bounced";
+            case self::EVENT_MAIL_SPAM_COMPLAINT:
+                return "Spam";
+            case self::EVENT_MAIL_DELIVERY:
+                return "Delivery";
+            case self::EVENT_WEBHOOK_RESPONSE:
+                return "Webhook Response";
+            case self::EVENT_PDF_RESPONSE:
+                return "Pdf Response";
+            case self::EVENT_AUTHENTICATION_FAILURE:
+                return "Auth Failure";
+            case self::EVENT_USER:
+                return "User";                                                
+            default:
+                return 'undefined';
+        }
+    }
+
+    public function getTypeName()
+    {
+        switch ($this->type_id) {
+            case self::TYPE_QUOTA_EXCEEDED:
+                return "Quota Exceeded";
+            case self::TYPE_UPSTREAM_FAILURE:
+                return "Upstream Failure";
+            case self::TYPE_WEBHOOK_RESPONSE:
+                return "Webhook";            
+            case self::TYPE_PDF_FAILURE:
+                return "Failure";
+            case self::TYPE_PDF_SUCCESS:
+                return "Success";
+            case self::TYPE_MODIFIED:
+                return "Modified";
+            case self::TYPE_DELETED:
+                return "Deleted";  
+            case self::TYPE_LOGIN_SUCCESS:
+                return "Login Success";    
+            case self::TYPE_LOGIN_FAILURE:
+                return "Login Failure";
+            case self::TYPE_PAYPAL:
+                return "PayPal";
+            case self::TYPE_STRIPE:
+                return "Stripe";
+            case self::TYPE_LEDGER:
+                return "Ledger";
+            case self::TYPE_FAILURE:
+                return "Failure";
+            case self::TYPE_CHECKOUT:
+                return "Checkout";
+            case self::TYPE_AUTHORIZE:
+                return "Auth.net";
+            case self::TYPE_CUSTOM:
+                return "Custom";
+            case self::TYPE_BRAINTREE:
+                return "Braintree";
+            case self::TYPE_WEPAY:
+                return "WePay";
+            case self::TYPE_PAYFAST:
+                return "Payfast";
+            default:
+                return 'undefined';
+        }
+    }
 }
+
+    

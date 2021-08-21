@@ -79,7 +79,13 @@ class Gateway extends StaticModel
     {
         switch ($this->id) {
             case 1:
-                return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true]];//Authorize.net
+                return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true]]; //Authorize.net
+                break;
+            case 3:
+                return [GatewayType::CREDIT_CARD => ['refund' => false, 'token_billing' => true]];//eWay
+                break;   
+            case 11:
+                return [GatewayType::CREDIT_CARD => ['refund' => false, 'token_billing' => false]];//Payfast
                 break;
             case 15:
                 return [GatewayType::PAYPAL => ['refund' => true, 'token_billing' => false]]; //Paypal
@@ -87,18 +93,29 @@ class Gateway extends StaticModel
             case 20:
             case 56:
                 return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true],
-                    GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable']],
+                    GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable','charge.succeeded']],
                     GatewayType::ALIPAY => ['refund' => false, 'token_billing' => false],
                     GatewayType::APPLE_PAY => ['refund' => false, 'token_billing' => false],
-                    GatewayType::SOFORT => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable']]]; //Stripe
+                    GatewayType::SOFORT => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded']]]; //Stripe
                 break;
             case 39:
                 return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true]]; //Checkout
                 break;
+            case 46:
+                return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true]]; //Paytrace
+            case 49:
+                return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true],
+                    GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true]]; //WePay
+                break;    
             case 50:
                 return [
-                    GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true],
+                    GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true], //Braintree
                     GatewayType::PAYPAL => ['refund' => true, 'token_billing' => true]
+                ];
+                break;
+            case 7:
+                return [
+                    GatewayType::CREDIT_CARD => ['refund' => false, 'token_billing' => true], // Mollie
                 ];
                 break;
             default:

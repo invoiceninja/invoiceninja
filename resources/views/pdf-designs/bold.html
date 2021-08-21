@@ -2,6 +2,7 @@
     :root {
         --primary-color: $primary_color;
         --secondary-color: $secondary_color;
+        --line-height: 1.6;
     }
 
     body {
@@ -20,7 +21,7 @@
     p {
         margin: 0;
         padding: 0;
-        page-break-after: always;
+        /* page-break-after: always; */
     }
 
     .header-wrapper {
@@ -31,10 +32,11 @@
         padding: 3rem;
         color: white;
         min-width: 100%;
+        line-height: var(--line-height);
     }
 
     .company-logo {
-        zoom: 50%; /** Adapt the zoom size, if you think it's necessary. **/
+        max-width: 55%;
     }
 
     #company-details,
@@ -47,6 +49,7 @@
         margin: 2rem;
         display: flex;
         flex-direction: column;
+        line-height: var(--line-height);
     }
 
     #client-details > :first-child {
@@ -156,7 +159,14 @@
     }
 
     #table-totals>.totals-table-right-side>*> :nth-child(1) {
-        text-align: left;
+        text-align: "$dir_text_align";
+        margin-top: .75rem;
+    }
+
+    #table-totals>.totals-table-right-side> * > :not([hidden]) ~ :not([hidden]) {
+        --tw-space-y-reverse: 0;
+        margin-top: calc(.75rem * calc(1 - var(--tw-space-y-reverse)));
+        margin-bottom: calc(.75rem * var(--tw-space-y-reverse));
     }
 
     #table-totals>.totals-table-right-side>*> :nth-child(2) {
@@ -235,6 +245,47 @@
             display: none
         }
     }
+
+    /** Markdown-specific styles. **/
+    #product-table h3,
+    #task-table h3,
+    #delivery-note-table h3 {
+        font-size: 1rem;
+        margin-bottom: 0;
+    }
+
+     [data-ref="product_table-product.description-th"] { 
+          width: 23%;
+     }
+
+    /** Useful snippets, uncomment to enable. **/
+      
+      /** Hide company logo **/
+      /* .company-logo { display: none } */
+
+      /* Hide company details */
+      /* #company-details > * { display: none } */
+
+      /* Hide company address */
+      /* #company-address > * { display: none } */
+
+      /* Hide public notes */
+      /* [data-ref="total_table-public_notes"] { display: none } */
+
+      /* Hide terms label */
+      /* [data-ref="total_table-terms-label"] { display: none } */
+
+      /* Hide totals table */
+      /* #table-totals { display: none } */
+
+      /* Hide totals table left side */
+      /* #table-totals div:first-child > * { display: none !important } */
+
+      /* Hide totals table right side */
+      /* .totals-table-right-side { display: none } */
+
+      /** For more info, please check our docs: https://invoiceninja.github.io **/
+      /** To find out selectors on your own: https://invoiceninja.github.io/docs/custom-fields/#snippets **/
 </style>
 
 <table>
@@ -261,7 +312,7 @@
 
                 <div class="entity-details-wrapper-right-side">
                     <div class="entity-details-wrapper">
-                        <table id="entity-details"></table>
+                        <table id="entity-details" dir="$dir"></table>
                     </div>
                 </div>
             </div>

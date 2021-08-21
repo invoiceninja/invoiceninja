@@ -76,6 +76,11 @@ class ClientFilters extends QueryFilters
         return $this->builder->where('id_number', $id_number);
     }
 
+    public function number(string $number):Builder
+    {
+        return $this->builder->where('number', $number);
+    }
+
     /**
      * Filter based on search text.
      *
@@ -92,9 +97,11 @@ class ClientFilters extends QueryFilters
         return  $this->builder->where(function ($query) use ($filter) {
             $query->where('clients.name', 'like', '%'.$filter.'%')
                           ->orWhere('clients.id_number', 'like', '%'.$filter.'%')
-                          ->orWhere('client_contacts.first_name', 'like', '%'.$filter.'%')
-                          ->orWhere('client_contacts.last_name', 'like', '%'.$filter.'%')
-                          ->orWhere('client_contacts.email', 'like', '%'.$filter.'%')
+                          ->orWhereHas('contacts', function ($query) use($filter){
+                            $query->where('first_name', 'like', '%'.$filter.'%');
+                            $query->orWhere('last_name', 'like', '%'.$filter.'%');
+                            $query->orWhere('email', 'like', '%'.$filter.'%');
+                          })
                           ->orWhere('clients.custom_value1', 'like', '%'.$filter.'%')
                           ->orWhere('clients.custom_value2', 'like', '%'.$filter.'%')
                           ->orWhere('clients.custom_value3', 'like', '%'.$filter.'%')

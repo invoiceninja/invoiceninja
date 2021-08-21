@@ -2,6 +2,7 @@
     :root {
         --primary-color: $primary_color;
         --secondary-color: $secondary_color;
+        --line-height: 1.6;
     }
 
     body {
@@ -29,7 +30,7 @@
     }
 
     .company-logo {
-        zoom: 50%; /** Adapt the zoom size, if you think it's necessary. **/
+        max-width: 65%;
     }
     
     .header-container > span {
@@ -40,16 +41,14 @@
         display: flex;
         flex-direction: column;
         color: #AAA9A9;
+        line-height: var(--line-height);
     }
 
     #company-address {
         display: flex;
         flex-direction: column;
         color: #b1b1b1;
-    }
-
-    #company-address > * {
-        margin-bottom: 0.8rem;
+        line-height: var(--line-height);
     }
 
     .entity-issued-to {
@@ -58,8 +57,8 @@
     }
 
     .client-and-entity-wrapper {
-        display: grid;
-        grid-template-columns: 2fr 1.5fr;
+        display: flex;
+        justify-content: space-between;
         gap: 20px;
     }
 
@@ -67,6 +66,7 @@
         display: flex;
         flex-direction: column;
         margin-top: 1rem;
+        line-height: var(--line-height);
     }
 
     #client-details > p:nth-child(1) {
@@ -81,6 +81,8 @@
         color: white;
         text-align: left;
     }
+
+    #entity-details p { margin-right: 20px; }
 
     #entity-details th {
         font-weight: normal;
@@ -184,6 +186,7 @@
         padding-left: 1rem;
         padding-top: 0.5rem;
         padding-bottom: 0.8rem;
+        margin-right: .5rem;
     }
 
     #table-totals .totals-table-right-side>* {
@@ -192,11 +195,20 @@
     }
 
     #table-totals>.totals-table-right-side>*> :nth-child(1) {
-        text-align: left;
+        text-align: "$dir_text_align";
+        margin-top: .75rem;
+        padding-left: 7px;
+    }
+
+    #table-totals>.totals-table-right-side> * > :not([hidden]) ~ :not([hidden]) {
+        --tw-space-y-reverse: 0;
+        margin-top: calc(.75rem * calc(1 - var(--tw-space-y-reverse)));
+        margin-bottom: calc(.75rem * var(--tw-space-y-reverse));
     }
 
     #table-totals>.totals-table-right-side>*> :nth-child(2) {
         text-align: right;
+        padding-right: 7px;
     }
 
     #table-totals
@@ -227,6 +239,52 @@
     #footer {
         margin-top: 30px;
     }
+
+    /** Markdown-specific styles. **/
+    #product-table h3,
+    #task-table h3,
+    #delivery-note-table h3 {
+        font-size: 1rem;
+        margin-bottom: 0;
+    }
+
+    [data-ref="totals_table-outstanding-label"],
+    [data-ref="totals_table-outstanding"] {
+        background-color: var(--secondary-color);
+        color: white;
+        padding-top: 7px;
+        padding-bottom: 7px;
+        padding-right: 7px;
+    }
+
+    /** Useful snippets, uncomment to enable. **/
+    
+    /** Hide company logo **/
+    /* .company-logo { display: none } */
+
+    /* Hide company details */
+    /* #company-details > * { display: none } */
+
+    /* Hide company address */
+    /* #company-address > * { display: none } */
+
+    /* Hide public notes */
+    /* [data-ref="total_table-public_notes"] { display: none } */
+
+    /* Hide terms label */
+    /* [data-ref="total_table-terms-label"] { display: none } */
+
+    /* Hide totals table */
+    /* #table-totals { display: none } */
+
+    /* Hide totals table left side */
+    /* #table-totals div:first-child > * { display: none !important } */
+
+    /* Hide totals table right side */
+    /* .totals-table-right-side { display: none } */
+
+    /** For more info, please check our docs: https://invoiceninja.github.io **/
+    /** To find out selectors on your own: https://invoiceninja.github.io/docs/custom-fields/#snippets **/
 </style>
 
 <div id="header"></div>
@@ -248,7 +306,7 @@
         <div id="client-details"></div>
 
         <div class="entity-details-wrapper">
-            <table id="entity-details" cellspacing="0"></table>
+            <table id="entity-details" cellspacing="0" dir="$dir"></table>
         </div>
     </div>
 

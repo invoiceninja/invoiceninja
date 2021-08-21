@@ -16,6 +16,7 @@ use App\DataMapper\Analytics\LoginSuccess;
 use App\Events\User\UserLoggedIn;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Login\LoginRequest;
 use App\Jobs\Account\CreateAccount;
 use App\Jobs\Company\CreateCompanyToken;
 use App\Jobs\Util\SystemLogger;
@@ -156,7 +157,7 @@ class LoginController extends BaseController
      *       ),
      *     )
      */
-    public function apiLogin(Request $request)
+    public function apiLogin(LoginRequest $request)
     {
         $this->forced_includes = ['company_users'];
 
@@ -179,8 +180,6 @@ class LoginController extends BaseController
 
             $user = $this->guard()->user();
 
-            event(new UserLoggedIn($user, $user->account->default_company, Ninja::eventVars($user->id)));
-
             //2FA
             if($user->google_2fa_secret && $request->has('one_time_password'))
             {
@@ -201,6 +200,14 @@ class LoginController extends BaseController
                     ->json(['message' => ctrans('texts.invalid_one_time_password')], 401)
                     ->header('X-App-Version', config('ninja.app_version'))
                     ->header('X-Api-Version', config('ninja.minimum_client_version'));
+            }
+
+            /* If for some reason we lose state on the default company ie. a company is deleted - always make sure we can default to a company*/
+            if(!$user->account->default_company){
+                $account = $user->account;
+                $account->default_company_id = $user->companies->first()->id;
+                $account->save();
+                $user = $user->fresh();
             }
 
             $user->setCompany($user->account->default_company);
@@ -225,6 +232,8 @@ class LoginController extends BaseController
             /*On the hosted platform, only owners can login for free/pro accounts*/
             if(Ninja::isHosted() && !$cu->first()->is_owner && !$user->account->isEnterpriseClient())
                 return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
+
+            event(new UserLoggedIn($user, $user->account->default_company, Ninja::eventVars($user->id)));
 
             return $this->timeConstrainedResponse($cu);
 
@@ -300,7 +309,6 @@ class LoginController extends BaseController
         $cu = CompanyUser::query()
                           ->where('user_id', $company_token->user_id);
 
-
         $cu->first()->account->companies->each(function ($company) use($cu, $request){
 
             if($company->tokens()->where('is_system', true)->count() == 0)
@@ -308,7 +316,6 @@ class LoginController extends BaseController
                 CreateCompanyToken::dispatchNow($company, $cu->first()->user, $request->server('HTTP_USER_AGENT'));
             }
         });
-
 
         if($request->has('current_company') && $request->input('current_company') == 'true')
           $cu->where("company_id", $company_token->company_id);
@@ -361,6 +368,9 @@ class LoginController extends BaseController
 
             if ($existing_user = MultiDB::hasUser($query)) {
 
+                if(!$existing_user->account)
+                    return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
+
                 Auth::login($existing_user, true);
                 $existing_user->setCompany($existing_user->account->default_company);
 
@@ -387,6 +397,9 @@ class LoginController extends BaseController
             //If this is a result user/email combo - lets add their OAuth details details
             if($existing_login_user = MultiDB::hasUser(['email' => $google->harvestEmail($user)]))
             {
+                if(!$existing_login_user->account)
+                    return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
+
                 Auth::login($existing_login_user, true);
                 $existing_login_user->setCompany($existing_login_user->account->default_company);
 
@@ -422,6 +435,9 @@ class LoginController extends BaseController
 
             if($existing_login_user = MultiDB::hasUser(['email' => $google->harvestEmail($user)]))
             {
+                if(!$existing_login_user->account)
+                    return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
+                
                 Auth::login($existing_login_user, true);
                 $existing_login_user->setCompany($existing_login_user->account->default_company);
 
@@ -472,6 +488,8 @@ class LoginController extends BaseController
 
             auth()->user()->email_verified_at = now();
             auth()->user()->save();
+
+            auth()->user()->setCompany(auth()->user()->account->default_company);
 
             $this->setLoginCache(auth()->user());
 

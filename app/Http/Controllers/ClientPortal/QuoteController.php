@@ -7,7 +7,7 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://opensource.org/licenses/AAL
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Http\Controllers\ClientPortal;
@@ -24,8 +24,10 @@ use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
+use Illuminate\Support\Facades\Storage;
 
 class QuoteController extends Controller
 {
@@ -46,7 +48,7 @@ class QuoteController extends Controller
      *
      * @param ShowQuoteRequest $request
      * @param Quote $quote
-     * @return Factory|View|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     * @return Factory|View|BinaryFileResponse
      */
     public function show(ShowQuoteRequest $request, Quote $quote)
     {
@@ -83,13 +85,18 @@ class QuoteController extends Controller
             ->get();
 
         if (! $quotes || $quotes->count() == 0) {
-            return;
+            return redirect()
+                ->route('client.quotes.index')
+                ->with('message', ctrans('texts.no_quotes_available_for_download'));
         }
 
         if ($quotes->count() == 1) {
 
-           $file = $quotes->first()->pdf_file_path();
-           return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
+           $file = $quotes->first()->service()->getQuotePdf();
+           // return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
+           return response()->streamDownload(function () use($file) {
+                    echo Storage::get($file);
+            },  basename($file), ['Content-Type' => 'application/pdf']);
         }
 
         // enable output of HTTP headers
@@ -100,7 +107,9 @@ class QuoteController extends Controller
         $zip = new ZipStream(date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.invoices')).'.zip', $options);
 
         foreach ($quotes as $quote) {
-            $zip->addFileFromPath(basename($quote->pdf_file_path()), TempFile::path($quote->pdf_file_path()));
+            $zip->addFile(basename($quote->pdf_file_path()), file_get_contents($quote->pdf_file_path(null, 'url', true)));
+
+            // $zip->addFileFromPath(basename($quote->pdf_file_path()), TempFile::path($quote->pdf_file_path()));
         }
 
         // finish the zip stream
@@ -110,11 +119,15 @@ class QuoteController extends Controller
     protected function approve(array $ids, $process = false)
     {
         $quotes = Quote::whereIn('id', $ids)
-            ->whereClientId(auth()->user()->client->id)
+            ->where('client_id', auth('contact')->user()->client->id)
+            ->where('company_id', auth('contact')->user()->client->company_id)
+            ->where('status_id', Quote::STATUS_SENT)
             ->get();
 
-        if (! $quotes || $quotes->count() == 0) {
-            return redirect()->route('client.quotes.index');
+        if (!$quotes || $quotes->count() == 0) {
+            return redirect()
+                ->route('client.quotes.index')
+                ->with('message', ctrans('texts.quotes_with_status_sent_can_be_approved'));
         }
 
         if ($process) {

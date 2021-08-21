@@ -51,12 +51,19 @@ class QueryLogging
             $count = count($queries);
             $timeEnd = microtime(true);
             $time = $timeEnd - $timeStart;
-
-            //nlog($request->method().' - '.urldecode($request->url()).": $count queries - ".$time);
-            //  if($count > 50)
-            //nlog($queries);
+        
+            // if($count > 150)
+            //     nlog($queries);
+                        
+            $ip = '';
             
-           LightLogs::create(new DbQuery($request->method(), urldecode($request->url()), $count, $time, request()->ip()))
+            if(request()->header('Cf-Connecting-Ip'))
+                $ip = request()->header('Cf-Connecting-Ip');
+            else{
+                $ip = request()->ip();
+            }
+
+           LightLogs::create(new DbQuery($request->method(), urldecode($request->url()), $count, $time, $ip))
                  ->batch();
         }
         

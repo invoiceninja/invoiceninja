@@ -26,9 +26,9 @@ use App\Utils\CurlUtils;
 use App\Utils\HtmlEngine;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class Phantom
@@ -193,6 +193,7 @@ class Phantom
                 'all_pages_header' => $entity_obj->client->getSetting('all_pages_header'),
                 'all_pages_footer' => $entity_obj->client->getSetting('all_pages_footer'),
             ],
+            'process_markdown' => $entity_obj->client->company->markdown_enabled,
         ];
 
         $maker = new PdfMakerService($state);

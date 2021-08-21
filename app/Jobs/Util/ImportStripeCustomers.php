@@ -49,6 +49,7 @@ class ImportStripeCustomers implements ShouldQueue
     	MultiDB::setDb($this->company->db);
 
     	$cgs = CompanyGateway::where('company_id', $this->company->id)
+                            ->where('is_deleted',0)
     						->whereIn('gateway_key', $this->stripe_keys)
     						->get();
 

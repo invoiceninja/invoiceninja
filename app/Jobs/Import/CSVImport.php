@@ -573,7 +573,7 @@ class CSVImport implements ShouldQueue {
 	}
 
 	private function findUser( $user_hash ) {
-		$user = User::where( 'company_id', $this->company->id )
+		$user = User::where( 'account_id', $this->company->account->id )
 					->where( \DB::raw( 'CONCAT_WS(" ", first_name, last_name)' ), 'like', '%' . $user_hash . '%' )
 					->first();
 

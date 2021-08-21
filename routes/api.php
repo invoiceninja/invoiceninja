@@ -114,6 +114,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::post('payment_terms/bulk', 'PaymentTermController@bulk')->name('payment_terms.bulk');
 
     Route::post('preview', 'PreviewController@show')->name('preview.show');
+    Route::post('live_preview', 'PreviewController@live')->name('preview.live');
 
     Route::resource('products', 'ProductController'); // name = (products. index / create / show / update / destroy / edit
     Route::post('products/bulk', 'ProductController@bulk')->name('products.bulk');
@@ -189,6 +190,8 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::post('stripe/update_payment_methods', 'StripeController@update')->middleware('password_protected')->name('stripe.update');
     Route::post('stripe/import_customers', 'StripeController@import')->middleware('password_protected')->name('stripe.import');
 
+    Route::post('stripe/verify', 'StripeController@verify')->middleware('password_protected')->name('stripe.verify');
+
     Route::resource('subscriptions', 'SubscriptionController');
     Route::post('subscriptions/bulk', 'SubscriptionController@bulk')->name('subscriptions.bulk');
 
@@ -198,8 +201,13 @@ Route::match(['get', 'post'], 'payment_webhook/{company_key}/{company_gateway_id
     ->middleware(['guest'])
     ->name('payment_webhook');
 
+Route::match(['get', 'post'], 'payment_notification_webhook/{company_key}/{company_gateway_id}/{client}', 'PaymentNotificationWebhookController')
+    ->middleware(['guest'])
+    ->name('payment_notification_webhook');
+
 Route::post('api/v1/postmark_webhook', 'PostMarkController@webhook');
 Route::get('token_hash_router', 'OneTimeTokenController@router');
 Route::get('webcron', 'WebCronController@index');
+Route::post('api/v1/get_migration_account', 'HostedMigrationController@getAccount')->middleware('guest');
 
 Route::fallback('BaseController@notFound');

@@ -70,6 +70,7 @@ class PaymentTypesSeeder extends Seeder
             ['name' => 'GoCardless', 'gateway_type_id' => self::GATEWAY_TYPE_GOCARDLESS],
             ['name' => 'Crypto', 'gateway_type_id' => self::GATEWAY_TYPE_CRYPTO],
             ['name' => 'Credit', 'gateway_type_id' => self::GATEWAY_TYPE_CREDIT],
+            ['name' => 'Zelle'],
         ];
 
         $x = 1;

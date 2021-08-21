@@ -112,6 +112,7 @@ class BaseController extends Controller
           'company.groups',
           'company.payment_terms',
           'company.designs.company',
+          'company.expense_categories',
         ];
 
     public function __construct()
@@ -201,6 +202,10 @@ class BaseController extends Controller
 
         $transformer = new $this->entity_transformer($this->serializer);
         $updated_at = request()->has('updated_at') ? request()->input('updated_at') : 0;
+
+        if ($user->getCompany()->is_large && $updated_at == 0){
+          $updated_at = time();
+        }
 
         $updated_at = date('Y-m-d H:i:s', $updated_at);
 
@@ -379,8 +384,6 @@ class BaseController extends Controller
             'company.designs'=> function ($query) use ($created_at, $user) {
                 $query->where('created_at', '>=', $created_at)->with('company');
 
-                if(!$user->isAdmin())
-                  $query->where('designs.user_id', $user->id);
             },
             'company.documents'=> function ($query) use ($created_at, $user) {
                 $query->where('created_at', '>=', $created_at);
@@ -388,21 +391,13 @@ class BaseController extends Controller
             'company.groups' => function ($query) use ($created_at, $user) {
                 $query->where('created_at', '>=', $created_at);
 
-                if(!$user->isAdmin())
-                  $query->where('group_settings.user_id', $user->id);
             },
             'company.payment_terms'=> function ($query) use ($created_at, $user) {
                 $query->where('created_at', '>=', $created_at);
 
-                if(!$user->isAdmin())
-                  $query->where('payment_terms.user_id', $user->id);
-
             },
             'company.tax_rates' => function ($query) use ($created_at, $user) {
                 $query->where('created_at', '>=', $created_at);
-
-                if(!$user->isAdmin())
-                  $query->where('tax_rates.user_id', $user->id);
 
             },
             'company.activities'=> function ($query) use($user) {
@@ -519,8 +514,6 @@ class BaseController extends Controller
             'company.payment_terms'=> function ($query) use ($created_at, $user) {
                 $query->where('created_at', '>=', $created_at);
 
-                if(!$user->isAdmin())
-                  $query->where('payment_terms.user_id', $user->id);
 
             },
             'company.products' => function ($query) use ($created_at, $user) {
@@ -561,9 +554,6 @@ class BaseController extends Controller
             'company.tax_rates' => function ($query) use ($created_at, $user) {
                 $query->where('created_at', '>=', $created_at);
 
-                if(!$user->isAdmin())
-                  $query->where('tax_rates.user_id', $user->id);
-
             },
             'company.vendors'=> function ($query) use ($created_at, $user) {
                 $query->where('created_at', '>=', $created_at)->with('contacts', 'documents');
@@ -574,9 +564,6 @@ class BaseController extends Controller
             },
             'company.expense_categories'=> function ($query) use ($created_at, $user) {
                 $query->where('created_at', '>=', $created_at);
-
-                if(!$user->isAdmin())
-                  $query->where('expense_categories.user_id', $user->id);
 
             },
             'company.task_statuses'=> function ($query) use ($created_at, $user) {
@@ -748,11 +735,14 @@ class BaseController extends Controller
 
             $data = [];
 
-            if (Ninja::isSelfHost()) {
-                $data['report_errors'] = $account->report_errors;
-            } else {
-                $data['report_errors'] = true;
-            }
+            //pass report errors bool to front end
+            $data['report_errors'] = Ninja::isSelfHost() ? $account->report_errors : true;
+
+            //pass referral code to front end
+            $data['rc'] = request()->has('rc') ? request()->input('rc') : '';
+            $data['build'] = request()->has('build') ? request()->input('build') : '';
+
+            $data['path'] = $this->setBuild();
 
             $this->buildCache();
 
@@ -760,6 +750,29 @@ class BaseController extends Controller
         }
 
         return redirect('/setup');
+    }
+
+    private function setBuild()
+    {
+        $build = '';
+
+        if(request()->has('build')) {
+            $build = request()->input('build');
+        }
+
+        switch ($build) {
+            case 'wasm':
+                return 'main.wasm.dart.js';
+            case 'foss':
+                return 'main.foss.dart.js';
+            case 'last':
+                return 'main.last.dart.js';
+            case 'next':
+                return 'main.next.dart.js';                                            
+            default:
+                return 'main.dart.js';
+        }
+
     }
 
     public function checkFeature($feature)

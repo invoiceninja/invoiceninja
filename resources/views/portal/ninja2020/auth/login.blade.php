@@ -15,13 +15,18 @@
                      alt="Background image">
             </div>
         @endif
-        <div class="col-span-2 h-screen flex">
-            <div class="m-auto md:w-1/2 lg:w-1/4">
 
+        <div class="{{ $account && !$account->isPaid() ? 'col-span-2' : 'col-span-3' }} h-screen flex">
+            <div class="m-auto md:w-1/2 lg:w-1/4">
                 @if($account && !$account->isPaid())
                     <div>
                         <img src="{{ asset('images/invoiceninja-black-logo-2.png') }}"
                              class="border-b border-gray-100 h-18 pb-4" alt="Invoice Ninja logo">
+                    </div>
+                @elseif(isset($company) && !is_null($company))
+                    <div>
+                        <img src="{{ $company->present()->logo()  }}"
+                             class="border-b border-gray-100 h-18 pb-4" alt="{{ $company->present()->name() }} logo">
                     </div>
                 @endif
 
@@ -66,6 +71,14 @@
                     @if(!is_null($company) && $company->client_can_register)
                         <div class="mt-5 text-center">
                             <a class="button-link text-sm" href="{{ route('client.register') }}">{{ ctrans('texts.register_label') }}</a>
+                        </div>
+                    @endif
+
+                    @if(!is_null($company) && !empty($company->getSetting('website')))
+                        <div class="mt-5 text-center">
+                            <a class="button-link text-sm" href="{{ $company->getSetting('website') }}">
+                                {{ ctrans('texts.back_to', ['url' => parse_url($company->getSetting('website'))['host'] ?? $company->getSetting('website') ]) }}
+                            </a>
                         </div>
                     @endif
                 </div>

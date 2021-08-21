@@ -14,7 +14,7 @@ namespace App\Http\Controllers\ClientPortal;
 
 use App\Events\Payment\Methods\MethodDeleted;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ClientPortal\CreatePaymentMethodRequest;
+use App\Http\Requests\ClientPortal\PaymentMethod\CreatePaymentMethodRequest;
 use App\Http\Requests\Request;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
@@ -51,6 +51,7 @@ class PaymentMethodController extends Controller
         $gateway = $this->getClientGateway();
 
         $data['gateway'] = $gateway;
+        $data['client'] = auth()->user()->client;
 
         return $gateway
             ->driver(auth()->user()->client)
@@ -91,9 +92,9 @@ class PaymentMethodController extends Controller
 
     public function verify(ClientGatewayToken $payment_method)
     {
-        $gateway = $this->getClientGateway();
+//        $gateway = $this->getClientGateway();
 
-        return $gateway
+        return $payment_method->gateway
             ->driver(auth()->user()->client)
             ->setPaymentMethod(request()->query('method'))
             ->verificationView($payment_method);
@@ -101,9 +102,9 @@ class PaymentMethodController extends Controller
 
     public function processVerification(Request $request, ClientGatewaytoken $payment_method)
     {
-        $gateway = $this->getClientGateway();
+        // $gateway = $this->getClientGateway();
 
-        return $gateway
+        return $payment_method->gateway
             ->driver(auth()->user()->client)
             ->setPaymentMethod(request()->query('method'))
             ->processVerification($request, $payment_method);
@@ -117,16 +118,22 @@ class PaymentMethodController extends Controller
      */
     public function destroy(ClientGatewayToken $payment_method)
     {
-        $gateway = $this->getClientGateway();
 
-        $gateway
-            ->driver(auth()->user()->client)
-            ->setPaymentMethod(request()->query('method'))
-            ->detach($payment_method);
+        if($payment_method->gateway()->exists()){
+
+            $payment_method->gateway
+                ->driver(auth()->user()->client)
+                ->setPaymentMethod(request()->query('method'))
+                ->detach($payment_method);
+
+        }
 
         try {
+
             event(new MethodDeleted($payment_method, auth('contact')->user()->company, Ninja::eventVars(auth('contact')->user()->id)));
+            
             $payment_method->delete();
+
         } catch (Exception $e) {
 
             nlog($e->getMessage());

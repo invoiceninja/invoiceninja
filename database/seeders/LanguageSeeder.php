@@ -24,7 +24,7 @@ class LanguageSeeder extends Seeder
         // https://www.loc.gov/standards/iso639-2/php/code_list.php
 
         $languages = [
-            ['id' => 1, 'name' => 'English', 'locale' => 'en'],
+            ['id' => 1, 'name' => 'English - United States', 'locale' => 'en'],
             ['id' => 2, 'name' => 'Italian', 'locale' => 'it'],
             ['id' => 3, 'name' => 'German', 'locale' => 'de'],
             ['id' => 4, 'name' => 'French', 'locale' => 'fr'],
@@ -52,6 +52,10 @@ class LanguageSeeder extends Seeder
             ['id' => 26, 'name' => 'Thai', 'locale' => 'th'],
             ['id' => 27, 'name' => 'Macedonian', 'locale' => 'mk_MK'],
             ['id' => 28, 'name' => 'Chinese - Taiwan', 'locale' => 'zh_TW'],
+            ['id' => 29, 'name' => 'Russian (Russia)', 'locale' => 'ru_RU'],
+            ['id' => 30, 'name' => 'Arabic', 'locale' => 'ar'],
+            ['id' => 31, 'name' => 'Persian', 'locale' => 'fa'],
+            ['id' => 32, 'name' => 'Latvian', 'locale' => 'lv_LV'],
         ];
 
         foreach ($languages as $language) {

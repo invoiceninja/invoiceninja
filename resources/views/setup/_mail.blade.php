@@ -17,7 +17,6 @@
                     <select name="mail_driver" class="input w-full form-select" x-model="option">
                         <option value="log">Log</option>
                         <option value="smtp">SMTP</option>
-                        <option value="mail">Mail</option>
                         <option value="sendmail">Sendmail</option>
                     </select>
                 </dd>

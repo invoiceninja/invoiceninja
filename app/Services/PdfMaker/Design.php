@@ -12,6 +12,7 @@
 
 namespace App\Services\PdfMaker;
 
+use App\Models\Credit;
 use App\Models\Quote;
 use App\Services\PdfMaker\Designs\Utilities\BaseDesign;
 use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
@@ -137,10 +138,6 @@ class Design extends BaseDesign
             $elements[] = ['element' => 'p', 'content' => $variable, 'show_empty' => false, 'properties' => ['data-ref' => 'company_details-' . substr($variable, 1)]];
         }
 
-        foreach (['company1', 'company2', 'company3', 'company4'] as $field) {
-            $elements[] = ['element' => 'p', 'content' => $this->getCustomFieldValue($field), 'show_empty' => false, 'properties' => ['data-ref' => 'company_details-' . $field]];
-        }
-
         return $elements;
     }
 
@@ -163,6 +160,7 @@ class Design extends BaseDesign
 
         if ($this->type == 'delivery_note') {
             $elements = [
+                ['element' => 'p', 'content' => ctrans('texts.delivery_note'), 'properties' => ['data-ref' => 'delivery_note-label', 'style' => 'font-weight: bold; text-transform: uppercase']],
                 ['element' => 'p', 'content' => $this->entity->client->name, 'show_empty' => false, 'properties' => ['data-ref' => 'delivery_note-client.name']],
                 ['element' => 'p', 'content' => $this->entity->client->shipping_address1, 'show_empty' => false, 'properties' => ['data-ref' => 'delivery_note-client.shipping_address1']],
                 ['element' => 'p', 'content' => $this->entity->client->shipping_address2, 'show_empty' => false, 'properties' => ['data-ref' => 'delivery_note-client.shipping_address2']],
@@ -196,6 +194,10 @@ class Design extends BaseDesign
 
         if ($this->entity instanceof Quote) {
             $variables = $this->context['pdf_variables']['quote_details'];
+        }
+
+        if ($this->entity instanceof Credit) {
+            $variables = $this->context['pdf_variables']['credit_details'];
         }
 
         $elements = [];
@@ -346,7 +348,7 @@ class Design extends BaseDesign
 
         $items = $this->transformLineItems($this->entity->line_items, $type);
 
-        //        $this->processMarkdownOnLineItems($items);
+        $this->processNewLines($items);
 
         if (count($items) == 0) {
             return [];
@@ -443,16 +445,23 @@ class Design extends BaseDesign
                     ['element' => 'span', 'content' => '$entity.terms_label: ', 'properties' => ['hidden' => $this->entityVariableCheck('$entity.terms'), 'data-ref' => 'total_table-terms-label', 'style' => 'font-weight: bold; text-align: left; margin-top: 1rem;']],
                     ['element' => 'span', 'content' => strtr($_variables['values']['$entity.terms'], $_variables), 'properties' => ['data-ref' => 'total_table-terms', 'style' => 'text-align: left;']],
                 ]],
-                ['element' => 'img', 'properties' => ['hidden' => $this->client->getSetting('signature_on_pdf'), 'style' => 'max-width: 50%; height: auto;', 'src' => '$contact.signature']],
+                ['element' => 'img', 'properties' => ['style' => 'max-width: 50%; height: auto;', 'src' => '$contact.signature', 'id' => 'contact-signature']],
                 ['element' => 'div', 'properties' => ['style' => 'margin-top: 1.5rem; display: flex; align-items: flex-start;'], 'elements' => [
                     ['element' => 'img', 'properties' => ['src' => '$invoiceninja.whitelabel', 'style' => 'height: 2.5rem;', 'hidden' => $this->entity->user->account->isPaid() ? 'true' : 'false', 'id' => 'invoiceninja-whitelabel-logo']],
                 ]],
             ]],
-            ['element' => 'div', 'properties' => ['class' => 'totals-table-right-side'], 'elements' => []],
+            ['element' => 'div', 'properties' => ['class' => 'totals-table-right-side', 'dir' => '$dir'], 'elements' => []],
         ];
 
         if ($this->type == 'delivery_note') {
             return $elements;
+        }
+
+        if ($this->entity instanceof Quote) {
+            // We don't want to show Balanace due on the quotes.
+            if (in_array('$outstanding', $variables)) {
+                $variables = \array_diff($variables, ['$outstanding']);
+            }
         }
 
         foreach (['discount'] as $property) {
@@ -501,11 +510,11 @@ class Design extends BaseDesign
             } elseif (Str::startsWith($variable, '$custom_surcharge')) {
                 $_variable = ltrim($variable, '$'); // $custom_surcharge1 -> custom_surcharge1
 
-                $visible = $this->entity->{$_variable} == '0';
+                $visible = $this->entity->{$_variable} > 0 || $this->entity->{$_variable} > '0';
 
                 $elements[1]['elements'][] = ['element' => 'div', 'elements' => [
-                    ['element' => 'span', 'content' => $variable . '_label', 'properties' => ['hidden' => $visible, 'data-ref' => 'totals_table-' . substr($variable, 1) . '-label']],
-                    ['element' => 'span', 'content' => $variable, 'properties' => ['hidden' => $visible, 'data-ref' => 'totals_table-' . substr($variable, 1)]],
+                    ['element' => 'span', 'content' => $variable . '_label', 'properties' => ['hidden' => !$visible, 'data-ref' => 'totals_table-' . substr($variable, 1) . '-label']],
+                    ['element' => 'span', 'content' => $variable, 'properties' => ['hidden' => !$visible, 'data-ref' => 'totals_table-' . substr($variable, 1)]],
                 ]];
             } elseif (Str::startsWith($variable, '$custom')) {
                 $field = explode('_', $variable);

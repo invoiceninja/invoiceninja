@@ -12,6 +12,7 @@
 namespace App\Services\Client;
 
 use App\Models\Client;
+use App\Services\Client\Merge;
 use App\Services\Client\PaymentMethod;
 use App\Utils\Number;
 use Illuminate\Database\Eloquent\Collection;
@@ -48,25 +49,40 @@ class ClientService
 
     public function getCreditBalance() :float
     {
-        $credits = $this->client->credits
+        $credits = $this->client->credits()
                       ->where('is_deleted', false)
                       ->where('balance', '>', 0)
-                      ->sortBy('created_at');
+                      ->where(function ($query){
+                            $query->whereDate('due_date', '<=', now()->format('Y-m-d'))
+                                  ->orWhereNull('due_date');
+                      })
+                      ->orderBy('created_at','ASC');
 
         return Number::roundValue($credits->sum('balance'), $this->client->currency()->precision);
     }
 
-    public function getCredits() :Collection
+    public function getCredits() 
     {
-        return $this->client->credits
+        return $this->client->credits()
                   ->where('is_deleted', false)
                   ->where('balance', '>', 0)
-                  ->sortBy('created_at');
+                  ->where(function ($query){
+                        $query->whereDate('due_date', '<=', now()->format('Y-m-d'))
+                              ->orWhereNull('due_date');
+                  })
+                  ->orderBy('created_at','ASC')->get();
     }
 
     public function getPaymentMethods(float $amount)
     {
         return (new PaymentMethod($this->client, $amount))->run();
+    }
+
+    public function merge(Client $mergable_client)
+    {
+        $this->client = (new Merge($this->client, $mergable_client))->run();
+
+        return $this;
     }
 
     public function save() :Client

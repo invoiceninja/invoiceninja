@@ -84,7 +84,7 @@ class CompanyLedgerTest extends TestCase
 
         $settings = CompanySettings::defaults();
 
-        $settings->company_logo = 'https://www.invoiceninja.com/wp-content/uploads/2019/01/InvoiceNinja-Logo-Round-300x300.png';
+        $settings->company_logo = 'https://app.invoiceninja.com/favicon-v2.png';
         $settings->website = 'www.invoiceninja.com';
         $settings->address1 = 'Address 1';
         $settings->address2 = 'Address 2';
@@ -97,6 +97,7 @@ class CompanyLedgerTest extends TestCase
         $settings->vat_number = 'vat number';
         $settings->id_number = 'id number';
         $settings->timezone_id = '1';
+        $settings->language_id = '1';
 
         $this->company->settings = $settings;
         $this->company->save();
@@ -157,7 +158,8 @@ class CompanyLedgerTest extends TestCase
         $item = [];
         $item['quantity'] = 1;
         $item['cost'] = 10;
-
+        $item['type_id'] = "1";
+        
         $line_items[] = $item;
 
         $data = [

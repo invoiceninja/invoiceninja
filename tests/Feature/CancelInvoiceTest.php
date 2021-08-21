@@ -56,9 +56,9 @@ class CancelInvoiceTest extends TestCase
 
         $this->invoice->service()->handleCancellation()->save();
 
-        $this->assertEquals(0, $this->invoice->balance);
-        $this->assertEquals($this->client->balance, ($client_balance - $invoice_balance));
-        $this->assertNotEquals($client_balance, $this->client->balance);
+        $this->assertEquals(0, $this->invoice->fresh()->balance);
+        $this->assertEquals($this->client->fresh()->balance, ($client_balance - $invoice_balance));
+        $this->assertNotEquals($client_balance, $this->client->fresh()->balance);
         $this->assertEquals(Invoice::STATUS_CANCELLED, $this->invoice->status_id);
     }
 }

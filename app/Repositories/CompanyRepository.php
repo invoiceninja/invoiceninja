@@ -48,10 +48,12 @@ class CompanyRepository extends BaseRepository
 
     private function parseCustomFields($fields) :array
     {
+        
         foreach ($fields as &$value) {
             $value = (string) $value;
         }
 
         return $fields;
     }
+
 }

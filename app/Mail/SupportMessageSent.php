@@ -13,13 +13,13 @@ class SupportMessageSent extends Mailable
 {
  //   use Queueable, SerializesModels;
 
-    public $message;
+    public $support_message;
 
     public $send_logs;
 
-    public function __construct($message, $send_logs)
+    public function __construct($support_message, $send_logs)
     {
-        $this->message = $message;
+        $this->support_message = $support_message;
         $this->send_logs = $send_logs;
     }
 
@@ -52,18 +52,27 @@ class SupportMessageSent extends Mailable
 
         $account = auth()->user()->account;
 
-        $plan = $account->plan ?: 'Self Hosted';
+        $priority = '';
+        $plan = $account->plan ?: 'customer support';
+        $plan = ucfirst($plan);
+
+        if(strlen($account->plan) > 1)
+            $priority = '[PRIORITY] ';
 
         $company = auth()->user()->company();
         $user = auth()->user();
+        $db = str_replace("db-ninja-", "", $company->db);
 
-        $subject = "Customer MSG {$user->present()->name} - [{$plan} - DB:{$company->db}]";
+        if(Ninja::isHosted())
+            $subject = "{$priority}Hosted-{$db} :: {$plan} :: ".date('M jS, g:ia');
+        else
+            $subject = "{$priority}Self Hosted :: {$plan} :: ".date('M jS, g:ia');
 
-        return $this->from(config('mail.from.address'), config('mail.from.name')) 
+        return $this->from(config('mail.from.address'), $user->present()->name()) 
                 ->replyTo($user->email, $user->present()->name())
                 ->subject($subject)
                 ->view('email.support.message', [
-                    'message' => $this->message,
+                    'support_message' => $this->support_message,
                     'system_info' => $system_info,
                     'laravel_log' => $log_lines,
                     'logo' => $company->present()->logo(),

@@ -51,11 +51,11 @@ class ActivityRepository extends BaseRepository
         }
 
         if ($token_id = $this->getTokenId($event_vars)) {
-            $fields->token_id = $token_id;
+            $activity->token_id = $token_id;
         }
 
-        $fields->ip = $event_vars['ip'];
-        $fields->is_system = $event_vars['is_system'];
+        $activity->ip = $event_vars['ip'];
+        $activity->is_system = $event_vars['is_system'];
 
         $activity->save();
 
@@ -125,7 +125,7 @@ class ActivityRepository extends BaseRepository
 
         $design = Design::find($entity_design_id);
 
-        if(!$entity->invitations()->exists()){
+        if(!$entity->invitations()->exists() || !$design){
             nlog("No invitations for entity {$entity->id} - {$entity->number}");
             return;
         }
@@ -153,6 +153,7 @@ class ActivityRepository extends BaseRepository
                 'all_pages_header' => $entity->client->getSetting('all_pages_header'),
                 'all_pages_footer' => $entity->client->getSetting('all_pages_footer'),
             ],
+            'process_markdown' => $entity->client->company->markdown_enabled,
         ];
 
         $maker = new PdfMakerService($state);

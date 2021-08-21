@@ -24,6 +24,7 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\View\View;
 use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
+use Illuminate\Support\Facades\Storage;
 
 class InvoiceController extends Controller
 {
@@ -89,6 +90,7 @@ class InvoiceController extends Controller
     {
         $invoices = Invoice::whereIn('id', $ids)
                             ->whereClientId(auth()->user()->client->id)
+                            ->withTrashed()
                             ->get();
 
         //filter invoices which are payable
@@ -167,9 +169,12 @@ class InvoiceController extends Controller
         if ($invoices->count() == 1) {
             $invoice = $invoices->first();
             $invitation = $invoice->invitations->first();
-           $file = $invoice->pdf_file_path($invitation);
-           return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);;
-
+           //$file = $invoice->pdf_file_path($invitation);
+           $file = $invoice->service()->getInvoicePdf(auth()->user());
+           // return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);;
+            return response()->streamDownload(function () use($file) {
+                    echo Storage::get($file);
+            },  basename($file), ['Content-Type' => 'application/pdf']);
         }
 
         // enable output of HTTP headers
@@ -180,7 +185,10 @@ class InvoiceController extends Controller
         $zip = new ZipStream(date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.invoices')).'.zip', $options);
 
         foreach ($invoices as $invoice) {
-            $zip->addFileFromPath(basename($invoice->pdf_file_path()), TempFile::path($invoice->pdf_file_path()));
+
+            #add it to the zip
+            $zip->addFile(basename($invoice->pdf_file_path()), file_get_contents($invoice->pdf_file_path(null, 'url', true)));
+
         }
 
         // finish the zip stream

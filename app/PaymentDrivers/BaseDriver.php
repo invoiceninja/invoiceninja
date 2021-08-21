@@ -26,6 +26,7 @@ use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\ClientGatewayToken;
 use App\Models\CompanyGateway;
+use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
@@ -161,6 +162,17 @@ class BaseDriver extends AbstractPaymentDriver
     }
 
     /**
+     * Detaches a payment method from the gateway
+     * 
+     * @param  ClientGatewayToken $token The gateway token
+     * @return bool                      boolean response
+     */
+    public function detach(ClientGatewayToken $token)
+    {
+        return true;
+    }
+
+    /**
      * Set the inbound request payment method type for access.
      *
      * @param int $payment_method_id The Payment Method ID
@@ -188,7 +200,7 @@ class BaseDriver extends AbstractPaymentDriver
     public function attachInvoices(Payment $payment, PaymentHash $payment_hash): Payment
     {
         $paid_invoices = $payment_hash->invoices();
-        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($paid_invoices, 'invoice_id')))->get();
+        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($paid_invoices, 'invoice_id')))->withTrashed()->get();
         $payment->invoices()->sync($invoices);
 
         $invoices->each(function ($invoice) use ($payment) {
@@ -271,7 +283,7 @@ class BaseDriver extends AbstractPaymentDriver
         $fee_total = $this->payment_hash->fee_total;
 
         /*Hydrate invoices*/
-        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($payment_invoices, 'invoice_id')))->get();
+        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($payment_invoices, 'invoice_id')))->withTrashed()->get();
 
         $invoices->each(function ($invoice) use ($fee_total) {
             if (collect($invoice->line_items)->contains('type_id', '3')) {
@@ -291,7 +303,7 @@ class BaseDriver extends AbstractPaymentDriver
      */
     public function unWindGatewayFees(PaymentHash $payment_hash)
     {
-        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->get();
+        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
 
         $invoices->each(function ($invoice) {
             $invoice->service()->removeUnpaidGatewayFees();
@@ -372,7 +384,7 @@ class BaseDriver extends AbstractPaymentDriver
         $nmo->company = $gateway->client->company;
         $nmo->settings = $gateway->client->company->settings;
 
-        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->get();
+        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
 
         $invoices->each(function ($invoice){
 
@@ -418,6 +430,61 @@ class BaseDriver extends AbstractPaymentDriver
 
         return false;
     }
+
+    /*Generic Global unsuccessful transaction method when the client is present*/
+    public function processUnsuccessfulTransaction($response, $client_present = true)
+    {
+        $error = $response['error'];
+        $error_code = $response['error_code'];
+
+        $this->unWindGatewayFees($this->payment_hash);
+
+        PaymentFailureMailer::dispatch($this->client, $error, $this->client->company, $this->payment_hash->data->amount_with_fee);
+
+        $nmo = new NinjaMailerObject;
+        $nmo->mailable = new NinjaMailer( (new ClientPaymentFailureObject($this->client, $error, $this->client->company, $this->payment_hash))->build() );
+        $nmo->company = $this->client->company;
+        $nmo->settings = $this->client->company->settings;
+
+        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
+
+        $invoices->each(function ($invoice){
+
+            $invoice->service()->deletePdf();
+
+        });
+
+        $invoices->first()->invitations->each(function ($invitation) use ($nmo){
+
+            if ($invitation->contact->send_email && $invitation->contact->email) {
+
+                $nmo->to_user = $invitation->contact;
+                NinjaMailerJob::dispatch($nmo);
+
+            }
+
+        });
+
+        $message = [
+            'server_response' => $response,
+            'data' => $this->payment_hash->data,
+        ];
+
+        SystemLogger::dispatch(
+            $message,
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_FAILURE,
+            $this::SYSTEM_LOG_TYPE,
+            $this->client,
+            $this->client->company,
+        );
+
+        if($client_present)
+            throw new PaymentFailed($error, 500);
+
+    }
+
+
 
     public function checkRequirements()
     {
@@ -534,5 +601,39 @@ class BaseDriver extends AbstractPaymentDriver
             $this->client,
             $this->client->company,
         );
+    }
+
+    public function genericWebhookUrl()
+    {
+        return route('payment_notification_webhook', [
+            'company_key' => $this->client->company->company_key, 
+            'company_gateway_id' => $this->encodePrimaryKey($this->company_gateway->id), 
+            'client' => $this->encodePrimaryKey($this->client->id),
+        ]);
+    }
+
+    /* Performs an extra iterate on the gatewayTypes() array and passes back only the enabled gateways*/
+    public function gatewayTypeEnabled($type)
+    {
+        $types = [];
+
+        // if($type == GatewayType::BANK_TRANSFER && $this->company_gateway->fees_and_limits->{GatewayType::BANK_TRANSFER}->is_enabled)
+        // {
+        //     $types[] = $type;    
+        // }
+        // elseif($type == GatewayType::CREDIT_CARD && $this->company_gateway->fees_and_limits->{GatewayType::CREDIT_CARD}->is_enabled)
+        // {
+        //     $types[] = $type;    
+        // }
+
+        $types[] = GatewayType::CREDIT_CARD;
+        $types[] = GatewayType::BANK_TRANSFER;
+
+        return $types;
+    }
+
+    public function disconnect()
+    {
+        return true;
     }
 }

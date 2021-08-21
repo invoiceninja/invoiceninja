@@ -49,8 +49,11 @@ class TemplateEmail extends Mailable
 
     public function build()
     {
-        // $template_name = 'email.template.'.$this->build_email->getTemplate();
-        $template_name = 'email.template.client';
+         $template_name = 'email.template.'.$this->build_email->getTemplate();
+
+        if ($this->build_email->getTemplate() == 'light' || $this->build_email->getTemplate() == 'dark') {
+            $template_name = 'email.template.client';
+        }
 
         if($this->build_email->getTemplate() == 'custom') {
             $this->build_email->setBody(str_replace('$body', $this->build_email->getBody(), $this->client->getSetting('email_style_custom')));
@@ -61,10 +64,6 @@ class TemplateEmail extends Mailable
         if ($this->build_email->getTemplate() !== 'custom') {
             $this->build_email->setBody(
                 DesignHelpers::parseMarkdownToHtml($this->build_email->getBody())
-            );
-
-            $this->build_email->setBody(
-                TemplateEngine::wrapElementsIntoTables('<div id="content-wrapper"></div>', $this->build_email->getBody(), $settings)
             );
         }
 
@@ -108,7 +107,6 @@ class TemplateEmail extends Mailable
                 $message->invitation = $this->invitation;
             });
 
-            //hosted | plan check here
             foreach ($this->build_email->getAttachments() as $file) {
 
                 if(is_string($file))

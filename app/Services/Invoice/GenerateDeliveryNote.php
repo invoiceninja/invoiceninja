@@ -49,9 +49,9 @@ class GenerateDeliveryNote
 
         $this->contact = $contact;
 
-        $this->disk = 'public';
+        // $this->disk = 'public';
 
-        // $this->disk = $disk ?? config('filesystems.default');
+        $this->disk = $disk ?? config('filesystems.default');
     }
 
     public function run()
@@ -85,6 +85,7 @@ class GenerateDeliveryNote
                 'contact' => $this->contact,
             ], 'delivery_note'),
             'variables' => $html->generateLabelsAndValues(),
+            'process_markdown' => $this->invoice->client->company->markdown_enabled,
         ];
 
         $maker = new PdfMakerService($state);
@@ -111,7 +112,8 @@ class GenerateDeliveryNote
 
         Storage::disk($this->disk)->put($file_path, $pdf);
 
-        return Storage::disk($this->disk)->path($file_path);
+        //return Storage::disk($this->disk)->path($file_path);
 
+        return $file_path;
     }
 }

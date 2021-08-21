@@ -38,7 +38,7 @@ class QuoteEmailedNotification implements ShouldQueue
     {
         MultiDB::setDb($event->company->db);
 
-        $first_notification_sent = true;
+        // $first_notification_sent = true;
 
         $quote = $event->invitation->quote;
         $quote->last_sent_date = now();
@@ -57,7 +57,7 @@ class QuoteEmailedNotification implements ShouldQueue
 
             $methods = $this->findUserNotificationTypes($event->invitation, $company_user, 'quote', ['all_notifications', 'quote_sent', 'quote_sent_all']);
 
-            if (($key = array_search('mail', $methods)) !== false && $first_notification_sent === true) {
+            if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
                 
@@ -65,7 +65,7 @@ class QuoteEmailedNotification implements ShouldQueue
 
                 NinjaMailerJob::dispatch($nmo);
                 
-                $first_notification_sent = false;
+                // $first_notification_sent = false;
             }
 
             // $notification->method = $methods;

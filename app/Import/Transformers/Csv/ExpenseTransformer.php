@@ -22,7 +22,7 @@ class ExpenseTransformer extends BaseTransformer {
 			'currency_id'           => $this->getCurrencyByCode( $data, 'expense.currency_id' ),
 			'vendor_id'             => isset( $data['expense.vendor'] ) ? $this->getVendorId( $data['expense.vendor'] ) : null,
 			'client_id'             => isset( $data['expense.client'] ) ? $this->getClientId( $data['expense.client'] ) : null,
-			'expense_date'          => isset( $data['expense.date'] ) ? date( 'Y-m-d', strtotime( $data['expense.date'] ) ) : null,
+			'date'		            => isset( $data['expense.date'] ) ? date( 'Y-m-d', strtotime( $data['expense.date'] ) ) : null,
 			'public_notes'          => $this->getString( $data, 'expense.public_notes' ),
 			'private_notes'         => $this->getString( $data, 'expense.private_notes' ),
 			'expense_category_id'   => isset( $data['expense.category'] ) ? $this->getExpenseCategoryId( $data['expense.category'] ) : null,

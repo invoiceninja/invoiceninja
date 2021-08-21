@@ -3,36 +3,38 @@ const MANIFEST = 'flutter-app-manifest';
 const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 const RESOURCES = {
-  "icons/Icon-512.png": "0f9aff01367f0a0c69773d25ca16ef35",
-"icons/Icon-192.png": "bb1cf5f6982006952211c7c8404ffbed",
-"version.json": "9fe5b22a16f39b766c8fdc35a24b3efa",
-"favicon.ico": "51636d3a390451561744c42188ccd628",
-"manifest.json": "ce1b79950eb917ea619a0a30da27c6a3",
-"assets/AssetManifest.json": "659dcf9d1baf3aed3ab1b9c42112bf8f",
-"assets/packages/material_design_icons_flutter/lib/fonts/materialdesignicons-webfont.ttf": "174c02fc4609e8fc4389f5d21f16a296",
-"assets/fonts/MaterialIcons-Regular.otf": "1288c9e28052e028aba623321f7826ac",
-"assets/assets/images/google-icon.png": "0f118259ce403274f407f5e982e681c3",
-"assets/assets/images/payment_types/solo.png": "2030c3ccaccf5d5e87916a62f5b084d6",
-"assets/assets/images/payment_types/laser.png": "b4e6e93dd35517ac429301119ff05868",
-"assets/assets/images/payment_types/maestro.png": "e533b92bfb50339fdbfa79e3dfe81f08",
-"assets/assets/images/payment_types/ach.png": "7433f0aff779dc98a649b7a2daf777cf",
-"assets/assets/images/payment_types/paypal.png": "8e06c094c1871376dfea1da8088c29d1",
+  "assets/assets/images/payment_types/maestro.png": "e533b92bfb50339fdbfa79e3dfe81f08",
+"assets/assets/images/payment_types/other.png": "d936e11fa3884b8c9f1bd5c914be8629",
 "assets/assets/images/payment_types/amex.png": "c49a4247984b3732a4af50a3390aa978",
-"assets/assets/images/payment_types/discover.png": "6c0a386a00307f87db7bea366cca35f5",
-"assets/assets/images/payment_types/switch.png": "4fa11c45327f5fdc20205821b2cfd9cc",
-"assets/assets/images/payment_types/unionpay.png": "7002f52004e0ab8cc0b7450b0208ccb2",
-"assets/assets/images/payment_types/jcb.png": "07e0942d16c5592118b72e74f2f7198c",
 "assets/assets/images/payment_types/visa.png": "3ddc4a4d25c946e8ad7e6998f30fd4e3",
+"assets/assets/images/payment_types/switch.png": "4fa11c45327f5fdc20205821b2cfd9cc",
+"assets/assets/images/payment_types/solo.png": "2030c3ccaccf5d5e87916a62f5b084d6",
 "assets/assets/images/payment_types/carteblanche.png": "d936e11fa3884b8c9f1bd5c914be8629",
+"assets/assets/images/payment_types/discover.png": "6c0a386a00307f87db7bea366cca35f5",
+"assets/assets/images/payment_types/ach.png": "7433f0aff779dc98a649b7a2daf777cf",
+"assets/assets/images/payment_types/laser.png": "b4e6e93dd35517ac429301119ff05868",
+"assets/assets/images/payment_types/unionpay.png": "7002f52004e0ab8cc0b7450b0208ccb2",
+"assets/assets/images/payment_types/paypal.png": "8e06c094c1871376dfea1da8088c29d1",
+"assets/assets/images/payment_types/jcb.png": "07e0942d16c5592118b72e74f2f7198c",
 "assets/assets/images/payment_types/dinerscard.png": "06d85186ba858c18ab7c9caa42c92024",
 "assets/assets/images/payment_types/mastercard.png": "6f6cdc29ee2e22e06b1ac029cb52ef71",
-"assets/assets/images/payment_types/other.png": "d936e11fa3884b8c9f1bd5c914be8629",
-"assets/assets/images/logo.png": "090f69e23311a4b6d851b3880ae52541",
-"assets/NOTICES": "687b68d41e137cfbdee105c0b9be3e9d",
+"assets/assets/images/icon.png": "090f69e23311a4b6d851b3880ae52541",
+"assets/assets/images/google_logo.png": "0f118259ce403274f407f5e982e681c3",
+"assets/assets/images/logo_light.png": "e5f46d5a78e226e7a9553d4ca6f69219",
+"assets/assets/images/logo_dark.png": "a233ed1d4d0f7414bf97a9a10f11fb0a",
+"assets/AssetManifest.json": "38d9aea341601f3a5c6fa7b5a1216ea5",
 "assets/FontManifest.json": "cf3c681641169319e61b61bd0277378f",
+"assets/fonts/MaterialIcons-Regular.otf": "4e6447691c9509f7acdbf8a931a85ca1",
+"assets/packages/material_design_icons_flutter/lib/fonts/materialdesignicons-webfont.ttf": "174c02fc4609e8fc4389f5d21f16a296",
+"assets/NOTICES": "4d4db4724f228190d45706dc2890bfff",
+"icons/Icon-192.png": "bb1cf5f6982006952211c7c8404ffbed",
+"icons/Icon-512.png": "0f9aff01367f0a0c69773d25ca16ef35",
 "favicon.png": "dca91c54388f52eded692718d5a98b8b",
-"main.dart.js": "9bf3809dd480b5fa14847777a68f7833",
-"/": "23224b5e03519aaa87594403d54412cf"
+"manifest.json": "ef43d90e57aa7682d7e2cfba2f484a40",
+"version.json": "46d4015fc9abcefe5371cafcf2084173",
+"favicon.ico": "51636d3a390451561744c42188ccd628",
+"main.dart.js": "88f74d039d64ab36ff800c42ba1d83c4",
+"/": "bafb7d5b8d7dac602c955954c6dd27ae"
 };
 
 // The application shell files that are downloaded before a service worker can
@@ -49,7 +51,7 @@ self.addEventListener("install", (event) => {
   return event.waitUntil(
     caches.open(TEMP).then((cache) => {
       return cache.addAll(
-        CORE.map((value) => new Request(value + '?revision=' + RESOURCES[value], {'cache': 'reload'})));
+        CORE.map((value) => new Request(value, {'cache': 'reload'})));
     })
   );
 });

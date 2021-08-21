@@ -34,7 +34,7 @@ class StoreCompanyGatewayRequest extends Request
     public function rules()
     {
         $rules = [
-            'gateway_key' => 'required',
+            'gateway_key' => 'required|alpha_num',
             'fees_and_limits' => new ValidCompanyGatewayFeesAndLimitsRule(),
         ];
 
@@ -45,29 +45,33 @@ class StoreCompanyGatewayRequest extends Request
     {
         $input = $this->all();
 
-        $gateway = Gateway::where('key', $input['gateway_key'])->first();
+        
+        if($gateway = Gateway::where('key', $input['gateway_key'])->first())
+        {
 
-        $default_gateway_fields = json_decode($gateway->fields);
+            $default_gateway_fields = json_decode($gateway->fields);
 
-        /*Force gateway properties */
-        if (isset($input['config']) && is_object(json_decode($input['config']))) {
+            /*Force gateway properties */
+            if (isset($input['config']) && is_object(json_decode($input['config']))) {
 
-            foreach (json_decode($input['config']) as $key => $value) {
+                foreach (json_decode($input['config']) as $key => $value) {
 
-                $default_gateway_fields->{$key} = $value;
+                    $default_gateway_fields->{$key} = $value;
+
+                }
+
+                $input['config'] = json_encode($default_gateway_fields);
 
             }
 
-            $input['config'] = json_encode($default_gateway_fields);
-
+            if (isset($input['config'])) 
+                $input['config'] = encrypt($input['config']);
+            
+            if (isset($input['fees_and_limits'])) 
+                $input['fees_and_limits'] = $this->cleanFeesAndLimits($input['fees_and_limits']);
+        
         }
 
-        if (isset($input['config'])) 
-            $input['config'] = encrypt($input['config']);
-        
-        if (isset($input['fees_and_limits'])) 
-            $input['fees_and_limits'] = $this->cleanFeesAndLimits($input['fees_and_limits']);
-        
         $this->replace($input);
     }
 

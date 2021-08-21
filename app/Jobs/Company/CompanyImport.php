@@ -20,6 +20,7 @@ use App\Libraries\MultiDB;
 use App\Mail\DownloadBackup;
 use App\Mail\DownloadInvoices;
 use App\Mail\Import\CompanyImportFailure;
+use App\Mail\Import\ImportCompleted;
 use App\Models\Activity;
 use App\Models\Backup;
 use App\Models\Client;
@@ -56,6 +57,7 @@ use App\Models\Vendor;
 use App\Models\VendorContact;
 use App\Models\Webhook;
 use App\Utils\Ninja;
+use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -73,6 +75,10 @@ class CompanyImport implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash;
 
+    public $tries = 1;
+
+    public $timeout = 0;
+    
     protected $current_app_version;
 
     private $account;
@@ -81,7 +87,7 @@ class CompanyImport implements ShouldQueue
 
     public $user;
 
-    private $hash;
+    private $file_location;
 
     public $backup_file;
 
@@ -142,11 +148,11 @@ class CompanyImport implements ShouldQueue
      * @param string $hash - the cache hash of the import data.
      * @param array $request->all()
      */
-    public function __construct(Company $company, User $user, string $hash, array $request_array)
+    public function __construct(Company $company, User $user, string $file_location, array $request_array)
     {
         $this->company = $company;
         $this->user = $user;
-        $this->hash = $hash;
+        $this->file_location = $file_location;
         $this->request_array = $request_array;
         $this->current_app_version = config('ninja.app_version');
     }
@@ -160,14 +166,17 @@ class CompanyImport implements ShouldQueue
         $this->company_owner = $this->company->owner();
 
         nlog("Company ID = {$this->company->id}");
-        nlog("Hash ID = {$this->hash}");
+        nlog("file_location ID = {$this->file_location}");
 
-        $this->backup_file = Cache::get($this->hash);
+        // $this->backup_file = Cache::get($this->hash);
 
-        if ( empty( $this->backup_file ) ) 
+        if ( empty( $this->file_location ) ) 
             throw new \Exception('No import data found, has the cache expired?');
         
-        $this->backup_file = json_decode(base64_decode($this->backup_file));
+        // $this->backup_file = json_decode(file_get_contents($this->file_location));
+        $tmp_file = $this->unzipFile();
+
+        $this->backup_file = json_decode(file_get_contents($tmp_file));
 
         // nlog($this->backup_file);
         $this->checkUserCount();
@@ -185,6 +194,17 @@ class CompanyImport implements ShouldQueue
                      ->purgeCompanyData()
                      ->importData();
 
+                $data = [
+                    'errors'  => []
+                ];
+
+                $nmo = new NinjaMailerObject;
+                $nmo->mailable = new ImportCompleted($this->company, $data);
+                $nmo->company = $this->company;
+                $nmo->settings = $this->company->settings;
+                $nmo->to_user = $this->company->owner();
+                NinjaMailerJob::dispatchNow($nmo);
+
              }
              catch(\Exception $e){
 
@@ -194,7 +214,34 @@ class CompanyImport implements ShouldQueue
 
         }
 
+        unlink($tmp_file);
+
     }
+
+    private function unzipFile()
+    {
+        
+        // if(mime_content_type(Storage::path($this->file_location)) == 'text/plain')
+        //     return Storage::path($this->file_location);
+
+        $path = TempFile::filePath(Storage::get($this->file_location), basename($this->file_location));
+
+        $zip = new ZipArchive();
+        $archive = $zip->open($path);
+
+        $file_path = sys_get_temp_dir().'/'.sha1(microtime());
+
+        $zip->extractTo($file_path);
+        $zip->close();
+        $file_location = "{$file_path}/backup.json";
+
+        if (! file_exists($file_location)) 
+            throw new NonExistingMigrationFile('Backup file does not exist, or is corrupted.');
+
+        return $file_location;
+
+    }
+
 
     /**
      * On the hosted platform we cannot allow the 
@@ -293,14 +340,9 @@ class CompanyImport implements ShouldQueue
         
         if($this->pre_flight_checks_pass === false)
         {
-            $nmo = new NinjaMailerObject;
-            $nmo->mailable = new CompanyImportFailure($this->company, $this->message);
-            $nmo->company = $this->company;
-            $nmo->settings = $this->company->settings;
-            $nmo->to_user = $this->company->owner();
-            NinjaMailerJob::dispatchNow($nmo);
 
-            nlog($this->message);
+            $this->sendImportMail($this->message);
+
             throw new \Exception($this->message);
         }
 
@@ -362,7 +404,7 @@ class CompanyImport implements ShouldQueue
 
         }
 
-            nlog("finished importing company data");
+        nlog("finished importing company data");
 
         return $this;
 
@@ -1116,6 +1158,10 @@ class CompanyImport implements ShouldQueue
 
         foreach($this->backup_file->{$object_property} as $obj)
         {
+
+            if(is_null($obj))
+                continue;
+
             /* Remove unwanted keys*/
             $obj_array = (array)$obj;
             foreach($unset as $un){
@@ -1236,12 +1282,22 @@ class CompanyImport implements ShouldQueue
 
         if (! array_key_exists($resource, $this->ids)) {
             // nlog($this->ids);
+            
+            $this->sendImportMail("The Import failed due to missing data in the import file. Resource {$resource} not available.");
             throw new \Exception("Resource {$resource} not available.");
         }
 
         if (! array_key_exists("{$old}", $this->ids[$resource])) {
             // nlog($this->ids[$resource]);
             nlog("searching for {$old} in {$resource}");
+
+            nlog("If we are missing a user - default to the company owner");
+            
+            if($resource == 'users')
+                return $this->company_owner->id;
+
+            $this->sendImportMail("The Import failed due to missing data in the import file. Resource {$resource} not available.");
+
             throw new \Exception("Missing {$resource} key: {$old}");
         }
 
@@ -1249,4 +1305,15 @@ class CompanyImport implements ShouldQueue
     }
 
 
+    private function sendImportMail($message){
+
+
+            $nmo = new NinjaMailerObject;
+            $nmo->mailable = new CompanyImportFailure($this->company, $message);
+            $nmo->company = $this->company;
+            $nmo->settings = $this->company->settings;
+            $nmo->to_user = $this->company->owner();
+            NinjaMailerJob::dispatchNow($nmo);
+
+    }
 }

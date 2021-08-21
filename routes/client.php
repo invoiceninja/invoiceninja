@@ -23,7 +23,7 @@ Route::get('tmp_pdf/{hash}', 'ClientPortal\TempRouteController@index')->name('tm
 
 Route::get('client/key_login/{contact_key}', 'ClientPortal\ContactHashLoginController@login')->name('client.contact_login')->middleware(['domain_db','contact_key_login']);
 Route::get('client/magic_link/{magic_link}', 'ClientPortal\ContactHashLoginController@magicLink')->name('client.contact_magic_link')->middleware(['domain_db','contact_key_login']);
-Route::get('documents/{document_hash}', 'ClientPortal\DocumentController@publicDownload')->name('documents.public_download');
+Route::get('documents/{document_hash}', 'ClientPortal\DocumentController@publicDownload')->name('documents.public_download')->middleware(['document_db']);
 Route::get('error', 'ClientPortal\ContactHashLoginController@errorPage')->name('client.error');
 
 Route::group(['middleware' => ['auth:contact', 'locale', 'check_client_existence','domain_db'], 'prefix' => 'client', 'as' => 'client.'], function () {
@@ -80,6 +80,7 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'check_client_existence
 
     Route::post('upload', 'ClientPortal\UploadController')->name('upload.store');
     Route::get('logout', 'Auth\ContactLoginController@logout')->name('logout');
+
 });
 
 Route::get('client/subscriptions/{subscription}/purchase', 'ClientPortal\SubscriptionPurchaseController@index')->name('client.subscription.purchase')->middleware('domain_db');

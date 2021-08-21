@@ -11,10 +11,12 @@
 
 namespace App\Models;
 
+use App\Models\Language;
 use App\Models\Presenters\CompanyPresenter;
 use App\Models\User;
 use App\Services\Notification\NotificationService;
 use App\Utils\Ninja;
+use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\CompanySettingsSaver;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\ThrottlesEmail;
@@ -30,6 +32,7 @@ class Company extends BaseModel
     use MakesHash;
     use CompanySettingsSaver;
     use ThrottlesEmail;
+    use AppSetup;
 
     const ENTITY_RECURRING_INVOICE = 'recurring_invoice';
     const ENTITY_CREDIT = 'credit';
@@ -47,6 +50,7 @@ class Company extends BaseModel
     protected $presenter = CompanyPresenter::class;
 
     protected $fillable = [
+        'markdown_enabled',
         'calculate_expense_tax_by_amount',
         'invoice_expense_documents',
         'invoice_task_documents',
@@ -90,6 +94,7 @@ class Company extends BaseModel
         'invoice_task_datelog',
         'default_password_timeout',
         'show_task_end_date',
+        'use_comma_as_decimal_place',
     ];
 
     protected $hidden = [
@@ -222,7 +227,7 @@ class Company extends BaseModel
 
     public function activities()
     {
-        return $this->hasMany(Activity::class)->orderBy('id', 'DESC')->take(300);
+        return $this->hasMany(Activity::class)->orderBy('id', 'DESC')->take(50);
     }
 
     /**
@@ -310,7 +315,17 @@ class Company extends BaseModel
 
     public function timezone()
     {
-        return Timezone::find($this->settings->timezone_id);
+
+        $timezones = Cache::get('timezones');
+
+        if(!$timezones)
+            $this->buildCache(true);
+
+        return $timezones->filter(function ($item) {
+            return $item->id == $this->settings->timezone_id;
+        })->first();
+
+        // return Timezone::find($this->settings->timezone_id);
     }
 
     public function designs()
@@ -338,7 +353,18 @@ class Company extends BaseModel
      */
     public function language()
     {
-        return Language::find($this->settings->language_id);
+        
+        $languages = Cache::get('languages');
+
+        if(!$languages)
+            $this->buildCache(true);
+
+        return $languages->filter(function ($item) {
+            return $item->id == $this->settings->language_id;
+        })->first();
+
+
+        // return Language::find($this->settings->language_id);
     }
 
     public function getLocale()
@@ -467,5 +493,40 @@ class Company extends BaseModel
     public function routeNotificationForSlack($notification)
     {
         return $this->slack_webhook_url;
+    }
+
+    public function rBits()
+    {
+        $user = $this->owner();
+        $data = [];
+
+        $data[] = $this->createRBit('business_name', 'user', ['business_name' => $this->present()->name()]);
+        $data[] = $this->createRBit('industry_code', 'user', ['industry_detail' => $this->industry ? $this->industry->name : '']);
+        $data[] = $this->createRBit('comment', 'partner_database', ['comment_text' => 'Logo image not present']);
+        $data[] = $this->createRBit('business_description', 'user', ['business_description' => $this->present()->size()]);
+
+        $data[] = $this->createRBit('person', 'user', ['name' => $user->present()->getFullName()]);
+        $data[] = $this->createRBit('email', 'user', ['email' => $user->email]);
+        $data[] = $this->createRBit('phone', 'user', ['phone' => $user->phone]);
+        $data[] = $this->createRBit('website_uri', 'user', ['uri' => $this->settings->website]);
+        $data[] = $this->createRBit('external_account', 'partner_database', ['is_partner_account' => 'yes', 'account_type' => 'Invoice Ninja', 'create_time' => time()]);
+
+        return $data;
+    }
+
+
+    private function createRBit($type, $source, $properties)
+    {
+        $data = new \stdClass;
+        $data->receive_time = time();
+        $data->type = $type;
+        $data->source = $source;
+        $data->properties = new \stdClass;
+
+        foreach ($properties as $key => $val) {
+            $data->properties->$key = $val;
+        }
+
+        return $data;
     }
 }

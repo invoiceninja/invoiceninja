@@ -27,8 +27,8 @@ class CompanyPresenter extends EntityPresenter
 
         return $this->settings->name ?: ctrans('texts.untitled_account');
 
-        //return $this->entity->name ?: ctrans('texts.untitled_account');
     }
+
 
     public function logo($settings = null)
     {
@@ -41,7 +41,36 @@ class CompanyPresenter extends EntityPresenter
         else if(strlen($settings->company_logo) >= 1)
             return url('') . $settings->company_logo;
         else
-            return 'https://www.invoiceninja.com/wp-content/uploads/2019/01/InvoiceNinja-Logo-Round-300x300.png';
+            return asset('images/new_logo.png');
+
+    }
+
+    /**
+     * Test for using base64 encoding
+     */
+    public function logo_base64($settings = null)
+    {
+        if (! $settings) {
+            $settings = $this->entity->settings;
+        }
+
+        if(config('ninja.is_docker'))
+            return $this->logo($settings);
+
+        $context_options =array(
+            "ssl"=>array(
+               "verify_peer"=>false,
+               "verify_peer_name"=>false,
+            ),
+        ); 
+
+        if(strlen($settings->company_logo) >= 1 && (strpos($settings->company_logo, 'http') !== false))
+            return "data:image/png;base64, ". base64_encode(file_get_contents($settings->company_logo, false, stream_context_create($context_options)));
+        else if(strlen($settings->company_logo) >= 1)
+            return "data:image/png;base64, ". base64_encode(file_get_contents(url('') . $settings->company_logo, false, stream_context_create($context_options)));
+        else
+            return "data:image/png;base64, ". base64_encode(file_get_contents(asset('images/new_logo.png'), false, stream_context_create($context_options)));
+
 
     }
 
@@ -101,9 +130,13 @@ class CompanyPresenter extends EntityPresenter
     {
         $settings = $this->entity->settings;
 
-        return 
+        return
 
         "SPC\n0200\n1\n{$user_iban}\nK\n{$this->name}\n{$settings->address1}\n{$settings->postal_code} {$settings->city}\n\n\nCH\n\n\n\n\n\n\n\n{$balance_due_raw}\n{$client_currency}\n\n\n\n\n\n\n\nNON\n\n{$invoice_number}\nEPD\n";
     }
 
+    public function size()
+    {
+        return $this->entity->size ? $this->entity->size->name : '';
+    }
 }

@@ -24,6 +24,7 @@ use App\Models\Task;
 use App\Models\Timezone;
 use App\Models\Vendor;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 
 /**
  * Class GeneratesCounter.
@@ -126,7 +127,7 @@ trait GeneratesCounter
                 break;
             case Quote::class:
 
-                if ($this->hasSharedCounter($client)) 
+                if ($this->hasSharedCounter($client, 'quote')) 
                     return 'invoice_number_counter';
                 
                 return 'quote_number_counter';
@@ -138,7 +139,7 @@ trait GeneratesCounter
                 return 'payment_number_counter';
                 break;
             case Credit::class:
-                if ($this->hasSharedCounter($client)) 
+                if ($this->hasSharedCounter($client, 'credit')) 
                     return 'invoice_number_counter';
             
                 return 'credit_number_counter';
@@ -318,9 +319,13 @@ trait GeneratesCounter
      *
      * @return     bool             True if has shared counter, False otherwise.
      */
-    public function hasSharedCounter(Client $client) : bool 
+    public function hasSharedCounter(Client $client, string $type = 'quote') : bool 
     {
-        return (bool) $client->getSetting('shared_invoice_quote_counter') || (bool) $client->getSetting('shared_invoice_credit_counter');
+        if($type == 'quote')
+            return (bool) $client->getSetting('shared_invoice_quote_counter');
+
+        if($type == 'credit')
+            return (bool) $client->getSetting('shared_invoice_credit_counter');
     }
 
     /**
@@ -339,17 +344,24 @@ trait GeneratesCounter
     {
 
         $check = false;
+        $check_counter = 1;
 
         do {
+
             $number = $this->padCounter($counter, $padding);
 
             $number = $this->applyNumberPattern($entity, $number, $pattern);
 
             $number = $this->prefixCounter($number, $prefix);
 
-            $check = $class::whereCompanyId($entity->company_id)->whereNumber($number)->withTrashed()->first();
+            $check = $class::whereCompanyId($entity->company_id)->whereNumber($number)->withTrashed()->exists();
 
             $counter++;
+            $check_counter++;
+
+            if($check_counter > 100)
+                return $number . "_" . Str::random(5);
+
         } while ($check);
 
         return $number;
@@ -360,7 +372,7 @@ trait GeneratesCounter
     public function checkNumberAvailable($class, $entity, $number) :bool
     {
 
-        if ($entity = $class::whereCompanyId($entity->company_id)->whereNumber($number)->withTrashed()->first()) 
+        if ($entity = $class::whereCompanyId($entity->company_id)->whereNumber($number)->withTrashed()->exists()) 
             return false;
         
         return true;
@@ -568,12 +580,20 @@ trait GeneratesCounter
         $search[] = '{$client_counter}';
         $replace[] = $counter;
 
+        $search[] = '{$clientCounter}';
+        $replace[] = $counter;
+
         $search[] = '{$group_counter}';
         $replace[] = $counter;
 
-        if (strstr($pattern, '{$user_id}')) {
+        $search[] = '{$year}';
+        $replace[] = date('Y');
+        
+        if (strstr($pattern, '{$user_id}') || strstr($pattern, '{$userId}')) {
             $user_id = $entity->user_id ? $entity->user_id : 0;
             $search[] = '{$user_id}';
+            $replace[] = str_pad(($user_id), 2, '0', STR_PAD_LEFT);
+            $search[] = '{$userId}';
             $replace[] = str_pad(($user_id), 2, '0', STR_PAD_LEFT);
         }
 
@@ -624,7 +644,13 @@ trait GeneratesCounter
             $search[] = '{$client_custom1}';
             $replace[] = $client->custom_value1;
 
+            $search[] = '{$clientCustom1}';
+            $replace[] = $client->custom_value1;
+
             $search[] = '{$client_custom2}';
+            $replace[] = $client->custom_value2;
+
+            $search[] = '{$clientCustom2}';
             $replace[] = $client->custom_value2;
 
             $search[] = '{$client_custom3}';
@@ -637,6 +663,9 @@ trait GeneratesCounter
             $replace[] = $client->number;
 
             $search[] = '{$client_id_number}';
+            $replace[] = $client->id_number;
+
+            $search[] = '{$clientIdNumber}';
             $replace[] = $client->id_number;
         }
 

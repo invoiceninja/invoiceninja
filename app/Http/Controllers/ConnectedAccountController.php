@@ -104,8 +104,13 @@ class ConnectedAccountController extends BaseController
             $refresh_token = '';
             $token = '';
 
+            $email = $google->harvestEmail($user);
+
+            if(auth()->user()->email != $email && MultiDB::checkUserEmailExists($email))
+                return response()->json(['message' => ctrans('texts.email_already_register')], 400);
+
             $connected_account = [
-                'email' => $google->harvestEmail($user),
+                'email' => $email,
                 'oauth_user_id' => $google->harvestSubField($user),
                 'oauth_provider_id' => 'google',
                 'email_verified_at' =>now()

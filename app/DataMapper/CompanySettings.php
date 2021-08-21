@@ -28,6 +28,7 @@ class CompanySettings extends BaseSettings
     public $lock_invoices = 'off'; //off,when_sent,when_paid //@implemented
 
     public $enable_client_portal_tasks = false; //@ben to implement
+    public $show_all_tasks_client_portal = 'invoiced'; // all, uninvoiced, invoiced
     public $enable_client_portal_password = false; //@implemented
     public $enable_client_portal = true; //@implemented
     public $enable_client_portal_dashboard = false; // @TODO There currently is no dashboard so this is pending
@@ -242,7 +243,7 @@ class CompanySettings extends BaseSettings
     public $font_size = 7; //@implemented
     public $primary_font = 'Roboto';
     public $secondary_font = 'Roboto';
-    public $primary_color = '#142cb5';
+    public $primary_color = '#298AAB';
     public $secondary_color = '#7081e0';
 
     public $hide_paid_to_date = false; //@TODO where?
@@ -268,6 +269,7 @@ class CompanySettings extends BaseSettings
     public $hide_empty_columns_on_pdf = false;
 
     public static $casts = [
+        'show_all_tasks_client_portal'       => 'string',
         'entity_send_time'                   => 'int',
         'shared_invoice_credit_counter'      => 'bool',
         'reply_to_name'                      => 'string',
@@ -396,7 +398,6 @@ class CompanySettings extends BaseSettings
         'email_template_reminder2'           => 'string',
         'email_template_reminder3'           => 'string',
         'email_template_reminder_endless'    => 'string',
-        'enable_client_portal_password'      => 'bool',
         'inclusive_taxes'                    => 'bool',
         'invoice_number_pattern'             => 'string',
         'invoice_number_counter'             => 'integer',
@@ -662,6 +663,7 @@ class CompanySettings extends BaseSettings
                 '$task.line_total',
             ],
             'total_columns' => [
+                '$net_subtotal',
                 '$subtotal',
                 '$discount',
                 '$custom_surcharge1',

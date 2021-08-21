@@ -237,7 +237,7 @@ class BillingPortalPurchase extends Component
         $client_repo = new ClientRepository(new ClientContactRepository());
 
         $data = [
-            'name' => 'Client Name',
+            'name' => '',
             'contacts' => [
                 ['email' => $this->email],
             ],

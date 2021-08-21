@@ -51,10 +51,11 @@
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
+        height: 120px;
     }
 
     .company-logo {
-        zoom: 50%;
+        height: 100%;
     }
 
     .header-invoice-number {
@@ -181,6 +182,7 @@
         display: grid;
         grid-template-columns: 2fr 1fr;
         gap: 80px;
+        margin-right: .5rem;
     }
 
     #table-totals .totals-table-right-side > * {
@@ -188,8 +190,8 @@
         grid-template-columns: 1fr 1fr;
     }
 
-    #table-totals > .totals-table-right-side > * > :nth-child(1) {
-        text-align: left;
+    #table-totals>.totals-table-right-side>*> :nth-child(1) {
+        text-align: "$dir_text_align";
         padding: 7px;
     }
 
@@ -225,6 +227,43 @@
     #footer {
         margin-top: 30px;
     }
+
+    /** Markdown-specific styles. **/
+    #product-table h3,
+    #task-table h3,
+    #delivery-note-table h3 {
+        font-size: 1rem;
+        margin-bottom: 0;
+    }
+
+    /** Useful snippets, uncomment to enable. **/
+    
+    /** Hide company logo **/
+    /* .company-logo { display: none } */
+
+    /* Hide company details */
+    /* #company-details > * { display: none } */
+
+    /* Hide company address */
+    /* #company-address > * { display: none } */
+
+    /* Hide public notes */
+    /* [data-ref="total_table-public_notes"] { display: none } */
+
+    /* Hide terms label */
+    /* [data-ref="total_table-terms-label"] { display: none } */
+
+    /* Hide totals table */
+    /* #table-totals { display: none } */
+
+    /* Hide totals table left side */
+    /* #table-totals div:first-child > * { display: none !important } */
+
+    /* Hide totals table right side */
+    /* .totals-table-right-side { display: none } */
+
+    /** For more info, please check our docs: https://invoiceninja.github.io **/
+    /** To find out selectors on your own: https://invoiceninja.github.io/docs/custom-fields/#snippets **/
 </style>
 
 <div id="header"></div>
@@ -240,15 +279,15 @@
             <img class="company-logo" src="$company.logo"
                  alt="$company.name logo">
             <div class="top-right-side-section">
-                <section>
+                <div dir="$dir">
                     <span class="header-payment-due-label">$payment_due_label:</span>
                     <span>$payment_due</span>
-                </section>
+                </div>
 
-                <section>
+                <div dir="$dir">
                     <span class="header-amount-due-label">$amount_due_label:</span>
                     <span class="header-amount-due-value">$amount_due</span>
-                </section>
+                </div>
             </div>
         </div>
     </div>

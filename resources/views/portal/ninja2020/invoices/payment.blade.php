@@ -48,18 +48,28 @@
                             @endif
 
                             <div class="px-4 py-5 bg-white sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                @if($invoice->po_number)
+                                <dt class="text-sm font-medium leading-5 text-gray-500">
+                                    {{ ctrans('texts.po_number') }}
+                                </dt>
+                                <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+                                    {{ $invoice->po_number }}
+                                </dd>
+                                @elseif($invoice->public_notes)
+                                <dt class="text-sm font-medium leading-5 text-gray-500">
+                                    {{ ctrans('texts.public_notes') }}
+                                </dt>
+                                <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+                                    {{ $invoice->public_notes }}
+                                </dd>
+                                @else
                                 <dt class="text-sm font-medium leading-5 text-gray-500">
                                     {{ ctrans('texts.invoice_date') }}
                                 </dt>
                                 <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                                    @if($invoice->po_number)
-                                        {{ $invoice->po_number }}
-                                    @elseif($invoice->public_notes)
-                                        {{ $invoice->public_notes }}
-                                    @else
-                                        {{ $invoice->date}}
-                                    @endif
+                                    {{ $invoice->date }}
                                 </dd>
+                                @endif
                             </div>
 
                             @if(!empty($invoice->due_date) && !is_null($invoice->due_date))
@@ -100,6 +110,7 @@
                                                     type="text"
                                                     class="input mt-0 mr-4 relative"
                                                     name="payable_invoices[{{$key}}][amount]"
+                                                    dusk="underpayment-input"
                                                     value="{{ $invoice->partial > 0 ? $invoice->partial : $invoice->balance }}"/>
                                             </label>
                                         </div>

@@ -33,7 +33,8 @@ class ContactRegister
 
             if($company)
             {
-                abort_unless($company->client_can_register, 404);
+                if(! $company->client_can_register)
+                    abort(400, 'Registration disabled');
 
                 $request->merge(['key' => $company->company_key]);
 
@@ -49,7 +50,9 @@ class ContactRegister
 
         if($company = Company::where($query)->first())
         {
-            abort_unless($company->client_can_register, 404);
+
+            if(! $company->client_can_register)
+                abort(400, 'Registration disabled');
 
             $request->merge(['key' => $company->company_key]);
 
@@ -62,7 +65,10 @@ class ContactRegister
         if ($request->route()->parameter('company_key') && Ninja::isSelfHost()) {
             $company = Company::where('company_key', $request->company_key)->firstOrFail();
 
-            abort_unless($company->client_can_register, 404);
+            if(! (bool)$company->client_can_register);
+                abort(400, 'Registration disabled');
+
+            $request->merge(['key' => $company->company_key]);
 
             return $next($request);
         }
@@ -72,7 +78,8 @@ class ContactRegister
         if (!$request->route()->parameter('company_key') && Ninja::isSelfHost()) {
             $company = Account::first()->default_company;
 
-            abort_unless($company->client_can_register, 404);
+            if(! $company->client_can_register)
+                abort(400, 'Registration disabled');
 
             $request->merge(['key' => $company->company_key]);
 

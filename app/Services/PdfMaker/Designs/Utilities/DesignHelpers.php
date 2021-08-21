@@ -331,14 +331,22 @@ document.addEventListener('DOMContentLoaded', function() {
         return $converter->convertToHtml($markdown);
     }
 
-    public function processMarkdownOnLineItems(array &$items)
+    public function processMarkdownOnLineItems(array &$items): void
     {
-        // Use setting to determinate if parsing should be done.
-        // 'parse_markdown_on_pdfs'
-
         foreach ($items as $key => $item) {
             foreach ($item as $variable => $value) {
                 $item[$variable] = DesignHelpers::parseMarkdownToHtml($value ?? '');
+            }
+
+            $items[$key] = $item;
+        }
+    }
+
+    public function processNewLines(array &$items): void
+    {
+        foreach ($items as $key => $item) {
+            foreach ($item as $variable => $value) {
+                $item[$variable] = nl2br($value);
             }
 
             $items[$key] = $item;

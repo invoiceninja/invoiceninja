@@ -75,6 +75,8 @@ class ImportCompanyTest extends TestCase
     {
         parent::setUp();
 
+        $this->artisan('db:seed');
+
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
@@ -83,6 +85,10 @@ class ImportCompanyTest extends TestCase
 
         Account::all()->each(function ($account){
             $account->delete();
+        });
+
+        CompanyGateway::all()->each(function ($cg){
+            $cg->forceDelete();
         });
 
         $this->account = Account::factory()->create();
@@ -136,6 +142,10 @@ class ImportCompanyTest extends TestCase
 
     public function testImportUsers()
     {
+
+        CompanyGateway::all()->each(function ($cg){
+            $cg->forceDelete();
+        });
 
         $this->assertTrue(property_exists($this->backup_json_object, 'app_version'));
 

@@ -65,13 +65,15 @@ class HandleReversal extends AbstractService
 
         /* Generate a credit for the $total_paid amount */
         $notes = 'Credit for reversal of '.$this->invoice->number;
-
+        $credit = false;
+        
         if ($total_paid > 0) {
 
             $credit = CreditFactory::create($this->invoice->company_id, $this->invoice->user_id);
             $credit->client_id = $this->invoice->client_id;
             $credit->invoice_id = $this->invoice->id;
-
+            $credit->date = now();
+            
             $item = InvoiceItemFactory::create();
             $item->quantity = 1;
             $item->cost = (float) $total_paid;
@@ -89,7 +91,7 @@ class HandleReversal extends AbstractService
         }
 
         /*If there is a payment linked, then the credit needs to be linked back to that payment in case of refund*/
-        if ($paymentables->count() > 0) {
+        if ($paymentables->count() > 0 && $credit) {
             $payment = $paymentables->first()->payment;
             $payment->credits()->save($credit);
 

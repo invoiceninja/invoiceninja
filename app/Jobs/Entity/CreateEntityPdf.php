@@ -86,9 +86,8 @@ class CreateEntityPdf implements ShouldQueue
 
         $this->contact = $invitation->contact;
 
-        $this->disk = $disk;
-        
-        // $this->disk = $disk ?? config('filesystems.default');
+        $this->disk = Ninja::isHosted() ? config('filesystems.default') : $disk;
+
     }
 
     public function handle()
@@ -132,10 +131,15 @@ class CreateEntityPdf implements ShouldQueue
 
         $entity_design_id = $this->entity->design_id ? $this->entity->design_id : $this->decodePrimaryKey($this->entity->client->getSetting($entity_design_id));
 
-        if(!$this->company->account->hasFeature(Account::FEATURE_DIFFERENT_DESIGNS))
-            $entity_design_id = 2;
+        // if(!$this->company->account->hasFeature(Account::FEATURE_DIFFERENT_DESIGNS))
+        //     $entity_design_id = 2;
 
         $design = Design::find($entity_design_id);
+
+        /* Catch all in case migration doesn't pass back a valid design */
+        if(!$design)
+            $design = Design::find(2);
+
         $html = new HtmlEngine($this->invitation);
 
         if ($design->is_custom) {
@@ -162,6 +166,7 @@ class CreateEntityPdf implements ShouldQueue
                 'all_pages_header' => $this->entity->client->getSetting('all_pages_header'),
                 'all_pages_footer' => $this->entity->client->getSetting('all_pages_footer'),
             ],
+            'process_markdown' => $this->entity->client->company->markdown_enabled,
         ];
 
         $maker = new PdfMakerService($state);
@@ -196,11 +201,9 @@ class CreateEntityPdf implements ShouldQueue
                 
                 if(!Storage::disk($this->disk)->exists($path))
                     Storage::disk($this->disk)->makeDirectory($path, 0775);
+                
+                    Storage::disk($this->disk)->put($file_path, $pdf);
 
-                nlog($file_path);
-                
-                Storage::disk($this->disk)->put($file_path, $pdf);
-                
             }
             catch(\Exception $e)
             {

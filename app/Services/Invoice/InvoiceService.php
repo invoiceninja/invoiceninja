@@ -20,7 +20,9 @@ use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Task;
+use App\Repositories\BaseRepository;
 use App\Services\Client\ClientService;
+use App\Services\Invoice\ApplyPaymentAmount;
 use App\Services\Invoice\UpdateReminder;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
@@ -33,13 +35,9 @@ class InvoiceService
 
     private $invoice;
 
-    protected $client_service;
-
     public function __construct($invoice)
     {
         $this->invoice = $invoice;
-
-        $this->client_service = new ClientService($invoice->client);
     }
 
     /**
@@ -49,7 +47,14 @@ class InvoiceService
      */
     public function markPaid()
     {
-        $this->invoice = (new MarkPaid($this->client_service, $this->invoice))->run();
+        $this->invoice = (new MarkPaid($this->invoice))->run();
+
+        return $this;
+    }
+
+    public function applyPaymentAmount($amount)
+    {
+        $this->invoice = (new ApplyPaymentAmount($this->invoice, $amount))->run();
 
         return $this;
     }
@@ -275,9 +280,8 @@ class InvoiceService
     {
         if ((int)$this->invoice->balance == 0) {
             
-            InvoiceWorkflowSettings::dispatchNow($this->invoice);
-
-            $this->setStatus(Invoice::STATUS_PAID);
+            $this->setStatus(Invoice::STATUS_PAID)->workFlow();
+            // InvoiceWorkflowSettings::dispatchNow($this->invoice);
         }
 
         if ($this->invoice->balance > 0 && $this->invoice->balance < $this->invoice->amount) {
@@ -377,23 +381,28 @@ class InvoiceService
     {
         switch ($reminder_template) {
             case 'reminder1':
-                $this->invoice->reminder1_sent = now()->format('Y-m-d');
-                $this->invoice->reminder_last_sent = now()->format('Y-m-d');
+                $this->invoice->reminder1_sent = now();
+                $this->invoice->reminder_last_sent = now();
+                $this->invoice->last_sent_date = now();
                 break;
             case 'reminder2':
-                $this->invoice->reminder2_sent = now()->format('Y-m-d');
-                $this->invoice->reminder_last_sent = now()->format('Y-m-d');
+                $this->invoice->reminder2_sent = now();
+                $this->invoice->reminder_last_sent = now();
+                $this->invoice->last_sent_date = now();
                 break;
             case 'reminder3':
-                $this->invoice->reminder3_sent = now()->format('Y-m-d');
-                $this->invoice->reminder_last_sent = now()->format('Y-m-d');
+                $this->invoice->reminder3_sent = now();
+                $this->invoice->reminder_last_sent = now();
+                $this->invoice->last_sent_date = now();
                 break;
             case 'endless_reminder':
-                $this->invoice->reminder_last_sent = now()->format('Y-m-d');
+                $this->invoice->reminder_last_sent = now();
+                $this->invoice->last_sent_date = now();
                 break;
             default:
-                $this->invoice->reminder1_sent = now()->format('Y-m-d');
-                $this->invoice->reminder_last_sent = now()->format('Y-m-d');
+                $this->invoice->reminder1_sent = now();
+                $this->invoice->reminder_last_sent = now();
+                $this->invoice->last_sent_date = now();
                 break;
         }
 
@@ -444,6 +453,18 @@ class InvoiceService
         /* If client currency differs from the company default currency, then insert the client exchange rate on the model.*/
         if(!isset($this->invoice->exchange_rate) && $this->invoice->client->currency()->id != (int) $this->invoice->company->settings->currency_id)
             $this->invoice->exchange_rate = $this->invoice->client->currency()->exchange_rate;
+
+        return $this;
+    }
+
+    public function workFlow()
+    {
+
+        if ($this->invoice->status_id == Invoice::STATUS_PAID && $this->invoice->client->getSetting('auto_archive_invoice')) {
+            /* Throws: Payment amount xxx does not match invoice totals. */
+            $base_repository = new BaseRepository();
+            $base_repository->archive($this->invoice);
+        }
 
         return $this;
     }

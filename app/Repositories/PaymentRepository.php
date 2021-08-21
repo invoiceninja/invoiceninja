@@ -80,6 +80,11 @@ class PaymentRepository extends BaseRepository {
 
                 $client->service()->updatePaidToDate($data['amount'])->save();
             }
+            elseif($data['amount'] >0){
+
+                //this fixes an edge case with unapplied payments
+                $client->service()->updatePaidToDate($data['amount'])->save();
+            }
 
             if (array_key_exists('credits', $data) && is_array($data['credits']) && count($data['credits']) > 0) {
                 $_credit_totals = array_sum(array_column($data['credits'], 'amount'));
@@ -90,6 +95,7 @@ class PaymentRepository extends BaseRepository {
                     $client->service()->updatePaidToDate($_credit_totals)->save();
                 }
             }
+
         }
 
         /*Fill the payment*/
@@ -156,9 +162,11 @@ class PaymentRepository extends BaseRepository {
 
 		if ( ! $is_existing_payment && ! $this->import_mode ) {
 
-            if ($payment->client->getSetting('client_manual_payment_notification')) 
+            if (array_key_exists('email_receipt', $data) && $data['email_receipt'] == 'true') 
                 $payment->service()->sendEmail();
-			
+			elseif(!array_key_exists('email_receipt', $data) && $payment->client->getSetting('client_manual_payment_notification'))
+                $payment->service()->sendEmail();
+
             event( new PaymentWasCreated( $payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null) ) );
 		}
 
@@ -184,6 +192,10 @@ class PaymentRepository extends BaseRepository {
      */
     private function processExchangeRates($data, $payment)
     {
+
+        if(array_key_exists('exchange_rate', $data) && isset($data['exchange_rate']))
+            return $payment;
+
         $client = Client::find($data['client_id']);
 
         $client_currency = $client->getSetting('currency_id');
@@ -194,7 +206,9 @@ class PaymentRepository extends BaseRepository {
             $exchange_rate = new CurrencyApi();
 
             $payment->exchange_rate = $exchange_rate->exchangeRate($client_currency, $company_currency, Carbon::parse($payment->date));
-            $payment->exchange_currency_id = $client_currency;
+            // $payment->exchange_currency_id = $client_currency;
+            $payment->exchange_currency_id = $company_currency;
+
         }
 
         return $payment;

@@ -10,11 +10,10 @@
             </div>
 
             <div class="relative flex justify-center text-sm leading-5">
-                <span class="font-bold tracking-wide bg-gray-100 px-6 py-0">Select a payment method:</span>
-                {{--                <h1 class="text-2xl font-bold tracking-wide bg-gray-100 px-6 py-0">--}}
-                {{--                    {{ ctrans('texts.total') }}: {{ \App\Utils\Number::formatMoney($total, $subscription->company) }}--}}
-                {{--                    <small class="ml-1 line-through text-gray-500">{{ \App\Utils\Number::formatMoney($subscription->price, $subscription->company) }}</small>--}}
-                {{--                </h1>--}}
+                <span class="font-bold tracking-wide bg-gray-100 px-6 py-0">{{ ctrans('texts.select_payment_method')}}</span>
+                <h1 class="text-2xl font-bold tracking-wide bg-gray-100 px-6 py-0">
+                    {{ ctrans('texts.total') }}: {{ \App\Utils\Number::formatMoney($amount, $subscription->company) }}
+                </h1>
             </div>
         </div>
 
@@ -63,9 +62,19 @@
             </div>
         </div>
         @elseif($amount < 0)
-            <button wire:click="handlePaymentNotRequired"class="px-3 py-2 border rounded mr-4 hover:border-blue-600">
+            <div class="relative flex justify-center text-sm leading-5">
+                <h1 class="text-2xl font-bold tracking-wide bg-gray-100 px-6 py-0">
+                    {{ ctrans('texts.total') }}: {{ \App\Utils\Number::formatMoney($amount, $subscription->company) }}
+                </h1>
+            </div>
+            <div class="relative flex justify-center text-sm leading-5 mt-10">
+
+            <button wire:click="handlePaymentNotRequired" class="px-3 py-2 border rounded mr-4 hover:border-blue-600">
                 {{ ctrans('texts.click_to_continue') }}
             </button>
+
+            </div>
+
         @endif
     </div>
 </div>

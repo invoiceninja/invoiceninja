@@ -100,6 +100,11 @@ class PaymentMigrationRepository extends BaseRepository
         $payment->deleted_at = $data['deleted_at'] ?: null;
         $payment->save();
 
+        if(array_key_exists('currency_id', $data) && $data['currency_id'] == 0){
+            $payment->currency_id = $payment->company->settings->currency_id;
+            $payment->save();
+        }
+
         /*Ensure payment number generated*/
         if (! $payment->number || strlen($payment->number) == 0) {
             $payment->number = $payment->client->getNextPaymentNumber($payment->client);
@@ -208,7 +213,9 @@ class PaymentMigrationRepository extends BaseRepository
             $exchange_rate = new CurrencyApi();
 
             $payment->exchange_rate = $exchange_rate->exchangeRate($client_currency, $company_currency, Carbon::parse($payment->date));
-            $payment->exchange_currency_id = $client_currency;
+            // $payment->exchange_currency_id = $client_currency;
+            $payment->exchange_currency_id = $company_currency;
+
         }
 
         return $payment;

@@ -5,7 +5,7 @@
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "The leading open-source invoicing app",
+    "description": "Invoice Clients, Track Work-Time, Get Paid Online.",
     "orientation": "portrait-primary",
     "prefer_related_applications": true,
     "related_applications": [

@@ -40,6 +40,7 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Mail;
 use Turbo124\Beacon\Facades\LightLogs;
+use Illuminate\Support\Facades\Cache;
 
 /*Multi Mailer implemented*/
 
@@ -71,15 +72,15 @@ class NinjaMailerJob implements ShouldQueue
 
     public function handle()
     {
-        /*If we are migrating data we don't want to fire any emails*/
-        if ($this->nmo->company->is_disabled && !$this->override) 
-            return true;
-        
+
         /*Set the correct database*/
         MultiDB::setDb($this->nmo->company->db);
 
         /* Serializing models from other jobs wipes the primary key */
         $this->company = Company::where('company_key', $this->nmo->company->company_key)->first();
+
+        if($this->preFlightChecksFail())
+            return;
 
         /* Set the email driver */
         $this->setMailDriver();
@@ -101,7 +102,8 @@ class NinjaMailerJob implements ShouldQueue
         //send email
         try {
             nlog("trying to send to {$this->nmo->to_user->email} ". now()->toDateTimeString());
-            
+            nlog("Using mailer => ". $this->mailer);
+
             Mail::mailer($this->mailer)
                 ->to($this->nmo->to_user->email)
                 ->send($this->nmo->mailable);
@@ -109,8 +111,11 @@ class NinjaMailerJob implements ShouldQueue
             LightLogs::create(new EmailSuccess($this->nmo->company->company_key))
                      ->batch();
 
-        } catch (\Exception $e) {
+            /* Count the amount of emails sent across all the users accounts */
+            Cache::increment($this->company->account->key);
 
+        } catch (\Exception $e) {
+            
             nlog("error failed with {$e->getMessage()}");
 
             if($this->nmo->entity)
@@ -146,11 +151,7 @@ class NinjaMailerJob implements ShouldQueue
     {
         /* Singletons need to be rebooted each time just in case our Locale is changing*/
         App::forgetInstance('translator');
-        // App::forgetInstance('mail.manager'); //singletons must be destroyed!
-        // App::forgetInstance('mailer');
-        // App::forgetInstance('laravelgmail');
         $t = app('translator');
-        /* Inject custom translations if any exist */
         $t->replace(Ninja::transformTranslations($this->nmo->settings));
 
         switch ($this->nmo->settings->email_sending_method) {
@@ -165,7 +166,6 @@ class NinjaMailerJob implements ShouldQueue
                 break;
         }
 
-        (new MailServiceProvider(app()))->register();
     }
 
     private function setGmailMailer()
@@ -182,16 +182,19 @@ class NinjaMailerJob implements ShouldQueue
         $google = (new Google())->init();
 
         try{
+
+            if ($google->getClient()->isAccessTokenExpired()) {
+                $google->refreshToken($user);
+                $user = $user->fresh();
+            }
+
             $google->getClient()->setAccessToken(json_encode($user->oauth_user_token));
+
         }
         catch(\Exception $e) {
             $this->logMailError('Gmail Token Invalid', $this->company->clients()->first());
             $this->nmo->settings->email_sending_method = 'default';
             return $this->setMailDriver();
-        }
-
-        if ($google->getClient()->isAccessTokenExpired()) {
-            $google->refreshToken($user);
         }
 
         /*
@@ -212,6 +215,28 @@ class NinjaMailerJob implements ShouldQueue
                 $message->getHeaders()->addTextHeader('GmailToken', $token);     
              });
 
+    }
+
+    private function preFlightChecksFail()
+    {
+        /* If we are migrating data we don't want to fire any emails */
+        if ($this->nmo->company->is_disabled && !$this->override) 
+            return true;
+
+        /* On the hosted platform we set default contacts a @example.com email address - we shouldn't send emails to these types of addresses */
+        if(Ninja::isHosted() && strpos($this->nmo->to_user->email, '@example.com') !== false)
+            return true;
+
+        /* GMail users are uncapped */
+        if(Ninja::isHosted() && $this->nmo->settings->email_sending_method == 'gmail')
+            return false;
+
+        /* On the hosted platform, if the user is over the email quotas, we do not send the email. */
+        if(Ninja::isHosted() && $this->company->account->emailQuotaExceeded())
+            return true;
+
+
+        return false;
     }
 
     private function logMailError($errors, $recipient_object)
@@ -238,4 +263,5 @@ class NinjaMailerJob implements ShouldQueue
         LightLogs::create($job_failure)
                  ->batch();
     }
+
 }

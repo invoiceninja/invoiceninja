@@ -20,6 +20,9 @@ Route::post('password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail'
 Route::get('password/reset/{token}', 'Auth\ResetPasswordController@showResetForm')->middleware(['domain_db','email_db'])->name('password.reset');
 Route::post('password/reset', 'Auth\ResetPasswordController@reset')->middleware('email_db')->name('password.update');
 
+Route::get('wepay/signup/{token}', 'WePayController@signup')->name('wepay.signup');
+Route::get('wepay/finished', 'WePayController@finished')->name('wepay.finished');
+
 /*
  * Social authentication
  */
@@ -39,3 +42,4 @@ Route::get('stripe/signup/{token}', 'StripeConnectController@initialize')->name(
 Route::get('stripe/completed', 'StripeConnectController@completed')->name('stripe_connect.return');
 
 Route::get('checkout/3ds_redirect/{company_key}/{company_gateway_id}/{hash}', 'Gateways\Checkout3dsController@index')->name('checkout.3ds_redirect');
+Route::get('mollie/3ds_redirect/{company_key}/{company_gateway_id}/{hash}', 'Gateways\Mollie3dsController@index')->name('mollie.3ds_redirect');

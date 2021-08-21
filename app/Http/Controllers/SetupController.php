@@ -16,6 +16,7 @@ use App\Http\Requests\Setup\CheckDatabaseRequest;
 use App\Http\Requests\Setup\CheckMailRequest;
 use App\Http\Requests\Setup\StoreSetupRequest;
 use App\Jobs\Account\CreateAccount;
+use App\Jobs\Util\SchedulerCheck;
 use App\Jobs\Util\VersionCheck;
 use App\Models\Account;
 use App\Utils\CurlUtils;
@@ -69,8 +70,6 @@ class SetupController extends Controller
         }
 
         if ($check['system_health'] === false) {
-            nlog($check);
-
             return response('Oops, something went wrong. Check your logs.'); /* We should never reach this block, but just in case. */
         }
 
@@ -109,11 +108,11 @@ class SetupController extends Controller
             'REQUIRE_HTTPS' => $request->input('https') ? 'true' : 'false',
             'APP_DEBUG' => 'false',
 
-            'DB_HOST1' => $request->input('db_host'),
-            'DB_PORT1' => $request->input('db_port'),
-            'DB_DATABASE1' => $request->input('db_database'),
-            'DB_USERNAME1' => $request->input('db_username'),
-            'DB_PASSWORD1' => $request->input('db_password'),
+            'DB_HOST' => $request->input('db_host'),
+            'DB_PORT' => $request->input('db_port'),
+            'DB_DATABASE' => $request->input('db_database'),
+            'DB_USERNAME' => $request->input('db_username'),
+            'DB_PASSWORD' => $request->input('db_password'),
 
             'MAIL_MAILER' => $mail_driver,
             'MAIL_PORT' => $request->input('mail_port'),
@@ -125,6 +124,7 @@ class SetupController extends Controller
             'MAIL_PASSWORD' => $request->input('mail_password'),
 
             'NINJA_ENVIRONMENT' => 'selfhost',
+            'DB_CONNECTION' => 'mysql',
         ];
 
         if (config('ninja.db.multi_db_enabled')) {
@@ -133,11 +133,11 @@ class SetupController extends Controller
 
         if (config('ninja.preconfigured_install')) {
             // Database connection was already configured. Don't let the user override it.
-            unset($env_values['DB_HOST1']);
-            unset($env_values['DB_PORT1']);
-            unset($env_values['DB_DATABASE1']);
-            unset($env_values['DB_USERNAME1']);
-            unset($env_values['DB_PASSWORD1']);
+            unset($env_values['DB_HOST']);
+            unset($env_values['DB_PORT']);
+            unset($env_values['DB_DATABASE']);
+            unset($env_values['DB_USERNAME']);
+            unset($env_values['DB_PASSWORD']);
         }
 
         try {
@@ -240,6 +240,11 @@ class SetupController extends Controller
                 $pdf->setChromiumPath(config('ninja.snappdf_chromium_path'));
             }
 
+            if (config('ninja.snappdf_chromium_arguments')) {
+                $pdf->clearChromiumArguments();
+                $pdf->addChromiumArguments(config('ninja.snappdf_chromium_arguments'));
+            }
+
             $pdf = $pdf
                 ->setHtml('GENERATING PDFs WORKS! Thank you for using Invoice Ninja!')
                 ->generate();
@@ -275,10 +280,7 @@ class SetupController extends Controller
 
     public function update()
     {
-        // if(Ninja::isHosted())
-        //     return redirect('/');
-    
-        // if( Ninja::isNinja() || !request()->has('secret') || (request()->input('secret') != config('ninja.update_secret')) )
+
         if(!request()->has('secret') || (request()->input('secret') != config('ninja.update_secret')) )
             return redirect('/');
 
@@ -307,6 +309,8 @@ class SetupController extends Controller
 
         $this->buildCache(true);
 
+        SchedulerCheck::dispatchNow();
+        
         return redirect('/');
 
     }

@@ -156,7 +156,6 @@ trait MockAccountData
             }
         }
 
-
         $this->account = Account::factory()->create();
         $this->company = Company::factory()->create([
                             'account_id' => $this->account->id,
@@ -167,7 +166,8 @@ trait MockAccountData
 
         $settings = CompanySettings::defaults();
 
-        $settings->company_logo = 'https://www.invoiceninja.com/wp-content/uploads/2019/01/InvoiceNinja-Logo-Round-300x300.png';
+        $settings->company_logo = 'https://app.invoiceninja.com/favicon-v2.png';
+        // $settings->company_logo = asset('images/new_logo.png');
         $settings->website = 'www.invoiceninja.com';
         $settings->address1 = 'Address 1';
         $settings->address2 = 'Address 2';
@@ -199,7 +199,7 @@ trait MockAccountData
         }
 
         $user->password = Hash::make('ALongAndBriliantPassword');
-        
+
         $user_id = $user->id;
         $this->user = $user;
 
@@ -292,7 +292,7 @@ trait MockAccountData
 
         $this->task->status_id = TaskStatus::where('company_id', $this->company->id)->first()->id;
         $this->task->save();
-        
+
         $this->expense_category = ExpenseCategory::factory()->create([
             'user_id' => $user_id,
             'company_id' => $this->company->id,
@@ -333,6 +333,8 @@ trait MockAccountData
         $this->invoice->setRelation('company', $this->company);
 
         $this->invoice->save();
+        
+        $this->invoice->load("client");
 
         InvoiceInvitation::factory()->create([
                 'user_id' => $this->invoice->user_id,
@@ -348,7 +350,8 @@ trait MockAccountData
                 'invoice_id' => $this->invoice->id,
             ]);
 
-        $this->invoice->service()->markSent();
+        $this->invoice->fresh()->service()->markSent();
+        // $this->invoice->service()->markSent();
 
         $this->quote = Quote::factory()->create([
                 'user_id' => $user_id,
@@ -396,6 +399,8 @@ trait MockAccountData
         $this->credit->line_items = $this->buildLineItems();
         $this->credit->amount = 10;
         $this->credit->balance = 10;
+        
+        // $this->credit->due_date = now()->addDays(200);
 
         $this->credit->tax_name1 = '';
         $this->credit->tax_name2 = '';
@@ -483,7 +488,7 @@ trait MockAccountData
         $recurring_invoice->next_send_date = Carbon::now();
         $recurring_invoice->save();
 
-        $recurring_invoice->number = $this->getNextInvoiceNumber($this->invoice->client, $this->invoice);
+        $recurring_invoice->number = $this->getNextRecurringInvoiceNumber($this->invoice->client, $this->invoice);
         $recurring_invoice->save();
 
         $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
@@ -494,7 +499,7 @@ trait MockAccountData
         $recurring_invoice->next_send_date = Carbon::now();
         $recurring_invoice->save();
 
-        $recurring_invoice->number = $this->getNextInvoiceNumber($this->invoice->client, $this->invoice);
+        $recurring_invoice->number = $this->getNextRecurringInvoiceNumber($this->invoice->client, $this->invoice);
         $recurring_invoice->save();
 
         $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
@@ -505,7 +510,7 @@ trait MockAccountData
         $recurring_invoice->next_send_date = Carbon::now();
         $recurring_invoice->save();
 
-        $recurring_invoice->number = $this->getNextInvoiceNumber($this->invoice->client, $this->invoice);
+        $recurring_invoice->number = $this->getNextRecurringInvoiceNumber($this->invoice->client, $this->invoice);
         $recurring_invoice->save();
 
         $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
@@ -516,7 +521,7 @@ trait MockAccountData
         $recurring_invoice->next_send_date = Carbon::now();
         $recurring_invoice->save();
 
-        $recurring_invoice->number = $this->getNextInvoiceNumber($this->invoice->client, $this->invoice);
+        $recurring_invoice->number = $this->getNextRecurringInvoiceNumber($this->invoice->client, $this->invoice);
         $recurring_invoice->save();
 
         $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
@@ -527,7 +532,7 @@ trait MockAccountData
         $recurring_invoice->next_send_date = Carbon::now();
         $recurring_invoice->save();
 
-        $recurring_invoice->number = $this->getNextInvoiceNumber($this->invoice->client, $this->invoice);
+        $recurring_invoice->number = $this->getNextRecurringInvoiceNumber($this->invoice->client, $this->invoice);
         $recurring_invoice->save();
 
         $recurring_invoice = InvoiceToRecurringInvoiceFactory::create($this->invoice);
@@ -538,7 +543,7 @@ trait MockAccountData
         $recurring_invoice->next_send_date = Carbon::now()->addDays(10);
         $recurring_invoice->save();
 
-        $recurring_invoice->number = $this->getNextInvoiceNumber($this->invoice->client, $this->invoice);
+        $recurring_invoice->number = $this->getNextRecurringInvoiceNumber($this->invoice->client, $this->invoice);
         $recurring_invoice->save();
 
         $gs = new GroupSetting;
@@ -562,7 +567,7 @@ trait MockAccountData
             $data[1]['fee_tax_rate3'] = 0;
             $data[1]['fee_cap'] = '';
             $data[1]['is_enabled'] = true;
-            
+
             $cg = new CompanyGateway;
             $cg->company_id = $this->company->id;
             $cg->user_id = $user_id;
@@ -587,6 +592,10 @@ trait MockAccountData
             $cg->config = encrypt(config('ninja.testvars.stripe'));
             $cg->save();
         }
+
+
+        $this->client = $this->client->fresh();
+        $this->invoice = $this->invoice->fresh();
     }
 
     /**

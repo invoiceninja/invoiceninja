@@ -38,7 +38,7 @@ class SystemHealth
         //'intl', //todo double check whether we need this for email dns validation
     ];
 
-    private static $php_version = 7.3;
+    private static $php_version = 7.4;
 
     /**
      * Check loaded extensions / PHP version / DB Connections.
@@ -83,6 +83,7 @@ class SystemHealth
             'flutter_renderer' => (string)config('ninja.flutter_canvas_kit'),
             'jobs_pending' => (int) Queue::size(),
             'pdf_engine' => (string) self::getPdfEngine(),
+            'queue' => (string) config('queue.default'),
         ];
     }
 

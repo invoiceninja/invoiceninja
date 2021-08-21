@@ -2,6 +2,7 @@
     :root {
         --primary-color: $primary_color;
         --secondary-color: $secondary_color;
+        --line-height: 1.6;
     }
 
     body {
@@ -24,8 +25,9 @@
 
     .header-wrapper {
         margin-top: 2rem;
-        display: grid;
-        grid-template-columns: 1fr 0.5fr 2fr;
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
         padding: 2rem 3rem;
     }
 
@@ -34,6 +36,8 @@
         padding: 1rem;
         border-radius: 10px;
     }
+
+    #entity-details p { margin-right: 20px; }
 
     .header-wrapper #entity-details {
         width: 100%;
@@ -47,7 +51,7 @@
     }
 
     .company-logo {
-        zoom: 50%; /** Adapt the zoom size, if you think it's necessary. **/
+        max-width: 65%;
     }
 
     .contacts-wrapper {
@@ -175,6 +179,7 @@
         gap: 80px;
         padding-left: 3rem;
         padding-right: 3rem;
+        margin-right: .75rem;
     }
 
     #table-totals .totals-table-right-side>* {
@@ -183,7 +188,14 @@
     }
 
     #table-totals>.totals-table-right-side>*> :nth-child(1) {
-        text-align: left;
+        text-align: "$dir_text_align";
+        margin-top: .75rem;
+    }
+
+    #table-totals>.totals-table-right-side> * > :not([hidden]) ~ :not([hidden]) {
+        --tw-space-y-reverse: 0;
+        margin-top: calc(.75rem * calc(1 - var(--tw-space-y-reverse)));
+        margin-bottom: calc(.75rem * var(--tw-space-y-reverse));
     }
 
     #table-totals>.totals-table-right-side>*> :nth-child(2) {
@@ -232,8 +244,57 @@
     #footer {
         margin-top: 1rem;
     }
-</style>
 
+    /** Markdown-specific styles. **/
+    #product-table h3,
+    #task-table h3,
+    #delivery-note-table h3 {
+        font-size: 1rem;
+        margin-bottom: 0;
+    }
+
+    #footer-colors {
+        position: fixed;
+        bottom: 0;
+        min-width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+        margin-left: -10px;    
+   }
+
+   #footer-colors > * {
+        padding: 10px;
+    }
+
+    /** Useful snippets, uncomment to enable. **/
+    
+    /** Hide company logo **/
+    /* .company-logo { display: none } */
+
+    /* Hide company details */
+    /* #company-details > * { display: none } */
+
+    /* Hide company address */
+    /* #company-address > * { display: none } */
+
+    /* Hide public notes */
+    /* [data-ref="total_table-public_notes"] { display: none } */
+
+    /* Hide terms label */
+    /* [data-ref="total_table-terms-label"] { display: none } */
+
+    /* Hide totals table */
+    /* #table-totals { display: none } */
+
+    /* Hide totals table left side */
+    /* #table-totals div:first-child > * { display: none !important } */
+
+    /* Hide totals table right side */
+    /* .totals-table-right-side { display: none } */
+
+    /** For more info, please check our docs: https://invoiceninja.github.io **/
+    /** To find out selectors on your own: https://invoiceninja.github.io/docs/custom-fields/#snippets **/
+</style>
 
 <div id="header">
     <div style="background-color: #00968B"><!-- 1 --></div>
@@ -248,16 +309,12 @@
 
 <div id="body">
     <div class="header-wrapper">
-        <img
-            class="company-logo"
-            src="$company.logo"
-            alt="$company.name logo"
-        />
-
-        <div></div>
+        <div>
+            <img class="company-logo" src="$company.logo" alt="$company.name logo">
+        </div>
 
         <div class="entity-details-wrapper">
-            <table id="entity-details" cellspacing="0"></table>
+            <table id="entity-details" cellspacing="0" dir="$dir"></table>
         </div>
     </div>
 
@@ -287,6 +344,17 @@
 
 <div id="footer">
     <p data-ref="total_table-footer">$entity_footer</p>
+
+    <div id="footer-colors">
+        <div style="background-color: #00968B"><!-- 1 --></div>
+        <div style="background-color: #1D756E"><!-- 2 --></div>
+        <div style="background-color: #FCB600"><!-- 3 --></div>
+        <div style="background-color: #BA932F"><!-- 4 --></div>
+        <div style="background-color: #A72A4E"><!-- 5 --></div>
+        <div style="background-color: #E20041"><!-- 6 --></div>
+        <div style="background-color: #F8B300"><!-- 7 --></div>
+        <div style="background-color: #009B8F"><!-- 8 --></div>
+    </div>
 
     <script>
         // Clear up space a bit, if [product-table, tasks-table, delivery-note-table] isn't present.

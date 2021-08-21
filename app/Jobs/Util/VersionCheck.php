@@ -18,6 +18,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Carbon\Carbon;
 
 class VersionCheck implements ShouldQueue
 {
@@ -49,7 +50,7 @@ class VersionCheck implements ShouldQueue
             if(!$account)
                 return;
 
-            if($account->plan == 'white_label' && $account->plan_expires && $account->plan_expires->lt(now())){
+            if($account->plan == 'white_label' && $account->plan_expires && Carbon::parse($account->plan_expires)->lt(now())){
                 $account->plan = null;
                 $account->plan_expires = null;
                 $account->save();

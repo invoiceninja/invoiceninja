@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html data-report-errors="{{ $report_errors }}">
+<html data-report-errors="{{ $report_errors }}" data-rc="{{ $rc }}" data-build="{{ $build }}">
 <head>
     <!-- Source: https://github.com/invoiceninja/invoiceninja -->
     <!-- Version: {{ config('ninja.app_version') }} -->
@@ -7,6 +7,10 @@
   <title>Invoice Ninja</title>
   <meta name="google-signin-client_id" content="{{ config('services.google.client_id') }}">
   <link rel="manifest" href="manifest.json?v={{ config('ninja.app_version') }}">
+  <script src="{{ asset('js/pdf.min.js') }}"></script>
+  <script type="text/javascript">
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "{{ asset('js/pdf.worker.min.js') }}";
+  </script>
 </head>
 <body style="background-color:#888888;">
 
@@ -146,11 +150,8 @@
   
   </script>
 
-  @if(config('ninja.flutter_renderer') == 'hosted')
-    <script defer src="main.dart.js?v={{ config('ninja.app_version') }}" type="application/javascript"></script>
-  @else
-    <script defer src="main.foss.dart.js?v={{ config('ninja.app_version') }}" type="application/javascript"></script>
-  @endif
+  <script defer src="{{ $path }}?v={{ config('ninja.app_version') }}" type="application/javascript"></script>
+
 
   <center style="padding-top: 150px" id="loader">
     <div class="loader"></div>

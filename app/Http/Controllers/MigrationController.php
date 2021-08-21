@@ -82,6 +82,9 @@ class MigrationController extends BaseController
      */
     public function purgeCompany(Company $company)
     {
+        if(Ninja::isHosted() && config('ninja.ninja_default_company_id') == $company->id)
+            return response()->json(['message' => 'Cannot purge this company'], 400);
+
         $account = $company->account;
         $company_id = $company->id;
 
@@ -102,6 +105,9 @@ class MigrationController extends BaseController
 
     private function purgeCompanyWithForceFlag(Company $company)
     {
+        if(Ninja::isHosted() && config('ninja.ninja_default_company_id') == $company->id)
+            return response()->json(['message' => 'Cannot purge this company'], 400);
+
         $account = $company->account;
         $company_id = $company->id;
 
@@ -386,7 +392,6 @@ class MigrationController extends BaseController
                     StartMigration::dispatch($migration_file, $user, $fresh_company)->onQueue('migration');
                 else
                     StartMigration::dispatch($migration_file, $user, $fresh_company);
-
 
         }
 

@@ -2,6 +2,7 @@
     :root {
         --primary-color: $primary_color;
         --secondary-color: $secondary_color;
+        --line-height: 1.6;
     }
 
     body {
@@ -29,25 +30,27 @@
     }
 
     .company-logo {
-        zoom: 50%; /** Adapt the zoom size, if you think it's necessary. **/
+        max-width: 65%;
     }
 
     #company-details {
         display: flex;
         flex-direction: column;
+        line-height: var(--line-height);
     }
 
-    #company-details > span:first-child {
+    #company-details > p:first-child {
         color: var(--primary-color);
     }
 
     #company-address {
         display: flex;
         flex-direction: column;
+        line-height: var(--line-height);
     }
 
     .entity-label {
-        margin-top: 1rem;
+        margin-top: 2.5rem;
         text-transform: uppercase;
         padding-left: 1rem;
         margin-bottom: 1rem;
@@ -56,8 +59,7 @@
     }
 
     .client-and-entity-wrapper {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
+        display: flex;
         padding: 1rem;
         border-top: 1px solid #d8d8d8;
         border-bottom: 1px solid #d8d8d8;
@@ -65,16 +67,21 @@
 
     #entity-details {
         text-align: left;
+        margin-right: 20px;
     }
 
     #entity-details > tr,
     #entity-details th {
         font-weight: normal;
+        padding-right: 15px;
+        padding-top: 2.5px;
+        padding-bottom: 2.5px;
     }
 
     #client-details {
         display: flex;
         flex-direction: column;
+        line-height: var(--line-height);
     }
 
     #client-details > :first-child {
@@ -111,18 +118,12 @@
         padding-left: 1rem;
     }
 
-    #product-table > thead > tr > th:nth-last-child(1),
-    #delivery-note-table > thead > tr > th:nth-last-child(1),
-    #task-table > thead > tr > th:nth-last-child(1) {
-        text-align: right;
-    }
-
     #product-table > tbody > tr > td,
     #delivery-note-table > tbody > tr > td,
     #task-table > tbody > tr > td {
         border-top: 1px solid #d8d8d8;
         border-bottom: 1px solid #d8d8d8;
-        padding: 1rem;
+        padding: 1.5rem;
     }
 
     #product-table > tbody > tr > td:first-child,
@@ -152,20 +153,28 @@
         display: grid;
         grid-template-columns: 2fr 1fr;
         padding-top: .5rem;
+        padding-right: 1rem;
         gap: 80px;
     }
 
-    #table-totals .totals-table-right-side>* {
+    #table-totals .totals-table-right-side > * {
         display: grid;
         grid-template-columns: 1fr 1fr;
     }
 
     #table-totals>.totals-table-right-side>*> :nth-child(1) {
-        text-align: left;
+        text-align: "$dir_text_align";
+        margin-top: .75rem;
     }
 
     #table-totals>.totals-table-right-side>*> :nth-child(2) {
         text-align: right;
+    }
+
+    #table-totals>.totals-table-right-side> * > :not([hidden]) ~ :not([hidden]) {
+        --tw-space-y-reverse: 0;
+        margin-top: calc(.75rem * calc(1 - var(--tw-space-y-reverse)));
+        margin-bottom: calc(.75rem * var(--tw-space-y-reverse));
     }
 
     #table-totals
@@ -191,17 +200,58 @@
     #footer {
         margin-top: 30px;
     }
+
+    /** Markdown-specific styles. **/
+    #product-table h3,
+    #task-table h3,
+    #delivery-note-table h3 {
+        font-size: 1rem;
+        margin-bottom: 0;
+    }
+
+    .company-logo-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+    }
+    
+    /** Useful snippets, uncomment to enable. **/
+    
+    /** Hide company logo **/
+    /* .company-logo { display: none } */
+
+    /* Hide company details */
+    /* #company-details > * { display: none } */
+
+    /* Hide company address */
+    /* #company-address > * { display: none } */
+
+    /* Hide public notes */
+    /* [data-ref="total_table-public_notes"] { display: none } */
+
+    /* Hide terms label */
+    /* [data-ref="total_table-terms-label"] { display: none } */
+
+    /* Hide totals table */
+    /* #table-totals { display: none } */
+
+    /* Hide totals table left side */
+    /* #table-totals div:first-child > * { display: none !important } */
+
+    /* Hide totals table right side */
+    /* .totals-table-right-side { display: none } */
+
+    /** For more info, please check our docs: https://invoiceninja.github.io **/
+    /** To find out selectors on your own: https://invoiceninja.github.io/docs/custom-fields/#snippets **/
 </style>
 
 <div id="header"></div>
 
 <div id="body">
     <div class="header-container">
-        <img
-            class="company-logo"
-            src="$company.logo"
-            alt="$company.name logo"
-        />
+       <div class="company-logo-container">
+            <img class="company-logo" src="$company.logo" alt="$company.name logo">
+       </div>
 
         <div id="company-details"></div>
         <div id="company-address"></div>
@@ -209,7 +259,9 @@
 
     <p class="entity-label">$entity_label</p>
     <div class="client-and-entity-wrapper">
-        <table id="entity-details" cellspacing="0"></table>
+        <div>
+            <table id="entity-details" cellspacing="0" dir="$dir"></table>
+        </div>
 
         <div id="client-details"></div>
     </div>

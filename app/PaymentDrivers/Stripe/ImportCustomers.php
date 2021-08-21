@@ -12,6 +12,7 @@
 
 namespace App\PaymentDrivers\Stripe;
 
+use App\Exceptions\StripeConnectFailure;
 use App\Factory\ClientContactFactory;
 use App\Factory\ClientFactory;
 use App\Factory\ClientGatewayTokenFactory;
@@ -22,6 +23,7 @@ use App\Models\Currency;
 use App\Models\GatewayType;
 use App\PaymentDrivers\StripePaymentDriver;
 use App\PaymentDrivers\Stripe\UpdatePaymentMethods;
+use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 use Stripe\Customer;
 use Stripe\PaymentMethod;
@@ -29,6 +31,7 @@ use Stripe\PaymentMethod;
 class ImportCustomers
 {
     use MakesHash;
+    use GeneratesCounter;
 
     /** @var StripePaymentDriver */
     public $stripe;
@@ -47,6 +50,9 @@ class ImportCustomers
         $this->stripe->init();
 
         $this->update_payment_methods = new UpdatePaymentMethods($this->stripe);
+
+        if(strlen($this->stripe->company_gateway->getConfigField('account_id')) < 1)
+                throw new StripeConnectFailure('Stripe Connect has not been configured');
 
         $customers = Customer::all([], $this->stripe->stripe_connect_auth);
 
@@ -120,6 +126,10 @@ class ImportCustomers
 
         $client->name = property_exists($customer, 'name') ? $customer->name : $customer->email;
 
+        if (!isset($client->number) || empty($client->number)) {
+            $client->number = $this->getNextClientNumber($client);
+        }
+        
         $client->save();
 
         $contact = ClientContactFactory::create($client->company_id, $client->user_id);
@@ -130,5 +140,69 @@ class ImportCustomers
         $contact->save();            
 
         $this->update_payment_methods->updateMethods($customer, $client);
+    }
+
+    public function importCustomer($customer_id)
+    {
+
+        $this->stripe->init();
+
+        $this->update_payment_methods = new UpdatePaymentMethods($this->stripe);
+
+        if(strlen($this->stripe->company_gateway->getConfigField('account_id')) < 1)
+                throw new StripeConnectFailure('Stripe Connect has not been configured');
+
+        $customer = Customer::retrieve($customer_id, $this->stripe_connect_auth);
+
+        if(!$customer)
+            return;
+
+        foreach($this->stripe->company_gateway->company->clients as $client)
+        {
+            if($client->present()->email() == $customer->email) {
+
+                $this->update_payment_methods->updateMethods($customer, $client);
+    
+            }
+        }
+
+    }
+
+    public function match()
+    {
+        $this->stripe->init();
+
+        $this->update_payment_methods = new UpdatePaymentMethods($this->stripe);
+
+        if(strlen($this->stripe->company_gateway->getConfigField('account_id')) < 1)
+                throw new StripeConnectFailure('Stripe Connect has not been configured');
+
+        foreach($this->stripe->company_gateway->company->clients as $client)
+        {
+
+            $searchResults = \Stripe\Customer::all([
+                        "email" => $client->present()->email(),
+                        "limit" => 2,
+                        "starting_after" => null
+            ],$this->stripe->stripe_connect_auth);
+
+            // nlog(count($searchResults));
+          
+            if(count($searchResults) == 1)
+            {
+
+            $cgt = ClientGatewayToken::where('gateway_customer_reference', $searchResults->data[0]->id)->where('company_id', $this->stripe->company_gateway->company->id)->exists();
+
+                if(!$cgt)
+                {
+                    nlog("customer ".$searchResults->data[0]->id. " does not exist.");
+
+                    $this->update_payment_methods->updateMethods($searchResults->data[0], $client);
+
+                }
+            }
+          
+        }
+
     }
 }

@@ -273,13 +273,13 @@ trait MakesInvoiceValues
 
         foreach ($items as $key => $item) {
             if ($table_type == '$product' && $item->type_id != 1) {
-                if ($item->type_id != 4 && $item->type_id != 6) {
+                if ($item->type_id != 4 && $item->type_id != 6 && $item->type_id != 5) {
                     continue;
                 }
             }
 
             if ($table_type == '$task' && $item->type_id != 2) {
-                if ($item->type_id != 4) {
+                if ($item->type_id != 4 && $item->type_id != 5) {
                     continue;
                 }
             }
@@ -358,6 +358,24 @@ trait MakesInvoiceValues
                 ':MONTH' => Carbon::createFromDate(now()->year, now()->month)->translatedFormat('F'),
                 ':YEAR' => now()->year,
                 ':QUARTER' => 'Q' . now()->quarter,
+                ':WEEK_BEFORE' => \sprintf(
+                    '%s %s %s',
+                    Carbon::now()->subDays(7)->translatedFormat($this->client->date_format()),
+                    ctrans('texts.to'),
+                    Carbon::now()->translatedFormat($this->client->date_format())
+                ),
+                ':WEEK_AHEAD' => \sprintf(
+                    '%s %s %s',
+                    Carbon::now()->addDays(7)->translatedFormat($this->client->date_format()),
+                    ctrans('texts.to'),
+                    Carbon::now()->addDays(14)->translatedFormat($this->client->date_format())
+                ),
+                ':WEEK' => \sprintf(
+                    '%s %s %s', 
+                    Carbon::now()->translatedFormat($this->client->date_format()), 
+                    ctrans('texts.to'), 
+                    Carbon::now()->addDays(7)->translatedFormat($this->client->date_format())
+                ),
             ],
             'raw' => [
                 ':MONTH' => now()->month,
@@ -474,7 +492,7 @@ trait MakesInvoiceValues
                 }
 
                 if ($matches->keys()->first() == ':MONTH') {
-                    $output = \Carbon\Carbon::create()->month($output)->localeMonth;
+                    $output = \Carbon\Carbon::create()->month($output)->translatedFormat('F');
                 }
 
                 $value = preg_replace(

@@ -159,6 +159,8 @@ class CompanyTransformer extends EntityTransformer
             'default_password_timeout' => (int) $company->default_password_timeout,
             'invoice_task_datelog' => (bool) $company->invoice_task_datelog,
             'show_task_end_date' => (bool) $company->show_task_end_date,
+            'markdown_enabled' => (bool) $company->markdown_enabled,
+            'use_comma_as_decimal_place' => (bool) $company->use_comma_as_decimal_place,
         ];
     }
 

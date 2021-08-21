@@ -59,30 +59,49 @@
             </div>
         </div>
 
-        @if(is_null($invoice->subscription_id) || optional($invoice->subscription)->allow_cancellation)
-            <div class="bg-white shadow sm:rounded-lg mt-4">
-                <div class="px-4 py-5 sm:p-6">
-                    <div class="sm:flex sm:items-start sm:justify-between">
-                        <div>
-                            <h3 class="text-lg leading-6 font-medium text-gray-900">
-                                {{ ctrans('texts.cancellation') }}
-                            </h3>
-                            <div class="mt-2 max-w-xl text-sm leading-5 text-gray-500">
-                                <p translate>
-                                    {{ ctrans('texts.about_cancellation') }}
-                                </p>
-                            </div>
+        @include('portal.ninja2020.components.entity-documents', ['entity' => $invoice])
+
+        @if($invoice->auto_bill === 'optin' || $invoice->auto_bill === 'optout')
+            <div class="bg-white shadow overflow-hidden lg:rounded-lg mt-4">
+                <div class="flex flex-col md:flex-row items-start justify-between px-4 py-5 sm:p-6">
+                    <div>
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">{{ ctrans('texts.auto_bill') }}</h3>
+                        <p class="mt-1 max-w-2xl text-sm leading-5 text-gray-500">{{ ctrans('texts.auto_bill_option')}}</p>
+                    </div>
+
+                    <div class="flex mt-4 space-x-2">
+                        @livewire('recurring-invoices.update-auto-billing', ['invoice' => $invoice])
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        {{-- @if(is_null($invoice->subscription_id) || optional($invoice->subscription)->allow_cancellation) --}}
+        {{-- INV2-591 --}}
+        @if(false)
+        <div class="bg-white shadow sm:rounded-lg mt-4 hidden">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="sm:flex sm:items-start sm:justify-between">
+                    <div>
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">
+                            {{ ctrans('texts.cancellation') }}
+                        </h3>
+                        <div class="mt-2 max-w-xl text-sm leading-5 text-gray-500">
+                            <p translate>
+                                {{ ctrans('texts.about_cancellation') }}
+                            </p>
                         </div>
-                        <div class="mt-5 sm:mt-0 sm:ml-6 sm:flex-shrink-0 sm:flex sm:items-center">
-                            <div class="inline-flex rounded-md shadow-sm" x-data="{ open: false }">
-                                <button class="button button-danger" translate @click="open = true">Request Cancellation
-                                </button>
-                                @include('portal.ninja2020.recurring_invoices.includes.modals.cancellation')
-                            </div>
+                    </div>
+                    <div class="mt-5 sm:mt-0 sm:ml-6 sm:flex-shrink-0 sm:flex sm:items-center">
+                        <div class="inline-flex rounded-md shadow-sm" x-data="{ open: false }">
+                            <button class="button button-danger" translate @click="open = true">Request Cancellation
+                            </button>
+                            @include('portal.ninja2020.recurring_invoices.includes.modals.cancellation')
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
         @endif
 
         @if($invoice->subscription && $invoice->subscription->allow_plan_changes)

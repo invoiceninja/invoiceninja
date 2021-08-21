@@ -13,6 +13,7 @@
 namespace App\PaymentDrivers\Stripe;
 
 use App\Exceptions\PaymentFailed;
+use App\Http\Requests\ClientPortal\PaymentMethod\VerifyPaymentMethodRequest;
 use App\Http\Requests\Request;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
@@ -59,15 +60,23 @@ class ACH
         $customer = $this->stripe->findOrCreateCustomer();
 
         try {
-            $source = $this->stripe->stripe->customers->createSource($customer->id, ['source' => $stripe_response->token->id]);
+            $source = Customer::createSource($customer->id, ['source' => $stripe_response->token->id], $this->stripe->stripe_connect_auth);
+
         } catch (InvalidRequestException $e) {
             throw new PaymentFailed($e->getMessage(), $e->getCode());
         }
 
         $client_gateway_token = $this->storePaymentMethod($source, $request->input('method'), $customer);
 
+        $verification = route('client.payment_methods.verification', ['payment_method' => $client_gateway_token->hashed_id, 'method' => GatewayType::BANK_TRANSFER], false);
+
         $mailer = new NinjaMailerObject();
-        $mailer->mailable = new ACHVerificationNotification(auth('contact')->user()->client->company);
+
+        $mailer->mailable = new ACHVerificationNotification(
+            auth('contact')->user()->client->company, 
+            route('client.contact_login', ['contact_key' => auth('contact')->user()->contact_key, 'next' => $verification])
+        );
+
         $mailer->company = auth('contact')->user()->client->company;
         $mailer->settings = auth('contact')->user()->client->company->settings;
         $mailer->to_user = auth('contact')->user();
@@ -79,6 +88,12 @@ class ACH
 
     public function verificationView(ClientGatewayToken $token)
     {
+        if (isset($token->meta->state) && $token->meta->state === 'authorized') {
+            return redirect()
+                ->route('client.payment_methods.show', $token->hashed_id)
+                ->with('message', __('texts.payment_method_verified'));
+        }
+
         $data = [
             'token' => $token,
             'gateway' => $this->stripe,
@@ -89,19 +104,31 @@ class ACH
 
     public function processVerification(Request $request, ClientGatewayToken $token)
     {
+        $request->validate([
+            'transactions.*' => ['integer', 'min:1'],
+        ]);
+
+        if (isset($token->meta->state) && $token->meta->state === 'authorized') {
+            return redirect()
+                ->route('client.payment_methods.show', $token->hashed_id)
+                ->with('message', __('texts.payment_method_verified'));
+        }
+
         $this->stripe->init();
 
-        $bank_account = Customer::retrieveSource($request->customer, $request->source, $this->stripe->stripe_connect_auth);
+        $bank_account = Customer::retrieveSource($request->customer, $request->source, [], $this->stripe->stripe_connect_auth);
 
         try {
             $bank_account->verify(['amounts' => request()->transactions]);
 
-            $token->meta->verified_at = now();
+            $meta = $token->meta;
+            $meta->state = 'authorized';
+            $token->meta = $meta;
             $token->save();
 
             return redirect()
-                ->route('client.invoices.index')
-                ->with('success', __('texts.payment_method_verified'));
+                ->route('client.payment_methods.show', $token->hashed_id)
+                ->with('message', __('texts.payment_method_verified'));
         } catch (CardException $e) {
             return back()->with('error', $e->getMessage());
         }
@@ -113,7 +140,7 @@ class ACH
         $data['currency'] = $this->stripe->client->getCurrencyCode();
         $data['payment_method_id'] = GatewayType::BANK_TRANSFER;
         $data['customer'] = $this->stripe->findOrCreateCustomer();
-        $data['amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision);
+        $data['amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency());
 
         return render('gateways.stripe.ach.pay', $data);
     }
@@ -136,7 +163,7 @@ class ACH
         $state = [
             'payment_method' => $request->payment_method_id,
             'gateway_type_id' => $request->company_gateway_id,
-            'amount' => $this->stripe->convertToStripeAmount($request->amount, $this->stripe->client->currency()->precision),
+            'amount' => $this->stripe->convertToStripeAmount($request->amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
             'currency' => $request->currency,
             'customer' => $request->customer,
         ];
@@ -167,7 +194,7 @@ class ACH
             return $this->processUnsuccessfulPayment($state);
         } catch (Exception $e) {
             if ($e instanceof CardException) {
-                return redirect()->route('client.payment_methods.verification', ['id' => ClientGatewayToken::first()->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
+                return redirect()->route('client.payment_methods.verification', ['payment_method' => $source->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
             }
 
             throw new PaymentFailed($e->getMessage(), $e->getCode());
@@ -181,7 +208,7 @@ class ACH
         $data = [
             'payment_method' => $state['source'],
             'payment_type' => PaymentType::ACH,
-            'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->amount, $this->stripe->client->currency()->precision),
+            'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
             'transaction_reference' => $state['charge']->id,
             'gateway_type_id' => GatewayType::BANK_TRANSFER,
         ];
@@ -230,9 +257,10 @@ class ACH
     {
         try {
             $payment_meta = new \stdClass;
-            $payment_meta->brand = (string)sprintf('%s (%s)', $method->bank_name, ctrans('texts.ach'));
-            $payment_meta->last4 = (string)$method->last4;
+            $payment_meta->brand = (string) \sprintf('%s (%s)', $method->bank_name, ctrans('texts.ach'));
+            $payment_meta->last4 = (string) $method->last4;
             $payment_meta->type = GatewayType::BANK_TRANSFER;
+            $payment_meta->state = 'unauthorized';
 
             $data = [
                 'payment_meta' => $payment_meta,

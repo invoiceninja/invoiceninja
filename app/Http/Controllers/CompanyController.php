@@ -25,7 +25,10 @@ use App\Jobs\Company\CreateCompany;
 use App\Jobs\Company\CreateCompanyPaymentTerms;
 use App\Jobs\Company\CreateCompanyTaskStatuses;
 use App\Jobs\Company\CreateCompanyToken;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Ninja\RefundCancelledAccount;
+use App\Mail\Company\CompanyDeleted;
 use App\Models\Account;
 use App\Models\Company;
 use App\Models\CompanyUser;
@@ -474,10 +477,16 @@ class CompanyController extends BaseController
      */
     public function destroy(DestroyCompanyRequest $request, Company $company)
     {
+
+        if(Ninja::isHosted() && config('ninja.ninja_default_company_id') == $company->id)
+            return response()->json(['message' => 'Cannot purge this company'], 400);
+        
         $company_count = $company->account->companies->count();
         $account = $company->account;
+        $account_key = $account->key;
 
         if ($company_count == 1) {
+
             $company->company_users->each(function ($company_user) {
                 $company_user->user->forceDelete();
                 $company_user->forceDelete();
@@ -485,15 +494,28 @@ class CompanyController extends BaseController
 
             $account->delete();
 
+            if(Ninja::isHosted())
+                \Modules\Admin\Jobs\Account\NinjaDeletedAccount::dispatch($account_key);
+
             LightLogs::create(new AccountDeleted())
                      ->increment()
                      ->batch();
+
         } else {
             $company_id = $company->id;
 
             $company->company_users->each(function ($company_user){
                 $company_user->forceDelete();
             });
+                
+                $other_company = $company->account->companies->where('id', '!=', $company->id)->first();
+
+                $nmo = new NinjaMailerObject;
+                $nmo->mailable = new CompanyDeleted($company->present()->name, auth()->user(), $company->account, $company->settings);
+                $nmo->company = $other_company;
+                $nmo->settings = $other_company->settings;
+                $nmo->to_user = auth()->user();
+                NinjaMailerJob::dispatch($nmo);
 
             $company->delete();
 
@@ -571,4 +593,9 @@ class CompanyController extends BaseController
         return $this->itemResponse($company->fresh());
 
     }
+
+    // public function default(DefaultCompanyRequest $request, Company $company)
+    // {
+        
+    // }
 }

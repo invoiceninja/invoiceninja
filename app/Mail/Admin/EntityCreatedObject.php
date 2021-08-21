@@ -11,8 +11,10 @@
 
 namespace App\Mail\Admin;
 
+use App\Utils\Ninja;
 use App\Utils\Number;
 use stdClass;
+use Illuminate\Support\Facades\App;
 
 class EntityCreatedObject
 {
@@ -21,7 +23,7 @@ class EntityCreatedObject
 
     public $entity;
 
-    public $contact;
+    public $client;
 
     public $company;
 
@@ -39,8 +41,15 @@ class EntityCreatedObject
 
     public function build()
     {
+        App::forgetInstance('translator');
+        /* Init a new copy of the translator*/
+        $t = app('translator');
+        /* Set the locale*/
+        App::setLocale($this->entity->company->getLocale());
+        /* Set customized translations _NOW_ */
+        $t->replace(Ninja::transformTranslations($this->entity->company->settings));
 
-        $this->contact = $this->entity->invitations()->first()->contact;
+        $this->client = $this->entity->client;
         $this->company = $this->entity->company;
 
         $this->setTemplate();
@@ -91,7 +100,7 @@ class EntityCreatedObject
             ctrans(
                 $this->template_subject,
                 [
-                        'client' => $this->contact->present()->name(),
+                        'client' => $this->client->present()->name(),
                         'invoice' => $this->entity->number,
                     ]
             );
@@ -103,7 +112,7 @@ class EntityCreatedObject
                 $this->template_body,
                 [
                     'amount' => $this->getAmount(),
-                    'client' => $this->contact->present()->name(),
+                    'client' => $this->client->present()->name(),
                     'invoice' => $this->entity->number,
                 ]
             );

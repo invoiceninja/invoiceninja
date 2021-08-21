@@ -72,11 +72,13 @@ class CheckoutComPaymentDriver extends BaseDriver
     /**
      * Returns the default gateway type.
      */
-    public function gatewayTypes()
+    public function gatewayTypes(): array
     {
-        return [
-            GatewayType::CREDIT_CARD,
-        ];
+        $types = [];
+
+        $types[] = GatewayType::CREDIT_CARD;
+        
+        return $types;
     }
 
     /**
@@ -124,6 +126,49 @@ class CheckoutComPaymentDriver extends BaseDriver
         // driver only supports payments using credit card.
 
         return 'gateways.checkout.credit_card.pay';
+    }
+
+    public function getClientRequiredFields(): array
+    {
+        $fields = [];
+
+        if ($this->company_gateway->require_client_name) {
+            $fields[] = ['name' => 'client_name', 'label' => ctrans('texts.client_name'), 'type' => 'text', 'validation' => 'required'];
+        }
+
+        if ($this->company_gateway->require_contact_name) {
+            $fields[] = ['name' => 'contact_first_name', 'label' => ctrans('texts.first_name'), 'type' => 'text', 'validation' => 'required'];
+            $fields[] = ['name' => 'contact_last_name', 'label' => ctrans('texts.last_name'), 'type' => 'text', 'validation' => 'required'];
+        }
+
+        if ($this->company_gateway->require_contact_email) {
+            $fields[] = ['name' => 'contact_email', 'label' => ctrans('texts.email'), 'type' => 'text', 'validation' => 'required,email:rfc'];
+        }
+
+        if ($this->company_gateway->require_client_phone) {
+            $fields[] = ['name' => 'client_phone', 'label' => ctrans('texts.client_phone'), 'type' => 'tel', 'validation' => 'required'];
+        }
+
+        if ($this->company_gateway->require_billing_address) {
+            $fields[] = ['name' => 'client_address_line_1', 'label' => ctrans('texts.address1'), 'type' => 'text', 'validation' => 'required'];
+            $fields[] = ['name' => 'client_city', 'label' => ctrans('texts.city'), 'type' => 'text', 'validation' => 'required'];
+            $fields[] = ['name' => 'client_state', 'label' => ctrans('texts.state'), 'type' => 'text', 'validation' => 'required'];
+            $fields[] = ['name' => 'client_country_id', 'label' => ctrans('texts.country'), 'type' => 'text', 'validation' => 'required'];
+        }
+
+        if($this->company_gateway->require_postal_code) {
+            $fields[] = ['name' => 'client_postal_code', 'label' => ctrans('texts.postal_code'), 'type' => 'text', 'validation' => 'required'];
+        }
+
+        if ($this->company_gateway->require_shipping_address) {
+            $fields[] = ['name' => 'client_shipping_address_line_1', 'label' => ctrans('texts.shipping_address1'), 'type' => 'text', 'validation' => 'required'];
+            $fields[] = ['name' => 'client_shipping_city', 'label' => ctrans('texts.shipping_city'), 'type' => 'text', 'validation' => 'required'];
+            $fields[] = ['name' => 'client_shipping_state', 'label' => ctrans('texts.shipping_state'), 'type' => 'text', 'validation' => 'required'];
+            $fields[] = ['name' => 'client_shipping_postal_code', 'label' => ctrans('texts.shipping_postal_code'), 'type' => 'text', 'validation' => 'required'];
+            $fields[] = ['name' => 'client_shipping_country_id', 'label' => ctrans('texts.shipping_country'), 'type' => 'text', 'validation' => 'required'];
+        }
+
+        return $fields;
     }
 
     public function authorizeView($data)
@@ -196,7 +241,7 @@ class CheckoutComPaymentDriver extends BaseDriver
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
-        $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->first();
+        $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->withTrashed()->first();
 
         if ($invoice) {
             $description = "Invoice {$invoice->number} for {$amount} for client {$this->client->present()->name()}";
@@ -232,7 +277,7 @@ class CheckoutComPaymentDriver extends BaseDriver
                     'transaction_reference' => $response->id,
                 ];
 
-                $payment = $this->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);
+                $payment = $this->createPayment($data, Payment::STATUS_COMPLETED);
 
                 SystemLogger::dispatch(
                     ['response' => $response, 'data' => $data],
@@ -269,11 +314,11 @@ class CheckoutComPaymentDriver extends BaseDriver
 
                 return false;
             }
-        } catch (\Exception | CheckoutHttpException $e) {
+        } catch (Exception | CheckoutHttpException $e) {
             $this->unWindGatewayFees($payment_hash);
             $message = $e instanceof CheckoutHttpException
-                    ? $e->getBody()
-                    : $e->getMessage();
+                ? $e->getBody()
+                : $e->getMessage();
 
             $data = [
                 'status' => '',
@@ -287,7 +332,7 @@ class CheckoutComPaymentDriver extends BaseDriver
         }
     }
 
-    public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment = null)
+    public function processWebhookRequest(PaymentWebhookRequest $request)
     {
         return true;
     }
