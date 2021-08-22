@@ -207,6 +207,7 @@ return [
             ['options' => [
                 'replication' => 'sentinel',
                 'service' =>  env('REDIS_SENTINEL_SERVICE', 'mymaster'),
+                'sentinel_timeout' => 1.0,
                 'parameters' => [
                     'password' => env('REDIS_PASSWORD', null),
                     'database' => env('REDIS_DB', 0),
@@ -225,6 +226,7 @@ return [
             ['options' => [
                 'replication' => 'sentinel',
                 'service' =>  env('REDIS_SENTINEL_SERVICE', 'mymaster'),
+                'sentinel_timeout' => 1.0,
                 'parameters' => [
                     'password' => env('REDIS_PASSWORD', null),
                     'database' => env('REDIS_CACHE_DB', 1),
