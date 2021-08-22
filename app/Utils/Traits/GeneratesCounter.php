@@ -19,6 +19,7 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Project;
 use App\Models\Quote;
+use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
 use App\Models\Task;
 use App\Models\Timezone;
@@ -311,6 +312,27 @@ trait GeneratesCounter
 
         return $expense_number;
     }
+
+    /**
+     * Gets the next expense number.
+     *
+     * @param   RecurringExpense       $expense    The expense
+     * @return  string                 The next expense number.
+     */
+    public function getNextRecurringExpenseNumber(RecurringExpense $expense) :string
+    {
+        $this->resetCompanyCounters($expense->company);
+
+        $counter = $expense->company->settings->recurring_expense_number_counter;
+        $setting_entity = $expense->company->settings->recurring_expense_number_counter;
+
+        $expense_number = $this->checkEntityNumber(RecurringExpense::class, $expense, $counter, $expense->company->settings->counter_padding, $expense->company->settings->recurring_expense_number_pattern);
+
+        $this->incrementCounter($expense->company, 'recurring_expense_number_counter');
+
+        return $expense_number;
+    }
+
 
     /**
      * Determines if it has shared counter.

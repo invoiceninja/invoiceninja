@@ -11,16 +11,16 @@
 
 namespace App\Filters;
 
-use App\Models\Expense;
+use App\Models\RecurringExpense;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
 /**
- * ExpenseFilters.
+ * RecurringExpenseFilters.
  */
-class ExpenseFilters extends QueryFilters
+class RecurringExpenseFilters extends QueryFilters
 {
     /**
      * Filter based on search text.
@@ -36,12 +36,12 @@ class ExpenseFilters extends QueryFilters
         }
 
         return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('expenses.name', 'like', '%'.$filter.'%')
-                          ->orWhere('expenses.id_number', 'like', '%'.$filter.'%')
-                          ->orWhere('expenses.custom_value1', 'like', '%'.$filter.'%')
-                          ->orWhere('expenses.custom_value2', 'like', '%'.$filter.'%')
-                          ->orWhere('expenses.custom_value3', 'like', '%'.$filter.'%')
-                          ->orWhere('expenses.custom_value4', 'like', '%'.$filter.'%');
+            $query->where('recurring_expenses.name', 'like', '%'.$filter.'%')
+                          ->orWhere('recurring_expenses.id_number', 'like', '%'.$filter.'%')
+                          ->orWhere('recurring_expenses.custom_value1', 'like', '%'.$filter.'%')
+                          ->orWhere('recurring_expenses.custom_value2', 'like', '%'.$filter.'%')
+                          ->orWhere('recurring_expenses.custom_value3', 'like', '%'.$filter.'%')
+                          ->orWhere('recurring_expenses.custom_value4', 'like', '%'.$filter.'%');
         });
     }
 
@@ -107,33 +107,30 @@ class ExpenseFilters extends QueryFilters
      */
     public function baseQuery(int $company_id, User $user) : Builder
     {
-        $query = DB::table('expenses')
-            ->join('companies', 'companies.id', '=', 'expenses.company_id')
-            ->where('expenses.company_id', '=', $company_id)
-            //->whereRaw('(expenses.name != "" or contacts.first_name != "" or contacts.last_name != "" or contacts.email != "")') // filter out buy now invoices
+        $query = DB::table('recurring_expenses')
+            ->join('companies', 'companies.id', '=', 'recurring_expenses.company_id')
+            ->where('recurring_expenses.company_id', '=', $company_id)
             ->select(
-               // DB::raw('COALESCE(expenses.currency_id, companies.currency_id) currency_id'),
-                DB::raw('COALESCE(expenses.country_id, companies.country_id) country_id'),
-                DB::raw("CONCAT(COALESCE(expense_contacts.first_name, ''), ' ', COALESCE(expense_contacts.last_name, '')) contact"),
-                'expenses.id',
-                'expenses.private_notes',
-                'expenses.custom_value1',
-                'expenses.custom_value2',
-                'expenses.custom_value3',
-                'expenses.custom_value4',
-                'expenses.created_at',
-                'expenses.created_at as expense_created_at',
-                'expenses.deleted_at',
-                'expenses.is_deleted',
-                'expenses.user_id',
+                DB::raw('COALESCE(recurring_expenses.country_id, companies.country_id) country_id'),
+                'recurring_expenses.id',
+                'recurring_expenses.private_notes',
+                'recurring_expenses.custom_value1',
+                'recurring_expenses.custom_value2',
+                'recurring_expenses.custom_value3',
+                'recurring_expenses.custom_value4',
+                'recurring_expenses.created_at',
+                'recurring_expenses.created_at as expense_created_at',
+                'recurring_expenses.deleted_at',
+                'recurring_expenses.is_deleted',
+                'recurring_expenses.user_id',
             );
 
         /*
          * If the user does not have permissions to view all invoices
          * limit the user to only the invoices they have created
          */
-        if (Gate::denies('view-list', Expense::class)) {
-            $query->where('expenses.user_id', '=', $user->id);
+        if (Gate::denies('view-list', RecurringExpense::class)) {
+            $query->where('recurring_expenses.user_id', '=', $user->id);
         }
 
         return $query;
@@ -146,8 +143,6 @@ class ExpenseFilters extends QueryFilters
      */
     public function entityFilter()
     {
-
-        //return $this->builder->whereCompanyId(auth()->user()->company()->id);
         return $this->builder->company();
     }
 }
