@@ -33,6 +33,11 @@ trait HasRecurrence
         }
 
         $account = $this->account;
+
+        if (! $account) {
+            return false;
+        }
+
         $timezone = $account->getTimezone();
 
         if (! $this->start_date || Carbon::parse($this->start_date, $timezone)->isFuture()) {
