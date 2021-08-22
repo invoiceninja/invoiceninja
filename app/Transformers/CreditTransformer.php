@@ -30,7 +30,7 @@ class CreditTransformer extends EntityTransformer
 
     protected $availableIncludes = [
         'invitations',
-        'history',
+        // 'history',
     //    'client',
         'documents',
         'activities',
