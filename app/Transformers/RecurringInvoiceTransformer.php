@@ -34,7 +34,7 @@ class RecurringInvoiceTransformer extends EntityTransformer
         'invitations',
         'documents',
         'activities',
-        'history',
+        // 'history',
     //    'client',
     ];
 
