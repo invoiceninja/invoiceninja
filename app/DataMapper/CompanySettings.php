@@ -683,6 +683,12 @@ class CompanySettings extends BaseSettings
                 '$total',
                 '$outstanding',
             ],
+            'statement_payment_columns' => [
+                '$invoice.number',
+                '$payment_date',
+                '$method',
+                '$outstanding',
+            ],
         ];
 
         return json_decode(json_encode($variables));
