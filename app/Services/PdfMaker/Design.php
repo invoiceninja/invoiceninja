@@ -13,6 +13,9 @@
 namespace App\Services\PdfMaker;
 
 use App\Models\Credit;
+use App\Models\GatewayType;
+use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\Quote;
 use App\Services\PdfMaker\Designs\Utilities\BaseDesign;
 use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
@@ -46,6 +49,9 @@ class Design extends BaseDesign
 
     /** @var Invoice[] */
     public $invoices;
+
+    /** @var Payment[] */
+    public $payments;
 
     const BOLD = 'bold';
     const BUSINESS = 'business';
@@ -125,6 +131,10 @@ class Design extends BaseDesign
             'statement-invoice-table' => [
                 'id' => 'statement-invoice-table',
                 'elements' => $this->statementInvoiceTable(),
+            ],
+            'statement-payment-table' => [
+                'id' => 'statement-payment-table',
+                'elements' => $this->statementPaymentTable(),
             ],
             'table-totals' => [
                 'id' => 'table-totals',
@@ -326,11 +336,11 @@ class Design extends BaseDesign
      */
     public function statementInvoiceTable(): array
     {
-        $tbody = [];
-
-        if (is_null($this->invoices)) {
+        if (is_null($this->invoices) || $this->type !== self::STATEMENT) {
             return [];
         }
+
+        $tbody = [];
 
         foreach ($this->invoices as $invoice) {
             $element = ['element' => 'tr', 'elements' => []];
@@ -346,6 +356,38 @@ class Design extends BaseDesign
 
         return [
             ['element' => 'thead', 'elements' => $this->buildTableHeader('statement_invoice')],
+            ['element' => 'tbody', 'elements' => $tbody],
+        ];
+    }
+
+    /**
+     * Parent method for building payments table within statement.
+     *
+     * @return array
+     */
+    public function statementPaymentTable()
+    {
+        if (is_null($this->payments) || $this->type !== self::STATEMENT) {
+            return [];
+        }
+
+        $tbody = [];
+
+        foreach ($this->payments as $payment) {
+            foreach ($payment->invoices as $invoice) {
+                $element = ['element' => 'tr', 'elements' => []];
+
+                $element['elements'][] = ['element' => 'td', 'content' => $invoice->number];
+                $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($payment->date, $payment->client->date_format(), $payment->client->locale()) ?: '&nbsp;'];
+                $element['elements'][] = ['element' => 'td', 'content' => GatewayType::getAlias($payment->gateway_type_id) ?: '&nbsp;'];
+                $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($payment->partial, $payment->client) ?: '&nbsp;'];
+    
+                $tbody[] = $element;
+            }
+        }
+
+        return [
+            ['element' => 'thead', 'elements' => $this->buildTableHeader('statement_payment')],
             ['element' => 'tbody', 'elements' => $tbody],
         ];
     }
