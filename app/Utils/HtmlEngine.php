@@ -440,6 +440,8 @@ class HtmlEngine
         $data['$dir_text_align'] = ['value' => optional($this->client->language())->locale === 'ar' ? 'right' : 'left', 'label' => ''];
 
         $data['$statement_date'] = ['value' => '{CHANGE_THIS}', 'label' => ctrans('texts.statement_date')];
+        $data['$payment_date'] = ['value' => '&nbsp;', 'label' => ctrans('texts.payment_date')];
+        $data['$method'] = ['value' => '&nbsp;', 'label' => ctrans('texts.method')];
 
         $arrKeysLength = array_map('strlen', array_keys($data));
         array_multisort($arrKeysLength, SORT_DESC, $data);
