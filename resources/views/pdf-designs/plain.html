@@ -72,7 +72,8 @@
     #delivery-note-table,
     #task-table,
     #statement-invoice-table,
-    #statement-payment-table {
+    #statement-payment-table,
+    #statement-aging-table {
         min-width: 100%;
         table-layout: fixed;
         overflow-wrap: break-word;
@@ -90,7 +91,8 @@
     #delivery-note-table > thead,
     #task-table > thead,
     #statement-invoice-table > thead,
-    #statement-payment-table > thead {
+    #statement-payment-table > thead,
+    #statement-aging-table > thead {
         text-align: left;
     }
 
@@ -98,7 +100,8 @@
     #delivery-note-table > thead > tr > th,
     #task-table > thead > tr > th,
     #statement-invoice-table > thead > tr > th,
-    #statement-payment-table > thead > tr > th {
+    #statement-payment-table > thead > tr > th,
+    #statement-aging-table > thead > tr > th {
         padding: 1rem;
         background-color: #e6e6e6;
     }
@@ -107,7 +110,8 @@
     #delivery-note-table > thead > tr > th:last-child,
     #task-table > thead > tr > th:last-child,
     #statement-invoice-table > thead > tr > th:last-child,
-    #statement-payment-table > thead > tr > th:last-child {
+    #statement-payment-table > thead > tr > th:last-child,
+    #statement-aging-table > thead > tr > th:last-child {
         text-align: right;
     }
 
@@ -115,7 +119,8 @@
     #delivery-note-table > tbody > tr > td,
     #task-table > tbody > tr > td,
     #statement-invoice-table > tbody > tr > td,
-    #statement-payment-table > tbody > tr > td {
+    #statement-payment-table > tbody > tr > td,
+    #statement-aging-table > tbody > tr > td {
         border-bottom: 1px solid #e6e6e6;
         padding: 1rem;
     }
@@ -124,7 +129,8 @@
     #delivery-note-table > tbody > tr > td:last-child,
     #task-table > tbody > tr > td:last-child,
     #statement-invoice-table > tbody > tr > td:last-child,
-    #statement-payment-table > tbody > tr > td:last-child {
+    #statement-payment-table > tbody > tr > td:last-child,
+    #statement-aging-table > tbody > tr > td:last-child {
         text-align: right;
     }
 
@@ -195,7 +201,8 @@
     #task-table h3,
     #delivery-note-table,
     #statement-invoice-table h3,
-    #statement-payment-table h3 {
+    #statement-payment-table h3,
+    #statement-aging-table h3 {
         font-size: 1rem;
         margin-bottom: 0;
     }
@@ -268,6 +275,8 @@
     <table id="statement-invoice-table" cellspacing="0"></table>
 
     <table id="statement-payment-table" cellspacing="0"></table>
+
+    <table id="statement-aging-table" cellspacing="0"></table>
 
     <div id="table-totals" cellspacing="0"></div>
 </div>
