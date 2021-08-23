@@ -136,6 +136,10 @@ class Design extends BaseDesign
                 'id' => 'statement-payment-table',
                 'elements' => $this->statementPaymentTable(),
             ],
+            'statement-aging-table' => [
+                'id' => 'statement-aging-table',
+                'elements' => $this->statementAgingTable(),
+            ],
             'table-totals' => [
                 'id' => 'table-totals',
                 'elements' => $this->tableTotals(),
@@ -389,6 +393,32 @@ class Design extends BaseDesign
         return [
             ['element' => 'thead', 'elements' => $this->buildTableHeader('statement_payment')],
             ['element' => 'tbody', 'elements' => $tbody],
+        ];
+    }
+
+    public function statementAgingTable()
+    {
+        if (is_null($this->payments) || $this->type !== self::STATEMENT) {
+            return [];
+        }
+
+        return [
+            ['element' => 'thead', 'elements' => [
+                ['element' => 'th', 'content' => '0-30', 'properties' => []],
+                ['element' => 'th', 'content' => '30-60', 'properties' => []],
+                ['element' => 'th', 'content' => '60-90', 'properties' => []],
+                ['element' => 'th', 'content' => '90-120', 'properties' => []],
+                ['element' => 'th', 'content' => '120+', 'properties' => []],
+            ]],
+            ['element' => 'tbody', 'elements' => [
+                ['element' => 'tr', 'elements' => [
+                    ['element' => 'td', 'content' => '$0.00'],
+                    ['element' => 'td', 'content' => '$0.00'],
+                    ['element' => 'td', 'content' => '$0.00'],
+                    ['element' => 'td', 'content' => '$0.00'],
+                    ['element' => 'td', 'content' => '$0.00'],
+                ]],
+            ]],
         ];
     }
 
