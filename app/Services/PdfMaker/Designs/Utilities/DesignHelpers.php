@@ -41,6 +41,10 @@ trait DesignHelpers
             $this->entity = $this->invoices->first();
         }
 
+        if (isset($this->context['payments'])) {
+            $this->payments = $this->context['payments'];
+        }
+
         $this->document();
 
         return $this;
