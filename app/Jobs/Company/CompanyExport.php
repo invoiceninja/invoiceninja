@@ -479,7 +479,7 @@ class CompanyExport implements ShouldQueue
     private function zipAndSend()
     {
 
-        $file_name = date('Y-m-d').'_'.str_replace(' ', '_', $this->company->present()->name() . '_' . $this->company->company_key .'.zip');
+        $file_name = date('Y-m-d').'_'.str_replace([" ", "/"],["_",""], $this->company->present()->name() . '_' . $this->company->company_key .'.zip');
 
         $path = 'backups';
         
