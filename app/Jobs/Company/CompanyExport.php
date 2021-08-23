@@ -35,6 +35,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
+use Illuminate\Support\Facades\App;
 
 class CompanyExport implements ShouldQueue
 {
@@ -498,6 +499,10 @@ class CompanyExport implements ShouldQueue
         if(Ninja::isHosted()) {
             Storage::disk(config('filesystems.default'))->put('backups/'.$file_name, file_get_contents($zip_path));
         }
+
+        App::forgetInstance('translator');
+        $t = app('translator');
+        $t->replace(Ninja::transformTranslations($this->company->settings));
 
         $nmo = new NinjaMailerObject;
         $nmo->mailable = new DownloadBackup(Storage::disk(config('filesystems.default'))->url('backups/'.$file_name), $this->company);
