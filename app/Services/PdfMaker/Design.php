@@ -328,6 +328,10 @@ class Design extends BaseDesign
     {
         $tbody = [];
 
+        if (is_null($this->invoices)) {
+            return [];
+        }
+
         foreach ($this->invoices as $invoice) {
             $element = ['element' => 'tr', 'elements' => []];
 
