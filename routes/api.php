@@ -159,8 +159,8 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 
     Route::post('templates', 'TemplateController@show')->name('templates.show');
 
-    Route::resource('tokens', 'TokenController')->middleware('password_protected'); // name = (tokens. index / create / show / update / destroy / edit
-    Route::post('tokens/bulk', 'TokenController@bulk')->name('tokens.bulk')->middleware('password_protected');
+    Route::resource('tokens', 'TokenController'); // name = (tokens. index / create / show / update / destroy / edit
+    Route::post('tokens/bulk', 'TokenController@bulk')->name('tokens.bulk');
 
     Route::get('settings/enable_two_factor', 'TwoFactorController@setupTwoFactor');
     Route::post('settings/enable_two_factor', 'TwoFactorController@enableTwoFactor');
