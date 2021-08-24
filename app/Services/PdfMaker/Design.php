@@ -53,6 +53,9 @@ class Design extends BaseDesign
     /** @var Payment[] */
     public $payments;
 
+    /** @var array */
+    public $aging = [];
+
     const BOLD = 'bold';
     const BUSINESS = 'business';
     const CLEAN = 'clean';
@@ -82,9 +85,7 @@ class Design extends BaseDesign
             );
         }
 
-        $path = isset($this->options['custom_path'])
-            ? $this->options['custom_path']
-            : config('ninja.designs.base_path');
+        $path = $this->options['custom_path'] ?? config('ninja.designs.base_path');
 
         return file_get_contents(
             $path . $this->design
@@ -132,9 +133,21 @@ class Design extends BaseDesign
                 'id' => 'statement-invoice-table',
                 'elements' => $this->statementInvoiceTable(),
             ],
+            'statement-invoice-table-totals' => [
+                'id' => 'statement-invoice-table-totals',
+                'elements' => [
+                    ['element' => 'p', 'content' => '$outstanding_label: $outstanding'],
+                ],
+            ],
             'statement-payment-table' => [
                 'id' => 'statement-payment-table',
                 'elements' => $this->statementPaymentTable(),
+            ],
+            'statement-payment-table-totals' => [
+                'id' => 'statement-payment-table-totals',
+                'elements' => [
+                    ['element' => 'p', 'content' => \sprintf('%s: %s', ctrans('texts.amount_paid'), 1000)],
+                ],
             ],
             'statement-aging-table' => [
                 'id' => 'statement-aging-table',
@@ -218,14 +231,14 @@ class Design extends BaseDesign
         if ($this->type === 'statement') {
             return [
                 ['element' => 'tr', 'properties' => [], 'elements' => [
-                    ['element' => 'th', 'properties' => [], 'content' => '$statement_date_label'],
-                    ['element' => 'th', 'properties' => [], 'content' => '$statement_date'],
+                    ['element' => 'th', 'properties' => [], 'content' => ctrans('texts.statement_date')],
+                    ['element' => 'th', 'properties' => [], 'content' => $this->options['end_date'] ?? ''],
                 ]],
                 ['element' => 'tr', 'properties' => [], 'elements' => [
                     ['element' => 'th', 'properties' => [], 'content' => '$balance_due_label'],
                     ['element' => 'th', 'properties' => [], 'content' => '$balance_due'],
                 ]],
-            ]; 
+            ];
         }
 
         $variables = $this->context['pdf_variables']['invoice_details'];
@@ -369,9 +382,9 @@ class Design extends BaseDesign
      *
      * @return array
      */
-    public function statementPaymentTable()
+    public function statementPaymentTable(): array
     {
-        if (is_null($this->payments) || $this->type !== self::STATEMENT) {
+        if (is_null($this->payments) && $this->type !== self::STATEMENT) {
             return [];
         }
 
@@ -385,7 +398,7 @@ class Design extends BaseDesign
                 $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($payment->date, $payment->client->date_format(), $payment->client->locale()) ?: '&nbsp;'];
                 $element['elements'][] = ['element' => 'td', 'content' => GatewayType::getAlias($payment->gateway_type_id) ?: '&nbsp;'];
                 $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($payment->partial, $payment->client) ?: '&nbsp;'];
-    
+
                 $tbody[] = $element;
             }
         }
@@ -396,30 +409,29 @@ class Design extends BaseDesign
         ];
     }
 
-    public function statementAgingTable()
+    public function statementAgingTable(): array
     {
-        if (is_null($this->payments) || $this->type !== self::STATEMENT) {
+        if ($this->type !== self::STATEMENT) {
             return [];
         }
 
-        return [
-            ['element' => 'thead', 'elements' => [
-                ['element' => 'th', 'content' => '0-30', 'properties' => []],
-                ['element' => 'th', 'content' => '30-60', 'properties' => []],
-                ['element' => 'th', 'content' => '60-90', 'properties' => []],
-                ['element' => 'th', 'content' => '90-120', 'properties' => []],
-                ['element' => 'th', 'content' => '120+', 'properties' => []],
-            ]],
+        if (\array_key_exists('show_aging_table', $this->options) && $this->options['show_aging_table'] === false) {
+            return [];
+        }
+
+        $elements = [
+            ['element' => 'thead', 'elements' => []],
             ['element' => 'tbody', 'elements' => [
-                ['element' => 'tr', 'elements' => [
-                    ['element' => 'td', 'content' => '$0.00'],
-                    ['element' => 'td', 'content' => '$0.00'],
-                    ['element' => 'td', 'content' => '$0.00'],
-                    ['element' => 'td', 'content' => '$0.00'],
-                    ['element' => 'td', 'content' => '$0.00'],
-                ]],
+                ['element' => 'tr', 'elements' => []],
             ]],
         ];
+
+        foreach ($this->aging as $column => $value) {
+            $elements[0]['elements'][] = ['element' => 'th', 'content' => $column];
+            $elements[1]['elements'][] = ['element' => 'td', 'content' => $value];
+        }
+
+        return $elements;
     }
 
     /**
@@ -559,22 +571,6 @@ class Design extends BaseDesign
 
     public function tableTotals(): array
     {
-        if ($this->type === 'statement') {
-            return [
-                ['element' => 'div', 'properties' => ['style' => 'display: flex; flex-direction: column;'], 'elements' => [
-                    ['element' => 'div', 'properties' => ['style' => 'margin-top: 1.5rem; display: flex; align-items: flex-start;'], 'elements' => [
-                        ['element' => 'img', 'properties' => ['src' => '$invoiceninja.whitelabel', 'style' => 'height: 2.5rem;', 'hidden' => $this->entity->user->account->isPaid() ? 'true' : 'false', 'id' => 'invoiceninja-whitelabel-logo']],
-                    ]],
-                ]],
-                ['element' => 'div', 'properties' => ['class' => 'totals-table-right-side', 'dir' => '$dir'], 'elements' => [
-                    ['element' => 'div', 'elements' => [
-                        ['element' => 'span', 'content' => '$balance_due_label', 'properties' => ['data-ref' => 'total-table-balance-due-label']],
-                        ['element' => 'span', 'content' => '$balance_due', 'properties' => ['data-ref' => 'total-table-balance-due']],
-                    ]],
-                ]],
-            ];
-        }
-
         $_variables = array_key_exists('variables', $this->context)
             ? $this->context['variables']
             : ['values' => ['$entity.public_notes' => $this->entity->public_notes, '$entity.terms' => $this->entity->terms, '$entity_footer' => $this->entity->footer], 'labels' => []];
@@ -596,7 +592,7 @@ class Design extends BaseDesign
             ['element' => 'div', 'properties' => ['class' => 'totals-table-right-side', 'dir' => '$dir'], 'elements' => []],
         ];
 
-        if ($this->type == self::DELIVERY_NOTE) {
+        if ($this->type == self::DELIVERY_NOTE  || $this->type == self::STATEMENT) {
             return $elements;
         }
 
