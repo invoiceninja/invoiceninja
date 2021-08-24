@@ -71,7 +71,7 @@ class CompanySettings extends BaseSettings
     public $inclusive_taxes = false; //@implemented
     public $quote_footer = ''; //@implmented
 
-    public $translations; 
+    public $translations;
 
     public $counter_number_applied = 'when_saved'; // when_saved , when_sent //@implemented
     public $quote_number_applied = 'when_saved'; // when_saved , when_sent //@implemented
@@ -685,7 +685,7 @@ class CompanySettings extends BaseSettings
             ],
             'statement_payment_columns' => [
                 '$invoice.number',
-                '$payment_date',
+                '$payment.date',
                 '$method',
                 '$outstanding',
             ],
