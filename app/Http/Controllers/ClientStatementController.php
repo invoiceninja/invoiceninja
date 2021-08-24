@@ -11,6 +11,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Statements\CreateStatementRequest;
+
 class ClientStatementController extends BaseController
 {
     public function __construct()
@@ -18,7 +20,7 @@ class ClientStatementController extends BaseController
         parent::__construct();
     }
 
-    public function statement()
+    public function statement(CreateStatementRequest $request)
     {
         
     }
