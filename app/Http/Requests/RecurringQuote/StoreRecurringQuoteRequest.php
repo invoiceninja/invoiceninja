@@ -12,9 +12,12 @@
 namespace App\Http\Requests\RecurringQuote;
 
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\Recurring\UniqueRecurringQuoteNumberRule;
+use App\Models\Client;
 use App\Models\RecurringQuote;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Http\UploadedFile;
 
 class StoreRecurringQuoteRequest extends Request
 {
@@ -33,17 +36,39 @@ class StoreRecurringQuoteRequest extends Request
 
     public function rules()
     {
-        return [
-            'documents' => 'mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx',
-            'client_id' => 'required|exists:clients,id,company_id,'.auth()->user()->company()->id,
-        ];
+        $rules = [];
+
+        if ($this->input('documents') && is_array($this->input('documents'))) {
+            $documents = count($this->input('documents'));
+
+            foreach (range(0, $documents) as $index) {
+                $rules['documents.'.$index] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
+            }
+
+        } elseif ($this->input('documents')) {
+            $rules['documents'] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
+        }
+
+        $rules['client_id'] = 'required|exists:clients,id,company_id,'.auth()->user()->company()->id;
+
+        $rules['invitations.*.client_contact_id'] = 'distinct';
+
+        $rules['frequency_id'] = 'required|integer|digits_between:1,12';
+
+        $rules['number'] = new UniqueRecurringQuoteNumberRule($this->all());
+
+        return $rules;
     }
 
     protected function prepareForValidation()
     {
         $input = $this->all();
 
-        if ($input['client_id']) {
+        if (array_key_exists('design_id', $input) && is_string($input['design_id'])) {
+            $input['design_id'] = $this->decodePrimaryKey($input['design_id']);
+        }
+
+        if (array_key_exists('client_id', $input) && is_string($input['client_id'])) {
             $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
         }
 
@@ -51,8 +76,56 @@ class StoreRecurringQuoteRequest extends Request
             $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
         }
 
+        if (isset($input['client_contacts'])) {
+            foreach ($input['client_contacts'] as $key => $contact) {
+                if (! array_key_exists('send_email', $contact) || ! array_key_exists('id', $contact)) {
+                    unset($input['client_contacts'][$key]);
+                }
+            }
+        }
+
+        if (isset($input['invitations'])) {
+            foreach ($input['invitations'] as $key => $value) {
+                if (isset($input['invitations'][$key]['id']) && is_numeric($input['invitations'][$key]['id'])) {
+                    unset($input['invitations'][$key]['id']);
+                }
+
+                if (isset($input['invitations'][$key]['id']) && is_string($input['invitations'][$key]['id'])) {
+                    $input['invitations'][$key]['id'] = $this->decodePrimaryKey($input['invitations'][$key]['id']);
+                }
+
+                if (is_string($input['invitations'][$key]['client_contact_id'])) {
+                    $input['invitations'][$key]['client_contact_id'] = $this->decodePrimaryKey($input['invitations'][$key]['client_contact_id']);
+                }
+            }
+        }
+
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
-        //$input['line_items'] = json_encode($input['line_items']);
+        
+        if (isset($input['auto_bill'])) {
+            $input['auto_bill_enabled'] = $this->setAutoBillFlag($input['auto_bill']);
+        } else {
+            if ($client = Client::find($input['client_id'])) {
+                $input['auto_bill'] = $client->getSetting('auto_bill');
+                $input['auto_bill_enabled'] = $this->setAutoBillFlag($input['auto_bill']);
+            }
+        }
+    
         $this->replace($input);
+    }
+
+    private function setAutoBillFlag($auto_bill)
+    {
+        if ($auto_bill == 'always' || $auto_bill == 'optout') {
+            return true;
+        }
+
+        return false;
+        
+    }
+
+    public function messages()
+    {
+        return [];
     }
 }
