@@ -594,7 +594,7 @@ class CompanySettings extends BaseSettings
      *
      * @return stdClass The stdClass of PDF variables
      */
-    private static function getEntityVariableDefaults() :stdClass
+    public static function getEntityVariableDefaults() :stdClass
     {
         $variables = [
             'client_details' => [
