@@ -21,6 +21,7 @@ use App\Models\Project;
 use App\Models\Quote;
 use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
+use App\Models\RecurringQuote;
 use App\Models\Task;
 use App\Models\Timezone;
 use App\Models\Vendor;
@@ -136,6 +137,12 @@ trait GeneratesCounter
             case RecurringInvoice::class:
                 return 'recurring_invoice_number_counter';
                 break;
+            case RecurringQuote::class:
+                return 'recurring_quote_number_counter';
+                break;
+            case RecurringExpense::class:
+                return 'recurring_expense_number_counter';
+                break;
             case Payment::class:
                 return 'payment_number_counter';
                 break;
@@ -195,6 +202,11 @@ trait GeneratesCounter
     public function getNextRecurringInvoiceNumber(Client $client)
     {
         return $this->getNextEntityNumber(RecurringInvoice::class, $client);
+    }
+
+    public function getNextRecurringQuoteNumber(Client $client)
+    {
+        return $this->getNextEntityNumber(RecurringQuote::class, $client);
     }
 
     /**

@@ -78,6 +78,27 @@ class RecurringExpensesSchema extends Migration
 
         });
 
+        Schema::table('recurring_quotes', function ($table){
+            $table->string('auto_bill')->default('off');
+            $table->boolean('auto_bill_enabled')->default(0);
+            $table->decimal('paid_to_date', 20, 6)->default(0);
+            $table->decimal('custom_surcharge1', 20,6)->nullable();
+            $table->decimal('custom_surcharge2', 20,6)->nullable();
+            $table->decimal('custom_surcharge3', 20,6)->nullable();
+            $table->decimal('custom_surcharge4', 20,6)->nullable();
+            $table->boolean('custom_surcharge_tax1')->default(false);
+            $table->boolean('custom_surcharge_tax2')->default(false);
+            $table->boolean('custom_surcharge_tax3')->default(false);
+            $table->boolean('custom_surcharge_tax4')->default(false);
+            $table->string('due_date_days')->nullable();
+            $table->decimal('exchange_rate', 13, 6)->default(1);
+            $table->decimal('partial', 16, 4)->nullable();
+            $table->date('partial_due_date')->nullable();                        
+            $table->unsignedInteger('remaining_cycles')->nullable()->change();
+            $table->unsignedInteger('subscription_id')->nullable();
+            $table->dropColumn('start_date');
+            $table->boolean('uses_inclusive_taxes')->default(true);
+        });
 
         Schema::create('recurring_quote_invitations', function ($t) {
             $t->increments('id');

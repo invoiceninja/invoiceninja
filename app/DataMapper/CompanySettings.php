@@ -101,6 +101,9 @@ class CompanySettings extends BaseSettings
     public $recurring_expense_number_pattern = ''; 
     public $recurring_expense_number_counter = 1; 
 
+    public $recurring_quote_number_pattern = ''; 
+    public $recurring_quote_number_counter = 1; 
+
     public $vendor_number_pattern = ''; //@implemented
     public $vendor_number_counter = 1; //@implemented
 

@@ -140,7 +140,7 @@ class RecurringQuotesTest extends TestCase
 
     public function testSubscriptionIdPassesToQuote()
     {
-        $recurring_invoice = QuoteToRecurringQuoteFactory::create($this->invoice);
+        $recurring_invoice = QuoteToRecurringQuoteFactory::create($this->quote);
         $recurring_invoice->user_id = $this->user->id;
         $recurring_invoice->next_send_date = \Carbon\Carbon::now()->addDays(10);
         $recurring_invoice->status_id = RecurringQuote::STATUS_ACTIVE;
@@ -148,7 +148,7 @@ class RecurringQuotesTest extends TestCase
         $recurring_invoice->next_send_date = \Carbon\Carbon::now()->addDays(10);
         $recurring_invoice->save();
 
-        $recurring_invoice->number = $this->getNextRecurringQuoteNumber($this->invoice->client, $this->invoice);
+        $recurring_invoice->number = $this->getNextRecurringQuoteNumber($this->quote->client, $this->quote);
         $recurring_invoice->subscription_id = 10;
         $recurring_invoice->save();
 
@@ -159,7 +159,7 @@ class RecurringQuotesTest extends TestCase
 
     public function testSubscriptionIdPassesToQuoteIfNull()
     {
-        $recurring_invoice = QuoteToRecurringQuoteFactory::create($this->invoice);
+        $recurring_invoice = QuoteToRecurringQuoteFactory::create($this->quote);
         $recurring_invoice->user_id = $this->user->id;
         $recurring_invoice->next_send_date = \Carbon\Carbon::now()->addDays(10);
         $recurring_invoice->status_id = RecurringQuote::STATUS_ACTIVE;
@@ -167,7 +167,7 @@ class RecurringQuotesTest extends TestCase
         $recurring_invoice->next_send_date = \Carbon\Carbon::now()->addDays(10);
         $recurring_invoice->save();
 
-        $recurring_invoice->number = $this->getNextRecurringQuoteNumber($this->invoice->client, $this->invoice);
+        $recurring_invoice->number = $this->getNextRecurringQuoteNumber($this->quote->client, $this->quote);
         $recurring_invoice->save();
 
         $invoice = RecurringQuoteToQuoteFactory::create($recurring_invoice, $this->client);
@@ -177,7 +177,7 @@ class RecurringQuotesTest extends TestCase
 
     public function testSubscriptionIdPassesToQuoteIfNothingSet()
     {
-        $recurring_invoice = QuoteToRecurringQuoteFactory::create($this->invoice);
+        $recurring_invoice = QuoteToRecurringQuoteFactory::create($this->quote);
         $recurring_invoice->user_id = $this->user->id;
         $recurring_invoice->next_send_date = \Carbon\Carbon::now()->addDays(10);
         $recurring_invoice->status_id = RecurringQuote::STATUS_ACTIVE;
@@ -185,7 +185,7 @@ class RecurringQuotesTest extends TestCase
         $recurring_invoice->next_send_date = \Carbon\Carbon::now()->addDays(10);
         $recurring_invoice->save();
 
-        $recurring_invoice->number = $this->getNextRecurringQuoteNumber($this->invoice->client, $this->invoice);
+        $recurring_invoice->number = $this->getNextRecurringQuoteNumber($this->quote->client, $this->quote);
         $recurring_invoice->save();
 
         $invoice = RecurringQuoteToQuoteFactory::create($recurring_invoice, $this->client);

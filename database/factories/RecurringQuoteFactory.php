@@ -50,7 +50,6 @@ class RecurringQuoteFactory extends Factory
                 'due_date' => $this->faker->date(),
                 'line_items' => false,
                 'frequency_id' => RecurringQuote::FREQUENCY_MONTHLY,
-                'start_date' => $this->faker->date(),
                 'last_sent_date' => $this->faker->date(),
                 'next_send_date' => $this->faker->date(),
                 'remaining_cycles' => $this->faker->numberBetween(1, 10),
