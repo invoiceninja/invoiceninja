@@ -826,8 +826,13 @@ trait GenerateMigrationResources
 
         $due_date_parts = explode("-", $invoice->due_date);
 
-        if(is_array($due_date_parts) && count($due_date_parts) >=3)
+        if(is_array($due_date_parts) && count($due_date_parts) >=3){
+
+            if($due_date_parts[2] == "00")
+                return "0";
+            
             return (string)$due_date_parts[2];
+        }
 
         return 'terms';
     }
