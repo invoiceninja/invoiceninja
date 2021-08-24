@@ -68,7 +68,7 @@ class ClientStatementController extends BaseController
         $design = Design::find($entity_design_id);
 
         if (!$design) {
-            $design = Design::find(1);
+            $design = Design::find($entity_design_id);
         }
 
         $html = new HtmlEngine($invitation);
