@@ -139,35 +139,35 @@ class RecurringExpenseApiTest extends TestCase
         $this->assertNotNull($arr['data'][0]['archived_at']);
     }
 
-//     public function testRecurringExpenseRestored()
-//     {
-//         $data = [
-//             'ids' => [$this->encodePrimaryKey($this->recurring_expense->id)],
-//         ];
+    public function testRecurringExpenseRestored()
+    {
+        $data = [
+            'ids' => [$this->encodePrimaryKey($this->recurring_expense->id)],
+        ];
 
-//         $response = $this->withHeaders([
-//                 'X-API-SECRET' => config('ninja.api_secret'),
-//                 'X-API-TOKEN' => $this->token,
-//             ])->post('/api/v1/recurring_expenses/bulk?action=restore', $data);
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/recurring_expenses/bulk?action=restore', $data);
 
-//         $arr = $response->json();
+        $arr = $response->json();
 
-//         $this->assertEquals(0, $arr['data'][0]['archived_at']);
-//     }
+        $this->assertEquals(0, $arr['data'][0]['archived_at']);
+    }
 
-//     public function testRecurringExpenseDeleted()
-//     {
-//         $data = [
-//             'ids' => [$this->encodePrimaryKey($this->recurring_expense->id)],
-//         ];
+    public function testRecurringExpenseDeleted()
+    {
+        $data = [
+            'ids' => [$this->encodePrimaryKey($this->recurring_expense->id)],
+        ];
 
-//         $response = $this->withHeaders([
-//                 'X-API-SECRET' => config('ninja.api_secret'),
-//                 'X-API-TOKEN' => $this->token,
-//             ])->post('/api/v1/recurring_expenses/bulk?action=delete', $data);
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/recurring_expenses/bulk?action=delete', $data);
 
-//         $arr = $response->json();
+        $arr = $response->json();
 
-//         $this->assertTrue($arr['data'][0]['is_deleted']);
-//     }
+        $this->assertTrue($arr['data'][0]['is_deleted']);
+    }
 }
