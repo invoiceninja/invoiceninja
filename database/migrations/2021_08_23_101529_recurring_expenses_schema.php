@@ -37,7 +37,7 @@ class RecurringExpensesSchema extends Migration
             $table->date('date')->nullable();
             $table->date('payment_date')->nullable();
             $table->boolean('should_be_invoiced')->default(false);
-            $table->boolean('invoice_documents')->default();
+            $table->boolean('invoice_documents')->default(false);
             $table->string('transaction_id')->nullable();
             $table->string('custom_value1')->nullable();
             $table->string('custom_value2')->nullable();
@@ -46,14 +46,14 @@ class RecurringExpensesSchema extends Migration
 
             $table->unsignedInteger('category_id')->nullable();
             $table->boolean('calculate_tax_by_amount')->default(false);
-            $table->decimal('tax_amount1', 20, 6);
-            $table->decimal('tax_amount2', 20, 6);
-            $table->decimal('tax_amount3', 20, 6);
-            $table->decimal('tax_rate1', 20, 6);
-            $table->decimal('tax_rate2', 20, 6);
-            $table->decimal('tax_rate3', 20, 6);
-            $table->decimal('amount', 20, 6);
-            $table->decimal('foreign_amount', 20, 6);
+            $table->decimal('tax_amount1', 20, 6)->nullable();
+            $table->decimal('tax_amount2', 20, 6)->nullable();
+            $table->decimal('tax_amount3', 20, 6)->nullable();
+            $table->decimal('tax_rate1', 20, 6)->nullable();
+            $table->decimal('tax_rate2', 20, 6)->nullable();
+            $table->decimal('tax_rate3', 20, 6)->nullable();
+            $table->decimal('amount', 20, 6)->nullable();
+            $table->decimal('foreign_amount', 20, 6)->nullable();
             $table->decimal('exchange_rate', 20, 6)->default(1);
             $table->unsignedInteger('assigned_user_id')->nullable();
             $table->string('number')->nullable();
