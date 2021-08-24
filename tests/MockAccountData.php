@@ -36,6 +36,7 @@ use App\Models\Product;
 use App\Models\Project;
 use App\Models\Quote;
 use App\Models\QuoteInvitation;
+use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
 use App\Models\Task;
 use App\Models\TaskStatus;
@@ -83,6 +84,11 @@ trait MockAccountData
      */
     public $token;
 
+    /**
+     * @var
+     */
+    public $recurring_expense;
+    
     /**
      * @var
      */
@@ -284,6 +290,13 @@ trait MockAccountData
             'user_id' => $user_id,
             'company_id' => $this->company->id,
         ]);
+
+
+        $this->recurring_expense = RecurringExpense::factory()->create([
+            'user_id' => $user_id,
+            'company_id' => $this->company->id,
+        ]);
+
 
         $this->task = Task::factory()->create([
             'user_id' => $user_id,

@@ -26,9 +26,11 @@ class RecurringExpensesSchema extends Migration
             $table->unsignedInteger('invoice_id')->nullable();
             $table->unsignedInteger('client_id')->nullable();
             $table->unsignedInteger('bank_id')->nullable();
+            $table->unsignedInteger('project_id')->nullable();
             $table->unsignedInteger('payment_type_id')->nullable();
             $table->unsignedInteger('recurring_expense_id')->nullable();
             $table->boolean('is_deleted')->default(false);
+            $table->boolean('uses_inclusive_taxes')->default(true);
             $table->string('tax_name1')->nullable();
             $table->string('tax_name2')->nullable();
             $table->string('tax_name3')->nullable();
@@ -44,6 +46,9 @@ class RecurringExpensesSchema extends Migration
 
             $table->unsignedInteger('category_id')->nullable();
             $table->boolean('calculate_tax_by_amount')->default(false);
+            $table->decimal('tax_amount1', 20, 6);
+            $table->decimal('tax_amount2', 20, 6);
+            $table->decimal('tax_amount3', 20, 6);
             $table->decimal('tax_rate1', 20, 6);
             $table->decimal('tax_rate2', 20, 6);
             $table->decimal('tax_rate3', 20, 6);
@@ -53,7 +58,7 @@ class RecurringExpensesSchema extends Migration
             $table->unsignedInteger('assigned_user_id')->nullable();
             $table->string('number')->nullable();
             $table->unsignedInteger('invoice_currency_id')->nullable();
-            $table->unsignedInteger('expense_currency_id')->nullable();
+            $table->unsignedInteger('currency_id')->nullable();
             $table->text('private_notes')->nullable();
             $table->text('public_notes')->nullable();
             $table->text('transaction_reference')->nullable();
