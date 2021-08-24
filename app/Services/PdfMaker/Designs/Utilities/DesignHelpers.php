@@ -45,6 +45,10 @@ trait DesignHelpers
             $this->payments = $this->context['payments'];
         }
 
+        if (isset($this->context['aging'])) {
+            $this->aging = $this->context['aging'];
+        }
+
         $this->document();
 
         return $this;
