@@ -141,8 +141,6 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::post('recurring_quotes/bulk', 'RecurringQuoteController@bulk')->name('recurring_quotes.bulk');
     Route::put('recurring_quotes/{recurring_quote}/upload', 'RecurringQuoteController@upload');
 
-    Route::post('recurring_quotes/bulk', 'RecurringQuoteController@bulk')->name('recurring_quotes.bulk');
-
     Route::post('refresh', 'Auth\LoginController@refresh');
 
     Route::get('scheduler', 'SchedulerController@index');
