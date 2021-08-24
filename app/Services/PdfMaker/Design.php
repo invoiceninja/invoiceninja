@@ -401,7 +401,7 @@ class Design extends BaseDesign
                 $element['elements'][] = ['element' => 'td', 'content' => $invoice->number];
                 $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($payment->date, $payment->client->date_format(), $payment->client->locale()) ?: '&nbsp;'];
                 $element['elements'][] = ['element' => 'td', 'content' => GatewayType::getAlias($payment->gateway_type_id) ?: '&nbsp;'];
-                $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($payment->partial, $payment->client) ?: '&nbsp;'];
+                $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($payment->amount, $payment->client) ?: '&nbsp;'];
 
                 $tbody[] = $element;
             }
