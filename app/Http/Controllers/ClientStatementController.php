@@ -11,9 +11,6 @@
 
 namespace App\Http\Controllers;
 
-/**
- * Class ClientStatementController.
- */
 class ClientStatementController extends BaseController
 {
     public function __construct()
@@ -21,21 +18,8 @@ class ClientStatementController extends BaseController
         parent::__construct();
     }
 
-    /**
-     * Displays a client statement view for a given
-     * client_id.
-     * @return void
-     */
-    public function show()
+    public function statement()
     {
-    }
-
-    /**
-     * Updates the show view data dependent on
-     * configured variables.
-     * @return void
-     */
-    public function update()
-    {
+        
     }
 }
