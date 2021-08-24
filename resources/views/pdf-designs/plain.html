@@ -68,12 +68,7 @@
         line-height: var(--line-height);
     }
 
-    #product-table,
-    #delivery-note-table,
-    #task-table,
-    #statement-invoice-table,
-    #statement-payment-table,
-    #statement-aging-table {
+    [data-ref="table"] {
         min-width: 100%;
         table-layout: fixed;
         overflow-wrap: break-word;
@@ -87,50 +82,25 @@
         color: grey;
     }
 
-    #product-table > thead,
-    #delivery-note-table > thead,
-    #task-table > thead,
-    #statement-invoice-table > thead,
-    #statement-payment-table > thead,
-    #statement-aging-table > thead {
+    [data-ref="table"] > thead {
         text-align: left;
     }
 
-    #product-table > thead > tr > th,
-    #delivery-note-table > thead > tr > th,
-    #task-table > thead > tr > th,
-    #statement-invoice-table > thead > tr > th,
-    #statement-payment-table > thead > tr > th,
-    #statement-aging-table > thead > tr > th {
+    [data-ref="table"] > thead > tr > th {
         padding: 1rem;
         background-color: #e6e6e6;
     }
 
-    #product-table > thead > tr > th:last-child,
-    #delivery-note-table > thead > tr > th:last-child,
-    #task-table > thead > tr > th:last-child,
-    #statement-invoice-table > thead > tr > th:last-child,
-    #statement-payment-table > thead > tr > th:last-child,
-    #statement-aging-table > thead > tr > th:last-child {
+    [data-ref="table"] > thead > tr > th:last-child {
         text-align: right;
     }
 
-    #product-table > tbody > tr > td,
-    #delivery-note-table > tbody > tr > td,
-    #task-table > tbody > tr > td,
-    #statement-invoice-table > tbody > tr > td,
-    #statement-payment-table > tbody > tr > td,
-    #statement-aging-table > tbody > tr > td {
+    [data-ref="table"] > tbody > tr > td {
         border-bottom: 1px solid #e6e6e6;
         padding: 1rem;
     }
 
-    #product-table > tbody > tr > td:last-child,
-    #delivery-note-table > tbody > tr > td:last-child,
-    #task-table > tbody > tr > td:last-child,
-    #statement-invoice-table > tbody > tr > td:last-child,
-    #statement-payment-table > tbody > tr > td:last-child,
-    #statement-aging-table > tbody > tr > td:last-child {
+    [data-ref="table"] > tbody > tr > td:last-child {
         text-align: right;
     }
 
@@ -216,8 +186,7 @@
         padding-right: 7px;
     }
 
-    #statement-invoice-table-totals,
-    #statement-payment-table-totals {
+    [data-ref="statement-totals"] {
         margin-top: 1rem;
         text-align: right;
         margin-right: .75rem;
@@ -273,20 +242,20 @@
 
     <div id="client-details"></div>
 
-    <table id="product-table" cellspacing="0"></table>
+    <table id="product-table" cellspacing="0" data-ref="table"></table>
 
-    <table id="task-table" cellspacing="0"></table>
+    <table id="task-table" cellspacing="0" data-ref="table"></table>
 
-    <table id="delivery-note-table" cellspacing="0"></table>
+    <table id="delivery-note-table" cellspacing="0" data-ref="table"></table>
 
-    <table id="statement-invoice-table" cellspacing="0"></table>
-    <div id="statement-invoice-table-totals"></div>
+    <table id="statement-invoice-table" cellspacing="0" data-ref="table"></table>
+    <div id="statement-invoice-table-totals" data-ref="statement-totals"></div>
 
-    <table id="statement-payment-table" cellspacing="0"></table>
-    <div id="statement-payment-table-totals"></div>
+    <table id="statement-payment-table" cellspacing="0" data-ref="table"></table>
+    <div id="statement-payment-table-totals" data-ref="statement-totals"></div>
 
-    <table id="statement-aging-table" cellspacing="0"></table>
-    <div id="statement-aging-table-totals"></div>
+    <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
+    <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
 
     <div id="table-totals" cellspacing="0"></div>
 </div>
