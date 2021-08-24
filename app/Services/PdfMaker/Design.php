@@ -388,6 +388,10 @@ class Design extends BaseDesign
             return [];
         }
 
+        if (\array_key_exists('show_payment_table', $this->options) && $this->options['show_payment_table'] === false) {
+            return [];
+        }
+
         $tbody = [];
 
         foreach ($this->payments as $payment) {
