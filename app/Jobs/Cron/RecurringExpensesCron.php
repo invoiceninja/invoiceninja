@@ -11,15 +11,18 @@
 
 namespace App\Jobs\Cron;
 
+use App\Factory\RecurringExpenseToExpenseFactory;
 use App\Jobs\RecurringInvoice\SendRecurring;
 use App\Libraries\MultiDB;
 use App\Models\RecurringExpense;
+use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Carbon;
 
 class RecurringExpensesCron
 {
     use Dispatchable;
+    use GeneratesCounter;
 
     public $tries = 1;
     
@@ -82,7 +85,11 @@ class RecurringExpensesCron
 
     private function generateExpense(RecurringExpense $recurring_expense)
     {
+        $expense = RecurringExpenseToExpenseFactory::create($recurring_expense);
+        $expense->save();
 
+        $expense->number = $this->getNextExpenseNumber($expense);
+        $expense->save();
     }
-    
+
 }
