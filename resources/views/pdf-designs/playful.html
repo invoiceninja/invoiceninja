@@ -95,9 +95,7 @@
         border-bottom: 1px solid var(--primary-color);
     }
 
-    #product-table,
-    #delivery-note-table,
-    #task-table {
+    [data-ref="table"] {
         padding-left: 3rem;
         padding-right: 3rem;
         margin-top: 3rem;
@@ -113,58 +111,42 @@
         color: grey;
     }
 
-    #product-table > thead,
-    #delivery-note-table > thead,
-    #task-table > thead {
+    [data-ref="table"] > thead {
         text-align: left;
     }
 
-    #product-table > thead > tr > th,
-    #delivery-note-table > thead > tr > th,
-    #task-table > thead > tr > th {
+    [data-ref="table"] > thead > tr > th {
         font-size: 1.2rem;
         padding: 1rem;
         background: var(--primary-color);
         color: white;
     }
 
-    #product-table > thead tr > th:last-child,
-    #delivery-note-table > thead tr > th:last-child,
-    #task-table > thead tr > th:last-child {
+    [data-ref="table"] > thead tr > th:last-child {
         text-align: right;
     }
 
-    #product-table > thead tr > th:first-child,
-    #delivery-note-table > thead tr > th:first-child,
-    #task-table > thead tr > th:first-child {
+    [data-ref="table"] > thead tr > th:first-child {
         border-top-left-radius: 10px;
         border-bottom-left-radius: 10px;
     }
 
-    #product-table > thead tr > th:last-child,
-    #delivery-note-table > thead tr > th:last-child,
-    #task-table > thead tr > th:last-child {
+    [data-ref="table"] > thead tr > th:last-child {
         border-top-right-radius: 10px;
         border-bottom-right-radius: 10px;
     }
 
-    #product-table > tbody > tr > td,
-    #delivery-note-table > tbody > tr > td,
-    #task-table > tbody > tr > td {
+    [data-ref="table"] > tbody > tr > td {
         background-color: #F7F7F7;
         border-bottom: 1px solid var(--primary-color);
         padding: 1rem;
     }
 
-    #product-table > tbody > tr > td:first-child,
-    #delivery-note-table > tbody > tr > td:first-child,
-    #task-table > tbody > tr > td:first-child {
+    [data-ref="table"] > tbody > tr > td:first-child {
         color: var(--primary-color);
     }
 
-    #product-table > tbody > tr > td:last-child,
-    #delivery-note-table > tbody > tr > td:last-child,
-    #task-table > tbody > tr > td:last-child {
+    [data-ref="table"] > tbody > tr > td:last-child {
         text-align: right;
     }
 
@@ -246,9 +228,7 @@
     }
 
     /** Markdown-specific styles. **/
-    #product-table h3,
-    #task-table h3,
-    #delivery-note-table h3 {
+    [data-ref="table"] h3 {
         font-size: 1rem;
         margin-bottom: 0;
     }
@@ -259,15 +239,22 @@
         min-width: 100%;
         display: grid;
         grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
-        margin-left: -10px;    
+        margin-left: -10px;
    }
 
    #footer-colors > * {
         padding: 10px;
     }
 
+    [data-ref="statement-totals"] {
+        margin-top: 1rem;
+        text-align: right;
+        padding-left: 3rem;
+        padding-right: 3rem;
+    }
+
     /** Useful snippets, uncomment to enable. **/
-    
+
     /** Hide company logo **/
     /* .company-logo { display: none } */
 
@@ -333,11 +320,20 @@
         </div>
     </div>
 
-    <table id="product-table" cellspacing="0"></table>
+    <table id="product-table" cellspacing="0" data-ref="table"></table>
 
-    <table id="task-table" cellspacing="0"></table>
+    <table id="task-table" cellspacing="0" data-ref="table"></table>
 
-    <table id="delivery-note-table" cellspacing="0"></table>
+    <table id="delivery-note-table" cellspacing="0" data-ref="table"></table>
+
+    <table id="statement-invoice-table" cellspacing="0" data-ref="table"></table>
+    <div id="statement-invoice-table-totals" data-ref="statement-totals"></div>
+
+    <table id="statement-payment-table" cellspacing="0" data-ref="table"></table>
+    <div id="statement-payment-table-totals" data-ref="statement-totals"></div>
+
+    <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
+    <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
 
     <div id="table-totals" cellspacing="0"></div>
 </div>
@@ -359,7 +355,12 @@
     <script>
         // Clear up space a bit, if [product-table, tasks-table, delivery-note-table] isn't present.
         document.addEventListener('DOMContentLoaded', () => {
-            ['product-table', 'task-table', 'delivery-note-table'].forEach((tableIdentifier) => {
+            let tables = [
+                'product-table', 'task-table', 'delivery-note-table',
+                'statement-invoice-table', 'statement-payment-table', 'statement-aging-table-totals',
+            ];
+
+            tables.forEach((tableIdentifier) => {
                 document.getElementById(tableIdentifier).childElementCount === 0
                     ? document.getElementById(tableIdentifier).style.display = 'none'
                     : '';

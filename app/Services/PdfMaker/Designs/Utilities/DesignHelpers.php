@@ -28,6 +28,8 @@ trait DesignHelpers
 
     public function setup(): self
     {
+        $this->syncPdfVariables();
+
         if (isset($this->context['client'])) {
             $this->client = $this->context['client'];
         }
@@ -36,9 +38,36 @@ trait DesignHelpers
             $this->entity = $this->context['entity'];
         }
 
+        if (isset($this->context['invoices'])) {
+            $this->invoices = $this->context['invoices'];
+            $this->entity = $this->invoices->first();
+        }
+
+        if (isset($this->context['payments'])) {
+            $this->payments = $this->context['payments'];
+        }
+
+        if (isset($this->context['aging'])) {
+            $this->aging = $this->context['aging'];
+        }
+
         $this->document();
 
         return $this;
+    }
+
+    protected function syncPdfVariables(): void
+    {
+        $default = (array) \App\DataMapper\CompanySettings::getEntityVariableDefaults();
+        $variables = $this->context['pdf_variables'];
+
+        foreach ($default as $property => $value) {
+            if (array_key_exists($property, $variables)) {
+                continue;
+            }
+
+            $variables[$property] = $value;
+        }
     }
 
     /**

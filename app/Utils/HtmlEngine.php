@@ -190,7 +190,7 @@ class HtmlEngine
             }
             else{
                 $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->balance, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.balance_due')];
-                $data['$balance_due_raw'] = ['value' => $this->entity->balance, 'label' => ctrans('texts.balance_due')];                
+                $data['$balance_due_raw'] = ['value' => $this->entity->balance, 'label' => ctrans('texts.balance_due')];
             }
         }
 
@@ -302,7 +302,7 @@ class HtmlEngine
 
         $data['$contact.full_name'] = ['value' => $this->contact->present()->name(), 'label' => ctrans('texts.name')];
         $data['$contact'] = &$data['$contact.full_name'];
-        
+
         $data['$contact.email'] = ['value' => $this->contact->email, 'label' => ctrans('texts.email')];
         $data['$contact.phone'] = ['value' => $this->contact->phone, 'label' => ctrans('texts.phone')];
 
@@ -438,6 +438,9 @@ class HtmlEngine
 
         $data['$dir'] = ['value' => optional($this->client->language())->locale === 'ar' ? 'rtl' : 'ltr', 'label' => ''];
         $data['$dir_text_align'] = ['value' => optional($this->client->language())->locale === 'ar' ? 'right' : 'left', 'label' => ''];
+
+        $data['$payment.date'] = ['value' => '&nbsp;', 'label' => ctrans('texts.payment_date')];
+        $data['$method'] = ['value' => '&nbsp;', 'label' => ctrans('texts.method')];
 
         $arrKeysLength = array_map('strlen', array_keys($data));
         array_multisort($arrKeysLength, SORT_DESC, $data);
