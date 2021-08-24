@@ -77,6 +77,49 @@ class RecurringExpensesSchema extends Migration
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
 
         });
+
+
+        Schema::create('recurring_quote_invitations', function ($t) {
+            $t->increments('id');
+            $t->unsignedInteger('company_id');
+            $t->unsignedInteger('user_id');
+            $t->unsignedInteger('client_contact_id');
+            $t->unsignedInteger('recurring_quote_id')->index();
+            $t->string('key')->index();
+
+            $t->foreign('recurring_quote_id')->references('id')->on('recurring_invoices')->onDelete('cascade')->onUpdate('cascade');
+            $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
+            $t->foreign('client_contact_id')->references('id')->on('client_contacts')->onDelete('cascade')->onUpdate('cascade');
+            $t->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
+
+            $t->string('transaction_reference')->nullable();
+            $t->string('message_id')->nullable();
+            $t->mediumText('email_error')->nullable();
+            $t->text('signature_base64')->nullable();
+            $t->datetime('signature_date')->nullable();
+
+            $t->datetime('sent_date')->nullable();
+            $t->datetime('viewed_date')->nullable();
+            $t->datetime('opened_date')->nullable();
+            $t->enum('email_status', ['delivered', 'bounced', 'spam'])->nullable();
+
+            $t->timestamps(6);
+            $t->softDeletes('deleted_at', 6);
+
+            $t->index(['deleted_at', 'recurring_quote_id', 'company_id'], 'rec_co_del_q');
+            $t->unique(['client_contact_id', 'recurring_quote_id'], 'cli_rec_q');
+        });
+
+
+
+
+
+
+
+
+
+
+
     }
 
     /**
