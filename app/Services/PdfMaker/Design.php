@@ -135,9 +135,7 @@ class Design extends BaseDesign
             ],
             'statement-invoice-table-totals' => [
                 'id' => 'statement-invoice-table-totals',
-                'elements' => [
-                    ['element' => 'p', 'content' => '$outstanding_label: $outstanding'],
-                ],
+                'elements' => $this->statementInvoiceTableTotals(),
             ],
             'statement-payment-table' => [
                 'id' => 'statement-payment-table',
@@ -145,9 +143,7 @@ class Design extends BaseDesign
             ],
             'statement-payment-table-totals' => [
                 'id' => 'statement-payment-table-totals',
-                'elements' => [
-                    ['element' => 'p', 'content' => \sprintf('%s: %s', ctrans('texts.amount_paid'), 1000)],
-                ],
+                'elements' => $this->statementPaymentTableTotals(),
             ],
             'statement-aging-table' => [
                 'id' => 'statement-aging-table',
@@ -377,6 +373,17 @@ class Design extends BaseDesign
         ];
     }
 
+    public function statementInvoiceTableTotals(): array
+    {
+        if ($this->type !== self::STATEMENT) {
+            return [];
+        }
+
+        return [
+            ['element' => 'p', 'content' => '$outstanding_label: $outstanding'],
+        ];
+    }
+
     /**
      * Parent method for building payments table within statement.
      *
@@ -410,6 +417,17 @@ class Design extends BaseDesign
         return [
             ['element' => 'thead', 'elements' => $this->buildTableHeader('statement_payment')],
             ['element' => 'tbody', 'elements' => $tbody],
+        ];
+    }
+
+    public function statementPaymentTableTotals(): array
+    {
+        if ($this->type !== self::STATEMENT) {
+            return [];
+        }
+
+        return [
+            ['element' => 'p', 'content' => \sprintf('%s: %s', ctrans('texts.amount_paid'), 1000)],
         ];
     }
 
