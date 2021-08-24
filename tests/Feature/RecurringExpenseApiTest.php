@@ -75,76 +75,74 @@ class RecurringExpenseApiTest extends TestCase
             ])->post('/api/v1/recurring_expenses', $data);
 
         $response->assertStatus(200);
+   
+        $arr = $response->json();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->put('/api/v1/recurring_expenses/'.$arr['data']['id'], $data)->assertStatus(200);
+
+        try{
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/recurring_expenses', $data);
+        }
+        catch(ValidationException $e){
+            $response->assertStatus(302);
+        }
+
     }
-//         $arr = $response->json();
 
-//         $response = $this->withHeaders([
-//             'X-API-SECRET' => config('ninja.api_secret'),
-//             'X-API-TOKEN' => $this->token,
-//         ])->put('/api/v1/recurring_expenses/'.$arr['data']['id'], $data)->assertStatus(200);
+    public function testRecurringExpensePut()
+    {
+        $data = [
+            'amount' => 20,
+            'public_notes' => 'Coolio',
+        ];
 
-//         try{
-//         $response = $this->withHeaders([
-//                 'X-API-SECRET' => config('ninja.api_secret'),
-//                 'X-API-TOKEN' => $this->token,
-//         ])->post('/api/v1/recurring_expenses', $data);
-//         }
-//         catch(ValidationException $e){
-//             $response->assertStatus(302);
-//         }
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->put('/api/v1/recurring_expenses/'.$this->encodePrimaryKey($this->recurring_expense->id), $data);
 
+        $response->assertStatus(200);
+    }
 
 
-//     }
+    public function testRecurringExpenseNotArchived()
+    {
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->get('/api/v1/recurring_expenses/'.$this->encodePrimaryKey($this->recurring_expense->id));
 
-//     public function testRecurringExpensePut()
-//     {
-//         $data = [
-//             'name' => $this->faker->firstName,
-//             'public_notes' => 'Coolio',
-//         ];
+        $arr = $response->json();
 
-//         $response = $this->withHeaders([
-//                 'X-API-SECRET' => config('ninja.api_secret'),
-//                 'X-API-TOKEN' => $this->token,
-//             ])->put('/api/v1/recurring_expenses/'.$this->encodePrimaryKey($this->project->id), $data);
+        $this->assertEquals(0, $arr['data']['archived_at']);
+    }
 
-//         $response->assertStatus(200);
-//     }
+    public function testRecurringExpenseArchived()
+    {
+        $data = [
+            'ids' => [$this->encodePrimaryKey($this->recurring_expense->id)],
+        ];
 
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/recurring_expenses/bulk?action=archive', $data);
 
-//     public function testRecurringExpenseNotArchived()
-//     {
-//         $response = $this->withHeaders([
-//                 'X-API-SECRET' => config('ninja.api_secret'),
-//                 'X-API-TOKEN' => $this->token,
-//             ])->get('/api/v1/recurring_expenses/'.$this->encodePrimaryKey($this->project->id));
+        $arr = $response->json();
 
-//         $arr = $response->json();
-
-//         $this->assertEquals(0, $arr['data']['archived_at']);
-//     }
-
-//     public function testRecurringExpenseArchived()
-//     {
-//         $data = [
-//             'ids' => [$this->encodePrimaryKey($this->project->id)],
-//         ];
-
-//         $response = $this->withHeaders([
-//                 'X-API-SECRET' => config('ninja.api_secret'),
-//                 'X-API-TOKEN' => $this->token,
-//             ])->post('/api/v1/recurring_expenses/bulk?action=archive', $data);
-
-//         $arr = $response->json();
-
-//         $this->assertNotNull($arr['data'][0]['archived_at']);
-//     }
+        $this->assertNotNull($arr['data'][0]['archived_at']);
+    }
 
 //     public function testRecurringExpenseRestored()
 //     {
 //         $data = [
-//             'ids' => [$this->encodePrimaryKey($this->project->id)],
+//             'ids' => [$this->encodePrimaryKey($this->recurring_expense->id)],
 //         ];
 
 //         $response = $this->withHeaders([
@@ -160,7 +158,7 @@ class RecurringExpenseApiTest extends TestCase
 //     public function testRecurringExpenseDeleted()
 //     {
 //         $data = [
-//             'ids' => [$this->encodePrimaryKey($this->project->id)],
+//             'ids' => [$this->encodePrimaryKey($this->recurring_expense->id)],
 //         ];
 
 //         $response = $this->withHeaders([
