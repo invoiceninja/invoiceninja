@@ -2,7 +2,7 @@
     :root {
         --primary-color: $primary_color;
         --secondary-color: $secondary_color;
-        --line-height: 1.6; 
+        --line-height: 1.6;
     }
 
     body {
@@ -216,8 +216,15 @@
         padding-right: 7px;
     }
 
+    #statement-invoice-table-totals,
+    #statement-payment-table-totals {
+        margin-top: 1rem;
+        text-align: right;
+        margin-right: .75rem;
+    }
+
     /** Useful snippets, uncomment to enable. **/
-    
+
     /** Hide company logo **/
     /* .company-logo { display: none } */
 
@@ -273,10 +280,13 @@
     <table id="delivery-note-table" cellspacing="0"></table>
 
     <table id="statement-invoice-table" cellspacing="0"></table>
+    <div id="statement-invoice-table-totals"></div>
 
     <table id="statement-payment-table" cellspacing="0"></table>
+    <div id="statement-payment-table-totals"></div>
 
     <table id="statement-aging-table" cellspacing="0"></table>
+    <div id="statement-aging-table-totals"></div>
 
     <div id="table-totals" cellspacing="0"></div>
 </div>
