@@ -161,6 +161,7 @@ class CompanyTransformer extends EntityTransformer
             'show_task_end_date' => (bool) $company->show_task_end_date,
             'markdown_enabled' => (bool) $company->markdown_enabled,
             'use_comma_as_decimal_place' => (bool) $company->use_comma_as_decimal_place,
+            'report_include_drafts' => (bool) $company->report_include_drafts,
         ];
     }
 
