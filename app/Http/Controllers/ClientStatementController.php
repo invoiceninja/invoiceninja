@@ -19,6 +19,7 @@ use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\PdfMaker\PdfMaker as PdfMakerService;
 use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\HtmlEngine;
+use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Pdf\PdfMaker;
 
@@ -33,6 +34,79 @@ class ClientStatementController extends BaseController
     {
         parent::__construct();
     }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param CreateStatementRequest $request
+     * @return Response
+     *
+     * @OA\Post(
+     *      path="/api/v1/client_statement",
+     *      operationId="clientStatement",
+     *      tags={"clients"},
+     *      summary="Return a PDF of the client statement",
+     *      description="Return a PDF of the client statement",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\RequestBody(
+     *         description="Statment Options",
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="start_date",
+     *                     description="The start date of the statement period - format Y-m-d",
+     *                     type="string",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="end_date",
+     *                     description="The start date of the statement period - format Y-m-d",
+     *                     type="string",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="client_id",
+     *                     description="The hashed ID of the client",
+     *                     type="string",
+     *                 ),
+     *                 @OA\Property(
+     *                     property="show_payments_table",
+     *                     description="Flag which determines if the payments table is shown",
+     *                     type="boolean",
+     *                 ),     
+     *                 @OA\Property(
+     *                     property="show_aging_table",
+     *                     description="Flag which determines if the aging table is shown",
+     *                     type="boolean",
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the client object",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Client"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
 
     public function statement(CreateStatementRequest $request)
     {
@@ -49,21 +123,23 @@ class ClientStatementController extends BaseController
 
     protected function createStatement(CreateStatementRequest $request): ?string
     {
-        $invitation = InvoiceInvitation::first();
+        $invitation = false;
 
-        if (count($request->getInvoices()) >= 1) {
+        if ($request->getInvoices()->count() >= 1) {
             $this->entity = $request->getInvoices()->first();
+            $invitation = $this->entity->invitations->first();
         }
-
-        if (count($request->getPayments()) >= 1) {
-            $this->entity = $request->getPayments()->first();
+        else if ($request->getPayments()->count() >= 1) {
+            $this->entity = $request->getPayments()->first()->invoices->first()->invitations->first();
+            $invitation = $this->entity->invitations->first();
         }
 
         $entity_design_id = 1;
 
         $entity_design_id = $this->entity->design_id
             ? $this->entity->design_id
-            : $this->decodePrimaryKey($this->entity->client->getSetting($entity_design_id));
+            : $this->decodePrimaryKey($this->entity->client->getSetting('invoice_design_id'));
+
 
         $design = Design::find($entity_design_id);
 
@@ -114,7 +190,10 @@ class ClientStatementController extends BaseController
         $pdf = null;
 
         try {
-            if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
+            if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
+                $pdf = (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
+            }
+            else if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
                 $pdf = (new NinjaPdf())->build($maker->getCompiledHTML(true));
             } else {
                 $pdf = $this->makePdf(null, null, $maker->getCompiledHTML(true));

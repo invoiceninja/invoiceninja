@@ -124,24 +124,57 @@ class BraintreePaymentDriver extends BaseDriver
     {
         $this->init();
 
-        try {
+        try{
+  
             $response = $this->gateway->transaction()->refund($payment->transaction_reference, $amount);
-
-            return [
-                'transaction_reference' => $response->id,
-                'transaction_response' => json_encode($response),
-                'success' => (bool)$response->success,
-                'description' => $response->status,
-                'code' => 0,
-            ];
+  
         } catch (Exception $e) {
-            return [
+
+            $data = [
                 'transaction_reference' => null,
                 'transaction_response' => json_encode($e->getMessage()),
                 'success' => false,
                 'description' => $e->getMessage(),
                 'code' => $e->getCode(),
             ];
+  
+            SystemLogger::dispatch(['server_response' => null, 'data' => $data], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_BRAINTREE, $this->client, $this->client->company);
+
+            return $data;
+        }
+  
+        if($response->success)
+        {
+
+            $data = [
+                'transaction_reference' => $response->id,
+                'transaction_response' => json_encode($response),
+                'success' => (bool)$response->success,
+                'description' => $response->status,
+                'code' => 0,
+            ];
+
+            SystemLogger::dispatch(['server_response' => $response, 'data' => $data], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_BRAINTREE, $this->client, $this->client->company);
+
+            return $data;
+
+        }
+        else{
+
+            $error = $response->errors->deepAll()[0];
+
+            $data = [
+                'transaction_reference' => null,
+                'transaction_response' => $response->errors->deepAll(),
+                'success' => false,
+                'description' => $error->message,
+                'code' => $error->code,
+            ];
+
+            SystemLogger::dispatch(['server_response' => $response, 'data' => $data], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_BRAINTREE, $this->client, $this->client->company);
+
+            return $data;
+
         }
     }
 

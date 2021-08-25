@@ -81,7 +81,7 @@ class RefundPayment
 
                 if ($response['success'] == false) {
                     $this->payment->save();
-                    throw new PaymentRefundFailed();
+                    throw new PaymentRefundFailed($response['description']);
                 }
             }
         } else {
