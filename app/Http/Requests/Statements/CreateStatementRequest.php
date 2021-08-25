@@ -31,8 +31,8 @@ class CreateStatementRequest extends Request
     public function rules()
     {
         return [
-            'start_date' => ['required'],
-            'end_date'   => ['required'],
+            'start_date' => 'required|date_format:Y-m-d',
+            'end_date'   => 'required|date_format:Y-m-d',
             'client_id'  => 'bail|required|exists:clients,id,company_id,'.auth()->user()->company()->id,
             'show_payments_table' => 'boolean',
             'show_aging_table' => 'boolean',

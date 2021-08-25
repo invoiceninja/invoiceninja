@@ -424,7 +424,7 @@ class Design extends BaseDesign
 
     public function statementPaymentTableTotals(): array
     {
-        if ($this->type !== self::STATEMENT) {
+        if ($this->type !== self::STATEMENT || !$this->payments->first()) {
             return [];
         }
 
