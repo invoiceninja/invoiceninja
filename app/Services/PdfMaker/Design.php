@@ -361,8 +361,8 @@ class Design extends BaseDesign
             $element['elements'][] = ['element' => 'td', 'content' => $invoice->number];
             $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($invoice->date, $invoice->client->date_format(), $invoice->client->locale()) ?: '&nbsp;'];
             $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($invoice->due_date, $invoice->client->date_format(), $invoice->client->locale()) ?: '&nbsp;'];
-            $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($invoice->calc()->getTotal(), $invoice->client) ?: '&nbsp;'];
-            $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($invoice->partial, $invoice->client) ?: '&nbsp;'];
+            $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($invoice->amount, $invoice->client) ?: '&nbsp;'];
+            $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($invoice->balance, $invoice->client) ?: '&nbsp;'];
 
             $tbody[] = $element;
         }
@@ -378,6 +378,8 @@ class Design extends BaseDesign
         if ($this->type !== self::STATEMENT) {
             return [];
         }
+
+        $outstanding = $this->invoices->sum('amount');
 
         return [
             ['element' => 'p', 'content' => '$outstanding_label: $outstanding'],
@@ -395,7 +397,7 @@ class Design extends BaseDesign
             return [];
         }
 
-        if (\array_key_exists('show_payment_table', $this->options) && $this->options['show_payment_table'] === false) {
+        if (\array_key_exists('show_payments_table', $this->options) && $this->options['show_payments_table'] === false) {
             return [];
         }
 
@@ -407,7 +409,7 @@ class Design extends BaseDesign
 
                 $element['elements'][] = ['element' => 'td', 'content' => $invoice->number];
                 $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($payment->date, $payment->client->date_format(), $payment->client->locale()) ?: '&nbsp;'];
-                $element['elements'][] = ['element' => 'td', 'content' => GatewayType::getAlias($payment->gateway_type_id) ?: '&nbsp;'];
+                $element['elements'][] = ['element' => 'td', 'content' => $payment->type ? $payment->type->name : ctrans('texts.manual_entry')];
                 $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($payment->amount, $payment->client) ?: '&nbsp;'];
 
                 $tbody[] = $element;
@@ -426,8 +428,10 @@ class Design extends BaseDesign
             return [];
         }
 
+        $payment = $this->payments->first();
+
         return [
-            ['element' => 'p', 'content' => \sprintf('%s: %s', ctrans('texts.amount_paid'), 1000)],
+            ['element' => 'p', 'content' => \sprintf('%s: %s', ctrans('texts.amount_paid'), Number::formatMoney($this->payments->sum('amount'), $payment->client))],
         ];
     }
 
