@@ -31,7 +31,7 @@ class QuoteTransformer extends EntityTransformer
     protected $availableIncludes = [
         'invitations',
         'documents',
-        'history',
+        // 'history',
         'activities',
        //    'payments',
     //    'client',

@@ -80,9 +80,7 @@
         padding-bottom: 0.5rem;
     }
 
-    #product-table,
-    #task-table,
-    #delivery-note-table {
+    [data-ref="table"] {
         min-width: 100%;
         table-layout: fixed;
         overflow-wrap: break-word;
@@ -96,46 +94,32 @@
         color: grey;
     }
 
-    #product-table > thead,
-    #delivery-note-table > thead,
-    #task-table > thead {
+    [data-ref="table"] > thead {
         text-align: left;
     }
 
-    #product-table > thead > tr > th,
-    #delivery-note-table > thead > tr > th,
-    #task-table > thead > tr > th {
+    [data-ref="table"] > thead > tr > th {
         padding: 1.5rem 3rem;
         font-size: 1rem;
     }
 
-    #product-table > thead > tr > th:last-child,
-    #delivery-note-table > thead > tr > th:last-child,
-    #task-table > thead > tr > th:last-child {
+    [data-ref="table"] > thead > tr > th:last-child {
         text-align: right;
     }
 
-    #product-table > tbody > tr > td,
-    #delivery-note-table > tbody > tr > td,
-    #task-table > tbody > tr > td {
+    [data-ref="table"] > tbody > tr > td {
         padding: 1.5rem 3rem;
     }
 
-    #product-table > tbody > tr > td:last-child,
-    #delivery-note-table > tbody > tr > td:last-child,
-    #task-table > tbody > tr > td:last-child {
+    [data-ref="table"] > tbody > tr > td:last-child {
         text-align: right;
     }
 
-    #product-table > tbody > tr > td:first-child,
-    #delivery-note-table > tbody > tr > td:first-child,
-    #task-table > tbody > tr > td:first-child {
+    [data-ref="table"] > tbody > tr > td:first-child {
         font-weight: bold;
     }
 
-    #product-table > tbody > tr:nth-child(odd),
-    #delivery-note-table > tbody > tr:nth-child(odd),
-    #task-table > tbody > tr:nth-child(odd) {
+    [data-ref="table"] > tbody > tr:nth-child(odd) {
         background-color: #ebebeb;
     }
 
@@ -254,12 +238,18 @@
         margin-bottom: 0;
     }
 
-     [data-ref="product_table-product.description-th"] { 
+     [data-ref="product_table-product.description-th"] {
           width: 23%;
      }
 
+    [data-ref="statement-totals"] {
+        margin-top: 1rem;
+        text-align: right;
+        margin-right: .75rem;
+    }
+
     /** Useful snippets, uncomment to enable. **/
-      
+
       /** Hide company logo **/
       /* .company-logo { display: none } */
 
@@ -318,11 +308,20 @@
             </div>
 
             <!-- Start Print Content -->
-            <table id="product-table" cellspacing="0" class="print-content"></table>
+            <table id="product-table" cellspacing="0" class="print-content" data-ref="table"></table>
 
-            <table id="task-table" cellspacing="0" class="print-content"></table>
+            <table id="task-table" cellspacing="0" class="print-content" data-ref="table"></table>
 
-            <table id="delivery-note-table" cellspacing="0" class="print-content"></table>
+            <table id="delivery-note-table" cellspacing="0" class="print-content" data-ref="table"></table>
+
+            <table id="statement-invoice-table" cellspacing="0" class="print-content" data-ref="table"></table>
+            <div id="statement-invoice-table-totals" data-ref="statement-totals"></div>
+
+            <table id="statement-payment-table" cellspacing="0" class="print-content" data-ref="table"></table>
+            <div id="statement-payment-table-totals" data-ref="statement-totals"></div>
+
+            <table id="statement-aging-table" cellspacing="0" class="print-content" data-ref="table"></table>
+            <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
             <!-- End Print Content -->
         </td>
     </tr>
@@ -350,7 +349,12 @@
         <script>
             // Clear up space a bit, if [product-table, tasks-table, delivery-note-table] isn't present.
             document.addEventListener('DOMContentLoaded', () => {
-                ['product-table', 'task-table', 'delivery-note-table'].forEach((tableIdentifier) => {
+                let tables = [
+                    'product-table', 'task-table', 'delivery-note-table',
+                    'statement-invoice-table', 'statement-payment-table', 'statement-aging-table-totals',
+                ];
+
+                tables.forEach((tableIdentifier) => {
                     document.getElementById(tableIdentifier).childElementCount === 0
                         ? document.getElementById(tableIdentifier).style.display = 'none'
                         : '';

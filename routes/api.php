@@ -43,7 +43,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::post('connected_account', 'ConnectedAccountController@index');
     Route::post('connected_account/gmail', 'ConnectedAccountController@handleGmailOauth');
 
-    Route::resource('client_statement', 'ClientStatementController@statement'); // name = (client_statement. index / create / show / update / destroy / edit
+    Route::post('client_statement', 'ClientStatementController@statement')->name('client.statement');
 
     Route::post('companies/purge/{company}', 'MigrationController@purgeCompany')->middleware('password_protected');
     Route::post('companies/purge_save_settings/{company}', 'MigrationController@purgeCompanySaveSettings')->middleware('password_protected');
@@ -159,8 +159,8 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 
     Route::post('templates', 'TemplateController@show')->name('templates.show');
 
-    Route::resource('tokens', 'TokenController')->middleware('password_protected'); // name = (tokens. index / create / show / update / destroy / edit
-    Route::post('tokens/bulk', 'TokenController@bulk')->name('tokens.bulk')->middleware('password_protected');
+    Route::resource('tokens', 'TokenController'); // name = (tokens. index / create / show / update / destroy / edit
+    Route::post('tokens/bulk', 'TokenController@bulk')->name('tokens.bulk');
 
     Route::get('settings/enable_two_factor', 'TwoFactorController@setupTwoFactor');
     Route::post('settings/enable_two_factor', 'TwoFactorController@enableTwoFactor');

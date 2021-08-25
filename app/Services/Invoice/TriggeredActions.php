@@ -12,7 +12,7 @@
 namespace App\Services\Invoice;
 
 use App\Events\Invoice\InvoiceWasEmailed;
-use App\Jobs\Invoice\EmailEntity;
+use App\Jobs\Entity\EmailEntity;
 use App\Models\Invoice;
 use App\Services\AbstractService;
 use App\Utils\Ninja;

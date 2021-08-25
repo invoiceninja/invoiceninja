@@ -43,6 +43,8 @@ class CloneQuoteToInvoiceFactory
         $invoice->number = null;
         $invoice->date = now()->format('Y-m-d');
         $invoice->balance = 0;
+        $invoice->deleted_at = null;
+        
         return $invoice;
     }
 }

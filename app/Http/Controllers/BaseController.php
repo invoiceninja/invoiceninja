@@ -768,7 +768,9 @@ class BaseController extends Controller
             case 'last':
                 return 'main.last.dart.js';
             case 'next':
-                return 'main.next.dart.js';                                            
+                return 'main.next.dart.js';      
+            case 'profile':
+                return 'main.profile.dart.js';                                      
             default:
                 return 'main.dart.js';
         }

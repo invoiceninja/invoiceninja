@@ -98,9 +98,7 @@
         font-weight: bold;
     }
 
-    #product-table,
-    #delivery-note-table,
-    #task-table {
+    [data-ref="table"] {
         margin-top: 3rem;
         /* margin-bottom: 200px; */
         min-width: 100%;
@@ -114,39 +112,29 @@
         color: grey;
     }
 
-    #product-table > thead,
-    #product-table > thead,
-    #task-table > thead {
+    [data-ref="table"] > thead {
         text-align: left;
         text-transform: uppercase;
         font-weight: bold;
     }
 
-    #product-table > thead > tr > th,
-    #delivery-note-table > thead > tr > th,
-    #task-table > thead > tr > th {
+    [data-ref="table"] > thead > tr > th {
         font-size: 1.1rem;
         padding-bottom: 1.5rem;
         padding-left: 1rem;
         border-left: 1px solid;
     }
 
-    #product-table > thead > tr > th:last-child,
-    #delivery-note-table > thead > tr > th:last-child,
-    #task-table > thead > tr > th:last-child {
+    [data-ref="table"] > thead > tr > th:last-child {
         text-align: right;
     }
 
-    #product-table > tbody > tr > td,
-    #delivery-note-table > tbody > tr > td,
-    #task-table > tbody > tr > td {
+    [data-ref="table"] > tbody > tr > td {
         padding: 1rem;
         border-left: 1px solid;
     }
 
-    #product-table > tbody > tr td:last-child,
-    #delivery-note-table > tbody > tr td:last-child,
-    #task-table > tbody > tr td:last-child {
+    [data-ref="table"] > tbody > tr td:last-child {
         text-align: right;
     }
 
@@ -208,9 +196,7 @@
     }
 
     /** Markdown-specific styles. **/
-    #product-table h3,
-    #task-table h3,
-    #delivery-note-table h3 {
+    [data-ref="table"] h3 {
         font-size: 1rem;
         margin-bottom: 0;
     }
@@ -229,8 +215,14 @@
 
     [data-ref="totals_table-outstanding"] { color: var(--primary-color); }
 
+    [data-ref="statement-totals"] {
+        margin-top: 1rem;
+        text-align: right;
+        margin-right: .75rem;
+    }
+
     /** Useful snippets, uncomment to enable. **/
-    
+
     /** Hide company logo **/
     /* .company-logo { display: none } */
 
@@ -294,17 +286,17 @@
                 </span>
                 <span class="entity-property-value">$entity_number</span>
             </div>
-            
+
             <div>
                 <span class="entity-property-label">$date_label:</span>
                 <span class="entity-property-value">$date</span>
             </div>
-    
+
             <div>
                 <span class="entity-property-label">$payment_due_label:</span>
                 <span class="entity-property-value">$payment_due</span>
             </div>
-    
+
             <div>
                 <span class="entity-property-label">$amount_due_label:</span>
                 <span
@@ -315,11 +307,20 @@
             </div>
     </div>
 
-    <table id="product-table" cellspacing="0"></table>
+    <table id="product-table" cellspacing="0" data-ref="table"></table>
 
-    <table id="task-table" cellspacing="0"></table>
+    <table id="task-table" cellspacing="0" data-ref="table"></table>
 
-    <table id="delivery-note-table" cellspacing="0"></table>
+    <table id="delivery-note-table" cellspacing="0" data-ref="table"></table>
+
+    <table id="statement-invoice-table" cellspacing="0" data-ref="table"></table>
+    <div id="statement-invoice-table-totals" data-ref="statement-totals"></div>
+
+    <table id="statement-payment-table" cellspacing="0" data-ref="table"></table>
+    <div id="statement-payment-table-totals" data-ref="statement-totals"></div>
+
+    <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
+    <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
 
     <div id="table-totals" cellspacing="0"></div>
 </div>
@@ -330,7 +331,12 @@
     <script>
         // Clear up space a bit, if [product-table, tasks-table, delivery-note-table] isn't present.
         document.addEventListener('DOMContentLoaded', () => {
-            ['product-table', 'task-table', 'delivery-note-table'].forEach((tableIdentifier) => {
+            let tables = [
+                'product-table', 'task-table', 'delivery-note-table',
+                'statement-invoice-table', 'statement-payment-table', 'statement-aging-table-totals',
+            ];
+
+            tables.forEach((tableIdentifier) => {
                 document.getElementById(tableIdentifier).childElementCount === 0
                     ? document.getElementById(tableIdentifier).style.display = 'none'
                     : '';
