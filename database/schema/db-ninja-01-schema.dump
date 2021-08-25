@@ -372,9 +372,12 @@ CREATE TABLE `companies` (
   `expense_inclusive_taxes` tinyint(1) NOT NULL DEFAULT '0',
   `session_timeout` int(11) NOT NULL DEFAULT '0',
   `oauth_password_required` tinyint(1) NOT NULL DEFAULT '0',
-  `invoice_task_datelog` tinyint(1) NOT NULL DEFAULT '0',
+  `invoice_task_datelog` tinyint(1) NOT NULL DEFAULT '1',
   `default_password_timeout` int(11) NOT NULL DEFAULT '30',
   `show_task_end_date` tinyint(1) NOT NULL DEFAULT '0',
+  `markdown_enabled` tinyint(1) NOT NULL DEFAULT '1',
+  `use_comma_as_decimal_place` tinyint(1) NOT NULL DEFAULT '0',
+  `report_include_drafts` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `companies_company_key_unique` (`company_key`),
   KEY `companies_industry_id_foreign` (`industry_id`),
@@ -1959,3 +1962,14 @@ INSERT INTO `migrations` VALUES (80,'2021_06_24_095942_payments_table_currency_n
 INSERT INTO `migrations` VALUES (81,'2021_06_24_115919_update_designs',2);
 INSERT INTO `migrations` VALUES (82,'2021_07_08_115919_update_designs',3);
 INSERT INTO `migrations` VALUES (83,'2021_07_10_085821_activate_payfast_payment_driver',3);
+INSERT INTO `migrations` VALUES (84,'2021_07_19_074503_set_invoice_task_datelog_true_in_companies_table',4);
+INSERT INTO `migrations` VALUES (85,'2021_07_20_095537_activate_paytrace_payment_driver',4);
+INSERT INTO `migrations` VALUES (86,'2021_07_21_213344_change_english_languages_tables',4);
+INSERT INTO `migrations` VALUES (87,'2021_07_21_234227_activate_eway_payment_driver',4);
+INSERT INTO `migrations` VALUES (88,'2021_08_03_115024_activate_mollie_payment_driver',4);
+INSERT INTO `migrations` VALUES (89,'2021_08_05_235942_add_zelle_payment_type',4);
+INSERT INTO `migrations` VALUES (90,'2021_08_07_222435_add_markdown_enabled_column_to_companies_table',4);
+INSERT INTO `migrations` VALUES (91,'2021_08_10_034407_add_more_languages',4);
+INSERT INTO `migrations` VALUES (92,'2021_08_18_220124_use_comma_as_decimal_place_companies_table',4);
+INSERT INTO `migrations` VALUES (93,'2021_08_24_115919_update_designs',4);
+INSERT INTO `migrations` VALUES (94,'2021_08_25_093105_report_include_drafts_in_companies_table',5);
