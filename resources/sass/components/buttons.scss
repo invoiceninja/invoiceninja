@@ -35,8 +35,10 @@ button:disabled {
 }
 
 .button-link {
+    @apply text-gray-700;
+
     &:hover {
-        @apply font-semibold underline;
+        @apply text-gray-900 underline;
     }
 
     &:focus {
