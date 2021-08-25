@@ -1,4 +1,4 @@
-@extends('errors::minimal')
+@extends('portal.ninja2020.layout.error')
 
 @section('title', __('Forbidden'))
 @section('code', '403')
