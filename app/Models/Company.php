@@ -95,6 +95,7 @@ class Company extends BaseModel
         'default_password_timeout',
         'show_task_end_date',
         'use_comma_as_decimal_place',
+        'report_include_drafts',
     ];
 
     protected $hidden = [

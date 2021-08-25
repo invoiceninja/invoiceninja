@@ -60,7 +60,7 @@ class CreateInvitations
 
     private function createBlankContact()
     {
-        $new_contact = ClientContacstFactory::create($this->quote->company_id, $this->quote->user_id);
+        $new_contact = ClientContactFactory::create($this->quote->company_id, $this->quote->user_id);
         $new_contact->client_id = $this->quote->client_id;
         $new_contact->contact_key = Str::random(40);
         $new_contact->is_primary = true;

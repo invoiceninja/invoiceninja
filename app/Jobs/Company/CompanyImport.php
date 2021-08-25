@@ -984,6 +984,8 @@ class CompanyImport implements ShouldQueue
 
             $cu_array = (array)$cu;
             unset($cu_array['id']);
+            unset($cu_array['company_id']);
+            unset($cu_array['user_id']);
 
             $new_cu = CompanyUser::firstOrNew(
                         ['user_id' => $user_id, 'company_id' => $this->company->id],
@@ -1100,6 +1102,18 @@ class CompanyImport implements ShouldQueue
             $obj_array = (array)$obj;
             foreach($unset as $un){
                 unset($obj_array[$un]);
+            }
+
+            if($class instanceof CompanyGateway){
+
+                if(Ninja::isHosted() && $obj_array['gateway_key'] == 'd14dd26a37cecc30fdd65700bfb55b23'){
+                    $obj_array['gateway_key'] = 'd14dd26a47cecc30fdd65700bfb67b34';
+                }
+
+                if(Ninja::isSelfHost() && $obj_array['gateway_key'] == 'd14dd26a47cecc30fdd65700bfb67b34'){
+                    $obj_array['gateway_key'] = 'd14dd26a37cecc30fdd65700bfb55b23';
+                }                
+
             }
 
             $activity_invitation_key = false;
