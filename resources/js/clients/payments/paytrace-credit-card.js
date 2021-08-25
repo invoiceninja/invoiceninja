@@ -137,49 +137,49 @@ class PayTraceCreditCard {
     }
 
     handle() {
-        this.setupPayTrace().then((instance) => {
-            this.ptInstance = instance;
-            this.updatePayTraceLabels();
+        Array.from(
+            document.getElementsByClassName('toggle-payment-with-token')
+        ).forEach((element) =>
+            element.addEventListener('click', (element) => {
+                document
+                    .getElementById('paytrace--credit-card-container')
+                    .classList.add('hidden');
+                document.getElementById(
+                    'save-card--container'
+                ).style.display = 'none';
+                document.querySelector('input[name=token]').value =
+                    element.target.dataset.token;
+            })
+        );
 
-            Array.from(
-                document.getElementsByClassName('toggle-payment-with-token')
-            ).forEach((element) =>
-                element.addEventListener('click', (element) => {
-                    document
-                        .getElementById('paytrace--credit-card-container')
-                        .classList.add('hidden');
-                    document.getElementById(
-                        'save-card--container'
-                    ).style.display = 'none';
-                    document.querySelector('input[name=token]').value =
-                        element.target.dataset.token;
-                })
-            );
+        document
+            .getElementById('toggle-payment-with-credit-card')
+            ?.addEventListener('click', (element) => {
+                document
+                    .getElementById('paytrace--credit-card-container')
+                    .classList.remove('hidden');
+                document.getElementById(
+                    'save-card--container'
+                ).style.display = 'grid';
+                document.querySelector('input[name=token]').value = '';
 
-            document
-                .getElementById('toggle-payment-with-credit-card')
-                ?.addEventListener('click', (element) => {
-                    document
-                        .getElementById('paytrace--credit-card-container')
-                        .classList.remove('hidden');
-                    document.getElementById(
-                        'save-card--container'
-                    ).style.display = 'grid';
-                    document.querySelector('input[name=token]').value = '';
+                this.setupPayTrace().then((instance) => {
+                    this.ptInstance = instance;
+                    this.updatePayTraceLabels();
                 });
+            });
 
-            document
-                .getElementById('pay-now')
-                .addEventListener('click', (e) => {
-                    if (
-                        document.querySelector('input[name=token]').value === ''
-                    ) {
-                        return this.handlePaymentWithCreditCard(e);
-                    }
+        document
+            .getElementById('pay-now')
+            .addEventListener('click', (e) => {
+                if (
+                    document.querySelector('input[name=token]').value === ''
+                ) {
+                    return this.handlePaymentWithCreditCard(e);
+                }
 
-                    return this.handlePaymentWithToken(e);
-                });
-        });
+                return this.handlePaymentWithToken(e);
+            });
     }
 }
 
