@@ -28,4 +28,11 @@ interface MethodInterface
      * @param Request $request
      */
     public function authorizeResponse(Request $request);
+
+    /**
+     * Payment page for the gateway method.
+     *
+     * @param array $data
+     */
+    public function paymentView(array $data);
 }
