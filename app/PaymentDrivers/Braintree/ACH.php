@@ -76,4 +76,11 @@ class ACH implements MethodInterface
             }
         }
     }
+
+    public function paymentView(array $data)
+    {
+        $data['gateway'] = $this->braintree;
+
+        return render('gateways.braintree.ach.pay', $data);
+    }
 }
