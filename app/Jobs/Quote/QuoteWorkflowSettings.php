@@ -55,8 +55,8 @@ class QuoteWorkflowSettings implements ShouldQueue
             });
         }
 
-        if ($this->client->getSetting('auto_archive_quote')) {
-            $this->base_repository->archive($this->quote);
-        }
+        // if ($this->client->getSetting('auto_archive_quote')) {
+        //     $this->base_repository->archive($this->quote);
+        // }
     }
 }
