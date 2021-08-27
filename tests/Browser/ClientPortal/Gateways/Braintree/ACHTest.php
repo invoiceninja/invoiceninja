@@ -46,4 +46,21 @@ class ACHTest extends DuskTestCase
         $company->settings = $settings;
         $company->save();
     }
+
+    public function testAddingBankAccount()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.payment_methods.index')
+                ->press('Add Payment Method')
+                ->clickLink('Bank Account')
+                ->type('#account-holder-name', 'John Doe')
+                ->type('#account-number', '1000000000')
+                ->type('#routing-number', '011000015')
+                ->type('#billing-region', 'AL')
+                ->type('#billing-postal-code', '12345')
+                ->press('Add Payment Method')
+                ->assertSee('Added payment method.');
+        });
+    }
 }

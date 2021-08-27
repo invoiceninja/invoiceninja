@@ -4297,7 +4297,10 @@ $LANG = array(
     'lang_Latvian' => 'Latvian',
     'expiry_date' => 'Expiry date',
     'cardholder_name' => 'Card holder name',
-    
+    'account_type' => 'Account type',
+    'locality' => 'Locality',
+    'checking' => 'Checking',
+    'savings' => 'Savings',
 );
 
 return $LANG;
