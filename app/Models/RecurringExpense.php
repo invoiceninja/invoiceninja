@@ -57,7 +57,6 @@ class RecurringExpense extends BaseModel
         'uses_inclusive_taxes',
         'calculate_tax_by_amount',
         'frequency_id',
-        'start_date',
         'last_sent_date',
         'next_send_date',
         'remaining_cycles',

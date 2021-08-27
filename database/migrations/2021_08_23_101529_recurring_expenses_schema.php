@@ -64,7 +64,6 @@ class RecurringExpensesSchema extends Migration
             $table->text('transaction_reference')->nullable();
 
             $table->unsignedInteger('frequency_id');
-            $table->datetime('start_date')->nullable();
             $table->datetime('last_sent_date')->nullable();
             $table->datetime('next_send_date')->nullable();
             $table->unsignedInteger('remaining_cycles')->nullable();
