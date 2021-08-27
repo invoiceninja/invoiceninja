@@ -179,6 +179,7 @@ use App\Listeners\Quote\QuoteEmailedNotification;
 use App\Listeners\Quote\QuoteRestoredActivity;
 use App\Listeners\Quote\QuoteViewedActivity;
 use App\Listeners\Quote\ReachWorkflowSettings;
+use App\Listeners\RecurringExpense\CreatedRecurringExpenseActivity;
 use App\Listeners\RecurringInvoice\CreateRecurringInvoiceActivity;
 use App\Listeners\RecurringInvoice\RecurringInvoiceArchivedActivity;
 use App\Listeners\RecurringInvoice\RecurringInvoiceDeletedActivity;
