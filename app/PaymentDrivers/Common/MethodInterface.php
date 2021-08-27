@@ -11,6 +11,7 @@
 
 namespace App\PaymentDrivers\Common;
 
+use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Http\Requests\Request;
 
 interface MethodInterface
@@ -35,4 +36,11 @@ interface MethodInterface
      * @param array $data
      */
     public function paymentView(array $data);
+
+    /**
+     * Process the response from the payments page.
+     *
+     * @param PaymentResponseRequest $request
+     */
+    public function paymentResponse(PaymentResponseRequest $request);
 }
