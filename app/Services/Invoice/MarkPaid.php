@@ -53,6 +53,7 @@ class MarkPaid extends AbstractService
         $payment->amount = $this->invoice->balance;
         $payment->applied = $this->invoice->balance;
         $payment->number = $this->getNextPaymentNumber($this->invoice->client);
+        $payment->save();
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->client_id = $this->invoice->client_id;
         $payment->transaction_reference = ctrans('texts.manual_entry');
