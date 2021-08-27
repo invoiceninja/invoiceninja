@@ -17,7 +17,7 @@ use App\Repositories\ActivityRepository;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use stdClass;
 
-class RecurringExpenseArchivedActivity implements ShouldQueue
+class CreatedRecurringExpenseActivity implements ShouldQueue
 {
     protected $activity_repo;
 
@@ -50,7 +50,7 @@ class RecurringExpenseArchivedActivity implements ShouldQueue
         $fields->recurring_expense_id = $recurring_expense->id;
         $fields->user_id = $user_id;
         $fields->company_id = $recurring_expense->company_id;
-        $fields->activity_type_id = Activity::ARCHIVE_RECURRING_EXPENSE;
+        $fields->activity_type_id = Activity::CREATE_RECURRING_EXPENSE;
         
         $this->activity_repo->save($fields, $recurring_expense, $event->event_vars);
     }
