@@ -72,7 +72,7 @@ class ACH implements MethodInterface
 
                 return redirect()->route('client.payment_methods.index');
             } catch (\Exception $e) {
-                // ..
+                return $this->braintree->processInternallyFailedPayment($this->braintree, $e);
             }
         }
     }
