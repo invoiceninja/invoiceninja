@@ -13,7 +13,6 @@
             <input type="hidden" name="source" value="">
             <input type="hidden" name="amount" value="{{ $amount }}">
             <input type="hidden" name="currency" value="{{ $currency }}">
-            <input type="hidden" name="customer" value="{{ $customer->id }}">
             <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
         </form>
 
@@ -51,7 +50,9 @@
                 document.querySelector('input[name=source]').value = element.target.dataset.token;
             }));
 
-        document.getElementById('pay-now').addEventListener('click', function () {
+        document.getElementById('pay-now').addEventListener('click', function (e) {
+            e.target.parentElement.disabled = true;
+
             document.getElementById('server-response').submit();
         });
     </script>
