@@ -224,7 +224,7 @@ class NinjaMailerJob implements ShouldQueue
             return true;
 
         /* On the hosted platform we set default contacts a @example.com email address - we shouldn't send emails to these types of addresses */
-        if(Ninja::isHosted() && strpos($this->nmo->to_user->email, '@example.com') !== false)
+        if(Ninja::isHosted() && $this->nmo->to_user && strpos($this->nmo->to_user->email, '@example.com') !== false)
             return true;
 
         /* GMail users are uncapped */
