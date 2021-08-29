@@ -59,6 +59,7 @@ use App\Models\PaymentTerm;
 use App\Models\Product;
 use App\Models\Project;
 use App\Models\Quote;
+use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
 use App\Models\Task;
 use App\Models\TaskStatus;
@@ -139,6 +140,7 @@ class Import implements ShouldQueue
         'expense_categories',
         'task_statuses',
         'expenses',
+        'recurring_expenses',
         'tasks',
         'documents',
     ];
@@ -812,6 +814,68 @@ class Import implements ShouldQueue
         /*Improve memory handling by setting everything to null when we have finished*/
         $data = null;
         $product_repository = null;
+    }
+
+    private function processRecurringExpenses(array $data) :void
+    {
+        RecurringExpense::unguard();
+
+        $rules = [
+            '*.amount' => ['numeric'],
+        ];
+
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            throw new MigrationValidatorFailed(json_encode($validator->errors()));
+        }
+
+        foreach ($data as $resource) {
+            $modified = $resource;
+
+            unset($modified['id']);
+
+            $modified['company_id'] = $this->company->id;
+            $modified['user_id'] = $this->processUserId($resource);
+
+            if (isset($resource['client_id'])) {
+                $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
+            }
+            
+            if (isset($resource['category_id'])) {
+                $modified['category_id'] = $this->transformId('expense_categories', $resource['category_id']);
+            }
+
+            if (isset($resource['vendor_id'])) {
+                $modified['vendor_id'] = $this->transformId('vendors', $resource['vendor_id']);
+            }
+
+            $expense = RecurringExpense::create($modified);
+
+            if(array_key_exists('created_at', $modified))
+                $expense->created_at = Carbon::parse($modified['created_at']);
+
+            if(array_key_exists('updated_at', $modified))
+                $expense->updated_at = Carbon::parse($modified['updated_at']);
+
+            $expense->save(['timestamps' => false]);
+            
+            $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
+
+            $key = "recurring_expenses_{$resource['id']}";
+
+            $this->ids['recurring_expenses'][$key] = [
+                'old' => $resource['id'],
+                'new' => $expense->id,
+            ];
+
+        }
+
+
+        RecurringExpense::reguard();
+
+        /*Improve memory handling by setting everything to null when we have finished*/
+        $data = null;
     }
 
     private function processRecurringInvoices(array $data) :void
