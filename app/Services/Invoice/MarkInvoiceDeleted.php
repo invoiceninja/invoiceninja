@@ -26,6 +26,8 @@ class MarkInvoiceDeleted extends AbstractService
 
     private $total_payments = 0;
 
+    private $balance_adjustment = 0;
+
     public function __construct(Invoice $invoice)
     {
         $this->invoice = $invoice;
@@ -51,7 +53,7 @@ class MarkInvoiceDeleted extends AbstractService
     private function adjustLedger()
     {
         // $this->invoice->ledger()->updatePaymentBalance($this->adjustment_amount * -1, 'Invoice Deleted - reducing ledger balance'); //reduces the payment balance by payment totals
-        $this->invoice->ledger()->updatePaymentBalance($this->invoice->balance * -1, 'Invoice Deleted - reducing ledger balance'); //reduces the payment balance by payment totals
+        $this->invoice->ledger()->updatePaymentBalance($this->balance_adjustment * -1, 'Invoice Deleted - reducing ledger balance'); //reduces the payment balance by payment totals
 
         return $this;
     }
@@ -65,7 +67,7 @@ class MarkInvoiceDeleted extends AbstractService
 
     private function adjustBalance()
     {
-        $this->invoice->client->service()->updateBalance($this->invoice->balance * -1)->save(); //reduces the client balance by the invoice amount.
+        $this->invoice->client->service()->updateBalance($this->balance_adjustment * -1)->save(); //reduces the client balance by the invoice amount.
 
         return $this;
     }
@@ -122,11 +124,14 @@ class MarkInvoiceDeleted extends AbstractService
         }
 
 
-        $this->total_payments = $this->invoice->payments->sum('amount') - $this->invoice->payments->sum('refunded');;
+        $this->total_payments = $this->invoice->payments->sum('amount') - $this->invoice->payments->sum('refunded');
+
+        $this->balance_adjustment = $this->invoice->balance;
+        
         //$this->total_payments = $this->invoice->payments->sum('amount - refunded');
 
-nlog("adjustment amount = {$this->adjustment_amount}");
-nlog("total payments = {$this->total_payments}");
+        // nlog("adjustment amount = {$this->adjustment_amount}");
+        // nlog("total payments = {$this->total_payments}");
 
         return $this;
     }
