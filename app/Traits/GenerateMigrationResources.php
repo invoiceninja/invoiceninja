@@ -20,6 +20,7 @@ use App\Models\PaymentMethod;
 use App\Models\PaymentTerm;
 use App\Models\Product;
 use App\Models\Project;
+use App\Models\RecurringExpense;
 use App\Models\Task;
 use App\Models\TaskStatus;
 use App\Models\TaxRate;
@@ -656,6 +657,7 @@ trait GenerateMigrationResources
                 'deleted_at' => $invoice->deleted_at ? Carbon::parse($invoice->deleted_at)->toDateString() : null,
                 'invitations' => $this->getResourceInvitations($invoice->invitations, 'invoice_id'),
                 'auto_bill_enabled' => $invoice->auto_bill,
+                'recurring_id' => $invoice->recurring_invoice_id,
             ];
         }
 
@@ -679,6 +681,57 @@ trait GenerateMigrationResources
             return 2;
         
         return $design_id;
+    }
+
+    protected function getRecurringExpenses()
+    {
+        info("get recurring Expenses");
+
+
+        $expenses = [];
+
+        $export_expenses = RecurringExpense::where('account_id', $this->account->id)
+            ->withTrashed()
+            ->get();        
+
+        foreach ($export_expenses as $expense) {
+            $invoices[] = [
+                'id' => $expense->id,
+                'amount' => $expense->amount,
+                'company_id' => $this->account->id,
+                'client_id' => $expense->client_id,
+                'user_id' => $expense->user_id,
+                'custom_value1' => '',
+                'custom_value2' => '',
+                'custom_value3' => '',
+                'custom_value4' => '',
+                'category_id' => $expense->expense_category_id,
+                'currency_id' => $expense->expense_currency_id,
+                'frequency_id' => $this->transformFrequencyId($expense->frequency_id),
+                'invoice_currency_id' => $expense->invoice_currency_id,
+                'private_notes' =>  $expense->private_notes,
+                'public_notes' =>  $expense->public_notes,
+                'should_be_invoiced' =>  $expense->should_be_invoiced,
+                'tax_name1' =>  $expense->tax_name1,
+                'tax_name2' =>  $expense->tax_name2,
+                'tax_name3' => '',
+                'tax_rate1' =>  $expense->tax_rate1,
+                'tax_rate2' =>  $expense->tax_rate2,
+                'tax_rate3' => 0,
+                'vendor_id' =>  $expense->vendor_id,
+                'is_deleted' => $expense->is_deleted,
+                'next_send_date' => $this->getNextSendDateForMigration($expense),
+                'remaining_cycles' => $this->getRemainingCycles($expense),
+                'created_at' => $expense->created_at ? Carbon::parse($expense->created_at)->toDateString() : null,
+                'updated_at' => $expense->updated_at ? Carbon::parse($expense->updated_at)->toDateString() : null,
+                'deleted_at' => $expense->deleted_at ? Carbon::parse($expense->deleted_at)->toDateString() : null,
+            ];
+        }
+
+        return $invoices;
+
+
+
     }
 
     protected function getRecurringInvoices()
