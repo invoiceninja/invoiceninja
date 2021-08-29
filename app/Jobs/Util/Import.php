@@ -974,7 +974,10 @@ class Import implements ShouldQueue
             }
 
             $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
-            $modified['recurring_id'] = $this->transformId('recurring_invoices', $resource['recurring_id']);
+
+            if(array_key_exists('recurring_id', $resource) && !is_null($resource['recurring_id']))
+                $modified['recurring_id'] = $this->transformId('recurring_invoices', (string)$resource['recurring_id']);
+            
             $modified['user_id'] = $this->processUserId($resource);
             $modified['company_id'] = $this->company->id;
             $modified['line_items'] = $this->cleanItems($modified['line_items']);
