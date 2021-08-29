@@ -262,6 +262,14 @@ class Company extends BaseModel
     /**
      * @return HasMany
      */
+    public function recurring_expenses()
+    {
+        return $this->hasMany(RecurringExpense::class)->withTrashed();
+    }
+
+    /**
+     * @return HasMany
+     */
     public function quotes()
     {
         return $this->hasMany(Quote::class)->withTrashed();
