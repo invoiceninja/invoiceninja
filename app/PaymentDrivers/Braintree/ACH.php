@@ -63,7 +63,7 @@ class ACH implements MethodInterface
             ],
         ]);
 
-        if ($result->success) {
+        if ($result->success && optional($result->paymentMethod)->verified) {
             $account = $result->paymentMethod;
 
             try {
@@ -71,7 +71,7 @@ class ACH implements MethodInterface
                 $payment_meta->brand = (string)$account->bankName;
                 $payment_meta->last4 = (string)$account->last4;
                 $payment_meta->type = GatewayType::BANK_TRANSFER;
-                $payment_meta->state = $account->verified ? 'authorized' : 'unauthorized';
+                $payment_meta->state = 'authorized';
 
                 $data = [
                     'payment_meta' => $payment_meta,
@@ -86,6 +86,8 @@ class ACH implements MethodInterface
                 return $this->braintree->processInternallyFailedPayment($this->braintree, $e);
             }
         }
+
+        return back()->withMessage(ctrans('texts.unable_to_verify_payment_method'));
     }
 
     public function paymentView(array $data)

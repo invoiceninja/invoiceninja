@@ -4301,6 +4301,7 @@ $LANG = array(
     'locality' => 'Locality',
     'checking' => 'Checking',
     'savings' => 'Savings',
+    'unable_to_verify_payment_method' => 'Unable to verify payment method.',
 );
 
 return $LANG;
