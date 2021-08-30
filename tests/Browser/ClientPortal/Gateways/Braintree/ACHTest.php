@@ -57,10 +57,9 @@ class ACHTest extends DuskTestCase
                 ->type('#account-holder-name', 'John Doe')
                 ->type('#account-number', '1000000000')
                 ->type('#routing-number', '011000015')
-                ->type('#billing-region', 'AL')
                 ->type('#billing-postal-code', '12345')
                 ->press('Add Payment Method')
-                ->assertSee('Added payment method.');
+                ->waitForText('Added payment method.');
         });
     }
 
