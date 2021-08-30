@@ -271,4 +271,66 @@ class ACH
         $this->wepay_payment_driver->storeGatewayToken($data);
 
     }     
+
+
+    public function tokenBilling($token, $payment_hash)
+    {
+        
+        $token_meta = $token->meta;
+
+        if(!property_exists($token_meta, 'state') || $token_meta->state != "authorized")
+            return redirect()->route('client.payment_methods.verification', ['payment_method' => $token->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
+
+        $app_fee = (config('ninja.wepay.fee_ach_multiplier') * $this->wepay_payment_driver->payment_hash->data->amount_with_fee) + config('ninja.wepay.fee_fixed');
+
+        $response = $this->wepay_payment_driver->wepay->request('checkout/create', array(
+            'unique_id'           => Str::random(40),
+            'account_id'          => $this->wepay_payment_driver->company_gateway->getConfigField('accountId'),
+            'amount'              => $this->wepay_payment_driver->payment_hash->data->amount_with_fee,
+            'currency'            => $this->wepay_payment_driver->client->getCurrencyCode(),
+            'short_description'   => 'Goods and Services',
+            'type'                => 'goods',
+            'fee'                 => [
+                'fee_payer' => config('ninja.wepay.fee_payer'),
+                'app_fee' => $app_fee,
+            ],
+            'payment_method'      => array(
+                'type'            => 'payment_bank',
+                'payment_bank'     => array(
+                    'id'          => $token->token
+                )
+            )
+        ));
+
+                /* Merge all data and store in the payment hash*/
+        $state = [
+            'server_response' => $response,
+            'payment_hash' => $this->wepay_payment_driver->payment_hash,
+        ];
+
+        $this->wepay_payment_driver->payment_hash->data = array_merge((array) $this->wepay_payment_driver->payment_hash->data, $state); 
+        $this->wepay_payment_driver->payment_hash->save();
+
+        if(in_array($response->state, ['authorized', 'captured'])){
+            //success
+            nlog("success");
+            $payment_status = $response->state == 'authorized' ? Payment::STATUS_COMPLETED : Payment::STATUS_PENDING;
+
+            return $this->processSuccessfulPayment($response, $payment_status, GatewayType::BANK_TRANSFER, true);
+        }
+
+        if(in_array($response->state, ['released', 'cancelled', 'failed', 'expired'])){
+            //some type of failure
+            nlog("failure");
+
+            $payment_status = $response->state == 'cancelled' ? Payment::STATUS_CANCELLED : Payment::STATUS_FAILED;
+
+            $this->processUnSuccessfulPayment($response, $payment_status);
+        }
+
+    }
+
+
+
+
 }

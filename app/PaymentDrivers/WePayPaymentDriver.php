@@ -119,14 +119,14 @@ class WePayPaymentDriver extends BaseDriver
         $contact = $client->primary_contact()->first() ? $client->primary_contact()->first() : $lient->contacts->first();
         $data['contact'] = $contact;
 
-        return $this->payment_method->authorizeView($data); //this is your custom implementation from here
+        return $this->payment_method->authorizeView($data);
     }
 
     public function authorizeResponse($request)
     {
         $this->init();
         
-        return $this->payment_method->authorizeResponse($request);  //this is your custom implementation from here
+        return $this->payment_method->authorizeResponse($request);  
     }
 
     public function verificationView(ClientGatewayToken $cgt)
@@ -147,19 +147,22 @@ class WePayPaymentDriver extends BaseDriver
     {
         $this->init();
 
-        return $this->payment_method->paymentView($data);  //this is your custom implementation from here
+        return $this->payment_method->paymentView($data);  
     }
 
     public function processPaymentResponse($request)
     {
         $this->init();
 
-        return $this->payment_method->paymentResponse($request); //this is your custom implementation from here
+        return $this->payment_method->paymentResponse($request); 
     }
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
-        return $this->payment_method->yourTokenBillingImplmentation(); //this is your custom implementation from here
+        $this->setPaymentMethod($cgt->gateway_type_id);
+        $this->setPaymentHash($payment_hash);
+
+        return $this->payment_method->tokenBilling($cgt, $payment_hash); 
     }
 
     public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment = null)
