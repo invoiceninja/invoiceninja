@@ -221,7 +221,8 @@ class BraintreePaymentDriver extends BaseDriver
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_SUCCESS,
                 SystemLog::TYPE_BRAINTREE,
-                $this->client
+                $this->client,
+                $this->client->company,
             );
 
             return $payment;
@@ -242,7 +243,8 @@ class BraintreePaymentDriver extends BaseDriver
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_FAILURE,
                 SystemLog::TYPE_BRAINTREE,
-                $this->client
+                $this->client,
+                $this->client->company
             );
 
             return false;
