@@ -285,12 +285,15 @@ https://developer.wepay.com/api/api-calls/checkout
     public function tokenBilling($cgt, $payment_hash)
     {
 
-        $app_fee = (config('ninja.wepay.fee_cc_multiplier') * $this->wepay_payment_driver->payment_hash->data->amount_with_fee) + config('ninja.wepay.fee_fixed');
+        $amount = array_sum(array_column($this->wepay_payment_driver->payment_hash->invoices(), 'amount')) + $this->wepay_payment_driver->payment_hash->fee_total;
+
+
+        $app_fee = (config('ninja.wepay.fee_cc_multiplier') * $amount) + config('ninja.wepay.fee_fixed');
         // charge the credit card
         $response = $this->wepay_payment_driver->wepay->request('checkout/create', array(
             'unique_id'           => Str::random(40),
             'account_id'          => $this->wepay_payment_driver->company_gateway->getConfigField('accountId'),
-            'amount'              => $this->wepay_payment_driver->payment_hash->data->amount_with_fee,
+            'amount'              => $amount,
             'currency'            => $this->wepay_payment_driver->client->getCurrencyCode(),
             'short_description'   => 'Goods and services',
             'type'                => 'goods',

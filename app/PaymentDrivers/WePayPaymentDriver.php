@@ -159,6 +159,7 @@ class WePayPaymentDriver extends BaseDriver
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
+        $this->init();
         $this->setPaymentMethod($cgt->gateway_type_id);
         $this->setPaymentHash($payment_hash);
 
