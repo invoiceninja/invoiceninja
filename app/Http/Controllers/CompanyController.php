@@ -69,11 +69,12 @@ class CompanyController extends BaseController
      */
     public function __construct(CompanyRepository $company_repo)
     {
+        
         parent::__construct();
 
         $this->company_repo = $company_repo;
 
-        // $this->middleware('password_protected')->only(['destroy']);
+        $this->middleware('password_protected')->only(['destroy']);
 
     }
 

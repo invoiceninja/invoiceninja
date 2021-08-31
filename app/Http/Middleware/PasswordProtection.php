@@ -52,7 +52,8 @@ class PasswordProtection
             $x_api_password = base64_decode($request->header('X-API-PASSWORD-BASE64'));
         }
 
-        if (Cache::get(auth()->user()->hashed_id.'_'.auth()->user()->account_id.'_logged_in')) {
+        // If no password supplied - then we just check if their authentication is in cache //
+        if (Cache::get(auth()->user()->hashed_id.'_'.auth()->user()->account_id.'_logged_in') && !$x_api_password) {
 
             Cache::put(auth()->user()->hashed_id.'_'.auth()->user()->account_id.'_logged_in', Str::random(64), $timeout);
 
