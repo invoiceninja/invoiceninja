@@ -360,16 +360,15 @@ class BaseDriver extends AbstractPaymentDriver
 
     public function processInternallyFailedPayment($gateway, $e)
     {
-
-        $this->unWindGatewayFees($this->payment_hash);
+        if (!is_null($this->payment_hash)) {
+            $this->unWindGatewayFees($this->payment_hash);
+        }
 
         if ($e instanceof CheckoutHttpException) {
             $error = $e->getBody();
-        }
-        else if ($e instanceof Exception) {
+        } else if ($e instanceof Exception) {
             $error = $e->getMessage();
-        }
-        else
+        } else
             $error = $e->getMessage();
 
         PaymentFailureMailer::dispatch(
@@ -379,29 +378,34 @@ class BaseDriver extends AbstractPaymentDriver
             $this->payment_hash
         );
 
-        $nmo = new NinjaMailerObject;
-        $nmo->mailable = new NinjaMailer( (new ClientPaymentFailureObject($gateway->client, $error, $gateway->client->company, $this->payment_hash))->build() );
-        $nmo->company = $gateway->client->company;
-        $nmo->settings = $gateway->client->company->settings;
+        if (!is_null($this->payment_hash)) {
 
-        $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
+            $nmo = new NinjaMailerObject;
+            $nmo->mailable = new NinjaMailer((new ClientPaymentFailureObject($gateway->client, $error, $gateway->client->company, $this->payment_hash))->build());
+            $nmo->company = $gateway->client->company;
+            $nmo->settings = $gateway->client->company->settings;
 
-        $invoices->each(function ($invoice){
+            $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
 
-            $invoice->service()->deletePdf();
+            $invoices->each(function ($invoice) {
 
-        });
+                if (!$invitation->contact->trashed() && $invitation->contact->send_email && $invitation->contact->email) 
+                    $invoice->service()->deletePdf();
+                
+            });
 
-        $invoices->first()->invitations->each(function ($invitation) use ($nmo){
+            $invoices->first()->invitations->each(function ($invitation) use ($nmo) {
 
-            if ($invitation->contact->send_email && $invitation->contact->email) {
+                if ($invitation->contact->send_email && $invitation->contact->email) {
 
-                $nmo->to_user = $invitation->contact;
-                NinjaMailerJob::dispatch($nmo);
+                    $nmo->to_user = $invitation->contact;
+                    NinjaMailerJob::dispatch($nmo);
+                }
+            
+            });
 
-            }
 
-        });
+        }
 
 
         SystemLogger::dispatch(
@@ -456,7 +460,7 @@ class BaseDriver extends AbstractPaymentDriver
 
         $invoices->first()->invitations->each(function ($invitation) use ($nmo){
 
-            if ($invitation->contact->send_email && $invitation->contact->email) {
+            if (!$invitation->contact->trashed() && $invitation->contact->send_email && $invitation->contact->email) {
 
                 $nmo->to_user = $invitation->contact;
                 NinjaMailerJob::dispatch($nmo);

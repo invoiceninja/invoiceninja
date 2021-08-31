@@ -47,8 +47,9 @@ trait Inviteable
     {
         $entity_type = Str::snake(class_basename($this->entityType()));
 
-        if(Ninja::isHosted())
+        if(Ninja::isHosted()){
             $domain = isset($this->company->portal_domain) ? $this->company->portal_domain : $this->company->domain();
+        }
         else
             $domain = config('ninja.app_url');
 

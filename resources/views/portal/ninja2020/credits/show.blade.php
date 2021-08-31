@@ -3,6 +3,8 @@
 
 @push('head')
     <meta name="pdf-url" content="{{ $credit->pdf_file_path(null, 'url', true) }}">
+    @include('portal.ninja2020.components.no-cache')
+    
     <script src="{{ asset('js/vendor/pdf.js/pdf.min.js') }}"></script>
 @endpush
 
