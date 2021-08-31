@@ -15,11 +15,13 @@ use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Mail\Ninja\EmailQuotaExceeded;
 use App\Models\Presenters\AccountPresenter;
+use App\Notifications\Ninja\EmailQuotaNotification;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Carbon\Carbon;
 use DateTime;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 use Laracasts\Presenter\PresentableTrait;
 
@@ -384,6 +386,10 @@ class Account extends BaseModel
 
                 if(is_null(Cache::get("throttle_notified:{$this->key}"))) {
 
+                    App::forgetInstance('translator');
+                    $t = app('translator');
+                    $t->replace(Ninja::transformTranslations($this->companies()->first()->settings));
+
                     $nmo = new NinjaMailerObject;
                     $nmo->mailable = new EmailQuotaExceeded($this->companies()->first());
                     $nmo->company = $this->companies()->first();
@@ -392,6 +398,9 @@ class Account extends BaseModel
                     NinjaMailerJob::dispatch($nmo);
 
                     Cache::put("throttle_notified:{$this->key}", true, 60 * 24);
+
+                    if(config('ninja.notification.slack'))
+                        $this->companies()->first()->notification(new EmailQuotaNotification($this))->ninja();
                 }
 
                 return true;
