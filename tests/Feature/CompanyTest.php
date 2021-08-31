@@ -117,6 +117,7 @@ class CompanyTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
         ])->delete('/api/v1/companies/'.$this->encodePrimaryKey($company->id))
         ->assertStatus(200);
     }
