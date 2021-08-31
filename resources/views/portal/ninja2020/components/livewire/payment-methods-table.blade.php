@@ -41,7 +41,7 @@
                             </span>
                     </th>
                     <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white  uppercase tracking-wider">
-                            <span role="button" wire:click="sortBy('type_id')" class="cursor-pointer">
+                            <span role="button" wire:click="sortBy('gateway_type_id')" class="cursor-pointer">
                                 {{ ctrans('texts.payment_type_id') }}
                             </span>
                     </th>

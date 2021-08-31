@@ -25,6 +25,7 @@ use App\Utils\Ninja;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\App;
 
 class MigrationController extends BaseController
 {
@@ -262,6 +263,10 @@ class MigrationController extends BaseController
 
             // Look for possible existing company (based on company keys).
             $existing_company = Company::whereRaw('BINARY `company_key` = ?', [$company->company_key])->first();
+
+            App::forgetInstance('translator');
+            $t = app('translator');
+            $t->replace(Ninja::transformTranslations($user->account->companies()->first()->settings));
 
             if(!$existing_company && $company_count >=10) {
 

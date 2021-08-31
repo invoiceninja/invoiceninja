@@ -25,7 +25,7 @@ class ExpenseTransformer extends BaseTransformer {
 			'date'		            => isset( $data['expense.date'] ) ? date( 'Y-m-d', strtotime( $data['expense.date'] ) ) : null,
 			'public_notes'          => $this->getString( $data, 'expense.public_notes' ),
 			'private_notes'         => $this->getString( $data, 'expense.private_notes' ),
-			'expense_category_id'   => isset( $data['expense.category'] ) ? $this->getExpenseCategoryId( $data['expense.category'] ) : null,
+			'category_id'   		=> isset( $data['expense.category'] ) ? $this->getExpenseCategoryId( $data['expense.category'] ) : null,
 			'project_id'            => isset( $data['expense.project'] ) ? $this->getProjectId( $data['expense.project'] ) : null,
 			'payment_type_id'       => isset( $data['expense.payment_type'] ) ? $this->getPaymentTypeId( $data['expense.payment_type'] ) : null,
 			'payment_date'          => isset( $data['expense.payment_date'] ) ? date( 'Y-m-d', strtotime( $data['expense.payment_date'] ) ) : null,

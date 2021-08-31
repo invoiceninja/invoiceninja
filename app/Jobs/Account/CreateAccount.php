@@ -114,9 +114,6 @@ class CreateAccount
 
         $spaa9f78->fresh();
 
-        //todo implement SLACK notifications
-        //$sp035a66->notification(new NewAccountCreated($spaa9f78, $sp035a66))->ninja();
-
         if(Ninja::isHosted())
             \Modules\Admin\Jobs\Account\NinjaUser::dispatch([], $sp035a66);
 

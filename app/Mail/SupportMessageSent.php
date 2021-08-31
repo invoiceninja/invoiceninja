@@ -45,8 +45,8 @@ class SupportMessageSent extends Mailable
 
             $log_file->seek(PHP_INT_MAX);
             $last_line = $log_file->key();
+            
             $lines = new LimitIterator($log_file, $last_line - 100, $last_line);
-
             $log_lines = iterator_to_array($lines);
         }
 
@@ -76,6 +76,7 @@ class SupportMessageSent extends Mailable
                     'system_info' => $system_info,
                     'laravel_log' => $log_lines,
                     'logo' => $company->present()->logo(),
+                    'settings' => $company->settings
                 ]);
     }
 }

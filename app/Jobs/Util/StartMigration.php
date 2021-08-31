@@ -29,6 +29,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use ZipArchive;
+use Illuminate\Support\Facades\App;
 
 class StartMigration implements ShouldQueue
 {
@@ -121,6 +122,10 @@ class StartMigration implements ShouldQueue
 
             $this->company->update_products = $update_product_flag;
             $this->company->save();
+
+            App::forgetInstance('translator');
+            $t = app('translator');
+            $t->replace(Ninja::transformTranslations($this->company->settings));
 
         } catch (NonExistingMigrationFile | ProcessingMigrationArchiveFailed | ResourceNotAvailableForMigration | MigrationValidatorFailed | ResourceDependencyMissing | \Exception $e) {
 

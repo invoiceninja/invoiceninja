@@ -14,8 +14,8 @@ return [
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', 'invoicing.co'),
-    'app_version' => '5.3.1',
-    'app_tag' => '5.3.1',
+    'app_version' => '5.3.2',
+    'app_tag' => '5.3.2',
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', ''),
@@ -115,7 +115,7 @@ return [
         //'fonts' => 'App\Models\Font',
     ],
     'notification' => [
-        'slack' => env('SLACK_WEBHOOK_URL', ''),
+        'slack' => env('SLACK_WEBHOOK_URL', false),
         'mail' => env('HOSTED_EMAIL', ''),
     ],
     'themes' => [

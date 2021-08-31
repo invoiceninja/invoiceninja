@@ -146,7 +146,7 @@ class BaseTransformer
             $number = 0;
         }
 
-        return Number::parseStringFloat($number);
+        return Number::parseFloat($number);
     }
 
     /**
