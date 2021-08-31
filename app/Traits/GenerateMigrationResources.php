@@ -2028,7 +2028,7 @@ trait GenerateMigrationResources
                 'custom_value4' => '',
                 'email' => $contact->email,
                 'is_primary' => (bool)$contact->is_primary,
-                'send_email' => (bool)$contact->send_invoice ?: false,
+                'send_email' => (bool)$contact->send_invoice ?: true,
                 'confirmed' => $contact->confirmation_token ? true : false,
                 'email_verified_at' => $contact->created_at->toDateTimeString(),
                 'last_login' => $contact->last_login,
