@@ -389,8 +389,9 @@ class BaseDriver extends AbstractPaymentDriver
 
             $invoices->each(function ($invoice) {
 
-            if (!$invitation->contact->trashed() && $invitation->contact->send_email && $invitation->contact->email) {
-                $invoice->service()->deletePdf();
+                if (!$invitation->contact->trashed() && $invitation->contact->send_email && $invitation->contact->email) 
+                    $invoice->service()->deletePdf();
+                
             });
 
             $invoices->first()->invitations->each(function ($invitation) use ($nmo) {
@@ -400,7 +401,10 @@ class BaseDriver extends AbstractPaymentDriver
                     $nmo->to_user = $invitation->contact;
                     NinjaMailerJob::dispatch($nmo);
                 }
+            
             });
+
+
         }
 
 

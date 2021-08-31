@@ -17,7 +17,6 @@ use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
 use App\Mail\Admin\VerifyUserObject;
 use App\Mail\User\UserAdded;
-use App\Notifications\Ninja\VerifyUser;
 use App\Utils\Ninja;
 use Exception;
 use Illuminate\Broadcasting\InteractsWithSockets;

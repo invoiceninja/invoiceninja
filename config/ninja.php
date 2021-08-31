@@ -115,7 +115,7 @@ return [
         //'fonts' => 'App\Models\Font',
     ],
     'notification' => [
-        'slack' => env('SLACK_WEBHOOK_URL', ''),
+        'slack' => env('SLACK_WEBHOOK_URL', false),
         'mail' => env('HOSTED_EMAIL', ''),
     ],
     'themes' => [
