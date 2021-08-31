@@ -498,6 +498,7 @@ class CompanyExport implements ShouldQueue
 
         if(Ninja::isHosted()) {
             Storage::disk(config('filesystems.default'))->put('backups/'.$file_name, file_get_contents($zip_path));
+            unlink($zip_path);
         }
 
         App::forgetInstance('translator');

@@ -81,8 +81,14 @@ class RefundPayment
 
                 if ($response['success'] == false) {
                     $this->payment->save();
-                    throw new PaymentRefundFailed($response['description']);
+
+                    if(array_key_exists('description', $response))
+                        throw new PaymentRefundFailed($response['description']);
+                    else
+                        throw new PaymentRefundFailed();
+
                 }
+
             }
         } else {
             $this->payment->refunded += $this->total_refund;

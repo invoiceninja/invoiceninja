@@ -55,6 +55,10 @@ class SystemLogger implements ShouldQueue
         MultiDB::setDb($this->company->db);
 
         $client_id = $this->client ? $this->client->id : null;
+
+        if(!$this->client && !$this->company->owner())
+            return;
+        
         $user_id = $this->client ? $this->client->user_id : $this->company->owner()->id;
 
         $sl = [
