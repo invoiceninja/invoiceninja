@@ -116,7 +116,7 @@ class SendRecurring implements ShouldQueue
         nlog("Invoice {$invoice->number} created");
 
         $invoice->invitations->each(function ($invitation) use ($invoice) {
-            if ($invitation->contact && strlen($invitation->contact->email) >=1 && $invoice->client->getSetting('auto_email_invoice')) {
+            if ($invitation->contact && !$invitation->contact->trashed() && strlen($invitation->contact->email) >=1 && $invoice->client->getSetting('auto_email_invoice')) {
 
                 try{
                     EmailEntity::dispatch($invitation, $invoice->company);
