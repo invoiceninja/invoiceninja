@@ -1,4 +1,4 @@
-@extends('errors::minimal')
+@extends('portal.ninja2020.layout.error')
 
 @section('title', __('Page Expired'))
 @section('code', '419')
