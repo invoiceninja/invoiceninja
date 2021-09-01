@@ -875,7 +875,7 @@ class CompanyImport implements ShouldQueue
     {
         
         $this->genericImport(Design::class, 
-            ['company_id', 'user_id'], 
+            ['company_id', 'user_id', 'hashed_id'], 
             [
                 ['users' => 'user_id'],
             ], 
