@@ -124,7 +124,7 @@ input:checked ~ .dot {
               class="flex flex-col items-center justify-center w-full h-full py-6 rounded-b-lg bg-blue-700"
             >
               <p class="text-xl text-white">
-                Buy 10 get 2 free!
+                Buy 10 months get 2 free!
               </p>
                 <a type="button" class="w-5/6 py-2 mt-2 font-semibold text-center uppercase bg-white border border-transparent rounded text-blue-500" href="https://invoiceninja.invoicing.co/client/subscriptions/q9wdL9wejP/purchase">
                 Purchase
@@ -150,7 +150,7 @@ input:checked ~ .dot {
               class="flex flex-col items-center justify-center w-full h-full py-6 rounded-b-lg bg-blue-700"
             >
               <p class="text-xl text-white">
-                Buy 10 get 2 free!
+                Buy 10 months get 2 free!
               </p>
                 <a type="button" class="w-5/6 py-2 mt-2 font-semibold text-center uppercase bg-white border border-transparent rounded text-blue-500" href="https://invoiceninja.invoicing.co/client/subscriptions/LYqaQWldnj/purchase">
                 Purchase
