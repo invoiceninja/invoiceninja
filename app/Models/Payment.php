@@ -301,7 +301,7 @@ class Payment extends BaseModel
         else
             $domain = config('ninja.app_url');
 
-        return $domain.'/client/payment/'. $this->client->contacts()->first()->contact_key .'/' .$this->hashed_id;
+        return $domain.'/client/payment/'. $this->client->contacts()->first()->contact_key .'/'. $this->hashed_id."?next=/client/payments/".$this->hashed_id;
 
         
 

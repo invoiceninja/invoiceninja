@@ -37,8 +37,8 @@
                 <div>
                     <button data-ref="client-profile-dropdown" @click="open = !open"
                             class="max-w-xs flex items-center text-sm rounded-full focus:outline-none focus:shadow-outline">
-                        <img class="h-8 w-8 rounded-full" src="{{ auth()->user()->avatar() }}" alt=""/>
-                        <span class="ml-2">{{ auth()->user()->present()->name() }}</span>
+                        <img class="h-8 w-8 rounded-full" src="{{ auth('contact')->user()->avatar() }}" alt=""/>
+                        <span class="ml-2">{{ auth('contact')->user()->present()->name() }}</span>
                     </button>
                 </div>
                 <div x-show="open" style="display:none;" x-transition:enter="transition ease-out duration-100"
@@ -50,7 +50,7 @@
                      class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg">
                     <div class="py-1 rounded-md bg-white shadow-xs">
                         <a data-ref="client-profile-dropdown-settings"
-                           href="{{ route('client.profile.edit', ['client_contact' => auth()->user()->hashed_id]) }}"
+                           href="{{ route('client.profile.edit', ['client_contact' => auth('contact')->user()->hashed_id]) }}"
                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition ease-in-out duration-150">
                             {{ ctrans('texts.profile') }}
                         </a>
