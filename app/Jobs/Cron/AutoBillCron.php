@@ -51,6 +51,7 @@ class AutoBillCron
                                         ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                         ->where('auto_bill_enabled', true)
                                         ->where('balance', '>', 0)
+                                        ->where('is_deleted', false)
                                         ->with('company')
                                         ->cursor()->each(function ($invoice){
                                             $this->runAutoBiller($invoice);
@@ -60,6 +61,7 @@ class AutoBillCron
                                         ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                         ->where('auto_bill_enabled', true)
                                         ->where('balance', '>', 0)
+                                        ->where('is_deleted', false)
                                         ->with('company')
                                         ->cursor()->each(function ($invoice){
                                             $this->runAutoBiller($invoice);
@@ -76,6 +78,7 @@ class AutoBillCron
                                             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                             ->where('auto_bill_enabled', true)
                                             ->where('balance', '>', 0)
+                                            ->where('is_deleted', false)
                                             ->with('company')
                                             ->cursor()->each(function ($invoice){
                                                 $this->runAutoBiller($invoice);
@@ -85,6 +88,7 @@ class AutoBillCron
                                             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                             ->where('auto_bill_enabled', true)
                                             ->where('balance', '>', 0)
+                                            ->where('is_deleted', false)
                                             ->with('company')
                                             ->cursor()->each(function ($invoice){
                                                 $this->runAutoBiller($invoice);
