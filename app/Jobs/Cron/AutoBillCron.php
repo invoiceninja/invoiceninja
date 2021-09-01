@@ -69,6 +69,7 @@ class AutoBillCron
         } else {
             //multiDB environment, need to
             foreach (MultiDB::$dbs as $db) {
+        
                 MultiDB::setDB($db);
 
                 $auto_bill_partial_invoices = Invoice::whereDate('partial_due_date', '<=', now())
@@ -96,6 +97,12 @@ class AutoBillCron
     private function runAutoBiller(Invoice $invoice)
     {
         info("Firing autobill for {$invoice->company_id} - {$invoice->number}");
-        $invoice->service()->autoBill()->save();
+
+        try{
+            $invoice->service()->autoBill()->save();
+        }
+        catch(\Exception $e) {
+            nlog("Failed to capture payment for {$invoice->company_id} - {$invoice->number} ->" . $e->getMessage());
+        }
     }
 }
