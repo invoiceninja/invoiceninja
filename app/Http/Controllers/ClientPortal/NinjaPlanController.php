@@ -37,7 +37,7 @@ class NinjaPlanController extends Controller
             $account = $client_contact->company->account;
 
             /* Current paid users get pushed straight to subscription overview page*/
-            if($account->isPaid())
+            if($account->isPaidHostedClient())
                 return redirect('/client/subscriptions');
 
             /* Users that are not paid get pushed to a custom purchase page */
