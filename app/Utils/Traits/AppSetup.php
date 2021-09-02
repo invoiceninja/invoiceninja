@@ -118,9 +118,9 @@ trait AppSetup
 
     private function updateEnvironmentProperty(string $property, $value): void
     {
-        if (Str::contains($value, '#')) {
-            $value = sprintf('"%s"', $value);
-        }
+        // if (Str::contains($value, '#')) {
+        //     $value = sprintf('"%s"', $value);
+        // }
 
         $env = file(base_path('.env'));
 

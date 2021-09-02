@@ -52,6 +52,9 @@
                                 <a class="text-xs text-gray-600 hover:text-gray-800 ease-in duration-100"
                                    href="{{ route('client.password.request') }}">{{ trans('texts.forgot_password') }}</a>
                             </div>
+                            @if($company)
+                            <input type="hidden" name="db" value="{{$company->db}}">
+                            @endif
                             <input type="password" name="password" id="password"
                                    class="input"
                                    autofocus>

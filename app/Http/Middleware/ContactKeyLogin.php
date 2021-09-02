@@ -58,13 +58,20 @@ class ContactKeyLogin
             }
         }
         elseif ($request->segment(3) && config('ninja.db.multi_db_enabled')) {
-            if (MultiDB::findAndSetDbByContactKey($request->segment(3))) {
 
+            if (MultiDB::findAndSetDbByContactKey($request->segment(3))) {
+            
             if($client_contact = ClientContact::where('contact_key', $request->segment(3))->first()){
+            
                 if(empty($client_contact->email))
                     $client_contact->email = Str::random(6) . "@example.com"; $client_contact->save();
 
-                Auth::guard('contact')->login($client_contact, true);
+                auth()->guard('contact')->login($client_contact, true);
+
+                if ($request->query('next')) {
+                    return redirect()->to($request->query('next'));
+                }
+
                 return redirect()->to('client/dashboard');
              }
 

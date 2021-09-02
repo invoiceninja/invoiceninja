@@ -4296,6 +4296,12 @@ $LANG = array(
     'lang_Persian' => 'Persian',
     'lang_Latvian' => 'Latvian',
     'expiry_date' => 'Expiry date',
+    'cardholder_name' => 'Card holder name',
+    'account_type' => 'Account type',
+    'locality' => 'Locality',
+    'checking' => 'Checking',
+    'savings' => 'Savings',
+    'unable_to_verify_payment_method' => 'Unable to verify payment method.',
 );
 
 return $LANG;

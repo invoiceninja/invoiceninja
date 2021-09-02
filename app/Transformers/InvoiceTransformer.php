@@ -32,7 +32,7 @@ class InvoiceTransformer extends EntityTransformer
 
     protected $availableIncludes = [
     //    'invitations',
-        'history',
+        // 'history',
         'payments',
         'client',
         'activities',

@@ -17,13 +17,13 @@ use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
 use App\Mail\Admin\VerifyUserObject;
 use App\Mail\User\UserAdded;
-use App\Notifications\Ninja\VerifyUser;
 use App\Utils\Ninja;
 use Exception;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
 
 class SendVerificationNotification implements ShouldQueue
 {
@@ -52,6 +52,10 @@ class SendVerificationNotification implements ShouldQueue
         MultiDB::setDB($event->company->db);
 
         $event->user->service()->invite($event->company);
+
+        App::forgetInstance('translator');
+        $t = app('translator');
+        $t->replace(Ninja::transformTranslations($event->company->settings));
 
         $nmo = new NinjaMailerObject;
         $nmo->mailable = new UserAdded($event->company, $event->creating_user, $event->user);

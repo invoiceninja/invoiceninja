@@ -45,7 +45,7 @@ class ClientGatewayToken extends BaseModel
 
     public function client()
     {
-        return $this->hasOne(Client::class)->withTrashed();
+        return $this->belongsTo(Client::class)->withTrashed();
     }
 
     public function gateway()
@@ -60,12 +60,12 @@ class ClientGatewayToken extends BaseModel
 
     public function company()
     {
-        return $this->hasOne(Company::class);
+        return $this->belongsTo(Company::class);
     }
 
     public function user()
     {
-        return $this->hasOne(User::class)->withTrashed();
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     /**

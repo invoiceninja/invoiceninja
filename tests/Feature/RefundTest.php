@@ -14,6 +14,7 @@ use App\Factory\ClientFactory;
 use App\Factory\CreditFactory;
 use App\Factory\InvoiceFactory;
 use App\Helpers\Invoice\InvoiceSum;
+use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Utils\Traits\MakesHash;
@@ -62,6 +63,14 @@ class RefundTest extends TestCase
     {
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
+
+        $contact = ClientContact::factory()->create([
+                'user_id' => $this->user->id,
+                'client_id' => $client->id,
+                'company_id' => $this->company->id,
+                'is_primary' => 1,
+                'send_email' => true,
+        ]);
 
         $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
@@ -137,6 +146,15 @@ class RefundTest extends TestCase
     {
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
+
+        $contact = ClientContact::factory()->create([
+                'user_id' => $this->user->id,
+                'client_id' => $client->id,
+                'company_id' => $this->company->id,
+                'is_primary' => 1,
+                'send_email' => true,
+        ]);
+
 
         $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
@@ -227,6 +245,14 @@ class RefundTest extends TestCase
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
 
+        $contact = ClientContact::factory()->create([
+                'user_id' => $this->user->id,
+                'client_id' => $client->id,
+                'company_id' => $this->company->id,
+                'is_primary' => 1,
+                'send_email' => true,
+        ]);
+
         $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
         $this->invoice->status_id = Invoice::STATUS_SENT;
@@ -302,6 +328,15 @@ class RefundTest extends TestCase
     {
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
+
+        $contact = ClientContact::factory()->create([
+                'user_id' => $this->user->id,
+                'client_id' => $client->id,
+                'company_id' => $this->company->id,
+                'is_primary' => 1,
+                'send_email' => true,
+        ]);
+
 
         $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
@@ -387,6 +422,15 @@ class RefundTest extends TestCase
     {
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
+
+        $contact = ClientContact::factory()->create([
+                'user_id' => $this->user->id,
+                'client_id' => $client->id,
+                'company_id' => $this->company->id,
+                'is_primary' => 1,
+                'send_email' => true,
+        ]);
+
 
         $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;
@@ -496,6 +540,15 @@ class RefundTest extends TestCase
     {
         $client = ClientFactory::create($this->company->id, $this->user->id);
         $client->save();
+
+        $contact = ClientContact::factory()->create([
+                'user_id' => $this->user->id,
+                'client_id' => $client->id,
+                'company_id' => $this->company->id,
+                'is_primary' => 1,
+                'send_email' => true,
+        ]);
+
 
         $this->invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
         $this->invoice->client_id = $client->id;

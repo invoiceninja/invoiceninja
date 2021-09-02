@@ -94,6 +94,8 @@ class Company extends BaseModel
         'invoice_task_datelog',
         'default_password_timeout',
         'show_task_end_date',
+        'use_comma_as_decimal_place',
+        'report_include_drafts',
     ];
 
     protected $hidden = [
@@ -226,7 +228,7 @@ class Company extends BaseModel
 
     public function activities()
     {
-        return $this->hasMany(Activity::class)->orderBy('id', 'DESC')->take(300);
+        return $this->hasMany(Activity::class)->orderBy('id', 'DESC')->take(50);
     }
 
     /**
