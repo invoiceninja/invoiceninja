@@ -14,6 +14,7 @@ namespace App\Http\Controllers;
 
 use App\Jobs\Util\ImportStripeCustomers;
 use App\Jobs\Util\StripeUpdatePaymentMethods;
+use App\Libraries\MultiDB;
 use App\Models\Client;
 use App\Models\CompanyGateway;
 
@@ -60,6 +61,8 @@ class StripeController extends BaseController
 		if(auth()->user()->isAdmin())
 		{
 
+			MultiDB::findAndSetDbByCompanyKey(auth()->user()->company()->company_key);
+			
 	    	$company_gateway = CompanyGateway::where('company_id', auth()->user()->company()->id)
 	                            ->where('is_deleted',0)
 	    						->whereIn('gateway_key', $this->stripe_keys)
