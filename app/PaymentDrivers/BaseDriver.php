@@ -389,8 +389,7 @@ class BaseDriver extends AbstractPaymentDriver
 
             $invoices->each(function ($invoice) {
 
-                if (!$invitation->contact->trashed() && $invitation->contact->send_email && $invitation->contact->email) 
-                    $invoice->service()->deletePdf();
+                $invoice->service()->deletePdf();
                 
             });
 
