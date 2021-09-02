@@ -63,7 +63,7 @@ class CreditCard
             'amount' => $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
             'currency' => $this->stripe->client->getCurrencyCode(),
             'customer' => $this->stripe->findOrCreateCustomer(),
-            'description' => ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number'), // TODO: More meaningful description.
+            'description' => $this->decodeUnicodeString(ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number')),
         ];
 
         $payment_intent_data['setup_future_usage'] = 'off_session';
@@ -72,6 +72,15 @@ class CreditCard
         $data['gateway'] = $this->stripe;
 
         return render('gateways.stripe.credit_card.pay', $data);
+    }
+
+    private function decodeUnicodeString($string)
+    {
+        return iconv("UTF-8", "ISO-8859-1//TRANSLIT", $this->decode_encoded_utf8($string));
+    }
+
+    private function decode_encoded_utf8($string){
+        return preg_replace_callback('#\\\\u([0-9a-f]{4})#ism', function($matches) { return mb_convert_encoding(pack("H*", $matches[1]), "UTF-8", "UCS-2BE"); }, $string);
     }
 
     public function paymentResponse(PaymentResponseRequest $request)
