@@ -23,6 +23,7 @@ use App\Models\Currency;
 use App\Models\GatewayType;
 use App\PaymentDrivers\StripePaymentDriver;
 use App\PaymentDrivers\Stripe\UpdatePaymentMethods;
+use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 use Stripe\Customer;
@@ -51,7 +52,7 @@ class ImportCustomers
 
         $this->update_payment_methods = new UpdatePaymentMethods($this->stripe);
 
-        if(strlen($this->stripe->company_gateway->getConfigField('account_id')) < 1)
+        if(Ninja::isHosted() && strlen($this->stripe->company_gateway->getConfigField('account_id')) < 1)
             throw new StripeConnectFailure('Stripe Connect has not been configured');
 
         $customers = Customer::all([], $this->stripe->stripe_connect_auth);
@@ -60,9 +61,6 @@ class ImportCustomers
         {
             $this->addCustomer($customer);
         }   
-
-        /* Now call the update payment methods handler*/
-        // $this->stripe->updateAllPaymentMethods();
 
     }
 
@@ -76,15 +74,15 @@ class ImportCustomers
 
         nlog("search Stripe for {$customer->id}");
 
-        $existing_customer = $this->stripe
+        $existing_customer_token = $this->stripe
                                   ->company_gateway
                                   ->client_gateway_tokens()
                                   ->where('gateway_customer_reference', $customer->id)
-                                  ->exists();
+                                  ->first();
 
-        if($existing_customer){
+        if($existing_customer_token){
             nlog("Skipping - Customer exists: {$customer->email} just updating payment methods");
-            $this->update_payment_methods->updateMethods($customer, $contact->client);
+            $this->update_payment_methods->updateMethods($customer, $existing_customer_token->client);
             return;
         }
 

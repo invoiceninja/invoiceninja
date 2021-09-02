@@ -52,8 +52,11 @@ class AutoBillCron
                                         ->where('auto_bill_enabled', true)
                                         ->where('balance', '>', 0)
                                         ->where('is_deleted', false)
-                                        ->with('company')
-                                        ->cursor()->each(function ($invoice){
+                                        ->with('company');
+
+                                        nlog($auto_bill_partial_invoices->count(). " partial invoices to auto bill");
+
+                                        $auto_bill_partial_invoices->cursor()->each(function ($invoice){
                                             $this->runAutoBiller($invoice);
                                         });
 
@@ -62,8 +65,11 @@ class AutoBillCron
                                         ->where('auto_bill_enabled', true)
                                         ->where('balance', '>', 0)
                                         ->where('is_deleted', false)
-                                        ->with('company')
-                                        ->cursor()->each(function ($invoice){
+                                        ->with('company');
+
+                                        nlog($auto_bill_invoices->count(). " full invoices to auto bill");
+                                        
+                                        $auto_bill_invoices->cursor()->each(function ($invoice){
                                             $this->runAutoBiller($invoice);
                                         });
 
@@ -73,14 +79,17 @@ class AutoBillCron
             foreach (MultiDB::$dbs as $db) {
         
                 MultiDB::setDB($db);
-
+                
                 $auto_bill_partial_invoices = Invoice::whereDate('partial_due_date', '<=', now())
                                             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                             ->where('auto_bill_enabled', true)
                                             ->where('balance', '>', 0)
                                             ->where('is_deleted', false)
-                                            ->with('company')
-                                            ->cursor()->each(function ($invoice){
+                                            ->with('company');
+
+                                            nlog($auto_bill_partial_invoices->count(). " partial invoices to auto bill db = {$db}");
+
+                                            $auto_bill_partial_invoices->cursor()->each(function ($invoice){
                                                 $this->runAutoBiller($invoice);
                                             });
 
@@ -89,8 +98,11 @@ class AutoBillCron
                                             ->where('auto_bill_enabled', true)
                                             ->where('balance', '>', 0)
                                             ->where('is_deleted', false)
-                                            ->with('company')
-                                            ->cursor()->each(function ($invoice){
+                                            ->with('company');
+
+                                            nlog($auto_bill_invoices->count(). " full invoices to auto bill db = {$db}");
+
+                                            $auto_bill_invoices->cursor()->each(function ($invoice){
                                                 $this->runAutoBiller($invoice);
                                             });
 
