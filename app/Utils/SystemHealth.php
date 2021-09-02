@@ -231,6 +231,7 @@ class SystemHealth
             config(['mail.encryption' => $request->input('encryption')]);
             config(['mail.username' => $request->input('mail_username')]);
             config(['mail.password' => $request->input('mail_password')]);
+            (new \Illuminate\Mail\MailServiceProvider(app()))->register();
         }
 
         try {
