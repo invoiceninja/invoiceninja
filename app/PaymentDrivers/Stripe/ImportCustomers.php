@@ -23,6 +23,7 @@ use App\Models\Currency;
 use App\Models\GatewayType;
 use App\PaymentDrivers\StripePaymentDriver;
 use App\PaymentDrivers\Stripe\UpdatePaymentMethods;
+use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 use Stripe\Customer;
@@ -51,8 +52,8 @@ class ImportCustomers
 
         $this->update_payment_methods = new UpdatePaymentMethods($this->stripe);
 
-        if(strlen($this->stripe->company_gateway->getConfigField('account_id')) < 1)
-                throw new StripeConnectFailure('Stripe Connect has not been configured');
+        if(Ninja::isHosted() && strlen($this->stripe->company_gateway->getConfigField('account_id')) < 1)
+            throw new StripeConnectFailure('Stripe Connect has not been configured');
 
         $customers = Customer::all([], $this->stripe->stripe_connect_auth);
 
@@ -60,9 +61,6 @@ class ImportCustomers
         {
             $this->addCustomer($customer);
         }   
-
-        /* Now call the update payment methods handler*/
-        // $this->stripe->updateAllPaymentMethods();
 
     }
 
@@ -76,14 +74,21 @@ class ImportCustomers
 
         nlog("search Stripe for {$customer->id}");
 
-        $existing_customer = $this->stripe
+        $existing_customer_token = $this->stripe
                                   ->company_gateway
                                   ->client_gateway_tokens()
                                   ->where('gateway_customer_reference', $customer->id)
-                                  ->exists();
+                                  ->first();
 
-        if($existing_customer){
-            nlog("Skipping - Customer exists: {$customer->email}");
+        if($existing_customer_token){
+            nlog("Skipping - Customer exists: {$customer->email} just updating payment methods");
+            $this->update_payment_methods->updateMethods($customer, $existing_customer_token->client);
+            return;
+        }
+
+        if($customer->email && $contact = $this->stripe->company_gateway->company->client_contacts()->where('email', $customer->email)->first()){
+            nlog("Customer exists: {$customer->email} just updating payment methods");
+            $this->update_payment_methods->updateMethods($customer, $contact->client);
             return;
         }
 
@@ -92,15 +97,15 @@ class ImportCustomers
         
         $client = ClientFactory::create($this->stripe->company_gateway->company_id, $this->stripe->company_gateway->user_id);
 
-        if(property_exists($customer, 'address'))
+        if($customer->address)
         {
-            $client->address1 = property_exists($customer->address, 'line1') ? $customer->address->line1 : '';
-            $client->address2 = property_exists($customer->address, 'line2') ? $customer->address->line2 : '';
-            $client->city = property_exists($customer->address, 'city') ? $customer->address->city : '';
-            $client->state = property_exists($customer->address, 'state') ? $customer->address->state : '';
-            $client->phone =  property_exists($customer->address, 'phone') ? $customer->phone : '';
+            $client->address1 = $customer->address->line1 ? $customer->address->line1 : '';
+            $client->address2 = $customer->address->line2 ? $customer->address->line2 : '';
+            $client->city = $customer->address->city ? $customer->address->city : '';
+            $client->state = $customer->address->state ? $customer->address->state : '';
+            $client->phone =  $customer->address->phone ? $customer->phone : '';
 
-            if(property_exists($customer->address, 'country')){
+            if($customer->address->country){
 
                 $country = Country::where('iso_3166_2', $customer->address->country)->first();
 
@@ -124,7 +129,7 @@ class ImportCustomers
 
         }
 
-        $client->name = property_exists($customer, 'name') ? $customer->name : $customer->email;
+        $client->name = $customer->name ? $customer->name : $customer->email;
 
         if (!isset($client->number) || empty($client->number)) {
             $client->number = $this->getNextClientNumber($client);

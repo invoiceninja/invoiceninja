@@ -79,7 +79,7 @@ class PortalComposer
         $data['currencies'] = TranslationHelper::getCurrencies();
         $data['contact'] = auth('contact')->user();
 
-        $data['multiple_contacts'] = session()->get('multiple_contacts');
+        $data['multiple_contacts'] = session()->get('multiple_contacts') ?: collect();
 
         return $data;
     }
