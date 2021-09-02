@@ -113,6 +113,7 @@ class BaseController extends Controller
           'company.payment_terms',
           'company.designs.company',
           'company.expense_categories',
+          'company.subscriptions',
         ];
 
     public function __construct()
