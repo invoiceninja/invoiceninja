@@ -267,8 +267,10 @@ class CompanySettings extends BaseSettings
 
     public $use_credits_payment = 'off'; //always, option, off //@implemented
     public $hide_empty_columns_on_pdf = false;
+    public $email_from_name = '';
 
     public static $casts = [
+        'email_from_name'                    => 'string',
         'show_all_tasks_client_portal'       => 'string',
         'entity_send_time'                   => 'int',
         'shared_invoice_credit_counter'      => 'bool',
