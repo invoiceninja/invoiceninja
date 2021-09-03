@@ -83,7 +83,6 @@ class ImportCustomers
         if($existing_customer_token){
             nlog("Skipping - Customer exists: {$customer->email} just updating payment methods");
             $this->update_payment_methods->updateMethods($customer, $existing_customer_token->client);
-            return;
         }
 
         if($customer->email && $contact = $this->stripe->company_gateway->company->client_contacts()->where('email', $customer->email)->first()){
