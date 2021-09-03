@@ -25,6 +25,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Turbo124\Beacon\Facades\LightLogs;
+use Carbon\Carbon;
 
 class SendRecurring implements ShouldQueue
 {
@@ -137,7 +138,7 @@ class SendRecurring implements ShouldQueue
         }
         elseif($invoice->client->getSetting('auto_bill_date') == 'on_due_date' && $invoice->auto_bill_enabled) {
 
-            if($invoice->due_date && Carbon\Carbon::parse($invoice->due_date)->startOfDay()->lte(now()->startOfDay())) {
+            if($invoice->due_date && Carbon::parse($invoice->due_date)->startOfDay()->lte(now()->startOfDay())) {
             
                 nlog("attempting to autobill {$invoice->number}");
                 $invoice->service()->autoBill()->save();
