@@ -79,7 +79,14 @@ class TemplateEmail extends Mailable
         else
             $signature = $settings->email_signature;
 
-        $this->from(config('mail.from.address'), $this->company->present()->name());
+        if(property_exists($settings, 'email_from_name') && strlen($settings->email_from_name) > 1)
+            $email_from_name = $settings->email_from_name;
+        else
+            $email_from_name = $this->company->present()->name();
+
+nlog($email_from_name);
+
+        $this->from(config('mail.from.address'), $email_from_name);
 
         if (strlen($settings->bcc_email) > 1)
             $this->bcc(explode(",",$settings->bcc_email));
