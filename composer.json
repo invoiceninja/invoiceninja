@@ -63,6 +63,7 @@
         "league/omnipay": "^3.1",
         "livewire/livewire": "^2.4",
         "maennchen/zipstream-php": "^1.2",
+        "mercadopago/dx-php": "^2.4",
         "mollie/mollie-api-php": "^2.36",
         "nwidart/laravel-modules": "^8.0",
         "omnipay/paypal": "^3.0",
