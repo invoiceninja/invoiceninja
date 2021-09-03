@@ -69,9 +69,13 @@ class CompanyController extends BaseController
      */
     public function __construct(CompanyRepository $company_repo)
     {
+        
         parent::__construct();
 
         $this->company_repo = $company_repo;
+
+        $this->middleware('password_protected')->only(['destroy']);
+
     }
 
     /**
@@ -477,7 +481,7 @@ class CompanyController extends BaseController
      */
     public function destroy(DestroyCompanyRequest $request, Company $company)
     {
-
+        
         if(Ninja::isHosted() && config('ninja.ninja_default_company_id') == $company->id)
             return response()->json(['message' => 'Cannot purge this company'], 400);
         

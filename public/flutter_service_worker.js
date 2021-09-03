@@ -26,15 +26,15 @@ const RESOURCES = {
 "assets/FontManifest.json": "cf3c681641169319e61b61bd0277378f",
 "assets/fonts/MaterialIcons-Regular.otf": "4e6447691c9509f7acdbf8a931a85ca1",
 "assets/packages/material_design_icons_flutter/lib/fonts/materialdesignicons-webfont.ttf": "174c02fc4609e8fc4389f5d21f16a296",
-"assets/NOTICES": "4d4db4724f228190d45706dc2890bfff",
+"assets/NOTICES": "cd6dfc37608a8f2f6be693260e1c1435",
 "icons/Icon-192.png": "bb1cf5f6982006952211c7c8404ffbed",
 "icons/Icon-512.png": "0f9aff01367f0a0c69773d25ca16ef35",
 "favicon.png": "dca91c54388f52eded692718d5a98b8b",
-"manifest.json": "17bae385e59f59be709280b542203f8e",
+"manifest.json": "ef43d90e57aa7682d7e2cfba2f484a40",
 "version.json": "46d4015fc9abcefe5371cafcf2084173",
 "favicon.ico": "51636d3a390451561744c42188ccd628",
-"main.dart.js": "870ee0de972245c17e9db71991aecfc1",
-"/": "24783ba7c9b4ad6d85740d03acd4bf25"
+"main.dart.js": "ad09f3d4a2f418fe67aa5e04dfde7fc7",
+"/": "557b6af2ed285b00c0499fe5e06805cd"
 };
 
 // The application shell files that are downloaded before a service worker can

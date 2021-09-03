@@ -23,6 +23,7 @@ use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\PaymentDrivers\Braintree\ACH;
 use App\PaymentDrivers\Braintree\CreditCard;
 use App\PaymentDrivers\Braintree\PayPal;
 use Braintree\Gateway;
@@ -45,6 +46,7 @@ class BraintreePaymentDriver extends BaseDriver
     public static $methods = [
         GatewayType::CREDIT_CARD => CreditCard::class,
         GatewayType::PAYPAL => PayPal::class,
+        GatewayType::BANK_TRANSFER => ACH::class,
     ];
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_BRAINTREE;
@@ -72,9 +74,10 @@ class BraintreePaymentDriver extends BaseDriver
     {
         $types = [
             GatewayType::PAYPAL,
-            GatewayType::CREDIT_CARD
+            GatewayType::CREDIT_CARD,
+            GatewayType::BANK_TRANSFER,
         ];
-        
+
         return $types;
     }
 
@@ -124,24 +127,57 @@ class BraintreePaymentDriver extends BaseDriver
     {
         $this->init();
 
-        try {
+        try{
+
             $response = $this->gateway->transaction()->refund($payment->transaction_reference, $amount);
 
-            return [
-                'transaction_reference' => $response->id,
-                'transaction_response' => json_encode($response),
-                'success' => (bool)$response->success,
-                'description' => $response->status,
-                'code' => 0,
-            ];
         } catch (Exception $e) {
-            return [
+
+            $data = [
                 'transaction_reference' => null,
                 'transaction_response' => json_encode($e->getMessage()),
                 'success' => false,
                 'description' => $e->getMessage(),
                 'code' => $e->getCode(),
             ];
+
+            SystemLogger::dispatch(['server_response' => null, 'data' => $data], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_BRAINTREE, $this->client, $this->client->company);
+
+            return $data;
+        }
+
+        if($response->success)
+        {
+
+            $data = [
+                'transaction_reference' => $response->id,
+                'transaction_response' => json_encode($response),
+                'success' => (bool)$response->success,
+                'description' => $response->status,
+                'code' => 0,
+            ];
+
+            SystemLogger::dispatch(['server_response' => $response, 'data' => $data], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_BRAINTREE, $this->client, $this->client->company);
+
+            return $data;
+
+        }
+        else{
+
+            $error = $response->errors->deepAll()[0];
+
+            $data = [
+                'transaction_reference' => null,
+                'transaction_response' => $response->errors->deepAll(),
+                'success' => false,
+                'description' => $error->message,
+                'code' => $error->code,
+            ];
+
+            SystemLogger::dispatch(['server_response' => $response, 'data' => $data], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_BRAINTREE, $this->client, $this->client->company);
+
+            return $data;
+
         }
     }
 
@@ -185,7 +221,8 @@ class BraintreePaymentDriver extends BaseDriver
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_SUCCESS,
                 SystemLog::TYPE_BRAINTREE,
-                $this->client
+                $this->client,
+                $this->client->company,
             );
 
             return $payment;
@@ -206,7 +243,8 @@ class BraintreePaymentDriver extends BaseDriver
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_FAILURE,
                 SystemLog::TYPE_BRAINTREE,
-                $this->client
+                $this->client,
+                $this->client->company
             );
 
             return false;

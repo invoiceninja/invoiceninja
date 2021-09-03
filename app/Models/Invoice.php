@@ -84,10 +84,6 @@ class Invoice extends BaseModel
         'custom_surcharge2',
         'custom_surcharge3',
         'custom_surcharge4',
-    // 'custom_surcharge_tax1',
-    // 'custom_surcharge_tax2',
-    // 'custom_surcharge_tax3',
-    // 'custom_surcharge_tax4',
         'design_id',
         'assigned_user_id',
         'exchange_rate',
@@ -206,7 +202,7 @@ class Invoice extends BaseModel
 
     public function activities()
     {
-        return $this->hasMany(Activity::class)->orderBy('id', 'DESC')->take(300);
+        return $this->hasMany(Activity::class)->orderBy('id', 'DESC')->take(50);
     }
 
     public function history()

@@ -16,6 +16,9 @@ use App\Events\Invoice\InvoiceWasViewed;
 use App\Events\Misc\InvitationWasViewed;
 use App\Events\Quote\QuoteWasViewed;
 use App\Http\Controllers\Controller;
+use App\Models\Client;
+use App\Models\ClientContact;
+use App\Models\Payment;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
@@ -112,5 +115,19 @@ class InvitationController extends Controller
 
     public function routerForIframe(string $entity, string $client_hash, string $invitation_key)
     {
+    }
+
+    public function paymentRouter(string $contact_key, string $payment_id)
+    {
+        $contact = ClientContact::where('contact_key', $contact_key)->firstOrFail();
+        $payment = Payment::find($this->decodePrimaryKey($payment_id));
+
+        if($payment->client_id != $contact->client_id)
+            abort(403, 'You are not authorized to view this resource');
+
+        auth()->guard('contact')->login($contact, true);
+
+        return redirect()->route('client.payments.show', $payment->hashed_id);
+
     }
 }

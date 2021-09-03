@@ -26,8 +26,16 @@ class PaymentRefundFailed extends Exception
      */
     public function render($request)
     {
+
+        // $msg = 'Unable to refund the transaction';
+        $msg = ctrans('texts.warning_local_refund');
+
+        if($this->getMessage() && strlen($this->getMessage()) >=1 )
+            $msg = $this->getMessage();
+
         return response()->json([
-           'message' => 'Unable to refund the transaction',
+           'message' => $msg,
        ], 401);
+
     }
 }

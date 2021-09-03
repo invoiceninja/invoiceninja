@@ -13,6 +13,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Events\Contact\ContactLoggedIn;
 use App\Http\Controllers\Controller;
+use App\Libraries\MultiDB;
 use App\Models\Account;
 use App\Models\ClientContact;
 use App\Models\Company;
@@ -40,8 +41,16 @@ class ContactLoginController extends Controller
             $company = null;
         }elseif (strpos($request->getHost(), 'invoicing.co') !== false) {
             $subdomain = explode('.', $request->getHost())[0];
+
+            MultiDB::findAndSetDbByDomain(['subdomain' => $subdomain]);
+
             $company = Company::where('subdomain', $subdomain)->first();
-        } elseif(Ninja::isHosted() && $company = Company::where('portal_domain', $request->getSchemeAndHttpHost())->first()){
+
+        } elseif(Ninja::isHosted()){
+
+            MultiDB::findAndSetDbByDomain(['portal_domain' => $request->getSchemeAndHttpHost()]);
+
+            $company = Company::where('portal_domain', $request->getSchemeAndHttpHost())->first();
 
         }
         elseif (Ninja::isSelfHost()) {
@@ -60,6 +69,9 @@ class ContactLoginController extends Controller
     public function login(Request $request)
     {
         Auth::shouldUse('contact');
+
+        if(Ninja::isHosted() && $request->has('db'))
+            MultiDB::setDb($request->input('db'));
 
         $this->validateLogin($request);
         // If the class is using the ThrottlesLogins trait, we can automatically throttle

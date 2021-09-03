@@ -11,6 +11,8 @@
 
 namespace App\Mail;
 
+use App\Jobs\Invoice\CreateUbl;
+use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\User;
@@ -115,6 +117,13 @@ class TemplateEmail extends Mailable
                     $this->attach($file['path'], ['as' => $file['name'], 'mime' => $file['mime']]);
 
             }
+
+        if($this->invitation->invoice && $settings->ubl_email_attachment && $this->company->account->hasFeature(Account::FEATURE_DOCUMENTS)){
+
+            $ubl_string = CreateUbl::dispatchNow($this->invitation->invoice);
+            $this->attachData($ubl_string, $this->invitation->invoice->getFileName('xml'));
+            
+        }
 
         return $this;
     }

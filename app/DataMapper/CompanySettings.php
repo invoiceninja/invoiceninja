@@ -71,7 +71,7 @@ class CompanySettings extends BaseSettings
     public $inclusive_taxes = false; //@implemented
     public $quote_footer = ''; //@implmented
 
-    public $translations; 
+    public $translations;
 
     public $counter_number_applied = 'when_saved'; // when_saved , when_sent //@implemented
     public $quote_number_applied = 'when_saved'; // when_saved , when_sent //@implemented
@@ -594,7 +594,7 @@ class CompanySettings extends BaseSettings
      *
      * @return stdClass The stdClass of PDF variables
      */
-    private static function getEntityVariableDefaults() :stdClass
+    public static function getEntityVariableDefaults() :stdClass
     {
         $variables = [
             'client_details' => [
@@ -674,6 +674,19 @@ class CompanySettings extends BaseSettings
                 '$line_taxes',
                 '$total',
                 '$paid_to_date',
+                '$outstanding',
+            ],
+            'statement_invoice_columns' => [
+                '$invoice.number',
+                '$invoice.date',
+                '$due_date',
+                '$total',
+                '$outstanding',
+            ],
+            'statement_payment_columns' => [
+                '$invoice.number',
+                '$payment.date',
+                '$method',
                 '$outstanding',
             ],
         ];

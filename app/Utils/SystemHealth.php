@@ -38,7 +38,7 @@ class SystemHealth
         //'intl', //todo double check whether we need this for email dns validation
     ];
 
-    private static $php_version = 7.3;
+    private static $php_version = 7.4;
 
     /**
      * Check loaded extensions / PHP version / DB Connections.
@@ -231,6 +231,7 @@ class SystemHealth
             config(['mail.encryption' => $request->input('encryption')]);
             config(['mail.username' => $request->input('mail_username')]);
             config(['mail.password' => $request->input('mail_password')]);
+            (new \Illuminate\Mail\MailServiceProvider(app()))->register();
         }
 
         try {

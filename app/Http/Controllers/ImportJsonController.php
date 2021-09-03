@@ -66,7 +66,8 @@ class ImportJsonController extends BaseController
         $file_location = $request->file('files')
             ->storeAs(
                 'migrations',
-                $request->file('files')->getClientOriginalName()
+                $request->file('files')->getClientOriginalName(),
+                config('filesystems.default'),
             );
 
         if(Ninja::isHosted())

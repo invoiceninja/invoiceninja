@@ -1,4 +1,4 @@
-@extends('errors::minimal')
+@extends('portal.ninja2020.layout.error')
 
 @section('title', __('Server Error'))
 @section('code', '500')

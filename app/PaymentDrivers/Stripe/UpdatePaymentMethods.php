@@ -93,6 +93,12 @@ class UpdatePaymentMethods
                     $this->addOrUpdateCard($method, $customer->id, $client, GatewayType::SOFORT);
                 }
 
+                //$this->importBankAccounts($customer, $client);
+    }
+
+    private function importBankAccounts($customer, $client)
+    {
+
     }
 
     // private function addOrUpdateBankAccount($bank_account, $customer_reference, Client $client)
@@ -124,6 +130,7 @@ class UpdatePaymentMethods
         $token_exists = ClientGatewayToken::where([
             'gateway_customer_reference' => $customer_reference,
             'token' => $method->id,
+            'company_id' => $client->company_id,
         ])->exists();
 
         /* Already exists return */

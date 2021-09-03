@@ -72,7 +72,8 @@ class SendRecurring implements ShouldQueue
 
         $invoice->date = now()->format('Y-m-d');
         $invoice->due_date = $this->recurring_invoice->calculateDueDate(now()->format('Y-m-d'));
-
+        $invoice->recurring_id = $this->recurring_invoice->id;
+        
         if($invoice->client->getSetting('auto_email_invoice'))
         {
             $invoice = $invoice->service()
@@ -115,7 +116,7 @@ class SendRecurring implements ShouldQueue
         nlog("Invoice {$invoice->number} created");
 
         $invoice->invitations->each(function ($invitation) use ($invoice) {
-            if ($invitation->contact && strlen($invitation->contact->email) >=1 && $invoice->client->getSetting('auto_email_invoice')) {
+            if ($invitation->contact && !$invitation->contact->trashed() && strlen($invitation->contact->email) >=1 && $invoice->client->getSetting('auto_email_invoice')) {
 
                 try{
                     EmailEntity::dispatch($invitation, $invoice->company);
@@ -128,9 +129,21 @@ class SendRecurring implements ShouldQueue
             }
         });
     
-        if ($invoice->client->getSetting('auto_bill_date') == 'on_send_date' && $this->recurring_invoice->auto_bill_enabled) {
+        if ($invoice->client->getSetting('auto_bill_date') == 'on_send_date' && $invoice->auto_bill_enabled) {
+
             nlog("attempting to autobill {$invoice->number}");
             $invoice->service()->autoBill()->save();
+
+        }
+        elseif($invoice->client->getSetting('auto_bill_date') == 'on_due_date' && $invoice->auto_bill_enabled) {
+
+            if($invoice->due_date && Carbon\Carbon::parse($invoice->due_date)->startOfDay()->lte(now()->startOfDay())) {
+            
+                nlog("attempting to autobill {$invoice->number}");
+                $invoice->service()->autoBill()->save();
+            
+            }
+
         }
 
 

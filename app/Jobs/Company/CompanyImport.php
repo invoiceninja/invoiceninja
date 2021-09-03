@@ -224,7 +224,7 @@ class CompanyImport implements ShouldQueue
         // if(mime_content_type(Storage::path($this->file_location)) == 'text/plain')
         //     return Storage::path($this->file_location);
 
-        $path = TempFile::filePath(Storage::get($this->file_location), basename($this->file_location));
+        $path = TempFile::filePath(Storage::disk(config('filesystems.default'))->get($this->file_location), basename($this->file_location));
 
         $zip = new ZipArchive();
         $archive = $zip->open($path);
@@ -235,7 +235,7 @@ class CompanyImport implements ShouldQueue
         $zip->close();
         $file_location = "{$file_path}/backup.json";
 
-        if (! file_exists($file_location)) 
+        if (! file_exists($file_path)) 
             throw new NonExistingMigrationFile('Backup file does not exist, or is corrupted.');
 
         return $file_location;
@@ -568,7 +568,7 @@ class CompanyImport implements ShouldQueue
     {
 
         $this->genericImport(GroupSetting::class, 
-            ['user_id', 'company_id', 'id', 'hashed_id',], 
+            ['user_id', 'company_id', 'id', 'hashed_id'], 
             [['users' => 'user_id']], 
             'group_settings',
             'name');
@@ -580,7 +580,7 @@ class CompanyImport implements ShouldQueue
     {
         
         $this->genericImport(Subscription::class, 
-            ['user_id', 'assigned_user_id', 'company_id', 'id', 'hashed_id',], 
+            ['user_id', 'assigned_user_id', 'company_id', 'id', 'hashed_id'], 
             [['group_settings' => 'group_id'], ['users' => 'user_id'], ['users' => 'assigned_user_id']], 
             'subscriptions',
             'name');
@@ -875,7 +875,7 @@ class CompanyImport implements ShouldQueue
     {
         
         $this->genericImport(Design::class, 
-            ['company_id', 'user_id'], 
+            ['company_id', 'user_id', 'hashed_id'], 
             [
                 ['users' => 'user_id'],
             ], 
@@ -984,6 +984,8 @@ class CompanyImport implements ShouldQueue
 
             $cu_array = (array)$cu;
             unset($cu_array['id']);
+            unset($cu_array['company_id']);
+            unset($cu_array['user_id']);
 
             $new_cu = CompanyUser::firstOrNew(
                         ['user_id' => $user_id, 'company_id' => $this->company->id],
@@ -1100,6 +1102,18 @@ class CompanyImport implements ShouldQueue
             $obj_array = (array)$obj;
             foreach($unset as $un){
                 unset($obj_array[$un]);
+            }
+
+            if($class instanceof CompanyGateway){
+
+                if(Ninja::isHosted() && $obj_array['gateway_key'] == 'd14dd26a37cecc30fdd65700bfb55b23'){
+                    $obj_array['gateway_key'] = 'd14dd26a47cecc30fdd65700bfb67b34';
+                }
+
+                if(Ninja::isSelfHost() && $obj_array['gateway_key'] == 'd14dd26a47cecc30fdd65700bfb67b34'){
+                    $obj_array['gateway_key'] = 'd14dd26a37cecc30fdd65700bfb55b23';
+                }                
+
             }
 
             $activity_invitation_key = false;

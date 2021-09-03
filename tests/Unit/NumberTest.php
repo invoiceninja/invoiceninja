@@ -41,6 +41,27 @@ class NumberTest extends TestCase
         $this->assertEquals(2.15, $rounded);
     }
 
+    //this method proved an error! removing this method from production
+    // public function testImportFloatConversion()
+    // {
+        
+    //     $amount = '€7,99';
+
+    //     $converted_amount = Number::parseStringFloat($amount);
+
+    //     $this->assertEquals(799, $converted_amount);
+
+    // }
+
+    public function testParsingStringCurrency()
+    {
+        $amount = '€7,99';
+
+        $converted_amount = Number::parseFloat($amount);
+
+        $this->assertEquals(7.99, $converted_amount);
+    }
+
     // public function testParsingFloats()
     // {
     //     Currency::all()->each(function ($currency) {

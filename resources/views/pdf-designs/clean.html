@@ -2,6 +2,7 @@
     :root {
         --primary-color: $primary_color;
         --secondary-color: $secondary_color;
+        --line-height: 1.6;
     }
 
     body {
@@ -35,6 +36,7 @@
     #company-details {
         display: flex;
         flex-direction: column;
+        line-height: var(--line-height);
     }
 
     #company-details > p:first-child {
@@ -44,10 +46,11 @@
     #company-address {
         display: flex;
         flex-direction: column;
+        line-height: var(--line-height);
     }
 
     .entity-label {
-        margin-top: 1rem;
+        margin-top: 2.5rem;
         text-transform: uppercase;
         padding-left: 1rem;
         margin-bottom: 1rem;
@@ -56,8 +59,7 @@
     }
 
     .client-and-entity-wrapper {
-        display: grid;
-        grid-template-columns: .75fr 1fr;
+        display: flex;
         padding: 1rem;
         border-top: 1px solid #d8d8d8;
         border-bottom: 1px solid #d8d8d8;
@@ -65,25 +67,28 @@
 
     #entity-details {
         text-align: left;
+        margin-right: 20px;
     }
 
     #entity-details > tr,
     #entity-details th {
         font-weight: normal;
+        padding-right: 15px;
+        padding-top: 2.5px;
+        padding-bottom: 2.5px;
     }
 
     #client-details {
         display: flex;
         flex-direction: column;
+        line-height: var(--line-height);
     }
 
     #client-details > :first-child {
         font-weight: bold;
     }
 
-    #product-table,
-    #delivery-note-table,
-    #task-table {
+    [data-ref="table"] {
         margin-top: 3rem;
         /* margin-bottom: 200px; */
         min-width: 100%;
@@ -97,43 +102,31 @@
         color: grey;
     }
 
-    #product-table > thead,
-    #delivery-note-table > thead,
-    #task-table > thead {
+    [data-ref="table"] > thead {
         text-align: left;
     }
 
-    #product-table > thead > tr > th,
-    #delivery-note-table > thead > tr > th,
-    #task-table > thead > tr > th {
+    [data-ref="table"] > thead > tr > th {
         font-size: 1.1rem;
         padding-bottom: 1.5rem;
         padding-left: 1rem;
     }
 
-    #product-table > tbody > tr > td,
-    #delivery-note-table > tbody > tr > td,
-    #task-table > tbody > tr > td {
+    [data-ref="table"] > tbody > tr > td {
         border-top: 1px solid #d8d8d8;
         border-bottom: 1px solid #d8d8d8;
         padding: 1.5rem;
     }
 
-    #product-table > tbody > tr > td:first-child,
-    #delivery-note-table > tbody > tr > td:first-child,
-    #task-table > tbody > tr > td:first-child {
+    [data-ref="table"] > tbody > tr > td:first-child {
         color: var(--primary-color);
     }
 
-    #product-table > tbody > tr > td:last-child,
-    #delivery-note-table > tbody > tr > td:last-child,
-    #task-table > tbody > tr > td:last-child {
+    [data-ref="table"] > tbody > tr > td:last-child {
         text-align: right;
     }
 
-    #product-table > tbody > tr:nth-child(odd),
-    #delivery-note-table > tbody > tr:nth-child(odd),
-    #task-table > tbody > tr:nth-child(odd) {
+    [data-ref="table"] > tbody > tr:nth-child(odd) {
         background-color: #f5f5f5;
     }
 
@@ -201,9 +194,21 @@
         font-size: 1rem;
         margin-bottom: 0;
     }
-    
+
+    .company-logo-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+    }
+
+    [data-ref="statement-totals"] {
+        margin-top: 1rem;
+        text-align: right;
+        margin-right: .75rem;
+    }
+
     /** Useful snippets, uncomment to enable. **/
-    
+
     /** Hide company logo **/
     /* .company-logo { display: none } */
 
@@ -236,11 +241,9 @@
 
 <div id="body">
     <div class="header-container">
-        <img
-            class="company-logo"
-            src="$company.logo"
-            alt="$company.name logo"
-        />
+       <div class="company-logo-container">
+            <img class="company-logo" src="$company.logo" alt="$company.name logo">
+       </div>
 
         <div id="company-details"></div>
         <div id="company-address"></div>
@@ -248,27 +251,43 @@
 
     <p class="entity-label">$entity_label</p>
     <div class="client-and-entity-wrapper">
-        <table id="entity-details" cellspacing="0" dir="$dir"></table>
+        <div>
+            <table id="entity-details" cellspacing="0" dir="$dir"></table>
+        </div>
 
         <div id="client-details"></div>
     </div>
 
-    <table id="product-table" cellspacing="0"></table>
+    <table id="product-table" cellspacing="0" data-ref="table"></table>
 
-    <table id="task-table" cellspacing="0"></table>
+    <table id="task-table" cellspacing="0" data-ref="table"></table>
 
-    <table id="delivery-note-table" cellspacing="0"></table>
+    <table id="delivery-note-table" cellspacing="0" data-ref="table"></table>
+
+    <table id="statement-invoice-table" cellspacing="0" data-ref="table"></table>
+    <div id="statement-invoice-table-totals" data-ref="statement-totals"></div>
+
+    <table id="statement-payment-table" cellspacing="0" data-ref="table"></table>
+    <div id="statement-payment-table-totals" data-ref="statement-totals"></div>
+
+    <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
+    <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
 
     <div id="table-totals" cellspacing="0"></div>
 </div>
 
 <div id="footer">
     <p data-ref="total_table-footer">$entity_footer</p>
-    
+
     <script>
         // Clear up space a bit, if [product-table, tasks-table, delivery-note-table] isn't present.
         document.addEventListener('DOMContentLoaded', () => {
-            ['product-table', 'task-table', 'delivery-note-table'].forEach((tableIdentifier) => {
+            let tables = [
+                'product-table', 'task-table', 'delivery-note-table',
+                'statement-invoice-table', 'statement-payment-table', 'statement-aging-table-totals',
+            ];
+
+            tables.forEach((tableIdentifier) => {
                 document.getElementById(tableIdentifier).childElementCount === 0
                     ? document.getElementById(tableIdentifier).style.display = 'none'
                     : '';

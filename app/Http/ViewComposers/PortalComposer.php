@@ -48,12 +48,13 @@ class PortalComposer
      */
     public function compose(View $view) :void
     {
+
         $view->with($this->portalData());
 
-        if (auth()->user()) {
+        if (auth('contact')->user()) {
             App::forgetInstance('translator');
             $t = app('translator');
-            $t->replace(Ninja::transformTranslations(auth()->user()->client->getMergedSettings()));
+            $t->replace(Ninja::transformTranslations(auth('contact')->user()->client->getMergedSettings()));
         }
     }
 
@@ -62,23 +63,23 @@ class PortalComposer
      */
     private function portalData() :array
     {
-        if (! auth()->user()) {
+        if (! auth('contact')->user()) {
             return [];
         }
 
-        $this->settings = auth()->user()->client->getMergedSettings();
+        $this->settings = auth('contact')->user()->client->getMergedSettings();
 
         $data['sidebar'] = $this->sidebarMenu();
         $data['header'] = [];
         $data['footer'] = [];
         $data['countries'] = TranslationHelper::getCountries();
-        $data['company'] = auth()->user()->company;
-        $data['client'] = auth()->user()->client;
+        $data['company'] = auth('contact')->user()->company;
+        $data['client'] = auth('contact')->user()->client;
         $data['settings'] = $this->settings;
         $data['currencies'] = TranslationHelper::getCurrencies();
         $data['contact'] = auth('contact')->user();
 
-        $data['multiple_contacts'] = session()->get('multiple_contacts');
+        $data['multiple_contacts'] = session()->get('multiple_contacts') ?: collect();
 
         return $data;
     }
@@ -114,7 +115,7 @@ class PortalComposer
         $data[] = ['title' => ctrans('texts.documents'), 'url' => 'client.documents.index', 'icon' => 'download'];
         $data[] = ['title' => ctrans('texts.subscriptions'), 'url' => 'client.subscriptions.index', 'icon' => 'calendar'];
 
-        if (auth()->user('contact')->client->getSetting('enable_client_portal_tasks')) {
+        if (auth('contact')->user()->client->getSetting('enable_client_portal_tasks')) {
             $data[] = ['title' => ctrans('texts.tasks'), 'url' => 'client.tasks.index', 'icon' => 'clock'];
         }
 

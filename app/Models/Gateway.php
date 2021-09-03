@@ -79,9 +79,12 @@ class Gateway extends StaticModel
     {
         switch ($this->id) {
             case 1:
-                return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true]];//Authorize.net
+                return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true]]; //Authorize.net
                 break;
-            case 1:
+            case 3:
+                return [GatewayType::CREDIT_CARD => ['refund' => false, 'token_billing' => true]];//eWay
+                break;
+            case 11:
                 return [GatewayType::CREDIT_CARD => ['refund' => false, 'token_billing' => false]];//Payfast
                 break;
             case 15:
@@ -103,11 +106,12 @@ class Gateway extends StaticModel
             case 49:
                 return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true],
                     GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true]]; //WePay
-                break;    
+                break;
             case 50:
                 return [
                     GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true], //Braintree
-                    GatewayType::PAYPAL => ['refund' => true, 'token_billing' => true]
+                    GatewayType::PAYPAL => ['refund' => true, 'token_billing' => true],
+                    GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true],
                 ];
                 break;
             case 7:
