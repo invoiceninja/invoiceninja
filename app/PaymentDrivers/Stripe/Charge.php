@@ -75,6 +75,10 @@ class Charge
               'description' => $description,
             ];
 
+            nlog("Stripe tokenBilling payload");
+            
+            nlog($data);
+
             $response = $this->stripe->createPaymentIntent($data, $this->stripe->stripe_connect_auth);
             // $response = $local_stripe->paymentIntents->create($data);
 
