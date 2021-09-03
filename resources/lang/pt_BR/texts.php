@@ -3997,6 +3997,11 @@ Quando tiver as quantias, volte a esta página de formas de pagamento e clique "
      'no_results' => 'No results found.',
      'payment_failed_subject' => 'Payment failed for Client :client',
      'payment_failed_body' => 'A payment made by client :client failed with message :message',
+     'payment_failed_client_feedback' => 'Seu pagamento em :payment_gateway falhou ou não foi aprovado, por favor, tente novamente!',
+     'pending_payment_client_feedback' => 'Seu pagamento está sendo analisado pelo :payment_gateway. Em breve você será notificado por e-mail se foi aprovado!',
+     'pending_payment_subject' => 'Pagamento Pendente para o cliente :client',
+     'pending_payment_body' => 'O pagamento para o cliente :client de valor :amount está pendente no :payment_gateway. ' .
+        'Você vai precisar verificar manualmente se o mesmo foi aprovado.',
      'register' => 'Register',
      'register_label' => 'Create your account in seconds',
      'password_confirmation' => 'Confirm your password',
