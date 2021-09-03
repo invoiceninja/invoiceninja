@@ -51,11 +51,13 @@ class AutoBillInvoice extends AbstractService
 
         /* Mark the invoice as paid if there is no balance */
         if ((int)$this->invoice->balance == 0)
-            return $this->invoice->service()->markPaid()->save();
+            return $this->invoice->service()->markPaid()->workFlow()->save();
 
         //if the credits cover the payments, we stop here, build the payment with credits and exit early
         if ($this->client->getSetting('use_credits_payment') != 'off')
             $this->applyCreditPayment();
+
+        $amount = 0;
 
         /* Determine $amount */
         if ($this->invoice->partial > 0) {
@@ -68,14 +70,16 @@ class AutoBillInvoice extends AbstractService
             return $this->invoice;
         }
 
-        info("balance remains to be paid!!");
+        info("Auto Bill - balance remains to be paid!! - {$amount}");
 
         /* Retrieve the Client Gateway Token */
         $gateway_token = $this->getGateway($amount);
 
         /* Bail out if no payment methods available */
-        if (! $gateway_token || ! $gateway_token->gateway->driver($this->client)->token_billing)
+        if (! $gateway_token || ! $gateway_token->gateway->driver($this->client)->token_billing){
+            nlog("Bailing out - no suitable gateway token found.");
             return $this->invoice;
+        }
 
         /* $gateway fee */
         //$fee = $gateway_token->gateway->calcGatewayFee($amount, $gateway_token->gateway_type_id, $this->invoice->uses_inclusive_taxes);

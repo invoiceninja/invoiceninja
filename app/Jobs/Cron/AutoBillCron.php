@@ -56,8 +56,8 @@ class AutoBillCron
 
                                         nlog($auto_bill_partial_invoices->count(). " partial invoices to auto bill");
 
-                                        $auto_bill_partial_invoices->cursor()->each(function ($invoice){
-                                            $this->runAutoBiller($invoice);
+                                        $auto_bill_partial_invoices->cursor()->each(function ($invoice) use($db){
+                                            $this->runAutoBiller($invoice, $db);
                                         });
 
             $auto_bill_invoices = Invoice::whereDate('due_date', '<=', now())
@@ -69,8 +69,8 @@ class AutoBillCron
 
                                         nlog($auto_bill_invoices->count(). " full invoices to auto bill");
                                         
-                                        $auto_bill_invoices->cursor()->each(function ($invoice){
-                                            $this->runAutoBiller($invoice);
+                                        $auto_bill_invoices->cursor()->each(function ($invoice) use($db){
+                                            $this->runAutoBiller($invoice, $db);
                                         });
 
 
@@ -89,8 +89,8 @@ class AutoBillCron
 
                                             nlog($auto_bill_partial_invoices->count(). " partial invoices to auto bill db = {$db}");
 
-                                            $auto_bill_partial_invoices->cursor()->each(function ($invoice){
-                                                $this->runAutoBiller($invoice);
+                                            $auto_bill_partial_invoices->cursor()->each(function ($invoice) use($db){
+                                                $this->runAutoBiller($invoice, $db);
                                             });
 
                 $auto_bill_invoices = Invoice::whereDate('due_date', '<=', now())
@@ -102,19 +102,20 @@ class AutoBillCron
 
                                             nlog($auto_bill_invoices->count(). " full invoices to auto bill db = {$db}");
 
-                                            $auto_bill_invoices->cursor()->each(function ($invoice){
-                                                $this->runAutoBiller($invoice);
+                                            $auto_bill_invoices->cursor()->each(function ($invoice) use($db){
+                                                $this->runAutoBiller($invoice, $db);
                                             });
 
             }
         }
     }
 
-    private function runAutoBiller(Invoice $invoice)
+    private function runAutoBiller(Invoice $invoice, $db)
     {
         info("Firing autobill for {$invoice->company_id} - {$invoice->number}");
 
         try{
+            MultiDB::setDB($db);
             $invoice->service()->autoBill()->save();
         }
         catch(\Exception $e) {
