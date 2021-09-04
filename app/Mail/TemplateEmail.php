@@ -84,8 +84,6 @@ class TemplateEmail extends Mailable
         else
             $email_from_name = $this->company->present()->name();
 
-nlog($email_from_name);
-
         $this->from(config('mail.from.address'), $email_from_name);
 
         if (strlen($settings->bcc_email) > 1)

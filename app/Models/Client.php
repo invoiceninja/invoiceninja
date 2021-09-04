@@ -213,7 +213,7 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     public function assigned_user()
