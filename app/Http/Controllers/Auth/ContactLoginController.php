@@ -37,9 +37,11 @@ class ContactLoginController extends Controller
     public function showLoginForm(Request $request)
     {
         //if we are on the root domain invoicing.co do not show any company logos
-        if(Ninja::isHosted() && count(explode('.', request()->getHost())) == 2){
-            $company = null;
-        }elseif (strpos($request->getHost(), 'invoicing.co') !== false) {
+        // if(Ninja::isHosted() && count(explode('.', request()->getHost())) == 2){
+        //     $company = null;
+        // }else
+
+        if (strpos($request->getHost(), 'invoicing.co') !== false) {
             $subdomain = explode('.', $request->getHost())[0];
 
             MultiDB::findAndSetDbByDomain(['subdomain' => $subdomain]);
