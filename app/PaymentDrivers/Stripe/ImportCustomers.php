@@ -52,8 +52,8 @@ class ImportCustomers
 
         $this->update_payment_methods = new UpdatePaymentMethods($this->stripe);
 
-        // if(Ninja::isHosted() && strlen($this->stripe->company_gateway->getConfigField('account_id')) < 1)
-        //     throw new StripeConnectFailure('Stripe Connect has not been configured');
+        if(Ninja::isHosted() && strlen($this->stripe->company_gateway->getConfigField('account_id')) < 1)
+            throw new StripeConnectFailure('Stripe Connect has not been configured');
 
         $customers = Customer::all([], $this->stripe->stripe_connect_auth);
 
