@@ -52,8 +52,8 @@ class ImportCustomers
 
         $this->update_payment_methods = new UpdatePaymentMethods($this->stripe);
 
-        if(Ninja::isHosted() && strlen($this->stripe->company_gateway->getConfigField('account_id')) < 1)
-            throw new StripeConnectFailure('Stripe Connect has not been configured');
+        // if(Ninja::isHosted() && strlen($this->stripe->company_gateway->getConfigField('account_id')) < 1)
+        //     throw new StripeConnectFailure('Stripe Connect has not been configured');
 
         $customers = Customer::all([], $this->stripe->stripe_connect_auth);
 
@@ -85,9 +85,15 @@ class ImportCustomers
             $this->update_payment_methods->updateMethods($customer, $existing_customer_token->client);
         }
 
-        if($customer->email && $contact = $this->stripe->company_gateway->company->client_contacts()->where('email', $customer->email)->first()){
+        if($customer->email && $this->stripe->company_gateway->company->client_contacts()->where('email', $customer->email)->exists()){
             nlog("Customer exists: {$customer->email} just updating payment methods");
-            $this->update_payment_methods->updateMethods($customer, $contact->client);
+
+            $this->stripe->company_gateway->company->client_contacts()->where('email', $customer->email)->each(function ($contact) use ($customer){
+
+                $this->update_payment_methods->updateMethods($customer, $contact->client);
+                
+            });
+            
             return;
         }
 
