@@ -107,6 +107,7 @@ class BaseController extends Controller
           'token',
           'company.activities',
           'company.documents',
+          'company.company_gateways.gateway',
           'company.users.company_user',
           'company.tax_rates',
           'company.groups',
