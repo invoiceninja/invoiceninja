@@ -216,7 +216,7 @@ class BaseController extends Controller
                 $query->whereNotNull('updated_at')->with('documents');
             },
             'company.clients' => function ($query) use ($updated_at, $user) {
-                $query->where('clients.updated_at', '>=', $updated_at)->with('contacts.company', 'gateway_tokens', 'documents');
+                $query->where('clients.updated_at', '>=', $updated_at)->with('contacts.company', 'gateway_tokens', 'documents', 'group_settings');
 
                 if(!$user->hasPermission('view_client'))
                   $query->where('clients.user_id', $user->id)->orWhere('clients.assigned_user_id', $user->id);
@@ -457,7 +457,7 @@ class BaseController extends Controller
                 $query->whereNotNull('created_at')->with('documents');
             },
             'company.clients' => function ($query) use ($created_at, $user) {
-                $query->where('clients.created_at', '>=', $created_at)->with('contacts.company', 'gateway_tokens', 'documents');
+                $query->where('clients.created_at', '>=', $created_at)->with('contacts.company', 'gateway_tokens', 'documents', 'group_settings');
 
                 if(!$user->hasPermission('view_client'))
                   $query->where('clients.user_id', $user->id)->orWhere('clients.assigned_user_id', $user->id);
