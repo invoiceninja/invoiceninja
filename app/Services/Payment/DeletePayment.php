@@ -82,6 +82,8 @@ class DeletePayment
 
                 $net_deletable = $paymentable_invoice->pivot->amount - $paymentable_invoice->pivot->refunded;
                 
+                nlog("net deletable amount - refunded = {$net_deletable}");
+                
                 $paymentable_invoice->service()
                                     ->updateBalance($net_deletable)
                                     ->updatePaidToDate($net_deletable * -1)
@@ -103,8 +105,6 @@ class DeletePayment
                     $paymentable_invoice->service()->setStatus(Invoice::STATUS_PARTIAL)->save();
                 }
 
-                //fire event for this credit
-                //
             });
         }
 

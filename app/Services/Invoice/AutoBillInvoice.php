@@ -89,6 +89,8 @@ class AutoBillInvoice extends AbstractService
             return $this->invoice;
         }
 
+        nlog("Gateway present - adding gateway fee");
+
         /* $gateway fee */
         $this->invoice = $this->invoice->service()->addGatewayFee($gateway_token->gateway, $gateway_token->gateway_type_id, $amount)->save();
 
@@ -104,6 +106,8 @@ class AutoBillInvoice extends AbstractService
             'fee_total' => $fee,
             'fee_invoice_id' => $this->invoice->id,
         ]);
+
+        nlog("Payment hash created => {$payment_hash->id}");
 
         $payment = $gateway_token->gateway
                                  ->driver($this->client)
