@@ -67,18 +67,6 @@ class InvoiceFilters extends QueryFilters
         return $this->builder;
     }
 
-    public function client_id(string $client_id = '') :Builder
-    {
-        if (strlen($client_id) == 0) {
-            return $this->builder;
-        }
-
-        $this->builder->where('client_id', $this->decodePrimaryKey($client_id));
-
-        return $this->builder;
-        
-    }
-
     public function number(string $number) :Builder
     {
         return $this->builder->where('number', $number);
