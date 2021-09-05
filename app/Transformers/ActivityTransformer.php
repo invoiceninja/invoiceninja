@@ -12,6 +12,7 @@
 namespace App\Transformers;
 
 use App\Models\Activity;
+use App\Models\Backup;
 use App\Utils\Traits\MakesHash;
 
 class ActivityTransformer extends EntityTransformer
@@ -23,7 +24,9 @@ class ActivityTransformer extends EntityTransformer
     /**
      * @var array
      */
-    protected $availableIncludes = [];
+    protected $availableIncludes = [
+        'history'
+    ];
 
     /**
      * @param Activity $activity
@@ -54,5 +57,12 @@ class ActivityTransformer extends EntityTransformer
             'ip' => (string) $activity->ip,
 
         ];
+    }
+
+    public function includeHistory(Activity $activity)
+    {
+        $transformer = new ActivityTransformer($this->serializer);
+
+        return $this->includeItem($activity->backup, $transformer, Backup::class);
     }
 }
