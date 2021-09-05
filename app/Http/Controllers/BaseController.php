@@ -214,10 +214,10 @@ class BaseController extends Controller
         $query->with(
             [
             'company' => function ($query) use ($updated_at, $user) {
-                $query->whereNotNull('updated_at')->with('documents');
+                $query->whereNotNull('updated_at')->with('documents')->with('users');
             },
             'company.clients' => function ($query) use ($updated_at, $user) {
-                $query->where('clients.updated_at', '>=', $updated_at)->with('contacts.company', 'gateway_tokens', 'documents', 'group_settings');
+                $query->where('clients.updated_at', '>=', $updated_at)->with('contacts.company', 'gateway_tokens', 'documents');
 
                 if(!$user->hasPermission('view_client'))
                   $query->where('clients.user_id', $user->id)->orWhere('clients.assigned_user_id', $user->id);
@@ -253,7 +253,7 @@ class BaseController extends Controller
                   $query->where('expenses.user_id', $user->id)->orWhere('expenses.assigned_user_id', $user->id);
             },
             'company.groups' => function ($query) use ($updated_at, $user) {
-                $query->where('updated_at', '>=', $updated_at);
+                $query->where('updated_at', '>=', $updated_at)->with('documents');
 
                 if(!$user->isAdmin())
                   $query->where('group_settings.user_id', $user->id);
@@ -301,7 +301,7 @@ class BaseController extends Controller
 
             },
             'company.recurring_invoices'=> function ($query) use ($updated_at, $user) {
-                $query->where('updated_at', '>=', $updated_at)->with('invitations', 'documents');
+                $query->where('updated_at', '>=', $updated_at)->with('invitations', 'documents', 'client.gateway_tokens', 'client.group_settings');
 
                 if(!$user->hasPermission('view_recurring_invoice'))
                   $query->where('recurring_invoices.user_id', $user->id)->orWhere('recurring_invoices.assigned_user_id', $user->id);
@@ -391,7 +391,7 @@ class BaseController extends Controller
                 $query->where('created_at', '>=', $created_at);
             },
             'company.groups' => function ($query) use ($created_at, $user) {
-                $query->where('created_at', '>=', $created_at);
+                $query->where('created_at', '>=', $created_at)->with('documents');
 
             },
             'company.payment_terms'=> function ($query) use ($created_at, $user) {
@@ -458,7 +458,7 @@ class BaseController extends Controller
                 $query->whereNotNull('created_at')->with('documents');
             },
             'company.clients' => function ($query) use ($created_at, $user) {
-                $query->where('clients.created_at', '>=', $created_at)->with('contacts.company', 'gateway_tokens', 'documents', 'group_settings');
+                $query->where('clients.created_at', '>=', $created_at)->with('contacts.company', 'gateway_tokens', 'documents');
 
                 if(!$user->hasPermission('view_client'))
                   $query->where('clients.user_id', $user->id)->orWhere('clients.assigned_user_id', $user->id);
@@ -478,12 +478,6 @@ class BaseController extends Controller
                   $query->where('credits.user_id', $user->id)->orWhere('credits.assigned_user_id', $user->id);
 
             },
-            // 'company.designs'=> function ($query) use ($created_at, $user) {
-            //     $query->where('created_at', '>=', $created_at)->with('company');
-
-            //     if(!$user->isAdmin())
-            //       $query->where('designs.user_id', $user->id);
-            // },
             'company.documents'=> function ($query) use ($created_at, $user) {
                 $query->where('created_at', '>=', $created_at);
             },
@@ -494,7 +488,7 @@ class BaseController extends Controller
                   $query->where('expenses.user_id', $user->id)->orWhere('expenses.assigned_user_id', $user->id);
             },
             'company.groups' => function ($query) use ($created_at, $user) {
-                $query->where('created_at', '>=', $created_at);
+                $query->where('created_at', '>=', $created_at)->with('documents');
 
                 if(!$user->isAdmin())
                   $query->where('group_settings.user_id', $user->id);

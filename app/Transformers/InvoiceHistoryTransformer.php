@@ -23,9 +23,7 @@ class InvoiceHistoryTransformer extends EntityTransformer
         'activity',
     ];
 
-    protected $availableIncludes = [
-        'activity',
-    ];
+    protected $availableIncludes = [];
 
     public function transform(Backup $backup)
     {

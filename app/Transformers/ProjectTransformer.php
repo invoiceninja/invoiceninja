@@ -30,7 +30,6 @@ class ProjectTransformer extends EntityTransformer
      * @var array
      */
     protected $availableIncludes = [
-        'documents'
     ];
 
     public function includeDocuments(Project $project)
