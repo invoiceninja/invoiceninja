@@ -44,7 +44,7 @@ class HostedMigrations extends Command
      *
      * @var string
      */
-    protected $signature = 'migrations:hosted-import {--email=}';
+    protected $signature = 'ninja:import {--email=}';
 
     /**
      * The console command description.
