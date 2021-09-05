@@ -46,6 +46,21 @@ class InvitationController extends Controller
         return $this->genericRouter('recurring_invoice', $invitation_key);
     }
 
+    public function invoiceRouter(string $invitation_key)
+    {
+        return $this->genericRouter('invoice', $invitation_key);
+    }
+
+    public function quoteRouter(string $invitation_key)
+    {
+        return $this->genericRouter('quote', $invitation_key);
+    }
+
+    public function creditRouter(string $invitation_key)
+    {
+        return $this->genericRouter('credit', $invitation_key);
+    }
+
     private function genericRouter(string $entity, string $invitation_key)
     {
 
