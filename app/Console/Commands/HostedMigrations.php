@@ -114,9 +114,6 @@ class HostedMigrations extends Command
 
                     Import::dispatch($import_file, $user->companies()->first(), $user);
 
-                    unlink(public_path("storage/migrations/$filename/migration.json"));
-                    unlink($file->getRealPath());
-
                 } catch (NonExistingMigrationFile | ProcessingMigrationArchiveFailed | ResourceNotAvailableForMigration | MigrationValidatorFailed | ResourceDependencyMissing $e) {
                     \Mail::to($this->user)->send(new MigrationFailed($e, $e->getMessage()));
 
