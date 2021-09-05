@@ -30,7 +30,7 @@ class InvoiceSum
 
     public $invoice_item;
 
-    public $total_taxes;
+    public $total_taxes = 0;
 
     private $total;
 
