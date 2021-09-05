@@ -20,10 +20,12 @@ class InvoiceHistoryTransformer extends EntityTransformer
     use MakesHash;
 
     protected $defaultIncludes = [
-        'activity',
+        // 'activity',
     ];
 
-    protected $availableIncludes = [];
+    protected $availableIncludes = [
+        'activity',
+    ];
 
     public function transform(Backup $backup)
     {
