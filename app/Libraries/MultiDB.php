@@ -73,12 +73,12 @@ class MultiDB
     public static function checkUserEmailExists($email) : bool
     {
         if (! config('ninja.db.multi_db_enabled')) 
-            return User::where(['email' => $email])->exists(); // true >= 1 emails found / false -> == emails found
+            return User::where(['email' => $email])->withTrashed()->exists(); // true >= 1 emails found / false -> == emails found
         
         $current_db = config('database.default');  
 
         foreach (self::$dbs as $db) {
-            if (User::on($db)->where(['email' => $email])->exists()) { // if user already exists, validation will fail
+            if (User::on($db)->where(['email' => $email])->withTrashed()->exists()) { // if user already exists, validation will fail
                 self::setDb($current_db);
                 return true;
             }
@@ -107,7 +107,7 @@ class MultiDB
         $current_db = config('database.default');  
 
         foreach (self::$dbs as $db) {
-            if (User::on($db)->where(['email' => $email])->exists()) { 
+            if (User::on($db)->where(['email' => $email])->withTrashed()->exists()) { 
                 if (Company::on($db)->where(['company_key' => $company_key])->exists()) {
                     self::setDb($current_db);
                     return true;
@@ -196,7 +196,7 @@ class MultiDB
         //multi-db active
         foreach (self::$dbs as $db) {
             
-            if (User::on($db)->where('email', $email)->exists()){ 
+            if (User::on($db)->where('email', $email)->withTrashed()->exists()){ 
                 self::setDb($db);
                 return true;
             }
