@@ -29,12 +29,7 @@ class QuoteTransformer extends EntityTransformer
     ];
 
     protected $availableIncludes = [
-        'invitations',
-        'documents',
-        // 'history',
         'activities',
-       //    'payments',
-    //    'client',
     ];
 
     public function includeActivities(Quote $quote)

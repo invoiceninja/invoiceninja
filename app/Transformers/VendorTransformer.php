@@ -35,7 +35,6 @@ class VendorTransformer extends EntityTransformer
      */
     protected $availableIncludes = [
         'activities',
-        'documents',
     ];
 
     /**

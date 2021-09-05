@@ -1241,8 +1241,11 @@ class CompanyImport implements ShouldQueue
             
             /* New to convert product ids from old hashes to new hashes*/
             if($class == 'App\Models\Subscription'){
-                $obj_array['product_ids'] = $this->recordProductIds($obj_array['product_ids']); 
-                $obj_array['recurring_product_ids'] = $this->recordProductIds($obj_array['recurring_product_ids']); 
+                //$obj_array['product_ids'] = $this->recordProductIds($obj_array['product_ids']); 
+                //$obj_array['recurring_product_ids'] = $this->recordProductIds($obj_array['recurring_product_ids']); 
+                //
+                $obj_array['recurring_product_ids'] = '';
+                $obj_array['product_ids'] = '';
             }
 
             $new_obj = $class::firstOrNew(
@@ -1272,6 +1275,12 @@ class CompanyImport implements ShouldQueue
 
         foreach($id_array as $id) {
 
+            if(!$id)
+                continue;
+
+            $id = $this->decodePrimaryKey($id);
+
+            nlog($id);
             $tmp_arr[] = $this->encodePrimaryKey($this->transformId('products', $id));
         }     
 
