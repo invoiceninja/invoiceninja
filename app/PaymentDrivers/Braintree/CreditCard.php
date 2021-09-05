@@ -88,14 +88,30 @@ class CreditCard
 
         $token = $this->getPaymentToken($request->all(), $customer->id);
 
-        $result = $this->braintree->gateway->transaction()->sale([
+        $data = [
             'amount' => $this->braintree->payment_hash->data->amount_with_fee,
             'paymentMethodToken' => $token,
             'deviceData' => $state['client-data'],
             'options' => [
                 'submitForSettlement' => true
             ],
-        ]);
+        ];
+
+        if ($this->braintree->company_gateway->getConfigField('merchantAccountId')) {
+            /** https://developer.paypal.com/braintree/docs/reference/request/transaction/sale/php#full-example */
+            $data['merchantAccountId'] = $this->braintree->company_gateway->getConfigField('merchantAccountId');
+        }
+
+        try {
+            $result = $this->braintree->gateway->transaction()->sale($data);
+        } catch(\Exception $e) {
+            if ($e instanceof \Braintree\Exception\Authorization) {
+                throw new PaymentFailed(ctrans('texts.generic_gateway_error'), $e->getCode());
+            }
+
+            throw new PaymentFailed($e->getMessage(), $e->getCode());
+        }
+        
 
         if ($result->success) {
             $this->braintree->logSuccessfulGatewayResponse(['response' => $request->server_response, 'data' => $this->braintree->payment_hash], SystemLog::TYPE_BRAINTREE);
