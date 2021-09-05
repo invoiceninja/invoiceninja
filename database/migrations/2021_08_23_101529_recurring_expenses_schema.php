@@ -78,6 +78,11 @@ class RecurringExpensesSchema extends Migration
 
         });
 
+        Schema::table('activities', function (Blueprint $table) {
+            $table->unsignedInteger('recurring_expense_id')->nullable();
+            $table->unsignedInteger('recurring_quote_id')->nullable();
+        });
+
         Schema::table('recurring_quotes', function ($table){
             $table->string('auto_bill')->default('off');
             $table->boolean('auto_bill_enabled')->default(0);
