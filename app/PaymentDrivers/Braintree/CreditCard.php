@@ -134,17 +134,32 @@ class CreditCard
             return $data['token'];
         }
 
-        $gateway_response = json_decode($data['gateway_response']);
+        $gateway_response = \json_decode($data['gateway_response']);
 
-        $payment_method = $this->braintree->gateway->paymentMethod()->create([
-            'customerId' => $customerId,
-            'paymentMethodNonce' => $gateway_response->nonce,
-            'options' => [
-                'verifyCard' => true,
-            ],
-        ]);
+        try {
+            $payment_method = $this->braintree->gateway->paymentMethod()->create([
+                'customerId' => $customerId,
+                'paymentMethodNonce' => $gateway_response->nonce,
+                'options' => [
+                    'verifyCard' => true,
+                ],
+            ]);
+    
+            return $payment_method->paymentMethod->token;
+        } catch(\Exception $e) {
+            SystemLogger::dispatch(
+                $e->getMessage(),
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_BRAINTREE,
+                $this->braintree->client,
+                $this->braintree->client->company,
+            );
 
-        return $payment_method->paymentMethod->token;
+            nlog(['e' => $e->getMessage(), 'class' => \get_class($e)]);
+    
+            throw new PaymentFailed($e->getMessage(), $e->getCode());
+        }
     }
 
     private function processSuccessfulPayment($response)
