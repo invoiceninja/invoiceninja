@@ -5,18 +5,20 @@
     id="main-sidebar">
 
     @if($settings->enable_client_portal)
-    <!-- Off-canvas menu for mobile -->
-    @include('portal.ninja2020.components.general.sidebar.mobile')
+        <!-- Off-canvas menu for mobile -->
+        @include('portal.ninja2020.components.general.sidebar.mobile')
 
-    <!-- Static sidebar for desktop -->
-    @unless(request()->query('sidebar') === 'hidden')
-        @include('portal.ninja2020.components.general.sidebar.desktop')
-    @endunless
-
+        <!-- Static sidebar for desktop -->
+        @unless(request()->query('sidebar') === 'hidden')
+            @include('portal.ninja2020.components.general.sidebar.desktop')
+        @endunless
     @endif
 
     <div class="flex flex-col w-0 flex-1 overflow-hidden">
-        @include('portal.ninja2020.components.general.sidebar.header')
+        @if($settings->enable_client_portal)
+            @include('portal.ninja2020.components.general.sidebar.header')
+        @endif
+        
         <main
             class="flex-1 relative z-0 overflow-y-auto pt-6 focus:outline-none"
             tabindex="0" x-data
