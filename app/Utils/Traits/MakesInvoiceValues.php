@@ -483,7 +483,7 @@ trait MakesInvoiceValues
                     $output = (int)$raw - (int)$_value[1]; // 1 (:MONTH) - 4
                 }
 
-                if ($_operation == '/') {
+                if ($_operation == '/' && (int)$_value[1] != 0) {
                     $output = (int)$raw / (int)$_value[1]; // 1 (:MONTH) / 4
                 }
 

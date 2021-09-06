@@ -355,7 +355,7 @@ class MultiPaymentDeleteTest extends TestCase
 
         $this->assertEquals(0, $invoice->fresh()->balance);
         $this->assertEquals(0, $invoice->client->fresh()->balance);  
-        $this->assertEquals(262, $invoice->client->fresh()->paid_to_date);
+        $this->assertEquals(0, $invoice->client->fresh()->paid_to_date);
 
 
 //Delete payment 4 which is for $162
