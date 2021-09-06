@@ -16,6 +16,7 @@ use App\Libraries\MultiDB;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Document;
+use App\Models\Expense;
 use App\Utils\Traits\WithSorting;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -63,6 +64,10 @@ class DocumentsTable extends Component
                 $this->query = $this->credits();
                 break;
 
+            case 'expenses':
+                $this->query = $this->expenses();
+                break;
+
             default:
                 $this->query = $this->documents();
                 break;
@@ -78,6 +83,14 @@ class DocumentsTable extends Component
     {
         return Document::query()
             ->whereHasMorph('documentable', [Credit::class], function ($query) {
+                $query->where('client_id', $this->client->id);
+            });
+    }
+
+    protected function expenses()
+    {
+        return Document::query()
+            ->whereHasMorph('documentable', [Expense::class], function ($query) {
                 $query->where('client_id', $this->client->id);
             });
     }
