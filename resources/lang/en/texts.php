@@ -4303,6 +4303,7 @@ $LANG = array(
     'savings' => 'Savings',
     'unable_to_verify_payment_method' => 'Unable to verify payment method.',
     'generic_gateway_error' => 'Gateway configuration error. Please check your credentials.',
+    'my_documents' => 'My documents',
 );
 
 return $LANG;
