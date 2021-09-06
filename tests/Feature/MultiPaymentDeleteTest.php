@@ -57,6 +57,7 @@ class MultiPaymentDeleteTest extends TestCase
         $user = User::factory()->create([
             'account_id' => $account->id,
             'confirmation_code' => '11',
+            'email' => $this->faker->unique()->safeEmail,
         ]);
 
         $cu = CompanyUserFactory::create($user->id, $company->id, $account->id);
@@ -117,6 +118,7 @@ class MultiPaymentDeleteTest extends TestCase
 
         $this->assertEquals(0, $client->balance);
         $this->assertEquals(0, $invoice->balance);
+//mark sent
 
         $invoice = $invoice->service()->markSent()->save();
 
@@ -126,6 +128,8 @@ class MultiPaymentDeleteTest extends TestCase
         $this->assertEquals(325, $invoice->balance);
         $this->assertEquals(325, $invoice->client->balance);
 
+//payment 163
+//
         $data = [
             'amount' => 163.0,
             'client_id' => $this->encodePrimaryKey($client->id),
@@ -147,6 +151,7 @@ class MultiPaymentDeleteTest extends TestCase
         $payment_id = $arr['data']['id'];
         $payment_1 = Payment::whereId($this->decodePrimaryKey($payment_id))->first();
 
+//payment 162
         $this->assertEquals(162, $invoice->fresh()->balance);
         $this->assertEquals(162, $invoice->client->fresh()->balance);
 
@@ -176,7 +181,7 @@ class MultiPaymentDeleteTest extends TestCase
         $this->assertEquals(0, $invoice->client->fresh()->balance);
 
 
-        //refund payment 2 by 63 dollars
+//refund payment 2 by 63 dollars
 
         $data = [
             'id' => $this->encodePrimaryKey($payment_2->id),
@@ -200,7 +205,7 @@ class MultiPaymentDeleteTest extends TestCase
         $this->assertEquals(63, $invoice->client->fresh()->balance);               
         
         
-        //delete payment 2
+//delete payment 2
         //
         $data = [
             'ids' => [$this->encodePrimaryKey($payment_2->id)],
@@ -213,5 +218,117 @@ class MultiPaymentDeleteTest extends TestCase
 
         $this->assertEquals(162, $invoice->fresh()->balance);
         $this->assertEquals(162, $invoice->client->fresh()->balance);   
+
+
+// Pay 162 again and create payment #3
+
+        $data = [
+            'amount' => 162.0,
+            'client_id' => $this->encodePrimaryKey($client->id),
+            'invoices' => [
+                    [
+                        'invoice_id' => $this->encodePrimaryKey($invoice->id),
+                        'amount' => 162,
+                    ],
+                ],
+            'date' => '2019/12/12',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $token->token,
+        ])->post('/api/v1/payments/', $data);         
+
+        $arr = $response->json();
+        $payment_id = $arr['data']['id'];
+        $payment_3 = Payment::whereId($this->decodePrimaryKey($payment_id))->first();
+
+        $invoice->fresh();
+        $invoice->client->fresh();
+
+        $this->assertEquals(0, $invoice->fresh()->balance);
+        $this->assertEquals(0, $invoice->client->fresh()->balance);
+
+
+//refund payment 3 by 63
+    
+        $data = [
+            'id' => $this->encodePrimaryKey($payment_3->id),
+            'amount' => 63,
+            'date' => '2021/12/12',
+            'invoices' => [
+                [
+                'invoice_id' => $invoice->hashed_id,
+                'amount' => 63,
+                ],
+            ],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $token->token,
+        ])->post('/api/v1/payments/refund', $data);
+
+        $this->assertEquals(63, $invoice->fresh()->balance);
+        $this->assertEquals(63, $invoice->client->fresh()->balance);
+
+//payment 4 for 63
+        $data = [
+            'amount' => 63.0,
+            'client_id' => $this->encodePrimaryKey($client->id),
+            'invoices' => [
+                    [
+                        'invoice_id' => $this->encodePrimaryKey($invoice->id),
+                        'amount' => 63,
+                    ],
+                ],
+            'date' => '2019/12/12',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $token->token,
+        ])->post('/api/v1/payments/', $data);         
+
+        $arr = $response->json();
+        $payment_id = $arr['data']['id'];
+        $payment_4 = Payment::whereId($this->decodePrimaryKey($payment_id))->first();
+
+
+        $this->assertEquals(0, $invoice->fresh()->balance);
+        $this->assertEquals(0, $invoice->client->fresh()->balance);
+
+// delete payment 3
+// 
+
+        //
+        $data = [
+            'ids' => [$this->encodePrimaryKey($payment_4->id)],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $token->token,
+        ])->post('/api/v1/payments/bulk?action=delete', $data);
+
+        $this->assertEquals(63, $invoice->fresh()->balance);
+        $this->assertEquals(63, $invoice->client->fresh()->balance);   
+
+
+//set discount of 63 to invoice
+
+        $invoice = $invoice->fresh();
+        $invoice->discount = 63;
+        $invoice->is_amount_discount = true;
+        $invoice->save();
+
+        $invoice->calc()->getInvoice()->save();
+        $invoice->service()->updateStatus()->save();
+        $invoice->ledger()->updateInvoiceBalance(-63, "Update adjustment for invoice {$invoice->number}");
+        $invoice->client->service()->updateBalance(-63)->save();
+
+        $this->assertEquals(0, $invoice->fresh()->balance);
+        $this->assertEquals(0, $invoice->client->fresh()->balance);  
+
     }
 }
