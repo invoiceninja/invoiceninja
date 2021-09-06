@@ -111,7 +111,8 @@ class DeletePayment
 
                     //If the invoice is deleted we only update the meta data on the invoice
                     //and reduce the clients paid to date
-                    $paymentable_invoice->updatePaidToDate($net_deletable * -1)
+                    $paymentable_invoice->service()
+                                        ->updatePaidToDate($net_deletable * -1)
                                         ->save();
 
                     $paymentable_invoice->client

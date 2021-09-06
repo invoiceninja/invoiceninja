@@ -62,7 +62,7 @@ class BaseTransformer
     public function getClient($client_name, $client_email) {
 		$clients = $this->maps['company']->clients;
 
-		$clients = $clients->where( 'name', $client_name );
+		$clients = $clients->where( 'id_number', $client_name );
 
 		if ( $clients->count() >= 1 ) {
 			return $clients->first()->id;
