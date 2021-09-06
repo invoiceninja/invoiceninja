@@ -20,6 +20,7 @@ use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Project;
+use App\Models\Quote;
 use App\Utils\Traits\WithSorting;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -83,6 +84,10 @@ class DocumentsTable extends Component
                 $this->query = $this->projects();
                 break;
 
+            case 'quotes':
+                $this->query = $this->quotes();
+                break;
+
             default:
                 $this->query = $this->documents();
                 break;
@@ -130,6 +135,14 @@ class DocumentsTable extends Component
     {
         return Document::query()
             ->whereHasMorph('documentable', [Project::class], function ($query) {
+                $query->where('client_id', $this->client->id);
+            });
+    }
+
+    protected function quotes()
+    {
+        return Document::query()
+            ->whereHasMorph('documentable', [Quote::class], function ($query) {
                 $query->where('client_id', $this->client->id);
             });
     }

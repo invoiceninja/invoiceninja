@@ -35,6 +35,12 @@
             wire:click="updateResources('projects')" />
                 {{ ctrans('texts.projects') }}
         </button>
+
+        <button 
+            class="button border border-transparent hover:border-gray-600 {{ $tab === 'quotes' ? 'border-gray-600' : '' }}"ž
+            wire:click="updateResources('quotes')" />
+                {{ ctrans('texts.quotes') }}
+        </button>        
     </div>
 
     <div class="flex items-center justify-between mt-6">
