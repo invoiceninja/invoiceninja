@@ -80,7 +80,6 @@ class RecurringExpenseTransformer extends EntityTransformer
             'transaction_reference' => (string) $recurring_expense->transaction_reference ?: '',
             'transaction_id' => (string) $recurring_expense->transaction_id ?: '',
             'date' => $recurring_expense->date ?: '',
-            //'recurring_expense_date' => $recurring_expense->date ?: '',
             'number' => (string)$recurring_expense->number ?: '',
             'payment_date' => $recurring_expense->payment_date ?: '',
             'custom_value1' => $recurring_expense->custom_value1 ?: '',
@@ -96,6 +95,11 @@ class RecurringExpenseTransformer extends EntityTransformer
             'tax_amount3' => (float) $recurring_expense->tax_amount3,
             'uses_inclusive_taxes' => (bool) $recurring_expense->uses_inclusive_taxes,
             'calculate_tax_by_amount' => (bool) $recurring_expense->calculate_tax_by_amount,
+            'entity_type' => 'recurringExpense',
+            'frequency_id' => (string) $recurring_expense->frequency_id,
+            'remaining_cycles' => (int) $recurring_expense->remaining_cycles,
+            'last_sent_date' => $recurring_expense->last_sent_date ?: '',
+            'next_send_date' => $recurring_expense->next_send_date ?: '',
         ];
     }
 }
