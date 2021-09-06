@@ -301,7 +301,10 @@ trait MakesInvoiceValues
             $data[$key][$table_type . ".{$_table_type}3"] = $helpers->formatCustomFieldValue($this->client->company->custom_fields, "{$_table_type}3", $item->custom_value3, $this->client);
             $data[$key][$table_type . ".{$_table_type}4"] = $helpers->formatCustomFieldValue($this->client->company->custom_fields, "{$_table_type}4", $item->custom_value4, $this->client);
 
-            $data[$key][$table_type.'.quantity'] = Number::formatValue($item->quantity, $this->client->currency());
+            //$data[$key][$table_type.'.quantity'] = Number::formatValue($item->quantity, $this->client->currency());
+            
+            //change quantity from localized number, to decimal format with no trailing zeroes 06/09/21
+            $data[$key][$table_type.'.quantity'] = rtrim($item->quantity, "0");
 
             $data[$key][$table_type.'.unit_cost'] = Number::formatMoney($item->cost, $this->client);
             $data[$key][$table_type.'.cost'] = Number::formatMoney($item->cost, $this->client);
