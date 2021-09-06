@@ -1,5 +1,19 @@
 <div>
-    <div class="flex items-center justify-between">
+    <div class="space-x-2 flex flex-row -mt-6 overflow-x-auto inline-block pb-4">
+        <button 
+            class="button border border-transparent hover:border-gray-600 {{ $tab === 'documents' ? 'border-gray-600' : '' }}"
+            wire:click="updateResources('documents')" />
+                {{ ctrans('texts.my_documents') }}
+        </button>
+
+        <button 
+            class="button border border-transparent hover:border-gray-600 {{ $tab === 'credits' ? 'border-gray-600' : '' }}"ž
+            wire:click="updateResources('credits')" />
+                {{ ctrans('texts.credits') }}
+        </button>
+    </div>
+
+    <div class="flex items-center justify-between mt-6">
         <div class="flex items-center">
             <span class="mr-2 text-sm hidden md:block">{{ ctrans('texts.per_page') }}</span>
             <select wire:model="per_page" class="form-select py-1 text-sm">

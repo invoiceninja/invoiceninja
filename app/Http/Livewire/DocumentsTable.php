@@ -14,6 +14,8 @@ namespace App\Http\Livewire;
 
 use App\Libraries\MultiDB;
 use App\Models\Client;
+use App\Models\Credit;
+use App\Models\Document;
 use App\Utils\Traits\WithSorting;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -28,23 +30,55 @@ class DocumentsTable extends Component
 
     public $company;
 
+    public string $tab = 'documents';
+
+    protected $query;
+
     public function mount($client)
     {
-
         MultiDB::setDb($this->company->db);
 
         $this->client = $client;
+
+        $this->query = $this->documents();
     }
 
     public function render()
     {
-        $query = $this->client
-            ->documents()
-            ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
-            ->paginate($this->per_page);
-
         return render('components.livewire.documents-table', [
-            'documents' => $query,
+            'documents' => $this->query->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')->paginate($this->per_page),
         ]);
+    }
+
+    public function updateResources(string $resource)
+    {
+        $this->tab = $resource;
+
+        switch ($resource) {
+            case 'documents':
+                $this->query = $this->documents();
+                break;
+
+            case 'credits':
+                $this->query = $this->credits();
+                break;
+
+            default:
+                $this->query = $this->documents();
+                break;
+        }
+    }
+
+    protected function documents()
+    {
+        return $this->client->documents();
+    }
+
+    protected function credits()
+    {
+        return Document::query()
+            ->whereHasMorph('documentable', [Credit::class], function ($query) {
+                $query->where('client_id', $this->client->id);
+            });
     }
 }
