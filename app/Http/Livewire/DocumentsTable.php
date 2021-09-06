@@ -18,6 +18,7 @@ use App\Models\Credit;
 use App\Models\Document;
 use App\Models\Expense;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Utils\Traits\WithSorting;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -73,6 +74,10 @@ class DocumentsTable extends Component
                 $this->query = $this->invoices();
                 break;
 
+            case 'payments':
+                $this->query = $this->payments();
+                break;
+
             default:
                 $this->query = $this->documents();
                 break;
@@ -104,6 +109,14 @@ class DocumentsTable extends Component
     {
         return Document::query()
             ->whereHasMorph('documentable', [Invoice::class], function ($query) {
+                $query->where('client_id', $this->client->id);
+            });
+    }
+
+    protected function payments()
+    {
+        return Document::query()
+            ->whereHasMorph('documentable', [Payment::class], function ($query) {
                 $query->where('client_id', $this->client->id);
             });
     }

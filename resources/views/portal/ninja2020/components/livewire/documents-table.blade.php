@@ -23,6 +23,12 @@
             wire:click="updateResources('invoices')" />
                 {{ ctrans('texts.invoices') }}
         </button>
+
+        <button 
+            class="button border border-transparent hover:border-gray-600 {{ $tab === 'payments' ? 'border-gray-600' : '' }}"ž
+            wire:click="updateResources('payments')" />
+                {{ ctrans('texts.payments') }}
+        </button>
     </div>
 
     <div class="flex items-center justify-between mt-6">
