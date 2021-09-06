@@ -47,6 +47,12 @@
             wire:click="updateResources('recurringInvoices')" />
                 {{ ctrans('texts.recurring_invoices') }}
         </button>   
+
+        <button 
+            class="button border border-transparent hover:border-gray-600 {{ $tab === 'tasks' ? 'border-gray-600' : '' }}"ž
+            wire:click="updateResources('tasks')" />
+                {{ ctrans('texts.tasks') }}
+        </button>   
     </div>
 
     <div class="flex items-center justify-between mt-6">
