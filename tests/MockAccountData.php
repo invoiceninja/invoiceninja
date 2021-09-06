@@ -301,6 +301,8 @@ trait MockAccountData
         $this->recurring_expense = RecurringExpense::factory()->create([
             'user_id' => $user_id,
             'company_id' => $this->company->id,
+            'frequency_id' => 5,
+            'remaining_cycles' => 5,
         ]);
 
         $this->recurring_quote = RecurringQuote::factory()->create([

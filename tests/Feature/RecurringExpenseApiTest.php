@@ -10,13 +10,14 @@
  */
 namespace Tests\Feature;
 
+use App\Models\RecurringInvoice;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Validation\ValidationException;
 use Tests\MockAccountData;
 use Tests\TestCase;
-use Illuminate\Validation\ValidationException;
 
 /**
  * @test
@@ -67,6 +68,7 @@ class RecurringExpenseApiTest extends TestCase
             'amount' => 10,
             'client_id' => $this->client->hashed_id,
             'number' => '123321',
+            'frequency_id' => 5,
         ];
 
         $response = $this->withHeaders([
@@ -170,4 +172,44 @@ class RecurringExpenseApiTest extends TestCase
 
         $this->assertTrue($arr['data'][0]['is_deleted']);
     }
+
+    public function testRecurringExpenseStart()
+    {
+        $data = [
+            'ids' => [$this->encodePrimaryKey($this->recurring_expense->id)],
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/recurring_expenses/bulk?action=start', $data);
+
+        $arr = $response->json();
+nlog($arr);
+        $this->assertEquals(RecurringInvoice::STATUS_ACTIVE, $arr['data'][0]['status_id']);
+    }
+
+
+    public function testRecurringExpensePaused()
+    {
+        $data = [
+            'ids' => [$this->encodePrimaryKey($this->recurring_expense->id)],
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/recurring_expenses/bulk?action=start', $data);
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/recurring_expenses/bulk?action=stop', $data);
+
+        $arr = $response->json();
+nlog($arr);
+        $this->assertEquals(RecurringInvoice::STATUS_PAUSED, $arr['data'][0]['status_id']);
+    }
+
+
 }

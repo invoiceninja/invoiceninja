@@ -495,21 +495,59 @@ class RecurringExpenseController extends BaseController
 
         $recurring_expenses->each(function ($recurring_expense, $key) use ($action) {
             if (auth()->user()->can('edit', $recurring_expense)) {
-                $this->recurring_expense_repo->{$action}($recurring_expense);
+                $this->performAction($recurring_expense, $action, true);
             }
         });
 
         return $this->listResponse(RecurringExpense::withTrashed()->whereIn('id', $this->transformKeys($ids)));
     }
 
-    /**
-     * Returns a client statement.
-     *
-     * @return void [type] [description]
-     */
-    public function statement()
+    private function performAction(RecurringExpense $recurring_expense, string $action, $bulk = false)
     {
-        //todo
+        switch ($action) {
+            case 'archive':
+                $this->recurring_expense_repo->archive($recurring_expense);
+
+                if (! $bulk) {
+                    return $this->listResponse($recurring_expense);
+                }
+                break;
+            case 'restore':
+                $this->recurring_expense_repo->restore($recurring_expense);
+
+                if (! $bulk) {
+                    return $this->listResponse($recurring_expense);
+                }
+                break;
+            case 'delete':
+                $this->recurring_expense_repo->delete($recurring_expense);
+
+                if (! $bulk) {
+                    return $this->listResponse($recurring_expense);
+                }
+                break;
+            case 'email':
+                //dispatch email to queue
+                break;
+            case 'start':
+                $recurring_expense = $recurring_expense->service()->start()->save();
+
+                if (! $bulk) {
+                    $this->itemResponse($recurring_expense);
+                }
+                break;
+            case 'stop':
+                $recurring_expense = $recurring_expense->service()->stop()->save();
+
+                if (! $bulk) {
+                    $this->itemResponse($recurring_expense);
+                }
+
+                break;
+            default:
+                // code...
+                break;
+        }
     }
 
     /**

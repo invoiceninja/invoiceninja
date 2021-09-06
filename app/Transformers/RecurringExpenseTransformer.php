@@ -53,6 +53,7 @@ class RecurringExpenseTransformer extends EntityTransformer
             'id' => $this->encodePrimaryKey($recurring_expense->id),
             'user_id' => $this->encodePrimaryKey($recurring_expense->user_id),
             'assigned_user_id' => $this->encodePrimaryKey($recurring_expense->assigned_user_id),
+            'status_id' => (string) ($recurring_expense->status_id ?: 1),
             'vendor_id' => $this->encodePrimaryKey($recurring_expense->vendor_id),
             'invoice_id' => $this->encodePrimaryKey($recurring_expense->invoice_id),
             'client_id' => $this->encodePrimaryKey($recurring_expense->client_id),

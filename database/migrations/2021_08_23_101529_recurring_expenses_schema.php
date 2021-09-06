@@ -22,6 +22,7 @@ class RecurringExpensesSchema extends Migration
             $table->unsignedInteger('company_id')->index();
             $table->unsignedInteger('vendor_id')->nullable();
             $table->unsignedInteger('user_id');
+            $table->unsignedInteger('status_id');
 
             $table->unsignedInteger('invoice_id')->nullable();
             $table->unsignedInteger('client_id')->nullable();

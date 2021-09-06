@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Services\Recurring\RecurringService;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class RecurringExpense extends BaseModel
@@ -104,5 +105,13 @@ class RecurringExpense extends BaseModel
     public function client()
     {
         return $this->belongsTo(Client::class);
+    }
+
+    /**
+     * Service entry points.
+     */
+    public function service() :RecurringService
+    {
+        return new RecurringService($this);
     }
 }

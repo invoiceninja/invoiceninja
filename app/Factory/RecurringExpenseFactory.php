@@ -12,12 +12,14 @@
 namespace App\Factory;
 
 use App\Models\RecurringExpense;
+use App\Models\RecurringInvoice;
 
 class RecurringExpenseFactory
 {
     public static function create(int $company_id, int $user_id) :RecurringExpense
     {
         $recurring_expense = new RecurringExpense();
+        $recurring_expense->status_id = RecurringInvoice::STATUS_DRAFT;
         $recurring_expense->user_id = $user_id;
         $recurring_expense->company_id = $company_id;
         $recurring_expense->is_deleted = false;
