@@ -117,6 +117,7 @@ class MultiPaymentDeleteTest extends TestCase
         $invoice = $invoice->calc()->getInvoice();
 
         $this->assertEquals(0, $client->balance);
+        $this->assertEquals(0, $client->paid_to_date);
         $this->assertEquals(0, $invoice->balance);
 //mark sent
 
@@ -126,6 +127,7 @@ class MultiPaymentDeleteTest extends TestCase
         $invoice->client->fresh();
 
         $this->assertEquals(325, $invoice->balance);
+        $this->assertEquals(0, $invoice->client->fresh()->paid_to_date);
         $this->assertEquals(325, $invoice->client->balance);
 
 //payment 163
@@ -154,6 +156,7 @@ class MultiPaymentDeleteTest extends TestCase
 //payment 162
         $this->assertEquals(162, $invoice->fresh()->balance);
         $this->assertEquals(162, $invoice->client->fresh()->balance);
+        $this->assertEquals(163, $invoice->client->fresh()->paid_to_date);
 
 
         $data = [
@@ -179,6 +182,7 @@ class MultiPaymentDeleteTest extends TestCase
 
         $this->assertEquals(0, $invoice->fresh()->balance);
         $this->assertEquals(0, $invoice->client->fresh()->balance);
+        $this->assertEquals(325, $invoice->client->fresh()->paid_to_date);
 
 
 //refund payment 2 by 63 dollars
@@ -203,7 +207,8 @@ class MultiPaymentDeleteTest extends TestCase
 
         $this->assertEquals(63, $invoice->fresh()->balance);
         $this->assertEquals(63, $invoice->client->fresh()->balance);               
-        
+        $this->assertEquals(262, $invoice->client->fresh()->paid_to_date);
+
         
 //delete payment 2
         //
@@ -218,6 +223,7 @@ class MultiPaymentDeleteTest extends TestCase
 
         $this->assertEquals(162, $invoice->fresh()->balance);
         $this->assertEquals(162, $invoice->client->fresh()->balance);   
+        $this->assertEquals(163, $invoice->client->fresh()->paid_to_date);
 
 
 // Pay 162 again and create payment #3
@@ -248,6 +254,7 @@ class MultiPaymentDeleteTest extends TestCase
 
         $this->assertEquals(0, $invoice->fresh()->balance);
         $this->assertEquals(0, $invoice->client->fresh()->balance);
+        $this->assertEquals(325, $invoice->client->fresh()->paid_to_date);
 
 
 //refund payment 3 by 63
@@ -271,6 +278,7 @@ class MultiPaymentDeleteTest extends TestCase
 
         $this->assertEquals(63, $invoice->fresh()->balance);
         $this->assertEquals(63, $invoice->client->fresh()->balance);
+        $this->assertEquals(262, $invoice->client->fresh()->paid_to_date);
 
 //payment 4 for 63
         $data = [
@@ -297,6 +305,7 @@ class MultiPaymentDeleteTest extends TestCase
 
         $this->assertEquals(0, $invoice->fresh()->balance);
         $this->assertEquals(0, $invoice->client->fresh()->balance);
+        $this->assertEquals(325, $invoice->client->fresh()->paid_to_date);
 
 // delete payment 3
 // 
@@ -313,6 +322,7 @@ class MultiPaymentDeleteTest extends TestCase
 
         $this->assertEquals(63, $invoice->fresh()->balance);
         $this->assertEquals(63, $invoice->client->fresh()->balance);   
+        $this->assertEquals(262, $invoice->client->fresh()->paid_to_date);
 
 
 //set discount of 63 to invoice
@@ -329,6 +339,38 @@ class MultiPaymentDeleteTest extends TestCase
 
         $this->assertEquals(0, $invoice->fresh()->balance);
         $this->assertEquals(0, $invoice->client->fresh()->balance);  
+        $this->assertEquals(262, $invoice->client->fresh()->paid_to_date);
+
+
+//now delete the invoice
+
+        $data = [
+            'ids' => [$invoice->hashed_id],
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $token->token,
+            ])->post('/api/v1/invoices/bulk?action=delete', $data);
+
+        $this->assertEquals(0, $invoice->fresh()->balance);
+        $this->assertEquals(0, $invoice->client->fresh()->balance);  
+        $this->assertEquals(262, $invoice->client->fresh()->paid_to_date);
+
+
+//Delete payment 4 which is for $162
+        $data = [
+            'ids' => [$this->encodePrimaryKey($payment_1->id)],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $token->token,
+        ])->post('/api/v1/payments/bulk?action=delete', $data);
+
+        $this->assertEquals(0, $invoice->fresh()->balance);
+        $this->assertEquals(0, $invoice->client->fresh()->balance);  
+        $this->assertEquals(0, $invoice->client->fresh()->paid_to_date);
 
     }
 }
