@@ -21,6 +21,7 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Project;
 use App\Models\Quote;
+use App\Models\RecurringInvoice;
 use App\Utils\Traits\WithSorting;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -88,6 +89,10 @@ class DocumentsTable extends Component
                 $this->query = $this->quotes();
                 break;
 
+            case 'recurringInvoices':
+                $this->query = $this->recurringInvoices();
+                break;
+
             default:
                 $this->query = $this->documents();
                 break;
@@ -143,6 +148,14 @@ class DocumentsTable extends Component
     {
         return Document::query()
             ->whereHasMorph('documentable', [Quote::class], function ($query) {
+                $query->where('client_id', $this->client->id);
+            });
+    }
+
+    protected function recurringInvoices()
+    {
+        return Document::query()
+            ->whereHasMorph('documentable', [RecurringInvoice::class], function ($query) {
                 $query->where('client_id', $this->client->id);
             });
     }
