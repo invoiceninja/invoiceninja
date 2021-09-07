@@ -43,7 +43,7 @@ class ImportMigrations extends Command
      *
      * @var string
      */
-    protected $signature = 'migrations:import {--path=}';
+    protected $signature = 'ninja:old-import {--path=}';
 
     /**
      * The console command description.

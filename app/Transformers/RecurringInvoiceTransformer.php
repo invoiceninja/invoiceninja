@@ -31,11 +31,7 @@ class RecurringInvoiceTransformer extends EntityTransformer
     ];
 
     protected $availableIncludes = [
-        'invitations',
-        'documents',
         'activities',
-        // 'history',
-    //    'client',
     ];
 
     /*
@@ -154,7 +150,8 @@ class RecurringInvoiceTransformer extends EntityTransformer
             'entity_type' => 'recurringInvoice',
             'frequency_id' => (string) $invoice->frequency_id,
             'remaining_cycles' => (int) $invoice->remaining_cycles,
-            'recurring_dates' => (array) $invoice->recurringDates(),
+            //'recurring_dates' => (array) $invoice->recurringDates(),
+            'recurring_dates' => [],
             'auto_bill' => (string) $invoice->auto_bill,
             'auto_bill_enabled' => (bool) $invoice->auto_bill_enabled,
             'due_date_days' => (string) $invoice->due_date_days ?: '',

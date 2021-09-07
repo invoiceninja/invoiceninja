@@ -39,8 +39,6 @@ class ClientTransformer extends EntityTransformer
      * @var array
      */
     protected $availableIncludes = [
-        'documents',
-        'gateway_tokens',
         'activities',
         'ledger',
         'system_logs',

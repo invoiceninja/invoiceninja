@@ -15,6 +15,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\Contact\ContactPasswordResetRequest;
 use App\Libraries\MultiDB;
 use App\Models\Account;
+use App\Utils\Ninja;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 use Illuminate\Http\Request;
@@ -56,11 +57,13 @@ class ContactForgotPasswordController extends Controller
     {
         $account_id = $request->get('account_id');
         $account = Account::find($account_id);
+        $company = $account->companies->first();
 
         return $this->render('auth.passwords.request', [
             'title' => 'Client Password Reset',
             'passwordEmailRoute' => 'client.password.email',
-            'account' => $account
+            'account' => $account,
+            'company' => $company
         ]);
     }
 
@@ -76,7 +79,11 @@ class ContactForgotPasswordController extends Controller
 
     public function sendResetLinkEmail(ContactPasswordResetRequest $request)
     {
-        $user = MultiDB::hasContact($request->input('email'));
+        
+        if(Ninja::isHosted() && $request->has('db'))
+            MultiDB::setDb($request->input('db'));
+
+        // $user = MultiDB::hasContact($request->input('email'));
 
         $this->validateEmail($request);
 

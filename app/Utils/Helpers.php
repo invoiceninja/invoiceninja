@@ -34,7 +34,7 @@ class Helpers
 
         $elements['signature'] = $_settings->email_signature;
         $elements['settings'] = $_settings;
-        $elements['whitelabel'] = $client->user->account->isPaid() ? true : false;
+        $elements['whitelabel'] = $client->company->account->isPaid() ? true : false;
         $elements['company'] = $client->company;
         
         return $elements;

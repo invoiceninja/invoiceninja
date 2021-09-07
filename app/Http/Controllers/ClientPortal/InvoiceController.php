@@ -20,7 +20,9 @@ use App\Utils\Number;
 use App\Utils\TempFile;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
@@ -86,6 +88,10 @@ class InvoiceController extends Controller
             ->with('message', ctrans('texts.no_action_provided'));
     }
 
+    /**
+     * @param array $ids 
+     * @return Factory|View|RedirectResponse 
+     */
     private function makePayment(array $ids)
     {
         $invoices = Invoice::whereIn('id', $ids)
@@ -119,8 +125,8 @@ class InvoiceController extends Controller
         //format data
         $invoices->map(function ($invoice) {
             $invoice->service()->removeUnpaidGatewayFees()->save();
-            $invoice->balance = Number::formatValue($invoice->balance, $invoice->client->currency());
-            $invoice->partial = Number::formatValue($invoice->partial, $invoice->client->currency());
+            $invoice->balance = $invoice->balance > 0 ? Number::formatValue($invoice->balance, $invoice->client->currency()) : 0;
+            $invoice->partial =  $invoice->partial > 0 ? Number::formatValue($invoice->partial, $invoice->client->currency()) : 0;
 
             return $invoice;
         });

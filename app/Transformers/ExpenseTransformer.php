@@ -31,9 +31,7 @@ class ExpenseTransformer extends EntityTransformer
     /**
      * @var array
      */
-    protected $availableIncludes = [
-        'documents',
-    ];
+    protected $availableIncludes = [];
 
     public function includeDocuments(Expense $expense)
     {
