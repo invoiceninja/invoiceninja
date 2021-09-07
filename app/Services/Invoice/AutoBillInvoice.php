@@ -14,6 +14,7 @@ namespace App\Services\Invoice;
 use App\DataMapper\InvoiceItem;
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
+use App\Libraries\MultiDB;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -31,15 +32,22 @@ class AutoBillInvoice extends AbstractService
 
     private $used_credit = [];
 
-    public function __construct(Invoice $invoice)
+    protected $db;
+
+    public function __construct(Invoice $invoice, $db)
     {
         $this->invoice = $invoice;
-
-        $this->client = $invoice->client;
+    
+        $this->db = $db;
     }
 
     public function run()
     {
+
+        MultiDB::setDb($this->db);
+
+        $this->client = $this->invoice->client;
+
         $is_partial = false;
 
         /* Is the invoice payable? */
@@ -51,11 +59,13 @@ class AutoBillInvoice extends AbstractService
 
         /* Mark the invoice as paid if there is no balance */
         if ((int)$this->invoice->balance == 0)
-            return $this->invoice->service()->markPaid()->save();
+            return $this->invoice->service()->markPaid()->workFlow()->save();
 
         //if the credits cover the payments, we stop here, build the payment with credits and exit early
         if ($this->client->getSetting('use_credits_payment') != 'off')
             $this->applyCreditPayment();
+
+        $amount = 0;
 
         /* Determine $amount */
         if ($this->invoice->partial > 0) {
@@ -68,17 +78,20 @@ class AutoBillInvoice extends AbstractService
             return $this->invoice;
         }
 
-        info("balance remains to be paid!!");
+        info("Auto Bill - balance remains to be paid!! - {$amount}");
 
         /* Retrieve the Client Gateway Token */
         $gateway_token = $this->getGateway($amount);
 
         /* Bail out if no payment methods available */
-        if (! $gateway_token || ! $gateway_token->gateway->driver($this->client)->token_billing)
+        if (! $gateway_token || ! $gateway_token->gateway->driver($this->client)->token_billing){
+            nlog("Bailing out - no suitable gateway token found.");
             return $this->invoice;
+        }
+
+        nlog("Gateway present - adding gateway fee");
 
         /* $gateway fee */
-        //$fee = $gateway_token->gateway->calcGatewayFee($amount, $gateway_token->gateway_type_id, $this->invoice->uses_inclusive_taxes);
         $this->invoice = $this->invoice->service()->addGatewayFee($gateway_token->gateway, $gateway_token->gateway_type_id, $amount)->save();
 
         if($is_partial)
@@ -93,6 +106,8 @@ class AutoBillInvoice extends AbstractService
             'fee_total' => $fee,
             'fee_invoice_id' => $this->invoice->id,
         ]);
+
+        nlog("Payment hash created => {$payment_hash->id}");
 
         $payment = $gateway_token->gateway
                                  ->driver($this->client)

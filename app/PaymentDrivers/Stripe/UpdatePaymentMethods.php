@@ -130,6 +130,7 @@ class UpdatePaymentMethods
         $token_exists = ClientGatewayToken::where([
             'gateway_customer_reference' => $customer_reference,
             'token' => $method->id,
+            'client_id' => $client->id,
             'company_id' => $client->company_id,
         ])->exists();
 

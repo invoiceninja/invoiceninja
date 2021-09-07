@@ -358,11 +358,11 @@ class Account extends BaseModel
 
         if($this->isPaid()){
             $limit = $this->paid_plan_email_quota;
-            $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 50;
+            $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 100;
         }
         else{
             $limit = $this->free_plan_email_quota;
-            $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 100;
+            $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 50;
         }
 
         return min($limit, 5000);

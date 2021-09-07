@@ -28,7 +28,8 @@ class BaseRepository
 {
     use MakesHash;
     use SavesDocuments;
-	public    $import_mode = false;
+
+	public $import_mode = false;
 
     /**
      * @param $entity
@@ -209,7 +210,7 @@ class BaseRepository
         $model->custom_surcharge_tax3 = $client->company->custom_surcharge_taxes3;
         $model->custom_surcharge_tax4 = $client->company->custom_surcharge_taxes4;
 
-        $model->save();
+        $model->saveQuietly();
 
         /* Model now persisted, now lets do some child tasks */
 

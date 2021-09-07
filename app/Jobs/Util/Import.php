@@ -1396,7 +1396,7 @@ class Import implements ShouldQueue
                 $modified['fees_and_limits'] = $this->cleanFeesAndLimits($modified['fees_and_limits']);
             }
 
-            /* On Hosted platform we need to advise Stripe users to connect with Stripe Connect */
+            // /* On Hosted platform we need to advise Stripe users to connect with Stripe Connect */
             if(Ninja::isHosted() && $modified['gateway_key'] == 'd14dd26a37cecc30fdd65700bfb55b23'){
 
                 $nmo = new NinjaMailerObject;
@@ -1412,6 +1412,13 @@ class Import implements ShouldQueue
                 //$modified['fees_and_limits'] = [];
 
             }
+            
+            if(Ninja::isSelfHost() && $modified['gateway_key'] == 'd14dd26a47cecc30fdd65700bfb67b34'){    
+            
+                $modified['gateway_key'] = 'd14dd26a37cecc30fdd65700bfb55b23';
+                
+            }
+
 
             $company_gateway = CompanyGateway::create($modified);
 

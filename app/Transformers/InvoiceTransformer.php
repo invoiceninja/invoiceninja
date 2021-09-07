@@ -31,12 +31,9 @@ class InvoiceTransformer extends EntityTransformer
     ];
 
     protected $availableIncludes = [
-    //    'invitations',
-        // 'history',
         'payments',
         'client',
         'activities',
-    //    'documents',
     ];
 
     public function includeInvitations(Invoice $invoice)

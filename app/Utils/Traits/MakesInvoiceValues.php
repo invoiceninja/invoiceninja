@@ -270,6 +270,8 @@ trait MakesInvoiceValues
         if (! is_array($items)) {
             $data;
         }
+        
+        $locale_info = localeconv();
 
         foreach ($items as $key => $item) {
             if ($table_type == '$product' && $item->type_id != 1) {
@@ -301,8 +303,10 @@ trait MakesInvoiceValues
             $data[$key][$table_type . ".{$_table_type}3"] = $helpers->formatCustomFieldValue($this->client->company->custom_fields, "{$_table_type}3", $item->custom_value3, $this->client);
             $data[$key][$table_type . ".{$_table_type}4"] = $helpers->formatCustomFieldValue($this->client->company->custom_fields, "{$_table_type}4", $item->custom_value4, $this->client);
 
-            $data[$key][$table_type.'.quantity'] = Number::formatValue($item->quantity, $this->client->currency());
-
+            //$data[$key][$table_type.'.quantity'] = Number::formatValue($item->quantity, $this->client->currency());
+            
+            //change quantity from localized number, to decimal format with no trailing zeroes 06/09/21
+            $data[$key][$table_type.'.quantity'] =  rtrim($item->quantity, $locale_info['decimal_point']);
             $data[$key][$table_type.'.unit_cost'] = Number::formatMoney($item->cost, $this->client);
             $data[$key][$table_type.'.cost'] = Number::formatMoney($item->cost, $this->client);
 
@@ -483,7 +487,7 @@ trait MakesInvoiceValues
                     $output = (int)$raw - (int)$_value[1]; // 1 (:MONTH) - 4
                 }
 
-                if ($_operation == '/') {
+                if ($_operation == '/' && (int)$_value[1] != 0) {
                     $output = (int)$raw / (int)$_value[1]; // 1 (:MONTH) / 4
                 }
 

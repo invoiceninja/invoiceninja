@@ -15,7 +15,7 @@
                     @yield('code') — @yield('message')
                 </span>
 
-                <a class="button-link text-sm mt-2" href="{{ request()->getSchemeAndHttpHost() }}">
+                <a class="button-link text-sm mt-2" href="{{ url(request()->getSchemeAndHttpHost() . '/client') }}">
                     {{ ctrans('texts.back_to', ['url' => parse_url(request()->getHttpHost())['host'] ?? request()->getHttpHost()]) }}
                 </a>
             </div>

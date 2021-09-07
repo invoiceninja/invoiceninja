@@ -38,7 +38,7 @@ class InvoiceTransformer extends BaseTransformer {
 
 		$transformed = [
 			'company_id'   => $this->maps['company']->id,
-			'client_id'    => $this->getClient( $this->getString( $invoice_data, 'Company Name' ), null ),
+			'client_id'    => $this->getClient( $this->getString( $invoice_data, 'Customer ID' ), null ),
 			'number'       => $this->getString( $invoice_data, 'Invoice Number' ),
 			'date'         => isset( $invoice_data['Invoice Date'] ) ? date( 'Y-m-d', strtotime( $invoice_data['Invoice Date'] ) ) : null,
 			'due_date'     => isset( $invoice_data['Due Date'] ) ? date( 'Y-m-d', strtotime( $invoice_data['Due Date'] ) ) : null,
@@ -59,7 +59,7 @@ class InvoiceTransformer extends BaseTransformer {
 				'notes'              => $this->getString( $record, 'Item Description' ),
 				'cost'               => $this->getFloat( $record, 'Item Price' ),
 				'quantity'           => $this->getFloat( $record, 'Quantity' ),
-				'discount'           => $this->getFloat( $record, 'Discount Amount' ),
+				'discount'           => $this->getString( $record, 'Discount Amount' ),
 				'is_amount_discount' => true,
 			];
 		}

@@ -32,7 +32,6 @@ class ProductTransformer extends EntityTransformer
     protected $availableIncludes = [
         'company',
         'user',
-        'documents',
     ];
 
     /**
