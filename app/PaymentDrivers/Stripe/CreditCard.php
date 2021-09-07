@@ -76,7 +76,8 @@ class CreditCard
 
     private function decodeUnicodeString($string)
     {
-        return iconv("UTF-8", "ISO-8859-1//TRANSLIT", $this->decode_encoded_utf8($string));
+        return html_entity_decode($string, ENT_QUOTES, 'UTF-8');
+        // return iconv("UTF-8", "ISO-8859-1//TRANSLIT", $this->decode_encoded_utf8($string));
     }
 
     private function decode_encoded_utf8($string){
