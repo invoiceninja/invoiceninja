@@ -301,7 +301,7 @@ class BaseController extends Controller
 
             },
             'company.recurring_invoices'=> function ($query) use ($updated_at, $user) {
-                $query->where('updated_at', '>=', $updated_at)->with('invitations', 'documents', 'client.gateway_tokens', 'client.group_settings', 'company');
+                $query->where('updated_at', '>=', $updated_at)->with('invitations', 'documents', 'client.gateway_tokens', 'client.group_settings', 'client.company');
 
                 if(!$user->hasPermission('view_recurring_invoice'))
                   $query->where('recurring_invoices.user_id', $user->id)->orWhere('recurring_invoices.assigned_user_id', $user->id);
@@ -534,7 +534,7 @@ class BaseController extends Controller
 
             },
             'company.recurring_invoices'=> function ($query) use ($created_at, $user) {
-                $query->where('created_at', '>=', $created_at)->with('invitations', 'documents', 'client.gateway_tokens', 'client.group_settings', 'company');
+                $query->where('created_at', '>=', $created_at)->with('invitations', 'documents', 'client.gateway_tokens', 'client.group_settings', 'client.company');
 
                 if(!$user->hasPermission('view_recurring_invoice'))
                   $query->where('recurring_invoices.user_id', $user->id)->orWhere('recurring_invoices.assigned_user_id', $user->id);
