@@ -147,6 +147,8 @@ class SendRecurring implements ShouldQueue
 
         }
 
+        //important catch all here - we should never leave contacts send_email to false incase they are permanently set to false in the future.
+        $this->recurring_invoice->client->contacts()->update(['send_email' => true]);
 
     }
 
