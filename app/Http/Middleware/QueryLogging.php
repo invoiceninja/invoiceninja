@@ -55,7 +55,7 @@ class QueryLogging
             // nlog("Query count = {$count}");
         
              if($count > 175){
-                 nlog("Quer count = {$count}");
+                 nlog("Query count = {$count}");
                  nlog($queries);
              }
                         
