@@ -30,6 +30,7 @@ use App\Providers\MailServiceProvider;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Dacastro4\LaravelGmail\Facade\LaravelGmail;
+use GuzzleHttp\Exception\ClientException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -118,10 +119,18 @@ class NinjaMailerJob implements ShouldQueue
             
             nlog("error failed with {$e->getMessage()}");
 
-            if($this->nmo->entity)
-                $this->entityEmailFailed($e->getMessage());
+            $message = $e->getMessage();
 
-            if(Ninja::isHosted())
+            if($e instanceof ClientException) { //postmark specific failure
+
+                $response = $e->getResponse();
+                $message = $response->Message;
+            }
+
+            if($this->nmo->entity)
+                $this->entityEmailFailed($message);
+
+            if(Ninja::isHosted() && (!$e instanceof ClientException)) // Don't send postmark failures to Sentry
                 app('sentry')->captureException($e);
         }
     }
@@ -241,6 +250,7 @@ class NinjaMailerJob implements ShouldQueue
 
     private function logMailError($errors, $recipient_object)
     {
+
         SystemLogger::dispatch(
             $errors,
             SystemLog::CATEGORY_MAIL,
@@ -249,19 +259,18 @@ class NinjaMailerJob implements ShouldQueue
             $recipient_object,
             $this->nmo->company
         );
+
+        $job_failure = new EmailFailure($this->nmo->company->company_key);
+        $job_failure->string_metric5 = 'failed_email';
+        $job_failure->string_metric6 = substr($errors, 0, 150);
+
+        LightLogs::create($job_failure)
+                 ->batch();
     }
 
     public function failed($exception = null)
     {
-        nlog('mailer job failed');
-        nlog($exception->getMessage());
         
-        $job_failure = new EmailFailure($this->nmo->company->company_key);
-        $job_failure->string_metric5 = 'failed_email';
-        $job_failure->string_metric6 = substr($exception->getMessage(), 0, 150);
-
-        LightLogs::create($job_failure)
-                 ->batch();
     }
 
 }

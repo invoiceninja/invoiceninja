@@ -84,25 +84,41 @@ class DeletePayment
                 
                 nlog("net deletable amount - refunded = {$net_deletable}");
                 
-                $paymentable_invoice->service()
-                                    ->updateBalance($net_deletable)
-                                    ->updatePaidToDate($net_deletable * -1)
-                                    ->save();
+                if(!$paymentable_invoice->is_deleted)
+                {
+                    $paymentable_invoice->service()
+                                        ->updateBalance($net_deletable)
+                                        ->updatePaidToDate($net_deletable * -1)
+                                        ->save();
 
-                $paymentable_invoice->ledger()
-                                    ->updateInvoiceBalance($net_deletable, "Adjusting invoice {$paymentable_invoice->number} due to deletion of Payment {$this->payment->number}")
-                                    ->save();
+                    $paymentable_invoice->ledger()
+                                        ->updateInvoiceBalance($net_deletable, "Adjusting invoice {$paymentable_invoice->number} due to deletion of Payment {$this->payment->number}")
+                                        ->save();
 
-                $paymentable_invoice->client
-                                    ->service()
-                                    ->updateBalance($net_deletable)
-                                    ->updatePaidToDate($net_deletable * -1)
-                                    ->save();
+                    $paymentable_invoice->client
+                                        ->service()
+                                        ->updateBalance($net_deletable)
+                                        ->updatePaidToDate($net_deletable * -1)
+                                        ->save();
 
-                if ($paymentable_invoice->balance == $paymentable_invoice->amount) {
-                    $paymentable_invoice->service()->setStatus(Invoice::STATUS_SENT)->save();
-                } else {
-                    $paymentable_invoice->service()->setStatus(Invoice::STATUS_PARTIAL)->save();
+                    if ($paymentable_invoice->balance == $paymentable_invoice->amount) {
+                        $paymentable_invoice->service()->setStatus(Invoice::STATUS_SENT)->save();
+                    } else {
+                        $paymentable_invoice->service()->setStatus(Invoice::STATUS_PARTIAL)->save();
+                    }
+                }
+                else {
+
+                    //If the invoice is deleted we only update the meta data on the invoice
+                    //and reduce the clients paid to date
+                    $paymentable_invoice->service()
+                                        ->updatePaidToDate($net_deletable * -1)
+                                        ->save();
+
+                    // $paymentable_invoice->client
+                    // ->service()
+                    // ->updatePaidToDate($net_deletable * -1)
+                    // ->save();
                 }
 
             });

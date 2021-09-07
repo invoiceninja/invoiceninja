@@ -45,6 +45,8 @@ class UpdateUserRequest extends Request
     {
         $input = $this->all();
 
+        if(array_key_exists('email', $input))
+            $input['email'] = trim($input['email']);
 
         $this->replace($input);
     }

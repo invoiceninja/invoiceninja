@@ -478,7 +478,7 @@ class BaseDriver extends AbstractPaymentDriver
             $message,
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_FAILURE,
-            $this::SYSTEM_LOG_TYPE,
+            SystemLog::TYPE_PAYTRACE,
             $this->client,
             $this->client->company,
         );

@@ -28,7 +28,8 @@ class BaseRepository
 {
     use MakesHash;
     use SavesDocuments;
-	public    $import_mode = false;
+
+	public $import_mode = false;
 
     /**
      * @param $entity
