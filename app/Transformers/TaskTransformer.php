@@ -30,7 +30,6 @@ class TaskTransformer extends EntityTransformer
      * @var array
      */
     protected $availableIncludes = [
-        'documents'
     ];
 
     public function includeDocuments(Task $task)

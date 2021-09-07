@@ -22,6 +22,7 @@ use App\Factory\RecurringInvoiceFactory;
 use App\Factory\SubscriptionFactory;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Jobs\Company\CreateCompanyTaskStatuses;
+use App\Libraries\MultiDB;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -62,7 +63,7 @@ class CreateSingleAccount extends Command
     /**
      * @var string
      */
-    protected $signature = 'ninja:create-single-account {gateway=all}';
+    protected $signature = 'ninja:create-single-account {gateway=all} {--database=db-ninja-01}';
 
     protected $invoice_repo;
 
@@ -89,6 +90,8 @@ class CreateSingleAccount extends Command
      */
     public function handle()
     {
+        MultiDB::setDb($this->option('database'));
+
         $this->info(date('r').' Create Single Sample Account...');
         $this->count = 1;
         $this->gateway = $this->argument('gateway');

@@ -46,7 +46,7 @@ class InvoiceObserver
      * @return void
      */
     public function updated(Invoice $invoice)
-    {
+    {nlog("updated");
         $subscriptions = Webhook::where('company_id', $invoice->company->id)
                             ->where('event_id', Webhook::EVENT_UPDATE_INVOICE)
                             ->exists();

@@ -42,7 +42,7 @@ class ClientTransformer extends BaseTransformer {
 			'work_phone'    => $this->getString( $data, 'Phone' ),
 			'private_notes' => $this->getString( $data, 'Notes' ),
 			'website'       => $this->getString( $data, 'Website' ),
-
+			'id_number'		=> $this->getString( $data, 'Customer ID'),
 			'address1'    => $this->getString( $data, 'Billing Address' ),
 			'address2'    => $this->getString( $data, 'Billing Street2' ),
 			'city'        => $this->getString( $data, 'Billing City' ),

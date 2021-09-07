@@ -136,11 +136,9 @@ trait AppSetup
 
         if (is_null($position)) {
             $words_count > 1 ? $env[] = "{$property}=" . '"' . $value . '"' . "\n" : $env[] = "{$property}=" . $value . "\n";
-        } elseif ($words_count > 1) {
-            $env[$position] = "{$property}=" . '"' . $value . '"' . "\n"; // If value of variable is more than one word, surround with quotes.
         } else {
-            $env[$position] = "{$property}=" . $value . "\n"; // Just a normal variable update, with pre-existing keys.
-        }
+            $env[$position] = "{$property}=" . '"' . $value . '"' . "\n"; // If value of variable is more than one word, surround with quotes.
+        } 
 
         try {
             file_put_contents(base_path('.env'), $env);

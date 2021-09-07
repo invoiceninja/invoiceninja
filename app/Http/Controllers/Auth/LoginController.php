@@ -221,13 +221,29 @@ class LoginController extends BaseController
                 return response()->json(['message' => 'User not linked to any companies'], 403);
 
             /* Ensure the user has a valid token */
-            $user->company_users->each(function ($company_user) use($request){
-
-                if($company_user->tokens->count() == 0){
-                    CreateCompanyToken::dispatchNow($company_user->company, $company_user->user, $request->server('HTTP_USER_AGENT'));
+            if($user->company_users()->count() != $user->tokens()->count())
+            {
+              
+              $user->companies->each(function($company) use($user, $request){
+              
+                if(!CompanyToken::where('user_id', $user->id)->where('company_id', $company->id)->exists()){
+                
+                  CreateCompanyToken::dispatchNow($company, $user, $request->server('HTTP_USER_AGENT'));
+                  
                 }
+              
+              });
+              
+            }
 
-            });
+            //method above override this
+            // $user->company_users->each(function ($company_user) use($request){
+
+            //     if($company_user->tokens->count() == 0){
+            //         CreateCompanyToken::dispatchNow($company_user->company, $company_user->user, $request->server('HTTP_USER_AGENT'));
+            //     }
+
+            // });
 
             /*On the hosted platform, only owners can login for free/pro accounts*/
             if(Ninja::isHosted() && !$cu->first()->is_owner && !$user->account->isEnterpriseClient())

@@ -31,11 +31,7 @@ class RecurringInvoiceTransformer extends EntityTransformer
     ];
 
     protected $availableIncludes = [
-        'invitations',
-        'documents',
         'activities',
-        // 'history',
-    //    'client',
     ];
 
     /*

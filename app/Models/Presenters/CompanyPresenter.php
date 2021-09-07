@@ -54,7 +54,7 @@ class CompanyPresenter extends EntityPresenter
             $settings = $this->entity->settings;
         }
 
-        if(config('ninja.is_docker'))
+        if(config('ninja.is_docker') || config('ninja.local_download'))
             return $this->logo($settings);
 
         $context_options =array(
