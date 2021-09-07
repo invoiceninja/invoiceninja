@@ -124,7 +124,9 @@ class NinjaMailerJob implements ShouldQueue
             if($e instanceof ClientException) { //postmark specific failure
 
                 $response = $e->getResponse();
-                $message = $response->Message;
+                
+                nlog($response);
+                // $message = $response->Message;
             }
 
             if($this->nmo->entity)
