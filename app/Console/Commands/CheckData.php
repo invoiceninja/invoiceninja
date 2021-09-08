@@ -24,6 +24,8 @@ use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Models\Payment;
 use App\Models\Paymentable;
+use App\Models\QuoteInvitation;
+use App\Models\RecurringInvoiceInvitation;
 use App\Utils\Ninja;
 use Exception;
 use Illuminate\Console\Command;
@@ -198,7 +200,7 @@ class CheckData extends Command
                     ->where('id', '=', $contact->id)
                     ->whereNull('contact_key')
                     ->update([
-                        'contact_key' => str_random(config('ninja.key_length')),
+                        'contact_key' => Str::random(config('ninja.key_length')),
                     ]);
             }
         }
@@ -318,6 +320,10 @@ class CheckData extends Command
 
     private function checkEntityInvitations()
     {
+    
+    RecurringInvoiceInvitation::where('deleted_at',"0000-00-00 00:00:00.000000")->withTrashed()->update(['deleted_at' => null]);
+    InvoiceInvitation::where('deleted_at',"0000-00-00 00:00:00.000000")->withTrashed()->update(['deleted_at' => null]);
+    QuoteInvitation::where('deleted_at',"0000-00-00 00:00:00.000000")->withTrashed()->update(['deleted_at' => null]);
 
         $entities = ['invoice', 'quote', 'credit', 'recurring_invoice'];
 
@@ -359,7 +365,13 @@ class CheckData extends Command
             $invitation->{$entity_key} = $entity->id;
             $invitation->client_contact_id = ClientContact::whereClientId($entity->client_id)->first()->id;
             $invitation->key = Str::random(config('ninja.key_length'));
-            $invitation->save();
+
+            try{
+                $invitation->save();
+            }
+            catch(\Exception $e){
+                $invitation = null;
+            }
 
         }
 
