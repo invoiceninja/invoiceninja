@@ -334,8 +334,8 @@ class CheckData extends Command
 
         $entities = DB::table($table)
                     ->leftJoin($invitation_table, function ($join) use($invitation_table, $table, $entity){
-                        $join->on("{$invitation_table}.{$entity}_id", '=', "{$table}.id")
-                             ->whereNull("{$invitation_table}.deleted_at");
+                        $join->on("{$invitation_table}.{$entity}_id", '=', "{$table}.id");
+                             // ->whereNull("{$invitation_table}.deleted_at");
                     })
                     ->groupBy("{$table}.id", "{$table}.user_id", "{$table}.company_id", "{$table}.client_id")
                     ->havingRaw("count({$invitation_table}.id) = 0")
