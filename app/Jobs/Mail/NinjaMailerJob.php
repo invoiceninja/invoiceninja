@@ -121,18 +121,29 @@ class NinjaMailerJob implements ShouldQueue
 
             $message = $e->getMessage();
 
+            /**
+             * Post mark buries the proper message in a a guzzle response
+             * this merges a text string with a json object
+             * need to harvest the ->Message property using the following
+             */
             if($e instanceof ClientException) { //postmark specific failure
 
                 $response = $e->getResponse();
+                $message_body = json_decode($response->getBody()->getContents());
                 
-                nlog($response);
-                // $message = $response->Message;
+                if(property_exists($message_body, 'Message')){
+                    $message = $message_body->Message;
+                    nlog($message);
+                }
+                
             }
 
+            /* If the is an entity attached to the message send a failure mailer */
             if($this->nmo->entity)
                 $this->entityEmailFailed($message);
 
-            if(Ninja::isHosted() && (!$e instanceof ClientException)) // Don't send postmark failures to Sentry
+            /* Don't send postmark failures to Sentry */
+            if(Ninja::isHosted() && (!$e instanceof ClientException)) 
                 app('sentry')->captureException($e);
         }
     }
