@@ -20,7 +20,7 @@ class S3Cleanup extends Command
      *
      * @var string
      */
-    protected $description = 'Remove orphan folders';
+    protected $description = 'Remove orphan folders/files';
 
     /**
      * Create a new command instance.
@@ -54,7 +54,11 @@ class S3Cleanup extends Command
                 if(!in_array($dir, $merged))
                 {
                     $this->logMessage("Deleting $dir");
-                    Storage::disk(config('filesystems.default'))->deleteDirectory($dir);
+
+                    /* Ensure we are not deleting the root folder */
+                    if(strlen($dir) > 1)
+                        Storage::disk(config('filesystems.default'))->deleteDirectory($dir);
+                    
                 }
             }        
 
