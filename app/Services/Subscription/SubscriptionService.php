@@ -38,6 +38,7 @@ use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SubscriptionHooker;
 use Carbon\Carbon;
 use GuzzleHttp\RequestOptions;
+use Illuminate\Contracts\Container\BindingResolutionException;
 
 class SubscriptionService
 {
@@ -950,7 +951,12 @@ class SubscriptionService
         return redirect($default_redirect);
     }
 
-    public function planPaid($invoice)
+    /**
+     * @param Invoice $invoice 
+     * @return true 
+     * @throws BindingResolutionException 
+     */
+    public function planPaid(Invoice $invoice)
     {
         $recurring_invoice_hashed_id = $invoice->recurring_invoice()->exists() ? $invoice->recurring_invoice->hashed_id : null;
 
@@ -959,12 +965,14 @@ class SubscriptionService
                 'subscription' => $this->subscription->hashed_id,
                 'recurring_invoice' => $recurring_invoice_hashed_id,
                 'client' => $invoice->client->hashed_id,
-                'contact' => $invoice->client->primary_contact()->first() ? $invoice->client->contacts->first() : false,
+                'contact' => $invoice->client->primary_contact()->first() ? $invoice->client->primary_contact()->first(): $invoice->client->contacts->first(),
                 'invoice' => $invoice->hashed_id,
             ];
 
         $response = $this->triggerWebhook($context);
 
+        nlog($response);
+        
         return true;
     }
 }
