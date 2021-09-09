@@ -127,7 +127,10 @@ class TemplateEmail extends Mailable
 
             $ubl_string = CreateUbl::dispatchNow($this->invitation->invoice);
 
-            $this->attachData($ubl_string, $this->invitation->invoice->getFileName('xml'));
+            nlog($ubl_string);
+            
+            if($ubl_string)
+                $this->attachData($ubl_string, $this->invitation->invoice->getFileName('xml'));
             
         }
 
