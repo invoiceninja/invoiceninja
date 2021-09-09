@@ -15,6 +15,8 @@ class S3Cleanup extends Command
      */
     protected $signature = 'ninja:s3-cleanup';
 
+    protected $log = '';
+
     /**
      * The console command description.
      *

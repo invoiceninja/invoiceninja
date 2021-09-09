@@ -60,12 +60,18 @@ use WePayCommon;
           'method' => '1',
          */
 
-		$response = $this->wepay_payment_driver->wepay->request('credit_card/authorize', array(
-		    'client_id'          => config('ninja.wepay.client_id'),
-		    'client_secret'      => config('ninja.wepay.client_secret'),
-		    'credit_card_id'     => (int)$data['credit_card_id'],
-		));
+        try {
+            
+    		$response = $this->wepay_payment_driver->wepay->request('credit_card/authorize', array(
+    		    'client_id'          => config('ninja.wepay.client_id'),
+    		    'client_secret'      => config('ninja.wepay.client_secret'),
+    		    'credit_card_id'     => (int)$data['credit_card_id'],
+    		));
 
+        }
+        catch(\Exception $e){
+            return $this->wepay_payment_driver->processInternallyFailedPayment($this->wepay_payment_driver, $e);
+        }
 		// display the response
         // nlog($response);
         
@@ -116,11 +122,16 @@ use WePayCommon;
         {
             nlog("authorize the card first!");
 
-            $response = $this->wepay_payment_driver->wepay->request('credit_card/authorize', array(
-                'client_id'          => config('ninja.wepay.client_id'),
-                'client_secret'      => config('ninja.wepay.client_secret'),
-                'credit_card_id'     => (int)$request->input('credit_card_id'),
-            ));
+            try {
+                $response = $this->wepay_payment_driver->wepay->request('credit_card/authorize', array(
+                    'client_id'          => config('ninja.wepay.client_id'),
+                    'client_secret'      => config('ninja.wepay.client_secret'),
+                    'credit_card_id'     => (int)$request->input('credit_card_id'),
+                ));
+            }
+            catch(\Exception $e){
+                return $this->wepay_payment_driver->processInternallyFailedPayment($this->wepay_payment_driver, $e);
+            }
 
             $credit_card_id = (int)$response->credit_card_id;
 

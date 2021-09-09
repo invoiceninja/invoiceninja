@@ -11,6 +11,8 @@
 
 namespace App\Notifications;
 
+use App\Jobs\Invoice\CreateUbl;
+use App\Models\Invoice;
 use App\Utils\TempFile;
 use App\Utils\Traits\MakesInvoiceHtml;
 use Illuminate\Bus\Queueable;
