@@ -88,5 +88,7 @@ class ClientContactRepository extends BaseRepository
             $new_contact->email = ' ';
             $new_contact->save();
         }
+
+        $client = null;
     }
 }
