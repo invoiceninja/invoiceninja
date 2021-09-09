@@ -56,8 +56,10 @@ class ClientContactRepository extends BaseRepository
 
             if (! $update_contact) {
                 $update_contact = ClientContactFactory::create($client->company_id, $client->user_id);
-                $update_contact->client_id = $client->id;
             }
+            
+            //10-09-2021 - enforce the client->id and remove client_id from fillables
+            $update_contact->client_id = $client->id;
 
             /* We need to set NULL email addresses to blank strings to pass authentication*/
             if(array_key_exists('email', $contact) && is_null($contact['email']))
