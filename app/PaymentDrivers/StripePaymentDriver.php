@@ -362,9 +362,14 @@ class StripePaymentDriver extends BaseDriver
         $response = null;
 
         try {
-            $response = $this->stripe
-                ->refunds
-                ->create(['charge' => $payment->transaction_reference, 'amount' => $this->convertToStripeAmount($amount, $this->client->currency()->precision, $this->client->currency())], $meta);
+            // $response = $this->stripe
+            //     ->refunds
+            //     ->create(['charge' => $payment->transaction_reference, 'amount' => $this->convertToStripeAmount($amount, $this->client->currency()->precision, $this->client->currency())], $meta);
+
+            $response = \Stripe\Refund::create([
+                'charge' => $payment->transaction_reference, 
+                'amount' => $this->convertToStripeAmount($amount, $this->client->currency()->precision, $this->client->currency())
+            ], $meta);
 
             if ($response->status == $response::STATUS_SUCCEEDED) {
                 SystemLogger::dispatch(['server_response' => $response, 'data' => request()->all(),], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->client, $this->client->company);
