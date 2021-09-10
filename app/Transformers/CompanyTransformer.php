@@ -53,7 +53,6 @@ class CompanyTransformer extends EntityTransformer
      */
     protected $defaultIncludes = [
         'documents',
-        'tax_rates',
     ];
 
     /**
