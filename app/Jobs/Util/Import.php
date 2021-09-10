@@ -640,7 +640,8 @@ class Import implements ShouldQueue
                 $client->updated_at = Carbon::parse($modified['updated_at']);
 
             $client->save(['timestamps' => false]);
-
+            $client->fresh();
+            
             $client->contacts()->forceDelete();
 
             if (array_key_exists('contacts', $resource)) { // need to remove after importing new migration.json
@@ -650,7 +651,7 @@ class Import implements ShouldQueue
                     $modified_contacts[$key]['company_id'] = $this->company->id;
                     $modified_contacts[$key]['user_id'] = $this->processUserId($resource);
                     $modified_contacts[$key]['client_id'] = $client->id;
-                    $modified_contacts[$key]['password'] = 'mysuperpassword'; // @todo, and clean up the code..
+                    $modified_contacts[$key]['password'] = Str::random(8); 
                     unset($modified_contacts[$key]['id']);
                 }
 
@@ -685,6 +686,8 @@ class Import implements ShouldQueue
                 'old' => $resource['id'],
                 'new' => $client->id,
             ];
+
+            $client = null;
         }
 
         Client::reguard();

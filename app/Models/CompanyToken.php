@@ -23,6 +23,8 @@ class CompanyToken extends BaseModel
     ];
 
     protected $with = [
+        'company',
+        'user'
     ];
 
     protected $touches = [];

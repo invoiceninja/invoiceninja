@@ -18,10 +18,10 @@ use App\Libraries\MultiDB;
 use App\Models\ClientContact;
 use App\Models\Company;
 use App\Utils\Ninja;
-use Auth;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 
 class NinjaPlanController extends Controller
 {

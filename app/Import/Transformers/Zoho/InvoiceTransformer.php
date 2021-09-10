@@ -67,7 +67,7 @@ class InvoiceTransformer extends BaseTransformer {
 
 		if ( $transformed['balance'] < $transformed['amount'] ) {
 			$transformed['payments'] = [[
-				'date'   => date( 'Y-m-d' ),
+				'date'   => isset( $invoice_data['Last Payment Date'] ) ? date( 'Y-m-d', strtotime( $invoice_data['Invoice Date'] ) ) : date( 'Y-m-d' ),
 				'amount' => $transformed['amount'] - $transformed['balance'],
 			]];
 		}
@@ -75,3 +75,4 @@ class InvoiceTransformer extends BaseTransformer {
 		return $transformed;
 	}
 }
+

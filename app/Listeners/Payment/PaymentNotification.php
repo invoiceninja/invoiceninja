@@ -88,7 +88,7 @@ class PaymentNotification implements ShouldQueue
         $client = $payment->client;
         $amount = $payment->amount;
 
-        if ($invoice) {
+        if ($invoice && $invoice->line_items) {
             $items = $invoice->line_items;
             $item = end($items)->product_key;
             $entity_number = $invoice->number;

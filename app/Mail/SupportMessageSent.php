@@ -62,9 +62,10 @@ class SupportMessageSent extends Mailable
         $company = auth()->user()->company();
         $user = auth()->user();
         $db = str_replace("db-ninja-", "", $company->db);
-
+        $is_large = $company->is_large ? "L" : "";
+        
         if(Ninja::isHosted())
-            $subject = "{$priority}Hosted-{$db}-[{$company->is_large}] :: {$plan} :: ".date('M jS, g:ia');
+            $subject = "{$priority}Hosted-{$db}{$is_large} :: {$plan} :: ".date('M jS, g:ia');
         else
             $subject = "{$priority}Self Hosted :: {$plan} :: ".date('M jS, g:ia');
 

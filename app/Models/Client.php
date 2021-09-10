@@ -90,7 +90,7 @@ class Client extends BaseModel implements HasLocalePreference
         'contacts.company',
         // 'currency',
         // 'primary_contact',
-        // 'country',
+        'country',
         // 'contacts',
         // 'shipping_country',
         // 'company',
@@ -218,7 +218,7 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function assigned_user()
     {
-        return $this->belongsTo(User::class, 'assigned_user_id', 'id');
+        return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
     }
 
     public function country()
