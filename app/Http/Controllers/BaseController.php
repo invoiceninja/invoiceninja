@@ -106,12 +106,13 @@ class BaseController extends Controller
           'user.company_user',
           'token',
           'company.activities',
+          'company.tax_rates',
           'company.documents',
           'company.company_gateways.gateway',
           'company.users.company_user',
-          'company.tax_rates',
-          'company.groups',
+          'company.task_statuses',
           'company.payment_terms',
+          'company.groups',
           'company.designs.company',
           'company.expense_categories',
           'company.subscriptions',
@@ -314,7 +315,7 @@ class BaseController extends Controller
                   $query->where('tasks.user_id', $user->id)->orWhere('tasks.assigned_user_id', $user->id);
 
             },
-            'company.tax_rates' => function ($query) use ($updated_at, $user) {
+            'company.tax_rates'=> function ($query) use ($updated_at, $user) {
                 $query->where('updated_at', '>=', $updated_at);
             },
             'company.vendors'=> function ($query) use ($updated_at, $user) {
