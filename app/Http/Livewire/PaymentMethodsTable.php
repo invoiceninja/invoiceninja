@@ -37,6 +37,7 @@ class PaymentMethodsTable extends Component
             ->where('company_id', $this->company->id)
             ->where('client_id', $this->client->id)
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
+            ->withTrashed()
             ->paginate($this->per_page);
 
         return render('components.livewire.payment-methods-table', [

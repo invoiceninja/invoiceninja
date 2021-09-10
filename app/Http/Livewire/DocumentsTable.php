@@ -53,7 +53,10 @@ class DocumentsTable extends Component
     public function render()
     {
         return render('components.livewire.documents-table', [
-            'documents' => $this->query->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')->paginate($this->per_page),
+            'documents' => $this->query
+                ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
+                ->withTrashed()
+                ->paginate($this->per_page),
         ]);
     }
 
