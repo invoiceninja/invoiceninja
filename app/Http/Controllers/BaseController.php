@@ -400,7 +400,7 @@ class BaseController extends Controller
 
             },
             'company.tax_rates'=> function ($query) use ($created_at, $user) {
-                $query->where('created_at', '>=', $created_at);
+                $query->whereNotNull('created_at');
 
             },
             'company.activities'=> function ($query) use($user) {
