@@ -316,7 +316,7 @@ class BaseController extends Controller
 
             },
             'company.tax_rates'=> function ($query) use ($updated_at, $user) {
-                $query->where('updated_at', '>=', $updated_at);
+                $query->whereNotNull('updated_at');
             },
             'company.vendors'=> function ($query) use ($updated_at, $user) {
                 $query->where('updated_at', '>=', $updated_at)->with('contacts', 'documents');
@@ -329,7 +329,7 @@ class BaseController extends Controller
                 $query->where('updated_at', '>=', $updated_at);
             },
             'company.task_statuses'=> function ($query) use ($updated_at, $user) {
-                $query->where('updated_at', '>=', $updated_at);
+                $query->whereNotNull('updated_at');
             },
             'company.activities'=> function ($query) use($user) {
 
