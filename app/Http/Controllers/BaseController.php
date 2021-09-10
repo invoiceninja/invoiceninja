@@ -391,7 +391,7 @@ class BaseController extends Controller
             'company.documents'=> function ($query) use ($created_at, $user) {
                 $query->where('created_at', '>=', $created_at);
             },
-            'company.groups' => function ($query) use ($created_at, $user) {
+            'company.groups'=> function ($query) use ($created_at, $user) {
                 $query->where('created_at', '>=', $created_at)->with('documents');
 
             },
@@ -399,7 +399,7 @@ class BaseController extends Controller
                 $query->where('created_at', '>=', $created_at);
 
             },
-            'company.tax_rates' => function ($query) use ($created_at, $user) {
+            'company.tax_rates'=> function ($query) use ($created_at, $user) {
                 $query->where('created_at', '>=', $created_at);
 
             },
