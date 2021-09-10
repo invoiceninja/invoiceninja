@@ -76,6 +76,7 @@ class InvoicesTable extends Component
         $query = $query
             ->where('client_id', auth('contact')->user()->client->id)
             ->where('status_id', '<>', Invoice::STATUS_DRAFT)
+            ->where('status_id', '<>', Invoice::STATUS_CANCELLED)
             ->withTrashed()
             ->paginate($this->per_page);
 
