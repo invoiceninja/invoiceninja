@@ -56,10 +56,10 @@ class CompanyUser extends Pivot
         return self::class;
     }
 
-    public function tax_rates()
-    {
-        return $this->hasMany(TaxRate::class, 'company_id', 'company_id');
-    }
+    // public function tax_rates()
+    // {
+    //     return $this->hasMany(TaxRate::class, 'company_id', 'company_id');
+    // }
 
     public function account()
     {
