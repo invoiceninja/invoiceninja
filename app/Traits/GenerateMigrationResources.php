@@ -791,11 +791,35 @@ trait GenerateMigrationResources
                 'due_date_days' => $this->transformDueDate($invoice),
                 'remaining_cycles' => $this->getRemainingCycles($invoice),
                 'invitations' => $this->getResourceInvitations($invoice->invitations, 'recurring_invoice_id'),
-                'auto_bill_enabled' => $invoice->auto_bill,
+                'auto_bill_enabled' => $this->calcAutoBillEnabled($invoice),
+                'auto_bill' => $this->calcAutoBill($invoice),
             ];
         }
 
         return $invoices;
+
+    }
+
+    private function calcAutoBillEnabled($invoice)
+    {
+        if($invoice->auto_bill == 1)
+            return 'off';
+        elseif($invoice->auto_bill == 2)
+            return 'optin';
+        elseif($invoice->auto_bill == 3)
+            return 'optout';
+        elseif($invoice->auto_bill == 4)
+            return 'always';
+        else
+            return 'off';
+    }
+
+    private function calcAutoBill($invoice)
+    {
+        if($invoice->auto_bill == 4)
+            return 1;
+
+        return $invoice->client_enable_auto_bill;
 
     }
 
@@ -1213,7 +1237,7 @@ trait GenerateMigrationResources
                 'tax_name2' => $quote->tax_name2,
                 'tax_rate1' => $quote->tax_rate1,
                 'tax_rate2' => $quote->tax_rate2,
-                'invoice_id' => $quote->quote_invoice_id,
+                'invoice_id' => Quote::getPrivateId($quote->quote_invoice_id),
                 'custom_surcharge1' => $quote->custom_value1 ?: '',
                 'custom_surcharge2' => $quote->custom_value2 ?: '',
                 'custom_value1' => $quote->custom_text_value1 ?: '',
