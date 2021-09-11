@@ -2108,8 +2108,8 @@ trait GenerateMigrationResources
         }
 
         $fees_and_limits = new \stdClass();
-        $fees_and_limits->min_limit = $ags->min_limit ?: -1;
-        $fees_and_limits->max_limit = $ags->max_limit ?: -1;
+        $fees_and_limits->min_limit = $ags->min_limit > 0 ? $ags->min_limit : -1;
+        $fees_and_limits->max_limit = $ags->max_limit > 0 ? $ags->max_limit : -1;
         $fees_and_limits->fee_amount = $ags->fee_amount;
         $fees_and_limits->fee_percent = $ags->fee_percent;
         $fees_and_limits->fee_tax_name1 = $ags->tax_name1;
