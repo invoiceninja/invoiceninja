@@ -35,7 +35,7 @@ class NinjaPlanController extends Controller
 
         $account = $company->account;
 
-        if (Ninja::isHosted() && MultiDB::findAndSetDbByContactKey($contact_key) && $client_contact = ClientContact::where('contact_key', $contact_key)->first())
+        if (MultiDB::findAndSetDbByContactKey($contact_key) && $client_contact = ClientContact::where('contact_key', $contact_key)->first())
         {            
         
             nlog("Ninja Plan Controller - Found and set Client Contact");
