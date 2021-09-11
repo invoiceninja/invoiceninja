@@ -51,6 +51,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::resource('companies', 'CompanyController'); // name = (companies. index / create / show / update / destroy / edit
     
     Route::put('companies/{company}/upload', 'CompanyController@upload');
+    Route::post('companies/{company}/default', 'CompanyController@default');
 
     Route::get('company_ledger', 'CompanyLedgerController@index')->name('company_ledger.index');
 
