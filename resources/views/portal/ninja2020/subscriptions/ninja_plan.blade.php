@@ -15,7 +15,7 @@ input:checked ~ .dot {
   background-color: #48bb78;
 }
 </style>
-<div class="container flex flex-wrap pt-4 pb-10 m-auto mt-6 md:mt-15 lg:px-16 xl:px-16" x-data="{show: true}">
+<div id="datadiv" class="container flex flex-wrap pt-4 pb-10 m-auto mt-6 md:mt-15 lg:px-16 xl:px-16" x-data="{show: true}">
     <div class="w-full px-0 lg:px-4">
       <h2 class="px-12 text-base font-bold text-center md:text-2xl text-blue-700">
         Choose your plan
@@ -222,6 +222,10 @@ input:checked ~ .dot {
 var users_yearly = 'LYqaQWldnj';
 var users_monthly = '7LDdwRb1YK';
 
+document.getElementById("toggleB").checked = false;
+
+console.log(document.getElementById("toggleB").value);
+
 document.getElementById('users_yearly').addEventListener('change', function() {
   users_yearly = this.value;
   document.getElementById('y_plan_price').innerHTML = price_map.get(this.value);
@@ -234,10 +238,12 @@ document.getElementById('users_monthly').addEventListener('change', function() {
 });
 
 document.getElementById('handleYearlyClick').addEventListener('click', function() {
+  document.getElementById("toggleB").checked = false;
   location.href = 'https://invoiceninja.invoicing.co/client/subscriptions/' + users_yearly + '/purchase';
 });
 
 document.getElementById('handleMonthlyClick').addEventListener('click', function() {
+  document.getElementById("toggleB").checked = false;
   location.href = 'https://invoiceninja.invoicing.co/client/subscriptions/' + users_monthly + '/purchase';
 });
 
@@ -252,6 +258,7 @@ price_map.set('LYqaQWldnj', '$140');
 price_map.set('kQBeX6mbyK', '$260');
 price_map.set('GELe32Qd69', '$360');
 price_map.set('MVyb86oevA', '$440');
+
 
 </script>
 
