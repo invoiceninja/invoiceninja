@@ -141,6 +141,7 @@ class HostedMigration extends Job
                 'products' => $this->getProducts(),
                 'credits' => $this->getCreditsNotes(),
                 'invoices' => $this->getInvoices(),
+                'recurring_expenses' => $this->getRecurringExpenses(),
                 'recurring_invoices' => $this->getRecurringInvoices(),
                 'quotes' => $this->getQuotes(),
                 'payments' => array_merge($this->getPayments(), $this->getCredits()),
