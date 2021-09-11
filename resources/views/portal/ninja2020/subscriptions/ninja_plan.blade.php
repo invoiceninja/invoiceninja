@@ -62,7 +62,7 @@ input:checked ~ .dot {
                 monthly
               </p>
 
-              <div class="py-2 text-sm my-3 text-white">Unlimited clients, invoices, quotes</div>
+              <div class="py-2 text-sm my-3 text-white">Unlimited clients, invoices, quotes, recurring invoices</div>
               <hr>
               <div class="py-2 text-sm my-3 text-white">10 professional invoice & quote template designs</div>
               <hr>
@@ -78,9 +78,9 @@ input:checked ~ .dot {
               <p class="text-xl text-white">
                 Single User
               </p>
-              <a type="button" class="w-5/6 py-2 mt-2 font-semibold text-center uppercase bg-white border border-transparent rounded text-blue-500" href="https://invoiceninja.invoicing.co/client/subscriptions/WJxbojagwO/purchase">
+              <button id="handleProMonthlyClick" class="w-5/6 py-2 mt-2 font-semibold text-center uppercase bg-white border border-transparent rounded text-blue-500">
                 Purchase
-              </a>
+              </button>
             </div>
           </label>
         </div>
@@ -143,7 +143,7 @@ input:checked ~ .dot {
                 yearly
               </p>
 
-              <div class="py-2 text-sm my-3 text-white">Unlimited clients, invoices, quotes</div>
+              <div class="py-2 text-sm my-3 text-white">Unlimited clients, invoices, quotes, recurring invoices</div>
               <hr>
               <div class="py-2 text-sm my-3 text-white">10 professional invoice & quote template designs</div>
               <hr>
@@ -160,9 +160,9 @@ input:checked ~ .dot {
               <p class="text-xl text-white">
                 Buy 10 months get 2 free!
               </p>
-                <a type="button" class="w-5/6 py-2 mt-2 font-semibold text-center uppercase bg-white border border-transparent rounded text-blue-500" href="https://invoiceninja.invoicing.co/client/subscriptions/q9wdL9wejP/purchase">
+                <button id="handleProYearlyClick" class="w-5/6 py-2 mt-2 font-semibold text-center uppercase bg-white border border-transparent rounded text-blue-500">
                 Purchase
-              </a>
+              </button>
             </div>
           </label>
         </div>
@@ -222,6 +222,21 @@ input:checked ~ .dot {
 var users_yearly = 'LYqaQWldnj';
 var users_monthly = '7LDdwRb1YK';
 
+document.getElementById('users_yearly').options[0].selected = true;
+document.getElementById('users_monthly').options[0].selected = true;
+
+document.getElementById("toggleB").addEventListener('change', function() {
+
+  document.getElementById('users_yearly').options[0].selected = true;
+  document.getElementById('users_monthly').options[0].selected = true;
+  document.getElementById('y_plan_price').innerHTML = price_map.get('LYqaQWldnj');
+  document.getElementById('m_plan_price').innerHTML = price_map.get('7LDdwRb1YK');
+
+  users_yearly = 'LYqaQWldnj';
+  users_monthly = '7LDdwRb1YK';
+
+});
+
 document.getElementById('users_yearly').addEventListener('change', function() {
   users_yearly = this.value;
   document.getElementById('y_plan_price').innerHTML = price_map.get(this.value);
@@ -243,6 +258,15 @@ document.getElementById('handleMonthlyClick').addEventListener('click', function
   location.href = 'https://invoiceninja.invoicing.co/client/subscriptions/' + users_monthly + '/purchase';
 });
 
+document.getElementById('handleProMonthlyClick').addEventListener('click', function() {
+  document.getElementById("toggleB").checked = false;
+  location.href = 'https://invoiceninja.invoicing.co/client/subscriptions/WJxbojagwO/purchase';
+});
+
+document.getElementById('handleProYearlyClick').addEventListener('click', function() {
+  document.getElementById("toggleB").checked = false;
+  location.href = 'https://invoiceninja.invoicing.co/client/subscriptions/q9wdL9wejP/purchase';
+});
 const price_map = new Map();
 //monthly
 price_map.set('7LDdwRb1YK', '$14');
