@@ -99,13 +99,13 @@ input:checked ~ .dot {
                 monthly
               </p>
 
-              <div class="py-2 text-sm my-3 text-white">Multi users and advanced permissions per user</div>
+              <div class="py-2 text-sm my-3 text-white">Multiple users and advanced permissions per user</div>
               <hr>
-              <div class="py-2 text-sm my-3 text-white">Attach files to emails & client side portal!</div>
+              <div class="py-2 text-sm my-3 text-white">Attach documents to emails & client side portal!</div>
               <hr>
-              <div class="py-2 text-sm my-3 text-white">Branded client portal: "https://Billing.YourCompany.com"</div>
+              <div class="py-2 text-sm my-3 text-white">Branded client portal: "https://billing.yourcompany.com"</div>
               <hr>
-              <div class="py-2 text-sm my-3 text-white">Custom background to invoices & quotes</div>
+              <div class="py-2 text-sm my-3 text-white">Custom background for invoices & quotes</div>
               <hr>
               <div class="py-2 text-sm my-3 text-white">+ Much more!</div>
 
@@ -180,13 +180,13 @@ input:checked ~ .dot {
                 yearly
               </p>
 
-              <div class="py-2 text-sm my-3 text-white">Multi users and advanced permissions per user</div>
+              <div class="py-2 text-sm my-3 text-white">Multiple users and advanced permissions per user</div>
               <hr>
-              <div class="py-2 text-sm my-3 text-white">Attach files to emails & client side portal!</div>
+              <div class="py-2 text-sm my-3 text-white">Attach documents to emails & client side portal!</div>
               <hr>
-              <div class="py-2 text-sm my-3 text-white">Branded client portal: "https://Billing.YourCompany.com"</div>
+              <div class="py-2 text-sm my-3 text-white">Branded client portal: "https://billing.yourcompany.com"</div>
               <hr>
-              <div class="py-2 text-sm my-3 text-white">Custom background to invoices & quotes</div>
+              <div class="py-2 text-sm my-3 text-white">Custom background for invoices & quotes</div>
               <hr>
               <div class="py-2 text-sm my-3 text-white">+ Much more!</div>
 
@@ -222,10 +222,6 @@ input:checked ~ .dot {
 var users_yearly = 'LYqaQWldnj';
 var users_monthly = '7LDdwRb1YK';
 
-document.getElementById("toggleB").checked = false;
-
-console.log(document.getElementById("toggleB").value);
-
 document.getElementById('users_yearly').addEventListener('change', function() {
   users_yearly = this.value;
   document.getElementById('y_plan_price').innerHTML = price_map.get(this.value);
@@ -258,7 +254,6 @@ price_map.set('LYqaQWldnj', '$140');
 price_map.set('kQBeX6mbyK', '$260');
 price_map.set('GELe32Qd69', '$360');
 price_map.set('MVyb86oevA', '$440');
-
 
 </script>
 
