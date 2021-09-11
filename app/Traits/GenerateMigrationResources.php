@@ -656,6 +656,7 @@ trait GenerateMigrationResources
                 'deleted_at' => $invoice->deleted_at ? Carbon::parse($invoice->deleted_at)->toDateString() : null,
                 'invitations' => $this->getResourceInvitations($invoice->invitations, 'invoice_id'),
                 'auto_bill_enabled' => $invoice->auto_bill,
+                'recurring_id' => $invoice->recurring_invoice_id,
             ];
         }
 
