@@ -15,7 +15,7 @@ input:checked ~ .dot {
   background-color: #48bb78;
 }
 </style>
-<div id="datadiv" class="container flex flex-wrap pt-4 pb-10 m-auto mt-6 md:mt-15 lg:px-16 xl:px-16" x-data="{show: true}">
+<div id="datadiv" class="container flex flex-wrap pt-2 pb-10 m-auto mt-2 md:mt-5 lg:px-16 xl:px-16" x-data="{show: true}">
     <div class="w-full px-0 lg:px-4">
       <h2 class="px-12 text-base font-bold text-center md:text-2xl text-blue-700">
         Choose your plan
@@ -70,6 +70,8 @@ input:checked ~ .dot {
               <hr>
               <div class="py-2 text-sm my-3 text-white">Enable emails to be sent via Gmail</div>
               <hr>
+              <div class="py-2 text-sm my-3 text-white">Integrate with Zapier, Integromat or API</div>
+              <hr>
               <div class="py-2 text-sm my-3 text-white">+ Much more!</div>
 
             </div>
@@ -106,6 +108,8 @@ input:checked ~ .dot {
               <div class="py-2 text-sm my-3 text-white">Branded client portal: "https://billing.yourcompany.com"</div>
               <hr>
               <div class="py-2 text-sm my-3 text-white">Custom background for invoices & quotes</div>
+              <hr>
+              <div class="py-2 text-sm my-3 text-white">Integrate with Zapier, Integromat or API</div>
               <hr>
               <div class="py-2 text-sm my-3 text-white">+ Much more!</div>
 
@@ -151,6 +155,8 @@ input:checked ~ .dot {
               <hr>
               <div class="py-2 text-sm my-3 text-white">Enable emails to be sent via Gmail</div>
               <hr>
+              <div class="py-2 text-sm my-3 text-white">Integrate with Zapier, Integromat or API</div>
+              <hr>
               <div class="py-2 text-sm my-3 text-white">+ Much more!</div>
 
             </div>
@@ -187,6 +193,8 @@ input:checked ~ .dot {
               <div class="py-2 text-sm my-3 text-white">Branded client portal: "https://billing.yourcompany.com"</div>
               <hr>
               <div class="py-2 text-sm my-3 text-white">Custom background for invoices & quotes</div>
+              <hr>
+              <div class="py-2 text-sm my-3 text-white">Integrate with Zapier, Integromat or API</div>
               <hr>
               <div class="py-2 text-sm my-3 text-white">+ Much more!</div>
 

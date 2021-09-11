@@ -233,7 +233,7 @@ class Import implements ShouldQueue
         $account->save();
 
         //company size check
-        if ($this->company->invoices()->count() > 1000 || $this->company->products()->count() > 1000 || $this->company->clients()->count() > 1000) {
+        if ($this->company->invoices()->count() > 500 || $this->company->products()->count() > 500 || $this->company->clients()->count() > 500) {
             $this->company->is_large = true;
             $this->company->save();
         }
@@ -261,9 +261,6 @@ class Import implements ShouldQueue
         
         /*After a migration first some basic jobs to ensure the system is up to date*/
         VersionCheck::dispatch();
-        
-        // CreateCompanyPaymentTerms::dispatchNow($sp035a66, $spaa9f78);
-        // CreateCompanyTaskStatuses::dispatchNow($this->company, $this->user);
 
         info('Completed🚀🚀🚀🚀🚀 at '.now());
 
