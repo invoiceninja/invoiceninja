@@ -82,8 +82,7 @@ class CreateUser
             'settings' => null,
         ]);
 
-        if(!Ninja::isSelfHost()){
-            nlog("in the create user class");
+        if(!Ninja::isSelfHost()) {
             event(new UserWasCreated($user, $user, $this->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         }
 
