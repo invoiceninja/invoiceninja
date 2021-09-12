@@ -769,6 +769,10 @@ class BaseController extends Controller
             case 'profile':
                 return 'main.profile.dart.js';                                      
             default:
+
+                if(Ninja::isSelfHost())
+                    return 'main.foss.dart.js';
+
                 return 'main.dart.js';
         }
 
