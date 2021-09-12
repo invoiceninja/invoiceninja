@@ -361,6 +361,9 @@ class Client extends BaseModel implements HasLocalePreference
             if (is_string($this->settings->{$setting}) && (iconv_strlen($this->settings->{$setting}) >= 1)) {
                 return $this->settings->{$setting};
             }
+            elseif(is_bool($this->settings->{$setting})){
+                return $this->settings->{$setting};
+            }
         }
 
         /*Group Settings*/

@@ -12,6 +12,7 @@
 namespace App\Http\Controllers;
 
 use App\DataMapper\FeesAndLimits;
+use App\Exceptions\SystemError;
 use App\Factory\CompanyGatewayFactory;
 use App\Http\Requests\StripeConnect\InitializeStripeConnectRequest;
 use App\Libraries\MultiDB;
@@ -20,6 +21,7 @@ use App\Models\Company;
 use App\Models\CompanyGateway;
 use App\Models\GatewayType;
 use App\PaymentDrivers\Stripe\Connect\Account;
+use Exception;
 use Illuminate\Http\Request;
 use Stripe\Exception\ApiErrorException;
 
@@ -78,7 +80,7 @@ class StripeConnectController extends BaseController
         {
             
             nlog($e->getMessage());
-        
+            throw new SystemError($e->getMessage(), 500);
         }
         
         MultiDB::findAndSetDbByCompanyKey($request->getTokenContent()['company_key']);

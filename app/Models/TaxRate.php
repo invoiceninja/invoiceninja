@@ -24,7 +24,7 @@ class TaxRate extends BaseModel
         'rate',
     ];
 
-    protected $appends = ['tax_rate_id'];
+    // protected $appends = ['tax_rate_id'];
 
     public function getEntityType()
     {
