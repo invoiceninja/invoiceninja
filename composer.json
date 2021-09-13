@@ -51,6 +51,7 @@
         "hashids/hashids": "^4.0",
         "hedii/laravel-gelf-logger": "^6.0",
         "intervention/image": "^2.5",
+        "invoiceninja/inspector": "dev-main",
         "laracasts/presenter": "^0.2.1",
         "laravel/framework": "^8.0",
         "laravel/slack-notification-channel": "^2.2",
