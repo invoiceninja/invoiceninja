@@ -61,6 +61,13 @@ class CreditCard
         $data['gateway'] = $this->braintree;
         $data['client_token'] = $this->braintree->gateway->clientToken()->generate();
 
+        if ($this->braintree->company_gateway->getConfigField('merchantAccountId')) {
+            /** https://developer.paypal.com/braintree/docs/reference/request/client-token/generate#merchant_account_id */
+            $data['client_token'] = $this->braintree->gateway->clientToken()->generate([
+                'merchantAccountId' => $this->braintree->company_gateway->getConfigField('merchantAccountId')
+            ]); 
+        }
+
         return render('gateways.braintree.credit_card.pay', $data);
     }
 
@@ -136,13 +143,20 @@ class CreditCard
 
         $gateway_response = \json_decode($data['gateway_response']);
 
-        $response = $this->braintree->gateway->paymentMethod()->create([
+        $data = [
             'customerId' => $customerId,
             'paymentMethodNonce' => $gateway_response->nonce,
             'options' => [
                 'verifyCard' => true,
             ],
-        ]);
+        ];
+
+        if ($this->braintree->company_gateway->getConfigField('merchantAccountId')) {
+            /** https://developer.paypal.com/braintree/docs/reference/request/payment-method/create#options.verification_merchant_account_id */
+            $data['verificationMerchantAccountId'] = $this->braintree->company_gateway->getConfigField('merchantAccountId');
+        }
+
+        $response = $this->braintree->gateway->paymentMethod()->create($data);
 
         if ($response->success) {
             return $response->paymentMethod->token;
