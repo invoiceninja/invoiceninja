@@ -85,7 +85,7 @@ class SOFORT
             'gateway_type_id' => GatewayType::SOFORT,
         ];
 
-        $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);
+        // $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);
 
         SystemLogger::dispatch(
             ['response' => $this->stripe->payment_hash->data, 'data' => $data],
@@ -96,7 +96,7 @@ class SOFORT
             $this->stripe->client->company,
         );
 
-        return redirect()->route('client.payments.show', ['payment' => $this->stripe->encodePrimaryKey($payment->id)]);
+        return redirect()->route('client.payments.index');
     }
 
     public function processUnsuccessfulPayment()
