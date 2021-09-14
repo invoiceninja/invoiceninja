@@ -424,6 +424,7 @@ class StripePaymentDriver extends BaseDriver
         sleep(2);
 
         if ($request->type === 'charge.succeeded') {
+
             foreach ($request->data as $transaction) {
                 $payment = Payment::query()
                         ->where('transaction_reference', $transaction['id'])

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0b4a7e813c3e563d631164bd24968964",
+    "content-hash": "b5675738fe061ea09b0bbd89e553d074",
     "packages": [
         {
             "name": "asm/php-ansible",
@@ -3325,6 +3325,69 @@
                 }
             ],
             "time": "2021-07-22T14:31:53+00:00"
+        },
+        {
+            "name": "invoiceninja/inspector",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/invoiceninja/inspector.git",
+                "reference": "3f5beb9854c0d1d6f65bc0d9ba847503e6e84583"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/invoiceninja/inspector/zipball/3f5beb9854c0d1d6f65bc0d9ba847503e6e84583",
+                "reference": "3f5beb9854c0d1d6f65bc0d9ba847503e6e84583",
+                "shasum": ""
+            },
+            "require": {
+                "doctrine/dbal": "^3.1",
+                "illuminate/support": "^8.0",
+                "php": "^7.4|^8.0"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^6.0",
+                "phpunit/phpunit": "^9.0"
+            },
+            "default-branch": true,
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "InvoiceNinja\\Inspector\\InspectorServiceProvider"
+                    ],
+                    "aliases": {
+                        "Inspector": "InvoiceNinja\\Inspector\\InspectorFacade"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "InvoiceNinja\\Inspector\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Benjamin Beganović",
+                    "email": "benjamin.beganovic4@outlook.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Simplified database records management",
+            "homepage": "https://github.com/invoiceninja/inspector",
+            "keywords": [
+                "inspector",
+                "invoiceninja"
+            ],
+            "support": {
+                "issues": "https://github.com/invoiceninja/inspector/issues",
+                "source": "https://github.com/invoiceninja/inspector/tree/main"
+            },
+            "time": "2021-09-11T11:35:02+00:00"
         },
         {
             "name": "jean85/pretty-package-versions",
@@ -15598,6 +15661,7 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "asm/php-ansible": 20,
+        "invoiceninja/inspector": 20,
         "webpatser/laravel-countries": 20
     },
     "prefer-stable": true,
@@ -15611,5 +15675,5 @@
     "platform-dev": {
         "php": "^7.3|^7.4|^8.0"
     },
-    "plugin-api-version": "2.0.0"
+    "plugin-api-version": "2.1.0"
 }
