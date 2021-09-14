@@ -12,6 +12,7 @@
 namespace App\Models\Presenters;
 
 use App\Models\Country;
+use Illuminate\Support\Str;
 
 /**
  * Class CompanyPresenter.
@@ -138,5 +139,25 @@ class CompanyPresenter extends EntityPresenter
     public function size()
     {
         return $this->entity->size ? $this->entity->size->name : '';
+    }
+
+    /**
+     * Return company website URL.
+     * 
+     * @return string 
+     */
+    public function website(): string
+    {
+        $website = $this->entity->getSetting('website');
+        
+        if (empty($website)) {
+            return $website;
+        }
+
+        if (Str::contains($website, ['http', 'https'])) {
+            return $website;
+        }
+
+        return \sprintf('http://%s', $website);
     }
 }
