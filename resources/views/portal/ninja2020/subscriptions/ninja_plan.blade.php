@@ -109,7 +109,7 @@ input:checked ~ .dot {
               <hr>
               <div class="py-2 text-sm my-3 text-white">Custom background for invoices & quotes</div>
               <hr>
-              <div class="py-2 text-sm my-3 text-white">Integrate with Zapier, Integromat or API</div>
+              <div class="py-2 text-sm my-3 text-white">Priority support</div>
               <hr>
               <div class="py-2 text-sm my-3 text-white">+ Much more!</div>
 
@@ -194,7 +194,7 @@ input:checked ~ .dot {
               <hr>
               <div class="py-2 text-sm my-3 text-white">Custom background for invoices & quotes</div>
               <hr>
-              <div class="py-2 text-sm my-3 text-white">Integrate with Zapier, Integromat or API</div>
+              <div class="py-2 text-sm my-3 text-white">Priority support</div>
               <hr>
               <div class="py-2 text-sm my-3 text-white">+ Much more!</div>
 

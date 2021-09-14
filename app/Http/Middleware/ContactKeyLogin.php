@@ -41,6 +41,10 @@ class ContactKeyLogin
 
         if ($request->segment(2) && $request->segment(2) == 'magic_link' && $request->segment(3)) {
             $payload = Cache::get($request->segment(3));
+
+            if(!$payload)
+                abort(403, 'Link expired.');
+
             $contact_email = $payload['email'];
             
             if($client_contact = ClientContact::where('email', $contact_email)->where('company_id', $payload['company_id'])->first()){
