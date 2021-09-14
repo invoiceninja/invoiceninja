@@ -48,6 +48,7 @@ class TasksTable extends Component
 
         $query = $query
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
+            ->withTrashed()
             ->paginate($this->per_page);
 
         return render('components.livewire.tasks-table', [

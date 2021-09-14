@@ -233,7 +233,7 @@ class Import implements ShouldQueue
         $account->save();
 
         //company size check
-        if ($this->company->invoices()->count() > 1000 || $this->company->products()->count() > 1000 || $this->company->clients()->count() > 1000) {
+        if ($this->company->invoices()->count() > 500 || $this->company->products()->count() > 500 || $this->company->clients()->count() > 500) {
             $this->company->is_large = true;
             $this->company->save();
         }
@@ -261,9 +261,6 @@ class Import implements ShouldQueue
         
         /*After a migration first some basic jobs to ensure the system is up to date*/
         VersionCheck::dispatch();
-        
-        // CreateCompanyPaymentTerms::dispatchNow($sp035a66, $spaa9f78);
-        // CreateCompanyTaskStatuses::dispatchNow($this->company, $this->user);
 
         info('Completed🚀🚀🚀🚀🚀 at '.now());
 
@@ -640,7 +637,8 @@ class Import implements ShouldQueue
                 $client->updated_at = Carbon::parse($modified['updated_at']);
 
             $client->save(['timestamps' => false]);
-
+            $client->fresh();
+            
             $client->contacts()->forceDelete();
 
             if (array_key_exists('contacts', $resource)) { // need to remove after importing new migration.json
@@ -650,7 +648,7 @@ class Import implements ShouldQueue
                     $modified_contacts[$key]['company_id'] = $this->company->id;
                     $modified_contacts[$key]['user_id'] = $this->processUserId($resource);
                     $modified_contacts[$key]['client_id'] = $client->id;
-                    $modified_contacts[$key]['password'] = 'mysuperpassword'; // @todo, and clean up the code..
+                    $modified_contacts[$key]['password'] = Str::random(8); 
                     unset($modified_contacts[$key]['id']);
                 }
 
@@ -685,6 +683,8 @@ class Import implements ShouldQueue
                 'old' => $resource['id'],
                 'new' => $client->id,
             ];
+
+            $client = null;
         }
 
         Client::reguard();

@@ -39,6 +39,7 @@ class SubscriptionRecurringInvoicesTable extends Component
             ->where('company_id', $this->company->id)
             ->whereNotNull('subscription_id')
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
+            ->withTrashed()
             ->paginate($this->per_page);
 
         return render('components.livewire.subscriptions-recurring-invoices-table', [

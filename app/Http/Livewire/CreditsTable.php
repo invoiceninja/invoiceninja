@@ -44,6 +44,7 @@ class CreditsTable extends Component
                       ->orWhereNull('due_date');
             })
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
+            ->withTrashed()
             ->paginate($this->per_page);
 
         return render('components.livewire.credits-table', [

@@ -123,10 +123,14 @@ class TemplateEmail extends Mailable
 
             }
 
-        if($this->invitation->invoice && $settings->ubl_email_attachment && $this->company->account->hasFeature(Account::FEATURE_DOCUMENTS)){
+        if($this->invitation && $this->invitation->invoice && $settings->ubl_email_attachment && $this->company->account->hasFeature(Account::FEATURE_DOCUMENTS)){
 
             $ubl_string = CreateUbl::dispatchNow($this->invitation->invoice);
-            $this->attachData($ubl_string, $this->invitation->invoice->getFileName('xml'));
+
+            nlog($ubl_string);
+            
+            if($ubl_string)
+                $this->attachData($ubl_string, $this->invitation->invoice->getFileName('xml'));
             
         }
 

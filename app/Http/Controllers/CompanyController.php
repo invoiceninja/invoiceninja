@@ -15,6 +15,7 @@ use App\DataMapper\Analytics\AccountDeleted;
 use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
 use App\Http\Requests\Company\CreateCompanyRequest;
+use App\Http\Requests\Company\DefaultCompanyRequest;
 use App\Http\Requests\Company\DestroyCompanyRequest;
 use App\Http\Requests\Company\EditCompanyRequest;
 use App\Http\Requests\Company\ShowCompanyRequest;
@@ -598,8 +599,66 @@ class CompanyController extends BaseController
 
     }
 
-    // public function default(DefaultCompanyRequest $request, Company $company)
-    // {
-        
-    // }
+/**
+     * Update the specified resource in storage.
+     *
+     * @param UploadCompanyRequest $request
+     * @param Company $client
+     * @return Response
+     *
+     *
+     *
+     * @OA\Post(
+     *      path="/api/v1/companies/{company}/default",
+     *      operationId="setDefaultCompany",
+     *      tags={"companies"},
+     *      summary="Sets the company as the default company.",
+     *      description="Sets the company as the default company.",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="company",
+     *          in="path",
+     *          description="The Company Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the company object",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Company"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
+    public function default(DefaultCompanyRequest $request, Company $company)
+    {
+
+        $account = $company->account;
+        $account->default_company_id = $company->id;
+        $account->save();  
+
+        return $this->itemResponse($company->fresh());
+      
+    }
+
 }

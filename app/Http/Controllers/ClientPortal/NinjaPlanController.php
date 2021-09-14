@@ -18,10 +18,10 @@ use App\Libraries\MultiDB;
 use App\Models\ClientContact;
 use App\Models\Company;
 use App\Utils\Ninja;
-use Auth;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 
 class NinjaPlanController extends Controller
 {
@@ -35,7 +35,7 @@ class NinjaPlanController extends Controller
 
         $account = $company->account;
 
-        if (Ninja::isHosted() && MultiDB::findAndSetDbByContactKey($contact_key) && $client_contact = ClientContact::where('contact_key', $contact_key)->first())
+        if (MultiDB::findAndSetDbByContactKey($contact_key) && $client_contact = ClientContact::where('contact_key', $contact_key)->first())
         {            
         
             nlog("Ninja Plan Controller - Found and set Client Contact");

@@ -90,7 +90,7 @@ class Client extends BaseModel implements HasLocalePreference
         'contacts.company',
         // 'currency',
         // 'primary_contact',
-        // 'country',
+        'country',
         // 'contacts',
         // 'shipping_country',
         // 'company',
@@ -218,7 +218,7 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function assigned_user()
     {
-        return $this->belongsTo(User::class, 'assigned_user_id', 'id');
+        return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
     }
 
     public function country()
@@ -359,6 +359,9 @@ class Client extends BaseModel implements HasLocalePreference
         if ($this->settings && property_exists($this->settings, $setting) && isset($this->settings->{$setting})) {
             /*need to catch empty string here*/
             if (is_string($this->settings->{$setting}) && (iconv_strlen($this->settings->{$setting}) >= 1)) {
+                return $this->settings->{$setting};
+            }
+            elseif(is_bool($this->settings->{$setting})){
                 return $this->settings->{$setting};
             }
         }

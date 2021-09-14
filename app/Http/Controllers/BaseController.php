@@ -106,12 +106,13 @@ class BaseController extends Controller
           'user.company_user',
           'token',
           'company.activities',
+          'company.tax_rates',
           'company.documents',
           'company.company_gateways.gateway',
           'company.users.company_user',
-          'company.tax_rates',
-          'company.groups',
+          'company.task_statuses',
           'company.payment_terms',
+          'company.groups',
           'company.designs.company',
           'company.expense_categories',
           'company.subscriptions',
@@ -314,8 +315,8 @@ class BaseController extends Controller
                   $query->where('tasks.user_id', $user->id)->orWhere('tasks.assigned_user_id', $user->id);
 
             },
-            'company.tax_rates' => function ($query) use ($updated_at, $user) {
-                $query->where('updated_at', '>=', $updated_at);
+            'company.tax_rates'=> function ($query) use ($updated_at, $user) {
+                $query->whereNotNull('updated_at');
             },
             'company.vendors'=> function ($query) use ($updated_at, $user) {
                 $query->where('updated_at', '>=', $updated_at)->with('contacts', 'documents');
@@ -328,7 +329,7 @@ class BaseController extends Controller
                 $query->where('updated_at', '>=', $updated_at);
             },
             'company.task_statuses'=> function ($query) use ($updated_at, $user) {
-                $query->where('updated_at', '>=', $updated_at);
+                $query->whereNotNull('updated_at');
             },
             'company.activities'=> function ($query) use($user) {
 
@@ -390,7 +391,7 @@ class BaseController extends Controller
             'company.documents'=> function ($query) use ($created_at, $user) {
                 $query->where('created_at', '>=', $created_at);
             },
-            'company.groups' => function ($query) use ($created_at, $user) {
+            'company.groups'=> function ($query) use ($created_at, $user) {
                 $query->where('created_at', '>=', $created_at)->with('documents');
 
             },
@@ -398,8 +399,8 @@ class BaseController extends Controller
                 $query->where('created_at', '>=', $created_at);
 
             },
-            'company.tax_rates' => function ($query) use ($created_at, $user) {
-                $query->where('created_at', '>=', $created_at);
+            'company.tax_rates'=> function ($query) use ($created_at, $user) {
+                $query->whereNotNull('created_at');
 
             },
             'company.activities'=> function ($query) use($user) {
@@ -768,6 +769,10 @@ class BaseController extends Controller
             case 'profile':
                 return 'main.profile.dart.js';                                      
             default:
+
+                if(Ninja::isSelfHost())
+                    return 'main.foss.dart.js';
+
                 return 'main.dart.js';
         }
 

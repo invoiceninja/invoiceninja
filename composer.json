@@ -40,7 +40,7 @@
         "coconutcraig/laravel-postmark": "^2.10",
         "codedge/laravel-selfupdater": "^3.2",
         "composer/composer": "^2",
-        "doctrine/dbal": "^2.10",
+        "doctrine/dbal": "^3.0",
         "eway/eway-rapid-php": "^1.3",
         "fakerphp/faker": "^1.14",
         "fideloper/proxy": "^4.2",
