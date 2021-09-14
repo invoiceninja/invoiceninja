@@ -3,5 +3,5 @@
 @section('meta_title', ctrans('texts.statement'))
 
 @section('body')
-
+    @livewire('statement')
 @endsection
