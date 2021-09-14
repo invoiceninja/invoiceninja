@@ -67,7 +67,7 @@ class RecurringExpensesSchema extends Migration
             $table->unsignedInteger('frequency_id');
             $table->datetime('last_sent_date')->nullable();
             $table->datetime('next_send_date')->nullable();
-            $table->unsignedInteger('remaining_cycles')->nullable();
+            $table->integer('remaining_cycles')->nullable();
 
             $table->unique(['company_id', 'number']);
             $table->index(['company_id', 'deleted_at']);
