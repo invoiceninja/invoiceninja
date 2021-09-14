@@ -43,6 +43,8 @@ class InvoiceItem
 
     public $line_total = 0;
 
+    public $gross_line_total = 0;
+
     public $date = '';
 
     public $custom_value1 = '';
@@ -72,6 +74,7 @@ class InvoiceItem
         'tax_rate3' => 'float',
         'sort_id' => 'string',
         'line_total' => 'float',
+        'gross_line_total' => 'float',
         'date' => 'string',
         'custom_value1' => 'string',
         'custom_value2' => 'string',

@@ -51,6 +51,29 @@ class InvoiceItemTest extends TestCase
         $this->assertEquals($item_calc->getLineTotal(), 10);
     }
 
+    public function testInvoiceItemTotalSimpleWithGrossTaxes()
+    {
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 10;
+        $item->is_amount_discount = true;
+        $item->tax_rate1 = 10;
+
+        $settings = new \stdClass;
+        $settings->inclusive_taxes = false;
+        $settings->precision = 2;
+
+        $this->invoice->line_items = [$item];
+
+        $item_calc = new InvoiceItemSum($this->invoice, $settings);
+        $item_calc->process();
+
+        $this->assertEquals($item_calc->getLineTotal(), 10);
+        $this->assertEquals($item_calc->getGrossLineTotal(), 11);
+    }
+
+
+
     public function testInvoiceItemTotalSimpleWithDiscount()
     {
         $item = InvoiceItemFactory::create();
@@ -70,6 +93,29 @@ class InvoiceItemTest extends TestCase
 
         $this->assertEquals($item_calc->getLineTotal(), 8);
     }
+
+    public function testInvoiceItemTotalSimpleWithDiscountAndGrossLineTotal()
+    {
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 10;
+        $item->is_amount_discount = true;
+        $item->discount = 2;
+        $item->tax_rate1 = 10;
+
+        $this->invoice->line_items = [$item];
+
+        $settings = new \stdClass;
+        $settings->inclusive_taxes = false;
+        $settings->precision = 2;
+
+        $item_calc = new InvoiceItemSum($this->invoice, $settings);
+        $item_calc->process();
+
+        $this->assertEquals($item_calc->getLineTotal(), 8);
+        $this->assertEquals($item_calc->getGrossLineTotal(), 8.8);
+
+    }    
 
     public function testInvoiceItemTotalSimpleWithDiscountWithPrecision()
     {

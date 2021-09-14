@@ -175,6 +175,7 @@ class HtmlEngine
         $data['$invoice.discount'] = ['value' => Number::formatMoney($this->entity_calc->getTotalDiscount(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.discount')];
         $data['$discount'] = &$data['$invoice.discount'];
         $data['$subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getSubTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.subtotal')];
+        $data['$gross_subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getGrossSubTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.subtotal')];
 
         if($this->entity->uses_inclusive_taxes)
             $data['$net_subtotal'] = ['value' => Number::formatMoney(($this->entity_calc->getSubTotal() - $this->entity->total_taxes), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.net_subtotal')];

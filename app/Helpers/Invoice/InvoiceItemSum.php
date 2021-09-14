@@ -28,6 +28,8 @@ class InvoiceItemSum
 
     private $line_total;
 
+    private $gross_line_total;
+
     private $currency;
 
     private $total_taxes;
@@ -37,6 +39,8 @@ class InvoiceItemSum
     private $line_items;
 
     private $sub_total;
+
+    private $gross_sub_total;
 
     private $total_discount;
 
@@ -82,6 +86,8 @@ class InvoiceItemSum
     private function push()
     {
         $this->sub_total += $this->getLineTotal();
+
+        $this->gross_sub_total += $this->getGrossLineTotal();
 
         $this->line_items[] = $this->item;
 
@@ -148,6 +154,8 @@ class InvoiceItemSum
 
         $this->setTotalTaxes($this->formatValue($item_tax, $this->currency->precision));
 
+        $this->item->gross_line_total = $this->getLineTotal() + $item_tax;
+
         return $this;
     }
 
@@ -186,6 +194,11 @@ class InvoiceItemSum
         return $this->item->line_total;
     }
 
+    public function getGrossLineTotal()
+    {
+        return $this->item->gross_line_total;
+    }
+
     public function getLineItems()
     {
         return $this->line_items;
@@ -206,6 +219,11 @@ class InvoiceItemSum
     public function getSubTotal()
     {
         return $this->sub_total;
+    }
+
+    public function getGrossSubTotal()
+    {
+        return $this->gross_line_total;
     }
 
     public function setSubTotal($value)
