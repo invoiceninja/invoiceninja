@@ -1,34 +1,34 @@
 <div>
-    <div class="flex flex-col">
-        <label for="status" class="block w-full">
-            <span>Status</span>
-            <select class="mt-2 form-select w-full">
-                <option value="all">All</option>
-                <option value="unpaid">Unpaid</option>
-                <option value="paid">Paid</option>
+    <div class="flex flex-col md:flex-row md:items-center">
+        <label for="status" class="flex items-center mr-4">
+            <span class="mr-2">{{ ctrans('texts.status') }}</span>
+            <select class="input">
+                <option value="all">{{ ctrans('texts.all') }}</option>
+                <option value="unpaid">{{ ctrans('texts.unpaid') }}</option>
+                <option value="paid">{{ ctrans('texts.paid') }}</option>
             </select>
         </label> <!-- End status dropdown -->
 
-        <div class="flex mt-4 space-x-2">
-            <label for="from" class="block w-full">
-                <span>From:</span>
-                <input type="date" class="input w-full mt-2">
+        <div class="flex">
+            <label for="from" class="block w-full flex items-center mr-4">
+                <span class="mr-2">{{ ctrans('texts.from') }}:</span>
+                <input type="date" class="input w-full">
             </label>
 
-            <label for="from" class="block w-full">
-                <span>To:</span>
-                <input type="date" class="input w-full mt-2">
+            <label for="to" class="block w-full flex items-center mr-4">
+                <span class="mr-2">{{ ctrans('texts.to') }}:</span>
+                <input type="date" class="input w-full">
             </label>
         </div> <!-- End date range -->
 
-        <label for="show_payments" class="block w-full mt-4">
+        <label for="show_payments" class="block flex items-center mr-4 mt-4 md:mt-0">
             <input type="checkbox" class="form-checkbox">
-            <span class="ml-2">Show payments</span>
+            <span class="ml-2">{{ ctrans('texts.show_payments') }}</span>
         </label> <!-- End show payments checkbox -->
 
-        <label for="show_aging" class="block w-full mt-2">
+        <label for="show_aging" class="block flex items-center">
             <input type="checkbox" class="form-checkbox">
-            <span class="ml-2">Show aging</span>
+            <span class="ml-2">{{ ctrans('texts.show_aging') }}</span>
         </label> <!-- End show aging checkbox -->
     </div>
 </div>
