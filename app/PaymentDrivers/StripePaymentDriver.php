@@ -436,33 +436,28 @@ class StripePaymentDriver extends BaseDriver
                     $payment->save();
                 }
             }
-        }
-        elseif($request->type === 'source.chargeable'){
-
+        } elseif ($request->type === 'source.chargeable') {
             $this->init();
 
-            $charge = \Stripe\Charge::create([
-              'amount' => $request->amount,
-              'currency' => $request->currency,
-              'source' => $request->id,
-            ], $this->stripe_connect_auth);
+            foreach ($request->data as $transaction) {
+                $charge = \Stripe\Charge::create([
+                    'amount' => $request->data['object']['amount'],
+                    'currency' => $request->data['object']['currency'],
+                    'source' => $request->data['object']['id'],
+                ], $this->stripe_connect_auth);
 
-            if($charge->captured)
-            {
-                $this->setClientFromCustomer($request->customer);
-                
-                $data = [
-                'payment_method' => $request->id,
-                'payment_type' => PaymentType::SOFORT,
-                'amount' => $this->convertFromStripeAmount($request->amount, $this->client->currency()->precision, $this->client->currency()),
-                'transaction_reference' => $charge->id,
-                'gateway_type_id' => GatewayType::SOFORT,
-                ];
+                if ($charge->captured) {
+                    $payment = Payment::query()
+                        ->where('transaction_reference', $transaction['id'])
+                        ->where('company_id', $request->getCompany()->id)
+                        ->first();
 
-                $payment = $this->createPayment($data, Payment::STATUS_COMPLETED);
-
+                    if ($payment) {
+                        $payment->status_id = Payment::STATUS_COMPLETED;
+                        $payment->save();
+                    }
+                }
             }
-
         }
 
         return response()->json([], 200);
