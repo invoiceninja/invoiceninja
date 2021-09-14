@@ -134,6 +134,13 @@ class Activity extends StaticModel
         return $this->hasOne(Backup::class);
     }
 
+
+    public function history()
+    {
+        return $this->hasOne(Backup::class);
+    }
+
+
     /**
      * @return mixed
      */

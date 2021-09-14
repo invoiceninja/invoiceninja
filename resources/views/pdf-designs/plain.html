@@ -2,7 +2,7 @@
     :root {
         --primary-color: $primary_color;
         --secondary-color: $secondary_color;
-        --line-height: 1.6; 
+        --line-height: 1.6;
     }
 
     body {
@@ -68,9 +68,7 @@
         line-height: var(--line-height);
     }
 
-    #product-table,
-    #delivery-note-table,
-    #task-table {
+    [data-ref="table"] {
         min-width: 100%;
         table-layout: fixed;
         overflow-wrap: break-word;
@@ -84,35 +82,25 @@
         color: grey;
     }
 
-    #product-table > thead,
-    #delivery-note-table > thead,
-    #task-table > thead {
+    [data-ref="table"] > thead {
         text-align: left;
     }
 
-    #product-table > thead > tr > th,
-    #delivery-note-table > thead > tr > th,
-    #task-table > thead > tr > th {
+    [data-ref="table"] > thead > tr > th {
         padding: 1rem;
         background-color: #e6e6e6;
     }
 
-    #product-table > thead > tr > th:last-child,
-    #delivery-note-table > thead > tr > th:last-child,
-    #task-table > thead > tr > th:last-child {
+    [data-ref="table"] > thead > tr > th:last-child {
         text-align: right;
     }
 
-    #product-table > tbody > tr > td,
-    #delivery-note-table > tbody > tr > td,
-    #task-table > tbody > tr > td {
+    [data-ref="table"] > tbody > tr > td {
         border-bottom: 1px solid #e6e6e6;
         padding: 1rem;
     }
 
-    #product-table > tbody > tr > td:last-child,
-    #delivery-note-table > tbody > tr > td:last-child,
-    #task-table > tbody > tr > td:last-child {
+    [data-ref="table"] > tbody > tr > td:last-child {
         text-align: right;
     }
 
@@ -179,9 +167,7 @@
     }
 
     /** Markdown-specific styles. **/
-    #product-table h3,
-    #task-table h3,
-    #delivery-note-table h3 {
+    [data-ref="table"] h3 {
         font-size: 1rem;
         margin-bottom: 0;
     }
@@ -195,8 +181,18 @@
         padding-right: 7px;
     }
 
+    [data-ref="statement-totals"] {
+        margin-top: 1rem;
+        text-align: right;
+        margin-right: .75rem;
+    }
+
+    [data-ref*=".line_total-td"] {
+        white-space: nowrap;
+    }
+
     /** Useful snippets, uncomment to enable. **/
-    
+
     /** Hide company logo **/
     /* .company-logo { display: none } */
 
@@ -245,11 +241,20 @@
 
     <div id="client-details"></div>
 
-    <table id="product-table" cellspacing="0"></table>
+    <table id="product-table" cellspacing="0" data-ref="table"></table>
 
-    <table id="task-table" cellspacing="0"></table>
+    <table id="task-table" cellspacing="0" data-ref="table"></table>
 
-    <table id="delivery-note-table" cellspacing="0"></table>
+    <table id="delivery-note-table" cellspacing="0" data-ref="table"></table>
+
+    <table id="statement-invoice-table" cellspacing="0" data-ref="table"></table>
+    <div id="statement-invoice-table-totals" data-ref="statement-totals"></div>
+
+    <table id="statement-payment-table" cellspacing="0" data-ref="table"></table>
+    <div id="statement-payment-table-totals" data-ref="statement-totals"></div>
+
+    <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
+    <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
 
     <div id="table-totals" cellspacing="0"></div>
 </div>
@@ -260,7 +265,12 @@
     <script>
         // Clear up space a bit, if [product-table, tasks-table, delivery-note-table] isn't present.
         document.addEventListener('DOMContentLoaded', () => {
-            ['product-table', 'task-table', 'delivery-note-table'].forEach((tableIdentifier) => {
+            let tables = [
+                'product-table', 'task-table', 'delivery-note-table',
+                'statement-invoice-table', 'statement-payment-table', 'statement-aging-table-totals',
+            ];
+
+            tables.forEach((tableIdentifier) => {
                 document.getElementById(tableIdentifier).childElementCount === 0
                     ? document.getElementById(tableIdentifier).style.display = 'none'
                     : '';

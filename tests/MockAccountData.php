@@ -220,6 +220,7 @@ trait MockAccountData
         $this->cu = CompanyUserFactory::create($user->id, $this->company->id, $this->account->id);
         $this->cu->is_owner = true;
         $this->cu->is_admin = true;
+        $this->cu->is_locked = false;
         $this->cu->save();
 
         $this->token = \Illuminate\Support\Str::random(64);

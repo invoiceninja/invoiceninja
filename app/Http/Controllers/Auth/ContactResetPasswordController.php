@@ -12,6 +12,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Libraries\MultiDB;
 use App\Models\Account;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Auth\ResetsPasswords;
@@ -65,14 +66,18 @@ class ContactResetPasswordController extends Controller
     {
         $account_id = $request->get('account_id');
         $account = Account::find($account_id);
+        $db = $account->companies->first()->db;
 
         return $this->render('auth.passwords.reset')->with(
-            ['token' => $token, 'email' => $request->email, 'account' => $account]
+            ['token' => $token, 'email' => $request->email, 'account' => $account, 'db' => $db]
         );
     }
 
     public function reset(Request $request)
     {
+        if($request->has('db'))
+            MultiDB::setDb($request->input('db'));
+        
         $request->validate($this->rules(), $this->validationErrorMessages());
 
         // Here we will attempt to reset the user's password. If it is successful we

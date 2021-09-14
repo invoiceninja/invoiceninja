@@ -51,9 +51,13 @@ class QueryLogging
             $count = count($queries);
             $timeEnd = microtime(true);
             $time = $timeEnd - $timeStart;
+
+            // nlog("Query count = {$count}");
         
-            // if($count > 150)
-            //     nlog($queries);
+             if($count > 175){
+                 nlog("Query count = {$count}");
+                 nlog($queries);
+             }
                         
             $ip = '';
             

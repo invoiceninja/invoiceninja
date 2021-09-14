@@ -168,7 +168,9 @@ class InvoiceMigrationRepository extends BaseRepository
             $model->save();
         }
 
-        if($data['deleted_at'])
+        if($data['deleted_at'] == '0000-00-00 00:00:00.000000')
+            $model->deleted_at = null;
+        else if($data['deleted_at'])
             $model->delete();
 
         $model->save();

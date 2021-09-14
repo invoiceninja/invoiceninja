@@ -24,12 +24,14 @@ use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Models\Payment;
 use App\Models\Paymentable;
+use App\Models\QuoteInvitation;
+use App\Models\RecurringInvoiceInvitation;
 use App\Utils\Ninja;
-use DB;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
-use Mail;
 use Symfony\Component\Console\Input\InputOption;
 
 /*
@@ -103,6 +105,7 @@ class CheckData extends Command
         // $this->checkPaidToCompanyDates();
         $this->checkClientBalances();
         $this->checkContacts();
+        $this->checkEntityInvitations();
         $this->checkCompanyData();
 
 
@@ -197,7 +200,7 @@ class CheckData extends Command
                     ->where('id', '=', $contact->id)
                     ->whereNull('contact_key')
                     ->update([
-                        'contact_key' => str_random(config('ninja.key_length')),
+                        'contact_key' => Str::random(config('ninja.key_length')),
                     ]);
             }
         }
@@ -307,11 +310,71 @@ class CheckData extends Command
                 $invitation->company_id = $invoice->company_id;
                 $invitation->user_id = $invoice->user_id;
                 $invitation->invoice_id = $invoice->id;
-                $invitation->contact_id = ClientContact::whereClientId($invoice->client_id)->whereIsPrimary(true)->first()->id;
-                $invitation->invitation_key = str_random(config('ninja.key_length'));
+                $invitation->contact_id = ClientContact::whereClientId($invoice->client_id)->first()->id;
+                $invitation->invitation_key = Str::random(config('ninja.key_length'));
                 $invitation->save();
             }
         }
+    }
+
+
+    private function checkEntityInvitations()
+    {
+    
+    RecurringInvoiceInvitation::where('deleted_at',"0000-00-00 00:00:00.000000")->withTrashed()->update(['deleted_at' => null]);
+    InvoiceInvitation::where('deleted_at',"0000-00-00 00:00:00.000000")->withTrashed()->update(['deleted_at' => null]);
+    QuoteInvitation::where('deleted_at',"0000-00-00 00:00:00.000000")->withTrashed()->update(['deleted_at' => null]);
+
+        $entities = ['invoice', 'quote', 'credit', 'recurring_invoice'];
+
+        foreach($entities as $entity)
+        {
+            $table = "{$entity}s";
+            $invitation_table = "{$entity}_invitations";
+
+        $entities = DB::table($table)
+                    ->leftJoin($invitation_table, function ($join) use($invitation_table, $table, $entity){
+                        $join->on("{$invitation_table}.{$entity}_id", '=', "{$table}.id");
+                             // ->whereNull("{$invitation_table}.deleted_at");
+                    })
+                    ->groupBy("{$table}.id", "{$table}.user_id", "{$table}.company_id", "{$table}.client_id")
+                    ->havingRaw("count({$invitation_table}.id) = 0")
+                    ->get(["{$table}.id", "{$table}.user_id", "{$table}.company_id", "{$table}.client_id"]);
+
+
+        $this->logMessage($entities->count()." {$table} without any invitations");
+
+        if ($this->option('fix') == 'true') 
+            $this->fixInvitations($entities, $entity);
+
+        }
+
+    }
+
+    private function fixInvitations($entities, $entity)
+    {
+        $entity_key = "{$entity}_id";
+
+        $entity_obj = 'App\Models\\'.ucfirst(Str::camel($entity)).'Invitation';
+
+        foreach($entities as $entity)
+        {
+            $invitation = new $entity_obj();
+            $invitation->company_id = $entity->company_id;
+            $invitation->user_id = $entity->user_id;
+            $invitation->{$entity_key} = $entity->id;
+            $invitation->client_contact_id = ClientContact::whereClientId($entity->client_id)->first()->id;
+            $invitation->key = Str::random(config('ninja.key_length'));
+
+            try{
+                $invitation->save();
+            }
+            catch(\Exception $e){
+                $invitation = null;
+            }
+
+        }
+
     }
 
     // private function checkPaidToCompanyDates()

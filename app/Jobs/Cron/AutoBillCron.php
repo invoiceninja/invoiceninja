@@ -51,51 +51,79 @@ class AutoBillCron
                                         ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                         ->where('auto_bill_enabled', true)
                                         ->where('balance', '>', 0)
-                                        ->with('company')
-                                        ->cursor()->each(function ($invoice){
-                                            $this->runAutoBiller($invoice);
+                                        ->where('is_deleted', false)
+                                        ->with('company');
+
+                                        nlog($auto_bill_partial_invoices->count(). " partial invoices to auto bill");
+
+                                        $auto_bill_partial_invoices->cursor()->each(function ($invoice){
+                                            $this->runAutoBiller($invoice, false);
                                         });
 
             $auto_bill_invoices = Invoice::whereDate('due_date', '<=', now())
                                         ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                         ->where('auto_bill_enabled', true)
                                         ->where('balance', '>', 0)
-                                        ->with('company')
-                                        ->cursor()->each(function ($invoice){
-                                            $this->runAutoBiller($invoice);
+                                        ->where('is_deleted', false)
+                                        ->with('company');
+
+                                        nlog($auto_bill_invoices->count(). " full invoices to auto bill");
+                                        
+                                        $auto_bill_invoices->cursor()->each(function ($invoice){
+                                            $this->runAutoBiller($invoice, false);
                                         });
 
 
         } else {
             //multiDB environment, need to
             foreach (MultiDB::$dbs as $db) {
+        
                 MultiDB::setDB($db);
-
+                
                 $auto_bill_partial_invoices = Invoice::whereDate('partial_due_date', '<=', now())
                                             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                             ->where('auto_bill_enabled', true)
                                             ->where('balance', '>', 0)
-                                            ->with('company')
-                                            ->cursor()->each(function ($invoice){
-                                                $this->runAutoBiller($invoice);
+                                            ->where('is_deleted', false)
+                                            ->with('company');
+
+                                            nlog($auto_bill_partial_invoices->count(). " partial invoices to auto bill db = {$db}");
+
+                                            $auto_bill_partial_invoices->cursor()->each(function ($invoice) use($db){
+                                                $this->runAutoBiller($invoice, $db);
                                             });
 
                 $auto_bill_invoices = Invoice::whereDate('due_date', '<=', now())
                                             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                             ->where('auto_bill_enabled', true)
                                             ->where('balance', '>', 0)
-                                            ->with('company')
-                                            ->cursor()->each(function ($invoice){
-                                                $this->runAutoBiller($invoice);
+                                            ->where('is_deleted', false)
+                                            ->with('company');
+
+                                            nlog($auto_bill_invoices->count(). " full invoices to auto bill db = {$db}");
+
+                                            $auto_bill_invoices->cursor()->each(function ($invoice) use($db){
+                                                $this->runAutoBiller($invoice, $db);
                                             });
 
             }
         }
     }
 
-    private function runAutoBiller(Invoice $invoice)
+    private function runAutoBiller(Invoice $invoice, $db)
     {
         info("Firing autobill for {$invoice->company_id} - {$invoice->number}");
-        $invoice->service()->autoBill()->save();
+
+        try{
+
+            if($db)
+                MultiDB::setDB($db);
+                
+            $invoice->service()->autoBill()->save();
+
+        }
+        catch(\Exception $e) {
+            nlog("Failed to capture payment for {$invoice->company_id} - {$invoice->number} ->" . $e->getMessage());
+        }
     }
 }

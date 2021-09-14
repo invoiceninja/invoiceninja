@@ -315,19 +315,35 @@ class StripePaymentDriver extends BaseDriver
 
         $client_gateway_token = ClientGatewayToken::whereClientId($this->client->id)->whereCompanyGatewayId($this->company_gateway->id)->first();
 
+        //Search by customer reference
         if ($client_gateway_token && $client_gateway_token->gateway_customer_reference) {
+
             $customer = Customer::retrieve($client_gateway_token->gateway_customer_reference, $this->stripe_connect_auth);
-        } else {
 
-            $data['name'] = $this->client->present()->name();
-            $data['phone'] = $this->client->present()->phone();
-            
-            if (filter_var($this->client->present()->email(), FILTER_VALIDATE_EMAIL)) {
-                $data['email'] = $this->client->present()->email();
-            }
+            if($customer)
+                return $customer;
 
-            $customer = Customer::create($data, $this->stripe_connect_auth);
+        } 
+
+        //Search by email
+        $searchResults = \Stripe\Customer::all([
+                    "email" => $this->client->present()->email(),
+                    "limit" => 2,
+                    "starting_after" => null
+        ],$this->stripe_connect_auth);
+
+        if(count($searchResults) == 1)
+            return $searchResults->data[0];
+        
+        //Else create a new record
+        $data['name'] = $this->client->present()->name();
+        $data['phone'] = $this->client->present()->phone();
+        
+        if (filter_var($this->client->present()->email(), FILTER_VALIDATE_EMAIL)) {
+            $data['email'] = $this->client->present()->email();
         }
+
+        $customer = Customer::create($data, $this->stripe_connect_auth);
 
         if (!$customer) {
             throw new Exception('Unable to create gateway customer');
@@ -346,9 +362,14 @@ class StripePaymentDriver extends BaseDriver
         $response = null;
 
         try {
-            $response = $this->stripe
-                ->refunds
-                ->create(['charge' => $payment->transaction_reference, 'amount' => $this->convertToStripeAmount($amount, $this->client->currency()->precision, $this->client->currency())], $meta);
+            // $response = $this->stripe
+            //     ->refunds
+            //     ->create(['charge' => $payment->transaction_reference, 'amount' => $this->convertToStripeAmount($amount, $this->client->currency()->precision, $this->client->currency())], $meta);
+
+            $response = \Stripe\Refund::create([
+                'charge' => $payment->transaction_reference, 
+                'amount' => $this->convertToStripeAmount($amount, $this->client->currency()->precision, $this->client->currency())
+            ], $meta);
 
             if ($response->status == $response::STATUS_SUCCEEDED) {
                 SystemLogger::dispatch(['server_response' => $response, 'data' => request()->all(),], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->client, $this->client->company);

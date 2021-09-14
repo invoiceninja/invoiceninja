@@ -49,7 +49,7 @@ class PayFastPaymentDriver extends BaseDriver
     {
         $types = [];
 
-        if($this->client->currency()->code == 'ZAR')
+        if($this->client->currency()->code == 'ZAR' || $this->client->currency()->code == 'USD')
             $types[] = GatewayType::CREDIT_CARD;
 
         return $types;

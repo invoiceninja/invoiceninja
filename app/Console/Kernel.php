@@ -74,7 +74,8 @@ class Kernel extends ConsoleKernel
 
             $schedule->job(new AdjustEmailQuota)->dailyAt('23:00')->withoutOverlapping();
             $schedule->job(new SendFailedEmails)->daily()->withoutOverlapping();
-            $schedule->command('ninja:check-data --database=db-ninja-02')->daily()->withoutOverlapping();
+            $schedule->command('ninja:check-data --database=db-ninja-02')->dailyAt('00:15')->withoutOverlapping();
+            $schedule->command('ninja:s3-cleanup')->dailyAt('23:15')->withoutOverlapping();
 
         }
 

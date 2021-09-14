@@ -13,10 +13,12 @@ namespace App\Models;
 
 use App\Utils\Traits\MakesDates;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ClientGatewayToken extends BaseModel
 {
     use MakesDates;
+    use SoftDeletes;
 
     protected $casts = [
         'meta' => 'object',
@@ -45,7 +47,7 @@ class ClientGatewayToken extends BaseModel
 
     public function client()
     {
-        return $this->hasOne(Client::class)->withTrashed();
+        return $this->belongsTo(Client::class)->withTrashed();
     }
 
     public function gateway()
@@ -60,12 +62,12 @@ class ClientGatewayToken extends BaseModel
 
     public function company()
     {
-        return $this->hasOne(Company::class);
+        return $this->belongsTo(Company::class);
     }
 
     public function user()
     {
-        return $this->hasOne(User::class)->withTrashed();
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     /**

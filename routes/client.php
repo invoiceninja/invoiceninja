@@ -25,6 +25,8 @@ Route::get('client/key_login/{contact_key}', 'ClientPortal\ContactHashLoginContr
 Route::get('client/magic_link/{magic_link}', 'ClientPortal\ContactHashLoginController@magicLink')->name('client.contact_magic_link')->middleware(['domain_db','contact_key_login']);
 Route::get('documents/{document_hash}', 'ClientPortal\DocumentController@publicDownload')->name('documents.public_download')->middleware(['document_db']);
 Route::get('error', 'ClientPortal\ContactHashLoginController@errorPage')->name('client.error');
+Route::get('client/payment/{contact_key}/{payment_id}', 'ClientPortal\InvitationController@paymentRouter')->middleware(['domain_db','contact_key_login']);
+Route::get('client/ninja/{contact_key}/{company_key}', 'ClientPortal\NinjaPlanController@index')->name('client.ninja_contact_login')->middleware(['domain_db']);
 
 Route::group(['middleware' => ['auth:contact', 'locale', 'check_client_existence','domain_db'], 'prefix' => 'client', 'as' => 'client.'], function () {
     Route::get('dashboard', 'ClientPortal\DashboardController@index')->name('dashboard'); // name = (dashboard. index / create / show / update / destroy / edit
@@ -88,13 +90,16 @@ Route::get('client/subscriptions/{subscription}/purchase', 'ClientPortal\Subscri
 Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'client.'], function () {
     /*Invitation catches*/
     Route::get('recurring_invoice/{invitation_key}', 'ClientPortal\InvitationController@recurringRouter');
-    Route::get('{entity}/{invitation_key}', 'ClientPortal\InvitationController@router');
+    Route::get('invoice/{invitation_key}', 'ClientPortal\InvitationController@invoiceRouter');
+    Route::get('quote/{invitation_key}', 'ClientPortal\InvitationController@quoteRouter');
+    Route::get('credit/{invitation_key}', 'ClientPortal\InvitationController@creditRouter');
     Route::get('recurring_invoice/{invitation_key}/download_pdf', 'RecurringInvoiceController@downloadPdf')->name('recurring_invoice.download_invitation_key');
     Route::get('invoice/{invitation_key}/download_pdf', 'InvoiceController@downloadPdf')->name('invoice.download_invitation_key');
     Route::get('quote/{invitation_key}/download_pdf', 'QuoteController@downloadPdf')->name('quote.download_invitation_key');
     Route::get('credit/{invitation_key}/download_pdf', 'CreditController@downloadPdf')->name('credit.download_invitation_key');
     Route::get('{entity}/{invitation_key}/download', 'ClientPortal\InvitationController@routerForDownload');
-    Route::get('{entity}/{client_hash}/{invitation_key}', 'ClientPortal\InvitationController@routerForIframe')->name('invoice.client_hash_and_invitation_key'); //should never need this
+    // Route::get('{entity}/{client_hash}/{invitation_key}', 'ClientPortal\InvitationController@routerForIframe')->name('invoice.client_hash_and_invitation_key'); //should never need this
+
 });
 
 Route::get('phantom/{entity}/{invitation_key}', '\App\Utils\PhantomJS\Phantom@displayInvitation')->middleware(['invite_db', 'phantom_secret'])->name('phantom_view');

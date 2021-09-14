@@ -192,6 +192,8 @@ class InvoiceService
 
     public function handleCancellation()
     {
+        $this->removeUnpaidGatewayFees();
+
         $this->invoice = (new HandleCancellation($this->invoice))->run();
 
         return $this;
@@ -199,6 +201,8 @@ class InvoiceService
 
     public function markDeleted()
     {
+        $this->removeUnpaidGatewayFees();
+        
         $this->invoice = (new MarkInvoiceDeleted($this->invoice))->run();
 
         return $this;
@@ -213,6 +217,8 @@ class InvoiceService
 
     public function reverseCancellation()
     {
+        $this->removeUnpaidGatewayFees();
+
         $this->invoice = (new HandleCancellation($this->invoice))->reverse();
 
         return $this;
@@ -227,7 +233,7 @@ class InvoiceService
 
     public function autoBill()
     {
-        $this->invoice = (new AutoBillInvoice($this->invoice))->run();
+        $this->invoice = (new AutoBillInvoice($this->invoice, $this->invoice->company->db))->run();
 
         return $this;
     }
@@ -278,11 +284,14 @@ class InvoiceService
 
     public function updateStatus()
     {
-        if ((int)$this->invoice->balance == 0) {
+        if($this->invoice->status_id == Invoice::STATUS_DRAFT)
+            return $this;
+
+        // if ((int)$this->invoice->balance == 0) {
             
-            $this->setStatus(Invoice::STATUS_PAID)->workFlow();
-            // InvoiceWorkflowSettings::dispatchNow($this->invoice);
-        }
+        //     $this->setStatus(Invoice::STATUS_PAID)->workFlow();
+
+        // }
 
         if ($this->invoice->balance > 0 && $this->invoice->balance < $this->invoice->amount) {
             $this->setStatus(Invoice::STATUS_PARTIAL);

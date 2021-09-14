@@ -76,7 +76,7 @@ class Subscription extends BaseModel
 
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     public function nextDateByInterval($date, $frequency_id)

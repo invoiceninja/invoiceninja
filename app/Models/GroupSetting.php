@@ -34,6 +34,15 @@ class GroupSetting extends StaticModel
         'settings',
     ];
 
+    protected $appends = [
+        'hashed_id',
+    ];
+
+    public function getHashedIdAttribute()
+    {
+        return $this->encodePrimaryKey($this->id);
+    }
+    
     protected $touches = [];
 
     public function company()
@@ -43,7 +52,7 @@ class GroupSetting extends StaticModel
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     public function clients()

@@ -1,4 +1,4 @@
-@component('email.template.admin', ['logo' => $logo ?? 'https://www.invoiceninja.com/wp-content/uploads/2015/10/logo-white-horizontal-1.png'])
+@component('email.template.admin', ['settings' => $settings, 'logo' => $logo ?? 'https://www.invoiceninja.com/wp-content/uploads/2015/10/logo-white-horizontal-1.png'])
     {{-- Body --}}
     {{ $support_message }}
 

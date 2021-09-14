@@ -11,6 +11,8 @@
 
 namespace App\Mail;
 
+use App\Jobs\Invoice\CreateUbl;
+use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\User;
@@ -77,7 +79,12 @@ class TemplateEmail extends Mailable
         else
             $signature = $settings->email_signature;
 
-        $this->from(config('mail.from.address'), $this->company->present()->name());
+        if(property_exists($settings, 'email_from_name') && strlen($settings->email_from_name) > 1)
+            $email_from_name = $settings->email_from_name;
+        else
+            $email_from_name = $this->company->present()->name();
+
+        $this->from(config('mail.from.address'), $email_from_name);
 
         if (strlen($settings->bcc_email) > 1)
             $this->bcc(explode(",",$settings->bcc_email));
@@ -115,6 +122,17 @@ class TemplateEmail extends Mailable
                     $this->attach($file['path'], ['as' => $file['name'], 'mime' => $file['mime']]);
 
             }
+
+        if($this->invitation && $this->invitation->invoice && $settings->ubl_email_attachment && $this->company->account->hasFeature(Account::FEATURE_DOCUMENTS)){
+
+            $ubl_string = CreateUbl::dispatchNow($this->invitation->invoice);
+
+            nlog($ubl_string);
+            
+            if($ubl_string)
+                $this->attachData($ubl_string, $this->invitation->invoice->getFileName('xml'));
+            
+        }
 
         return $this;
     }

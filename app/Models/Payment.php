@@ -287,8 +287,24 @@ class Payment extends BaseModel
         event(new PaymentWasVoided($this, $this->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
     }
 
-    public function getLink()
+    // public function getLink()
+    // {
+    //     return route('client.payments.show', $this->hashed_id);
+    // }
+
+    public function getLink() :string
     {
-        return route('client.payments.show', $this->hashed_id);
+
+        if(Ninja::isHosted()){
+            $domain = isset($this->company->portal_domain) ? $this->company->portal_domain : $this->company->domain();
+        }
+        else
+            $domain = config('ninja.app_url');
+
+        return $domain.'/client/payment/'. $this->client->contacts()->first()->contact_key .'/'. $this->hashed_id."?next=/client/payments/".$this->hashed_id;
+
+        
+
     }
+
 }

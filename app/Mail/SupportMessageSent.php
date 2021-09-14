@@ -45,8 +45,8 @@ class SupportMessageSent extends Mailable
 
             $log_file->seek(PHP_INT_MAX);
             $last_line = $log_file->key();
+            
             $lines = new LimitIterator($log_file, $last_line - 100, $last_line);
-
             $log_lines = iterator_to_array($lines);
         }
 
@@ -62,9 +62,10 @@ class SupportMessageSent extends Mailable
         $company = auth()->user()->company();
         $user = auth()->user();
         $db = str_replace("db-ninja-", "", $company->db);
-
+        $is_large = $company->is_large ? "L" : "";
+        
         if(Ninja::isHosted())
-            $subject = "{$priority}Hosted-{$db} :: {$plan} :: ".date('M jS, g:ia');
+            $subject = "{$priority}Hosted-{$db}{$is_large} :: {$plan} :: ".date('M jS, g:ia');
         else
             $subject = "{$priority}Self Hosted :: {$plan} :: ".date('M jS, g:ia');
 
@@ -76,6 +77,7 @@ class SupportMessageSent extends Mailable
                     'system_info' => $system_info,
                     'laravel_log' => $log_lines,
                     'logo' => $company->present()->logo(),
+                    'settings' => $company->settings
                 ]);
     }
 }

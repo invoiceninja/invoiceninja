@@ -17,13 +17,14 @@ use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
 use App\Mail\Admin\VerifyUserObject;
 use App\Mail\User\UserAdded;
-use App\Notifications\Ninja\VerifyUser;
 use App\Utils\Ninja;
 use Exception;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Carbon;
 
 class SendVerificationNotification implements ShouldQueue
 {
@@ -53,13 +54,20 @@ class SendVerificationNotification implements ShouldQueue
 
         $event->user->service()->invite($event->company);
 
-        $nmo = new NinjaMailerObject;
-        $nmo->mailable = new UserAdded($event->company, $event->creating_user, $event->user);
-        $nmo->company = $event->company;
-        $nmo->settings = $event->company->settings;
-        $nmo->to_user = $event->creating_user;
-        NinjaMailerJob::dispatch($nmo);
 
+        if(Carbon::parse($event->company->created_at)->lt(now()->subDay()))
+        {
+            App::forgetInstance('translator');
+            $t = app('translator');
+            $t->replace(Ninja::transformTranslations($event->company->settings));
+
+            $nmo = new NinjaMailerObject;
+            $nmo->mailable = new UserAdded($event->company, $event->creating_user, $event->user);
+            $nmo->company = $event->company;
+            $nmo->settings = $event->company->settings;
+            $nmo->to_user = $event->creating_user;
+            NinjaMailerJob::dispatch($nmo);
+        }
 
     }
 }

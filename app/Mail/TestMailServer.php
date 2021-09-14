@@ -29,6 +29,7 @@ class TestMailServer extends Mailable
         $this->from_email = $from_email;
     }
 
+
     /**
      * Test Server mail.
      *
@@ -36,12 +37,18 @@ class TestMailServer extends Mailable
      */
     public function build()
     {
+
+        $settings = new \stdClass;
+        $settings->primary_color = "#4caf50";
+        $settings->email_style = 'dark';
+
         return $this->from(config('mail.from.address'), config('mail.from.name'))
             ->subject(ctrans('texts.email'))
             ->markdown('email.support.message', [
                 'support_message' => $this->support_messages,
                 'system_info' => '',
                 'laravel_log' => [],
+                'settings' => $settings,
             ]);
     }
 }

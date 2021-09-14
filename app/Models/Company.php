@@ -95,6 +95,7 @@ class Company extends BaseModel
         'default_password_timeout',
         'show_task_end_date',
         'use_comma_as_decimal_place',
+        'report_include_drafts',
     ];
 
     protected $hidden = [
@@ -288,7 +289,7 @@ class Company extends BaseModel
      */
     public function company_gateways()
     {
-        return $this->hasMany(CompanyGateway::class);
+        return $this->hasMany(CompanyGateway::class)->withTrashed();
     }
 
     /**
@@ -296,7 +297,7 @@ class Company extends BaseModel
      */
     public function tax_rates()
     {
-        return $this->hasMany(TaxRate::class);
+        return $this->hasMany(TaxRate::class)->withTrashed();
     }
 
     /**
@@ -304,7 +305,7 @@ class Company extends BaseModel
      */
     public function products()
     {
-        return $this->hasMany(Product::class);
+        return $this->hasMany(Product::class)->withTrashed();
     }
 
     /**
@@ -318,7 +319,7 @@ class Company extends BaseModel
 
     public function group_settings()
     {
-        return $this->hasMany(GroupSetting::class);
+        return $this->hasMany(GroupSetting::class)->withTrashed();
     }
 
     public function timezone()

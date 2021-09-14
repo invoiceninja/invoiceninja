@@ -33,6 +33,10 @@ class VendorTransformer extends BaseTransformer {
 			'city'            => $this->getString( $data, 'vendor.city' ),
 			'state'           => $this->getString( $data, 'vendor.state' ),
 			'postal_code'     => $this->getString( $data, 'vendor.postal_code' ),
+			'custom_value1'        => $this->getString( $data, 'vendor.custom_value1' ),
+			'custom_value2'        => $this->getString( $data, 'vendor.custom_value2' ),
+			'custom_value3'        => $this->getString( $data, 'vendor.custom_value3' ),
+			'custom_value4'        => $this->getString( $data, 'vendor.custom_value4' ),
 			'vendor_contacts' => [
 				[
 					'first_name' => $this->getString( $data, 'vendor.first_name' ),

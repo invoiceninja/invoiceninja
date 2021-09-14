@@ -4298,7 +4298,13 @@ $LANG = array(
     'expiry_date' => 'Expiry date',
     'cardholder_name' => 'Card holder name',
     'recurring_quote_number_taken' => 'Recurring Quote number :number already taken',
-
+    'account_type' => 'Account type',
+    'locality' => 'Locality',
+    'checking' => 'Checking',
+    'savings' => 'Savings',
+    'unable_to_verify_payment_method' => 'Unable to verify payment method.',
+    'generic_gateway_error' => 'Gateway configuration error. Please check your credentials.',
+    'my_documents' => 'My documents',
 );
 
 return $LANG;

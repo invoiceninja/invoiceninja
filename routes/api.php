@@ -43,12 +43,15 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::post('connected_account', 'ConnectedAccountController@index');
     Route::post('connected_account/gmail', 'ConnectedAccountController@handleGmailOauth');
 
-    Route::resource('client_statement', 'ClientStatementController@statement'); // name = (client_statement. index / create / show / update / destroy / edit
+    Route::post('client_statement', 'ClientStatementController@statement')->name('client.statement');
 
     Route::post('companies/purge/{company}', 'MigrationController@purgeCompany')->middleware('password_protected');
     Route::post('companies/purge_save_settings/{company}', 'MigrationController@purgeCompanySaveSettings')->middleware('password_protected');
+    
     Route::resource('companies', 'CompanyController'); // name = (companies. index / create / show / update / destroy / edit
+    
     Route::put('companies/{company}/upload', 'CompanyController@upload');
+    Route::post('companies/{company}/default', 'CompanyController@default');
 
     Route::get('company_ledger', 'CompanyLedgerController@index')->name('company_ledger.index');
 

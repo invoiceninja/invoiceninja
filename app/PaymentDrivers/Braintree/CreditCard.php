@@ -88,14 +88,30 @@ class CreditCard
 
         $token = $this->getPaymentToken($request->all(), $customer->id);
 
-        $result = $this->braintree->gateway->transaction()->sale([
+        $data = [
             'amount' => $this->braintree->payment_hash->data->amount_with_fee,
             'paymentMethodToken' => $token,
             'deviceData' => $state['client-data'],
             'options' => [
                 'submitForSettlement' => true
             ],
-        ]);
+        ];
+
+        if ($this->braintree->company_gateway->getConfigField('merchantAccountId')) {
+            /** https://developer.paypal.com/braintree/docs/reference/request/transaction/sale/php#full-example */
+            $data['merchantAccountId'] = $this->braintree->company_gateway->getConfigField('merchantAccountId');
+        }
+
+        try {
+            $result = $this->braintree->gateway->transaction()->sale($data);
+        } catch(\Exception $e) {
+            if ($e instanceof \Braintree\Exception\Authorization) {
+                throw new PaymentFailed(ctrans('texts.generic_gateway_error'), $e->getCode());
+            }
+
+            throw new PaymentFailed($e->getMessage(), $e->getCode());
+        }
+        
 
         if ($result->success) {
             $this->braintree->logSuccessfulGatewayResponse(['response' => $request->server_response, 'data' => $this->braintree->payment_hash], SystemLog::TYPE_BRAINTREE);
@@ -118,9 +134,9 @@ class CreditCard
             return $data['token'];
         }
 
-        $gateway_response = json_decode($data['gateway_response']);
+        $gateway_response = \json_decode($data['gateway_response']);
 
-        $payment_method = $this->braintree->gateway->paymentMethod()->create([
+        $response = $this->braintree->gateway->paymentMethod()->create([
             'customerId' => $customerId,
             'paymentMethodNonce' => $gateway_response->nonce,
             'options' => [
@@ -128,7 +144,11 @@ class CreditCard
             ],
         ]);
 
-        return $payment_method->paymentMethod->token;
+        if ($response->success) {
+            return $response->paymentMethod->token;
+        }
+
+        throw new PaymentFailed($response->message);
     }
 
     private function processSuccessfulPayment($response)

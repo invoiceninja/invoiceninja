@@ -36,6 +36,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 use Turbo124\Beacon\Facades\LightLogs;
+use Illuminate\Support\Facades\App;
 
 class CreateAccount
 {
@@ -114,17 +115,31 @@ class CreateAccount
 
         $spaa9f78->fresh();
 
-        //todo implement SLACK notifications
-        //$sp035a66->notification(new NewAccountCreated($spaa9f78, $sp035a66))->ninja();
+        if(Ninja::isHosted()){
+nlog("welcome");
+            App::forgetInstance('translator');
+            $t = app('translator');
+            $t->replace(Ninja::transformTranslations($sp035a66->settings));
 
-        if(Ninja::isHosted())
+            $nmo = new NinjaMailerObject;
+            $nmo->mailable = new \Modules\Admin\Mail\Welcome($sp035a66->owner());
+            $nmo->company =  $sp035a66;
+            $nmo->settings = $sp035a66->settings;
+            $nmo->to_user = $sp035a66->owner();
+
+            NinjaMailerJob::dispatch($nmo);
+
             \Modules\Admin\Jobs\Account\NinjaUser::dispatch([], $sp035a66);
+        }
 
         VersionCheck::dispatch();
 
         LightLogs::create(new AnalyticsAccountCreated())
                  ->increment()
                  ->batch();
+
+        
+
 
         return $sp794f3f;
     }

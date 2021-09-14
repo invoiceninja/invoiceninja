@@ -22,7 +22,7 @@ trait WePayCommon
 {
 
 
-    private function processSuccessfulPayment($response, $payment_status, $gateway_type)
+    private function processSuccessfulPayment($response, $payment_status, $gateway_type, $return_payment = false)
     {
 
         if($gateway_type == GatewayType::BANK_TRANSFER)
@@ -47,6 +47,9 @@ trait WePayCommon
             $this->wepay_payment_driver->client,
             $this->wepay_payment_driver->client->company,
         );
+
+         if($return_payment)
+            return $payment;
 
         return redirect()->route('client.payments.show', ['payment' => $this->wepay_payment_driver->encodePrimaryKey($payment->id)]);
     }
