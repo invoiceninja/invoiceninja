@@ -85,7 +85,7 @@ class SOFORT
             'gateway_type_id' => GatewayType::SOFORT,
         ];
 
-        // $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);
+        $this->stripe->createPayment($data, Payment::STATUS_PENDING);
 
         SystemLogger::dispatch(
             ['response' => $this->stripe->payment_hash->data, 'data' => $data],
