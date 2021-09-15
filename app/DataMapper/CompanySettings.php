@@ -654,6 +654,7 @@ class CompanySettings extends BaseSettings
                 '$product.discount',
                 '$product.tax',
                 '$product.line_total',
+                '$product.gross_line_total',
             ],
             'task_columns' =>[
                 '$task.service',
@@ -663,9 +664,11 @@ class CompanySettings extends BaseSettings
                 '$task.discount',
                 '$task.tax',
                 '$task.line_total',
+                '$task.gross_line_total',
             ],
             'total_columns' => [
                 '$net_subtotal',
+                '$gross_subtotal',
                 '$subtotal',
                 '$discount',
                 '$custom_surcharge1',

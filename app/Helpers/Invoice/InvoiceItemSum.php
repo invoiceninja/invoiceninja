@@ -150,7 +150,6 @@ class InvoiceItemSum
 
         if($item_tax_rate3_total != 0)     
             $this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total);
-        
 
         $this->setTotalTaxes($this->formatValue($item_tax, $this->currency->precision));
 
@@ -223,7 +222,7 @@ class InvoiceItemSum
 
     public function getGrossSubTotal()
     {
-        return $this->gross_line_total;
+        return $this->gross_sub_total;
     }
 
     public function setSubTotal($value)
@@ -281,6 +280,7 @@ class InvoiceItemSum
             if ($item_tax_rate3_total != 0) {
                 $this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total);
             }
+
         }
 
         $this->setTotalTaxes($item_tax);
