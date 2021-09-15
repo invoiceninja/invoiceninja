@@ -303,12 +303,12 @@ trait GenerateMigrationResources
 
     public function getTaxRates()
     {
-        info("get tax rates");
-
 
         $rates = TaxRate::where('account_id', $this->account->id)
             ->withTrashed()
             ->get();
+
+        info("get tax rates => " . $rates->count());
 
         $transformed = [];
 
@@ -328,10 +328,12 @@ trait GenerateMigrationResources
     }
 
     protected function getClients()
-    {info("get clients");
+    {
 
         $clients = [];
 
+        info("get clients => ". $this->account->clients()->count());
+        
         foreach ($this->account->clients()->withTrashed()->get() as $client) {
             
             $number = $client->id_number;
@@ -400,6 +402,8 @@ trait GenerateMigrationResources
         $contacts = Contact::where('client_id', $client->id)->withTrashed()->get();
 
         $transformed = [];
+
+        info("Importing contacts => " . $contacts->count());
 
         foreach ($contacts as $contact) {
             $transformed[] = [
@@ -475,11 +479,12 @@ trait GenerateMigrationResources
 
     protected function getProducts()
     {
-        info("get products");
 
         $products = Product::where('account_id', $this->account->id)
             ->withTrashed()
             ->get();
+
+        info("get products " . $products->count());
 
         $transformed = [];
 
@@ -509,11 +514,12 @@ trait GenerateMigrationResources
 
     public function getUsers()
     {
-        info("get users");
 
         $users = User::where('account_id', $this->account->id)
             ->withTrashed()
             ->get();
+
+        info("get users " . $users->count());
 
         $transformed = [];
 
@@ -545,7 +551,6 @@ trait GenerateMigrationResources
 
     private function getCreditsNotes()
     {
-        info("get credit notes");
 
         $credits = [];
 
@@ -555,6 +560,8 @@ trait GenerateMigrationResources
             ->where('is_public', true)
             ->withTrashed()
             ->get();
+
+        info("get credit notes => " . $export_credits->count());
 
         foreach ($export_credits as $credit) {
             $credits[] = [
@@ -602,7 +609,7 @@ trait GenerateMigrationResources
 
 
     protected function getInvoices()
-    { info("get invoices");
+    { 
 
         $invoices = [];
 
@@ -612,6 +619,8 @@ trait GenerateMigrationResources
             ->where('is_recurring', false)
             ->withTrashed()
             ->get();
+
+        info("get invoices -> ". $export_invoices->count());
 
         foreach ($export_invoices as $invoice) {
             $invoices[] = [
@@ -685,8 +694,6 @@ trait GenerateMigrationResources
 
     protected function getRecurringExpenses()
     {
-        info("get recurring Expenses");
-
 
         $expenses = [];
 
@@ -694,8 +701,10 @@ trait GenerateMigrationResources
             ->withTrashed()
             ->get();        
 
+        info("get recurring Expenses => " . $export_expenses->count());
+
         foreach ($export_expenses as $expense) {
-            $invoices[] = [
+            $expenses[] = [
                 'id' => $expense->id,
                 'amount' => $expense->amount,
                 'company_id' => $this->account->id,
@@ -728,7 +737,7 @@ trait GenerateMigrationResources
             ];
         }
 
-        return $invoices;
+        return $expenses;
 
 
 
@@ -736,8 +745,6 @@ trait GenerateMigrationResources
 
     protected function getRecurringInvoices()
     {
-        info("get recurring invoices");
-
 
         $invoices = [];
 
@@ -745,7 +752,9 @@ trait GenerateMigrationResources
             ->where('amount', '>=', 0)
             ->where('is_recurring', true)
             ->withTrashed()
-            ->get();        
+            ->get();       
+
+        info("get recurring invoices => " . $export_invoices->count());
 
         foreach ($export_invoices as $invoice) {
             $invoices[] = [
@@ -791,11 +800,35 @@ trait GenerateMigrationResources
                 'due_date_days' => $this->transformDueDate($invoice),
                 'remaining_cycles' => $this->getRemainingCycles($invoice),
                 'invitations' => $this->getResourceInvitations($invoice->invitations, 'recurring_invoice_id'),
-                'auto_bill_enabled' => $invoice->auto_bill,
+                'auto_bill_enabled' => $this->calcAutoBillEnabled($invoice),
+                'auto_bill' => $this->calcAutoBill($invoice),
             ];
         }
 
         return $invoices;
+
+    }
+
+    private function calcAutoBillEnabled($invoice)
+    {
+        if($invoice->auto_bill == 1)
+            return 'off';
+        elseif($invoice->auto_bill == 2)
+            return 'optin';
+        elseif($invoice->auto_bill == 3)
+            return 'optout';
+        elseif($invoice->auto_bill == 4)
+            return 'always';
+        else
+            return 'off';
+    }
+
+    private function calcAutoBill($invoice)
+    {
+        if($invoice->auto_bill == 4)
+            return 1;
+
+        return $invoice->client_enable_auto_bill;
 
     }
 
@@ -1178,8 +1211,6 @@ trait GenerateMigrationResources
 
     public function getQuotes()
     {
-        info("get quotes");
-
 
         $transformed = [];
 
@@ -1187,6 +1218,8 @@ trait GenerateMigrationResources
             ->where('invoice_type_id', INVOICE_TYPE_QUOTE)
             ->withTrashed()
             ->get();
+
+        info("get quotes => " . $quotes->count());
 
         foreach ($quotes as $quote) {
             $transformed[] = [
@@ -1213,7 +1246,7 @@ trait GenerateMigrationResources
                 'tax_name2' => $quote->tax_name2,
                 'tax_rate1' => $quote->tax_rate1,
                 'tax_rate2' => $quote->tax_rate2,
-                'invoice_id' => $quote->quote_invoice_id,
+                'invoice_id' => Invoice::getPrivateId($quote->quote_invoice_id),
                 'custom_surcharge1' => $quote->custom_value1 ?: '',
                 'custom_surcharge2' => $quote->custom_value2 ?: '',
                 'custom_value1' => $quote->custom_text_value1 ?: '',
@@ -1263,7 +1296,6 @@ trait GenerateMigrationResources
 
     public function getPayments()
     {
-        info("get payments");
 
         $transformed = [];
 
@@ -1271,6 +1303,9 @@ trait GenerateMigrationResources
             ->where('payment_status_id', '!=', PAYMENT_STATUS_VOIDED)
             ->withTrashed()
             ->get();
+
+        info("get payments => " . $payments->count());
+
 
         foreach ($payments as $payment) {
             $transformed[] = [
@@ -1399,11 +1434,12 @@ trait GenerateMigrationResources
 
     private function getCredits()
     {
-        info("get credits");
 
         $credits = Credit::where('account_id', $this->account->id)->where('balance', '>', 0)->whereIsDeleted(false)
             ->withTrashed()
             ->get();
+
+        info("get credits => " . $credits->count());
 
         $transformed = [];
 
@@ -1429,9 +1465,11 @@ trait GenerateMigrationResources
 
     private function getDocuments()
     {
-        info("get documents");
 
         $documents = Document::where('account_id', $this->account->id)->get();
+
+        info("get documents => " . $documents->count());
+
 
         $transformed = [];
 
@@ -1484,9 +1522,10 @@ trait GenerateMigrationResources
 
     private function getCompanyGateways()
     {
-        info("get get company gateways");
 
         $account_gateways = AccountGateway::where('account_id', $this->account->id)->withTrashed()->get();
+
+        info("get get company gateways => " . $account_gateways->count());
 
         $transformed = [];
 
@@ -1684,10 +1723,9 @@ trait GenerateMigrationResources
     private function getClientGatewayTokens()
     {
 
-        info("get client gateway tokens");
-
-
         $payment_methods = PaymentMethod::where('account_id', $this->account->id)->withTrashed()->get();
+
+        info("get client gateway tokens => " . $payment_methods->count());
 
         $transformed = [];
 
@@ -1720,10 +1758,10 @@ trait GenerateMigrationResources
 
     private function getPaymentTerms()
     {
-        info("get payment terms");
-
 
         $payment_terms = PaymentTerm::where('account_id', 0)->orWhere('account_id', $this->account->id)->withTrashed()->get();
+
+        info("get payment terms => " . $payment_terms->count());
 
         $transformed = [];
 
@@ -1751,9 +1789,9 @@ trait GenerateMigrationResources
 
     private function getTaskStatuses()
     {
-        info("get task statuses");
-
         $task_statuses = TaskStatus::where('account_id', $this->account->id)->withTrashed()->get();
+
+        info("get task statuses => " . $task_statuses->count());
 
         if($task_statuses->count() == 0)
         {
@@ -1797,9 +1835,9 @@ trait GenerateMigrationResources
 
     private function getExpenseCategories()
     {
-        info("get expense categories");
-
         $expense_categories = ExpenseCategory::where('account_id', $this->account->id)->withTrashed()->get();
+
+        info("get expense categories => " . $expense_categories->count());
 
         $transformed = [];
 
@@ -1822,9 +1860,9 @@ trait GenerateMigrationResources
 
     private function getExpenses()
     {
-        info("get expenses");
-
         $expenses = Expense::where('account_id', $this->account->id)->withTrashed()->get();
+
+        info("get expenses => " . $expenses->count());
 
         $transformed = [];
 
@@ -1877,12 +1915,12 @@ trait GenerateMigrationResources
 
     private function getTasks()
     {
-        info("get tasks");
-
 
         $tasks = Task::where('account_id', $this->account->id)
                         ->withTrashed()
                         ->get();
+
+        info("get tasks => " . $tasks->count());
 
         $transformed = [];
 
@@ -1920,11 +1958,13 @@ trait GenerateMigrationResources
 
     private function getProjects()
     {
-        info("get projects");
 
         $projects = Project::where('account_id', $this->account->id)
                              ->withTrashed()
                              ->get();
+
+        info("get projects => " . $projects);
+
 
          $transformed = [];
 
@@ -1962,9 +2002,9 @@ trait GenerateMigrationResources
 
     protected function getVendors()
     {
-        info("get vendors");
-
         $vendor_query = Vendor::where('account_id', $this->account->id)->withTrashed()->get();
+
+        info("get vendors => " . $vendor_query->count());
 
         $vendors = [];
 
@@ -2009,7 +2049,7 @@ trait GenerateMigrationResources
 
     protected function getVendorContacts($contacts)
     {
-        info("get vendor contacts");
+        info("get vendor contacts => " . $contacts->count());
 
         $transformed = [];
 
@@ -2084,8 +2124,8 @@ trait GenerateMigrationResources
         }
 
         $fees_and_limits = new \stdClass();
-        $fees_and_limits->min_limit = $ags->min_limit ?: -1;
-        $fees_and_limits->max_limit = $ags->max_limit ?: -1;
+        $fees_and_limits->min_limit = $ags->min_limit > 0 ? $ags->min_limit : -1;
+        $fees_and_limits->max_limit = $ags->max_limit > 0 ? $ags->max_limit : -1;
         $fees_and_limits->fee_amount = $ags->fee_amount;
         $fees_and_limits->fee_percent = $ags->fee_percent;
         $fees_and_limits->fee_tax_name1 = $ags->tax_name1;
