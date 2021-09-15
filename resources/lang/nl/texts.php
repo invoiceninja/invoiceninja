@@ -1715,7 +1715,7 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'country_Tuvalu' => 'Tuvalu',
     'country_Uganda' => 'Oeganda',
     'country_Ukraine' => 'Oekraïne',
-    'country_Macedonia, the former Yugoslav Republic of' => 'Macedonië',
+    'country_Macedonia, Republic of North' => 'Macedonië',
     'country_Egypt' => 'Egypte',
     'country_United Kingdom' => 'Verenigd Koninkrijk',
     'country_Guernsey' => 'Guernsey',

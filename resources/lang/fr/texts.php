@@ -1718,7 +1718,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'country_Tuvalu' => 'Tuvalu',
     'country_Uganda' => 'Ouganda',
     'country_Ukraine' => 'Ukraine',
-    'country_Macedonia, the former Yugoslav Republic of' => 'Macédoine',
+    'country_Macedonia, Republic of North' => 'Macédoine',
     'country_Egypt' => 'Egypte',
     'country_United Kingdom' => 'Royaume-Uni',
     'country_Guernsey' => 'Guernsey',
