@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-<html data-report-errors="{{ $report_errors }}" data-rc="{{ $rc }}" data-build="{{ $build }}">
+<html data-report-errors="{{ $report_errors }}" data-rc="{{ $rc }}" data-build="{{ $build }}" user-agent="{{ $user_agent }}">
 <head>
     <!-- Source: https://github.com/invoiceninja/invoiceninja -->
     <!-- Version: {{ config('ninja.app_version') }} -->
   <meta charset="UTF-8">
   <title>Invoice Ninja</title>
   <meta name="google-signin-client_id" content="{{ config('services.google.client_id') }}">
-  <meta name="user-agent" content="{{ $user_agent }}">
   <link rel="manifest" href="manifest.json?v={{ config('ninja.app_version') }}">
   <script src="{{ asset('js/pdf.min.js') }}"></script>
   <script type="text/javascript">

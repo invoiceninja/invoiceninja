@@ -6,6 +6,7 @@
     <meta name="return-url" content="{{ $return_url }}">
     <meta name="amount" content="{{ $stripe_amount }}">
     <meta name="country" content="{{ $country }}">
+    <meta name="customer" content="{{ $customer }}">
 @endsection
 
 @section('gateway_content')

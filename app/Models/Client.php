@@ -75,7 +75,6 @@ class Client extends BaseModel implements HasLocalePreference
         'shipping_postal_code',
         'shipping_country_id',
         'settings',
-        'payment_terms',
         'vat_number',
         'id_number',
         'group_settings_id',

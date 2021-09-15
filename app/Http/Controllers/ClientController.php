@@ -512,6 +512,9 @@ class ClientController extends BaseController
         $ids = request()->input('ids');
         $clients = Client::withTrashed()->whereIn('id', $this->transformKeys($ids))->cursor();
 
+        if(!in_array($action, ['restore','archive','delete']))
+            return response()->json(['message' => 'That action is not available.'], 400);
+
         $clients->each(function ($client, $key) use ($action) {
             if (auth()->user()->can('edit', $client)) {
                 $this->client_repo->{$action}($client);
