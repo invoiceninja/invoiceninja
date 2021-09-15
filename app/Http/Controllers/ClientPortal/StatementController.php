@@ -13,11 +13,47 @@
 namespace App\Http\Controllers\ClientPortal;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ClientPortal\Statements\ShowStatementRequest;
+use Illuminate\Http\JsonResponse;
+use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class StatementController extends Controller
 {
-    public function index()
+    /**
+     * Show the statement in the client portal. 
+     * 
+     * @return View 
+     */
+    public function index(): View
     {
         return render('statement.index');
+    }
+
+    /**
+     * Show the raw stream of statement PDF.
+     *  
+     * @param ShowStatementRequest $request 
+     * @return StreamedResponse|JsonResponse 
+     */
+    public function raw(ShowStatementRequest $request)
+    {
+        $pdf = $request->client()->service()->statement(
+            $request->only(['start_date', 'end_date', 'show_payments_table', 'show_aging_table'])
+        );
+    
+        if ($pdf && $request->query('download')) {
+            return response()->streamDownload(function () use ($pdf) {
+                echo $pdf;
+            }, 'statement.pdf', ['Content-Type' => 'application/pdf']);
+        }
+
+        if ($pdf) {
+            return response($pdf, 200)->withHeaders([
+                'Content-Type' => 'application/pdf',
+            ]);
+        }
+
+        return response()->json(['message' => 'Something went wrong. Please check logs.']);
     }
 }
