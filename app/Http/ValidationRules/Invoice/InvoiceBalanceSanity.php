@@ -59,7 +59,7 @@ class InvoiceBalanceSanity implements Rule
 
         DB::connection(config('database.default'))->beginTransaction();
 
-        $this->invoice = Invoice::on(config('database.default'))->find($this->invoice->id);
+        $this->invoice = Invoice::on(config('database.default'))->withTrashed()->find($this->invoice->id);
         $this->invoice->line_items = $this->input['line_items'];
         $temp_invoice = $this->invoice->calc()->getTempEntity();
  
