@@ -47,7 +47,9 @@ class Statement
 
     public function run(): ?string
     {
-        $this->setupEntity()->setupOptions();
+        $this
+            ->setupOptions()
+            ->setupEntity();
 
         $html = new HtmlEngine($this->getInvitation());
 
@@ -111,10 +113,6 @@ class Statement
             $this->entity = $this->getInvoices()->first();
         }
 
-        if (count($this->getPayments()) >= 1) {
-            $this->entity = $this->getPayments()->first();
-        }
-
         return $this;
     }
 
@@ -125,19 +123,19 @@ class Statement
      */
     protected function setupOptions(): self
     {
-        if (\array_key_exists('start_date', $this->options)) {
+        if (! \array_key_exists('start_date', $this->options)) {
             $this->options['start_date'] = now()->startOfYear()->format('Y-m-d');
         }
 
-        if (\array_key_exists('end_date', $this->options)) {
+        if (! \array_key_exists('end_date', $this->options)) {
             $this->options['end_date'] = now()->format('Y-m-d');
         }
 
-        if (\array_key_exists('show_payments_table', $this->options)) {
+        if (! \array_key_exists('show_payments_table', $this->options)) {
             $this->options['show_payments_table'] = false;
         }
 
-        if (\array_key_exists('show_aging_table', $this->options)) {
+        if (! \array_key_exists('show_aging_table', $this->options)) {
             $this->options['show_aging_table'] = false;
         }
 
@@ -182,7 +180,7 @@ class Statement
         if ($this->entity instanceof Invoice || $this->entity instanceof Payment) {
             return $this->entity->invitations->first();
         }
-
+        
         return false;
     }
 
