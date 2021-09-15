@@ -35,6 +35,7 @@ class InvoiceItemFactory
         $item->tax_rate3 = 0;
         $item->sort_id = 0;
         $item->line_total = 0;
+        $item->gross_line_total = 0;
         $item->custom_value1 = '';
         $item->custom_value2 = '';
         $item->custom_value3 = '';

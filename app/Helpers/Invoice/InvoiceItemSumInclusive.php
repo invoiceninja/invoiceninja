@@ -177,6 +177,11 @@ class InvoiceItemSumInclusive
         return $this->item->line_total;
     }
 
+    public function getGrossLineTotal()
+    {
+        return $this->item->line_total;
+    }
+
     public function getLineItems()
     {
         return $this->line_items;
