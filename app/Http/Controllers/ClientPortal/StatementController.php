@@ -21,9 +21,9 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class StatementController extends Controller
 {
     /**
-     * Show the statement in the client portal. 
-     * 
-     * @return View 
+     * Show the statement in the client portal.
+     *
+     * @return View
      */
     public function index(): View
     {
@@ -31,17 +31,17 @@ class StatementController extends Controller
     }
 
     /**
-     * Show the raw stream of statement PDF.
-     *  
-     * @param ShowStatementRequest $request 
-     * @return StreamedResponse|JsonResponse 
+     * Show the raw stream of the PDF.
+     *
+     * @param ShowStatementRequest $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|JsonResponse|\Illuminate\Http\Response|StreamedResponse
      */
     public function raw(ShowStatementRequest $request)
     {
         $pdf = $request->client()->service()->statement(
             $request->only(['start_date', 'end_date', 'show_payments_table', 'show_aging_table'])
         );
-    
+
         if ($pdf && $request->query('download')) {
             return response()->streamDownload(function () use ($pdf) {
                 echo $pdf;
