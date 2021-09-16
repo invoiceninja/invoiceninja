@@ -54,8 +54,12 @@
         height: 120px;
     }
 
-    .company-logo {
-        height: 100%;
+    .company-logo-wrapper {
+        padding-bottom: 60px;
+    }
+
+    .company-logo-wrapper {
+        height: 5rem;
     }
 
     .header-invoice-number {
@@ -266,8 +270,10 @@
         </div>
 
         <div class="logo-and-partial-entity-info">
-            <img class="company-logo" src="$company.logo"
+            <div class="company-logo-wrapper">
+                <img class="company-logo" src="$company.logo"
                  alt="$company.name logo">
+            </div>
             <div class="top-right-side-section">
                 <div dir="$dir">
                     <span class="header-payment-due-label">$payment_due_label:</span>
