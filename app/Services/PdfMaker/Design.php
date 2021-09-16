@@ -382,7 +382,7 @@ class Design extends BaseDesign
         $outstanding = $this->invoices->sum('amount');
 
         return [
-            ['element' => 'p', 'content' => '$outstanding_label: $outstanding'],
+            ['element' => 'p', 'content' => '$outstanding_label: ' . Number::formatMoney($outstanding, $this->entity->client)],
         ];
     }
 
