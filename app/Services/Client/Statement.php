@@ -12,10 +12,14 @@
 
 namespace App\Services\Client;
 
+use App\Factory\InvoiceFactory;
+use App\Factory\InvoiceInvitationFactory;
+use App\Factory\InvoiceItemFactory;
 use App\Models\Client;
 use App\Models\Design;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Product;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\PdfMaker\PdfMaker;
 use App\Utils\HostedPDF\NinjaPdf;
@@ -24,6 +28,7 @@ use App\Utils\Number;
 use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\Pdf\PdfMaker as PdfMakerTrait;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 
 class Statement
 {
@@ -37,6 +42,8 @@ class Statement
     protected $entity;
 
     protected array $options;
+
+    protected bool $rollback = false;
 
     public function __construct(Client $client, array $options)
     {
@@ -99,6 +106,10 @@ class Statement
             nlog(print_r($e->getMessage(), 1));
         }
 
+        if ($this->rollback) {
+            DB::rollBack();
+        }
+
         return $pdf;
     }
 
@@ -113,7 +124,64 @@ class Statement
             $this->entity = $this->getInvoices()->first();
         }
 
+        if (\is_null($this->entity)) {
+            DB::beginTransaction();
+            $this->rollback = true;
+
+            $invoice = InvoiceFactory::create($this->client->company->id, $this->client->user->id);
+            $invoice->client_id = $this->client->id;
+            $invoice->line_items = $this->buildLineItems();
+            $invoice->save();
+
+            $invitation = InvoiceInvitationFactory::create($invoice->company_id, $invoice->user_id);
+            $invitation->invoice_id = $invoice->id;
+            $invitation->client_contact_id = $this->client->contacts->first()->id;
+            $invitation->save();
+
+            $this->entity = $invoice;
+        }
+
         return $this;
+    }
+
+    protected function buildLineItems($count = 1)
+    {
+        $line_items = [];
+
+        for ($x = 0; $x < $count; $x++) {
+            $item = InvoiceItemFactory::create();
+            $item->quantity = 1;
+            //$item->cost = 10;
+
+            if (rand(0, 1)) {
+                $item->tax_name1 = 'GST';
+                $item->tax_rate1 = 10.00;
+            }
+
+            if (rand(0, 1)) {
+                $item->tax_name1 = 'VAT';
+                $item->tax_rate1 = 17.50;
+            }
+
+            if (rand(0, 1)) {
+                $item->tax_name1 = 'Sales Tax';
+                $item->tax_rate1 = 5;
+            }
+
+            $product = Product::all()->random();
+
+            $item->cost = (float) $product->cost;
+            $item->product_key = $product->product_key;
+            $item->notes = $product->notes;
+            $item->custom_value1 = $product->custom_value1;
+            $item->custom_value2 = $product->custom_value2;
+            $item->custom_value3 = $product->custom_value3;
+            $item->custom_value4 = $product->custom_value4;
+
+            $line_items[] = $item;
+        }
+
+        return $line_items;
     }
 
     /**
@@ -180,7 +248,7 @@ class Statement
         if ($this->entity instanceof Invoice || $this->entity instanceof Payment) {
             return $this->entity->invitations->first();
         }
-        
+
         return false;
     }
 

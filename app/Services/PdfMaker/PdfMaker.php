@@ -82,6 +82,12 @@ class PdfMaker
         return $this;
     }
 
+    /**
+     * Return compiled HTML.
+     * 
+     * @param bool $final deprecated 
+     * @return mixed 
+     */
     public function getCompiledHTML($final = false)
     {
         $html =  $this->document->saveHTML();
