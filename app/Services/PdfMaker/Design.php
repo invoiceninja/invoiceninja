@@ -232,7 +232,7 @@ class Design extends BaseDesign
                 ]],
                 ['element' => 'tr', 'properties' => [], 'elements' => [
                     ['element' => 'th', 'properties' => [], 'content' => '$balance_due_label'],
-                    ['element' => 'th', 'properties' => [], 'content' => '$balance_due'],
+                    ['element' => 'th', 'properties' => [], 'content' => Number::formatMoney($this->invoices->sum('amount'), $this->entity->client)],
                 ]],
             ];
         }
