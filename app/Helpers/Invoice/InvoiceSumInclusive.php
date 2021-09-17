@@ -259,6 +259,11 @@ class InvoiceSumInclusive
         return $this->sub_total;
     }
 
+    public function getGrossSubTotal()
+    {
+        return $this->sub_total;
+    }
+
     public function setSubTotal($value)
     {
         $this->sub_total = $value;

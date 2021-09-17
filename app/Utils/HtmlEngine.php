@@ -175,6 +175,7 @@ class HtmlEngine
         $data['$invoice.discount'] = ['value' => Number::formatMoney($this->entity_calc->getTotalDiscount(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.discount')];
         $data['$discount'] = &$data['$invoice.discount'];
         $data['$subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getSubTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.subtotal')];
+        $data['$gross_subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getGrossSubTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.subtotal')];
 
         if($this->entity->uses_inclusive_taxes)
             $data['$net_subtotal'] = ['value' => Number::formatMoney(($this->entity_calc->getSubTotal() - $this->entity->total_taxes), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.net_subtotal')];
@@ -228,6 +229,8 @@ class HtmlEngine
         $data['$invoice.taxes'] = &$data['$taxes'];
 
         $data['$user.name'] = ['value' => $this->entity->user->present()->name(), 'label' => ctrans('texts.name')];
+        $data['$user.first_name'] = ['value' => $this->entity->user->first_name, 'label' => ctrans('texts.first_name')];
+        $data['$user.last_name'] = ['value' => $this->entity->user->last_name, 'label' => ctrans('texts.last_name')];
         $data['$user_iban'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company1', $this->settings->custom_value1, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'company1')];
         $data['$invoice.custom1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice1', $this->entity->custom_value1, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice1')];
         $data['$invoice.custom2'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice2', $this->entity->custom_value2, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice2')];
@@ -378,6 +381,7 @@ class HtmlEngine
         $data['$product.tax_name2'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$product.tax_name3'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$product.line_total'] = ['value' => '', 'label' => ctrans('texts.line_total')];
+        $data['$product.gross_line_total'] = ['value' => '', 'label' => ctrans('texts.line_total')];
         $data['$product.description'] = ['value' => '', 'label' => ctrans('texts.description')];
         $data['$product.unit_cost'] = ['value' => '', 'label' => ctrans('texts.unit_cost')];
         $data['$product.product1'] = ['value' => '', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'product1')];
@@ -397,6 +401,7 @@ class HtmlEngine
         $data['$task.tax_name2'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$task.tax_name3'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$task.line_total'] = ['value' => '', 'label' => ctrans('texts.line_total')];
+        $data['$task.gross_line_total'] = ['value' => '', 'label' => ctrans('texts.line_total')];
         $data['$task.service'] = ['value' => '', 'label' => ctrans('texts.service')];
         $data['$task.task1'] = ['value' => '', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'task1')];
         $data['$task.task2'] = ['value' => '', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'task2')];

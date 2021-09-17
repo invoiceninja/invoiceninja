@@ -12,7 +12,6 @@
 namespace App\Providers;
 
 use App\Models\Activity;
-use App\Models\Subscription;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyGateway;
@@ -29,8 +28,10 @@ use App\Models\PaymentTerm;
 use App\Models\Product;
 use App\Models\Project;
 use App\Models\Quote;
+use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
 use App\Models\RecurringQuote;
+use App\Models\Subscription;
 use App\Models\Task;
 use App\Models\TaskStatus;
 use App\Models\TaxRate;
@@ -38,7 +39,6 @@ use App\Models\User;
 use App\Models\Vendor;
 use App\Models\Webhook;
 use App\Policies\ActivityPolicy;
-use App\Policies\SubscriptionPolicy;
 use App\Policies\ClientPolicy;
 use App\Policies\CompanyGatewayPolicy;
 use App\Policies\CompanyPolicy;
@@ -55,8 +55,10 @@ use App\Policies\PaymentTermPolicy;
 use App\Policies\ProductPolicy;
 use App\Policies\ProjectPolicy;
 use App\Policies\QuotePolicy;
+use App\Policies\RecurringExpensePolicy;
 use App\Policies\RecurringInvoicePolicy;
 use App\Policies\RecurringQuotePolicy;
+use App\Policies\SubscriptionPolicy;
 use App\Policies\TaskPolicy;
 use App\Policies\TaskStatusPolicy;
 use App\Policies\TaxRatePolicy;
@@ -92,6 +94,7 @@ class AuthServiceProvider extends ServiceProvider
         Product::class => ProductPolicy::class,
         Project::class => ProjectPolicy::class,
         Quote::class => QuotePolicy::class,
+        RecurringExpense::class => RecurringExpensePolicy::class,
         RecurringInvoice::class => RecurringInvoicePolicy::class,
         RecurringQuote::class => RecurringQuotePolicy::class,
         Webhook::class => WebhookPolicy::class,

@@ -22,6 +22,7 @@ use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentHash;
+use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Stripe\ACH;
 use App\PaymentDrivers\Stripe\Alipay;
@@ -422,7 +423,8 @@ class StripePaymentDriver extends BaseDriver
         // Allow app to catch up with webhook request.
         sleep(2);
 
-        if ($request->type === 'charge.succeeded' || $request->type === 'source.chargeable') {
+        if ($request->type === 'charge.succeeded') {
+
             foreach ($request->data as $transaction) {
                 $payment = Payment::query()
                         ->where('transaction_reference', $transaction['id'])
@@ -432,6 +434,28 @@ class StripePaymentDriver extends BaseDriver
                 if ($payment) {
                     $payment->status_id = Payment::STATUS_COMPLETED;
                     $payment->save();
+                }
+            }
+        } elseif ($request->type === 'source.chargeable') {
+            $this->init();
+
+            foreach ($request->data as $transaction) {
+                $charge = \Stripe\Charge::create([
+                    'amount' => $request->data['object']['amount'],
+                    'currency' => $request->data['object']['currency'],
+                    'source' => $request->data['object']['id'],
+                ], $this->stripe_connect_auth);
+
+                if ($charge->captured) {
+                    $payment = Payment::query()
+                        ->where('transaction_reference', $transaction['id'])
+                        ->where('company_id', $request->getCompany()->id)
+                        ->first();
+
+                    if ($payment) {
+                        $payment->status_id = Payment::STATUS_COMPLETED;
+                        $payment->save();
+                    }
                 }
             }
         }
@@ -538,6 +562,11 @@ class StripePaymentDriver extends BaseDriver
         $this->init();
 
         return Account::all();
+    }
+
+    public function setClientFromCustomer($customer)
+    {
+        $this->client = ClientGatewayToken::where('gateway_customer_reference', $customer)->client;
     }
 
     /**

@@ -22,6 +22,7 @@ class RecurringQuoteFactory
         $quote->discount = 0;
         $quote->is_amount_discount = true;
         $quote->po_number = '';
+        $quote->number = '';
         $quote->footer = '';
         $quote->terms = '';
         $quote->public_notes = '';
@@ -48,6 +49,7 @@ class RecurringQuoteFactory
         $quote->last_sent_date = null;
         $quote->next_send_date = null;
         $quote->remaining_cycles = 0;
+        $quote->paid_to_date = 0;
 
         return $quote;
     }

@@ -116,9 +116,9 @@ class WebhookHandler implements ShouldQueue
             ]);
 
             SystemLogger::dispatch(
-                $response,
+                array_merge((array)$response,$data),
                 SystemLog::CATEGORY_WEBHOOK,
-                SystemLog::EVENT_WEBHOOK_RESPONSE,
+                SystemLog::EVENT_WEBHOOK_SUCCESS,
                 SystemLog::TYPE_WEBHOOK_RESPONSE,
                 $this->company->clients->first(),
                 $this->company
@@ -130,7 +130,7 @@ class WebhookHandler implements ShouldQueue
         }
         catch(\Exception $e){
 
-        nlog($e->getMessage());
+            nlog($e->getMessage());
 
                 SystemLogger::dispatch(
                 $e->getMessage(),

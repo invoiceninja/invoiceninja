@@ -84,6 +84,7 @@ class BaseController extends Controller
           'company.payments.documents',
           'company.payment_terms.company',
           'company.projects.documents',
+          'company.recurring_expenses',
           'company.recurring_invoices',
           'company.recurring_invoices.invitations.contact',
           'company.recurring_invoices.invitations.company',
@@ -306,6 +307,13 @@ class BaseController extends Controller
 
                 if(!$user->hasPermission('view_recurring_invoice'))
                   $query->where('recurring_invoices.user_id', $user->id)->orWhere('recurring_invoices.assigned_user_id', $user->id);
+
+            },
+            'company.recurring_expenses'=> function ($query) use ($updated_at, $user) {
+                $query->where('updated_at', '>=', $updated_at)->with('documents');
+
+                if(!$user->hasPermission('view_recurring_expense'))
+                  $query->where('recurring_expenses.user_id', $user->id)->orWhere('recurring_expenses.assigned_user_id', $user->id);
 
             },
             'company.tasks'=> function ($query) use ($updated_at, $user) {
@@ -738,6 +746,7 @@ class BaseController extends Controller
             //pass referral code to front end
             $data['rc'] = request()->has('rc') ? request()->input('rc') : '';
             $data['build'] = request()->has('build') ? request()->input('build') : '';
+            $data['user_agent'] = request()->server('HTTP_USER_AGENT');
 
             $data['path'] = $this->setBuild();
 

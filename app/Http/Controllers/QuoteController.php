@@ -210,7 +210,10 @@ class QuoteController extends BaseController
 
         $quote = $this->quote_repo->save($request->all(), QuoteFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
-        $quote = $quote->service()->fillDefaults()->save();
+        $quote = $quote->service()
+                       ->fillDefaults()
+                       ->triggeredActions($request)
+                       ->save();
 
         event(new QuoteWasCreated($quote, $quote->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 

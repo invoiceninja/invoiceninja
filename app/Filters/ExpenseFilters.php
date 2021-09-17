@@ -38,11 +38,6 @@ class ExpenseFilters extends QueryFilters
         return  $this->builder->where(function ($query) use ($filter) {
             $query->where('expenses.name', 'like', '%'.$filter.'%')
                           ->orWhere('expenses.id_number', 'like', '%'.$filter.'%')
-                          ->orWhereHas('contacts', function ($query) use($filter){
-                              $query->where('expense_contacts.first_name', 'like', '%'.$filter.'%');
-                              $query->orWhere('expense_contacts.last_name', 'like', '%'.$filter.'%');
-                              $query->orWhere('expense_contacts.email', 'like', '%'.$filter.'%');
-                          })
                           ->orWhere('expenses.custom_value1', 'like', '%'.$filter.'%')
                           ->orWhere('expenses.custom_value2', 'like', '%'.$filter.'%')
                           ->orWhere('expenses.custom_value3', 'like', '%'.$filter.'%')

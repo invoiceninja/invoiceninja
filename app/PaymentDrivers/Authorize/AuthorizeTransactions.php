@@ -45,7 +45,8 @@ class AuthorizeTransactions
 
         $response = $controller->executeWithApiResponse($this->authorize->mode());
 
-        if (($response != null) && ($response->getMessages()->getResultCode() == 'Ok')) {
+        // if (($response != null) && ($response->getMessages()->getResultCode() == 'Ok')) {
+        if ($response != null && $response->getMessages() != null) {
             nlog('SUCCESS: Transaction Status:'.$response->getTransaction()->getTransactionStatus());
             nlog('                Auth Amount:'.$response->getTransaction()->getAuthAmount());
             nlog('                   Trans ID:'.$response->getTransaction()->getTransId());

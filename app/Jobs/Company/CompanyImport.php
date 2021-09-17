@@ -483,7 +483,7 @@ class CompanyImport implements ShouldQueue
     {
 
         $this->genericImport(Client::class, 
-            ['user_id', 'assigned_user_id', 'company_id', 'id', 'hashed_id', 'gateway_tokens', 'contacts', 'documents'], 
+            ['user_id', 'assigned_user_id', 'company_id', 'id', 'hashed_id', 'gateway_tokens', 'contacts', 'documents','country'], 
             [['users' => 'user_id'], ['users' => 'assigned_user_id']], 
             'clients',
             'number');
@@ -496,7 +496,7 @@ class CompanyImport implements ShouldQueue
     {
 
         $this->genericImport(ClientContact::class, 
-            ['user_id', 'company_id', 'id', 'hashed_id'], 
+            ['user_id', 'company_id', 'id', 'hashed_id','company'], 
             [['users' => 'user_id'], ['clients' => 'client_id']], 
             'client_contacts',
             'email');

@@ -16,6 +16,7 @@ use App\Jobs\Util\UnlinkFile;
 use App\Models\Invoice;
 use App\Models\Quote;
 use App\Repositories\QuoteRepository;
+use App\Services\Quote\TriggeredActions;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 
@@ -174,6 +175,13 @@ class QuoteService
         if (!isset($this->quote->public_notes)) 
             $this->quote->public_notes = $this->quote->client->public_notes;
         
+        return $this;
+    }
+
+    public function triggeredActions($request)
+    {
+        $this->quote = (new TriggeredActions($this->quote, $request))->run();
+
         return $this;
     }
 

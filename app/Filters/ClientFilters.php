@@ -68,7 +68,6 @@ class ClientFilters extends QueryFilters
             $query->where('email', $email);
         });
 
-        //return $this->builder->where('email', $email);
     }
 
     public function id_number(string $id_number):Builder

@@ -52,6 +52,7 @@ class SystemLog extends Model
     const EVENT_MAIL_DELIVERY = 34;
 
     const EVENT_WEBHOOK_RESPONSE = 40;
+    const EVENT_WEBHOOK_SUCCESS = 41;
     const EVENT_PDF_RESPONSE = 50;
 
     const EVENT_AUTHENTICATION_FAILURE = 60;

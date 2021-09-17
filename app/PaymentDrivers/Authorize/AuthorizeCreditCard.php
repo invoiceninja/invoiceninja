@@ -102,10 +102,10 @@ class AuthorizeCreditCard
 
         $data = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($cgt->gateway_customer_reference, $cgt->token, $amount);
 
-        /*Refactor and push to BaseDriver*/
-        if ($data['response'] != null && $data['response']->getMessages()->getResultCode() == 'Ok') {
+       $response = $data['response'];
 
-            $response = $data['response'];
+        // if ($response != null && $response->getMessages()->getResultCode() == 'Ok') {
+        if ($response != null && $response->getMessages() != null) {
 
             $this->storePayment($payment_hash, $data);
 
