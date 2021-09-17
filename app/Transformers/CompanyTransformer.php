@@ -13,7 +13,6 @@ namespace App\Transformers;
 
 use App\Models\Account;
 use App\Models\Activity;
-use App\Models\Subscription;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyGateway;
@@ -31,13 +30,16 @@ use App\Models\PaymentTerm;
 use App\Models\Product;
 use App\Models\Project;
 use App\Models\Quote;
+use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
+use App\Models\Subscription;
 use App\Models\SystemLog;
 use App\Models\Task;
 use App\Models\TaskStatus;
 use App\Models\TaxRate;
 use App\Models\User;
 use App\Models\Webhook;
+use App\Transformers\RecurringExpenseTransformer;
 use App\Utils\Traits\MakesHash;
 use stdClass;
 
@@ -92,6 +94,7 @@ class CompanyTransformer extends EntityTransformer
         'expense_categories',
         'task_statuses',
         'subscriptions',
+        'recurring_expenses',
     ];
 
     /**
@@ -294,6 +297,13 @@ class CompanyTransformer extends EntityTransformer
         $transformer = new RecurringInvoiceTransformer($this->serializer);
 
         return $this->includeCollection($company->recurring_invoices, $transformer, RecurringInvoice::class);
+    }
+
+    public function includeRecurringExpenses(Company $company)
+    {
+        $transformer = new RecurringExpenseTransformer($this->serializer);
+
+        return $this->includeCollection($company->recurring_expenses, $transformer, RecurringExpense::class);
     }
 
     public function includeQuotes(Company $company)
