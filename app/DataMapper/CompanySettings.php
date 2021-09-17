@@ -357,6 +357,8 @@ class CompanySettings extends BaseSettings
         'expense_number_counter'             => 'int',
         'recurring_expense_number_pattern'   => 'string',
         'recurring_expense_number_counter'   => 'int',
+        'recurring_quote_number_pattern'     => 'string',
+        'recurring_quote_number_counter'     => 'int',
         'vendor_number_pattern'              => 'string',
         'vendor_number_counter'              => 'int',
         'ticket_number_pattern'              => 'string',
