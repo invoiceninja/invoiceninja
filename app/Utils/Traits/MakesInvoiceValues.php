@@ -311,7 +311,10 @@ trait MakesInvoiceValues
             $data[$key][$table_type.'.cost'] = Number::formatMoney($item->cost, $this->client);
 
             $data[$key][$table_type.'.line_total'] = Number::formatMoney($item->line_total, $this->client);
-            $data[$key][$table_type.'.gross_line_total'] = Number::formatMoney($item->gross_line_total, $this->client);
+            
+            /* need to test here as this is new - 18/09/2021*/
+            if(array_key_exists($table_type.'.gross_line_total', $data[$key]))
+                $data[$key][$table_type.'.gross_line_total'] = Number::formatMoney($item->gross_line_total, $this->client);
 
             if (isset($item->discount) && $item->discount > 0) {
                 if ($item->is_amount_discount) {
