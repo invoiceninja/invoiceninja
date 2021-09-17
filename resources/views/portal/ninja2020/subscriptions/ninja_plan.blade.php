@@ -107,8 +107,6 @@ input:checked ~ .dot {
               <hr>
               <div class="py-2 text-sm my-3 text-white">Branded client portal: "https://billing.yourcompany.com"</div>
               <hr>
-              <div class="py-2 text-sm my-3 text-white">Custom background for invoices & quotes</div>
-              <hr>
               <div class="py-2 text-sm my-3 text-white">Priority support</div>
               <hr>
               <div class="py-2 text-sm my-3 text-white">+ Much more!</div>
@@ -191,8 +189,6 @@ input:checked ~ .dot {
               <div class="py-2 text-sm my-3 text-white">Attach documents to emails & client side portal!</div>
               <hr>
               <div class="py-2 text-sm my-3 text-white">Branded client portal: "https://billing.yourcompany.com"</div>
-              <hr>
-              <div class="py-2 text-sm my-3 text-white">Custom background for invoices & quotes</div>
               <hr>
               <div class="py-2 text-sm my-3 text-white">Priority support</div>
               <hr>
