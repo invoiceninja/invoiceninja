@@ -12,9 +12,9 @@
 namespace App\Jobs\Cron;
 
 use App\Factory\RecurringExpenseToExpenseFactory;
-use App\Jobs\RecurringInvoice\SendRecurring;
 use App\Libraries\MultiDB;
 use App\Models\RecurringExpense;
+use App\Models\RecurringInvoice;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Carbon;
@@ -64,11 +64,8 @@ class RecurringExpensesCron
         $recurring_expenses = RecurringExpense::where('next_send_date', '<=', now()->toDateTimeString())
                                                     ->whereNotNull('next_send_date')
                                                     ->whereNull('deleted_at')
+                                                    ->where('status_id', RecurringInvoice::STATUS_ACTIVE)
                                                     ->where('remaining_cycles', '!=', '0')
-                                                    // ->whereHas('client', function ($query) {
-                                                    //      $query->where('is_deleted',0)
-                                                    //            ->where('deleted_at', NULL);
-                                                    // })
                                                     ->with('company')
                                                     ->cursor();
 
@@ -80,6 +77,8 @@ class RecurringExpensesCron
             if (!$recurring_expense->company->is_disabled) {
                 $this->generateExpense($recurring_expense);
             }
+
+
         });
     }
 
@@ -90,6 +89,10 @@ class RecurringExpensesCron
 
         $expense->number = $this->getNextExpenseNumber($expense);
         $expense->save();
+
+        $recurring_expense->next_send_date = $recurring_expense->nextSendDate();
+        $recurring_expense->remaining_cycles = $recurring_expense->remainingCycles();
+        $recurring_expense->save();
     }
 
 }
