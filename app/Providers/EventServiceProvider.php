@@ -68,11 +68,21 @@ use App\Events\Quote\QuoteWasEmailed;
 use App\Events\Quote\QuoteWasRestored;
 use App\Events\Quote\QuoteWasUpdated;
 use App\Events\Quote\QuoteWasViewed;
+use App\Events\RecurringExpense\RecurringExpenseWasArchived;
+use App\Events\RecurringExpense\RecurringExpenseWasCreated;
+use App\Events\RecurringExpense\RecurringExpenseWasDeleted;
+use App\Events\RecurringExpense\RecurringExpenseWasRestored;
+use App\Events\RecurringExpense\RecurringExpenseWasUpdated;
 use App\Events\RecurringInvoice\RecurringInvoiceWasArchived;
 use App\Events\RecurringInvoice\RecurringInvoiceWasCreated;
 use App\Events\RecurringInvoice\RecurringInvoiceWasDeleted;
 use App\Events\RecurringInvoice\RecurringInvoiceWasRestored;
 use App\Events\RecurringInvoice\RecurringInvoiceWasUpdated;
+use App\Events\RecurringQuote\RecurringQuoteWasArchived;
+use App\Events\RecurringQuote\RecurringQuoteWasCreated;
+use App\Events\RecurringQuote\RecurringQuoteWasDeleted;
+use App\Events\RecurringQuote\RecurringQuoteWasRestored;
+use App\Events\RecurringQuote\RecurringQuoteWasUpdated;
 use App\Events\Subscription\SubscriptionWasArchived;
 use App\Events\Subscription\SubscriptionWasCreated;
 use App\Events\Subscription\SubscriptionWasDeleted;
@@ -170,11 +180,21 @@ use App\Listeners\Quote\QuoteEmailedNotification;
 use App\Listeners\Quote\QuoteRestoredActivity;
 use App\Listeners\Quote\QuoteViewedActivity;
 use App\Listeners\Quote\ReachWorkflowSettings;
+use App\Listeners\RecurringExpense\CreatedRecurringExpenseActivity;
+use App\Listeners\RecurringExpense\RecurringExpenseArchivedActivity;
+use App\Listeners\RecurringExpense\RecurringExpenseDeletedActivity;
+use App\Listeners\RecurringExpense\RecurringExpenseRestoredActivity;
+use App\Listeners\RecurringExpense\RecurringExpenseUpdatedActivity;
 use App\Listeners\RecurringInvoice\CreateRecurringInvoiceActivity;
 use App\Listeners\RecurringInvoice\RecurringInvoiceArchivedActivity;
 use App\Listeners\RecurringInvoice\RecurringInvoiceDeletedActivity;
 use App\Listeners\RecurringInvoice\RecurringInvoiceRestoredActivity;
 use App\Listeners\RecurringInvoice\UpdateRecurringInvoiceActivity;
+use App\Listeners\RecurringQuote\CreateRecurringQuoteActivity;
+use App\Listeners\RecurringQuote\RecurringQuoteArchivedActivity;
+use App\Listeners\RecurringQuote\RecurringQuoteDeletedActivity;
+use App\Listeners\RecurringQuote\RecurringQuoteRestoredActivity;
+use App\Listeners\RecurringQuote\UpdateRecurringQuoteActivity;
 use App\Listeners\SendVerificationNotification;
 use App\Listeners\User\ArchivedUserActivity;
 use App\Listeners\User\CreatedUserActivity;
@@ -411,6 +431,36 @@ class EventServiceProvider extends ServiceProvider
         ],
         QuoteWasRestored::class => [
             QuoteRestoredActivity::class,
+        ],
+        RecurringExpenseWasCreated::class => [
+            CreatedRecurringExpenseActivity::class,
+        ],
+        RecurringExpenseWasUpdated::class => [
+            RecurringExpenseUpdatedActivity::class,
+        ],
+        RecurringExpenseWasArchived::class => [
+            RecurringExpenseArchivedActivity::class,
+        ],
+        RecurringExpenseWasDeleted::class => [
+            RecurringExpenseDeletedActivity::class,
+        ],
+        RecurringExpenseWasRestored::class => [
+            RecurringExpenseRestoredActivity::class
+        ],
+        RecurringQuoteWasUpdated::class => [
+            UpdateRecurringQuoteActivity::class,
+        ],
+        RecurringQuoteWasCreated::class => [
+            CreateRecurringQuoteActivity::class,
+        ],
+        RecurringQuoteWasDeleted::class => [
+            RecurringQuoteDeletedActivity::class,
+        ],
+        RecurringQuoteWasArchived::class => [
+            RecurringQuoteArchivedActivity::class,
+        ],
+        RecurringQuoteWasRestored::class => [
+            RecurringQuoteRestoredActivity::class,
         ],
         RecurringInvoiceWasUpdated::class => [
             UpdateRecurringInvoiceActivity::class,

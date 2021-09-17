@@ -98,6 +98,12 @@ class CompanySettings extends BaseSettings
     public $expense_number_pattern = ''; //@implemented
     public $expense_number_counter = 1; //@implemented
 
+    public $recurring_expense_number_pattern = ''; 
+    public $recurring_expense_number_counter = 1; 
+
+    public $recurring_quote_number_pattern = ''; 
+    public $recurring_quote_number_counter = 1; 
+
     public $vendor_number_pattern = ''; //@implemented
     public $vendor_number_counter = 1; //@implemented
 
@@ -349,6 +355,8 @@ class CompanySettings extends BaseSettings
         'task_number_counter'                => 'int',
         'expense_number_pattern'             => 'string',
         'expense_number_counter'             => 'int',
+        'recurring_expense_number_pattern'   => 'string',
+        'recurring_expense_number_counter'   => 'int',
         'vendor_number_pattern'              => 'string',
         'vendor_number_counter'              => 'int',
         'ticket_number_pattern'              => 'string',

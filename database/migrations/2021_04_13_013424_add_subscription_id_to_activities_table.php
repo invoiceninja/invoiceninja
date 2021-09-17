@@ -25,8 +25,5 @@ class AddSubscriptionIdToActivitiesTable extends Migration
      */
     public function down()
     {
-        Schema::table('activities', function (Blueprint $table) {
-            //
-        });
     }
 }
