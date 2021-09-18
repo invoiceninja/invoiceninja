@@ -501,12 +501,14 @@ class CompanyExport implements ShouldQueue
             unlink($zip_path);
         }
 
+        $storage_file_path = Storage::disk(config('filesystems.default'))->url('backups/'.$file_name)
+
         App::forgetInstance('translator');
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
         $nmo = new NinjaMailerObject;
-        $nmo->mailable = new DownloadBackup(Storage::disk(config('filesystems.default'))->url('backups/'.$file_name), $this->company);
+        $nmo->mailable = new DownloadBackup($storage_file_path, $this->company);
         $nmo->to_user = $this->user;
         $nmo->company = $this->company;
         $nmo->settings = $this->company->settings;
