@@ -14,6 +14,7 @@ namespace App\Http\Controllers;
 use App\Factory\DesignFactory;
 use App\Filters\DesignFilters;
 use App\Http\Requests\Design\CreateDesignRequest;
+use App\Http\Requests\Design\DefaultDesignRequest;
 use App\Http\Requests\Design\DestroyDesignRequest;
 use App\Http\Requests\Design\EditDesignRequest;
 use App\Http\Requests\Design\ShowDesignRequest;
@@ -486,5 +487,37 @@ class DesignController extends BaseController
         });
 
         return $this->listResponse(Design::withTrashed()->whereIn('id', $this->transformKeys($ids)));
+    }
+
+    public function default(DefaultDesignRequest $request)
+    {
+        $design_id = $request->int('design_id');
+        $entity = $request->input('entity');
+        $company = auth()->user()->getCompany();
+
+        $design = Design::where('company_id', $company->id)
+                        ->where('id', $design_id)
+                        ->exists();
+
+        if(!$design)
+            return response()->json(['message' => 'Design does not exist.'], 400);
+
+        switch ($entity) {
+            case 'invoice':
+                $company->invoices()->update(['design_id' => $design_id]);
+                break;
+            case 'quote':
+                $company->quotes()->update(['design_id' => $design_id]);
+                break;  
+            case 'credit':
+                $company->credits()->update(['design_id' => $design_id]);
+                break;
+
+            default:
+                // code...
+                break;
+        }
+
+        return response()->json(['message' = > 'success'],200);
     }
 }
