@@ -500,7 +500,7 @@ class CompanyExport implements ShouldQueue
             Storage::disk(config('filesystems.default'))->put('backups/'.$file_name, file_get_contents($zip_path));
         }
 
-        $storage_file_path = Storage::disk(config('filesystems.default'))->url('backups/'.$file_name)
+        $storage_file_path = Storage::disk(config('filesystems.default'))->url('backups/'.$file_name);
 
         App::forgetInstance('translator');
         $t = app('translator');
