@@ -518,6 +518,6 @@ class DesignController extends BaseController
                 break;
         }
 
-        return response()->json(['message' = > 'success'],200);
+        return response()->json(['message' => 'success'], 200);
     }
 }
