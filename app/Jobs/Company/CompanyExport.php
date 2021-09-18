@@ -498,21 +498,26 @@ class CompanyExport implements ShouldQueue
 
         if(Ninja::isHosted()) {
             Storage::disk(config('filesystems.default'))->put('backups/'.$file_name, file_get_contents($zip_path));
-            unlink($zip_path);
         }
+
+        $storage_file_path = Storage::disk(config('filesystems.default'))->url('backups/'.$file_name);
 
         App::forgetInstance('translator');
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
         $nmo = new NinjaMailerObject;
-        $nmo->mailable = new DownloadBackup(Storage::disk(config('filesystems.default'))->url('backups/'.$file_name), $this->company);
+        $nmo->mailable = new DownloadBackup($storage_file_path, $this->company);
         $nmo->to_user = $this->user;
         $nmo->company = $this->company;
         $nmo->settings = $this->company->settings;
         
         NinjaMailerJob::dispatch($nmo);
 
+        if(Ninja::isHosted()){
+            sleep(3);
+            unlink($zip_path);
+        }
     }
 
 }
