@@ -498,7 +498,6 @@ class CompanyExport implements ShouldQueue
 
         if(Ninja::isHosted()) {
             Storage::disk(config('filesystems.default'))->put('backups/'.$file_name, file_get_contents($zip_path));
-            unlink($zip_path);
         }
 
         $storage_file_path = Storage::disk(config('filesystems.default'))->url('backups/'.$file_name)
@@ -515,6 +514,10 @@ class CompanyExport implements ShouldQueue
         
         NinjaMailerJob::dispatch($nmo);
 
+        if(Ninja::isHosted()){
+            sleep(3);
+            unlink($zip_path);
+        }
     }
 
 }
