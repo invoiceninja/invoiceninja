@@ -67,7 +67,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 
     Route::resource('designs', 'DesignController'); // name = (payments. index / create / show / update / destroy / edit
     Route::post('designs/bulk', 'DesignController@bulk')->name('designs.bulk');
-    Route::post('designs/default', 'DesignController@default')->name('designs.default');
+    Route::post('designs/set/default', 'DesignController@default')->name('designs.default');
 
     Route::resource('documents', 'DocumentController'); // name = (documents. index / create / show / update / destroy / edit
     Route::get('documents/{document}/download', 'DocumentController@download')->name('documents.download');
