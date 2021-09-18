@@ -48,6 +48,7 @@
         "gocardless/gocardless-pro": "^4.12",
         "google/apiclient": "^2.7",
         "guzzlehttp/guzzle": "^7.0.1",
+        "halaxa/json-machine": "^0.7.0",
         "hashids/hashids": "^4.0",
         "hedii/laravel-gelf-logger": "^6.0",
         "intervention/image": "^2.5",
