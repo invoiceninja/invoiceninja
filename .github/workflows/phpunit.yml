@@ -106,9 +106,6 @@ jobs:
         vendor/bin/phpunit --testdox
       env:
         DB_PORT: ${{ job.services.mysql.ports[3306] }}
-    
-    - name: HCL AppScan CodeSweep
-      uses: HCL-TECH-SOFTWARE/appscan-codesweep-action@v1
 
     - name: Run php-cs-fixer
       run: |
