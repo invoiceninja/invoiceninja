@@ -95,7 +95,7 @@ class Token
 
         $response_status = ErrorCode::getStatus($response->ResponseMessage);
 
-    	$error = $response_status['message']
+    	$error = $response_status['message'];
     	$error_code = $response->ResponseMessage;
     	
         $data = [
