@@ -72,6 +72,7 @@ class SystemLog extends Model
     const TYPE_PAYTRACE = 311;
     const TYPE_MOLLIE = 312;
     const TYPE_EWAY = 313;
+    const TYPE_SQUARE = 320;
 
     const TYPE_QUOTA_EXCEEDED = 400;
     const TYPE_UPSTREAM_FAILURE = 401;
