@@ -58,6 +58,7 @@ use App\Models\VendorContact;
 use App\Models\Webhook;
 use App\Utils\Ninja;
 use App\Utils\TempFile;
+use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -75,7 +76,7 @@ use JsonMachine\JsonDecoder\ExtJsonDecoder;
 
 class CompanyImport implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash, GeneratesCounter;
 
     public $tries = 1;
 
@@ -161,13 +162,16 @@ class CompanyImport implements ShouldQueue
         $this->current_app_version = config('ninja.app_version');
     }
 
-    private function getObject($key)
+    private function getObject($key, $force_array = false)
     {
         set_time_limit(0);
 
         $json = JsonMachine::fromFile($this->file_path, '/'.$key, new ExtJsonDecoder);
 
-        return iterator_to_array($json);
+        if($force_array)
+            return iterator_to_array($json);
+
+        return $json;
     }
 
     public function handle()
@@ -191,9 +195,6 @@ class CompanyImport implements ShouldQueue
 
         $this->file_path = $tmp_file;
 
-        //$this->backup_file = json_decode(file_get_contents($tmp_file));
-
-        // nlog($this->backup_file);
         $this->checkUserCount();
 
         if(array_key_exists('import_settings', $this->request_array) && $this->request_array['import_settings'] == 'true') {
@@ -272,7 +273,7 @@ class CompanyImport implements ShouldQueue
             $this->pre_flight_checks_pass = true;
 
         // $backup_users = $this->backup_file->users;
-        $backup_users = $this->getObject('users');
+        $backup_users = $this->getObject('users', true);
 
         $company_users = $this->company->users;
         
@@ -322,11 +323,9 @@ class CompanyImport implements ShouldQueue
                 }
             }
 
-            if($this->company->account->isFreeHostedClient() && count($this->backup_file->clients) > config('ninja.quotas.free.clients')){
+            if($this->company->account->isFreeHostedClient() && $client_count = count($this->getObject('clients', true)) > config('ninja.quotas.free.clients')){
                 
                 nlog("client quota busted");
-
-                $client_count = count($this->backup_file->clients);
 
                 $client_limit = config('ninja.quotas.free.clients');
 
@@ -349,7 +348,7 @@ class CompanyImport implements ShouldQueue
     {
     	//check the file version and perform any necessary adjustments to the file in order to proceed - needed when we change schema
 
-        $data = (object)$this->getObject('app_version');
+        $data = (object)$this->getObject('app_version', true);
         
     	if($this->current_app_version != $data->app_version)
         {
@@ -369,7 +368,7 @@ class CompanyImport implements ShouldQueue
 
     private function importSettings()
     {
-        $co = (object)$this->getObject("company");
+        $co = (object)$this->getObject("company", true);
         $this->company->settings = $co->settings;
         // $this->company->settings = $this->backup_file->company->settings;
         $this->company->save();
@@ -1076,7 +1075,7 @@ class CompanyImport implements ShouldQueue
     {
 
         // foreach($this->backup_file->payments as $payment)
-        foreach((object)$this->getObject("payments") as $obj)
+        foreach((object)$this->getObject("payments") as $payment)
         {
 
             foreach($payment->paymentables as $paymentable_obj)
@@ -1251,7 +1250,7 @@ class CompanyImport implements ShouldQueue
     {
 
         $class::unguard();
-
+        $x = 0;
         foreach((object)$this->getObject($object_property) as $obj)
         // foreach($this->backup_file->{$object_property} as $obj)
         {
@@ -1279,10 +1278,41 @@ class CompanyImport implements ShouldQueue
                 $obj_array['product_ids'] = '';
             }
 
-            $new_obj = $class::firstOrNew(
-                    [$match_key => $obj->{$match_key}, 'company_id' => $this->company->id],
-                    $obj_array,
-                );
+            /* Expenses that don't have a number will not be inserted - so need to override here*/
+            if($class == 'App\Models\Expense' && is_null($obj->{$match_key})){
+                $new_obj = new Expense();
+                $new_obj->company_id = $this->company->id;
+                $new_obj->fill($obj_array);
+                $new_obj->save(['timestamps' => false]);
+                $new_obj->number = $this->getNextExpenseNumber($new_obj);
+            }
+            elseif($class == 'App\Models\Invoice' && is_null($obj->{$match_key})){
+                $new_obj = new Invoice();
+                $new_obj->company_id = $this->company->id;
+                $new_obj->fill($obj_array);
+                $new_obj->save(['timestamps' => false]);
+                $new_obj->number = $this->getNextInvoiceNumber($client = Client::find($obj_array['client_id']),$new_obj);
+            }
+            elseif($class == 'App\Models\Payment' && is_null($obj->{$match_key})){
+                $new_obj = new Payment();
+                $new_obj->company_id = $this->company->id;
+                $new_obj->fill($obj_array);
+                $new_obj->save(['timestamps' => false]);
+                $new_obj->number = $this->getNextPaymentNumber($client = Client::find($obj_array['client_id']), $new_obj);
+            }
+            elseif($class == 'App\Models\Quote' && is_null($obj->{$match_key})){
+                $new_obj = new Quote();
+                $new_obj->company_id = $this->company->id;
+                $new_obj->fill($obj_array);
+                $new_obj->save(['timestamps' => false]);
+                $new_obj->number = $this->getNextQuoteNumber($client = Client::find($obj_array['client_id']), $new_obj);
+            }
+            else{
+                $new_obj = $class::firstOrNew(
+                        [$match_key => $obj->{$match_key}, 'company_id' => $this->company->id],
+                        $obj_array,
+                    );
+                }
 
             $new_obj->save(['timestamps' => false]);
             
