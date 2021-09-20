@@ -631,6 +631,10 @@ class Design extends BaseDesign
             if (in_array('$outstanding', $variables)) {
                 $variables = \array_diff($variables, ['$outstanding']);
             }
+
+            if ($this->entity->partial > 0) {
+                $variables[] = '$partial_due';
+            }
         }
 
         foreach (['discount'] as $property) {
