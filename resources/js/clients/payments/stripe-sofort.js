@@ -25,40 +25,26 @@ class ProcessSOFORT {
     };
 
     handle = () => {
-        let data = {
-            type: 'sofort',
-            customer: document.querySelector('meta[name="customer"]').content,
-            amount: document.querySelector('meta[name="amount"]').content,
-            currency: 'eur',
-            redirect: {
-                return_url: document.querySelector('meta[name="return-url"]')
-                    .content,
-            },
-            sofort: {
-                country: document.querySelector('meta[name="country"]').content,
-            },
-        };
-
         document.getElementById('pay-now').addEventListener('click', (e) => {
             document.getElementById('pay-now').disabled = true;
             document.querySelector('#pay-now > svg').classList.remove('hidden');
             document.querySelector('#pay-now > span').classList.add('hidden');
 
-            this.stripe.createSource(data).then(function(result) {
-                if (result.hasOwnProperty('source')) {
-                    return (window.location = result.source.redirect.url);
+            this.stripe.confirmSofortPayment(
+                document.querySelector('meta[name=pi-client-secret').content,
+                {
+                    payment_method: {
+                        sofort: {
+                            country: document.querySelector(
+                                'meta[name="country"]'
+                            ).content,
+                        },
+                    },
+                    return_url: document.querySelector(
+                        'meta[name="return-url"]'
+                    ).content,
                 }
-
-                document.getElementById('pay-now').disabled = false;
-                document.querySelector('#pay-now > svg').classList.add('hidden');
-                document.querySelector('#pay-now > span').classList.remove('hidden');
-
-                this.errors.textContent = '';
-                this.errors.textContent = result.error.message;
-                this.errors.hidden = false;
-
-                document.getElementById('pay-now').disabled = false;
-            });
+            );
         });
     };
 }
