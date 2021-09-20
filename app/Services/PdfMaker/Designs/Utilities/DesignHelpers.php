@@ -272,10 +272,19 @@ document.addEventListener('DOMContentLoaded', function() {
             return false;
         }
 
+        // Some variables don't map 1:1 to table columns. This gives us support for such cases.        
+        $aliases = [
+            '$quote.balance_due' => 'partial',
+        ];
+
         try {
             $_variable = explode('.', $variable)[1];
         } catch (Exception $e) {
             throw new Exception('Company settings seems to be broken. Missing $entity.variable type.');
+        }
+
+        if (\in_array($variable, \array_keys($aliases))) {
+            $_variable = $aliases[$variable];
         }
 
         if (is_null($this->entity->{$_variable})) {
