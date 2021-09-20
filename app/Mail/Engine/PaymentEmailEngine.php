@@ -135,6 +135,7 @@ class PaymentEmailEngine extends BaseEmailEngine
     {
         $data = [];
 
+
         $data['$from'] = ['value' => '', 'label' => ctrans('texts.from')];
         $data['$to'] = ['value' => '', 'label' => ctrans('texts.to')];
         $data['$number'] = ['value' => $this->payment->number ?: '&nbsp;', 'label' => ctrans('texts.payment_number')];
