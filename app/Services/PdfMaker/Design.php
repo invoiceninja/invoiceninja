@@ -241,6 +241,10 @@ class Design extends BaseDesign
 
         if ($this->entity instanceof Quote) {
             $variables = $this->context['pdf_variables']['quote_details'];
+            
+            if ($this->entity->partial > 0) {
+                $variables[] = '$quote.balance_due';
+            }
         }
 
         if ($this->entity instanceof Credit) {
@@ -630,6 +634,10 @@ class Design extends BaseDesign
             // We don't want to show Balanace due on the quotes.
             if (in_array('$outstanding', $variables)) {
                 $variables = \array_diff($variables, ['$outstanding']);
+            }
+
+            if ($this->entity->partial > 0) {
+                $variables[] = '$partial_due';
             }
         }
 
