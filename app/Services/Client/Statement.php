@@ -221,6 +221,7 @@ class Statement
             ->where('client_id', $this->client->id)
             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
             ->whereBetween('date', [$this->options['start_date'], $this->options['end_date']])
+            ->orderBy('number', 'ASC')
             ->get();
     }
 
@@ -235,6 +236,7 @@ class Statement
             ->where('client_id', $this->client->id)
             ->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
             ->whereBetween('date', [$this->options['start_date'], $this->options['end_date']])
+            ->orderBy('number', 'ASC')
             ->get();
     }
 
