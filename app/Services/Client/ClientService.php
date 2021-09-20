@@ -85,6 +85,16 @@ class ClientService
         return $this;
     }
 
+    /**
+     * Generate the client statement.
+     * 
+     * @param array $options 
+     */
+    public function statement(array $options = [])
+    {
+        return (new Statement($this->client, $options))->run();
+    }
+
     public function save() :Client
     {
         $this->client->save();
