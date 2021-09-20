@@ -13,6 +13,7 @@ namespace App\Jobs\Company;
 
 use App\Exceptions\ImportCompanyFailed;
 use App\Exceptions\NonExistingMigrationFile;
+use App\Factory\ClientContactFactory;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Util\UnlinkFile;
@@ -65,14 +66,15 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use JsonMachine\JsonDecoder\ExtJsonDecoder;
+use JsonMachine\JsonMachine;
 use ZipArchive;
 use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
-use JsonMachine\JsonMachine;
-use JsonMachine\JsonDecoder\ExtJsonDecoder;
 
 class CompanyImport implements ShouldQueue
 {
@@ -208,7 +210,8 @@ class CompanyImport implements ShouldQueue
 
                 $this->preFlightChecks()
                      ->purgeCompanyData()
-                     ->importData();
+                     ->importData()
+                     ->postImportCleanup();
 
                 $data = [
                     'errors'  => []
@@ -234,11 +237,31 @@ class CompanyImport implements ShouldQueue
 
     }
 
+    //
+    private function postImportCleanup()
+    {
+        //ensure all clients have a contact
+
+        $this->company
+             ->clients()
+             ->whereDoesntHave('contacts')
+             ->cursor()
+             ->each(function ($client){
+
+                $new_contact = ClientContactFactory::create($client->company_id, $client->user_id);
+                $new_contact->client_id = $client->id;
+                $new_contact->contact_key = Str::random(40);
+                $new_contact->is_primary = true;
+                $new_contact->confirmed = true;
+                $new_contact->email = ' ';
+                $new_contact->save();
+
+        });
+
+    }
+
     private function unzipFile()
     {
-        
-        // if(mime_content_type(Storage::path($this->file_location)) == 'text/plain')
-        //     return Storage::path($this->file_location);
 
         $path = TempFile::filePath(Storage::disk(config('filesystems.default'))->get($this->file_location), basename($this->file_location));
 
@@ -1391,13 +1414,16 @@ class CompanyImport implements ShouldQueue
 
     private function sendImportMail($message){
 
+        App::forgetInstance('translator');
+        $t = app('translator');
+        $t->replace(Ninja::transformTranslations($this->company->settings));
 
-            $nmo = new NinjaMailerObject;
-            $nmo->mailable = new CompanyImportFailure($this->company, $message);
-            $nmo->company = $this->company;
-            $nmo->settings = $this->company->settings;
-            $nmo->to_user = $this->company->owner();
-            NinjaMailerJob::dispatchNow($nmo);
+        $nmo = new NinjaMailerObject;
+        $nmo->mailable = new CompanyImportFailure($this->company, $message);
+        $nmo->company = $this->company;
+        $nmo->settings = $this->company->settings;
+        $nmo->to_user = $this->company->owner();
+        NinjaMailerJob::dispatchNow($nmo);
 
     }
 }
