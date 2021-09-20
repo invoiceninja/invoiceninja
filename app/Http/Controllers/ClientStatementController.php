@@ -110,10 +110,9 @@ class ClientStatementController extends BaseController
 
     public function statement(CreateStatementRequest $request)
     {
-        $pdf = $request->client()->service()->statement([
-            'start_date' => $request->start_date,
-            'end_date' => $request->end_date,
-        ]);
+        $pdf = $request->client()->service()->statement(
+            $request->only(['start_date', 'end_date', 'show_payments_table', 'show_aging_table'])
+        );
     
         if ($pdf) {
             return response()->streamDownload(function () use ($pdf) {
