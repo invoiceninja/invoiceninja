@@ -43,7 +43,7 @@ class SEPA
           'customer' => $customer->id,
         ], $this->stripe_driver->stripe_connect_auth);
 
-        $client_secret = $setup_intent->client_secret
+        $client_secret = $setup_intent->client_secret;
         // Pass the client secret to the client
 
 

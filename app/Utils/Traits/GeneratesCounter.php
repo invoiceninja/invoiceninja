@@ -335,6 +335,15 @@ trait GeneratesCounter
     {
         $this->resetCompanyCounters($expense->company);
 
+        // - 18/09/21 need to set this property if it doesn't exist. //todo refactor this for other properties
+        if(!property_exists($expense->company->settings, 'recurring_expense_number_counter')){
+            $settings = $expense->company->settings;
+            $settings->recurring_expense_number_counter = 1;
+            $settings->recurring_expense_number_pattern = '';
+            $expense->company->settings = $settings;
+            $expense->company->save();
+        }
+
         $counter = $expense->company->settings->recurring_expense_number_counter;
         $setting_entity = $expense->company->settings->recurring_expense_number_counter;
 
@@ -585,6 +594,7 @@ trait GeneratesCounter
         $settings->project_number_counter = 1;
         $settings->task_number_counter = 1;
         $settings->expense_number_counter = 1;
+        $settings->recurring_expense_number_counter =1;
 
         $company->settings = $settings;
         $company->save();
