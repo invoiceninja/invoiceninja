@@ -514,7 +514,7 @@ class CompanyExport implements ShouldQueue
         $nmo->company = $company_reference;
         $nmo->settings = $this->company->settings;
         
-        NinjaMailerJob::dispatch($nmo);
+        NinjaMailerJob::dispatch($nmo, true);
 
         if(Ninja::isHosted()){
             sleep(3);
