@@ -227,6 +227,7 @@ class PaymentEmailEngine extends BaseEmailEngine
         $data['$company4'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company4', $this->settings->custom_value4, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'company4')];
 
         $data['$view_link'] = ['value' => '<a class="button" href="'.$this->payment->getLink().'">'.ctrans('texts.view_payment').'</a>', 'label' => ctrans('texts.view_payment')];
+        $data['$view_button'] = &$data['$view_link'];
         $data['$paymentLink'] = &$data['$view_link'];
         $data['$portalButton'] = ['value' => "<a href='{$this->payment->getPortalLink()}'>".ctrans('texts.login')."</a>", 'label' =>''];
         $data['$portal_url'] = &$data['$portalButton'];
