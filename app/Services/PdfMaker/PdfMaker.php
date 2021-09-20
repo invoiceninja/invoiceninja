@@ -83,9 +83,9 @@ class PdfMaker
     }
 
     /**
-     * Return compiled HTML.
+     * Final method to get compiled HTML.
      * 
-     * @param bool $final deprecated 
+     * @param bool $final @deprecated
      * @return mixed 
      */
     public function getCompiledHTML($final = false)

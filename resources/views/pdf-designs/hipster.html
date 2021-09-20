@@ -345,6 +345,12 @@
                     ? document.getElementById(tableIdentifier).style.display = 'none'
                     : '';
             });
+
+            // If we have elements in these tables, we can change label to "Statement" & hide entity details.
+            if (document.querySelectorAll('#statement-payment-table > tbody, #statement-payment-table > tbody, #statement-aging-table-totals > tbody').length > 0) {
+                document.querySelector('.entity-label').innerText = '$statement_label';
+                document.querySelector('.entity-details-wrapper').style.display = 'none';
+            }        
         });
     </script>
 </div>

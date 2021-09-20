@@ -232,7 +232,7 @@ class Design extends BaseDesign
                 ]],
                 ['element' => 'tr', 'properties' => [], 'elements' => [
                     ['element' => 'th', 'properties' => [], 'content' => '$balance_due_label'],
-                    ['element' => 'th', 'properties' => [], 'content' => '$balance_due'],
+                    ['element' => 'th', 'properties' => [], 'content' => Number::formatMoney($this->invoices->sum('balance'), $this->entity->client)],
                 ]],
             ];
         }
@@ -379,10 +379,10 @@ class Design extends BaseDesign
             return [];
         }
 
-        $outstanding = $this->invoices->sum('amount');
+        $outstanding = $this->invoices->sum('balance');
 
         return [
-            ['element' => 'p', 'content' => '$outstanding_label: $outstanding'],
+            ['element' => 'p', 'content' => '$outstanding_label: ' . Number::formatMoney($outstanding, $this->entity->client)],
         ];
     }
 
@@ -424,10 +424,14 @@ class Design extends BaseDesign
 
     public function statementPaymentTableTotals(): array
     {
-        if ($this->type !== self::STATEMENT || !$this->payments->first()) {
+        if (is_null($this->payments) && $this->type !== self::STATEMENT) {
             return [];
         }
 
+        if (\array_key_exists('show_payments_table', $this->options) && $this->options['show_payments_table'] === false) {
+            return [];
+        }
+        
         $payment = $this->payments->first();
 
         return [

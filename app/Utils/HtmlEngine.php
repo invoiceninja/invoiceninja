@@ -453,6 +453,9 @@ class HtmlEngine
         $data['$payment.date'] = ['value' => '&nbsp;', 'label' => ctrans('texts.payment_date')];
         $data['$method'] = ['value' => '&nbsp;', 'label' => ctrans('texts.method')];
 
+        $data['$amount'] = ['value' => '', 'label' => ctrans('texts.amount')];
+        $data['$statement'] = ['value' => '', 'label' => ctrans('texts.statement')];
+
         $arrKeysLength = array_map('strlen', array_keys($data));
         array_multisort($arrKeysLength, SORT_DESC, $data);
 

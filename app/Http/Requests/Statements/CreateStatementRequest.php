@@ -42,6 +42,11 @@ class CreateStatementRequest extends Request
         $input = $this->decodePrimaryKeys($input);
 
         $this->replace($input);
+
+        $this->merge([
+            'show_payments_table' => $this->has('show_payments_table') ? \boolval($this->show_payments_table) : false,
+            'show_aging_table' => $this->has('show_aging_table') ? \boolval($this->show_aging_table) : false,
+        ]);
     }
 
     public function client(): ?Client
