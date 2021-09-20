@@ -12,6 +12,7 @@
 namespace App\Console;
 
 use App\Jobs\Cron\AutoBillCron;
+use App\Jobs\Cron\RecurringExpensesCron;
 use App\Jobs\Cron\RecurringInvoicesCron;
 use App\Jobs\Cron\SubscriptionCron;
 use App\Jobs\Ninja\AdjustEmailQuota;
@@ -61,7 +62,9 @@ class Kernel extends ConsoleKernel
         $schedule->job(new SubscriptionCron)->daily()->withoutOverlapping();
 
         $schedule->job(new RecurringInvoicesCron)->hourly()->withoutOverlapping();
-        
+
+        $schedule->job(new RecurringExpensesCron)->dailyAt('23:45')->withoutOverlapping();
+
         $schedule->job(new AutoBillCron)->dailyAt('00:30')->withoutOverlapping();        
 
         $schedule->job(new SchedulerCheck)->daily()->withoutOverlapping();

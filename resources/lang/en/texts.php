@@ -4297,6 +4297,7 @@ $LANG = array(
     'lang_Latvian' => 'Latvian',
     'expiry_date' => 'Expiry date',
     'cardholder_name' => 'Card holder name',
+    'recurring_quote_number_taken' => 'Recurring Quote number :number already taken',
     'account_type' => 'Account type',
     'locality' => 'Locality',
     'checking' => 'Checking',

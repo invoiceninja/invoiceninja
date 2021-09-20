@@ -56,4 +56,9 @@ class PaymentResponseRequest extends FormRequest
             ]);
         }
     }
+
+    public function shouldUseToken(): bool
+    {
+        return (bool) $this->token;
+    }
 }

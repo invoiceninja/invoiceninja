@@ -80,6 +80,9 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'check_client_existence
 
     Route::resource('tasks', 'ClientPortal\TaskController')->only(['index']);
 
+    Route::get('statement', 'ClientPortal\StatementController@index')->name('statement');
+    Route::get('statement/raw', 'ClientPortal\StatementController@raw')->name('statement.raw');
+
     Route::post('upload', 'ClientPortal\UploadController')->name('upload.store');
     Route::get('logout', 'Auth\ContactLoginController@logout')->name('logout');
 

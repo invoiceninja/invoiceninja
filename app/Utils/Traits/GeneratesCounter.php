@@ -19,7 +19,9 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Project;
 use App\Models\Quote;
+use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
+use App\Models\RecurringQuote;
 use App\Models\Task;
 use App\Models\Timezone;
 use App\Models\Vendor;
@@ -135,6 +137,12 @@ trait GeneratesCounter
             case RecurringInvoice::class:
                 return 'recurring_invoice_number_counter';
                 break;
+            case RecurringQuote::class:
+                return 'recurring_quote_number_counter';
+                break;
+            case RecurringExpense::class:
+                return 'recurring_expense_number_counter';
+                break;
             case Payment::class:
                 return 'payment_number_counter';
                 break;
@@ -194,6 +202,11 @@ trait GeneratesCounter
     public function getNextRecurringInvoiceNumber(Client $client)
     {
         return $this->getNextEntityNumber(RecurringInvoice::class, $client);
+    }
+
+    public function getNextRecurringQuoteNumber(Client $client)
+    {
+        return $this->getNextEntityNumber(RecurringQuote::class, $client);
     }
 
     /**
@@ -311,6 +324,36 @@ trait GeneratesCounter
 
         return $expense_number;
     }
+
+    /**
+     * Gets the next expense number.
+     *
+     * @param   RecurringExpense       $expense    The expense
+     * @return  string                 The next expense number.
+     */
+    public function getNextRecurringExpenseNumber(RecurringExpense $expense) :string
+    {
+        $this->resetCompanyCounters($expense->company);
+
+        // - 18/09/21 need to set this property if it doesn't exist. //todo refactor this for other properties
+        if(!property_exists($expense->company->settings, 'recurring_expense_number_counter')){
+            $settings = $expense->company->settings;
+            $settings->recurring_expense_number_counter = 1;
+            $settings->recurring_expense_number_pattern = '';
+            $expense->company->settings = $settings;
+            $expense->company->save();
+        }
+
+        $counter = $expense->company->settings->recurring_expense_number_counter;
+        $setting_entity = $expense->company->settings->recurring_expense_number_counter;
+
+        $expense_number = $this->checkEntityNumber(RecurringExpense::class, $expense, $counter, $expense->company->settings->counter_padding, $expense->company->settings->recurring_expense_number_pattern);
+
+        $this->incrementCounter($expense->company, 'recurring_expense_number_counter');
+
+        return $expense_number;
+    }
+
 
     /**
      * Determines if it has shared counter.
@@ -551,6 +594,7 @@ trait GeneratesCounter
         $settings->project_number_counter = 1;
         $settings->task_number_counter = 1;
         $settings->expense_number_counter = 1;
+        $settings->recurring_expense_number_counter =1;
 
         $company->settings = $settings;
         $company->save();

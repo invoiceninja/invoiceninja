@@ -40,7 +40,10 @@ trait DesignHelpers
 
         if (isset($this->context['invoices'])) {
             $this->invoices = $this->context['invoices'];
-            $this->entity = $this->invoices->first();
+            
+            if (\count($this->invoices) >= 1) {
+                $this->entity = $this->invoices->first();
+            }
         }
 
         if (isset($this->context['payments'])) {

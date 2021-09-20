@@ -14,8 +14,8 @@ return [
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', 'invoicing.co'),
-    'app_version' => '5.3.13',
-    'app_tag' => '5.3.13',
+    'app_version' => '5.3.16',
+    'app_tag' => '5.3.16',
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', ''),
@@ -91,6 +91,7 @@ return [
             'decrypted' => env('PAYTRACE_KEYS', ''),
         ],
         'mollie' => env('MOLLIE_KEYS', ''),
+        'square' => env('SQUARE_KEYS',''),
     ],
     'contact' => [
         'email' => env('MAIL_FROM_ADDRESS'),
