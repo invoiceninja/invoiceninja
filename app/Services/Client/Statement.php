@@ -279,9 +279,12 @@ class Statement
     private function getAgingAmount($range)
     {
         $ranges = $this->calculateDateRanges($range);
-nlog($ranges);
+
         $from = $ranges[0];
         $to = $ranges[1];
+
+nlog("from ".$from->format("Y-m-d"));
+nlog("to ".$to->format("Y-m-d"));
 
         $client = Client::where('id', $this->client->id)->first();
 
@@ -291,7 +294,7 @@ nlog($ranges);
             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
             ->where('balance', '>', 0)
             ->where('is_deleted', 0)
-            ->whereBetween('date', [$from, $to])
+            ->whereBetween('date', [$to, $from])
             ->sum('balance');
 
         return Number::formatMoney($amount, $client);
