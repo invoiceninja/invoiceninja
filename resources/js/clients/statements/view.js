@@ -80,6 +80,15 @@ class Statement {
 
     handle() {
         this.bindEventListeners();
+
+        document
+            .querySelector('#pdf-download')
+            .addEventListener('click', () => {
+                let url = new URL(this.composedUrl);
+                url.searchParams.append('download', 1);
+
+                window.location.href = url.href;
+            })
     }
 }
 
