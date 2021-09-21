@@ -283,9 +283,6 @@ class Statement
         $from = $ranges[0];
         $to = $ranges[1];
 
-nlog("from ".$from->format("Y-m-d"));
-nlog("to ".$to->format("Y-m-d"));
-
         $client = Client::where('id', $this->client->id)->first();
 
         $amount = Invoice::where('company_id', $this->client->company->id)
