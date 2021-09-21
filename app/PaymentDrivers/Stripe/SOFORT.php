@@ -48,7 +48,10 @@ class SOFORT
         $intent = \Stripe\PaymentIntent::create([
             'amount' => $data['stripe_amount'],
             'currency' => 'eur',
-            'payment_method_types' => ['sofort']
+            'payment_method_types' => ['sofort'],
+            'customer' => $this->stripe->findOrCreateCustomer(),
+            'description' => $this->stripe->decodeUnicodeString(ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number')),
+
         ]);
 
         $data['pi_client_secret'] = $intent->client_secret;
