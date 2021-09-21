@@ -283,13 +283,18 @@ class Statement
         $from = $ranges[0];
         $to = $ranges[1];
 
+nlog("from ".$from->format("Y-m-d"));
+nlog("to ".$to->format("Y-m-d"));
+
         $client = Client::where('id', $this->client->id)->first();
 
         $amount = Invoice::where('company_id', $this->client->company->id)
             ->where('client_id', $client->id)
+            ->where('company_id', $this->client->company_id)
             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
             ->where('balance', '>', 0)
-            ->whereBetween('date', [$from, $to])
+            ->where('is_deleted', 0)
+            ->whereBetween('date', [$to, $from])
             ->sum('balance');
 
         return Number::formatMoney($amount, $client);
@@ -307,35 +312,29 @@ class Statement
 
         switch ($range) {
             case '30':
-                $ranges[0] = now();
-                $ranges[1] = now()->subDays(30);
+                $ranges[0] = now()->startOfDay();
+                $ranges[1] = now()->startOfDay()->subDays(30);
                 return $ranges;
-                break;
             case '60':
-                $ranges[0] = now()->subDays(30);
-                $ranges[1] = now()->subDays(60);
+                $ranges[0] = now()->startOfDay()->subDays(30);
+                $ranges[1] = now()->startOfDay()->subDays(60);
                 return $ranges;
-                break;
             case '90':
-                $ranges[0] = now()->subDays(60);
-                $ranges[1] = now()->subDays(90);
+                $ranges[0] = now()->startOfDay()->subDays(60);
+                $ranges[1] = now()->startOfDay()->subDays(90);
                 return $ranges;
-                break;
             case '120':
-                $ranges[0] = now()->subDays(90);
-                $ranges[1] = now()->subDays(120);
+                $ranges[0] = now()->startOfDay()->subDays(90);
+                $ranges[1] = now()->startOfDay()->subDays(120);
                 return $ranges;
-                break;
             case '120+':
-                $ranges[0] = now()->subDays(120);
-                $ranges[1] = now()->subYears(40);
+                $ranges[0] = now()->startOfDay()->subDays(120);
+                $ranges[1] = now()->startOfDay()->subYears(40);
                 return $ranges;
-                break;
             default:
-                $ranges[0] = now()->subDays(0);
+                $ranges[0] = now()->startOfDay()->subDays(0);
                 $ranges[1] = now()->subDays(30);
                 return $ranges;
-                break;
         }
     }
 
