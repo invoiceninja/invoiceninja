@@ -14,6 +14,8 @@ namespace App\Utils;
 
 use App\Models\Client;
 use App\Utils\Traits\MakesDates;
+use Carbon\Carbon;
+use Illuminate\Support\Str;
 use stdClass;
 
 class Helpers
@@ -96,5 +98,167 @@ class Helpers
         }
 
         return '';
+    }
+
+    /**
+     * Process reserved keywords on PDF.
+     *  
+     * @param string $value 
+     * @param Client $client 
+     * @return null|string 
+     */
+    public static function processReservedKeywords(string $value, Client $client): ?string
+    {
+        Carbon::setLocale($client->locale());
+
+        $replacements = [
+            'literal' => [
+                ':MONTH' => Carbon::createFromDate(now()->year, now()->month)->translatedFormat('F'),
+                ':YEAR' => now()->year,
+                ':QUARTER' => 'Q' . now()->quarter,
+                ':WEEK_BEFORE' => \sprintf(
+                    '%s %s %s',
+                    Carbon::now()->subDays(7)->translatedFormat($client->date_format()),
+                    ctrans('texts.to'),
+                    Carbon::now()->translatedFormat($client->date_format())
+                ),
+                ':WEEK_AHEAD' => \sprintf(
+                    '%s %s %s',
+                    Carbon::now()->addDays(7)->translatedFormat($client->date_format()),
+                    ctrans('texts.to'),
+                    Carbon::now()->addDays(14)->translatedFormat($client->date_format())
+                ),
+                ':WEEK' => \sprintf(
+                    '%s %s %s', 
+                    Carbon::now()->translatedFormat($client->date_format()), 
+                    ctrans('texts.to'), 
+                    Carbon::now()->addDays(7)->translatedFormat($client->date_format())
+                ),
+            ],
+            'raw' => [
+                ':MONTH' => now()->month,
+                ':YEAR' => now()->year,
+                ':QUARTER' => now()->quarter,
+            ],
+            'ranges' => [
+              'MONTHYEAR' => Carbon::createFromDate(now()->year, now()->month),
+            ],
+            'ranges_raw' => [
+                'MONTH' => now()->month,
+                'YEAR' => now()->year,
+            ],
+        ];
+
+        // First case, with ranges.
+        preg_match_all('/\[(.*?)]/', $value, $ranges);
+
+        $matches = array_shift($ranges);
+
+        foreach ($matches as $match) {
+            if (!Str::contains($match, '|')) {
+                continue;
+            }
+
+            if (Str::contains($match, '|')) {
+                $parts = explode('|', $match); // [ '[MONTH', 'MONTH+2]' ]
+
+                $left = substr($parts[0], 1); // 'MONTH'
+                $right = substr($parts[1], 0, -1); // MONTH+2
+
+                // If left side is not part of replacements, skip.
+                if (!array_key_exists($left, $replacements['ranges'])) {
+                    continue;
+                }
+
+                $_left = Carbon::createFromDate(now()->year, now()->month)->translatedFormat('F Y');
+                $_right = '';
+
+                // If right side doesn't have any calculations, replace with raw ranges keyword.
+                if (!Str::contains($right, ['-', '+', '/', '*'])) {
+                    $_right = Carbon::createFromDate(now()->year, now()->month)->translatedFormat('F Y');
+                }
+
+                // If right side contains one of math operations, calculate.
+                if (Str::contains($right, ['+'])) {
+                    $operation = preg_match_all('/(?!^-)[+*\/-](\s?-)?/', $right, $_matches);
+
+                    $_operation = array_shift($_matches)[0]; // + -
+
+                    $_value = explode($_operation, $right); // [MONTHYEAR, 4]
+
+                    $_right = Carbon::createFromDate(now()->year, now()->month)->addMonths($_value[1])->translatedFormat('F Y');
+                }
+
+                $replacement = sprintf('%s to %s', $_left, $_right);
+
+                $value = preg_replace(
+                    sprintf('/%s/', preg_quote($match)), $replacement, $value, 1
+                );
+            }
+        }
+
+
+        // Second case with more common calculations.
+        preg_match_all('/:([^:\s]+)/', $value, $common);
+
+        $matches = array_shift($common);
+
+        foreach ($matches as $match) {
+            $matches = collect($replacements['literal'])->filter(function ($value, $key) use ($match) {
+                return Str::startsWith($match, $key);
+            });
+
+            if ($matches->count() === 0) {
+                continue;
+            }
+
+            if (!Str::contains($match, ['-', '+', '/', '*'])) {
+                $value = preg_replace(
+                    sprintf('/%s/', $matches->keys()->first()), $replacements['literal'][$matches->keys()->first()], $value, 1
+                );
+            }
+
+            if (Str::contains($match, ['-', '+', '/', '*'])) {
+                $operation = preg_match_all('/(?!^-)[+*\/-](\s?-)?/', $match, $_matches);
+
+                $_operation = array_shift($_matches)[0];
+
+                $_value = explode($_operation, $match); // [:MONTH, 4]
+
+                $raw = strtr($matches->keys()->first(), $replacements['raw']); // :MONTH => 1
+
+                $number = $res = preg_replace("/[^0-9]/", '', $_value[1]); // :MONTH+1. || :MONTH+2! => 1 || 2
+
+                $target = "/{$matches->keys()->first()}\\{$_operation}{$number}/"; // /:$KEYWORD\\$OPERATION$VALUE => /:MONTH\\+1
+
+                $output = (int) $raw + (int)$_value[1];
+
+                if ($operation == '+') {
+                    $output = (int) $raw + (int)$_value[1]; // 1 (:MONTH) + 4
+                }
+
+                if ($_operation == '-') {
+                    $output = (int)$raw - (int)$_value[1]; // 1 (:MONTH) - 4
+                }
+
+                if ($_operation == '/' && (int)$_value[1] != 0) {
+                    $output = (int)$raw / (int)$_value[1]; // 1 (:MONTH) / 4
+                }
+
+                if ($_operation == '*') {
+                    $output = (int)$raw * (int)$_value[1]; // 1 (:MONTH) * 4
+                }
+
+                if ($matches->keys()->first() == ':MONTH') {
+                    $output = \Carbon\Carbon::create()->month($output)->translatedFormat('F');
+                }
+
+                $value = preg_replace(
+                    $target, $output, $value, 1
+                );
+            }
+        }
+
+        return $value;
     }
 }
