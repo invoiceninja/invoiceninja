@@ -86,7 +86,7 @@
         <canvas id="pdf-placeholder" class="shadow rounded-lg bg-white mt-4 p-4"></canvas>
     </div>
 @else
-    <iframe src="{{ $url ?? $entity->pdf_file_path(null, 'url', true) }}" class="h-screen w-full border-0 mt-4"></iframe>
+    <iframe id="pdf-iframe" src="{{ $url ?? $entity->pdf_file_path(null, 'url', true) }}" class="h-screen w-full border-0 mt-4"></iframe>
 @endif
 
 
