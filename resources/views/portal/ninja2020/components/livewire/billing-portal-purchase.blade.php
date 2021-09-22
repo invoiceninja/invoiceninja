@@ -69,19 +69,6 @@
                 </div>
             </div>
 
-            @if(auth('contact')->user())
-                <a href="{{ route('client.invoices.index') }}" class="block mt-16 inline-flex items-center space-x-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                         class="feather feather-arrow-left">
-                        <line x1="19" y1="12" x2="5" y2="12"></line>
-                        <polyline points="12 19 5 12 12 5"></polyline>
-                    </svg>
-
-                    <span>{{ ctrans('texts.client_portal') }}</span>
-                </a>
-            @endif
-
             @if($subscription->service()->getPlans()->count() > 1)
                 <div class="flex flex-col mt-10">
                     <p class="mb-4 uppercase leading-4 tracking-wide inline-flex items-center rounded-full text-xs font-medium">
