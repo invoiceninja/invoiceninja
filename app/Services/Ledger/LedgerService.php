@@ -28,6 +28,8 @@ class LedgerService
     {
         $balance = 0;
 
+        \DB::connection(config('database.default'))->beginTransaction();
+
         $company_ledger = $this->ledger();
 
         if ($company_ledger) {
@@ -44,12 +46,16 @@ class LedgerService
 
         $this->entity->company_ledger()->save($company_ledger);
 
+        \DB::connection(config('database.default'))->commit();
+
         return $this;
     }
 
     public function updatePaymentBalance($adjustment, $notes = '')
     {
         $balance = 0;
+
+        \DB::connection(config('database.default'))->beginTransaction();
 
         /* Get the last record for the client and set the current balance*/
         $company_ledger = $this->ledger();
@@ -68,12 +74,16 @@ class LedgerService
 
         $this->entity->company_ledger()->save($company_ledger);
 
+        \DB::connection(config('database.default'))->commit();
+        
         return $this;
     }
 
     public function updateCreditBalance($adjustment, $notes = '')
     {
         $balance = 0;
+        
+        \DB::connection(config('database.default'))->beginTransaction();
 
         $company_ledger = $this->ledger();
 
@@ -91,6 +101,8 @@ class LedgerService
 
         $this->entity->company_ledger()->save($company_ledger);
 
+        \DB::connection(config('database.default'))->commit();
+        
         return $this;
     }
 
@@ -99,6 +111,7 @@ class LedgerService
         return CompanyLedger::whereClientId($this->entity->client_id)
                         ->whereCompanyId($this->entity->company_id)
                         ->orderBy('id', 'DESC')
+                        ->lockForUpdate()
                         ->first();
     }
 
@@ -109,3 +122,11 @@ class LedgerService
         return $this->entity;
     }
 }
+
+/*
+        DB::connection(config('database.default'))->beginTransaction();
+
+        \DB::connection(config('database.default'))->commit();
+
+
+*/
