@@ -107,8 +107,12 @@ class Helpers
      * @param Client $client 
      * @return null|string 
      */
-    public static function processReservedKeywords($value, Client $client): ?string
+    public static function processReservedKeywords($value = null, Client $client): ?string
     {
+        if (\is_null($value)) {
+            return '';
+        }
+
         Carbon::setLocale($client->locale());
 
         $replacements = [
