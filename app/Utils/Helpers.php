@@ -103,11 +103,11 @@ class Helpers
     /**
      * Process reserved keywords on PDF.
      *  
-     * @param string $value 
+     * @param mixed $value 
      * @param Client $client 
      * @return null|string 
      */
-    public static function processReservedKeywords(string $value, Client $client): ?string
+    public static function processReservedKeywords($value, Client $client): ?string
     {
         Carbon::setLocale($client->locale());
 
