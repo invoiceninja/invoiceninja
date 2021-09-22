@@ -29,6 +29,7 @@ use App\Models\Expense;
 use App\Models\Product;
 use App\Models\Project;
 use App\Models\Quote;
+use App\Models\RecurringInvoice;
 use App\Models\Task;
 use App\Models\User;
 use App\Models\Vendor;
@@ -532,7 +533,9 @@ class CreateTestData extends Command
         $invoice->save();
         $invoice->service()->createInvitations()->markSent();
 
-        $this->invoice_repo->markSent($invoice);
+        if (rand(0, 1)) {
+            $this->invoice_repo->markSent($invoice);
+        }
 
         if (rand(0, 1)) {
             $invoice = $invoice->service()->markPaid()->save();
@@ -544,6 +547,9 @@ class CreateTestData extends Command
                 'documentable_type' => Invoice::class,
                 'documentable_id' => $invoice->id
             ]);
+
+        RecurringInvoice::factory()->create(['user_id' => $invoice->user->id, 'company_id' => $invoice->company->id, 'client_id' => $invoice->client_id]);
+
 
         event(new InvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars()));
     }

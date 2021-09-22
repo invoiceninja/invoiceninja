@@ -223,7 +223,7 @@ class PaymentController extends Controller
         $invoice_totals = $payable_invoices->sum('amount');
         $first_invoice = $invoices->first();
         $credit_totals = $first_invoice->client->getSetting('use_credits_payment') == 'always' ? $first_invoice->client->service()->getCreditBalance() : 0;
-        $starting_invoice_amount = $first_invoice->amount;
+        $starting_invoice_amount = $first_invoice->balance;
 
         if ($gateway) {
             $first_invoice->service()->addGatewayFee($gateway, $payment_method_id, $invoice_totals)->save();
@@ -234,7 +234,7 @@ class PaymentController extends Controller
          * by adding it as a line item, and then subtract
          * the starting and finishing amounts of the invoice.
          */
-        $fee_totals = $first_invoice->amount - $starting_invoice_amount;
+        $fee_totals = $first_invoice->balance - $starting_invoice_amount;
 
         if ($gateway) {
             $tokens = auth()->user()->client->gateway_tokens()
