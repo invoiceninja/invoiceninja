@@ -77,7 +77,7 @@ class PayFastPaymentDriver extends BaseDriver
                 ]
             );
 
-        } catch(Exception $e) {
+        } catch(\Exception $e) {
 
             echo '##PAYFAST## There was an exception: '.$e->getMessage();
 
