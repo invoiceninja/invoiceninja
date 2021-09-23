@@ -24,6 +24,7 @@ use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\PaymentDrivers\Mollie\Checkout;
 use App\PaymentDrivers\Mollie\CreditCard;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Validator;
@@ -63,7 +64,7 @@ class MolliePaymentDriver extends BaseDriver
      * @var string[]
      */
     public static $methods = [
-        GatewayType::CREDIT_CARD => CreditCard::class,
+        GatewayType::CREDIT_CARD => Checkout::class,
     ];
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_MOLLIE;

@@ -4305,6 +4305,8 @@ $LANG = array(
     'unable_to_verify_payment_method' => 'Unable to verify payment method.',
     'generic_gateway_error' => 'Gateway configuration error. Please check your credentials.',
     'my_documents' => 'My documents',
+    'checkout' => 'Checkout',
+    'payment_method_cannot_be_preauthorized' => 'Payment method can\'t be preauthorized.',
 );
 
 return $LANG;
