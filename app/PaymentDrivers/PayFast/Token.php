@@ -170,8 +170,8 @@ class Token
             $parameter_string = rtrim( $parameter_string, '&' );
         }
 
-        nlog($parameter_string);
-        return $parameter_string;
+        return md5( $parameter_string, false, false );
+
     }
 
     private function genSig($data)
@@ -198,7 +198,9 @@ class Token
         ]);
 
         try {
-            $response = $client->post("https://api.payfast.co.za/subscriptions/{$token}/adhoc?testing=true",['query' => $body]);
+            $response = $client->post("https://api.payfast.co.za/subscriptions/{$token}/adhoc?testing=true",[
+                RequestOptions::JSON => ['body' => $body], RequestOptions::ALLOW_REDIRECTS => false
+            ]);
 
             return json_decode($response->getBody(),true);
         }
