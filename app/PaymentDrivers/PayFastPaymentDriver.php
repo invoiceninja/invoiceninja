@@ -161,6 +161,8 @@ class PayFastPaymentDriver extends BaseDriver
             }
         }
 
+        nlog(http_build_query($fields));
+
         return md5(http_build_query($fields));
     }
 
