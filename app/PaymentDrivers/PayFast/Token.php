@@ -83,7 +83,7 @@ class Token
             'version' => 'v1',
 		];
 
-        $body['body'] = [
+        $body = [
             'amount' => $amount,
             'item_name' => 'purchase',
             'item_description' => 'Purchase',
@@ -142,7 +142,7 @@ class Token
     protected function generate_parameter_string( $api_data, $sort_data_before_merge = true, $skip_empty_values = true ) {
 
         // if sorting is required the passphrase should be added in before sort.
-        if ( ! empty( $this->pass_phrase ) && $sort_data_before_merge ) {
+        if ( ! empty( $this->payfast->company_gateway->getConfigField('passPhrase') ) && $sort_data_before_merge ) {
             $api_data['passphrase'] = $this->payfast->company_gateway->getConfigField('passPhrase');
         }
 
