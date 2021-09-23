@@ -83,8 +83,6 @@ class Token
             'version' => 'v1',
 		];
 
-        nlog($header);
-
         $body = [
             'amount' => $amount,
             'item_name' => 'purchase',
@@ -92,14 +90,13 @@ class Token
             'passphrase' => $this->payfast->company_gateway->getConfigField('passphrase'),
         ];        
 
-        $header['signature'] = $this->genSig(array_merge($header, $body));
+        // $header['signature'] = $this->genSig(array_merge($header, $body));
+        $header['signature'] = $this->genSig($body);
 
         $body = array_merge($body,[            
             'item_description' => ctrans('texts.invoices') . ': ' . collect($payment_hash->invoices())->pluck('invoice_number'),
         ]);
 
-        nlog($header['signature']);
-        nlog($header['timestamp']);
         nlog($this->payfast->company_gateway->getConfigField('merchantId'));
         
         $result = $this->send($header, $body, $cgt->token);
