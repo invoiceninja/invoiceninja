@@ -103,7 +103,6 @@ class Token
             );
 
             $adhocArray = $api
-                       ->payfast
                        ->subscriptions
                        ->adhoc($cgt->token, ['amount' => $amount, 'item_name' => 'purchase']);
 
