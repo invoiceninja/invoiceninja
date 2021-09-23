@@ -95,9 +95,9 @@ class Token
         // $result = $this->send($header, $body, $cgt->token);
             $api = new \PayFast\PayFastPayment(
                 [
-                    'merchantId' => $this->company_gateway->getConfigField('merchantId'),
-                    'passPhrase' => $this->company_gateway->getConfigField('passPhrase'),
-                    'testMode' => $this->company_gateway->getConfigField('testMode')
+                    'merchantId' => $this->payfast->company_gateway->getConfigField('merchantId'),
+                    'passPhrase' => $this->payfast->company_gateway->getConfigField('passPhrase'),
+                    'testMode' => $this->payfast->company_gateway->getConfigField('testMode')
                 ]
             );
 
