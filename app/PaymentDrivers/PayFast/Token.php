@@ -91,8 +91,8 @@ class Token
             'item_description' => ctrans('texts.invoices') . ': ' . collect($payment_hash->invoices())->pluck('invoice_number'),
         ];        
 
-        // $header['signature'] = $this->genSig(array_merge($header, $body));
-        $header['signature'] = $this->genSig($body);
+        $header['signature'] = $this->genSig(array_merge($header, $body));
+        // $header['signature'] = $this->genSig($body);
 
         nlog($this->payfast->company_gateway->getConfigField('merchantId'));
         
