@@ -52,6 +52,7 @@ class SystemLog extends Model
     const EVENT_MAIL_DELIVERY = 34;
 
     const EVENT_WEBHOOK_RESPONSE = 40;
+    const EVENT_WEBHOOK_SUCCESS = 41;
     const EVENT_PDF_RESPONSE = 50;
 
     const EVENT_AUTHENTICATION_FAILURE = 60;
@@ -71,6 +72,7 @@ class SystemLog extends Model
     const TYPE_PAYTRACE = 311;
     const TYPE_MOLLIE = 312;
     const TYPE_EWAY = 313;
+    const TYPE_SQUARE = 320;
 
     const TYPE_QUOTA_EXCEEDED = 400;
     const TYPE_UPSTREAM_FAILURE = 401;

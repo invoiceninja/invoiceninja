@@ -22,6 +22,7 @@ use App\Factory\RecurringInvoiceFactory;
 use App\Factory\SubscriptionFactory;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Jobs\Company\CreateCompanyTaskStatuses;
+use App\Libraries\MultiDB;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -62,7 +63,7 @@ class CreateSingleAccount extends Command
     /**
      * @var string
      */
-    protected $signature = 'ninja:create-single-account {gateway=all}';
+    protected $signature = 'ninja:create-single-account {gateway=all} {--database=db-ninja-01}';
 
     protected $invoice_repo;
 
@@ -89,6 +90,8 @@ class CreateSingleAccount extends Command
      */
     public function handle()
     {
+        MultiDB::setDb($this->option('database'));
+
         $this->info(date('r').' Create Single Sample Account...');
         $this->count = 1;
         $this->gateway = $this->argument('gateway');
@@ -777,6 +780,27 @@ class CreateSingleAccount extends Command
             $cg->require_shipping_address = true;
             $cg->update_details = true;
             $cg->config = encrypt(config('ninja.testvars.mollie'));
+            $cg->save();
+
+            $gateway_types = $cg->driver(new Client)->gatewayTypes();
+
+            $fees_and_limits = new stdClass;
+            $fees_and_limits->{$gateway_types[0]} = new FeesAndLimits;
+
+            $cg->fees_and_limits = $fees_and_limits;
+            $cg->save();
+        }
+
+        if (config('ninja.testvars.square') && ($this->gateway == 'all' || $this->gateway == 'square')) {
+            $cg = new CompanyGateway;
+            $cg->company_id = $company->id;
+            $cg->user_id = $user->id;
+            $cg->gateway_key = '65faab2ab6e3223dbe848b1686490baz';
+            $cg->require_cvv = true;
+            $cg->require_billing_address = true;
+            $cg->require_shipping_address = true;
+            $cg->update_details = true;
+            $cg->config = encrypt(config('ninja.testvars.square'));
             $cg->save();
 
             $gateway_types = $cg->driver(new Client)->gatewayTypes();

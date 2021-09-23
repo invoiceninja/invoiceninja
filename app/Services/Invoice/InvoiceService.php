@@ -233,7 +233,7 @@ class InvoiceService
 
     public function autoBill()
     {
-        $this->invoice = (new AutoBillInvoice($this->invoice))->run();
+        $this->invoice = (new AutoBillInvoice($this->invoice, $this->invoice->company->db))->run();
 
         return $this;
     }

@@ -177,6 +177,11 @@ class InvoiceItemSumInclusive
         return $this->item->line_total;
     }
 
+    public function getGrossLineTotal()
+    {
+        return $this->item->line_total;
+    }
+
     public function getLineItems()
     {
         return $this->line_items;
@@ -195,6 +200,11 @@ class InvoiceItemSumInclusive
     }
 
     public function getSubTotal()
+    {
+        return $this->sub_total;
+    }
+
+    public function getGrossSubTotal()
     {
         return $this->sub_total;
     }

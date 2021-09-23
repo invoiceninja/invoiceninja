@@ -36,7 +36,8 @@
     }
 
     .company-logo {
-        max-width: 55%;
+        height: 100%;
+        padding-right: 120px;
     }
 
     #company-details,
@@ -248,6 +249,14 @@
         margin-right: .75rem;
     }
 
+    [data-ref*=".line_total-td"] {
+        white-space: nowrap;
+    }
+
+    .logo-container {
+        max-height: 160px;
+    }
+    
     /** Useful snippets, uncomment to enable. **/
 
       /** Hide company logo **/
@@ -284,7 +293,9 @@
     <tr>
         <td>
             <div class="header-wrapper" id="header">
-                <img class="company-logo" src="$company.logo" alt="$company.name logo"/>
+                <div class="logo-container">
+                    <img class="company-logo" src="$company.logo" alt="$company.name logo"/>
+                </div>
                 <div id="company-details"></div>
                 <div id="company-address"></div>
             </div>

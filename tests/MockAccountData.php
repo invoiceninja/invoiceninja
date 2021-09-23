@@ -36,7 +36,9 @@ use App\Models\Product;
 use App\Models\Project;
 use App\Models\Quote;
 use App\Models\QuoteInvitation;
+use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
+use App\Models\RecurringQuote;
 use App\Models\Task;
 use App\Models\TaskStatus;
 use App\Models\User;
@@ -82,6 +84,16 @@ trait MockAccountData
      * @var
      */
     public $token;
+
+    /**
+     * @var
+     */
+    public $recurring_expense;
+
+    /**
+     * @var
+     */
+    public $recurring_quote;
 
     /**
      * @var
@@ -208,6 +220,7 @@ trait MockAccountData
         $this->cu = CompanyUserFactory::create($user->id, $this->company->id, $this->account->id);
         $this->cu->is_owner = true;
         $this->cu->is_admin = true;
+        $this->cu->is_locked = false;
         $this->cu->save();
 
         $this->token = \Illuminate\Support\Str::random(64);
@@ -283,6 +296,20 @@ trait MockAccountData
         $this->expense = Expense::factory()->create([
             'user_id' => $user_id,
             'company_id' => $this->company->id,
+        ]);
+
+
+        $this->recurring_expense = RecurringExpense::factory()->create([
+            'user_id' => $user_id,
+            'company_id' => $this->company->id,
+            'frequency_id' => 5,
+            'remaining_cycles' => 5,
+        ]);
+
+        $this->recurring_quote = RecurringQuote::factory()->create([
+            'user_id' => $user_id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
         ]);
 
         $this->task = Task::factory()->create([

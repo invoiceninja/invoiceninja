@@ -577,7 +577,7 @@ class RecurringQuoteController extends BaseController
     public function action(ActionRecurringQuoteRequest $request, RecurringQuote $recurring_quote, $action)
     {
         switch ($action) {
-            case 'clone_to_RecurringQuote':
+            case 'clone_to_recurring_quote':
           //      $recurring_invoice = CloneRecurringQuoteFactory::create($recurring_invoice, auth()->user()->id);
           //      return $this->itemResponse($recurring_invoice);
                 break;

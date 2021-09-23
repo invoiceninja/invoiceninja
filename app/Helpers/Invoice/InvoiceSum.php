@@ -30,7 +30,7 @@ class InvoiceSum
 
     public $invoice_item;
 
-    public $total_taxes;
+    public $total_taxes = 0;
 
     private $total;
 
@@ -41,6 +41,8 @@ class InvoiceSum
     private $total_tax_map;
 
     private $sub_total;
+
+    private $gross_sub_total;
 
     /**
      * Constructs the object with Invoice and Settings object.
@@ -75,7 +77,8 @@ class InvoiceSum
         $this->invoice->line_items = $this->invoice_items->getLineItems();
         $this->total = $this->invoice_items->getSubTotal();
         $this->setSubTotal($this->invoice_items->getSubTotal());
-
+        $this->setGrossSubTotal($this->invoice_items->getGrossSubTotal());
+        
         return $this;
     }
 
@@ -262,6 +265,18 @@ class InvoiceSum
     public function setSubTotal($value)
     {
         $this->sub_total = $value;
+
+        return $this;
+    }
+
+    public function getGrossSubTotal()
+    {
+        return $this->gross_sub_total;
+    }
+
+    public function setGrossSubTotal($value)
+    {
+        $this->gross_sub_total = $value;
 
         return $this;
     }

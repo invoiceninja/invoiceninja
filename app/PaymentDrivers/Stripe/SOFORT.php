@@ -42,6 +42,7 @@ class SOFORT
         $data['return_url'] = $this->buildReturnUrl();
         $data['stripe_amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency());
         $data['client'] = $this->stripe->client;
+        $data['customer'] = $this->stripe->findOrCreateCustomer()->id;
         $data['country'] = $this->stripe->client->country->iso_3166_2;
 
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['stripe_amount' => $data['stripe_amount']]);
@@ -85,7 +86,7 @@ class SOFORT
             'gateway_type_id' => GatewayType::SOFORT,
         ];
 
-        $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);
+        $this->stripe->createPayment($data, Payment::STATUS_PENDING);
 
         SystemLogger::dispatch(
             ['response' => $this->stripe->payment_hash->data, 'data' => $data],
@@ -96,7 +97,7 @@ class SOFORT
             $this->stripe->client->company,
         );
 
-        return redirect()->route('client.payments.show', ['payment' => $this->stripe->encodePrimaryKey($payment->id)]);
+        return redirect()->route('client.payments.index');
     }
 
     public function processUnsuccessfulPayment()

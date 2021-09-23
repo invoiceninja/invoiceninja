@@ -27,6 +27,7 @@ class ProcessSOFORT {
     handle = () => {
         let data = {
             type: 'sofort',
+            customer: document.querySelector('meta[name="customer"]').content,
             amount: document.querySelector('meta[name="amount"]').content,
             currency: 'eur',
             redirect: {

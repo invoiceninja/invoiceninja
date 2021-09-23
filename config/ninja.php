@@ -14,8 +14,8 @@ return [
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', 'invoicing.co'),
-    'app_version' => '5.3.6',
-    'app_tag' => '5.3.6',
+    'app_version' => '5.3.16',
+    'app_tag' => '5.3.16',
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', ''),
@@ -36,6 +36,7 @@ return [
     'phantomjs_pdf_generation' => env('PHANTOMJS_PDF_GENERATION', true),
     'trusted_proxies' => env('TRUSTED_PROXIES', false),
     'is_docker' => env('IS_DOCKER', false),
+    'local_download' => env('LOCAL_DOWNLOAD', false),
     'sentry_dsn' => env('SENTRY_LARAVEL_DSN', 'https://9b4e15e575214354a7d666489783904a@sentry.invoicing.co/6'),
     'environment' => env('NINJA_ENVIRONMENT', 'selfhost'), // 'hosted', 'development', 'selfhost', 'reseller'
 	'preconfigured_install' => env('PRECONFIGURED_INSTALL',false),
@@ -90,6 +91,7 @@ return [
             'decrypted' => env('PAYTRACE_KEYS', ''),
         ],
         'mollie' => env('MOLLIE_KEYS', ''),
+        'square' => env('SQUARE_KEYS',''),
     ],
     'contact' => [
         'email' => env('MAIL_FROM_ADDRESS'),

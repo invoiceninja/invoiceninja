@@ -18,10 +18,10 @@ use App\Libraries\MultiDB;
 use App\Models\ClientContact;
 use App\Models\Company;
 use App\Utils\Ninja;
-use Auth;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 
 class NinjaPlanController extends Controller
 {
@@ -30,10 +30,16 @@ class NinjaPlanController extends Controller
     {
         MultiDB::findAndSetDbByCompanyKey($company_key);
         $company = Company::where('company_key', $company_key)->first();
+
+        nlog("Ninja Plan Controller Company key found {$company->company_key}");
+
         $account = $company->account;
 
-        if (Ninja::isHosted() && MultiDB::findAndSetDbByContactKey(request()->segment(3)) && $client_contact = ClientContact::where('contact_key', request()->segment(3))->first())
+        if (MultiDB::findAndSetDbByContactKey($contact_key) && $client_contact = ClientContact::where('contact_key', $contact_key)->first())
         {            
+        
+            nlog("Ninja Plan Controller - Found and set Client Contact");
+            
             Auth::guard('contact')->login($client_contact,true);
 
             /* Current paid users get pushed straight to subscription overview page*/

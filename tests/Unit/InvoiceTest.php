@@ -123,6 +123,7 @@ class InvoiceTest extends TestCase
         $this->invoice_calc->build();
 
         $this->assertEquals($this->invoice_calc->getSubTotal(), 20);
+        // $this->assertEquals($this->invoice_calc->getGrossSubTotal(), 22);
         //$this->assertEquals($this->invoice_calc->getTotal(), 21.5);
         //$this->assertEquals($this->invoice_calc->getBalance(), 21.5);
         //$this->assertEquals($this->invoice_calc->getTotalTaxes(), 1.5);
@@ -216,6 +217,7 @@ class InvoiceTest extends TestCase
         $this->invoice_calc->build();
 
         $this->assertEquals($this->invoice_calc->getSubTotal(), 20);
+        $this->assertEquals($this->invoice_calc->getGrossSubTotal(), 22);
         //$this->assertEquals($this->invoice_calc->getTotal(), 26);
         //$this->assertEquals($this->invoice_calc->getBalance(), 26);
         //$this->assertEquals($this->invoice_calc->getTotalTaxes(), 4);

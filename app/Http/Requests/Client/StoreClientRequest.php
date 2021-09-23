@@ -74,7 +74,6 @@ class StoreClientRequest extends Request
         $rules['number'] = ['nullable',Rule::unique('clients')->where('company_id', auth()->user()->company()->id)];
         $rules['id_number'] = ['nullable',Rule::unique('clients')->where('company_id', auth()->user()->company()->id)];
 
-
         return $rules;
     }
 

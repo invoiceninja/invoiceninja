@@ -59,6 +59,7 @@ use App\Models\PaymentTerm;
 use App\Models\Product;
 use App\Models\Project;
 use App\Models\Quote;
+use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
 use App\Models\Task;
 use App\Models\TaskStatus;
@@ -132,13 +133,14 @@ class Import implements ShouldQueue
         'projects',
         'products',
         'credits',
-        'invoices',
         'recurring_invoices',
+        'invoices',
         'quotes',
         'payments',
         'expense_categories',
         'task_statuses',
         'expenses',
+        'recurring_expenses',
         'tasks',
         'documents',
     ];
@@ -233,7 +235,7 @@ class Import implements ShouldQueue
         $account->save();
 
         //company size check
-        if ($this->company->invoices()->count() > 1000 || $this->company->products()->count() > 1000 || $this->company->clients()->count() > 1000) {
+        if ($this->company->invoices()->count() > 500 || $this->company->products()->count() > 500 || $this->company->clients()->count() > 500) {
             $this->company->is_large = true;
             $this->company->save();
         }
@@ -261,9 +263,6 @@ class Import implements ShouldQueue
         
         /*After a migration first some basic jobs to ensure the system is up to date*/
         VersionCheck::dispatch();
-        
-        // CreateCompanyPaymentTerms::dispatchNow($sp035a66, $spaa9f78);
-        // CreateCompanyTaskStatuses::dispatchNow($this->company, $this->user);
 
         info('Completed🚀🚀🚀🚀🚀 at '.now());
 
@@ -640,7 +639,8 @@ class Import implements ShouldQueue
                 $client->updated_at = Carbon::parse($modified['updated_at']);
 
             $client->save(['timestamps' => false]);
-
+            $client->fresh();
+            
             $client->contacts()->forceDelete();
 
             if (array_key_exists('contacts', $resource)) { // need to remove after importing new migration.json
@@ -650,7 +650,7 @@ class Import implements ShouldQueue
                     $modified_contacts[$key]['company_id'] = $this->company->id;
                     $modified_contacts[$key]['user_id'] = $this->processUserId($resource);
                     $modified_contacts[$key]['client_id'] = $client->id;
-                    $modified_contacts[$key]['password'] = 'mysuperpassword'; // @todo, and clean up the code..
+                    $modified_contacts[$key]['password'] = Str::random(8); 
                     unset($modified_contacts[$key]['id']);
                 }
 
@@ -685,6 +685,8 @@ class Import implements ShouldQueue
                 'old' => $resource['id'],
                 'new' => $client->id,
             ];
+
+            $client = null;
         }
 
         Client::reguard();
@@ -812,6 +814,68 @@ class Import implements ShouldQueue
         $product_repository = null;
     }
 
+    private function processRecurringExpenses(array $data) :void
+    {
+        RecurringExpense::unguard();
+
+        $rules = [
+            '*.amount' => ['numeric'],
+        ];
+
+        $validator = Validator::make($data, $rules);
+
+        if ($validator->fails()) {
+            throw new MigrationValidatorFailed(json_encode($validator->errors()));
+        }
+
+        foreach ($data as $resource) {
+            $modified = $resource;
+
+            unset($modified['id']);
+
+            $modified['company_id'] = $this->company->id;
+            $modified['user_id'] = $this->processUserId($resource);
+
+            if (isset($resource['client_id'])) {
+                $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
+            }
+            
+            if (isset($resource['category_id'])) {
+                $modified['category_id'] = $this->transformId('expense_categories', $resource['category_id']);
+            }
+
+            if (isset($resource['vendor_id'])) {
+                $modified['vendor_id'] = $this->transformId('vendors', $resource['vendor_id']);
+            }
+
+            $expense = RecurringExpense::create($modified);
+
+            if(array_key_exists('created_at', $modified))
+                $expense->created_at = Carbon::parse($modified['created_at']);
+
+            if(array_key_exists('updated_at', $modified))
+                $expense->updated_at = Carbon::parse($modified['updated_at']);
+
+            $expense->save(['timestamps' => false]);
+            
+            $old_user_key = array_key_exists('user_id', $resource) ?? $this->user->id;
+
+            $key = "recurring_expenses_{$resource['id']}";
+
+            $this->ids['recurring_expenses'][$key] = [
+                'old' => $resource['id'],
+                'new' => $expense->id,
+            ];
+
+        }
+
+
+        RecurringExpense::reguard();
+
+        /*Improve memory handling by setting everything to null when we have finished*/
+        $data = null;
+    }
+
     private function processRecurringInvoices(array $data) :void
     {
         RecurringInvoice::unguard();
@@ -908,6 +972,10 @@ class Import implements ShouldQueue
             }
 
             $modified['client_id'] = $this->transformId('clients', $resource['client_id']);
+
+            if(array_key_exists('recurring_id', $resource) && !is_null($resource['recurring_id']))
+                $modified['recurring_id'] = $this->transformId('recurring_invoices', (string)$resource['recurring_id']);
+            
             $modified['user_id'] = $this->processUserId($resource);
             $modified['company_id'] = $this->company->id;
             $modified['line_items'] = $this->cleanItems($modified['line_items']);
@@ -1396,7 +1464,7 @@ class Import implements ShouldQueue
                 $modified['fees_and_limits'] = $this->cleanFeesAndLimits($modified['fees_and_limits']);
             }
 
-            /* On Hosted platform we need to advise Stripe users to connect with Stripe Connect */
+            // /* On Hosted platform we need to advise Stripe users to connect with Stripe Connect */
             if(Ninja::isHosted() && $modified['gateway_key'] == 'd14dd26a37cecc30fdd65700bfb55b23'){
 
                 $nmo = new NinjaMailerObject;
@@ -1412,6 +1480,13 @@ class Import implements ShouldQueue
                 //$modified['fees_and_limits'] = [];
 
             }
+            
+            if(Ninja::isSelfHost() && $modified['gateway_key'] == 'd14dd26a47cecc30fdd65700bfb67b34'){    
+            
+                $modified['gateway_key'] = 'd14dd26a37cecc30fdd65700bfb55b23';
+                
+            }
+
 
             $company_gateway = CompanyGateway::create($modified);
 

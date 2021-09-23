@@ -270,6 +270,8 @@ trait MakesInvoiceValues
         if (! is_array($items)) {
             $data;
         }
+        
+        $locale_info = localeconv();
 
         foreach ($items as $key => $item) {
             if ($table_type == '$product' && $item->type_id != 1) {
@@ -295,18 +297,24 @@ trait MakesInvoiceValues
             $data[$key][$table_type.'.notes'] = $this->processReservedKeywords($item->notes);
             $data[$key][$table_type.'.description'] = $this->processReservedKeywords($item->notes);
 
+            /* need to test here as this is new - 18/09/2021*/
+            if(!array_key_exists($table_type.'.gross_line_total', $data[$key]))
+                $data[$key][$table_type.'.gross_line_total'] = 0;
 
             $data[$key][$table_type . ".{$_table_type}1"] = $helpers->formatCustomFieldValue($this->client->company->custom_fields, "{$_table_type}1", $item->custom_value1, $this->client);
             $data[$key][$table_type . ".{$_table_type}2"] = $helpers->formatCustomFieldValue($this->client->company->custom_fields, "{$_table_type}2", $item->custom_value2, $this->client);
             $data[$key][$table_type . ".{$_table_type}3"] = $helpers->formatCustomFieldValue($this->client->company->custom_fields, "{$_table_type}3", $item->custom_value3, $this->client);
             $data[$key][$table_type . ".{$_table_type}4"] = $helpers->formatCustomFieldValue($this->client->company->custom_fields, "{$_table_type}4", $item->custom_value4, $this->client);
 
-            $data[$key][$table_type.'.quantity'] = Number::formatValue($item->quantity, $this->client->currency());
-
+            //$data[$key][$table_type.'.quantity'] = Number::formatValue($item->quantity, $this->client->currency());
+            
+            //change quantity from localized number, to decimal format with no trailing zeroes 06/09/21
+            $data[$key][$table_type.'.quantity'] =  rtrim($item->quantity, $locale_info['decimal_point']);
             $data[$key][$table_type.'.unit_cost'] = Number::formatMoney($item->cost, $this->client);
             $data[$key][$table_type.'.cost'] = Number::formatMoney($item->cost, $this->client);
 
             $data[$key][$table_type.'.line_total'] = Number::formatMoney($item->line_total, $this->client);
+        
 
             if (isset($item->discount) && $item->discount > 0) {
                 if ($item->is_amount_discount) {
@@ -483,7 +491,7 @@ trait MakesInvoiceValues
                     $output = (int)$raw - (int)$_value[1]; // 1 (:MONTH) - 4
                 }
 
-                if ($_operation == '/') {
+                if ($_operation == '/' && (int)$_value[1] != 0) {
                     $output = (int)$raw / (int)$_value[1]; // 1 (:MONTH) / 4
                 }
 

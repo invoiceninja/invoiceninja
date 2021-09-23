@@ -79,7 +79,7 @@ class DocumentController extends Controller
         $zip = new ZipStream(now() . '-documents.zip', $options);
 
         foreach ($documents as $document) {
-            $zip->addFileFromPath(basename($document->diskPath()), TempFile::path($document->diskPath()));
+            $zip->addFileFromPath(basename($document->diskPath()), TempFile::path($document->filePath()));
         }
 
         $zip->finish();

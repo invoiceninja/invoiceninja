@@ -31,9 +31,7 @@ class ExpenseTransformer extends EntityTransformer
     /**
      * @var array
      */
-    protected $availableIncludes = [
-        'documents',
-    ];
+    protected $availableIncludes = [];
 
     public function includeDocuments(Expense $expense)
     {
@@ -96,6 +94,7 @@ class ExpenseTransformer extends EntityTransformer
             'tax_amount3' => (float) $expense->tax_amount3,
             'uses_inclusive_taxes' => (bool) $expense->uses_inclusive_taxes,
             'calculate_tax_by_amount' => (bool) $expense->calculate_tax_by_amount,
+            'entity_type' => 'expense',
         ];
     }
 }

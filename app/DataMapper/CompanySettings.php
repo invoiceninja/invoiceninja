@@ -98,6 +98,12 @@ class CompanySettings extends BaseSettings
     public $expense_number_pattern = ''; //@implemented
     public $expense_number_counter = 1; //@implemented
 
+    public $recurring_expense_number_pattern = ''; 
+    public $recurring_expense_number_counter = 1; 
+
+    public $recurring_quote_number_pattern = ''; 
+    public $recurring_quote_number_counter = 1; 
+
     public $vendor_number_pattern = ''; //@implemented
     public $vendor_number_counter = 1; //@implemented
 
@@ -267,8 +273,10 @@ class CompanySettings extends BaseSettings
 
     public $use_credits_payment = 'off'; //always, option, off //@implemented
     public $hide_empty_columns_on_pdf = false;
+    public $email_from_name = '';
 
     public static $casts = [
+        'email_from_name'                    => 'string',
         'show_all_tasks_client_portal'       => 'string',
         'entity_send_time'                   => 'int',
         'shared_invoice_credit_counter'      => 'bool',
@@ -347,6 +355,10 @@ class CompanySettings extends BaseSettings
         'task_number_counter'                => 'int',
         'expense_number_pattern'             => 'string',
         'expense_number_counter'             => 'int',
+        'recurring_expense_number_pattern'   => 'string',
+        'recurring_expense_number_counter'   => 'int',
+        'recurring_quote_number_pattern'     => 'string',
+        'recurring_quote_number_counter'     => 'int',
         'vendor_number_pattern'              => 'string',
         'vendor_number_counter'              => 'int',
         'ticket_number_pattern'              => 'string',

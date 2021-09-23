@@ -56,8 +56,10 @@ class ClientContactRepository extends BaseRepository
 
             if (! $update_contact) {
                 $update_contact = ClientContactFactory::create($client->company_id, $client->user_id);
-                $update_contact->client_id = $client->id;
             }
+            
+            //10-09-2021 - enforce the client->id and remove client_id from fillables
+            $update_contact->client_id = $client->id;
 
             /* We need to set NULL email addresses to blank strings to pass authentication*/
             if(array_key_exists('email', $contact) && is_null($contact['email']))
@@ -67,7 +69,12 @@ class ClientContactRepository extends BaseRepository
 
             if (array_key_exists('password', $contact) && strlen($contact['password']) > 1) {
                 $update_contact->password = Hash::make($contact['password']);
+
+                $client->company->client_contacts()->where('email', $update_contact->email)->update(['password' => $update_contact->password]);
             }
+
+            if(array_key_exists('email', $contact))
+                $update_contact->email = trim($contact['email']);
 
             $update_contact->save();
         });
@@ -85,5 +92,7 @@ class ClientContactRepository extends BaseRepository
             $new_contact->email = ' ';
             $new_contact->save();
         }
+
+        $client = null;
     }
 }

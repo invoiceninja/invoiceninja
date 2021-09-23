@@ -34,11 +34,6 @@ class SystemLogFilters extends QueryFilters
         return $this->builder->where('event_id', $event_id);
     }
 
-    public function client_id(int $client_id) :Builder
-    {
-        return $this->builder->where('client_id', $client_id);
-    }
-
     /**
      * Filter based on search text.
      *

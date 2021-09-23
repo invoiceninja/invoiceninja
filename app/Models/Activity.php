@@ -96,6 +96,18 @@ class Activity extends StaticModel
     const DELETE_RECURRING_INVOICE = 103; 
     const RESTORE_RECURRING_INVOICE = 104; 
 
+    const CREATE_RECURRING_QUOTE = 110;
+    const UPDATE_RECURRING_QUOTE = 111; 
+    const ARCHIVE_RECURRING_QUOTE = 112; 
+    const DELETE_RECURRING_QUOTE = 113; 
+    const RESTORE_RECURRING_QUOTE = 114; 
+
+    const CREATE_RECURRING_EXPENSE = 120;
+    const UPDATE_RECURRING_EXPENSE = 121; 
+    const ARCHIVE_RECURRING_EXPENSE = 122; 
+    const DELETE_RECURRING_EXPENSE = 123; 
+    const RESTORE_RECURRING_EXPENSE = 124; 
+
     protected $casts = [
         'is_system' => 'boolean',
         'updated_at' => 'timestamp',
@@ -121,6 +133,13 @@ class Activity extends StaticModel
     {
         return $this->hasOne(Backup::class);
     }
+
+
+    public function history()
+    {
+        return $this->hasOne(Backup::class);
+    }
+
 
     /**
      * @return mixed

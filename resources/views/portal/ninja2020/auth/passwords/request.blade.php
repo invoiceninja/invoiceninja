@@ -29,6 +29,9 @@
                         @csrf
                         <div class="flex flex-col">
                             <label for="email" class="input-label">{{ ctrans('texts.email_address') }}</label>
+                            @if($company && !is_null($company))
+                            <input type="hidden" name="db" value="{{$company->db}}">
+                            @endif
                             <input type="email" name="email" id="email"
                                    class="input"
                                    value="{{ request()->query('email') ?? old('email') }}"

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Gateways\Checkout3ds;
 
+use App\Libraries\MultiDB;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyGateway;
@@ -37,6 +38,7 @@ class Checkout3dsRequest extends FormRequest
 
     public function getCompany()
     {
+        MultiDB::findAndSetDbByCompanyKey($this->company_key);
         return Company::where('company_key', $this->company_key)->first();
     }
 
