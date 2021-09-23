@@ -79,8 +79,8 @@ class Token
 
 		$header =[
             'merchant-id' => $this->payfast->company_gateway->getConfigField('merchantId'),
-            'version' => 'v1',
             'timestamp' => now()->format('c'),
+            'version' => 'v1',
 		];
 
         $body = [
@@ -91,10 +91,9 @@ class Token
             'passphrase' => $this->payfast->company_gateway->getConfigField('passphrase'),
         ];        
 
-        $header['signature'] = $this->payfast->generateSignature(array_merge($header, $body));
+        // $header['signature'] = $this->payfast->generateSignature(array_merge($header, $body));
         // $header['signature'] = $this->genSig($body);
-
-        nlog($this->payfast->company_gateway->getConfigField('merchantId'));
+        $header['signature'] = $this->generate_parameter_string(array_merge($header, $body));
         
         $result = $this->send($header, $body, $cgt->token);
 
@@ -138,6 +137,41 @@ class Token
 
         //     return false;
         // }
+    }
+
+    protected function generate_parameter_string( $api_data, $sort_data_before_merge = true, $skip_empty_values = true ) {
+
+        // if sorting is required the passphrase should be added in before sort.
+        $api_data['passphrase'] = $this->payfast->company_gateway->getConfigField('passPhrase');
+        
+
+        if ( $sort_data_before_merge ) {
+            ksort( $api_data );
+        }
+
+        // concatenate the array key value pairs.
+        $parameter_string = '';
+        foreach ( $api_data as $key => $val ) {
+
+            if ( $skip_empty_values && empty( $val ) ) {
+                continue;
+            }
+
+            if ( 'signature' !== $key ) {
+                $val = urlencode( $val );
+                $parameter_string .= "$key=$val&";
+            }
+        }
+        // when not sorting passphrase should be added to the end before md5
+        if ( $sort_data_before_merge ) {
+            $parameter_string = rtrim( $parameter_string, '&' );
+        } elseif ( ! empty( $this->pass_phrase ) ) {
+            $parameter_string .= 'passphrase=' . urlencode( $this->payfast->company_gateway->getConfigField('passPhrase') );
+        } else {
+            $parameter_string = rtrim( $parameter_string, '&' );
+        }
+
+        return $parameter_string;
     }
 
     private function genSig($data)
