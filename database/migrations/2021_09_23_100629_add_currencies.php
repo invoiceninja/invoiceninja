@@ -23,6 +23,19 @@ class AddCurrencies extends Migration
      */
     public function down()
     {
-        //
+    
+    $currencies = [
+        ['id' => 105, 'name' => 'Ethiopian Birr', 'code' => 'ETB', 'symbol' => '', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
+
+    ];
+
     }
 }
+
+
+// Gambia Dalasi (GMD)
+// Paraguayan Guarani (PYG)
+// Malawi Kwacha (MWK)
+// Zimbabwean Dollar (ZWL)
+// Cambodian Riel (KHR)
+// Vanuatu Vatu (VUV)
