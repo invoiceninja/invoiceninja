@@ -93,11 +93,10 @@ class Token
         // $header['signature'] = md5( $this->generate_parameter_string(array_merge($header, $body), false) );
         
         // $result = $this->send($header, $body, $cgt->token);
-            $api = new \PayFast\PayFastPayment(
+            $api = new \PayFast\PayFastApi(
                 [
                     'merchantId' => $this->payfast->company_gateway->getConfigField('merchantId'),
                     'passPhrase' => $this->payfast->company_gateway->getConfigField('passPhrase'),
-                    'merchantKey' => $this->payfast->company_gateway->getConfigField('merchantKey'),
                     'testMode' => $this->payfast->company_gateway->getConfigField('testMode')
                 ]
             );
