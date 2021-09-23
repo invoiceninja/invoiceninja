@@ -28,7 +28,7 @@ class PayFastPaymentDriver extends BaseDriver
 
     public $refundable = false; //does this gateway support refunds?
 
-    public $token_billing = true; //does this gateway support token billing?
+    public $token_billing = false; //does this gateway support token billing?
 
     public $can_authorise_credit_card = true; //does this gateway support authorizations?
 
