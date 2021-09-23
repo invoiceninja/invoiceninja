@@ -84,6 +84,9 @@ class Token
 		];
 
         $body = [
+            'merchant_id' => $this->payfast->company_gateway->getConfigField('merchantId'),
+            'merchant_key' => $this->company_gateway->getConfigField('merchantKey'),
+            'passphrase' => $this->payfast->cpayfast->ompany_gateway->getConfigField('passPhrase'),
             'amount' => $amount,
             'item_name' => 'purchase',
             'm_payment_id' => $payment_hash->hash,
@@ -91,8 +94,8 @@ class Token
             // 'passphrase' => $this->payfast->company_gateway->getConfigField('passphrase'),
         ];        
 
-        // $header['signature'] = $this->payfast->generateSignature($body);
-        $header['signature'] = $this->genSig($body);
+        $header['signature'] = $this->payfast->generateSignature($body);
+        //$header['signature'] = $this->genSig($body);
 
         nlog($this->payfast->company_gateway->getConfigField('merchantId'));
         
