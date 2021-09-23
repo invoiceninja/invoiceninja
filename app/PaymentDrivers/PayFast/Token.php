@@ -87,13 +87,11 @@ class Token
             'amount' => $amount,
             'item_name' => 'purchase',
             'item_description' => ctrans('texts.invoices') . ': ' . collect($payment_hash->invoices())->pluck('invoice_number'),
-            'm_payment_id' => $payment_hash->hash,
+            // 'm_payment_id' => $payment_hash->hash,
         ];        
 
-        //$header['signature'] = md5( $this->generate_parameter_string(array_merge($header, $body)) );
+        $header['signature'] = md5( $this->generate_parameter_string(array_merge($header, $body)) );
         
-        $header['signature'] = $this->payfast->generateSignature(array_merge($header, $body));
-
         $result = $this->send($header, $body, $cgt->token);
 
         nlog($result);
