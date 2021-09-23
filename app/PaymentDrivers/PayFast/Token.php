@@ -87,15 +87,12 @@ class Token
             'amount' => $amount,
             'item_name' => 'purchase',
             'm_payment_id' => $payment_hash->hash,
+            'passphrase' => $this->payfast->company_gateway->getConfigField('passphrase'),
+            'item_description' => ctrans('texts.invoices') . ': ' . collect($payment_hash->invoices())->pluck('invoice_number'),
         ];        
 
         // $header['signature'] = $this->genSig(array_merge($header, $body));
         $header['signature'] = $this->genSig($body);
-
-        $body = array_merge($body,[            
-            'passphrase' => $this->payfast->company_gateway->getConfigField('passphrase'),
-            'item_description' => ctrans('texts.invoices') . ': ' . collect($payment_hash->invoices())->pluck('invoice_number'),
-        ]);
 
         nlog($this->payfast->company_gateway->getConfigField('merchantId'));
         
