@@ -97,6 +97,7 @@ class Token
                 [
                     'merchantId' => $this->payfast->company_gateway->getConfigField('merchantId'),
                     'passPhrase' => $this->payfast->company_gateway->getConfigField('passPhrase'),
+                    'merchantKey' => $this->payfast->company_gateway->getConfigField('merchantKey'),
                     'testMode' => $this->payfast->company_gateway->getConfigField('testMode')
                 ]
             );
