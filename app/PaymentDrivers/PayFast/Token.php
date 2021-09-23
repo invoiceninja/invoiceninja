@@ -85,7 +85,7 @@ class Token
 
         $body = [
             'merchant_id' => $this->payfast->company_gateway->getConfigField('merchantId'),
-            'merchant_key' => $this->company_gateway->getConfigField('merchantKey'),
+            'merchant_key' => $this->payfast->company_gateway->getConfigField('merchantKey'),
             'passphrase' => $this->payfast->cpayfast->ompany_gateway->getConfigField('passPhrase'),
             'amount' => $amount,
             'item_name' => 'purchase',
