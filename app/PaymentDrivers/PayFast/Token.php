@@ -198,9 +198,7 @@ class Token
         ]);
 
         try {
-            $response = $client->post("https://api.payfast.co.za/subscriptions/{$token}/adhoc?testing=true",[
-                RequestOptions::JSON => ['body' => $body], RequestOptions::ALLOW_REDIRECTS => false
-            ]);
+            $response = $client->post("https://api.payfast.co.za/subscriptions/{$token}/adhoc?testing=true",['query' => $body]);
 
             return json_decode($response->getBody(),true);
         }
