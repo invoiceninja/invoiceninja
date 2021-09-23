@@ -86,8 +86,8 @@ class Token
         $body = [
             'amount' => $amount,
             'item_name' => 'purchase',
-            'item_description' => ctrans('texts.invoices') . ': ' . collect($payment_hash->invoices())->pluck('invoice_number'),
-            // 'm_payment_id' => $payment_hash->hash,
+            // 'item_description' => ctrans('texts.invoices') . ': ' . collect($payment_hash->invoices())->pluck('invoice_number'),
+            'm_payment_id' => $payment_hash->hash,
         ];        
 
         $header['signature'] = $this->generate_parameter_string(array_merge($header, $body));
