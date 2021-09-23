@@ -61,6 +61,9 @@ class Number
         // convert "," to "."
         $s = str_replace(',', '.', $value);
 
+        if($value < 1)
+            return (float)$s;
+
         // remove everything except numbers and dot "."
         $s = preg_replace("/[^0-9\.]/", '', $s);
 
