@@ -79,8 +79,8 @@ class Token
 
 		$header =[
             'merchant-id' => $this->payfast->company_gateway->getConfigField('merchantId'),
-            'timestamp' => now()->format('c'),
             'version' => 'v1',
+            'timestamp' => now()->format('c'),
 		];
 
         $body = [
