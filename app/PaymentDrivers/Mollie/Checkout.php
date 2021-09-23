@@ -17,6 +17,7 @@ use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\MolliePaymentDriver;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class Checkout implements MethodInterface
@@ -39,7 +40,16 @@ class Checkout implements MethodInterface
         return render('gateways.mollie.checkout.authorize', $data);
     }
 
-    public function authorizeResponse(Request $request) { }
+    /**
+     * Handle authorization with checkout portal.
+     * 
+     * @param Request $request 
+     * @return RedirectResponse 
+     */
+    public function authorizeResponse(Request $request): RedirectResponse
+    {
+        return redirect()->back();
+    }
 
     public function paymentView(array $data) { }
 
