@@ -90,8 +90,6 @@ class Token
             'm_payment_id' => $payment_hash->hash,
         ];        
 
-        // $header['signature'] = $this->payfast->generateSignature(array_merge($header, $body));
-        // $header['signature'] = $this->genSig($body);
         $header['signature'] = $this->generate_parameter_string(array_merge($header, $body));
         
         $result = $this->send($header, $body, $cgt->token);
@@ -141,8 +139,8 @@ class Token
     protected function generate_parameter_string( $api_data, $sort_data_before_merge = true, $skip_empty_values = true ) {
 
         // if sorting is required the passphrase should be added in before sort.
-        $api_data['passphrase'] = $this->payfast->company_gateway->getConfigField('passPhrase');
-        
+        if ( ! empty( $this->payfast->company_gateway->getConfigField('passPhrase') ) && $sort_data_before_merge ) {
+            $api_data['passphrase'] = $this->payfast->company_gateway->getConfigField('passPhrase');
 
         if ( $sort_data_before_merge ) {
             ksort( $api_data );
