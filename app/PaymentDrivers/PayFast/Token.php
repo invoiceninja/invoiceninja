@@ -90,7 +90,7 @@ class Token
             // 'm_payment_id' => $payment_hash->hash,
         ];        
 
-        $header['signature'] = md5( $this->generate_parameter_string(array_merge($header, $body)) );
+        $header['signature'] = md5( $this->generate_parameter_string(array_merge($header, $body), false) );
         
         $result = $this->send($header, $body, $cgt->token);
 
