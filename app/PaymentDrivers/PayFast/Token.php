@@ -170,7 +170,7 @@ class Token
             $parameter_string = rtrim( $parameter_string, '&' );
         }
 
-        return md5( $parameter_string, false, false );
+        return md5( $parameter_string );
 
     }
 
