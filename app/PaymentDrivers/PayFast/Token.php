@@ -86,12 +86,16 @@ class Token
         $body = [
             'merchant_id' => $this->payfast->company_gateway->getConfigField('merchantId'),
             'merchant_key' => $this->payfast->company_gateway->getConfigField('merchantKey'),
-            'passphrase' => $this->payfast->company_gateway->getConfigField('passPhrase'),
+            'return_url' => route('client.payment_methods.index'),
+            'cancel_url' => route('client.payment_methods.index'),
+            'notify_url' => $this->payfast->genericWebhookUrl(),
+            'm_payment_id' => $payment_hash->hash,
             'amount' => $amount,
             'item_name' => 'purchase',
-            'm_payment_id' => $payment_hash->hash,
-            // 'item_description' => ctrans('texts.invoices') . ': ' . collect($payment_hash->invoices())->pluck('invoice_number'),
-            // 'passphrase' => $this->payfast->company_gateway->getConfigField('passphrase'),
+            'item_description' => 'Purchase',
+            'subscription_type' => 1,
+            'passphrase' => $this->payfast->company_gateway->getConfigField('passphrase'),
+
         ];        
 
         $header['signature'] = $this->payfast->generateSignature($body);
