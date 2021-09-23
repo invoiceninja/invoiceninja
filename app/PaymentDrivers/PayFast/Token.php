@@ -86,11 +86,11 @@ class Token
         $body = [
             'amount' => $amount,
             'item_name' => 'purchase',
-            // 'item_description' => ctrans('texts.invoices') . ': ' . collect($payment_hash->invoices())->pluck('invoice_number'),
+            'item_description' => ctrans('texts.invoices') . ': ' . collect($payment_hash->invoices())->pluck('invoice_number'),
             'm_payment_id' => $payment_hash->hash,
         ];        
 
-        $header['signature'] = $this->generate_parameter_string(array_merge($header, $body));
+        $header['signature'] = md5( $this->generate_parameter_string(array_merge($header, $body)) );
         
         $result = $this->send($header, $body, $cgt->token);
 
@@ -168,7 +168,9 @@ class Token
             $parameter_string = rtrim( $parameter_string, '&' );
         }
 
-        return md5( $parameter_string );
+        nlog($parameter_string);
+
+        return $parameter_string;
 
     }
 
