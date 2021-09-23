@@ -85,7 +85,7 @@ class Gateway extends StaticModel
                 return [GatewayType::CREDIT_CARD => ['refund' => false, 'token_billing' => true]];//eWay
                 break;
             case 11:
-                return [GatewayType::CREDIT_CARD => ['refund' => false, 'token_billing' => true]];//Payfast
+                return [GatewayType::CREDIT_CARD => ['refund' => false, 'token_billing' => false]];//Payfast
                 break;
             case 7:
                 return [
