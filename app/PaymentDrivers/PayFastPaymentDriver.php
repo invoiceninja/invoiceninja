@@ -134,7 +134,7 @@ class PayFastPaymentDriver extends BaseDriver
                     /**
                      * Transaction Details
                      */
-                    'amount', 'item_name', 'm_payment_id', 'item_description',
+                    'm_payment_id', 'amount', 'item_name', 'item_description',
                     /**
                      * Custom return data
                      */
