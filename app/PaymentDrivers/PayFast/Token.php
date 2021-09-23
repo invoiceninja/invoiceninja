@@ -77,31 +77,36 @@ class Token
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
 		$amount = round(($amount * pow(10, $this->payfast->client->currency()->precision)),0);
 
-		$header =[
-            'merchant-id' => $this->payfast->company_gateway->getConfigField('merchantId'),
-            'timestamp' => now()->format('c'),
-            'version' => 'v1',
-		];
+		// $header =[
+  //           'merchant-id' => $this->payfast->company_gateway->getConfigField('merchantId'),
+  //           'timestamp' => now()->format('c'),
+  //           'version' => 'v1',
+		// ];
 
-        nlog($header);
+  //       $body = [
+  //           'amount' => $amount,
+  //           'item_name' => 'purchase',
+  //           'item_description' => ctrans('texts.invoices') . ': ' . collect($payment_hash->invoices())->pluck('invoice_number'),
+  //           // 'm_payment_id' => $payment_hash->hash,
+  //       ];        
 
-        $body = [
-            'amount' => $amount,
-            'item_name' => 'purchase',
-            'item_description' => ctrans('texts.invoices') . ': ' . collect($payment_hash->invoices())->pluck('invoice_number'),
-            'm_payment_id' => $payment_hash->hash,
-            'passphrase' => $this->payfast->company_gateway->getConfigField('passphrase'),
-        ];        
-
-        $header['signature'] = $this->genSig(array_merge($header, $body));
-
-        nlog($header['signature']);
-        nlog($header['timestamp']);
-        nlog($this->payfast->company_gateway->getConfigField('merchantId'));
+        // $header['signature'] = md5( $this->generate_parameter_string(array_merge($header, $body), false) );
         
-        $result = $this->send($header, $body, $cgt->token);
+        // $result = $this->send($header, $body, $cgt->token);
+            $api = new \PayFast\PayFastApi(
+                [
+                    'merchantId' => $this->payfast->company_gateway->getConfigField('merchantId'),
+                    'passPhrase' => $this->payfast->company_gateway->getConfigField('passPhrase'),
+                    'testMode' => $this->payfast->company_gateway->getConfigField('testMode')
+                ]
+            );
 
-        nlog($result);
+            $adhocArray = $api
+                       ->subscriptions
+                       ->adhoc($cgt->token, ['amount' => $amount, 'item_name' => 'purchase']);
+
+
+        nlog($adhocArray);
         
         // /*Refactor and push to BaseDriver*/
         // if ($data['response'] != null && $data['response']->getMessages()->getResultCode() == 'Ok') {
@@ -141,6 +146,44 @@ class Token
 
         //     return false;
         // }
+    }
+
+    protected function generate_parameter_string( $api_data, $sort_data_before_merge = true, $skip_empty_values = true ) {
+
+        // if sorting is required the passphrase should be added in before sort.
+        if ( ! empty( $this->payfast->company_gateway->getConfigField('passPhrase') ) && $sort_data_before_merge ) 
+            $api_data['passphrase'] = $this->payfast->company_gateway->getConfigField('passPhrase');
+
+        if ( $sort_data_before_merge ) {
+            ksort( $api_data );
+        }
+
+        // concatenate the array key value pairs.
+        $parameter_string = '';
+        foreach ( $api_data as $key => $val ) {
+
+            if ( $skip_empty_values && empty( $val ) ) {
+                continue;
+            }
+
+            if ( 'signature' !== $key ) {
+                $val = urlencode( $val );
+                $parameter_string .= "$key=$val&";
+            }
+        }
+        // when not sorting passphrase should be added to the end before md5
+        if ( $sort_data_before_merge ) {
+            $parameter_string = rtrim( $parameter_string, '&' );
+        } elseif ( ! empty( $this->pass_phrase ) ) {
+            $parameter_string .= 'passphrase=' . urlencode( $this->payfast->company_gateway->getConfigField('passPhrase') );
+        } else {
+            $parameter_string = rtrim( $parameter_string, '&' );
+        }
+
+        nlog($parameter_string);
+
+        return $parameter_string;
+
     }
 
     private function genSig($data)

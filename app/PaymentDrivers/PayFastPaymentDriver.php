@@ -77,7 +77,7 @@ class PayFastPaymentDriver extends BaseDriver
                 ]
             );
 
-        } catch(Exception $e) {
+        } catch(\Exception $e) {
 
             echo '##PAYFAST## There was an exception: '.$e->getMessage();
 
@@ -160,6 +160,8 @@ class PayFastPaymentDriver extends BaseDriver
                 $fields[$key] = $data[$key];
             }
         }
+
+        nlog(http_build_query($fields));
 
         return md5(http_build_query($fields));
     }
