@@ -167,7 +167,7 @@ class Token
         if ( $sort_data_before_merge ) {
             $parameter_string = rtrim( $parameter_string, '&' );
         } elseif ( ! empty( $this->pass_phrase ) ) {
-            $parameter_string .= 'passphrase=' . urlencode( $this->pass_phrase );
+            $parameter_string .= 'passphrase=' . urlencode( $this->payfast->company_gateway->getConfigField('passPhrase') );
         } else {
             $parameter_string = rtrim( $parameter_string, '&' );
         }
