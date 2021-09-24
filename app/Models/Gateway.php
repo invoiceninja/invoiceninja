@@ -90,6 +90,7 @@ class Gateway extends StaticModel
             case 7:
                 return [
                     GatewayType::CREDIT_CARD => ['refund' => false, 'token_billing' => true], // Mollie
+                    GatewayType::BANCONTACT => ['refund' => false, 'token_billing' => false],
                 ];
             case 15:
                 return [GatewayType::PAYPAL => ['refund' => true, 'token_billing' => false]]; //Paypal
