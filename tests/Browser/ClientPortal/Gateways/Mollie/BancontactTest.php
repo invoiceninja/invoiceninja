@@ -17,7 +17,7 @@ use Laravel\Dusk\Browser;
 use Tests\DuskTestCase;
 use Tests\Browser\Pages\ClientPortal\Login;
 
-class Bancontact extends DuskTestCase
+class BancontactTest extends DuskTestCase
 {
     protected function setUp(): void
     {
@@ -35,6 +35,22 @@ class Bancontact extends DuskTestCase
             $browser
                 ->visit(new Login())
                 ->auth();
+        });
+    }
+
+    public function testSuccessfulPayment(): void
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.invoices.index')
+                ->click('@pay-now')
+                ->press('Pay Now')
+                ->clickLink('Undefined.')
+                ->waitForText('Test profile')
+                ->radio('final_state', 'paid')
+                ->press('Continue')
+                ->waitForText('Details of the payment')
+                ->assertSee('Completed');
         });
     }
 }
