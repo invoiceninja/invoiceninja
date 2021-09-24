@@ -15,9 +15,19 @@ namespace App\PaymentDrivers\Mollie;
 use App\Http\Requests\Request;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\PaymentDrivers\Common\MethodInterface;
+use App\PaymentDrivers\MolliePaymentDriver;
 
 class KBC implements MethodInterface
 {
+    protected MolliePaymentDriver $mollie;
+
+    public function __construct(MolliePaymentDriver $mollie)
+    {
+        $this->mollie = $mollie;
+
+        $this->mollie->init();
+    }
+
     public function authorizeView(array $data) { }
 
     public function authorizeResponse(Request $request) { }
