@@ -178,13 +178,13 @@ class BankTransfer implements MethodInterface
         $data = [
             'gateway_type_id' => GatewayType::BANK_TRANSFER,
             'amount' => array_sum(array_column($this->mollie->payment_hash->invoices(), 'amount')) + $this->mollie->payment_hash->fee_total,
-            'payment_type' => PaymentType::CREDIT, // @todo: Missing payment type for bank transfer.
+            'payment_type' => PaymentType::MOLLIE_BANK_TRANSFER,
             'transaction_reference' => $payment->id,
         ];
 
         $payment_record = $this->mollie->createPayment(
             $data,
-            $payment->status === 'paid' ? Payment::STATUS_COMPLETED : Payment::STATUS_PENDING
+            $status === 'paid' ? Payment::STATUS_COMPLETED : Payment::STATUS_PENDING
         );
 
         SystemLogger::dispatch(
