@@ -71,6 +71,8 @@ trait DesignHelpers
 
             $variables[$property] = $value;
         }
+
+        $this->context['pdf_variables'] = $variables;
     }
 
     /**
