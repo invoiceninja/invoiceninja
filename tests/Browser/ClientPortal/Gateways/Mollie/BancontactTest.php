@@ -53,4 +53,50 @@ class BancontactTest extends DuskTestCase
                 ->assertSee('Completed');
         });
     }
+
+    public function testOpenPayments(): void
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.invoices.index')
+                ->click('@pay-now')
+                ->press('Pay Now')
+                ->clickLink('Undefined.')
+                ->waitForText('Test profile')
+                ->radio('final_state', 'open')
+                ->press('Continue')
+                ->waitForText('Details of the payment')
+                ->assertSee('Pending');
+        });
+    }
+
+    public function testFailedPayment(): void
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.invoices.index')
+                ->click('@pay-now')
+                ->press('Pay Now')
+                ->clickLink('Undefined.')
+                ->waitForText('Test profile')
+                ->radio('final_state', 'failed')
+                ->press('Continue')
+                ->waitForText('Failed.');
+        });
+    }
+
+    public function testCancelledTest(): void
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.invoices.index')
+                ->click('@pay-now')
+                ->press('Pay Now')
+                ->clickLink('Undefined.')
+                ->waitForText('Test profile')
+                ->radio('final_state', 'canceled')
+                ->press('Continue')
+                ->waitForText('Cancelled.');
+        });
+    }
 }
