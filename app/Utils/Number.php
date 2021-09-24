@@ -61,11 +61,11 @@ class Number
         // convert "," to "."
         $s = str_replace(',', '.', $value);
 
-        if($value < 1)
-            return (float)$s;
-
         // remove everything except numbers and dot "."
         $s = preg_replace("/[^0-9\.]/", '', $s);
+
+        if($s < 1)
+            return (float)$s;
 
         // remove all seperators from first part and keep the end
         $s = str_replace('.', '', substr($s, 0, -3)).substr($s, -3);
