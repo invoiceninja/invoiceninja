@@ -87,8 +87,7 @@ class BankTransfer implements MethodInterface
                     'payment_hash' => $this->mollie->payment_hash->hash,
                     'payment_method_id' => GatewayType::BANK_TRANSFER,
                 ]),
-                // 'webhookUrl' => $this->mollie->company_gateway->webhookUrl(),
-                'webhookUrl' => 'https://invoiceninja.com',
+                'webhookUrl' => $this->mollie->company_gateway->webhookUrl(),
                 'metadata' => [
                     'client_id' => $this->mollie->client->hashed_id,
                 ],
