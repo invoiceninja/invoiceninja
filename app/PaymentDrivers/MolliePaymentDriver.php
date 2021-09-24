@@ -24,6 +24,7 @@ use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\PaymentDrivers\Mollie\Bancontact;
 use App\PaymentDrivers\Mollie\CreditCard;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Validator;
@@ -64,6 +65,7 @@ class MolliePaymentDriver extends BaseDriver
      */
     public static $methods = [
         GatewayType::CREDIT_CARD => CreditCard::class,
+        GatewayType::BANCONTACT => Bancontact::class,
     ];
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_MOLLIE;
@@ -84,6 +86,7 @@ class MolliePaymentDriver extends BaseDriver
         $types = [];
 
         $types[] = GatewayType::CREDIT_CARD;
+        $types[] = GatewayType::BANCONTACT;
 
         return $types;
     }
