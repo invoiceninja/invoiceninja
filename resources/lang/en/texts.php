@@ -4313,6 +4313,7 @@ $LANG = array(
     'unable_to_verify_payment_method' => 'Unable to verify payment method.',
     'generic_gateway_error' => 'Gateway configuration error. Please check your credentials.',
     'my_documents' => 'My documents',
+    'payment_method_cannot_be_preauthorized' => 'This payment method cannot be preauthorized.',
 );
 
 return $LANG;
