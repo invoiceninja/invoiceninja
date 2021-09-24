@@ -377,6 +377,7 @@ class CompanyGateway extends BaseModel
 
     public function webhookUrl()
     {
+        return 'https://invoiceninja.com';
         return route('payment_webhook', ['company_key' => $this->company->company_key, 'company_gateway_id' => $this->hashed_id]);
     }
 
