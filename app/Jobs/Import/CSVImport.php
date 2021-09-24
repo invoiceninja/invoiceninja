@@ -38,6 +38,7 @@ use App\Repositories\BaseRepository;
 use App\Repositories\ClientRepository;
 use App\Repositories\InvoiceRepository;
 use App\Repositories\PaymentRepository;
+use App\Utils\Ninja;
 use App\Utils\Traits\CleanLineItems;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -52,6 +53,7 @@ use League\Csv\Reader;
 use League\Csv\Statement;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
+use Illuminate\Support\Facades\App;
 
 class CSVImport implements ShouldQueue {
 	
@@ -131,6 +133,10 @@ class CSVImport implements ShouldQueue {
 			'errors'  => $this->error_array,
 			'company' => $this->company,
 		];
+
+        App::forgetInstance('translator');
+        $t = app('translator');
+        $t->replace(Ninja::transformTranslations($this->company->settings));
 
 		$nmo = new NinjaMailerObject;
 		$nmo->mailable = new ImportCompleted($this->company, $data);
