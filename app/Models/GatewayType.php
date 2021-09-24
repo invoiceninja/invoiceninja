@@ -25,6 +25,7 @@ class GatewayType extends StaticModel
     const APPLE_PAY = 8;
     const SEPA = 9;
     const CREDIT = 10;
+    const BANCONTACT = 12;
     
     public function gateway()
     {
