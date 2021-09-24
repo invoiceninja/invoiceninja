@@ -53,4 +53,20 @@ class BankTransferTest extends DuskTestCase
                 ->assertSee('Completed');
         });
     }
+
+    public function testPendingPayment(): void
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.invoices.index')
+                ->click('@pay-now')
+                ->press('Pay Now')
+                ->clickLink('Bank Transfer')
+                ->waitForText('Test profile')
+                ->radio('final_state', 'open')
+                ->press('Continue')
+                ->waitForText('Details of the payment')
+                ->assertSee('Pending');
+        });
+    }
 }
