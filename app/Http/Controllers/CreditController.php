@@ -589,14 +589,20 @@ class CreditController extends BaseController
     public function downloadPdf($invitation_key)
     {
         $invitation = $this->credit_repository->getInvitationByKey($invitation_key);
-        // $contact = $invitation->contact;
+
         $credit = $invitation->credit;
 
         $file = $credit->service()->getCreditPdf($invitation);
         
+        $headers = ['Content-Type' => 'application/pdf'];
+
+        if(request()->input('inline') == 'true')
+            $headers = array_merge($headers, ['Content-Disposition' => 'inline']);
+
         return response()->streamDownload(function () use($file) {
                 echo Storage::get($file);
-        },  basename($file), ['Content-Type' => 'application/pdf']);
+        },  basename($file), $headers);
+        
 
     }
 

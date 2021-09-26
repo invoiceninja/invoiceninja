@@ -7,6 +7,7 @@
     <meta name="amount" content="{{ $stripe_amount }}">
     <meta name="country" content="{{ $country }}">
     <meta name="customer" content="{{ $customer }}">
+    <meta name="pi-client-secret" content="{{ $pi_client_secret }}">
 @endsection
 
 @section('gateway_content')

@@ -423,7 +423,7 @@ class StripePaymentDriver extends BaseDriver
         // Allow app to catch up with webhook request.
         sleep(2);
 
-        if ($request->type === 'charge.succeeded') {
+        if ($request->type === 'charge.succeeded' || $request->type === 'payment_intent.succeeded') {
 
             foreach ($request->data as $transaction) {
                 $payment = Payment::query()
@@ -633,5 +633,15 @@ class StripePaymentDriver extends BaseDriver
         }
 
         return response()->json(['message' => 'success'], 200);
+    }
+
+    public function decodeUnicodeString($string)
+    {
+        return html_entity_decode($string, ENT_QUOTES, 'UTF-8');
+        // return iconv("UTF-8", "ISO-8859-1//TRANSLIT", $this->decode_encoded_utf8($string));
+    }
+
+    public function decode_encoded_utf8($string){
+        return preg_replace_callback('#\\\\u([0-9a-f]{4})#ism', function($matches) { return mb_convert_encoding(pack("H*", $matches[1]), "UTF-8", "UCS-2BE"); }, $string);
     }
 }

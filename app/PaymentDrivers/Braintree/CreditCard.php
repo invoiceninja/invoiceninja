@@ -151,6 +151,11 @@ class CreditCard
             ],
         ];
 
+        if ($this->braintree->company_gateway->getConfigField('merchantAccountId')) {
+            /** https://developer.paypal.com/braintree/docs/reference/request/transaction/sale/php#full-example */
+            $data['options']['verificationMerchantAccountId'] = $this->braintree->company_gateway->getConfigField('merchantAccountId');
+        }
+        
         $response = $this->braintree->gateway->paymentMethod()->create($data);
 
         if ($response->success) {

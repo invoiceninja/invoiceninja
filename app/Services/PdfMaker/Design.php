@@ -232,7 +232,7 @@ class Design extends BaseDesign
                 ]],
                 ['element' => 'tr', 'properties' => [], 'elements' => [
                     ['element' => 'th', 'properties' => [], 'content' => '$balance_due_label'],
-                    ['element' => 'th', 'properties' => [], 'content' => '$balance_due'],
+                    ['element' => 'th', 'properties' => [], 'content' => Number::formatMoney($this->invoices->sum('balance'), $this->entity->client)],
                 ]],
             ];
         }
@@ -241,6 +241,10 @@ class Design extends BaseDesign
 
         if ($this->entity instanceof Quote) {
             $variables = $this->context['pdf_variables']['quote_details'];
+            
+            if ($this->entity->partial > 0) {
+                $variables[] = '$quote.balance_due';
+            }
         }
 
         if ($this->entity instanceof Credit) {
@@ -379,10 +383,10 @@ class Design extends BaseDesign
             return [];
         }
 
-        $outstanding = $this->invoices->sum('amount');
+        $outstanding = $this->invoices->sum('balance');
 
         return [
-            ['element' => 'p', 'content' => '$outstanding_label: $outstanding'],
+            ['element' => 'p', 'content' => '$outstanding_label: ' . Number::formatMoney($outstanding, $this->entity->client)],
         ];
     }
 
@@ -424,10 +428,14 @@ class Design extends BaseDesign
 
     public function statementPaymentTableTotals(): array
     {
-        if ($this->type !== self::STATEMENT || !$this->payments->first()) {
+        if (is_null($this->payments) || !$this->payments->first() || $this->type !== self::STATEMENT) {
             return [];
         }
 
+        if (\array_key_exists('show_payments_table', $this->options) && $this->options['show_payments_table'] === false) {
+            return [];
+        }
+        
         $payment = $this->payments->first();
 
         return [
@@ -626,6 +634,10 @@ class Design extends BaseDesign
             // We don't want to show Balanace due on the quotes.
             if (in_array('$outstanding', $variables)) {
                 $variables = \array_diff($variables, ['$outstanding']);
+            }
+
+            if ($this->entity->partial > 0) {
+                $variables[] = '$partial_due';
             }
         }
 

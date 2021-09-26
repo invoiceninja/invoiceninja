@@ -119,6 +119,8 @@ class PortalComposer
             $data[] = ['title' => ctrans('texts.tasks'), 'url' => 'client.tasks.index', 'icon' => 'clock'];
         }
 
+        $data[] = ['title' => ctrans('texts.statement'), 'url' => 'client.statement', 'icon' => 'activity'];
+
         return $data;
     }
 }

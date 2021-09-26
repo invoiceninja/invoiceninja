@@ -804,9 +804,15 @@ class InvoiceController extends BaseController
 
         $file = $invoice->service()->getInvoicePdf($contact);
 
+        $headers = ['Content-Type' => 'application/pdf'];
+
+        if(request()->input('inline') == 'true')
+            $headers = array_merge($headers, ['Content-Disposition' => 'inline']);
+
         return response()->streamDownload(function () use($file) {
                 echo Storage::get($file);
-        },  basename($file), ['Content-Type' => 'application/pdf']);
+        },  basename($file), $headers);
+        
     }
 
     /**

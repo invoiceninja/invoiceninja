@@ -120,7 +120,7 @@ class WebhookHandler implements ShouldQueue
                 SystemLog::CATEGORY_WEBHOOK,
                 SystemLog::EVENT_WEBHOOK_SUCCESS,
                 SystemLog::TYPE_WEBHOOK_RESPONSE,
-                $this->company->clients->first(),
+                $this->resolveClient(),
                 $this->company
             );
 
@@ -137,12 +137,21 @@ class WebhookHandler implements ShouldQueue
                 SystemLog::CATEGORY_WEBHOOK,
                 SystemLog::EVENT_WEBHOOK_RESPONSE,
                 SystemLog::TYPE_WEBHOOK_RESPONSE,
-                $this->company->clients->first(),
+                $this->resolveClient(),
                 $this->company,
             );
 
         }
 
+    }
+
+    private function resolveClient()
+    {
+        if($this->entity->client()->exists()){
+            return $this->entity->client;
+        }
+
+        return $this->company->clients->first();
     }
 
     public function failed($exception)

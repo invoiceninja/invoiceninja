@@ -24,7 +24,7 @@ use App\PaymentDrivers\StripePaymentDriver;
 class SOFORT
 {
     /** @var StripePaymentDriver */
-    public $stripe;
+    public StripePaymentDriver $stripe;
 
     public function __construct(StripePaymentDriver $stripe)
     {
@@ -44,6 +44,17 @@ class SOFORT
         $data['client'] = $this->stripe->client;
         $data['customer'] = $this->stripe->findOrCreateCustomer()->id;
         $data['country'] = $this->stripe->client->country->iso_3166_2;
+
+        $intent = \Stripe\PaymentIntent::create([
+            'amount' => $data['stripe_amount'],
+            'currency' => 'eur',
+            'payment_method_types' => ['sofort'],
+            'customer' => $this->stripe->findOrCreateCustomer(),
+            'description' => $this->stripe->decodeUnicodeString(ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number')),
+
+        ]);
+
+        $data['pi_client_secret'] = $intent->client_secret;
 
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['stripe_amount' => $data['stripe_amount']]);
         $this->stripe->payment_hash->save();
@@ -66,23 +77,23 @@ class SOFORT
         $this->stripe->payment_hash->save();
 
         if ($request->redirect_status == 'succeeded') {
-            return $this->processSuccessfulPayment($request->source);
+            return $this->processSuccessfulPayment($request->payment_intent);
         }
 
         return $this->processUnsuccessfulPayment();
     }
 
-    public function processSuccessfulPayment(string $source)
+    public function processSuccessfulPayment(string $payment_intent)
     {
         /* @todo: https://github.com/invoiceninja/invoiceninja/pull/3789/files#r436175798 */
 
         $this->stripe->init();
 
         $data = [
-            'payment_method' => $this->stripe->payment_hash->data->source,
+            'payment_method' => $payment_intent,
             'payment_type' => PaymentType::SOFORT,
             'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
-            'transaction_reference' => $source,
+            'transaction_reference' => $payment_intent,
             'gateway_type_id' => GatewayType::SOFORT,
         ];
 

@@ -1779,6 +1779,7 @@ $LANG = array(
     'lang_Bulgarian' => 'Bulgarian',
     'lang_Russian (Russia)' => 'Russian (Russia)',
 
+    
     // Industries
     'industry_Accounting & Legal' => 'Accounting & Legal',
     'industry_Advertising' => 'Advertising',
@@ -2470,6 +2471,13 @@ $LANG = array(
     'currency_moldovan_leu' => 'Moldovan Leu',
     'currency_kazakhstani_tenge' => 'Kazakhstani Tenge',
     'currency_gibraltar_pound' => 'Gibraltar Pound',
+
+    'currency_gambia_dalasi' => 'Gambia Dalasi',
+    'currency_paraguayan_guarani' => 'Paraguayan Guarani',
+    'currency_malawi_kwacha' => 'Malawi Kwacha',
+    'currency_zimbabwean_dollar' => 'Zimbabwean Dollar',
+    'currency_cambodian_riel' => 'Cambodian Riel',
+    'currency_vanuatu_vatu' => 'Vanuatu Vatu',
 
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider :link we\'d greatly appreciate it!',
     'writing_a_review' => 'writing a review',
@@ -4305,6 +4313,7 @@ $LANG = array(
     'unable_to_verify_payment_method' => 'Unable to verify payment method.',
     'generic_gateway_error' => 'Gateway configuration error. Please check your credentials.',
     'my_documents' => 'My documents',
+    'payment_method_cannot_be_preauthorized' => 'This payment method cannot be preauthorized.',
 );
 
 return $LANG;

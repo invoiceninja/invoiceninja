@@ -212,7 +212,7 @@ class PreviewController extends BaseController
             }
 
             $entity_obj = $repo->save($request->all(), $entity_obj);
-
+            $entity_obj->service()->fillDefaults()->save();
             $entity_obj->load('client');
 
             App::forgetInstance('translator');

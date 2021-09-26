@@ -12,6 +12,7 @@
 
 namespace Tests\Browser\ClientPortal\Gateways\Mollie;
 
+use App\Models\CompanyGateway;
 use Laravel\Dusk\Browser;
 use Tests\Browser\Pages\ClientPortal\Login;
 use Tests\DuskTestCase;
@@ -26,9 +27,9 @@ class CreditCardTest extends DuskTestCase
             $browser->driver->manage()->deleteAllCookies();
         }
 
-        // $this->disableCompanyGateways();
+        $this->disableCompanyGateways();
 
-        // CompanyGateway::where('gateway_key', '3758e7f7c6f4cecf0f4f348b9a00f456')->restore();
+        CompanyGateway::where('gateway_key', '1bd651fb213ca0c9d66ae3c336dc77e8')->restore();
 
         $this->browse(function (Browser $browser) {
             $browser
