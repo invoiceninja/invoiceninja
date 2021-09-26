@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Subscription;
 use App\Services\SubscriptionService;
 use Auth;
-use Input;
 use Redirect;
 use Session;
 use URL;
@@ -107,8 +106,8 @@ class SubscriptionController extends BaseController
      */
     public function bulk()
     {
-        $action = Input::get('bulk_action');
-        $ids = Input::get('bulk_public_id');
+        $action = \Request::input('bulk_action');
+        $ids = \Request::input('bulk_public_id');
 
         $count = $this->subscriptionService->bulk($ids, $action);
 
@@ -137,7 +136,7 @@ class SubscriptionController extends BaseController
                 $subscriptionPublicId = $subscription->public_id;
             }
 
-            $validator = Validator::make(Input::all(), $rules);
+            $validator = Validator::make(\Request::all(), $rules);
 
             if ($validator->fails()) {
                 return Redirect::to($subscriptionPublicId ? 'subscriptions/edit' : 'subscriptions/create')->withInput()->withErrors($validator);

@@ -133,6 +133,7 @@ return [
     'redis' => [
 
         'cluster' => false,
+        'client'  => 'predis',
 
         'default' => [
             'host'     => env('REDIS_HOST', '127.0.0.1'),

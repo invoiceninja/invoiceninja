@@ -536,7 +536,7 @@
         @endif
 
         @if ($errors->first('time_log'))
-            loadTimeLog({!! json_encode(Input::old('time_log')) !!});
+            loadTimeLog({!! json_encode(Request::old('time_log')) !!});
             model.showTimeOverlaps();
             showTimeDetails();
         @endif

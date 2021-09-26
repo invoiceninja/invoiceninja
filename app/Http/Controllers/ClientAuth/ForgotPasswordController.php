@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\ClientAuth;
 
+use Illuminate\Mail\Message;
 use Password;
 use Config;
 use Utils;
@@ -39,7 +40,7 @@ class ForgotPasswordController extends Controller
     }
 
     /**
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\View\View
      */
     public function showLinkRequestForm()
     {
@@ -55,7 +56,7 @@ class ForgotPasswordController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
      */
     public function sendResetLinkEmail(Request $request)
     {
@@ -91,7 +92,7 @@ class ForgotPasswordController extends Controller
         });
 
         return $response == Password::RESET_LINK_SENT
-                    ? $this->sendResetLinkResponse($response)
+                    ? $this->sendResetLinkResponse($request, $response)
                     : $this->sendResetLinkFailedResponse($request, $response);
     }
 

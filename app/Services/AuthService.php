@@ -6,7 +6,6 @@ use App\Events\UserLoggedIn;
 use App\Ninja\Repositories\AccountRepository;
 use App\Models\LookupUser;
 use Auth;
-use Input;
 use Session;
 use Socialite;
 use Utils;
@@ -98,7 +97,7 @@ class AuthService
             }
         }
 
-        $redirectTo = Input::get('redirect_to') ? SITE_URL . '/' . ltrim(Input::get('redirect_to'), '/') : 'dashboard';
+        $redirectTo = \Request::input('redirect_to') ? SITE_URL . '/' . ltrim(\Request::input('redirect_to'), '/') : 'dashboard';
 
         return redirect()->to($redirectTo);
     }

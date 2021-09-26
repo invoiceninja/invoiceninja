@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\EntityModel;
 use App\Ninja\Serializers\ArraySerializer;
 use Auth;
-use Input;
 use League\Fractal\Manager;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use League\Fractal\Resource\Collection;
@@ -56,11 +55,11 @@ class BaseAPIController extends Controller
     {
         $this->manager = new Manager();
 
-        if ($include = Request::get('include')) {
+        if ($include = \Request::get('include')) {
             $this->manager->parseIncludes($include);
         }
 
-        $this->serializer = Request::get('serializer') ?: API_SERIALIZER_ARRAY;
+        $this->serializer = \Request::get('serializer') ?: API_SERIALIZER_ARRAY;
 
         if ($this->serializer === API_SERIALIZER_JSON) {
             $this->manager->setSerializer(new JsonApiSerializer());
@@ -92,24 +91,24 @@ class BaseAPIController extends Controller
     protected function listResponse($query)
     {
         $transformerClass = EntityModel::getTransformerName($this->entityType);
-        $transformer = new $transformerClass(Auth::user()->account, Input::get('serializer'));
+        $transformer = new $transformerClass(Auth::user()->account, \Request::input('serializer'));
 
         $includes = $transformer->getDefaultIncludes();
         $includes = $this->getRequestIncludes($includes);
 
         $query->with($includes);
 
-        if (Input::get('filter_active')) {
+        if (\Request::input('filter_active')) {
             $query->whereNull('deleted_at');
         }
 
-        if (Input::get('updated_at') > 0) {
-                $updatedAt = intval(Input::get('updated_at'));
+        if (\Request::input('updated_at') > 0) {
+                $updatedAt = intval(\Request::input('updated_at'));
                 $query->where('updated_at', '>=', date('Y-m-d H:i:s', $updatedAt));
         }
 
-        if (Input::get('client_id') > 0) {
-                $clientPublicId = Input::get('client_id');
+        if (\Request::input('client_id') > 0) {
+                $clientPublicId = \Request::input('client_id');
                 $filter = function ($query) use ($clientPublicId) {
                 $query->where('public_id', '=', $clientPublicId);
              };
@@ -136,7 +135,7 @@ class BaseAPIController extends Controller
         }
 
         $transformerClass = EntityModel::getTransformerName($this->entityType);
-        $transformer = new $transformerClass(Auth::user()->account, Input::get('serializer'));
+        $transformer = new $transformerClass(Auth::user()->account, \Request::input('serializer'));
 
         $data = $this->createItem($item, $transformer, $this->entityType);
 
@@ -161,7 +160,7 @@ class BaseAPIController extends Controller
         }
 
         if (is_a($query, "Illuminate\Database\Eloquent\Builder")) {
-            $limit = Input::get('per_page', DEFAULT_API_PAGE_SIZE);
+            $limit = \Request::input('per_page', DEFAULT_API_PAGE_SIZE);
             if (Utils::isNinja()) {
                 $limit = min(MAX_API_PAGE_SIZE, $limit);
             }
@@ -178,7 +177,7 @@ class BaseAPIController extends Controller
 
     protected function response($response)
     {
-        $index = Request::get('index') ?: 'data';
+        $index = \Request::get('index') ?: 'data';
 
         if ($index == 'none') {
             unset($response['meta']);

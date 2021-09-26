@@ -16,7 +16,6 @@ use Config;
 use DB;
 use Event;
 use Exception;
-use Input;
 use Redirect;
 use Response;
 use Session;
@@ -58,17 +57,17 @@ class AppController extends BaseController
         }
 
         $valid = false;
-        $test = Input::get('test');
+        $test = \Request::input('test');
 
-        $app = Input::get('app');
+        $app = \Request::input('app');
         $app['key'] = env('APP_KEY') ?: strtolower(str_random(RANDOM_KEY_LENGTH));
-        $app['debug'] = Input::get('debug') ? 'true' : 'false';
-        $app['https'] = Input::get('https') ? 'true' : 'false';
+        $app['debug'] = \Request::input('debug') ? 'true' : 'false';
+        $app['https'] = \Request::input('https') ? 'true' : 'false';
 
-        $database = Input::get('database');
+        $database = \Request::input('database');
         $dbType = 'mysql'; // $database['default'];
         $database['connections'] = [$dbType => $database['type']];
-        $mail = Input::get('mail');
+        $mail = \Request::input('mail');
 
         if ($test == 'mail') {
             return self::testMail($mail);
@@ -137,10 +136,10 @@ class AppController extends BaseController
         Artisan::call('db:seed', ['--force' => true, '--class' => 'UpdateSeeder']);
 
         if (! Account::count()) {
-            $firstName = trim(Input::get('first_name'));
-            $lastName = trim(Input::get('last_name'));
-            $email = trim(strtolower(Input::get('email')));
-            $password = trim(Input::get('password'));
+            $firstName = trim(\Request::input('first_name'));
+            $lastName = trim(\Request::input('last_name'));
+            $email = trim(strtolower(\Request::input('email')));
+            $password = trim(\Request::input('password'));
             $account = $this->accountRepo->create($firstName, $lastName, $email, $password);
 
             $user = $account->users()->first();
@@ -167,13 +166,13 @@ class AppController extends BaseController
             return Redirect::to('/settings/system_settings');
         }
 
-        $app = Input::get('app');
-        $db = Input::get('database');
-        $mail = Input::get('mail');
+        $app = \Request::input('app');
+        $db = \Request::input('database');
+        $mail = \Request::input('mail');
 
         $_ENV['APP_URL'] = $app['url'];
-        $_ENV['APP_DEBUG'] = Input::get('debug') ? 'true' : 'false';
-        $_ENV['REQUIRE_HTTPS'] = Input::get('https') ? 'true' : 'false';
+        $_ENV['APP_DEBUG'] = \Request::input('debug') ? 'true' : 'false';
+        $_ENV['REQUIRE_HTTPS'] = \Request::input('https') ? 'true' : 'false';
 
         $_ENV['DB_TYPE'] = 'mysql'; // $db['default'];
         $_ENV['DB_HOST'] = $db['type']['host'];
@@ -314,7 +313,7 @@ class AppController extends BaseController
                 Session::flush();
                 Artisan::call('migrate', ['--force' => true]);
                 Artisan::call('db:seed', ['--force' => true, '--class' => 'UpdateSeeder']);
-                Event::fire(new UserSettingsChanged());
+                Event::dispatch(new UserSettingsChanged());
 
                 // legacy fix: check cipher is in .env file
                 if (! env('APP_CIPHER')) {
@@ -363,15 +362,15 @@ class AppController extends BaseController
 
     public function emailBounced()
     {
-        $messageId = Input::get('MessageID');
-        $error = Input::get('Name') . ': ' . Input::get('Description');
+        $messageId = \Request::input('MessageID');
+        $error = \Request::input('Name') . ': ' . \Request::input('Description');
 
         return $this->emailService->markBounced($messageId, $error) ? RESULT_SUCCESS : RESULT_FAILURE;
     }
 
     public function emailOpened()
     {
-        $messageId = Input::get('MessageID');
+        $messageId = \Request::input('MessageID');
 
         return $this->emailService->markOpened($messageId) ? RESULT_SUCCESS : RESULT_FAILURE;
 
@@ -409,7 +408,7 @@ class AppController extends BaseController
 
     public function stats()
     {
-        if (! hash_equals(Input::get('password') ?: '', env('RESELLER_PASSWORD'))) {
+        if (! hash_equals(\Request::input('password') ?: '', env('RESELLER_PASSWORD'))) {
             sleep(3);
 
             return '';

@@ -8,7 +8,6 @@ use App\Http\Requests\CreateVendorRequest;
 use App\Http\Requests\UpdateVendorRequest;
 use App\Models\Vendor;
 use App\Ninja\Repositories\VendorRepository;
-use Input;
 use Response;
 use Utils;
 

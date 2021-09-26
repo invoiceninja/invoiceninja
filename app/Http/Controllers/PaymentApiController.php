@@ -10,7 +10,6 @@ use App\Models\Payment;
 use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Services\PaymentService;
-use Input;
 use Response;
 
 class PaymentApiController extends BaseAPIController
@@ -113,7 +112,7 @@ class PaymentApiController extends BaseAPIController
 
         $payment = $this->paymentService->save($request->input(), null, $request->invoice);
 
-        if (Input::get('email_receipt')) {
+        if (\Request::input('email_receipt')) {
             $this->contactMailer->sendPaymentConfirmation($payment);
         }
 
@@ -160,7 +159,7 @@ class PaymentApiController extends BaseAPIController
         $data['public_id'] = $publicId;
         $payment = $this->paymentRepo->save($data, $request->entity());
 
-        if (Input::get('email_receipt')) {
+        if (\Request::input('email_receipt')) {
             $this->contactMailer->sendPaymentConfirmation($payment);
         }
 

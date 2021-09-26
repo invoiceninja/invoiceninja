@@ -12,7 +12,6 @@ use App\Ninja\Repositories\VendorRepository;
 use App\Services\VendorService;
 use Auth;
 use Cache;
-use Input;
 use Redirect;
 use Session;
 use URL;
@@ -49,7 +48,7 @@ class VendorController extends BaseController
 
     public function getDatatable()
     {
-        return $this->vendorService->getDatatable(Input::get('sSearch'));
+        return $this->vendorService->getDatatable(\Request::input('sSearch'));
     }
 
     /**
@@ -149,7 +148,7 @@ class VendorController extends BaseController
     private static function getViewModel()
     {
         return [
-            'data' => Input::old('data'),
+            'data' => \Request::old('data'),
             'account' => Auth::user()->account,
         ];
     }
@@ -172,8 +171,8 @@ class VendorController extends BaseController
 
     public function bulk()
     {
-        $action = Input::get('action');
-        $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
+        $action = \Request::input('action');
+        $ids = \Request::input('public_id') ? \Request::input('public_id') : \Request::input('ids');
         $count = $this->vendorService->bulk($ids, $action);
 
         $message = Utils::pluralize($action.'d_vendor', $count);

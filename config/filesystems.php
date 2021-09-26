@@ -83,7 +83,7 @@ return [
 			//'service_account_certificate'          => storage_path() . '/credentials.p12',
 			//'service_account_certificate_password' => env('GCS_PASSWORD', ''),
 			'project_id'  => env('GCS_PROJECT_ID'),
-			'credentials' => storage_path() . '/gcs-credentials.json',
+			'key_file' => storage_path() . '/gcs-credentials.json',
         ],
 	],
 

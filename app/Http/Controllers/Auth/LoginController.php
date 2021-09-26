@@ -158,7 +158,7 @@ class LoginController extends Controller
             }
         }
 
-        Event::fire(new UserLoggedIn());
+        Event::dispatch(new UserLoggedIn());
 
         return redirect()->intended($this->redirectTo);
     }
@@ -188,11 +188,11 @@ class LoginController extends Controller
         $key = $userId . ':' . $request->totp;
 
         //use cache to store token to blacklist
-        Cache::add($key, true, 4);
+        Cache::add($key, true, 4 * 60);
 
         //login and redirect user
         auth()->loginUsingId($userId);
-        Event::fire(new UserLoggedIn());
+        Event::dispatch(new UserLoggedIn());
 
         if ($trust = request()->trust) {
             $user = auth()->user();

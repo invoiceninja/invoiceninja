@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\AccountToken;
 use App\Services\TokenService;
 use Auth;
-use Input;
 use Redirect;
 use Session;
 use URL;
@@ -108,8 +107,8 @@ class TokenController extends BaseController
      */
     public function bulk()
     {
-        $action = Input::get('bulk_action');
-        $ids = Input::get('bulk_public_id');
+        $action = \Request::input('bulk_action');
+        $ids = \Request::input('bulk_public_id');
         $count = $this->tokenService->bulk($ids, $action);
 
         Session::flash('message', trans('texts.archived_token'));
@@ -134,17 +133,17 @@ class TokenController extends BaseController
                             ->where('public_id', '=', $tokenPublicId)->firstOrFail();
             }
 
-            $validator = Validator::make(Input::all(), $rules);
+            $validator = Validator::make(\Request::all(), $rules);
 
             if ($validator->fails()) {
                 return Redirect::to($tokenPublicId ? 'tokens/edit' : 'tokens/create')->withInput()->withErrors($validator);
             }
 
             if ($tokenPublicId) {
-                $token->name = trim(Input::get('name'));
+                $token->name = trim(\Request::input('name'));
             } else {
                 $token = AccountToken::createNew();
-                $token->name = trim(Input::get('name'));
+                $token->name = trim(\Request::input('name'));
                 $token->token = strtolower(str_random(RANDOM_KEY_LENGTH));
             }
 

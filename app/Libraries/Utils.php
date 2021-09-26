@@ -10,7 +10,6 @@ use Carbon;
 use DateTime;
 use DateTimeZone;
 use Exception;
-use Input;
 use Log;
 use Request;
 use Schema;
@@ -437,7 +436,7 @@ class Utils
         ];
 
         if (static::isNinja()) {
-            $data['url'] = Input::get('url', Request::url());
+            $data['url'] = \Request::input('url', Request::url());
             $data['previous'] = url()->previous();
         } else {
             $data['url'] = request()->path();

@@ -8,7 +8,6 @@ use App\Jobs\RunReport;
 use App\Models\Account;
 use App\Models\ScheduledReport;
 use Auth;
-use Input;
 use Utils;
 use View;
 use Carbon;
@@ -58,14 +57,14 @@ class ReportController extends BaseController
             return redirect('/');
         }
 
-        $action = Input::get('action');
-        $format = Input::get('format');
+        $action = \Request::input('action');
+        $format = \Request::input('format');
 
-        if (Input::get('report_type')) {
-            $reportType = Input::get('report_type');
-            $dateField = Input::get('date_field');
-            $startDate = date_create(Input::get('start_date'));
-            $endDate = date_create(Input::get('end_date'));
+        if (\Request::input('report_type')) {
+            $reportType = \Request::input('report_type');
+            $dateField = \Request::input('date_field');
+            $startDate = date_create(\Request::input('start_date'));
+            $endDate = date_create(\Request::input('end_date'));
         } else {
             $reportType = ENTITY_INVOICE;
             $dateField = FILTER_INVOICE_DATE;

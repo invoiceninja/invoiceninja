@@ -8,7 +8,6 @@ use App\Http\Requests\UpdateExpenseCategoryRequest;
 use App\Ninja\Datatables\ExpenseCategoryDatatable;
 use App\Ninja\Repositories\ExpenseCategoryRepository;
 use App\Services\ExpenseCategoryService;
-use Input;
 use Session;
 use View;
 
@@ -40,7 +39,7 @@ class ExpenseCategoryController extends BaseController
 
     public function getDatatable($expensePublicId = null)
     {
-        return $this->categoryService->getDatatable(Input::get('sSearch'));
+        return $this->categoryService->getDatatable(\Request::input('sSearch'));
     }
 
     public function create(ExpenseCategoryRequest $request)
@@ -89,8 +88,8 @@ class ExpenseCategoryController extends BaseController
 
     public function bulk()
     {
-        $action = Input::get('action');
-        $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
+        $action = \Request::input('action');
+        $ids = \Request::input('public_id') ? \Request::input('public_id') : \Request::input('ids');
         $count = $this->categoryService->bulk($ids, $action);
 
         if ($count > 0) {

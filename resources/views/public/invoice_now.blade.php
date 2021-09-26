@@ -4,8 +4,8 @@
 
 {!! Form::open(array('url' => 'get_started?' . request()->getQueryString(), 'id' => 'startForm')) !!}
 {!! Form::hidden('guest_key') !!}
-{!! Form::hidden('sign_up', Input::get('sign_up')) !!}
-{!! Form::hidden('redirect_to', Input::get('redirect_to')) !!}
+{!! Form::hidden('sign_up', \Request::input('sign_up')) !!}
+{!! Form::hidden('redirect_to', \Request::input('redirect_to')) !!}
 {!! Form::close() !!}
 
 <script>

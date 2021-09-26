@@ -7,7 +7,6 @@ use App\Http\Requests\UpdatePaymentTermRequest;
 use App\Models\PaymentTerm;
 use App\Services\PaymentTermService;
 use Auth;
-use Input;
 use Redirect;
 use Session;
 use URL;
@@ -114,7 +113,7 @@ class PaymentTermController extends BaseController
             $paymentTerm = PaymentTerm::createNew();
         }
 
-        $paymentTerm->num_days = Utils::parseInt(Input::get('num_days'));
+        $paymentTerm->num_days = Utils::parseInt(\Request::input('num_days'));
         $paymentTerm->name = 'Net ' . $paymentTerm->num_days;
         $paymentTerm->save();
 
@@ -129,8 +128,8 @@ class PaymentTermController extends BaseController
      */
     public function bulk()
     {
-        $action = Input::get('bulk_action');
-        $ids = Input::get('bulk_public_id');
+        $action = \Request::input('bulk_action');
+        $ids = \Request::input('bulk_public_id');
         $count = $this->paymentTermService->bulk($ids, $action);
 
         Session::flash('message', trans('texts.archived_payment_term'));
