@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Filters\DocumentFilters;
 use App\Http\Requests\Document\DestroyDocumentRequest;
+use App\Http\Requests\Document\EditDocumentRequest;
 use App\Http\Requests\Document\ShowDocumentRequest;
 use App\Http\Requests\Document\StoreDocumentRequest;
 use App\Http\Requests\Document\UpdateDocumentRequest;
@@ -114,9 +115,16 @@ class DocumentController extends BaseController
 
     public function download(ShowDocumentRequest $request, Document $document)
     {
+
+        $headers = [];
+
+        if(request()->input('inline') == 'true')
+            $headers = array_merge($headers, ['Content-Disposition' => 'inline']);
+
         return response()->streamDownload(function () use ($document) {
             echo file_get_contents($document->generateUrl());
-        }, basename($document->generateUrl()));
+        }, basename($document->generateUrl()), $headers);
+
     }
 
     /**
@@ -126,7 +134,7 @@ class DocumentController extends BaseController
      * @param Document $document
      * @return Response
      */
-    public function edit(EditDocumentRegquest $request, Document $document)
+    public function edit(EditDocumentRequest $request, Document $document)
     {
         return $this->itemResponse($document);
     }

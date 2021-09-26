@@ -27,8 +27,11 @@ class InvoiceHistoryTransformer extends EntityTransformer
         'activity',
     ];
 
-    public function transform(Backup $backup)
+    public function transform(?Backup $backup)
     {
+        if(!$backup)
+            return [];
+
         return [
             'id' => $this->encodePrimaryKey($backup->id),
             'activity_id' => $this->encodePrimaryKey($backup->activity_id),
