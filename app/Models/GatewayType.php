@@ -67,7 +67,10 @@ class GatewayType extends StaticModel
             case self::SEPA:
                 return ctrans('texts.sepa');
                 break;
-                        
+            case self::KBC:
+                return ctrans('texts.kbc_cbc');
+                break;
+
             default:
                 return 'Undefined.';
                 break;
