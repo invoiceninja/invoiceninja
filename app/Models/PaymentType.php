@@ -42,6 +42,7 @@ class PaymentType extends StaticModel
     const SEPA = 29;
     const GOCARDLESS = 30;
     const CRYPTO = 31;
+    const MOLLIE_BANK_TRANSFER = 34;
     const KBC = 35;
 
     public static function parseCardType($cardName)

@@ -39,8 +39,8 @@ class SendEmailRequest extends Request
             'template' => 'required',
             'entity' => 'required',
             'entity_id' => 'required',
-            'subject' => 'required',
-            'body' => 'required',
+            // 'subject' => 'required',
+            // 'body' => 'required',
         ];
     }
 
