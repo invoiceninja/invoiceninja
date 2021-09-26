@@ -24,6 +24,7 @@ use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\PaymentDrivers\Mollie\Bancontact;
 use App\PaymentDrivers\Mollie\BankTransfer;
 use App\PaymentDrivers\Mollie\CreditCard;
 use App\PaymentDrivers\Mollie\KBC;
@@ -66,6 +67,7 @@ class MolliePaymentDriver extends BaseDriver
      */
     public static $methods = [
         GatewayType::CREDIT_CARD => CreditCard::class,
+        GatewayType::BANCONTACT => Bancontact::class,
         GatewayType::BANK_TRANSFER => BankTransfer::class,
         GatewayType::KBC => KBC::class,
     ];
@@ -88,6 +90,7 @@ class MolliePaymentDriver extends BaseDriver
         $types = [];
 
         $types[] = GatewayType::CREDIT_CARD;
+        $types[] = GatewayType::BANCONTACT;
         $types[] = GatewayType::BANK_TRANSFER;
         $types[] = GatewayType::KBC;
 
