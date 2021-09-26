@@ -26,6 +26,7 @@ use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Mollie\BankTransfer;
 use App\PaymentDrivers\Mollie\CreditCard;
+use App\PaymentDrivers\Mollie\KBC;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Validator;
 use Mollie\Api\Exceptions\ApiException;
@@ -66,6 +67,7 @@ class MolliePaymentDriver extends BaseDriver
     public static $methods = [
         GatewayType::CREDIT_CARD => CreditCard::class,
         GatewayType::BANK_TRANSFER => BankTransfer::class,
+        GatewayType::KBC => KBC::class,
     ];
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_MOLLIE;
@@ -87,6 +89,7 @@ class MolliePaymentDriver extends BaseDriver
 
         $types[] = GatewayType::CREDIT_CARD;
         $types[] = GatewayType::BANK_TRANSFER;
+        $types[] = GatewayType::KBC;
 
         return $types;
     }
