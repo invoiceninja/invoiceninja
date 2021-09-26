@@ -25,6 +25,7 @@ class GatewayType extends StaticModel
     const APPLE_PAY = 8;
     const SEPA = 9;
     const CREDIT = 10;
+    const KBC = 11;
     const BANCONTACT = 12;
     
     public function gateway()
@@ -67,7 +68,10 @@ class GatewayType extends StaticModel
             case self::SEPA:
                 return ctrans('texts.sepa');
                 break;
-                        
+            case self::KBC:
+                return ctrans('texts.kbc_cbc');
+                break;
+
             default:
                 return 'Undefined.';
                 break;
