@@ -14,6 +14,7 @@ namespace App\Factory;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\RecurringInvoice;
+use App\Utils\Helpers;
 
 class RecurringInvoiceToInvoiceFactory
 {
@@ -31,7 +32,8 @@ class RecurringInvoiceToInvoiceFactory
         //$invoice->date = now()->format($client->date_format());
         //$invoice->due_date = $recurring_invoice->calculateDueDate(now());
         $invoice->is_deleted = $recurring_invoice->is_deleted;
-        $invoice->line_items = $recurring_invoice->line_items;
+//        $invoice->line_items = $recurring_invoice->line_items;
+        $invoice->line_items = self::transformItems($recurring_invoice, $client);
         $invoice->tax_name1 = $recurring_invoice->tax_name1;
         $invoice->tax_rate1 = $recurring_invoice->tax_rate1;
         $invoice->tax_name2 = $recurring_invoice->tax_name2;
@@ -45,6 +47,7 @@ class RecurringInvoiceToInvoiceFactory
         $invoice->custom_value3 = $recurring_invoice->custom_value3;
         $invoice->custom_value4 = $recurring_invoice->custom_value4;
         $invoice->amount = $recurring_invoice->amount;
+        $invoice->uses_inclusive_taxes = $recurring_invoice->uses_inclusive_taxes;
         // $invoice->balance = $recurring_invoice->balance;
         $invoice->user_id = $recurring_invoice->user_id;
         $invoice->assigned_user_id = $recurring_invoice->assigned_user_id;
@@ -56,5 +59,21 @@ class RecurringInvoiceToInvoiceFactory
         $invoice->design_id = $recurring_invoice->design_id;
         
         return $invoice;
+    }
+
+    private static function transformItems($recurring_invoice, $client)
+    {
+        
+        $line_items = $recurring_invoice->line_items;
+
+        foreach($line_items as $key => $item){
+
+            if(property_exists($line_items[$key], 'notes'))
+                $line_items[$key]->notes = Helpers::processReservedKeywords($item->notes, $client);
+
+        }
+
+        return $line_items;
+
     }
 }

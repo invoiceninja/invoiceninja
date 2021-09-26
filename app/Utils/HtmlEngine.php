@@ -18,7 +18,9 @@ use App\Models\InvoiceInvitation;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
 use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesDates;
+use App\Utils\transformTranslations;
 use Exception;
 use Illuminate\Support\Facades\App;
 
@@ -95,6 +97,11 @@ class HtmlEngine
             throw new Exception(debug_backtrace()[1]['function'], 1);
             exit;
         }
+
+        App::forgetInstance('translator');
+        $t = app('translator');
+        App::setLocale($this->contact->preferredLocale());
+        $t->replace(Ninja::transformTranslations($this->settings));
 
         $data = [];
         $data['$global_margin'] = ['value' => '6.35mm', 'label' => ''];

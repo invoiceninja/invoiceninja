@@ -115,8 +115,8 @@ class EmailController extends BaseController
     {
         $entity = $request->input('entity');
         $entity_obj = $entity::find($request->input('entity_id'));
-        $subject = $request->input('subject');
-        $body = $request->input('body');
+        $subject = $request->has('subject') ? $request->input('subject') : '';
+        $body = $request->has('body') ? $request->input('body') : '';
         $entity_string = strtolower(class_basename($entity_obj));
         $template = str_replace("email_template_", "", $request->input('template'));
 
