@@ -765,6 +765,9 @@ class BaseController extends Controller
         if(request()->has('build')) {
             $build = request()->input('build');
         }
+        elseif(Ninja::isHosted()){
+            return 'main.dart.js';
+        }
 
         switch ($build) {
             case 'wasm':
@@ -776,13 +779,10 @@ class BaseController extends Controller
             case 'next':
                 return 'main.next.dart.js';      
             case 'profile':
-                return 'main.profile.dart.js';                                      
+                return 'main.profile.dart.js';                                     
             default:
+                return 'main.foss.dart.js';
 
-                if(Ninja::isSelfHost())
-                    return 'main.foss.dart.js';
-
-                return 'main.dart.js';
         }
 
     }
