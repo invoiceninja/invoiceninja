@@ -71,6 +71,9 @@ class GatewayType extends StaticModel
             case self::KBC:
                 return ctrans('texts.kbc_cbc');
                 break;
+            case self::BANCONTACT:
+                return ctrans('texts.bancontact');
+                break;
 
             default:
                 return 'Undefined.';
