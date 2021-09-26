@@ -25,9 +25,9 @@ class RecurringInvoiceToInvoiceFactory
         $invoice->discount = $recurring_invoice->discount;
         $invoice->is_amount_discount = $recurring_invoice->is_amount_discount;
         $invoice->po_number = $recurring_invoice->po_number;
-        $invoice->footer = $recurring_invoice->footer;
-        $invoice->terms = $recurring_invoice->terms;
-        $invoice->public_notes = $recurring_invoice->public_notes;
+        $invoice->footer = self::tranformObject($recurring_invoice->footer, $client);
+        $invoice->terms = self::tranformObject($recurring_invoice->terms, $client);
+        $invoice->public_notes = self::tranformObject($recurring_invoice->public_notes, $client);
         $invoice->private_notes = $recurring_invoice->private_notes;
         //$invoice->date = now()->format($client->date_format());
         //$invoice->due_date = $recurring_invoice->calculateDueDate(now());
@@ -75,5 +75,10 @@ class RecurringInvoiceToInvoiceFactory
 
         return $line_items;
 
+    }
+
+    private static function tranformObject($object, $client)
+    {
+        return Helpers::processReservedKeywords($object, $client);
     }
 }
