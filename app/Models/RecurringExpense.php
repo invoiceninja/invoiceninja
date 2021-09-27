@@ -191,7 +191,7 @@ class RecurringExpense extends BaseModel
 
         for ($x=0; $x<$iterations; $x++) {
             // we don't add the days... we calc the day of the month!!
-            $next_due_date = $this->nextDateByFrequency($next_send_date);
+            $this->nextDateByFrequency($next_send_date);
 
             $data[] = [
                 'send_date' => $next_send_date->format('Y-m-d'),
