@@ -605,6 +605,16 @@ class Design extends BaseDesign
 
     public function tableTotals(): array
     {
+        if ($this->type === self::STATEMENT) {
+            return [
+                ['element' => 'div', 'properties' => ['style' => 'display: flex; flex-direction: column;'], 'elements' => [
+                    ['element' => 'div', 'properties' => ['style' => 'margin-top: 1.5rem; display: flex; align-items: flex-start;'], 'elements' => [
+                        ['element' => 'img', 'properties' => ['src' => '$invoiceninja.whitelabel', 'style' => 'height: 2.5rem;', 'hidden' => $this->entity->user->account->isPaid() ? 'true' : 'false', 'id' => 'invoiceninja-whitelabel-logo']],
+                    ]],
+                ]],
+            ];
+        }
+
         $_variables = array_key_exists('variables', $this->context)
             ? $this->context['variables']
             : ['values' => ['$entity.public_notes' => $this->entity->public_notes, '$entity.terms' => $this->entity->terms, '$entity_footer' => $this->entity->footer], 'labels' => []];
@@ -626,7 +636,7 @@ class Design extends BaseDesign
             ['element' => 'div', 'properties' => ['class' => 'totals-table-right-side', 'dir' => '$dir'], 'elements' => []],
         ];
 
-        if ($this->type == self::DELIVERY_NOTE  || $this->type == self::STATEMENT) {
+        if ($this->type == self::DELIVERY_NOTE) {
             return $elements;
         }
 
