@@ -47,6 +47,7 @@ class RecurringInvoicesTable extends Component
             ->with('client')
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
             ->withTrashed()
+            ->where('is_deleted', false)
             ->paginate($this->per_page);
 
         return render('components.livewire.recurring-invoices-table', [
