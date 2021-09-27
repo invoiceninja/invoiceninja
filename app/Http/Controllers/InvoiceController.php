@@ -397,7 +397,7 @@ class InvoiceController extends BaseController
 
         $invoice = $this->invoice_repo->save($request->all(), $invoice);
         
-        $invoice->service()->deletePdf();
+        $invoice->service()->triggeredActions($request)->deletePdf();
 
         event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 

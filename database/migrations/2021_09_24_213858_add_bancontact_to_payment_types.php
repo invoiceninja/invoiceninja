@@ -17,7 +17,7 @@ class AddBancontactToPaymentTypes extends Migration
     {
         $type = new PaymentType();
 
-        $type->id = 35;
+        $type->id = 36;
         $type->name = 'Bancontact';
         $type->gateway_type_id = GatewayType::BANCONTACT;
 

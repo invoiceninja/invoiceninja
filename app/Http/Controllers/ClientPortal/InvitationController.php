@@ -16,6 +16,7 @@ use App\Events\Invoice\InvoiceWasViewed;
 use App\Events\Misc\InvitationWasViewed;
 use App\Events\Quote\QuoteWasViewed;
 use App\Http\Controllers\Controller;
+use App\Jobs\Entity\CreateRawPdf;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Payment;
@@ -106,15 +107,12 @@ class InvitationController extends Controller
     {
         switch ($entity_string) {
             case 'invoice':
-                $invitation->invoice->service()->markSent()->save();
                 event(new InvoiceWasViewed($invitation, $invitation->company, Ninja::eventVars()));
                 break;
             case 'quote':
-                $invitation->quote->service()->markSent()->save();
                 event(new QuoteWasViewed($invitation, $invitation->company, Ninja::eventVars()));
                 break;
             case 'credit':
-                $invitation->credit->service()->markSent()->save();
                 event(new CreditWasViewed($invitation, $invitation->company, Ninja::eventVars()));
                 break;
             default:
@@ -125,7 +123,41 @@ class InvitationController extends Controller
 
     public function routerForDownload(string $entity, string $invitation_key)
     {
+
+        if(Ninja::isHosted())
+            return $this->returnRawPdf($entity, $invitation_key);
+
         return redirect('client/'.$entity.'/'.$invitation_key.'/download_pdf');
+    }
+
+    private function returnRawPdf(string $entity, string $invitation_key)
+    {
+
+        $key = $entity.'_id';
+
+        $entity_obj = 'App\Models\\'.ucfirst(Str::camel($entity)).'Invitation';
+
+        $invitation = $entity_obj::whereRaw('BINARY `key`= ?', [$invitation_key])
+                                    ->with('contact.client')
+                                    ->firstOrFail();
+
+        if(!$invitation)
+            return response()->json(["message" => "no record found"], 400);
+
+        $file_name = $invitation->{$entity}->numberFormatter().'.pdf';
+        nlog($file_name);
+
+        $file = CreateRawPdf::dispatchNow($invitation, $invitation->company->db);
+
+        $headers = ['Content-Type' => 'application/pdf'];
+
+        if(request()->input('inline') == 'true')
+            $headers = array_merge($headers, ['Content-Disposition' => 'inline']);
+
+        return response()->streamDownload(function () use($file) {
+                echo $file;
+        },  $file_name, $headers);
+        
     }
 
     public function routerForIframe(string $entity, string $client_hash, string $invitation_key)
