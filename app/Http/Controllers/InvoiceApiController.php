@@ -17,7 +17,6 @@ use App\Ninja\Repositories\PaymentRepository;
 use App\Services\InvoiceService;
 use App\Services\PaymentService;
 use Auth;
-use Input;
 use Response;
 use Utils;
 use Validator;
@@ -64,12 +63,12 @@ class InvoiceApiController extends BaseAPIController
                         ->orderBy('updated_at', 'desc');
 
         // Filter by invoice number
-        if ($invoiceNumber = Input::get('invoice_number')) {
+        if ($invoiceNumber = \Request::input('invoice_number')) {
             $invoices->whereInvoiceNumber($invoiceNumber);
         }
 
         // Fllter by status
-        if ($statusId = Input::get('status_id')) {
+        if ($statusId = \Request::input('status_id')) {
             $invoices->where('invoice_status_id', '>=', $statusId);
         }
 
@@ -134,7 +133,7 @@ class InvoiceApiController extends BaseAPIController
      */
     public function store(CreateInvoiceAPIRequest $request)
     {
-        $data = Input::all();
+        $data = \Request::all();
         $error = null;
 
         if (isset($data['email'])) {

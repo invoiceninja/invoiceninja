@@ -11,7 +11,6 @@ use App\Ninja\Datatables\ProposalCategoryDatatable;
 use App\Ninja\Repositories\ProposalCategoryRepository;
 use App\Services\ProposalCategoryService;
 use Auth;
-use Input;
 use Session;
 use View;
 
@@ -43,7 +42,7 @@ class ProposalCategoryController extends BaseController
 
     public function getDatatable($expensePublicId = null)
     {
-        $search = Input::get('sSearch');
+        $search = \Request::input('sSearch');
         $userId = Auth::user()->filterId();
 
         return $this->proposalCategoryService->getDatatable($search, $userId);
@@ -102,7 +101,7 @@ class ProposalCategoryController extends BaseController
 
         Session::flash('message', trans('texts.updated_proposal_category'));
 
-        $action = Input::get('action');
+        $action = \Request::input('action');
         if (in_array($action, ['archive', 'delete', 'restore'])) {
             return self::bulk();
         }
@@ -112,8 +111,8 @@ class ProposalCategoryController extends BaseController
 
     public function bulk()
     {
-        $action = Input::get('action');
-        $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
+        $action = \Request::input('action');
+        $ids = \Request::input('public_id') ? \Request::input('public_id') : \Request::input('ids');
 
         $count = $this->proposalCategoryService->bulk($ids, $action);
 

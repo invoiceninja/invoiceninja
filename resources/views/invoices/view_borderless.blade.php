@@ -53,8 +53,8 @@
 		}
 
 		$(function() {
-            @if (Input::has('phantomjs'))
-				@if (Input::has('phantomjs_balances'))
+            @if (Request::has('phantomjs'))
+				@if (Request::has('phantomjs_balances'))
 					document.write(calculateAmounts(invoice).total_amount);
 					document.close();
 					if (window.hasOwnProperty('pjsc_meta')) {

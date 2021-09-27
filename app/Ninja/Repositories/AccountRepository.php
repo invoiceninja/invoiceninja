@@ -18,7 +18,6 @@ use App\Models\User;
 use App\Models\UserAccount;
 use App\Models\LookupUser;
 use Auth;
-use Input;
 use Request;
 use Schema;
 use Session;
@@ -37,19 +36,19 @@ class AccountRepository
             }
 
             $company = new Company();
-            $company->utm_source = Input::get('utm_source');
-            $company->utm_medium = Input::get('utm_medium');
-            $company->utm_campaign = Input::get('utm_campaign');
-            $company->utm_term = Input::get('utm_term');
-            $company->utm_content = Input::get('utm_content');
+            $company->utm_source = \Request::input('utm_source');
+            $company->utm_medium = \Request::input('utm_medium');
+            $company->utm_campaign = \Request::input('utm_campaign');
+            $company->utm_term = \Request::input('utm_term');
+            $company->utm_content = \Request::input('utm_content');
             $company->referral_code = Session::get(SESSION_REFERRAL_CODE);
 
-            if (Input::get('utm_campaign')) {
-                if (env('PROMO_CAMPAIGN') && hash_equals(Input::get('utm_campaign'), env('PROMO_CAMPAIGN'))) {
+            if (\Request::input('utm_campaign')) {
+                if (env('PROMO_CAMPAIGN') && hash_equals(\Request::input('utm_campaign'), env('PROMO_CAMPAIGN'))) {
                     $company->applyDiscount(.75);
-                } elseif (env('PARTNER_CAMPAIGN') && hash_equals(Input::get('utm_campaign'), env('PARTNER_CAMPAIGN'))) {
+                } elseif (env('PARTNER_CAMPAIGN') && hash_equals(\Request::input('utm_campaign'), env('PARTNER_CAMPAIGN'))) {
                     $company->applyFreeYear();
-                } elseif (env('EDUCATION_CAMPAIGN') && hash_equals(Input::get('utm_campaign'), env('EDUCATION_CAMPAIGN'))) {
+                } elseif (env('EDUCATION_CAMPAIGN') && hash_equals(\Request::input('utm_campaign'), env('EDUCATION_CAMPAIGN'))) {
                     $company->applyFreeYear(2);
                 }
             } else {

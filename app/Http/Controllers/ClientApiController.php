@@ -7,7 +7,6 @@ use App\Http\Requests\CreateClientRequest;
 use App\Http\Requests\UpdateClientRequest;
 use App\Models\Client;
 use App\Ninja\Repositories\ClientRepository;
-use Input;
 use Response;
 
 class ClientApiController extends BaseAPIController
@@ -46,11 +45,11 @@ class ClientApiController extends BaseAPIController
             ->orderBy('updated_at', 'desc')
             ->withTrashed();
 
-        if ($email = Input::get('email')) {
+        if ($email = \Request::input('email')) {
             $clients = $clients->whereHas('contacts', function ($query) use ($email) {
                 $query->where('email', $email);
             });
-        } elseif ($idNumber = Input::get('id_number')) {
+        } elseif ($idNumber = \Request::input('id_number')) {
             $clients = $clients->whereIdNumber($idNumber);
         }
 

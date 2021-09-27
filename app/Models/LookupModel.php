@@ -99,7 +99,7 @@ class LookupModel extends Eloquent
                 abort(404, "Looked up {$className} not found: {$field} => {$value}");
             }
 
-            Cache::put($key, $server, 120);
+            Cache::put($key, $server, 120 * 60);
         } else {
             config(['database.default' => $current]);
         }

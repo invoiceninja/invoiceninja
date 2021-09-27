@@ -11,7 +11,6 @@ use App\Ninja\Datatables\ProposalTemplateDatatable;
 use App\Ninja\Repositories\ProposalTemplateRepository;
 use App\Services\ProposalTemplateService;
 use Auth;
-use Input;
 use Session;
 use View;
 
@@ -43,7 +42,7 @@ class ProposalTemplateController extends BaseController
 
     public function getDatatable($expensePublicId = null)
     {
-        $search = Input::get('sSearch');
+        $search = \Request::input('sSearch');
         $userId = Auth::user()->filterId();
 
         return $this->proposalTemplateService->getDatatable($search, $userId);
@@ -147,7 +146,7 @@ class ProposalTemplateController extends BaseController
 
         Session::flash('message', trans('texts.updated_proposal_template'));
 
-        $action = Input::get('action');
+        $action = \Request::input('action');
         if (in_array($action, ['archive', 'delete', 'restore'])) {
             return self::bulk();
         }
@@ -157,8 +156,8 @@ class ProposalTemplateController extends BaseController
 
     public function bulk()
     {
-        $action = Input::get('action');
-        $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
+        $action = \Request::input('action');
+        $ids = \Request::input('public_id') ? \Request::input('public_id') : \Request::input('ids');
 
         $count = $this->proposalTemplateService->bulk($ids, $action);
 

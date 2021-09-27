@@ -19,12 +19,12 @@ use App\Services\PaymentService;
 use Auth;
 use Crawler;
 use Exception;
-use Input;
 use Session;
 use URL;
 use Utils;
 use Validator;
 use View;
+use Request;
 
 /**
  * Class OnlinePaymentController.
@@ -114,7 +114,7 @@ class OnlinePaymentController extends BaseController
         }
 
         try {
-            return $paymentDriver->startPurchase(Input::all(), $sourceId);
+            return $paymentDriver->startPurchase(Request::all(), $sourceId);
         } catch (Exception $exception) {
             return $this->error($paymentDriver, $exception);
         }
@@ -202,12 +202,12 @@ class OnlinePaymentController extends BaseController
 
         $paymentDriver = $invitation->account->paymentDriver($invitation, $gatewayTypeId);
 
-        if ($error = Input::get('error_description') ?: Input::get('error')) {
+        if ($error = \Request::input('error_description') ?: \Request::input('error')) {
             return $this->error($paymentDriver, $error);
         }
 
         try {
-            if ($paymentDriver->completeOffsitePurchase(Input::all())) {
+            if ($paymentDriver->completeOffsitePurchase(Request::all())) {
                 Session::flash('message', trans('texts.applied_payment'));
             }
 
@@ -332,7 +332,7 @@ class OnlinePaymentController extends BaseController
         $paymentDriver = $accountGateway->paymentDriver();
 
         try {
-            $result = $paymentDriver->handleWebHook(Input::all());
+            $result = $paymentDriver->handleWebHook(Request::all());
 
             return response()->json(['message' => $result]);
         } catch (Exception $exception) {
@@ -350,8 +350,8 @@ class OnlinePaymentController extends BaseController
             return redirect()->to(NINJA_WEB_URL, 301);
         }
 
-        $account = Account::whereAccountKey(Input::get('account_key'))->first();
-        $redirectUrl = Input::get('redirect_url');
+        $account = Account::whereAccountKey(\Request::input('account_key'))->first();
+        $redirectUrl = \Request::input('redirect_url');
         $failureUrl = URL::previous();
 
         if (! $account || ! $account->enable_buy_now_buttons || ! $account->hasFeature(FEATURE_BUY_NOW_BUTTONS)) {
@@ -360,7 +360,7 @@ class OnlinePaymentController extends BaseController
 
         Auth::onceUsingId($account->users[0]->id);
         $account->loadLocalizationSettings();
-        $product = Product::scope(Input::get('product_id'))->first();
+        $product = Product::scope(\Request::input('product_id'))->first();
 
         if (! $product) {
             return redirect()->to("{$failureUrl}/?error=invalid product");
@@ -368,7 +368,7 @@ class OnlinePaymentController extends BaseController
 
         // check for existing client using contact_key
         $client = false;
-        if ($contactKey = Input::get('contact_key')) {
+        if ($contactKey = \Request::input('contact_key')) {
             $client = Client::scope()->whereHas('contacts', function ($query) use ($contactKey) {
                 $query->where('contact_key', $contactKey);
             })->first();
@@ -380,7 +380,7 @@ class OnlinePaymentController extends BaseController
                 'email' => 'email|string|max:100',
             ];
 
-            $validator = Validator::make(Input::all(), $rules);
+            $validator = Validator::make(Request::all(), $rules);
             if ($validator->fails()) {
                 return redirect()->to("{$failureUrl}/?error=" . $validator->errors()->first());
             }
@@ -404,17 +404,17 @@ class OnlinePaymentController extends BaseController
 
         $data = [
             'client_id' => $client->id,
-            'is_recurring' => filter_var(Input::get('is_recurring'), FILTER_VALIDATE_BOOLEAN),
-            'is_public' => filter_var(Input::get('is_recurring'), FILTER_VALIDATE_BOOLEAN),
-            'frequency_id' => Input::get('frequency_id'),
-            'auto_bill_id' => Input::get('auto_bill_id'),
-            'start_date' => Input::get('start_date', date('Y-m-d')),
+            'is_recurring' => filter_var(\Request::input('is_recurring'), FILTER_VALIDATE_BOOLEAN),
+            'is_public' => filter_var(\Request::input('is_recurring'), FILTER_VALIDATE_BOOLEAN),
+            'frequency_id' => \Request::input('frequency_id'),
+            'auto_bill_id' => \Request::input('auto_bill_id'),
+            'start_date' => \Request::input('start_date', date('Y-m-d')),
             'tax_rate1' => $account->tax_rate1,
             'tax_name1' => $account->tax_name1 ?: '',
             'tax_rate2' => $account->tax_rate2,
             'tax_name2' => $account->tax_name2 ?: '',
-            'custom_text_value1' => Input::get('custom_invoice1'),
-            'custom_text_value2' => Input::get('custom_invoice2'),
+            'custom_text_value1' => \Request::input('custom_invoice1'),
+            'custom_text_value2' => \Request::input('custom_invoice2'),
             'invoice_items' => [[
                 'product_key' => $product->product_key,
                 'notes' => $product->notes,
@@ -424,8 +424,8 @@ class OnlinePaymentController extends BaseController
                 'tax_name1' => $product->tax_name1 ?: '',
                 'tax_rate2' => $product->tax_rate2,
                 'tax_name2' => $product->tax_name2 ?: '',
-                'custom_value1' => Input::get('custom_product1') ?: $product->custom_value1,
-                'custom_value2' => Input::get('custom_product2') ?: $product->custom_value2,
+                'custom_value1' => \Request::input('custom_product1') ?: $product->custom_value1,
+                'custom_value2' => \Request::input('custom_product2') ?: $product->custom_value2,
             ]],
         ];
         $invoice = $invoiceService->save($data);
@@ -445,7 +445,7 @@ class OnlinePaymentController extends BaseController
             $link = $invitation->getLink();
         }
 
-        if (filter_var(Input::get('return_link'), FILTER_VALIDATE_BOOLEAN)) {
+        if (filter_var(\Request::input('return_link'), FILTER_VALIDATE_BOOLEAN)) {
             return $link;
         } else {
             return redirect()->to($link);

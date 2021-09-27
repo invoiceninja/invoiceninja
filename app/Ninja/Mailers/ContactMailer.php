@@ -402,8 +402,8 @@ class ContactMailer extends Mailer
             $day_hits_remaining = $day_hits_remaining >= 0 ? $day_hits_remaining : 0;
         }
 
-        Cache::put("email_day_throttle:{$key}", $new_day_throttle, 60);
-        Cache::put("last_email_request:{$key}", time(), 60);
+        Cache::put("email_day_throttle:{$key}", $new_day_throttle, 60 * 60);
+        Cache::put("last_email_request:{$key}", time(), 60 * 60);
 
         if ($new_day_throttle > $day) {
             $errorEmail = env('ERROR_EMAIL');
@@ -414,7 +414,7 @@ class ContactMailer extends Mailer
                             ->subject("Email throttle triggered for account " . $account->id);
                 });
             }
-            Cache::put("throttle_notified:{$key}", true, 60 * 24);
+            Cache::put("throttle_notified:{$key}", true, 60 * 24 * 60);
             return true;
         }
 

@@ -8,7 +8,6 @@ use App\Http\Requests\UpdateCreditRequest;
 use App\Models\Invoice;
 use App\Models\Credit;
 use App\Ninja\Repositories\CreditRepository;
-use Input;
 use Response;
 
 class CreditApiController extends BaseAPIController

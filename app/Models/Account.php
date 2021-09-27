@@ -1963,7 +1963,7 @@ Account::updated(function ($account) {
         return;
     }
 
-    Event::fire(new UserSettingsChanged());
+    Event::dispatch(new UserSettingsChanged());
 });
 
 Account::deleted(function ($account)

@@ -8,7 +8,6 @@ use App\Http\Requests\UpdateExpenseCategoryRequest;
 use App\Models\ExpenseCategory;
 use App\Ninja\Repositories\ExpenseCategoryRepository;
 use App\Services\ExpenseCategoryService;
-use Input;
 
 class ExpenseCategoryApiController extends BaseAPIController
 {

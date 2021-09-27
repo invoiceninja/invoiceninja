@@ -243,7 +243,7 @@ class Payment extends EntityModel
             $this->payment_status_id = $this->refunded == $this->amount ? PAYMENT_STATUS_REFUNDED : PAYMENT_STATUS_PARTIALLY_REFUNDED;
             $this->save();
 
-            Event::fire(new PaymentWasRefunded($this, $refund_change));
+            Event::dispatch(new PaymentWasRefunded($this, $refund_change));
         }
 
         return true;
@@ -258,7 +258,7 @@ class Payment extends EntityModel
             return false;
         }
 
-        Event::fire(new PaymentWasVoided($this));
+        Event::dispatch(new PaymentWasVoided($this));
 
         $this->refunded = $this->amount;
         $this->payment_status_id = PAYMENT_STATUS_VOIDED;
@@ -271,7 +271,7 @@ class Payment extends EntityModel
     {
         $this->payment_status_id = PAYMENT_STATUS_COMPLETED;
         $this->save();
-        Event::fire(new PaymentCompleted($this));
+        Event::dispatch(new PaymentCompleted($this));
     }
 
     /**
@@ -282,7 +282,7 @@ class Payment extends EntityModel
         $this->payment_status_id = PAYMENT_STATUS_FAILED;
         $this->gateway_error = $failureMessage;
         $this->save();
-        Event::fire(new PaymentFailed($this));
+        Event::dispatch(new PaymentFailed($this));
     }
 
     /**

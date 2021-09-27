@@ -169,7 +169,7 @@
             $('#payment_type_id option:contains("{{ trans('texts.apply_credit') }}")').text("{{ trans('texts.apply_credit') }} | {{ $totalCredit}}");
         @endif
 
-        @if (Input::old('data'))
+        @if (Request::old('data'))
             // this means we failed so we'll reload the previous state
             window.model = new ViewModel({!! $data !!});
         @else

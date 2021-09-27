@@ -9,7 +9,6 @@ use App\Models\Project;
 use App\Ninja\Repositories\ProjectRepository;
 use App\Services\ProjectService;
 use Auth;
-use Input;
 use Session;
 use View;
 

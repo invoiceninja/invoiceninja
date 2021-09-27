@@ -4,7 +4,6 @@ namespace App\Http\Requests;
 
 use App\Libraries\HistoryUtils;
 use App\Models\EntityModel;
-use Input;
 use Utils;
 
 class EntityRequest extends Request
@@ -33,7 +32,7 @@ class EntityRequest extends Request
             }
         }
         if (! $publicId) {
-            $publicId = Input::get('public_id') ?: Input::get('id');
+            $publicId = \Request::input('public_id') ?: \Request::input('id');
         }
 
         if (! $publicId) {

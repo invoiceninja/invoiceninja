@@ -7,8 +7,7 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Illuminate\Foundation\Validation\ValidationException;
-use Illuminate\Http\Exception\HttpResponseException;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Session\TokenMismatchException;
 use Redirect;
@@ -30,7 +29,6 @@ class Handler extends ExceptionHandler
     protected $dontReport = [
         TokenMismatchException::class,
         ModelNotFoundException::class,
-        ValidationException::class,
         \Illuminate\Validation\ValidationException::class,
         //AuthorizationException::class,
         //HttpException::class,

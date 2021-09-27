@@ -6,7 +6,6 @@ use App\Libraries\Utils;
 use App\Models\Account;
 use App\Ninja\Mailers\Mailer;
 use Auth;
-use Input;
 use Mail;
 use Redirect;
 use Request;
@@ -67,21 +66,21 @@ class HomeController extends BaseController
     {
         $url = 'https://invoicing.co';
 
-        if (Input::has('rc')) {
-            $url = $url . '?rc=' . Input::get('rc');
+        if (Request::has('rc')) {
+            $url = $url . '?rc=' . \Request::input('rc');
         }
 
         return Redirect::to($url);
 
         /*
         // Track the referral/campaign code
-        if (Input::has('rc')) {
-            session([SESSION_REFERRAL_CODE => Input::get('rc')]);
+        if (Request::has('rc')) {
+            session([SESSION_REFERRAL_CODE => \Request::input('rc')]);
         }
 
         if (Auth::check()) {
-            $redirectTo = Input::get('redirect_to') ? SITE_URL . '/' . ltrim(Input::get('redirect_to'), '/') : 'invoices/create';
-            return Redirect::to($redirectTo)->with('sign_up', Input::get('sign_up'));
+            $redirectTo = \Request::input('redirect_to') ? SITE_URL . '/' . ltrim(\Request::input('redirect_to'), '/') : 'invoices/create';
+            return Redirect::to($redirectTo)->with('sign_up', \Request::input('sign_up'));
         } else {
             return View::make('public.invoice_now');
         }
@@ -125,7 +124,7 @@ class HomeController extends BaseController
      */
     public function logError()
     {
-        return Utils::logError(Input::get('error'), 'JavaScript');
+        return Utils::logError(\Request::input('error'), 'JavaScript');
     }
 
     /**
