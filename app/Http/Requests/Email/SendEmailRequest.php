@@ -82,7 +82,7 @@ class SendEmailRequest extends Request
             $entity = $input['entity'];
 
             /* Harvest the entity*/
-            $entity_obj = $entity::whereId($input['entity_id'])->company()->first();
+            $entity_obj = $entity::whereId($input['entity_id'])->withTrashed()->company()->first();
 
             /* Check object, check user and company id is same as users, and check user can edit the object */
             if ($entity_obj && ($company->id == $entity_obj->company_id) && auth()->user()->can('edit', $entity_obj)) {
