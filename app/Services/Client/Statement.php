@@ -24,6 +24,7 @@ use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\PdfMaker\PdfMaker;
 use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\HtmlEngine;
+use App\Utils\Ninja;
 use App\Utils\Number;
 use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\Pdf\PdfMaker as PdfMakerTrait;
@@ -109,6 +110,7 @@ class Statement
         if ($this->rollback) {
             DB::rollBack();
         }
+
 
         return $pdf;
     }
