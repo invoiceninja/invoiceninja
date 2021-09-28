@@ -14,6 +14,7 @@ namespace App\Http\Controllers\ClientPortal;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\Uploads\StoreUploadRequest;
+use App\Jobs\Util\UploadFile;
 use App\Utils\Traits\SavesDocuments;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Response;
@@ -30,7 +31,7 @@ class UploadController extends Controller
      */
     public function __invoke(StoreUploadRequest $request)
     {
-        $this->saveDocuments($request->getFile(), auth()->user()->client, true);
+        $this->saveDocuments($request->getFile(), auth()->user()->client, true, UploadFile::CLIENT_DOCUMENT);
 
         return response([], 200);
     }
