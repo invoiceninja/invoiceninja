@@ -68,7 +68,7 @@
         "league/fractal": "0.13.*",
         "lokielse/omnipay-alipay": "~1.4",
         "maatwebsite/excel": "dev-carbon#8b17952",
-        "mashape/unirest-php": "^3.0.5",
+        "mashape/unirest-php": "^3.0.4",
         "meebio/omnipay-creditcall": "dev-master",
         "meebio/omnipay-secure-trading": "dev-master",
         "mfauveau/omnipay-pacnet": "~2.0",
@@ -105,7 +105,7 @@
         "symfony/dom-crawler": "~3.1",
         "codeception/c3": "2.*",
         "codeception/codeception": "2.*",
-        "phpspec/phpspec": "~5.0",
+        "phpspec/phpspec": "~6.1",
         "phpunit/phpunit": "~5.7"
     },
     "autoload": {
@@ -206,10 +206,6 @@
         {
             "type": "vcs",
             "url": "https://github.com/tainmar/Laravel-Excel"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/loverg-c/unirest-php"
         }
-    ]
+    ] 
 }
