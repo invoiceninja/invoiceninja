@@ -28,6 +28,7 @@ class UploadFile implements ShouldQueue
 
     const IMAGE = 1;
     const DOCUMENT = 2;
+    const CLIENT_DOCUMENT = 3;
 
     const PROPERTIES = [
         self::IMAGE => [
@@ -35,6 +36,9 @@ class UploadFile implements ShouldQueue
         ],
         self::DOCUMENT => [
             'path' => 'documents',
+        ],
+        self::CLIENT_DOCUMENT => [
+            'path' => '%s/%s/documents',
         ],
     ];
 
@@ -71,7 +75,11 @@ class UploadFile implements ShouldQueue
 
         $path = self::PROPERTIES[$this->type]['path'];
 
-        if ($this->company) {
+        if ($this->type === self::CLIENT_DOCUMENT && $this->entity instanceof \App\Models\Client) {
+            $path = \sprintf(self::PROPERTIES[self::CLIENT_DOCUMENT]['path'], $this->entity->company->company_key, $this->entity->client_hash);
+        }
+
+        if ($this->company && $this->type !== self::CLIENT_DOCUMENT) {
             $path = sprintf('%s/%s', $this->company->company_key, self::PROPERTIES[$this->type]['path']);
         }
 
