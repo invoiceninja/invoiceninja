@@ -162,8 +162,8 @@ class Token
     protected function generate_parameter_string( $api_data, $sort_data_before_merge = true, $skip_empty_values = true ) {
 
         // if sorting is required the passphrase should be added in before sort.
-        if ( ! empty( $this->payfast->company_gateway->getConfigField('passPhrase') ) && $sort_data_before_merge ) 
-            $api_data['passphrase'] = $this->payfast->company_gateway->getConfigField('passPhrase');
+        if ( ! empty( $this->payfast->company_gateway->getConfigField('passphrase') ) && $sort_data_before_merge ) 
+            $api_data['passphrase'] = $this->payfast->company_gateway->getConfigField('passphrase');
 
         if ( $sort_data_before_merge ) {
             ksort( $api_data );
@@ -186,7 +186,7 @@ class Token
         if ( $sort_data_before_merge ) {
             $parameter_string = rtrim( $parameter_string, '&' );
         } elseif ( ! empty( $this->pass_phrase ) ) {
-            $parameter_string .= 'passphrase=' . urlencode( $this->payfast->company_gateway->getConfigField('passPhrase') );
+            $parameter_string .= 'passphrase=' . urlencode( $this->payfast->company_gateway->getConfigField('passphrase') );
         } else {
             $parameter_string = rtrim( $parameter_string, '&' );
         }

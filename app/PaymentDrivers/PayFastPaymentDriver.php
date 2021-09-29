@@ -72,7 +72,7 @@ class PayFastPaymentDriver extends BaseDriver
                 [
                     'merchantId' => $this->company_gateway->getConfigField('merchantId'),
                     'merchantKey' => $this->company_gateway->getConfigField('merchantKey'),
-                    'passPhrase' => $this->company_gateway->getConfigField('passPhrase'),
+                    'passPhrase' => $this->company_gateway->getConfigField('passphrase'),
                     'testMode' => $this->company_gateway->getConfigField('testMode')
                 ]
             );
@@ -147,8 +147,8 @@ class PayFastPaymentDriver extends BaseDriver
             }
         }
 
-        if($this->company_gateway->getConfigField('passPhrase'))
-            $fields['passphrase'] = $this->company_gateway->getConfigField('passPhrase');
+        if($this->company_gateway->getConfigField('passphrase'))
+            $fields['passphrase'] = $this->company_gateway->getConfigField('passphrase');
 
         nlog(http_build_query($fields));
 
