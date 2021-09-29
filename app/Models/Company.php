@@ -485,7 +485,7 @@ class Company extends BaseModel
     {
         if (Ninja::isHosted()) {
 
-            if($this->portal_mode == 'domain')
+            if($this->portal_mode == 'domain' && strlen($this->portal_domain) > 3)
                 return $this->portal_domain;
 
             return "https://{$this->subdomain}." . config('ninja.app_domain');
