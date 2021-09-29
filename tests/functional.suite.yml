@@ -17,5 +17,5 @@ modules:
             user: 'ninja'
             password: 'ninja'
             dump: tests/_data/dump.sql
-    disabled:
-        - Laravel5
+    # disabled:
+    #     - Laravel5
