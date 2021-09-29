@@ -77,36 +77,47 @@ class Token
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
 		$amount = round(($amount * pow(10, $this->payfast->client->currency()->precision)),0);
 
-		// $header =[
-  //           'merchant-id' => $this->payfast->company_gateway->getConfigField('merchantId'),
-  //           'timestamp' => now()->format('c'),
-  //           'version' => 'v1',
-		// ];
+		$header =[
+            'merchant-id' => $this->payfast->company_gateway->getConfigField('merchantId'),
+            'version' => 'v1',
+            'timestamp' => now()->format('c'),
+		];
 
-  //       $body = [
-  //           'amount' => $amount,
-  //           'item_name' => 'purchase',
-  //           'item_description' => ctrans('texts.invoices') . ': ' . collect($payment_hash->invoices())->pluck('invoice_number'),
-  //           // 'm_payment_id' => $payment_hash->hash,
-  //       ];        
+        $body = [
+            'amount' => $amount,
+            'item_name' => 'purchase',
+            'item_description' => ctrans('texts.invoices') . ': ' . collect($payment_hash->invoices())->pluck('invoice_number'),
+            'm_payment_id' => $payment_hash->hash,
+        ];        
+
+        nlog(array_merge($header, $body));
 
         // $header['signature'] = md5( $this->generate_parameter_string(array_merge($header, $body), false) );
         
-        // $result = $this->send($header, $body, $cgt->token);
-            $api = new \PayFast\PayFastApi(
-                [
-                    'merchantId' => $this->payfast->company_gateway->getConfigField('merchantId'),
-                    'passPhrase' => $this->payfast->company_gateway->getConfigField('passPhrase'),
-                    'testMode' => $this->payfast->company_gateway->getConfigField('testMode')
-                ]
-            );
+        $header['signature'] = $this->genSig(array_merge($header, $body));
 
-            $adhocArray = $api
-                       ->subscriptions
-                       ->adhoc($cgt->token, ['amount' => $amount, 'item_name' => 'purchase']);
+        nlog($header['signature']);
+
+        $result = $this->send($header, $body, $cgt->token);
+
+        nlog($result);
+        
+        //     $api = new \PayFast\PayFastApi(
+        //         [
+        //             'merchantId' => $this->payfast->company_gateway->getConfigField('merchantId'),
+        //             'passPhrase' => $this->payfast->company_gateway->getConfigField('passPhrase'),
+        //             'testMode' => $this->payfast->company_gateway->getConfigField('testMode')
+        //         ]
+        //     );
+
+        //     $adhocArray = $api
+        //                ->subscriptions
+        //                ->adhoc($cgt->token, ['amount' => $amount, 'item_name' => 'purchase']);
 
 
-        nlog($adhocArray);
+        // nlog($adhocArray);
+
+
         
         // /*Refactor and push to BaseDriver*/
         // if ($data['response'] != null && $data['response']->getMessages()->getResultCode() == 'Ok') {
