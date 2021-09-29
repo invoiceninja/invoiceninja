@@ -30,7 +30,7 @@ class InvoiceHistoryTransformer extends EntityTransformer
     public function transform(?Backup $backup)
     {
         if(!$backup)
-            return [];
+            return null;
 
         return [
             'id' => $this->encodePrimaryKey($backup->id),
