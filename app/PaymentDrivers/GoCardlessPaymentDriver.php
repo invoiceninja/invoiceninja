@@ -50,9 +50,17 @@ class GoCardlessPaymentDriver extends BaseDriver
 
     public function gatewayTypes(): array
     {
-        return [
-            GatewayType::BANK_TRANSFER,
-        ];
+        $types = [];
+
+        if (
+            $this->client
+            && isset($this->client->country)
+            && in_array($this->client->country->iso_3166_3, ['USA'])
+        ) {
+            $types[] = GatewayType::BANK_TRANSFER;
+        }
+
+        return $types;
     }
 
     public function authorizeView(array $data)
