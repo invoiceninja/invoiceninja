@@ -74,7 +74,12 @@ trait Inviteable
             }
         }
 
-        return $hasValue ? implode($parts, '<br/>') : false;
+        //php 7.3
+        // return $hasValue ? implode($parts, '<br/>') : false;
+
+
+        //php 7.4
+        return $hasValue ? implode('<br/>', $parts) : false;
     }
 
     /**

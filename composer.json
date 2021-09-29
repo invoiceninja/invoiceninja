@@ -52,8 +52,8 @@
         "league/flysystem-rackspace": "~1.0",
         "league/fractal": "0.13.*",
         "maatwebsite/excel": "~2.0",
-        "mashape/unirest-php": "^3.0",
-        "mpdf/mpdf": "7.1.7",
+        "mashape/unirest-php": "^3.0.5",
+        "mpdf/mpdf": "^8.0",
         "nesbot/carbon": "^1.26",
         "nwidart/laravel-modules": "2.0.*",
         "omnipay/authorizenet": "dev-solution-id as 2.5.0",
@@ -187,6 +187,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/hillelcoren/omnipay-authorizenet"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/loverg-c/unirest-php"
         }
     ]
 }
