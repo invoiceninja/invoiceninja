@@ -12,6 +12,7 @@
 namespace App\Http\Controllers;
 
 use App\DataMapper\Analytics\EmailBounce;
+use App\DataMapper\Analytics\Mail\EmailBounce;
 use App\DataMapper\Analytics\Mail\EmailSpam;
 use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
@@ -74,7 +75,6 @@ class PostMarkController extends BaseController
 
         if($request->header('X-API-SECURITY') && $request->header('X-API-SECURITY') == config('postmark.secret'))
         {
-            // nlog($request->all());
 
             MultiDB::findAndSetDbByCompanyKey($request->input('Tag'));
             
@@ -165,13 +165,13 @@ class PostMarkController extends BaseController
         $this->invitation->email_status = 'bounced';
         $this->invitation->save();
 
-        // $bounce = new EmailBounce(
-        //     $request->input('Tag'),
-        //     $request->input('From'),
-        //     $request->input('MessageID')
-        // );
+        $bounce = new EmailBounce(
+            $request->input('Tag'),
+            $request->input('From'),
+            $request->input('MessageID')
+        );
 
-        // LightLogs::create($bounce)->batch();
+        LightLogs::create($bounce)->batch();
 
         SystemLogger::dispatch($request->all(), SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_BOUNCED, SystemLog::TYPE_WEBHOOK_RESPONSE, $this->invitation->contact->client, $this->invitation->company);
     }
