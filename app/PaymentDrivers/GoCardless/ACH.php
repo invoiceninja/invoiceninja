@@ -12,10 +12,17 @@
 
 namespace App\PaymentDrivers\GoCardless;
 
-use App\Http\Requests\Request;
+use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Http\Requests\Request;
+use App\Jobs\Util\SystemLogger;
+use App\Models\GatewayType;
+use App\Models\SystemLog;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\GoCardlessPaymentDriver;
+use Exception;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Routing\Redirector;
 
 class ACH implements MethodInterface
 {
@@ -28,11 +35,104 @@ class ACH implements MethodInterface
         $this->go_cardless->init();
     }
 
-    public function authorizeView(array $data) { }
+    /**
+     * Authorization page for ACH.
+     *
+     * @param array $data
+     * @return Redirector|RedirectResponse
+     */
+    public function authorizeView(array $data)
+    {
+        $session_token = \Illuminate\Support\Str::uuid()->toString();
 
-    public function authorizeResponse(Request $request) { }
+        try {
+            $redirect = $this->go_cardless->gateway->redirectFlows()->create([
+                "params" => [
+                    "session_token" => $session_token,
+                    "success_redirect_url" => route('client.payment_methods.confirm', [
+                        'method' => GatewayType::BANK_TRANSFER,
+                        'session_token' => $session_token,
+                    ]),
+                    "prefilled_customer" => [
+                        "given_name" => auth('contact')->user()->first_name,
+                        "family_name" => auth('contact')->user()->last_name,
+                        "email" => auth('contact')->user()->email,
+                        "address_line1" => auth('contact')->user()->client->address1,
+                        "city" => auth('contact')->user()->client->city,
+                        "postal_code" => auth('contact')->user()->client->postal_code,
+                    ],
+                ],
+            ]);
 
-    public function paymentView(array $data) { }
+            return redirect(
+                $redirect->redirect_url
+            );
+        } catch (\Exception $exception) {
+            return $this->processUnsuccessfulAuthorization($exception);
+        }
+    }
 
-    public function paymentResponse(PaymentResponseRequest $request) { }
+    /**
+     * Handle unsuccessful authorization.
+     *
+     * @param Exception $exception
+     * @throws PaymentFailed
+     * @return void
+     */
+    public function processUnsuccessfulAuthorization(\Exception $exception): void
+    {
+        SystemLogger::dispatch(
+            $exception->getMessage(),
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_FAILURE,
+            SystemLog::TYPE_GOCARDLESS,
+            $this->go_cardless->client,
+            $this->go_cardless->client->company,
+        );
+
+        throw new PaymentFailed($exception->getMessage(), $exception->getCode());
+    }
+
+    /**
+     * Handle ACH post-redirect authorization.
+     *
+     * @param Request $request
+     * @return RedirectResponse|void
+     */
+    public function authorizeResponse(Request $request)
+    {
+        try {
+            $redirect_flow = $this->go_cardless->gateway->redirectFlows()->complete(
+                $request->redirect_flow_id,
+                ['params' => [
+                    'session_token' => $request->session_token
+                ]],
+            );
+
+            $payment_meta = new \stdClass;
+            $payment_meta->brand = ctrans('texts.ach');
+            $payment_meta->type = GatewayType::BANK_TRANSFER;
+            $payment_meta->state = 'authorized';
+
+            $data = [
+                'payment_meta' => $payment_meta,
+                'token' => $redirect_flow->links->mandate,
+                'payment_method_id' => GatewayType::BANK_TRANSFER,
+            ];
+
+            $payment_method = $this->go_cardless->storeGatewayToken($data, ['gateway_customer_reference' => $redirect_flow->links->customer]);
+
+            return redirect()->route('client.payment_methods.show', $payment_method->hashed_id);
+        } catch (\Exception $exception) {
+            return $this->processUnsuccessfulAuthorization($exception);
+        }
+    }
+
+    public function paymentView(array $data)
+    {
+    }
+
+    public function paymentResponse(PaymentResponseRequest $request)
+    {
+    }
 }
