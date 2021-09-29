@@ -29,7 +29,7 @@ class GoCardlessPaymentDriver extends BaseDriver
 
     public $can_authorise_credit_card = true;
 
-    public $gateway;
+    public \GoCardlessPro\Client $gateway;
 
     public $payment_method;
 
