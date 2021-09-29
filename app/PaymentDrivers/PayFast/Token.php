@@ -101,7 +101,7 @@ class Token
         $result = $this->send($header, $body, $cgt->token);
 
         nlog($result);
-        
+
         //     $api = new \PayFast\PayFastApi(
         //         [
         //             'merchantId' => $this->payfast->company_gateway->getConfigField('merchantId'),
@@ -210,6 +210,8 @@ class Token
             }
         }
 
+        nlog(http_build_query($fields));
+        
         return md5(http_build_query($fields));
     }
 
