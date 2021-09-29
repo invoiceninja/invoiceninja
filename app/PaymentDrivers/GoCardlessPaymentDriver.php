@@ -18,6 +18,7 @@ use App\Models\PaymentHash;
 use App\Models\SystemLog;
 use App\Utils\Traits\MakesHash;
 
+
 class GoCardlessPaymentDriver extends BaseDriver
 {
     use MakesHash;
@@ -45,6 +46,13 @@ class GoCardlessPaymentDriver extends BaseDriver
         $this->payment_method = new $class($this);
 
         return $this;
+    }
+
+    public function gatewayTypes(): array
+    {
+        return [
+            GatewayType::BANK_TRANSFER,
+        ];
     }
 
     public function authorizeView(array $data)
