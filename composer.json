@@ -101,7 +101,7 @@
     "require-dev": {
         "symfony/dom-crawler": "~3.1",
         "codeception/c3": "2.*",
-        "codeception/codeception": "2.*",
+        "codeception/codeception": "3.*",
         "phpspec/phpspec": "~2.1",
         "phpunit/phpunit": "~5.7"
     },
