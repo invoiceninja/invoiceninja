@@ -34,8 +34,8 @@ class InvoiceHistoryTransformer extends EntityTransformer
             return [
                 'id' => '',
                 'activity_id' => '',
-                'json_backup' => (string) '',
-                'html_backup' => (string) '',
+                // 'json_backup' => (string) '',
+                // 'html_backup' => (string) '',
                 'amount' => (float) 0,
                 'created_at' => (int) 0,
                 'updated_at' => (int) 0,
@@ -46,8 +46,8 @@ class InvoiceHistoryTransformer extends EntityTransformer
         return [
             'id' => $this->encodePrimaryKey($backup->id),
             'activity_id' => $this->encodePrimaryKey($backup->activity_id),
-            'json_backup' => (string) $backup->json_backup ?: '',
-            'html_backup' => (string) $backup->html_backup ?: '',
+            // 'json_backup' => (string) $backup->json_backup ?: '',
+            // 'html_backup' => (string) $backup->html_backup ?: '',
             'amount' => (float) $backup->amount,
             'created_at' => (int) $backup->created_at,
             'updated_at' => (int) $backup->updated_at,
