@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "43e541990179ae159e821115c6bffe20",
+    "content-hash": "748e98fea77165499dcc295c7a5546e9",
     "packages": [
         {
             "name": "abdala/omnipay-pagseguro",
@@ -471,16 +471,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.195.0",
+            "version": "3.195.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "e2ce251ca94661ee3d4b0b5e8cc67e964b2e5f8e"
+                "reference": "7df429b9cae05b52991ae266e0f7f6756a9e7b4d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/e2ce251ca94661ee3d4b0b5e8cc67e964b2e5f8e",
-                "reference": "e2ce251ca94661ee3d4b0b5e8cc67e964b2e5f8e",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/7df429b9cae05b52991ae266e0f7f6756a9e7b4d",
+                "reference": "7df429b9cae05b52991ae266e0f7f6756a9e7b4d",
                 "shasum": ""
             },
             "require": {
@@ -556,9 +556,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.195.0"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.195.1"
             },
-            "time": "2021-09-27T18:14:14+00:00"
+            "time": "2021-09-28T18:16:45+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -6406,57 +6406,6 @@
                 }
             ],
             "time": "2019-11-29T16:31:11+00:00"
-        },
-        {
-            "name": "mashape/unirest-php",
-            "version": "v3.0.4",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Mashape/unirest-php.git",
-                "reference": "842c0f242dfaaf85f16b72e217bf7f7c19ab12cb"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Mashape/unirest-php/zipball/842c0f242dfaaf85f16b72e217bf7f7c19ab12cb",
-                "reference": "842c0f242dfaaf85f16b72e217bf7f7c19ab12cb",
-                "shasum": ""
-            },
-            "require": {
-                "ext-curl": "*",
-                "php": ">=5.4.0"
-            },
-            "require-dev": {
-                "codeclimate/php-test-reporter": "0.1.*",
-                "phpunit/phpunit": "~4.4"
-            },
-            "suggest": {
-                "ext-json": "Allows using JSON Bodies for sending and parsing requests"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Unirest\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "Unirest PHP",
-            "homepage": "https://github.com/Mashape/unirest-php",
-            "keywords": [
-                "client",
-                "curl",
-                "http",
-                "https",
-                "rest"
-            ],
-            "support": {
-                "email": "opensource@mashape.com",
-                "issues": "https://github.com/Mashape/unirest-php/issues",
-                "source": "https://github.com/Mashape/unirest-php/tree/master"
-            },
-            "time": "2016-08-11T17:49:21+00:00"
         },
         {
             "name": "maximebf/debugbar",
