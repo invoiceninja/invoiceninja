@@ -25,6 +25,7 @@ class ActivateGocardlessPaymentDriver extends Migration
         $gateway = Gateway::find(52);
 
         if ($gateway) {
+            $gateway->provider = 'GoCardless';
             $gateway->visible = true;
             $gateway->save();
         }
