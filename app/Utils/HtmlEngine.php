@@ -158,6 +158,7 @@ class HtmlEngine
             $data['$view_link'] = ['value' => '<a class="button" href="'.$this->invitation->getLink().'">'.ctrans('texts.view_quote').'</a>', 'label' => ctrans('texts.view_quote')];
             $data['$viewLink'] = &$data['$view_link'];
             $data['$viewButton'] = &$data['$view_link'];
+            $data['$view_button'] = &$data['$view_link'];
             $data['$approveButton'] = ['value' => '<a class="button" href="'.$this->invitation->getLink().'">'.ctrans('texts.view_quote').'</a>', 'label' => ctrans('texts.approve')];
             $data['$view_url'] = ['value' => $this->invitation->getLink(), 'label' => ctrans('texts.view_quote')];
             $data['$date'] = ['value' => $this->translateDate($this->entity->date, $this->entity->client->date_format(), $this->entity->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.quote_date')];
@@ -171,6 +172,7 @@ class HtmlEngine
             $data['$terms'] = &$data['$entity.terms'];
             $data['$view_link'] = ['value' => '<a class="button" href="'.$this->invitation->getLink().'">'.ctrans('texts.view_credit').'</a>', 'label' => ctrans('texts.view_credit')];
             $data['$viewButton'] = &$data['$view_link'];
+            $data['$view_button'] = &$data['$view_link'];
             $data['$viewLink'] = &$data['$view_link'];
             $data['$view_url'] = ['value' => $this->invitation->getLink(), 'label' => ctrans('texts.view_credit')];
             // $data['$view_link']          = ['value' => $this->invitation->getLink(), 'label' => ctrans('texts.view_credit')];
