@@ -24,6 +24,8 @@ class ACH implements MethodInterface
     public function __construct(GoCardlessPaymentDriver $go_cardless)
     {
         $this->go_cardless = $go_cardless;
+
+        $this->go_cardless->init();
     }
 
     public function authorizeView(array $data) { }
