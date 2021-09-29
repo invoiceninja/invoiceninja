@@ -94,7 +94,7 @@ class Token
 
         // $header['signature'] = md5( $this->generate_parameter_string(array_merge($header, $body), false) );
         
-        $header['signature'] = $this->genSig(array_merge($body, $header));
+        $header['signature'] = $this->payfast->generateTokenSignature(array_merge($body, $header));
 
         nlog($header['signature']);
 

@@ -123,7 +123,36 @@ class PayFastPaymentDriver extends BaseDriver
         return (new Token($this))->tokenBilling($cgt, $payment_hash);
     }
 
-   public function generateSignature($data)
+    public function generateTokenSignature($data)
+    {
+        $fields = [];
+
+        $keys = [
+            'merchant-id',
+            'version',
+            'timestamp',
+            'amount',
+            'item_name',
+            'item_description',
+            'itn',
+            'm_payment_id',
+            'cc_css',
+            'split_payment'
+        ];
+
+        foreach($keys as $key)
+        {
+            if (!empty($data[$key])) {
+                $fields[$key] = $data[$key];
+            }
+        }
+
+        nlog(http_build_query($fields));
+
+        return md5(http_build_query($fields));
+    }
+
+    public function generateSignature($data)
     {
         $fields = array();
 
