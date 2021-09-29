@@ -90,11 +90,11 @@ class Token
             'm_payment_id' => $payment_hash->hash,
         ];        
 
-        nlog(array_merge($header, $body));
+        nlog(array_merge($body, $header));
 
         // $header['signature'] = md5( $this->generate_parameter_string(array_merge($header, $body), false) );
         
-        $header['signature'] = $this->genSig(array_merge($header, $body));
+        $header['signature'] = $this->genSig(array_merge($body, $header));
 
         nlog($header['signature']);
 
@@ -211,7 +211,7 @@ class Token
         }
 
         nlog(http_build_query($fields));
-        
+
         return md5(http_build_query($fields));
     }
 
