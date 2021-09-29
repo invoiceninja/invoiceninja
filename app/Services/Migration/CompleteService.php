@@ -2,8 +2,9 @@
 
 namespace App\Services\Migration;
 
+use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Facades\Storage;
-use Unirest\Request;
+// use Unirest\Request;
 
 class CompleteService
 {
@@ -45,22 +46,48 @@ class CompleteService
 
         foreach ($this->data as $companyKey => $companyData) {
 
-            $data[] = [
+            $data = [
                 'company_index' => $companyKey,
                 'company_key' => $companyData['data']['company']['company_key'],
                 'force' => $companyData['force'],
+                'contents' => 'name',
+                'name' => $companyKey, 
             ];
 
-            $files[$companyKey] = $companyData['file'];
+            $payload[$companyKey] = [
+                'contents' => json_encode($data),
+                'name' => $companyData['data']['company']['company_key'],
+            ];
+
+            $files[] = [
+                'name' => $companyKey, 
+                'company_index' => $companyKey,
+                'company_key' => $companyData['data']['company']['company_key'],
+                'force' => $companyData['force'],
+                'contents' => file_get_contents($companyData['file']),
+                'filename' => basename($companyData['file']),
+                'Content-Type' => 'application/zip'
+            ];
         }
 
-        $body = \Unirest\Request\Body::multipart(['companies' => json_encode($data)], $files);
+        $client =  new \GuzzleHttp\Client(
+        [
+            'headers' => $this->getHeaders(),
+        ]);
 
-        $response = Request::post($this->getUrl(), $this->getHeaders(), $body);
+        
+        $payload_data = [
+                'multipart'=> array_merge($files, $payload),
+             ];
 
-        if (in_array($response->code, [200])) {
+        info(print_r($payload_data,1));
+        $response = $client->request("POST", $this->getUrl(),$payload_data);
+
+        if($response->getStatusCode() == 200){
+
             $this->isSuccessful = true;
-        } else {
+            return json_decode($response->getBody(),true);
+        }else {
             info($response->raw_body);
 
             $this->isSuccessful = false;
@@ -68,6 +95,26 @@ class CompleteService
                 'Oops, something went wrong. Migration can\'t be processed at the moment. Please checks the logs.',
             ];
         }
+
+        return $this;
+
+
+
+
+        // $body = \Unirest\Request\Body::multipart(['companies' => json_encode($data)], $files);
+
+        // $response = Request::post($this->getUrl(), $this->getHeaders(), $body);
+
+        // if (in_array($response->code, [200])) {
+        //     $this->isSuccessful = true;
+        // } else {
+        //     info($response->raw_body);
+
+        //     $this->isSuccessful = false;
+        //     $this->errors = [
+        //         'Oops, something went wrong. Migration can\'t be processed at the moment. Please checks the logs.',
+        //     ];
+        // }
 
         return $this;
     }

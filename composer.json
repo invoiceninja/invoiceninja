@@ -68,7 +68,6 @@
         "league/fractal": "0.13.*",
         "lokielse/omnipay-alipay": "~1.4",
         "maatwebsite/excel": "dev-carbon#8b17952",
-        "mashape/unirest-php": "^3.0.4",
         "meebio/omnipay-creditcall": "dev-master",
         "meebio/omnipay-secure-trading": "dev-master",
         "mfauveau/omnipay-pacnet": "~2.0",

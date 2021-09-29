@@ -13,8 +13,9 @@
 
 namespace App\Services\Migration;
 
-use Unirest\Request;
-use Unirest\Request\Body;
+use GuzzleHttp\RequestOptions;
+// use Unirest\Request;
+// use Unirest\Request\Body;
 
 class AuthService
 {
@@ -51,24 +52,56 @@ class AuthService
             'password' => $this->password,
         ];
 
-        $body = Body::json($data);
+        $client =  new \GuzzleHttp\Client([
+            'headers' =>  $this->getHeaders(),
+        ]);
 
-        $response = Request::post($this->getUrl(), $this->getHeaders(), $body);
+        $response = $client->post($this->getUrl(),[
+            RequestOptions::JSON => $data, 
+            RequestOptions::ALLOW_REDIRECTS => false
+        ]);
 
-        if (in_array($response->code, [401])) {
-            info($response->raw_body);
 
+        if($response->getStatusCode() == 401){
+            info($response->getBody());
             $this->isSuccessful = false;
-            $this->processErrors($response->body->message);
-        } elseif (in_array($response->code, [200])) {
+            $this->processErrors($response->getBody());
+        } elseif ($response->getStatusCode() == 200) {
+
+            $message_body = json_decode($response->getBody(), true);
+
+            info(print_r($message_body,1));
+
             $this->isSuccessful = true;
-            $this->token = $response->body->data[0]->token->token;
+            $this->token = $message_body['data'][0]['token']['token'];
         } else {
-            info($response->raw_body);
+            info(json_decode($response->getBody()->getContents()));
 
             $this->isSuccessful = false;
             $this->errors = [trans('texts.migration_went_wrong')];
         }
+
+
+        //return $response->getBody();
+
+        // $body = Body::json($data);
+
+        // $response = Request::post($this->getUrl(), $this->getHeaders(), $body);
+
+        // if (in_array($response->code, [401])) {
+        //     info($response->raw_body);
+
+        //     $this->isSuccessful = false;
+        //     $this->processErrors($response->body->message);
+        // } elseif (in_array($response->code, [200])) {
+        //     $this->isSuccessful = true;
+        //     $this->token = $response->body->data[0]->token->token;
+        // } else {
+        //     info($response->raw_body);
+
+        //     $this->isSuccessful = false;
+        //     $this->errors = [trans('texts.migration_went_wrong')];
+        // }
 
         return $this;
     }
