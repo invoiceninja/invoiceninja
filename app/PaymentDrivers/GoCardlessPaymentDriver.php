@@ -34,7 +34,7 @@ class GoCardlessPaymentDriver extends BaseDriver
     public $payment_method;
 
     public static $methods = [
-        GatewayType::BANK_TRANSFER => ACH::class,
+        GatewayType::BANK_TRANSFER => \App\PaymentDrivers\GoCardless\ACH::class,
     ];
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_GOCARDLESS;
