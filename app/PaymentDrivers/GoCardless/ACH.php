@@ -26,6 +26,7 @@ use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\GoCardlessPaymentDriver;
 use App\Utils\Traits\MakesHash;
 use Exception;
+use GoCardlessPro\Resources\Payment as ResourcesPayment;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
 use Illuminate\View\View;
@@ -151,6 +152,12 @@ class ACH implements MethodInterface
         return render('gateways.gocardless.ach.pay', $data);
     }
 
+    /**
+     * Process payments for ACH.
+     *
+     * @param PaymentResponseRequest $request
+     * @return RedirectResponse|void
+     */
     public function paymentResponse(PaymentResponseRequest $request)
     {
         $token = ClientGatewayToken::find(
@@ -182,6 +189,13 @@ class ACH implements MethodInterface
         }
     }
 
+    /**
+     * Handle pending payments for ACH.
+     *
+     * @param ResourcesPayment $payment
+     * @param array $data
+     * @return RedirectResponse
+     */
     public function processPendingPayment(\GoCardlessPro\Resources\Payment $payment, array $data = [])
     {
         $data = [
@@ -206,6 +220,12 @@ class ACH implements MethodInterface
         return redirect()->route('client.payments.show', ['payment' => $this->go_cardless->encodePrimaryKey($payment->id)]);
     }
 
+    /**
+     * Process unsuccessful payments for ACH.
+     *
+     * @param ResourcesPayment $payment
+     * @return never
+     */
     public function processUnsuccessfulPayment(\GoCardlessPro\Resources\Payment $payment)
     {
         PaymentFailureMailer::dispatch($this->go_cardless->client, $payment->status, $this->go_cardless->client->company, $this->go_cardless->payment_hash->data->amount_with_fee);
