@@ -15,17 +15,25 @@ namespace App\PaymentDrivers\GoCardless;
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Http\Requests\Request;
+use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
+use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
+use App\Models\Payment;
+use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\GoCardlessPaymentDriver;
+use App\Utils\Traits\MakesHash;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
+use Illuminate\View\View;
 
 class ACH implements MethodInterface
 {
+    use MakesHash;
+
     public GoCardlessPaymentDriver $go_cardless;
 
     public function __construct(GoCardlessPaymentDriver $go_cardless)
@@ -128,11 +136,101 @@ class ACH implements MethodInterface
         }
     }
 
-    public function paymentView(array $data)
+    /**
+     * Show the payment page for ACH.
+     *
+     * @param array $data
+     * @return View
+     */
+    public function paymentView(array $data): View
     {
+        $data['gateway'] = $this->go_cardless;
+        $data['amount'] = $this->go_cardless->convertToGoCardlessAmount($data['total']['amount_with_fee'], $this->go_cardless->client->currency()->precision);
+        $data['currency'] = $this->go_cardless->client->getCurrencyCode();
+
+        return render('gateways.gocardless.ach.pay', $data);
     }
 
     public function paymentResponse(PaymentResponseRequest $request)
     {
+        $token = ClientGatewayToken::find(
+            $this->decodePrimaryKey($request->source)
+        )->firstOrFail();
+
+        try {
+            $payment = $this->go_cardless->gateway->payments()->create([
+                'params' => [
+                    'amount' => $request->amount,
+                    'currency' => $request->currency,
+                    'metadata' => [
+                        'payment_hash' => $this->go_cardless->payment_hash->hash,
+                    ],
+                    'links' => [
+                        'mandate' => $token->token,
+                    ],
+                ],
+            ]);
+
+
+            if ($payment->status === 'pending_submission') {
+                return $this->processPendingPayment($payment, ['token' => $token->hashed_id]);
+            }
+
+            return $this->processUnsuccessfulPayment($payment);
+        } catch (\Exception $exception) {
+            throw new PaymentFailed($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    public function processPendingPayment(\GoCardlessPro\Resources\Payment $payment, array $data = [])
+    {
+        $data = [
+            'payment_method' => $data['token'],
+            'payment_type' => PaymentType::ACH,
+            'amount' => $this->go_cardless->payment_hash->data->amount_with_fee,
+            'transaction_reference' => $payment->id,
+            'gateway_type_id' => GatewayType::BANK_TRANSFER,
+        ];
+
+        $payment = $this->go_cardless->createPayment($data, Payment::STATUS_PENDING);
+
+        SystemLogger::dispatch(
+            ['response' => $payment, 'data' => $data],
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_SUCCESS,
+            SystemLog::TYPE_GOCARDLESS,
+            $this->go_cardless->client,
+            $this->go_cardless->client->company,
+        );
+
+        return redirect()->route('client.payments.show', ['payment' => $this->go_cardless->encodePrimaryKey($payment->id)]);
+    }
+
+    public function processUnsuccessfulPayment(\GoCardlessPro\Resources\Payment $payment)
+    {
+        PaymentFailureMailer::dispatch($this->go_cardless->client, $payment->status, $this->go_cardless->client->company, $this->go_cardless->payment_hash->data->amount_with_fee);
+
+        PaymentFailureMailer::dispatch(
+            $this->go_cardless->client,
+            $payment,
+            $this->go_cardless->client->company,
+            $payment->amount
+        );
+
+        $message = [
+            'server_response' => $payment,
+            'data' => $this->go_cardless->payment_hash->data,
+        ];
+
+        SystemLogger::dispatch(
+            $message,
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_FAILURE,
+            SystemLog::TYPE_GOCARDLESS,
+            $this->go_cardless->client,
+            $this->go_cardless->client->company,
+        );
+
+        throw new PaymentFailed('Failed to process the payment.', 500);
     }
 }
