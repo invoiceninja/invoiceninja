@@ -407,7 +407,7 @@ class Account extends BaseModel
             }
         }
         catch(\Exception $e){
-            \Sentry\captureMessage("I encountered an error with email quotas - defaulting to SEND");
+            \Sentry\captureMessage("I encountered an error with email quotas for account {$this->key} - defaulting to SEND");
         }
 
         return false;
