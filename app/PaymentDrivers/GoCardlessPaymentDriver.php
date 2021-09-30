@@ -102,4 +102,9 @@ class GoCardlessPaymentDriver extends BaseDriver
     {
         // ..
     }
+
+    public function convertToGoCardlessAmount($amount, $precision)
+    {
+        return \round(($amount * pow(10, $precision)), 0);
+    }
 }
