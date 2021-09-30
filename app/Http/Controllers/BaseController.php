@@ -746,6 +746,8 @@ class BaseController extends Controller
             //pass referral code to front end
             $data['rc'] = request()->has('rc') ? request()->input('rc') : '';
             $data['build'] = request()->has('build') ? request()->input('build') : '';
+            $data['login'] = request()->has('login') ? request()->input('login') : "false";
+            
             $data['user_agent'] = request()->server('HTTP_USER_AGENT');
 
             $data['path'] = $this->setBuild();

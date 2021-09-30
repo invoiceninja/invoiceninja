@@ -96,6 +96,7 @@ class Company extends BaseModel
         'show_task_end_date',
         'use_comma_as_decimal_place',
         'report_include_drafts',
+        'client_registration_fields',
     ];
 
     protected $hidden = [
@@ -111,6 +112,7 @@ class Company extends BaseModel
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
+        'client_registration_fields' => 'array',
     ];
 
     protected $with = [
@@ -485,7 +487,7 @@ class Company extends BaseModel
     {
         if (Ninja::isHosted()) {
 
-            if($this->portal_mode == 'domain')
+            if($this->portal_mode == 'domain' && strlen($this->portal_domain) > 3)
                 return $this->portal_domain;
 
             return "https://{$this->subdomain}." . config('ninja.app_domain');

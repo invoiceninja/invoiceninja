@@ -101,6 +101,7 @@ class RecurringExpenseTransformer extends EntityTransformer
             'remaining_cycles' => (int) $recurring_expense->remaining_cycles,
             'last_sent_date' => $recurring_expense->last_sent_date ?: '',
             'next_send_date' => $recurring_expense->next_send_date ?: '',
+            'recurring_dates' => (array) [],
         ];
 
         if(request()->has('show_dates') && request()->query('show_dates') == 'true')
