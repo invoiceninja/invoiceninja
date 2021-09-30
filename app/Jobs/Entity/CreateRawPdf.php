@@ -170,6 +170,15 @@ class CreateRawPdf implements ShouldQueue
 
             if(config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja'){
                 $pdf = (new NinjaPdf())->build($maker->getCompiledHTML(true));
+
+                $finfo = new \finfo(FILEINFO_MIME);
+
+                //fallback in case hosted PDF fails.
+                if($finfo->buffer($pdf) != 'application/pdf; charset=binary')
+                {
+                    $pdf = $this->makePdf(null, null, $maker->getCompiledHTML(true));
+                }
+
             }
             else {
                 $pdf = $this->makePdf(null, null, $maker->getCompiledHTML(true));
