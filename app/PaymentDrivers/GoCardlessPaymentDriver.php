@@ -11,6 +11,7 @@
 
 namespace App\PaymentDrivers;
 
+use App\Http\Requests\Payments\PaymentWebhookRequest;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
@@ -210,5 +211,43 @@ class GoCardlessPaymentDriver extends BaseDriver
                 $this->client->company
             );
         }
+    }
+
+    public function processWebhookRequest(PaymentWebhookRequest $request)
+    {
+        // Allow app to catch up with webhook request.
+        sleep(2);
+
+        $this->init();
+
+        foreach ($request->events as $event) {
+            if ($event['action'] === 'confirmed') {
+                $payment = Payment::query()
+                    ->where('transaction_reference', $event['links']['payment'])
+                    ->where('company_id', $request->getCompany()->id)
+                    ->first();
+
+                if ($payment) {
+                    $payment->status_id = Payment::STATUS_COMPLETED;
+                    $payment->save();
+                }
+            }
+
+            if ($event['action'] === 'failed') {
+                // Update invoices, etc?
+
+                $payment = Payment::query()
+                    ->where('transaction_reference', $event['links']['payment'])
+                    ->where('company_id', $request->getCompany()->id)
+                    ->first();
+
+                if ($payment) {
+                    $payment->status_id = Payment::STATUS_FAILED;
+                    $payment->save();
+                }
+            }
+        }
+
+        return response()->json([], 200);
     }
 }
