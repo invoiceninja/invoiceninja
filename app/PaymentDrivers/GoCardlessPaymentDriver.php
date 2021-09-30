@@ -11,13 +11,15 @@
 
 namespace App\PaymentDrivers;
 
+use App\Jobs\Mail\PaymentFailureMailer;
+use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentHash;
+use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\Utils\Traits\MakesHash;
-
 
 class GoCardlessPaymentDriver extends BaseDriver
 {
@@ -100,7 +102,86 @@ class GoCardlessPaymentDriver extends BaseDriver
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
-        // ..
+        $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
+        $converted_amount = $this->convertToGoCardlessAmount($amount, $this->client->currency()->precision);
+
+        $this->init();
+
+        try {
+            $payment = $this->gateway->payments()->create([
+                'params' => [
+                    'amount' => $converted_amount,
+                    'currency' => $this->client->getCurrencyCode(),
+                    'metadata' => [
+                        'payment_hash' => $this->payment_hash->hash,
+                    ],
+                    'links' => [
+                        'mandate' => $cgt->token,
+                    ],
+                ],
+            ]);
+
+
+            if ($payment->status === 'pending_submission') {
+                $this->confirmGatewayFee();
+
+                $data = [
+                    'payment_method' => $cgt->hashed_id,
+                    'payment_type' => PaymentType::ACH,
+                    'amount' => $amount,
+                    'transaction_reference' => $payment->id,
+                    'gateway_type_id' => GatewayType::BANK_TRANSFER,
+                ];
+
+                $payment = $this->createPayment($data, Payment::STATUS_COMPLETED);
+
+                SystemLogger::dispatch(
+                    ['response' => $payment, 'data' => $data],
+                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                    SystemLog::EVENT_GATEWAY_SUCCESS,
+                    SystemLog::TYPE_GOCARDLESS,
+                    $this->client,
+                    $this->client->company
+                );
+
+                return $payment;
+            }
+
+            PaymentFailureMailer::dispatch(
+                $this->client,
+                $payment->status,
+                $this->client->company,
+                $amount
+            );
+
+            $message = [
+                'server_response' => $payment,
+                'data' => $payment_hash->data,
+            ];
+
+            SystemLogger::dispatch(
+                $message,
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_GOCARDLESS,
+                $this->client,
+                $this->client->company
+            );
+
+            return false;
+        } catch (\Exception $exception) {
+            $this->unWindGatewayFees($this->payment_hash);
+
+            $data = [
+                'status' => '',
+                'error_type' => '',
+                'error_code' => $exception->getCode(),
+                'param' => '',
+                'message' => $exception->getMessage(),
+            ];
+
+            SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_GOCARDLESS, $this->client, $this->client->company);
+        }
     }
 
     public function convertToGoCardlessAmount($amount, $precision)
