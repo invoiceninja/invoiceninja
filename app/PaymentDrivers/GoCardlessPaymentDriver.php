@@ -188,4 +188,27 @@ class GoCardlessPaymentDriver extends BaseDriver
     {
         return \round(($amount * pow(10, $precision)), 0);
     }
+
+    public function detach(ClientGatewayToken $token)
+    {
+        $this->init();
+
+        try {
+            $this->gateway->mandates()->cancel($token->token);
+        } catch (\Exception $e) {
+            nlog($e->getMessage());
+
+            SystemLogger::dispatch(
+                [
+                    'server_response' => $e->getMessage(),
+                    'data' => request()->all(),
+                ],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_GOCARDLESS,
+                $this->client,
+                $this->client->company
+            );
+        }
+    }
 }
