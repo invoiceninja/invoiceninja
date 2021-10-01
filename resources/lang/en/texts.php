@@ -4314,6 +4314,8 @@ $LANG = array(
     'generic_gateway_error' => 'Gateway configuration error. Please check your credentials.',
     'my_documents' => 'My documents',
     'payment_method_cannot_be_preauthorized' => 'This payment method cannot be preauthorized.',
+    'kbc_cbc' => 'KBC/CBC',
+    'bancontact' => 'Bancontact',
 );
 
 return $LANG;

@@ -76,7 +76,7 @@ class SendingController extends Controller
         }
 
         Mail::to(config('ninja.contact.ninja_official_contact'))
-            ->send(new SupportMessageSent($request->input('message'), $send_logs));
+            ->send(new SupportMessageSent($request->all(), $send_logs));
 
         return response()->json([
             'success' => true,

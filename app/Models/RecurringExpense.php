@@ -164,4 +164,77 @@ class RecurringExpense extends BaseModel
         }
     }
 
+    public function recurringDates()
+    {
+
+        /* Return early if nothing to send back! */
+        if ($this->status_id == RecurringInvoice::STATUS_COMPLETED ||
+            $this->remaining_cycles == 0 ||
+            !$this->next_send_date) {
+            return [];
+        }
+
+        /* Endless - lets send 10 back*/
+        $iterations = $this->remaining_cycles;
+
+        if ($this->remaining_cycles == -1) {
+            $iterations = 10;
+        }
+
+        $data = [];
+
+        if (!Carbon::parse($this->next_send_date)) {
+            return $data;
+        }
+
+        $next_send_date = Carbon::parse($this->next_send_date)->copy();
+
+        for ($x=0; $x<$iterations; $x++) {
+            // we don't add the days... we calc the day of the month!!
+            $this->nextDateByFrequency($next_send_date);
+
+            $data[] = [
+                'send_date' => $next_send_date->format('Y-m-d'),
+            ];
+
+        }
+
+        return $data;
+    }
+
+    public function nextDateByFrequency($date)
+    {
+        $offset = $this->client->timezone_offset();
+
+        switch ($this->frequency_id) {
+            case RecurringInvoice::FREQUENCY_DAILY:
+                return $date->startOfDay()->addDay()->addSeconds($offset);
+            case RecurringInvoice::FREQUENCY_WEEKLY:
+                return $date->startOfDay()->addWeek()->addSeconds($offset);
+            case RecurringInvoice::FREQUENCY_TWO_WEEKS:
+                return $date->startOfDay()->addWeeks(2)->addSeconds($offset);
+            case RecurringInvoice::FREQUENCY_FOUR_WEEKS:
+                return $date->startOfDay()->addWeeks(4)->addSeconds($offset);
+            case RecurringInvoice::FREQUENCY_MONTHLY:
+                return $date->startOfDay()->addMonthNoOverflow()->addSeconds($offset);
+            case RecurringInvoice::FREQUENCY_TWO_MONTHS:
+                return $date->startOfDay()->addMonthsNoOverflow(2)->addSeconds($offset);
+            case RecurringInvoice::FREQUENCY_THREE_MONTHS:
+                return $date->startOfDay()->addMonthsNoOverflow(3)->addSeconds($offset);
+            case RecurringInvoice::FREQUENCY_FOUR_MONTHS:
+                return $date->startOfDay()->addMonthsNoOverflow(4)->addSeconds($offset);
+            case RecurringInvoice::FREQUENCY_SIX_MONTHS:
+                return $date->addMonthsNoOverflow(6)->addSeconds($offset);
+            case RecurringInvoice::FREQUENCY_ANNUALLY:
+                return $date->startOfDay()->addYear()->addSeconds($offset);
+            case RecurringInvoice::FREQUENCY_TWO_YEARS:
+                return $date->startOfDay()->addYears(2)->addSeconds($offset);
+            case RecurringInvoice::FREQUENCY_THREE_YEARS:
+                return $date->startOfDay()->addYears(3)->addSeconds($offset);
+            default:
+                return null;
+        }
+    }
+
+
 }

@@ -794,6 +794,7 @@ class CompanyImport implements ShouldQueue
                 ['clients' => 'client_id'],
                 ['projects' => 'project_id'],
                 ['vendors' => 'vendor_id'],
+                ['invoices' => 'invoice_id'],
             ], 
             'expenses',
             'number');

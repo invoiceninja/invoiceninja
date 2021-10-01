@@ -47,6 +47,8 @@ class InvoiceService
      */
     public function markPaid()
     {
+        $this->removeUnpaidGatewayFees();
+
         $this->invoice = (new MarkPaid($this->invoice))->run();
 
         return $this;
