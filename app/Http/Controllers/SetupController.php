@@ -278,7 +278,7 @@ class SetupController extends Controller
     private function testPhantom()
     {
         try {
-            $key = config('ninja.phantomjs_pdf_generation');
+            $key = config('ninja.phantomjs_key');
             $url = 'https://www.invoiceninja.org/';
 
             $phantom_url = "https://phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$url}%22,renderType:%22pdf%22%7D";
