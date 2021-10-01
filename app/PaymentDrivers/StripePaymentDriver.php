@@ -314,7 +314,9 @@ class StripePaymentDriver extends BaseDriver
 
         $this->init();
 
-        $client_gateway_token = ClientGatewayToken::whereClientId($this->client->id)->whereCompanyGatewayId($this->company_gateway->id)->first();
+        $client_gateway_token = ClientGatewayToken::whereClientId($this->client->id)
+                                                  ->whereCompanyGatewayId($this->company_gateway->id)
+                                                  ->first();
 
         //Search by customer reference
         if ($client_gateway_token && $client_gateway_token->gateway_customer_reference) {
