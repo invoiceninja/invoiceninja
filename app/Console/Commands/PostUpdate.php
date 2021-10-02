@@ -56,7 +56,7 @@ class PostUpdate extends Command
 
         exec('vendor/bin/composer install --no-dev -o', $output);
 
-        info(print_r($output,1));        
+        info(print_r($output,1));
         info("finished running composer install ");
 
         try {
@@ -75,9 +75,17 @@ class PostUpdate extends Command
 
         info("view cleared");
 
+        try {
+            Artisan::call('queue:restart');
+        } catch (\Exception $e) {
+            info("I wasn't able to restart the queue.");
+        }
+
+        info("queue restarted");
+
         VersionCheck::dispatch();
 
         info("Sent for version check");
-        
+
     }
 }

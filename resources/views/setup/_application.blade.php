@@ -53,7 +53,7 @@
                     <div class="alert py-2 bg-white" id="test-pdf-response"></div>
                 </dd>
                 <a target="_blank" class="block text-sm text-gray-900 leading-5 underline"
-                   href="https://invoiceninja.github.io/selfhost.html#phantom-js">
+                   href="https://invoiceninja.github.io/docs/self-host-troubleshooting/#pdf-conversion-issues">
                     {{ ctrans('texts.setup_phantomjs_note') }}
                 </a>
             </div>

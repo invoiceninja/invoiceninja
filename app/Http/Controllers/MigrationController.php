@@ -24,6 +24,7 @@ use App\Models\CompanyToken;
 use App\Utils\Ninja;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\App;
 
@@ -231,10 +232,23 @@ class MigrationController extends BaseController
      * @return \Illuminate\Http\JsonResponse|void
      */
     public function startMigration(Request $request)
-    {
-        nlog("Starting Migration");
+    {   
 
-        $companies = json_decode($request->companies);
+                            // v4 Laravel 6
+
+                            // $companies = [];
+
+                            // foreach($request->all() as $input){
+
+                            //     if($input instanceof UploadedFile)
+                            //         nlog('is file');
+                            //     else
+                            //         $companies[] = json_decode($input);
+                            // }
+
+        nlog("Starting Migration");
+        
+        $companies = json_decode($request->companies,1);
 
         if (app()->environment() === 'local') {
             nlog($request->all());
@@ -250,19 +264,31 @@ class MigrationController extends BaseController
     } finally {
     // Controller logic here
 
-        foreach ($companies as $company) {
-            $is_valid = $request->file($company->company_index)->isValid();
+        foreach($companies as $company)
+        {
 
-            if (!$is_valid) {
-                continue;
-            }
+            $company = (array)$company;
+
+                            // v4 Laravel 6
+                            // $input = $request->all();
+
+                            // foreach ($input as $company) {
+
+                            //     if($company instanceof UploadedFile)
+                            //         continue;
+                            //     else
+                            //         $company = json_decode($company,1);
+
+                            //     if (!$company || !is_int($company['company_index'] || !$request->file($company['company_index'])->isValid())) {
+                            //         continue;
+                            //     }
 
             $user = auth()->user();
 
             $company_count = $user->account->companies()->count();
 
             // Look for possible existing company (based on company keys).
-            $existing_company = Company::whereRaw('BINARY `company_key` = ?', [$company->company_key])->first();
+            $existing_company = Company::whereRaw('BINARY `company_key` = ?', [$company['company_key']])->first();
 
             App::forgetInstance('translator');
             $t = app('translator');
@@ -291,7 +317,7 @@ class MigrationController extends BaseController
 
             $checks = [
                 'existing_company' => $existing_company ? (bool)1 : false,
-                'force' => property_exists($company, 'force') ? (bool) $company->force : false,
+                'force' => array_key_exists('force', $company) ? (bool) $company['force'] : false,
             ];
 
             // If there's existing company and ** no ** force is provided - skip migration.
@@ -378,10 +404,10 @@ class MigrationController extends BaseController
                 ]);
             }
 
-            $migration_file = $request->file($company->company_index)
+            $migration_file = $request->file($company['company_index'])
                 ->storeAs(
                     'migrations',
-                    $request->file($company->company_index)->getClientOriginalName(),
+                    $request->file($company['company_index'])->getClientOriginalName(),
                     'public'
                 );
 

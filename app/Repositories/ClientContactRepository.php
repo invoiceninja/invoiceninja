@@ -80,10 +80,10 @@ class ClientContactRepository extends BaseRepository
         });
 
         //need to reload here to shake off stale contacts
-        $client->load('contacts');
+        $client->fresh();
 
         //always made sure we have one blank contact to maintain state
-        if ($client->contacts->count() == 0) {
+        if ($client->contacts()->count() == 0) {
             $new_contact = ClientContactFactory::create($client->company_id, $client->user_id);
             $new_contact->client_id = $client->id;
             $new_contact->contact_key = Str::random(40);

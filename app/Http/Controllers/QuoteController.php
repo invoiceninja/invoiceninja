@@ -391,7 +391,9 @@ class QuoteController extends BaseController
 
         $quote = $this->quote_repo->save($request->all(), $quote);
 
-        $quote->service()->deletePdf();
+        $quote->service()
+              ->triggeredActions($request)
+              ->deletePdf();
         
         event(new QuoteWasUpdated($quote, $quote->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
@@ -740,11 +742,16 @@ class QuoteController extends BaseController
 
         $file = $quote->service()->getQuotePdf($contact);
 
+        $headers = ['Content-Type' => 'application/pdf'];
+
+        if(request()->input('inline') == 'true')
+            $headers = array_merge($headers, ['Content-Disposition' => 'inline']);
+
         return response()->streamDownload(function () use($file) {
                 echo Storage::get($file);
-        },  basename($file), ['Content-Type' => 'application/pdf']);
+        },  basename($file), $headers);
+        
 
-        // return response()->download($file_path, basename($file_path), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);
     }
 
     /**

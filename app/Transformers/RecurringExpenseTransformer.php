@@ -49,7 +49,7 @@ class RecurringExpenseTransformer extends EntityTransformer
      */
     public function transform(RecurringExpense $recurring_expense)
     {
-        return [
+        $data = [
             'id' => $this->encodePrimaryKey($recurring_expense->id),
             'user_id' => $this->encodePrimaryKey($recurring_expense->user_id),
             'assigned_user_id' => $this->encodePrimaryKey($recurring_expense->assigned_user_id),
@@ -101,6 +101,12 @@ class RecurringExpenseTransformer extends EntityTransformer
             'remaining_cycles' => (int) $recurring_expense->remaining_cycles,
             'last_sent_date' => $recurring_expense->last_sent_date ?: '',
             'next_send_date' => $recurring_expense->next_send_date ?: '',
+            'recurring_dates' => (array) [],
         ];
+
+        if(request()->has('show_dates') && request()->query('show_dates') == 'true')
+            $data['recurring_dates'] = (array) $recurring_expense->recurringDates();
+
+             return $data;
     }
 }

@@ -77,7 +77,7 @@
                         </div>
                     @endif
 
-                    @if(!empty($company->present()->website()))
+                    @if(!is_null($company) && !empty($company->present()->website()))
                         <div class="mt-5 text-center">
                             <a class="button-link text-sm" href="{{ $company->present()->website() }}">
                                 {{ ctrans('texts.back_to', ['url' => parse_url($company->present()->website())['host'] ?? $company->present()->website() ]) }}

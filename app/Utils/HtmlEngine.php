@@ -18,7 +18,9 @@ use App\Models\InvoiceInvitation;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
 use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesDates;
+use App\Utils\transformTranslations;
 use Exception;
 use Illuminate\Support\Facades\App;
 
@@ -96,6 +98,11 @@ class HtmlEngine
             exit;
         }
 
+        App::forgetInstance('translator');
+        $t = app('translator');
+        App::setLocale($this->contact->preferredLocale());
+        $t->replace(Ninja::transformTranslations($this->settings));
+
         $data = [];
         $data['$global_margin'] = ['value' => '6.35mm', 'label' => ''];
         $data['$tax'] = ['value' => '', 'label' => ctrans('texts.tax')];
@@ -127,11 +134,12 @@ class HtmlEngine
             $data['$entity'] = ['value' => '', 'label' => ctrans('texts.invoice')];
             $data['$number'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.invoice_number')];
             $data['$number_short'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.invoice_number_short')];
-            $data['$entity.terms'] = ['value' => $this->entity->terms ?: '', 'label' => ctrans('texts.invoice_terms')];
+            $data['$entity.terms'] = ['value' => Helpers::processReservedKeywords(\nl2br($this->entity->terms), $this->client) ?: '', 'label' => ctrans('texts.invoice_terms')];
             $data['$terms'] = &$data['$entity.terms'];
             $data['$view_link'] = ['value' => '<a class="button" href="'.$this->invitation->getLink().'">'.ctrans('texts.view_invoice').'</a>', 'label' => ctrans('texts.view_invoice')];
             $data['$viewLink'] = &$data['$view_link'];
             $data['$viewButton'] = &$data['$view_link'];
+            $data['$view_button'] = &$data['$view_link'];
             $data['$paymentButton'] = &$data['$view_link'];
             $data['$view_url'] = ['value' => $this->invitation->getLink(), 'label' => ctrans('texts.view_invoice')];
             $data['$date'] = ['value' => $this->translateDate($this->entity->date, $this->entity->client->date_format(), $this->entity->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.invoice_date')];
@@ -150,6 +158,7 @@ class HtmlEngine
             $data['$view_link'] = ['value' => '<a class="button" href="'.$this->invitation->getLink().'">'.ctrans('texts.view_quote').'</a>', 'label' => ctrans('texts.view_quote')];
             $data['$viewLink'] = &$data['$view_link'];
             $data['$viewButton'] = &$data['$view_link'];
+            $data['$view_button'] = &$data['$view_link'];
             $data['$approveButton'] = ['value' => '<a class="button" href="'.$this->invitation->getLink().'">'.ctrans('texts.view_quote').'</a>', 'label' => ctrans('texts.approve')];
             $data['$view_url'] = ['value' => $this->invitation->getLink(), 'label' => ctrans('texts.view_quote')];
             $data['$date'] = ['value' => $this->translateDate($this->entity->date, $this->entity->client->date_format(), $this->entity->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.quote_date')];
@@ -163,6 +172,7 @@ class HtmlEngine
             $data['$terms'] = &$data['$entity.terms'];
             $data['$view_link'] = ['value' => '<a class="button" href="'.$this->invitation->getLink().'">'.ctrans('texts.view_credit').'</a>', 'label' => ctrans('texts.view_credit')];
             $data['$viewButton'] = &$data['$view_link'];
+            $data['$view_button'] = &$data['$view_link'];
             $data['$viewLink'] = &$data['$view_link'];
             $data['$view_url'] = ['value' => $this->invitation->getLink(), 'label' => ctrans('texts.view_credit')];
             // $data['$view_link']          = ['value' => $this->invitation->getLink(), 'label' => ctrans('texts.view_credit')];
@@ -231,12 +241,15 @@ class HtmlEngine
         $data['$user.name'] = ['value' => $this->entity->user->present()->name(), 'label' => ctrans('texts.name')];
         $data['$user.first_name'] = ['value' => $this->entity->user->first_name, 'label' => ctrans('texts.first_name')];
         $data['$user.last_name'] = ['value' => $this->entity->user->last_name, 'label' => ctrans('texts.last_name')];
+        $data['$created_by_user'] = &$data['$user.name'];
+        $data['$assigned_to_user'] = ['value' => $this->entity->assigned_user ? $this->entity->assigned_user->present()->name() : '', 'label' => ctrans('texts.name')];
+
         $data['$user_iban'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company1', $this->settings->custom_value1, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'company1')];
         $data['$invoice.custom1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice1', $this->entity->custom_value1, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice1')];
         $data['$invoice.custom2'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice2', $this->entity->custom_value2, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice2')];
         $data['$invoice.custom3'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice3', $this->entity->custom_value3, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice3')];
         $data['$invoice.custom4'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'invoice4', $this->entity->custom_value4, $this->client) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'invoice4')];
-        $data['$invoice.public_notes'] = ['value' => $this->entity->public_notes ?: '', 'label' => ctrans('texts.public_notes')];
+        $data['$invoice.public_notes'] = ['value' => Helpers::processReservedKeywords(\nl2br($this->entity->public_notes), $this->client) ?: '', 'label' => ctrans('texts.public_notes')];
         $data['$entity.public_notes'] = &$data['$invoice.public_notes'];
         $data['$public_notes'] = &$data['$invoice.public_notes'];
         $data['$notes'] = &$data['$public_notes'];
@@ -434,7 +447,7 @@ class HtmlEngine
         $data['$description'] = ['value' => '', 'label' => ctrans('texts.description')];
 
         //$data['$entity_footer'] = ['value' => $this->client->getSetting("{$this->entity_string}_footer"), 'label' => ''];
-        $data['$entity_footer'] = ['value' => $this->entity->footer, 'label' => ''];
+        $data['$entity_footer'] = ['value' => Helpers::processReservedKeywords(\nl2br($this->entity->footer), $this->client), 'label' => ''];
 
         $data['$page_size'] = ['value' => $this->settings->page_size, 'label' => ''];
         $data['$page_layout'] = ['value' => property_exists($this->settings, 'page_layout') ? $this->settings->page_layout : 'Portrait', 'label' => ''];
@@ -452,6 +465,9 @@ class HtmlEngine
 
         $data['$payment.date'] = ['value' => '&nbsp;', 'label' => ctrans('texts.payment_date')];
         $data['$method'] = ['value' => '&nbsp;', 'label' => ctrans('texts.method')];
+
+        $data['$statement_amount'] = ['value' => '', 'label' => ctrans('texts.amount')];
+        $data['$statement'] = ['value' => '', 'label' => ctrans('texts.statement')];
 
         $arrKeysLength = array_map('strlen', array_keys($data));
         array_multisort($arrKeysLength, SORT_DESC, $data);

@@ -746,6 +746,8 @@ class BaseController extends Controller
             //pass referral code to front end
             $data['rc'] = request()->has('rc') ? request()->input('rc') : '';
             $data['build'] = request()->has('build') ? request()->input('build') : '';
+            $data['login'] = request()->has('login') ? request()->input('login') : "false";
+            
             $data['user_agent'] = request()->server('HTTP_USER_AGENT');
 
             $data['path'] = $this->setBuild();
@@ -765,6 +767,9 @@ class BaseController extends Controller
         if(request()->has('build')) {
             $build = request()->input('build');
         }
+        elseif(Ninja::isHosted()){
+            return 'main.dart.js';
+        }
 
         switch ($build) {
             case 'wasm':
@@ -776,13 +781,10 @@ class BaseController extends Controller
             case 'next':
                 return 'main.next.dart.js';      
             case 'profile':
-                return 'main.profile.dart.js';                                      
+                return 'main.profile.dart.js';                                     
             default:
+                return 'main.foss.dart.js';
 
-                if(Ninja::isSelfHost())
-                    return 'main.foss.dart.js';
-
-                return 'main.dart.js';
         }
 
     }

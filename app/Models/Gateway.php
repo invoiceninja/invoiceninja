@@ -85,16 +85,24 @@ class Gateway extends StaticModel
                 return [GatewayType::CREDIT_CARD => ['refund' => false, 'token_billing' => true]];//eWay
                 break;
             case 11:
-                return [GatewayType::CREDIT_CARD => ['refund' => false, 'token_billing' => false]];//Payfast
+                return [GatewayType::CREDIT_CARD => ['refund' => false, 'token_billing' => true]];//Payfast
                 break;
             case 7:
                 return [
                     GatewayType::CREDIT_CARD => ['refund' => false, 'token_billing' => true], // Mollie
+                    GatewayType::BANK_TRANSFER => ['refund' => false, 'token_billing' => true],
+                    GatewayType::KBC => ['refund' => false, 'token_billing' => false],
+                    GatewayType::BANCONTACT => ['refund' => false, 'token_billing' => false],
                 ];
             case 15:
                 return [GatewayType::PAYPAL => ['refund' => true, 'token_billing' => false]]; //Paypal
                 break;
             case 20:
+                return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true],
+                    GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable','charge.succeeded']],
+                    GatewayType::ALIPAY => ['refund' => false, 'token_billing' => false],
+                    GatewayType::APPLE_PAY => ['refund' => false, 'token_billing' => false],
+                    GatewayType::SOFORT => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded']]]; //Stripe
             case 39:
                 return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true]]; //Checkout
                 break;

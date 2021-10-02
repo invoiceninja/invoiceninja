@@ -57,7 +57,12 @@ class DocumentController extends Controller
     {
         $document = Document::where('hash', $document_hash)->firstOrFail();
 
-        return Storage::disk($document->disk)->download($document->url, $document->name);
+        $headers = [];
+
+        if(request()->input('inline') == 'true') 
+            $headers = array_merge($headers, ['Content-Disposition' => 'inline']);
+
+        return Storage::disk($document->disk)->download($document->url, $document->name, $headers);
     }
 
     public function downloadMultiple(DownloadMultipleDocumentsRequest $request)

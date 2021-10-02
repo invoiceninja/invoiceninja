@@ -43,7 +43,8 @@
     @endcomponent
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.country')])
-        <select name="countries" id="country" class="form-select input w-full" required>
+        <select name="countries" id="country" class="form-select input w-full">
+            <option disabled selected></option>
             @foreach($countries as $country)
                 <option value="{{ $country->iso_3166_2 }}">{{ $country->iso_3166_2 }} ({{ $country->name }})</option>
             @endforeach
@@ -52,6 +53,7 @@
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.currency')])
         <select name="currencies" id="currency" class="form-select input w-full">
+            <option disabled selected></option>
             @foreach($currencies as $currency)
                 <option value="{{ $currency->code }}">{{ $currency->code }} ({{ $currency->name }})</option>
             @endforeach

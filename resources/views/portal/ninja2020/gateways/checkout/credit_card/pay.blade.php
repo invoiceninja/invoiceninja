@@ -10,15 +10,8 @@
     <style>*, *::after, *::before {
             box-sizing: border-box
         }
-
-        html {
-            background-color: #FFF;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif
-        }
-
         #payment-form {
-            width: 31.5rem;
-            margin: 0 auto
+            width: 100%;
         }
 
         iframe {
@@ -164,7 +157,7 @@
 
     @component('portal.ninja2020.components.general.card-element-single')
         <div id="checkout--container">
-            <form id="payment-form" method="POST" action="#">
+            <form class="xl:flex xl:justify-center" id="payment-form" method="POST" action="#">
                 <div class="one-liner">
                     <div class="card-frame">
                         <!-- form will be added here -->

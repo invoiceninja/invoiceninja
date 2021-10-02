@@ -1,6 +1,6 @@
 {
     "/js/app.js": "/js/app.js?id=696e8203d5e8e7cf5ff5",
-    "/css/app.css": "/css/app.css?id=46021f35ee55aca9ff20",
+    "/css/app.css": "/css/app.css?id=ad5ff55c9ef56ede1726",
     "/js/clients/invoices/action-selectors.js": "/js/clients/invoices/action-selectors.js?id=a09bb529b8e1826f13b4",
     "/js/clients/invoices/payment.js": "/js/clients/invoices/payment.js?id=8ce8955ba775ea5f47d1",
     "/js/clients/linkify-urls.js": "/js/clients/linkify-urls.js?id=0dc8c34010d09195d2f7",
@@ -19,12 +19,13 @@
     "/js/clients/payments/stripe-ach.js": "/js/clients/payments/stripe-ach.js?id=81c2623fc1e5769b51c7",
     "/js/clients/payments/stripe-alipay.js": "/js/clients/payments/stripe-alipay.js?id=665ddf663500767f1a17",
     "/js/clients/payments/stripe-credit-card.js": "/js/clients/payments/stripe-credit-card.js?id=a30464874dee84678344",
-    "/js/clients/payments/stripe-sofort.js": "/js/clients/payments/stripe-sofort.js?id=df63bd9e9837a420fd5d",
+    "/js/clients/payments/stripe-sofort.js": "/js/clients/payments/stripe-sofort.js?id=231571942310348aa616",
     "/js/clients/payments/wepay-credit-card.js": "/js/clients/payments/wepay-credit-card.js?id=f51400e03c5fdb6cdabe",
     "/js/clients/quotes/action-selectors.js": "/js/clients/quotes/action-selectors.js?id=1b8f9325aa6e8595e7fa",
     "/js/clients/quotes/approve.js": "/js/clients/quotes/approve.js?id=85bcae0a646882e56b12",
     "/js/clients/shared/multiple-downloads.js": "/js/clients/shared/multiple-downloads.js?id=5c35d28cf0a3286e7c45",
-    "/js/clients/shared/pdf.js": "/js/clients/shared/pdf.js?id=fc3055d6a099f523ea98",
+    "/js/clients/shared/pdf.js": "/js/clients/shared/pdf.js?id=2a99d83305ba87bfa6cc",
+    "/js/clients/statements/view.js": "/js/clients/statements/view.js?id=ca3ec4cea0de824f3a36",
     "/js/setup/setup.js": "/js/setup/setup.js?id=8d454e7090f119552a6c",
     "/css/card-js.min.css": "/css/card-js.min.css?id=62afeb675235451543ad"
 }
