@@ -41,6 +41,8 @@ class QuoteViewedActivity implements ShouldQueue
     {
         MultiDB::setDb($event->company->db);
 
+        $event->invitation->quote->service()->markSent()->save();
+
         $fields = new stdClass;
 
         $fields->user_id = $event->invitation->quote->user_id;

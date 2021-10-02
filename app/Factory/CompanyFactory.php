@@ -11,6 +11,7 @@
 
 namespace App\Factory;
 
+use App\DataMapper\ClientRegistrationFields;
 use App\DataMapper\CompanySettings;
 use App\Libraries\MultiDB;
 use App\Models\Company;
@@ -35,7 +36,8 @@ class CompanyFactory
         $company->db = config('database.default');
         //$company->custom_fields = (object) ['invoice1' => '1', 'invoice2' => '2', 'client1'=>'3'];
         $company->custom_fields = (object) [];
-
+        $company->client_registration_fields = ClientRegistrationFields::generate();
+        
         if(Ninja::isHosted())
             $company->subdomain = MultiDB::randomSubdomainGenerator();
         else 

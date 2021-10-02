@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html data-report-errors="{{ $report_errors }}" data-rc="{{ $rc }}" data-build="{{ $build }}" user-agent="{{ $user_agent }}">
+<html data-report-errors="{{ $report_errors }}" data-rc="{{ $rc }}" data-user-agent="{{ $user_agent }}" data-login="{{ $login }}">
 <head>
     <!-- Source: https://github.com/invoiceninja/invoiceninja -->
     <!-- Version: {{ config('ninja.app_version') }} -->

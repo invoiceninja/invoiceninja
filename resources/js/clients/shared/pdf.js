@@ -80,6 +80,15 @@ class PDF {
             .getElementById('zoom-out')
             .addEventListener('click', () => this.handleZoomChange());
 
+        document
+            .querySelector('meta[name=pdf-url]')
+            .addEventListener('change', () => {
+                this.canvas.getContext('2d').clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.url = document.querySelector("meta[name='pdf-url']").content;
+
+                this.handle();
+            })
+
         return this;
     }
 

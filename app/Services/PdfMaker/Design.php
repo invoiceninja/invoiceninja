@@ -232,7 +232,7 @@ class Design extends BaseDesign
                 ]],
                 ['element' => 'tr', 'properties' => [], 'elements' => [
                     ['element' => 'th', 'properties' => [], 'content' => '$balance_due_label'],
-                    ['element' => 'th', 'properties' => [], 'content' => '$balance_due'],
+                    ['element' => 'th', 'properties' => [], 'content' => Number::formatMoney($this->invoices->sum('balance'), $this->entity->client)],
                 ]],
             ];
         }
@@ -241,6 +241,10 @@ class Design extends BaseDesign
 
         if ($this->entity instanceof Quote) {
             $variables = $this->context['pdf_variables']['quote_details'];
+            
+            if ($this->entity->partial > 0) {
+                $variables[] = '$quote.balance_due';
+            }
         }
 
         if ($this->entity instanceof Credit) {
@@ -379,10 +383,10 @@ class Design extends BaseDesign
             return [];
         }
 
-        $outstanding = $this->invoices->sum('amount');
+        $outstanding = $this->invoices->sum('balance');
 
         return [
-            ['element' => 'p', 'content' => '$outstanding_label: $outstanding'],
+            ['element' => 'p', 'content' => '$outstanding_label: ' . Number::formatMoney($outstanding, $this->entity->client)],
         ];
     }
 
@@ -424,10 +428,14 @@ class Design extends BaseDesign
 
     public function statementPaymentTableTotals(): array
     {
-        if ($this->type !== self::STATEMENT || !$this->payments->first()) {
+        if (is_null($this->payments) || !$this->payments->first() || $this->type !== self::STATEMENT) {
             return [];
         }
 
+        if (\array_key_exists('show_payments_table', $this->options) && $this->options['show_payments_table'] === false) {
+            return [];
+        }
+        
         $payment = $this->payments->first();
 
         return [
@@ -597,6 +605,16 @@ class Design extends BaseDesign
 
     public function tableTotals(): array
     {
+        if ($this->type === self::STATEMENT) {
+            return [
+                ['element' => 'div', 'properties' => ['style' => 'display: flex; flex-direction: column;'], 'elements' => [
+                    ['element' => 'div', 'properties' => ['style' => 'margin-top: 1.5rem; display: flex; align-items: flex-start;'], 'elements' => [
+                        ['element' => 'img', 'properties' => ['src' => '$invoiceninja.whitelabel', 'style' => 'height: 2.5rem;', 'hidden' => $this->entity->user->account->isPaid() ? 'true' : 'false', 'id' => 'invoiceninja-whitelabel-logo']],
+                    ]],
+                ]],
+            ];
+        }
+
         $_variables = array_key_exists('variables', $this->context)
             ? $this->context['variables']
             : ['values' => ['$entity.public_notes' => $this->entity->public_notes, '$entity.terms' => $this->entity->terms, '$entity_footer' => $this->entity->footer], 'labels' => []];
@@ -618,7 +636,7 @@ class Design extends BaseDesign
             ['element' => 'div', 'properties' => ['class' => 'totals-table-right-side', 'dir' => '$dir'], 'elements' => []],
         ];
 
-        if ($this->type == self::DELIVERY_NOTE  || $this->type == self::STATEMENT) {
+        if ($this->type == self::DELIVERY_NOTE) {
             return $elements;
         }
 
@@ -626,6 +644,10 @@ class Design extends BaseDesign
             // We don't want to show Balanace due on the quotes.
             if (in_array('$outstanding', $variables)) {
                 $variables = \array_diff($variables, ['$outstanding']);
+            }
+
+            if ($this->entity->partial > 0) {
+                $variables[] = '$partial_due';
             }
         }
 

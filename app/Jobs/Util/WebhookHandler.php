@@ -13,6 +13,7 @@ namespace App\Jobs\Util;
 
 use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
+use App\Models\Client as ClientModel;
 use App\Models\SystemLog;
 use App\Models\Webhook;
 use App\Transformers\ArraySerializer;
@@ -120,7 +121,7 @@ class WebhookHandler implements ShouldQueue
                 SystemLog::CATEGORY_WEBHOOK,
                 SystemLog::EVENT_WEBHOOK_SUCCESS,
                 SystemLog::TYPE_WEBHOOK_RESPONSE,
-                $this->company->clients->first(),
+                $this->resolveClient(),
                 $this->company
             );
 
@@ -137,12 +138,22 @@ class WebhookHandler implements ShouldQueue
                 SystemLog::CATEGORY_WEBHOOK,
                 SystemLog::EVENT_WEBHOOK_RESPONSE,
                 SystemLog::TYPE_WEBHOOK_RESPONSE,
-                $this->company->clients->first(),
+                $this->resolveClient(),
                 $this->company,
             );
 
         }
 
+    }
+
+    private function resolveClient()
+    {
+        //make sure it isn't an instance of the Client Model
+        if((!$this->entity instanceof ClientModel) && $this->entity->client()->exists()){
+            return $this->entity->client;
+        }
+
+        return $this->company->clients()->first();
     }
 
     public function failed($exception)

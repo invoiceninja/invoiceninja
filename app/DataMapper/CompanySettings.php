@@ -693,13 +693,13 @@ class CompanySettings extends BaseSettings
                 '$invoice.date',
                 '$due_date',
                 '$total',
-                '$outstanding',
+                '$balance',
             ],
             'statement_payment_columns' => [
                 '$invoice.number',
                 '$payment.date',
                 '$method',
-                '$outstanding',
+                '$statement_amount',
             ],
         ];
 

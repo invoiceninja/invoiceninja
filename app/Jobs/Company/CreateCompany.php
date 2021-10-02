@@ -11,6 +11,7 @@
 
 namespace App\Jobs\Company;
 
+use App\DataMapper\ClientRegistrationFields;
 use App\DataMapper\CompanySettings;
 use App\Libraries\MultiDB;
 use App\Models\Company;
@@ -62,7 +63,8 @@ class CreateCompany
         $company->subdomain = isset($this->request['subdomain']) ? $this->request['subdomain'] : '';
         $company->custom_fields = new \stdClass;
         $company->default_password_timeout = 1800000;
-
+        $company->client_registration_fields = ClientRegistrationFields::generate();
+        
         if(Ninja::isHosted())
             $company->subdomain = MultiDB::randomSubdomainGenerator();
         else 

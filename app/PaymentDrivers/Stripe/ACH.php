@@ -22,7 +22,9 @@ use App\Jobs\Util\SystemLogger;
 use App\Mail\Gateways\ACHVerificationNotification;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
+use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
@@ -145,6 +147,62 @@ class ACH
         return render('gateways.stripe.ach.pay', $data);
     }
 
+    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
+    {
+
+        $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
+        $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))
+                          ->withTrashed()
+                          ->first();
+
+        if ($invoice) {
+            $description = "Invoice {$invoice->number} for {$amount} for client {$this->stripe->client->present()->name()}";
+        } else {
+            $description = "Payment with no invoice for amount {$amount} for client {$this->stripe->client->present()->name()}";
+        }
+
+        $this->stripe->init();
+
+        $response = null;
+
+        try {
+
+            $state = [
+                'gateway_type_id' => GatewayType::BANK_TRANSFER,
+                'amount' => $this->stripe->convertToStripeAmount($amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
+                'currency' => $this->stripe->client->getCurrencyCode(),
+                'customer' => $cgt->gateway_customer_reference,
+                'source' => $cgt->token,
+            ];
+
+            $state['charge'] = \Stripe\Charge::create([
+                'amount' => $state['amount'],
+                'currency' => $state['currency'],
+                'customer' => $state['customer'],
+                'source' => $state['source'],
+                'description' => $description,
+            ], $this->stripe->stripe_connect_auth);
+
+
+            $payment_hash->data = array_merge((array)$payment_hash->data, $state);
+            $payment_hash->save();
+
+            if ($state['charge']->status === 'pending' && is_null($state['charge']->failure_message)) {
+                return $this->processPendingPayment($state, false);
+            }
+
+            return $this->processUnsuccessfulPayment($state);
+        } catch (Exception $e) {
+            if ($e instanceof CardException) {
+                return redirect()->route('client.payment_methods.verification', ['payment_method' => $source->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
+            }
+
+            throw new PaymentFailed($e->getMessage(), $e->getCode());
+        }
+        
+
+
+    }
 
     public function paymentResponse($request)
     {
@@ -201,7 +259,7 @@ class ACH
         }
     }
 
-    public function processPendingPayment($state)
+    public function processPendingPayment($state, $client_present = true)
     {
         $this->stripe->init();
 
@@ -223,6 +281,9 @@ class ACH
             $this->stripe->client,
             $this->stripe->client->company,
         );
+
+        if(!$client_present)
+            return $payment;
 
         return redirect()->route('client.payments.show', ['payment' => $this->stripe->encodePrimaryKey($payment->id)]);
     }

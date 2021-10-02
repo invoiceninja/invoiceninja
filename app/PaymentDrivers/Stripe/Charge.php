@@ -15,11 +15,13 @@ namespace App\PaymentDrivers\Stripe;
 use App\Events\Payment\PaymentWasCreated;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
+use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
+use App\PaymentDrivers\Stripe\ACH;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Stripe\Exception\ApiConnectionException;
@@ -51,6 +53,9 @@ class Charge
      */
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
+        if($cgt->gateway_type_id == GatewayType::BANK_TRANSFER)
+            return (new ACH($this->stripe))->tokenBilling($cgt, $payment_hash);
+
         nlog(" DB = ".$this->stripe->client->company->db);
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
         $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->withTrashed()->first();

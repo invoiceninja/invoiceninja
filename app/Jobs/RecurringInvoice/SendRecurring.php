@@ -19,19 +19,20 @@ use App\Models\Invoice;
 use App\Models\RecurringInvoice;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
+use App\Utils\Traits\MakesInvoiceValues;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Turbo124\Beacon\Facades\LightLogs;
-use Carbon\Carbon;
 
 class SendRecurring implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     use GeneratesCounter;
-
+    
     public $recurring_invoice;
 
     protected $db;
@@ -131,7 +132,6 @@ class SendRecurring implements ShouldQueue
         });
     
         if ($invoice->client->getSetting('auto_bill_date') == 'on_send_date' && $invoice->auto_bill_enabled) {
-
             nlog("attempting to autobill {$invoice->number}");
             $invoice->service()->autoBill()->save();
 

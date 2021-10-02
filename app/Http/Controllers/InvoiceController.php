@@ -397,7 +397,7 @@ class InvoiceController extends BaseController
 
         $invoice = $this->invoice_repo->save($request->all(), $invoice);
         
-        $invoice->service()->deletePdf();
+        $invoice->service()->triggeredActions($request)->deletePdf();
 
         event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
@@ -804,9 +804,15 @@ class InvoiceController extends BaseController
 
         $file = $invoice->service()->getInvoicePdf($contact);
 
+        $headers = ['Content-Type' => 'application/pdf'];
+
+        if(request()->input('inline') == 'true')
+            $headers = array_merge($headers, ['Content-Disposition' => 'inline']);
+
         return response()->streamDownload(function () use($file) {
                 echo Storage::get($file);
-        },  basename($file), ['Content-Type' => 'application/pdf']);
+        },  basename($file), $headers);
+        
     }
 
     /**

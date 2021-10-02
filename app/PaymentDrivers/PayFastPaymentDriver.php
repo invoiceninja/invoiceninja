@@ -28,7 +28,7 @@ class PayFastPaymentDriver extends BaseDriver
 
     public $refundable = false; //does this gateway support refunds?
 
-    public $token_billing = false; //does this gateway support token billing?
+    public $token_billing = true; //does this gateway support token billing?
 
     public $can_authorise_credit_card = true; //does this gateway support authorizations?
 
@@ -72,12 +72,12 @@ class PayFastPaymentDriver extends BaseDriver
                 [
                     'merchantId' => $this->company_gateway->getConfigField('merchantId'),
                     'merchantKey' => $this->company_gateway->getConfigField('merchantKey'),
-                    'passPhrase' => $this->company_gateway->getConfigField('passPhrase'),
+                    'passPhrase' => $this->company_gateway->getConfigField('passphrase'),
                     'testMode' => $this->company_gateway->getConfigField('testMode')
                 ]
             );
 
-        } catch(Exception $e) {
+        } catch(\Exception $e) {
 
             echo '##PAYFAST## There was an exception: '.$e->getMessage();
 
@@ -123,7 +123,39 @@ class PayFastPaymentDriver extends BaseDriver
         return (new Token($this))->tokenBilling($cgt, $payment_hash);
     }
 
-   public function generateSignature($data)
+    public function generateTokenSignature($data)
+    {
+        $fields = [];
+
+        $keys = [
+            'merchant-id',
+            'version',
+            'timestamp',
+            'amount',
+            'item_name',
+            'item_description',
+            'itn',
+            'm_payment_id',
+            'cc_css',
+            'split_payment'
+        ];
+
+        foreach($keys as $key)
+        {
+            if (!empty($data[$key])) {
+                $fields[$key] = $data[$key];
+            }
+        }
+
+        if($this->company_gateway->getConfigField('passphrase'))
+            $fields['passphrase'] = $this->company_gateway->getConfigField('passphrase');
+
+        nlog(http_build_query($fields));
+
+        return md5(http_build_query($fields));
+    }
+
+    public function generateSignature($data)
     {
         $fields = array();
 
@@ -160,6 +192,8 @@ class PayFastPaymentDriver extends BaseDriver
                 $fields[$key] = $data[$key];
             }
         }
+
+        nlog(http_build_query($fields));
 
         return md5(http_build_query($fields));
     }

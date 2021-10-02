@@ -40,7 +40,10 @@ trait DesignHelpers
 
         if (isset($this->context['invoices'])) {
             $this->invoices = $this->context['invoices'];
-            $this->entity = $this->invoices->first();
+            
+            if (\count($this->invoices) >= 1) {
+                $this->entity = $this->invoices->first();
+            }
         }
 
         if (isset($this->context['payments'])) {
@@ -68,6 +71,8 @@ trait DesignHelpers
 
             $variables[$property] = $value;
         }
+
+        $this->context['pdf_variables'] = $variables;
     }
 
     /**
@@ -212,6 +217,13 @@ trait DesignHelpers
 
     public function sharedFooterElements()
     {
+        // We want to show headers for statements, no exceptions.
+        $statements = "
+            document.querySelectorAll('#statement-invoice-table > thead > tr > th, #statement-payment-table > thead > tr > th, #statement-aging-table > thead > tr > th').forEach(t => {
+                t.hidden = false;
+            });
+        ";
+    
         // Unminified version, just for the reference.
         // By default all table headers are hidden with HTML `hidden` property.
         // This will check for table data values & if they're not empty it will remove hidden from the column itself.
@@ -254,6 +266,7 @@ document.addEventListener('DOMContentLoaded', function() {
         $html_decode = 'document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll(`[data-state="encoded-html"]`).forEach(e=>e.innerHTML=e.innerText)},!1);';
 
         return ['element' => 'div', 'elements' => [
+            ['element' => 'script', 'content' => $statements],
             ['element' => 'script', 'content' => $javascript],
             ['element' => 'script', 'content' => $html_decode],
         ]];
@@ -269,10 +282,19 @@ document.addEventListener('DOMContentLoaded', function() {
             return false;
         }
 
+        // Some variables don't map 1:1 to table columns. This gives us support for such cases.        
+        $aliases = [
+            '$quote.balance_due' => 'partial',
+        ];
+
         try {
             $_variable = explode('.', $variable)[1];
         } catch (Exception $e) {
             throw new Exception('Company settings seems to be broken. Missing $entity.variable type.');
+        }
+
+        if (\in_array($variable, \array_keys($aliases))) {
+            $_variable = $aliases[$variable];
         }
 
         if (is_null($this->entity->{$_variable})) {

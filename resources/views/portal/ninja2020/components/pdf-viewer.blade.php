@@ -3,7 +3,7 @@
 @endphp
 
 @push('head')
-    <meta name="pdf-url" content="{{ $entity->pdf_file_path(null, 'url', true) }}">
+    <meta name="pdf-url" content="{{ $url ?? $entity->pdf_file_path(null, 'url', true) }}">
     <script src="{{ asset('js/vendor/pdf.js/pdf.min.js') }}"></script>
 @endpush
 
@@ -72,7 +72,7 @@
                 class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg">
                 <div class="rounded-md bg-white shadow-xs">
                     <div class="py-1">
-                        <a target="_blank" href="?mode=fullscreen"
+                        <a target="_blank" href="{{ $fullscreen_url ?? '?mode=fullscreen' }}"
                             class="block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900">{{ ctrans('texts.open_in_new_tab') }}</a>
                     </div>
                 </div>
@@ -86,7 +86,7 @@
         <canvas id="pdf-placeholder" class="shadow rounded-lg bg-white mt-4 p-4"></canvas>
     </div>
 @else
-    <iframe src="{{ $entity->pdf_file_path(null, 'url', true) }}" class="h-screen w-full border-0 mt-4"></iframe>
+    <iframe id="pdf-iframe" src="{{ $url ?? $entity->pdf_file_path(null, 'url', true) }}" class="h-screen w-full border-0 mt-4"></iframe>
 @endif
 
 

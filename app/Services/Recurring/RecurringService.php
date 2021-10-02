@@ -97,6 +97,12 @@ class RecurringService
         return $this;
     }
     
+    public function fillDefaults()
+    {
+
+        return $this;
+    }
+    
     public function save()
     {
         $this->recurring_entity->save();

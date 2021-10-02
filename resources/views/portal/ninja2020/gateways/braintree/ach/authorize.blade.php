@@ -73,6 +73,7 @@
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.state')])
         <select class="input w-full" id="billing-region">
+            <option disabled selected></option>
             @foreach(\App\DataProviders\USStates::get() as $code => $state)
                 <option value="{{ $code }}">{{ $state }} ({{ $code }})</option>
             @endforeach

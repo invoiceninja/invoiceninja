@@ -70,7 +70,7 @@ class AutoBillInvoice extends AbstractService
         /* Determine $amount */
         if ($this->invoice->partial > 0) {
             $is_partial = true;
-            $invoice_total = $this->invoice->amount;
+            $invoice_total = $this->invoice->balance;
             $amount = $this->invoice->partial;
         } elseif ($this->invoice->balance > 0) {
             $amount = $this->invoice->balance;
@@ -94,14 +94,18 @@ class AutoBillInvoice extends AbstractService
         /* $gateway fee */
         $this->invoice = $this->invoice->service()->addGatewayFee($gateway_token->gateway, $gateway_token->gateway_type_id, $amount)->save();
 
+        //change from $this->invoice->amount to $this->invoice->balance
         if($is_partial)
-            $fee = $this->invoice->amount - $invoice_total;
+            $fee = $this->invoice->balance - $invoice_total;
         else
-            $fee = $this->invoice->amount - $amount;
+            $fee = $this->invoice->balance - $amount;
+
+        if($fee > $amount)
+            $fee = 0;
 
         /* Build payment hash */
         $payment_hash = PaymentHash::create([
-            'hash' => Str::random(128),
+            'hash' => Str::random(64),
             'data' => ['invoices' => [['invoice_id' => $this->invoice->hashed_id, 'amount' => $amount]]],
             'fee_total' => $fee,
             'fee_invoice_id' => $this->invoice->id,
