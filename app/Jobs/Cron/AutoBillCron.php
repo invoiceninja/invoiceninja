@@ -52,6 +52,9 @@ class AutoBillCron
                                         ->where('auto_bill_enabled', true)
                                         ->where('balance', '>', 0)
                                         ->where('is_deleted', false)
+                                        ->whereHas('company', function ($query) {
+                                             $query->where('is_disabled',0);
+                                        })
                                         ->with('company');
 
                                         nlog($auto_bill_partial_invoices->count(). " partial invoices to auto bill");
@@ -65,6 +68,9 @@ class AutoBillCron
                                         ->where('auto_bill_enabled', true)
                                         ->where('balance', '>', 0)
                                         ->where('is_deleted', false)
+                                        ->whereHas('company', function ($query) {
+                                             $query->where('is_disabled',0);
+                                        })
                                         ->with('company');
 
                                         nlog($auto_bill_invoices->count(). " full invoices to auto bill");
@@ -85,6 +91,9 @@ class AutoBillCron
                                             ->where('auto_bill_enabled', true)
                                             ->where('balance', '>', 0)
                                             ->where('is_deleted', false)
+                                            ->whereHas('company', function ($query) {
+                                                 $query->where('is_disabled',0);
+                                            })
                                             ->with('company');
 
                                             nlog($auto_bill_partial_invoices->count(). " partial invoices to auto bill db = {$db}");
@@ -98,6 +107,9 @@ class AutoBillCron
                                             ->where('auto_bill_enabled', true)
                                             ->where('balance', '>', 0)
                                             ->where('is_deleted', false)
+                                            ->whereHas('company', function ($query) {
+                                                 $query->where('is_disabled',0);
+                                            })
                                             ->with('company');
 
                                             nlog($auto_bill_invoices->count(). " full invoices to auto bill db = {$db}");
