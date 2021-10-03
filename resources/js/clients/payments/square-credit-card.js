@@ -66,27 +66,27 @@ verifyBuyerCallback(err,verification) {
         /* SCA */
        let verificationToken;
 
-       try{
-         verificationToken = await verifyBuyer(result.token, verifyBuyerCallback);
-       }
-       catch(typeErro){
-        console.log(typeErro);
-        die("failed in the catch");
-       }
-        // const verificationDetails = {
-        //   amount: document.querySelector('meta[name=amount]').content,
-        //   billingContact: document.querySelector('meta[name=square_contact]').content,
-        //   currencyCode: document.querySelector('meta[name=currencyCode]').content,
-        //   intent: 'CHARGE'
-        // };
+       try {
+        const verificationDetails = {
+          amount: document.querySelector('meta[name=amount]').content,
+          billingContact: document.querySelector('meta[name=square_contact]').content,
+          currencyCode: document.querySelector('meta[name=currencyCode]').content,
+          intent: 'CHARGE'
+        };
 
-        // console.log(verificationDetails);
+        console.log(verificationDetails);
 
-        // const verificationResults = await this.payments.verifyBuyer(
-        //   result.token,
-        //   verificationDetails
-        // );
+            const verificationResults = await this.payments.verifyBuyer(
+              result.token,
+              verificationDetails
+            );
 
+            verificationToken = verificationResults.token;
+        }
+        catch(typeError){
+                console.log(typeError);
+                die("failed in the catch");
+        }
         // console.log(" verification tokem = " + verificationToken.token);
 
         // verificationToken = verificationResults.token;
