@@ -49,6 +49,18 @@ class SquareCreditCard {
 
         let result = await this.card.tokenize();
 
+        /* SCA */
+       let verificationToken;
+         verificationToken = await verifyBuyer(
+           this.payments,
+           result.token
+         );
+       
+       console.debug('Verification Token:', verificationToken);
+
+        document.querySelector('input[name="verificationToken"]').value =
+            verificationToken;
+
         if (result.status === 'OK') {
             document.getElementById('sourceId').value = result.token;
 
@@ -75,6 +87,22 @@ class SquareCreditCard {
         e.target.parentElement.disabled = true;
 
         return document.getElementById('server_response').submit();
+    }
+
+    /* SCA */
+    async verifyBuyer(payments, token) {
+        const verificationDetails = {
+          amount: document.querySelector('meta[name=amount]').content,
+          billingContact: document.querySelector('meta[name=contact]').content,
+          currencyCode: document.querySelector('meta[name=currencyCode]').content,
+          intent: 'CHARGE'
+        };
+
+        const verificationResults = await payments.verifyBuyer(
+          token,
+          verificationDetails
+        );
+        return verificationResults.token;
     }
 
     async handle() {

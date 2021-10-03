@@ -124,9 +124,27 @@ class CreditCard
     public function paymentView($data)
     {
         $data['gateway'] = $this->square_driver;
-
+        $data['amount'] = $this->square_driver->payment_hash->data->amount_with_fee;
+        $data['currencyCode'] = $this->square_driver->client->getCurrencyCode();
+        $data['contact'] = $this->buildClientObject();
 
         return render('gateways.square.credit_card.pay', $data);
+    }
+
+    private function buildClientObject()
+    {
+        $client = new \stdClass;
+
+        $client->addressLines = [ $this->square_driver->client->address1, $this->square_driver->client->address2 ];
+        $client->givenName = $this->square_driver->client->present()->first_name();
+        $client->familyName = $this->square_driver->client->present()->last_name();
+        $client->email = $this->square_driver->client->present()->email;
+        $client->phone = $this->square_driver->client->phone;
+        $client->city = $this->square_driver->client->city;
+        $client->region = $this->square_driver->client->state;
+        $client->country = $this->square_driver->client->country->iso_3166_2;
+
+        return $client;
     }
 
     public function paymentResponse(PaymentResponseRequest $request)
@@ -151,6 +169,9 @@ class CreditCard
         $body->setAutocomplete(true);
         $body->setLocationId($this->square_driver->company_gateway->getConfigField('locationId'));
         $body->setReferenceId(Str::random(16));
+
+        if($request->has('verificationToken') && $request->input('verificationToken'))
+            $body->setVerificationToken($request->input('verificationToken'));
 
         if ($request->shouldUseToken()) {
             $body->setCustomerId($cgt->gateway_customer_reference);

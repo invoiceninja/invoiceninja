@@ -4,6 +4,11 @@
 @section('gateway_head')
     <meta name="square-appId" content="{{ $gateway->company_gateway->getConfigField('applicationId') }}">
     <meta name="square-locationId" content="{{ $gateway->company_gateway->getConfigField('locationId') }}">
+    <meta name="contact" content="{{ $contact }}">
+    <meta name="amount" content="{{ $amount }}">
+    <meta name="contact" content="{{ $contact }}">
+    <meta name="currencyCode" content="{{ $currencyCode }}">
+
 @endsection
 
 @section('gateway_content')
@@ -17,6 +22,7 @@
 
         <input type="hidden" name="token">
         <input type="hidden" name="sourceId" id="sourceId">
+        <input type="hidden" name="verificationToken" id="verificationToken">
     </form>
 
     <div class="alert alert-failure mb-4" hidden id="errors"></div>
