@@ -47,9 +47,12 @@ class SquareCreditCard {
 verifyBuyerCallback(err,verification) {
   if (err == null) {
     console.log("no error");
+    console.log(verification);
   }
 
   console.log(err);
+
+        die("verify buyer");
 }
 
     async completePaymentWithoutToken(e) {
@@ -68,6 +71,7 @@ verifyBuyerCallback(err,verification) {
        }
        catch(typeErro){
         console.log(typeErro);
+        die("failed in the catch");
        }
         // const verificationDetails = {
         //   amount: document.querySelector('meta[name=amount]').content,
