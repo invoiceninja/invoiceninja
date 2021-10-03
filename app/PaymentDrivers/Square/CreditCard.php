@@ -144,7 +144,7 @@ class CreditCard
         $client->region = $this->square_driver->client->state;
         $client->country = $this->square_driver->client->country->iso_3166_2;
 
-        return $client;
+        return (array)$client;
     }
 
     public function paymentResponse(PaymentResponseRequest $request)
