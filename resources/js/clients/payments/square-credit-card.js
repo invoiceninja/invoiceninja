@@ -78,7 +78,8 @@ verifyBuyerCallback(err,verification) {
 
             const verificationResults = await this.payments.verifyBuyer(
               result.token,
-              verificationDetails
+              verificationDetails,
+              verifyBuyerCallback
             );
 
             verificationToken = verificationResults.token;
