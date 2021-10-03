@@ -65,6 +65,8 @@ class SquareCreditCard {
           intent: 'CHARGE'
         };
 
+        console.log(verificationDetails);
+        
         const verificationResults = await this.payments.verifyBuyer(
           result.token,
           verificationDetails
