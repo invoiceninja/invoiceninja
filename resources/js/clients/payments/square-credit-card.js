@@ -72,7 +72,7 @@ class SquareCreditCard {
        try {
         const verificationDetails = {
           amount: document.querySelector('meta[name=amount]').content,
-          billingContact: document.querySelector('meta[name=square_contact]').content,
+          billingContact: JSON.parse(document.querySelector('meta[name=square_contact]').content),
           currencyCode: document.querySelector('meta[name=currencyCode]').content,
           intent: 'CHARGE'
         };
