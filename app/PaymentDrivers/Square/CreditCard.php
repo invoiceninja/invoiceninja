@@ -135,7 +135,7 @@ class CreditCard
     {
         $client = new \stdClass;
 
-        $client->addressLines = [ $this->square_driver->client->address1, $this->square_driver->client->address2 ];
+        $client->addressLines = [ $this->square_driver->client->address1 ?: '', $this->square_driver->client->address2 ?: ''];
         $client->givenName = $this->square_driver->client->present()->first_name();
         $client->familyName = $this->square_driver->client->present()->last_name();
         $client->email = $this->square_driver->client->present()->email;
