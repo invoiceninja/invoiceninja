@@ -108,6 +108,9 @@ class SquareCreditCard {
 
     /* SCA */
     async verifyBuyer(token) {
+
+        console.log("in verify buyer");
+        
         const verificationDetails = {
           amount: document.querySelector('meta[name=amount]').content,
           billingContact: document.querySelector('meta[name=square_contact]').content,
