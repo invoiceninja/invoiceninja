@@ -126,7 +126,7 @@ class CreditCard
         $data['gateway'] = $this->square_driver;
         $data['amount'] = $this->square_driver->payment_hash->data->amount_with_fee;
         $data['currencyCode'] = $this->square_driver->client->getCurrencyCode();
-        $data['contact'] = $this->buildClientObject();
+        $data['square_contact'] = $this->buildClientObject();
 
         return render('gateways.square.credit_card.pay', $data);
     }
