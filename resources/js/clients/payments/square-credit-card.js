@@ -50,13 +50,29 @@ class SquareCreditCard {
         let result = await this.card.tokenize();
 
         console.log("square token = " + result.token);
-        
+
         /* SCA */
        let verificationToken;
-         verificationToken = await verifyBuyer(
-           this.payments,
-           result.token
-         );
+         // verificationToken = await verifyBuyer(
+         //   this.payments,
+         //   result.token
+         // );
+
+        const verificationDetails = {
+          amount: document.querySelector('meta[name=amount]').content,
+          billingContact: document.querySelector('meta[name=contact]').content,
+          currencyCode: document.querySelector('meta[name=currencyCode]').content,
+          intent: 'CHARGE'
+        };
+
+        const verificationResults = await this.payments.verifyBuyer(
+          result.token,
+          verificationDetails
+        );
+
+        console.log(" verification tokem = " + verificationResults.token);
+
+        verificationToken = verificationResults.token;
        
        console.debug('Verification Token:', verificationToken);
 
