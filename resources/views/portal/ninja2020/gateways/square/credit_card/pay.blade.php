@@ -4,7 +4,7 @@
 @section('gateway_head')
     <meta name="square-appId" content="{{ $gateway->company_gateway->getConfigField('applicationId') }}">
     <meta name="square-locationId" content="{{ $gateway->company_gateway->getConfigField('locationId') }}">
-    <meta name="contact" content="{!! $contact !!}">
+    <meta name="square_contact" content="{!! $square_contact !!}">
     <meta name="amount" content="{{ $amount }}">
     <meta name="currencyCode" content="{{ $currencyCode }}">
 
