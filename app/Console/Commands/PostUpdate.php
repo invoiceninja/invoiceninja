@@ -50,7 +50,7 @@ class PostUpdate extends Command
             info("I wasn't able to migrate the data.");
         }
 
-        nlog("finished migrating");
+        info("finished migrating");
 
         $output = [];
 

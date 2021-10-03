@@ -66,6 +66,9 @@ class RecurringExpensesCron
                                                     ->whereNull('deleted_at')
                                                     ->where('status_id', RecurringInvoice::STATUS_ACTIVE)
                                                     ->where('remaining_cycles', '!=', '0')
+                                                    ->whereHas('company', function ($query) {
+                                                         $query->where('is_disabled',0);
+                                                    })
                                                     ->with('company')
                                                     ->cursor();
 

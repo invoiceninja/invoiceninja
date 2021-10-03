@@ -64,7 +64,7 @@ class SupportMessageSent extends Mailable
         $db = str_replace("db-ninja-", "", $company->db);
         $is_large = $company->is_large ? "L" : "S";
         $platform = array_key_exists('platform', $this->data) ? $this->data['platform'] : "U";
-        $migrated = strlen($company->company_key) == 32 ? "M" : ""; 
+        $migrated = strlen($company->company_key) == 32 ? "M" : "T"; 
 
         if(Ninja::isHosted())
             $subject = "{$priority}Hosted-{$db}-{$is_large}{$platform}{$migrated} :: {$plan} :: ".date('M jS, g:ia');

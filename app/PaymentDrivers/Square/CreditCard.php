@@ -270,6 +270,10 @@ class CreditCard
         if ($api_response->isSuccess()) {
             $customers = $api_response->getBody();
             $customers = json_decode($customers);
+
+            if(count(array($api_response->getBody(),1)) == 0)
+                $customers = false;
+
         } else {
             $errors = $api_response->getErrors();
         }
