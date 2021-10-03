@@ -49,6 +49,8 @@ class SquareCreditCard {
 
         let result = await this.card.tokenize();
 
+        console.log("square token = " + result.token);
+        
         /* SCA */
        let verificationToken;
          verificationToken = await verifyBuyer(
@@ -102,6 +104,9 @@ class SquareCreditCard {
           token,
           verificationDetails
         );
+
+        console.log(" verification toke = " + verificationResults.token);
+
         return verificationResults.token;
     }
 
