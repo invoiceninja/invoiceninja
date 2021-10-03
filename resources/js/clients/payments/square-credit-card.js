@@ -53,28 +53,25 @@ class SquareCreditCard {
 
         /* SCA */
        let verificationToken;
-         // verificationToken = await verifyBuyer(
-         //   this.payments,
-         //   result.token
-         // );
+         verificationToken = await verifyBuyer(result.token);
 
-        const verificationDetails = {
-          amount: document.querySelector('meta[name=amount]').content,
-          billingContact: document.querySelector('meta[name=square_contact]').content,
-          currencyCode: document.querySelector('meta[name=currencyCode]').content,
-          intent: 'CHARGE'
-        };
+        // const verificationDetails = {
+        //   amount: document.querySelector('meta[name=amount]').content,
+        //   billingContact: document.querySelector('meta[name=square_contact]').content,
+        //   currencyCode: document.querySelector('meta[name=currencyCode]').content,
+        //   intent: 'CHARGE'
+        // };
 
-        console.log(verificationDetails);
-        
-        const verificationResults = await this.payments.verifyBuyer(
-          result.token,
-          verificationDetails
-        );
+        // console.log(verificationDetails);
 
-        console.log(" verification tokem = " + verificationResults.token);
+        // const verificationResults = await this.payments.verifyBuyer(
+        //   result.token,
+        //   verificationDetails
+        // );
 
-        verificationToken = verificationResults.token;
+        // console.log(" verification tokem = " + verificationToken.token);
+
+        // verificationToken = verificationResults.token;
        
        console.debug('Verification Token:', verificationToken);
 
@@ -110,15 +107,15 @@ class SquareCreditCard {
     }
 
     /* SCA */
-    async verifyBuyer(payments, token) {
+    async verifyBuyer(token) {
         const verificationDetails = {
           amount: document.querySelector('meta[name=amount]').content,
-          billingContact: document.querySelector('meta[name=contact]').content,
+          billingContact: document.querySelector('meta[name=square_contact]').content,
           currencyCode: document.querySelector('meta[name=currencyCode]').content,
           intent: 'CHARGE'
         };
 
-        const verificationResults = await payments.verifyBuyer(
+        const verificationResults = await this.payments.verifyBuyer(
           token,
           verificationDetails
         );
