@@ -15,6 +15,7 @@ namespace App\Http\Controllers\ClientPortal;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\Uploads\StoreUploadRequest;
 use App\Libraries\MultiDB;
+use App\Models\Account;
 use App\Models\ClientContact;
 use App\Models\Company;
 use App\Utils\Ninja;
@@ -26,14 +27,21 @@ use Illuminate\Support\Facades\Auth;
 class NinjaPlanController extends Controller
 {
 
-    public function index(string $contact_key, string $company_key)
+    public function index(string $contact_key, string $account_or_company_key)
     {
-        MultiDB::findAndSetDbByCompanyKey($company_key);
-        $company = Company::where('company_key', $company_key)->first();
+        MultiDB::findAndSetDbByCompanyKey($account_or_company_key);
+        $company = Company::where('company_key', $account_or_company_key)->first();
+
+        if(!$company){
+            MultiDB::findAndSetDbByAccountKey($account_or_company_key);
+            $account = Account::where('key', $account_or_company_key)->first();
+        }
+        else
+            $account = $company->account;
+
 
         nlog("Ninja Plan Controller Company key found {$company->company_key}");
 
-        $account = $company->account;
 
         if (MultiDB::findAndSetDbByContactKey($contact_key) && $client_contact = ClientContact::where('contact_key', $contact_key)->first())
         {            
