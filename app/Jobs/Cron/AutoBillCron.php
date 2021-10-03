@@ -75,8 +75,11 @@ class AutoBillCron
 
                                         nlog($auto_bill_invoices->count(). " full invoices to auto bill");
                                         
-                                        $auto_bill_invoices->cursor()->each(function ($invoice){
+                                        $x = 1;
+                                        $auto_bill_invoices->cursor()->each(function ($invoice) use($x){
+                                            nlog("partial auto bill counter {$x}");
                                             $this->runAutoBiller($invoice, false);
+                                            $x++;
                                         });
 
 
@@ -114,8 +117,11 @@ class AutoBillCron
 
                                             nlog($auto_bill_invoices->count(). " full invoices to auto bill db = {$db}");
 
-                                            $auto_bill_invoices->cursor()->each(function ($invoice) use($db){
+                                            $x = 1;
+                                            $auto_bill_invoices->cursor()->each(function ($invoice) use($db, $x){
+                                                nlog("auto bill counter {$x}");
                                                 $this->runAutoBiller($invoice, $db);
+                                                $x++;
                                             });
 
             }

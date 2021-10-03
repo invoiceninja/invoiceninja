@@ -195,10 +195,19 @@ class CreditCard
     {
         $payment = \json_decode($response->getBody());
 
+        $billing_address = new \Square\Models\Address();
+        $billing_address->setAddressLine1($this->square_driver->client->address1);
+        $billing_address->setAddressLine2($this->square_driver->client->address2);
+        $billing_address->setLocality($this->square_driver->client->city);
+        $billing_address->setAdministrativeDistrictLevel1($this->square_driver->client->state);
+        $billing_address->setPostalCode($this->square_driver->client->postal_code);
+        $billing_address->setCountry($this->square_driver->client->country->iso_3166_2);
+
         $card = new \Square\Models\Card();
-        $card->setCardholderName($this->square_driver->client->present()->name());
+        $card->setCardholderName($this->square_driver->client->present()->first_name(). " " .$this->square_driver->client->present()->last_name());
         $card->setCustomerId($this->findOrCreateClient());
         $card->setReferenceId(Str::random(8));
+        $card->setBillingAddress($billing_address);
 
         $body = new \Square\Models\CreateCardRequest(Str::random(32), $payment->payment->id, $card);
 
@@ -299,7 +308,8 @@ class CreditCard
             $errors = $api_response->getErrors();
         }
 
-        if ($customers) {
+
+        if (property_exists($customers, 'customers')) {
             return $customers->customers[0]->id;
         }
 
