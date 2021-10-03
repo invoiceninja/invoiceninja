@@ -84,7 +84,7 @@ class AutoBillInvoice extends AbstractService
         $gateway_token = $this->getGateway($amount);
 
         /* Bail out if no payment methods available */
-        if (! $gateway_token || ! $gateway_token->gateway->driver($this->client)->token_billing){
+        if (! $gateway_token || ! $gateway_token->gateway || ! $gateway_token->gateway->driver($this->client)->token_billing){
             nlog("Bailing out - no suitable gateway token found.");
             return $this->invoice;
         }
