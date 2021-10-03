@@ -43,6 +43,15 @@ class SquareCreditCard {
         }
     }
 
+
+verifyBuyerCallback(err,verification) {
+  if (err == null) {
+    console.log("no error");
+  }
+
+  console.log(err);
+}
+
     async completePaymentWithoutToken(e) {
         document.getElementById('errors').hidden = true;
         e.target.parentElement.disabled = true;
@@ -53,8 +62,13 @@ class SquareCreditCard {
 
         /* SCA */
        let verificationToken;
-         verificationToken = await verifyBuyer(result.token);
 
+       try{
+         verificationToken = await verifyBuyer(result.token, verifyBuyerCallback);
+       }
+       catch(typeErro){
+        console.log(typeErro);
+       }
         // const verificationDetails = {
         //   amount: document.querySelector('meta[name=amount]').content,
         //   billingContact: document.querySelector('meta[name=square_contact]').content,
@@ -110,7 +124,7 @@ class SquareCreditCard {
     async verifyBuyer(token) {
 
         console.log("in verify buyer");
-        
+
         const verificationDetails = {
           amount: document.querySelector('meta[name=amount]').content,
           billingContact: document.querySelector('meta[name=square_contact]').content,
