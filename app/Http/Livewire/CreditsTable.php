@@ -39,6 +39,7 @@ class CreditsTable extends Component
             ->where('client_id', auth('contact')->user()->client->id)
             ->where('company_id', $this->company->id)
             ->where('status_id', '<>', Credit::STATUS_DRAFT)
+            ->where('is_deleted', 0)
             ->where(function ($query){
                 $query->whereDate('due_date', '<=', now())
                       ->orWhereNull('due_date');

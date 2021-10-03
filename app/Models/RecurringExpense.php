@@ -204,7 +204,10 @@ class RecurringExpense extends BaseModel
 
     public function nextDateByFrequency($date)
     {
-        $offset = $this->client->timezone_offset();
+        $offset = 0;
+
+        if($this->client)
+            $offset = $this->client->timezone_offset();
 
         switch ($this->frequency_id) {
             case RecurringInvoice::FREQUENCY_DAILY:
