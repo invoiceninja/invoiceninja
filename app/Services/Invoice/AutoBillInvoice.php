@@ -23,6 +23,7 @@ use App\Models\PaymentType;
 use App\Services\AbstractService;
 use App\Utils\Ninja;
 use Illuminate\Support\Str;
+use PDO;
 
 class AutoBillInvoice extends AbstractService
 {
@@ -113,10 +114,17 @@ class AutoBillInvoice extends AbstractService
 
         nlog("Payment hash created => {$payment_hash->id}");
 
+        $payment = false;
+
+        try{
         $payment = $gateway_token->gateway
                                  ->driver($this->client)
                                  ->setPaymentHash($payment_hash)
                                  ->tokenBilling($gateway_token, $payment_hash);
+         }
+         catch(\Exception $e){
+            nlog($e->getMessage());
+         }
 
         if($payment){
             info("Auto Bill payment captured for ".$this->invoice->number);
