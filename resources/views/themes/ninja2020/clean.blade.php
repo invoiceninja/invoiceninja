@@ -95,7 +95,7 @@
                         },
                     },
                     "content": {
-                        "href": "https://www.invoiceninja.com/privacy-policy/",
+                        "href": "{{ config('ninja.privacy_policy_url.hosted') }}",
                         "message": "This website uses cookies to ensure you get the best experience on our website.",
                         "dismiss": "Got it!",
                         "link": "Learn more",
