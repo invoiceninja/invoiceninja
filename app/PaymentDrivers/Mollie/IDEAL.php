@@ -16,6 +16,8 @@ use App\Http\Requests\Request;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\MolliePaymentDriver;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class IDEAL implements MethodInterface
 {
@@ -28,9 +30,27 @@ class IDEAL implements MethodInterface
         $this->mollie->init();
     }
 
-    public function authorizeView(array $data) { }
+    /**
+     * Show the authorization page for iDEAL.
+     *
+     * @param array $data
+     * @return View
+     */
+    public function authorizeView(array $data): View
+    {
+        return render('gateways.mollie.ideal.authorize', $data);
+    }
 
-    public function authorizeResponse(Request $request) { }
+    /**
+     * Handle the authorization for iDEAL.
+     *
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function authorizeResponse(Request $request): RedirectResponse
+    {
+        return redirect()->route('client.payment_methods.index');
+    }
 
     public function paymentView(array $data) { }
 
