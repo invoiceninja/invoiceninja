@@ -27,6 +27,7 @@ class GatewayType extends StaticModel
     const CREDIT = 10;
     const KBC = 11;
     const BANCONTACT = 12;
+    const IDEAL = 13;
     
     public function gateway()
     {
