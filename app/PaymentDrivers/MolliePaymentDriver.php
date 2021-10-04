@@ -27,6 +27,7 @@ use App\Models\SystemLog;
 use App\PaymentDrivers\Mollie\Bancontact;
 use App\PaymentDrivers\Mollie\BankTransfer;
 use App\PaymentDrivers\Mollie\CreditCard;
+use App\PaymentDrivers\Mollie\IDEAL;
 use App\PaymentDrivers\Mollie\KBC;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Validator;
@@ -70,6 +71,7 @@ class MolliePaymentDriver extends BaseDriver
         GatewayType::BANCONTACT => Bancontact::class,
         GatewayType::BANK_TRANSFER => BankTransfer::class,
         GatewayType::KBC => KBC::class,
+        GatewayType::IDEAL => IDEAL::class,
     ];
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_MOLLIE;
@@ -93,6 +95,7 @@ class MolliePaymentDriver extends BaseDriver
         $types[] = GatewayType::BANCONTACT;
         $types[] = GatewayType::BANK_TRANSFER;
         $types[] = GatewayType::KBC;
+        $types[] = GatewayType::IDEAL;
 
         return $types;
     }
