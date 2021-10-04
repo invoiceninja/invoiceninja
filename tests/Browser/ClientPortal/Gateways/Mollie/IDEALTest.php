@@ -55,7 +55,7 @@ class IDEALTest extends DuskTestCase
         });
     }
 
-    public function testOpenPayments(): void
+    public function testOpenPayment(): void
     {
         $this->browse(function (Browser $browser) {
             $browser
@@ -69,6 +69,38 @@ class IDEALTest extends DuskTestCase
                 ->press('Continue')
                 ->waitForText('Details of the payment')
                 ->assertSee('Pending');
+        });
+    }
+
+    public function testFailedPayment(): void
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.invoices.index')
+                ->click('@pay-now')
+                ->press('Pay Now')
+                ->clickLink('iDEAL')
+                ->waitForText('Test profile')
+                ->press('ABN AMRO')
+                ->radio('final_state', 'failed')
+                ->press('Continue')
+                ->waitForText('Failed.');
+        });
+    }
+
+    public function testCancelledPayment(): void
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.invoices.index')
+                ->click('@pay-now')
+                ->press('Pay Now')
+                ->clickLink('iDEAL')
+                ->waitForText('Test profile')
+                ->press('ABN AMRO')
+                ->radio('final_state', 'canceled')
+                ->press('Continue')
+                ->waitForText('Cancelled.');
         });
     }
 }
