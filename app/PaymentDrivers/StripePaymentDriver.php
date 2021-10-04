@@ -32,6 +32,7 @@ use App\PaymentDrivers\Stripe\Connect\Verify;
 use App\PaymentDrivers\Stripe\CreditCard;
 use App\PaymentDrivers\Stripe\ImportCustomers;
 use App\PaymentDrivers\Stripe\SOFORT;
+use APP\PaymentDrivers\Stripe\SEPA;
 use App\PaymentDrivers\Stripe\UpdatePaymentMethods;
 use App\PaymentDrivers\Stripe\Utilities;
 use App\Utils\Traits\MakesHash;
@@ -75,7 +76,7 @@ class StripePaymentDriver extends BaseDriver
         GatewayType::ALIPAY => Alipay::class,
         GatewayType::SOFORT => SOFORT::class,
         GatewayType::APPLE_PAY => ApplePay::class,
-        GatewayType::SEPA => 1, // TODO
+        GatewayType::SEPA => 1, SEPA::class,
     ];
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_STRIPE;
@@ -144,6 +145,12 @@ class StripePaymentDriver extends BaseDriver
             && isset($this->client->country)
             && in_array($this->client->country->iso_3166_3, ['AUS', 'DNK', 'DEU', 'ITA', 'LUX', 'NOR', 'SVN', 'GBR', 'AUT', 'EST', 'GRC', 'JPN', 'MYS', 'PRT', 'ESP', 'USA', 'BEL', 'FIN', 'HKG', 'LVA', 'NLD', 'SGP', 'SWE', 'CAN', 'FRA', 'IRL', 'LTU', 'NZL', 'SVK', 'CHE'])) {
             $types[] = GatewayType::ALIPAY;
+        }
+        
+        if ($this->client
+            && isset($this->client->country)
+            && in_array($this->client->country->iso_3166_3, ['DEU', 'USA'])) {
+            $types[] = GateWayType::SEPA;
         }
 
         return $types;
