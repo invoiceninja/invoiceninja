@@ -56,6 +56,7 @@ class AutoBillCron
                                         ->whereHas('company', function ($query) {
                                              $query->where('is_disabled',0);
                                         })
+                                        ->orderBy('id', 'DESC')
                                         ->with('company');
 
                                         nlog($auto_bill_partial_invoices->count(). " partial invoices to auto bill");
@@ -72,6 +73,7 @@ class AutoBillCron
                                         ->whereHas('company', function ($query) {
                                              $query->where('is_disabled',0);
                                         })
+                                        ->orderBy('id', 'DESC')
                                         ->with('company');
 
                                         nlog($auto_bill_invoices->count(). " full invoices to auto bill");
@@ -95,6 +97,7 @@ class AutoBillCron
                                             ->whereHas('company', function ($query) {
                                                  $query->where('is_disabled',0);
                                             })
+                                            ->orderBy('id', 'DESC')
                                             ->with('company');
 
                                             nlog($auto_bill_partial_invoices->count(). " partial invoices to auto bill db = {$db}");
@@ -111,6 +114,7 @@ class AutoBillCron
                                             ->whereHas('company', function ($query) {
                                                  $query->where('is_disabled',0);
                                             })
+                                            ->orderBy('id', 'DESC')
                                             ->with('company');
 
                                             nlog($auto_bill_invoices->count(). " full invoices to auto bill db = {$db}");
