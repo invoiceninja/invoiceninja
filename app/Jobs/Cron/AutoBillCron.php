@@ -76,7 +76,6 @@ class AutoBillCron
 
                                         nlog($auto_bill_invoices->count(). " full invoices to auto bill");
                                         
-                                     
                                         $auto_bill_invoices->cursor()->each(function ($invoice){
                                                 AutoBill::dispatch($invoice, false);
                                         });
@@ -120,7 +119,11 @@ class AutoBillCron
                                                 AutoBill::dispatch($invoice, $db);
                                             });
 
+
+
             }
+
+            nlog("fine");
         }
     }
 
