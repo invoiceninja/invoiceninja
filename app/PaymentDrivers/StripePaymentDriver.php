@@ -126,7 +126,7 @@ class StripePaymentDriver extends BaseDriver
         $types = [
             // GatewayType::CRYPTO,
             GatewayType::CREDIT_CARD
-        ];        
+        ];
 
         if ($this->client
             && isset($this->client->country)
@@ -146,10 +146,10 @@ class StripePaymentDriver extends BaseDriver
             && in_array($this->client->country->iso_3166_3, ['AUS', 'DNK', 'DEU', 'ITA', 'LUX', 'NOR', 'SVN', 'GBR', 'AUT', 'EST', 'GRC', 'JPN', 'MYS', 'PRT', 'ESP', 'USA', 'BEL', 'FIN', 'HKG', 'LVA', 'NLD', 'SGP', 'SWE', 'CAN', 'FRA', 'IRL', 'LTU', 'NZL', 'SVK', 'CHE'])) {
             $types[] = GatewayType::ALIPAY;
         }
-        
+
         if ($this->client
             && isset($this->client->country)
-            && in_array($this->client->country->iso_3166_3, ['DEU', 'USA'])) {
+            && in_array($this->client->country->iso_3166_3, ['AUS', 'DNK', 'DEU', 'ITA', 'LUX', 'NOR', 'SVN', 'GBR', 'EST', 'GRC', 'JPN', 'PRT', 'ESP', 'USA', 'BEL', 'FIN'])) { // TODO: More has to be added https://stripe.com/docs/payments/sepa-debit
             $types[] = GateWayType::SEPA;
         }
 
@@ -333,7 +333,7 @@ class StripePaymentDriver extends BaseDriver
             if($customer)
                 return $customer;
 
-        } 
+        }
 
         //Search by email
         $searchResults = \Stripe\Customer::all([
@@ -344,11 +344,11 @@ class StripePaymentDriver extends BaseDriver
 
         if(count($searchResults) == 1)
             return $searchResults->data[0];
-        
+
         //Else create a new record
         $data['name'] = $this->client->present()->name();
         $data['phone'] = $this->client->present()->phone();
-        
+
         if (filter_var($this->client->present()->email(), FILTER_VALIDATE_EMAIL)) {
             $data['email'] = $this->client->present()->email();
         }
@@ -377,7 +377,7 @@ class StripePaymentDriver extends BaseDriver
             //     ->create(['charge' => $payment->transaction_reference, 'amount' => $this->convertToStripeAmount($amount, $this->client->currency()->precision, $this->client->currency())], $meta);
 
             $response = \Stripe\Refund::create([
-                'charge' => $payment->transaction_reference, 
+                'charge' => $payment->transaction_reference,
                 'amount' => $this->convertToStripeAmount($amount, $this->client->currency()->precision, $this->client->currency())
             ], $meta);
 
