@@ -131,6 +131,10 @@ class Gateway extends StaticModel
                     GatewayType::CREDIT_CARD => ['refund' => false, 'token_billing' => true], //Square
                 ];
                 break;
+            case 52:
+                return [
+                    GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true] // GoCardless
+                ];
                 break;
             default:
                 return [];
