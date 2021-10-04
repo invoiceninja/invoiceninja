@@ -11,6 +11,7 @@
 
 namespace App\Libraries;
 
+use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
@@ -178,7 +179,7 @@ class MultiDB
         $current_db = config('database.default');  
 
         foreach (self::$dbs as $db) {
-            if ($ct = ClientContact::on($db)->whereRaw('BINARY `token`= ?', [$token])->first()) {
+            if (ClientContact::on($db)->whereRaw('BINARY `token`= ?', [$token])->exists()) {
                 self::setDb($db);
                 return true;
             }
@@ -230,8 +231,8 @@ class MultiDB
         $current_db = config('database.default');  
 
         foreach (self::$dbs as $db) {
-            if ($ct = CompanyToken::on($db)->whereRaw('BINARY `token`= ?', [$token])->first()) {
-                self::setDb($ct->company->db);
+            if (CompanyToken::on($db)->whereRaw('BINARY `token`= ?', [$token])->exists()) {
+                self::setDb($db);
                 return true;
             }
         }
@@ -246,8 +247,24 @@ class MultiDB
         $current_db = config('database.default');  
 
         foreach (self::$dbs as $db) {
-            if ($company = Company::on($db)->where('company_key', $company_key)->first()) {
-                self::setDb($company->db);
+            if (Company::on($db)->where('company_key', $company_key)->exists()) {
+                self::setDb($db);
+                return true;
+            }
+        }
+
+        self::setDB($current_db);
+
+        return false;
+    }
+
+    public static function findAndSetDbByAccountKey($account_key) :bool
+    {
+        $current_db = config('database.default');  
+
+        foreach (self::$dbs as $db) {
+            if (Account::on($db)->where('key', $account_key)->exists()) {
+                self::setDb($db);
                 return true;
             }
         }
@@ -262,8 +279,8 @@ class MultiDB
         $current_db = config('database.default');  
 
         foreach (self::$dbs as $db) {
-            if ($client_contact = ClientContact::on($db)->where('contact_key', $contact_key)->first()) {
-                self::setDb($client_contact->company->db);
+            if (ClientContact::on($db)->where('contact_key', $contact_key)->exists()) {
+                self::setDb($db);
                 return true;
             }
         }
@@ -278,8 +295,8 @@ class MultiDB
         $current_db = config('database.default');  
 
         foreach (self::$dbs as $db) {
-            if ($client = Client::on($db)->where('client_hash', $client_hash)->first()) {
-                self::setDb($client->company->db);
+            if (Client::on($db)->where('client_hash', $client_hash)->exists()) {
+                self::setDb($db);
                 return true;
             }
         }
@@ -299,7 +316,7 @@ class MultiDB
 
         foreach (self::$dbs as $db) {
             if ($company = Company::on($db)->where($query_array)->first()) {
-                self::setDb($company->db);
+                self::setDb($db);
                 return $company;
             }
         }
@@ -315,7 +332,7 @@ class MultiDB
         $current_db = config('database.default');  
 
         foreach (self::$dbs as $db) {
-            if ($invite = $class::on($db)->whereRaw('BINARY `key`= ?', [$invitation_key])->first()) {
+            if ($invite = $class::on($db)->whereRaw('BINARY `key`= ?', [$invitation_key])->exists()) {
                 self::setDb($db);
                 return true;
             }
