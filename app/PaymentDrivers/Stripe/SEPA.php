@@ -56,32 +56,32 @@ class SEPA
     public function paymentResponse(PaymentResponseRequest $request)
     {
 
-        // $this->stripe_driver->init();
+        $this->stripe_driver->init();
 
-        // $state = [
-        //     'server_response' => json_decode($request->gateway_response),
-        //     'payment_hash' => $request->payment_hash,
-        // ];
+        $state = [
+            'server_response' => json_decode($request->gateway_response),
+            'payment_hash' => $request->payment_hash,
+        ];
 
-        // $state['payment_intent'] = \Stripe\PaymentIntent::retrieve($state['server_response']->id, $this->stripe_driver->stripe_connect_auth);
+        $state['payment_intent'] = \Stripe\PaymentIntent::retrieve($state['server_response']->id, $this->stripe_driver->stripe_connect_auth);
 
-        // $state['customer'] = $state['payment_intent']->customer;
+        $state['customer'] = $state['payment_intent']->customer;
 
-        // $this->stripe_driver->payment_hash->data = array_merge((array) $this->stripe_driver->payment_hash->data, $state);
-        // $this->stripe_driver->payment_hash->save();
+        $this->stripe_driver->payment_hash->data = array_merge((array) $this->stripe_driver->payment_hash->data, $state);
+        $this->stripe_driver->payment_hash->save();
 
-        // $server_response = $this->stripe_driver->payment_hash->data->server_response;
+        $server_response = $this->stripe_driver->payment_hash->data->server_response;
 
-        // $response_handler = new CreditCard($this->stripe_driver);
+        $response_handler = new SEPAAccount($this->stripe_driver);
 
-        // if ($server_response->status == 'succeeded') {
+        if ($server_response->status == 'succeeded') {
 
-        //     $this->stripe_driver->logSuccessfulGatewayResponse(['response' => json_decode($request->gateway_response), 'data' => $this->stripe_driver->payment_hash], SystemLog::TYPE_STRIPE);
+             $this->stripe_driver->logSuccessfulGatewayResponse(['response' => json_decode($request->gateway_response), 'data' => $this->stripe_driver->payment_hash], SystemLog::TYPE_STRIPE);
 
-        //     return $response_handler->processSuccessfulPayment();
-        // }
+             return $response_handler->processSuccessfulPayment();
+         }
 
-        // return $response_handler->processUnsuccessfulPayment($server_response);
+        return $response_handler->processUnsuccessfulPayment($server_response);
 
 
     }
