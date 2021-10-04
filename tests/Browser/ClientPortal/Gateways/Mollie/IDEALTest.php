@@ -37,4 +37,21 @@ class IDEALTest extends DuskTestCase
                 ->auth();
         });
     }
+
+    public function testSuccessfulPayment(): void
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.invoices.index')
+                ->click('@pay-now')
+                ->press('Pay Now')
+                ->clickLink('iDEAL')
+                ->waitForText('Test profile')
+                ->press('ABN AMRO')
+                ->radio('final_state', 'paid')
+                ->press('Continue')
+                ->waitForText('Details of the payment')
+                ->assertSee('Completed');
+        });
+    }
 }
