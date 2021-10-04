@@ -28,9 +28,9 @@ class CloneQuoteToInvoiceFactory
         unset($quote_array['invoice_id']);
         unset($quote_array['id']);
         unset($quote_array['invitations']);
-        unset($quote_array['terms']);
-        // unset($quote_array['public_notes']);
-        unset($quote_array['footer']);
+        //unset($quote_array['terms']);
+        //unset($quote_array['public_notes']);
+        //unset($quote_array['footer']);
         unset($quote_array['design_id']);
 
         foreach ($quote_array as $key => $value) {

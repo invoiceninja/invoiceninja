@@ -41,6 +41,7 @@ class ConvertQuote
         $invoice->design_id = $this->decodePrimaryKey($this->client->getSetting('invoice_design_id'));
         $invoice = $this->invoice_repo->save([], $invoice);
         
+        nlog($invoice->toArray());
         $invoice->fresh();
 
         $invoice->service()
