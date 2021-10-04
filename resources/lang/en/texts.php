@@ -4316,6 +4316,7 @@ $LANG = array(
     'payment_method_cannot_be_preauthorized' => 'This payment method cannot be preauthorized.',
     'kbc_cbc' => 'KBC/CBC',
     'bancontact' => 'Bancontact',
+    'ideal' => 'iDEAL',
 );
 
 return $LANG;
