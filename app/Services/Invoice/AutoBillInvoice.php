@@ -291,23 +291,13 @@ class AutoBillInvoice extends AbstractService
      * @param  float              $amount The amount to charge
      * @return ClientGatewayToken         The client gateway token
      */
-    // private function
-    // {
-    //     $gateway_tokens = $this->client->gateway_tokens()->orderBy('is_default', 'DESC')->get();
-
-    //     foreach ($gateway_tokens as $gateway_token) {
-    //         if ($this->validGatewayLimits($gateway_token, $amount)) {
-    //             return $gateway_token;
-    //         }
-    //     }
-    // }
 
     public function getGateway($amount)
     {
 
         //get all client gateway tokens and set the is_default one to the first record
-        //$gateway_tokens = $this->client->gateway_tokens()->orderBy('is_default', 'DESC');
-        $gateway_tokens = $this->client->gateway_tokens;
+        $gateway_tokens = $this->client->gateway_tokens()->orderBy('is_default', 'DESC');
+        // $gateway_tokens = $this->client->gateway_tokens;
 
         $filtered_gateways = $gateway_tokens->filter(function ($gateway_token) use($amount) {
 
