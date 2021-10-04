@@ -27,4 +27,16 @@ class ACHTest extends DuskTestCase
                 ->auth();
         });
     }
+
+    public function testPayingWithNoPreauthorizedIsntPossible()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.invoices.index')
+                ->click('@pay-now')
+                ->press('Pay Now')
+                ->clickLink('Bank Transfer')
+                ->assertSee('To pay with a bank account, first you have to add it as payment method.');
+        });
+    }
 }
