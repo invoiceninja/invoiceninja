@@ -19,18 +19,21 @@
     }
 
     @page {
-        margin: 0 -5px !important;
+        margin: 0 !important;
         size: $page_size $page_layout;
     }
 
     p {
         margin: 0;
         padding: 0;
-        /* page-break-after: always; */
     }
 
     #spacer-table > * > tr > td {
         padding: 0;
+    }
+
+    #spacer-table{
+        width: 100%;
     }
 
     #header {
@@ -44,12 +47,12 @@
         top: 0;
     }
 
+
     #header, #header-spacer {
         height: 160px;
         padding: 3rem;
         margin-bottom: 3rem;
     }
-
     .company-logo {
         height: 100%;
         max-width: 100%;
@@ -108,7 +111,11 @@
         table-layout: fixed;
         overflow-wrap: break-word;
         margin-top: 3rem;
-        /* margin-bottom: 200px; */
+        margin-bottom: 200px;
+    }
+
+    [data-ref="table"]:last-child{
+        margin-bottom:0;
     }
 
     .task-time-details {
@@ -307,7 +314,7 @@
     <div id="company-address"></div>
 </div>
 <div id="body">
-    <table id="spacer-table">
+    <table id="spacer-table" cellspacing="0" >
         <thead>
         <tr>
             <td>
@@ -331,7 +338,6 @@
                     </div>
                 </div>
 
-                <!-- Start Print Content -->
                 <table id="product-table" cellspacing="0" data-ref="table"></table>
 
                 <table id="task-table" cellspacing="0" data-ref="table"></table>
@@ -346,7 +352,6 @@
 
                 <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
                 <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
-                <!-- End Print Content -->
                 <div id="table-totals" cellspacing="0"></div>
             </td>
         </tr>
@@ -368,14 +373,13 @@
             // Clear up space a bit, if [product-table, tasks-table, delivery-note-table] isn't present.
             document.addEventListener('DOMContentLoaded', () => {
                 let tables = [
-                    'product-table', 'task-table', 'delivery-note-table',
-                    'statement-invoice-table', 'statement-payment-table', 'statement-aging-table-totals',
+                    'product-table', 'task-table', 'delivery-note-table',  'statement-invoice-table-totals', 'statement-payment-table-totals','statement-invoice-table-totals',
+                    'statement-invoice-table', 'statement-payment-table', 'statement-aging-table', 'statement-aging-table-totals', 'statement-payment-table-totals'
                 ];
 
                 tables.forEach((tableIdentifier) => {
-                    document.getElementById(tableIdentifier).childElementCount === 0
-                            ? document.getElementById(tableIdentifier).style.display = 'none'
-                            : '';
+                    const el =document.getElementById(tableIdentifier);
+                    if(el && el.childElementCount === 0)el.remove()
                 });
             });
         </script>

@@ -18,13 +18,21 @@
       }
 
       @page {
-          margin: 0 -5px !important;
+          margin: 0 !important;
           size: $page_size $page_layout;
       }
 
       p {
         margin: 0;
         padding: 0;
+      }
+
+      #spacer-table > * > tr > td {
+          padding: 0;
+      }
+
+      #spacer-table{
+          width: 100%;
       }
 
       #header {
@@ -34,6 +42,7 @@
           grid-template-columns: 1.5fr 1fr;
           position:fixed;
           top: 0;
+          width: 100%;
       }
 
       #header, #header-spacer {
@@ -214,23 +223,6 @@
         font-size: 1.3rem;
       }
 
-      table.page-container {
-        page-break-after: always;
-        min-width: 100%;
-      }
-
-      thead.page-header {
-        display: table-header-group;
-      }
-
-      tfoot.page-footer {
-        display: table-footer-group;
-      }
-
-      .page-content-cell {
-        padding: 1rem;
-      }
-
       [data-ref="total_table-footer"] {
           margin-top: 2rem;
           margin-bottom: 2rem;
@@ -305,7 +297,7 @@
     <table id="entity-details" cellspacing="0" dir="$dir"></table>
 </div>
 <div id="body">
-    <table id="spacer-table">
+    <table id="spacer-table" cellspacing="0">
         <thead>
         <tr>
             <td>
@@ -359,13 +351,13 @@
                 // Clear up space a bit, if [product-table, tasks-table, delivery-note-table] isn't present.
                 document.addEventListener('DOMContentLoaded', () => {
                     let tables = [
-                        'product-table', 'task-table', 'delivery-note-table',
-                        'statement-invoice-table', 'statement-payment-table', 'statement-aging-table-totals',
+                        'product-table', 'task-table', 'delivery-note-table',  'statement-invoice-table-totals', 'statement-payment-table-totals','statement-invoice-table-totals',
+                        'statement-invoice-table', 'statement-payment-table', 'statement-aging-table', 'statement-aging-table-totals', 'statement-payment-table-totals'
                     ];
 
                     tables.forEach((tableIdentifier) => {
                         document.getElementById(tableIdentifier).childElementCount === 0
-                                ? document.getElementById(tableIdentifier).style.display = 'none'
+                                ? document.getElementById(tableIdentifier).remove()
                                 : '';
                     });
                 });
