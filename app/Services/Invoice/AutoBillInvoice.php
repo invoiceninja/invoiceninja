@@ -312,7 +312,7 @@ class AutoBillInvoice extends AbstractService
             $company_gateway = $gateway_token->gateway;
 
             //check if fees and limits are set
-            if (isset($company_gateway->fees_and_limits) && property_exists($company_gateway->fees_and_limits, $gateway_token->gateway_type_id))
+            if (isset($company_gateway->fees_and_limits) && !is_array($company_gateway->fees_and_limits) && property_exists($company_gateway->fees_and_limits, $gateway_token->gateway_type_id))
             {
                 //if valid we keep this gateway_token
                 if ($this->invoice->client->validGatewayForAmount($company_gateway->fees_and_limits->{$gateway_token->gateway_type_id}, $amount))
