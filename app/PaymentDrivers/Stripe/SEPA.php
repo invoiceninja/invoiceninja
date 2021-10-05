@@ -24,7 +24,7 @@ use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\Exceptions\PaymentFailed;
 
-class SEPA implements MethodInterface
+class SEPA
 {
     /** @var StripePaymentDriver */
     public StripePaymentDriver $stripe;
