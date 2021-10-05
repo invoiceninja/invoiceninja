@@ -15,9 +15,17 @@ namespace App\PaymentDrivers\Stripe;
 use App\Http\Requests\Request;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\PaymentDrivers\Common\MethodInterface;
+use App\PaymentDrivers\StripePaymentDriver;
 
 class SEPA implements MethodInterface
 {
+    /** @var StripePaymentDriver */
+    public StripePaymentDriver $stripe;
+
+    public function __construct(StripePaymentDriver $stripe)
+    {
+        $this->stripe = $stripe;
+    }
     public function authorizeView(array $data) { }
 
     public function authorizeResponse(Request $request) { }
