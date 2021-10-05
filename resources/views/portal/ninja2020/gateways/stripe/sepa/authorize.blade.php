@@ -10,9 +10,9 @@
 @endsection
 
 @section('gateway_content')
-    @if(session()->has('ach_error'))
+    @if(session()->has('sepa_error'))
         <div class="alert alert-failure mb-4">
-            <p>{{ session('ach_error') }}</p>
+            <p>{{ session('sepa_error') }}</p>
         </div>
     @endif
 
@@ -78,5 +78,5 @@
 
 @section('gateway_footer')
     <script src="https://js.stripe.com/v3/"></script>
-    <script src="{{ asset('js/clients/payments/stripe-ach.js') }}"></script>
+    <script src="{{ asset('js/clients/payments/stripe-sepa.js') }}"></script>
 @endsection

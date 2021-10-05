@@ -29,7 +29,7 @@ class SEPA implements MethodInterface
 
     public function authorizeView($data)
     {
-        return render('gateways.stripe.sofort.authorize', $data);
+        return render('gateways.stripe.sepa.authorize', $data);
     }
 
     public function authorizeResponse(Request $request) { }
