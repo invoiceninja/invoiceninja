@@ -19,6 +19,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\Entity\CreateRawPdf;
 use App\Models\Client;
 use App\Models\ClientContact;
+use App\Models\InvoiceInvitation;
 use App\Models\Payment;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesDates;
@@ -186,5 +187,13 @@ class InvitationController extends Controller
 
         return redirect()->route('client.payments.show', $payment->hashed_id);
 
+    }
+
+    public function payInvoice(string $invitation_key)
+    {
+        $invitation = InvoiceInvitation::where('key', $invitation_key)
+                                    ->with('contact.client')
+                                    ->firstOrFail();
+        
     }
 }
