@@ -77,8 +77,6 @@ class PdfMaker
             $this->updateVariables($this->data['variables']);
         }
 
-        $this->processOptions();
-
         return $this;
     }
 
