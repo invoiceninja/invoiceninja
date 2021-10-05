@@ -65,6 +65,9 @@ class InvitationController extends Controller
     private function genericRouter(string $entity, string $invitation_key)
     {
 
+        if(!in_array($entity, ['invoice', 'credit', 'quote', 'recurring_invoice']))
+            return response()->json(['message' => 'Invalid resource request']);
+
         $key = $entity.'_id';
 
         $entity_obj = 'App\Models\\'.ucfirst(Str::camel($entity)).'Invitation';
@@ -132,6 +135,9 @@ class InvitationController extends Controller
 
     private function returnRawPdf(string $entity, string $invitation_key)
     {
+
+        if(!in_array($entity, ['invoice', 'credit', 'quote', 'recurring_invoice']))
+            return response()->json(['message' => 'Invalid resource request']);
 
         $key = $entity.'_id';
 
