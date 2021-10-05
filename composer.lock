@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8e1a847dcb5d0d4e277e85f5452d0a21",
+    "content-hash": "c6f3097338f86adcbd157ca5b5a19745",
     "packages": [
         {
             "name": "abdala/omnipay-pagseguro",
