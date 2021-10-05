@@ -89,7 +89,7 @@
         "predis/predis": "^1.1",
         "simshaun/recurr": "dev-master",
         "softcommerce/omnipay-paytrace": "~1.0",
-        "stripe/stripe-php": "^6.40",
+        "stripe/stripe-php": "^7.0",
         "superbalist/laravel-google-cloud-storage": "^2.2",
         "symfony/css-selector": "~3.1",
         "therobfonz/laravel-mandrill-driver": "~1.0",
