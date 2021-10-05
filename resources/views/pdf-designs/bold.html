@@ -13,8 +13,13 @@
         zoom: 80%;
     }
 
+    body, html {
+        margin: 0;
+        padding: 0;
+    }
+
     @page {
-        margin: -0.25cm !important;
+        margin: 0 -5px !important;
         size: $page_size $page_layout;
     }
 
@@ -24,26 +29,44 @@
         /* page-break-after: always; */
     }
 
-    .header-wrapper {
+    #spacer-table > * > tr > td {
+        padding: 0;
+    }
+
+    #header {
         display: grid;
         grid-template-columns: 1.5fr 1fr 1fr;
         gap: 20px;
         background-color: #2d2c2a;
-        padding: 3rem;
         color: white;
-        min-width: 100%;
         line-height: var(--line-height);
+        position: fixed;
+        top: 0;
+    }
+
+    #header, #header-spacer {
+        height: 160px;
+        padding: 3rem;
+        margin-bottom: 3rem;
     }
 
     .company-logo {
         height: 100%;
-        padding-right: 120px;
+        max-width: 100%;
+        object-fit: contain;
+        object-position: left center;
     }
 
     #company-details,
     #company-address {
         display: flex;
         flex-direction: column;
+    }
+
+    #company-details,
+    #company-address,
+    .logo-container {
+        max-height: 160px;
     }
 
     #client-details {
@@ -61,7 +84,6 @@
         display: grid;
         grid-template-columns: 1.5fr 1fr;
         padding-left: 1rem;
-        padding-top: 3rem;
     }
 
     .entity-details-wrapper {
@@ -138,23 +160,23 @@
         gap: 80px;
     }
 
-    #table-totals .totals-table-right-side>* {
+    #table-totals .totals-table-right-side > * {
         display: grid;
         grid-template-columns: 1fr 1fr;
     }
 
-    #table-totals>.totals-table-right-side>*> :nth-child(1) {
+    #table-totals > .totals-table-right-side > * > :nth-child(1) {
         text-align: "$dir_text_align";
         margin-top: .75rem;
     }
 
-    #table-totals>.totals-table-right-side> * > :not([hidden]) ~ :not([hidden]) {
+    #table-totals > .totals-table-right-side > * > :not([hidden]) ~ :not([hidden]) {
         --tw-space-y-reverse: 0;
         margin-top: calc(.75rem * calc(1 - var(--tw-space-y-reverse)));
         margin-bottom: calc(.75rem * var(--tw-space-y-reverse));
     }
 
-    #table-totals>.totals-table-right-side>*> :nth-child(2) {
+    #table-totals > .totals-table-right-side > * > :nth-child(2) {
         text-align: right;
     }
 
@@ -186,49 +208,38 @@
         font-size: 1.5rem;
     }
 
-    .footer-wrapper {
+    #footer {
         margin-top: 1rem;
         background-color: #2d2c2a;
-        height: 160px;
         min-width: 100%;
         position: fixed;
         bottom: 0;
-        padding: 1rem 3rem;
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
         gap: 15px;
         color: white;
     }
 
+    #footer, #footer-spacer {
+        height: 160px;
+        padding: 1rem 3rem;
+        margin-top: 3rem;
+    }
+
     [data-ref="total_table-footer"] {
         padding-top: 0.5rem
     }
 
-    /** Repeating header & footer styling. */
     table {
         width: 100%;
     }
 
-    table.print-content {}
-
-    table.print-content th,
-    table.print-content td {
+    table[data-ref="table"] th,
+    table[data-ref="table"] td {
         padding: .2rem .4rem;
         text-align: left;
         vertical-align: top;
         border-top: 1px solid #dee2e6;
-    }
-
-    @media print {
-        .print-footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-        }
-
-        .no-print {
-            display: none
-        }
     }
 
     /** Markdown-specific styles. **/
@@ -239,9 +250,9 @@
         margin-bottom: 0;
     }
 
-     [data-ref="product_table-product.description-th"] {
-          width: 23%;
-     }
+    [data-ref="product_table-product.description-th"] {
+        width: 23%;
+    }
 
     [data-ref="statement-totals"] {
         margin-top: 1rem;
@@ -253,10 +264,6 @@
         white-space: nowrap;
     }
 
-    .logo-container {
-        max-height: 160px;
-    }
-    
     #statement-invoice-table-totals > p {
         margin-right: 2rem;
         margin-top: 1rem;
@@ -264,101 +271,96 @@
 
     /** Useful snippets, uncomment to enable. **/
 
-      /** Hide company logo **/
-      /* .company-logo { display: none } */
+    /** Hide company logo **/
+    /* .company-logo { display: none } */
 
-      /* Hide company details */
-      /* #company-details > * { display: none } */
+    /* Hide company details */
+    /* #company-details > * { display: none } */
 
-      /* Hide company address */
-      /* #company-address > * { display: none } */
+    /* Hide company address */
+    /* #company-address > * { display: none } */
 
-      /* Hide public notes */
-      /* [data-ref="total_table-public_notes"] { display: none } */
+    /* Hide public notes */
+    /* [data-ref="total_table-public_notes"] { display: none } */
 
-      /* Hide terms label */
-      /* [data-ref="total_table-terms-label"] { display: none } */
+    /* Hide terms label */
+    /* [data-ref="total_table-terms-label"] { display: none } */
 
-      /* Hide totals table */
-      /* #table-totals { display: none } */
+    /* Hide totals table */
+    /* #table-totals { display: none } */
 
-      /* Hide totals table left side */
-      /* #table-totals div:first-child > * { display: none !important } */
+    /* Hide totals table left side */
+    /* #table-totals div:first-child > * { display: none !important } */
 
-      /* Hide totals table right side */
-      /* .totals-table-right-side { display: none } */
+    /* Hide totals table right side */
+    /* .totals-table-right-side { display: none } */
 
-      /** For more info, please check our docs: https://invoiceninja.github.io **/
-      /** To find out selectors on your own: https://invoiceninja.github.io/docs/custom-fields/#snippets **/
+    /** For more info, please check our docs: https://invoiceninja.github.io **/
+    /** To find out selectors on your own: https://invoiceninja.github.io/docs/custom-fields/#snippets **/
 </style>
 
-<table>
-    <!-- Start Header -->
-    <thead>
-    <tr>
-        <td>
-            <div class="header-wrapper" id="header">
-                <div class="logo-container">
-                    <img class="company-logo" src="$company.logo" alt="$company.name logo"/>
-                </div>
-                <div id="company-details"></div>
-                <div id="company-address"></div>
-            </div>
-        </td>
-    </tr>
-    </thead>
-    <!-- End Header -->
-    <tr>
-        <td id="body">
-            <div class="client-entity-wrapper">
-                <div class="client-wrapper-left-side">
-                    <h4 class="entity-label">$entity_label</h4>
-                    <div id="client-details" cellspacing="0"></div>
-                </div>
+<div id="header">
+    <div class="logo-container">
+        <img class="company-logo" src="$company.logo" alt="$company.name logo"/>
+    </div>
+    <div id="company-details"></div>
+    <div id="company-address"></div>
+</div>
+<div id="body">
+    <table id="spacer-table">
+        <thead>
+        <tr>
+            <td>
+                <div id="header-spacer"></div>
+            </td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <div class="client-entity-wrapper">
+                    <div class="client-wrapper-left-side">
+                        <h4 class="entity-label">$entity_label</h4>
+                        <div id="client-details" cellspacing="0"></div>
+                    </div>
 
-                <div class="entity-details-wrapper-right-side">
-                    <div class="entity-details-wrapper">
-                        <table id="entity-details" dir="$dir"></table>
+                    <div class="entity-details-wrapper-right-side">
+                        <div class="entity-details-wrapper">
+                            <table id="entity-details" dir="$dir"></table>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Start Print Content -->
-            <table id="product-table" cellspacing="0" class="print-content" data-ref="table"></table>
+                <!-- Start Print Content -->
+                <table id="product-table" cellspacing="0" data-ref="table"></table>
 
-            <table id="task-table" cellspacing="0" class="print-content" data-ref="table"></table>
+                <table id="task-table" cellspacing="0" data-ref="table"></table>
 
-            <table id="delivery-note-table" cellspacing="0" class="print-content" data-ref="table"></table>
+                <table id="delivery-note-table" cellspacing="0" data-ref="table"></table>
 
-            <table id="statement-invoice-table" cellspacing="0" class="print-content" data-ref="table"></table>
-            <div id="statement-invoice-table-totals" data-ref="statement-totals"></div>
+                <table id="statement-invoice-table" cellspacing="0" data-ref="table"></table>
+                <div id="statement-invoice-table-totals" data-ref="statement-totals"></div>
 
-            <table id="statement-payment-table" cellspacing="0" class="print-content" data-ref="table"></table>
-            <div id="statement-payment-table-totals" data-ref="statement-totals"></div>
+                <table id="statement-payment-table" cellspacing="0" data-ref="table"></table>
+                <div id="statement-payment-table-totals" data-ref="statement-totals"></div>
 
-            <table id="statement-aging-table" cellspacing="0" class="print-content" data-ref="table"></table>
-            <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
-            <!-- End Print Content -->
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <div id="table-totals" cellspacing="0"></div>
-        </td>
-    </tr>
-    <!-- Start Space For Footer -->
-    <tfoot>
-    <tr>
-        <td style="height: 180px">
-            <!-- Leave this empty and don't remove it. This space is where footer placed on print. -->
-        </td>
-    </tr>
-    </tfoot>
-    <!-- End Space For Footer -->
-</table>
-
-<!-- Start Footer -->
-<div class="footer-wrapper print-footer" id="footer">
+                <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
+                <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
+                <!-- End Print Content -->
+                <div id="table-totals" cellspacing="0"></div>
+            </td>
+        </tr>
+        </tbody>
+        <tfoot>
+        <tr>
+            <td>
+                <div id="footer-spacer"></div>
+            </td>
+        </tr>
+        </tfoot>
+    </table>
+</div>
+<div id="footer">
     <div>
         <p data-ref="total_table-footer">$entity_footer</p>
 
@@ -372,8 +374,8 @@
 
                 tables.forEach((tableIdentifier) => {
                     document.getElementById(tableIdentifier).childElementCount === 0
-                        ? document.getElementById(tableIdentifier).style.display = 'none'
-                        : '';
+                            ? document.getElementById(tableIdentifier).style.display = 'none'
+                            : '';
                 });
             });
         </script>
@@ -381,4 +383,3 @@
     <div> <!-- #2 column --> </div>
     <div> <!-- #3 column --> </div>
 </div>
-<!-- End Footer -->
