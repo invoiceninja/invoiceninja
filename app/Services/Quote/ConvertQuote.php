@@ -39,7 +39,7 @@ class ConvertQuote
     {
         $invoice = CloneQuoteToInvoiceFactory::create($quote, $quote->user_id);
         $invoice->design_id = $this->decodePrimaryKey($this->client->getSetting('invoice_design_id'));
-        $invoice = $this->invoice_repo->save([], $invoice);
+        $invoice = $this->invoice_repo->save($invoice->toArray(), $invoice);
         
         $invoice->fresh();
 
