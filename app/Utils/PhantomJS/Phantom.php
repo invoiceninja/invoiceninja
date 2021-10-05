@@ -82,11 +82,20 @@ class Phantom
         $url = config('ninja.app_url').'/phantom/'.$entity.'/'.$invitation->key.'?phantomjs_secret='.config('ninja.phantomjs_secret');
         info($url);
 
-        $key = config('ninja.phantomjs_key');
-        $secret = config('ninja.phantomjs_key');
-
-        $phantom_url = "https://phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$url}%22,renderType:%22pdf%22%7D";
-        $pdf = CurlUtils::get($phantom_url);
+        $key         = config( 'ninja.phantomjs_key' );
+        $phantom_url = "https://phantomjscloud.com/api/browser/v2/{$key}/";
+        $pdf         = CurlUtils::post( $phantom_url, json_encode( [
+            'url'            => $url,
+            'renderType'     => 'pdf',
+            'outputAsJson'   => false,
+            'renderSettings' => [
+                'emulateMedia' => 'print',
+                'pdfOptions'   => [
+                    'preferCSSPageSize' => true,
+                    'printBackground'   => true,
+                ],
+            ],
+        ] ) );
 
         $this->checkMime($pdf, $invitation, $entity);
         
@@ -100,14 +109,20 @@ class Phantom
 
     public function convertHtmlToPdf($html)
     {
-        $hash = Str::random(32);
-        Cache::put($hash, $html, 300);
-        
-        $url = route('tmp_pdf', ['hash' => $hash]);
-        info($url);
-        $key = config('ninja.phantomjs_key');
-        $phantom_url = "https://phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$url}%22,renderType:%22pdf%22%7D";
-        $pdf = CurlUtils::get($phantom_url);
+        $key         = config( 'ninja.phantomjs_key' );
+        $phantom_url = "https://phantomjscloud.com/api/browser/v2/{$key}/";
+        $pdf         = CurlUtils::post( $phantom_url, json_encode( [
+            'content'            => $html,
+            'renderType'     => 'pdf',
+            'outputAsJson'   => false,
+            'renderSettings' => [
+                'emulateMedia' => 'print',
+                'pdfOptions'   => [
+                    'preferCSSPageSize' => true,
+                    'printBackground'   => true,
+                ],
+            ],
+        ] ) );
 
         $response = Response::make($pdf, 200);
         $response->header('Content-Type', 'application/pdf');
