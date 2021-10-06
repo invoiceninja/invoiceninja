@@ -48,7 +48,7 @@ class SEPA
         $intent = \Stripe\PaymentIntent::create([
             'amount' => $data['stripe_amount'],
             'currency' => 'eur',
-            'payment_method_types' => ['sepa'],
+            'payment_method_types' => ['sepa_debit'],
             'customer' => $this->stripe->findOrCreateCustomer(),
             'description' => $this->stripe->decodeUnicodeString(ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number')),
 
@@ -89,10 +89,10 @@ class SEPA
 
         $data = [
             'payment_method' => $payment_intent,
-            'payment_type' => PaymentType::SOFORT,
+            'payment_type' => PaymentType::SEPA,
             'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
             'transaction_reference' => $payment_intent,
-            'gateway_type_id' => GatewayType::SOFORT,
+            'gateway_type_id' => GatewayType::SEPA,
         ];
 
         $this->stripe->createPayment($data, Payment::STATUS_PENDING);
