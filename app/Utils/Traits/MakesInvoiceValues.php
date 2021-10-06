@@ -270,7 +270,7 @@ trait MakesInvoiceValues
         if (! is_array($items)) {
             $data;
         }
-nlog($items);        
+       
         $locale_info = localeconv();
 
         foreach ($items as $key => $item) {
