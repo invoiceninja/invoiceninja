@@ -206,7 +206,6 @@ class InvitationController extends Controller
         else 
             $amount = round($invoice->balance, (int)$invoice->client->currency()->precision);
 
-
         $gateways = $invitation->contact->client->service()->getPaymentMethods($amount);
 
         if(is_array($gateways))
@@ -226,6 +225,6 @@ class InvitationController extends Controller
             return (new InstantPayment($request))->run();
         }
 
-
+        abort(404, "Invoice not found");
     }
 }
