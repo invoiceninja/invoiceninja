@@ -32,7 +32,7 @@ use App\PaymentDrivers\Stripe\Connect\Verify;
 use App\PaymentDrivers\Stripe\CreditCard;
 use App\PaymentDrivers\Stripe\ImportCustomers;
 use App\PaymentDrivers\Stripe\SOFORT;
-use APP\PaymentDrivers\Stripe\SEPA;
+use App\PaymentDrivers\Stripe\SEPA;
 use App\PaymentDrivers\Stripe\UpdatePaymentMethods;
 use App\PaymentDrivers\Stripe\Utilities;
 use App\Utils\Traits\MakesHash;

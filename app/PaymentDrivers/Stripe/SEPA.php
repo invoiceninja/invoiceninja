@@ -7,14 +7,12 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://opensource.org/licenses/AAL
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\PaymentDrivers\Stripe;
 
-use App\Http\Requests\Request;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\StripePaymentDriver;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
