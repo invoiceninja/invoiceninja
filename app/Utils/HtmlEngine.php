@@ -129,6 +129,9 @@ class HtmlEngine
         $data['$invoice.datetime'] = &$data['$entity.datetime'];
         $data['$quote.datetime'] = &$data['$entity.datetime'];
         $data['$credit.datetime'] = &$data['$entity.datetime'];
+        $data['$payment_button'] = ['value' => '<a class="button" href="'.$this->invitation->getPaymentLink().'">'.ctrans('texts.pay_now').'</a>', 'label' => ctrans('texts.pay_now')];
+        $data['$payment_link'] = ['value' => $this->invitation->getPaymentLink(), 'label' => ctrans('texts.pay_now')];
+
 
         if ($this->entity_string == 'invoice' || $this->entity_string == 'recurring_invoice') {
             $data['$entity'] = ['value' => '', 'label' => ctrans('texts.invoice')];
@@ -140,7 +143,7 @@ class HtmlEngine
             $data['$viewLink'] = &$data['$view_link'];
             $data['$viewButton'] = &$data['$view_link'];
             $data['$view_button'] = &$data['$view_link'];
-            $data['$paymentButton'] = &$data['$view_link'];
+            $data['$paymentButton'] = &$data['$payment_button'];
             $data['$view_url'] = ['value' => $this->invitation->getLink(), 'label' => ctrans('texts.view_invoice')];
             $data['$date'] = ['value' => $this->translateDate($this->entity->date, $this->entity->client->date_format(), $this->entity->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.invoice_date')];
 
@@ -457,7 +460,7 @@ class HtmlEngine
         $data['$auto_bill'] = &$data['$autoBill'];
 
         /*Payment Aliases*/
-        $data['$paymentLink'] = ['value' => '<a class="button" href="'.$this->invitation->getLink().'">'.ctrans('texts.view_payment').'</a>', 'label' => ctrans('texts.view_payment')];
+        $data['$paymentLink'] = &$data['$payment_link'];
         $data['$portalButton'] = &$data['$paymentLink'];
 
         $data['$dir'] = ['value' => optional($this->client->language())->locale === 'ar' ? 'rtl' : 'ltr', 'label' => ''];

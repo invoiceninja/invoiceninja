@@ -42,6 +42,9 @@ class SetInviteDb
             $entity = $request->route('entity');
         }
 
+        if($entity == "pay")
+            $entity = "invoice";
+
         if ($request->getSchemeAndHttpHost() && config('ninja.db.multi_db_enabled') && ! MultiDB::findAndSetDbByInvitation($entity, $request->route('invitation_key'))) {
             if (request()->json) {
                 return response()->json($error, 403);
