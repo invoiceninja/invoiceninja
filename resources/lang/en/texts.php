@@ -1779,7 +1779,7 @@ $LANG = array(
     'lang_Bulgarian' => 'Bulgarian',
     'lang_Russian (Russia)' => 'Russian (Russia)',
 
-    
+
     // Industries
     'industry_Accounting & Legal' => 'Accounting & Legal',
     'industry_Advertising' => 'Advertising',
@@ -4316,6 +4316,7 @@ $LANG = array(
     'payment_method_cannot_be_preauthorized' => 'This payment method cannot be preauthorized.',
     'kbc_cbc' => 'KBC/CBC',
     'bancontact' => 'Bancontact',
+    'sepa_mandat' => 'By providing your IBAN and confirming this payment, you are authorizing Rocketship Inc. and Stripe, our payment service provider, to send instructions to your bank to debit your account and your bank to debit your account in accordance with those instructions. You are entitled to a refund from your bank under the terms and conditions of your agreement with your bank. A refund must be claimed within 8 weeks starting from the date on which your account was debited.',
 );
 
 return $LANG;
