@@ -1,4 +1,4 @@
-@extends('portal.ninja2020.layout.payments', ['gateway_title' => 'SEPA', 'card_title' => 'SEPA'])
+@extends('portal.ninja2020.layout.payments', ['gateway_title' => 'SEPA', 'card_title' => 'SEPA-Lastschrift'])
 
 @section('gateway_head')
     @if($gateway->company_gateway->getConfigField('account_id'))
