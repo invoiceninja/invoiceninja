@@ -19,6 +19,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\Entity\CreateRawPdf;
 use App\Models\Client;
 use App\Models\ClientContact;
+use App\Models\InvoiceInvitation;
 use App\Models\Payment;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesDates;
@@ -64,6 +65,9 @@ class InvitationController extends Controller
 
     private function genericRouter(string $entity, string $invitation_key)
     {
+
+        if(!in_array($entity, ['invoice', 'credit', 'quote', 'recurring_invoice']))
+            return response()->json(['message' => 'Invalid resource request']);
 
         $key = $entity.'_id';
 
@@ -133,6 +137,9 @@ class InvitationController extends Controller
     private function returnRawPdf(string $entity, string $invitation_key)
     {
 
+        if(!in_array($entity, ['invoice', 'credit', 'quote', 'recurring_invoice']))
+            return response()->json(['message' => 'Invalid resource request']);
+
         $key = $entity.'_id';
 
         $entity_obj = 'App\Models\\'.ucfirst(Str::camel($entity)).'Invitation';
@@ -180,5 +187,13 @@ class InvitationController extends Controller
 
         return redirect()->route('client.payments.show', $payment->hashed_id);
 
+    }
+
+    public function payInvoice(string $invitation_key)
+    {
+        $invitation = InvoiceInvitation::where('key', $invitation_key)
+                                    ->with('contact.client')
+                                    ->firstOrFail();
+        
     }
 }

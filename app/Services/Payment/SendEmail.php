@@ -33,7 +33,7 @@ class SendEmail
     public function run()
     {
         $this->payment->client->contacts->each(function ($contact) {
-            if ($contact->send_email && $contact->email) {
+            if ($contact->email) {
                 EmailPayment::dispatchNow($this->payment, $this->payment->company, $contact);
             }
         });
