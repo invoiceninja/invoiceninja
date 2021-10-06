@@ -76,7 +76,7 @@ class StripePaymentDriver extends BaseDriver
         GatewayType::ALIPAY => Alipay::class,
         GatewayType::SOFORT => SOFORT::class,
         GatewayType::APPLE_PAY => ApplePay::class,
-        GatewayType::SEPA => 1, SEPA::class,
+        GatewayType::SEPA => SEPA::class,
     ];
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_STRIPE;
@@ -150,7 +150,7 @@ class StripePaymentDriver extends BaseDriver
         if ($this->client
             && isset($this->client->country)
             && in_array($this->client->country->iso_3166_3, ['AUS', 'DNK', 'DEU', 'ITA', 'LUX', 'NOR', 'SVN', 'GBR', 'EST', 'GRC', 'JPN', 'PRT', 'ESP', 'USA', 'BEL', 'FIN'])) { // TODO: More has to be added https://stripe.com/docs/payments/sepa-debit
-            $types[] = GateWayType::SEPA;
+            $types[] = GatewayType::SEPA;
         }
 
         return $types;
