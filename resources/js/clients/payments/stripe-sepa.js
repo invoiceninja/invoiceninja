@@ -30,14 +30,16 @@ class ProcessSEPA {
             document.querySelector('#pay-now > svg').classList.remove('hidden');
             document.querySelector('#pay-now > span').classList.add('hidden');
 
-            this.stripe.confirmSEPAPayment(
+            this.stripe.confirmSepaDebitPayment(
                 document.querySelector('meta[name=pi-client-secret').content,
                 {
                     payment_method: {
-                        sofort: {
-                            country: document.querySelector(
-                                'meta[name="country"]'
-                            ).content,
+                        sepa_debit: {
+                            sepa_debit: document.getElementById("sepa-iban").value,
+                            billing_details: {
+                                name: document.getElementById("sepa-email-addres").value,
+                                email: document.getElementById("sepa-name").value,
+                            },
                         },
                     },
                     return_url: document.querySelector(
