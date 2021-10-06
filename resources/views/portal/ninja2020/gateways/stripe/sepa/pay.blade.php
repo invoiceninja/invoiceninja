@@ -19,6 +19,8 @@
         {{ ctrans('texts.sepa') }} ({{ ctrans('texts.bank_transfer') }})
     @endcomponent
 
+    @include('portal.ninja2020.gateways.stripe.sepa.sepa_debit')
+
     @include('portal.ninja2020.gateways.includes.pay_now')
 @endsection
 
