@@ -270,7 +270,7 @@ trait MakesInvoiceValues
         if (! is_array($items)) {
             $data;
         }
-        
+       
         $locale_info = localeconv();
 
         foreach ($items as $key => $item) {
@@ -296,11 +296,7 @@ trait MakesInvoiceValues
 
             $data[$key][$table_type.'.notes'] = Helpers::processReservedKeywords($item->notes, $this->client);
             $data[$key][$table_type.'.description'] = Helpers::processReservedKeywords($item->notes, $this->client);
-
-            /* need to test here as this is new - 18/09/2021*/
-            if(!array_key_exists($table_type.'.gross_line_total', $data[$key]))
-                $data[$key][$table_type.'.gross_line_total'] = 0;
-
+    
             $data[$key][$table_type . ".{$_table_type}1"] = $helpers->formatCustomFieldValue($this->client->company->custom_fields, "{$_table_type}1", $item->custom_value1, $this->client);
             $data[$key][$table_type . ".{$_table_type}2"] = $helpers->formatCustomFieldValue($this->client->company->custom_fields, "{$_table_type}2", $item->custom_value2, $this->client);
             $data[$key][$table_type . ".{$_table_type}3"] = $helpers->formatCustomFieldValue($this->client->company->custom_fields, "{$_table_type}3", $item->custom_value3, $this->client);
@@ -314,8 +310,12 @@ trait MakesInvoiceValues
             $data[$key][$table_type.'.cost'] = Number::formatMoney($item->cost, $this->client);
 
             $data[$key][$table_type.'.line_total'] = Number::formatMoney($item->line_total, $this->client);
-        
 
+            if(property_exists($item, 'gross_line_total'))
+                $data[$key][$table_type.'.gross_line_total'] = Number::formatMoney($item->gross_line_total, $this->client);
+            else
+                $data[$key][$table_type.'.gross_line_total'] = 0;
+        
             if (isset($item->discount) && $item->discount > 0) {
                 if ($item->is_amount_discount) {
                     $data[$key][$table_type.'.discount'] = Number::formatMoney($item->discount, $this->client);

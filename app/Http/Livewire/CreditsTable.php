@@ -41,8 +41,9 @@ class CreditsTable extends Component
             ->where('status_id', '<>', Credit::STATUS_DRAFT)
             ->where('is_deleted', 0)
             ->where(function ($query){
-                $query->whereDate('due_date', '<=', now())
-                      ->orWhereNull('due_date');
+                $query->whereDate('due_date', '>=', now())
+                      ->orWhereNull('due_date')
+                      ->orWhere('due_date', '=', '');
             })
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
             ->withTrashed()

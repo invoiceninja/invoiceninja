@@ -93,6 +93,7 @@ class Gateway extends StaticModel
                     GatewayType::BANK_TRANSFER => ['refund' => false, 'token_billing' => true],
                     GatewayType::KBC => ['refund' => false, 'token_billing' => false],
                     GatewayType::BANCONTACT => ['refund' => false, 'token_billing' => false],
+                    GatewayType::IDEAL => ['refund' => false, 'token_billing' => false],
                 ];
             case 15:
                 return [GatewayType::PAYPAL => ['refund' => true, 'token_billing' => false]]; //Paypal
@@ -131,6 +132,10 @@ class Gateway extends StaticModel
                     GatewayType::CREDIT_CARD => ['refund' => false, 'token_billing' => true], //Square
                 ];
                 break;
+            case 52:
+                return [
+                    GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true] // GoCardless
+                ];
                 break;
             default:
                 return [];

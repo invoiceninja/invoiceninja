@@ -23,6 +23,7 @@ use App\Models\PaymentType;
 use App\Services\AbstractService;
 use App\Utils\Ninja;
 use Illuminate\Support\Str;
+use PDO;
 
 class AutoBillInvoice extends AbstractService
 {
@@ -113,10 +114,17 @@ class AutoBillInvoice extends AbstractService
 
         nlog("Payment hash created => {$payment_hash->id}");
 
+        $payment = false;
+
+        try{
         $payment = $gateway_token->gateway
                                  ->driver($this->client)
                                  ->setPaymentHash($payment_hash)
                                  ->tokenBilling($gateway_token, $payment_hash);
+         }
+         catch(\Exception $e){
+            nlog($e->getMessage());
+         }
 
         if($payment){
             info("Auto Bill payment captured for ".$this->invoice->number);
@@ -296,7 +304,7 @@ class AutoBillInvoice extends AbstractService
     {
 
         //get all client gateway tokens and set the is_default one to the first record
-        $gateway_tokens = $this->client->gateway_tokens()->orderBy('is_default', 'DESC');
+        $gateway_tokens = $this->client->gateway_tokens()->orderBy('is_default', 'DESC')->get();
         // $gateway_tokens = $this->client->gateway_tokens;
 
         $filtered_gateways = $gateway_tokens->filter(function ($gateway_token) use($amount) {
@@ -304,7 +312,7 @@ class AutoBillInvoice extends AbstractService
             $company_gateway = $gateway_token->gateway;
 
             //check if fees and limits are set
-            if (isset($company_gateway->fees_and_limits) && property_exists($company_gateway->fees_and_limits, $gateway_token->gateway_type_id))
+            if (isset($company_gateway->fees_and_limits) && !is_array($company_gateway->fees_and_limits) && property_exists($company_gateway->fees_and_limits, $gateway_token->gateway_type_id))
             {
                 //if valid we keep this gateway_token
                 if ($this->invoice->client->validGatewayForAmount($company_gateway->fees_and_limits->{$gateway_token->gateway_type_id}, $amount))

@@ -25,15 +25,25 @@ class RegisterRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
-        $rules = [
-            'first_name' => ['required', 'string', 'max:255'],
-            'last_name' => ['required', 'string', 'max:255'],
-            'phone' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email:rfc,dns', 'max:255'],
-            'password' => ['required', 'string', 'min:6', 'confirmed'],
-        ];
+        $rules = [];
+
+        foreach ($this->company()->client_registration_fields as $field) {
+            if ($field['required']) {
+                $rules[$field['key']] = ['required'];
+            }
+        }
+
+        foreach ($rules as $field => $properties) {
+            if ($field === 'email') {
+                $rules[$field] = array_merge($rules[$field], ['email:rfc,dns', 'max:255']);
+            }
+
+            if ($field === 'password') {
+                $rules[$field] = array_merge($rules[$field], ['string', 'min:6', 'confirmed']);
+            }
+        }
 
         if ($this->company()->settings->client_portal_terms || $this->company()->settings->client_portal_privacy_policy) {
             $rules['terms'] = ['required'];

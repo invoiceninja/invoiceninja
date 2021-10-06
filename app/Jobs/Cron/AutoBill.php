@@ -50,6 +50,8 @@ class AutoBill
             MultiDB::setDb($this->db);
 
         try{
+            
+            nlog("autobill {$this->invoice->id}");
 
             $this->invoice->service()->autoBill()->save();
 

@@ -19,7 +19,10 @@ use App\Http\Controllers\Controller;
 use App\Jobs\Entity\CreateRawPdf;
 use App\Models\Client;
 use App\Models\ClientContact;
+use App\Models\InvoiceInvitation;
 use App\Models\Payment;
+use App\Services\ClientPortal\InstantPayment;
+use App\Utils\CurlUtils;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
@@ -64,6 +67,9 @@ class InvitationController extends Controller
 
     private function genericRouter(string $entity, string $invitation_key)
     {
+
+        if(!in_array($entity, ['invoice', 'credit', 'quote', 'recurring_invoice']))
+            return response()->json(['message' => 'Invalid resource request']);
 
         $key = $entity.'_id';
 
@@ -133,6 +139,9 @@ class InvitationController extends Controller
     private function returnRawPdf(string $entity, string $invitation_key)
     {
 
+        if(!in_array($entity, ['invoice', 'credit', 'quote', 'recurring_invoice']))
+            return response()->json(['message' => 'Invalid resource request']);
+
         $key = $entity.'_id';
 
         $entity_obj = 'App\Models\\'.ucfirst(Str::camel($entity)).'Invitation';
@@ -180,5 +189,42 @@ class InvitationController extends Controller
 
         return redirect()->route('client.payments.show', $payment->hashed_id);
 
+    }
+
+    public function payInvoice(Request $request, string $invitation_key)
+    {
+        $invitation = InvoiceInvitation::where('key', $invitation_key)
+                                    ->with('contact.client')
+                                    ->firstOrFail();
+        
+        auth()->guard('contact')->login($invitation->contact, true);
+
+        $invoice = $invitation->invoice;
+
+        if($invoice->partial > 0)
+            $amount = round($invoice->partial, (int)$invoice->client->currency()->precision);
+        else 
+            $amount = round($invoice->balance, (int)$invoice->client->currency()->precision);
+
+        $gateways = $invitation->contact->client->service()->getPaymentMethods($amount);
+
+        if(is_array($gateways))
+        {
+
+            $data = [
+                'company_gateway_id' => $gateways[0]['company_gateway_id'],
+                'payment_method_id' => $gateways[0]['gateway_type_id'],
+                'payable_invoices' => [
+                    ['invoice_id' => $invitation->invoice->hashed_id, 'amount' => $amount],
+                ],
+                'signature' => false
+            ];
+
+            $request->replace($data);
+
+            return (new InstantPayment($request))->run();
+        }
+
+        abort(404, "Invoice not found");
     }
 }

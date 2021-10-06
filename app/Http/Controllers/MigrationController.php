@@ -234,21 +234,24 @@ class MigrationController extends BaseController
     public function startMigration(Request $request)
     {   
 
-                            // v4 Laravel 6
-
-                            // $companies = [];
-
-                            // foreach($request->all() as $input){
-
-                            //     if($input instanceof UploadedFile)
-                            //         nlog('is file');
-                            //     else
-                            //         $companies[] = json_decode($input);
-                            // }
-
         nlog("Starting Migration");
         
-        $companies = json_decode($request->companies,1);
+        if($request->companies){
+            //handle Laravel 5.5 UniHTTP
+            $companies = json_decode($request->companies,1);
+        }
+        else {
+            //handle Laravel 6 Guzzle
+            $companies = [];
+
+            foreach($request->all() as $input){
+
+                if($input instanceof UploadedFile)
+                    nlog('is file');
+                else
+                    $companies[] = json_decode($input,1);
+            }
+        }
 
         if (app()->environment() === 'local') {
             nlog($request->all());
@@ -267,21 +270,10 @@ class MigrationController extends BaseController
         foreach($companies as $company)
         {
 
+            if(!is_array($company))
+                continue;
+
             $company = (array)$company;
-
-                            // v4 Laravel 6
-                            // $input = $request->all();
-
-                            // foreach ($input as $company) {
-
-                            //     if($company instanceof UploadedFile)
-                            //         continue;
-                            //     else
-                            //         $company = json_decode($company,1);
-
-                            //     if (!$company || !is_int($company['company_index'] || !$request->file($company['company_index'])->isValid())) {
-                            //         continue;
-                            //     }
 
             $user = auth()->user();
 

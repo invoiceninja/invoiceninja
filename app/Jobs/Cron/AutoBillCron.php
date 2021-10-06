@@ -25,6 +25,8 @@ class AutoBillCron
 
     public $tries = 1;
     
+    private $counter = 1;
+
     /**
      * Create a new job instance.
      *
@@ -56,6 +58,7 @@ class AutoBillCron
                                         ->whereHas('company', function ($query) {
                                              $query->where('is_disabled',0);
                                         })
+                                        ->orderBy('id', 'DESC')
                                         ->with('company');
 
                                         nlog($auto_bill_partial_invoices->count(). " partial invoices to auto bill");
@@ -72,11 +75,11 @@ class AutoBillCron
                                         ->whereHas('company', function ($query) {
                                              $query->where('is_disabled',0);
                                         })
+                                        ->orderBy('id', 'DESC')
                                         ->with('company');
 
                                         nlog($auto_bill_invoices->count(). " full invoices to auto bill");
                                         
-                                     
                                         $auto_bill_invoices->cursor()->each(function ($invoice){
                                                 AutoBill::dispatch($invoice, false);
                                         });
@@ -96,6 +99,7 @@ class AutoBillCron
                                             ->whereHas('company', function ($query) {
                                                  $query->where('is_disabled',0);
                                             })
+                                            ->orderBy('id', 'DESC')
                                             ->with('company');
 
                                             nlog($auto_bill_partial_invoices->count(). " partial invoices to auto bill db = {$db}");
@@ -112,15 +116,23 @@ class AutoBillCron
                                             ->whereHas('company', function ($query) {
                                                  $query->where('is_disabled',0);
                                             })
+                                            ->orderBy('id', 'DESC')
                                             ->with('company');
 
                                             nlog($auto_bill_invoices->count(). " full invoices to auto bill db = {$db}");
 
                                             $auto_bill_invoices->cursor()->each(function ($invoice) use($db){
+
+                                                nlog($this->counter);
                                                 AutoBill::dispatch($invoice, $db);
+                                                $this->counter++;
                                             });
 
+
+
             }
+
+            nlog("Auto Bill - fine");
         }
     }
 
