@@ -49,6 +49,7 @@ class SEPA
             'amount' => $data['stripe_amount'],
             'currency' => 'eur',
             'payment_method_types' => ['sepa_debit'],
+            'setup_future_usage' => 'off_session',
             'customer' => $this->stripe->findOrCreateCustomer(),
             'description' => $this->stripe->decodeUnicodeString(ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number')),
 
