@@ -94,4 +94,15 @@ class RazorpayPaymentDriver extends BaseDriver
     {
         return $this->payment_method->yourTokenBillingImplmentation();
     }
+
+    /**
+     * Convert the amount to the format that Razorpay supports.
+     * 
+     * @param mixed|float $amount 
+     * @return int 
+     */
+    public function convertToRazorpayAmount($amount): int
+    {
+        return \number_format((float) $amount * 100, 0, '.', '');
+    }
 }
