@@ -67,9 +67,10 @@ class ContactResetPasswordController extends Controller
         $account_id = $request->get('account_id');
         $account = Account::find($account_id);
         $db = $account->companies->first()->db;
+        $company = $account->companies->first();
 
         return $this->render('auth.passwords.reset')->with(
-            ['token' => $token, 'email' => $request->email, 'account' => $account, 'db' => $db]
+            ['token' => $token, 'email' => $request->email, 'account' => $account, 'db' => $db, 'company' => $company]
         );
     }
 
