@@ -18,7 +18,7 @@ use App\Models\PaymentHash;
 use App\Models\SystemLog;
 use App\Utils\Traits\MakesHash;
 
-class DriverTemplate extends BaseDriver
+class RazorpayPaymentDriver extends BaseDriver
 {
     use MakesHash;
 
@@ -38,12 +38,19 @@ class DriverTemplate extends BaseDriver
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_RAZORPAY;
 
+    public function gatewayTypes(): array
+    {
+        return [
+            GatewayType::HOSTED_PAGE,
+        ];
+    }
+
     public function setPaymentMethod($payment_method_id)
     {
         $class = self::$methods[$payment_method_id];
 
         $this->payment_method = new $class($this);
-        
+
         return $this;
     }
 
