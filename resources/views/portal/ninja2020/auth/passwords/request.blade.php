@@ -13,9 +13,13 @@
         <div class="{{ $account && !$account->isPaid() ? 'col-span-2' : 'col-span-3' }} h-screen flex">
             <div class="m-auto w-1/2 md:w-1/3 lg:w-1/4">
                 @if($account && !$account->isPaid())
-                <div>
-                    <img src="{{ asset('images/invoiceninja-black-logo-2.png') }}" class="border-b border-gray-100 h-18 pb-4" alt="Invoice Ninja logo">
-                </div>
+                    <div>
+                        <img src="{{ asset('images/invoiceninja-black-logo-2.png') }}" class="border-b border-gray-100 h-18 pb-4" alt="Invoice Ninja logo">
+                    </div>
+                @elseif(isset($company) && !is_null($company))
+                    <div>
+                        <img src="{{ asset($company->present()->logo()) }}" class="h-14 mb-10" alt="{{ $company->present()->name() }} logo">
+                    </div>
                 @endif
                 <div class="flex flex-col">
                     <h1 class="text-center text-3xl">{{ ctrans('texts.password_recovery') }}</h1>
