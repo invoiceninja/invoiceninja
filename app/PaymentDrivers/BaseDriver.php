@@ -561,15 +561,15 @@ class BaseDriver extends AbstractPaymentDriver
             }
         }
 
-        if ($this->company_gateway->require_contact_name) {
-            if ($this->checkRequiredResource($this->first_name)) {
-                $this->required_fields[] = 'contact_first_name';
-            }
+        // if ($this->company_gateway->require_contact_name) {
+        //     if ($this->checkRequiredResource($this->first_name)) {
+        //         $this->required_fields[] = 'contact_first_name';
+        //     }
 
-            if ($this->checkRequiredResource($this->last_name)) {
-                $this->required_fields[] = 'contact_last_name';
-            }
-        }
+        //     if ($this->checkRequiredResource($this->last_name)) {
+        //         $this->required_fields[] = 'contact_last_name';
+        //     }
+        // }
 
         if ($this->company_gateway->require_postal_code) {
             // In case "require_postal_code" is true, we don't need billing address.
