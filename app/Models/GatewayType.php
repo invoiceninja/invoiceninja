@@ -67,6 +67,8 @@ class GatewayType extends StaticModel
                 return ctrans('texts.bancontact');
             case self::IDEAL:
                 return ctrans('texts.ideal');
+            case self::HOSTED_PAGE:
+                return ctrans('texts.aio_checkout');
             default:
                 return 'Undefined.';
                 break;
