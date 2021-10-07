@@ -32,24 +32,5 @@ ctrans('texts.aio_checkout')])
 
 @section('gateway_footer')
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
-    <script>
-        let options = JSON.parse(
-            document.querySelector('meta[name=razorpay-options]')?.content
-        );
-
-        options.handler = function(response) {
-            document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
-            document.getElementById('razorpay_signature').value = response.razorpay_signature;
-            document.getElementById('server-response').submit();
-        };
-
-        let razorpay = new Razorpay(options);
-
-        document.getElementById('pay-now').onclick = function(event) {
-            event.target.parentElement.disabled = true;
-            
-            razorpay.open();
-        }
-    </script>
+    <script src="{{ asset('js/clients/payments/razorpay-aio.js') }}"></script>
 @endsection
