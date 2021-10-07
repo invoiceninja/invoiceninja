@@ -15,6 +15,7 @@ class Razorpay extends Migration
     public function up()
     {
         $gateway = new Gateway();
+        $gateway->id = 58;
         $gateway->name = 'Razorpay';
         $gateway->key = Str::lower(Str::random(32));
         $gateway->provider = 'Razorpay';
