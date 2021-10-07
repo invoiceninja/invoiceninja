@@ -174,10 +174,6 @@ class BaseRepository
         if(array_key_exists('client_id', $data)) 
             $model->client_id = $data['client_id'];
 
-        //pickup changes here to recalculate reminders
-        //if($model instanceof Invoice && ($model->isDirty('date') || $model->isDirty('due_date')))
-           // $model->service()->setReminder()->save();
-
         $client = Client::where('id', $model->client_id)->withTrashed()->first();    
 
         $state = [];
@@ -210,7 +206,10 @@ class BaseRepository
         $model->custom_surcharge_tax3 = $client->company->custom_surcharge_taxes3;
         $model->custom_surcharge_tax4 = $client->company->custom_surcharge_taxes4;
 
-        $model->saveQuietly();
+        if(!$model->id)
+            $model->save();
+        else
+            $model->saveQuietly();
 
         /* Model now persisted, now lets do some child tasks */
 
