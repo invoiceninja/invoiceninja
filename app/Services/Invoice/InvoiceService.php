@@ -473,8 +473,10 @@ class InvoiceService
 
         if ($this->invoice->status_id == Invoice::STATUS_PAID && $this->invoice->client->getSetting('auto_archive_invoice')) {
             /* Throws: Payment amount xxx does not match invoice totals. */
+
             $base_repository = new BaseRepository();
             $base_repository->archive($this->invoice);
+            
         }
 
         return $this;
