@@ -20,7 +20,39 @@ class ProcessSEPA {
 
         if(this.stripeConnect)
             this.stripe.stripeAccount = stripeConnect;
-
+        const elements = this.stripe.elements();
+        var style = {
+            base: {
+                color: "#32325d",
+                fontFamily:
+                    '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+                fontSmoothing: "antialiased",
+                fontSize: "16px",
+                "::placeholder": {
+                    color: "#aab7c4"
+                },
+                ":-webkit-autofill": {
+                    color: "#32325d"
+                }
+            },
+            invalid: {
+                color: "#fa755a",
+                iconColor: "#fa755a",
+                ":-webkit-autofill": {
+                    color: "#fa755a"
+                }
+            }
+        };
+        var options = {
+            style: style,
+            supportedCountries: ["SEPA"],
+            // If you know the country of the customer, you can optionally pass it to
+            // the Element as placeholderCountry. The example IBAN that is being used
+            // as placeholder reflects the IBAN format of that country.
+            placeholderCountry: "DE"
+        };
+        this.iban = elements.create("iban", options);
+        this.iban.mount("#sepa-iban");
         return this;
     };
 
@@ -34,12 +66,10 @@ class ProcessSEPA {
                 document.querySelector('meta[name=pi-client-secret').content,
                 {
                     payment_method: {
-                        sepa_debit: {
-                            sepa_debit: document.getElementById("sepa-iban").value,
-                            billing_details: {
-                                name: document.getElementById("sepa-email-addres").value,
-                                email: document.getElementById("sepa-name").value,
-                            },
+                        sepa_debit: this.iban,
+                        billing_details: {
+                            name: document.getElementById("sepa-name").value,
+                            email: document.getElementById("sepa-email-address").value,
                         },
                     },
                     return_url: document.querySelector(

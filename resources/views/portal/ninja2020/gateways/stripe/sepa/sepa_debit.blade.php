@@ -6,10 +6,14 @@
         <label for="sepa-email">
             <input class="input mr-4" id="sepa-email-address" type="email" placeholder="{{ ctrans('texts.email') }}">
         </label>
-        <label for="sepa-iban">
-            <input class="input w-full" id="sepa-iban" type="text" placeholder="{{ctrans('texts.iban')}}">
-        </label>
-        <br>
+        <div>
+            <label for="sepa-iban">
+                IBAN
+            </label>
+            <div id="sepa-iban">
+                <!-- A Stripe Element will be inserted here. -->
+            </div>
+        </div>
         <div id="mandate-acceptance">
             <input type="checkbox" id="sepa-mandate-acceptance">
             <label for="sepa-mandate-acceptance">{{ctrans('texts.sepa_mandat')}}</label>
