@@ -28,6 +28,7 @@ class GatewayType extends StaticModel
     const KBC = 11;
     const BANCONTACT = 12;
     const IDEAL = 13;
+    const HOSTED_PAGE = 14; // For gateways that contain multiple methods.
     
     public function gateway()
     {
