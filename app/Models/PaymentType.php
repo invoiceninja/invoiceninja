@@ -46,6 +46,7 @@ class PaymentType extends StaticModel
     const KBC = 35;
     const BANCONTACT = 36;
     const IDEAL = 37; 
+    const HOSTED_PAGE = 38;
 
     public static function parseCardType($cardName)
     {
