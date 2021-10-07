@@ -29,7 +29,7 @@ class RazorpayPaymentDriver extends BaseDriver
 
     public $can_authorise_credit_card = false;
 
-    public $gateway;
+    public \Razorpay\Api\Api $gateway;
 
     public $payment_method;
 
@@ -38,6 +38,16 @@ class RazorpayPaymentDriver extends BaseDriver
     ];
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_RAZORPAY;
+
+    public function init(): self
+    {
+        $this->gateway = new \Razorpay\Api\Api(
+            $this->company_gateway->getConfigField('apiKey'), 
+            $this->company_gateway->getConfigField('apiSecret'),
+        );
+
+        return $this;
+    }
 
     public function gatewayTypes(): array
     {
