@@ -15,6 +15,7 @@
     "/js/clients/payments/eway-credit-card.js": "/js/clients/payments/eway-credit-card.js?id=08ea84e9451abd434cff",
     "/js/clients/payments/mollie-credit-card.js": "/js/clients/payments/mollie-credit-card.js?id=73b66e88e2daabcd6549",
     "/js/clients/payments/paytrace-credit-card.js": "/js/clients/payments/paytrace-credit-card.js?id=c2b5f7831e1a46dd5fb2",
+    "/js/clients/payments/razorpay-aio.js": "/js/clients/payments/razorpay-aio.js?id=817ab3b2b94ee37b14eb",
     "/js/clients/payments/square-credit-card.js": "/js/clients/payments/square-credit-card.js?id=070c86b293b532c5a56c",
     "/js/clients/payments/stripe-ach.js": "/js/clients/payments/stripe-ach.js?id=81c2623fc1e5769b51c7",
     "/js/clients/payments/stripe-alipay.js": "/js/clients/payments/stripe-alipay.js?id=665ddf663500767f1a17",
