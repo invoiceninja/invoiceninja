@@ -6,10 +6,7 @@
         <label for="sepa-email">
             <input class="input mr-4" id="sepa-email-address" type="email" placeholder="{{ ctrans('texts.email') }}">
         </label>
-        <div>
-            <label for="sepa-iban">
-                IBAN
-            </label>
+        <div class="border p-4 rounded StripeElement StripeElement--complete">
             <div id="sepa-iban">
                 <!-- A Stripe Element will be inserted here. -->
             </div>
