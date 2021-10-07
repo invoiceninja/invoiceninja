@@ -13,10 +13,12 @@
 
 namespace App\PaymentDrivers\Razorpay;
 
-use App\Http\Requests\Request;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Http\Requests\Request;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\RazorpayPaymentDriver;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class Hosted implements MethodInterface
 {
@@ -29,11 +31,33 @@ class Hosted implements MethodInterface
         $this->razorpay->init();
     }
 
-    public function authorizeView(array $data) { }
+    /**
+     * Show the authorization page for Razorpay.
+     *
+     * @param array $data
+     * @return View
+     */
+    public function authorizeView(array $data): View
+    {
+        return render('gateways.razorpay.hosted.authorize', $data);
+    }
 
-    public function authorizeResponse(Request $request) { }
+    /**
+     * Handle the authorization page for Razorpay.
+     *
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function authorizeResponse(Request $request): RedirectResponse
+    {
+        return redirect()->route('client.payment_methods.index');
+    }
 
-    public function paymentView(array $data) { }
+    public function paymentView(array $data)
+    {
+    }
 
-    public function paymentResponse(PaymentResponseRequest $request) { }
+    public function paymentResponse(PaymentResponseRequest $request)
+    {
+    }
 }
