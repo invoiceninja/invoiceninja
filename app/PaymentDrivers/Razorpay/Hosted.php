@@ -16,9 +16,19 @@ namespace App\PaymentDrivers\Razorpay;
 use App\Http\Requests\Request;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\PaymentDrivers\Common\MethodInterface;
+use App\PaymentDrivers\RazorpayPaymentDriver;
 
 class Hosted implements MethodInterface
 {
+    protected RazorpayPaymentDriver $razorpay;
+
+    public function __construct(RazorpayPaymentDriver $razorpay)
+    {
+        $this->razorpay = $razorpay;
+
+        $this->razorpay->init();
+    }
+
     public function authorizeView(array $data) { }
 
     public function authorizeResponse(Request $request) { }
