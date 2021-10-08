@@ -14,6 +14,7 @@
                 @csrf
 
                 <div class="grid grid-cols-12 gap-4 mt-10">
+                    @if($company->client_registration_fields)
                     @foreach($company->client_registration_fields as $field)
                         @if($field['required'])
                             <div class="col-span-12 md:col-span-6">
@@ -96,6 +97,7 @@
                             @endif
                         @endif
                     @endforeach
+                    @endif
                 </div>
 
                 <div class="flex justify-between items-center mt-8">

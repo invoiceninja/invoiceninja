@@ -165,6 +165,7 @@ class CompanyTransformer extends EntityTransformer
             'markdown_enabled' => (bool) $company->markdown_enabled,
             'use_comma_as_decimal_place' => (bool) $company->use_comma_as_decimal_place,
             'report_include_drafts' => (bool) $company->report_include_drafts,
+            'client_registration_fields' => (array) $company->client_registration_fields,
         ];
     }
 

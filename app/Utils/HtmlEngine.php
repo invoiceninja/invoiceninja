@@ -49,6 +49,7 @@ class HtmlEngine
     public function __construct($invitation)
     {
         $this->invitation = $invitation;
+        // $invitation->load('contact.client.company', 'company');
 
         $this->entity_string = $this->resolveEntityString();
 
@@ -58,7 +59,9 @@ class HtmlEngine
 
         $this->contact = $invitation->contact;
 
-        $this->client = $this->entity->client;
+        $this->client = $invitation->contact->client;
+        $this->client->load('country','company');
+        $this->entity->load('client');
 
         $this->settings = $this->client->getMergedSettings();
 
@@ -113,19 +116,19 @@ class HtmlEngine
         $data['$total_tax_values'] = ['value' => $this->totalTaxValues(), 'label' => ctrans('texts.taxes')];
         $data['$line_tax_labels'] = ['value' => $this->lineTaxLabels(), 'label' => ctrans('texts.taxes')];
         $data['$line_tax_values'] = ['value' => $this->lineTaxValues(), 'label' => ctrans('texts.taxes')];
-        $data['$date'] = ['value' => $this->translateDate($this->entity->date, $this->entity->client->date_format(), $this->entity->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.date')];
+        $data['$date'] = ['value' => $this->translateDate($this->entity->date, $this->client->date_format(), $this->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.date')];
 
         $data['$invoice.date'] = &$data['$date'];
         $data['$invoiceDate'] = &$data['$date'];
-        $data['$due_date'] = ['value' => $this->translateDate($this->entity->due_date, $this->entity->client->date_format(), $this->entity->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.'.$this->entity_string.'_due_date')];
+        $data['$due_date'] = ['value' => $this->translateDate($this->entity->due_date, $this->client->date_format(), $this->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.'.$this->entity_string.'_due_date')];
         $data['$dueDate'] = &$data['$due_date'];
 
-        $data['$payment_due'] = ['value' => $this->translateDate($this->entity->due_date, $this->entity->client->date_format(), $this->entity->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.payment_due')];
+        $data['$payment_due'] = ['value' => $this->translateDate($this->entity->due_date, $this->client->date_format(), $this->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.payment_due')];
         $data['$invoice.due_date'] = &$data['$due_date'];
         $data['$invoice.number'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.invoice_number')];
         $data['$invoice.po_number'] = ['value' => $this->entity->po_number ?: '&nbsp;', 'label' => ctrans('texts.po_number')];
         $data['$poNumber'] = &$data['$invoice.po_number'];
-        $data['$entity.datetime'] = ['value' => $this->formatDatetime($this->entity->created_at, $this->entity->client->date_format(), $this->entity->client->locale()), 'label' => ctrans('texts.date')];
+        $data['$entity.datetime'] = ['value' => $this->formatDatetime($this->entity->created_at, $this->client->date_format(), $this->client->locale()), 'label' => ctrans('texts.date')];
         $data['$invoice.datetime'] = &$data['$entity.datetime'];
         $data['$quote.datetime'] = &$data['$entity.datetime'];
         $data['$credit.datetime'] = &$data['$entity.datetime'];
@@ -145,9 +148,9 @@ class HtmlEngine
             $data['$view_button'] = &$data['$view_link'];
             $data['$paymentButton'] = &$data['$payment_button'];
             $data['$view_url'] = ['value' => $this->invitation->getLink(), 'label' => ctrans('texts.view_invoice')];
-            $data['$date'] = ['value' => $this->translateDate($this->entity->date, $this->entity->client->date_format(), $this->entity->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.invoice_date')];
+            $data['$date'] = ['value' => $this->translateDate($this->entity->date, $this->client->date_format(), $this->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.invoice_date')];
 
-            if($this->entity->project()->exists()) {
+            if($this->entity->project) {
                 $data['$project.name'] = ['value' => $this->entity->project->name, 'label' => ctrans('texts.project_name')];
             }
         }
@@ -164,7 +167,7 @@ class HtmlEngine
             $data['$view_button'] = &$data['$view_link'];
             $data['$approveButton'] = ['value' => '<a class="button" href="'.$this->invitation->getLink().'">'.ctrans('texts.view_quote').'</a>', 'label' => ctrans('texts.approve')];
             $data['$view_url'] = ['value' => $this->invitation->getLink(), 'label' => ctrans('texts.view_quote')];
-            $data['$date'] = ['value' => $this->translateDate($this->entity->date, $this->entity->client->date_format(), $this->entity->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.quote_date')];
+            $data['$date'] = ['value' => $this->translateDate($this->entity->date, $this->client->date_format(), $this->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.quote_date')];
         }
 
         if ($this->entity_string == 'credit') {
@@ -179,7 +182,7 @@ class HtmlEngine
             $data['$viewLink'] = &$data['$view_link'];
             $data['$view_url'] = ['value' => $this->invitation->getLink(), 'label' => ctrans('texts.view_credit')];
             // $data['$view_link']          = ['value' => $this->invitation->getLink(), 'label' => ctrans('texts.view_credit')];
-            $data['$date'] = ['value' => $this->translateDate($this->entity->date, $this->entity->client->date_format(), $this->entity->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.credit_date')];
+            $data['$date'] = ['value' => $this->translateDate($this->entity->date, $this->client->date_format(), $this->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.credit_date')];
         }
 
         $data['$portal_url'] = ['value' => $this->invitation->getPortalLink(), 'label' =>''];
@@ -200,7 +203,7 @@ class HtmlEngine
         if ($this->entity->partial > 0) {
             $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->partial, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.partial_due')];
             $data['$balance_due_raw'] = ['value' => $this->entity->partial, 'label' => ctrans('texts.partial_due')];
-            $data['$due_date'] = ['value' => $this->translateDate($this->entity->partial_due_date, $this->entity->client->date_format(), $this->entity->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.'.$this->entity_string.'_due_date')];
+            $data['$due_date'] = ['value' => $this->translateDate($this->entity->partial_due_date, $this->client->date_format(), $this->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.'.$this->entity_string.'_due_date')];
 
         } else {
 
@@ -233,7 +236,7 @@ class HtmlEngine
         $data['$credit.number'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.credit_number')];
         $data['$credit.total'] = &$data['$credit.total'];
         $data['$credit.po_number'] = &$data['$invoice.po_number'];
-        $data['$credit.date'] = ['value' => $this->translateDate($this->entity->date, $this->entity->client->date_format(), $this->entity->client->locale()), 'label' => ctrans('texts.credit_date')];
+        $data['$credit.date'] = ['value' => $this->translateDate($this->entity->date, $this->client->date_format(), $this->client->locale()), 'label' => ctrans('texts.credit_date')];
         $data['$balance'] = ['value' => Number::formatMoney($this->entity_calc->getBalance(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.balance')];
         $data['$credit.balance'] = &$data['$balance'];
 
@@ -260,13 +263,13 @@ class HtmlEngine
         $data['$entity_issued_to'] = ['value' => '', 'label' => ctrans("texts.{$this->entity_string}_issued_to")];
         $data['$your_entity'] = ['value' => '', 'label' => ctrans("texts.your_{$this->entity_string}")];
 
-        $data['$quote.date'] = ['value' => $this->translateDate($this->entity->date, $this->entity->client->date_format(), $this->entity->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.quote_date')];
+        $data['$quote.date'] = ['value' => $this->translateDate($this->entity->date, $this->client->date_format(), $this->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.quote_date')];
         $data['$quote.number'] = ['value' => $this->entity->number ?: '&nbsp;', 'label' => ctrans('texts.quote_number')];
         $data['$quote.po_number'] = &$data['$invoice.po_number'];
         $data['$quote.quote_number'] = &$data['$quote.number'];
         $data['$quote_no'] = &$data['$quote.number'];
         $data['$quote.quote_no'] = &$data['$quote.number'];
-        $data['$quote.valid_until'] = ['value' => $this->translateDate($this->entity->due_date, $this->client->date_format(), $this->entity->client->locale()), 'label' => ctrans('texts.valid_until')];
+        $data['$quote.valid_until'] = ['value' => $this->translateDate($this->entity->due_date, $this->client->date_format(), $this->client->locale()), 'label' => ctrans('texts.valid_until')];
         $data['$valid_until'] = &$data['$quote.valid_until'];
         $data['$credit_amount'] = ['value' => Number::formatMoney($this->entity_calc->getTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.credit_amount')];
         $data['$credit_balance'] = ['value' => Number::formatMoney($this->entity->balance, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.credit_balance')];
@@ -461,6 +464,7 @@ class HtmlEngine
 
         /*Payment Aliases*/
         $data['$paymentLink'] = &$data['$payment_link'];
+        $data['$payment_url'] = &$data['$payment_link'];
         $data['$portalButton'] = &$data['$paymentLink'];
 
         $data['$dir'] = ['value' => optional($this->client->language())->locale === 'ar' ? 'rtl' : 'ltr', 'label' => ''];
