@@ -59,6 +59,8 @@ class CreateEntityPdf implements ShouldQueue
 
     public $entity_string = '';
 
+    public $client;
+
     /**
      * Create a new job instance.
      *
@@ -69,15 +71,19 @@ class CreateEntityPdf implements ShouldQueue
         $this->invitation = $invitation;
 
         if ($invitation instanceof InvoiceInvitation) {
+            $invitation->load('contact.client.company','invoice.client','invoice.user.account');
             $this->entity = $invitation->invoice;
             $this->entity_string = 'invoice';
         } elseif ($invitation instanceof QuoteInvitation) {
+            $invitation->load('contact.client.company','quote.client','quote.user.account');
             $this->entity = $invitation->quote;
             $this->entity_string = 'quote';
         } elseif ($invitation instanceof CreditInvitation) {
+            $invitation->load('contact.client.company','credit.client','credit.user.account');
             $this->entity = $invitation->credit;
             $this->entity_string = 'credit';
         } elseif ($invitation instanceof RecurringInvoiceInvitation) {
+            $invitation->load('contact.client.company','recurring_invoice');
             $this->entity = $invitation->recurring_invoice;
             $this->entity_string = 'recurring_invoice';
         }
@@ -85,6 +91,8 @@ class CreateEntityPdf implements ShouldQueue
         $this->company = $invitation->company;
 
         $this->contact = $invitation->contact;
+
+        $this->client = $invitation->contact->client;
 
         $this->disk = Ninja::isHosted() ? config('filesystems.default') : $disk;
 
@@ -102,7 +110,7 @@ class CreateEntityPdf implements ShouldQueue
         App::setLocale($this->contact->preferredLocale());
 
         /* Set customized translations _NOW_ */
-        $t->replace(Ninja::transformTranslations($this->entity->client->getMergedSettings()));
+        $t->replace(Ninja::transformTranslations($this->client->getMergedSettings()));
 
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
             return (new Phantom)->generate($this->invitation);
@@ -111,22 +119,22 @@ class CreateEntityPdf implements ShouldQueue
         $entity_design_id = '';
 
         if ($this->entity instanceof Invoice) {
-            $path = $this->entity->client->invoice_filepath($this->invitation);
+            $path = $this->client->invoice_filepath($this->invitation);
             $entity_design_id = 'invoice_design_id';
         } elseif ($this->entity instanceof Quote) {
-            $path = $this->entity->client->quote_filepath($this->invitation);
+            $path = $this->client->quote_filepath($this->invitation);
             $entity_design_id = 'quote_design_id';
         } elseif ($this->entity instanceof Credit) {
-            $path = $this->entity->client->credit_filepath($this->invitation);
+            $path = $this->client->credit_filepath($this->invitation);
             $entity_design_id = 'credit_design_id';
         } elseif ($this->entity instanceof RecurringInvoice) {
-            $path = $this->entity->client->recurring_invoice_filepath($this->invitation);
+            $path = $this->client->recurring_invoice_filepath($this->invitation);
             $entity_design_id = 'invoice_design_id';
         }
 
         $file_path = $path.$this->entity->numberFormatter().'.pdf';
 
-        $entity_design_id = $this->entity->design_id ? $this->entity->design_id : $this->decodePrimaryKey($this->entity->client->getSetting($entity_design_id));
+        $entity_design_id = $this->entity->design_id ? $this->entity->design_id : $this->decodePrimaryKey($this->client->getSetting($entity_design_id));
 
         // if(!$this->company->account->hasFeature(Account::FEATURE_DIFFERENT_DESIGNS))
         //     $entity_design_id = 2;
@@ -152,18 +160,18 @@ class CreateEntityPdf implements ShouldQueue
 
         $state = [
             'template' => $template->elements([
-                'client' => $this->entity->client,
+                'client' => $this->client,
                 'entity' => $this->entity,
-                'pdf_variables' => (array) $this->entity->company->settings->pdf_variables,
+                'pdf_variables' => (array) $this->company->settings->pdf_variables,
                 '$product' => $design->design->product,
                 'variables' => $variables,
             ]),
             'variables' => $variables,
             'options' => [
-                'all_pages_header' => $this->entity->client->getSetting('all_pages_header'),
-                'all_pages_footer' => $this->entity->client->getSetting('all_pages_footer'),
+                'all_pages_header' => $this->client->getSetting('all_pages_header'),
+                'all_pages_footer' => $this->client->getSetting('all_pages_footer'),
             ],
-            'process_markdown' => $this->entity->client->company->markdown_enabled,
+            'process_markdown' => $this->client->company->markdown_enabled,
         ];
 
         $maker = new PdfMakerService($state);

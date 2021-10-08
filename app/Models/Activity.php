@@ -119,6 +119,10 @@ class Activity extends StaticModel
         'hashed_id',
     ];
 
+    protected $with = [
+        'backup',
+    ];
+
     public function getHashedIdAttribute()
     {
         return $this->encodePrimaryKey($this->id);

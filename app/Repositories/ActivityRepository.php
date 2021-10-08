@@ -70,13 +70,10 @@ class ActivityRepository extends BaseRepository
      */
     public function createBackup($entity, $activity)
     {
-        
-        if($entity instanceof User){
-            
-        }
-        else if ($entity->company->is_disabled) {
+        if ($entity instanceof User || $entity->company->is_disabled)
             return;
-        }
+
+        $entity->load('company', 'client');
 
         $backup = new Backup();
 
@@ -92,7 +89,6 @@ class ActivityRepository extends BaseRepository
 
         $backup->activity_id = $activity->id;
         $backup->json_backup = '';
-        //$backup->json_backup = $entity->toJson();
         $backup->save();
     }
 
@@ -120,6 +116,8 @@ class ActivityRepository extends BaseRepository
         } elseif ($entity instanceof Credit) {
             $entity_design_id = 'credit_design_id';
         }
+
+        $entity->load('client','client.company');
 
         $entity_design_id = $entity->design_id ? $entity->design_id : $this->decodePrimaryKey($entity->client->getSetting($entity_design_id));
 

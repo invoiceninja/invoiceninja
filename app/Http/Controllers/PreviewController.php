@@ -345,7 +345,7 @@ class PreviewController extends BaseController
         $invoice->setRelation('invitations', $invitation);
         $invoice->setRelation('client', $client);
         $invoice->setRelation('company', auth()->user()->company());
-        $invoice->load('client');
+        $invoice->load('client.company');
 
         // nlog(print_r($invoice->toArray(),1));
 
