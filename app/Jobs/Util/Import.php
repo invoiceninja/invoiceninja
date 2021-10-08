@@ -237,8 +237,11 @@ class Import implements ShouldQueue
         //company size check
         if ($this->company->invoices()->count() > 500 || $this->company->products()->count() > 500 || $this->company->clients()->count() > 500) {
             $this->company->is_large = true;
-            $this->company->save();
         }
+
+
+        $this->company->client_registration_fields = \App\DataMapper\ClientRegistrationFields::generate();
+        $this->company->save();
 
         $this->setInitialCompanyLedgerBalances();
         
