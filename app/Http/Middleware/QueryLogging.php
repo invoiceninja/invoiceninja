@@ -35,10 +35,10 @@ class QueryLogging
     public function handle(Request $request, Closure $next)
     {
 
-        // // Enable query logging for development
-        // if (!Ninja::isHosted() || !config('beacon.enabled')) {
-        //     return $next($request);
-        // }
+        // Enable query logging for development
+        if (!Ninja::isHosted() || !config('beacon.enabled')) {
+            return $next($request);
+        }
 
         $timeStart = microtime(true);
         DB::enableQueryLog();
@@ -52,7 +52,7 @@ class QueryLogging
             $timeEnd = microtime(true);
             $time = $timeEnd - $timeStart;
 
-            info("Query count = {$count}");
+            // info("Query count = {$count}");
         
              if($count > 175){
                  nlog("Query count = {$count}");

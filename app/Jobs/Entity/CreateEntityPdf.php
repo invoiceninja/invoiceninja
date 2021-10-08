@@ -71,19 +71,19 @@ class CreateEntityPdf implements ShouldQueue
         $this->invitation = $invitation;
 
         if ($invitation instanceof InvoiceInvitation) {
-            $invitation->load('contact.client.company','invoice.client','invoice.user.account');
+            // $invitation->load('contact.client.company','invoice.client','invoice.user.account');
             $this->entity = $invitation->invoice;
             $this->entity_string = 'invoice';
         } elseif ($invitation instanceof QuoteInvitation) {
-            $invitation->load('contact.client.company','quote.client','quote.user.account');
+            // $invitation->load('contact.client.company','quote.client','quote.user.account');
             $this->entity = $invitation->quote;
             $this->entity_string = 'quote';
         } elseif ($invitation instanceof CreditInvitation) {
-            $invitation->load('contact.client.company','credit.client','credit.user.account');
+            // $invitation->load('contact.client.company','credit.client','credit.user.account');
             $this->entity = $invitation->credit;
             $this->entity_string = 'credit';
         } elseif ($invitation instanceof RecurringInvoiceInvitation) {
-            $invitation->load('contact.client.company','recurring_invoice');
+            // $invitation->load('contact.client.company','recurring_invoice');
             $this->entity = $invitation->recurring_invoice;
             $this->entity_string = 'recurring_invoice';
         }
