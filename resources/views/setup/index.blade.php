@@ -10,7 +10,12 @@
             <div class="col-span-12 md:col-start-4 md:col-span-6 mt-4 md:mt-10">
                 <h1 class="text-center text-2xl font-semibold">Invoice Ninja Setup</h1>
                 <p class="text-sm text-center">{{ ctrans('texts.if_you_need_help') }}
-                    <a href="https://www.invoiceninja.com/forums/forum/support/" class="button-link">{{ ctrans('texts.support_forum') }}</a>
+                    <a 
+                        target="_blank" 
+                        href="https://www.invoiceninja.com/forums/forum/support/" 
+                        class="button-link underline">
+                        {{ ctrans('texts.support_forum') }}
+                    </a>
                 </p>
 
                 @if($errors->any())

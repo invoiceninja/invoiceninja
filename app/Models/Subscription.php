@@ -64,6 +64,10 @@ class Subscription extends BaseModel
         'deleted_at' => 'timestamp',
     ];
 
+    protected $with = [
+        'company',
+    ];
+
     public function service(): SubscriptionService
     {
         return new SubscriptionService($this);

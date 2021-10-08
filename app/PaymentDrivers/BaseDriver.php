@@ -395,7 +395,7 @@ class BaseDriver extends AbstractPaymentDriver
 
             $invoices->first()->invitations->each(function ($invitation) use ($nmo) {
 
-                if ($invitation->contact->send_email && $invitation->contact->email) {
+                if ($invitation->contact->email) {
 
                     $nmo->to_user = $invitation->contact;
                     NinjaMailerJob::dispatch($nmo);
@@ -459,7 +459,7 @@ class BaseDriver extends AbstractPaymentDriver
 
         $invoices->first()->invitations->each(function ($invitation) use ($nmo){
 
-            if (!$invitation->contact->trashed() && $invitation->contact->send_email && $invitation->contact->email) {
+            if (!$invitation->contact->trashed() && $invitation->contact->email) {
 
                 $nmo->to_user = $invitation->contact;
                 NinjaMailerJob::dispatch($nmo);
@@ -492,84 +492,84 @@ class BaseDriver extends AbstractPaymentDriver
     public function checkRequirements()
     {
         if ($this->company_gateway->require_billing_address) {
-            if ($this->checkRequiredResource(auth()->user('contact')->client->address1)) {
+            if ($this->checkRequiredResource($this->client->address1)) {
                 $this->required_fields[] = 'billing_address1';
             }
 
-            if ($this->checkRequiredResource(auth()->user('contact')->client->address2)) {
+            if ($this->checkRequiredResource($this->client->address2)) {
                 $this->required_fields[] = 'billing_address2';
             }
 
-            if ($this->checkRequiredResource(auth()->user('contact')->client->city)) {
+            if ($this->checkRequiredResource($this->client->city)) {
                 $this->required_fields[] = 'billing_city';
             }
 
-            if ($this->checkRequiredResource(auth()->user('contact')->client->state)) {
+            if ($this->checkRequiredResource($this->client->state)) {
                 $this->required_fields[] = 'billing_state';
             }
 
-            if ($this->checkRequiredResource(auth()->user('contact')->client->postal_code)) {
+            if ($this->checkRequiredResource($this->client->postal_code)) {
                 $this->required_fields[] = 'billing_postal_code';
             }
 
-            if ($this->checkRequiredResource(auth()->user('contact')->client->country_id)) {
+            if ($this->checkRequiredResource($this->client->country_id)) {
                 $this->required_fields[] = 'billing_country';
             }
         }
 
         if ($this->company_gateway->require_shipping_address) {
-            if ($this->checkRequiredResource(auth()->user('contact')->client->shipping_address1)) {
+            if ($this->checkRequiredResource($this->client->shipping_address1)) {
                 $this->required_fields[] = 'shipping_address1';
             }
 
-            if ($this->checkRequiredResource(auth()->user('contact')->client->shipping_address2)) {
+            if ($this->checkRequiredResource($this->client->shipping_address2)) {
                 $this->required_fields[] = 'shipping_address2';
             }
 
-            if ($this->checkRequiredResource(auth()->user('contact')->client->shipping_city)) {
+            if ($this->checkRequiredResource($this->client->shipping_city)) {
                 $this->required_fields[] = 'shipping_city';
             }
 
-            if ($this->checkRequiredResource(auth()->user('contact')->client->shipping_state)) {
+            if ($this->checkRequiredResource($this->client->shipping_state)) {
                 $this->required_fields[] = 'shipping_state';
             }
 
-            if ($this->checkRequiredResource(auth()->user('contact')->client->shipping_postal_code)) {
+            if ($this->checkRequiredResource($this->client->shipping_postal_code)) {
                 $this->required_fields[] = 'shipping_postal_code';
             }
 
-            if ($this->checkRequiredResource(auth()->user('contact')->client->shipping_country_id)) {
+            if ($this->checkRequiredResource($this->client->shipping_country_id)) {
                 $this->required_fields[] = 'shipping_country';
             }
         }
 
         if ($this->company_gateway->require_client_name) {
-            if ($this->checkRequiredResource(auth()->user('contact')->client->name)) {
+            if ($this->checkRequiredResource($this->client->name)) {
                 $this->required_fields[] = 'name';
             }
         }
 
         if ($this->company_gateway->require_client_phone) {
-            if ($this->checkRequiredResource(auth()->user('contact')->client->phone)) {
+            if ($this->checkRequiredResource($this->client->phone)) {
                 $this->required_fields[] = 'phone';
             }
         }
 
         if ($this->company_gateway->require_contact_email) {
-            if ($this->checkRequiredResource(auth()->user('contact')->email)) {
+            if ($this->checkRequiredResource($this->email)) {
                 $this->required_fields[] = 'contact_email';
             }
         }
 
-        if ($this->company_gateway->require_contact_name) {
-            if ($this->checkRequiredResource(auth()->user('contact')->first_name)) {
-                $this->required_fields[] = 'contact_first_name';
-            }
+        // if ($this->company_gateway->require_contact_name) {
+        //     if ($this->checkRequiredResource($this->first_name)) {
+        //         $this->required_fields[] = 'contact_first_name';
+        //     }
 
-            if ($this->checkRequiredResource(auth()->user('contact')->last_name)) {
-                $this->required_fields[] = 'contact_last_name';
-            }
-        }
+        //     if ($this->checkRequiredResource($this->last_name)) {
+        //         $this->required_fields[] = 'contact_last_name';
+        //     }
+        // }
 
         if ($this->company_gateway->require_postal_code) {
             // In case "require_postal_code" is true, we don't need billing address.
@@ -580,7 +580,7 @@ class BaseDriver extends AbstractPaymentDriver
                 }
             }
 
-            if ($this->checkRequiredResource(auth()->user('contact')->client->postal_code)) {
+            if ($this->checkRequiredResource($this->client->postal_code)) {
                 $this->required_fields[] = 'postal_code';
             }
         }
