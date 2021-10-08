@@ -4317,6 +4317,7 @@ $LANG = array(
     'kbc_cbc' => 'KBC/CBC',
     'bancontact' => 'Bancontact',
     'ideal' => 'iDEAL',
+    'aio_checkout' => 'All-in-one checkout',
 );
 
 return $LANG;

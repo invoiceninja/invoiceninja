@@ -137,6 +137,11 @@ class Gateway extends StaticModel
                     GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true] // GoCardless
                 ];
                 break;
+            case 58:
+                return [
+                    GatewayType::HOSTED_PAGE => ['refund' => false, 'token_billing' => false] // Razorpay
+                ];
+                break;
             default:
                 return [];
                 break;
