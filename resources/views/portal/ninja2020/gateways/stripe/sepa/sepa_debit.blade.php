@@ -1,20 +1,19 @@
 <div id="stripe--payment-container">
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.name')])
         <label for="sepa-name">
-            <input class="input mr-4" id="sepa-name" type="text" placeholder="{{ ctrans('texts.name') }}">
+            <input class="input w-full" id="sepa-name" type="text" placeholder="{{ ctrans('texts.bank_account_holder') }}">
         </label>
-        <label for="sepa-email">
-            <input class="input mr-4" id="sepa-email-address" type="email" placeholder="{{ ctrans('texts.email') }}">
+        <label for="sepa-email" >
+            <input class="input w-full" id="sepa-email-address" type="email" placeholder="{{ ctrans('texts.email') }}">
         </label>
-        <div class="border p-4 rounded StripeElement StripeElement--complete">
-            <div id="sepa-iban">
-                <!-- A Stripe Element will be inserted here. -->
+        <label>
+            <div class="border p-4 rounded">
+                <div id="sepa-iban"></div>
             </div>
-        </div>
+        </label>
         <div id="mandate-acceptance">
-            <input type="checkbox" id="sepa-mandate-acceptance">
-            <label for="sepa-mandate-acceptance">{{ctrans('texts.sepa_mandat')}}</label>
+            <input type="checkbox" id="sepa-mandate-acceptance" class="input mr-4">
+            <label for="sepa-mandate-acceptance">{{ctrans('texts.sepa_mandat', ['company' => auth('contact')->user()->company->present()->name()])}}</label>
         </div>
-
     @endcomponent
 </div>
