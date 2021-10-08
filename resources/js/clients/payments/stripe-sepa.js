@@ -49,7 +49,7 @@ class ProcessSEPA {
             // If you know the country of the customer, you can optionally pass it to
             // the Element as placeholderCountry. The example IBAN that is being used
             // as placeholder reflects the IBAN format of that country.
-            placeholderCountry: "DE"
+            placeholderCountry: document.querySelector('meta[name="country"]').content
         };
         this.iban = elements.create("iban", options);
         this.iban.mount("#sepa-iban");
@@ -72,13 +72,36 @@ class ProcessSEPA {
                             email: document.getElementById("sepa-email-address").value,
                         },
                     },
-                    return_url: document.querySelector(
-                        'meta[name="return-url"]'
-                    ).content,
                 }
-            );
+            ).then((result) => {
+                if (result.error) {
+                    return this.handleFailure(result.error.message);
+                }
+
+                return this.handleSuccess(result);
+            });
         });
     };
+
+    handleSuccess(result) {
+        document.querySelector(
+            'input[name="gateway_response"]'
+        ).value = JSON.stringify(result.paymentIntent);
+
+        document.getElementById('server-response').submit();
+    }
+
+    handleFailure(message) {
+        let errors = document.getElementById('errors');
+
+        errors.textContent = '';
+        errors.textContent = message;
+        errors.hidden = false;
+
+        this.payNowButton.disabled = false;
+        this.payNowButton.querySelector('svg').classList.add('hidden');
+        this.payNowButton.querySelector('span').classList.remove('hidden');
+    }
 }
 
 const publishableKey = document.querySelector(

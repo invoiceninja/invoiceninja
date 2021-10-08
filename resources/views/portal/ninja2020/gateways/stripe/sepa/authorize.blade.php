@@ -20,8 +20,10 @@
         @csrf
 
         <input type="hidden" name="company_gateway_id" value="{{ $gateway->company_gateway->id }}">
-        <input type="hidden" name="gateway_type_id" value="9">
+        <input type="hidden" name="gateway_type_id" value="{{ $payment_method_id }}">
         <input type="hidden" name="gateway_response" id="gateway_response">
+        <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
+
         <input type="hidden" name="is_default" id="is_default">
     </form>
 
