@@ -59,15 +59,15 @@ class SendRecurring implements ShouldQueue
     public function handle() : void
     {
         //reset all contacts here
-        $this->recurring_invoice->client->contacts()->update(['send_email' => false]);
+        // $this->recurring_invoice->client->contacts()->update(['send_email' => false]);
 
-        $this->recurring_invoice->invitations->each(function ($invitation){
+        // $this->recurring_invoice->invitations->each(function ($invitation){
 
-            $contact = $invitation->contact;
-            $contact->send_email = true;
-            $contact->save();
+        //     $contact = $invitation->contact;
+        //     $contact->send_email = true;
+        //     $contact->save();
             
-        });
+        // });
 
         // Generate Standard Invoice
         $invoice = RecurringInvoiceToInvoiceFactory::create($this->recurring_invoice, $this->recurring_invoice->client);
@@ -153,7 +153,7 @@ class SendRecurring implements ShouldQueue
         }
 
         //important catch all here - we should never leave contacts send_email to false incase they are permanently set to false in the future.
-        $this->recurring_invoice->client->contacts()->update(['send_email' => true]);
+        // $this->recurring_invoice->client->contacts()->update(['send_email' => true]);
 
     }
 

@@ -322,6 +322,8 @@ class InvoiceService
 
     public function deletePdf()
     {
+        $this->invoice->load('invitations');
+
         $this->invoice->invitations->each(function ($invitation){
 
             Storage::disk(config('filesystems.default'))->delete($this->invoice->client->invoice_filepath($invitation) . $this->invoice->numberFormatter().'.pdf');
@@ -452,13 +454,13 @@ class InvoiceService
         if (! $this->invoice->design_id) 
             $this->invoice->design_id = $this->decodePrimaryKey($settings->invoice_design_id);
         
-        if (!isset($this->invoice->footer)) 
+        if (!isset($this->invoice->footer) || empty($this->invoice->footer)) 
             $this->invoice->footer = $settings->invoice_footer;
 
-        if (!isset($this->invoice->terms)) 
+        if (!isset($this->invoice->terms)  || empty($this->invoice->terms)) 
             $this->invoice->terms = $settings->invoice_terms;
 
-        if (!isset($this->invoice->public_notes)) 
+        if (!isset($this->invoice->public_notes)  || empty($this->invoice->public_notes)) 
             $this->invoice->public_notes = $this->invoice->client->public_notes;
         
         /* If client currency differs from the company default currency, then insert the client exchange rate on the model.*/
@@ -473,8 +475,10 @@ class InvoiceService
 
         if ($this->invoice->status_id == Invoice::STATUS_PAID && $this->invoice->client->getSetting('auto_archive_invoice')) {
             /* Throws: Payment amount xxx does not match invoice totals. */
+
             $base_repository = new BaseRepository();
             $base_repository->archive($this->invoice);
+            
         }
 
         return $this;
