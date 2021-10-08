@@ -75,7 +75,10 @@ class InvitationController extends Controller
 
         $entity_obj = 'App\Models\\'.ucfirst(Str::camel($entity)).'Invitation';
 
-        $invitation = $entity_obj::whereRaw('BINARY `key`= ?', [$invitation_key])
+        $invitation = $entity_obj::where('key', $invitation_key)
+                                    ->whereHas($entity, function ($query) {
+                                         $query->where('is_deleted',0);
+                                    })
                                     ->with('contact.client')
                                     ->firstOrFail();
 
