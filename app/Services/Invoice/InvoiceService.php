@@ -322,6 +322,8 @@ class InvoiceService
 
     public function deletePdf()
     {
+        $this->invoice->load('invitations');
+
         $this->invoice->invitations->each(function ($invitation){
 
             Storage::disk(config('filesystems.default'))->delete($this->invoice->client->invoice_filepath($invitation) . $this->invoice->numberFormatter().'.pdf');

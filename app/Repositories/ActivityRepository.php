@@ -73,7 +73,6 @@ class ActivityRepository extends BaseRepository
         if ($entity instanceof User || $entity->company->is_disabled)
             return;
 
-        $entity->load('company', 'client');
 
         $backup = new Backup();
 
@@ -82,6 +81,7 @@ class ActivityRepository extends BaseRepository
             || get_class($entity) == Credit::class 
             || get_class($entity) == RecurringInvoice::class
         ) {
+            $entity->load('company', 'client');
             $contact = $entity->client->primary_contact()->first();
             $backup->html_backup = $this->generateHtml($entity);
             $backup->amount = $entity->amount;
