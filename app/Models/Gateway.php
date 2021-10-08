@@ -103,7 +103,8 @@ class Gateway extends StaticModel
                     GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable','charge.succeeded']],
                     GatewayType::ALIPAY => ['refund' => false, 'token_billing' => false],
                     GatewayType::APPLE_PAY => ['refund' => false, 'token_billing' => false],
-                    GatewayType::SOFORT => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded']]]; //Stripe
+                    GatewayType::SOFORT => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded']], //Stripe
+                    GatewayType::SEPA => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded']]];
             case 39:
                 return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true]]; //Checkout
                 break;

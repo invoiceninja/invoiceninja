@@ -12,98 +12,129 @@
 
 namespace App\PaymentDrivers\Stripe;
 
-use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\PaymentDrivers\StripePaymentDriver;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
-use App\PaymentDrivers\StripePaymentDriver;
-use App\PaymentDrivers\Stripe\CreditCard;
-use App\Utils\Ninja;
+use App\Exceptions\PaymentFailed;
 
 class SEPA
 {
     /** @var StripePaymentDriver */
-    public $stripe_driver;
+    public StripePaymentDriver $stripe;
 
-    public function __construct(StripePaymentDriver $stripe_driver)
+    public function __construct(StripePaymentDriver $stripe)
     {
-        $this->stripe_driver = $stripe_driver;
+        $this->stripe = $stripe;
     }
 
-    public function authorizeView(array $data)
+    public function authorizeView($data)
     {
-        $customer = $this->stripe_driver->findOrCreateCustomer();
+        return render('gateways.stripe.sepa.authorize', $data);
+    }
 
-        $setup_intent = \Stripe\SetupIntent::create([
-          'payment_method_types' => ['sepa_debit'],
-          'customer' => $customer->id,
-        ], $this->stripe_driver->stripe_connect_auth);
-
-        $client_secret = $setup_intent->client_secret;
-        // Pass the client secret to the client
-
-
+    public function paymentView(array $data) {
         $data['gateway'] = $this->stripe;
+        $data['return_url'] = $this->buildReturnUrl();
+        $data['stripe_amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency());
+        $data['client'] = $this->stripe->client;
+        $data['customer'] = $this->stripe->findOrCreateCustomer()->id;
+        $data['country'] = $this->stripe->client->country->iso_3166_2;
 
-        return render('gateways.stripe.sepa.authorize', array_merge($data));
+        $intent = \Stripe\PaymentIntent::create([
+            'amount' => $data['stripe_amount'],
+            'currency' => 'eur',
+            'payment_method_types' => ['sepa_debit'],
+            'setup_future_usage' => 'off_session',
+            'customer' => $this->stripe->findOrCreateCustomer(),
+            'description' => $this->stripe->decodeUnicodeString(ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number')),
+
+        ]);
+
+        $data['pi_client_secret'] = $intent->client_secret;
+
+        $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['stripe_amount' => $data['stripe_amount']]);
+        $this->stripe->payment_hash->save();
+
+        return render('gateways.stripe.sepa.pay', $data);
     }
 
+    private function buildReturnUrl(): string
+    {
+        return route('client.payments.response', [
+            'company_gateway_id' => $this->stripe->company_gateway->id,
+            'payment_hash' => $this->stripe->payment_hash->hash,
+            'payment_method_id' => GatewayType::SEPA,
+        ]);
+    }
 
     public function paymentResponse(PaymentResponseRequest $request)
     {
+        $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, $request->all());
+        $this->stripe->payment_hash->save();
 
-        // $this->stripe_driver->init();
+        if ($request->redirect_status == 'succeeded') {
+            return $this->processSuccessfulPayment($request->payment_intent);
+        }
 
-        // $state = [
-        //     'server_response' => json_decode($request->gateway_response),
-        //     'payment_hash' => $request->payment_hash,
-        // ];
-
-        // $state['payment_intent'] = \Stripe\PaymentIntent::retrieve($state['server_response']->id, $this->stripe_driver->stripe_connect_auth);
-
-        // $state['customer'] = $state['payment_intent']->customer;
-
-        // $this->stripe_driver->payment_hash->data = array_merge((array) $this->stripe_driver->payment_hash->data, $state);
-        // $this->stripe_driver->payment_hash->save();
-
-        // $server_response = $this->stripe_driver->payment_hash->data->server_response;
-
-        // $response_handler = new CreditCard($this->stripe_driver);
-
-        // if ($server_response->status == 'succeeded') {
-
-        //     $this->stripe_driver->logSuccessfulGatewayResponse(['response' => json_decode($request->gateway_response), 'data' => $this->stripe_driver->payment_hash], SystemLog::TYPE_STRIPE);
-
-        //     return $response_handler->processSuccessfulPayment();
-        // }
-
-        // return $response_handler->processUnsuccessfulPayment($server_response);
-
-
+        return $this->processUnsuccessfulPayment();
     }
 
-    /* Searches for a stripe customer by email 
-       otherwise searches by gateway tokens in StripePaymentdriver 
-       finally creates a new customer if none found
-    */
-    private function getCustomer()
+    public function processSuccessfulPayment(string $payment_intent)
     {
-        $searchResults = \Stripe\Customer::all([
-                        "email" => $this->stripe_driver->client->present()->email(),
-                        "limit" => 1,
-                        "starting_after" => null
-            ], $this->stripe_driver->stripe_connect_auth);
-    
+        $this->stripe->init();
 
-        if(count($searchResults) >= 1)
-            return $searchResults[0];
+        $data = [
+            'payment_method' => $payment_intent,
+            'payment_type' => PaymentType::SEPA,
+            'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
+            'transaction_reference' => $payment_intent,
+            'gateway_type_id' => GatewayType::SEPA,
+        ];
 
-        return $this->stripe_driver->findOrCreateCustomer();
+        $this->stripe->createPayment($data, Payment::STATUS_PENDING);
 
-    }   
+        SystemLogger::dispatch(
+            ['response' => $this->stripe->payment_hash->data, 'data' => $data],
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_SUCCESS,
+            SystemLog::TYPE_STRIPE,
+            $this->stripe->client,
+            $this->stripe->client->company,
+        );
+
+        return redirect()->route('client.payments.index');
+    }
+
+    public function processUnsuccessfulPayment()
+    {
+        $server_response = $this->stripe->payment_hash->data;
+
+        PaymentFailureMailer::dispatch(
+            $this->stripe->client,
+            $server_response,
+            $this->stripe->client->company,
+            $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency())
+        );
+
+        $message = [
+            'server_response' => $server_response,
+            'data' => $this->stripe->payment_hash->data,
+        ];
+
+        SystemLogger::dispatch(
+            $message,
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_FAILURE,
+            SystemLog::TYPE_STRIPE,
+            $this->stripe->client,
+            $this->stripe->client->company,
+        );
+
+        throw new PaymentFailed('Failed to process the payment.', 500);
+    }
 }
-

@@ -1,4 +1,4 @@
-@extends('portal.ninja2020.layout.payments', ['gateway_title' => 'SOFORT', 'card_title' => 'SOFORT'])
+@extends('portal.ninja2020.layout.payments', ['gateway_title' => 'SEPA', 'card_title' => 'SEPA'])
 
 @section('gateway_head')
     <meta name="stripe-publishable-key" content="{{ $gateway->getPublishableKey() }}">
@@ -16,12 +16,15 @@
     @include('portal.ninja2020.gateways.includes.payment_details')
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.payment_type')])
-        {{ ctrans('texts.sofort') }} ({{ ctrans('texts.bank_transfer') }})
+        {{ ctrans('texts.sepa') }} ({{ ctrans('texts.bank_transfer') }})
     @endcomponent
+
+    @include('portal.ninja2020.gateways.stripe.sepa.sepa_debit')
+
     @include('portal.ninja2020.gateways.includes.pay_now')
 @endsection
 
 @push('footer')
     <script src="https://js.stripe.com/v3/"></script>
-    <script src="{{ asset('js/clients/payments/stripe-sofort.js') }}"></script>
+    <script src="{{ asset('js/clients/payments/stripe-sepa.js') }}"></script>
 @endpush
