@@ -4320,6 +4320,7 @@ $LANG = array(
     'ideal' => 'iDEAL',
     'bank_account_holder' => 'Bank Account Holder',
     'aio_checkout' => 'All-in-one checkout',
+    'giropay' => 'GiroPay',
 );
 
 return $LANG;
