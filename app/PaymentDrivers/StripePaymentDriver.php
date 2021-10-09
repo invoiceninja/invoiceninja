@@ -33,6 +33,7 @@ use App\PaymentDrivers\Stripe\CreditCard;
 use App\PaymentDrivers\Stripe\ImportCustomers;
 use App\PaymentDrivers\Stripe\SOFORT;
 use App\PaymentDrivers\Stripe\SEPA;
+use App\PaymentDrivers\Stripe\PRZELEWY24;
 use App\PaymentDrivers\Stripe\UpdatePaymentMethods;
 use App\PaymentDrivers\Stripe\Utilities;
 use App\Utils\Traits\MakesHash;
@@ -77,6 +78,8 @@ class StripePaymentDriver extends BaseDriver
         GatewayType::SOFORT => SOFORT::class,
         GatewayType::APPLE_PAY => ApplePay::class,
         GatewayType::SEPA => SEPA::class,
+        GatewayType::PRZELEWY24 => PRZELEWY24::class,
+
     ];
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_STRIPE;
@@ -153,6 +156,12 @@ class StripePaymentDriver extends BaseDriver
             $types[] = GatewayType::SEPA;
         }
 
+        if ($this->client
+            && isset($this->client->country)
+            && in_array($this->client->country->iso_3166_3, ['POL'])){
+            $types[] = GatewayType::PRZELEWY24;
+        }
+
         return $types;
     }
 
@@ -170,6 +179,9 @@ class StripePaymentDriver extends BaseDriver
                 break;
             case GatewayType::SEPA:
                 return 'gateways.stripe.sepa';
+                break;
+            case GatewayType::PRZELEWY24:
+                return 'gateways.stripe.przelewy24';
                 break;
             case GatewayType::CRYPTO:
             case GatewayType::ALIPAY:
