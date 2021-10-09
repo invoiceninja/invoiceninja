@@ -21,7 +21,7 @@ use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
 
-class GIROPAY
+class IDEAL
 {
     /** @var StripePaymentDriver */
     public StripePaymentDriver $stripe;
@@ -33,7 +33,7 @@ class GIROPAY
 
     public function authorizeView($data)
     {
-        return render('gateways.stripe.giropay.authorize', $data);
+        return render('gateways.stripe.ideal.authorize', $data);
     }
 
     public function paymentView(array $data)
@@ -48,7 +48,7 @@ class GIROPAY
         $intent = \Stripe\PaymentIntent::create([
             'amount' => $data['stripe_amount'],
             'currency' => 'eur',
-            'payment_method_types' => ['giropay'],
+            'payment_method_types' => ['ideal'],
             'customer' => $this->stripe->findOrCreateCustomer(),
             'description' => $this->stripe->decodeUnicodeString(ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number')),
 
@@ -59,7 +59,7 @@ class GIROPAY
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['stripe_amount' => $data['stripe_amount']]);
         $this->stripe->payment_hash->save();
 
-        return render('gateways.stripe.giropay.pay', $data);
+        return render('gateways.stripe.ideal.pay', $data);
     }
 
     private function buildReturnUrl(): string
@@ -67,7 +67,7 @@ class GIROPAY
         return route('client.payments.response', [
             'company_gateway_id' => $this->stripe->company_gateway->id,
             'payment_hash' => $this->stripe->payment_hash->hash,
-            'payment_method_id' => GatewayType::GIROPAY,
+            'payment_method_id' => GatewayType::IDEAL,
         ]);
     }
 
@@ -91,10 +91,10 @@ class GIROPAY
 
         $data = [
             'payment_method' => $payment_intent,
-            'payment_type' => PaymentType::GIROPAY,
+            'payment_type' => PaymentType::IDEAL,
             'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
             'transaction_reference' => $payment_intent,
-            'gateway_type_id' => GatewayType::GIROPAY,
+            'gateway_type_id' => GatewayType::IDEAL,
         ];
 
         $this->stripe->createPayment($data, Payment::STATUS_PENDING);
