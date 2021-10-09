@@ -17,9 +17,11 @@ use App\Jobs\Util\StripeUpdatePaymentMethods;
 use App\Libraries\MultiDB;
 use App\Models\Client;
 use App\Models\CompanyGateway;
+use App\Utils\Traits\MakesHash;
 
 class StripeController extends BaseController
 {
+	use MakesHash;
 
     private $stripe_keys = ['d14dd26a47cecc30fdd65700bfb67b34', 'd14dd26a37cecc30fdd65700bfb55b23'];
 
@@ -74,5 +76,17 @@ class StripeController extends BaseController
 
 		return response()->json(['message' => 'Unauthorized'], 403);
 
+	}
+
+	public function disconnect(string $company_gateway_id)
+	{
+
+		$company_gateway = CompanyGateway::where('company_id', auth()->user()->company()->id)
+										 ->where('id', $this->decodePrimaryKey($company_gateway_id))
+										 ->whereIn('gateway_key', $this->stripe_keys)
+										 ->firstOrFail();
+
+		return $company_gateway->driver()->disconnect();
+		
 	}
 }
