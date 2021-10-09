@@ -33,6 +33,7 @@ use App\PaymentDrivers\Stripe\CreditCard;
 use App\PaymentDrivers\Stripe\ImportCustomers;
 use App\PaymentDrivers\Stripe\SOFORT;
 use App\PaymentDrivers\Stripe\SEPA;
+use App\PaymentDrivers\Stripe\IDEAL;
 use App\PaymentDrivers\Stripe\UpdatePaymentMethods;
 use App\PaymentDrivers\Stripe\Utilities;
 use App\Utils\Traits\MakesHash;
@@ -77,6 +78,7 @@ class StripePaymentDriver extends BaseDriver
         GatewayType::SOFORT => SOFORT::class,
         GatewayType::APPLE_PAY => ApplePay::class,
         GatewayType::SEPA => SEPA::class,
+        GatewayType::IDEAL => IDEAL::class,
     ];
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_STRIPE;
@@ -153,6 +155,11 @@ class StripePaymentDriver extends BaseDriver
             $types[] = GatewayType::SEPA;
         }
 
+        if ($this -> client
+            && isset($this->client->country)
+            && in_array($this->client->country->iso_3166_3, ["DEU"])) // TODO: change to netherlands
+            $types[] = GatewayType::IDEAL;
+
         return $types;
     }
 
@@ -176,7 +183,8 @@ class StripePaymentDriver extends BaseDriver
             case GatewayType::APPLE_PAY:
                 return 'gateways.stripe.other';
                 break;
-
+            case GatewayType::IDEAL:
+                return 'gateways.stripe.ideal';
             default:
                 break;
         }
