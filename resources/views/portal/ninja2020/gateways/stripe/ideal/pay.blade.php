@@ -16,7 +16,7 @@
     @include('portal.ninja2020.gateways.includes.payment_details')
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.payment_type')])
-        {{ ctrans('texts.giropay') }} ({{ ctrans('texts.bank_transfer') }})
+        {{ ctrans('texts.ideal') }} ({{ ctrans('texts.bank_transfer') }})
     @endcomponent
     @include('portal.ninja2020.gateways.stripe.ideal.ideal')
     @include('portal.ninja2020.gateways.includes.pay_now')
