@@ -58,6 +58,31 @@ class ProcessSEPA {
 
     handle = () => {
         document.getElementById('pay-now').addEventListener('click', (e) => {
+
+        let errors = document.getElementById('errors');
+
+        if (document.getElementById('sepa-name').value === "") {
+            document.getElementById('sepa-name').focus();
+            errors.textContent = "Name required.";
+            errors.hidden = false;
+            return;
+        }
+
+        if (document.getElementById('sepa-email-address').value === "") {
+            document.getElementById('sepa-email-address').focus();
+            errors.textContent = "Email required.";
+            errors.hidden = false;
+            return ;
+        }
+
+
+        if (!document.getElementById('sepa-mandate-acceptance').checked) {
+            errors.textContent = "Accept Terms";
+            errors.hidden = false;
+            console.log("Terms");
+            return ;
+        }
+
             document.getElementById('pay-now').disabled = true;
             document.querySelector('#pay-now > svg').classList.remove('hidden');
             document.querySelector('#pay-now > span').classList.add('hidden');
@@ -98,9 +123,9 @@ class ProcessSEPA {
         errors.textContent = message;
         errors.hidden = false;
 
-        this.payNowButton.disabled = false;
-        this.payNowButton.querySelector('svg').classList.add('hidden');
-        this.payNowButton.querySelector('span').classList.remove('hidden');
+            document.getElementById('pay-now').disabled = false;
+            document.querySelector('#pay-now > svg').classList.add('hidden');
+            document.querySelector('#pay-now > span').classList.remove('hidden');
     }
 }
 

@@ -7,6 +7,7 @@
         <input type="hidden" name="company_gateway_id" value="{{ $gateway->getCompanyGatewayId() }}">
         <input type="hidden" name="payment_method_id" value="{{ $payment_method_id }}">
         <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
+        <input type="hidden" name="store_card">
 
         <label for="sepa-name">
             <input class="input w-full" id="sepa-name" type="text" placeholder="{{ ctrans('texts.bank_account_holder') }}">

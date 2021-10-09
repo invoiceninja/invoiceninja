@@ -19,7 +19,7 @@
     @endcomponent
 
     @include('portal.ninja2020.gateways.stripe.sepa.sepa_debit')
-
+    @include('portal.ninja2020.gateways.includes.save_card')
     @include('portal.ninja2020.gateways.includes.pay_now')
 @endsection
 

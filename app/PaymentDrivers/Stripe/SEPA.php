@@ -72,6 +72,10 @@ class SEPA
         $this->stripe->payment_hash->save();
 
         if (property_exists($gateway_response, 'status') && $gateway_response->status == 'processing') {
+            
+            $this->stripe->init();
+            $this->storePaymentMethod($gateway_response);
+
             return $this->processSuccessfulPayment($gateway_response->id);
         }
 
@@ -131,5 +135,30 @@ class SEPA
         );
 
         throw new PaymentFailed('Failed to process the payment.', 500);
+    }
+
+
+    private function storePaymentMethod($intent)
+    {
+        try {
+
+            $method = $this->stripe->getStripePaymentMethod($intent->payment_method);
+
+            $payment_meta = new \stdClass;
+            $payment_meta->brand = (string) \sprintf('%s (%s)', $method->sepa_debit->bank_code, ctrans('texts.sepa'));
+            $payment_meta->last4 = (string) $method->sepa_debit->last4;
+            $payment_meta->state = 'authorized';
+            $payment_meta->type = GatewayType::SEPA;
+
+            $data = [
+                'payment_meta' => $payment_meta,
+                'token' => $intent->payment_method,
+                'payment_method_id' => GatewayType::SEPA,
+            ];
+
+            $this->stripe->storeGatewayToken($data, ['gateway_customer_reference' => $method->customer]);
+        } catch (\Exception $e) {
+            return $this->stripe->processInternallyFailedPayment($this->stripe, $e);
+        }
     }
 }
