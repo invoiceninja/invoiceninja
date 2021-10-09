@@ -33,7 +33,7 @@ class PRZELEWY24
 
     public function authorizeView($data)
     {
-        return render('gateways.stripe.sofort.authorize', $data);
+        return render('gateways.stripe.przelewy24.authorize', $data);
     }
 
     public function paymentView(array $data)
@@ -48,7 +48,7 @@ class PRZELEWY24
         $intent = \Stripe\PaymentIntent::create([
             'amount' => $data['stripe_amount'],
             'currency' => 'eur',
-            'payment_method_types' => ['sofort'],
+            'payment_method_types' => ['p24'],
             'customer' => $this->stripe->findOrCreateCustomer(),
             'description' => $this->stripe->decodeUnicodeString(ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number')),
 
@@ -59,7 +59,7 @@ class PRZELEWY24
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['stripe_amount' => $data['stripe_amount']]);
         $this->stripe->payment_hash->save();
 
-        return render('gateways.stripe.sofort.pay', $data);
+        return render('gateways.stripe.przelewy24.pay', $data);
     }
 
     private function buildReturnUrl(): string
@@ -67,7 +67,7 @@ class PRZELEWY24
         return route('client.payments.response', [
             'company_gateway_id' => $this->stripe->company_gateway->id,
             'payment_hash' => $this->stripe->payment_hash->hash,
-            'payment_method_id' => GatewayType::SOFORT,
+            'payment_method_id' => GatewayType::PRZELEWY24,
         ]);
     }
 
@@ -91,10 +91,10 @@ class PRZELEWY24
 
         $data = [
             'payment_method' => $payment_intent,
-            'payment_type' => PaymentType::SOFORT,
+            'payment_type' => PaymentType::PRZELEWY24,
             'amount' => $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
             'transaction_reference' => $payment_intent,
-            'gateway_type_id' => GatewayType::SOFORT,
+            'gateway_type_id' => GatewayType::PRZELEWY24,
         ];
 
         $this->stripe->createPayment($data, Payment::STATUS_PENDING);
