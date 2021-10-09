@@ -636,6 +636,11 @@ class StripePaymentDriver extends BaseDriver
               'stripe_user_id' => $this->company_gateway->getConfigField('account_id'),
             ]);
 
+            $config = $this->company_gateway->getConfig();
+            $config->account_id = "";
+            $this->company_gateway->setConfig($config);
+            $this->company_gateway->save();
+
         }
         catch(\Exception $e){
             throw new StripeConnectFailure('Unable to disconnect Stripe Connect');
