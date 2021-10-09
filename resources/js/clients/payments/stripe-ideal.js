@@ -8,7 +8,7 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-class ProcessGiroPay {
+class ProcessIDEALPay {
     constructor(key, stripeConnect) {
         this.key = key;
         this.errors = document.getElementById('errors');
@@ -20,7 +20,21 @@ class ProcessGiroPay {
 
         if(this.stripeConnect)
             this.stripe.stripeAccount = stripeConnect;
-
+        let elements = this.stripe.elements();
+        var options = {
+            style: {
+                base: {
+                    padding: '10px 12px',
+                    color: '#32325d',
+                    fontSize: '16px',
+                    '::placeholder': {
+                        color: '#aab7c4'
+                    },
+                },
+            },
+        };
+        this.ideal = elements.create('idealBank', options);
+        this.ideal.mount("#ideal-bank-element");
         return this;
     };
 
@@ -28,22 +42,23 @@ class ProcessGiroPay {
         document.getElementById('pay-now').addEventListener('click', (e) => {
             let errors = document.getElementById('errors');
 
-            if (!document.getElementById('giropay-mandate-acceptance').checked) {
-                errors.textContent = "Accept Terms";
+            if (document.getElementById('ideal-name').value !== '') {
+                errors.textContent = "Enter name";
                 errors.hidden = false;
-                console.log("Terms");
+                console.log("name");
                 return ;
             }
             document.getElementById('pay-now').disabled = true;
             document.querySelector('#pay-now > svg').classList.remove('hidden');
             document.querySelector('#pay-now > span').classList.add('hidden');
 
-            this.stripe.confirmGiropayPayment(
+            this.stripe.confirmIdealPayment(
                 document.querySelector('meta[name=pi-client-secret').content,
                 {
                     payment_method: {
+                        ideal: this.ideal,
                         billing_details: {
-                            name: document.getElementById("giropay-name").value,
+                            name: document.getElementById("ideal-name").value,
                         },
                     },
                     return_url: document.querySelector(
@@ -62,4 +77,4 @@ const publishableKey = document.querySelector(
 const stripeConnect =
     document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
 
-new ProcessGiroPay(publishableKey, stripeConnect).setupStripe().handle();
+new ProcessIDEALPay(publishableKey, stripeConnect).setupStripe().handle();
