@@ -42,7 +42,7 @@ class ProcessIDEALPay {
         document.getElementById('pay-now').addEventListener('click', (e) => {
             let errors = document.getElementById('errors');
 
-            if (document.getElementById('ideal-name').value !== '') {
+            if (!document.getElementById('ideal-name').value) {
                 errors.textContent = "Enter name";
                 errors.hidden = false;
                 console.log("name");
