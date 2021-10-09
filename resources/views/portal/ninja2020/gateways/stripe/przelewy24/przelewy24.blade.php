@@ -9,5 +9,9 @@
     <label for="p24-bank-element"></label>
     <div class="border p-4 rounded"><div id="p24-bank-element"></div>
     </div>
+    <div id="mandate-acceptance">
+        <input type="checkbox" id="p24-mandate-acceptance" class="input mr-4">
+        <label for="p24-mandate-acceptance">{{ctrans('texts.przelewy24_accept')}}</label>
+    </div>
     @endcomponent
 </div>

@@ -55,6 +55,12 @@ class ProcessPRZELEWY24 {
                 errors.hidden = false;
                 return;
             }
+            if (document.getElementById('p24-mandate-acceptance').value === "") {
+                document.getElementById('p24-mandate-acceptance').focus();
+                errors.textContent = "Accept Terms.";
+                errors.hidden = false;
+                return;
+            }
 
             document.getElementById('pay-now').disabled = true;
             document.querySelector('#pay-now > svg').classList.remove('hidden');
@@ -69,6 +75,11 @@ class ProcessPRZELEWY24 {
                             name: document.getElementById('p24-name').value,
                             email: document.getElementById('p24-email-address').value,
                         },
+                    },
+                    payment_method_options: {
+                        p24: {
+                            tos_shown_and_accepted: document.getElementById('p24-mandate-acceptance').checked,
+                        }
                     },
                     return_url: document.querySelector(
                         'meta[name="return-url"]'
