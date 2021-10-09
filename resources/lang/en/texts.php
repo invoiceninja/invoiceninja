@@ -4320,6 +4320,8 @@ $LANG = array(
     'ideal' => 'iDEAL',
     'bank_account_holder' => 'Bank Account Holder',
     'aio_checkout' => 'All-in-one checkout',
+    'przelewy24' => 'Przelewy24',
+    'przelewy24_accept' => 'I declare that I have familiarized myself with the regulations and information obligation of the Przelewy24 service.'
 );
 
 return $LANG;
