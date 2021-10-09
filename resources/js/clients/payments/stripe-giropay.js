@@ -26,6 +26,14 @@ class ProcessGiroPay {
 
     handle = () => {
         document.getElementById('pay-now').addEventListener('click', (e) => {
+            let errors = document.getElementById('errors');
+
+            if (!document.getElementById('giropay-mandate-acceptance').checked) {
+                errors.textContent = "Accept Terms";
+                errors.hidden = false;
+                console.log("Terms");
+                return ;
+            }
             document.getElementById('pay-now').disabled = true;
             document.querySelector('#pay-now > svg').classList.remove('hidden');
             document.querySelector('#pay-now > span').classList.add('hidden');
