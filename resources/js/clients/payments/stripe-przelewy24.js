@@ -34,7 +34,7 @@ class ProcessPRZELEWY24 {
                 },
             },
         };
-        this.p24bank = elements.create('p24bank', options)
+        this.p24bank = elements.create('p24Bank', options)
         this.p24bank.mount('#p24-bank-element');
         return this;
     };
