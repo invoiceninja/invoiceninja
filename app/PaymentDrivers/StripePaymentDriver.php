@@ -183,7 +183,9 @@ class StripePaymentDriver extends BaseDriver
             case GatewayType::APPLE_PAY:
                 return 'gateways.stripe.other';
                 break;
-
+            case GatewayType::GIROPAY:
+                return 'gateways.stripe.giropay';
+                break;
             default:
                 break;
         }
