@@ -33,7 +33,7 @@ use App\PaymentDrivers\Stripe\CreditCard;
 use App\PaymentDrivers\Stripe\ImportCustomers;
 use App\PaymentDrivers\Stripe\SOFORT;
 use App\PaymentDrivers\Stripe\SEPA;
-use App\PaymentDrivers\Stripe\IDEAL;
+use App\PaymentDrivers\Stripe\iDEAL;
 use App\PaymentDrivers\Stripe\UpdatePaymentMethods;
 use App\PaymentDrivers\Stripe\Utilities;
 use App\Utils\Traits\MakesHash;
@@ -78,7 +78,7 @@ class StripePaymentDriver extends BaseDriver
         GatewayType::SOFORT => SOFORT::class,
         GatewayType::APPLE_PAY => ApplePay::class,
         GatewayType::SEPA => SEPA::class,
-        GatewayType::IDEAL => IDEAL::class,
+        GatewayType::IDEAL => iDEAL::class,
     ];
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_STRIPE;
