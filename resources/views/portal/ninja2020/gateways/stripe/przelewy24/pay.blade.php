@@ -5,6 +5,7 @@
     <meta name="stripe-account-id" content="{{ $gateway->company_gateway->getConfigField('account_id') }}">
     <meta name="amount" content="{{ $stripe_amount }}">
     <meta name="country" content="{{ $country }}">
+    <meta name="return-url" content="{{ $return_url }}">
     <meta name="customer" content="{{ $customer }}">
     <meta name="pi-client-secret" content="{{ $pi_client_secret }}">
 @endsection
