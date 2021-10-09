@@ -35,7 +35,7 @@ class ProcessGiroPay {
                 {
                     payment_method: {
                         billing_details: {
-                            name: document.getElementById("giropay-name").value(),
+                            name: document.getElementById("giropay-name").value,
                         },
                     },
                     return_url: document.querySelector(
