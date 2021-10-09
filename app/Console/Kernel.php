@@ -72,7 +72,7 @@ class Kernel extends ConsoleKernel
 
             $schedule->call(function () {
                 Account::whereNotNull('id')->update(['is_scheduler_running' => true]);
-            })->everyFiveMinutes()->withoutOverlapping(); 
+            })->everyFiveMinutes(); 
 
         /* Run hosted specific jobs */
         if (Ninja::isHosted()) {

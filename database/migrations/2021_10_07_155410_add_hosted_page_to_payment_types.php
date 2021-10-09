@@ -15,7 +15,7 @@ class AddHostedPageToPaymentTypes extends Migration
     {
         $type = new PaymentType();
 
-        $type->id = 35;
+        $type->id = 38;
         $type->name = 'Hosted Page';
         $type->gateway_type_id = GatewayType::HOSTED_PAGE;
 

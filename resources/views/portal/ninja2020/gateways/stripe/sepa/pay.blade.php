@@ -3,7 +3,6 @@
 @section('gateway_head')
     <meta name="stripe-publishable-key" content="{{ $gateway->getPublishableKey() }}">
     <meta name="stripe-account-id" content="{{ $gateway->company_gateway->getConfigField('account_id') }}">
-    <meta name="return-url" content="{{ $return_url }}">
     <meta name="amount" content="{{ $stripe_amount }}">
     <meta name="country" content="{{ $country }}">
     <meta name="customer" content="{{ $customer }}">
@@ -20,7 +19,7 @@
     @endcomponent
 
     @include('portal.ninja2020.gateways.stripe.sepa.sepa_debit')
-
+    @include('portal.ninja2020.gateways.includes.save_card')
     @include('portal.ninja2020.gateways.includes.pay_now')
 @endsection
 

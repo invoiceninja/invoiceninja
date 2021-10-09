@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -39,11 +38,12 @@ class SEPA
 
     public function paymentView(array $data) {
         $data['gateway'] = $this->stripe;
-        $data['return_url'] = $this->buildReturnUrl();
+        $data['payment_method_id'] = GatewayType::SEPA;
         $data['stripe_amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency());
         $data['client'] = $this->stripe->client;
         $data['customer'] = $this->stripe->findOrCreateCustomer()->id;
         $data['country'] = $this->stripe->client->country->iso_3166_2;
+        $data['payment_hash'] = $this->stripe->payment_hash->hash;
 
         $intent = \Stripe\PaymentIntent::create([
             'amount' => $data['stripe_amount'],
@@ -63,25 +63,24 @@ class SEPA
         return render('gateways.stripe.sepa.pay', $data);
     }
 
-    private function buildReturnUrl(): string
-    {
-        return route('client.payments.response', [
-            'company_gateway_id' => $this->stripe->company_gateway->id,
-            'payment_hash' => $this->stripe->payment_hash->hash,
-            'payment_method_id' => GatewayType::SEPA,
-        ]);
-    }
-
     public function paymentResponse(PaymentResponseRequest $request)
     {
+
+        $gateway_response = json_decode($request->gateway_response);
+
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, $request->all());
         $this->stripe->payment_hash->save();
 
-        if ($request->redirect_status == 'succeeded') {
-            return $this->processSuccessfulPayment($request->payment_intent);
+        if (property_exists($gateway_response, 'status') && $gateway_response->status == 'processing') {
+            
+            $this->stripe->init();
+            $this->storePaymentMethod($gateway_response);
+
+            return $this->processSuccessfulPayment($gateway_response->id);
         }
 
         return $this->processUnsuccessfulPayment();
+
     }
 
     public function processSuccessfulPayment(string $payment_intent)
@@ -136,5 +135,30 @@ class SEPA
         );
 
         throw new PaymentFailed('Failed to process the payment.', 500);
+    }
+
+
+    private function storePaymentMethod($intent)
+    {
+        try {
+
+            $method = $this->stripe->getStripePaymentMethod($intent->payment_method);
+
+            $payment_meta = new \stdClass;
+            $payment_meta->brand = (string) \sprintf('%s (%s)', $method->sepa_debit->bank_code, ctrans('texts.sepa'));
+            $payment_meta->last4 = (string) $method->sepa_debit->last4;
+            $payment_meta->state = 'authorized';
+            $payment_meta->type = GatewayType::SEPA;
+
+            $data = [
+                'payment_meta' => $payment_meta,
+                'token' => $intent->payment_method,
+                'payment_method_id' => GatewayType::SEPA,
+            ];
+
+            $this->stripe->storeGatewayToken($data, ['gateway_customer_reference' => $method->customer]);
+        } catch (\Exception $e) {
+            return $this->stripe->processInternallyFailedPayment($this->stripe, $e);
+        }
     }
 }

@@ -49,7 +49,7 @@ class ProcessSEPA {
             // If you know the country of the customer, you can optionally pass it to
             // the Element as placeholderCountry. The example IBAN that is being used
             // as placeholder reflects the IBAN format of that country.
-            placeholderCountry: "DE"
+            placeholderCountry: document.querySelector('meta[name="country"]').content
         };
         this.iban = elements.create("iban", options);
         this.iban.mount("#sepa-iban");
@@ -58,6 +58,31 @@ class ProcessSEPA {
 
     handle = () => {
         document.getElementById('pay-now').addEventListener('click', (e) => {
+
+        let errors = document.getElementById('errors');
+
+        if (document.getElementById('sepa-name').value === "") {
+            document.getElementById('sepa-name').focus();
+            errors.textContent = "Name required.";
+            errors.hidden = false;
+            return;
+        }
+
+        if (document.getElementById('sepa-email-address').value === "") {
+            document.getElementById('sepa-email-address').focus();
+            errors.textContent = "Email required.";
+            errors.hidden = false;
+            return ;
+        }
+
+
+        if (!document.getElementById('sepa-mandate-acceptance').checked) {
+            errors.textContent = "Accept Terms";
+            errors.hidden = false;
+            console.log("Terms");
+            return ;
+        }
+
             document.getElementById('pay-now').disabled = true;
             document.querySelector('#pay-now > svg').classList.remove('hidden');
             document.querySelector('#pay-now > span').classList.add('hidden');
@@ -72,13 +97,36 @@ class ProcessSEPA {
                             email: document.getElementById("sepa-email-address").value,
                         },
                     },
-                    return_url: document.querySelector(
-                        'meta[name="return-url"]'
-                    ).content,
                 }
-            );
+            ).then((result) => {
+                if (result.error) {
+                    return this.handleFailure(result.error.message);
+                }
+
+                return this.handleSuccess(result);
+            });
         });
     };
+
+    handleSuccess(result) {
+        document.querySelector(
+            'input[name="gateway_response"]'
+        ).value = JSON.stringify(result.paymentIntent);
+
+        document.getElementById('server-response').submit();
+    }
+
+    handleFailure(message) {
+        let errors = document.getElementById('errors');
+
+        errors.textContent = '';
+        errors.textContent = message;
+        errors.hidden = false;
+
+            document.getElementById('pay-now').disabled = false;
+            document.querySelector('#pay-now > svg').classList.add('hidden');
+            document.querySelector('#pay-now > span').classList.remove('hidden');
+    }
 }
 
 const publishableKey = document.querySelector(
