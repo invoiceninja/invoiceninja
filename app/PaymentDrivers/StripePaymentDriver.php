@@ -33,6 +33,7 @@ use App\PaymentDrivers\Stripe\CreditCard;
 use App\PaymentDrivers\Stripe\ImportCustomers;
 use App\PaymentDrivers\Stripe\SOFORT;
 use App\PaymentDrivers\Stripe\SEPA;
+use App\PaymentDrivers\Stripe\GIROPAY;
 use App\PaymentDrivers\Stripe\iDeal;
 use App\PaymentDrivers\Stripe\UpdatePaymentMethods;
 use App\PaymentDrivers\Stripe\Utilities;
@@ -78,7 +79,9 @@ class StripePaymentDriver extends BaseDriver
         GatewayType::SOFORT => SOFORT::class,
         GatewayType::APPLE_PAY => ApplePay::class,
         GatewayType::SEPA => SEPA::class,
+        GatewayType::GIROPAY => GIROPAY::class,
         GatewayType::IDEAL => iDeal::class,
+
     ];
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_STRIPE;
@@ -158,6 +161,11 @@ class StripePaymentDriver extends BaseDriver
         }
 
         if ($this->client
+            && isset($this->client->country)
+            && in_array($this->client->country->iso_3166_3, ["DEU"]))
+            $types[] = GatewayType::GIROPAY;
+
+        if ($this->client
             && $this->client->currency()
             && ($this->client->currency()->code == 'EUR')
             && isset($this->client->country)
@@ -186,6 +194,9 @@ class StripePaymentDriver extends BaseDriver
             case GatewayType::ALIPAY:
             case GatewayType::APPLE_PAY:
                 return 'gateways.stripe.other';
+                break;
+            case GatewayType::GIROPAY:
+                return 'gateways.stripe.giropay';
                 break;
             case GatewayType::IDEAL:
                 return 'gateways.stripe.ideal';
