@@ -157,7 +157,7 @@ class StripePaymentDriver extends BaseDriver
 
         if ($this -> client
             && isset($this->client->country)
-            && in_array($this->client->country->iso_3166_3, ["DEU"])) // TODO: change to netherlands
+            && in_array($this->client->country->iso_3166_3, ["NLD"]))
             $types[] = GatewayType::IDEAL;
 
         return $types;
