@@ -33,6 +33,7 @@ use App\PaymentDrivers\Stripe\CreditCard;
 use App\PaymentDrivers\Stripe\ImportCustomers;
 use App\PaymentDrivers\Stripe\SOFORT;
 use App\PaymentDrivers\Stripe\SEPA;
+use App\PaymentDrivers\Stripe\GIROPAY;
 use App\PaymentDrivers\Stripe\UpdatePaymentMethods;
 use App\PaymentDrivers\Stripe\Utilities;
 use App\Utils\Traits\MakesHash;
@@ -77,6 +78,7 @@ class StripePaymentDriver extends BaseDriver
         GatewayType::SOFORT => SOFORT::class,
         GatewayType::APPLE_PAY => ApplePay::class,
         GatewayType::SEPA => SEPA::class,
+        GatewayType::GIROPAY => GIROPAY::class,
     ];
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_STRIPE;
@@ -152,6 +154,11 @@ class StripePaymentDriver extends BaseDriver
             && in_array($this->client->country->iso_3166_3, ['AUS', 'DNK', 'DEU', 'ITA', 'LUX', 'NOR', 'SVN', 'GBR', 'EST', 'GRC', 'JPN', 'PRT', 'ESP', 'USA', 'BEL', 'FIN'])) { // TODO: More has to be added https://stripe.com/docs/payments/sepa-debit
             $types[] = GatewayType::SEPA;
         }
+
+        if ($this -> client
+            && isset($this->client->country)
+            && in_array($this->client->country->iso_3166_3, ["DEU"]))
+            $types[] = GatewayType::GIROPAY;
 
         return $types;
     }
