@@ -21,7 +21,7 @@ use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
 
-class IDEAL
+class iDeal
 {
     /** @var StripePaymentDriver */
     public StripePaymentDriver $stripe;
