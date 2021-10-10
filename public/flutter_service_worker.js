@@ -32,9 +32,9 @@ const RESOURCES = {
 "assets/packages/material_design_icons_flutter/lib/fonts/materialdesignicons-webfont.ttf": "174c02fc4609e8fc4389f5d21f16a296",
 "icons/Icon-192.png": "bb1cf5f6982006952211c7c8404ffbed",
 "icons/Icon-512.png": "0f9aff01367f0a0c69773d25ca16ef35",
-"main.dart.js": "7905763d1c2f393f06c8c5b95449e54b",
+"main.dart.js": "737a840bed376cb6c2a8198aec8d650b",
 "manifest.json": "ef43d90e57aa7682d7e2cfba2f484a40",
-"/": "2b102108c1e1cc925a193f954e3a2b68"
+"/": "62039ec03358e95898baf5b41406df65"
 };
 
 // The application shell files that are downloaded before a service worker can
