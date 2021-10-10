@@ -30,6 +30,7 @@ class GatewayType extends StaticModel
     const IDEAL = 13;
     const HOSTED_PAGE = 14; // For gateways that contain multiple methods.
     const GIROPAY = 15;
+    const PRZELEWY24 = 16;
     const EPS = 17;
 
     public function gateway()
@@ -71,6 +72,8 @@ class GatewayType extends StaticModel
                 return ctrans('texts.ideal');
             case self::HOSTED_PAGE:
                 return ctrans('texts.aio_checkout');
+            case self::PRZELEWY24:
+                return ctrans('texts.przelewy24');
             case self::GIROPAY:
                 return ctrans('texts.giropay');
             case self::EPS:
