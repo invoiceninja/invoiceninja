@@ -29,8 +29,9 @@ class BaseRepository
     use MakesHash;
     use SavesDocuments;
 
-	public $import_mode = false;
+	public bool $import_mode = false;
 
+    private bool $new_model = false;
     /**
      * @param $entity
      * @param $type
@@ -207,9 +208,9 @@ class BaseRepository
         $model->custom_surcharge_tax4 = $client->company->custom_surcharge_taxes4;
 
         if(!$model->id)
-            $model->save();
-        else
-            $model->saveQuietly();
+            $this->new_model = true;
+
+        $model->saveQuietly();
 
         /* Model now persisted, now lets do some child tasks */
 
@@ -323,6 +324,9 @@ class BaseRepository
             //links tasks and expenses back to the invoice.
             $model->service()->linkEntities()->save();
 
+            if($this->new_model)
+                event('eloquent.created: App\Models\Invoice', $model);
+
         }
 
         if ($model instanceof Credit) {
@@ -331,7 +335,10 @@ class BaseRepository
 
             if (! $model->design_id) 
                 $model->design_id = $this->decodePrimaryKey($client->getSetting('credit_design_id'));
-            
+
+
+            if($this->new_model)
+                event('eloquent.created: App\Models\Credit', $model);            
         }
 
         if ($model instanceof Quote) {
@@ -340,6 +347,10 @@ class BaseRepository
                 $model->design_id = $this->decodePrimaryKey($client->getSetting('quote_design_id'));
 
             $model = $model->calc()->getQuote();
+
+
+            if($this->new_model)
+                event('eloquent.created: App\Models\Quote', $model);
 
         }
 
@@ -350,6 +361,9 @@ class BaseRepository
             
             $model = $model->calc()->getRecurringInvoice();
 
+
+            if($this->new_model)
+                event('eloquent.created: App\Models\RecurringInvoice', $model);
         }
 
         $model->save();
