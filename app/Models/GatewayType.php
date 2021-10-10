@@ -32,6 +32,7 @@ class GatewayType extends StaticModel
     const GIROPAY = 15;
     const PRZELEWY24 = 16;
     const EPS = 17;
+    const FPX = 18;
 
     public function gateway()
     {
@@ -78,6 +79,8 @@ class GatewayType extends StaticModel
                 return ctrans('texts.giropay');
             case self::EPS:
                 return ctrans('texts.eps');
+            case self::FPX:
+                return ctrans('texts.fpx');
             default:
                 return 'Undefined.';
                 break;
