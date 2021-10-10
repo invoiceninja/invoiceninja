@@ -197,7 +197,7 @@ class StripePaymentDriver extends BaseDriver
             && $this->client->currency()
             && ($this->client->currency()->code == 'MYR')
             && isset($this->client->country)
-            && in_array($this->client->country->iso_3166_3, ["MYS", "DEU"]))
+            && in_array($this->client->country->iso_3166_3, ["MYS"]))
             $types[] = GatewayType::FPX;
 
         return $types;
