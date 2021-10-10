@@ -4322,6 +4322,8 @@ $LANG = array(
     'aio_checkout' => 'All-in-one checkout',
     'przelewy24' => 'Przelewy24',
     'przelewy24_accept' => 'I declare that I have familiarized myself with the regulations and information obligation of the Przelewy24 service.'
+    'giropay' => 'GiroPay',
+    'giropay_law' => 'By entering your Customer information (such as name, sort code and account number) you (the Customer) agree that this information is given voluntarily.'
 );
 
 return $LANG;

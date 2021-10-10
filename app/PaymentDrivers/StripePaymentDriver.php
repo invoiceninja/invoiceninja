@@ -34,6 +34,8 @@ use App\PaymentDrivers\Stripe\ImportCustomers;
 use App\PaymentDrivers\Stripe\SOFORT;
 use App\PaymentDrivers\Stripe\SEPA;
 use App\PaymentDrivers\Stripe\PRZELEWY24;
+use App\PaymentDrivers\Stripe\GIROPAY;
+use App\PaymentDrivers\Stripe\iDeal;
 use App\PaymentDrivers\Stripe\UpdatePaymentMethods;
 use App\PaymentDrivers\Stripe\Utilities;
 use App\Utils\Traits\MakesHash;
@@ -79,7 +81,8 @@ class StripePaymentDriver extends BaseDriver
         GatewayType::APPLE_PAY => ApplePay::class,
         GatewayType::SEPA => SEPA::class,
         GatewayType::PRZELEWY24 => PRZELEWY24::class,
-
+        GatewayType::GIROPAY => GIROPAY::class,
+        GatewayType::IDEAL => iDeal::class,
     ];
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_STRIPE;
@@ -151,6 +154,8 @@ class StripePaymentDriver extends BaseDriver
         }
 
         if ($this->client
+            && $this->client->currency()
+            && ($this->client->currency()->code == 'EUR')
             && isset($this->client->country)
             && in_array($this->client->country->iso_3166_3, ['AUS', 'DNK', 'DEU', 'ITA', 'LUX', 'NOR', 'SVN', 'GBR', 'EST', 'GRC', 'JPN', 'PRT', 'ESP', 'USA', 'BEL', 'FIN'])) { // TODO: More has to be added https://stripe.com/docs/payments/sepa-debit
             $types[] = GatewayType::SEPA;
@@ -161,6 +166,21 @@ class StripePaymentDriver extends BaseDriver
             && in_array($this->client->country->iso_3166_3, ['POL'])){
             $types[] = GatewayType::PRZELEWY24;
         }
+
+        if($this->client
+            && $this->client->currency()
+            && ($this->client->currency()->code == 'EUR')
+            && isset($this->client->country)
+            && in_array($this->client->country->iso_3166_3, ["DEU"])){
+            $types[] = GatewayType::GIROPAY;
+        }
+      
+        if ($this->client
+            && $this->client->currency()
+            && ($this->client->currency()->code == 'EUR')
+            && isset($this->client->country)
+            && in_array($this->client->country->iso_3166_3, ["NLD"]))
+            $types[] = GatewayType::IDEAL;
 
         return $types;
     }
@@ -188,7 +208,11 @@ class StripePaymentDriver extends BaseDriver
             case GatewayType::APPLE_PAY:
                 return 'gateways.stripe.other';
                 break;
-
+            case GatewayType::GIROPAY:
+                return 'gateways.stripe.giropay';
+                break;
+            case GatewayType::IDEAL:
+                return 'gateways.stripe.ideal';
             default:
                 break;
         }
@@ -647,6 +671,11 @@ class StripePaymentDriver extends BaseDriver
               'client_id' => config('ninja.ninja_stripe_client_id'),
               'stripe_user_id' => $this->company_gateway->getConfigField('account_id'),
             ]);
+
+            $config = $this->company_gateway->getConfig();
+            $config->account_id = "";
+            $this->company_gateway->setConfig($config);
+            $this->company_gateway->save();
 
         }
         catch(\Exception $e){

@@ -630,7 +630,7 @@ class CreateSingleAccount extends Command
             $cg->config = encrypt(config('ninja.testvars.stripe'));
             $cg->save();
 
-            $gateway_types = $cg->driver(new Client)->gatewayTypes();
+            $gateway_types = $cg->driver()->gatewayTypes();
 
             $fees_and_limits = new stdClass;
             $fees_and_limits->{$gateway_types[0]} = new FeesAndLimits;
@@ -653,7 +653,7 @@ class CreateSingleAccount extends Command
             $cg->config = encrypt(config('ninja.testvars.paypal'));
             $cg->save();
 
-            $gateway_types = $cg->driver(new Client)->gatewayTypes();
+            $gateway_types = $cg->driver()->gatewayTypes();
 
             $fees_and_limits = new stdClass;
             $fees_and_limits->{$gateway_types[0]} = new FeesAndLimits;
@@ -716,7 +716,7 @@ class CreateSingleAccount extends Command
             $cg->config = encrypt(config('ninja.testvars.wepay'));
             $cg->save();
 
-            $gateway_types = $cg->driver(new Client)->gatewayTypes();
+            $gateway_types = $cg->driver()->gatewayTypes();
 
             $fees_and_limits = new stdClass;
             $fees_and_limits->{$gateway_types[0]} = new FeesAndLimits;
@@ -737,7 +737,7 @@ class CreateSingleAccount extends Command
             $cg->config = encrypt(config('ninja.testvars.braintree'));
             $cg->save();
 
-            $gateway_types = $cg->driver(new Client)->gatewayTypes();
+            $gateway_types = $cg->driver()->gatewayTypes();
 
             $fees_and_limits = new stdClass;
             $fees_and_limits->{$gateway_types[0]} = new FeesAndLimits;
@@ -761,7 +761,7 @@ class CreateSingleAccount extends Command
             $cg->save();
 
 
-            $gateway_types = $cg->driver(new Client)->gatewayTypes();
+            $gateway_types = $cg->driver()->gatewayTypes();
 
             $fees_and_limits = new stdClass;
             $fees_and_limits->{$gateway_types[0]} = new FeesAndLimits;
@@ -782,7 +782,7 @@ class CreateSingleAccount extends Command
             $cg->config = encrypt(config('ninja.testvars.mollie'));
             $cg->save();
 
-            $gateway_types = $cg->driver(new Client)->gatewayTypes();
+            $gateway_types = $cg->driver()->gatewayTypes();
 
             $fees_and_limits = new stdClass;
             $fees_and_limits->{$gateway_types[0]} = new FeesAndLimits;
@@ -803,7 +803,7 @@ class CreateSingleAccount extends Command
             $cg->config = encrypt(config('ninja.testvars.square'));
             $cg->save();
 
-            $gateway_types = $cg->driver(new Client)->gatewayTypes();
+            $gateway_types = $cg->driver()->gatewayTypes();
 
             $fees_and_limits = new stdClass;
             $fees_and_limits->{$gateway_types[0]} = new FeesAndLimits;
