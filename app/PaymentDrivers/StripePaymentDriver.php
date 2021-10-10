@@ -33,6 +33,7 @@ use App\PaymentDrivers\Stripe\CreditCard;
 use App\PaymentDrivers\Stripe\ImportCustomers;
 use App\PaymentDrivers\Stripe\SOFORT;
 use App\PaymentDrivers\Stripe\SEPA;
+use App\PaymentDrivers\Stripe\PRZELEWY24;
 use App\PaymentDrivers\Stripe\GIROPAY;
 use App\PaymentDrivers\Stripe\iDeal;
 use App\PaymentDrivers\Stripe\UpdatePaymentMethods;
@@ -79,9 +80,9 @@ class StripePaymentDriver extends BaseDriver
         GatewayType::SOFORT => SOFORT::class,
         GatewayType::APPLE_PAY => ApplePay::class,
         GatewayType::SEPA => SEPA::class,
+        GatewayType::PRZELEWY24 => PRZELEWY24::class,
         GatewayType::GIROPAY => GIROPAY::class,
         GatewayType::IDEAL => iDeal::class,
-
     ];
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_STRIPE;
@@ -161,12 +162,19 @@ class StripePaymentDriver extends BaseDriver
         }
 
         if ($this->client
+            && isset($this->client->country)
+            && in_array($this->client->country->iso_3166_3, ['POL'])){
+            $types[] = GatewayType::PRZELEWY24;
+        }
+
+        if($this->client
             && $this->client->currency()
             && ($this->client->currency()->code == 'EUR')
             && isset($this->client->country)
-            && in_array($this->client->country->iso_3166_3, ["DEU"]))
+            && in_array($this->client->country->iso_3166_3, ["DEU"])){
             $types[] = GatewayType::GIROPAY;
-
+        }
+      
         if ($this->client
             && $this->client->currency()
             && ($this->client->currency()->code == 'EUR')
@@ -191,6 +199,9 @@ class StripePaymentDriver extends BaseDriver
                 break;
             case GatewayType::SEPA:
                 return 'gateways.stripe.sepa';
+                break;
+            case GatewayType::PRZELEWY24:
+                return 'gateways.stripe.przelewy24';
                 break;
             case GatewayType::CRYPTO:
             case GatewayType::ALIPAY:

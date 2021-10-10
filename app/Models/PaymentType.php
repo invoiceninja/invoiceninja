@@ -48,6 +48,8 @@ class PaymentType extends StaticModel
     const IDEAL = 37;
     const HOSTED_PAGE = 38;
     const GIROPAY = 39;
+    const PRZELEWY24 = 40;
+
 
     public static function parseCardType($cardName)
     {
