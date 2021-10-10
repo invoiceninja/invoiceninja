@@ -155,7 +155,7 @@ class CreditService
      */
     public function save() : ?Credit
     {
-        $this->credit->save();
+        $this->credit->saveQuietly();
 
         return $this->credit;
     }

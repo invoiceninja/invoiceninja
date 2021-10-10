@@ -490,7 +490,7 @@ class InvoiceService
      */
     public function save() :?Invoice
     {
-        $this->invoice->save();
+        $this->invoice->saveQuietly();
 
         return $this->invoice;
     }

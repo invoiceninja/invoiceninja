@@ -34,7 +34,6 @@ class InvoiceObserver
                             ->where('event_id', Webhook::EVENT_CREATE_INVOICE)
                             ->exists();
 
-
         if ($subscriptions) {
 
             $invoice->load('client');
