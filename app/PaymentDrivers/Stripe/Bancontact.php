@@ -87,6 +87,10 @@ class Bancontact
     {
         /* @todo: https://github.com/invoiceninja/invoiceninja/pull/3789/files#r436175798 */
 
+        //catch duplicate submissions.
+        if(Payment::where('transaction_reference', $payment_intent)->exists())
+            return redirect()->route('client.payments.index');
+
         $this->stripe->init();
 
         $data = [
