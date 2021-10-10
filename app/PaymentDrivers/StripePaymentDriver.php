@@ -197,7 +197,7 @@ class StripePaymentDriver extends BaseDriver
             && $this->client->currency()
             && ($this->client->currency()->code == 'EUR')
             && isset($this->client->country)
-            && in_array($this->client->country->iso_3166_3, ["BEL", "DEU"]))
+            && in_array($this->client->country->iso_3166_3, ["BEL"]))
             $types[] = GatewayType::BANCONTACT;
 
         return $types;
