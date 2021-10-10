@@ -77,7 +77,7 @@ class GatewayType extends StaticModel
             case self::GIROPAY:
                 return ctrans('texts.giropay');
             case self::EPS:
-                return ctrans('texts.EPS');
+                return ctrans('texts.eps');
             default:
                 return 'Undefined.';
                 break;
