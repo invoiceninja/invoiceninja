@@ -4321,7 +4321,8 @@ $LANG = array(
     'bank_account_holder' => 'Bank Account Holder',
     'aio_checkout' => 'All-in-one checkout',
     'giropay' => 'GiroPay',
-    'giropay_law' => 'By entering your Customer information (such as name, sort code and account number) you (the Customer) agree that this information is given voluntarily.'
+    'giropay_law' => 'By entering your Customer information (such as name, sort code and account number) you (the Customer) agree that this information is given voluntarily.',
+    'eps' => 'EPS',
 );
 
 return $LANG;
