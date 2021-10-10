@@ -36,6 +36,7 @@ use App\PaymentDrivers\Stripe\SEPA;
 use App\PaymentDrivers\Stripe\PRZELEWY24;
 use App\PaymentDrivers\Stripe\GIROPAY;
 use App\PaymentDrivers\Stripe\iDeal;
+use App\PaymentDrivers\Stripe\EPS;
 use App\PaymentDrivers\Stripe\UpdatePaymentMethods;
 use App\PaymentDrivers\Stripe\Utilities;
 use App\Utils\Traits\MakesHash;
@@ -83,6 +84,7 @@ class StripePaymentDriver extends BaseDriver
         GatewayType::PRZELEWY24 => PRZELEWY24::class,
         GatewayType::GIROPAY => GIROPAY::class,
         GatewayType::IDEAL => iDeal::class,
+        GatewayType::EPS => EPS::class,
     ];
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_STRIPE;
@@ -182,6 +184,13 @@ class StripePaymentDriver extends BaseDriver
             && in_array($this->client->country->iso_3166_3, ["NLD"]))
             $types[] = GatewayType::IDEAL;
 
+        if ($this->client
+            && $this->client->currency()
+            && ($this->client->currency()->code == 'EUR')
+            && isset($this->client->country)
+            && in_array($this->client->country->iso_3166_3, ["AUT"]))
+            $types[] = GatewayType::EPS;
+
         return $types;
     }
 
@@ -213,6 +222,8 @@ class StripePaymentDriver extends BaseDriver
                 break;
             case GatewayType::IDEAL:
                 return 'gateways.stripe.ideal';
+            case GatewayType::EPS:
+                return 'gateways.stripe.eps';
             default:
                 break;
         }
