@@ -161,6 +161,8 @@ class StripePaymentDriver extends BaseDriver
         }
 
         if ($this->client
+            && $this->client->currency()
+            && ($this->client->currency()->code == 'EUR')
             && isset($this->client->country)
             && in_array($this->client->country->iso_3166_3, ["DEU"]))
             $types[] = GatewayType::GIROPAY;
