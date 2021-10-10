@@ -37,6 +37,7 @@ use App\PaymentDrivers\Stripe\PRZELEWY24;
 use App\PaymentDrivers\Stripe\GIROPAY;
 use App\PaymentDrivers\Stripe\iDeal;
 use App\PaymentDrivers\Stripe\EPS;
+use App\PaymentDrivers\Stripe\FPX;
 use App\PaymentDrivers\Stripe\UpdatePaymentMethods;
 use App\PaymentDrivers\Stripe\Utilities;
 use App\Utils\Traits\MakesHash;
@@ -85,6 +86,7 @@ class StripePaymentDriver extends BaseDriver
         GatewayType::GIROPAY => GIROPAY::class,
         GatewayType::IDEAL => iDeal::class,
         GatewayType::EPS => EPS::class,
+        GatewayType::FPX => FPX::class,
     ];
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_STRIPE;
@@ -176,7 +178,7 @@ class StripePaymentDriver extends BaseDriver
             && in_array($this->client->country->iso_3166_3, ["DEU"])){
             $types[] = GatewayType::GIROPAY;
         }
-      
+
         if ($this->client
             && $this->client->currency()
             && ($this->client->currency()->code == 'EUR')
@@ -190,6 +192,13 @@ class StripePaymentDriver extends BaseDriver
             && isset($this->client->country)
             && in_array($this->client->country->iso_3166_3, ["AUT"]))
             $types[] = GatewayType::EPS;
+
+        if ($this->client
+            && $this->client->currency()
+            && ($this->client->currency()->code == 'EUR')
+            && isset($this->client->country)
+            && $this->client->country->iso_3166_3 == "MYS")
+            $types[] = GatewayType::FPX;
 
         return $types;
     }
