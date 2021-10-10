@@ -35,6 +35,7 @@ use App\PaymentDrivers\Stripe\SOFORT;
 use App\PaymentDrivers\Stripe\SEPA;
 use App\PaymentDrivers\Stripe\GIROPAY;
 use App\PaymentDrivers\Stripe\iDeal;
+use App\PaymentDrivers\Stripe\EPS;
 use App\PaymentDrivers\Stripe\UpdatePaymentMethods;
 use App\PaymentDrivers\Stripe\Utilities;
 use App\Utils\Traits\MakesHash;
@@ -81,6 +82,7 @@ class StripePaymentDriver extends BaseDriver
         GatewayType::SEPA => SEPA::class,
         GatewayType::GIROPAY => GIROPAY::class,
         GatewayType::IDEAL => iDeal::class,
+        GatewayType::EPS => EPS::class,
 
     ];
 
@@ -172,6 +174,13 @@ class StripePaymentDriver extends BaseDriver
             && in_array($this->client->country->iso_3166_3, ["NLD"]))
             $types[] = GatewayType::IDEAL;
 
+        if ($this->client
+            && $this->client->currency()
+            && ($this->client->currency()->code == 'EUR')
+            && isset($this->client->country)
+            && in_array($this->client->country->iso_3166_3, ["AUT", "DEU"])) // TODO: remove test country
+            $types[] = GatewayType::EPS;
+
         return $types;
     }
 
@@ -200,6 +209,8 @@ class StripePaymentDriver extends BaseDriver
                 break;
             case GatewayType::IDEAL:
                 return 'gateways.stripe.ideal';
+            case GatewayType::EPS:
+                return 'gateways.stripe.eps';
             default:
                 break;
         }
