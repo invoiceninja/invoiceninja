@@ -106,6 +106,14 @@ mix.js("resources/js/app.js", "public/js")
         "resources/js/clients/statements/view.js",
         "public/js/clients/statements/view.js",
     )
+    .js(
+        "resources/js/clients/payments/razorpay-aio.js",
+        "public/js/clients/payments/razorpay-aio.js"
+    )
+    .js(
+        "resources/js/clients/payments/stripe-sepa.js",
+        "public/js/clients/payments/stripe-sepa.js"
+    )
 
 mix.copyDirectory('node_modules/card-js/card-js.min.css', 'public/css/card-js.min.css');
 

@@ -202,7 +202,7 @@ class QuoteService
      */
     public function save() : ?Quote
     {
-        $this->quote->save();
+        $this->quote->saveQuietly();
 
         return $this->quote;
     }

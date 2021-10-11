@@ -1779,7 +1779,7 @@ $LANG = array(
     'lang_Bulgarian' => 'Bulgarian',
     'lang_Russian (Russia)' => 'Russian (Russia)',
 
-    
+
     // Industries
     'industry_Accounting & Legal' => 'Accounting & Legal',
     'industry_Advertising' => 'Advertising',
@@ -4316,7 +4316,15 @@ $LANG = array(
     'payment_method_cannot_be_preauthorized' => 'This payment method cannot be preauthorized.',
     'kbc_cbc' => 'KBC/CBC',
     'bancontact' => 'Bancontact',
+    'sepa_mandat' => 'By providing your IBAN and confirming this payment, you are authorizing :company and Stripe, our payment service provider, to send instructions to your bank to debit your account and your bank to debit your account in accordance with those instructions. You are entitled to a refund from your bank under the terms and conditions of your agreement with your bank. A refund must be claimed within 8 weeks starting from the date on which your account was debited.',
     'ideal' => 'iDEAL',
+    'bank_account_holder' => 'Bank Account Holder',
+    'aio_checkout' => 'All-in-one checkout',
+    'przelewy24' => 'Przelewy24',
+    'przelewy24_accept' => 'I declare that I have familiarized myself with the regulations and information obligation of the Przelewy24 service.',
+    'giropay' => 'GiroPay',
+    'giropay_law' => 'By entering your Customer information (such as name, sort code and account number) you (the Customer) agree that this information is given voluntarily.',
+    'eps' => 'EPS',
 );
 
 return $LANG;

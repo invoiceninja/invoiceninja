@@ -28,6 +28,7 @@ use App\PaymentDrivers\Stripe\Alipay;
 use App\PaymentDrivers\Stripe\Charge;
 use App\PaymentDrivers\Stripe\CreditCard;
 use App\PaymentDrivers\Stripe\SOFORT;
+use App\PaymentDrivers\Stripe\SEPA;
 use App\PaymentDrivers\Stripe\Utilities;
 use App\Utils\Traits\MakesHash;
 use Exception;

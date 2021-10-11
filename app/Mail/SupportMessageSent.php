@@ -64,12 +64,12 @@ class SupportMessageSent extends Mailable
         $db = str_replace("db-ninja-", "", $company->db);
         $is_large = $company->is_large ? "L" : "S";
         $platform = array_key_exists('platform', $this->data) ? $this->data['platform'] : "U";
-        $migrated = strlen($company->company_key) == 32 ? "M" : "T"; 
+        $migrated = strlen($company->company_key) == 32 ? "M" : ""; 
 
         if(Ninja::isHosted())
             $subject = "{$priority}Hosted-{$db}-{$is_large}{$platform}{$migrated} :: {$plan} :: ".date('M jS, g:ia');
         else
-            $subject = "{$priority}Self Hosted :: {$plan}{$platform} :: ".date('M jS, g:ia');
+            $subject = "{$priority}Self Hosted :: {$plan} :: {$platform} :: ".date('M jS, g:ia');
 
         return $this->from(config('mail.from.address'), $user->present()->name()) 
                 ->replyTo($user->email, $user->present()->name())

@@ -105,7 +105,7 @@ class RecurringService
     
     public function save()
     {
-        $this->recurring_entity->save();
+        $this->recurring_entity->saveQuietly();
 
         return $this->recurring_entity;
     }

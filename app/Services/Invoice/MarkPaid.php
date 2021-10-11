@@ -43,7 +43,7 @@ class MarkPaid extends AbstractService
         }
 
         /*Don't double pay*/
-        if ($this->invoice->statud_id == Invoice::STATUS_PAID) {
+        if ($this->invoice->status_id == Invoice::STATUS_PAID) {
             return $this->invoice;
         }
 
@@ -96,7 +96,6 @@ class MarkPaid extends AbstractService
             ->save();
 
         $this->invoice->service()->workFlow()->save();
-        // InvoiceWorkflowSettings::dispatchNow($this->invoice);
 
         return $this->invoice;
     }

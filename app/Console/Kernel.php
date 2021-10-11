@@ -23,6 +23,7 @@ use App\Jobs\Util\SchedulerCheck;
 use App\Jobs\Util\SendFailedEmails;
 use App\Jobs\Util\UpdateExchangeRates;
 use App\Jobs\Util\VersionCheck;
+use App\Models\Account;
 use App\Utils\Ninja;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -68,6 +69,10 @@ class Kernel extends ConsoleKernel
         $schedule->job(new AutoBillCron)->dailyAt('00:30')->withoutOverlapping();        
 
         $schedule->job(new SchedulerCheck)->daily()->withoutOverlapping();
+
+            $schedule->call(function () {
+                Account::whereNotNull('id')->update(['is_scheduler_running' => true]);
+            })->everyFiveMinutes(); 
 
         /* Run hosted specific jobs */
         if (Ninja::isHosted()) {

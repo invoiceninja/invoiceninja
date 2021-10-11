@@ -491,7 +491,7 @@ class DesignController extends BaseController
 
     public function default(DefaultDesignRequest $request)
     {
-        $design_id = $request->int('design_id');
+        $design_id = $request->input('design_id');
         $entity = $request->input('entity');
         $company = auth()->user()->getCompany();
 

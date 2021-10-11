@@ -28,7 +28,11 @@ class GatewayType extends StaticModel
     const KBC = 11;
     const BANCONTACT = 12;
     const IDEAL = 13;
-    
+    const HOSTED_PAGE = 14; // For gateways that contain multiple methods.
+    const GIROPAY = 15;
+    const PRZELEWY24 = 16;
+    const EPS = 17;
+
     public function gateway()
     {
         return $this->belongsTo(Gateway::class);
@@ -66,6 +70,14 @@ class GatewayType extends StaticModel
                 return ctrans('texts.bancontact');
             case self::IDEAL:
                 return ctrans('texts.ideal');
+            case self::HOSTED_PAGE:
+                return ctrans('texts.aio_checkout');
+            case self::PRZELEWY24:
+                return ctrans('texts.przelewy24');
+            case self::GIROPAY:
+                return ctrans('texts.giropay');
+            case self::EPS:
+                return ctrans('texts.eps');
             default:
                 return 'Undefined.';
                 break;

@@ -257,7 +257,9 @@ class NinjaMailerJob implements ShouldQueue
         if(Ninja::isHosted() && $this->company->account->emailQuotaExceeded())
             return true;
 
-
+        if(!str_contains($this->nmo->to_user->email, "@"))
+            return true;
+        
         return false;
     }
 

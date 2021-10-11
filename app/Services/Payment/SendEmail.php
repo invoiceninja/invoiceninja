@@ -32,6 +32,8 @@ class SendEmail
      */
     public function run()
     {
+        $this->payment->load('company', 'client.contacts');
+
         $this->payment->client->contacts->each(function ($contact) {
             if ($contact->email) {
                 EmailPayment::dispatchNow($this->payment, $this->payment->company, $contact);

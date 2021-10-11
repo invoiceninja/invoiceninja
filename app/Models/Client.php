@@ -89,7 +89,7 @@ class Client extends BaseModel implements HasLocalePreference
         'contacts.company',
         // 'currency',
         // 'primary_contact',
-        'country',
+        // 'country',
         // 'contacts',
         // 'shipping_country',
         // 'company',
