@@ -80,7 +80,7 @@
             </div>
         @endif
 
-        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css" />
+        <link rel="stylesheet" type="text/css" href="{{ asset('vendor/cookieconsent@3/cookieconsent.min.css') }}" />
     </head>
 
     @include('portal.ninja2020.components.primary-color')
@@ -98,7 +98,7 @@
 
         @livewireScripts
 
-        <script src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js" data-cfasync="false"></script>
+        <script src="{{ asset('vendor/cookieconsent@3/cookieconsent.min.js') }}" data-cfasync="false"></script>
         <script>
             window.addEventListener("load", function(){
                 if (! window.cookieconsent) {
