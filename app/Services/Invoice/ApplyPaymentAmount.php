@@ -46,7 +46,7 @@ class ApplyPaymentAmount extends AbstractService
         }
 
         /*Don't double pay*/
-        if ($this->invoice->statud_id == Invoice::STATUS_PAID) {
+        if ($this->invoice->status_id == Invoice::STATUS_PAID) {
             return $this->invoice;
         }
 

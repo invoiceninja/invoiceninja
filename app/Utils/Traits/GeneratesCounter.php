@@ -713,6 +713,19 @@ trait GeneratesCounter
             $replace[] = $client->id_number;
         }
 
+            $search[] = '{$user_custom1}';
+            $replace[] = $entity->user->custom_value1;
+
+            $search[] = '{$user_custom2}';
+            $replace[] = $entity->user->custom_value2;
+
+            $search[] = '{$user_custom3}';
+            $replace[] = $entity->user->custom_value3;
+
+            $search[] = '{$client_custom4}';
+            $replace[] = $entity->user->custom_value4;
+
+
         return str_replace($search, $replace, $pattern);
     }
 }
