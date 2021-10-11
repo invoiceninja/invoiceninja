@@ -11,10 +11,14 @@
 
 namespace Tests;
 
+use App\DataMapper\CompanySettings;
+use App\DataMapper\DefaultSettings;
+use App\Factory\InvoiceItemFactory;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
+use App\Models\CompanyToken;
 use App\Models\User;
 /**
  * Class MockUnitData.
@@ -33,6 +37,8 @@ trait MockUnitData
 
     public $primary_contact;
 
+    public $token;
+
     public function makeTestData()
     {
 
@@ -48,6 +54,39 @@ trait MockUnitData
         $this->company = Company::factory()->create([
             'account_id' => $this->account->id
         ]);
+
+        $userPermissions = collect([
+            'view_invoice',
+            'view_client',
+            'edit_client',
+            'edit_invoice',
+            'create_invoice',
+            'create_client',
+        ]);
+
+        $userSettings = DefaultSettings::userSettings();
+
+        $this->user->companies()->attach($this->company->id, [
+            'account_id' => $this->account->id,
+            'is_owner' => 1,
+            'is_admin' => 1,
+            'notifications' => CompanySettings::notificationDefaults(),
+            'permissions' => $userPermissions->toJson(),
+            'settings' => json_encode($userSettings),
+            'is_locked' => 0,
+        ]);
+
+
+        $this->token = \Illuminate\Support\Str::random(64);
+
+        $company_token = new CompanyToken;
+        $company_token->user_id = $this->user->id;
+        $company_token->company_id = $this->company->id;
+        $company_token->account_id = $this->account->id;
+        $company_token->name = 'test token';
+        $company_token->token = $this->token;
+        $company_token->is_system = true;
+        $company_token->save();
 
         $this->client = Client::factory()->create([
             'user_id' => $this->user->id, 
@@ -67,5 +106,18 @@ trait MockUnitData
             'company_id' => $this->company->id,
         ]);
 
+    }
+
+
+    public function buildLineItems()
+    {
+        $line_items = [];
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 10;
+        $line_items[] = $item;
+
+        return $line_items;
     }
 }
