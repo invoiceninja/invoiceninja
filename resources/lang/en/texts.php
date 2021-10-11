@@ -4325,6 +4325,8 @@ $LANG = array(
     'giropay' => 'GiroPay',
     'giropay_law' => 'By entering your Customer information (such as name, sort code and account number) you (the Customer) agree that this information is given voluntarily.',
     'eps' => 'EPS',
+    'bacs' => 'Bacs Direct Debit',
+    'becs' => 'BECS Direct Debit',
 );
 
 return $LANG;
