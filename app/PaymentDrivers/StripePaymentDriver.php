@@ -38,6 +38,8 @@ use App\PaymentDrivers\Stripe\GIROPAY;
 use App\PaymentDrivers\Stripe\iDeal;
 use App\PaymentDrivers\Stripe\EPS;
 use App\PaymentDrivers\Stripe\Bancontact;
+use App\PaymentDrivers\Stripe\BECS;
+use App\PaymentDrivers\Stripe\BACS;
 use App\PaymentDrivers\Stripe\UpdatePaymentMethods;
 use App\PaymentDrivers\Stripe\Utilities;
 use App\Utils\Traits\MakesHash;
@@ -87,6 +89,8 @@ class StripePaymentDriver extends BaseDriver
         GatewayType::IDEAL => iDeal::class,
         GatewayType::EPS => EPS::class,
         GatewayType::BANCONTACT => Bancontact::class,
+        GatewayType::BACS => BACS::class,
+        GatewayType::BECS => BECS::class,
     ];
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_STRIPE;
@@ -200,6 +204,20 @@ class StripePaymentDriver extends BaseDriver
             && in_array($this->client->country->iso_3166_3, ["BEL"]))
             $types[] = GatewayType::BANCONTACT;
 
+        if ($this->client
+            && $this->client->currency()
+            && ($this->client->currency()->code == 'GBR')
+            && isset($this->client->country)
+            && in_array($this->client->country->iso_3166_3, ["GBP", "DEU"]))
+            $types[] = GatewayType::BACS;
+
+        if ($this->client
+            && $this->client->currency()
+            && ($this->client->currency()->code == 'AUD')
+            && isset($this->client->country)
+            && in_array($this->client->country->iso_3166_3, ["AUS", "DEU"]))
+            $types[] = GatewayType::BECS;
+
         return $types;
     }
 
@@ -235,6 +253,10 @@ class StripePaymentDriver extends BaseDriver
                 return 'gateways.stripe.eps';
             case GatewayType::BANCONTACT:
                 return 'gateways.stripe.bancontact';
+            case GatewayType::BACS:
+                return 'gateways.stripe.bacs';
+            case GatewayType::BECS:
+                return 'gateways.stripe.becs';
             default:
                 break;
         }
