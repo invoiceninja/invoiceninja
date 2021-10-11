@@ -33,7 +33,8 @@ return [
     'enabled_modules' => 32767,
     'phantomjs_key' => env('PHANTOMJS_KEY', 'a-demo-key-with-low-quota-per-ip-address'),
     'phantomjs_secret' => env('PHANTOMJS_SECRET', false),
-    'phantomjs_pdf_generation' => env('PHANTOMJS_PDF_GENERATION', true),
+    'phantomjs_pdf_generation' => env('PHANTOMJS_PDF_GENERATION', false),
+    'pdf_generator' => env('PDF_GENERATOR', false),
     'trusted_proxies' => env('TRUSTED_PROXIES', false),
     'is_docker' => env('IS_DOCKER', false),
     'local_download' => env('LOCAL_DOWNLOAD', false),
@@ -173,6 +174,5 @@ return [
     'ninja_default_company_id' => env('NINJA_COMPANY_ID', null),
     'ninja_default_company_gateway_id' => env('NINJA_COMPANY_GATEWAY_ID', null),
     'ninja_hosted_secret' => env('NINJA_HOSTED_SECRET', null),
-    'pdf_generator' => env('PDF_GENERATOR', false),
     'internal_queue_enabled' => env('INTERNAL_QUEUE_ENABLED', true),
 ];
