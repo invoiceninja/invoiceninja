@@ -61,34 +61,25 @@ class CreditPaymentTest extends TestCase
         );
     }
 
-    public function testCreditPayments()
+   public function testRegularPayment()
     {
 
         $invoice = Invoice::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $this->client->id]);
 
         $invoice->line_items = $this->buildLineItems();
         $invoice->uses_inclusive_taxes = false;
+        $invoice->discount = 0;
+        $invoice->tax_rate1 = 0;
+        $invoice->tax_name1 = '';
+        $invoice->tax_rate2 = 0;
+        $invoice->tax_name2 = '';
 
-        // $invoice->save();
         $invoice_calc = new InvoiceSum($invoice);
         $invoice_calc->build();
         $invoice = $invoice_calc->getInvoice();
         $invoice->setRelation('client', $this->client);
         $invoice->setRelation('company', $this->company);
-        $invoice->save();
-
-        $credit = Credit::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $this->client->id]);
-
-        $credit->line_items = $this->buildLineItems();
-        $credit->uses_inclusive_taxes = false;
-
-        // $invoice->save();
-        $invoice_calc = new InvoiceSum($credit);
-        $invoice_calc->build();
-        $credit = $invoice_calc->getCredit();
-        $credit->setRelation('client', $this->client);
-        $credit->setRelation('company', $this->company);
-        $credit->save();
+        $invoice->service()->markSent()->save();
 
 
        $data = [
@@ -99,8 +90,6 @@ class CreditPaymentTest extends TestCase
                     'invoice_id' => $invoice->hashed_id,
                     'amount' => 10,
                 ],
-            ],
-            'credits' => [
             ],
             'date' => '2019/12/12',
         ];
@@ -114,22 +103,103 @@ class CreditPaymentTest extends TestCase
         ])->post('/api/v1/payments/', $data);
         } catch (ValidationException $e) {
             $message = json_decode($e->validator->getMessageBag(), 1);
-            \Log::error(print_r($e->validator->getMessageBag(), 1));
+            nlog($e->validator->getMessageBag());
         }
 
-        // $response->assertStatus(200);
+        $response->assertStatus(200);
 
-        // $arr = $response->json();
+        $arr = $response->json();
 
-        // $payment_id = $arr['data']['id'];
+        $payment_id = $arr['data']['id'];
 
-        // $payment = Payment::whereId($this->decodePrimaryKey($payment_id))->first();
+        $payment = Payment::whereId($this->decodePrimaryKey($payment_id))->first();
 
-        // $this->assertEquals($payment->amount, 15);
-        // $this->assertEquals($payment->applied, 10);
+        $this->assertEquals($payment->amount, 10);
+        $this->assertEquals($payment->applied, 10);
+
+    }
 
 
 
+    public function testCreditPayments()
+    {
+
+        $invoice = Invoice::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $this->client->id]);
+
+        $invoice->line_items = $this->buildLineItems();
+        $invoice->uses_inclusive_taxes = false;
+        $invoice->discount = 0;
+        $invoice->tax_rate1 = 0;
+        $invoice->tax_name1 = '';
+        $invoice->tax_rate2 = 0;
+        $invoice->tax_name2 = '';
+
+        $invoice_calc = new InvoiceSum($invoice);
+        $invoice_calc->build();
+        $invoice = $invoice_calc->getInvoice();
+        $invoice->setRelation('client', $this->client);
+        $invoice->setRelation('company', $this->company);
+        $invoice->service()->markSent()->save();
+
+        $credit = Credit::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $this->client->id]);
+
+        $credit->line_items = $this->buildLineItems();
+        $credit->uses_inclusive_taxes = false;
+        $credit->discount = 0;
+        $credit->tax_rate1 = 0;
+        $credit->tax_name1 = '';
+        $credit->tax_rate2 = 0;
+        $credit->tax_name2 = '';
+
+        // $invoice->save();
+        $invoice_calc = new InvoiceSum($credit);
+        $invoice_calc->build();
+        $credit = $invoice_calc->getCredit();
+        $credit->setRelation('client', $this->client);
+        $credit->setRelation('company', $this->company);
+        $credit->service()->markSent()->save();
+
+
+       $data = [
+            'amount' => 0,
+            'client_id' => $this->client->hashed_id,
+            'invoices' => [
+                [
+                    'invoice_id' => $invoice->hashed_id,
+                    'amount' => 10,
+                ],
+            ],
+            'credits' => [
+                [
+                    'credit_id' => $credit->hashed_id,
+                    'amount' => 5
+                ]
+            ],
+            'date' => '2019/12/12',
+        ];
+
+        $response = false;
+
+        try {
+            $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/payments/', $data);
+        } catch (ValidationException $e) {
+            $message = json_decode($e->validator->getMessageBag(), 1);
+            nlog($e->validator->getMessageBag());
+        }
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $payment_id = $arr['data']['id'];
+
+        $payment = Payment::whereId($this->decodePrimaryKey($payment_id))->first();
+
+        $this->assertEquals($payment->amount, 5);
+        $this->assertEquals($payment->applied, 5);
 
     }
 
