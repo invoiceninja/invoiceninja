@@ -81,7 +81,7 @@ class BankTransfer implements MethodInterface
                     'currency' => $this->mollie->client->currency()->code,
                     'value' => $this->mollie->convertToMollieAmount((float) $this->mollie->payment_hash->data->amount_with_fee),
                 ],
-                'description' => \sprintf('Invoices: %s', \implode(', ', collect($data['invoices'])->pluck('invoice_number')->toArray())),
+                'description' => \sprintf('%s: %s', ctrans('texts.invoices'), \implode(', ', collect($data['invoices'])->pluck('invoice_number')->toArray())),
                 'redirectUrl' => route('client.payments.response', [
                     'company_gateway_id' => $this->mollie->company_gateway->id,
                     'payment_hash' => $this->mollie->payment_hash->hash,
