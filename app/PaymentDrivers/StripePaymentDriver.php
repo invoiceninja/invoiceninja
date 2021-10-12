@@ -38,6 +38,7 @@ use App\PaymentDrivers\Stripe\GIROPAY;
 use App\PaymentDrivers\Stripe\iDeal;
 use App\PaymentDrivers\Stripe\EPS;
 use App\PaymentDrivers\Stripe\FPX;
+use App\PaymentDrivers\Stripe\Bancontact;
 use App\PaymentDrivers\Stripe\UpdatePaymentMethods;
 use App\PaymentDrivers\Stripe\Utilities;
 use App\Utils\Traits\MakesHash;
@@ -87,6 +88,7 @@ class StripePaymentDriver extends BaseDriver
         GatewayType::IDEAL => iDeal::class,
         GatewayType::EPS => EPS::class,
         GatewayType::FPX => FPX::class,
+        GatewayType::BANCONTACT => Bancontact::class,
     ];
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_STRIPE;
@@ -195,6 +197,13 @@ class StripePaymentDriver extends BaseDriver
 
         if ($this->client
             && $this->client->currency()
+            && ($this->client->currency()->code == 'EUR')
+            && isset($this->client->country)
+            && in_array($this->client->country->iso_3166_3, ["BEL"]))
+            $types[] = GatewayType::BANCONTACT;
+      
+        if ($this->client
+            && $this->client->currency()
             && ($this->client->currency()->code == 'MYR')
             && isset($this->client->country)
             && in_array($this->client->country->iso_3166_3, ["MYS"]))
@@ -233,6 +242,10 @@ class StripePaymentDriver extends BaseDriver
                 return 'gateways.stripe.ideal';
             case GatewayType::EPS:
                 return 'gateways.stripe.eps';
+            case GatewayType::BANCONTACT:
+                return 'gateways.stripe.bancontact';
+            case GatewayType::FPX:
+                return 'gateways.stripe.fpx';
             default:
                 break;
         }

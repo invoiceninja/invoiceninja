@@ -89,9 +89,9 @@ class SystemHealth
 
     public static function getPdfEngine()
     {
-        if(config('ninja.invoiceninja_hosted_pdf_generation'))
+        if(config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja')
             return 'Invoice Ninja Hosted PDF Generator';
-        elseif(config('ninja.phantomjs_pdf_generation'))
+        elseif(config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom')
             return 'Phantom JS Web Generator';
         else
             return 'SnapPDF PDF Generator';
