@@ -204,6 +204,7 @@ class PreviewController extends BaseController
             if($request->has('entity_id')){
 
                 $entity_obj = $class::on(config('database.default'))
+                                    ->with('client.contacts.company')
                                     ->where('id', $this->decodePrimaryKey($request->input('entity_id')))
                                     ->where('company_id', $company->id)
                                     ->withTrashed()
@@ -216,7 +217,7 @@ class PreviewController extends BaseController
             if(!$request->has('entity_id'))
                 $entity_obj->service()->fillDefaults()->save();
                 
-            $entity_obj->load('client.contacts','company');
+            // $entity_obj->load('client.contacts','client.company');
 
             App::forgetInstance('translator');
             $t = app('translator');

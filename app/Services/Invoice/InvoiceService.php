@@ -449,6 +449,8 @@ class InvoiceService
 
     public function fillDefaults()
     {
+        $this->invoice->load('client.company');
+        
         $settings = $this->invoice->client->getMergedSettings();
 
         if (! $this->invoice->design_id) 
