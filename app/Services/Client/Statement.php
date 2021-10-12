@@ -73,7 +73,7 @@ class Statement
 
         $state = [
             'template' => $template->elements([
-                'client' => $this->entity->client,
+                'client' => $this->client,
                 'entity' => $this->entity,
                 'pdf_variables' => (array)$this->entity->company->settings->pdf_variables,
                 '$product' => $this->getDesign()->design->product,
@@ -219,7 +219,7 @@ class Statement
      */
     protected function getInvoices(): Collection
     {
-        return Invoice::where('company_id', $this->client->company->id)
+        return Invoice::where('company_id', $this->client->company_id)
             ->where('client_id', $this->client->id)
             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
             ->whereBetween('date', [$this->options['start_date'], $this->options['end_date']])
@@ -234,7 +234,8 @@ class Statement
      */
     protected function getPayments(): Collection
     {
-        return Payment::where('company_id', $this->client->company->id)
+        return Payment::with('client.country','invoices')
+            ->where('company_id', $this->client->company_id)
             ->where('client_id', $this->client->id)
             ->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
             ->whereBetween('date', [$this->options['start_date'], $this->options['end_date']])
@@ -285,10 +286,7 @@ class Statement
         $from = $ranges[0];
         $to = $ranges[1];
 
-        $client = Client::where('id', $this->client->id)->first();
-
-        $amount = Invoice::where('company_id', $this->client->company->id)
-            ->where('client_id', $client->id)
+        $amount = Invoice::where('client_id', $this->client->id)
             ->where('company_id', $this->client->company_id)
             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
             ->where('balance', '>', 0)
@@ -296,7 +294,7 @@ class Statement
             ->whereBetween('date', [$to, $from])
             ->sum('balance');
 
-        return Number::formatMoney($amount, $client);
+        return Number::formatMoney($amount, $this->client);
     }
 
     /**
