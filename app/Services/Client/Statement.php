@@ -291,7 +291,7 @@ class Statement
             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
             ->where('balance', '>', 0)
             ->where('is_deleted', 0)
-            ->whereBetween('date', [$to, $from])
+            ->whereBetween('due_date', [$to, $from])
             ->sum('balance');
 
         return Number::formatMoney($amount, $this->client);
@@ -326,7 +326,7 @@ class Statement
                 return $ranges;
             case '120+':
                 $ranges[0] = now()->startOfDay()->subDays(120);
-                $ranges[1] = now()->startOfDay()->subYears(40);
+                $ranges[1] = now()->startOfDay()->subYears(20);
                 return $ranges;
             default:
                 $ranges[0] = now()->startOfDay()->subDays(0);
