@@ -80,8 +80,6 @@ class GatewayType extends StaticModel
                 return ctrans('texts.giropay');
             case self::EPS:
                 return ctrans('texts.eps');
-            case self::BACS:
-                return ctrans('text.bacs');
             case self::BECS:
                 return ctrans('tets.becs');
             default:
