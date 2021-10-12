@@ -57,31 +57,52 @@ class ProcessSEPA {
     };
 
     handle = () => {
+        Array
+            .from(document.getElementsByClassName('toggle-payment-with-token'))
+            .forEach((element) => element.addEventListener('click', (element) => {
+                document.getElementById('stripe--payment-container').classList.add('hidden');
+                document.getElementById('save-card--container').style.display = 'none';
+                document.querySelector('input[name=token]').value = element.target.dataset.token;
+            }));
+
+        document
+            .getElementById('toggle-payment-with-new-bank-account')
+            .addEventListener('click', (element) => {
+                document.getElementById('stripe--payment-container').classList.remove('hidden');
+                document.getElementById('save-card--container').style.display = 'grid';
+                document.querySelector('input[name=token]').value = "";
+            });
+
         document.getElementById('pay-now').addEventListener('click', (e) => {
+            if (document.querySelector('input[name=token]').value.length !== 0) {
+                document.querySelector('#errors').hidden = true;
+                
+                return document.querySelector('#server-response').submit();
+            }
 
-        let errors = document.getElementById('errors');
+            let errors = document.getElementById('errors');
 
-        if (document.getElementById('sepa-name').value === "") {
-            document.getElementById('sepa-name').focus();
-            errors.textContent = "Name required.";
-            errors.hidden = false;
-            return;
-        }
+            if (document.getElementById('sepa-name').value === "") {
+                document.getElementById('sepa-name').focus();
+                errors.textContent = "Name required.";
+                errors.hidden = false;
+                return;
+            }
 
-        if (document.getElementById('sepa-email-address').value === "") {
-            document.getElementById('sepa-email-address').focus();
-            errors.textContent = "Email required.";
-            errors.hidden = false;
-            return ;
-        }
+            if (document.getElementById('sepa-email-address').value === "") {
+                document.getElementById('sepa-email-address').focus();
+                errors.textContent = "Email required.";
+                errors.hidden = false;
+                return;
+            }
 
 
-        if (!document.getElementById('sepa-mandate-acceptance').checked) {
-            errors.textContent = "Accept Terms";
-            errors.hidden = false;
-            console.log("Terms");
-            return ;
-        }
+            if (!document.getElementById('sepa-mandate-acceptance').checked) {
+                errors.textContent = "Accept Terms";
+                errors.hidden = false;
+                console.log("Terms");
+                return;
+            }
 
             document.getElementById('pay-now').disabled = true;
             document.querySelector('#pay-now > svg').classList.remove('hidden');
