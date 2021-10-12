@@ -51,6 +51,7 @@ class PaymentType extends StaticModel
     const PRZELEWY24 = 40;
     const EPS = 41;
     const BECS = 43;
+    const ACSS = 44;
 
     public static function parseCardType($cardName)
     {

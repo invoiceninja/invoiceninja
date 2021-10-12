@@ -11,6 +11,8 @@
 
 namespace App\Models;
 
+use function Symfony\Component\String\s;
+
 class GatewayType extends StaticModel
 {
     public $timestamps = false;
@@ -32,7 +34,7 @@ class GatewayType extends StaticModel
     const GIROPAY = 15;
     const PRZELEWY24 = 16;
     const EPS = 17;
-    const BACS = 19;
+    const ACSS = 19;
     const BECS = 20;
 
     public function gateway()
@@ -82,6 +84,8 @@ class GatewayType extends StaticModel
                 return ctrans('texts.eps');
             case self::BECS:
                 return ctrans('tets.becs');
+            case self::ACSS:
+                return ctrans('texts.acss');
             default:
                 return 'Undefined.';
                 break;
