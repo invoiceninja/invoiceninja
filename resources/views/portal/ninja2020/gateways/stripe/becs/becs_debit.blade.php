@@ -10,10 +10,10 @@
         <input type="hidden" name="store_card">
 
         <label for="becs-name">
-            <input class="input w-full" id="becs-name" type="text" placeholder="{{ ctrans('texts.bank_account_holder') }}">
+            <input class="input w-full" id="becs-name" type="text" placeholder="{{ ctrans('texts.bank_account_holder') }}" required>
         </label>
         <label for="becs-email" >
-            <input class="input w-full" id="becs-email-address" type="email" placeholder="{{ ctrans('texts.email') }}">
+            <input class="input w-full" id="becs-email-address" type="email" placeholder="{{ ctrans('texts.email') }}" required>
         </label>
         <label>
             <div class="border p-4 rounded">

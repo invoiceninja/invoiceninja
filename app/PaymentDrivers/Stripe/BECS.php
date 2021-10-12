@@ -49,6 +49,7 @@ class BECS
             'amount' => $data['stripe_amount'],
             'currency' => 'eur',
             'payment_method_types' => ['au_becs_debit'],
+            'setup_future_usage' => 'off_session',
             'customer' => $this->stripe->findOrCreateCustomer(),
             'description' => $this->stripe->decodeUnicodeString(ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number')),
 
