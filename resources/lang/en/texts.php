@@ -4332,7 +4332,7 @@ $LANG = array(
     'you_need_to_accept_the_terms_before_proceeding' => 'You need to accept the terms before proceeding.',
     'clone_to_expense' => 'Clone to expense',
     'checkout' => 'Checkout',
-
+    'acss' => 'Pre-authorized debit payments',
 );
 
 return $LANG;
