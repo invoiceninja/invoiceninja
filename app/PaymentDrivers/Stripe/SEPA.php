@@ -29,6 +29,8 @@ class SEPA
     public function __construct(StripePaymentDriver $stripe)
     {
         $this->stripe = $stripe;
+
+        $this->stripe->init();
     }
 
     public function authorizeView($data)
@@ -73,7 +75,7 @@ class SEPA
 
         if (property_exists($gateway_response, 'status') && $gateway_response->status == 'processing') {
             
-            $this->stripe->init();
+    
             $this->storePaymentMethod($gateway_response);
 
             return $this->processSuccessfulPayment($gateway_response->id);
@@ -85,7 +87,7 @@ class SEPA
 
     public function processSuccessfulPayment(string $payment_intent)
     {
-        $this->stripe->init();
+
 
         $data = [
             'payment_method' => $payment_intent,
