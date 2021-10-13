@@ -109,21 +109,21 @@ class ProcessSEPA {
 
             if (document.getElementById('sepa-name').value === "") {
                 document.getElementById('sepa-name').focus();
-                errors.textContent = "Name required.";
+                errors.textContent =  document.querySelector('meta[name=translation-name-required]').content;
                 errors.hidden = false;
                 return;
             }
 
             if (document.getElementById('sepa-email-address').value === "") {
                 document.getElementById('sepa-email-address').focus();
-                errors.textContent = "Email required.";
+                errors.textContent = document.querySelector('meta[name=translation-email-required]').content;
                 errors.hidden = false;
                 return;
             }
 
 
             if (!document.getElementById('sepa-mandate-acceptance').checked) {
-                errors.textContent = "Accept Terms";
+                errors.textContent = document.querySelector('meta[name=translation-terms-required]').content;
                 errors.hidden = false;
                 console.log("Terms");
                 return;
