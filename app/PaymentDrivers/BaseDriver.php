@@ -403,9 +403,7 @@ class BaseDriver extends AbstractPaymentDriver
             
             });
 
-
         }
-
 
         SystemLogger::dispatch(
             $gateway->payment_hash,
@@ -620,19 +618,25 @@ class BaseDriver extends AbstractPaymentDriver
     {
         $types = [];
 
-        // if($type == GatewayType::BANK_TRANSFER && $this->company_gateway->fees_and_limits->{GatewayType::BANK_TRANSFER}->is_enabled)
-        // {
-        //     $types[] = $type;    
-        // }
-        // elseif($type == GatewayType::CREDIT_CARD && $this->company_gateway->fees_and_limits->{GatewayType::CREDIT_CARD}->is_enabled)
-        // {
-        //     $types[] = $type;    
-        // }
-
         $types[] = GatewayType::CREDIT_CARD;
         $types[] = GatewayType::BANK_TRANSFER;
 
         return $types;
+    }
+
+    /**
+     * Generic description handler
+     */
+    public function getDescription(bool $abbreviated = true)
+    {
+        if(!$this->payment_hash)
+            return "";
+
+        if($abbreviated)
+            return \implode(', ', collect($this->payment_hash->invoices())->pluck('invoice_number')->toArray());
+
+        return sprintf('%s: %s', ctrans('texts.invoices'), \implode(', ', collect($this->payment_hash->invoices())->pluck('invoice_number')->toArray()));
+
     }
 
     public function disconnect()
