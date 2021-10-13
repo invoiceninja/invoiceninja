@@ -14,13 +14,23 @@ namespace App\PaymentDrivers\Stripe;
 
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Http\Requests\Request;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
+use App\Mail\Gateways\ACHVerificationNotification;
+use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
+use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
+use Stripe\Customer;
+use Stripe\Exception\CardException;
+use Stripe\Exception\InvalidRequestException;
 
 class ACSS
 {
@@ -30,11 +40,92 @@ class ACSS
     public function __construct(StripePaymentDriver $stripe)
     {
         $this->stripe = $stripe;
+        $this->stripe->init();
     }
 
     public function authorizeView($data)
     {
-        return render('gateways.stripe.acss.authorize', $data);
+        $data['gateway'] = $this->stripe;
+
+        return render('gateways.stripe.acss.authorize', array_merge($data));
+    }
+    public function authorizeResponse(Request $request)
+    {
+        $stripe_response = json_decode($request->input('gateway_response'));
+
+        $customer = $this->stripe->findOrCreateCustomer();
+
+        try {
+            $source = Customer::createSource($customer->id, ['source' => $stripe_response->token->id], $this->stripe->stripe_connect_auth);
+
+        } catch (InvalidRequestException $e) {
+            throw new PaymentFailed($e->getMessage(), $e->getCode());
+        }
+
+        $client_gateway_token = $this->storePaymentMethod($source, $request->input('method'), $customer);
+
+        $verification = route('client.payment_methods.verification', ['payment_method' => $client_gateway_token->hashed_id, 'method' => GatewayType::ACSS], false);
+
+        $mailer = new NinjaMailerObject();
+
+        $mailer->mailable = new ACHVerificationNotification(
+            auth('contact')->user()->client->company,
+            route('client.contact_login', ['contact_key' => auth('contact')->user()->contact_key, 'next' => $verification])
+        );
+
+        $mailer->company = auth('contact')->user()->client->company;
+        $mailer->settings = auth('contact')->user()->client->company->settings;
+        $mailer->to_user = auth('contact')->user();
+
+        NinjaMailerJob::dispatch($mailer);
+
+        return redirect()->route('client.payment_methods.verification', ['payment_method' => $client_gateway_token->hashed_id, 'method' => GatewayType::ACSS]);
+    }
+
+    public function verificationView(ClientGatewayToken $token)
+    {
+        if (isset($token->meta->state) && $token->meta->state === 'authorized') {
+            return redirect()
+                ->route('client.payment_methods.show', $token->hashed_id)
+                ->with('message', __('texts.payment_method_verified'));
+        }
+
+        $data = [
+            'token' => $token,
+            'gateway' => $this->stripe,
+        ];
+
+        return render('gateways.stripe.acss.verify', $data);
+    }
+
+    public function processVerification(Request $request, ClientGatewayToken $token)
+    {
+        $request->validate([
+            'transactions.*' => ['integer', 'min:1'],
+        ]);
+
+        if (isset($token->meta->state) && $token->meta->state === 'authorized') {
+            return redirect()
+                ->route('client.payment_methods.show', $token->hashed_id)
+                ->with('message', __('texts.payment_method_verified'));
+        }
+
+        $bank_account = Customer::retrieveSource($request->customer, $request->source, [], $this->stripe->stripe_connect_auth);
+
+        try {
+            $bank_account->verify(['amounts' => request()->transactions]);
+
+            $meta = $token->meta;
+            $meta->state = 'authorized';
+            $token->meta = $meta;
+            $token->save();
+
+            return redirect()
+                ->route('client.payment_methods.show', $token->hashed_id)
+                ->with('message', __('texts.payment_method_verified'));
+        } catch (CardException $e) {
+            return back()->with('error', $e->getMessage());
+        }
     }
 
     public function paymentView(array $data)
@@ -91,13 +182,9 @@ class ACSS
         $this->stripe->payment_hash->save();
 
         if (property_exists($gateway_response, 'status') && $gateway_response->status == 'processing') {
-
-            $this->stripe->init();
             $this->storePaymentMethod($gateway_response);
-
             return $this->processSuccessfulPayment($gateway_response->id);
         }
-
         return $this->processUnsuccessfulPayment();
 
     }
@@ -105,8 +192,6 @@ class ACSS
     public function processSuccessfulPayment(string $payment_intent)
     {
         /* @todo: https://github.com/invoiceninja/invoiceninja/pull/3789/files#r436175798 */
-
-        $this->stripe->init();
 
         $data = [
             'payment_method' => $payment_intent,
