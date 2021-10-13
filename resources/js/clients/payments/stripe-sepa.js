@@ -134,6 +134,15 @@ class ProcessSEPA {
             'input[name="gateway_response"]'
         ).value = JSON.stringify(result.paymentIntent);
 
+        let tokenBillingCheckbox = document.querySelector(
+            'input[name="token-billing-checkbox"]:checked'
+        );
+
+        if (tokenBillingCheckbox) {
+            document.querySelector('input[name="store_card"]').value =
+                tokenBillingCheckbox.value;
+        }
+
         document.getElementById('server-response').submit();
     }
 

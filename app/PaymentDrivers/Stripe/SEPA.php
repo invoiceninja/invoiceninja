@@ -67,16 +67,15 @@ class SEPA
 
     public function paymentResponse(PaymentResponseRequest $request)
     {
-
         $gateway_response = json_decode($request->gateway_response);
 
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, $request->all());
         $this->stripe->payment_hash->save();
 
         if (property_exists($gateway_response, 'status') && $gateway_response->status == 'processing') {
-            
-    
-            $this->storePaymentMethod($gateway_response);
+            if ($request->store_card) {
+                $this->storePaymentMethod($gateway_response);
+            }
 
             return $this->processSuccessfulPayment($gateway_response->id);
         }
@@ -97,7 +96,7 @@ class SEPA
             'gateway_type_id' => GatewayType::SEPA,
         ];
 
-        $this->stripe->createPayment($data, Payment::STATUS_PENDING);
+        $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);
 
         SystemLogger::dispatch(
             ['response' => $this->stripe->payment_hash->data, 'data' => $data],
@@ -108,7 +107,7 @@ class SEPA
             $this->stripe->client->company,
         );
 
-        return redirect()->route('client.payments.index');
+        return redirect()->route('client.payments.show', $payment->hashed_id);
     }
 
     public function processUnsuccessfulPayment()
