@@ -243,26 +243,17 @@ class CheckoutComPaymentDriver extends BaseDriver
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
         $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->withTrashed()->first();
 
-        if ($invoice) {
-            $description = "Invoice {$invoice->number} for {$amount} for client {$this->client->present()->name()}";
-        } else {
-            $description = "Payment with no invoice for amount {$amount} for client {$this->client->present()->name()}";
-        }
-
         $this->init();
 
         $method = new IdSource($cgt->token);
 
         $payment = new \Checkout\Models\Payments\Payment($method, $this->client->getCurrencyCode());
         $payment->amount = $this->convertToCheckoutAmount($amount, $this->client->getCurrencyCode());
-        //$payment->reference = $cgt->meta->last4 . '-' . now();
         $payment->reference = $invoice->number . '-' . now();
 
         $request = new PaymentResponseRequest();
         $request->setMethod('POST');
         $request->request->add(['payment_hash' => $payment_hash->hash]);
-
-        //$this->setPaymentHash($payment_hash);
 
         try {
             $response = $this->gateway->payments()->request($payment);

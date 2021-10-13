@@ -195,15 +195,15 @@ class Design extends BaseDesign
         if ($this->type == self::DELIVERY_NOTE) {
             $elements = [
                 ['element' => 'p', 'content' => ctrans('texts.delivery_note'), 'properties' => ['data-ref' => 'delivery_note-label', 'style' => 'font-weight: bold; text-transform: uppercase']],
-                ['element' => 'p', 'content' => $this->entity->client->name, 'show_empty' => false, 'properties' => ['data-ref' => 'delivery_note-client.name']],
-                ['element' => 'p', 'content' => $this->entity->client->shipping_address1, 'show_empty' => false, 'properties' => ['data-ref' => 'delivery_note-client.shipping_address1']],
-                ['element' => 'p', 'content' => $this->entity->client->shipping_address2, 'show_empty' => false, 'properties' => ['data-ref' => 'delivery_note-client.shipping_address2']],
+                ['element' => 'p', 'content' => $this->client->name, 'show_empty' => false, 'properties' => ['data-ref' => 'delivery_note-client.name']],
+                ['element' => 'p', 'content' => $this->client->shipping_address1, 'show_empty' => false, 'properties' => ['data-ref' => 'delivery_note-client.shipping_address1']],
+                ['element' => 'p', 'content' => $this->client->shipping_address2, 'show_empty' => false, 'properties' => ['data-ref' => 'delivery_note-client.shipping_address2']],
                 ['element' => 'p', 'show_empty' => false, 'elements' => [
-                    ['element' => 'span', 'content' => "{$this->entity->client->shipping_city} ", 'properties' => ['ref' => 'delivery_note-client.shipping_city']],
-                    ['element' => 'span', 'content' => "{$this->entity->client->shipping_state} ", 'properties' => ['ref' => 'delivery_note-client.shipping_state']],
-                    ['element' => 'span', 'content' => "{$this->entity->client->shipping_postal_code} ", 'properties' => ['ref' => 'delivery_note-client.shipping_postal_code']],
+                    ['element' => 'span', 'content' => "{$this->client->shipping_city} ", 'properties' => ['ref' => 'delivery_note-client.shipping_city']],
+                    ['element' => 'span', 'content' => "{$this->client->shipping_state} ", 'properties' => ['ref' => 'delivery_note-client.shipping_state']],
+                    ['element' => 'span', 'content' => "{$this->client->shipping_postal_code} ", 'properties' => ['ref' => 'delivery_note-client.shipping_postal_code']],
                 ]],
-                ['element' => 'p', 'content' => optional($this->entity->client->shipping_country)->name, 'show_empty' => false],
+                ['element' => 'p', 'content' => optional($this->client->shipping_country)->name, 'show_empty' => false],
             ];
 
             if (!is_null($this->context['contact'])) {
@@ -232,7 +232,7 @@ class Design extends BaseDesign
                 ]],
                 ['element' => 'tr', 'properties' => [], 'elements' => [
                     ['element' => 'th', 'properties' => [], 'content' => '$balance_due_label'],
-                    ['element' => 'th', 'properties' => [], 'content' => Number::formatMoney($this->invoices->sum('balance'), $this->entity->client)],
+                    ['element' => 'th', 'properties' => [], 'content' => Number::formatMoney($this->invoices->sum('balance'), $this->client)],
                 ]],
             ];
         }
@@ -363,10 +363,10 @@ class Design extends BaseDesign
             $element = ['element' => 'tr', 'elements' => []];
 
             $element['elements'][] = ['element' => 'td', 'content' => $invoice->number];
-            $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($invoice->date, $invoice->client->date_format(), $invoice->client->locale()) ?: '&nbsp;'];
-            $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($invoice->due_date, $invoice->client->date_format(), $invoice->client->locale()) ?: '&nbsp;'];
-            $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($invoice->amount, $invoice->client) ?: '&nbsp;'];
-            $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($invoice->balance, $invoice->client) ?: '&nbsp;'];
+            $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($invoice->date, $this->client->date_format(), $this->client->locale()) ?: '&nbsp;'];
+            $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($invoice->due_date, $this->client->date_format(), $this->client->locale()) ?: '&nbsp;'];
+            $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($invoice->amount, $this->client) ?: '&nbsp;'];
+            $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($invoice->balance, $this->client) ?: '&nbsp;'];
 
             $tbody[] = $element;
         }
@@ -386,7 +386,7 @@ class Design extends BaseDesign
         $outstanding = $this->invoices->sum('balance');
 
         return [
-            ['element' => 'p', 'content' => '$outstanding_label: ' . Number::formatMoney($outstanding, $this->entity->client)],
+            ['element' => 'p', 'content' => '$outstanding_label: ' . Number::formatMoney($outstanding, $this->client)],
         ];
     }
 
@@ -412,9 +412,9 @@ class Design extends BaseDesign
                 $element = ['element' => 'tr', 'elements' => []];
 
                 $element['elements'][] = ['element' => 'td', 'content' => $invoice->number];
-                $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($payment->date, $payment->client->date_format(), $payment->client->locale()) ?: '&nbsp;'];
+                $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($payment->date, $this->client->date_format(), $this->client->locale()) ?: '&nbsp;'];
                 $element['elements'][] = ['element' => 'td', 'content' => $payment->type ? $payment->type->name : ctrans('texts.manual_entry')];
-                $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($payment->amount, $payment->client) ?: '&nbsp;'];
+                $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($payment->amount, $this->client) ?: '&nbsp;'];
 
                 $tbody[] = $element;
             }
@@ -439,7 +439,7 @@ class Design extends BaseDesign
         $payment = $this->payments->first();
 
         return [
-            ['element' => 'p', 'content' => \sprintf('%s: %s', ctrans('texts.amount_paid'), Number::formatMoney($this->payments->sum('amount'), $payment->client))],
+            ['element' => 'p', 'content' => \sprintf('%s: %s', ctrans('texts.amount_paid'), Number::formatMoney($this->payments->sum('amount'), $this->client))],
         ];
     }
 
@@ -626,7 +626,7 @@ class Design extends BaseDesign
                 ['element' => 'p', 'content' => strtr($_variables['values']['$entity.public_notes'], $_variables), 'properties' => ['data-ref' => 'total_table-public_notes', 'style' => 'text-align: left;']],
                 ['element' => 'p', 'content' => '', 'properties' => ['style' => 'text-align: left; display: flex; flex-direction: column;'], 'elements' => [
                     ['element' => 'span', 'content' => '$entity.terms_label: ', 'properties' => ['hidden' => $this->entityVariableCheck('$entity.terms'), 'data-ref' => 'total_table-terms-label', 'style' => 'font-weight: bold; text-align: left; margin-top: 1rem;']],
-                    ['element' => 'span', 'content' => strtr($_variables['values']['$entity.terms'], $_variables), 'properties' => ['data-ref' => 'total_table-terms', 'style' => 'text-align: left;']],
+                    ['element' => 'span', 'content' => strtr($_variables['values']['$entity.terms'], $_variables['labels']), 'properties' => ['data-ref' => 'total_table-terms', 'style' => 'text-align: left;']],
                 ]],
                 ['element' => 'img', 'properties' => ['style' => 'max-width: 50%; height: auto;', 'src' => '$contact.signature', 'id' => 'contact-signature']],
                 ['element' => 'div', 'properties' => ['style' => 'margin-top: 1.5rem; display: flex; align-items: flex-start;'], 'elements' => [

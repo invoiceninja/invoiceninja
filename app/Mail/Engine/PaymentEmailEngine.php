@@ -46,7 +46,7 @@ class PaymentEmailEngine extends BaseEmailEngine
         $this->payment = $payment;
         $this->company = $payment->company;
         $this->client = $payment->client;
-        $this->contact = $contact ?: $this->client->primary_contact()->first();
+        $this->contact = $contact ?: $this->client->contacts()->first();
         $this->contact->load('client.company');
         $this->settings = $this->client->getMergedSettings();
         $this->template_data = $template_data;
