@@ -77,4 +77,24 @@ class SEPATest extends DuskTestCase
                 ->waitForText('Details of the payment', 60);
         });
     }
+
+    public function testPayingWithNewSEPABankAccountAndSaveForFuture(): void
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.invoices.index')
+                ->click('@pay-now')
+                ->click('@pay-now-dropdown')
+                ->clickLink('SEPA Direct Debit')
+                ->type('#sepa-name', 'John Doe')
+                ->type('#sepa-email-address', 'test@invoiceninja.com')
+                ->withinFrame('iframe', function (Browser $browser) {
+                    $browser->type('iban', 'DE89370400440532013000');
+                })
+                ->check('#sepa-mandate-acceptance', true)
+                ->radio('#proxy_is_default', true)
+                ->click('#pay-now')
+                ->waitForText('Details of the payment', 60);
+        });
+    }
 }
