@@ -54,10 +54,18 @@ class SEPA
             'setup_future_usage' => 'off_session',
             'customer' => $this->stripe->findOrCreateCustomer(),
             'description' => $this->stripe->decodeUnicodeString(ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number')),
-
         ]);
 
         $data['pi_client_secret'] = $intent->client_secret;
+
+        if (count($data['tokens']) > 0) {
+            $setup_intent = $this->stripe->stripe->setupIntents->create([
+                'payment_method_types' => ['sepa_debit'],
+                'customer' => $this->stripe->findOrCreateCustomer()->id,
+            ]);
+            
+            $data['si_client_secret'] = $setup_intent->client_secret;
+        }
 
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['stripe_amount' => $data['stripe_amount']]);
         $this->stripe->payment_hash->save();
@@ -72,7 +80,7 @@ class SEPA
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, $request->all());
         $this->stripe->payment_hash->save();
 
-        if (property_exists($gateway_response, 'status') && $gateway_response->status == 'processing') {
+        if (property_exists($gateway_response, 'status') && ($gateway_response->status == 'processing' || $gateway_response->status === 'succeeded')) {
             if ($request->store_card) {
                 $this->storePaymentMethod($gateway_response);
             }

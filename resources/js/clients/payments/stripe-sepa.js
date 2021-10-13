@@ -57,6 +57,8 @@ class ProcessSEPA {
     };
 
     handle = () => {
+        let errors = document.getElementById('errors');
+
         Array
             .from(document.getElementsByClassName('toggle-payment-with-token'))
             .forEach((element) => element.addEventListener('click', (element) => {
@@ -72,15 +74,38 @@ class ProcessSEPA {
                 document.getElementById('save-card--container').style.display = 'grid';
                 document.querySelector('input[name=token]').value = "";
             });
+            
 
         document.getElementById('pay-now').addEventListener('click', (e) => {
             if (document.querySelector('input[name=token]').value.length !== 0) {
                 document.querySelector('#errors').hidden = true;
-                
-                return document.querySelector('#server-response').submit();
-            }
 
-            let errors = document.getElementById('errors');
+                document.getElementById('pay-now').disabled = true;
+                document.querySelector('#pay-now > svg').classList.remove('hidden');
+                document.querySelector('#pay-now > span').classList.add('hidden');
+
+                this.stripe.confirmSepaDebitSetup(document.querySelector('meta[name=si-client-secret').content, {
+                    payment_method: document.querySelector('input[name=token]').value
+                })
+                    .then((result) => {
+                        if (result.error) {
+                            console.error(error);
+
+                            return;
+                        }
+
+                        document.querySelector(
+                            'input[name="gateway_response"]'
+                        ).value = JSON.stringify(result.setupIntent);
+
+                        return document.querySelector('#server-response').submit();
+                    }).catch((error) => {
+                        errors.textContent = error;
+                        errors.hidden = false;
+                    });
+
+                return;
+            }
 
             if (document.getElementById('sepa-name').value === "") {
                 document.getElementById('sepa-name').focus();
