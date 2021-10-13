@@ -210,6 +210,10 @@ class RecurringInvoiceController extends BaseController
         $recurring_invoice->next_send_date = Carbon::parse($recurring_invoice->next_send_date)->startOfDay()->addSeconds($offset);
         $recurring_invoice->save();
 
+        $recurring_invoice->service()
+                          ->triggeredActions($request)
+                          ->save();
+
         return $this->itemResponse($recurring_invoice);
     }
 

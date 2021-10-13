@@ -97,6 +97,20 @@ class RecurringService
         return $this;
     }
     
+    public function triggeredActions($request)
+    {
+
+        if ($request->has('start') && $request->input('start') == 'true') {
+            $this->start();
+        }
+
+        if ($request->has('stop') && $request->input('stop') == 'true') {
+            $this->stop();
+        }
+        
+        return $this;
+    }
+
     public function fillDefaults()
     {
 
