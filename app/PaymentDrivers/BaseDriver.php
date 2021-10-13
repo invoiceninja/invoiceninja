@@ -378,7 +378,7 @@ class BaseDriver extends AbstractPaymentDriver
             $this->payment_hash
         );
 
-        if (!is_null($this->payment_hash)) {
+        if ($this->payment_hash && is_array($this->payment_hash->invoices())) {
 
             $nmo = new NinjaMailerObject;
             $nmo->mailable = new NinjaMailer((new ClientPaymentFailureObject($gateway->client, $error, $gateway->client->company, $this->payment_hash))->build());

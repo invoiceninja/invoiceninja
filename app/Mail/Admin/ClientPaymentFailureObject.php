@@ -62,7 +62,7 @@ class ClientPaymentFailureObject
         /* Init a new copy of the translator*/
         $t = app('translator');
         /* Set the locale*/
-        App::setLocale($this->company->getLocale());
+        App::setLocale($this->client->locale());
         /* Set customized translations _NOW_ */
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
