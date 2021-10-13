@@ -176,6 +176,8 @@ class CreditCard
 
                 PaymentFailureMailer::dispatch($this->checkout->client, $response->response_summary, $this->checkout->client->company, $this->checkout->payment_hash->data->value);
 
+                $this->checkout->clientPaymentFailureMailer($response->status);
+                
                 return $this->processUnsuccessfulPayment($response);
             }
         } catch (CheckoutHttpException $e) {
