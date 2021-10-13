@@ -378,12 +378,30 @@ class BaseDriver extends AbstractPaymentDriver
             $this->payment_hash
         );
 
+        SystemLogger::dispatch(
+            $gateway->payment_hash,
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_ERROR,
+            $gateway::SYSTEM_LOG_TYPE,
+            $gateway->client,
+            $gateway->client->company,
+        );
+
+        throw new PaymentFailed($error, $e->getCode());
+    }
+
+    public function clientPaymentFailureMailer($error)
+    {
+nlog("outside");
+
         if ($this->payment_hash && is_array($this->payment_hash->invoices())) {
 
+nlog("inside");
+
             $nmo = new NinjaMailerObject;
-            $nmo->mailable = new NinjaMailer((new ClientPaymentFailureObject($gateway->client, $error, $gateway->client->company, $this->payment_hash))->build());
-            $nmo->company = $gateway->client->company;
-            $nmo->settings = $gateway->client->company->settings;
+            $nmo->mailable = new NinjaMailer((new ClientPaymentFailureObject($this->client, $error, $this->client->company, $this->payment_hash))->build());
+            $nmo->company = $this->client->company;
+            $nmo->settings = $this->client->company->settings;
 
             $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
 
@@ -405,16 +423,6 @@ class BaseDriver extends AbstractPaymentDriver
 
         }
 
-        SystemLogger::dispatch(
-            $gateway->payment_hash,
-            SystemLog::CATEGORY_GATEWAY_RESPONSE,
-            SystemLog::EVENT_GATEWAY_ERROR,
-            $gateway::SYSTEM_LOG_TYPE,
-            $gateway->client,
-            $gateway->client->company,
-        );
-
-        throw new PaymentFailed($error, $e->getCode());
     }
 
     /**
