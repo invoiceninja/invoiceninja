@@ -51,6 +51,30 @@ class SEPATest extends DuskTestCase
         // SEPA required DE to be billing country.
         $client = Client::first();
         $client->country_id = 276;
+
+        $settings = $client->settings;
+        $settings->currency_id = "3";
+
+        $client->settings = $settings;
         $client->save();
+    }
+
+    public function testPayingWithNewSEPABankAccount(): void
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.invoices.index')
+                ->click('@pay-now')
+                ->click('@pay-now-dropdown')
+                ->clickLink('SEPA Direct Debit')
+                ->type('#sepa-name', 'John Doe')
+                ->type('#sepa-email-address', 'test@invoiceninja.com')
+                ->withinFrame('iframe', function (Browser $browser) {
+                    $browser->type('iban', 'DE89370400440532013000');
+                })
+                ->check('#sepa-mandate-acceptance', true)
+                ->click('#pay-now')
+                ->waitForText('Details of the payment', 60);
+        });
     }
 }
