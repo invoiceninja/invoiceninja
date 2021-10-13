@@ -629,7 +629,7 @@ class InvoiceController extends BaseController
     }
 
     private function performAction(Invoice $invoice, $action, $bulk = false)
-    {
+    {   
         /*If we are using bulk actions, we don't want to return anything */
         switch ($action) {
             case 'clone_to_invoice':
