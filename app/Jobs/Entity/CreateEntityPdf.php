@@ -93,7 +93,8 @@ class CreateEntityPdf implements ShouldQueue
         $this->contact = $invitation->contact;
 
         $this->client = $invitation->contact->client;
-
+        $this->client->load('company');
+        
         $this->disk = Ninja::isHosted() ? config('filesystems.default') : $disk;
 
     }
@@ -107,7 +108,7 @@ class CreateEntityPdf implements ShouldQueue
         /* Init a new copy of the translator*/
         $t = app('translator');
         /* Set the locale*/
-        App::setLocale($this->contact->preferredLocale());
+        App::setLocale($this->client->locale());
 
         /* Set customized translations _NOW_ */
         $t->replace(Ninja::transformTranslations($this->client->getMergedSettings()));

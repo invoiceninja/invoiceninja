@@ -88,7 +88,6 @@ class CreditCard
             'raw_value' => $request->raw_value,
             'currency' => $request->currency,
             'payment_hash' => $request->payment_hash,
-            'reference' => $request->payment_hash,
             'client_id' => $this->checkout->client->id,
         ];
 
@@ -134,9 +133,10 @@ class CreditCard
 
     private function completePayment($method, PaymentResponseRequest $request)
     {
+
         $payment = new Payment($method, $this->checkout->payment_hash->data->currency);
         $payment->amount = $this->checkout->payment_hash->data->value;
-        $payment->reference = $this->checkout->payment_hash->data->reference;
+        $payment->reference = $this->checkout->getDescription();
 
         $this->checkout->payment_hash->data = array_merge((array)$this->checkout->payment_hash->data, ['checkout_payment_ref' => $payment]);
         $this->checkout->payment_hash->save();
@@ -145,6 +145,12 @@ class CreditCard
             $payment->{'3ds'} = ['enabled' => true];
 
             $payment->{'success_url'} = route('checkout.3ds_redirect', [
+                'company_key' => $this->checkout->client->company->company_key,
+                'company_gateway_id' => $this->checkout->company_gateway->hashed_id,
+                'hash' => $this->checkout->payment_hash->hash,
+            ]);
+
+            $payment->{'failure_url'} = route('checkout.3ds_redirect', [
                 'company_key' => $this->checkout->client->company->company_key,
                 'company_gateway_id' => $this->checkout->company_gateway->hashed_id,
                 'hash' => $this->checkout->payment_hash->hash,

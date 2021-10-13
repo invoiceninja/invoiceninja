@@ -53,6 +53,9 @@ class InvoiceSum
     {
         $this->invoice = $invoice;
 
+        // if(!$this->invoice->relationLoaded('client'))
+        //     $this->invoice->load('client');
+
         $this->tax_map = new Collection;
     }
 

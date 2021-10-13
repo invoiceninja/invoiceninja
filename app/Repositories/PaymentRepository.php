@@ -89,11 +89,11 @@ class PaymentRepository extends BaseRepository {
             if (array_key_exists('credits', $data) && is_array($data['credits']) && count($data['credits']) > 0) {
                 $_credit_totals = array_sum(array_column($data['credits'], 'amount'));
 
-                if ($data['amount'] == $_credit_totals) {
-                    $data['amount'] = 0;
-                } else {
+                // if ($data['amount'] == $_credit_totals) {
+                //     $data['amount'] = 0;
+                // } else {
                     $client->service()->updatePaidToDate($_credit_totals)->save();
-                }
+                // }
             }
 
         }
@@ -169,11 +169,6 @@ class PaymentRepository extends BaseRepository {
 
             event( new PaymentWasCreated( $payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null) ) );
 		}
-
-        // nlog("payment amount = {$payment->amount}");
-        // nlog("payment applied = {$payment->applied}");
-        // nlog("invoice totals = {$invoice_totals}");
-        // nlog("credit totals = {$credit_totals}");
 
         $payment->applied += ($invoice_totals - $credit_totals); //wont work because - check tests
         // $payment->applied += $invoice_totals; //wont work because - check tests

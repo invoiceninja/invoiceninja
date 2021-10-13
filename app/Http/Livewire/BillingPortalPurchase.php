@@ -268,7 +268,7 @@ class BillingPortalPurchase extends Component
 
         $client = $client_repo->save($data, ClientFactory::create($company->id, $user->id));
 
-        return $client->contacts->first();
+        return $client->fresh()->contacts->first();
     }
 
     /**

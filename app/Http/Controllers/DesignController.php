@@ -496,6 +496,7 @@ class DesignController extends BaseController
         $company = auth()->user()->getCompany();
 
         $design = Design::where('company_id', $company->id)
+                        ->orWhereNull('company_id')
                         ->where('id', $design_id)
                         ->exists();
 

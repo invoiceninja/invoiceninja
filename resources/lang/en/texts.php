@@ -2479,6 +2479,8 @@ $LANG = array(
     'currency_cambodian_riel' => 'Cambodian Riel',
     'currency_vanuatu_vatu' => 'Vanuatu Vatu',
 
+    'currency_cuban_peso' => 'Cuban Peso',
+
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider :link we\'d greatly appreciate it!',
     'writing_a_review' => 'writing a review',
 

@@ -47,6 +47,7 @@ use App\Models\Product;
 use App\Models\Project;
 use App\Models\Quote;
 use App\Models\QuoteInvitation;
+use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
 use App\Models\RecurringInvoiceInvitation;
 use App\Models\Subscription;
@@ -75,6 +76,8 @@ use JsonMachine\JsonMachine;
 use ZipArchive;
 use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
+
+use function GuzzleHttp\json_encode;
 
 class CompanyImport implements ShouldQueue
 {
@@ -135,6 +138,7 @@ class CompanyImport implements ShouldQueue
         'quote_invitations',
         'credits',
         'credit_invitations',
+        'recurring_expenses',
         'expenses',
         'tasks',
         'payments',
@@ -450,6 +454,26 @@ class CompanyImport implements ShouldQueue
 
         return $this;
 
+    }
+
+    private function import_recurring_expenses()
+    {
+//unset / transforms / object_property / match_key
+        $this->genericImport(RecurringExpense::class, 
+            ['assigned_user_id', 'user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'project_id', 'vendor_id'], 
+            [
+                ['users' => 'user_id'], 
+                ['users' => 'assigned_user_id'], 
+                ['clients' => 'client_id'],
+                ['projects' => 'project_id'],
+                ['vendors' => 'vendor_id'],
+                ['invoices' => 'invoice_id'],
+                ['expense_categories' => 'category_id'],
+            ], 
+            'expenses',
+            'number');
+
+        return $this;
     }
 
     private function import_payment_terms()
@@ -795,6 +819,8 @@ class CompanyImport implements ShouldQueue
                 ['projects' => 'project_id'],
                 ['vendors' => 'vendor_id'],
                 ['invoices' => 'invoice_id'],
+                ['recurring_expenses' => 'recurring_expense_id'],
+                ['expense_categories' => 'category_id'],
             ], 
             'expenses',
             'number');
@@ -1248,6 +1274,7 @@ class CompanyImport implements ShouldQueue
             if($class == 'App\Models\Subscription'){
                 $obj_array['product_ids'] = $this->recordProductIds($obj_array['product_ids']); 
                 $obj_array['recurring_product_ids'] = $this->recordProductIds($obj_array['recurring_product_ids']); 
+                $obj_array['webhook_configuration'] = json_encode($obj_array['webhook_configuration']); 
             }
 
             $new_obj = $class::firstOrNew(
@@ -1297,7 +1324,8 @@ class CompanyImport implements ShouldQueue
             if($class == 'App\Models\Subscription'){
                 //$obj_array['product_ids'] = $this->recordProductIds($obj_array['product_ids']); 
                 //$obj_array['recurring_product_ids'] = $this->recordProductIds($obj_array['recurring_product_ids']); 
-                //
+                // $obj_array['webhook_configuration'] = json_encode($obj_array['webhook_configuration']);
+                $obj_array['webhook_configuration'] = '';
                 $obj_array['recurring_product_ids'] = '';
                 $obj_array['product_ids'] = '';
             }

@@ -61,7 +61,7 @@ class Gateway extends StaticModel
             $link = 'https://bitpay.com/dashboard/signup';
         } elseif ($this->id == 18) {
             $link = 'https://applications.sagepay.com/apply/2C02C252-0F8A-1B84-E10D-CF933EFCAA99';
-        } elseif ($this->id == 20) {
+        } elseif ($this->id == 20 || $this->id == 56) {
             $link = 'https://dashboard.stripe.com/account/apikeys';
         }
 
@@ -89,17 +89,20 @@ class Gateway extends StaticModel
                 break;
             case 7:
                 return [
-                    GatewayType::CREDIT_CARD => ['refund' => false, 'token_billing' => true], // Mollie
-                    GatewayType::BANK_TRANSFER => ['refund' => false, 'token_billing' => true],
-                    GatewayType::KBC => ['refund' => false, 'token_billing' => false],
-                    GatewayType::BANCONTACT => ['refund' => false, 'token_billing' => false],
-                    GatewayType::IDEAL => ['refund' => false, 'token_billing' => false],
+                    GatewayType::CREDIT_CARD => ['refund' => false, 'token_billing' => true, 'webhooks' => [' ']], // Mollie
+                    GatewayType::BANK_TRANSFER => ['refund' => false, 'token_billing' => true, 'webhooks' => [' ']],
+                    GatewayType::KBC => ['refund' => false, 'token_billing' => false, 'webhooks' => [' ']],
+                    GatewayType::BANCONTACT => ['refund' => false, 'token_billing' => false, 'webhooks' => [' ']],
+                    GatewayType::IDEAL => ['refund' => false, 'token_billing' => false, 'webhooks' => [' ']],
                 ];
             case 15:
-                return [GatewayType::PAYPAL => ['refund' => true, 'token_billing' => false]]; //Paypal
+                return [
+                    GatewayType::PAYPAL => ['refund' => true, 'token_billing' => false]
+                ]; //Paypal
                 break;
             case 20:
-                return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true],
+                return [
+                    GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true],
                     GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable','charge.succeeded']],
                     GatewayType::ALIPAY => ['refund' => false, 'token_billing' => false],
                     GatewayType::APPLE_PAY => ['refund' => false, 'token_billing' => false],
@@ -113,27 +116,37 @@ class Gateway extends StaticModel
                     GatewayType::IDEAL => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded']],
                     GatewayType::ACSS => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded']]];
             case 39:
-                return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true]]; //Checkout
+                return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true, 'webhooks' => [' ']]]; //Checkout
                 break;
             case 46:
                 return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true]]; //Paytrace
             case 49:
-                return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true],
-                    GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true]]; //WePay
+                return [
+                    GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true],
+                    GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => [' ']]
+                    ]; //WePay
                 break;
             case 50:
                 return [
                     GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true], //Braintree
                     GatewayType::PAYPAL => ['refund' => true, 'token_billing' => true],
-                    GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true],
+                    GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => [' ']],
                 ];
                 break;
             case 56:
-                return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true],
+                return [
+                    GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true],
                     GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable','charge.succeeded']],
                     GatewayType::ALIPAY => ['refund' => false, 'token_billing' => false],
                     GatewayType::APPLE_PAY => ['refund' => false, 'token_billing' => false],
-                    GatewayType::SOFORT => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded']]]; //Stripe
+                    GatewayType::SOFORT => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded']], //Stripe
+                    GatewayType::SEPA => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded']],
+                    GatewayType::PRZELEWY24 => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded']],
+                    GatewayType::GIROPAY => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded']],
+                    GatewayType::EPS => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded']],
+                    GatewayType::BANCONTACT => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded']],
+                    GatewayType::IDEAL => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.succeeded']],
+                ];
                 break;
             case 57:
                 return [
@@ -142,12 +155,12 @@ class Gateway extends StaticModel
                 break;
             case 52:
                 return [
-                    GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true] // GoCardless
+                    GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => [' ']] // GoCardless
                 ];
                 break;
             case 58:
                 return [
-                    GatewayType::HOSTED_PAGE => ['refund' => false, 'token_billing' => false] // Razorpay
+                    GatewayType::HOSTED_PAGE => ['refund' => false, 'token_billing' => false, 'webhooks' => [' ']] // Razorpay
                 ];
                 break;
             default:

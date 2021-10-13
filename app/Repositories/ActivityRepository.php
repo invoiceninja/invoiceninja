@@ -81,7 +81,8 @@ class ActivityRepository extends BaseRepository
             || get_class($entity) == Credit::class 
             || get_class($entity) == RecurringInvoice::class
         ) {
-            $entity->load('company', 'client');
+            
+            $entity->load('client');
             $contact = $entity->client->primary_contact()->first();
             $backup->html_backup = $this->generateHtml($entity);
             $backup->amount = $entity->amount;
@@ -95,7 +96,7 @@ class ActivityRepository extends BaseRepository
     public function getTokenId(array $event_vars)
     {
         if ($event_vars['token']) {
-            $company_token = CompanyToken::whereRaw('BINARY `token`= ?', [$event_vars['token']])->first();
+            $company_token = CompanyToken::where('token', $event_vars['token'])->first();
 
             if ($company_token) {
                 return $company_token->id;
@@ -117,7 +118,7 @@ class ActivityRepository extends BaseRepository
             $entity_design_id = 'credit_design_id';
         }
 
-        $entity->load('client','client.company');
+        // $entity->load('client.company');
 
         $entity_design_id = $entity->design_id ? $entity->design_id : $this->decodePrimaryKey($entity->client->getSetting($entity_design_id));
 
@@ -127,6 +128,8 @@ class ActivityRepository extends BaseRepository
             nlog("No invitations for entity {$entity->id} - {$entity->number}");
             return;
         }
+
+        $entity->load('client.company', 'invitations');
 
         $html = new HtmlEngine($entity->invitations->first());
 
