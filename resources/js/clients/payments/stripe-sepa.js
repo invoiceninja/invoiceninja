@@ -18,75 +18,96 @@ class ProcessSEPA {
     setupStripe = () => {
         this.stripe = Stripe(this.key);
 
-        if(this.stripeConnect)
-            this.stripe.stripeAccount = stripeConnect;
+        if (this.stripeConnect) this.stripe.stripeAccount = stripeConnect;
         const elements = this.stripe.elements();
         var style = {
             base: {
-                color: "#32325d",
+                color: '#32325d',
                 fontFamily:
                     '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-                fontSmoothing: "antialiased",
-                fontSize: "16px",
-                "::placeholder": {
-                    color: "#aab7c4"
+                fontSmoothing: 'antialiased',
+                fontSize: '16px',
+                '::placeholder': {
+                    color: '#aab7c4',
                 },
-                ":-webkit-autofill": {
-                    color: "#32325d"
-                }
+                ':-webkit-autofill': {
+                    color: '#32325d',
+                },
             },
             invalid: {
-                color: "#fa755a",
-                iconColor: "#fa755a",
-                ":-webkit-autofill": {
-                    color: "#fa755a"
-                }
-            }
+                color: '#fa755a',
+                iconColor: '#fa755a',
+                ':-webkit-autofill': {
+                    color: '#fa755a',
+                },
+            },
         };
         var options = {
             style: style,
-            supportedCountries: ["SEPA"],
+            supportedCountries: ['SEPA'],
             // If you know the country of the customer, you can optionally pass it to
             // the Element as placeholderCountry. The example IBAN that is being used
             // as placeholder reflects the IBAN format of that country.
-            placeholderCountry: document.querySelector('meta[name="country"]').content
+            placeholderCountry: document.querySelector('meta[name="country"]')
+                .content,
         };
-        this.iban = elements.create("iban", options);
-        this.iban.mount("#sepa-iban");
+        this.iban = elements.create('iban', options);
+        this.iban.mount('#sepa-iban');
         return this;
     };
 
     handle = () => {
         let errors = document.getElementById('errors');
 
-        Array
-            .from(document.getElementsByClassName('toggle-payment-with-token'))
-            .forEach((element) => element.addEventListener('click', (element) => {
-                document.getElementById('stripe--payment-container').classList.add('hidden');
-                document.getElementById('save-card--container').style.display = 'none';
-                document.querySelector('input[name=token]').value = element.target.dataset.token;
-            }));
+        Array.from(
+            document.getElementsByClassName('toggle-payment-with-token')
+        ).forEach((element) =>
+            element.addEventListener('click', (element) => {
+                document
+                    .getElementById('stripe--payment-container')
+                    .classList.add('hidden');
+                document.getElementById('save-card--container').style.display =
+                    'none';
+                document.querySelector('input[name=token]').value =
+                    element.target.dataset.token;
+            })
+        );
 
         document
             .getElementById('toggle-payment-with-new-bank-account')
             .addEventListener('click', (element) => {
-                document.getElementById('stripe--payment-container').classList.remove('hidden');
-                document.getElementById('save-card--container').style.display = 'grid';
-                document.querySelector('input[name=token]').value = "";
+                document
+                    .getElementById('stripe--payment-container')
+                    .classList.remove('hidden');
+                document.getElementById('save-card--container').style.display =
+                    'grid';
+                document.querySelector('input[name=token]').value = '';
             });
-            
 
         document.getElementById('pay-now').addEventListener('click', (e) => {
-            if (document.querySelector('input[name=token]').value.length !== 0) {
+            if (
+                document.querySelector('input[name=token]').value.length !== 0
+            ) {
                 document.querySelector('#errors').hidden = true;
 
                 document.getElementById('pay-now').disabled = true;
-                document.querySelector('#pay-now > svg').classList.remove('hidden');
-                document.querySelector('#pay-now > span').classList.add('hidden');
+                document
+                    .querySelector('#pay-now > svg')
+                    .classList.remove('hidden');
+                document
+                    .querySelector('#pay-now > span')
+                    .classList.add('hidden');
 
-                this.stripe.confirmSepaDebitSetup(document.querySelector('meta[name=si-client-secret').content, {
-                    payment_method: document.querySelector('input[name=token]').value
-                })
+                this.stripe
+                    .confirmSepaDebitSetup(
+                        document.querySelector('meta[name=si-client-secret')
+                            .content,
+                        {
+                            payment_method: document.querySelector(
+                                'input[name=token]'
+                            ).value,
+                        }
+                    )
                     .then((result) => {
                         if (result.error) {
                             console.error(error);
@@ -98,8 +119,11 @@ class ProcessSEPA {
                             'input[name="gateway_response"]'
                         ).value = JSON.stringify(result.setupIntent);
 
-                        return document.querySelector('#server-response').submit();
-                    }).catch((error) => {
+                        return document
+                            .querySelector('#server-response')
+                            .submit();
+                    })
+                    .catch((error) => {
                         errors.textContent = error;
                         errors.hidden = false;
                     });
@@ -107,25 +131,30 @@ class ProcessSEPA {
                 return;
             }
 
-            if (document.getElementById('sepa-name').value === "") {
+            if (document.getElementById('sepa-name').value === '') {
                 document.getElementById('sepa-name').focus();
-                errors.textContent =  document.querySelector('meta[name=translation-name-required]').content;
+                errors.textContent = document.querySelector(
+                    'meta[name=translation-name-required]'
+                ).content;
                 errors.hidden = false;
                 return;
             }
 
-            if (document.getElementById('sepa-email-address').value === "") {
+            if (document.getElementById('sepa-email-address').value === '') {
                 document.getElementById('sepa-email-address').focus();
-                errors.textContent = document.querySelector('meta[name=translation-email-required]').content;
+                errors.textContent = document.querySelector(
+                    'meta[name=translation-email-required]'
+                ).content;
                 errors.hidden = false;
                 return;
             }
-
 
             if (!document.getElementById('sepa-mandate-acceptance').checked) {
-                errors.textContent = document.querySelector('meta[name=translation-terms-required]').content;
+                errors.textContent = document.querySelector(
+                    'meta[name=translation-terms-required]'
+                ).content;
                 errors.hidden = false;
-                console.log("Terms");
+                console.log('Terms');
                 return;
             }
 
@@ -133,24 +162,30 @@ class ProcessSEPA {
             document.querySelector('#pay-now > svg').classList.remove('hidden');
             document.querySelector('#pay-now > span').classList.add('hidden');
 
-            this.stripe.confirmSepaDebitPayment(
-                document.querySelector('meta[name=pi-client-secret').content,
-                {
-                    payment_method: {
-                        sepa_debit: this.iban,
-                        billing_details: {
-                            name: document.getElementById("sepa-name").value,
-                            email: document.getElementById("sepa-email-address").value,
+            this.stripe
+                .confirmSepaDebitPayment(
+                    document.querySelector('meta[name=pi-client-secret')
+                        .content,
+                    {
+                        payment_method: {
+                            sepa_debit: this.iban,
+                            billing_details: {
+                                name: document.getElementById('sepa-name')
+                                    .value,
+                                email: document.getElementById(
+                                    'sepa-email-address'
+                                ).value,
+                            },
                         },
-                    },
-                }
-            ).then((result) => {
-                if (result.error) {
-                    return this.handleFailure(result.error.message);
-                }
+                    }
+                )
+                .then((result) => {
+                    if (result.error) {
+                        return this.handleFailure(result.error.message);
+                    }
 
-                return this.handleSuccess(result);
-            });
+                    return this.handleSuccess(result);
+                });
         });
     };
 
@@ -178,15 +213,15 @@ class ProcessSEPA {
         errors.textContent = message;
         errors.hidden = false;
 
-            document.getElementById('pay-now').disabled = false;
-            document.querySelector('#pay-now > svg').classList.add('hidden');
-            document.querySelector('#pay-now > span').classList.remove('hidden');
+        document.getElementById('pay-now').disabled = false;
+        document.querySelector('#pay-now > svg').classList.add('hidden');
+        document.querySelector('#pay-now > span').classList.remove('hidden');
     }
 }
 
-const publishableKey = document.querySelector(
-    'meta[name="stripe-publishable-key"]'
-)?.content ?? '';
+const publishableKey =
+    document.querySelector('meta[name="stripe-publishable-key"]')?.content ??
+    '';
 
 const stripeConnect =
     document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';

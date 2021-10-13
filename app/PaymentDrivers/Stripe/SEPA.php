@@ -11,15 +11,15 @@
 
 namespace App\PaymentDrivers\Stripe;
 
+use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use App\PaymentDrivers\StripePaymentDriver;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
-use App\Exceptions\PaymentFailed;
+use App\PaymentDrivers\StripePaymentDriver;
 
 class SEPA
 {
@@ -38,7 +38,8 @@ class SEPA
         return render('gateways.stripe.sepa.authorize', $data);
     }
 
-    public function paymentView(array $data) {
+    public function paymentView(array $data)
+    {
         $data['gateway'] = $this->stripe;
         $data['payment_method_id'] = GatewayType::SEPA;
         $data['stripe_amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency());
@@ -89,13 +90,10 @@ class SEPA
         }
 
         return $this->processUnsuccessfulPayment();
-
     }
 
     public function processSuccessfulPayment(string $payment_intent)
     {
-
-
         $data = [
             'payment_method' => $payment_intent,
             'payment_type' => PaymentType::SEPA,
@@ -150,7 +148,6 @@ class SEPA
     private function storePaymentMethod($intent)
     {
         try {
-
             $method = $this->stripe->getStripePaymentMethod($intent->payment_method);
 
             $payment_meta = new \stdClass;
