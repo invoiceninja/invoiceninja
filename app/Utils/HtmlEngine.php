@@ -49,7 +49,6 @@ class HtmlEngine
     public function __construct($invitation)
     {
         $this->invitation = $invitation;
-        // $invitation->load('contact.client.company', 'company');
 
         $this->entity_string = $this->resolveEntityString();
 
@@ -58,9 +57,9 @@ class HtmlEngine
         $this->company = $invitation->company;
 
         $this->contact = $invitation->contact;
-
-        $this->client = $invitation->contact->client;
-        $this->client->load('country','company');
+        
+        $this->client = $this->contact->client->load('company','country');
+        
         $this->entity->load('client');
 
         $this->settings = $this->client->getMergedSettings();

@@ -49,6 +49,7 @@ class EntityCreatedObject
         /* Set customized translations _NOW_ */
         $t->replace(Ninja::transformTranslations($this->entity->company->settings));
 
+        $this->entity->load('client.country', 'client.company');
         $this->client = $this->entity->client;
         $this->company = $this->entity->company;
 
