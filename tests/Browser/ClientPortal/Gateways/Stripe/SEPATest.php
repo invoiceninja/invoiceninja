@@ -97,4 +97,18 @@ class SEPATest extends DuskTestCase
                 ->waitForText('Details of the payment', 60);
         });
     }
+
+    public function testPayWithSavedBankAccount()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.invoices.index')
+                ->click('@pay-now')
+                ->click('@pay-now-dropdown')
+                ->clickLink('SEPA Direct Debit')
+                ->click('.toggle-payment-with-token')
+                ->click('#pay-now')
+                ->waitForText('Details of the payment', 60);
+        });
+    }
 }
