@@ -126,7 +126,7 @@
 <body>
 
 <table border="0" cellpadding="0" cellspacing="0" width="100%"
-       style="min-width: 320px; font-size: 1px; line-height: normal;"
+       style="min-width: 320px; line-height: normal;"
 >
     <tr>
         <td align="center" valign="top">
