@@ -27,7 +27,6 @@ use Checkout\Models\Payments\Payment;
 use Checkout\Models\Payments\TokenSource;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\View\View;
-use Omnipay\Common\Message\RedirectResponseInterface;
 
 class CreditCard implements MethodInterface
 {
@@ -61,9 +60,9 @@ class CreditCard implements MethodInterface
 
     /**
      * Handle authorization for credit card.
-     * 
-     * @param Request $request 
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse 
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
     public function authorizeResponse(Request $request)
     {
@@ -99,7 +98,7 @@ class CreditCard implements MethodInterface
 
                 return redirect()->route('client.payment_methods.show', $payment_method->hashed_id);
             }
-        } catch(CheckoutHttpException $exception) {
+        } catch (CheckoutHttpException $exception) {
             throw new PaymentFailed(
                 $exception->getMessage()
             );
@@ -172,7 +171,6 @@ class CreditCard implements MethodInterface
 
     private function completePayment($method, PaymentResponseRequest $request)
     {
-
         $payment = new Payment($method, $this->checkout->payment_hash->data->currency);
         $payment->amount = $this->checkout->payment_hash->data->value;
         $payment->reference = $this->checkout->getDescription();
@@ -200,7 +198,6 @@ class CreditCard implements MethodInterface
             $response = $this->checkout->gateway->payments()->request($payment);
 
             if ($response->status == 'Authorized') {
-
                 return $this->processSuccessfulPayment($response);
             }
 
@@ -220,7 +217,6 @@ class CreditCard implements MethodInterface
                 return $this->processUnsuccessfulPayment($response);
             }
         } catch (CheckoutHttpException $e) {
-
             $this->checkout->unWindGatewayFees($this->checkout->payment_hash);
             return $this->checkout->processInternallyFailedPayment($this->checkout, $e);
         }
