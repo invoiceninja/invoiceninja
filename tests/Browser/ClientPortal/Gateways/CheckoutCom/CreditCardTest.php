@@ -38,17 +38,6 @@ class CreditCardTest extends DuskTestCase
         });
     }
 
-    public function testAddingPaymentMethodShouldntBePossible()
-    {
-        $this->browse(function (Browser $browser) {
-            $browser
-                ->visitRoute('client.payment_methods.index')
-                ->press('Add Payment Method')
-                ->clickLink('Credit Card')
-                ->assertSee('Checkout.com can be can saved as payment method for future use, once you complete your first transaction. Don\'t forget to check "Store credit card details" during payment process.');
-        });
-    }
-
     public function testPayWithNewCard()
     {
         $this->browse(function (Browser $browser) {
@@ -115,6 +104,24 @@ class CreditCardTest extends DuskTestCase
                 ->waitForText('Confirmation')
                 ->click('@confirm-payment-removal')
                 ->assertSee('Payment method has been successfully removed.');
+        });
+    }
+    
+    public function testAddingCreditCardStandalone() 
+    {
+        $this->browse(function (Browser $browser) {
+            $browser
+                ->visitRoute('client.payment_methods.index')
+                ->press('Add Payment Method')
+                ->clickLink('Credit Card')
+                ->withinFrame('iframe', function (Browser $browser) {
+                    $browser
+                        ->type('cardnumber', '4242424242424242')
+                        ->type('exp-date', '04/22')
+                        ->type('cvc', '100');
+                })
+                ->press('#pay-button')
+                ->waitForText('Details of payment method', 60);
         });
     }
 }
