@@ -239,7 +239,7 @@ class BaseRepository
             /* Get array of Keys which have been removed from the invitations array and soft delete each invitation */
             $model->invitations->pluck('key')->diff($invitations->pluck('key'))->each(function ($invitation) use ($resource) {
                 $invitation_class = sprintf('App\\Models\\%sInvitation', $resource);
-                $invitation = $invitation_class::whereRaw('BINARY `key`= ?', [$invitation])->first();
+                $invitation = $invitation_class::where('key', $invitation)->first();
 
                 if ($invitation) 
                     $invitation->delete();
@@ -276,6 +276,7 @@ class BaseRepository
                             $new_invitation = $invitation_factory_class::create($model->company_id, $model->user_id);
                             $new_invitation->{$lcfirst_resource_id} = $model->id;
                             $new_invitation->client_contact_id = $contact->id;
+                            $new_invitation->key = $this->createDbHash(config('database.default'));
                             $new_invitation->save();
 
                         }
@@ -326,6 +327,8 @@ class BaseRepository
 
             if($this->new_model)
                 event('eloquent.created: App\Models\Invoice', $model);
+            else
+                event('eloquent.updated: App\Models\Invoice', $model);
 
         }
 
@@ -339,6 +342,9 @@ class BaseRepository
 
             if($this->new_model)
                 event('eloquent.created: App\Models\Credit', $model);            
+            else
+                event('eloquent.updated: App\Models\Credit', $model);
+
         }
 
         if ($model instanceof Quote) {
@@ -351,7 +357,8 @@ class BaseRepository
 
             if($this->new_model)
                 event('eloquent.created: App\Models\Quote', $model);
-
+            else
+                event('eloquent.updated: App\Models\Quote', $model);
         }
 
         if ($model instanceof RecurringInvoice) {
@@ -364,6 +371,8 @@ class BaseRepository
 
             if($this->new_model)
                 event('eloquent.created: App\Models\RecurringInvoice', $model);
+            else
+                event('eloquent.updated: App\Models\RecurringInvoice', $model);
         }
 
         $model->save();

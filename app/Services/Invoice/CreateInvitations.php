@@ -16,10 +16,13 @@ use App\Factory\InvoiceInvitationFactory;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Services\AbstractService;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Str;
 
 class CreateInvitations extends AbstractService
 {
+    use MakesHash;
+    
     private $invoice;
 
     public function __construct(Invoice $invoice)
@@ -48,6 +51,7 @@ class CreateInvitations extends AbstractService
 
             if (! $invitation && $contact->send_email) {
                 $ii = InvoiceInvitationFactory::create($this->invoice->company_id, $this->invoice->user_id);
+                $ii->key = $this->createDbHash(config('database.default'));
                 $ii->invoice_id = $this->invoice->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();
@@ -61,6 +65,7 @@ class CreateInvitations extends AbstractService
             $contact = $this->createBlankContact();
 
                 $ii = InvoiceInvitationFactory::create($this->invoice->company_id, $this->invoice->user_id);
+                $ii->key = $this->createDbHash(config('database.default'));
                 $ii->invoice_id = $this->invoice->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();

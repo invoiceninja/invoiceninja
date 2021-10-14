@@ -487,6 +487,7 @@ trait MockAccountData
 
             if (! $invitation && $contact->send_email) {
                 $ii = InvoiceInvitationFactory::create($this->invoice->company_id, $this->invoice->user_id);
+                $ii->key = $this->createDbHash(config('database.default'));
                 $ii->invoice_id = $this->invoice->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();

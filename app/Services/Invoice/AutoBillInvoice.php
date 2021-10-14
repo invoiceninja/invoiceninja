@@ -356,9 +356,9 @@ class AutoBillInvoice extends AbstractService
         $items[] = $item;
 
         $this->invoice->line_items = $items;
-        $this->invoice->save();
+        $this->invoice->saveQuietly();
 
-        $this->invoice = $this->invoice->calc()->getInvoice()->save();
+        $this->invoice = $this->invoice->calc()->getInvoice()->saveQuietly();
 
         if ($starting_amount != $this->invoice->amount && $this->invoice->status_id != Invoice::STATUS_DRAFT) {
             $this->invoice->client->service()->updateBalance($this->invoice->amount - $starting_amount)->save();
