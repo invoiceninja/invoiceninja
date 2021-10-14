@@ -239,7 +239,7 @@ class BaseRepository
             /* Get array of Keys which have been removed from the invitations array and soft delete each invitation */
             $model->invitations->pluck('key')->diff($invitations->pluck('key'))->each(function ($invitation) use ($resource) {
                 $invitation_class = sprintf('App\\Models\\%sInvitation', $resource);
-                $invitation = $invitation_class::whereRaw('BINARY `key`= ?', [$invitation])->first();
+                $invitation = $invitation_class::where('key', $invitation)->first();
 
                 if ($invitation) 
                     $invitation->delete();
@@ -276,6 +276,7 @@ class BaseRepository
                             $new_invitation = $invitation_factory_class::create($model->company_id, $model->user_id);
                             $new_invitation->{$lcfirst_resource_id} = $model->id;
                             $new_invitation->client_contact_id = $contact->id;
+                            $new_invitation->key = $this->createDbHash(config('database.default'));
                             $new_invitation->save();
 
                         }

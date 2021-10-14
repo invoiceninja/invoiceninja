@@ -116,7 +116,7 @@ class CreateEntityPdf implements ShouldQueue
         $t->replace(Ninja::transformTranslations($this->client->getMergedSettings()));
 
         $translate = microtime(true);
-        nlog("Translate ". $translate - $start);
+        // nlog("Translate ". $translate - $start);
 
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
             return (new Phantom)->generate($this->invitation);
