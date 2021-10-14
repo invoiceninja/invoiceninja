@@ -208,7 +208,7 @@ class RecurringInvoiceController extends BaseController
 
         $offset = $recurring_invoice->client->timezone_offset();
         $recurring_invoice->next_send_date = Carbon::parse($recurring_invoice->next_send_date)->startOfDay()->addSeconds($offset);
-        $recurring_invoice->save();
+        $recurring_invoice->saveQuietly();
 
         $recurring_invoice->service()
                           ->triggeredActions($request)

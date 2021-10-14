@@ -29,11 +29,8 @@ class PaymentObserver
                             ->where('event_id', Webhook::EVENT_CREATE_PAYMENT)
                             ->exists();
 
-        if($payment->invoices()->exists())
-            $payment->load('invoices');
-
         if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_CREATE_PAYMENT, $payment, $payment->company);
+            WebhookHandler::dispatch(Webhook::EVENT_CREATE_PAYMENT, $payment, $payment->company, 'invoices');
         }
     }
 
@@ -60,7 +57,7 @@ class PaymentObserver
                         ->exists();
 
         if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_DELETE_PAYMENT, $payment, $payment->company);
+            WebhookHandler::dispatch(Webhook::EVENT_DELETE_PAYMENT, $payment, $payment->company, 'invoices');
         }
     }
 

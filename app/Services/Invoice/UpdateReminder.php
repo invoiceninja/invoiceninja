@@ -37,7 +37,7 @@ class UpdateReminder extends AbstractService
 
         if (! $this->invoice->isPayable()) {
             $this->invoice->next_send_date = null;
-            $this->invoice->save();
+            $this->invoice->saveQuietly();
 
             return $this->invoice; //exit early
         }

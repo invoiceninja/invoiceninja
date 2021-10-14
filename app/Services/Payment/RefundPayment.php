@@ -250,7 +250,7 @@ class RefundPayment
                     $invoice->service()->setStatus(Invoice::STATUS_PARTIAL);
                 }
 
-                $invoice->save();
+                $invoice->saveQuietly();
 
                 $client = $invoice->client;
 

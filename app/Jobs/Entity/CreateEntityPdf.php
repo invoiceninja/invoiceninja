@@ -102,7 +102,7 @@ class CreateEntityPdf implements ShouldQueue
     public function handle()
     {
         $start = microtime(true);
-        nlog("Start ". $start);
+        // nlog("Start ". $start);
 
         /* Forget the singleton*/
         App::forgetInstance('translator');
@@ -154,7 +154,7 @@ class CreateEntityPdf implements ShouldQueue
         $html = new HtmlEngine($this->invitation);
 
         $design_time = microtime(true);
-        nlog("Design ". $design_time - $translate);
+        // nlog("Design ". $design_time - $translate);
 
         if ($design->is_custom) {
             $options = [
@@ -168,7 +168,7 @@ class CreateEntityPdf implements ShouldQueue
         $variables = $html->generateLabelsAndValues();
 
         $labels_time = microtime(true);
-        nlog("Labels ". $labels_time - $design_time);
+        // nlog("Labels ". $labels_time - $design_time);
 
         $state = [
             'template' => $template->elements([
@@ -194,7 +194,7 @@ class CreateEntityPdf implements ShouldQueue
 
 
         $template_time = microtime(true);
-        nlog("Template Build ". $template_time - $labels_time);
+        // nlog("Template Build ". $template_time - $labels_time);
 
         $pdf = null;
 
@@ -217,7 +217,7 @@ class CreateEntityPdf implements ShouldQueue
 
 
         $pdf_time = microtime(true);
-        nlog("PDF time " . $pdf_time - $template_time);
+        // nlog("PDF time " . $pdf_time - $template_time);
 
         if ($pdf) {
 

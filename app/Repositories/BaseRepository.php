@@ -326,6 +326,8 @@ class BaseRepository
 
             if($this->new_model)
                 event('eloquent.created: App\Models\Invoice', $model);
+            else
+                event('eloquent.updated: App\Models\Invoice', $model);
 
         }
 
@@ -339,6 +341,9 @@ class BaseRepository
 
             if($this->new_model)
                 event('eloquent.created: App\Models\Credit', $model);            
+            else
+                event('eloquent.updated: App\Models\Credit', $model);
+
         }
 
         if ($model instanceof Quote) {
@@ -351,7 +356,8 @@ class BaseRepository
 
             if($this->new_model)
                 event('eloquent.created: App\Models\Quote', $model);
-
+            else
+                event('eloquent.updated: App\Models\Quote', $model);
         }
 
         if ($model instanceof RecurringInvoice) {
@@ -364,6 +370,8 @@ class BaseRepository
 
             if($this->new_model)
                 event('eloquent.created: App\Models\RecurringInvoice', $model);
+            else
+                event('eloquent.updated: App\Models\RecurringInvoice', $model);
         }
 
         $model->save();

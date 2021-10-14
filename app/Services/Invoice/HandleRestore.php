@@ -129,7 +129,7 @@ nlog("second payment_amount = {$payment_amount}");
             else
             $this->invoice->number = $new_invoice_number;
             
-            $this->invoice->save();
+            $this->invoice->saveQuietly();
         } catch (\Exception $e) {
             nlog("I could not wind back the invoice number");
 

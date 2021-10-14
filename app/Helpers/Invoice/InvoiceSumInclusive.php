@@ -191,7 +191,7 @@ class InvoiceSumInclusive
         $this->invoice->total_taxes = $this->getTotalTaxes();
         $this->invoice->balance = $this->formatValue($this->getTotal(), $this->invoice->client->currency()->precision);
 
-        $this->invoice->save();
+        $this->invoice->saveQuietly();
 
         return $this->invoice;
     }
@@ -206,7 +206,7 @@ class InvoiceSumInclusive
     {
         //Build invoice values here and return Invoice
         $this->setCalculatedAttributes();
-        $this->invoice->save();
+        $this->invoice->saveQuietly();
 
         return $this->invoice;
     }
@@ -215,7 +215,7 @@ class InvoiceSumInclusive
     {
         //Build invoice values here and return Invoice
         $this->setCalculatedAttributes();
-        $this->invoice->save();
+        $this->invoice->saveQuietly();
 
         return $this->invoice;
     }
@@ -224,7 +224,7 @@ class InvoiceSumInclusive
     {
         //Build invoice values here and return Invoice
         $this->setCalculatedAttributes();
-        $this->invoice->save();
+        $this->invoice->saveQuietly();
 
         return $this->invoice;
     }
