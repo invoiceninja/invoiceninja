@@ -45,19 +45,19 @@ class ProcessPRZELEWY24 {
 
             if (document.getElementById('p24-name').value === "") {
                 document.getElementById('p24-name').focus();
-                errors.textContent = "Name required.";
+                errors.textContent = document.querySelector('meta[name=translation-name-required]').content;
                 errors.hidden = false;
                 return;
             }
             if (document.getElementById('p24-email-address').value === "") {
                 document.getElementById('p24-email-address').focus();
-                errors.textContent = "Email required.";
+                errors.textContent = document.querySelector('meta[name=translation-email-required]').content;
                 errors.hidden = false;
                 return;
             }
             if (!document.getElementById('p24-mandate-acceptance').checked) {
                 document.getElementById('p24-mandate-acceptance').focus();
-                errors.textContent = "Accept Terms.";
+                errors.textContent = document.querySelector('meta[name=translation-terms-required]').content;
                 errors.hidden = false;
                 return;
             }
