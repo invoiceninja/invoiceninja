@@ -191,8 +191,6 @@ class ACSS
 
     public function processSuccessfulPayment(string $payment_intent)
     {
-        /* @todo: https://github.com/invoiceninja/invoiceninja/pull/3789/files#r436175798 */
-
         $data = [
             'payment_method' => $payment_intent,
             'payment_type' => PaymentType::ACSS,
@@ -201,7 +199,7 @@ class ACSS
             'gateway_type_id' => GatewayType::ACSS,
         ];
 
-        $this->stripe->createPayment($data, Payment::STATUS_PENDING);
+        $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);
 
         SystemLogger::dispatch(
             ['response' => $this->stripe->payment_hash->data, 'data' => $data],
@@ -212,7 +210,7 @@ class ACSS
             $this->stripe->client->company,
         );
 
-        return redirect()->route('client.payments.index');
+        return redirect()->route('client.payments.show', $payment->hashed_id);
     }
 
     public function processUnsuccessfulPayment()
