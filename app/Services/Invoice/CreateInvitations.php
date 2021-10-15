@@ -43,9 +43,9 @@ class CreateInvitations extends AbstractService
         }
 
         $contacts->each(function ($contact) {
-            $invitation = InvoiceInvitation::whereCompanyId($this->invoice->company_id)
-                                        ->whereClientContactId($contact->id)
-                                        ->whereInvoiceId($this->invoice->id)
+            $invitation = InvoiceInvitation::where('company_id', $this->invoice->company_id)
+                                        ->where('client_contact_id', $contact->id)
+                                        ->where('invoice_id', $this->invoice->id)
                                         ->withTrashed()
                                         ->first();
 
