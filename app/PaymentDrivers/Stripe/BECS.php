@@ -29,6 +29,7 @@ class BECS
     public function __construct(StripePaymentDriver $stripe)
     {
         $this->stripe = $stripe;
+        $this->stripe->init();
     }
 
     public function authorizeView($data)
@@ -47,7 +48,7 @@ class BECS
 
         $intent = \Stripe\PaymentIntent::create([
             'amount' => $data['stripe_amount'],
-            'currency' => 'eur',
+            'currency' => $this->stripe->client->currency()->code,
             'payment_method_types' => ['au_becs_debit'],
             'setup_future_usage' => 'off_session',
             'customer' => $this->stripe->findOrCreateCustomer(),
@@ -85,8 +86,6 @@ class BECS
 
     public function processSuccessfulPayment(string $payment_intent)
     {
-        $this->stripe->init();
-
         $data = [
             'payment_method' => $payment_intent,
             'payment_type' => PaymentType::BECS,
@@ -95,7 +94,7 @@ class BECS
             'gateway_type_id' => GatewayType::BECS,
         ];
 
-        $this->stripe->createPayment($data, Payment::STATUS_PENDING);
+        $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);
 
         SystemLogger::dispatch(
             ['response' => $this->stripe->payment_hash->data, 'data' => $data],
@@ -106,7 +105,7 @@ class BECS
             $this->stripe->client->company,
         );
 
-        return redirect()->route('client.payments.index');
+        return redirect()->route('client.payments.show', $payment->hashed_id);
     }
 
     public function processUnsuccessfulPayment()
