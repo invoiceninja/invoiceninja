@@ -59,14 +59,14 @@ class ProcessBECS {
 
         if (document.getElementById('becs-name').value === "") {
             document.getElementById('becs-name').focus();
-            errors.textContent = "Name required.";
+            errors.textContent = document.querySelector('meta[name=translation-name-required]').content;
             errors.hidden = false;
             return;
         }
 
         if (document.getElementById('becs-email-address').value === "") {
             document.getElementById('becs-email-address').focus();
-            errors.textContent = "Email required.";
+            errors.textContent = document.querySelector('meta[name=translation-email-required]').content;
             errors.hidden = false;
             return ;
         }
@@ -74,7 +74,7 @@ class ProcessBECS {
 
         if (!document.getElementById('becs-mandate-acceptance').checked) {
             document.getElementById('becs-mandate-acceptance').focus();
-            errors.textContent = "Accept Terms";
+            errors.textContent = document.querySelector('meta[name=translation-terms-required]').content;
             errors.hidden = false;
             console.log("Terms");
             return ;

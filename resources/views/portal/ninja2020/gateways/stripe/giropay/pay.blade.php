@@ -8,6 +8,8 @@
     <meta name="country" content="{{ $country }}">
     <meta name="customer" content="{{ $customer }}">
     <meta name="pi-client-secret" content="{{ $pi_client_secret }}">
+
+    <meta name="translation-terms-required" content="{{ ctrans('texts.you_need_to_accept_the_terms_before_proceeding') }}">
 @endsection
 
 @section('gateway_content')

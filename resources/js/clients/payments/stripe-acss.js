@@ -30,14 +30,14 @@ class ProcessACSS {
 
         if (document.getElementById('acss-name').value === "") {
             document.getElementById('acss-name').focus();
-            errors.textContent = "Name required.";
+            errors.textContent = document.querySelector('meta[name=translation-name-required]').content;
             errors.hidden = false;
             return;
         }
 
         if (document.getElementById('acss-email-address').value === "") {
             document.getElementById('acss-email-address').focus();
-            errors.textContent = "Email required.";
+            errors.textContent = document.querySelector('meta[name=translation-email-required]').content;
             errors.hidden = false;
             return ;
         }

@@ -8,6 +8,9 @@
     <meta name="country" content="{{ $country }}">
     <meta name="customer" content="{{ $customer }}">
     <meta name="pi-client-secret" content="{{ $pi_client_secret }}">
+
+    <meta name="translation-name-required" content="{{ ctrans('texts.missing_account_holder_name') }}">
+    <meta name="translation-email-required" content="{{ ctrans('texts.provide_email') }}">
 @endsection
 
 @section('gateway_content')

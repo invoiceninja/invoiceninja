@@ -28,7 +28,7 @@ class ProcessBANCONTACTPay {
             let errors = document.getElementById('errors');
 
             if (!document.getElementById('bancontact-name').value) {
-                errors.textContent = "Enter name";
+                errors.textContent = document.querySelector('meta[name=translation-name-required]').content;
                 errors.hidden = false;
                 console.log("name");
                 return ;

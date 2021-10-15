@@ -29,7 +29,7 @@ class ProcessGiroPay {
             let errors = document.getElementById('errors');
 
             if (!document.getElementById('giropay-mandate-acceptance').checked) {
-                errors.textContent = "Accept Terms";
+                errors.textContent = document.querySelector('meta[name=translation-terms-required]').content;
                 errors.hidden = false;
                 console.log("Terms");
                 return ;
