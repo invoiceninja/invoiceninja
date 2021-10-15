@@ -48,8 +48,6 @@ class Prezelewy24Test extends DuskTestCase
         $cg->fees_and_limits = $fees_and_limits;
         $cg->save();
 
-        // SOFORT required ['AUT', 'BEL', 'DEU', 'ITA', 'NLD', 'ESP'] to be billing country.
-        // Setting country  to DEU (276).
         $client = Client::first();
         $client->country_id = 276;
         $client->save();
@@ -62,9 +60,15 @@ class Prezelewy24Test extends DuskTestCase
                 ->visitRoute('client.invoices.index')
                 ->click('@pay-now')
                 ->press('Pay Now')
-                ->clickLink('Prezelewy24')
-                ->press('Pay Now')
-                ->waitForText('Sofort test payment page', 120)
+                ->clickLink('EPS')
+                ->type('#eps-name', 'John Doe')
+                ->type('#eps-email', 'john@doe.com')
+                ->check('#p24-mandate-acceptance', 'John Doe')
+                ->withinFrame('iframe', function (Browser $browser) {
+                    $browser->type('p24', '12345');
+                })
+                ->click('#pay-now')
+                ->waitForText('P24 test payment page', 120)
                 ->press('.common-Button.common-Button--default')
                 ->waitForText('Details of the payment', 60);
         });

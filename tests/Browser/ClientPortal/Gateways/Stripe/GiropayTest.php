@@ -48,8 +48,6 @@ class GiropayTest extends DuskTestCase
         $cg->fees_and_limits = $fees_and_limits;
         $cg->save();
 
-        // SOFORT required ['AUT', 'BEL', 'DEU', 'ITA', 'NLD', 'ESP'] to be billing country.
-        // Setting country  to DEU (276).
         $client = Client::first();
         $client->country_id = 276;
         $client->save();
@@ -63,8 +61,9 @@ class GiropayTest extends DuskTestCase
                 ->click('@pay-now')
                 ->press('Pay Now')
                 ->clickLink('Giropay')
-                ->press('Pay Now')
-                ->waitForText('Sofort test payment page', 120)
+                ->type('#giropay-name', 'John Doe')
+                ->click('#pay-now')
+                ->waitForText('Giropay test payment page', 120)
                 ->press('.common-Button.common-Button--default')
                 ->waitForText('Details of the payment', 60);
         });

@@ -48,10 +48,8 @@ class BECSTest extends DuskTestCase
         $cg->fees_and_limits = $fees_and_limits;
         $cg->save();
 
-        // SOFORT required ['AUT', 'BEL', 'DEU', 'ITA', 'NLD', 'ESP'] to be billing country.
-        // Setting country  to DEU (276).
         $client = Client::first();
-        $client->country_id = 276;
+        $client->country_id = 276; // Change to austria
         $client->save();
     }
 
@@ -63,8 +61,13 @@ class BECSTest extends DuskTestCase
                 ->click('@pay-now')
                 ->press('Pay Now')
                 ->clickLink('BECS')
-                ->press('Pay Now')
-                ->waitForText('Sofort test payment page', 120)
+                ->type('#becs-name', 'John Doe')
+                ->type('#becs-email', 'john@doe.com')
+                ->withinFrame('iframe', function (Browser $browser) {
+                    $browser->type('becs-iban', '000123456');
+                })
+                ->click('#pay-now')
+                ->waitForText('BECS test payment page', 120)
                 ->press('.common-Button.common-Button--default')
                 ->waitForText('Details of the payment', 60);
         });
