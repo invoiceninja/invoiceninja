@@ -48,10 +48,8 @@ class ACSSTest extends DuskTestCase
         $cg->fees_and_limits = $fees_and_limits;
         $cg->save();
 
-        // SOFORT required ['AUT', 'BEL', 'DEU', 'ITA', 'NLD', 'ESP'] to be billing country.
-        // Setting country  to DEU (276).
         $client = Client::first();
-        $client->country_id = 276;
+        $client->country_id = 276; // Change to US or Canada
         $client->save();
     }
 
@@ -63,8 +61,13 @@ class ACSSTest extends DuskTestCase
                 ->click('@pay-now')
                 ->press('Pay Now')
                 ->clickLink('ACSS')
-                ->press('Pay Now')
-                ->waitForText('Sofort test payment page', 120)
+                ->type('#acss-name', 'John Doe')
+                ->type('#acss-name', 'John@Doe.com')
+                ->withinFrame('iframe', function (Browser $browser) {
+                    $browser->type('acss', '12345');
+                })
+                ->click('#pay-now')
+                ->waitForText('ACSS test payment page', 120)
                 ->press('.common-Button.common-Button--default')
                 ->waitForText('Details of the payment', 60);
         });

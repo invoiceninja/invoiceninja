@@ -48,8 +48,6 @@ class BancontactTest extends DuskTestCase
         $cg->fees_and_limits = $fees_and_limits;
         $cg->save();
 
-        // SOFORT required ['AUT', 'BEL', 'DEU', 'ITA', 'NLD', 'ESP'] to be billing country.
-        // Setting country  to DEU (276).
         $client = Client::first();
         $client->country_id = 276;
         $client->save();
@@ -62,11 +60,11 @@ class BancontactTest extends DuskTestCase
                 ->visitRoute('client.invoices.index')
                 ->click('@pay-now')
                 ->press('Pay Now')
-                ->clickLink('Bancontact')
-                ->press('Pay Now')
-                ->waitForText('Sofort test payment page', 120)
+                ->clickLink('EPS')
+                ->type('#bancontact-name', 'John Doe')
+                ->click('#pay-now')
+                ->waitForText('Bancontact test payment page', 120)
                 ->press('.common-Button.common-Button--default')
                 ->waitForText('Details of the payment', 60);
         });
-    }
-}
+}}

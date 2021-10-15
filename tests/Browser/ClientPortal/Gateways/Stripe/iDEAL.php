@@ -48,8 +48,6 @@ class iDEAL extends DuskTestCase
         $cg->fees_and_limits = $fees_and_limits;
         $cg->save();
 
-        // SOFORT required ['AUT', 'BEL', 'DEU', 'ITA', 'NLD', 'ESP'] to be billing country.
-        // Setting country  to DEU (276).
         $client = Client::first();
         $client->country_id = 276;
         $client->save();
@@ -63,8 +61,12 @@ class iDEAL extends DuskTestCase
                 ->click('@pay-now')
                 ->press('Pay Now')
                 ->clickLink('iDeal')
-                ->press('Pay Now')
-                ->waitForText('Sofort test payment page', 120)
+                ->type('#ideal-name', 'John Doe')
+                ->withinFrame('iframe', function (Browser $browser) {
+                    $browser->type('ideal', '12345');
+                })
+                ->click('#pay-now')
+                ->waitForText('iDeal test payment page', 120)
                 ->press('.common-Button.common-Button--default')
                 ->waitForText('Details of the payment', 60);
         });
