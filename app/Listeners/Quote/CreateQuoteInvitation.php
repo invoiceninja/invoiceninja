@@ -14,10 +14,13 @@ namespace App\Listeners\Quote;
 use App\Factory\QuoteInvitationFactory;
 use App\Libraries\MultiDB;
 use App\Models\QuoteInvitation;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 class CreateQuoteInvitation implements ShouldQueue
 {
+    use MakesHash;
+    
     /**
      * Handle the event.
      *
@@ -40,6 +43,7 @@ class CreateQuoteInvitation implements ShouldQueue
 
             if (! $invitation && $contact->send_credit) {
                 $ii = QuoteInvitationFactory::create($quote->company_id, $quote->user_id);
+                $ii->key = $this->createDbHash(config('database.default'));
                 $ii->quote_id = $quote->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();

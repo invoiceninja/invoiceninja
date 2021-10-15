@@ -23,7 +23,7 @@ class UpdateAutoBilling extends Component
     {
         if ($this->invoice->auto_bill == 'optin' || $this->invoice->auto_bill == 'optout') {
             $this->invoice->auto_bill_enabled = !$this->invoice->auto_bill_enabled;
-            $this->invoice->save();
+            $this->invoice->saveQuietly();
         }
     }
 

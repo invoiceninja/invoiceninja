@@ -8,7 +8,7 @@
  *
  * @license https://opensource.org/licenses/AAL
  */
-namespace Tests\Feature;
+namespace Tests\Feature\Payments;
 
 use App\DataMapper\ClientSettings;
 use App\Factory\ClientFactory;

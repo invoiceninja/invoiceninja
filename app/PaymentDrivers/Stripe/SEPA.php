@@ -11,15 +11,15 @@
 
 namespace App\PaymentDrivers\Stripe;
 
+use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use App\PaymentDrivers\StripePaymentDriver;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
-use App\Exceptions\PaymentFailed;
+use App\PaymentDrivers\StripePaymentDriver;
 
 class SEPA
 {
@@ -29,6 +29,8 @@ class SEPA
     public function __construct(StripePaymentDriver $stripe)
     {
         $this->stripe = $stripe;
+
+        $this->stripe->init();
     }
 
     public function authorizeView($data)
@@ -36,7 +38,8 @@ class SEPA
         return render('gateways.stripe.sepa.authorize', $data);
     }
 
-    public function paymentView(array $data) {
+    public function paymentView(array $data)
+    {
         $data['gateway'] = $this->stripe;
         $data['payment_method_id'] = GatewayType::SEPA;
         $data['stripe_amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency());
@@ -52,10 +55,18 @@ class SEPA
             'setup_future_usage' => 'off_session',
             'customer' => $this->stripe->findOrCreateCustomer(),
             'description' => $this->stripe->decodeUnicodeString(ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number')),
-
         ]);
 
         $data['pi_client_secret'] = $intent->client_secret;
+
+        if (count($data['tokens']) > 0) {
+            $setup_intent = $this->stripe->stripe->setupIntents->create([
+                'payment_method_types' => ['sepa_debit'],
+                'customer' => $this->stripe->findOrCreateCustomer()->id,
+            ]);
+            
+            $data['si_client_secret'] = $setup_intent->client_secret;
+        }
 
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['stripe_amount' => $data['stripe_amount']]);
         $this->stripe->payment_hash->save();
@@ -65,28 +76,24 @@ class SEPA
 
     public function paymentResponse(PaymentResponseRequest $request)
     {
-
         $gateway_response = json_decode($request->gateway_response);
 
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, $request->all());
         $this->stripe->payment_hash->save();
 
-        if (property_exists($gateway_response, 'status') && $gateway_response->status == 'processing') {
-            
-            $this->stripe->init();
-            $this->storePaymentMethod($gateway_response);
+        if (property_exists($gateway_response, 'status') && ($gateway_response->status == 'processing' || $gateway_response->status === 'succeeded')) {
+            if ($request->store_card) {
+                $this->storePaymentMethod($gateway_response);
+            }
 
             return $this->processSuccessfulPayment($gateway_response->id);
         }
 
         return $this->processUnsuccessfulPayment();
-
     }
 
     public function processSuccessfulPayment(string $payment_intent)
     {
-        $this->stripe->init();
-
         $data = [
             'payment_method' => $payment_intent,
             'payment_type' => PaymentType::SEPA,
@@ -95,7 +102,7 @@ class SEPA
             'gateway_type_id' => GatewayType::SEPA,
         ];
 
-        $this->stripe->createPayment($data, Payment::STATUS_PENDING);
+        $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);
 
         SystemLogger::dispatch(
             ['response' => $this->stripe->payment_hash->data, 'data' => $data],
@@ -106,7 +113,7 @@ class SEPA
             $this->stripe->client->company,
         );
 
-        return redirect()->route('client.payments.index');
+        return redirect()->route('client.payments.show', $payment->hashed_id);
     }
 
     public function processUnsuccessfulPayment()
@@ -141,7 +148,6 @@ class SEPA
     private function storePaymentMethod($intent)
     {
         try {
-
             $method = $this->stripe->getStripePaymentMethod($intent->payment_method);
 
             $payment_meta = new \stdClass;

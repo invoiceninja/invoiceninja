@@ -219,7 +219,9 @@ class Statement
      */
     protected function getInvoices(): Collection
     {
-        return Invoice::where('company_id', $this->client->company_id)
+        return Invoice::withTrashed()
+            ->where('is_deleted', false)
+            ->where('company_id', $this->client->company_id)
             ->where('client_id', $this->client->id)
             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
             ->whereBetween('date', [$this->options['start_date'], $this->options['end_date']])
@@ -234,7 +236,9 @@ class Statement
      */
     protected function getPayments(): Collection
     {
-        return Payment::with('client.country','invoices')
+        return Payment::withTrashed()
+            ->with('client.country','invoices')
+            ->where('is_deleted', false)
             ->where('company_id', $this->client->company_id)
             ->where('client_id', $this->client->id)
             ->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
@@ -286,7 +290,8 @@ class Statement
         $from = $ranges[0];
         $to = $ranges[1];
 
-        $amount = Invoice::where('client_id', $this->client->id)
+        $amount = Invoice::withTrashed()
+            ->where('client_id', $this->client->id)
             ->where('company_id', $this->client->company_id)
             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
             ->where('balance', '>', 0)

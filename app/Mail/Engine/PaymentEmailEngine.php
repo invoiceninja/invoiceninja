@@ -239,8 +239,18 @@ class PaymentEmailEngine extends BaseEmailEngine
 
         $data['$invoices'] = ['value' => $this->formatInvoices(), 'label' => ctrans('texts.invoices')];
         $data['$invoice_references'] = ['value' => $this->formatInvoiceReferences(), 'label' => ctrans('texts.invoices')];
-
+        $data['$invoice'] = ['value' => $this->formatInvoice(), 'label' => ctrans('texts.invoices')];
         return $data;
+    }
+
+    private function formatInvoice()
+    {
+        $invoice = '';
+
+        if($this->payment->invoices()->exists())
+            $invoice = ctrans('texts.invoice_number_short') . implode(",", $this->payment->invoices->pluck('number')->toArray());
+
+        return $invoice;
     }
 
     private function formatInvoices()
