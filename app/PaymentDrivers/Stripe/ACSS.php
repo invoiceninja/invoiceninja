@@ -189,7 +189,7 @@ class ACSS
 
     }
 
-    public function processSuccessfulPayment(string $payment_intent)
+    public function processSuccessfulPayment(string $payment_intent): \Illuminate\Http\RedirectResponse
     {
         $data = [
             'payment_method' => $payment_intent,
