@@ -65,7 +65,7 @@ class ApplyPaymentAmount extends AbstractService
         $payment->currency_id = $this->invoice->client->getSetting('currency_id');
         $payment->is_manual = true;
         /* Create a payment relationship to the invoice entity */
-        $payment->save();
+        $payment->saveQuietly();
 
         $this->setExchangeRate($payment);
 
@@ -103,6 +103,8 @@ class ApplyPaymentAmount extends AbstractService
 
         $this->invoice->service()->workFlow()->save();
 
+        event('eloquent.created: App\Models\Payment', $payment);
+
         return $this->invoice;
     }
 
@@ -120,7 +122,7 @@ class ApplyPaymentAmount extends AbstractService
             //$payment->exchange_currency_id = $client_currency; // 23/06/2021
             $payment->exchange_currency_id = $company_currency;
         
-            $payment->save();
+            $payment->saveQuietly();
 
         }
 

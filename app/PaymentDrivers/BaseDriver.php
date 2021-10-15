@@ -236,7 +236,7 @@ class BaseDriver extends AbstractPaymentDriver
         $payment->type_id = $data['payment_type'];
         $payment->transaction_reference = $data['transaction_reference'];
         $payment->client_contact_id = $client_contact_id;
-        $payment->save();
+        $payment->saveQuietly();
 
         $this->payment_hash->payment_id = $payment->id;
         $this->payment_hash->save();
@@ -247,6 +247,8 @@ class BaseDriver extends AbstractPaymentDriver
             $payment = $payment->service()->applyCredits($this->payment_hash)->save();
 
         $payment->service()->updateInvoicePayment($this->payment_hash);
+
+        event('eloquent.created: App\Models\Payment', $payment);
 
         if ($this->client->getSetting('client_online_payment_notification'))
             $payment->service()->sendEmail();
@@ -392,11 +394,9 @@ class BaseDriver extends AbstractPaymentDriver
 
     public function clientPaymentFailureMailer($error)
     {
-nlog("outside");
 
         if ($this->payment_hash && is_array($this->payment_hash->invoices())) {
 
-nlog("inside");
 
             $nmo = new NinjaMailerObject;
             $nmo->mailable = new NinjaMailer((new ClientPaymentFailureObject($this->client, $error, $this->client->company, $this->payment_hash))->build());

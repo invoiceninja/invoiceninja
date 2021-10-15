@@ -273,7 +273,9 @@ class BasePaymentDriver
         $paid_invoices = $payment_hash->invoices();
         $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($paid_invoices, 'invoice_id')))->withTrashed()->get();
         $payment->invoices()->sync($invoices);
-        $payment->save();
+        $payment->saveQuietly();
+
+        event('eloquent.created: App\Models\Payment', $payment);
 
         return $payment;
     }

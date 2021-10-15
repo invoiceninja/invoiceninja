@@ -64,7 +64,7 @@ class MarkPaid extends AbstractService
         if((int)$payment_type_id > 0)
             $payment->type_id = (int)$payment_type_id;
 
-        $payment->save();
+        $payment->saveQuietly();
 
         $this->setExchangeRate($payment);
 
@@ -72,6 +72,8 @@ class MarkPaid extends AbstractService
         $payment->invoices()->attach($this->invoice->id, [
             'amount' => $payment->amount,
         ]);
+
+        event('eloquent.created: App\Models\Payment', $payment);
 
         $this->invoice->next_send_date = null;
         

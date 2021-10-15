@@ -175,6 +175,8 @@ class AutoBillInvoice extends AbstractService
 
         }
 
+        event('eloquent.created: App\Models\Payment', $payment);
+
         $payment->ledger()
                     ->updatePaymentBalance($amount * -1)
                     ->save();
@@ -189,6 +191,7 @@ class AutoBillInvoice extends AbstractService
                           ->updateInvoiceBalance($amount * -1, "Invoice {$this->invoice->number} payment using Credit {$current_credit->number}")
                           ->updateCreditBalance($amount * -1, "Credit {$current_credit->number} used to pay down Invoice {$this->invoice->number}")
                           ->save();
+
 
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
