@@ -13,8 +13,8 @@
 namespace App\PaymentDrivers\Mollie;
 
 use App\Exceptions\PaymentFailed;
-use App\Http\Requests\Request;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Http\Requests\Request;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;

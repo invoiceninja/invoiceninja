@@ -24,7 +24,6 @@ use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\RazorpayPaymentDriver;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Razorpay\Api\Errors\SignatureVerificationError;
@@ -64,9 +63,9 @@ class Hosted implements MethodInterface
 
     /**
      * Payment view for the Razorpay.
-     * 
-     * @param array $data 
-     * @return View 
+     *
+     * @param array $data
+     * @return View
      */
     public function paymentView(array $data): View
     {
@@ -93,9 +92,9 @@ class Hosted implements MethodInterface
 
     /**
      * Handle payments page for Razorpay.
-     * 
-     * @param PaymentResponseRequest $request 
-     * @return void 
+     *
+     * @param PaymentResponseRequest $request
+     * @return void
      */
     public function paymentResponse(PaymentResponseRequest $request)
     {
@@ -119,11 +118,10 @@ class Hosted implements MethodInterface
             $this->razorpay->gateway->utility->verifyPaymentSignature($attributes);
 
             return $this->processSuccessfulPayment($request->razorpay_payment_id);
-        }
-        catch (SignatureVerificationError $exception) {
+        } catch (SignatureVerificationError $exception) {
             return $this->processUnsuccessfulPayment($exception);
         }
-    } 
+    }
 
     /**
      * Handle the successful payment for Razorpay.

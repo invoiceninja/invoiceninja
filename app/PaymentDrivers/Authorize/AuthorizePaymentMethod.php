@@ -213,7 +213,6 @@ class AuthorizePaymentMethod
             }
 
             throw new PaymentFailed($message, 500);
-
         }
     }
 
@@ -253,8 +252,8 @@ class AuthorizePaymentMethod
         }
     }
 
-    public function deletePaymentProfile($gateway_customer_reference, $payment_profile_id) {
-
+    public function deletePaymentProfile($gateway_customer_reference, $payment_profile_id)
+    {
         error_reporting(E_ALL & ~E_DEPRECATED);
 
         $this->authorize->init();
@@ -262,27 +261,23 @@ class AuthorizePaymentMethod
         // Set the transaction's refId
         $refId = 'ref' . time();
 
-          // Use an existing payment profile ID for this Merchant name and Transaction key
+        // Use an existing payment profile ID for this Merchant name and Transaction key
 
-          $request = new DeleteCustomerPaymentProfileRequest();
-          $request->setMerchantAuthentication($this->authorize->merchant_authentication);
-          $request->setCustomerProfileId($gateway_customer_reference);
-          $request->setCustomerPaymentProfileId($payment_profile_id);
-          $controller = new DeleteCustomerPaymentProfileController($request);
+        $request = new DeleteCustomerPaymentProfileRequest();
+        $request->setMerchantAuthentication($this->authorize->merchant_authentication);
+        $request->setCustomerProfileId($gateway_customer_reference);
+        $request->setCustomerPaymentProfileId($payment_profile_id);
+        $controller = new DeleteCustomerPaymentProfileController($request);
 
-          $response = $controller->executeWithApiResponse($this->authorize->mode());
-          if (($response != null) && ($response->getMessages()->getResultCode() == "Ok") )
-          {
-              nlog("SUCCESS: Delete Customer Payment Profile  SUCCESS  :");
-           }
-          else
-          {
-              nlog("ERROR :  Delete Customer Payment Profile: Invalid response\n");
-              $errorMessages = $response->getMessages()->getMessage();
-              nlog("Response : " . $errorMessages[0]->getCode() . "  " .$errorMessages[0]->getText() . "\n");
-          }
+        $response = $controller->executeWithApiResponse($this->authorize->mode());
+        if (($response != null) && ($response->getMessages()->getResultCode() == "Ok")) {
+            nlog("SUCCESS: Delete Customer Payment Profile  SUCCESS  :");
+        } else {
+            nlog("ERROR :  Delete Customer Payment Profile: Invalid response\n");
+            $errorMessages = $response->getMessages()->getMessage();
+            nlog("Response : " . $errorMessages[0]->getCode() . "  " .$errorMessages[0]->getText() . "\n");
+        }
 
-          return $response;
-  }
-
+        return $response;
+    }
 }

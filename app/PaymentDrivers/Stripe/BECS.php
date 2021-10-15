@@ -11,15 +11,15 @@
 
 namespace App\PaymentDrivers\Stripe;
 
+use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use App\PaymentDrivers\StripePaymentDriver;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
-use App\Exceptions\PaymentFailed;
+use App\PaymentDrivers\StripePaymentDriver;
 
 class BECS
 {
@@ -37,7 +37,8 @@ class BECS
         return render('gateways.stripe.becs.authorize', $data);
     }
 
-    public function paymentView(array $data) {
+    public function paymentView(array $data)
+    {
         $data['gateway'] = $this->stripe;
         $data['payment_method_id'] = GatewayType::BECS;
         $data['stripe_amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency());
@@ -66,14 +67,12 @@ class BECS
 
     public function paymentResponse(PaymentResponseRequest $request)
     {
-
         $gateway_response = json_decode($request->gateway_response);
 
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, $request->all());
         $this->stripe->payment_hash->save();
 
         if (property_exists($gateway_response, 'status') && $gateway_response->status == 'processing') {
-
             $this->stripe->init();
             $this->storePaymentMethod($gateway_response);
 
@@ -81,7 +80,6 @@ class BECS
         }
 
         return $this->processUnsuccessfulPayment();
-
     }
 
     public function processSuccessfulPayment(string $payment_intent): \Illuminate\Http\RedirectResponse
@@ -140,7 +138,6 @@ class BECS
     private function storePaymentMethod($intent)
     {
         try {
-
             $method = $this->stripe->getStripePaymentMethod($intent->payment_method);
 
             $payment_meta = new \stdClass;

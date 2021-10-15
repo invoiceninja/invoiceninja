@@ -12,7 +12,6 @@
 
 namespace App\PaymentDrivers\Braintree;
 
-
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Http\Requests\Request;
@@ -65,7 +64,7 @@ class CreditCard
             /** https://developer.paypal.com/braintree/docs/reference/request/client-token/generate#merchant_account_id */
             $data['client_token'] = $this->braintree->gateway->clientToken()->generate([
                 'merchantAccountId' => $this->braintree->company_gateway->getConfigField('merchantAccountId')
-            ]); 
+            ]);
         }
 
         return render('gateways.braintree.credit_card.pay', $data);
@@ -111,7 +110,7 @@ class CreditCard
 
         try {
             $result = $this->braintree->gateway->transaction()->sale($data);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             if ($e instanceof \Braintree\Exception\Authorization) {
                 throw new PaymentFailed(ctrans('texts.generic_gateway_error'), $e->getCode());
             }

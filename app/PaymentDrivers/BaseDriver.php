@@ -163,7 +163,7 @@ class BaseDriver extends AbstractPaymentDriver
 
     /**
      * Detaches a payment method from the gateway
-     * 
+     *
      * @param  ClientGatewayToken $token The gateway token
      * @return bool                      boolean response
      */
@@ -243,13 +243,15 @@ class BaseDriver extends AbstractPaymentDriver
 
         $this->attachInvoices($payment, $this->payment_hash);
 
-        if($this->payment_hash->credits_total() > 0)
+        if ($this->payment_hash->credits_total() > 0) {
             $payment = $payment->service()->applyCredits($this->payment_hash)->save();
+        }
 
         $payment->service()->updateInvoicePayment($this->payment_hash);
 
-        if ($this->client->getSetting('client_online_payment_notification'))
+        if ($this->client->getSetting('client_online_payment_notification')) {
             $payment->service()->sendEmail();
+        }
 
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
@@ -366,10 +368,11 @@ class BaseDriver extends AbstractPaymentDriver
 
         if ($e instanceof CheckoutHttpException) {
             $error = $e->getBody();
-        } else if ($e instanceof Exception) {
+        } elseif ($e instanceof Exception) {
             $error = $e->getMessage();
-        } else
+        } else {
             $error = $e->getMessage();
+        }
 
         PaymentFailureMailer::dispatch(
             $gateway->client,
@@ -392,11 +395,10 @@ class BaseDriver extends AbstractPaymentDriver
 
     public function clientPaymentFailureMailer($error)
     {
-nlog("outside");
+        nlog("outside");
 
         if ($this->payment_hash && is_array($this->payment_hash->invoices())) {
-
-nlog("inside");
+            nlog("inside");
 
             $nmo = new NinjaMailerObject;
             $nmo->mailable = new NinjaMailer((new ClientPaymentFailureObject($this->client, $error, $this->client->company, $this->payment_hash))->build());
@@ -406,23 +408,16 @@ nlog("inside");
             $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
 
             $invoices->each(function ($invoice) {
-
                 $invoice->service()->deletePdf();
-                
             });
 
             $invoices->first()->invitations->each(function ($invitation) use ($nmo) {
-
                 if ($invitation->contact->email) {
-
                     $nmo->to_user = $invitation->contact;
                     NinjaMailerJob::dispatch($nmo);
                 }
-            
             });
-
         }
-
     }
 
     /**
@@ -451,27 +446,21 @@ nlog("inside");
         PaymentFailureMailer::dispatch($this->client, $error, $this->client->company, $this->payment_hash->data->amount_with_fee);
 
         $nmo = new NinjaMailerObject;
-        $nmo->mailable = new NinjaMailer( (new ClientPaymentFailureObject($this->client, $error, $this->client->company, $this->payment_hash))->build() );
+        $nmo->mailable = new NinjaMailer((new ClientPaymentFailureObject($this->client, $error, $this->client->company, $this->payment_hash))->build());
         $nmo->company = $this->client->company;
         $nmo->settings = $this->client->company->settings;
 
         $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
 
-        $invoices->each(function ($invoice){
-
+        $invoices->each(function ($invoice) {
             $invoice->service()->deletePdf();
-
         });
 
-        $invoices->first()->invitations->each(function ($invitation) use ($nmo){
-
+        $invoices->first()->invitations->each(function ($invitation) use ($nmo) {
             if (!$invitation->contact->trashed() && $invitation->contact->email) {
-
                 $nmo->to_user = $invitation->contact;
                 NinjaMailerJob::dispatch($nmo);
-
             }
-
         });
 
         $message = [
@@ -488,9 +477,9 @@ nlog("inside");
             $this->client->company,
         );
 
-        if($client_present)
+        if ($client_present) {
             throw new PaymentFailed($error, 500);
-
+        }
     }
 
 
@@ -601,7 +590,6 @@ nlog("inside");
 
     public function logSuccessfulGatewayResponse($response, $gateway_const)
     {
-
         SystemLogger::dispatch(
             $response,
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
@@ -615,8 +603,8 @@ nlog("inside");
     public function genericWebhookUrl()
     {
         return route('payment_notification_webhook', [
-            'company_key' => $this->client->company->company_key, 
-            'company_gateway_id' => $this->encodePrimaryKey($this->company_gateway->id), 
+            'company_key' => $this->client->company->company_key,
+            'company_gateway_id' => $this->encodePrimaryKey($this->company_gateway->id),
             'client' => $this->encodePrimaryKey($this->client->id),
         ]);
     }
@@ -637,14 +625,15 @@ nlog("inside");
      */
     public function getDescription(bool $abbreviated = true)
     {
-        if(!$this->payment_hash)
+        if (!$this->payment_hash) {
             return "";
+        }
 
-        if($abbreviated)
+        if ($abbreviated) {
             return \implode(', ', collect($this->payment_hash->invoices())->pluck('invoice_number')->toArray());
+        }
 
         return sprintf('%s: %s', ctrans('texts.invoices'), \implode(', ', collect($this->payment_hash->invoices())->pluck('invoice_number')->toArray()));
-
     }
 
     public function disconnect()

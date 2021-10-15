@@ -358,9 +358,9 @@ class MolliePaymentDriver extends BaseDriver
 
     /**
      * Convert the amount to the format that Mollie supports.
-     * 
-     * @param mixed|float $amount 
-     * @return string 
+     *
+     * @param mixed|float $amount
+     * @return string
      */
     public function convertToMollieAmount($amount): string
     {

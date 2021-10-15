@@ -12,21 +12,15 @@
 
 namespace App\PaymentDrivers\PayTrace;
 
-use App\Exceptions\PaymentFailed;
-use App\Jobs\Mail\PaymentFailureMailer;
-use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
-use App\PaymentDrivers\PayFastPaymentDriver;
 use App\PaymentDrivers\PaytracePaymentDriver;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class CreditCard
@@ -42,7 +36,6 @@ class CreditCard
 
     public function authorizeView($data)
     {
-        
         $data['client_key'] = $this->paytrace->getAuthToken();
         $data['gateway'] = $this->paytrace;
 
@@ -57,15 +50,14 @@ class CreditCard
     //if(!$response->success)
     //handle failure
         
- 	public function authorizeResponse($request)
- 	{
+    public function authorizeResponse($request)
+    {
         $data = $request->all();
         
-        $response = $this->createCustomer($data);   
+        $response = $this->createCustomer($data);
 
         return redirect()->route('client.payment_methods.index');
-
- 	}  
+    }
     
     //  "_token" => "Vl1xHflBYQt9YFSaNCPTJKlY5x3rwcFE9kvkw71I"
     //   "company_gateway_id" => "1"
@@ -129,7 +121,6 @@ class CreditCard
         ]);
 
         return $profile->customers[0];
-        
     }
 
     private function buildBillingAddress()
@@ -145,25 +136,22 @@ class CreditCard
 
     public function paymentView($data)
     {
-
         $data['client_key'] = $this->paytrace->getAuthToken();
         $data['gateway'] = $this->paytrace;
 
         return render('gateways.paytrace.pay', $data);
-
     }
 
     public function paymentResponse(Request $request)
     {
         $response_array = $request->all();
 
-        if($request->token){
+        if ($request->token) {
             $token = ClientGatewayToken::find($this->decodePrimaryKey($request->token));
             return $this->processTokenPayment($token->token, $request);
         }
 
         if ($request->has('store_card') && $request->input('store_card') === true) {
-
             $response = $this->createCustomer($request->all());
             
             return $this->processTokenPayment($response->customer_id, $request);
@@ -177,20 +165,19 @@ class CreditCard
             'billing_address' => $this->buildBillingAddress(),
             'amount' => $request->input('amount_with_fee'),
             'invoice_id' => $this->harvestInvoiceId(),
-        ];        
+        ];
 
         $response = $this->paytrace->gatewayRequest('/v1/transactions/sale/pt_protect', $data);
 
-        if($response->success)
+        if ($response->success) {
             return $this->processSuccessfulPayment($response);
+        }
 
         return $this->processUnsuccessfulPayment($response);
-
     }
 
     public function processTokenPayment($token, $request)
     {
-
         $data = [
             'customer_id' => $token,
             'integrator_id' =>  $this->paytrace->company_gateway->getConfigField('integratorId'),
@@ -199,7 +186,7 @@ class CreditCard
 
         $response = $this->paytrace->gatewayRequest('/v1/transactions/sale/by_customer', $data);
 
-        if($response->success){
+        if ($response->success) {
             $this->paytrace->logSuccessfulGatewayResponse(['response' => $response, 'data' => $this->paytrace->payment_hash], SystemLog::TYPE_PAYTRACE);
 
             return $this->processSuccessfulPayment($response);
@@ -213,8 +200,9 @@ class CreditCard
         $_invoice = collect($this->paytrace->payment_hash->data->invoices)->first();
         $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
 
-        if($invoice)
+        if ($invoice) {
             return ctrans('texts.invoice_number') . "# " . $invoice->number;
+        }
 
         return ctrans('texts.invoice_number') . "####";
     }
@@ -232,16 +220,15 @@ class CreditCard
         $payment = $this->paytrace->createPayment($payment_record, Payment::STATUS_COMPLETED);
 
         return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
-
     }
 
     private function processUnsuccessfulPayment($response)
     {
-        
         $error = $response->status_message;
 
-        if(property_exists($response, 'approval_message') && $response->approval_message)
+        if (property_exists($response, 'approval_message') && $response->approval_message) {
             $error .= " - {$response->approval_message}";
+        }
 
         $error_code = property_exists($response, 'approval_message') ? $response->approval_message : 'Undefined code';
 
@@ -252,7 +239,5 @@ class CreditCard
         ];
 
         return $this->paytrace->processUnsuccessfulTransaction($data);
-
     }
-
 }

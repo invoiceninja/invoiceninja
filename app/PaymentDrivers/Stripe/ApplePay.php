@@ -12,16 +12,10 @@
 
 namespace App\PaymentDrivers\Stripe;
 
-use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use App\Jobs\Mail\PaymentFailureMailer;
-use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
-use App\Models\Payment;
-use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
-use App\PaymentDrivers\Stripe\CreditCard;
 use App\Utils\Ninja;
 
 class ApplePay
@@ -60,7 +54,6 @@ class ApplePay
 
     public function paymentResponse(PaymentResponseRequest $request)
     {
-
         $this->stripe_driver->init();
 
         $state = [
@@ -80,38 +73,27 @@ class ApplePay
         $response_handler = new CreditCard($this->stripe_driver);
 
         if ($server_response->status == 'succeeded') {
-
             $this->stripe_driver->logSuccessfulGatewayResponse(['response' => json_decode($request->gateway_response), 'data' => $this->stripe_driver->payment_hash], SystemLog::TYPE_STRIPE);
 
             return $response_handler->processSuccessfulPayment();
         }
 
         return $response_handler->processUnsuccessfulPayment($server_response);
-
-
     }
 
 
     private function registerDomain()
     {
-        if(Ninja::isHosted())
-        {
-        
+        if (Ninja::isHosted()) {
             $domain = isset($this->stripe_driver->company_gateway->company->portal_domain) ? $this->stripe_driver->company_gateway->company->portal_domain : $this->stripe_driver->company_gateway->company->domain();
 
             \Stripe\ApplePayDomain::create([
               'domain_name' => $domain,
             ], $this->stripe_driver->stripe_connect_auth);
-            
-        }
-        else {
-
+        } else {
             \Stripe\ApplePayDomain::create([
               'domain_name' => config('ninja.app_url'),
             ]);
-
         }
-
-    }   
+    }
 }
-

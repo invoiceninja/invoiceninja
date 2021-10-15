@@ -12,8 +12,6 @@
 
 namespace App\PaymentDrivers;
 
-
-use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
@@ -28,7 +26,6 @@ use App\PaymentDrivers\Braintree\CreditCard;
 use App\PaymentDrivers\Braintree\PayPal;
 use Braintree\Gateway;
 use Exception;
-use Illuminate\Http\Request;
 
 class BraintreePaymentDriver extends BaseDriver
 {
@@ -119,8 +116,7 @@ class BraintreePaymentDriver extends BaseDriver
         ]);
 
         if ($result->success) {
-
-             $address = $this->gateway->address()->create([
+            $address = $this->gateway->address()->create([
                 'customerId' => $result->customer->id,
                 'firstName' => $this->client->present()->name,
                 'streetAddress' => $this->client->address1,
@@ -136,12 +132,9 @@ class BraintreePaymentDriver extends BaseDriver
     {
         $this->init();
 
-        try{
-
+        try {
             $response = $this->gateway->transaction()->refund($payment->transaction_reference, $amount);
-
         } catch (Exception $e) {
-
             $data = [
                 'transaction_reference' => null,
                 'transaction_response' => json_encode($e->getMessage()),
@@ -155,9 +148,7 @@ class BraintreePaymentDriver extends BaseDriver
             return $data;
         }
 
-        if($response->success)
-        {
-
+        if ($response->success) {
             $data = [
                 'transaction_reference' => $response->id,
                 'transaction_response' => json_encode($response),
@@ -169,10 +160,7 @@ class BraintreePaymentDriver extends BaseDriver
             SystemLogger::dispatch(['server_response' => $response, 'data' => $data], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_BRAINTREE, $this->client, $this->client->company);
 
             return $data;
-
-        }
-        else{
-
+        } else {
             $error = $response->errors->deepAll()[0];
 
             $data = [
@@ -186,7 +174,6 @@ class BraintreePaymentDriver extends BaseDriver
             SystemLogger::dispatch(['server_response' => $response, 'data' => $data], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_BRAINTREE, $this->client, $this->client->company);
 
             return $data;
-
         }
     }
 

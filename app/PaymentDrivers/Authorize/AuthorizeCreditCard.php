@@ -17,7 +17,6 @@ use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
-use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
@@ -102,11 +101,10 @@ class AuthorizeCreditCard
 
         $data = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($cgt->gateway_customer_reference, $cgt->token, $amount);
 
-       $response = $data['response'];
+        $response = $data['response'];
 
         // if ($response != null && $response->getMessages()->getResultCode() == 'Ok') {
         if ($response != null && $response->getMessages() != null) {
-
             $this->storePayment($payment_hash, $data);
 
             $vars = [
@@ -123,7 +121,6 @@ class AuthorizeCreditCard
 
             return true;
         } else {
-
             $vars = [
                 'invoices' => $payment_hash->invoices(),
                 'amount' => $amount,
@@ -236,7 +233,6 @@ class AuthorizeCreditCard
         );
 
         throw new PaymentFailed($description, $code);
-
     }
 
     private function formatGatewayResponse($data, $vars)
@@ -246,7 +242,7 @@ class AuthorizeCreditCard
         $code = '';
         $description = '';
 
-        if($response->getMessages() !== null){
+        if ($response->getMessages() !== null) {
             $code = $response->getMessages()[0]->getCode();
             $description = $response->getMessages()[0]->getDescription();
         }

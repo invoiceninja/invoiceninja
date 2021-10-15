@@ -20,15 +20,13 @@ use App\Models\SystemLog;
 
 trait WePayCommon
 {
-
-
     private function processSuccessfulPayment($response, $payment_status, $gateway_type, $return_payment = false)
     {
-
-        if($gateway_type == GatewayType::BANK_TRANSFER)
+        if ($gateway_type == GatewayType::BANK_TRANSFER) {
             $payment_type = PaymentType::ACH;
-        else
+        } else {
             $payment_type = PaymentType::CREDIT_CARD_OTHER;
+        }
 
         $data = [
             'payment_type' => $payment_type,
@@ -39,7 +37,7 @@ trait WePayCommon
 
         $payment = $this->wepay_payment_driver->createPayment($data, $payment_status);
 
-         SystemLogger::dispatch(
+        SystemLogger::dispatch(
             ['response' => $this->wepay_payment_driver->payment_hash->data->server_response, 'data' => $data],
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_SUCCESS,
@@ -48,8 +46,9 @@ trait WePayCommon
             $this->wepay_payment_driver->client->company,
         );
 
-         if($return_payment)
+        if ($return_payment) {
             return $payment;
+        }
 
         return redirect()->route('client.payments.show', ['payment' => $this->wepay_payment_driver->encodePrimaryKey($payment->id)]);
     }
@@ -81,5 +80,4 @@ trait WePayCommon
 
         throw new PaymentFailed('Failed to process the payment.', 500);
     }
-
 }

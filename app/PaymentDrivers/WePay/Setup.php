@@ -12,7 +12,6 @@
 namespace App\PaymentDrivers\WePay;
 
 use App\PaymentDrivers\WePayPaymentDriver;
-use Illuminate\Http\Request;
 
 class Setup
 {
@@ -32,5 +31,4 @@ class Setup
         
         return render('gateways.wepay.signup.index', $data);
     }
- 
 }

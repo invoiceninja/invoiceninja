@@ -156,7 +156,7 @@ class CheckoutComPaymentDriver extends BaseDriver
             $fields[] = ['name' => 'client_country_id', 'label' => ctrans('texts.country'), 'type' => 'text', 'validation' => 'required'];
         }
 
-        if($this->company_gateway->require_postal_code) {
+        if ($this->company_gateway->require_postal_code) {
             $fields[] = ['name' => 'client_postal_code', 'label' => ctrans('texts.postal_code'), 'type' => 'text', 'validation' => 'required'];
         }
 
@@ -285,7 +285,8 @@ class CheckoutComPaymentDriver extends BaseDriver
                 $this->unWindGatewayFees($payment_hash);
 
                 PaymentFailureMailer::dispatch(
-                    $this->client, $response->response_summary,
+                    $this->client,
+                    $response->response_summary,
                     $this->client->company,
                     $amount
                 );
