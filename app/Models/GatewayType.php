@@ -32,6 +32,7 @@ class GatewayType extends StaticModel
     const GIROPAY = 15;
     const PRZELEWY24 = 16;
     const EPS = 17;
+    const DIRECT_DEBIT = 18;
 
     public function gateway()
     {
