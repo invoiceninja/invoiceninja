@@ -15,9 +15,19 @@ namespace App\PaymentDrivers\GoCardless;
 use App\Http\Requests\Request;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\PaymentDrivers\Common\MethodInterface;
+use App\PaymentDrivers\GoCardlessPaymentDriver;
 
 class DirectDebit implements MethodInterface
 {
+    protected GoCardlessPaymentDriver $go_cardless;
+
+    public function __construct(GoCardlessPaymentDriver $go_cardless)
+    {
+        $this->go_cardless = $go_cardless;
+
+        $this->go_cardless->init();
+    }
+
     public function authorizeView(array $data) { }
 
     public function authorizeResponse(Request $request) { }
