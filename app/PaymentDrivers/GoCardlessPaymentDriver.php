@@ -38,6 +38,7 @@ class GoCardlessPaymentDriver extends BaseDriver
 
     public static $methods = [
         GatewayType::BANK_TRANSFER => \App\PaymentDrivers\GoCardless\ACH::class,
+        GatewayType::DIRECT_DEBIT => \App\PaymentDrivers\GoCardless\DirectDebit::class,
     ];
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_GOCARDLESS;
@@ -61,6 +62,14 @@ class GoCardlessPaymentDriver extends BaseDriver
             && in_array($this->client->country->iso_3166_3, ['USA'])
         ) {
             $types[] = GatewayType::BANK_TRANSFER;
+        }
+
+        if (
+            $this->client
+            && isset($this->client->country)
+            && in_array($this->client->country->iso_3166_3, ['GBR'])
+        ) {
+            $types[] = GatewayType::DIRECT_DEBIT;
         }
 
         return $types;
