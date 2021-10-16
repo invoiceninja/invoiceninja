@@ -79,6 +79,8 @@ class GatewayType extends StaticModel
                 return ctrans('texts.giropay');
             case self::EPS:
                 return ctrans('texts.eps');
+            case self::DIRECT_DEBIT:
+                return ctrans('texts.payment_type_direct_debit');
             default:
                 return 'Undefined.';
                 break;
