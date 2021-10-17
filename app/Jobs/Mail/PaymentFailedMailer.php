@@ -17,6 +17,9 @@ use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
 use App\Mail\Admin\EntityNotificationMailer;
 use App\Mail\Admin\PaymentFailureObject;
+use App\Models\Client;
+use App\Models\Company;
+use App\Models\PaymentHash;
 use App\Models\User;
 use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Bus\Queueable;
@@ -28,19 +31,17 @@ use Illuminate\Support\Facades\Mail;
 
 /*Multi Mailer implemented*/
 
-class PaymentFailureMailer implements ShouldQueue
+class PaymentFailedMailer implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, UserNotifies;
 
-    public $client;
+    public PaymentHash $payment_hash;
 
-    public $error;
+    public string $error;
 
-    public $company;
+    public Company $company;
 
-    public $amount;
-
-    public $settings;
+    public Client $client;
 
     /**
      * Create a new job instance.
@@ -50,19 +51,14 @@ class PaymentFailureMailer implements ShouldQueue
      * @param $company
      * @param $amount
      */
-    public function __construct($client, $error, $company, $amount)
+    public function __construct(?PaymentHash $payment_hash, Company $company, Client $client, string $error)
     {
-        $this->company = $company;
 
-        $this->error = $error;
-
+        $this->payment_hash = $payment_hash;
         $this->client = $client;
-
-        $this->amount = $amount;
-
+        $this->error = $error;
         $this->company = $company;
 
-        $this->settings = $client->getMergedSettings();
     }
 
     /**
@@ -76,8 +72,14 @@ class PaymentFailureMailer implements ShouldQueue
         //Set DB
         MultiDB::setDb($this->company->db);
 
+        $settings = $this->client->getMergedSettings();
+        $amount = 0;
+
+        if($this->payment_hash)
+            $amount = array_sum(array_column($this->payment_hash->invoices(), 'amount')) + $this->payment_hash->fee_total;
+
         //iterate through company_users
-        $this->company->company_users->each(function ($company_user) {        
+        $this->company->company_users->each(function ($company_user) use($amount, $settings){        
 
             //determine if this user has the right permissions
             $methods = $this->findCompanyUserNotificationType($company_user, ['payment_failure','all_notifications']);
@@ -86,13 +88,13 @@ class PaymentFailureMailer implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
-                $mail_obj = (new PaymentFailureObject($this->client, $this->error, $this->company, $this->amount, null))->build();
+                $mail_obj = (new PaymentFailureObject($this->client, $this->error, $this->company, $amount, $this->payment_hash))->build();
 
                 $nmo = new NinjaMailerObject;
                 $nmo->mailable = new NinjaMailer($mail_obj);
                 $nmo->company = $this->company;
                 $nmo->to_user = $company_user->user;
-                $nmo->settings = $this->settings;
+                $nmo->settings = $settings;
 
                 NinjaMailerJob::dispatch($nmo);
 
@@ -101,4 +103,7 @@ class PaymentFailureMailer implements ShouldQueue
 
         //add client payment failures here.
     }
+
+
+
 }

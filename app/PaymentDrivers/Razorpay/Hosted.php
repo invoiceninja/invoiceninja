@@ -16,7 +16,6 @@ namespace App\PaymentDrivers\Razorpay;
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Http\Requests\Request;
-use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\Payment;
@@ -163,12 +162,8 @@ class Hosted implements MethodInterface
      */
     public function processUnsuccessfulPayment(\Exception $exception): void
     {
-        PaymentFailureMailer::dispatch(
-            $this->razorpay->client,
-            $exception->getMessage(),
-            $this->razorpay->client->company,
-            $this->razorpay->payment_hash->data->amount_with_fee
-        );
+
+        $this->razorpay->sendFailureMail($exception->getMessage());
 
         SystemLogger::dispatch(
             $exception->getMessage(),
@@ -180,5 +175,6 @@ class Hosted implements MethodInterface
         );
 
         throw new PaymentFailed($exception->getMessage(), $exception->getCode());
+    
     }
 }

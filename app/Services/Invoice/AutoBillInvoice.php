@@ -107,7 +107,7 @@ class AutoBillInvoice extends AbstractService
         /* Build payment hash */
         $payment_hash = PaymentHash::create([
             'hash' => Str::random(64),
-            'data' => ['invoices' => [['invoice_id' => $this->invoice->hashed_id, 'amount' => $amount]]],
+            'data' => ['invoices' => [['invoice_id' => $this->invoice->hashed_id, 'amount' => $amount, 'invoice_number' => $this->invoice->number]]],
             'fee_total' => $fee,
             'fee_invoice_id' => $this->invoice->id,
         ]);

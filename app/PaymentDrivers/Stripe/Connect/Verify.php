@@ -18,7 +18,6 @@ use App\Http\Requests\ClientPortal\PaymentMethod\VerifyPaymentMethodRequest;
 use App\Http\Requests\Request;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
-use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Mail\Gateways\ACHVerificationNotification;
 use App\Models\ClientGatewayToken;

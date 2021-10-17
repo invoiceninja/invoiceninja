@@ -12,7 +12,6 @@
 namespace App\PaymentDrivers;
 
 use App\Http\Requests\Payments\PaymentWebhookRequest;
-use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
@@ -148,12 +147,7 @@ class GoCardlessPaymentDriver extends BaseDriver
                 return $payment;
             }
 
-            PaymentFailureMailer::dispatch(
-                $this->client,
-                $payment->status,
-                $this->client->company,
-                $amount
-            );
+            $this->sendFailureMail($payment->status);
 
             $message = [
                 'server_response' => $payment,

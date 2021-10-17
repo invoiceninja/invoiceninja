@@ -14,7 +14,6 @@ namespace App\PaymentDrivers\Stripe;
 
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\Payment;
@@ -98,14 +97,7 @@ class Alipay
     {
         $server_response = $this->stripe->payment_hash->data;
 
-        PaymentFailureMailer::dispatch($this->stripe->client, $server_response->redirect_status, $this->stripe->client->company, $server_response->amount);
-
-        PaymentFailureMailer::dispatch(
-            $this->stripe->client,
-            $server_response,
-            $this->stripe->client->company,
-            $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency())
-        );
+        $this->stripe->sendFailureMail($server_response->redirect_status);
 
         $message = [
             'server_response' => $server_response,

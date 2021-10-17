@@ -519,31 +519,7 @@ class Client extends BaseModel implements HasLocalePreference
         }
 
         return null;
-        // $company_gateways = $this->getSetting('company_gateway_ids');
 
-        // if (strlen($company_gateways) >= 1) {
-        //     $transformed_ids = $this->transformKeys(explode(',', $company_gateways));
-        //     $gateways = $this->company
-        //                      ->company_gateways
-        //                      ->whereIn('id', $transformed_ids)
-        //                      ->sortby(function ($model) use ($transformed_ids) {
-        //                          return array_search($model->id, $transformed_ids);
-        //                      });
-        // } else {
-        //     $gateways = $this->company->company_gateways;
-        // }
-
-        // foreach ($gateways as $gateway) {
-        //     if ($this->currency()->code == 'USD' && in_array(GatewayType::BANK_TRANSFER, $gateway->driver($this)->gatewayTypeEnabled(GatewayType::BANK_TRANSFER))) {
-        //         return $gateway;
-        //     }
-
-        //     if ($this->currency()->code == 'EUR' && in_array(GatewayType::SEPA, $gateway->driver($this)->gatewayTypeEnabled(GatewayType::SEPA))) {
-        //         return $gateway;
-        //     }
-        // }
-
-        // return null;
     }
 
     public function getBankTransferMethodType()

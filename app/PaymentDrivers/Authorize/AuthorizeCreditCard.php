@@ -13,7 +13,6 @@
 namespace App\PaymentDrivers\Authorize;
 
 use App\Exceptions\PaymentFailed;
-use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
@@ -134,7 +133,15 @@ class AuthorizeCreditCard
                 'data' => $this->formatGatewayResponse($data, $vars),
             ];
 
-            PaymentFailureMailer::dispatch($this->authorize->client, $response->getTransId(), $this->authorize->client->company, $amount);
+            $code = "Error";
+            $description = "There was an error processing the payment";
+
+            if ($response->getErrors() != null) {
+                $code = $response->getErrors()[0]->getErrorCode();
+                $description = $response->getErrors()[0]->getErrorText();
+            }
+
+            $this->authorize->sendFailureMail($description);
 
             SystemLogger::dispatch($logger_message, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_AUTHORIZE, $this->authorize->client, $this->authorize->client->company);
 
@@ -212,7 +219,7 @@ class AuthorizeCreditCard
             $description = $response->getErrors()[0]->getErrorText();
         }
 
-        PaymentFailureMailer::dispatch($this->authorize->client, $response->getTransId(), $this->authorize->client->company, $amount);
+        $this->authorize->sendFailureMail($description);
 
         $payment_hash = PaymentHash::where('hash', $request->input('payment_hash'))->firstOrFail(); 
 
