@@ -175,6 +175,8 @@ abstract class QueryFilters
 
     public function is_deleted($value)
     {
+        if($value == 'true')
+            return $this->builder->where('is_deleted', $value)->withTrashed();
 
         return $this->builder->where('is_deleted', $value);
 
