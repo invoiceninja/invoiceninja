@@ -373,11 +373,14 @@ class BaseDriver extends AbstractPaymentDriver
         } else
             $error = $e->getMessage();
 
+        $amount = array_sum(array_column($this->payment_hash->invoices(), 'amount')) + $this->payment_hash->fee_total;
+
+
         PaymentFailureMailer::dispatch(
             $gateway->client,
             $error,
             $gateway->client->company,
-            $this->payment_hash
+            $amount
         );
 
         SystemLogger::dispatch(

@@ -214,7 +214,7 @@ class AuthorizeCreditCard
 
         PaymentFailureMailer::dispatch($this->authorize->client, $response->getTransId(), $this->authorize->client->company, $amount);
 
-        $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$request->input('payment_hash')])->firstOrFail();
+        $payment_hash = PaymentHash::where('hash', $request->input('payment_hash'))->firstOrFail(); 
 
         $vars = [
             'invoices' => $payment_hash->invoices(),

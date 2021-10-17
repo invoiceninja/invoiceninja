@@ -65,7 +65,7 @@ trait Refundable
         $line_items[] = $credit_line_item;
 
         $credit_note->save();
-        $credit_note->number = $this->client->getNextCreditNumber($this->client);
+        $credit_note->number = $this->client->getNextCreditNumber($this->client, $credit_note);
         $credit_note->save();
 
         $this->createActivity($data, $credit_note->id);
@@ -165,7 +165,7 @@ trait Refundable
         $credit_note->line_items = $line_items;
         $credit_note->save();
 
-        $credit_note->number = $this->client->getNextCreditNumber($this->client);
+        $credit_note->number = $this->client->getNextCreditNumber($this->client, $credit_note);
         $credit_note->save();
 
         if ($data['gateway_refund'] !== false && $total_refund > 0) {
