@@ -332,7 +332,7 @@ class MultiDB
         $current_db = config('database.default');  
 
         foreach (self::$dbs as $db) {
-            if ($invite = $class::on($db)->whereRaw('BINARY `key`= ?', [$invitation_key])->exists()) {
+            if ($invite = $class::on($db)->where('key', $invitation_key)->exists()) {
                 self::setDb($db);
                 return true;
             }

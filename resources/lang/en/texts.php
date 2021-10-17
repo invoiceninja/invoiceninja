@@ -2479,6 +2479,8 @@ $LANG = array(
     'currency_cambodian_riel' => 'Cambodian Riel',
     'currency_vanuatu_vatu' => 'Vanuatu Vatu',
 
+    'currency_cuban_peso' => 'Cuban Peso',
+
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider :link we\'d greatly appreciate it!',
     'writing_a_review' => 'writing a review',
 
@@ -4325,6 +4327,7 @@ $LANG = array(
     'giropay' => 'GiroPay',
     'giropay_law' => 'By entering your Customer information (such as name, sort code and account number) you (the Customer) agree that this information is given voluntarily.',
     'eps' => 'EPS',
+    'you_need_to_accept_the_terms_before_proceeding' => 'You need to accept the terms before proceeding.',
 );
 
 return $LANG;

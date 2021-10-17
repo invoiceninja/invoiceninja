@@ -15,7 +15,6 @@ namespace App\PaymentDrivers\GoCardless;
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Http\Requests\Request;
-use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
@@ -228,15 +227,8 @@ class ACH implements MethodInterface
      */
     public function processUnsuccessfulPayment(\GoCardlessPro\Resources\Payment $payment)
     {
-        PaymentFailureMailer::dispatch($this->go_cardless->client, $payment->status, $this->go_cardless->client->company, $this->go_cardless->payment_hash->data->amount_with_fee);
-
-        PaymentFailureMailer::dispatch(
-            $this->go_cardless->client,
-            $payment,
-            $this->go_cardless->client->company,
-            $payment->amount
-        );
-
+        $this->go_cardless->sendFailureMail($payment->status);
+        
         $message = [
             'server_response' => $payment,
             'data' => $this->go_cardless->payment_hash->data,

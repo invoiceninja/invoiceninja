@@ -207,4 +207,17 @@ abstract class QueryFilters
 
         return $this->builder;
     }
+
+    public function with_trashed($value)
+    {
+
+        if($value == 'true'){
+
+            $this->builder->withTrashed();
+
+        }
+
+        return $this->builder;
+
+    }
 }

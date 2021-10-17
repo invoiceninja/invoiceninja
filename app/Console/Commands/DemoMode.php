@@ -486,7 +486,7 @@ class DemoMode extends Command
         if (rand(0, 1)) {
             $invoice->assigned_user_id = $assigned_user_id;
         }
-        $invoice->number = $this->getNextRecurringInvoiceNumber($client);
+        $invoice->number = $this->getNextRecurringInvoiceNumber($client, $invoice);
         $invoice->save();
     }
 

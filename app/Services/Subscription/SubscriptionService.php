@@ -693,6 +693,8 @@ class SubscriptionService
     public function convertInvoiceToRecurring($client_id) :RecurringInvoice
     {
 
+        $client = Client::find($client_id);
+
         $subscription_repo = new SubscriptionRepository();
 
         $recurring_invoice = RecurringInvoiceFactory::create($this->subscription->company_id, $this->subscription->user_id);
@@ -702,8 +704,21 @@ class SubscriptionService
         $recurring_invoice->frequency_id = $this->subscription->frequency_id ?: RecurringInvoice::FREQUENCY_MONTHLY;
         $recurring_invoice->date = now();
         $recurring_invoice->remaining_cycles = -1;
-
+        $recurring_invoice->auto_bill = $client->getSetting('auto_bill');
+        $recurring_invoice->auto_bill_enabled =  $this->setAutoBillFlag($recurring_invoice->auto_bill);
+        $recurring_invoice->due_date_days = 'terms';
+        
         return $recurring_invoice;
+    }
+
+    private function setAutoBillFlag($auto_bill)
+    {
+        if ($auto_bill == 'always' || $auto_bill == 'optout') {
+            return true;
+        }
+
+        return false;
+        
     }
 
     /**

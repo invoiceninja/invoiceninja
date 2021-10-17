@@ -107,7 +107,7 @@ class AutoBillInvoice extends AbstractService
         /* Build payment hash */
         $payment_hash = PaymentHash::create([
             'hash' => Str::random(64),
-            'data' => ['invoices' => [['invoice_id' => $this->invoice->hashed_id, 'amount' => $amount]]],
+            'data' => ['invoices' => [['invoice_id' => $this->invoice->hashed_id, 'amount' => $amount, 'invoice_number' => $this->invoice->number]]],
             'fee_total' => $fee,
             'fee_invoice_id' => $this->invoice->id,
         ]);
@@ -175,6 +175,8 @@ class AutoBillInvoice extends AbstractService
 
         }
 
+        event('eloquent.created: App\Models\Payment', $payment);
+
         $payment->ledger()
                     ->updatePaymentBalance($amount * -1)
                     ->save();
@@ -189,6 +191,7 @@ class AutoBillInvoice extends AbstractService
                           ->updateInvoiceBalance($amount * -1, "Invoice {$this->invoice->number} payment using Credit {$current_credit->number}")
                           ->updateCreditBalance($amount * -1, "Credit {$current_credit->number} used to pay down Invoice {$this->invoice->number}")
                           ->save();
+
 
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
@@ -356,9 +359,9 @@ class AutoBillInvoice extends AbstractService
         $items[] = $item;
 
         $this->invoice->line_items = $items;
-        $this->invoice->save();
+        $this->invoice->saveQuietly();
 
-        $this->invoice = $this->invoice->calc()->getInvoice()->save();
+        $this->invoice = $this->invoice->calc()->getInvoice()->saveQuietly();
 
         if ($starting_amount != $this->invoice->amount && $this->invoice->status_id != Invoice::STATUS_DRAFT) {
             $this->invoice->client->service()->updateBalance($this->invoice->amount - $starting_amount)->save();

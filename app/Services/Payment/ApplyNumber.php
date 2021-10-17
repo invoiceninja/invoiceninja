@@ -34,7 +34,7 @@ class ApplyNumber extends AbstractService
             return $this->payment;
         }
 
-        $this->payment->number = $this->getNextPaymentNumber($this->client);
+        $this->payment->number = $this->getNextPaymentNumber($this->client, $this->payment);
 
         return $this->payment;
     }

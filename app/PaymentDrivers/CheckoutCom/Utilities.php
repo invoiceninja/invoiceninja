@@ -13,7 +13,6 @@
 namespace App\PaymentDrivers\CheckoutCom;
 
 use App\Exceptions\PaymentFailed;
-use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\PaymentType;
@@ -85,12 +84,8 @@ trait Utilities
 
     public function processUnsuccessfulPayment(Payment $_payment, $throw_exception = true)
     {
-        PaymentFailureMailer::dispatch(
-            $this->getParent()->client,
-            $_payment,
-            $this->getParent()->client->company,
-            $this->getParent()->payment_hash->data->value
-        );
+
+        $this->getParent()->sendFailureMail($_payment->status . " " . $_payment->response_summary);
 
         $message = [
             'server_response' => $_payment,
@@ -107,7 +102,7 @@ trait Utilities
         );
 
         if ($throw_exception) {
-            throw new PaymentFailed($_payment->status, $_payment->http_code);
+            throw new PaymentFailed($_payment->status . " " . $_payment->response_summary, $_payment->http_code);
         }
     }
 

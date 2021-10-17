@@ -36,7 +36,7 @@ class ApplyNumber extends AbstractService
         if ($this->recurring_entity->number != '')
             return $this->recurring_entity;
 
-        $this->recurring_entity->number = $this->getNextRecurringInvoiceNumber($this->client);
+        $this->recurring_entity->number = $this->getNextRecurringInvoiceNumber($this->client, $this->recurring_entity);
 
         return $this->recurring_entity;
     }

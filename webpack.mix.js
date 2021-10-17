@@ -114,6 +114,10 @@ mix.js("resources/js/app.js", "public/js")
         "resources/js/clients/payments/stripe-sepa.js",
         "public/js/clients/payments/stripe-sepa.js"
     )
+    .js(
+        "resources/js/clients/payment_methods/authorize-checkout-card.js",
+        "public/js/clients/payment_methods/authorize-checkout-card.js"
+    )
 
 mix.copyDirectory('node_modules/card-js/card-js.min.css', 'public/css/card-js.min.css');
 

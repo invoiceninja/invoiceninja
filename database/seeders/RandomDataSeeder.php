@@ -15,8 +15,6 @@ use App\DataMapper\CompanySettings;
 use App\Events\Payment\PaymentWasCreated;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
-use App\Listeners\Credit\CreateCreditInvitation;
-use App\Listeners\Invoice\CreateInvoiceInvitation;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -203,8 +201,6 @@ class RandomDataSeeder extends Seeder
 
             $invoice->save();
 
-            //event(new CreateInvoiceInvitation($invoice));
-
             $invoice->service()->createInvitations()->markSent()->save();
 
             $invoice->ledger()->updateInvoiceBalance($invoice->balance);
@@ -257,7 +253,6 @@ class RandomDataSeeder extends Seeder
 
             $credit->save();
 
-            //event(new CreateCreditInvitation($credit));
             $credit->service()->createInvitations()->markSent()->save();
 
             //$invoice->markSent()->save();

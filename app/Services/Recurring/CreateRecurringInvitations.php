@@ -12,11 +12,14 @@
 namespace App\Services\Recurring;
 
 use App\Services\AbstractService;
+use App\Utils\Traits\MakesHash;
 use Exception;
 use Illuminate\Support\Str;
 
 class CreateRecurringInvitations extends AbstractService
 {
+    use MakesHash;
+    
     private $entity;
 
     private $entity_name;
@@ -48,6 +51,7 @@ class CreateRecurringInvitations extends AbstractService
 
                 if (! $invitation && $contact->send_email) {
                     $ii = $this->invitation_factory::create($this->entity->company_id, $this->entity->user_id);
+                    $ii->key = $this->createDbHash(config('database.default'));
                     $ii->{$this->entity_id_name} = $this->entity->id;
                     $ii->client_contact_id = $contact->id;
                     $ii->save();

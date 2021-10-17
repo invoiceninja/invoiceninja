@@ -75,7 +75,7 @@ class HandleCancellation extends AbstractService
         $backup = $this->invoice->backup;
         unset($backup->cancellation);
         $this->invoice->backup = $backup;
-        $this->invoice->save();
+        $this->invoice->saveQuietly();
 
         return $this->invoice;
     }
@@ -101,6 +101,6 @@ class HandleCancellation extends AbstractService
         $invoice_backup->cancellation = $cancellation;
 
         $this->invoice->backup = $invoice_backup;
-        $this->invoice->save();
+        $this->invoice->saveQuietly();
     }
 }

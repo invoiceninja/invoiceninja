@@ -73,7 +73,7 @@ class Statement
 
         $state = [
             'template' => $template->elements([
-                'client' => $this->entity->client,
+                'client' => $this->client,
                 'entity' => $this->entity,
                 'pdf_variables' => (array)$this->entity->company->settings->pdf_variables,
                 '$product' => $this->getDesign()->design->product,
@@ -219,7 +219,9 @@ class Statement
      */
     protected function getInvoices(): Collection
     {
-        return Invoice::where('company_id', $this->client->company->id)
+        return Invoice::withTrashed()
+            ->where('is_deleted', false)
+            ->where('company_id', $this->client->company_id)
             ->where('client_id', $this->client->id)
             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
             ->whereBetween('date', [$this->options['start_date'], $this->options['end_date']])
@@ -234,7 +236,10 @@ class Statement
      */
     protected function getPayments(): Collection
     {
-        return Payment::where('company_id', $this->client->company->id)
+        return Payment::withTrashed()
+            ->with('client.country','invoices')
+            ->where('is_deleted', false)
+            ->where('company_id', $this->client->company_id)
             ->where('client_id', $this->client->id)
             ->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
             ->whereBetween('date', [$this->options['start_date'], $this->options['end_date']])
@@ -285,18 +290,16 @@ class Statement
         $from = $ranges[0];
         $to = $ranges[1];
 
-        $client = Client::where('id', $this->client->id)->first();
-
-        $amount = Invoice::where('company_id', $this->client->company->id)
-            ->where('client_id', $client->id)
+        $amount = Invoice::withTrashed()
+            ->where('client_id', $this->client->id)
             ->where('company_id', $this->client->company_id)
             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
             ->where('balance', '>', 0)
             ->where('is_deleted', 0)
-            ->whereBetween('date', [$to, $from])
+            ->whereBetween('due_date', [$to, $from])
             ->sum('balance');
 
-        return Number::formatMoney($amount, $client);
+        return Number::formatMoney($amount, $this->client);
     }
 
     /**
@@ -328,7 +331,7 @@ class Statement
                 return $ranges;
             case '120+':
                 $ranges[0] = now()->startOfDay()->subDays(120);
-                $ranges[1] = now()->startOfDay()->subYears(40);
+                $ranges[1] = now()->startOfDay()->subYears(20);
                 return $ranges;
             default:
                 $ranges[0] = now()->startOfDay()->subDays(0);

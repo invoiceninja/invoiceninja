@@ -39,11 +39,13 @@ class PaymentService
         $payment->transaction_reference = ctrans('texts.manual_entry');
         $payment->currency_id = $invoice->client->getSetting('currency_id');
         /* Create a payment relationship to the invoice entity */
-        $payment->save();
+        $payment->saveQuietly();
 
         $payment->invoices()->attach($invoice->id, [
             'amount' => $payment->amount,
         ]);
+
+        event('eloquent.created: App\Models\Payment', $payment);
 
         return $payment;
     }
@@ -145,7 +147,7 @@ class PaymentService
 
     public function save()
     {
-        $this->payment->save();
+        $this->payment->saveQuietly();
 
         return $this->payment->fresh();
     }

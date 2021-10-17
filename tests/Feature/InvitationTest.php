@@ -113,6 +113,7 @@ class InvitationTest extends TestCase
         $this->assertNotNull($invoice->client->primary_contact);
 
         $i = InvoiceInvitationFactory::create($invoice->company_id, $invoice->user_id);
+        $i->key = $this->createDbHash(config('database.default'));
         $i->client_contact_id = $client->primary_contact->first()->id;
         $i->invoice_id = $invoice->id;
         $i->save();

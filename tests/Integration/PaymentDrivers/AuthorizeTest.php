@@ -311,9 +311,9 @@ class AuthorizeTest extends TestCase
         $response = $controller->executeWithApiResponse(\net\authorize\api\constants\ANetEnvironment::SANDBOX);
 
         // nlog($response);
-        nlog($response->getTransactionResponse()->getMessages() !== null);
-        nlog($response->getTransactionResponse()->getMessages());
-        nlog($response->getTransactionResponse()->getMessages()[0]);
+        // nlog($response->getTransactionResponse()->getMessages() !== null);
+        // nlog($response->getTransactionResponse()->getMessages());
+        // nlog($response->getTransactionResponse()->getMessages()[0]);
         //nlog($response->getTransactionResponse()->getMessages()[0]->getCode());
 
         $code = '';

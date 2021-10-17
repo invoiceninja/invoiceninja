@@ -336,6 +336,14 @@ class CompanyExport implements ShouldQueue
 
         })->all();
 
+        $this->export_data['recurring_expenses'] = $this->company->recurring_expenses->map(function ($expense){
+
+            $expense = $this->transformBasicEntities($expense);
+            $expense = $this->transformArrayOfKeys($expense, ['vendor_id', 'invoice_id', 'client_id', 'category_id', 'project_id']);
+
+            return $expense->makeVisible(['id']);
+
+        })->all();
 
         $this->export_data['recurring_invoices'] = $this->company->recurring_invoices->makeVisible(['id'])->map(function ($ri){
 

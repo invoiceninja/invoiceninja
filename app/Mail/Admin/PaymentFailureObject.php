@@ -11,25 +11,29 @@
 
 namespace App\Mail\Admin;
 
+use App\Models\Client;
+use App\Models\Company;
 use App\Models\Invoice;
+use App\Models\PaymentHash;
 use App\Utils\Ninja;
 use App\Utils\Number;
 use App\Utils\Traits\MakesHash;
-use stdClass;
 use Illuminate\Support\Facades\App;
+use stdClass;
 
 class PaymentFailureObject
 {
     use MakesHash;
 
-    public $client;
+    public Client $client;
 
-    public $error;
+    public string $error;
 
-    public $company;
+    public Company $company;
 
     public $amount;
 
+    public PaymentHash $payment_hash;
     // private $invoices;
 
     /**
@@ -40,7 +44,7 @@ class PaymentFailureObject
      * @param $company
      * @param $amount
      */
-    public function __construct($client, $error, $company, $amount)
+    public function __construct(Client $client, string $error, Company $company, $amount, ?PaymentHash $payment_hash)
     {
         $this->client = $client;
 
@@ -51,6 +55,8 @@ class PaymentFailureObject
         $this->amount = $amount;
 
         $this->company = $company;
+
+        $this->payment_hash = $payment_hash;
 
     }
 
@@ -65,8 +71,6 @@ class PaymentFailureObject
         /* Set customized translations _NOW_ */
         $t->replace(Ninja::transformTranslations($this->company->settings));
         
-        // $this->invoices = Invoice::whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->get();
-
         $mail_obj = new stdClass;
         $mail_obj->amount = $this->getAmount();
         $mail_obj->subject = $this->getSubject();
@@ -106,32 +110,33 @@ class PaymentFailureObject
                     'client' => $this->client->present()->name()
                 ]
             ),
-            'message' => $this->error,
+            'content' => ctrans(
+                'texts.notification_invoice_payment_failed',
+                [
+                    'client' => $this->client->present()->name(),
+                    'invoice' => $this->getDescription(),
+                    'amount' => Number::formatMoney($this->amount, $this->client)
+                ]),
             'signature' => $signature,
             'logo' => $this->company->present()->logo(),
             'settings' => $this->client->getMergedSettings(),
             'whitelabel' => $this->company->account->isPaid() ? true : false,
             'url' => config('ninja.app_url'),
             'button' => ctrans('texts.login'),
-            'additional_info' => $this->buildFailedInvoices()
+            'additional_info' => $this->error
         ];
 
         return $data;
     }
 
-    private function buildFailedInvoices()
+
+    public function getDescription(bool $abbreviated = false)
     {
+        if(!$this->payment_hash)
+            return "";
 
-        $text = '';
-
-        // foreach($this->invoices as $invoice)
-        // {
-
-        //     $text .= ctrans('texts.notification_invoice_payment_failed_subject', ['invoice' => $invoice->number]) . "\n";
-
-        // }
-
-        return $text;
+        return \implode(', ', collect($this->payment_hash->invoices())->pluck('invoice_number')->toArray());
 
     }
+
 }
