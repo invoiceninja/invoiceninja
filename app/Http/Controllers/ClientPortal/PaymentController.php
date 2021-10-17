@@ -114,13 +114,15 @@ class PaymentController extends Controller
         } else {
             $payment = PaymentFactory::create($payment_hash->fee_invoice->company_id, $payment_hash->fee_invoice->user_id);
             $payment->client_id = $payment_hash->fee_invoice->client_id;
-            $payment->save();
+            $payment->saveQuietly();
 
             $payment_hash->payment_id = $payment->id;
             $payment_hash->save();
         }
 
         $payment = $payment->service()->applyCredits($payment_hash)->save();
+
+        event('eloquent.created: App\Models\Payment', $payment);
 
         if (property_exists($payment_hash->data, 'billing_context')) {
             $billing_subscription = \App\Models\Subscription::find($payment_hash->data->billing_context->subscription_id);

@@ -33,11 +33,11 @@ class ApplyNumber
 
         switch ($this->client->getSetting('counter_number_applied')) {
             case 'when_saved':
-                $quote->number = $this->getNextQuoteNumber($this->client);
+                $quote->number = $this->getNextQuoteNumber($this->client, $quote);
                 break;
             case 'when_sent':
                 if ($quote->status_id == Quote::STATUS_SENT) {
-                    $quote->number = $this->getNextQuoteNumber($this->client);
+                    $quote->number = $this->getNextQuoteNumber($this->client, $quote);
                 }
                 break;
 

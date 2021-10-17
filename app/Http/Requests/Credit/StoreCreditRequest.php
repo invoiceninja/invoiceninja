@@ -16,6 +16,7 @@ use App\Http\ValidationRules\Credit\UniqueCreditNumberRule;
 use App\Models\Credit;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Validation\Rule;
 
 class StoreCreditRequest extends Request
 {
@@ -53,7 +54,11 @@ class StoreCreditRequest extends Request
 
         $rules['client_id'] = 'required|exists:clients,id,company_id,'.auth()->user()->company()->id;
 
-        $rules['number'] = new UniqueCreditNumberRule($this->all());
+        // $rules['number'] = new UniqueCreditNumberRule($this->all());
+        $rules['number'] = ['nullable', Rule::unique('credits')->where('company_id', auth()->user()->company()->id)];
+
+
+
         $rules['line_items'] = 'array';
 
         return $rules;

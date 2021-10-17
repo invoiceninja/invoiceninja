@@ -63,6 +63,10 @@ class StoreRecurringExpenseRequest extends Request
         if(array_key_exists('color', $input) && is_null($input['color']))
             $input['color'] = '';
 
+        if(array_key_exists('foreign_amount', $input) && is_null($input['foreign_amount']))
+            $input['foreign_amount'] = 0;
+
+
         $this->replace($input);
     }
 

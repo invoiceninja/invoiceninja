@@ -12,7 +12,6 @@
 namespace App\PaymentDrivers;
 
 use App\Http\Requests\Payments\PaymentWebhookRequest;
-use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
@@ -167,12 +166,7 @@ class SquarePaymentDriver extends BaseDriver
 
         $this->unWindGatewayFees($payment_hash);
 
-        PaymentFailureMailer::dispatch(
-            $this->client,
-            $body->errors[0]->detail,
-            $this->client->company,
-            $amount
-        );
+        $this->sendFailureMail($body->errors[0]->detail);
 
         $message = [
             'server_response' => $response,

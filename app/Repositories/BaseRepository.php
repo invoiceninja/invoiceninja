@@ -209,7 +209,7 @@ class BaseRepository
 
         if(!$model->id)
             $this->new_model = true;
-
+        
         $model->saveQuietly();
 
         /* Model now persisted, now lets do some child tasks */

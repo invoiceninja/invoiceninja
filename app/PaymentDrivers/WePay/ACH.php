@@ -13,9 +13,11 @@
 namespace App\PaymentDrivers\WePay;
 
 use App\Exceptions\PaymentFailed;
+use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
+use App\Models\SystemLog;
 use App\PaymentDrivers\WePayPaymentDriver;
 use App\PaymentDrivers\WePay\WePayCommon;
 use App\Utils\Traits\MakesHash;
@@ -68,6 +70,23 @@ class ACH
             ]);
         }
         catch(\Exception $e){
+
+            $this->wepay_payment_driver->sendFailureMail($e->getMessage());
+
+            $message = [
+                'server_response' => $e->getMessage(),
+                'data' => $this->wepay_payment_driver->payment_hash->data,
+            ];
+
+            SystemLogger::dispatch(
+                $e->getMessage(),
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_WEPAY,
+                $this->wepay_payment_driver->client,
+                $this->wepay_payment_driver->client->company,
+            );
+
             throw new PaymentFailed($e->getMessage(), 400);
         }
         // display the response
