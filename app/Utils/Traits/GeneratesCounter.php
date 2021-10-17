@@ -215,7 +215,7 @@ trait GeneratesCounter
 
     }
 
-    public function getNextRecurringQuoteNumber(Client $client, ?RecurringQuote $recurring_quote)
+    public function getNextRecurringQuoteNumber(Client $client, $recurring_quote)
     {
         $entity_number = $this->getNextEntityNumber(RecurringQuote::class, $client);
 

@@ -58,7 +58,7 @@ class ApplyPaymentAmount extends AbstractService
 
         $payment->amount = $this->amount;
         $payment->applied = min($this->amount, $this->invoice->balance);
-        $payment->number = $this->getNextPaymentNumber($this->invoice->client);
+        $payment->number = $this->getNextPaymentNumber($this->invoice->client, $payment);
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->client_id = $this->invoice->client_id;
         $payment->transaction_reference = ctrans('texts.manual_entry');
