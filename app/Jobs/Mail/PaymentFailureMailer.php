@@ -98,5 +98,7 @@ class PaymentFailureMailer implements ShouldQueue
 
             }
         });
+
+        //add client payment failures here.
     }
 }

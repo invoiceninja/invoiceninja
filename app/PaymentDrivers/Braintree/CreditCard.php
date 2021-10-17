@@ -116,6 +116,11 @@ class CreditCard
                 throw new PaymentFailed(ctrans('texts.generic_gateway_error'), $e->getCode());
             }
 
+            PaymentFailureMailer::dispatch($this->braintree->client, 
+                $e->getMessage(), 
+                $this->braintree->client->company, 
+                $this->braintree->payment_hash->data->amount_with_fee);
+
             throw new PaymentFailed($e->getMessage(), $e->getCode());
         }
         
@@ -196,13 +201,6 @@ class CreditCard
     private function processUnsuccessfulPayment($response)
     {
         PaymentFailureMailer::dispatch($this->braintree->client, $response->transaction->additionalProcessorResponse, $this->braintree->client->company, $this->braintree->payment_hash->data->amount_with_fee);
-
-        PaymentFailureMailer::dispatch(
-            $this->braintree->client,
-            $response,
-            $this->braintree->client->company,
-            $this->braintree->payment_hash->data->amount_with_fee,
-        );
 
         $message = [
             'server_response' => $response,

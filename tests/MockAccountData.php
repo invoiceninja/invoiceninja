@@ -397,7 +397,7 @@ trait MockAccountData
         $this->quote = $this->quote_calc->getQuote();
 
         $this->quote->status_id = Quote::STATUS_SENT;
-        $this->quote->number = $this->getNextQuoteNumber($this->client);
+        $this->quote->number = $this->getNextQuoteNumber($this->client, $this->quote);
 
         //$this->quote->service()->createInvitations()->markSent();
 
@@ -448,7 +448,7 @@ trait MockAccountData
 
         $this->client->service()->adjustCreditBalance($this->credit->balance)->save();
         $this->credit->ledger()->updateCreditBalance($this->credit->balance)->save();
-        $this->credit->number = $this->getNextCreditNumber($this->client);
+        $this->credit->number = $this->getNextCreditNumber($this->client, $this->credit);
 
 
         CreditInvitation::factory()->create([
