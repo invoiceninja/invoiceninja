@@ -23,4 +23,19 @@
  *         url="http://docs.invoiceninja.com"
  *     ),
  * ),
+ * @OA\SecurityScheme(
+ *     type="apiKey",
+ *     in="header",
+ *     name="X-Api-Token"
+ * ),
+ * @OA\SecurityScheme(
+ *     type="apiKey",
+ *     in="header",
+ *     name="X-Api-Secret"
+ * ),
+ * @OA\SecurityScheme(
+ *     type="apiKey",
+ *     in="header",
+ *     name="X-Requested-With"
+ * ),
  */
