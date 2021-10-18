@@ -285,10 +285,8 @@ class BaseRepository
             }
         }
 
-        $model->load('invitations');
-
         /* If no invitations have been created, this is our fail safe to maintain state*/
-        if ($model->invitations->count() == 0) 
+        if ($model->invitations()->count() == 0) 
             $model->service()->createInvitations();
 
         /* Recalculate invoice amounts */
