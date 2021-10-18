@@ -54,8 +54,6 @@ class RecurringService
             return $this;
         }
 
-        // $this->createInvitations()->setStatus(RecurringInvoice::STATUS_ACTIVE);
-
         $this->setStatus(RecurringInvoice::STATUS_ACTIVE);
         
         return $this;
