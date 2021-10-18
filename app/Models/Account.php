@@ -1129,6 +1129,7 @@ class Account extends Eloquent
         $currencyId = ($client && $client->currency_id) ? $client->currency_id : ($this->currency_id ?: DEFAULT_CURRENCY);
 
         // $currencyId = ($client && $client->currency_id) ? $client->currency_id : $this->currency_id ?: DEFAULT_CURRENCY;
+
         $locale = ($client && $client->language_id) ? $client->language->locale : ($this->language_id ? $this->Language->locale : DEFAULT_LOCALE);
 
         Session::put(SESSION_CURRENCY, $currencyId);
