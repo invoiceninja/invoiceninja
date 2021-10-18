@@ -187,7 +187,7 @@ class InvoiceController extends BaseController
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\RequestBody(
      *          required=true,
-     *          @OA\JsonContent(ref="#/components/schemas/Invoice")
+     *          @OA\JsonContent(ref="#/components/schemas/FillableInvoice")
      *      ),
      *      @OA\Response(
      *          response=200,
