@@ -181,9 +181,11 @@ class InvoiceController extends BaseController
      *      tags={"invoices"},
      *      summary="Adds a invoice",
      *      description="Adds an invoice to the system",
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      security={
+     *         {"X-Api-Secret": {}},
+     *         {"X-Api-Token": {}},
+     *         {"X-Requested-With": {}},
+     *      },
      *      @OA\Parameter(ref="#/components/parameters/include"),
      *      @OA\RequestBody(
      *          required=true,
