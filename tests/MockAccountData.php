@@ -11,6 +11,7 @@
 
 namespace Tests;
 
+use App\DataMapper\ClientRegistrationFields;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\Factory\CompanyUserFactory;
@@ -172,6 +173,8 @@ trait MockAccountData
         $this->company = Company::factory()->create([
                             'account_id' => $this->account->id,
                         ]);
+
+        $this->company->client_registration_fields = ClientRegistrationFields::generate();
 
         Storage::makeDirectory($this->company->company_key.'/documents', 0755, true);
         Storage::makeDirectory($this->company->company_key.'/images', 0755, true);
