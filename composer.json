@@ -93,7 +93,7 @@
         "superbalist/laravel-google-cloud-storage": "^2.2",
         "symfony/css-selector": "~3.1",
         "therobfonz/laravel-mandrill-driver": "~1.0",
-        "turbo124/laravel-push-notification": "dev-laravel6",
+        "turbo124/laravel-push-notification": "dev-master",
         "vemcogroup/laravel-sparkpost-driver": "~2.0",
         "vink/omnipay-komoju": "~1.0",
         "webpatser/laravel-countries": "dev-master#75992ad",
@@ -176,11 +176,11 @@
         },
         {
             "type": "vcs",
-            "url": "https://github.com/joshuadwire/chumper-datatable"
+            "url": "https://github.com/turbo124/chumper-datatable"
         },
         {
             "type": "vcs",
-            "url": "https://github.com/joshuadwire/php-phantomjs"
+            "url": "https://github.com/turbo124/php-phantomjs"
         },
         {
             "type": "vcs",
@@ -192,15 +192,11 @@
         },
         {
             "type": "vcs",
-            "url": "https://github.com/joshuadwire/omnipay-common"
+            "url": "https://github.com/turbo124/omnipay-common"
         },
         {
             "type": "vcs",
-            "url": "https://github.com/joshuadwire/laravel-push-notification"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/joshuadwire/NotificationPusher"
+            "url": "https://github.com/turbo124/NotificationPusher"
         },
         {
             "type": "vcs",
