@@ -3,8 +3,6 @@
 namespace App\Services\Migration;
 
 use App\Models\Account;
-use Unirest\Request;
-use Unirest\Request\Body;
 
 class CompanyService
 {

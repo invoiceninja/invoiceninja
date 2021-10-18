@@ -13,10 +13,10 @@ use App\Ninja\Datatables\RecurringExpenseDatatable;
 use App\Ninja\Repositories\RecurringExpenseRepository;
 use App\Services\RecurringExpenseService;
 use Auth;
-use Input;
 use Session;
 use View;
 use Cache;
+use Request;
 
 class RecurringExpenseController extends BaseController
 {
@@ -46,7 +46,7 @@ class RecurringExpenseController extends BaseController
 
     public function getDatatable($expensePublicId = null)
     {
-        $search = Input::get('sSearch');
+        $search = \Request::input('sSearch');
         $userId = Auth::user()->filterId();
 
         return $this->recurringExpenseService->getDatatable($search, $userId);
@@ -61,7 +61,7 @@ class RecurringExpenseController extends BaseController
         }
 
         $data = [
-            'vendorPublicId' => Input::old('vendor') ? Input::old('vendor') : $request->vendor_id,
+            'vendorPublicId' => Request::old('vendor') ? Request::old('vendor') : $request->vendor_id,
             'expense' => null,
             'method' => 'POST',
             'url' => 'recurring_expenses',
@@ -113,7 +113,7 @@ class RecurringExpenseController extends BaseController
     private static function getViewModel()
     {
         return [
-            'data' => Input::old('data'),
+            'data' => Request::old('data'),
             'account' => Auth::user()->account,
             'categories' => ExpenseCategory::whereAccountId(Auth::user()->account_id)->withArchived()->orderBy('name')->get(),
             'taxRates' => TaxRate::scope()->whereIsInclusive(false)->orderBy('name')->get(),
@@ -136,7 +136,7 @@ class RecurringExpenseController extends BaseController
 
         Session::flash('message', trans('texts.updated_recurring_expense'));
 
-        if (in_array(Input::get('action'), ['archive', 'delete', 'restore'])) {
+        if (in_array(\Request::input('action'), ['archive', 'delete', 'restore'])) {
             return self::bulk();
         }
 
@@ -145,8 +145,8 @@ class RecurringExpenseController extends BaseController
 
     public function bulk()
     {
-        $action = Input::get('action');
-        $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
+        $action = \Request::input('action');
+        $ids = \Request::input('public_id') ? \Request::input('public_id') : \Request::input('ids');
         $count = $this->recurringExpenseService->bulk($ids, $action);
 
         if ($count > 0) {

@@ -12,7 +12,6 @@ use App\Ninja\Repositories\ProductRepository;
 use App\Services\ProductService;
 use Auth;
 use Illuminate\Auth\Access\AuthorizationException;
-use Input;
 use Redirect;
 use Session;
 use URL;
@@ -72,7 +71,7 @@ class ProductController extends BaseController
      */
     public function getDatatable()
     {
-        return $this->productService->getDatatable(Auth::user()->account_id, Input::get('sSearch'));
+        return $this->productService->getDatatable(Auth::user()->account_id, \Request::input('sSearch'));
     }
 
     public function cloneProduct(ProductRequest $request, $publicId)
@@ -167,7 +166,7 @@ class ProductController extends BaseController
             $product = Product::createNew();
         }
 
-        $this->productRepo->save(Input::all(), $product);
+        $this->productRepo->save(\Request::all(), $product);
 
         $message = $productPublicId ? trans('texts.updated_product') : trans('texts.created_product');
         Session::flash('message', $message);
@@ -189,8 +188,8 @@ class ProductController extends BaseController
      */
     public function bulk()
     {
-        $action = Input::get('action');
-        $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
+        $action = \Request::input('action');
+        $ids = \Request::input('public_id') ? \Request::input('public_id') : \Request::input('ids');
 
         if ($action == 'invoice') {
             $products = Product::scope($ids)->get();

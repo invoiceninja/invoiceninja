@@ -11,13 +11,13 @@ use App\Libraries\CurlUtils;
 use Auth;
 use Cache;
 use CreditCard;
-use Input;
 use Omnipay;
 use Session;
 use URL;
 use Utils;
 use Validator;
 use View;
+use Request;
 
 class NinjaController extends BaseController
 {
@@ -91,18 +91,18 @@ class NinjaController extends BaseController
      */
     public function show_license_payment()
     {
-        if (Input::has('return_url')) {
-            session(['return_url' => Input::get('return_url')]);
+        if (\Request::has('return_url')) {
+            session(['return_url' => \Request::input('return_url')]);
         }
 
-        if (Input::has('affiliate_key')) {
-            if ($affiliate = Affiliate::where('affiliate_key', '=', Input::get('affiliate_key'))->first()) {
+        if (\Request::has('affiliate_key')) {
+            if ($affiliate = Affiliate::where('affiliate_key', '=', \Request::input('affiliate_key'))->first()) {
                 session(['affiliate_id' => $affiliate->id]);
             }
         }
 
-        if (Input::has('product_id')) {
-            session(['product_id' => Input::get('product_id')]);
+        if (\Request::has('product_id')) {
+            session(['product_id' => \Request::input('product_id')]);
         } elseif (! Session::has('product_id')) {
             session(['product_id' => PRODUCT_ONE_CLICK_INSTALL]);
         }
@@ -111,8 +111,8 @@ class NinjaController extends BaseController
             return Utils::fatalError();
         }
 
-        if (Utils::isNinjaDev() && Input::has('test_mode')) {
-            session(['test_mode' => Input::get('test_mode')]);
+        if (Utils::isNinjaDev() && \Request::has('test_mode')) {
+            session(['test_mode' => \Request::input('test_mode')]);
         }
 
         $account = $this->accountRepo->getNinjaAccount();
@@ -167,7 +167,7 @@ class NinjaController extends BaseController
             'country_id' => 'required',
         ];
 
-        $validator = Validator::make(Input::all(), $rules);
+        $validator = Validator::make(Request::all(), $rules);
 
         if ($validator->fails()) {
             return redirect()->to('license')
@@ -185,7 +185,7 @@ class NinjaController extends BaseController
             if ($testMode) {
                 $ref = 'TEST_MODE';
             } else {
-                $details = self::getLicensePaymentDetails(Input::all(), $affiliate);
+                $details = self::getLicensePaymentDetails(Request::all(), $affiliate);
 
                 $gateway = Omnipay::create($accountGateway->gateway->provider);
                 $gateway->initialize((array) $accountGateway->getConfig());
@@ -203,9 +203,9 @@ class NinjaController extends BaseController
             $licenseKey = Utils::generateLicense();
 
             $license = new License();
-            $license->first_name = Input::get('first_name');
-            $license->last_name = Input::get('last_name');
-            $license->email = Input::get('email');
+            $license->first_name = \Request::input('first_name');
+            $license->last_name = \Request::input('last_name');
+            $license->email = \Request::input('email');
             $license->transaction_reference = $ref;
             $license->license_key = $licenseKey;
             $license->affiliate_id = Session::get('affiliate_id');
@@ -241,8 +241,8 @@ class NinjaController extends BaseController
      */
     public function claim_license()
     {
-        $licenseKey = Input::get('license_key');
-        $productId = Input::get('product_id', PRODUCT_ONE_CLICK_INSTALL);
+        $licenseKey = \Request::input('license_key');
+        $productId = \Request::input('product_id', PRODUCT_ONE_CLICK_INSTALL);
 
         // add in dashes
         if (strlen($licenseKey) == 20) {

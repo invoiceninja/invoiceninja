@@ -8,7 +8,6 @@ use App\Models\TaxRate;
 use App\Ninja\Repositories\TaxRateRepository;
 use App\Services\TaxRateService;
 use Auth;
-use Input;
 use Redirect;
 use Session;
 use URL;
@@ -81,8 +80,8 @@ class TaxRateController extends BaseController
 
     public function bulk()
     {
-        $action = Input::get('bulk_action');
-        $ids = Input::get('bulk_public_id');
+        $action = \Request::input('bulk_action');
+        $ids = \Request::input('bulk_public_id');
         $count = $this->taxRateService->bulk($ids, $action);
 
         Session::flash('message', trans('texts.archived_tax_rate'));

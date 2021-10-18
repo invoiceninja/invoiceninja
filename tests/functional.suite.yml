@@ -9,7 +9,7 @@ modules:
     enabled:
         - \Helper\Functional
         - PhpBrowser:
-            url: 'http://www.ninja.test:8000'
+            url: 'http://ninja-master.test:8000'
             curl:
                CURLOPT_RETURNTRANSFER: true
         - Db:
@@ -17,5 +17,5 @@ modules:
             user: 'ninja'
             password: 'ninja'
             dump: tests/_data/dump.sql
-    disabled:
-        - Laravel5
+    # disabled:
+    #     - Laravel5

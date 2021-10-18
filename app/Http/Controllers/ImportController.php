@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use App\Services\ImportService;
 use App\Jobs\ImportData;
 use Exception;
-use Input;
 use Redirect;
 use Session;
 use Utils;
@@ -26,7 +25,7 @@ class ImportController extends BaseController
             return redirect('/settings/' . ACCOUNT_IMPORT_EXPORT)->withError(trans('texts.confirm_account_to_import'));
         }
 
-        $source = Input::get('source');
+        $source = \Request::input('source');
         $files = [];
         $timestamp = time();
 
@@ -70,8 +69,8 @@ class ImportController extends BaseController
                     'timestamp' => $timestamp,
                 ]);
             } elseif ($source === IMPORT_JSON) {
-                $includeData = filter_var(Input::get('data'), FILTER_VALIDATE_BOOLEAN);
-                $includeSettings = filter_var(Input::get('settings'), FILTER_VALIDATE_BOOLEAN);
+                $includeData = filter_var(\Request::input('data'), FILTER_VALIDATE_BOOLEAN);
+                $includeSettings = filter_var(\Request::input('settings'), FILTER_VALIDATE_BOOLEAN);
                 if (config('queue.default') === 'sync') {
                     $results = $this->importService->importJSON($files[IMPORT_JSON], $includeData, $includeSettings);
                     $message = $this->importService->presentResults($results, $includeSettings);
@@ -109,9 +108,9 @@ class ImportController extends BaseController
     public function doImportCSV()
     {
         try {
-            $map = Input::get('map');
-            $headers = Input::get('headers');
-            $timestamp = Input::get('timestamp');
+            $map = \Request::input('map');
+            $headers = \Request::input('headers');
+            $timestamp = \Request::input('timestamp');
 
             if (config('queue.default') === 'sync') {
                 $results = $this->importService->importCSV($map, $headers, $timestamp);

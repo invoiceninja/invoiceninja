@@ -228,7 +228,6 @@ class StripePaymentDriver extends BasePaymentDriver
             if ( ! empty($data['payment_intent'])) {
                 // Find the existing payment intent.
                 $intent = PaymentIntent::retrieve($data['payment_intent']);
-
                 if ( ! $intent->amount == $data['amount'] * pow(10, $currency['precision'])) {
                     // Make sure that the provided payment intent matches the invoice amount.
                     throw new Exception('Incorrect PaymentIntent amount.');
@@ -270,8 +269,8 @@ class StripePaymentDriver extends BasePaymentDriver
                         return $this->doOmnipayOnsitePurchase($data, $paymentMethod);
                     }
                 }
-
                 $intent = PaymentIntent::create($params);
+
             }
 
             if (empty($intent)) {
@@ -282,6 +281,7 @@ class StripePaymentDriver extends BasePaymentDriver
                 throw new PaymentActionRequiredException(['payment_intent' => $intent]);
             } else if ($intent->status == 'succeeded') {
                 $ref     = ! empty($intent->charges->data) ? $intent->charges->data[0]->id : null;
+                
                 $payment = $this->createPayment($ref, $paymentMethod);
 
                 if ($this->invitation->invoice->account->isNinjaAccount()) {
@@ -296,7 +296,6 @@ class StripePaymentDriver extends BasePaymentDriver
                     $this->tokenResponse = $payment_method;
                     parent::createToken();
                 }
-
                 return $payment;
             } else {
                 throw new Exception('Invalid PaymentIntent status: ' . $intent->status);

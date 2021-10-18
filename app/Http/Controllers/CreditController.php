@@ -10,7 +10,6 @@ use App\Models\Credit;
 use App\Ninja\Datatables\CreditDatatable;
 use App\Ninja\Repositories\CreditRepository;
 use App\Services\CreditService;
-use Input;
 use Redirect;
 use Session;
 use URL;
@@ -47,13 +46,13 @@ class CreditController extends BaseController
 
     public function getDatatable($clientPublicId = null)
     {
-        return $this->creditService->getDatatable($clientPublicId, Input::get('sSearch'));
+        return $this->creditService->getDatatable($clientPublicId, \Request::input('sSearch'));
     }
 
     public function create(CreditRequest $request)
     {
         $data = [
-            'clientPublicId' => Input::old('client') ? Input::old('client') : ($request->client_id ?: 0),
+            'clientPublicId' => \Request::old('client') ? \Request::old('client') : ($request->client_id ?: 0),
             'credit' => null,
             'method' => 'POST',
             'url' => 'credits',
@@ -111,7 +110,7 @@ class CreditController extends BaseController
 
     private function save($credit = null)
     {
-        $credit = $this->creditService->save(Input::all(), $credit);
+        $credit = $this->creditService->save(\Request::all(), $credit);
 
         $message = $credit->wasRecentlyCreated ? trans('texts.created_credit') : trans('texts.updated_credit');
         Session::flash('message', $message);
@@ -121,8 +120,8 @@ class CreditController extends BaseController
 
     public function bulk()
     {
-        $action = Input::get('action');
-        $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
+        $action = \Request::input('action');
+        $ids = \Request::input('public_id') ? \Request::input('public_id') : \Request::input('ids');
         $count = $this->creditService->bulk($ids, $action);
 
         if ($count > 0) {

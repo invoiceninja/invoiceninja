@@ -12,7 +12,6 @@ use App\Ninja\Datatables\ProjectDatatable;
 use App\Ninja\Repositories\ProjectRepository;
 use App\Services\ProjectService;
 use Auth;
-use Input;
 use Session;
 use View;
 
@@ -44,7 +43,7 @@ class ProjectController extends BaseController
 
     public function getDatatable($expensePublicId = null)
     {
-        $search = Input::get('sSearch');
+        $search = \Request::input('sSearch');
         $userId = Auth::user()->filterIdByEntity(ENTITY_PROJECT);
 
         return $this->projectService->getDatatable($search, $userId);
@@ -114,7 +113,7 @@ class ProjectController extends BaseController
 
         Session::flash('message', trans('texts.updated_project'));
 
-        $action = Input::get('action');
+        $action = \Request::input('action');
         if (in_array($action, ['archive', 'delete', 'restore', 'invoice'])) {
             return self::bulk();
         }
@@ -124,8 +123,8 @@ class ProjectController extends BaseController
 
     public function bulk()
     {
-        $action = Input::get('action');
-        $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
+        $action = \Request::input('action');
+        $ids = \Request::input('public_id') ? \Request::input('public_id') : \Request::input('ids');
 
         if ($action == 'invoice') {
             $data = [];

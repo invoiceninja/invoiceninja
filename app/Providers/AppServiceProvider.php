@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Form;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
 use Request;
 use URL;
@@ -26,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Route::singularResourceParameters(false);
+        Paginator::useBootstrapThree();
 
         // support selecting job database
         Queue::before(function (JobProcessing $event) {

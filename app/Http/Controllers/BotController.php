@@ -12,7 +12,6 @@ use Auth;
 use Cache;
 use DB;
 use Exception;
-use Input;
 use Utils;
 
 class BotController extends Controller
@@ -28,7 +27,7 @@ class BotController extends Controller
     {
         abort(404);
 
-        $input = Input::all();
+        $input     = \Request::all();
         $botUserId = $input['from']['id'];
 
         if (! $token = $this->authenticate($input)) {

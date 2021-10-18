@@ -16,10 +16,10 @@ use App\Services\PaymentService;
 use Auth;
 use Cache;
 use DropdownButton;
-use Input;
 use Session;
 use Utils;
 use View;
+use Request;
 
 class PaymentController extends BaseController
 {
@@ -79,7 +79,7 @@ class PaymentController extends BaseController
      */
     public function getDatatable($clientPublicId = null)
     {
-        return $this->paymentService->getDatatable($clientPublicId, Input::get('sSearch'));
+        return $this->paymentService->getDatatable($clientPublicId, \Request::input('sSearch'));
     }
 
     /**
@@ -98,8 +98,8 @@ class PaymentController extends BaseController
                     ->with('client', 'invoice_status')
                     ->orderBy('invoice_number')->get();
 
-        $clientPublicId = Input::old('client') ? Input::old('client') : ($request->client_id ?: 0);
-        $invoicePublicId = Input::old('invoice') ? Input::old('invoice') : ($request->invoice_id ?: 0);
+        $clientPublicId = Request::old('client') ? Request::old('client') : ($request->client_id ?: 0);
+        $invoicePublicId = Request::old('invoice') ? Request::old('invoice') : ($request->invoice_id ?: 0);
 
         $totalCredit = false;
         if ($clientPublicId && $client = Client::scope($clientPublicId)->first()) {
@@ -118,7 +118,7 @@ class PaymentController extends BaseController
             'method' => 'POST',
             'url' => 'payments',
             'title' => trans('texts.new_payment'),
-            'paymentTypeId' => Input::get('paymentTypeId'),
+            'paymentTypeId' => \Request::input('paymentTypeId'),
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
             'totalCredit' => $totalCredit,
         ];
@@ -211,7 +211,7 @@ class PaymentController extends BaseController
 
         $payment = $this->paymentService->save($input, null, $request->invoice);
 
-        if (Input::get('email_receipt')) {
+        if (\Request::input('email_receipt')) {
             $this->contactMailer->sendPaymentConfirmation($payment);
             Session::flash('message', trans($credit ? 'texts.created_payment_and_credit_emailed_client' : 'texts.created_payment_emailed_client'));
         } else {
@@ -244,8 +244,8 @@ class PaymentController extends BaseController
      */
     public function bulk()
     {
-        $action = Input::get('action');
-        $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
+        $action = \Request::input('action');
+        $ids = \Request::input('public_id') ? \Request::input('public_id') : \Request::input('ids');
 
         if ($action === 'email') {
             $payment = Payment::scope($ids)->withArchived()->first();
@@ -253,8 +253,8 @@ class PaymentController extends BaseController
             Session::flash('message', trans('texts.emailed_payment'));
         } else {
             $count = $this->paymentService->bulk($ids, $action, [
-                'refund_amount' => Input::get('refund_amount'),
-                'refund_email' => Input::get('refund_email'),
+                'refund_amount' => \Request::input('refund_amount'),
+                'refund_email' => \Request::input('refund_email'),
             ]);
             if ($count > 0) {
                 $message = Utils::pluralize($action == 'refund' ? 'refunded_payment' : $action.'d_payment', $count);

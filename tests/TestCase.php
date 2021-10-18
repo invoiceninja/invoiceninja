@@ -6,7 +6,7 @@ abstract class TestCase extends Illuminate\Foundation\Testing\TestCase
      *
      * @var string
      */
-    protected $baseUrl = 'http://localhost';
+    protected $baseUrl = 'http://ninja-master.test:8000';
     /**
      * Creates the application.
      *

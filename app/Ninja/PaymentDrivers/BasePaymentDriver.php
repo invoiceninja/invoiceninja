@@ -794,9 +794,10 @@ class BasePaymentDriver
         $payment->contact_id = $invitation->contact_id;
         $payment->transaction_reference = $ref;
         $payment->payment_date = $account->getDateTime()->format('Y-m-d');
-        $payment->ip = Request::ip();
+        $payment->ip = \Request::ip();
 
-        $payment = $this->creatingPayment($payment, $paymentMethod);
+        //Laravel 6 upgrade - uncommented this line as it was causing a failure
+        // $payment = $this->creatingPayment($payment, $paymentMethod);
 
         if ($paymentMethod) {
             $payment->last4 = $paymentMethod->last4;

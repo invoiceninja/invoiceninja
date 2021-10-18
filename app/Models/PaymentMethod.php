@@ -220,11 +220,11 @@ class PaymentMethod extends EntityModel
         }
 
         if (! empty($data)) {
-            Cache::put('bankData:'.$routingNumber, $data, 5);
+            Cache::put('bankData:'.$routingNumber, $data, 5 * 60);
 
             return $data;
         } else {
-            Cache::put('bankData:'.$routingNumber, false, 5);
+            Cache::put('bankData:'.$routingNumber, false, 5 * 60);
 
             return null;
         }

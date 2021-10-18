@@ -8,8 +8,9 @@ use App\Models\Account;
 use App\Models\User;
 use App\Services\Migration\CompleteService;
 use App\Traits\GenerateMigrationResources;
+use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Facades\Storage;
-use Unirest\Request;
+// use Unirest\Request;
 
 class HostedMigration extends Job
 {
@@ -78,21 +79,45 @@ class HostedMigration extends Job
             'password' => '',
         ];
 
-        $body = \Unirest\Request\Body::json($body);
+        $client =  new \GuzzleHttp\Client([
+            'headers' =>  $headers,
+        ]);
 
-        $response = Request::post($url, $headers, $body);
+        $response = $client->post($url,[
+            RequestOptions::JSON => $body, 
+            RequestOptions::ALLOW_REDIRECTS => false
+        ]);
 
-        if (in_array($response->code, [200])) {
-            
-            $data = $response->body;
-            info(print_r($data,1));
-            $this->migration_token = $data->token; 
+        if($response->getStatusCode() == 401){
+            info($response->getBody());
+
+        } elseif ($response->getStatusCode() == 200) {
+
+            $message_body = json_decode($response->getBody(), true);
+
+            $this->migration_token = $message_body['token'];
 
         } else {
-            info("getting token failed");
-            info($response->raw_body);
+            info(json_decode($response->getBody()->getContents()));
 
-        }   
+        }
+
+
+        // $body = \Unirest\Request\Body::json($body);
+
+        // $response = Request::post($url, $headers, $body);
+
+        // if (in_array($response->code, [200])) {
+            
+        //     $data = $response->body;
+        //     info(print_r($data,1));
+        //     $this->migration_token = $data->token; 
+
+        // } else {
+        //     info("getting token failed");
+        //     info($response->raw_body);
+
+        // }   
 
         return $this;
     }

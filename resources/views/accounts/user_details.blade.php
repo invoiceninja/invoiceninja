@@ -18,7 +18,7 @@
     {{ Former::populateField('dark_mode', intval($user->dark_mode)) }}
     {{ Former::populateField('enable_two_factor', $user->google_2fa_secret ? 1 : 0) }}
 
-    @if (Input::has('affiliate'))
+    @if (Request::has('affiliate'))
         {{ Former::populateField('referral_code', true) }}
     @endif
 
