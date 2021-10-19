@@ -86,6 +86,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 
     Route::resource('group_settings', 'GroupSettingController');
     Route::post('group_settings/bulk', 'GroupSettingController@bulk');
+    Route::put('group_settings/{group_setting}/upload', 'GroupSettingController@upload')->name('group_settings.upload');
 
     Route::post('import', 'ImportController@import')->name('import.import');
     Route::post('import_json', 'ImportJsonController@import')->name('import.import_json');

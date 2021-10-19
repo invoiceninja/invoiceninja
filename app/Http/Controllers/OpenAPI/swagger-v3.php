@@ -10,8 +10,8 @@
  *             email="contact@invoiceninja.com"
  *         ),
  *         @OA\License(
- *             name="Attribution Assurance License",
- *             url="https://opensource.org/licenses/AAL"
+ *             name="Elastic License",
+ *             url="https://www.elastic.co/licensing/elastic-license"
  *         ),
  *     ),
  *     @OA\Server(
