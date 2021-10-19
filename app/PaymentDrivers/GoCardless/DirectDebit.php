@@ -147,7 +147,7 @@ class DirectDebit implements MethodInterface
         $data['amount'] = $this->go_cardless->convertToGoCardlessAmount($data['total']['amount_with_fee'], $this->go_cardless->client->currency()->precision);
         $data['currency'] = $this->go_cardless->client->getCurrencyCode();
 
-        return render('gateways.gocardless.ach.pay', $data);
+        return render('gateways.gocardless.direct_debit.pay', $data);
     }
 
     public function paymentResponse(PaymentResponseRequest $request)
