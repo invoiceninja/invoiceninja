@@ -86,8 +86,8 @@ class MarkPaid extends AbstractService
                 ->deletePdf()
                 ->save();
 
-        if ($this->invoice->client->getSetting('client_manual_payment_notification')) 
-            $payment->service()->sendEmail();
+        // if ($this->invoice->client->getSetting('client_manual_payment_notification')) 
+        //     $payment->service()->sendEmail();
         
         /* Update Invoice balance */
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));

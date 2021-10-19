@@ -4328,6 +4328,9 @@ $LANG = array(
     'giropay_law' => 'By entering your Customer information (such as name, sort code and account number) you (the Customer) agree that this information is given voluntarily.',
     'eps' => 'EPS',
     'you_need_to_accept_the_terms_before_proceeding' => 'You need to accept the terms before proceeding.',
+    'clone_to_expense' => 'Clone to expense',
+    'checkout' => 'Checkout',
+    
 );
 
 return $LANG;
