@@ -13,7 +13,6 @@
 namespace App\PaymentDrivers\PayFast;
 
 use App\Exceptions\PaymentFailed;
-use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\Payment;
@@ -244,15 +243,8 @@ class CreditCard
 
     private function processUnsuccessfulPayment($server_response)
     {
-        PaymentFailureMailer::dispatch($this->payfast->client, $server_response->cancellation_reason, $this->payfast->client->company, $server_response->amount);
-
-        PaymentFailureMailer::dispatch(
-            $this->payfast->client,
-            $server_response,
-            $this->payfast->client->company,
-            $server_response['amount_gross']
-        );
-
+        $this->payfast->sendFailureMail($server_response->cancellation_reason);
+        
         $message = [
             'server_response' => $server_response,
             'data' => $this->payfast->payment_hash->data,

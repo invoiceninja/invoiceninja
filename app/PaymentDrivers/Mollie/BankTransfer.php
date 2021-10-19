@@ -15,7 +15,6 @@ namespace App\PaymentDrivers\Mollie;
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Http\Requests\Request;
-use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\Payment;
@@ -112,12 +111,8 @@ class BankTransfer implements MethodInterface
      */
     public function processUnsuccessfulPayment(\Exception $e): void
     {
-        PaymentFailureMailer::dispatch(
-            $this->mollie->client,
-            $e->getMessage(),
-            $this->mollie->client->company,
-            $this->mollie->payment_hash->data->amount_with_fee
-        );
+
+        $this->mollie->sendFailureMail($e->getMessage());
 
         SystemLogger::dispatch(
             $e->getMessage(),

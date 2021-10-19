@@ -13,10 +13,10 @@
 namespace App\PaymentDrivers\Stripe;
 
 use App\Exceptions\PaymentFailed;
+use App\Http\Requests\ClientPortal\PaymentMethod\VerifyPaymentMethodRequest;
 use App\Http\Requests\Request;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
-use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Mail\Gateways\ACHVerificationNotification;
 use App\Models\ClientGatewayToken;
@@ -62,6 +62,7 @@ class ACH
 
         try {
             $source = Customer::createSource($customer->id, ['source' => $stripe_response->token->id], $this->stripe->stripe_connect_auth);
+
         } catch (InvalidRequestException $e) {
             throw new PaymentFailed($e->getMessage(), $e->getCode());
         }
@@ -73,7 +74,7 @@ class ACH
         $mailer = new NinjaMailerObject();
 
         $mailer->mailable = new ACHVerificationNotification(
-            auth('contact')->user()->client->company,
+            auth('contact')->user()->client->company, 
             route('client.contact_login', ['contact_key' => auth('contact')->user()->contact_key, 'next' => $verification])
         );
 
@@ -147,6 +148,7 @@ class ACH
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
+
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
         $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))
                           ->withTrashed()
@@ -163,6 +165,7 @@ class ACH
         $response = null;
 
         try {
+
             $state = [
                 'gateway_type_id' => GatewayType::BANK_TRANSFER,
                 'amount' => $this->stripe->convertToStripeAmount($amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
@@ -190,15 +193,19 @@ class ACH
             return $this->processUnsuccessfulPayment($state);
         } catch (Exception $e) {
             if ($e instanceof CardException) {
-                return redirect()->route('client.payment_methods.verification', ['payment_method' => $source->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
+                return redirect()->route('client.payment_methods.verification', ['payment_method' => $cgt->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
             }
 
             throw new PaymentFailed($e->getMessage(), $e->getCode());
         }
+        
+
+
     }
 
     public function paymentResponse($request)
     {
+
         $this->stripe->init();
 
         $source = ClientGatewayToken::query()
@@ -274,21 +281,15 @@ class ACH
             $this->stripe->client->company,
         );
 
-        if (!$client_present) {
+        if(!$client_present)
             return $payment;
-        }
 
         return redirect()->route('client.payments.show', ['payment' => $this->stripe->encodePrimaryKey($payment->id)]);
     }
 
     public function processUnsuccessfulPayment($state)
     {
-        PaymentFailureMailer::dispatch(
-            $this->stripe->client,
-            $state['charge'],
-            $this->stripe->client->company,
-            $state['amount']
-        );
+        $this->stripe->sendFailureMail($state['charge']);
 
         $message = [
             'server_response' => $state['charge'],

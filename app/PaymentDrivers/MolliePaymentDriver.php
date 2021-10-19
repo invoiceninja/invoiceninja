@@ -15,7 +15,6 @@ namespace App\PaymentDrivers;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Http\Requests\Gateways\Mollie\Mollie3dsRequest;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
-use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
@@ -247,12 +246,7 @@ class MolliePaymentDriver extends BaseDriver
 
             $this->unWindGatewayFees($payment_hash);
 
-            PaymentFailureMailer::dispatch(
-                $this->client,
-                $payment->details,
-                $this->client->company,
-                $amount
-            );
+            $this->sendFailureMail($payment->details);
 
             $message = [
                 'server_response' => $payment,

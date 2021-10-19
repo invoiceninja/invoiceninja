@@ -19,7 +19,7 @@ use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Jobs\Mail\NinjaMailer;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
-use App\Jobs\Mail\PaymentFailureMailer;
+use App\Jobs\Mail\PaymentFailedMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Mail\Admin\ClientPaymentFailureObject;
 use App\Models\Client;
@@ -163,7 +163,7 @@ class BaseDriver extends AbstractPaymentDriver
 
     /**
      * Detaches a payment method from the gateway
-     *
+     * 
      * @param  ClientGatewayToken $token The gateway token
      * @return bool                      boolean response
      */
@@ -236,22 +236,22 @@ class BaseDriver extends AbstractPaymentDriver
         $payment->type_id = $data['payment_type'];
         $payment->transaction_reference = $data['transaction_reference'];
         $payment->client_contact_id = $client_contact_id;
-        $payment->save();
+        $payment->saveQuietly();
 
         $this->payment_hash->payment_id = $payment->id;
         $this->payment_hash->save();
 
         $this->attachInvoices($payment, $this->payment_hash);
 
-        if ($this->payment_hash->credits_total() > 0) {
+        if($this->payment_hash->credits_total() > 0)
             $payment = $payment->service()->applyCredits($this->payment_hash)->save();
-        }
 
         $payment->service()->updateInvoicePayment($this->payment_hash);
 
-        if ($this->client->getSetting('client_online_payment_notification')) {
+        event('eloquent.created: App\Models\Payment', $payment);
+
+        if ($this->client->getSetting('client_online_payment_notification'))
             $payment->service()->sendEmail();
-        }
 
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
@@ -368,18 +368,14 @@ class BaseDriver extends AbstractPaymentDriver
 
         if ($e instanceof CheckoutHttpException) {
             $error = $e->getBody();
-        } elseif ($e instanceof Exception) {
+        } else if ($e instanceof Exception) {
             $error = $e->getMessage();
-        } else {
+        } else
             $error = $e->getMessage();
-        }
 
-        PaymentFailureMailer::dispatch(
-            $gateway->client,
-            $error,
-            $gateway->client->company,
-            $this->payment_hash
-        );
+        $amount = array_sum(array_column($this->payment_hash->invoices(), 'amount')) + $this->payment_hash->fee_total;
+
+        $this->sendFailureMail($error);
 
         SystemLogger::dispatch(
             $gateway->payment_hash,
@@ -393,12 +389,23 @@ class BaseDriver extends AbstractPaymentDriver
         throw new PaymentFailed($error, $e->getCode());
     }
 
+    public function sendFailureMail(string $error)
+    {
+
+        PaymentFailedMailer::dispatch(
+            $this->payment_hash,
+            $this->client->company,
+            $this->client,
+            $error
+        );
+
+    }
+
     public function clientPaymentFailureMailer($error)
     {
-        nlog("outside");
 
         if ($this->payment_hash && is_array($this->payment_hash->invoices())) {
-            nlog("inside");
+
 
             $nmo = new NinjaMailerObject;
             $nmo->mailable = new NinjaMailer((new ClientPaymentFailureObject($this->client, $error, $this->client->company, $this->payment_hash))->build());
@@ -408,16 +415,23 @@ class BaseDriver extends AbstractPaymentDriver
             $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
 
             $invoices->each(function ($invoice) {
+
                 $invoice->service()->deletePdf();
+                
             });
 
             $invoices->first()->invitations->each(function ($invitation) use ($nmo) {
+
                 if ($invitation->contact->email) {
+
                     $nmo->to_user = $invitation->contact;
                     NinjaMailerJob::dispatch($nmo);
                 }
+            
             });
+
         }
+
     }
 
     /**
@@ -443,24 +457,30 @@ class BaseDriver extends AbstractPaymentDriver
 
         $this->unWindGatewayFees($this->payment_hash);
 
-        PaymentFailureMailer::dispatch($this->client, $error, $this->client->company, $this->payment_hash->data->amount_with_fee);
+        $this->sendFailureMail($error);
 
         $nmo = new NinjaMailerObject;
-        $nmo->mailable = new NinjaMailer((new ClientPaymentFailureObject($this->client, $error, $this->client->company, $this->payment_hash))->build());
+        $nmo->mailable = new NinjaMailer( (new ClientPaymentFailureObject($this->client, $error, $this->client->company, $this->payment_hash))->build() );
         $nmo->company = $this->client->company;
         $nmo->settings = $this->client->company->settings;
 
         $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
 
-        $invoices->each(function ($invoice) {
+        $invoices->each(function ($invoice){
+
             $invoice->service()->deletePdf();
+
         });
 
-        $invoices->first()->invitations->each(function ($invitation) use ($nmo) {
-            if (!$invitation->contact->trashed() && $invitation->contact->email) {
+        $invoices->first()->invitations->each(function ($invitation) use ($nmo){
+
+            if (!$invitation->contact->trashed()) {
+
                 $nmo->to_user = $invitation->contact;
                 NinjaMailerJob::dispatch($nmo);
+
             }
+
         });
 
         $message = [
@@ -477,9 +497,9 @@ class BaseDriver extends AbstractPaymentDriver
             $this->client->company,
         );
 
-        if ($client_present) {
+        if($client_present)
             throw new PaymentFailed($error, 500);
-        }
+
     }
 
 
@@ -590,6 +610,7 @@ class BaseDriver extends AbstractPaymentDriver
 
     public function logSuccessfulGatewayResponse($response, $gateway_const)
     {
+
         SystemLogger::dispatch(
             $response,
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
@@ -603,8 +624,8 @@ class BaseDriver extends AbstractPaymentDriver
     public function genericWebhookUrl()
     {
         return route('payment_notification_webhook', [
-            'company_key' => $this->client->company->company_key,
-            'company_gateway_id' => $this->encodePrimaryKey($this->company_gateway->id),
+            'company_key' => $this->client->company->company_key, 
+            'company_gateway_id' => $this->encodePrimaryKey($this->company_gateway->id), 
             'client' => $this->encodePrimaryKey($this->client->id),
         ]);
     }
@@ -625,15 +646,14 @@ class BaseDriver extends AbstractPaymentDriver
      */
     public function getDescription(bool $abbreviated = true)
     {
-        if (!$this->payment_hash) {
+        if(!$this->payment_hash)
             return "";
-        }
 
-        if ($abbreviated) {
+        if($abbreviated)
             return \implode(', ', collect($this->payment_hash->invoices())->pluck('invoice_number')->toArray());
-        }
 
         return sprintf('%s: %s', ctrans('texts.invoices'), \implode(', ', collect($this->payment_hash->invoices())->pluck('invoice_number')->toArray()));
+
     }
 
     public function disconnect()

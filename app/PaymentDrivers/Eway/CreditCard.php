@@ -14,11 +14,18 @@ namespace App\PaymentDrivers\Eway;
 
 use App\Exceptions\PaymentFailed;
 use App\Jobs\Util\SystemLogger;
+use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
+use App\Models\Payment;
+use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\EwayPaymentDriver;
+use App\PaymentDrivers\Eway\ErrorCode;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class CreditCard
 {
@@ -33,18 +40,22 @@ class CreditCard
 
     public function authorizeView($data)
     {
+
         $data['gateway'] = $this->eway_driver;
         $data['api_key'] = $this->eway_driver->company_gateway->getConfigField('apiKey');
         $data['public_api_key'] = $this->eway_driver->company_gateway->getConfigField('publicApiKey');
 
         return render('gateways.eway.authorize', $data);
+
     }
 
     public function authorizeResponse($request)
     {
+
         $token = $this->createEwayToken($request->input('securefieldcode'));
 
         return redirect()->route('client.payment_methods.index');
+
     }
 
     private function createEwayToken($securefieldcode)
@@ -72,7 +83,10 @@ class CreditCard
 
         $response_status = ErrorCode::getStatus($response->ResponseMessage);
 
-        if (!$response_status['success']) {
+        if(!$response_status['success']){
+
+            $this->eway_driver->sendFailureMail($response_status['message']);
+
             throw new PaymentFailed($response_status['message'], 400);
         }
 
@@ -85,8 +99,7 @@ class CreditCard
         $payment_meta->exp_month = $response->Customer->CardDetails->ExpiryMonth;
         $payment_meta->exp_year = $response->Customer->CardDetails->ExpiryYear;
         $payment_meta->brand = 'CC';
-        $payment_meta->last4 = substr($response->Customer->CardDetails->Number, -4);
-        ;
+        $payment_meta->last4 = substr($response->Customer->CardDetails->Number, -4);;
         $payment_meta->type = GatewayType::CREDIT_CARD;
 
         $cgt['payment_meta'] = $payment_meta;
@@ -98,14 +111,17 @@ class CreditCard
 
     public function paymentView($data)
     {
+    
         $data['gateway'] = $this->eway_driver;
         $data['public_api_key'] = $this->eway_driver->company_gateway->getConfigField('publicApiKey');
 
         return render('gateways.eway.pay', $data);
+
     }
 
     public function paymentResponse($request)
     {
+
         $state = [
             'server_response' => $request->all(),
         ];
@@ -113,17 +129,21 @@ class CreditCard
         $this->eway_driver->payment_hash->data = array_merge((array) $this->eway_driver->payment_hash->data, $state);
         $this->eway_driver->payment_hash->save();
 
-        if (boolval($request->input('store_card'))) {
+        if(boolval($request->input('store_card')))
+        {
             $token = $this->createEwayToken($request->input('securefieldcode'));
             $payment = $this->tokenBilling($token->token, $this->eway_driver->payment_hash);
 
             return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
+
         }
 
-        if ($request->token) {
+        if($request->token){
+
             $payment = $this->tokenBilling($request->token, $this->eway_driver->payment_hash);
 
             return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
+
         }
 
         $transaction = [
@@ -138,8 +158,11 @@ class CreditCard
 
         $response_status = ErrorCode::getStatus($response->ResponseMessage);
 
-        if (!$response_status['success']) {
+        if(!$response_status['success']){
+
             $this->logResponse($response, false);
+
+            $this->eway_driver->sendFailureMail($response_status['message']);
 
             throw new PaymentFailed($response_status['message'], 400);
         }
@@ -149,6 +172,7 @@ class CreditCard
         $payment = $this->storePayment($response);
 
         return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
+
     }
 
     private function storePayment($response)
@@ -168,19 +192,19 @@ class CreditCard
 
     private function convertAmountForEway($amount = false)
     {
-        if (!$amount) {
+    
+        if(!$amount)
             $amount = array_sum(array_column($this->eway_driver->payment_hash->invoices(), 'amount')) + $this->eway_driver->payment_hash->fee_total;
-        }
 
-        if (in_array($this->eway_driver->client->currency()->code, ['VND', 'JPY', 'KRW', 'GNF', 'IDR', 'PYG', 'RWF', 'UGX', 'VUV', 'XAF', 'XPF'])) {
+        if(in_array($this->eway_driver->client->currency()->code, ['VND', 'JPY', 'KRW', 'GNF', 'IDR', 'PYG', 'RWF', 'UGX', 'VUV', 'XAF', 'XPF']))
             return $amount;
-        }
 
         return $amount * 100;
     }
 
     private function logResponse($response, $success = true)
     {
+
         $logger_message = [
             'server_response' => $response,
         ];
@@ -193,6 +217,7 @@ class CreditCard
             $this->eway_driver->client,
             $this->eway_driver->client->company,
         );
+
     }
 
 
@@ -214,8 +239,11 @@ class CreditCard
 
         $response_status = ErrorCode::getStatus($response->ResponseMessage);
 
-        if (!$response_status['success']) {
+        if(!$response_status['success']){
+
             $this->logResponse($response, false);
+
+            $this->eway_driver->sendFailureMail($response_status['message']);
 
             throw new PaymentFailed($response_status['message'], 400);
         }

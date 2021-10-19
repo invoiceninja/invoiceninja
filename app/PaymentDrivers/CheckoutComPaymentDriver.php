@@ -15,7 +15,6 @@ namespace App\PaymentDrivers;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Http\Requests\Gateways\Checkout3ds\Checkout3dsRequest;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
-use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\Company;
@@ -156,7 +155,7 @@ class CheckoutComPaymentDriver extends BaseDriver
             $fields[] = ['name' => 'client_country_id', 'label' => ctrans('texts.country'), 'type' => 'text', 'validation' => 'required'];
         }
 
-        if ($this->company_gateway->require_postal_code) {
+        if($this->company_gateway->require_postal_code) {
             $fields[] = ['name' => 'client_postal_code', 'label' => ctrans('texts.postal_code'), 'type' => 'text', 'validation' => 'required'];
         }
 
@@ -284,12 +283,7 @@ class CheckoutComPaymentDriver extends BaseDriver
             if ($response->status == 'Declined') {
                 $this->unWindGatewayFees($payment_hash);
 
-                PaymentFailureMailer::dispatch(
-                    $this->client,
-                    $response->response_summary,
-                    $this->client->company,
-                    $amount
-                );
+                $this->sendFailureMail($response->status . " " . $response->response_summary);
 
                 $message = [
                     'server_response' => $response,
@@ -320,7 +314,16 @@ class CheckoutComPaymentDriver extends BaseDriver
                 'message' => $message,
             ];
 
-            SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_CHECKOUT, $this->client, $this->client->company);
+            $this->sendFailureMail($message);
+
+            SystemLogger::dispatch(
+                $data, 
+                SystemLog::CATEGORY_GATEWAY_RESPONSE, 
+                SystemLog::EVENT_GATEWAY_FAILURE, 
+                SystemLog::TYPE_CHECKOUT, 
+                $this->client, 
+                $this->client->company
+            );
         }
     }
 

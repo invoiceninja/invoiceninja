@@ -13,7 +13,6 @@
 namespace App\PaymentDrivers\Stripe;
 
 use App\Exceptions\PaymentFailed;
-use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\Payment;
@@ -120,12 +119,7 @@ class Bancontact
     {
         $server_response = $this->stripe->payment_hash->data;
 
-        PaymentFailureMailer::dispatch(
-            $this->stripe->client,
-            $server_response,
-            $this->stripe->client->company,
-            $this->stripe->convertFromStripeAmount($this->stripe->payment_hash->data->stripe_amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency())
-        );
+        $this->stripe->sendFailureMail($server_response);
 
         $message = [
             'server_response' => $server_response,

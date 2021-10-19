@@ -32,7 +32,9 @@ class CloneQuoteToInvoiceFactory
         // unset($quote_array['public_notes']);
         unset($quote_array['footer']);
         unset($quote_array['design_id']);
+        unset($quote_array['user']);
 
+        
         foreach ($quote_array as $key => $value) {
             $invoice->{$key} = $value;
         }

@@ -5,7 +5,6 @@ namespace App\PaymentDrivers\Braintree;
 
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\Payment;
@@ -148,14 +147,7 @@ class PayPal
 
     private function processUnsuccessfulPayment($response)
     {
-        PaymentFailureMailer::dispatch($this->braintree->client, $response->message, $this->braintree->client->company, $this->braintree->payment_hash->data->amount_with_fee);
-
-        PaymentFailureMailer::dispatch(
-            $this->braintree->client,
-            $response,
-            $this->braintree->client->company,
-            $this->braintree->payment_hash->data->amount_with_fee,
-        );
+        $this->braintree->sendFailureMail($response->message);
 
         $message = [
             'server_response' => $response,

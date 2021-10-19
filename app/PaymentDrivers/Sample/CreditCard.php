@@ -12,10 +12,18 @@
 
 namespace App\PaymentDrivers\Sample;
 
+use App\Exceptions\PaymentFailed;
+use App\Jobs\Util\SystemLogger;
+use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
+use App\Models\PaymentHash;
 use App\Models\PaymentType;
+use App\Models\SystemLog;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class CreditCard
 {
@@ -30,18 +38,22 @@ class CreditCard
 
     public function authorizeView($data)
     {
+
     }
 
     public function authorizeRequest($request)
     {
+
     }
 
     public function paymentView($data)
     {
+    
     }
 
     public function processPaymentResponse($request)
     {
+        
     }
 
     /* This method is stubbed ready to go - you just need to harvest the equivalent 'transaction_reference' */
@@ -58,6 +70,7 @@ class CreditCard
         $payment = $this->driver_class->createPayment($payment_record, Payment::STATUS_COMPLETED);
 
         return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
+
     }
 
     private function processUnsuccessfulPayment($response)
@@ -77,6 +90,7 @@ class CreditCard
         ];
 
         return $this->driver_class->processUnsuccessfulTransaction($data);
+
     }
 
 
@@ -88,7 +102,11 @@ class CreditCard
       Some considerations after a succesful transaction include:
 
       Logging of events: success +/- failure
-      Recording a payment
+      Recording a payment 
       Notifications
      */
+
+
+
+
 }

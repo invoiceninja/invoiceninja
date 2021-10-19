@@ -15,7 +15,6 @@ namespace App\PaymentDrivers\CheckoutCom;
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Http\Requests\Request;
-use App\Jobs\Mail\PaymentFailureMailer;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\PaymentDrivers\CheckoutComPaymentDriver;
@@ -210,8 +209,9 @@ class CreditCard implements MethodInterface
             if ($response->status == 'Declined') {
                 $this->checkout->unWindGatewayFees($this->checkout->payment_hash);
 
-                PaymentFailureMailer::dispatch($this->checkout->client, $response->response_summary, $this->checkout->client->company, $this->checkout->payment_hash->data->value);
+                $this->checkout->sendFailureMail($response->response_summary);
 
+                //@todo - this will double up the checkout . com failed mails
                 $this->checkout->clientPaymentFailureMailer($response->status);
                 
                 return $this->processUnsuccessfulPayment($response);

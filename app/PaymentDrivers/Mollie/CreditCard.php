@@ -4,7 +4,6 @@ namespace App\PaymentDrivers\Mollie;
 
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
@@ -88,6 +87,8 @@ class CreditCard
                     return redirect($payment->getCheckoutUrl());
                 }
             } catch (\Exception $e) {
+
+
                 return $this->processUnsuccessfulPayment($e);
             }
         }
@@ -142,6 +143,7 @@ class CreditCard
                 return redirect($payment->getCheckoutUrl());
             }
         } catch (\Exception $e) {
+
             $this->processUnsuccessfulPayment($e);
 
             throw new PaymentFailed($e->getMessage(), $e->getCode());
@@ -196,12 +198,8 @@ class CreditCard
 
     public function processUnsuccessfulPayment(\Exception $e)
     {
-        PaymentFailureMailer::dispatch(
-            $this->mollie->client,
-            $e->getMessage(),
-            $this->mollie->client->company,
-            $this->mollie->payment_hash->data->amount_with_fee
-        );
+
+        $this->mollie->sendFailureMail($e->getMessage());
 
         SystemLogger::dispatch(
             $e->getMessage(),

@@ -12,7 +12,6 @@
 namespace App\Models;
 
 use App\Models\GatewayType;
-use App\PaymentDrivers\BasePaymentDriver;
 use App\Utils\Number;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use stdClass;
@@ -134,11 +133,10 @@ class CompanyGateway extends BaseModel
         $class = 'App\\PaymentDrivers\\'.$this->gateway->provider.'PaymentDriver';
         $class = str_replace('_', '', $class);
 
-        if (class_exists($class)) {
+        if (class_exists($class)) 
             return $class;
-        } else {
-            return BasePaymentDriver::class;
-        }
+        
+        throw new \Exception("Payment Driver does not exist");
     }
 
     /**

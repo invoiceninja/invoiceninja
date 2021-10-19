@@ -14,7 +14,6 @@ namespace App\PaymentDrivers\Stripe;
 
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\Payment;
@@ -162,14 +161,7 @@ class CreditCard
 
     public function processUnsuccessfulPayment($server_response)
     {
-        PaymentFailureMailer::dispatch($this->stripe->client, $server_response->cancellation_reason, $this->stripe->client->company, $server_response->amount);
-
-        PaymentFailureMailer::dispatch(
-            $this->stripe->client,
-            $server_response,
-            $this->stripe->client->company,
-            $server_response->amount
-        );
+        $this->stripe->sendFailureMail($server_response->cancellation_reason);
 
         $message = [
             'server_response' => $server_response,
