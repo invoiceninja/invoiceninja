@@ -13,19 +13,26 @@
 namespace App\PaymentDrivers\GoCardless;
 
 use App\Exceptions\PaymentFailed;
-use App\Http\Requests\Request;
-use App\PaymentDrivers\Common\MethodInterface;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Http\Requests\Request;
 use App\Jobs\Util\SystemLogger;
+use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
+use App\Models\Payment;
+use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\GoCardlessPaymentDriver;
+use App\Utils\Traits\MakesHash;
 use Exception;
-use Illuminate\Routing\Redirector;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Routing\Redirector;
+use Illuminate\View\View;
 
 class SEPA implements MethodInterface
 {
+    use MakesHash;
+
     protected GoCardlessPaymentDriver $go_cardless;
 
     public function __construct(GoCardlessPaymentDriver $go_cardless)
@@ -37,9 +44,9 @@ class SEPA implements MethodInterface
 
     /**
      * Handle authorization for SEPA.
-     * 
-     * @param array $data 
-     * @return Redirector|RedirectResponse|void 
+     *
+     * @param array $data
+     * @return Redirector|RedirectResponse|void
      */
     public function authorizeView(array $data)
     {
@@ -75,9 +82,9 @@ class SEPA implements MethodInterface
 
     /**
      * Handle unsuccessful authorization for SEPA.
-     * 
-     * @param Exception $exception 
-     * @return void 
+     *
+     * @param Exception $exception
+     * @return void
      */
     public function processUnsuccessfulAuthorization(\Exception $exception): void
     {
@@ -97,9 +104,9 @@ class SEPA implements MethodInterface
 
     /**
      * Handle authorization response for SEPA.
-     * 
-     * @param Request $request 
-     * @return RedirectResponse|void 
+     *
+     * @param Request $request
+     * @return RedirectResponse|void
      */
     public function authorizeResponse(Request $request)
     {
@@ -130,7 +137,114 @@ class SEPA implements MethodInterface
         }
     }
 
-    public function paymentView(array $data) { }
+    /**
+     * Payment view for SEPA.
+     *
+     * @param array $data
+     * @return View
+     */
+    public function paymentView(array $data): View
+    {
+        $data['gateway'] = $this->go_cardless;
+        $data['amount'] = $this->go_cardless->convertToGoCardlessAmount($data['total']['amount_with_fee'], $this->go_cardless->client->currency()->precision);
+        $data['currency'] = $this->go_cardless->client->getCurrencyCode();
 
-    public function paymentResponse(PaymentResponseRequest $request) { }
+        return render('gateways.gocardless.sepa.pay', $data);
+    }
+
+    /**
+     * Handle the payment page for SEPA.
+     *
+     * @param PaymentResponseRequest $request
+     * @return RedirectResponse|App\PaymentDrivers\GoCardless\never|void
+     */
+    public function paymentResponse(PaymentResponseRequest $request)
+    {
+        $token = ClientGatewayToken::find(
+            $this->decodePrimaryKey($request->source)
+        )->firstOrFail();
+
+        try {
+            $payment = $this->go_cardless->gateway->payments()->create([
+                'params' => [
+                    'amount' => $request->amount,
+                    'currency' => $request->currency,
+                    'metadata' => [
+                        'payment_hash' => $this->go_cardless->payment_hash->hash,
+                    ],
+                    'links' => [
+                        'mandate' => $token->token,
+                    ],
+                ],
+            ]);
+
+            if ($payment->status === 'pending_submission') {
+                return $this->processPendingPayment($payment, ['token' => $token->hashed_id]);
+            }
+
+            return $this->processUnsuccessfulPayment($payment);
+        } catch (\Exception $exception) {
+            throw new PaymentFailed($exception->getMessage(), $exception->getCode());
+        }
+    }
+
+    /**
+     * Handle pending payments for Direct Debit.
+     *
+     * @param ResourcesPayment $payment
+     * @param array $data
+     * @return RedirectResponse
+     */
+    public function processPendingPayment(\GoCardlessPro\Resources\Payment $payment, array $data = [])
+    {
+        $data = [
+            'payment_method' => $data['token'],
+            'payment_type' => PaymentType::SEPA,
+            'amount' => $this->go_cardless->payment_hash->data->amount_with_fee,
+            'transaction_reference' => $payment->id,
+            'gateway_type_id' => GatewayType::SEPA,
+        ];
+
+        $payment = $this->go_cardless->createPayment($data, Payment::STATUS_PENDING);
+
+        SystemLogger::dispatch(
+            ['response' => $payment, 'data' => $data],
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_SUCCESS,
+            SystemLog::TYPE_GOCARDLESS,
+            $this->go_cardless->client,
+            $this->go_cardless->client->company,
+        );
+
+        return redirect()->route('client.payments.show', ['payment' => $this->go_cardless->encodePrimaryKey($payment->id)]);
+    }
+
+    /**
+     * Process unsuccessful payments for Direct Debit.
+     *
+     * @param ResourcesPayment $payment
+     * @return never
+     */
+    public function processUnsuccessfulPayment(\GoCardlessPro\Resources\Payment $payment)
+    {
+        $this->go_cardless->sendFailureMail(
+            $payment->status
+        );
+
+        $message = [
+            'server_response' => $payment,
+            'data' => $this->go_cardless->payment_hash->data,
+        ];
+
+        SystemLogger::dispatch(
+            $message,
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_FAILURE,
+            SystemLog::TYPE_GOCARDLESS,
+            $this->go_cardless->client,
+            $this->go_cardless->client->company,
+        );
+
+        throw new PaymentFailed('Failed to process the payment.', 500);
+    }
 }
