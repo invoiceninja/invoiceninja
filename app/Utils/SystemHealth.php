@@ -84,7 +84,17 @@ class SystemHealth
             'jobs_pending' => (int) Queue::size(),
             'pdf_engine' => (string) self::getPdfEngine(),
             'queue' => (string) config('queue.default'),
+            'trailing_slash' => (bool) self::checkUrlState(),
         ];
+    }
+
+    public static function checkUrlState()
+    {
+        if (env('APP_URL') && substr(env('APP_URL'), -1) == '/')
+            return true;
+
+        return false;
+
     }
 
     public static function getPdfEngine()
