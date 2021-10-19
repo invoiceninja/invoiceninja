@@ -494,6 +494,6 @@ class InvoiceService
     {
         $this->invoice->saveQuietly();
 
-        return $this->invoice;
+        return $this->invoice->fresh();
     }
 }

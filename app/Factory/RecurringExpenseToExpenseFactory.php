@@ -38,7 +38,7 @@ class RecurringExpenseToExpenseFactory
         $expense->date = now()->format('Y-m-d');
         $expense->payment_date = $recurring_expense->payment_date;
         $expense->amount = $recurring_expense->amount;
-        $expense->foreign_amount = $recurring_expense->foreign_amount;
+        $expense->foreign_amount = $recurring_expense->foreign_amount ?: 0;
         $expense->private_notes = $recurring_expense->private_notes;
         $expense->public_notes = $recurring_expense->public_notes;
         $expense->transaction_reference = $recurring_expense->transaction_reference;

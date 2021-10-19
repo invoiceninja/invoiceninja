@@ -4329,6 +4329,8 @@ $LANG = array(
     'eps' => 'EPS',
     'you_need_to_accept_the_terms_before_proceeding' => 'You need to accept the terms before proceeding.',
     'direct_debit' => 'Direct Debit',
+    'clone_to_expense' => 'Clone to expense',
+    'checkout' => 'Checkout',
 );
 
 return $LANG;

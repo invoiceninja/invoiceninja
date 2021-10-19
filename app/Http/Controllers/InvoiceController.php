@@ -185,6 +185,10 @@ class InvoiceController extends BaseController
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(ref="#/components/schemas/FillableInvoice")
+     *      ),
      *      @OA\Response(
      *          response=200,
      *          description="Returns the saved invoice object",

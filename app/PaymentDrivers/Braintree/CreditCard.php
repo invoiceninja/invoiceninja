@@ -16,7 +16,6 @@ namespace App\PaymentDrivers\Braintree;
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Http\Requests\Request;
-use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\Payment;
@@ -113,8 +112,13 @@ class CreditCard
             $result = $this->braintree->gateway->transaction()->sale($data);
         } catch(\Exception $e) {
             if ($e instanceof \Braintree\Exception\Authorization) {
+
+                $this->braintree->sendFailureMail(ctrans('texts.generic_gateway_error'));
+
                 throw new PaymentFailed(ctrans('texts.generic_gateway_error'), $e->getCode());
             }
+
+            $this->braintree->sendFailureMail($e->getMessage());
 
             throw new PaymentFailed($e->getMessage(), $e->getCode());
         }
@@ -162,6 +166,8 @@ class CreditCard
             return $response->paymentMethod->token;
         }
 
+        $this->braintree->sendFailureMail($response->message);
+
         throw new PaymentFailed($response->message);
     }
 
@@ -195,14 +201,8 @@ class CreditCard
      */
     private function processUnsuccessfulPayment($response)
     {
-        PaymentFailureMailer::dispatch($this->braintree->client, $response->transaction->additionalProcessorResponse, $this->braintree->client->company, $this->braintree->payment_hash->data->amount_with_fee);
 
-        PaymentFailureMailer::dispatch(
-            $this->braintree->client,
-            $response,
-            $this->braintree->client->company,
-            $this->braintree->payment_hash->data->amount_with_fee,
-        );
+        $this->braintree->sendFailureMail($response->transaction->additionalProcessorResponse);
 
         $message = [
             'server_response' => $response,

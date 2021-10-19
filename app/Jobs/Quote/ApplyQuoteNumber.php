@@ -65,11 +65,11 @@ class ApplyQuoteNumber implements ShouldQueue
 
         switch ($this->settings->quote_number_applied) {
             case 'when_saved':
-                $this->quote->number = $this->getNextQuoteNumber($this->quote->client);
+                $this->quote->number = $this->getNextQuoteNumber($this->quote->client, $this->quote);
                 break;
             case 'when_sent':
                 if ($this->quote->status_id == Quote::STATUS_SENT) {
-                    $this->quote->number = $this->getNextQuoteNumber($this->quote->client);
+                    $this->quote->number = $this->getNextQuoteNumber($this->quote->client, $this->quote);
                 }
                 break;
 

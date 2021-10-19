@@ -14,7 +14,6 @@ namespace App\PaymentDrivers;
 
 
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
@@ -240,7 +239,7 @@ class BraintreePaymentDriver extends BaseDriver
         if (!$result->success) {
             $this->unWindGatewayFees($payment_hash);
 
-            PaymentFailureMailer::dispatch($this->client, $result->transaction->additionalProcessorResponse, $this->client->company, $this->payment_hash->data->amount_with_fee);
+            $this->sendFailureMail($result->transaction->additionalProcessorResponse);
 
             $message = [
                 'server_response' => $result,

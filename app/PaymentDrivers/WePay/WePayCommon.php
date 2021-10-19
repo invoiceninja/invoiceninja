@@ -12,7 +12,6 @@
 namespace App\PaymentDrivers\WePay;
 
 use App\Exceptions\PaymentFailed;
-use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\PaymentType;
@@ -20,7 +19,6 @@ use App\Models\SystemLog;
 
 trait WePayCommon
 {
-
 
     private function processSuccessfulPayment($response, $payment_status, $gateway_type, $return_payment = false)
     {
@@ -56,14 +54,7 @@ trait WePayCommon
 
     private function processUnSuccessfulPayment($response, $payment_status)
     {
-        PaymentFailureMailer::dispatch($this->wepay_payment_driver->client, $response->state, $this->wepay_payment_driver->client->company, $response->amount);
-
-        PaymentFailureMailer::dispatch(
-            $this->wepay_payment_driver->client,
-            $response,
-            $this->wepay_payment_driver->client->company,
-            $response->gross
-        );
+        $this->wepay_payment_driver->sendFailureMail($response->state);
 
         $message = [
             'server_response' => $response,

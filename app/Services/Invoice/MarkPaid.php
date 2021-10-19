@@ -52,7 +52,7 @@ class MarkPaid extends AbstractService
 
         $payment->amount = $this->invoice->balance;
         $payment->applied = $this->invoice->balance;
-        $payment->number = $this->getNextPaymentNumber($this->invoice->client);
+        $payment->number = $this->getNextPaymentNumber($this->invoice->client, $payment);
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->client_id = $this->invoice->client_id;
         $payment->transaction_reference = ctrans('texts.manual_entry');
@@ -64,7 +64,7 @@ class MarkPaid extends AbstractService
         if((int)$payment_type_id > 0)
             $payment->type_id = (int)$payment_type_id;
 
-        $payment->save();
+        $payment->saveQuietly();
 
         $this->setExchangeRate($payment);
 
@@ -72,6 +72,8 @@ class MarkPaid extends AbstractService
         $payment->invoices()->attach($this->invoice->id, [
             'amount' => $payment->amount,
         ]);
+
+        event('eloquent.created: App\Models\Payment', $payment);
 
         $this->invoice->next_send_date = null;
         
@@ -84,8 +86,8 @@ class MarkPaid extends AbstractService
                 ->deletePdf()
                 ->save();
 
-        if ($this->invoice->client->getSetting('client_manual_payment_notification')) 
-            $payment->service()->sendEmail();
+        // if ($this->invoice->client->getSetting('client_manual_payment_notification')) 
+        //     $payment->service()->sendEmail();
         
         /* Update Invoice balance */
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
