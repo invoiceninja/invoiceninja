@@ -13,8 +13,8 @@
 namespace App\PaymentDrivers\GoCardless;
 
 use App\Exceptions\PaymentFailed;
-use App\Http\Requests\Request;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Http\Requests\Request;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
@@ -25,14 +25,13 @@ use App\Models\SystemLog;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\GoCardlessPaymentDriver;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
 use Illuminate\View\View;
 
 class DirectDebit implements MethodInterface
 {
-     use MakesHash;
+    use MakesHash;
 
     protected GoCardlessPaymentDriver $go_cardless;
 
@@ -45,9 +44,9 @@ class DirectDebit implements MethodInterface
 
     /**
      * Handle authorization for Direct Debit.
-     * 
-     * @param array $data 
-     * @return Redirector|RedirectResponse|void 
+     *
+     * @param array $data
+     * @return Redirector|RedirectResponse|void
      */
     public function authorizeView(array $data)
     {
@@ -103,9 +102,9 @@ class DirectDebit implements MethodInterface
 
     /**
      * Handle authorization response for Direct Debit.
-     *  
-     * @param Request $request 
-     * @return RedirectResponse|void 
+     *
+     * @param Request $request
+     * @return RedirectResponse|void
      */
     public function authorizeResponse(Request $request)
     {
@@ -138,9 +137,9 @@ class DirectDebit implements MethodInterface
 
     /**
      * Payment view for Direct Debit.
-     * 
-     * @param array $data 
-     * @return View 
+     *
+     * @param array $data
+     * @return View
      */
     public function paymentView(array $data): View
     {
@@ -182,7 +181,7 @@ class DirectDebit implements MethodInterface
         }
     }
 
-        /**
+    /**
      * Handle pending payments for Direct Debit.
      *
      * @param ResourcesPayment $payment
