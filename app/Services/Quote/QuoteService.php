@@ -12,6 +12,7 @@
 namespace App\Services\Quote;
 
 use App\Events\Quote\QuoteWasApproved;
+use App\Factory\InvoiceInvitationFactory;
 use App\Jobs\Util\UnlinkFile;
 use App\Models\Invoice;
 use App\Models\Quote;
@@ -117,7 +118,6 @@ class QuoteService
             $this->invoice
                  ->service()
                  ->markSent()
-                 ->createInvitations()
                  ->deletePdf()
                  ->save();
 

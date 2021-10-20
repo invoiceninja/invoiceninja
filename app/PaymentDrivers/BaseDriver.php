@@ -306,7 +306,7 @@ class BaseDriver extends AbstractPaymentDriver
         $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
 
         $invoices->each(function ($invoice) {
-            $invoice->service()->removeUnpaidGatewayFees();
+            $invoice->service()->removeUnpaidGatewayFees()->save();
         });
     }
 

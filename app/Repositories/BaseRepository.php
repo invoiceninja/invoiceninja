@@ -222,15 +222,15 @@ class BaseRepository
             $this->saveDocuments($data['documents'], $model);
 
         /* Marks whether the client contact should receive emails based on the send_email property */
-        if (isset($data['client_contacts'])) {
-            foreach ($data['client_contacts'] as $contact) {
-                if ($contact['send_email'] == 1 && is_string($contact['id'])) {
-                    $client_contact = ClientContact::find($this->decodePrimaryKey($contact['id']));
-                    $client_contact->send_email = true;
-                    $client_contact->save();
-                }
-            }
-        }
+        // if (isset($data['client_contacts'])) {
+        //     foreach ($data['client_contacts'] as $contact) {
+        //         if ($contact['send_email'] == 1 && is_string($contact['id'])) {
+        //             $client_contact = ClientContact::find($this->decodePrimaryKey($contact['id']));
+        //             $client_contact->send_email = true;
+        //             $client_contact->save();
+        //         }
+        //     }
+        // }
 
         /* If invitations are present we need to filter existing invitations with the new ones */
         if (isset($data['invitations'])) {
@@ -285,10 +285,8 @@ class BaseRepository
             }
         }
 
-        $model->load('invitations');
-
         /* If no invitations have been created, this is our fail safe to maintain state*/
-        if ($model->invitations->count() == 0) 
+        if ($model->invitations()->count() == 0) 
             $model->service()->createInvitations();
 
         /* Recalculate invoice amounts */

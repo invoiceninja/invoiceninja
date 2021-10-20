@@ -13,12 +13,14 @@ namespace App\Jobs\RecurringInvoice;
 
 use App\DataMapper\Analytics\SendRecurringFailure;
 use App\Events\Invoice\InvoiceWasEmailed;
+use App\Factory\InvoiceInvitationFactory;
 use App\Factory\RecurringInvoiceToInvoiceFactory;
 use App\Jobs\Entity\EmailEntity;
 use App\Models\Invoice;
 use App\Models\RecurringInvoice;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
+use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceValues;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
@@ -32,7 +34,8 @@ class SendRecurring implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     use GeneratesCounter;
-    
+    use MakesHash;
+
     public $recurring_invoice;
 
     protected $db;
@@ -58,16 +61,6 @@ class SendRecurring implements ShouldQueue
      */
     public function handle() : void
     {
-        //reset all contacts here
-        // $this->recurring_invoice->client->contacts()->update(['send_email' => false]);
-
-        // $this->recurring_invoice->invitations->each(function ($invitation){
-
-        //     $contact = $invitation->contact;
-        //     $contact->send_email = true;
-        //     $contact->save();
-            
-        // });
 
         // Generate Standard Invoice
         $invoice = RecurringInvoiceToInvoiceFactory::create($this->recurring_invoice, $this->recurring_invoice->client);
@@ -86,10 +79,12 @@ class SendRecurring implements ShouldQueue
             $invoice = $invoice->service()
                                ->markSent()
                                ->applyNumber()
-                               ->createInvitations() //need to only link invitations to those in the recurring invoice
+                               // ->createInvitations() //need to only link invitations to those in the recurring invoice
                                ->fillDefaults()
                                ->save();
-                               
+            
+            $invoice = $this->createRecurringInvitations($invoice);
+
         }
         else{
 
@@ -152,6 +147,28 @@ class SendRecurring implements ShouldQueue
 
         }
 
+    }
+
+    /**
+     * Only create the invitations that are defined on the recurring invoice.
+     * @param  Invoice $invoice 
+     * @return Invoice $invoice
+     */
+    private function createRecurringInvitations($invoice) :Invoice
+    {
+
+        $this->recurring_invoice->invitations->each(function ($recurring_invitation) use($invoice){
+
+            $ii = InvoiceInvitationFactory::create($invoice->company_id, $invoice->user_id);
+            $ii->key = $this->createDbHash(config('database.default'));
+            $ii->invoice_id = $invoice->id;
+            $ii->client_contact_id = $recurring_invitation->client_contact_id;
+            $ii->save();
+
+        });
+
+
+        return $invoice->fresh();
     }
 
     public function failed($exception = null)
