@@ -729,6 +729,12 @@ class Client extends BaseModel implements HasLocalePreference
         })->first()->locale;
     }
 
+    public function backup_path()
+    {
+        return $this->company->company_key.'/'.$this->client_hash.'/backups';
+    }
+
+
     public function invoice_filepath($invitation)
     {   
         $contact_key = $invitation->contact->contact_key;

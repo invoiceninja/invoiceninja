@@ -180,6 +180,25 @@ class MigrationController extends BaseController
         $company->vendors()->forceDelete();
         $company->expenses()->forceDelete();
 
+        $settings = $company->settings;
+
+        /* Reset all counters to 1 after a purge */
+        $settings->recurring_invoice_number_counter = 1;
+        $settings->invoice_number_counter = 1;
+        $settings->quote_number_counter = 1;
+        $settings->client_number_counter = 1;
+        $settings->credit_number_counter = 1;
+        $settings->task_number_counter = 1;
+        $settings->expense_number_counter = 1;
+        $settings->recurring_expense_number_counter = 1;
+        $settings->recurring_quote_number_counter = 1;
+        $settings->vendor_number_counter = 1;
+        $settings->ticket_number_counter = 1;
+        $settings->payment_number_counter = 1;
+        $settings->project_number_counter = 1;
+
+        $company->settings = $settings;
+
         $company->save();
 
         return response()->json(['message' => 'Settings preserved'], 200);

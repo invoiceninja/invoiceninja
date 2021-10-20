@@ -110,6 +110,16 @@ class SendRecurring implements ShouldQueue
 
         $this->recurring_invoice->save();
         
+        /*
+
+        if ($this->recurring_invoice->company->pause_recurring_until_paid){
+            $this->recurring_invoice->service()
+                                    ->stop();
+        }
+
+        */
+
+
         //Admin notification for recurring invoice sent. 
         if ($invoice->invitations->count() >= 1 ) {
             $invoice->entityEmailEvent($invoice->invitations->first(), 'invoice', 'email_template_invoice');
