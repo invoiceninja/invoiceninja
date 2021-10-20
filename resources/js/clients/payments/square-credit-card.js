@@ -57,47 +57,49 @@ class SquareCreditCard {
     //                     die("verify buyer");
     //             }
 
-
     async completePaymentWithoutToken(e) {
         document.getElementById('errors').hidden = true;
         e.target.parentElement.disabled = true;
 
         let result = await this.card.tokenize();
 
-        console.log("square token = " + result.token);
+        console.log('square token = ' + result.token);
 
         /* SCA */
-       let verificationToken;
+        let verificationToken;
 
-       try {
-        const verificationDetails = {
-          amount: document.querySelector('meta[name=amount]').content,
-          billingContact: JSON.parse(document.querySelector('meta[name=square_contact]').content),
-          currencyCode: document.querySelector('meta[name=currencyCode]').content,
-          intent: 'CHARGE'
-        };
+        try {
+            const verificationDetails = {
+                amount: document.querySelector('meta[name=amount]').content,
+                billingContact: JSON.parse(
+                    document.querySelector('meta[name=square_contact]').content
+                ),
+                currencyCode: document.querySelector('meta[name=currencyCode]')
+                    .content,
+                intent: 'CHARGE',
+            };
 
-        console.log(verificationDetails);
+            console.log(verificationDetails);
 
             const verificationResults = await this.payments.verifyBuyer(
-              result.token,
-              verificationDetails
+                result.token,
+                verificationDetails
             );
 
             verificationToken = verificationResults.token;
-        }
-        catch(typeError){
-                console.log(typeError);
-                die("failed in the catch");
+        } catch (typeError) {
+            console.log(typeError);
+            die('failed in the catch');
         }
         // console.log(" verification tokem = " + verificationToken.token);
 
         // verificationToken = verificationResults.token;
-       
-       console.debug('Verification Token:', verificationToken);
 
-        document.querySelector('input[name="verificationToken"]').value =
-            verificationToken;
+        console.debug('Verification Token:', verificationToken);
+
+        document.querySelector(
+            'input[name="verificationToken"]'
+        ).value = verificationToken;
 
         if (result.status === 'OK') {
             document.getElementById('sourceId').value = result.token;
@@ -129,22 +131,23 @@ class SquareCreditCard {
 
     /* SCA */
     async verifyBuyer(token) {
-
-        console.log("in verify buyer");
+        console.log('in verify buyer');
 
         const verificationDetails = {
-          amount: document.querySelector('meta[name=amount]').content,
-          billingContact: document.querySelector('meta[name=square_contact]').content,
-          currencyCode: document.querySelector('meta[name=currencyCode]').content,
-          intent: 'CHARGE'
+            amount: document.querySelector('meta[name=amount]').content,
+            billingContact: document.querySelector('meta[name=square_contact]')
+                .content,
+            currencyCode: document.querySelector('meta[name=currencyCode]')
+                .content,
+            intent: 'CHARGE',
         };
 
         const verificationResults = await this.payments.verifyBuyer(
-          token,
-          verificationDetails
+            token,
+            verificationDetails
         );
 
-        console.log(" verification toke = " + verificationResults.token);
+        console.log(' verification toke = ' + verificationResults.token);
 
         return verificationResults.token;
     }
