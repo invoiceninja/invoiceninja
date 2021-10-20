@@ -3,6 +3,7 @@
 
 namespace App\PaymentDrivers\Braintree;
 
+
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Jobs\Util\SystemLogger;
@@ -74,7 +75,7 @@ class PayPal
             'paymentMethodToken' => $token,
             'deviceData' => $state['client-data'],
             'options' => [
-                'submitForSettlement' => true,
+                'submitForSettlement' => True,
                 'paypal' => [
                     'description' => 'Meaningful description.',
                 ]

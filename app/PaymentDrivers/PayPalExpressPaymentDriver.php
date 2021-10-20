@@ -148,6 +148,7 @@ class PayPalExpressPaymentDriver extends BaseDriver
         }
 
         if (!$response->isSuccessful()) {
+
             $data = $response->getData();
             
             $this->sendFailureMail($response->getMessage());
@@ -195,6 +196,7 @@ class PayPalExpressPaymentDriver extends BaseDriver
 
     public function generatePaymentItems(array $data)
     {
+
         $_invoice = collect($this->payment_hash->data->invoices)->first();
         $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
 
@@ -210,5 +212,7 @@ class PayPalExpressPaymentDriver extends BaseDriver
             ]);
 
         return $items;
+
     }
+
 }

@@ -49,25 +49,25 @@ class PayFastPaymentDriver extends BaseDriver
     {
         $types = [];
 
-        if ($this->client->currency()->code == 'ZAR' || $this->client->currency()->code == 'USD') {
+        if($this->client->currency()->code == 'ZAR' || $this->client->currency()->code == 'USD')
             $types[] = GatewayType::CREDIT_CARD;
-        }
 
         return $types;
     }
 
     public function endpointUrl()
     {
-        if ($this->company_gateway->getConfigField('testMode')) {
+        if($this->company_gateway->getConfigField('testMode'))
             return 'https://sandbox.payfast.co.za/eng/process';
-        }
 
         return 'https://www.payfast.co.za/eng/process';
     }
 
     public function init()
     {
-        try {
+
+        try{
+
             $this->payfast = new \PayFast\PayFastPayment(
                 [
                     'merchantId' => $this->company_gateway->getConfigField('merchantId'),
@@ -76,8 +76,11 @@ class PayFastPaymentDriver extends BaseDriver
                     'testMode' => $this->company_gateway->getConfigField('testMode')
                 ]
             );
-        } catch (\Exception $e) {
+
+        } catch(\Exception $e) {
+
             echo '##PAYFAST## There was an exception: '.$e->getMessage();
+
         }
 
         return $this;
@@ -137,15 +140,15 @@ class PayFastPaymentDriver extends BaseDriver
             'split_payment'
         ];
 
-        foreach ($keys as $key) {
+        foreach($keys as $key)
+        {
             if (!empty($data[$key])) {
                 $fields[$key] = $data[$key];
             }
         }
 
-        if ($this->company_gateway->getConfigField('passphrase')) {
+        if($this->company_gateway->getConfigField('passphrase'))
             $fields['passphrase'] = $this->company_gateway->getConfigField('passphrase');
-        }
 
         nlog(http_build_query($fields));
 
@@ -154,11 +157,11 @@ class PayFastPaymentDriver extends BaseDriver
 
     public function generateSignature($data)
     {
-        $fields = [];
+        $fields = array();
 
         // specific order required by PayFast
         // @see https://developers.payfast.co.za/documentation/#checkout-page
-        foreach (['merchant_id', 'merchant_key', 'return_url', 'cancel_url', 'notify_url', 'name_first',
+        foreach (array('merchant_id', 'merchant_key', 'return_url', 'cancel_url', 'notify_url', 'name_first',
                      'name_last', 'email_address', 'cell_number',
                     /**
                      * Transaction Details
@@ -184,7 +187,7 @@ class PayFastPaymentDriver extends BaseDriver
                     /**
                      * Passphrase for md5 signature generation
                      */
-                    'passphrase'] as $key) {
+                    'passphrase') as $key) {
             if (!empty($data[$key])) {
                 $fields[$key] = $data[$key];
             }
@@ -198,14 +201,18 @@ class PayFastPaymentDriver extends BaseDriver
 
     public function processWebhookRequest(Request $request, Payment $payment = null)
     {
+
         $data = $request->all();
         nlog("payfast");
         nlog($data);
 
-        if (array_key_exists('m_payment_id', $data)) {
+        if(array_key_exists('m_payment_id', $data))
+        {
+
             $hash = Cache::get($data['m_payment_id']);
 
-            switch ($hash) {
+            switch ($hash)
+            {
                 case 'cc_auth':
                     $this->setPaymentMethod(GatewayType::CREDIT_CARD)
                          ->authorizeResponse($request);
@@ -226,8 +233,11 @@ class PayFastPaymentDriver extends BaseDriver
 
                     break;
             }
+
+
         }
 
         return response()->json([], 200);
+
     }
 }

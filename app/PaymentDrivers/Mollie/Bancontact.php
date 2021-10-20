@@ -15,6 +15,7 @@ namespace App\PaymentDrivers\Mollie;
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\Request;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\Payment;
@@ -108,8 +109,12 @@ class Bancontact implements MethodInterface
      */
     public function processUnsuccessfulPayment(\Exception $exception): void
     {
-
-        $this->mollie->sendFailureMail($exception->getMessage());
+        PaymentFailureMailer::dispatch(
+            $this->mollie->client,
+            $exception->getMessage(),
+            $this->mollie->client->company,
+            $this->mollie->payment_hash->data->amount_with_fee
+        );
 
         SystemLogger::dispatch(
             $exception->getMessage(),

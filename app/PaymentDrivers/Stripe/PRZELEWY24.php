@@ -89,9 +89,8 @@ class PRZELEWY24
         $this->stripe->init();
 
         //catch duplicate submissions.
-        if (Payment::where('transaction_reference', $payment_intent)->exists()) {
+        if(Payment::where('transaction_reference', $payment_intent)->exists())
             return redirect()->route('client.payments.index');
-        }
         
         $data = [
             'payment_method' => $payment_intent,

@@ -19,7 +19,7 @@ use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Jobs\Mail\NinjaMailer;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
-use App\Jobs\Mail\PaymentFailedMailer;
+use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Mail\Admin\ClientPaymentFailureObject;
 use App\Models\Client;
@@ -236,7 +236,7 @@ class BaseDriver extends AbstractPaymentDriver
         $payment->type_id = $data['payment_type'];
         $payment->transaction_reference = $data['transaction_reference'];
         $payment->client_contact_id = $client_contact_id;
-        $payment->saveQuietly();
+        $payment->save();
 
         $this->payment_hash->payment_id = $payment->id;
         $this->payment_hash->save();
@@ -247,8 +247,6 @@ class BaseDriver extends AbstractPaymentDriver
             $payment = $payment->service()->applyCredits($this->payment_hash)->save();
 
         $payment->service()->updateInvoicePayment($this->payment_hash);
-
-        event('eloquent.created: App\Models\Payment', $payment);
 
         if ($this->client->getSetting('client_online_payment_notification'))
             $payment->service()->sendEmail();
@@ -373,9 +371,12 @@ class BaseDriver extends AbstractPaymentDriver
         } else
             $error = $e->getMessage();
 
-        $amount = array_sum(array_column($this->payment_hash->invoices(), 'amount')) + $this->payment_hash->fee_total;
-
-        $this->sendFailureMail($error);
+        PaymentFailureMailer::dispatch(
+            $gateway->client,
+            $error,
+            $gateway->client->company,
+            $this->payment_hash
+        );
 
         SystemLogger::dispatch(
             $gateway->payment_hash,
@@ -389,23 +390,13 @@ class BaseDriver extends AbstractPaymentDriver
         throw new PaymentFailed($error, $e->getCode());
     }
 
-    public function sendFailureMail(string $error)
-    {
-
-        PaymentFailedMailer::dispatch(
-            $this->payment_hash,
-            $this->client->company,
-            $this->client,
-            $error
-        );
-
-    }
-
     public function clientPaymentFailureMailer($error)
     {
+nlog("outside");
 
         if ($this->payment_hash && is_array($this->payment_hash->invoices())) {
 
+nlog("inside");
 
             $nmo = new NinjaMailerObject;
             $nmo->mailable = new NinjaMailer((new ClientPaymentFailureObject($this->client, $error, $this->client->company, $this->payment_hash))->build());
@@ -457,7 +448,7 @@ class BaseDriver extends AbstractPaymentDriver
 
         $this->unWindGatewayFees($this->payment_hash);
 
-        $this->sendFailureMail($error);
+        PaymentFailureMailer::dispatch($this->client, $error, $this->client->company, $this->payment_hash->data->amount_with_fee);
 
         $nmo = new NinjaMailerObject;
         $nmo->mailable = new NinjaMailer( (new ClientPaymentFailureObject($this->client, $error, $this->client->company, $this->payment_hash))->build() );
@@ -474,7 +465,7 @@ class BaseDriver extends AbstractPaymentDriver
 
         $invoices->first()->invitations->each(function ($invitation) use ($nmo){
 
-            if (!$invitation->contact->trashed()) {
+            if (!$invitation->contact->trashed() && $invitation->contact->email) {
 
                 $nmo->to_user = $invitation->contact;
                 NinjaMailerJob::dispatch($nmo);

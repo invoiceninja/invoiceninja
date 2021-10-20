@@ -60,47 +60,45 @@ class UpdatePaymentMethods
 
     public function updateMethods(Customer $customer, Client $client)
     {
-        $card_methods = PaymentMethod::all(
-            [
+                $card_methods = PaymentMethod::all([
                     'customer' => $customer->id,
                     'type' => 'card',
                     ],
-            $this->stripe->stripe_connect_auth
-        );
+                     $this->stripe->stripe_connect_auth);
 
-        foreach ($card_methods as $method) {
-            $this->addOrUpdateCard($method, $customer->id, $client, GatewayType::CREDIT_CARD);
-        }
+                foreach($card_methods as $method) 
+                {
+                    $this->addOrUpdateCard($method, $customer->id, $client,GatewayType::CREDIT_CARD);
+                }
 
-        $alipay_methods = PaymentMethod::all(
-            [
+                $alipay_methods = PaymentMethod::all([
                     'customer' => $customer->id,
                     'type' => 'alipay',
                     ],
-            $this->stripe->stripe_connect_auth
-        );
+                     $this->stripe->stripe_connect_auth);
 
-        foreach ($alipay_methods as $method) {
-            $this->addOrUpdateCard($method, $customer->id, $client, GatewayType::ALIPAY);
-        }
+                foreach($alipay_methods as $method) 
+                {
+                    $this->addOrUpdateCard($method, $customer->id, $client,GatewayType::ALIPAY);
+                }
 
-        $sofort_methods = PaymentMethod::all(
-            [
+                $sofort_methods = PaymentMethod::all([
                     'customer' => $customer->id,
                     'type' => 'sofort',
                     ],
-            $this->stripe->stripe_connect_auth
-        );
+                     $this->stripe->stripe_connect_auth);
 
-        foreach ($alipay_methods as $method) {
-            $this->addOrUpdateCard($method, $customer->id, $client, GatewayType::SOFORT);
-        }
+                foreach($alipay_methods as $method) 
+                {
+                    $this->addOrUpdateCard($method, $customer->id, $client, GatewayType::SOFORT);
+                }
 
-        //$this->importBankAccounts($customer, $client);
+                //$this->importBankAccounts($customer, $client);
     }
 
     private function importBankAccounts($customer, $client)
     {
+
     }
 
     // private function addOrUpdateBankAccount($bank_account, $customer_reference, Client $client)
@@ -128,6 +126,7 @@ class UpdatePaymentMethods
 
     private function addOrUpdateCard(PaymentMethod $method, $customer_reference, Client $client, $type_id)
     {
+        
         $token_exists = ClientGatewayToken::where([
             'gateway_customer_reference' => $customer_reference,
             'token' => $method->id,
@@ -136,14 +135,12 @@ class UpdatePaymentMethods
         ])->exists();
 
         /* Already exists return */
-        if ($token_exists) {
+        if($token_exists)
             return;
-        }
 
         /* Ignore Expired cards */
-        if ($method->card->exp_year <= date('Y') && $method->card->exp_month < date('m')) {
+        if($method->card->exp_year <= date('Y') && $method->card->exp_month < date('m'))
             return;
-        }
 
         $cgt = ClientGatewayTokenFactory::create($client->company_id);
         $cgt->client_id = $client->id;
@@ -153,10 +150,12 @@ class UpdatePaymentMethods
         $cgt->gateway_type_id = $type_id;
         $cgt->meta = $this->buildPaymentMethodMeta($method, $type_id);
         $cgt->save();
+
     }
 
     private function buildPaymentMethodMeta(PaymentMethod $method, $type_id)
     {
+
         switch ($type_id) {
             case GatewayType::CREDIT_CARD:
 

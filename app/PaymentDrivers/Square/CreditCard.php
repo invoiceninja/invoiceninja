@@ -170,9 +170,8 @@ class CreditCard
         $body->setLocationId($this->square_driver->company_gateway->getConfigField('locationId'));
         $body->setReferenceId(Str::random(16));
 
-        if ($request->has('verificationToken') && $request->input('verificationToken')) {
+        if($request->has('verificationToken') && $request->input('verificationToken'))
             $body->setVerificationToken($request->input('verificationToken'));
-        }
 
         if ($request->shouldUseToken()) {
             $body->setCustomerId($cgt->gateway_customer_reference);
@@ -302,9 +301,9 @@ class CreditCard
             $customers = $api_response->getBody();
             $customers = json_decode($customers);
 
-            if (count([$api_response->getBody(),1]) == 0) {
+            if(count(array($api_response->getBody(),1)) == 0)
                 $customers = false;
-            }
+
         } else {
             $errors = $api_response->getErrors();
         }

@@ -17,19 +17,21 @@ trait Utilities
     /*Helpers for currency conversions, NOTE* for some currencies we need to change behaviour */
     public function convertFromStripeAmount($amount, $precision, $currency)
     {
-        if ($currency->code == "JPY") {
+
+        if($currency->code == "JPY")
             return $amount;
-        }
 
         return $amount / pow(10, $precision);
+
     }
 
     public function convertToStripeAmount($amount, $precision, $currency)
     {
-        if ($currency->code == "JPY") {
-            return $amount;
-        }
 
-        return round(($amount * pow(10, $precision)), 0);
+       if($currency->code == "JPY")
+            return $amount; 
+
+        return round(($amount * pow(10, $precision)),0);
+
     }
 }

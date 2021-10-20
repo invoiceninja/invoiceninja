@@ -22,7 +22,9 @@ use App\Jobs\Util\SystemLogger;
 use App\Mail\Gateways\ACHVerificationNotification;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
+use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\StripePaymentDriver;
@@ -55,6 +57,7 @@ class ACSS
 
         try {
             $source = Customer::createSource($customer->id, ['source' => $stripe_response->token->id], $this->stripe->stripe_connect_auth);
+
         } catch (InvalidRequestException $e) {
             throw new PaymentFailed($e->getMessage(), $e->getCode());
         }
@@ -172,6 +175,7 @@ class ACSS
 
     public function paymentResponse(PaymentResponseRequest $request)
     {
+
         $gateway_response = json_decode($request->gateway_response);
 
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, $request->all());
@@ -182,6 +186,7 @@ class ACSS
             return $this->processSuccessfulPayment($gateway_response->id);
         }
         return $this->processUnsuccessfulPayment();
+
     }
 
     public function processSuccessfulPayment(string $payment_intent): \Illuminate\Http\RedirectResponse
@@ -239,6 +244,7 @@ class ACSS
     private function storePaymentMethod($intent)
     {
         try {
+
             $method = $this->stripe->getStripePaymentMethod($intent->payment_method);
 
             $payment_meta = new \stdClass;

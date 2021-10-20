@@ -49,7 +49,7 @@ class PaymentDriver extends BaseDriver
     {
         $types = [];
 
-        $types[] = GatewayType::CREDIT_CARD;
+            $types[] = GatewayType::CREDIT_CARD;
 
         return $types;
     }
