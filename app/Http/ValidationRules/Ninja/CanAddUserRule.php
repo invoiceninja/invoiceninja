@@ -18,11 +18,9 @@ use Illuminate\Contracts\Validation\Rule;
  */
 class CanAddUserRule implements Rule
 {
-    public $account;
 
-    public function __construct($account)
+    public function __construct()
     {
-        $this->account = $account;
     }
 
     /**
@@ -32,7 +30,7 @@ class CanAddUserRule implements Rule
      */
     public function passes($attribute, $value)
     {
-        return $this->account->users->count() < $this->account->num_users;
+        return auth()->user()->company()->account->users->count() < auth()->user()->company()->account->num_users;
     }
 
     /**
@@ -40,6 +38,6 @@ class CanAddUserRule implements Rule
      */
     public function message()
     {
-        return ctrans('texts.limit_users', ['limit' => $this->account->num_users]);
+        return ctrans('texts.limit_users', ['limit' => auth()->user()->company()->account->num_users]);
     }
 }
