@@ -152,7 +152,7 @@ class PaymentMethodController extends Controller
             return $gateway = auth()->user()->client->getCreditCardGateway();
         }
 
-        if (request()->query('method') == GatewayType::BANK_TRANSFER) {
+        if (in_array(request()->query('method'), [GatewayType::BANK_TRANSFER, GatewayType::SEPA])) {
             return $gateway = auth()->user()->client->getBankTransferGateway();
         }
 
