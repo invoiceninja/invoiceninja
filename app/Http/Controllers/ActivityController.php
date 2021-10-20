@@ -20,6 +20,7 @@ use App\Utils\Traits\Pdf\PdfMaker;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use stdClass;
 
@@ -136,19 +137,33 @@ class ActivityController extends BaseController
     public function downloadHistoricalEntity(DownloadHistoricalEntityRequest $request, Activity $activity)
     {
         $backup = $activity->backup;
+        $html_backup = '';
 
-        if (! $backup || ! $backup->html_backup) {
+        /* Refactor 20-10-2021 
+         *
+         * We have moved the backups out of the database and into object storage.
+         * In order to handle edge cases, we still check for the database backup 
+         * in case the file no longer exists
+        */
+
+        if($backup && $backup->filename && Storage::disk(config('filesystems.default'))->exists($backup->filename)){ //disk
+            $html_backup = file_get_contents(Storage::disk(config('filesystems.default'))->path($backup->filename));
+        }
+        elseif($backup && $backup->html_backup){ //db
+            $html_backup = $backup->html_backup;
+        }
+        elseif (! $backup || ! $backup->html_backup) { //failed
             return response()->json(['message'=> ctrans('texts.no_backup_exists'), 'errors' => new stdClass], 404);
         }
 
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
-            $pdf = (new Phantom)->convertHtmlToPdf($backup->html_backup);
+            $pdf = (new Phantom)->convertHtmlToPdf($html_backup);
         }
         elseif(config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja'){
-            $pdf = (new NinjaPdf())->build($backup->html_backup);
+            $pdf = (new NinjaPdf())->build($html_backup);
         }
         else {
-            $pdf = $this->makePdf(null, null, $backup->html_backup);
+            $pdf = $this->makePdf(null, null, $html_backup);
         }
 
         if (isset($activity->invoice_id)) {
