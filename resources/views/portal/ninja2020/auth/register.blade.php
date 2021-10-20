@@ -36,6 +36,7 @@
                                         class="input w-full" 
                                         type="email"
                                         name="{{ $field['key'] }}"
+                                        value="{{ old($field['key']) }}"
                                         {{ $field['required'] ? 'required' : '' }} />
                                 @elseif($field['key'] === 'password')
                                     <input 
@@ -63,6 +64,7 @@
                                         id="{{ $field['key'] }}" 
                                         class="input w-full" 
                                         name="{{ $field['key'] }}"
+                                        value="{{ old($field['key']) }}"
                                         {{ $field['required'] ? 'required' : '' }} />
                                 @endif
 
