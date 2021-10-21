@@ -32,6 +32,7 @@ class GatewayType extends StaticModel
     const GIROPAY = 15;
     const PRZELEWY24 = 16;
     const EPS = 17;
+    const DIRECT_DEBIT = 18;
 
     public function gateway()
     {
@@ -78,6 +79,8 @@ class GatewayType extends StaticModel
                 return ctrans('texts.giropay');
             case self::EPS:
                 return ctrans('texts.eps');
+            case self::DIRECT_DEBIT:
+                return ctrans('texts.payment_type_direct_debit');
             default:
                 return 'Undefined.';
                 break;
