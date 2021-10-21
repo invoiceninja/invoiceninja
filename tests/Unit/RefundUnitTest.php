@@ -10,7 +10,7 @@
  */
 namespace Tests\Unit;
 
-use App\Helpers\Invoice\Refund;
+use App\Helpers\Invoice\ProRata;
 use App\Models\RecurringInvoice;
 use App\Utils\Ninja;
 use Illuminate\Support\Carbon;
@@ -29,8 +29,8 @@ class RefundUnitTest extends TestCase
 
     public function testProRataRefundMonthly()
     {
-        $r = new Refund();
-        $refund = $r->proRata(10, Carbon::parse('2021-01-01'), Carbon::parse('2021-01-31'), RecurringInvoice::FREQUENCY_MONTHLY);
+        $pro_rata = new ProRata();
+        $refund = $pro_rata->refund(10, Carbon::parse('2021-01-01'), Carbon::parse('2021-01-31'), RecurringInvoice::FREQUENCY_MONTHLY);
 
         $this->assertEquals(9.68, $refund);
 
@@ -40,9 +40,9 @@ class RefundUnitTest extends TestCase
 
     public function testProRataRefundYearly()
     {
-        $r = new Refund();
+        $pro_rata = new ProRata();
 
-        $refund = $r->proRata(10, Carbon::parse('2021-01-01'), Carbon::parse('2021-01-31'), RecurringInvoice::FREQUENCY_ANNUALLY);
+        $refund = $pro_rata->refund(10, Carbon::parse('2021-01-01'), Carbon::parse('2021-01-31'), RecurringInvoice::FREQUENCY_ANNUALLY);
 
         $this->assertEquals(0.82, $refund);
     }
