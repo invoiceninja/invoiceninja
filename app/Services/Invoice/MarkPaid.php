@@ -82,6 +82,9 @@ class MarkPaid extends AbstractService
                 ->updateBalance($payment->amount * -1)
                 ->updatePaidToDate($payment->amount)
                 ->setStatus(Invoice::STATUS_PAID)
+                ->save();
+
+        $this->invoice->service()
                 ->applyNumber()
                 ->deletePdf()
                 ->save();
@@ -103,7 +106,10 @@ class MarkPaid extends AbstractService
             ->updatePaidToDate($payment->amount)
             ->save();
 
-        $this->invoice->service()->workFlow()->save();
+        $this->invoice
+             ->service()
+             ->workFlow()
+             ->save();
 
         return $this->invoice;
     }
