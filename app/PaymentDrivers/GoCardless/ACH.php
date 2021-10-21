@@ -56,6 +56,7 @@ class ACH implements MethodInterface
         try {
             $redirect = $this->go_cardless->gateway->redirectFlows()->create([
                 "params" => [
+                    "scheme" => "ach",
                     "session_token" => $session_token,
                     "success_redirect_url" => route('client.payment_methods.confirm', [
                         'method' => GatewayType::BANK_TRANSFER,

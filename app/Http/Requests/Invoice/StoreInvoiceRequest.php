@@ -70,6 +70,13 @@ class StoreInvoiceRequest extends Request
         $input['amount'] = 0;
         $input['balance'] = 0;
         
+        if(array_key_exists('tax_rate1', $input) && is_null($input['tax_rate1']))
+            $input['tax_rate1'] = 0;
+        if(array_key_exists('tax_rate2', $input) && is_null($input['tax_rate2']))
+            $input['tax_rate2'] = 0;
+        if(array_key_exists('tax_rate3', $input) && is_null($input['tax_rate3']))
+            $input['tax_rate3'] = 0;
+
         $this->replace($input);
     }
 }

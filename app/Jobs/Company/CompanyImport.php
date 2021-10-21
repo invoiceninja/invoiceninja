@@ -887,6 +887,7 @@ class CompanyImport implements ShouldQueue
             [
                 'hashed_id',
                 'company_id',
+                'backup',
             ], 
             [
                 ['users' => 'user_id'], 
@@ -1192,6 +1193,10 @@ class CompanyImport implements ShouldQueue
 
             }
 
+            if(array_key_exists('deleted_at', $obj_array) && $obj_array['deleted_at'] > 1){
+                $obj_array['deleted_at'] = now();
+            }
+
             $activity_invitation_key = false;
 
             if($class == 'App\Models\Activity'){
@@ -1270,6 +1275,10 @@ class CompanyImport implements ShouldQueue
                 }    
             }
             
+            if(array_key_exists('deleted_at', $obj_array) && $obj_array['deleted_at'] > 1){
+                $obj_array['deleted_at'] = now();
+            }
+
             /* New to convert product ids from old hashes to new hashes*/
             if($class == 'App\Models\Subscription'){
                 $obj_array['product_ids'] = $this->recordProductIds($obj_array['product_ids']); 
@@ -1318,6 +1327,10 @@ class CompanyImport implements ShouldQueue
                 {
                     $obj_array["{$value}"] = $this->transformId($key, $obj->{$value});
                 }    
+            }
+            
+            if(array_key_exists('deleted_at', $obj_array) && $obj_array['deleted_at'] > 1){
+                $obj_array['deleted_at'] = now();
             }
             
             /* New to convert product ids from old hashes to new hashes*/

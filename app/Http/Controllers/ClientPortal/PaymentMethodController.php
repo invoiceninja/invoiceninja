@@ -149,11 +149,11 @@ class PaymentMethodController extends Controller
     private function getClientGateway()
     {
         if (request()->query('method') == GatewayType::CREDIT_CARD) {
-            return $gateway = auth()->user()->client->getCreditCardGateway();
+            return auth()->user()->client->getCreditCardGateway();
         }
 
-        if (request()->query('method') == GatewayType::BANK_TRANSFER) {
-            return $gateway = auth()->user()->client->getBankTransferGateway();
+        if (in_array(request()->query('method'), [GatewayType::BANK_TRANSFER, GatewayType::DIRECT_DEBIT, GatewayType::SEPA])) {
+            return auth()->user()->client->getBankTransferGateway();
         }
 
         abort(404, 'Gateway not found.');

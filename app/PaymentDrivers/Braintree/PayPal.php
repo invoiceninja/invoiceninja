@@ -140,7 +140,8 @@ class PayPal
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_SUCCESS,
             SystemLog::TYPE_BRAINTREE,
-            $this->braintree->client
+            $this->braintree->client,
+            $this->braintree->client->company,
         );
 
         return redirect()->route('client.payments.show', ['payment' => $this->braintree->encodePrimaryKey($payment->id)]);

@@ -73,24 +73,25 @@ class ActivityRepository extends BaseRepository
         if ($entity instanceof User || $entity->company->is_disabled)
             return;
 
-
-        $backup = new Backup();
-
         if (get_class($entity) == Invoice::class 
             || get_class($entity) == Quote::class 
             || get_class($entity) == Credit::class 
             || get_class($entity) == RecurringInvoice::class
         ) {
-            
+
+            $backup = new Backup();
             $entity->load('client');
             $contact = $entity->client->primary_contact()->first();
             $backup->html_backup = $this->generateHtml($entity);
             $backup->amount = $entity->amount;
+            $backup->activity_id = $activity->id;
+            $backup->json_backup = '';
+            $backup->save();
+
+            $backup->storeRemotely($this->generateHtml($entity), $entity->client);
         }
 
-        $backup->activity_id = $activity->id;
-        $backup->json_backup = '';
-        $backup->save();
+
     }
 
     public function getTokenId(array $event_vars)
@@ -126,7 +127,7 @@ class ActivityRepository extends BaseRepository
 
         if(!$entity->invitations()->exists() || !$design){
             nlog("No invitations for entity {$entity->id} - {$entity->number}");
-            return;
+            return '';
         }
 
         $entity->load('client.company', 'invitations');
