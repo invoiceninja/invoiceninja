@@ -21,7 +21,11 @@ use Illuminate\Support\Carbon;
 class ProRata
 {
 
+
     /**
+     * Returns the amount to refund based on
+     * the time interval and the frequency duration
+     * 
      * @param float $amount 
      * @param Carbon $from_date 
      * @param Carbon $to_date 
@@ -36,6 +40,23 @@ class ProRata
         return round( (($days/$days_in_frequency) * $amount),2);
     }
 
+    /**
+     * Returns the amount to charge based on
+     * the time interval and the frequency duration
+     * 
+     * @param float $amount 
+     * @param Carbon $from_date 
+     * @param Carbon $to_date 
+     * @param int $frequency 
+     * @return float 
+     */
+    public function charge(float $amount, Carbon $from_date, Carbon $to_date, int $frequency) :float
+    {
+        $days = $from_date->diffInDays($to_date);
+        $days_in_frequency = $this->getDaysInFrequency($frequency);
+
+        return round( (($days/$days_in_frequency) * $amount),2);
+    }
 
     /**
      * Prepares the line items of an invoice

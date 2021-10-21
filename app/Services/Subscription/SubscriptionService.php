@@ -934,6 +934,39 @@ class SubscriptionService
 
     }
 
+    public function getNextDateForFrequency($date, $frequency)
+    {
+        switch ($frequency) {
+            case RecurringInvoice::FREQUENCY_DAILY:
+                return $date->addDay();
+            case RecurringInvoice::FREQUENCY_WEEKLY:
+                return $date->addDays(7);
+            case RecurringInvoice::FREQUENCY_TWO_WEEKS:
+                return $date->addDays(13);
+            case RecurringInvoice::FREQUENCY_FOUR_WEEKS:
+                return $date->addWeeks(4);
+            case RecurringInvoice::FREQUENCY_MONTHLY:
+                return $date->addMonthNoOverflow();
+            case RecurringInvoice::FREQUENCY_TWO_MONTHS:
+                return $date->addMonthNoOverflow(2);
+            case RecurringInvoice::FREQUENCY_THREE_MONTHS:
+                return $date->addMonthNoOverflow(3);
+            case RecurringInvoice::FREQUENCY_FOUR_MONTHS:
+                return $date->addMonthNoOverflow(4);
+            case RecurringInvoice::FREQUENCY_SIX_MONTHS:
+                return $date->addMonthNoOverflow(6);
+            case RecurringInvoice::FREQUENCY_ANNUALLY:
+                return $date->addYear();
+            case RecurringInvoice::FREQUENCY_TWO_YEARS:
+                return $date->addYears(2);
+            case RecurringInvoice::FREQUENCY_THREE_YEARS:
+                return $date->addYears(3);
+            default:
+                return 0;
+        }        
+    }
+
+
     /**
     * 'email' => $this->email ?? $this->contact->email,
     * 'quantity' => $this->quantity,
