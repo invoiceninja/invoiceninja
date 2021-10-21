@@ -39,7 +39,6 @@ class NinjaPlanController extends Controller
         else
             $account = $company->account;
 
-
         if (MultiDB::findAndSetDbByContactKey($contact_key) && $client_contact = ClientContact::where('contact_key', $contact_key)->first())
         {            
         
@@ -49,7 +48,7 @@ class NinjaPlanController extends Controller
 
             /* Current paid users get pushed straight to subscription overview page*/
             if($account->isPaidHostedClient())
-                return redirect('/client/subscriptions');
+                return redirect('/client/dashboard');
 
             /* Users that are not paid get pushed to a custom purchase page */
             return $this->render('subscriptions.ninja_plan', ['settings' => $client_contact->company->settings]);

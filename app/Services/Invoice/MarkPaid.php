@@ -39,7 +39,7 @@ class MarkPaid extends AbstractService
     public function run()
     {
         if ($this->invoice->status_id == Invoice::STATUS_DRAFT) {
-            $this->invoice->service()->markSent();
+            $this->invoice->service()->markSent()->save();
         }
 
         /*Don't double pay*/
@@ -77,14 +77,16 @@ class MarkPaid extends AbstractService
 
         $this->invoice->next_send_date = null;
         
-        $this->invoice->service()
+        $this->invoice
+                ->service()
                 ->setExchangeRate()
                 ->updateBalance($payment->amount * -1)
                 ->updatePaidToDate($payment->amount)
                 ->setStatus(Invoice::STATUS_PAID)
                 ->save();
 
-        $this->invoice->service()
+        $this->invoice
+                ->service()
                 ->applyNumber()
                 ->deletePdf()
                 ->save();
