@@ -499,7 +499,7 @@ class CompanyController extends BaseController
 
             $account->delete();
 
-            if(Ninja::isHosted() && $request->has('cancellation_message') && strlen($request->input('cancellation_message')) > 1)
+            if(Ninja::isHosted())
                 \Modules\Admin\Jobs\Account\NinjaDeletedAccount::dispatch($account_key, $request->all());
 
             LightLogs::create(new AccountDeleted())

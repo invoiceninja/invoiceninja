@@ -32,7 +32,7 @@ class ClientRegistrationFields
             ],
             [
                 'key' => 'phone',
-                'required' => true
+                'required' => false
             ],
             [
                 'key' => 'password',

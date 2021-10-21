@@ -25,17 +25,13 @@ use Illuminate\Support\Facades\Queue;
 class SystemHealth
 {
     private static $extensions = [
-        // 'mysqli',
         'gd',
         'curl',
         'zip',
-//        'gmp',
         'openssl',
         'mbstring',
         'xml',
         'bcmath',
-        // 'mysqlnd',
-        //'intl', //todo double check whether we need this for email dns validation
     ];
 
     private static $php_version = 7.4;
