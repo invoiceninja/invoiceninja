@@ -69,7 +69,7 @@ class SubscriptionCalculator
         if($refund_invoice)
         {
             $subscription = Subscription::find($this->invoice->subscription_id);
-            $pro_rata = new ProRata();
+            $pro_rata = new ProRata;
 
             $to_date = $subscription->service()->getNextDateForFrequency(Carbon::parse($refund_invoice->date), $subscription->frequency_id); 
 
