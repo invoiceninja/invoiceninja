@@ -10,8 +10,11 @@
  */
 namespace Tests\Unit;
 
+use App\Helpers\Invoice\ProRata;
+use App\Helpers\Subscription\SubscriptionCalculator;
 use App\Models\Invoice;
 use App\Models\Subscription;
+use Illuminate\Support\Carbon;
 use Tests\MockUnitData;
 use Tests\TestCase;
 
@@ -41,7 +44,13 @@ class SubscriptionsCalcTest extends TestCase
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
             'price' => 10,
+        ]);
 
+
+        $target = Subscription::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'price' => 20,
         ]);
 
         $invoice = Invoice::factory()->create([
@@ -57,7 +66,7 @@ class SubscriptionsCalcTest extends TestCase
             'tax_name3' => '',
             'discount' => 0,
             'subscription_id' => $subscription->id,
-            'date' => now()
+            'date' => '2021-01-01',
         ]); 
 
         $invoice = $invoice->calc()->getInvoice();
@@ -68,6 +77,33 @@ class SubscriptionsCalcTest extends TestCase
 
         $this->assertEquals(10, $invoice->amount);
         $this->assertEquals(10, $invoice->balance);
+
+        $sub_calculator = new SubscriptionCalculator($target->fresh(), $invoice->fresh());
+
+        $this->assertFalse($sub_calculator->isPaidUp());
+
+        $invoice->service()->markPaid()->save();
+
+        $this->assertTrue($sub_calculator->isPaidUp());
+
+        $this->assertEquals(10, $invoice->amount);
+        $this->assertEquals(0, $invoice->balance);
+
+        $pro_rata = new ProRata();
+
+        $refund = $pro_rata->refund($invoice->amount, Carbon::parse('2021-01-01'), Carbon::parse('2021-01-06'), $subscription->frequency_id);
+
+        $this->assertEquals(1.61, $refund);
+
+        $pro_rata = new ProRata();
+
+        $upgrade = $pro_rata->charge($target->price, Carbon::parse('2021-01-01'), Carbon::parse('2021-01-06'), $subscription->frequency_id);
+
+        $this->assertEquals(3.23, $upgrade);
+
+        // $net_upgrade_price = $sub_calculator->calcUpgradePlan();
+
+        // $this->assertEquals(1.62, $net_upgrade_price);
 
     }
 

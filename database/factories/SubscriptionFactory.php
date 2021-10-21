@@ -33,7 +33,8 @@ class SubscriptionFactory extends Factory
     public function definition()
     {
         return [
-            'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY
+            'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
+            'name' => $this->faker->company(),
         ];
     }
 }

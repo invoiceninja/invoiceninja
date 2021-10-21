@@ -34,7 +34,7 @@ class ProRata
      */
     public function refund(float $amount, Carbon $from_date, Carbon $to_date, int $frequency) :float
     {
-        $days = $from_date->diffInDays($to_date);
+        $days = $from_date->copy()->diffInDays($to_date);
         $days_in_frequency = $this->getDaysInFrequency($frequency);
 
         return round( (($days/$days_in_frequency) * $amount),2);
@@ -52,9 +52,12 @@ class ProRata
      */
     public function charge(float $amount, Carbon $from_date, Carbon $to_date, int $frequency) :float
     {
-        $days = $from_date->diffInDays($to_date);
+        $days = $from_date->copy()->diffInDays($to_date);
         $days_in_frequency = $this->getDaysInFrequency($frequency);
-
+nlog($from_date->format('Y-m-d'));
+nlog($days);
+nlog($days_in_frequency);
+nlog($amount);
         return round( (($days/$days_in_frequency) * $amount),2);
     }
 

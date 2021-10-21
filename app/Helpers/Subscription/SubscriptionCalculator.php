@@ -15,6 +15,7 @@ use App\Helpers\Invoice\ProRata;
 use App\Models\Invoice;
 use App\Models\RecurringInvoice;
 use App\Models\Subscription;
+use Illuminate\Support\Carbon;
 
 /**
  * SubscriptionCalculator.
@@ -24,7 +25,7 @@ class SubscriptionCalculator
 
     public Subscription $target_subscription;
 
-    public Invoice $invoice
+    public Invoice $invoice;
 
     public function __construct(Subscription $target_subscription, Invoice $invoice)
     {
@@ -57,6 +58,8 @@ class SubscriptionCalculator
         //set the starting refund amount
         $refund_amount = 0;
 
+        $refund_invoice = false;
+
         //are they paid up to date.
 
         //yes - calculate refund
@@ -68,7 +71,7 @@ class SubscriptionCalculator
             $subscription = Subscription::find($this->invoice->subscription_id);
             $pro_rata = new ProRata();
 
-            $to_date = $subscription->getNextDateForFrequency(Carbon::parse($refund_invoice->date), $subscription->frequency_id); 
+            $to_date = $subscription->service()->getNextDateForFrequency(Carbon::parse($refund_invoice->date), $subscription->frequency_id); 
 
             $refund_amount = $pro_rata->refund($refund_invoice->amount, now(), $to_date, $subscription->frequency_id);
 
@@ -88,11 +91,9 @@ class SubscriptionCalculator
 
     private function getRefundInvoice()
     {
-
         return Invoice::where('subscription_id', $this->invoice->subscription_id)
                       ->where('client_id', $this->invoice->client_id)
                       ->where('is_deleted', 0)
-                      ->where('balance', '>', 0)
                       ->orderBy('id', 'desc')
                       ->first();
 
