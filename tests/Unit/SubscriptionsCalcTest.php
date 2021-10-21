@@ -6,8 +6,9 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://opensource.org/licenses/AAL
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Unit;
 
 use App\Helpers\Invoice\ProRata;
@@ -30,7 +31,7 @@ class SubscriptionsCalcTest extends TestCase
      *
      * No method can guarantee against false positives.
      */
-    public function setUp() :void
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -39,7 +40,7 @@ class SubscriptionsCalcTest extends TestCase
 
     public function testCalcUpgradePrice()
     {
-    
+
         $subscription = Subscription::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
@@ -67,7 +68,7 @@ class SubscriptionsCalcTest extends TestCase
             'discount' => 0,
             'subscription_id' => $subscription->id,
             'date' => '2021-01-01',
-        ]); 
+        ]);
 
         $invoice = $invoice->calc()->getInvoice();
 
@@ -89,23 +90,17 @@ class SubscriptionsCalcTest extends TestCase
         $this->assertEquals(10, $invoice->amount);
         $this->assertEquals(0, $invoice->balance);
 
-        $pro_rata = new ProRata();
+        $pro_rata = new ProRata;
 
         $refund = $pro_rata->refund($invoice->amount, Carbon::parse('2021-01-01'), Carbon::parse('2021-01-06'), $subscription->frequency_id);
 
         $this->assertEquals(1.61, $refund);
 
-        $pro_rata = new ProRata();
+        $pro_rata = new ProRata;
 
         $upgrade = $pro_rata->charge($target->price, Carbon::parse('2021-01-01'), Carbon::parse('2021-01-06'), $subscription->frequency_id);
 
         $this->assertEquals(3.23, $upgrade);
 
-        // $net_upgrade_price = $sub_calculator->calcUpgradePlan();
-
-        // $this->assertEquals(1.62, $net_upgrade_price);
-
     }
-
-
 }

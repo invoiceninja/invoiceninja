@@ -260,14 +260,14 @@ class LoginController extends BaseController
                 ->increment()
                 ->batch();
 
-            SystemLogger::dispatch(
-                json_encode(['ip' => request()->getClientIp()]),
-                SystemLog::CATEGORY_SECURITY,
-                SystemLog::EVENT_USER,
-                SystemLog::TYPE_LOGIN_FAILURE,
-                null,
-                Company::first(),
-            );
+            // SystemLogger::dispatch(
+            //     json_encode(['ip' => request()->getClientIp()]),
+            //     SystemLog::CATEGORY_SECURITY,
+            //     SystemLog::EVENT_USER,
+            //     SystemLog::TYPE_LOGIN_FAILURE,
+            //     null,
+            //     Company::first(),
+            // );
 
             $this->incrementLoginAttempts($request);
 
