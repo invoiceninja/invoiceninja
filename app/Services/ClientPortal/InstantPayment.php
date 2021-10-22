@@ -70,7 +70,10 @@ class InstantPayment
         $invoices = Invoice::whereIn('id', $this->transformKeys($payable_invoices->pluck('invoice_id')->toArray()))->withTrashed()->get();
 
         $invoices->each(function($invoice){
-            $invoice->service()->removeUnpaidGatewayFees()->save();
+            $invoice->service()
+                    ->marksent()
+                    ->removeUnpaidGatewayFees()
+                    ->save();
         });
 
         /* pop non payable invoice from the $payable_invoices array */
