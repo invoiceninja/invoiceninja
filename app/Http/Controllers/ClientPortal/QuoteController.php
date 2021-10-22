@@ -12,22 +12,24 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
+use App\Events\Misc\InvitationWasViewed;
 use App\Events\Quote\QuoteWasApproved;
+use App\Events\Quote\QuoteWasViewed;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\Quotes\ProcessQuotesInBulkRequest;
-use App\Http\Requests\ClientPortal\Quotes\ShowQuotesRequest;
 use App\Http\Requests\ClientPortal\Quotes\ShowQuoteRequest;
+use App\Http\Requests\ClientPortal\Quotes\ShowQuotesRequest;
 use App\Jobs\Invoice\InjectSignature;
 use App\Models\Quote;
 use App\Utils\Ninja;
 use App\Utils\TempFile;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
-use Illuminate\Support\Facades\Storage;
 
 class QuoteController extends Controller
 {
@@ -55,6 +57,18 @@ class QuoteController extends Controller
         $data = [
             'quote' => $quote,
         ];
+
+
+            $invitation = $quote->invitations()->where('client_contact_id', auth()->user()->id)->first();
+
+            if ($invitation && auth()->guard('contact') && ! request()->has('silent') && ! $invitation->viewed_date) {
+
+                $invitation->markViewed();
+
+                event(new InvitationWasViewed($quote, $invitation, $quote->company, Ninja::eventVars()));
+                event(new QuoteWasViewed($invitation, $invitation->company, Ninja::eventVars()));
+            
+            }
 
         if ($request->query('mode') === 'fullscreen') {
             return render('quotes.show-fullscreen', $data);

@@ -14,11 +14,15 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Libraries\MultiDB;
 use App\Models\Account;
+use App\Models\ClientContact;
+use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Auth\ResetsPasswords;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class ContactResetPasswordController extends Controller
@@ -76,19 +80,28 @@ class ContactResetPasswordController extends Controller
 
     public function reset(Request $request)
     {
-        if($request->has('db'))
-            MultiDB::setDb($request->input('db'));
+        if($request->has('company_key'))
+            MultiDB::findAndSetDbByCompanyKey($request->input('company_key'));
         
         $request->validate($this->rules(), $this->validationErrorMessages());
 
-        // Here we will attempt to reset the user's password. If it is successful we
-        // will update the password on an actual user model and persist it to the
-        // database. Otherwise we will parse the error and return the response.
-        $response = $this->broker()->reset(
-            $this->credentials($request), function ($user, $password) {
-                $this->resetPassword($user, $password);
-            }
-        );
+        $user = ClientContact::where($request->only(['email','token']))->first();
+
+        if(!$user)
+            return $this->sendResetFailedResponse($request, PASSWORD::INVALID_USER);
+
+        $hashed_password = Hash::make($request->input('password'));
+
+        ClientContact::where('email', $user->email)->update([
+            'password' => $hashed_password,
+            'remember_token' => Str::random(60)
+        ]);
+
+        event(new PasswordReset($user));
+
+        auth()->login($user, true);
+        
+        $response = Password::PASSWORD_RESET;
 
         // Added this because it collides the session between
         // client & main portal giving unlimited redirects.
