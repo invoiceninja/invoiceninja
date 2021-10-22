@@ -191,6 +191,9 @@ class PaytracePaymentDriver extends BaseDriver
 
         $auth_data = json_decode($response);
 
+        if(!property_exists($auth_data, 'access_token'))
+            throw new \Exception('Error authenticating with PayTrace');
+
             $headers = [];
             $headers[] = 'Content-type: application/json';
             $headers[] = 'Authorization: Bearer '.$auth_data->access_token;

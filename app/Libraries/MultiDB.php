@@ -174,6 +174,32 @@ class MultiDB
         return null;
     }
 
+    /**
+     * @param array $data
+     * @return User|null
+     */
+    public static function findContact(array $search) : ?ClientContact
+    {
+        if (! config('ninja.db.multi_db_enabled')) 
+            return ClientContact::where($search)->first();
+
+        $current_db = config('database.default');  
+
+        foreach (self::$dbs as $db) {
+            
+            $user = ClientContact::on($db)->where($search)->first();
+
+            if ($user) {
+                self::setDb($db);
+                return $user;
+            }
+        }
+
+        self::setDB($current_db);
+        return null;
+    }
+
+
     public static function contactFindAndSetDb($token) :bool
     {
         $current_db = config('database.default');  
