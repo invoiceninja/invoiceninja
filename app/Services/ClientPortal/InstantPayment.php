@@ -71,7 +71,7 @@ class InstantPayment
 
         $invoices->each(function($invoice){
             $invoice->service()
-                    ->marksent()
+                    ->markSent()
                     ->removeUnpaidGatewayFees()
                     ->save();
         });
