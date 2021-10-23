@@ -4334,6 +4334,7 @@ $LANG = array(
     'clone_to_expense' => 'Clone to expense',
     'checkout' => 'Checkout',
     'acss' => 'Pre-authorized debit payments',
+    'invalid_amount' => 'Invalid amount. Number/Decimal values only.'
 );
 
 return $LANG;
