@@ -26,7 +26,7 @@ class ValidAmount implements Rule
      */
     public function passes($attribute, $value)
     {
-        return (bool) is_float($value) || is_int($value);
+        return (bool) is_float($value) || preg_match('#[^0-9]#',$value);
     }
 
     /**
