@@ -90,6 +90,10 @@ class CreateSingleAccount extends Command
      */
     public function handle()
     {
+
+        if(config('ninja.is_docker'))
+            return;
+        
         MultiDB::setDb($this->option('database'));
 
         $this->info(date('r').' Create Single Sample Account...');

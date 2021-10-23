@@ -12,6 +12,7 @@
 
 namespace Database\Factories;
 
+use App\Models\RecurringInvoice;
 use App\Models\Subscription;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -32,7 +33,8 @@ class SubscriptionFactory extends Factory
     public function definition()
     {
         return [
-
+            'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
+            'name' => $this->faker->company(),
         ];
     }
 }

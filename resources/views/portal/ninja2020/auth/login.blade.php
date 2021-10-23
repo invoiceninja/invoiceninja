@@ -53,7 +53,7 @@
                                    href="{{ route('client.password.request') }}">{{ trans('texts.forgot_password') }}</a>
                             </div>
                             @if(isset($company) && !is_null($company))
-                            <input type="hidden" name="db" value="{{$company->db}}">
+                            <input type="hidden" name="company_key" value="{{$company->company_key}}">
                             @endif
                             <input type="password" name="password" id="password"
                                    class="input"

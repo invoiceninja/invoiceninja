@@ -86,6 +86,9 @@ class DemoMode extends Command
     {
         set_time_limit(0);
 
+        if(config('ninja.is_docker'))
+            return;
+
         $cached_tables = config('ninja.cached_tables');
 
         foreach ($cached_tables as $name => $class) {

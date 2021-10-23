@@ -33,8 +33,8 @@
                     <form action="{{ route('client.password.update') }}" method="post" class="mt-6">
                         @csrf
                         <input type="hidden" name="token" value="{{ $token }}">
-                        @if($db)
-                        <input type="hidden" name="db" value="{{$db}}">
+                        @if($company)
+                            <input type="hidden" name="company_key" value="{{$company->company_key}}">
                         @endif
                         <div class="flex flex-col">
                             <label for="email" class="input-label">{{ ctrans('texts.email_address') }}</label>

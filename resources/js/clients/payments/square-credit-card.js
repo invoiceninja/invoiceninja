@@ -88,12 +88,8 @@ class SquareCreditCard {
         }
         catch(typeError){
                 console.log(typeError);
-                die("failed in the catch");
         }
-        // console.log(" verification tokem = " + verificationToken.token);
 
-        // verificationToken = verificationResults.token;
-       
        console.debug('Verification Token:', verificationToken);
 
         document.querySelector('input[name="verificationToken"]').value =

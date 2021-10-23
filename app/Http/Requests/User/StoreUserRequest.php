@@ -48,7 +48,7 @@ class StoreUserRequest extends Request
         }
 
         if (Ninja::isHosted()) {
-            $rules['hosted_users'] = new CanAddUserRule(auth()->user()->company()->account);
+            $rules['id'] = new CanAddUserRule();
         }
 
         return $rules;

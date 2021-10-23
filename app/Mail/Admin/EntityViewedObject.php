@@ -42,6 +42,9 @@ class EntityViewedObject
     public function build()
     {
 
+        if(!$this->entity)
+            return;
+
         App::forgetInstance('translator');
         /* Init a new copy of the translator*/
         $t = app('translator');
