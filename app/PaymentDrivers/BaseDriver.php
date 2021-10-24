@@ -221,6 +221,19 @@ class BaseDriver extends AbstractPaymentDriver
     {
         $this->confirmGatewayFee();
 
+        /*Never create a payment with a duplicate transaction reference*/
+        if(array_key_exists('transaction_reference', $data)){
+
+            $_payment = Payment::where('transaction_reference', $data['transaction_reference'])
+                               ->where('client_id', $this->client->id)
+                               ->first();
+
+           if($_payment)
+            return $_payment;
+        
+        }
+
+
         $payment = PaymentFactory::create($this->client->company->id, $this->client->user->id);
         $payment->client_id = $this->client->id;
         $payment->company_gateway_id = $this->company_gateway->id;
