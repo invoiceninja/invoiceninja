@@ -13,7 +13,7 @@
         }
     ],
     "require": {
-        "php": ">=7.4.0",
+        "php": ">=7.3.0",
         "ext-gd": "*",
         "ext-gmp": "*",
         "ext-json": "*",
@@ -206,5 +206,5 @@
             "type": "vcs",
             "url": "https://github.com/tainmar/Laravel-Excel"
         }
-    ] 
+    ]
 }
