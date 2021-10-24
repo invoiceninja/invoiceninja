@@ -339,6 +339,10 @@ class InvoiceService
 
     public function removeUnpaidGatewayFees()
     {
+        //return early if type three does not exist.
+        if(!collect($this->invoice->line_items)->contains('type_id', 3))
+            return $this;
+
         $this->invoice->line_items = collect($this->invoice->line_items)
                                      ->reject(function ($item) {
                                          return $item->type_id == '3';
