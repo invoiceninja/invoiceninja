@@ -13,16 +13,23 @@
 namespace App\PaymentDrivers\Square;
 
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Http\Requests\Request;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
+use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\SquarePaymentDriver;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 use Square\Http\ApiResponse;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
-class CreditCard
+class CreditCard implements MethodInterface
 {
     use MakesHash;
 
@@ -34,90 +41,27 @@ class CreditCard
         $this->square_driver->init();
     }
 
-    public function authorizeView($data)
+    /**
+     * Authorization page for credit card.
+     * 
+     * @param array $data 
+     * @return View
+     */
+    public function authorizeView($data): View
     {
         $data['gateway'] = $this->square_driver;
 
         return render('gateways.square.credit_card.authorize', $data);
     }
 
-    public function authorizeResponse($request)
+    /**
+     * Handle authorization for credit card.
+     * 
+     * @param Request $request 
+     * @return RedirectResponse 
+     */
+    public function authorizeResponse($request): RedirectResponse
     {
-        /* Step one - process a $1 payment - but don't complete it*/
-        $payment = false;
-
-        $amount_money = new \Square\Models\Money();
-        $amount_money->setAmount(100); //amount in cents
-        $amount_money->setCurrency($this->square_driver->client->currency()->code);
-
-        $body = new \Square\Models\CreatePaymentRequest(
-            $request->sourceId,
-            Str::random(32),
-            $amount_money
-        );
-
-        $body->setAutocomplete(false);
-        $body->setLocationId($this->square_driver->company_gateway->getConfigField('locationId'));
-        $body->setReferenceId(Str::random(16));
-
-        $api_response = $this->square_driver->square->getPaymentsApi()->createPayment($body);
-
-        if ($api_response->isSuccess()) {
-            $result = $api_response->getBody();
-            $payment = json_decode($result);
-        } else {
-            $errors = $api_response->getErrors();
-            return $this->processUnsuccessfulPayment($errors);
-        }
-
-    
-        /* Step 3 create the card */
-        $card = new \Square\Models\Card();
-        $card->setCardholderName($this->square_driver->client->present()->name());
-        // $card->setBillingAddress($billing_address);
-        $card->setCustomerId($this->findOrCreateClient());
-        $card->setReferenceId(Str::random(8));
-
-        $body = new \Square\Models\CreateCardRequest(
-            Str::random(32),
-            $payment->payment->id,
-            $card
-        );
-
-        $api_response = $this->square_driver
-                             ->square
-                             ->getCardsApi()
-                             ->createCard($body);
-
-        $card = false;
-
-        if ($api_response->isSuccess()) {
-            $card = $api_response->getBody();
-            $card = json_decode($card);
-        } else {
-            $errors = $api_response->getErrors();
-
-            return $this->processUnsuccessfulPayment($errors);
-        }
-
-        /* Create the token in Invoice Ninja*/
-        $cgt = [];
-        $cgt['token'] = $card->card->id;
-        $cgt['payment_method_id'] = GatewayType::CREDIT_CARD;
-
-        $payment_meta = new \stdClass;
-        $payment_meta->exp_month = $card->card->exp_month;
-        $payment_meta->exp_year = $card->card->exp_year;
-        $payment_meta->brand = $card->card->card_brand;
-        $payment_meta->last4 = $card->card->last_4;
-        $payment_meta->type = GatewayType::CREDIT_CARD;
-
-        $cgt['payment_meta'] = $payment_meta;
-
-        $token = $this->square_driver->storeGatewayToken($cgt, [
-            'gateway_customer_reference' => $this->findOrCreateClient(),
-        ]);
-
         return redirect()->route('client.payment_methods.index');
     }
 
