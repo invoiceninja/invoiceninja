@@ -134,9 +134,9 @@ class InvoiceService
      *
      * @return InvoiceService                     Parent class object
      */
-    public function updateBalance($balance_adjustment)
+    public function updateBalance($balance_adjustment, bool $is_draft = false)
     {
-        $this->invoice = (new UpdateBalance($this->invoice, $balance_adjustment))->run();
+        $this->invoice = (new UpdateBalance($this->invoice, $balance_adjustment, $is_draft))->run();
 
         if ((int)$this->invoice->balance == 0) {
             $this->invoice->next_send_date = null;
@@ -339,6 +339,10 @@ class InvoiceService
 
     public function removeUnpaidGatewayFees()
     {
+        //return early if type three does not exist.
+        if(!collect($this->invoice->line_items)->contains('type_id', 3))
+            return $this;
+
         $this->invoice->line_items = collect($this->invoice->line_items)
                                      ->reject(function ($item) {
                                          return $item->type_id == '3';

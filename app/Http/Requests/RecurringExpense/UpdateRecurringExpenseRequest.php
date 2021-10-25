@@ -43,6 +43,10 @@ class UpdateRecurringExpenseRequest extends Request
             $rules['number'] = Rule::unique('recurring_expenses')->where('company_id', auth()->user()->company()->id)->ignore($this->recurring_expense->id);
         }
 
+        $rules['tax_amount1'] = 'numeric';
+        $rules['tax_amount2'] = 'numeric';
+        $rules['tax_amount3'] = 'numeric';
+
         return $this->globalRules($rules);
     }
 

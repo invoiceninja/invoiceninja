@@ -81,8 +81,8 @@ class ContactLoginController extends Controller
     {
         Auth::shouldUse('contact');
 
-        if(Ninja::isHosted() && $request->has('db'))
-            MultiDB::setDb($request->input('db'));
+        if(Ninja::isHosted() && $request->has('company_key'))
+            MultiDB::findAndSetDbByCompanyKey($request->input('company_key'));
 
         $this->validateLogin($request);
         // If the class is using the ThrottlesLogins trait, we can automatically throttle

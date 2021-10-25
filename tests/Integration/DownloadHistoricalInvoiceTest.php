@@ -32,6 +32,10 @@ class DownloadHistoricalInvoiceTest extends TestCase
         parent::setUp();
 
         $this->makeTestData();
+
+        if (config('ninja.testvars.travis') !== false) {
+            $this->markTestSkipped('Skip test for Travis');
+        }
     }
 
     private function mockActivity()
