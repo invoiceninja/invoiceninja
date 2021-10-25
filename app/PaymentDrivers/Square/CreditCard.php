@@ -125,64 +125,10 @@ class CreditCard implements MethodInterface
         $response = $this->square_driver->square->getPaymentsApi()->createPayment($body);
 
         if ($response->isSuccess()) {
-            if ($request->shouldStoreToken()) {
-                $this->storePaymentMethod($response);
-            }
-
             return $this->processSuccessfulPayment($response);
         }
 
         return $this->processUnsuccessfulPayment($response);
-    }
-
-    private function storePaymentMethod(ApiResponse $response)
-    {
-        $payment = \json_decode($response->getBody());
-
-        $billing_address = new \Square\Models\Address();
-        $billing_address->setAddressLine1($this->square_driver->client->address1);
-        $billing_address->setAddressLine2($this->square_driver->client->address2);
-        $billing_address->setLocality($this->square_driver->client->city);
-        $billing_address->setAdministrativeDistrictLevel1($this->square_driver->client->state);
-        $billing_address->setPostalCode($this->square_driver->client->postal_code);
-        $billing_address->setCountry($this->square_driver->client->country->iso_3166_2);
-
-        $card = new \Square\Models\Card();
-        $card->setCardholderName($this->square_driver->client->present()->first_name(). " " .$this->square_driver->client->present()->last_name());
-        $card->setCustomerId($this->findOrCreateClient());
-        $card->setReferenceId(Str::random(8));
-        $card->setBillingAddress($billing_address);
-
-        $body = new \Square\Models\CreateCardRequest(Str::random(32), $payment->payment->id, $card);
-
-        /** @var ApiResponse */
-        $api_response = $this->square_driver
-        ->square
-        ->getCardsApi()
-        ->createCard($body);
-
-        if (!$api_response->isSuccess()) {
-            return $this->processUnsuccessfulPayment($api_response);
-        }
-
-        $card = \json_decode($api_response->getBody());
-
-        $cgt = [];
-        $cgt['token'] = $card->card->id;
-        $cgt['payment_method_id'] = GatewayType::CREDIT_CARD;
-
-        $payment_meta = new \stdClass;
-        $payment_meta->exp_month = $card->card->exp_month;
-        $payment_meta->exp_year = $card->card->exp_year;
-        $payment_meta->brand = $card->card->card_brand;
-        $payment_meta->last4 = $card->card->last_4;
-        $payment_meta->type = GatewayType::CREDIT_CARD;
-
-        $cgt['payment_meta'] = $payment_meta;
-
-        $this->square_driver->storeGatewayToken($cgt, [
-            'gateway_customer_reference' => $this->findOrCreateClient(),
-        ]);
     }
 
     private function processSuccessfulPayment(ApiResponse $response)
