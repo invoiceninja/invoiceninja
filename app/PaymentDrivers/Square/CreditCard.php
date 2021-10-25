@@ -21,13 +21,10 @@ use App\Models\PaymentType;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\SquarePaymentDriver;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Square\Http\ApiResponse;
-use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
 class CreditCard implements MethodInterface
 {
@@ -43,8 +40,8 @@ class CreditCard implements MethodInterface
 
     /**
      * Authorization page for credit card.
-     * 
-     * @param array $data 
+     *
+     * @param array $data
      * @return View
      */
     public function authorizeView($data): View
@@ -56,9 +53,9 @@ class CreditCard implements MethodInterface
 
     /**
      * Handle authorization for credit card.
-     * 
-     * @param Request $request 
-     * @return RedirectResponse 
+     *
+     * @param Request $request
+     * @return RedirectResponse
      */
     public function authorizeResponse($request): RedirectResponse
     {
@@ -114,8 +111,9 @@ class CreditCard implements MethodInterface
         $body->setLocationId($this->square_driver->company_gateway->getConfigField('locationId'));
         $body->setReferenceId(Str::random(16));
 
-        if($request->has('verificationToken') && $request->input('verificationToken'))
+        if ($request->has('verificationToken') && $request->input('verificationToken')) {
             $body->setVerificationToken($request->input('verificationToken'));
+        }
 
         if ($request->shouldUseToken()) {
             $body->setCustomerId($cgt->gateway_customer_reference);
@@ -191,9 +189,9 @@ class CreditCard implements MethodInterface
             $customers = $api_response->getBody();
             $customers = json_decode($customers);
 
-            if(count(array($api_response->getBody(),1)) == 0)
+            if (count([$api_response->getBody(),1]) == 0) {
                 $customers = false;
-
+            }
         } else {
             $errors = $api_response->getErrors();
         }
