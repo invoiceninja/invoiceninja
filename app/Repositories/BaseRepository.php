@@ -113,25 +113,26 @@ class BaseRepository
      * @param $action
      *
      * @return int
+     * @deprecated - this doesn't appear to be used anywhere?
      */
-    public function bulk($ids, $action)
-    {
-        if (! $ids) {
-            return 0;
-        }
+    // public function bulk($ids, $action)
+    // {
+    //     if (! $ids) {
+    //         return 0;
+    //     }
 
-        $ids = $this->transformKeys($ids);
+    //     $ids = $this->transformKeys($ids);
 
-        $entities = $this->findByPublicIdsWithTrashed($ids);
+    //     $entities = $this->findByPublicIdsWithTrashed($ids);
 
-        foreach ($entities as $entity) {
-            if (auth()->user()->can('edit', $entity)) {
-                $this->$action($entity);
-            }
-        }
+    //     foreach ($entities as $entity) {
+    //         if (auth()->user()->can('edit', $entity)) {
+    //             $this->$action($entity);
+    //         }
+    //     }
 
-        return count($entities);
-    }
+    //     return count($entities);
+    // }
 
     /* Returns an invoice if defined as a key in the $resource array*/
     public function getInvitation($invitation, $resource)

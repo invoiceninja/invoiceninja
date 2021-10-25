@@ -11,11 +11,14 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
+use App\Events\Invoice\InvoiceWasViewed;
+use App\Events\Misc\InvitationWasViewed;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ClientPortal\Invoices\ShowInvoicesRequest;
 use App\Http\Requests\ClientPortal\Invoices\ProcessInvoicesInBulkRequest;
 use App\Http\Requests\ClientPortal\Invoices\ShowInvoiceRequest;
+use App\Http\Requests\ClientPortal\Invoices\ShowInvoicesRequest;
 use App\Models\Invoice;
+use App\Utils\Ninja;
 use App\Utils\Number;
 use App\Utils\TempFile;
 use App\Utils\Traits\MakesDates;
@@ -23,10 +26,10 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
-use Illuminate\Support\Facades\Storage;
 
 class InvoiceController extends Controller
 {
@@ -55,6 +58,18 @@ class InvoiceController extends Controller
         set_time_limit(0);
 
         $invoice->service()->removeUnpaidGatewayFees()->save();
+
+
+            $invitation = $invoice->invitations()->where('client_contact_id', auth()->user()->id)->first();
+
+            if ($invitation && auth()->guard('contact') && ! request()->has('silent') && ! $invitation->viewed_date) {
+
+                $invitation->markViewed();
+
+                event(new InvitationWasViewed($invoice, $invitation, $invoice->company, Ninja::eventVars()));
+                event(new InvoiceWasViewed($invitation, $invitation->company, Ninja::eventVars()));
+            
+            }
 
         $data = [
             'invoice' => $invoice,

@@ -11,6 +11,7 @@
 
 namespace App\PaymentDrivers;
 
+use App\Exceptions\SystemError;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
@@ -190,6 +191,9 @@ class PaytracePaymentDriver extends BaseDriver
         $response = CurlUtils::post($url, $data, $headers = false);
 
         $auth_data = json_decode($response);
+
+        if(!property_exists($auth_data, 'access_token'))
+            throw new SystemError('Error authenticating with PayTrace');
 
             $headers = [];
             $headers[] = 'Content-type: application/json';

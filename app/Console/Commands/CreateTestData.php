@@ -78,6 +78,9 @@ class CreateTestData extends Command
      */
     public function handle()
     {
+        if(config('ninja.is_docker'))
+            return;
+        
         $this->info(date('r').' Running CreateTestData...');
         $this->count = $this->argument('count');
 

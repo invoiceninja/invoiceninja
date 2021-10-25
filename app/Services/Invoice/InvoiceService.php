@@ -134,9 +134,9 @@ class InvoiceService
      *
      * @return InvoiceService                     Parent class object
      */
-    public function updateBalance($balance_adjustment)
+    public function updateBalance($balance_adjustment, bool $is_draft = false)
     {
-        $this->invoice = (new UpdateBalance($this->invoice, $balance_adjustment))->run();
+        $this->invoice = (new UpdateBalance($this->invoice, $balance_adjustment, $is_draft))->run();
 
         if ((int)$this->invoice->balance == 0) {
             $this->invoice->next_send_date = null;
@@ -339,6 +339,10 @@ class InvoiceService
 
     public function removeUnpaidGatewayFees()
     {
+        //return early if type three does not exist.
+        if(!collect($this->invoice->line_items)->contains('type_id', 3))
+            return $this;
+
         $this->invoice->line_items = collect($this->invoice->line_items)
                                      ->reject(function ($item) {
                                          return $item->type_id == '3';
@@ -483,6 +487,30 @@ class InvoiceService
             
         }
 
+        /*
+        //if paid invoice is attached to a recurring invoice - check if we need to unpause the recurring invoice
+        
+        if ($this->invoice->status_id == Invoice::STATUS_PAID && 
+        $this->invoice->recurring_id && 
+        $this->invoice->company->pause_recurring_until_paid &&
+        ($this->invoice->recurring_invoice->status_id != RecurringInvoice::STATUS_ACTIVE || $this->invoice->recurring_invoice->status_id != RecurringInvoice::STATUS_COMPLETED))
+        {
+            $recurring_invoice = $this->invoice->recurring_invoice;
+
+            // Check next_send_date if it is in the past - calculate
+            $next_send_date = Carbon::parse($recurring_invoice->next_send_date)->startOfDay();
+
+            if(next_send_date->lt(now())){
+                $recurring_invoice->next_send_date = $recurring_invoice->nextDateByFrequency(now()->format('Y-m-d'));
+                $recurring_invoice->save();
+            }
+
+            // Start the recurring invoice
+            $recurring_invoice->service()
+                              ->start();
+
+        }
+        */
         return $this;
     }
 

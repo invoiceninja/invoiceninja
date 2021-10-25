@@ -34,7 +34,7 @@
                         <div class="flex flex-col">
                             <label for="email" class="input-label">{{ ctrans('texts.email_address') }}</label>
                             @if($company && !is_null($company))
-                            <input type="hidden" name="db" value="{{$company->db}}">
+                            <input type="hidden" name="company_key" value="{{$company->company_key}}">
                             @endif
                             <input type="email" name="email" id="email"
                                    class="input"

@@ -223,6 +223,7 @@ class SubscriptionService
                                          ->first();
         
         }
+
         if ($outstanding->count() == 0){
             //nothing outstanding
             return $target->price - $this->calculateProRataRefundForSubscription($outstanding_invoice);
@@ -426,7 +427,9 @@ class SubscriptionService
 
         nlog("total payable = {$total_payable}");
 
-        $credit = $this->createCredit($last_invoice, $target_subscription, $is_credit);
+        /* Only generate a credit if the previous invoice was paid in full. */
+        if($last_invoice->balance == 0)
+            $credit = $this->createCredit($last_invoice, $target_subscription, $is_credit);
 
         $new_recurring_invoice = $this->createNewRecurringInvoice($recurring_invoice);
 
@@ -575,7 +578,7 @@ class SubscriptionService
         $old_recurring_invoice->service()->stop()->save();
 
         $recurring_invoice_repo = new RecurringInvoiceRepository();
-        $recurring_invoice_repo->archive($old_recurring_invoice);
+        $recurring_invoice_repo->delete($old_recurring_invoice);
 
             $recurring_invoice = $this->convertInvoiceToRecurring($old_recurring_invoice->client_id);
             $recurring_invoice = $recurring_invoice_repo->save([], $recurring_invoice);
@@ -932,6 +935,38 @@ class SubscriptionService
                 return 0;
         }
 
+    }
+
+    public function getNextDateForFrequency($date, $frequency)
+    {
+        switch ($frequency) {
+            case RecurringInvoice::FREQUENCY_DAILY:
+                return $date->addDay();
+            case RecurringInvoice::FREQUENCY_WEEKLY:
+                return $date->addDays(7);
+            case RecurringInvoice::FREQUENCY_TWO_WEEKS:
+                return $date->addDays(13);
+            case RecurringInvoice::FREQUENCY_FOUR_WEEKS:
+                return $date->addWeeks(4);
+            case RecurringInvoice::FREQUENCY_MONTHLY:
+                return $date->addMonthNoOverflow();
+            case RecurringInvoice::FREQUENCY_TWO_MONTHS:
+                return $date->addMonthNoOverflow(2);
+            case RecurringInvoice::FREQUENCY_THREE_MONTHS:
+                return $date->addMonthNoOverflow(3);
+            case RecurringInvoice::FREQUENCY_FOUR_MONTHS:
+                return $date->addMonthNoOverflow(4);
+            case RecurringInvoice::FREQUENCY_SIX_MONTHS:
+                return $date->addMonthNoOverflow(6);
+            case RecurringInvoice::FREQUENCY_ANNUALLY:
+                return $date->addYear();
+            case RecurringInvoice::FREQUENCY_TWO_YEARS:
+                return $date->addYears(2);
+            case RecurringInvoice::FREQUENCY_THREE_YEARS:
+                return $date->addYears(3);
+            default:
+                return 0;
+        }        
     }
 
 

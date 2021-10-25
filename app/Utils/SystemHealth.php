@@ -25,17 +25,13 @@ use Illuminate\Support\Facades\Queue;
 class SystemHealth
 {
     private static $extensions = [
-        // 'mysqli',
         'gd',
         'curl',
         'zip',
-//        'gmp',
         'openssl',
         'mbstring',
         'xml',
         'bcmath',
-        // 'mysqlnd',
-        //'intl', //todo double check whether we need this for email dns validation
     ];
 
     private static $php_version = 7.4;
@@ -84,7 +80,17 @@ class SystemHealth
             'jobs_pending' => (int) Queue::size(),
             'pdf_engine' => (string) self::getPdfEngine(),
             'queue' => (string) config('queue.default'),
+            'trailing_slash' => (bool) self::checkUrlState(),
         ];
+    }
+
+    public static function checkUrlState()
+    {
+        if (env('APP_URL') && substr(env('APP_URL'), -1) == '/')
+            return true;
+
+        return false;
+
     }
 
     public static function getPdfEngine()

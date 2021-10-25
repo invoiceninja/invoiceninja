@@ -18,6 +18,8 @@ use App\Http\Requests\GroupSetting\EditGroupSettingRequest;
 use App\Http\Requests\GroupSetting\ShowGroupSettingRequest;
 use App\Http\Requests\GroupSetting\StoreGroupSettingRequest;
 use App\Http\Requests\GroupSetting\UpdateGroupSettingRequest;
+use App\Http\Requests\GroupSetting\UploadGroupSettingRequest;
+use App\Models\Account;
 use App\Models\GroupSetting;
 use App\Repositories\GroupSettingRepository;
 use App\Transformers\GroupSettingTransformer;
@@ -497,4 +499,68 @@ class GroupSettingController extends BaseController
 
         return $this->listResponse(GroupSetting::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
     }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param UploadGroupSettingRequest $request
+     * @param GroupSetting $group_setting
+     * @return Response
+     *
+     *
+     *
+     * @OA\Put(
+     *      path="/api/v1/group_settings/{id}/upload",
+     *      operationId="uploadGroupSetting",
+     *      tags={"group_settings"},
+     *      summary="Uploads a document to a group setting",
+     *      description="Handles the uploading of a document to a group setting",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Group Setting Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the Group Setting object",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *          @OA\JsonContent(ref="#/components/schemas/Invoice"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
+    public function upload(UploadGroupSettingRequest $request, GroupSetting $group_setting)
+    {
+        if(!$this->checkFeature(Account::FEATURE_DOCUMENTS))
+            return $this->featureFailure();
+        
+        if ($request->has('documents')) 
+            $this->saveDocuments($request->file('documents'), $group_setting);
+
+        return $this->itemResponse($group_setting->fresh());
+
+    }  
+
 }
