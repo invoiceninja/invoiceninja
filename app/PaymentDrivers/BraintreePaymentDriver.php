@@ -40,7 +40,7 @@ class BraintreePaymentDriver extends BaseDriver
     /**
      * @var Gateway;
      */
-    public $gateway;
+    public Gateway $gateway;
 
     public static $methods = [
         GatewayType::CREDIT_CARD => CreditCard::class,
