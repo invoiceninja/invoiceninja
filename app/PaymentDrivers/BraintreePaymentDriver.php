@@ -158,10 +158,10 @@ class BraintreePaymentDriver extends BaseDriver
         {
 
             $data = [
-                'transaction_reference' => $response->id,
+                'transaction_reference' => $payment->transaction_reference,
                 'transaction_response' => json_encode($response),
-                'success' => (bool)$response->success,
-                'description' => $response->status,
+                'success' => (bool) $response->success,
+                'description' => ctrans('texts.plan_refunded'),
                 'code' => 0,
             ];
 
