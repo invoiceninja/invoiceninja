@@ -42,6 +42,9 @@ class StoreRecurringExpenseRequest extends Request
             $rules['client_id'] = 'bail|sometimes|exists:clients,id,company_id,'.auth()->user()->company()->id;
 
         $rules['frequency_id'] = 'required|integer|digits_between:1,12';
+        $rules['tax_amount1'] = 'numeric';
+        $rules['tax_amount2'] = 'numeric';
+        $rules['tax_amount3'] = 'numeric';
 
         return $this->globalRules($rules);
     }
