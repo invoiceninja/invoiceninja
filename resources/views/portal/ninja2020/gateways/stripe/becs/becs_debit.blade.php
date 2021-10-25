@@ -22,7 +22,7 @@
         </label>
         <div id="mandate-acceptance">
             <input type="checkbox" id="becs-mandate-acceptance" class="input mr-4">
-            <label for="becs-mandate-acceptance">{{ctrans('texts.becs_mandat')}}</label>
+            <label for="becs-mandate-acceptance">{{ctrans('texts.becs_mandate')}}</label>
         </div>
     </form>
     @endcomponent

@@ -33,7 +33,7 @@ class MarkSent extends AbstractService
     {
 
         /* Return immediately if status is not draft */
-        if ($this->invoice->fresh()->status_id != Invoice::STATUS_DRAFT) {
+        if ($this->invoice && $this->invoice->fresh()->status_id != Invoice::STATUS_DRAFT) {
             return $this->invoice;
         }
 
