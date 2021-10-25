@@ -84,8 +84,7 @@ trait Utilities
 
     public function processUnsuccessfulPayment(Payment $_payment, $throw_exception = true)
     {
-
-        $this->getParent()->sendFailureMail($_payment->status . " " . $_payment->response_summary);
+        $this->getParent()->sendFailureMail($_payment->status . " " . optional($_payment)->response_summary);
 
         $message = [
             'server_response' => $_payment,
@@ -102,7 +101,7 @@ trait Utilities
         );
 
         if ($throw_exception) {
-            throw new PaymentFailed($_payment->status . " " . $_payment->response_summary, $_payment->http_code);
+            throw new PaymentFailed($_payment->status . " " . optional($_payment)->response_summary, $_payment->http_code);
         }
     }
 
