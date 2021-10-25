@@ -134,9 +134,9 @@ class InvoiceService
      *
      * @return InvoiceService                     Parent class object
      */
-    public function updateBalance($balance_adjustment)
+    public function updateBalance($balance_adjustment, bool $is_draft = false)
     {
-        $this->invoice = (new UpdateBalance($this->invoice, $balance_adjustment))->run();
+        $this->invoice = (new UpdateBalance($this->invoice, $balance_adjustment, $is_draft))->run();
 
         if ((int)$this->invoice->balance == 0) {
             $this->invoice->next_send_date = null;
