@@ -519,7 +519,12 @@ class StripePaymentDriver extends BaseDriver
                         ->where('transaction_reference', $transaction['id'])
                         ->where('company_id', $request->getCompany()->id)
                         ->first();
-
+                if (empty($payment)){
+                    $payment = Payment::query()
+                        ->where('transaction_reference', $transaction['payment_intent'])
+                        ->where('company_id', $request->getCompany()->id)
+                        ->first();
+                }
                 if ($payment) {
                     $payment->status_id = Payment::STATUS_COMPLETED;
                     $payment->save();
@@ -540,7 +545,12 @@ class StripePaymentDriver extends BaseDriver
                         ->where('transaction_reference', $transaction['id'])
                         ->where('company_id', $request->getCompany()->id)
                         ->first();
-
+                    if (empty($payment)){
+                    $payment = Payment::query()
+                        ->where('transaction_reference', $transaction['payment_intent'])
+                        ->where('company_id', $request->getCompany()->id)
+                        ->first();
+                    }
                     if ($payment) {
                         $payment->status_id = Payment::STATUS_COMPLETED;
                         $payment->save();
