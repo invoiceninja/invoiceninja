@@ -141,8 +141,8 @@ class BECS
             $method = $this->stripe->getStripePaymentMethod($intent->payment_method);
 
             $payment_meta = new \stdClass;
-            $payment_meta->brand = (string) \sprintf('%s (%s)', $method->sepa_debit->bank_code, ctrans('texts.becs'));
-            $payment_meta->last4 = (string) $method->sepa_debit->last4;
+            $payment_meta->brand = (string) \sprintf('%s (%s)', $method->au_becs_debit->bank_code, ctrans('texts.becs'));
+            $payment_meta->last4 = (string) $method->au_becs_debit->last4;
             $payment_meta->state = 'authorized';
             $payment_meta->type = GatewayType::BECS;
 
