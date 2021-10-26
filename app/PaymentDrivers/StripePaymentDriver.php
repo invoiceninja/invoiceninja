@@ -208,7 +208,7 @@ class StripePaymentDriver extends BaseDriver
             && $this->client->currency()
             && ($this->client->currency()->code == 'AUD')
             && isset($this->client->country)
-            && in_array($this->client->country->iso_3166_3, ["AUS", "DEU"]))
+            && in_array($this->client->country->iso_3166_3, ['AUS']))
             $types[] = GatewayType::BECS;
 
         if ($this->client

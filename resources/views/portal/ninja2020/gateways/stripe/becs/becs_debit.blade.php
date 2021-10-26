@@ -12,17 +12,20 @@
         <label for="becs-name">
             <input class="input w-full" id="becs-name" type="text" placeholder="{{ ctrans('texts.bank_account_holder') }}" required>
         </label>
-        <label for="becs-email" >
+
+        <label for="becs-email">
             <input class="input w-full" id="becs-email-address" type="email" placeholder="{{ ctrans('texts.email') }}" required>
         </label>
+
         <label>
-            <div class="border p-4 rounded">
+            <div class="border p-4 rounded mt-2">
                 <div id="becs-iban"></div>
             </div>
         </label>
-        <div id="mandate-acceptance">
+
+        <div id="mandate-acceptance" class="mt-2">
             <input type="checkbox" id="becs-mandate-acceptance" class="input mr-4">
-            <label for="becs-mandate-acceptance">{{ctrans('texts.becs_mandate')}}</label>
+            <label for="becs-mandate-acceptance">{!! ctrans('texts.becs_mandate') !!}</label>
         </div>
     </form>
     @endcomponent
