@@ -12,7 +12,7 @@
 namespace App\PaymentDrivers\Common;
 
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use App\Http\Requests\Request;
+use Illuminate\Http\Request;
 
 interface MethodInterface
 {

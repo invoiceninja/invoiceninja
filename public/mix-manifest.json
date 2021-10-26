@@ -1,6 +1,6 @@
 {
-    "/js/app.js": "/js/app.js?id=019831a9b0c0aff43c7f",
-    "/css/app.css": "/css/app.css?id=df1ea83ea621533ac837",
+    "/js/app.js": "/js/app.js?id=696e8203d5e8e7cf5ff5",
+    "/css/app.css": "/css/app.css?id=f7f7b35aa3f417a3eca3",
     "/js/clients/invoices/action-selectors.js": "/js/clients/invoices/action-selectors.js?id=a09bb529b8e1826f13b4",
     "/js/clients/invoices/payment.js": "/js/clients/invoices/payment.js?id=8ce8955ba775ea5f47d1",
     "/js/clients/linkify-urls.js": "/js/clients/linkify-urls.js?id=0dc8c34010d09195d2f7",
@@ -17,7 +17,7 @@
     "/js/clients/payments/mollie-credit-card.js": "/js/clients/payments/mollie-credit-card.js?id=73b66e88e2daabcd6549",
     "/js/clients/payments/paytrace-credit-card.js": "/js/clients/payments/paytrace-credit-card.js?id=c2b5f7831e1a46dd5fb2",
     "/js/clients/payments/razorpay-aio.js": "/js/clients/payments/razorpay-aio.js?id=817ab3b2b94ee37b14eb",
-    "/js/clients/payments/square-credit-card.js": "/js/clients/payments/square-credit-card.js?id=070c86b293b532c5a56c",
+    "/js/clients/payments/square-credit-card.js": "/js/clients/payments/square-credit-card.js?id=13ea3ff41d9417ef0140",
     "/js/clients/payments/stripe-ach.js": "/js/clients/payments/stripe-ach.js?id=81c2623fc1e5769b51c7",
     "/js/clients/payments/stripe-acss.js": "/js/clients/payments/stripe-acss.js?id=4a85142c085723991d28",
     "/js/clients/payments/stripe-alipay.js": "/js/clients/payments/stripe-alipay.js?id=665ddf663500767f1a17",
@@ -36,6 +36,6 @@
     "/js/clients/shared/multiple-downloads.js": "/js/clients/shared/multiple-downloads.js?id=5c35d28cf0a3286e7c45",
     "/js/clients/shared/pdf.js": "/js/clients/shared/pdf.js?id=2a99d83305ba87bfa6cc",
     "/js/clients/statements/view.js": "/js/clients/statements/view.js?id=ca3ec4cea0de824f3a36",
-    "/js/setup/setup.js": "/js/setup/setup.js?id=03ea88a737e59eb2bd5a",
+    "/js/setup/setup.js": "/js/setup/setup.js?id=8d454e7090f119552a6c",
     "/css/card-js.min.css": "/css/card-js.min.css?id=62afeb675235451543ad"
 }
