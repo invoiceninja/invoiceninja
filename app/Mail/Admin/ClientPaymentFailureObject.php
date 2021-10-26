@@ -14,7 +14,6 @@ namespace App\Mail\Admin;
 use App\Models\Invoice;
 use App\Utils\HtmlEngine;
 use App\Utils\Ninja;
-use App\Utils\Number;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\App;
 use stdClass;
@@ -91,7 +90,7 @@ class ClientPaymentFailureObject
         return
             ctrans(
                 'texts.notification_invoice_payment_failed_subject',
-                ['invoice' => $this->client->present()->name()]
+                ['invoice' => implode(",", $this->invoices->pluck('number')->toArray())]
             );
 
     }
@@ -110,7 +109,7 @@ class ClientPaymentFailureObject
                 ]
             ),
             'greeting' => ctrans('texts.email_salutation', ['name' => $this->client->present()->name]),
-            'message' => $this->error,
+            'message' => ctrans('texts.client_payment_failure_body', ['invoice' => implode(",", $this->invoices->pluck('number')->toArray()), 'amount' => $this->getAmount()]),
             'signature' => $signature,
             'logo' => $this->company->present()->logo(),
             'settings' => $this->client->getMergedSettings(),

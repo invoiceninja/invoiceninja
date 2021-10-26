@@ -15,6 +15,7 @@ use App\Jobs\Mail\NinjaMailer;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Libraries\MultiDB;
+use App\Mail\Admin\ClientPaymentFailureObject;
 use App\Mail\Admin\EntityNotificationMailer;
 use App\Mail\Admin\PaymentFailureObject;
 use App\Models\Client;
@@ -102,6 +103,24 @@ class PaymentFailedMailer implements ShouldQueue
         });
 
         //add client payment failures here.
+        nlog("pre client failure email");
+
+        if($contact = $this->client->primary_contact()->first())
+        {
+        
+        nlog("inside failure");
+
+            $mail_obj = (new ClientPaymentFailureObject($this->client, $this->error, $this->company, $this->payment_hash))->build();
+
+            $nmo = new NinjaMailerObject;
+            $nmo->mailable = new NinjaMailer($mail_obj);
+            $nmo->company = $this->company;
+            $nmo->to_user = $contact;
+            $nmo->settings = $settings;
+
+            NinjaMailerJob::dispatch($nmo);
+        }
+        
     }
 
 
