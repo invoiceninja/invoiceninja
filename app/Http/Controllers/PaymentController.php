@@ -683,8 +683,6 @@ class PaymentController extends BaseController
     {
         $payment = $request->payment();
 
-// nlog($request->all());
-
         $payment = $payment->refund($request->all());
 
         return $this->itemResponse($payment);

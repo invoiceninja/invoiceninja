@@ -122,6 +122,8 @@ class DeletePayment
         }
         else {
 
+            /* If there are no invoices - then we need to still adjust the total client->paid_to_date amount*/
+
             $this->payment
             ->client
             ->service()
