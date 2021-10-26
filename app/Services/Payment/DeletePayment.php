@@ -115,15 +115,20 @@ class DeletePayment
                                         ->updatePaidToDate($net_deletable * -1)
                                         ->save();
 
-                    // $paymentable_invoice->client
-                    // ->service()
-                    // ->updatePaidToDate($net_deletable * -1)
-                    // ->save();
+
                 }
 
             });
         }
+        else {
 
+            $this->payment
+            ->client
+            ->service()
+            ->updatePaidToDate(($this->payment->amount - $this->payment->applied)*-1)
+            ->save();
+
+        }
         return $this;
     }
 
