@@ -53,6 +53,7 @@ class Handler extends ExceptionHandler
         CommandNotFoundException::class,
         ValidationException::class,
         ModelNotFoundException::class,
+        NotFoundHttpException::class,
     ];
 
     /**

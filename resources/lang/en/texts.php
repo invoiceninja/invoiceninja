@@ -1400,7 +1400,7 @@ $LANG = array(
     'more_options' => 'More options',
     'credit_card' => 'Credit Card',
     'bank_transfer' => 'Bank Transfer',
-    'no_transaction_reference' => 'We did not recieve a payment transaction reference from the gateway.',
+    'no_transaction_reference' => 'We did not receive a payment transaction reference from the gateway.',
     'use_bank_on_file' => 'Use Bank on File',
     'auto_bill_email_message' => 'This invoice will automatically be billed to the payment method on file on the due date.',
     'bitcoin' => 'Bitcoin',
@@ -4334,7 +4334,8 @@ $LANG = array(
     'clone_to_expense' => 'Clone to expense',
     'checkout' => 'Checkout',
     'acss' => 'Pre-authorized debit payments',
-    'invalid_amount' => 'Invalid amount. Number/Decimal values only.'
+    'invalid_amount' => 'Invalid amount. Number/Decimal values only.',
+    'client_payment_failure_body' => 'Payment for Invoice :invoice for amount :amount failed.',
 );
 
 return $LANG;
