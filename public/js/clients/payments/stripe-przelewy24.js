@@ -1,2 +1,212 @@
-/*! For license information please see stripe-przelewy24.js.LICENSE.txt */
-!function(e){var t={};function n(o){if(t[o])return t[o].exports;var r=t[o]={i:o,l:!1,exports:{}};return e[o].call(r.exports,r,r.exports,n),r.l=!0,r.exports}n.m=e,n.c=t,n.d=function(e,t,o){n.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:o})},n.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},n.t=function(e,t){if(1&t&&(e=n(e)),8&t)return e;if(4&t&&"object"==typeof e&&e&&e.__esModule)return e;var o=Object.create(null);if(n.r(o),Object.defineProperty(o,"default",{enumerable:!0,value:e}),2&t&&"string"!=typeof e)for(var r in e)n.d(o,r,function(t){return e[t]}.bind(null,r));return o},n.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return n.d(t,"a",t),t},n.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},n.p="/",n(n.s=36)}({36:function(e,t,n){e.exports=n("Btf5")},Btf5:function(e,t){var n,o,r,a;function c(e,t,n){return t in e?Object.defineProperty(e,t,{value:n,enumerable:!0,configurable:!0,writable:!0}):e[t]=n,e}var d=null!==(n=null===(o=document.querySelector('meta[name="stripe-publishable-key"]'))||void 0===o?void 0:o.content)&&void 0!==n?n:"",u=null!==(r=null===(a=document.querySelector('meta[name="stripe-account-id"]'))||void 0===a?void 0:a.content)&&void 0!==r?r:"";new function e(t,n){var o=this;!function(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}(this,e),c(this,"setupStripe",(function(){o.stripe=Stripe(o.key),o.stripeConnect&&(o.stripe.stripeAccount=u);var e=o.stripe.elements();return o.p24bank=e.create("p24Bank",{style:{base:{padding:"10px 12px",color:"#32325d",fontSize:"16px","::placeholder":{color:"#aab7c4"}}}}),o.p24bank.mount("#p24-bank-element"),o})),c(this,"handle",(function(){document.getElementById("pay-now").addEventListener("click",(function(e){var t=document.getElementById("errors");return""===document.getElementById("p24-name").value?(document.getElementById("p24-name").focus(),t.textContent=document.querySelector("meta[name=translation-name-required]").content,void(t.hidden=!1)):""===document.getElementById("p24-email-address").value?(document.getElementById("p24-email-address").focus(),t.textContent=document.querySelector("meta[name=translation-email-required]").content,void(t.hidden=!1)):document.getElementById("p24-mandate-acceptance").checked?(document.getElementById("pay-now").disabled=!0,document.querySelector("#pay-now > svg").classList.remove("hidden"),document.querySelector("#pay-now > span").classList.add("hidden"),void o.stripe.confirmP24Payment(document.querySelector("meta[name=pi-client-secret").content,{payment_method:{p24:o.p24bank,billing_details:{name:document.getElementById("p24-name").value,email:document.getElementById("p24-email-address").value}},payment_method_options:{p24:{tos_shown_and_accepted:document.getElementById("p24-mandate-acceptance").checked}},return_url:document.querySelector('meta[name="return-url"]').content})):(document.getElementById("p24-mandate-acceptance").focus(),t.textContent=document.querySelector("meta[name=translation-terms-required]").content,void(t.hidden=!1))}))})),this.key=t,this.errors=document.getElementById("errors"),this.stripeConnect=n}(d,u).setupStripe().handle()}});
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = function(exports) {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__webpack_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = __webpack_require__(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 		var ns = Object.create(null);
+/******/ 		__webpack_require__.r(ns);
+/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 		return ns;
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "/";
+/******/
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 36);
+/******/ })
+/************************************************************************/
+/******/ ({
+
+/***/ "./resources/js/clients/payments/stripe-przelewy24.js":
+/*!************************************************************!*\
+  !*** ./resources/js/clients/payments/stripe-przelewy24.js ***!
+  \************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+var _document$querySelect, _document$querySelect2, _document$querySelect3, _document$querySelect4;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+/**
+ * Invoice Ninja (https://invoiceninja.com)
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
+var ProcessPRZELEWY24 = function ProcessPRZELEWY24(key, _stripeConnect) {
+  var _this = this;
+
+  _classCallCheck(this, ProcessPRZELEWY24);
+
+  _defineProperty(this, "setupStripe", function () {
+    _this.stripe = Stripe(_this.key);
+    if (_this.stripeConnect) _this.stripe.stripeAccount = stripeConnect;
+
+    var elements = _this.stripe.elements();
+
+    var options = {
+      // Custom styling can be passed to options when creating an Element
+      style: {
+        base: {
+          padding: '10px 12px',
+          color: '#32325d',
+          fontSize: '16px',
+          '::placeholder': {
+            color: '#aab7c4'
+          }
+        }
+      }
+    };
+    _this.p24bank = elements.create('p24Bank', options);
+
+    _this.p24bank.mount('#p24-bank-element');
+
+    return _this;
+  });
+
+  _defineProperty(this, "handle", function () {
+    document.getElementById('pay-now').addEventListener('click', function (e) {
+      var errors = document.getElementById('errors');
+
+      if (document.getElementById('p24-name').value === "") {
+        document.getElementById('p24-name').focus();
+        errors.textContent = document.querySelector('meta[name=translation-name-required]').content;
+        errors.hidden = false;
+        return;
+      }
+
+      if (document.getElementById('p24-email-address').value === "") {
+        document.getElementById('p24-email-address').focus();
+        errors.textContent = document.querySelector('meta[name=translation-email-required]').content;
+        errors.hidden = false;
+        return;
+      }
+
+      if (!document.getElementById('p24-mandate-acceptance').checked) {
+        document.getElementById('p24-mandate-acceptance').focus();
+        errors.textContent = document.querySelector('meta[name=translation-terms-required]').content;
+        errors.hidden = false;
+        return;
+      }
+
+      document.getElementById('pay-now').disabled = true;
+      document.querySelector('#pay-now > svg').classList.remove('hidden');
+      document.querySelector('#pay-now > span').classList.add('hidden');
+
+      _this.stripe.confirmP24Payment(document.querySelector('meta[name=pi-client-secret').content, {
+        payment_method: {
+          p24: _this.p24bank,
+          billing_details: {
+            name: document.getElementById('p24-name').value,
+            email: document.getElementById('p24-email-address').value
+          }
+        },
+        payment_method_options: {
+          p24: {
+            tos_shown_and_accepted: document.getElementById('p24-mandate-acceptance').checked
+          }
+        },
+        return_url: document.querySelector('meta[name="return-url"]').content
+      });
+    });
+  });
+
+  this.key = key;
+  this.errors = document.getElementById('errors');
+  this.stripeConnect = _stripeConnect;
+};
+
+var publishableKey = (_document$querySelect = (_document$querySelect2 = document.querySelector('meta[name="stripe-publishable-key"]')) === null || _document$querySelect2 === void 0 ? void 0 : _document$querySelect2.content) !== null && _document$querySelect !== void 0 ? _document$querySelect : '';
+var stripeConnect = (_document$querySelect3 = (_document$querySelect4 = document.querySelector('meta[name="stripe-account-id"]')) === null || _document$querySelect4 === void 0 ? void 0 : _document$querySelect4.content) !== null && _document$querySelect3 !== void 0 ? _document$querySelect3 : '';
+new ProcessPRZELEWY24(publishableKey, stripeConnect).setupStripe().handle();
+
+/***/ }),
+
+/***/ 36:
+/*!******************************************************************!*\
+  !*** multi ./resources/js/clients/payments/stripe-przelewy24.js ***!
+  \******************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(/*! /var/www/html/resources/js/clients/payments/stripe-przelewy24.js */"./resources/js/clients/payments/stripe-przelewy24.js");
+
+
+/***/ })
+
+/******/ });

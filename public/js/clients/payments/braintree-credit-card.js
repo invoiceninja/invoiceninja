@@ -1,2 +1,221 @@
-/*! For license information please see braintree-credit-card.js.LICENSE.txt */
-!function(e){var t={};function n(r){if(t[r])return t[r].exports;var o=t[r]={i:r,l:!1,exports:{}};return e[r].call(o.exports,o,o.exports,n),o.l=!0,o.exports}n.m=e,n.c=t,n.d=function(e,t,r){n.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:r})},n.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},n.t=function(e,t){if(1&t&&(e=n(e)),8&t)return e;if(4&t&&"object"==typeof e&&e&&e.__esModule)return e;var r=Object.create(null);if(n.r(r),Object.defineProperty(r,"default",{enumerable:!0,value:e}),2&t&&"string"!=typeof e)for(var o in e)n.d(r,o,function(t){return e[t]}.bind(null,o));return r},n.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return n.d(t,"a",t),t},n.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},n.p="/",n(n.s=17)}({17:function(e,t,n){e.exports=n("jPAV")},jPAV:function(e,t){function n(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}(new(function(){function e(){!function(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}(this,e)}var t,r,o;return t=e,(r=[{key:"initBraintreeDataCollector",value:function(){window.braintree.client.create({authorization:document.querySelector("meta[name=client-token]").content},(function(e,t){window.braintree.dataCollector.create({client:t,paypal:!0},(function(e,t){e||(document.querySelector("input[name=client-data]").value=t.deviceData)}))}))}},{key:"mountBraintreePaymentWidget",value:function(){window.braintree.dropin.create({authorization:document.querySelector("meta[name=client-token]").content,container:"#dropin-container"},this.handleCallback)}},{key:"handleCallback",value:function(e,t){if(e)console.error(e);else{var n=document.getElementById("pay-now");n.addEventListener("click",(function(){t.requestPaymentMethod((function(e,t){if(e)return console.error(e);n.disabled=!0,n.querySelector("svg").classList.remove("hidden"),n.querySelector("span").classList.add("hidden"),document.querySelector("input[name=gateway_response]").value=JSON.stringify(t);var r=document.querySelector('input[name="token-billing-checkbox"]:checked');r&&(document.querySelector('input[name="store_card"]').value=r.value),document.getElementById("server-response").submit()}))}))}}},{key:"handle",value:function(){this.initBraintreeDataCollector(),this.mountBraintreePaymentWidget(),Array.from(document.getElementsByClassName("toggle-payment-with-token")).forEach((function(e){return e.addEventListener("click",(function(e){document.getElementById("dropin-container").classList.add("hidden"),document.getElementById("save-card--container").style.display="none",document.querySelector("input[name=token]").value=e.target.dataset.token,document.getElementById("pay-now-with-token").classList.remove("hidden"),document.getElementById("pay-now").classList.add("hidden")}))})),document.getElementById("toggle-payment-with-credit-card").addEventListener("click",(function(e){document.getElementById("dropin-container").classList.remove("hidden"),document.getElementById("save-card--container").style.display="grid",document.querySelector("input[name=token]").value="",document.getElementById("pay-now-with-token").classList.add("hidden"),document.getElementById("pay-now").classList.remove("hidden")}));var e=document.getElementById("pay-now-with-token");e.addEventListener("click",(function(t){e.disabled=!0,e.querySelector("svg").classList.remove("hidden"),e.querySelector("span").classList.add("hidden"),document.getElementById("server-response").submit()}))}}])&&n(t.prototype,r),o&&n(t,o),e}())).handle()}});
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = function(exports) {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__webpack_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = __webpack_require__(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 		var ns = Object.create(null);
+/******/ 		__webpack_require__.r(ns);
+/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 		return ns;
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "/";
+/******/
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 17);
+/******/ })
+/************************************************************************/
+/******/ ({
+
+/***/ "./resources/js/clients/payments/braintree-credit-card.js":
+/*!****************************************************************!*\
+  !*** ./resources/js/clients/payments/braintree-credit-card.js ***!
+  \****************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
+var BraintreeCreditCard = /*#__PURE__*/function () {
+  function BraintreeCreditCard() {
+    _classCallCheck(this, BraintreeCreditCard);
+  }
+
+  _createClass(BraintreeCreditCard, [{
+    key: "initBraintreeDataCollector",
+    value: function initBraintreeDataCollector() {
+      window.braintree.client.create({
+        authorization: document.querySelector('meta[name=client-token]').content
+      }, function (err, clientInstance) {
+        window.braintree.dataCollector.create({
+          client: clientInstance,
+          paypal: true
+        }, function (err, dataCollectorInstance) {
+          if (err) {
+            return;
+          }
+
+          document.querySelector('input[name=client-data]').value = dataCollectorInstance.deviceData;
+        });
+      });
+    }
+  }, {
+    key: "mountBraintreePaymentWidget",
+    value: function mountBraintreePaymentWidget() {
+      window.braintree.dropin.create({
+        authorization: document.querySelector('meta[name=client-token]').content,
+        container: '#dropin-container'
+      }, this.handleCallback);
+    }
+  }, {
+    key: "handleCallback",
+    value: function handleCallback(error, dropinInstance) {
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      var payNow = document.getElementById('pay-now');
+      payNow.addEventListener('click', function () {
+        dropinInstance.requestPaymentMethod(function (error, payload) {
+          if (error) {
+            return console.error(error);
+          }
+
+          payNow.disabled = true;
+          payNow.querySelector('svg').classList.remove('hidden');
+          payNow.querySelector('span').classList.add('hidden');
+          document.querySelector('input[name=gateway_response]').value = JSON.stringify(payload);
+          var tokenBillingCheckbox = document.querySelector('input[name="token-billing-checkbox"]:checked');
+
+          if (tokenBillingCheckbox) {
+            document.querySelector('input[name="store_card"]').value = tokenBillingCheckbox.value;
+          }
+
+          document.getElementById('server-response').submit();
+        });
+      });
+    }
+  }, {
+    key: "handle",
+    value: function handle() {
+      this.initBraintreeDataCollector();
+      this.mountBraintreePaymentWidget();
+      Array.from(document.getElementsByClassName('toggle-payment-with-token')).forEach(function (element) {
+        return element.addEventListener('click', function (element) {
+          document.getElementById('dropin-container').classList.add('hidden');
+          document.getElementById('save-card--container').style.display = 'none';
+          document.querySelector('input[name=token]').value = element.target.dataset.token;
+          document.getElementById('pay-now-with-token').classList.remove('hidden');
+          document.getElementById('pay-now').classList.add('hidden');
+        });
+      });
+      document.getElementById('toggle-payment-with-credit-card').addEventListener('click', function (element) {
+        document.getElementById('dropin-container').classList.remove('hidden');
+        document.getElementById('save-card--container').style.display = 'grid';
+        document.querySelector('input[name=token]').value = "";
+        document.getElementById('pay-now-with-token').classList.add('hidden');
+        document.getElementById('pay-now').classList.remove('hidden');
+      });
+      var payNowWithToken = document.getElementById('pay-now-with-token');
+      payNowWithToken.addEventListener('click', function (element) {
+        payNowWithToken.disabled = true;
+        payNowWithToken.querySelector('svg').classList.remove('hidden');
+        payNowWithToken.querySelector('span').classList.add('hidden');
+        document.getElementById('server-response').submit();
+      });
+    }
+  }]);
+
+  return BraintreeCreditCard;
+}();
+
+new BraintreeCreditCard().handle();
+
+/***/ }),
+
+/***/ 17:
+/*!**********************************************************************!*\
+  !*** multi ./resources/js/clients/payments/braintree-credit-card.js ***!
+  \**********************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(/*! /var/www/html/resources/js/clients/payments/braintree-credit-card.js */"./resources/js/clients/payments/braintree-credit-card.js");
+
+
+/***/ })
+
+/******/ });

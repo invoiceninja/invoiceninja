@@ -1,2 +1,178 @@
-/*! For license information please see wepay-bank-account.js.LICENSE.txt */
-!function(e){var n={};function t(r){if(n[r])return n[r].exports;var o=n[r]={i:r,l:!1,exports:{}};return e[r].call(o.exports,o,o.exports,t),o.l=!0,o.exports}t.m=e,t.c=n,t.d=function(e,n,r){t.o(e,n)||Object.defineProperty(e,n,{enumerable:!0,get:r})},t.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},t.t=function(e,n){if(1&n&&(e=t(e)),8&n)return e;if(4&n&&"object"==typeof e&&e&&e.__esModule)return e;var r=Object.create(null);if(t.r(r),Object.defineProperty(r,"default",{enumerable:!0,value:e}),2&n&&"string"!=typeof e)for(var o in e)t.d(r,o,function(n){return e[n]}.bind(null,o));return r},t.n=function(e){var n=e&&e.__esModule?function(){return e.default}:function(){return e};return t.d(n,"a",n),n},t.o=function(e,n){return Object.prototype.hasOwnProperty.call(e,n)},t.p="/",t(t.s=20)}({20:function(e,n,t){e.exports=t("bIGw")},bIGw:function(e,n){function t(e,n){for(var t=0;t<n.length;t++){var r=n[t];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}var r=function(){function e(){!function(e,n){if(!(e instanceof n))throw new TypeError("Cannot call a class as a function")}(this,e)}var n,r,o;return n=e,(r=[{key:"initializeWePay",value:function(){var e,n=null===(e=document.querySelector('meta[name="wepay-environment"]'))||void 0===e?void 0:e.content;return WePay.set_endpoint("staging"===n?"stage":"production"),this}},{key:"showBankPopup",value:function(){var e,n;WePay.bank_account.create({client_id:null===(e=document.querySelector("meta[name=wepay-client-id]"))||void 0===e?void 0:e.content,email:null===(n=document.querySelector("meta[name=contact-email]"))||void 0===n?void 0:n.content},(function(e){e.error?(errors.textContent="",errors.textContent=e.error_description,errors.hidden=!1):(document.querySelector('input[name="bank_account_id"]').value=e.bank_account_id,document.getElementById("server_response").submit())}),(function(e){e.error&&(errors.textContent="",errors.textContent=e.error_description,errors.hidden=!1)}))}},{key:"handle",value:function(){this.initializeWePay().showBankPopup()}}])&&t(n.prototype,r),o&&t(n,o),e}();document.addEventListener("DOMContentLoaded",(function(){(new r).handle()}))}});
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = function(exports) {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__webpack_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = __webpack_require__(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 		var ns = Object.create(null);
+/******/ 		__webpack_require__.r(ns);
+/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 		return ns;
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "/";
+/******/
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 20);
+/******/ })
+/************************************************************************/
+/******/ ({
+
+/***/ "./resources/js/clients/payment_methods/wepay-bank-account.js":
+/*!********************************************************************!*\
+  !*** ./resources/js/clients/payment_methods/wepay-bank-account.js ***!
+  \********************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
+var WePayBank = /*#__PURE__*/function () {
+  function WePayBank() {
+    _classCallCheck(this, WePayBank);
+  }
+
+  _createClass(WePayBank, [{
+    key: "initializeWePay",
+    value: function initializeWePay() {
+      var _document$querySelect;
+
+      var environment = (_document$querySelect = document.querySelector('meta[name="wepay-environment"]')) === null || _document$querySelect === void 0 ? void 0 : _document$querySelect.content;
+      WePay.set_endpoint(environment === 'staging' ? 'stage' : 'production');
+      return this;
+    }
+  }, {
+    key: "showBankPopup",
+    value: function showBankPopup() {
+      var _document$querySelect2, _document$querySelect3;
+
+      WePay.bank_account.create({
+        client_id: (_document$querySelect2 = document.querySelector('meta[name=wepay-client-id]')) === null || _document$querySelect2 === void 0 ? void 0 : _document$querySelect2.content,
+        email: (_document$querySelect3 = document.querySelector('meta[name=contact-email]')) === null || _document$querySelect3 === void 0 ? void 0 : _document$querySelect3.content
+      }, function (data) {
+        if (data.error) {
+          errors.textContent = '';
+          errors.textContent = data.error_description;
+          errors.hidden = false;
+        } else {
+          document.querySelector('input[name="bank_account_id"]').value = data.bank_account_id;
+          document.getElementById('server_response').submit();
+        }
+      }, function (data) {
+        if (data.error) {
+          errors.textContent = '';
+          errors.textContent = data.error_description;
+          errors.hidden = false;
+        }
+      });
+    }
+  }, {
+    key: "handle",
+    value: function handle() {
+      this.initializeWePay().showBankPopup();
+    }
+  }]);
+
+  return WePayBank;
+}();
+
+document.addEventListener('DOMContentLoaded', function () {
+  new WePayBank().handle();
+});
+
+/***/ }),
+
+/***/ 20:
+/*!**************************************************************************!*\
+  !*** multi ./resources/js/clients/payment_methods/wepay-bank-account.js ***!
+  \**************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(/*! /var/www/html/resources/js/clients/payment_methods/wepay-bank-account.js */"./resources/js/clients/payment_methods/wepay-bank-account.js");
+
+
+/***/ })
+
+/******/ });

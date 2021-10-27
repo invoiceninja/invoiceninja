@@ -7,7 +7,7 @@
 @endcomponent
 
 @section('body')
-    <div class="grid lg:grid-cols-3 mx-6">
+    <div class="grid lg:grid-cols-3 mx-6 md:mx-0">
         @if($account && !$account->isPaid())
             <div class="hidden lg:block col-span-1 bg-red-100 h-screen">
                 <img src="{{ asset('images/client-portal-new-image.jpg') }}"
