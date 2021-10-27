@@ -445,8 +445,8 @@ class HtmlEngine
         $data['_rate3'] = ['value' => '', 'label' => ctrans('texts.tax')];
 
         $data['$font_size'] = ['value' => $this->settings->font_size . 'px', 'label' => ''];
-        $data['$font_name'] = ['value' => Helpers::resolveFont()['name'], 'label' => ''];
-        $data['$font_url'] = ['value' => Helpers::resolveFont()['url'], 'label' => ''];
+        $data['$font_name'] = ['value' => Helpers::resolveFont($this->settings->primary_font)['name'], 'label' => ''];
+        $data['$font_url'] = ['value' => Helpers::resolveFont($this->settings->primary_font)['url'], 'label' => ''];
 
         $data['$invoiceninja.whitelabel'] = ['value' => 'https://raw.githubusercontent.com/invoiceninja/invoiceninja/v5-develop/public/images/new_logo.png', 'label' => ''];
 

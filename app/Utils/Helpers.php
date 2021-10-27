@@ -274,7 +274,7 @@ class Helpers
     public static function resolveFont(string $font = 'Arial'): array
     {
         return $font
-            ? ['name' => $font, 'url' => sprintf('https://fonts.googleapis.com/css2?family=%s&display=swap', $font)]
+            ? ['name' => str_replace('_', ' ', $font), 'url' => sprintf('https://fonts.googleapis.com/css2?family=%s&display=swap', str_replace('_', '+', $font))]
             : ['name' => 'Arial', 'url' => ''];
     }
 }
