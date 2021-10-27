@@ -405,6 +405,10 @@ class BaseDriver extends AbstractPaymentDriver
     public function sendFailureMail(string $error)
     {
 
+        if (!is_null($this->payment_hash)) {
+            $this->unWindGatewayFees($this->payment_hash);
+        }
+        
         PaymentFailedMailer::dispatch(
             $this->payment_hash,
             $this->client->company,
@@ -418,7 +422,6 @@ class BaseDriver extends AbstractPaymentDriver
     {
 
         if ($this->payment_hash && is_array($this->payment_hash->invoices())) {
-
 
             $nmo = new NinjaMailerObject;
             $nmo->mailable = new NinjaMailer((new ClientPaymentFailureObject($this->client, $error, $this->client->company, $this->payment_hash))->build());
