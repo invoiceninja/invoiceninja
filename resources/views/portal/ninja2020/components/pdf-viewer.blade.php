@@ -70,7 +70,7 @@
                 x-transition:leave-start="transform opacity-100 scale-100"
                 x-transition:leave-end="transform opacity-0 scale-95"
                 class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg">
-                <div class="rounded-md bg-white shadow-xs">
+                <div class="rounded-md bg-white ring-1 ring-black ring-opacity-5">
                     <div class="py-1">
                         <a target="_blank" href="{{ $fullscreen_url ?? '?mode=fullscreen' }}"
                             class="block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900">{{ ctrans('texts.open_in_new_tab') }}</a>

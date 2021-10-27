@@ -14,7 +14,7 @@
             @if($client->getCreditCardGateway() || $client->getBankTransferGateway())
                 <button x-on:click="open = !open" class="button button-primary bg-primary" data-cy="add-payment-method">{{ ctrans('texts.add_payment_method') }}</button>
                 <div x-show="open" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg">
-                    <div class="py-1 rounded-md bg-white shadow-xs">
+                    <div class="py-1 rounded-md bg-white ring-1 ring-black ring-opacity-5">
                         @if($client->getCreditCardGateway())
                             <a data-cy="add-credit-card-link" href="{{ route('client.payment_methods.create', ['method' => App\Models\GatewayType::CREDIT_CARD]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition ease-in-out duration-150">
                                 {{ ctrans('texts.credit_card') }}
