@@ -17,6 +17,7 @@
     },
     "dependencies": {
         "@tailwindcss/ui": "^0.7",
+        "autoprefixer": "^10.3.7",
         "axios": "^0.21.1",
         "card-js": "^1.0.13",
         "card-validator": "^6.2.0",
@@ -26,9 +27,10 @@
         "laravel-mix": "^5.0.9",
         "linkify-urls": "^3.1.1",
         "lodash": "^4.17.21",
+        "postcss": "^8.3.11",
         "resolve-url-loader": "^3.1.4",
         "sass": "^1.38.0",
         "sass-loader": "^8.0.0",
-        "tailwindcss": "^1.9.6"
+        "tailwindcss": "^2.2.17"
     }
 }
