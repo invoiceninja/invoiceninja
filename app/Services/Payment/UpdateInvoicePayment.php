@@ -89,7 +89,7 @@ class UpdateInvoicePayment
             event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         });
         
-        $this->payment->save();
+        $this->payment->saveQuietly();
 
         return $this->payment;
     }
