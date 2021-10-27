@@ -73,13 +73,14 @@ class SendRecurring implements ShouldQueue
         $invoice->date = now()->format('Y-m-d');
         $invoice->due_date = $this->recurring_invoice->calculateDueDate(now()->format('Y-m-d'));
         $invoice->recurring_id = $this->recurring_invoice->id;
-        
+        $invoice->saveQuietly();
+
         if($invoice->client->getSetting('auto_email_invoice'))
         {
             $invoice = $invoice->service()
                                ->markSent()
                                ->applyNumber()
-                               // ->createInvitations() //need to only link invitations to those in the recurring invoice
+                               //->createInvitations() //need to only link invitations to those in the recurring invoice
                                ->fillDefaults()
                                ->save();
             

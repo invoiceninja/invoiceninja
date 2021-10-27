@@ -185,7 +185,7 @@ class WePayPaymentDriver extends BaseDriver
         }
 
         if (! isset($objectType)) {
-            throw new Exception('Could not find object id parameter');
+            throw new \Exception('Could not find object id parameter');
         }
 
         if ($objectType == 'credit_card') {

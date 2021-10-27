@@ -33,7 +33,7 @@ class MarkSent extends AbstractService
     {
 
         /* Return immediately if status is not draft */
-        if ($this->invoice->fresh()->status_id != Invoice::STATUS_DRAFT) {
+        if ($this->invoice && $this->invoice->fresh()->status_id != Invoice::STATUS_DRAFT) {
             return $this->invoice;
         }
 
@@ -47,7 +47,7 @@ class MarkSent extends AbstractService
              ->service()
              ->applyNumber()
              ->setDueDate()
-             ->updateBalance($this->invoice->amount)
+             ->updateBalance($this->invoice->amount, true)
              ->deletePdf()
              ->setReminder()
              ->save();

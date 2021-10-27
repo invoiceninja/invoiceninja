@@ -115,15 +115,22 @@ class DeletePayment
                                         ->updatePaidToDate($net_deletable * -1)
                                         ->save();
 
-                    // $paymentable_invoice->client
-                    // ->service()
-                    // ->updatePaidToDate($net_deletable * -1)
-                    // ->save();
+
                 }
 
             });
         }
+        else {
 
+            /* If there are no invoices - then we need to still adjust the total client->paid_to_date amount*/
+
+            $this->payment
+            ->client
+            ->service()
+            ->updatePaidToDate(($this->payment->amount - $this->payment->applied)*-1)
+            ->save();
+
+        }
         return $this;
     }
 

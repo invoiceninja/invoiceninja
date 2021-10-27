@@ -40,8 +40,17 @@ class ContactLoginController extends Controller
         // if(Ninja::isHosted() && count(explode('.', request()->getHost())) == 2){
         //     $company = null;
         // }else
+        
+        $company = false;
 
-        if (strpos($request->getHost(), 'invoicing.co') !== false) {
+        if($request->has('company_key')){
+            MultiDB::findAndSetDbByCompanyKey($request->input('company_key'));
+
+            $company = Company::where('company_key', $request->input('company_key'))->first();
+
+        }
+
+        if (!$company && strpos($request->getHost(), 'invoicing.co') !== false) {
             $subdomain = explode('.', $request->getHost())[0];
 
             MultiDB::findAndSetDbByDomain(['subdomain' => $subdomain]);
@@ -72,8 +81,8 @@ class ContactLoginController extends Controller
     {
         Auth::shouldUse('contact');
 
-        if(Ninja::isHosted() && $request->has('db'))
-            MultiDB::setDb($request->input('db'));
+        if(Ninja::isHosted() && $request->has('company_key'))
+            MultiDB::findAndSetDbByCompanyKey($request->input('company_key'));
 
         $this->validateLogin($request);
         // If the class is using the ThrottlesLogins trait, we can automatically throttle

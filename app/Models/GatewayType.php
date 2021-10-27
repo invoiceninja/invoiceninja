@@ -84,7 +84,7 @@ class GatewayType extends StaticModel
             case self::EPS:
                 return ctrans('texts.eps');
             case self::BECS:
-                return ctrans('tets.becs');
+                return ctrans('texts.becs');
             case self::ACSS:
                 return ctrans('texts.acss');
             case self::DIRECT_DEBIT:

@@ -1400,7 +1400,7 @@ $LANG = array(
     'more_options' => 'More options',
     'credit_card' => 'Credit Card',
     'bank_transfer' => 'Bank Transfer',
-    'no_transaction_reference' => 'We did not recieve a payment transaction reference from the gateway.',
+    'no_transaction_reference' => 'We did not receive a payment transaction reference from the gateway.',
     'use_bank_on_file' => 'Use Bank on File',
     'auto_bill_email_message' => 'This invoice will automatically be billed to the payment method on file on the due date.',
     'bitcoin' => 'Bitcoin',
@@ -4328,13 +4328,14 @@ $LANG = array(
     'giropay_law' => 'By entering your Customer information (such as name, sort code and account number) you (the Customer) agree that this information is given voluntarily.',
     'eps' => 'EPS',
     'becs' => 'BECS Direct Debit',
-    'becs_mandate' => 'By providing your bank account details, you agree to this <a href="https://stripe.com/au-becs-dd-service-agreement/legal">Direct Debit Request and the Direct Debit Request service agreement</a>, and authorise Stripe Payments Australia Pty Ltd ACN 160 180 343 Direct Debit User ID number 507156 (“Stripe”) to debit your account through the Bulk Electronic Clearing System (BECS) on behalf of :company (the “Merchant”) for any amounts separately communicated to you by the Merchant. You certify that you are either an account holder or an authorised signatory on the account listed above.',
+    'becs_mandate' => 'By providing your bank account details, you agree to this <a class="underline" href="https://stripe.com/au-becs-dd-service-agreement/legal">Direct Debit Request and the Direct Debit Request service agreement</a>, and authorise Stripe Payments Australia Pty Ltd ACN 160 180 343 Direct Debit User ID number 507156 (“Stripe”) to debit your account through the Bulk Electronic Clearing System (BECS) on behalf of :company (the “Merchant”) for any amounts separately communicated to you by the Merchant. You certify that you are either an account holder or an authorised signatory on the account listed above.',
     'you_need_to_accept_the_terms_before_proceeding' => 'You need to accept the terms before proceeding.',
     'direct_debit' => 'Direct Debit',
     'clone_to_expense' => 'Clone to expense',
     'checkout' => 'Checkout',
     'acss' => 'Pre-authorized debit payments',
-    'invalid_amount' => 'Invalid amount. Number/Decimal values only.'
+    'invalid_amount' => 'Invalid amount. Number/Decimal values only.',
+    'client_payment_failure_body' => 'Payment for Invoice :invoice for amount :amount failed.',
 );
 
 return $LANG;

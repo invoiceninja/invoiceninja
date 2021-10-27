@@ -338,7 +338,9 @@ class CheckoutComPaymentDriver extends BaseDriver
         $this->setPaymentHash($request->getPaymentHash());
 
         try {
-            $payment = $this->gateway->payments()->details($request->query('cko-session-id'));
+            $payment = $this->gateway->payments()->details(
+                $request->query('cko-session-id')
+            );
 
             if ($payment->approved) {
                 return $this->processSuccessfulPayment($payment);

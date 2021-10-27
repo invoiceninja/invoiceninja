@@ -15,6 +15,7 @@ use App\Http\Requests\Activity\DownloadHistoricalEntityRequest;
 use App\Models\Activity;
 use App\Transformers\ActivityTransformer;
 use App\Utils\HostedPDF\NinjaPdf;
+use App\Utils\Ninja;
 use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\Pdf\PdfMaker;
 use Illuminate\Http\JsonResponse;
@@ -147,7 +148,12 @@ class ActivityController extends BaseController
         */
 
         if($backup && $backup->filename && Storage::disk(config('filesystems.default'))->exists($backup->filename)){ //disk
-            $html_backup = file_get_contents(Storage::disk(config('filesystems.default'))->path($backup->filename));
+
+            if(Ninja::isHosted())
+                $html_backup = file_get_contents(Storage::disk(config('filesystems.default'))->url($backup->filename));
+            else
+                $html_backup = file_get_contents(Storage::disk(config('filesystems.default'))->path($backup->filename));
+
         }
         elseif($backup && $backup->html_backup){ //db
             $html_backup = $backup->html_backup;

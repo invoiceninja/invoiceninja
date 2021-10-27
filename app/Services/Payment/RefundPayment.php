@@ -267,8 +267,16 @@ class RefundPayment
             // $this->credit_note->ledger()->updateCreditBalance($adjustment_amount, $ledger_string);
 
             $client = $this->payment->client->fresh();
-            //$client->service()->updatePaidToDate(-1 * $this->total_refund)->save();
+            
             $client->service()->updatePaidToDate(-1 * $refunded_invoice['amount'])->save();
+        }
+        else{
+            //if we are refunding and no payments have been tagged, then we need to decrement the client->paid_to_date by the total refund amount.
+            
+            $client = $this->payment->client->fresh();
+            
+            $client->service()->updatePaidToDate(-1 * $this->total_refund)->save();
+
         }
 
         return $this;
