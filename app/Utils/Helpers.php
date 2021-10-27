@@ -273,20 +273,8 @@ class Helpers
      */
     public static function resolveFont(string $font = 'Arial'): array
     {
-        $fonts = [
-            'Arial' => '',
-            'Inter' => 'https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap',
-            'Roboto' => 'https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap',
-            'Irish Grover' => 'https://fonts.googleapis.com/css2?family=Irish+Grover&display=swap',
-        ];
-
-        if (array_key_exists($font, $fonts)) {
-            return [
-                'name' => $font,
-                'url' => $fonts[$font],
-            ];
-        }
-
-        return ['name' => 'Arial', 'url' => $fonts['Arial']];
+        return $font
+            ? ['name' => $font, 'url' => sprintf('https://fonts.googleapis.com/css2?family=%s&display=swap', $font)]
+            : ['name' => 'Arial', 'url' => ''];
     }
 }
