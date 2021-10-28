@@ -1,9 +1,6 @@
 const defaultTheme = require("tailwindcss/defaultTheme");
 
 module.exports = {
-    future: {
-        purgeLayersByDefault: true
-    },
     purge: [
         './resources/views/portal/ninja2020/**/*.blade.php',
         './resources/views/email/template/**/*.blade.php',

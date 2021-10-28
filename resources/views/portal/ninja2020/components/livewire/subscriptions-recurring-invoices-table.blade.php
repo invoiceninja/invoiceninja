@@ -47,25 +47,25 @@
                 <tbody>
                 @forelse($recurring_invoices as $recurring_invoice)
                     <tr class="bg-white group hover:bg-gray-100">
-                        <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
                             {{ $recurring_invoice->subscription->name }}
                         </td>
-                        <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
                             {{ \App\Models\RecurringInvoice::frequencyForKey($recurring_invoice->frequency_id) }}
                         </td>
-                        <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
                             <a href="{{ route('client.recurring_invoice.show', $recurring_invoice->hashed_id) }}"
                                class="button-link text-primary">
                                 {{ $recurring_invoice->number }}
                             </a>
                         </td>
-                        <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
                             {{ App\Utils\Number::formatMoney($recurring_invoice->amount, $recurring_invoice->client) }}
                         </td>
-                        <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
                             {{ $recurring_invoice->formatDate($recurring_invoice->date, $recurring_invoice->client->date_format()) }}
                         </td>
-                        <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
                             <a href="{{ route('client.recurring_invoice.show', $recurring_invoice->hashed_id) }}"
                                class="button-link text-primary">
                                 {{ ctrans('texts.view') }}
@@ -74,7 +74,7 @@
                     </tr>
                 @empty
                     <tr class="bg-white group hover:bg-gray-100">
-                        <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500" colspan="100%">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500" colspan="100%">
                             {{ ctrans('texts.no_results') }}
                         </td>
                     </tr>
