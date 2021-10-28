@@ -49,6 +49,7 @@ jobs:
           sudo rm -rf bootstrap/cache/*
           sudo rm -rf node_modules
           sudo rm -rf .git
+          sudo rm .env
 
       - name: Build project
         run: |

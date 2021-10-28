@@ -38,7 +38,7 @@
                     <button data-ref="client-profile-dropdown" @click="open = !open"
                             class="max-w-xs flex items-center text-sm rounded-full focus:outline-none focus:ring">
                         <img class="h-8 w-8 rounded-full" src="{{ auth('contact')->user()->avatar() }}" alt=""/>
-                        <span class="ml-2">{{ auth('contact')->user()->present()->name() }}</span>
+                        <span class="ml-2 hidden sm:block">{{ auth('contact')->user()->present()->name() }}</span>
                     </button>
                 </div>
                 <div x-show="open" style="display:none;" x-transition:enter="transition ease-out duration-100"
