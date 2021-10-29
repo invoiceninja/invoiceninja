@@ -42,7 +42,7 @@ class QuoteEmailedNotification implements ShouldQueue
 
         $quote = $event->invitation->quote;
         $quote->last_sent_date = now();
-        $quote->save();
+        $quote->saveQuietly();
 
         $nmo = new NinjaMailerObject;
         $nmo->mailable = new NinjaMailer( (new EntitySentObject($event->invitation, 'quote', $event->template))->build() );

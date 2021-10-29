@@ -42,7 +42,7 @@ class InvoiceEmailedNotification implements ShouldQueue
 
         $invoice = $event->invitation->invoice;
         $invoice->last_sent_date = now();
-        $invoice->save();
+        $invoice->saveQuietly();
 
         $nmo = new NinjaMailerObject;
         $nmo->mailable = new NinjaMailer( (new EntitySentObject($event->invitation, 'invoice', $event->template))->build() );
