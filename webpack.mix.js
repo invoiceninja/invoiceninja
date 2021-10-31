@@ -146,6 +146,10 @@ mix.js("resources/js/app.js", "public/js")
         "resources/js/clients/payments/stripe-przelewy24.js",
         "public/js/clients/payments/stripe-przelewy24.js"
     )
+    .js(
+        "resources/js/clients/payments/stripe-browserpay.js",
+        "public/js/clients/payments/stripe-browserpay.js"
+    )
 
 mix.copyDirectory('node_modules/card-js/card-js.min.css', 'public/css/card-js.min.css');
 
