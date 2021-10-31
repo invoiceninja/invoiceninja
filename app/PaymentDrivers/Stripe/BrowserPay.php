@@ -15,12 +15,31 @@ namespace App\PaymentDrivers\Stripe;
 use Illuminate\Http\Request;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use Illuminate\Http\RedirectResponse;
 
 class BrowserPay implements MethodInterface
 {
-    public function authorizeView(array $data) { }
+    /**
+     * Authorization page for browser pay.
+     * 
+     * @param array $data 
+     * @return RedirectResponse 
+     */
+    public function authorizeView(array $data): RedirectResponse
+    {
+        return redirect()->route('client.payment_methods.index');
+    }
 
-    public function authorizeResponse(Request $request) { }
+    /**
+     * Handle the authorization for browser pay.
+     * 
+     * @param Request $request 
+     * @return RedirectResponse 
+     */
+    public function authorizeResponse(Request $request): RedirectResponse
+    {
+        return redirect()->route('client.payment_methods.index');
+    }
 
     public function paymentView(array $data) { }
 
