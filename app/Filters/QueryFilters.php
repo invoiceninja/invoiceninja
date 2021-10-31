@@ -213,11 +213,17 @@ abstract class QueryFilters
     public function with_trashed($value)
     {
 
-        if($value == 'true'){
+        if($value == 'false'){
 
-            $this->builder->withTrashed();
+            return $this->builder->where('is_deleted', 0);
 
         }
+
+        // if($value == 'true'){
+
+        //     $this->builder->withTrashed();
+
+        // }
 
         return $this->builder;
 
