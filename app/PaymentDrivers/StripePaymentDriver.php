@@ -40,6 +40,7 @@ use App\PaymentDrivers\Stripe\EPS;
 use App\PaymentDrivers\Stripe\Bancontact;
 use App\PaymentDrivers\Stripe\BECS;
 use App\PaymentDrivers\Stripe\ACSS;
+use App\PaymentDrivers\Stripe\BrowserPay;
 use App\PaymentDrivers\Stripe\UpdatePaymentMethods;
 use App\PaymentDrivers\Stripe\Utilities;
 use App\Utils\Traits\MakesHash;
@@ -82,7 +83,7 @@ class StripePaymentDriver extends BaseDriver
         GatewayType::BANK_TRANSFER => ACH::class,
         GatewayType::ALIPAY => Alipay::class,
         GatewayType::SOFORT => SOFORT::class,
-        GatewayType::APPLE_PAY => ApplePay::class,
+        GatewayType::APPLE_PAY => BrowserPay::class,
         GatewayType::SEPA => SEPA::class,
         GatewayType::PRZELEWY24 => PRZELEWY24::class,
         GatewayType::GIROPAY => GIROPAY::class,
@@ -139,7 +140,8 @@ class StripePaymentDriver extends BaseDriver
     {
         $types = [
             // GatewayType::CRYPTO,
-            GatewayType::CREDIT_CARD
+            GatewayType::CREDIT_CARD,
+            GatewayType::APPLE_PAY,
         ];
 
         if ($this->client
