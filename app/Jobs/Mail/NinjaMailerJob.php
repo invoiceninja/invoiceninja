@@ -212,6 +212,8 @@ class NinjaMailerJob implements ShouldQueue
 
             $google->getClient()->setAccessToken(json_encode($user->oauth_user_token));
 
+            //need to slow down gmail requests otherwise we hit 429's
+            sleep(1);
         }
         catch(\Exception $e) {
             $this->logMailError('Gmail Token Invalid', $this->company->clients()->first());
@@ -224,9 +226,6 @@ class NinjaMailerJob implements ShouldQueue
          *  mail driver at runtime and also set the token which will persist
          *  just for this request.
         */
-
-        // config(['mail.driver' => 'gmail']);
-        // (new MailServiceProvider(app()))->register();
 
         $token = $user->oauth_user_token->access_token;
 
