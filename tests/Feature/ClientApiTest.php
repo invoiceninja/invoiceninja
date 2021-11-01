@@ -10,10 +10,12 @@
  */
 namespace Tests\Feature;
 
+use App\Models\Country;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Validation\ValidationException;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -38,6 +40,77 @@ class ClientApiTest extends TestCase
         $this->faker = \Faker\Factory::create();
 
         Model::reguard();
+    }
+
+    public function testClientCountryCodeValidationTrue()
+    {
+
+        $data = [
+            'name' => $this->faker->firstName,
+            'id_number' => 'Coolio',
+            'country_code' => 'AM'
+        ];
+
+        $response = false;
+
+        try{
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/clients/', $data);
+        } catch (ValidationException $e) {
+            $message = json_decode($e->validator->getMessageBag(), 1);
+            nlog($message);
+        }
+
+        $response->assertStatus(200);
+
+    }
+
+
+    public function testClientCountryCodeValidationTrueIso3()
+    {
+
+        $data = [
+            'name' => $this->faker->firstName,
+            'id_number' => 'Coolio',
+            'country_code' => 'ARM'
+        ];
+
+        $response = false;
+
+        try{
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/clients/', $data);
+        } catch (ValidationException $e) {
+            $message = json_decode($e->validator->getMessageBag(), 1);
+            nlog($message);
+        }
+
+        $response->assertStatus(200);
+
+    }
+
+
+
+    public function testClientCountryCodeValidationFalse()
+    {
+
+        $data = [
+            'name' => $this->faker->firstName,
+            'id_number' => 'Coolio',
+            'country_code' => 'AdfdfdfM'
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/clients/', $data);
+
+        $response->assertStatus(302);
+
     }
 
     public function testClientPost()
@@ -174,4 +247,45 @@ class ClientApiTest extends TestCase
 
         $this->assertTrue($arr['data'][0]['is_deleted']);
     }
+
+    public function testClientCurrencyCodeValidationTrue()
+    {
+
+        $data = [
+            'name' => $this->faker->firstName,
+            'id_number' => 'Coolio',
+            'currency_code' => 'USD'
+        ];
+
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/clients/', $data);
+
+        $response->assertStatus(200);
+
+    }
+
+    public function testClientCurrencyCodeValidationFalse()
+    {
+
+        $data = [
+            'name' => $this->faker->firstName,
+            'id_number' => 'Coolio',
+            'currency_code' => 'R'
+        ];
+
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/clients/', $data);
+
+        $response->assertStatus(302);
+
+    }
+
+
+
 }
