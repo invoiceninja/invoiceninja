@@ -53,8 +53,6 @@
         </label>
     @endcomponent
 
-    @include('portal.ninja2020.gateways.includes.save_card')
-
     @component('portal.ninja2020.components.general.card-element-single')
         <div id="payment-request-button"></div>
     @endcomponent
