@@ -91,6 +91,15 @@ class StripeBrowserPay {
                                             result.paymentIntent
                                         );
 
+                                        let tokenBillingCheckbox = document.querySelector(
+                                            'input[name="token-billing-checkbox"]:checked'
+                                        );
+                                
+                                        if (tokenBillingCheckbox) {
+                                            document.querySelector('input[name="store_card"]').value =
+                                                tokenBillingCheckbox.value;
+                                        }
+
                                         document
                                             .getElementById('server-response')
                                             .submit();
@@ -102,6 +111,15 @@ class StripeBrowserPay {
                             ).value = JSON.stringify(
                                 confirmResult.paymentIntent
                             );
+
+                            let tokenBillingCheckbox = document.querySelector(
+                                'input[name="token-billing-checkbox"]:checked'
+                            );
+                    
+                            if (tokenBillingCheckbox) {
+                                document.querySelector('input[name="store_card"]').value =
+                                    tokenBillingCheckbox.value;
+                            }
 
                             document.getElementById('server-response').submit();
                         }

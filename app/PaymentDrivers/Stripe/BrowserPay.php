@@ -112,13 +112,44 @@ class BrowserPay implements MethodInterface
 
         if ($gateway_response->status === 'succeeded') {
             if ($request->shouldStoreToken()) {
-                //
+                $this->storePaymentMethod();
             }
 
             return $this->processSuccessfulPayment();
         }
 
         return $this->processUnsuccessfulPayment();
+    }
+    
+    protected function storePaymentMethod()
+    {
+        $customer = new \stdClass;
+        $customer->id = $this->stripe->findOrCreateCustomer()->id;
+
+        $payment_method = $this->stripe->payment_hash->data->gateway_response->payment_method;
+
+        $this->stripe->attach($payment_method, $customer);
+
+        $method = $this->stripe->getStripePaymentMethod($payment_method);
+
+        try {
+            $payment_meta = new \stdClass;
+            $payment_meta->exp_month = (string) $method->card->exp_month;
+            $payment_meta->exp_year = (string) $method->card->exp_year;
+            $payment_meta->brand = (string) $method->card->brand;
+            $payment_meta->last4 = (string) $method->card->last4;
+            $payment_meta->type = GatewayType::APPLE_PAY;
+
+            $data = [
+                'payment_meta' => $payment_meta,
+                'token' => $method->id,
+                'payment_method_id' => GatewayType::APPLE_PAY,
+            ];
+
+            $this->stripe->storeGatewayToken($data, ['gateway_customer_reference' => $customer->id]);
+        } catch (\Exception $e) {
+            return $this->stripe->processInternallyFailedPayment($this->stripe, $e);
+        }
     }
 
     /**

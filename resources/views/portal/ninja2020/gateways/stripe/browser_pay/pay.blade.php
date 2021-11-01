@@ -20,11 +20,39 @@
         <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
         <input type="hidden" name="company_gateway_id" value="{{ $gateway->getCompanyGatewayId() }}">
         <input type="hidden" name="payment_method_id" value="{{ $payment_method_id }}">
+        <input type="hidden" name="store_card">
     </form>
 
     <div class="alert alert-failure mb-4" hidden id="errors"></div>
 
     @include('portal.ninja2020.gateways.includes.payment_details')
+
+    @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
+        @if(count($tokens) > 0)
+            @foreach($tokens as $token)
+                <label class="mr-4">
+                    <input
+                        type="radio"
+                        data-token="{{ $token->token }}"
+                        name="payment-type"
+                        class="form-radio cursor-pointer toggle-payment-with-token"/>
+                    <span class="ml-1 cursor-pointer">**** {{ optional($token->meta)->last4 }}</span>
+                </label>
+            @endforeach
+        @endisset
+
+        <label>
+            <input
+                type="radio"
+                id="toggle-payment-with-credit-card"
+                class="form-radio cursor-pointer"
+                name="payment-type"
+                checked/>
+            <span class="ml-1 cursor-pointer">{{ __('texts.new_card') }}</span>
+        </label>
+    @endcomponent
+
+    @include('portal.ninja2020.gateways.includes.save_card')
 
     @component('portal.ninja2020.components.general.card-element-single')
         <div id="payment-request-button"></div>
