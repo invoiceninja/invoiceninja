@@ -16,8 +16,21 @@ class StripeBrowserPay {
     }
 
     init() {
+        let config = {};
+
+        if (document.querySelector('meta[name=stripe-account-id]')) {
+            config.apiVersion = '2020-08-27';
+
+            config.stripeAccount = document.querySelector(
+                'meta[name=stripe-account-id]'
+            )?.content;
+        }
+
+        console.log(config);
+
         this.stripe = Stripe(
-            document.querySelector('meta[name=stripe-publishable-key]')?.content
+            document.querySelector('meta[name=stripe-publishable-key]')?.content,
+            config
         );
 
         this.elements = this.stripe.elements();
