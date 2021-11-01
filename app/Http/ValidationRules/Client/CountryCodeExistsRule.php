@@ -49,7 +49,7 @@ class CountryCodeExistsRule implements Rule
     private function checkIfCodeExists($value) : bool
     {
         $country = Country::where('iso_3166_2', $value)
-                        ->orWhere('iso_3166_2', $value)
+                        ->orWhere('iso_3166_3', $value)
                         ->exists();
 
         if ($country) 
