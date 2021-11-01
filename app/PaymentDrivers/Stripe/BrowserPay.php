@@ -100,8 +100,14 @@ class BrowserPay implements MethodInterface
      */
     public function paymentResponse(PaymentResponseRequest $request)
     {
-        if ($request->shouldUseToken()) {
-        }
+        // if ($request->shouldUseToken()) {
+        //     $charge = \Stripe\Charge::create([
+        //         'amount' => $this->stripe->convertToStripeAmount($this->stripe->payment_hash->data->amount_with_fee, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
+        //         'currency' => $this->stripe->client->getCurrencyCode(),
+        //         'customer' => $this->stripe->findOrCreateCustomer()->id,
+        //         'source' => $request->token,
+        //     ], $this->stripe->stripe_connect_auth);
+        // }
 
         $gateway_response = json_decode($request->gateway_response);
         
@@ -109,10 +115,9 @@ class BrowserPay implements MethodInterface
             ->withData('gateway_response', $gateway_response)
             ->withData('payment_intent', PaymentIntent::retrieve($gateway_response->id, $this->stripe->stripe_connect_auth));
 
-
         if ($gateway_response->status === 'succeeded') {
             if ($request->shouldStoreToken()) {
-                $this->storePaymentMethod();
+                // $this->storePaymentMethod();
             }
 
             return $this->processSuccessfulPayment();
