@@ -71,7 +71,7 @@ class BaseDriver extends AbstractPaymentDriver
     public $payment_method;
 
     /* PaymentHash */
-    public $payment_hash;
+    public PaymentHash $payment_hash;
 
     /* Array of payment methods */
     public static $methods = [];
