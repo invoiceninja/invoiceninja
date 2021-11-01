@@ -52,6 +52,7 @@ var StripeBrowserPay = /*#__PURE__*/function () {
   }, {
     key: "handlePaymentRequestEvents",
     value: function handlePaymentRequestEvents(stripe, clientSecret) {
+      document.querySelector('#errors').hidden = true;
       this.paymentRequest.on('paymentmethod', function (ev) {
         stripe.confirmCardPayment(clientSecret, {
           payment_method: ev.paymentMethod.id
@@ -62,14 +63,17 @@ var StripeBrowserPay = /*#__PURE__*/function () {
 
           if (confirmResult.error) {
             ev.complete('fail');
+            document.querySelector('#errors').innerText = confirmResult.error.message;
+            document.querySelector('#errors').hidden = false;
           } else {
             ev.complete('success');
 
             if (confirmResult.paymentIntent.status === 'requires_action') {
-              // Let Stripe.js handle the rest of the payment flow.
               stripe.confirmCardPayment(clientSecret).then(function (result) {
                 if (result.error) {
                   ev.complete('fail');
+                  document.querySelector('#errors').innerText = result.error.message;
+                  document.querySelector('#errors').hidden = false;
                 } else {
                   document.querySelector('input[name="gateway_response"]').value = JSON.stringify(result.paymentIntent);
                   document.getElementById('server-response').submit();
