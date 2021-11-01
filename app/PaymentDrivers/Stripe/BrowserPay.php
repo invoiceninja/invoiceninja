@@ -12,15 +12,22 @@
 
 namespace App\PaymentDrivers\Stripe;
 
-use Illuminate\Http\Request;
-use App\PaymentDrivers\Common\MethodInterface;
+use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Jobs\Util\SystemLogger;
+use App\Models\GatewayType;
+use App\Models\Payment;
+use App\Models\PaymentType;
+use App\Models\SystemLog;
+use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\StripePaymentDriver;
 use App\Utils\Ninja;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Stripe\ApplePayDomain;
 use Stripe\Exception\ApiErrorException;
+use Stripe\PaymentIntent;
 
 class BrowserPay implements MethodInterface
 {
@@ -37,9 +44,9 @@ class BrowserPay implements MethodInterface
 
     /**
      * Authorization page for browser pay.
-     * 
-     * @param array $data 
-     * @return RedirectResponse 
+     *
+     * @param array $data
+     * @return RedirectResponse
      */
     public function authorizeView(array $data): RedirectResponse
     {
@@ -48,9 +55,9 @@ class BrowserPay implements MethodInterface
 
     /**
      * Handle the authorization for browser pay.
-     * 
-     * @param Request $request 
-     * @return RedirectResponse 
+     *
+     * @param Request $request
+     * @return RedirectResponse
      */
     public function authorizeResponse(Request $request): RedirectResponse
     {
@@ -82,16 +89,110 @@ class BrowserPay implements MethodInterface
             'requestPayerEmail' => true
         ];
 
-        return render('gateways.stripe.browser_pay.pay', $data);   
+        return render('gateways.stripe.browser_pay.pay', $data);
     }
 
-    public function paymentResponse(PaymentResponseRequest $request) {}
+    /**
+     * Handle payment response for browser pay.
+     *
+     * @param PaymentResponseRequest $request
+     * @return RedirectResponse|App\PaymentDrivers\Stripe\never
+     */
+    public function paymentResponse(PaymentResponseRequest $request)
+    {
+        if ($request->shouldUseToken()) {
+        }
+
+        $gateway_response = json_decode($request->gateway_response);
+        
+        $this->stripe->payment_hash
+            ->withData('gateway_response', $gateway_response)
+            ->withData('payment_intent', PaymentIntent::retrieve($gateway_response->id, $this->stripe->stripe_connect_auth));
+
+
+        if ($gateway_response->status === 'succeeded') {
+            if ($request->shouldStoreToken()) {
+                //
+            }
+
+            return $this->processSuccessfulPayment();
+        }
+
+        return $this->processUnsuccessfulPayment();
+    }
+
+    /**
+     * Handle successful payment for browser pay.
+     *
+     * @return RedirectResponse
+     */
+    protected function processSuccessfulPayment()
+    {
+        $gateway_response = $this->stripe->payment_hash->data->gateway_response;
+        $payment_intent = $this->stripe->payment_hash->data->payment_intent;
+
+        $this->stripe->logSuccessfulGatewayResponse(['response' => $gateway_response, 'data' => $this->stripe->payment_hash], SystemLog::TYPE_STRIPE);
+
+        $payment_method = $this->stripe->getStripePaymentMethod($gateway_response->payment_method);
+
+        $data = [
+            'payment_method' => $gateway_response->payment_method,
+            'payment_type' => PaymentType::parseCardType(strtolower($payment_method->card->brand)),
+            'amount' => $this->stripe->convertFromStripeAmount($gateway_response->amount, $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
+            'transaction_reference' => optional($payment_intent->charges->data[0])->id,
+            'gateway_type_id' => GatewayType::APPLE_PAY,
+        ];
+
+        $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['amount' => $data['amount']]);
+        $this->stripe->payment_hash->save();
+
+        $payment = $this->stripe->createPayment($data, Payment::STATUS_COMPLETED);
+
+        SystemLogger::dispatch(
+            ['response' => $gateway_response, 'data' => $data],
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_SUCCESS,
+            SystemLog::TYPE_STRIPE,
+            $this->stripe->client,
+            $this->stripe->client->company,
+        );
+
+        return redirect()->route('client.payments.show', ['payment' => $this->stripe->encodePrimaryKey($payment->id)]);
+    }
+
+    /**
+     * Handle unsuccessful payment for browser pay.
+     *
+     * @return never
+     */
+    protected function processUnsuccessfulPayment()
+    {
+        $server_response = $this->stripe->payment_hash->data->gateway_response;
+
+        $this->stripe->sendFailureMail($server_response->cancellation_reason);
+
+        $message = [
+            'server_response' => $server_response,
+            'data' => $this->stripe->payment_hash->data,
+        ];
+
+        SystemLogger::dispatch(
+            $message,
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_FAILURE,
+            SystemLog::TYPE_STRIPE,
+            $this->stripe->client,
+            $this->stripe->client->company,
+        );
+
+        throw new PaymentFailed('Failed to process the payment.', 500);
+    }
 
     /**
      * Ensure Apple Pay domain is verified.
-     * 
-     * @return void 
-     * @throws ApiErrorException 
+     *
+     * @return void
+     * @throws ApiErrorException
      */
     protected function ensureApplePayDomainIsValidated()
     {

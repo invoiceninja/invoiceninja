@@ -56,17 +56,10 @@ class StripeBrowserPay {
                     console.log('confirmResult', confirmResult);
 
                     if (confirmResult.error) {
-                        // Report to the browser that the payment failed, prompting it to
-                        // re-show the payment interface, or show an error message and close
-                        // the payment interface.
                         ev.complete('fail');
                     } else {
-                        // Report to the browser that the confirmation was successful, prompting
-                        // it to close the browser payment method collection interface.
                         ev.complete('success');
-                        // Check if the PaymentIntent requires any actions and if so let Stripe.js
-                        // handle the flow. If using an API version older than "2019-02-11"
-                        // instead check for: `paymentIntent.status === "requires_source_action"`.
+
                         if (
                             confirmResult.paymentIntent.status ===
                             'requires_action'
@@ -78,15 +71,45 @@ class StripeBrowserPay {
                                     if (result.error) {
                                         ev.complete('fail');
                                     } else {
-                                        // The payment has succeeded.
+                                        document.querySelector(
+                                            'input[name="gateway_response"]'
+                                        ).value = JSON.stringify(
+                                            result.paymentIntent
+                                        );
+
+                                        document
+                                            .getElementById('server-response')
+                                            .submit();
                                     }
                                 });
                         } else {
-                            // The payment has succeeded.
+                            document.querySelector(
+                                'input[name="gateway_response"]'
+                            ).value = JSON.stringify(
+                                confirmResult.paymentIntent
+                            );
+
+                            document.getElementById('server-response').submit();
                         }
                     }
                 });
         });
+    }
+
+    handleSuccess(result) {
+        document.querySelector('input[name="gateway_response"]').value =
+            JSON.stringify(result.paymentIntent);
+
+        let tokenBillingCheckbox = document.querySelector(
+            'input[name="token-billing-checkbox"]:checked'
+        );
+
+        if (tokenBillingCheckbox) {
+            document.querySelector('input[name="store_card"]').value =
+                tokenBillingCheckbox.value;
+        }
+
+        document.getElementById('server-response').submit();
     }
 
     handle() {
