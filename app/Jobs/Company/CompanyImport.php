@@ -1032,10 +1032,12 @@ class CompanyImport implements ShouldQueue
             unset($user_array['hashed_id']);
             unset($user_array['id']);
 
-            $new_user = User::firstOrNew(
+            /*Make sure we are searching for archived users also and restore if we find them.*/
+
+            $new_user = User::withTrashed()->firstOrNew(
                 ['email' => $user->email],
                 $user_array,
-            );
+            )->restore();
 
             $new_user->account_id = $this->account->id;
             $new_user->save(['timestamps' => false]);
@@ -1062,10 +1064,10 @@ class CompanyImport implements ShouldQueue
             unset($cu_array['company_id']);
             unset($cu_array['user_id']);
 
-            $new_cu = CompanyUser::firstOrNew(
+            $new_cu = CompanyUser::withTrashed()->firstOrNew(
                         ['user_id' => $user_id, 'company_id' => $this->company->id],
                         $cu_array,
-                    );
+                    )->restore();
 
             $new_cu->account_id = $this->account->id;
             $new_cu->save(['timestamps' => false]);
