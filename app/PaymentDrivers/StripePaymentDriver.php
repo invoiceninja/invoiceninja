@@ -224,7 +224,7 @@ class StripePaymentDriver extends BaseDriver
             && isset($this->client->country)
             && in_array($this->client->country->iso_3166_2, ['AE', 'AT', 'AU', 'BE', 'BG', 'BR', 'CA', 'CH', 'CI', 'CR', 'CY', 'CZ', 'DE', 'DK', 'DO', 'EE', 'ES', 'FI', 'FR', 'GB', 'GI', 'GR', 'GT', 'HK', 'HU', 'ID', 'IE', 'IN', 'IT', 'JP', 'LI', 'LT', 'LU', 'LV', 'MT', 'MX', 'MY', 'NL', 'NO', 'NZ', 'PE', 'PH', 'PL', 'PT', 'RO', 'SE', 'SG', 'SI', 'SK', 'SN', 'TH', 'TT', 'US', 'UY'])
         ) {
-            $types[] = GatewayType::SOFORT;
+            $types[] = GatewayType::APPLE_PAY;
         }
 
         return $types;

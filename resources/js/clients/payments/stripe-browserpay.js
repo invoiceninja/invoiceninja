@@ -26,10 +26,9 @@ class StripeBrowserPay {
             )?.content;
         }
 
-        console.log(config);
-
         this.stripe = Stripe(
-            document.querySelector('meta[name=stripe-publishable-key]')?.content,
+            document.querySelector('meta[name=stripe-publishable-key]')
+                ?.content,
             config
         );
 
@@ -68,8 +67,6 @@ class StripeBrowserPay {
                     { handleActions: false }
                 )
                 .then(function (confirmResult) {
-                    console.log('confirmResult', confirmResult);
-
                     if (confirmResult.error) {
                         ev.complete('fail');
 
@@ -104,18 +101,6 @@ class StripeBrowserPay {
                                             result.paymentIntent
                                         );
 
-                                        let tokenBillingCheckbox =
-                                            document.querySelector(
-                                                'input[name="token-billing-checkbox"]:checked'
-                                            );
-
-                                        if (tokenBillingCheckbox) {
-                                            document.querySelector(
-                                                'input[name="store_card"]'
-                                            ).value =
-                                                tokenBillingCheckbox.value;
-                                        }
-
                                         document
                                             .getElementById('server-response')
                                             .submit();
@@ -128,37 +113,11 @@ class StripeBrowserPay {
                                 confirmResult.paymentIntent
                             );
 
-                            let tokenBillingCheckbox = document.querySelector(
-                                'input[name="token-billing-checkbox"]:checked'
-                            );
-
-                            if (tokenBillingCheckbox) {
-                                document.querySelector(
-                                    'input[name="store_card"]'
-                                ).value = tokenBillingCheckbox.value;
-                            }
-
                             document.getElementById('server-response').submit();
                         }
                     }
                 });
         });
-    }
-
-    handleSuccess(result) {
-        document.querySelector('input[name="gateway_response"]').value =
-            JSON.stringify(result.paymentIntent);
-
-        let tokenBillingCheckbox = document.querySelector(
-            'input[name="token-billing-checkbox"]:checked'
-        );
-
-        if (tokenBillingCheckbox) {
-            document.querySelector('input[name="store_card"]').value =
-                tokenBillingCheckbox.value;
-        }
-
-        document.getElementById('server-response').submit();
     }
 
     handle() {
@@ -180,50 +139,6 @@ class StripeBrowserPay {
         });
 
         this.handlePaymentRequestEvents(this.stripe, this.clientSecret);
-
-        Array.from(
-            document.getElementsByClassName('toggle-payment-with-token')
-        ).forEach((element) =>
-            element.addEventListener('click', (element) => {
-                document
-                    .getElementById('payment-request-button')
-                    .classList.add('hidden');
-                document.getElementById('save-card--container').style.display =
-                    'none';
-                document.querySelector('input[name=token]').value =
-                    element.target.dataset.token;
-
-                document.querySelector(
-                    '.pay-now-button-container'
-                ).style.display = 'block';
-            })
-        );
-
-        document
-            .getElementById('toggle-payment-with-credit-card')
-            .addEventListener('click', (element) => {
-                document
-                    .getElementById('payment-request-button')
-                    .classList.remove('hidden');
-                document.getElementById('save-card--container').style.display =
-                    'grid';
-                document.querySelector('input[name=token]').value = '';
-
-                document.querySelector(
-                    '.pay-now-button-container'
-                ).style.display = 'none';
-            });
-
-        document
-            .getElementById('pay-now')
-            .addEventListener('click', (event) => {
-                event.target.parentElement.disabled = true;
-
-                document.querySelector('#server-response').submit();
-            });
-
-        document.querySelector('.pay-now-button-container').style.display =
-            'none';
     }
 }
 
