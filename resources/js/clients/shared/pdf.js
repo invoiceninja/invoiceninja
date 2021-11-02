@@ -15,11 +15,11 @@ class PDF {
         this.context = canvas.getContext('2d');
         this.currentPage = 1;
         this.maxPages = 1;
-        this.currentScale = 0.75;
+        this.currentScale = 1.25;
         this.currentScaleText = document.getElementById('zoom-level');
 
         if (matchMedia('only screen and (max-width: 480px)').matches) {
-            this.currentScale = 0.5;
+            this.currentScale = 1.25;
         }
 
         this.currentScaleText.textContent = this.currentScale * 100 + '%';
