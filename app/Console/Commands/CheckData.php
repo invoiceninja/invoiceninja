@@ -99,7 +99,7 @@ class CheckData extends Command
             config(['database.default' => $database]);
         }
 
-        $this->checkInvoiceBalances();
+        // $this->checkInvoiceBalances();
         $this->checkInvoicePayments();
         $this->checkPaidToDates();
         // $this->checkPaidToCompanyDates();
@@ -406,6 +406,79 @@ class CheckData extends Command
     //     });
 
     // }
+    private function clientPaidToDateQuery()
+    {
+        $results = \DB::select( \DB::raw("
+         SELECT 
+         clients.id as client_id, 
+         clients.paid_to_date as client_paid_to_date,
+         SUM(coalesce(payments.amount - payments.refunded,0)) as payments_applied
+         FROM clients 
+         INNER JOIN
+         payments ON 
+         clients.id=payments.client_id 
+         WHERE payments.status_id IN (1,4,5,6)
+         AND clients.is_deleted = false
+         AND payments.is_deleted = false
+         GROUP BY clients.id
+         HAVING payments_applied != client_paid_to_date
+         ORDER BY clients.id;
+        ") );
+    
+        return $results;
+    }
+
+    private function clientCreditPaymentables($client)
+    {
+        $results = \DB::select( \DB::raw("
+        SELECT 
+        SUM(paymentables.amount - paymentables.refunded) as credit_payment
+        FROM payments
+        LEFT JOIN paymentables
+        ON
+        payments.id = paymentables.payment_id
+        WHERE paymentable_type = 'App\\Models\\Credit'
+        AND paymentables.deleted_at is NULL
+        AND payments.client_id = 85;
+        ") );
+    
+        return $results;
+    }
+
+    private function checkPaidToDatesNew()
+    {
+        $clients_to_check = $this->clientPaidToDateQuery();
+
+        $this->wrong_paid_to_dates = 0;
+    
+        foreach($clients_to_check as $_client)
+        {
+            $client = Client::find($_client['client_id']);
+
+            $credits_used_for_payments = $this->clientCreditPaymentables($client);
+
+            $total_paid_to_date = $_client['payments_applied'] + $credits_used_for_payments['credit_payment'];
+
+            if(round($total_paid_to_date,2) != round($_client['client_paid_to_date'],2)){
+
+                $this->wrong_paid_to_dates++;
+
+                $this->logMessage($client->present()->name.' id = # '.$client->id." - Paid to date does not match Client Paid To Date = {$client->paid_to_date} - Invoice Payments = {$total_paid_to_date}");
+
+                $this->isValid = false;
+
+                if($this->option('paid_to_date')){
+                    $this->logMessage("# {$client->id} " . $client->present()->name.' - '.$client->number." Fixing {$client->paid_to_date} to {$total_paid_to_date}");
+                    $client->paid_to_date = $total_paid_to_date;
+                    $client->save();
+                }
+
+            }
+
+        }
+    }
+
+
 
     private function checkPaidToDates()
     {
@@ -496,8 +569,6 @@ class CheckData extends Command
                                     ->pluck('p')
                                     ->first();
 
-                // $total_paid = $total_amount - $total_refund;
-
                 $total_credit = $invoice->credits()->get()->sum('amount');
 
                 $calculated_paid_amount = $invoice->amount - $invoice->balance - $total_credit;
@@ -543,7 +614,32 @@ class CheckData extends Command
 
 
 
-
+    private function clientBalanceQuery()
+    {
+        $results = \DB::select( \DB::raw("
+         SELECT 
+         SUM(invoices.balance) as invoice_balance, 
+         SUM(credits.balance) as credit_balance, 
+         clients.id as client_id, 
+         clients.balance as client_balance
+         FROM invoices 
+         INNER JOIN
+         clients ON 
+         clients.id=invoices.client_id 
+         INNER JOIN
+         credits ON
+         credits.client_id = clients.id
+         WHERE invoices.is_deleted = false 
+         AND invoices.status_id > 1 
+         AND credits.is_deleted = false
+         AND credits.status_id > 1
+         GROUP BY clients.id
+         HAVING invoice_balance != clients.balance
+         ORDER BY clients.id;
+        ") );
+    
+        return $results;
+    }
 
 
 
@@ -553,25 +649,61 @@ class CheckData extends Command
         $this->wrong_balances = 0;
         $this->wrong_paid_to_dates = 0;
 
-        foreach (Client::cursor()->where('is_deleted', 0)->where('clients.updated_at', '>', now()->subDays(2)) as $client) {
-            //$invoice_balance = $client->invoices->where('is_deleted', false)->where('status_id', '>', 1)->sum('balance');
-            $invoice_balance = Invoice::where('client_id', $client->id)->where('is_deleted', false)->where('status_id', '>', 1)->withTrashed()->sum('balance');
-            $credit_balance = Credit::where('client_id', $client->id)->where('is_deleted', false)->withTrashed()->sum('balance');
+        $clients = $this->clientBalanceQuery();
 
-            /*Legacy - V4 will add credits to the balance - we may need to reverse engineer this and remove the credits from the client balance otherwise we need this hack here and in the invoice balance check.*/
-            if($client->balance != $invoice_balance)
-                $invoice_balance -= $credit_balance;
+        foreach($clients as $client)
+        {
+            $client = (array)$client;
+            
+            $invoice_balance = $client['invoice_balance'] - $client['credit_balance'];
 
-            $ledger = CompanyLedger::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
+            $ledger = CompanyLedger::where('client_id', $client['client_id'])->orderBy('id', 'DESC')->first();
 
-            if ($ledger && (string) $invoice_balance != (string) $client->balance) {
+            if ($ledger && (string) $invoice_balance != (string) $client['client_balance']) {
                 $this->wrong_paid_to_dates++;
-                $this->logMessage($client->present()->name.' - '.$client->id." - calculated client balances do not match Invoice Balances = {$invoice_balance} - Client Balance = ".rtrim($client->balance, '0'). " Ledger balance = {$ledger->balance}");
 
-                $this->isValid = false;
+                $client_object = Client::find($client['client_id']);
 
+                $this->logMessage($client_object->present()->name.' - '.$client_object->id." - calculated client balances do not match Invoice Balances = {$invoice_balance} - Client Balance = ".rtrim($client['client_balance'], '0'). " Ledger balance = {$ledger->balance}");
+ 
+     
+                if($this->option('client_balance')){
+                    
+                    $this->logMessage("# {$client_object->id} " . $client_object->present()->name.' - '.$client_object->number." Fixing {$client_object->balance} to {$invoice_balance}");
+                    $client->balance = $invoice_balance;
+                    $client->save();
+
+                    $ledger->adjustment = $invoice_balance;
+                    $ledger->balance = $invoice_balance;
+                    $ledger->notes = 'Ledger Adjustment';
+                    $ledger->save();
+                }
+
+
+            $this->isValid = false;
+            
             }
+
         }
+
+        // foreach (Client::cursor()->where('is_deleted', 0)->where('clients.updated_at', '>', now()->subDays(2)) as $client) {
+
+        //     $invoice_balance = Invoice::where('client_id', $client->id)->where('is_deleted', false)->where('status_id', '>', 1)->withTrashed()->sum('balance');
+        //     $credit_balance = Credit::where('client_id', $client->id)->where('is_deleted', false)->withTrashed()->sum('balance');
+
+        //     if($client->balance != $invoice_balance)
+        //         $invoice_balance -= $credit_balance;
+
+        //     $ledger = CompanyLedger::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
+
+        //     if ($ledger && (string) $invoice_balance != (string) $client->balance) {
+        //         $this->wrong_paid_to_dates++;
+        //         $this->logMessage($client->present()->name.' - '.$client->id." - calculated client balances do not match Invoice Balances = {$invoice_balance} - Client Balance = ".rtrim($client->balance, '0'). " Ledger balance = {$ledger->balance}");
+
+        //         $this->isValid = false;
+
+        //     }
+        // }
 
         $this->logMessage("{$this->wrong_paid_to_dates} clients with incorrect client balances");
     }

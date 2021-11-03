@@ -13,7 +13,7 @@
     "/js/clients/payments/stripe-credit-card.js": "/js/clients/payments/stripe-credit-card.js?id=ea4250be693260798735",
     "/js/setup/setup.js": "/js/setup/setup.js?id=6b870beeb350d83668c5",
     "/js/clients/payments/card-js.min.js": "/js/clients/payments/card-js.min.js?id=8ce33c3deae058ad314f",
-    "/js/clients/shared/pdf.js": "/js/clients/shared/pdf.js?id=8dc6dd2bab2a56bc86bb",
+    "/js/clients/shared/pdf.js": "/js/clients/shared/pdf.js?id=73a0d914ad3577f257f4",
     "/js/clients/shared/multiple-downloads.js": "/js/clients/shared/multiple-downloads.js?id=c2caa29f753ad1f3a12c",
     "/js/clients/linkify-urls.js": "/js/clients/linkify-urls.js?id=448d055fa1e8357130e6",
     "/js/clients/payments/braintree-credit-card.js": "/js/clients/payments/braintree-credit-card.js?id=a334dd9257dd510a1feb",
@@ -36,7 +36,6 @@
     "/js/clients/payments/stripe-eps.js": "/js/clients/payments/stripe-eps.js?id=1ed972f879869de66c8a",
     "/js/clients/payments/stripe-ideal.js": "/js/clients/payments/stripe-ideal.js?id=73ce56676f9252b0cecf",
     "/js/clients/payments/stripe-przelewy24.js": "/js/clients/payments/stripe-przelewy24.js?id=f3a14f78bec8209c30ba",
-    "/js/clients/payments/stripe-browserpay.js": "/js/clients/payments/stripe-browserpay.js?id=71e49866d66a6d85b88a",
-    "/css/app.css": "/css/app.css?id=317a907834a0db9f8d41",
+    "/css/app.css": "/css/app.css?id=6d7f6103a3a7738d363b",
     "/css/card-js.min.css": "/css/card-js.min.css?id=62afeb675235451543ad"
 }
