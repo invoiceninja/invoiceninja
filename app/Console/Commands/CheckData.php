@@ -406,6 +406,79 @@ class CheckData extends Command
     //     });
 
     // }
+    private function clientPaidToDateQuery()
+    {
+        $results = \DB::select( \DB::raw("
+         SELECT 
+         clients.id as client_id, 
+         clients.paid_to_date as client_paid_to_date,
+         SUM(coalesce(payments.amount - payments.refunded,0)) as payments_applied
+         FROM clients 
+         INNER JOIN
+         payments ON 
+         clients.id=payments.client_id 
+         WHERE payments.status_id IN (1,4,5,6)
+         AND clients.is_deleted = false
+         AND payments.is_deleted = false
+         GROUP BY clients.id
+         HAVING payments_applied != client_paid_to_date
+         ORDER BY clients.id;
+        ") );
+    
+        return $results;
+    }
+
+    private function clientCreditPaymentables($client)
+    {
+        $results = \DB::select( \DB::raw("
+        SELECT 
+        SUM(paymentables.amount - paymentables.refunded) as credit_payment
+        FROM payments
+        LEFT JOIN paymentables
+        ON
+        payments.id = paymentables.payment_id
+        WHERE paymentable_type = 'App\\Models\\Credit'
+        AND paymentables.deleted_at is NULL
+        AND payments.client_id = 85;
+        ") );
+    
+        return $results;
+    }
+
+    private function checkPaidToDatesNew()
+    {
+        $clients_to_check = $this->clientPaidToDateQuery();
+
+        $this->wrong_paid_to_dates = 0;
+    
+        foreach($clients_to_check as $_client)
+        {
+            $client = Client::find($_client['client_id']);
+
+            $credits_used_for_payments = $this->clientCreditPaymentables($client);
+
+            $total_paid_to_date = $_client['payments_applied'] + $credits_used_for_payments['credit_payment'];
+
+            if(round($total_paid_to_date,2) != round($_client['client_paid_to_date'],2)){
+
+                $this->wrong_paid_to_dates++;
+
+                $this->logMessage($client->present()->name.' id = # '.$client->id." - Paid to date does not match Client Paid To Date = {$client->paid_to_date} - Invoice Payments = {$total_paid_to_date}");
+
+                $this->isValid = false;
+
+                if($this->option('paid_to_date')){
+                    $this->logMessage("# {$client->id} " . $client->present()->name.' - '.$client->number." Fixing {$client->paid_to_date} to {$total_paid_to_date}");
+                    $client->paid_to_date = $total_paid_to_date;
+                    $client->save();
+                }
+
+            }
+
+        }
+    }
+
+
 
     private function checkPaidToDates()
     {
@@ -580,6 +653,8 @@ class CheckData extends Command
 
         foreach($clients as $client)
         {
+            $client = (array)$client;
+            
             $invoice_balance = $client['invoice_balance'] - $client['credit_balance'];
 
             $ledger = CompanyLedger::where('client_id', $client['client_id'])->orderBy('id', 'DESC')->first();
