@@ -50,7 +50,7 @@ class ACH
         $data = $request->all();
         // authorize the credit card
         
-        nlog($data);
+        //nlog($data);
         /*
           '_token' => '1Fk5CRj34up5ntKPvrFyMIAJhDdUNF3boqT3iIN3',
           'company_gateway_id' => '39',

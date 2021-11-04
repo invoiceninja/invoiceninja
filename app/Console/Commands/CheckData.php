@@ -693,7 +693,7 @@ ORDER BY clients.id;
             if ($ledger && (string) $invoice_balance != (string) $client['client_balance']) {
                 $this->wrong_paid_to_dates++;
 
-                $client_object = Client::find($client['client_id']);
+                $client_object = Client::withTrashed()->find($client['client_id']);
 
                 $this->logMessage($client_object->present()->name.' - '.$client_object->id." - calculated client balances do not match Invoice Balances = {$invoice_balance} - Client Balance = ".rtrim($client['client_balance'], '0'). " Ledger balance = {$ledger->balance}");
  
