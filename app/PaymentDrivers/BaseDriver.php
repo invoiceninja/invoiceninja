@@ -70,8 +70,8 @@ class BaseDriver extends AbstractPaymentDriver
     /* The initialized gateway driver class*/
     public $payment_method;
 
-    /* PaymentHash */
-    public ?PaymentHash $payment_hash = null;
+    /* @var \App\Models\PaymentHash|null */
+    public $payment_hash;
 
     /* Array of payment methods */
     public static $methods = [];
