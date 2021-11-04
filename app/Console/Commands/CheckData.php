@@ -648,25 +648,19 @@ ORDER BY clients.id;
     private function clientBalanceQuery()
     {
         $results = \DB::select( \DB::raw("
-         SELECT 
-         SUM(invoices.balance) as invoice_balance, 
-         SUM(credits.balance) as credit_balance, 
-         clients.id as client_id, 
-         clients.balance as client_balance
-         FROM invoices 
-         INNER JOIN
-         clients ON 
-         clients.id=invoices.client_id 
-         INNER JOIN
-         credits ON
-         credits.client_id = clients.id
-         WHERE invoices.is_deleted = false 
-         AND invoices.status_id > 1 
-         AND credits.is_deleted = false
-         AND credits.status_id > 1
-         GROUP BY clients.id
-         HAVING invoice_balance != clients.balance
-         ORDER BY clients.id;
+        SELECT         
+        SUM(invoices.balance) as invoice_balance, 
+        clients.id as client_id, 
+        clients.balance as client_balance
+        FROM clients
+        LEFT JOIN
+        invoices ON 
+        clients.id=invoices.client_id 
+        WHERE invoices.is_deleted = false 
+        AND invoices.status_id > 1 
+        GROUP BY clients.id
+        HAVING invoice_balance != clients.balance
+        ORDER BY clients.id;
         ") );
     
         return $results;
@@ -686,7 +680,12 @@ ORDER BY clients.id;
         {
             $client = (array)$client;
             
-            $invoice_balance = $client['invoice_balance'] - $client['credit_balance'];
+            // $credit_balance = Credit::withTrashed()->where('is_deleted', 0)
+            //                                        ->where('client_id', $client['client_id'])
+            //                                        ->where('status_id', '>', 1)->sum('balance');
+
+            // $invoice_balance = $client['invoice_balance'] - $credit_balance;
+            $invoice_balance = $client['invoice_balance'];
 
             $ledger = CompanyLedger::where('client_id', $client['client_id'])->orderBy('id', 'DESC')->first();
 
@@ -701,8 +700,8 @@ ORDER BY clients.id;
                 if($this->option('client_balance')){
                     
                     $this->logMessage("# {$client_object->id} " . $client_object->present()->name.' - '.$client_object->number." Fixing {$client_object->balance} to {$invoice_balance}");
-                    $client->balance = $invoice_balance;
-                    $client->save();
+                    $client_object->balance = $invoice_balance;
+                    $client_object->save();
 
                     $ledger->adjustment = $invoice_balance;
                     $ledger->balance = $invoice_balance;
