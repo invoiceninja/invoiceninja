@@ -203,8 +203,8 @@ class PayFastPaymentDriver extends BaseDriver
     {
 
         $data = $request->all();
-        nlog("payfast");
-        nlog($data);
+        // nlog("payfast");
+        // nlog($data);
 
         if(array_key_exists('m_payment_id', $data))
         {
