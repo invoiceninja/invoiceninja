@@ -15,7 +15,7 @@ class Onboarding extends Migration
     {
         Schema::table('accounts', function (Blueprint $table) {
             $table->boolean('is_onboarding')->default(false);
-            $table->json('onboarding')->nullable();
+            $table->mediumText('onboarding')->nullable();
         });
     }
 }
