@@ -67,6 +67,10 @@ class Account extends BaseModel
         // 'plan_expires'
     ];
 
+    protected $casts = [
+        'onboarding' => 'object'
+    ];
+
     const PLAN_FREE = 'free';
     const PLAN_PRO = 'pro';
     const PLAN_ENTERPRISE = 'enterprise';
