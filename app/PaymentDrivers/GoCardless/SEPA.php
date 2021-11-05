@@ -164,6 +164,8 @@ class SEPA implements MethodInterface
             $this->decodePrimaryKey($request->source)
         )->firstOrFail();
 
+        $this->go_cardless->ensureMandateIsReady($token);
+
         try {
             $payment = $this->go_cardless->gateway->payments()->create([
                 'params' => [

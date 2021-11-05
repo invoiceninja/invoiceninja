@@ -11,6 +11,7 @@
 
 namespace App\PaymentDrivers;
 
+use App\Events\Payment\PaymentFailed;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
@@ -257,5 +258,18 @@ class GoCardlessPaymentDriver extends BaseDriver
         }
 
         return response()->json([], 200);
+    }
+
+    public function ensureMandateIsReady(ClientGatewayToken $cgt)
+    {
+        try {
+            $mandate = $this->gateway->mandates()->get($cgt->token);
+
+            if ($mandate->status !== 'active') {
+                throw new \Exception(ctrans('texts.gocardless_mandate_not_ready'));
+            }
+        } catch (\Exception $exception) {
+            throw new \App\Exceptions\PaymentFailed($exception->getMessage());
+        }
     }
 }
