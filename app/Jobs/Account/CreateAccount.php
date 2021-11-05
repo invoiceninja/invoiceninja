@@ -116,7 +116,7 @@ class CreateAccount
         $spaa9f78->fresh();
 
         if(Ninja::isHosted()){
-nlog("welcome");
+
             App::forgetInstance('translator');
             $t = app('translator');
             $t->replace(Ninja::transformTranslations($sp035a66->settings));

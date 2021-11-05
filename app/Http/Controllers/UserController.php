@@ -19,6 +19,7 @@ use App\Factory\UserFactory;
 use App\Filters\UserFilters;
 use App\Http\Controllers\Traits\VerifiesUserEmail;
 use App\Http\Requests\User\AttachCompanyUserRequest;
+use App\Http\Requests\User\BulkUserRequest;
 use App\Http\Requests\User\CreateUserRequest;
 use App\Http\Requests\User\DestroyUserRequest;
 use App\Http\Requests\User\DetachCompanyUserRequest;
@@ -534,8 +535,9 @@ class UserController extends BaseController
      *       ),
      *     )
      */
-    public function bulk()
+    public function bulk(BulkUserRequest $request)
     {
+        /* Validate restore() here and check if restoring the user will exceed their user quote (hosted only)*/
         $action = request()->input('action');
 
         $ids = request()->input('ids');

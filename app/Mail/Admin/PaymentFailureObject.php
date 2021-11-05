@@ -33,7 +33,7 @@ class PaymentFailureObject
 
     public $amount;
 
-    public PaymentHash $payment_hash;
+    public ?PaymentHash $payment_hash;
     // private $invoices;
 
     /**
