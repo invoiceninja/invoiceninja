@@ -68,6 +68,9 @@ class Account extends BaseModel
     ];
 
     protected $casts = [
+        'updated_at' => 'timestamp',
+        'created_at' => 'timestamp',
+        'deleted_at' => 'timestamp',
         'onboarding' => 'object'
     ];
 
