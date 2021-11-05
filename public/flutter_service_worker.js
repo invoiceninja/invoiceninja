@@ -6,7 +6,7 @@ const RESOURCES = {
   "icons/Icon-512.png": "0f9aff01367f0a0c69773d25ca16ef35",
 "icons/Icon-192.png": "bb1cf5f6982006952211c7c8404ffbed",
 "favicon.png": "dca91c54388f52eded692718d5a98b8b",
-"/": "77f72446363e91cf6b38ac9bc4e148bb",
+"/": "32c75323540a7970ce92e577281011dd",
 "manifest.json": "ef43d90e57aa7682d7e2cfba2f484a40",
 "favicon.ico": "51636d3a390451561744c42188ccd628",
 "version.json": "3930722e1581f582eefe59c75ab50c99",
@@ -34,7 +34,7 @@ const RESOURCES = {
 "assets/assets/images/google_logo.png": "0f118259ce403274f407f5e982e681c3",
 "assets/assets/images/logo_light.png": "e5f46d5a78e226e7a9553d4ca6f69219",
 "assets/AssetManifest.json": "38d9aea341601f3a5c6fa7b5a1216ea5",
-"main.dart.js": "5172be57f1d563daff891a5388cf2411"
+"main.dart.js": "0199f156f81a1aad3cb2f10be4d7b78a"
 };
 
 // The application shell files that are downloaded before a service worker can
