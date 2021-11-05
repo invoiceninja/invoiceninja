@@ -484,6 +484,9 @@ class CheckData extends Command
             }
 
         }
+
+        $this->logMessage("{$this->wrong_paid_to_dates} clients with incorrect paid to dates");
+
     }
 
 
