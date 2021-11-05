@@ -536,6 +536,7 @@ class UserController extends BaseController
      */
     public function bulk()
     {
+        /* Validate restore() here and check if restoring the user will exceed their user quote (hosted only)*/
         $action = request()->input('action');
 
         $ids = request()->input('ids');

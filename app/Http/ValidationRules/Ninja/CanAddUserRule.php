@@ -37,7 +37,7 @@ class CanAddUserRule implements Rule
         //     ->count();
 
         // return $count < auth()->user()->company()->account->num_users;
-        return auth()->user()->company()->account->users->count() < auth()->user()->company()->account->num_users;
+        //return auth()->user()->company()->account->users->count() < auth()->user()->company()->account->num_users;
     }
 
     /**
