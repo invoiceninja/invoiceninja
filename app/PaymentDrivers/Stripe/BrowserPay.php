@@ -197,9 +197,9 @@ class BrowserPay implements MethodInterface
         $domain = config('ninja.app_url');
 
         if (Ninja::isHosted()) {
-            $domain = isset($this->stripe_driver->company_gateway->company->portal_domain)
-                ? $this->stripe_driver->company_gateway->company->portal_domain
-                : $this->stripe_driver->company_gateway->company->domain();
+            $domain = isset($this->stripe->company_gateway->company->portal_domain)
+                ? $this->stripe->company_gateway->company->portal_domain
+                : $this->stripe->company_gateway->company->domain();
         }
 
         $response = ApplePayDomain::create([
