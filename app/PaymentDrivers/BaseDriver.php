@@ -386,6 +386,9 @@ class BaseDriver extends AbstractPaymentDriver
         } else
             $error = $e->getMessage();
 
+        if(!$this->payment_hash)
+            throw new PaymentFailed($error, $e->getCode());
+
         $amount = array_sum(array_column($this->payment_hash->invoices(), 'amount')) + $this->payment_hash->fee_total;
 
         $this->sendFailureMail($error);
