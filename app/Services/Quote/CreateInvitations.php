@@ -50,7 +50,7 @@ class CreateInvitations
 
             if (! $invitation && $contact->send_email) {
                 $ii = QuoteInvitationFactory::create($this->quote->company_id, $this->quote->user_id);
-                $ii->key = $this->createDbHash(config('database.default'));
+                $ii->key = $this->createDbHash($this->quote->company->db);
                 $ii->quote_id = $this->quote->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();
