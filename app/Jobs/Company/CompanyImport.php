@@ -1024,7 +1024,7 @@ class CompanyImport implements ShouldQueue
         foreach((object)$this->getObject("users") as $user)
         {
 
-            if(User::where('email', $user->email)->where('account_id', '!=', $this->account->id)->exists())
+            if(User::withTrashed()->where('email', $user->email)->where('account_id', '!=', $this->account->id)->exists())
                 throw new ImportCompanyFailed("{$user->email} is already in the system attached to a different account");
 
             $user_array = (array)$user;
@@ -1037,7 +1037,7 @@ class CompanyImport implements ShouldQueue
             $new_user = User::withTrashed()->firstOrNew(
                 ['email' => $user->email],
                 $user_array,
-            )->restore();
+            );
 
             $new_user->account_id = $this->account->id;
             $new_user->save(['timestamps' => false]);
@@ -1067,7 +1067,7 @@ class CompanyImport implements ShouldQueue
             $new_cu = CompanyUser::withTrashed()->firstOrNew(
                         ['user_id' => $user_id, 'company_id' => $this->company->id],
                         $cu_array,
-                    )->restore();
+                    );
 
             $new_cu->account_id = $this->account->id;
             $new_cu->save(['timestamps' => false]);
@@ -1077,8 +1077,6 @@ class CompanyImport implements ShouldQueue
         CompanyUser::reguard();
 
     }
-
-
 
     private function transformDocumentId($id, $type)
     {
