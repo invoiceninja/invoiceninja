@@ -233,7 +233,6 @@ class BaseDriver extends AbstractPaymentDriver
         
         }
 
-
         $payment = PaymentFactory::create($this->client->company->id, $this->client->user->id);
         $payment->client_id = $this->client->id;
         $payment->company_gateway_id = $this->company_gateway->id;
