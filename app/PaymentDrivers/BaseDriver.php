@@ -233,7 +233,6 @@ class BaseDriver extends AbstractPaymentDriver
         
         }
 
-
         $payment = PaymentFactory::create($this->client->company->id, $this->client->user->id);
         $payment->client_id = $this->client->id;
         $payment->company_gateway_id = $this->company_gateway->id;
@@ -385,6 +384,9 @@ class BaseDriver extends AbstractPaymentDriver
             $error = $e->getMessage();
         } else
             $error = $e->getMessage();
+
+        if(!$this->payment_hash)
+            throw new PaymentFailed($error, $e->getCode());
 
         $amount = array_sum(array_column($this->payment_hash->invoices(), 'amount')) + $this->payment_hash->fee_total;
 

@@ -49,7 +49,7 @@ class CreateInvitations extends AbstractService
 
             if (! $invitation) {
                 $ii = CreditInvitationFactory::create($this->credit->company_id, $this->credit->user_id);
-                $ii->key = $this->createDbHash(config('database.default'));
+                $ii->key = $this->createDbHash($this->credit->company->db);
                 $ii->credit_id = $this->credit->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();

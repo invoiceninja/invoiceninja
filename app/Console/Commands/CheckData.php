@@ -447,8 +447,8 @@ class CheckData extends Command
         payments.id = paymentables.payment_id
         WHERE paymentable_type = 'App\\Models\\Credit'
         AND paymentables.deleted_at is NULL
-        AND payments.client_id = 85;
-        ") );
+        AND payments.client_id = ?;
+        "), [$client->id] );
     
         return $results;
     }

@@ -127,7 +127,7 @@ class ImportMigrations extends Command
         $user = User::factory()->create([
             'account_id' => $account->id,
             'email' => Str::random(10) . "@example.com",
-            'confirmation_code' => $this->createDbHash(config('database.default')),
+            'confirmation_code' => $this->createDbHash($company->db),
         ]);
 
         CompanyToken::unguard();

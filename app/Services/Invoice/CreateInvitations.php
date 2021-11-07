@@ -51,7 +51,7 @@ class CreateInvitations extends AbstractService
 
             if (! $invitation && $contact->send_email) {
                 $ii = InvoiceInvitationFactory::create($this->invoice->company_id, $this->invoice->user_id);
-                $ii->key = $this->createDbHash(config('database.default'));
+                $ii->key = $this->createDbHash($this->invoice->company->db);
                 $ii->invoice_id = $this->invoice->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();
@@ -65,7 +65,7 @@ class CreateInvitations extends AbstractService
             $contact = $this->createBlankContact();
 
                 $ii = InvoiceInvitationFactory::create($this->invoice->company_id, $this->invoice->user_id);
-                $ii->key = $this->createDbHash(config('database.default'));
+                $ii->key = $this->createDbHash($this->invoice->company->db);
                 $ii->invoice_id = $this->invoice->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();
