@@ -304,7 +304,7 @@ class MolliePaymentDriver extends BaseDriver
         try {
             $payment = $this->gateway->payments->get($request->id);
 
-            $record = Payment::where('transaction_reference', $payment->id)->firstOrFail();
+            $record = Payment::withTrashed()->where('transaction_reference', $request->id)->firstOrFail();
             $record->status_id = $codes[$payment->status];
             $record->save();
 

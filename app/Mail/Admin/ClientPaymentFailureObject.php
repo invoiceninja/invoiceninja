@@ -56,6 +56,10 @@ class ClientPaymentFailureObject
 
     public function build()
     {
+        if(!$this->payment_hash){
+            nlog("no payment has for failure notification - ClientPaymentFailureObject");
+            return;
+        }
 
         App::forgetInstance('translator');
         /* Init a new copy of the translator*/

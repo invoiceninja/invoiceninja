@@ -49,4 +49,12 @@ class HostedMigrationController extends Controller
 
     }
 
+    public function confirmForwarding(Request $request)
+    {
+        if($request->header('X-API-HOSTED-SECRET') != config('ninja.ninja_hosted_secret'))
+            return;
+
+        
+    }
+
 }

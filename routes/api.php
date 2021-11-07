@@ -220,5 +220,6 @@ Route::post('api/v1/postmark_webhook', 'PostMarkController@webhook')->middleware
 Route::get('token_hash_router', 'OneTimeTokenController@router');
 Route::get('webcron', 'WebCronController@index');
 Route::post('api/v1/get_migration_account', 'HostedMigrationController@getAccount')->middleware('guest');
+Route::post('api/v1/confirm_forwarding', 'HostedMigrationController@confirmForwarding')->middleware('guest');
 
 Route::fallback('BaseController@notFound');
