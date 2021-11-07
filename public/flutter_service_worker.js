@@ -6,12 +6,12 @@ const RESOURCES = {
   "icons/Icon-512.png": "0f9aff01367f0a0c69773d25ca16ef35",
 "icons/Icon-192.png": "bb1cf5f6982006952211c7c8404ffbed",
 "favicon.png": "dca91c54388f52eded692718d5a98b8b",
-"/": "165acd96f9d75cb2438f92bb699bce52",
+"/": "4e463d07d09c0face2db94b15264f47a",
 "manifest.json": "ef43d90e57aa7682d7e2cfba2f484a40",
 "favicon.ico": "51636d3a390451561744c42188ccd628",
 "version.json": "3930722e1581f582eefe59c75ab50c99",
 "assets/fonts/MaterialIcons-Regular.otf": "4e6447691c9509f7acdbf8a931a85ca1",
-"assets/NOTICES": "9eb7e2eb2888ea5bae5f536720db37cd",
+"assets/NOTICES": "c3a44bd3a637965fe6a21381017e43a4",
 "assets/packages/material_design_icons_flutter/lib/fonts/materialdesignicons-webfont.ttf": "174c02fc4609e8fc4389f5d21f16a296",
 "assets/FontManifest.json": "cf3c681641169319e61b61bd0277378f",
 "assets/assets/images/payment_types/paypal.png": "8e06c094c1871376dfea1da8088c29d1",
@@ -34,7 +34,7 @@ const RESOURCES = {
 "assets/assets/images/google_logo.png": "0f118259ce403274f407f5e982e681c3",
 "assets/assets/images/logo_light.png": "e5f46d5a78e226e7a9553d4ca6f69219",
 "assets/AssetManifest.json": "38d9aea341601f3a5c6fa7b5a1216ea5",
-"main.dart.js": "65a2a12d887137f99e2cbf1ed0036799"
+"main.dart.js": "1c1e527d251d741d6c53b4ff0afc3ae0"
 };
 
 // The application shell files that are downloaded before a service worker can
