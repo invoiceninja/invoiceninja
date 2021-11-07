@@ -11,6 +11,8 @@ use App\Http\Requests\MigrationTypeRequest;
 use App\Jobs\HostedMigration;
 use App\Libraries\Utils;
 use App\Models\Account;
+use App\Models\AccountGatewayToken;
+use App\Models\Client;
 use App\Services\Migration\AuthService;
 use App\Services\Migration\CompanyService;
 use App\Services\Migration\CompleteService;
@@ -19,6 +21,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Validator;
+use GuzzleHttp\RequestOptions;
 
 class StepsController extends BaseController
 {
@@ -104,31 +107,122 @@ class StepsController extends BaseController
     public function forwardUrl(Request $request)
     {
 
-        $rules = [
-            'url' => 'nullable|url',
-        ];
+        $this->autoForwardUrl();
+        
+        // $rules = [
+        //     'url' => 'nullable|url',
+        // ];
 
-        $validator = Validator::make($request->all(), $rules);
+        // $validator = Validator::make($request->all(), $rules);
 
-        if ($validator->fails()) {
-            return back()
-                ->withErrors($validator)
-                ->withInput();
-        }
+        // if ($validator->fails()) {
+        //     return back()
+        //         ->withErrors($validator)
+        //         ->withInput();
+        // }
 
-        $account_settings = \Auth::user()->account->account_email_settings;
+        // $account_settings = \Auth::user()->account->account_email_settings;
 
-        if(strlen($request->input('url')) == 0) {
-            $account_settings->is_disabled = false;
-        }
-        else {
-            $account_settings->is_disabled = true;
-        }
+        // if(strlen($request->input('url')) == 0) {
+        //     $account_settings->is_disabled = false;
+        // }
+        // else {
+        //     $account_settings->is_disabled = true;
+        // }
 
-        $account_settings->forward_url_for_v5 = rtrim($request->input('url'),'/');
+        // $account_settings->forward_url_for_v5 = rtrim($request->input('url'),'/');
+        // $account_settings->save();
+
+        return back();
+    }
+
+    public function disableForwarding()
+    {
+        $account = \Auth::user()->account;
+
+        $account_settings = $account->account_email_settings;
+        $account_settings->is_disabled = false;
         $account_settings->save();
 
         return back();
+    }
+
+    private function autoForwardUrl()
+    {
+
+        $url = 'https://invoicing.co/api/v1/confirm_forwarding';
+
+        $headers = [
+            'X-API-HOSTED-SECRET' => config('ninja.ninja_hosted_secret'),
+            'X-Requested-With' => 'XMLHttpRequest',
+            'Content-Type' => 'application/json',
+        ];
+
+        $account = \Auth::user()->account;
+        $gateway_reference = '';
+
+        $ninja_client = Client::where('public_id', $account->id)->first();
+
+        if($ninja_client){
+            $agt = AccountGatewayToken::where('client_id', $ninja_client->id)->first();
+
+            if($agt)
+                $gateway_reference = $agt->token;
+        }
+
+        $body = [
+            'account_key' => $account->account_key,
+            'email' => \Auth::user()->email,
+            'plan' => $account->company->plan,
+            'plan_term' =>$account->company->plan_term,
+            'plan_started' =>$account->company->plan_started,
+            'plan_paid' =>$account->company->plan_paid,
+            'plan_expires' =>$account->company->plan_expires,
+            'trial_started' =>$account->company->trial_started,
+            'trial_plan' =>$account->company->trial_plan,
+            'plan_price' =>$account->company->plan_price,
+            'num_users' =>$account->company->num_users,
+            'gateway_reference' => $gateway_reference,
+        ];
+
+        $client =  new \GuzzleHttp\Client([
+            'headers' =>  $headers,
+        ]);
+
+        $response = $client->post($url,[
+            RequestOptions::JSON => $body, 
+            RequestOptions::ALLOW_REDIRECTS => false
+        ]);
+
+        if($response->getStatusCode() == 401){
+            info($response->getBody());
+
+        } elseif ($response->getStatusCode() == 200) {
+
+            $message_body = json_decode($response->getBody(), true);
+
+            $forwarding_url = $message_body['forward_url'];
+
+                $account_settings = $account->account_email_settings;
+
+                if(strlen($forwarding_url) == 0) {
+                    $account_settings->is_disabled = false;
+                }
+                else {
+                    $account_settings->is_disabled = true;
+                }
+
+                $account_settings->forward_url_for_v5 = rtrim($forwarding_url,'/');
+                $account_settings->save();
+
+
+        } else {
+            info(json_decode($response->getBody()->getContents()));
+
+        }
+
+
+
     }
 
     public function endpoint()
