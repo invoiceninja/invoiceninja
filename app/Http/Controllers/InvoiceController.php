@@ -713,13 +713,13 @@ class InvoiceController extends BaseController
                     $this->itemResponse($invoice);
                 }
                 break;
-            case 'reverse':
-                $invoice = $invoice->service()->handleReversal()->deletePdf()->save();
+            // case 'reverse':
+            //     $invoice = $invoice->service()->handleReversal()->deletePdf()->save();
 
-                if (! $bulk) {
-                    $this->itemResponse($invoice);
-                }
-                break;
+            //     if (! $bulk) {
+            //         $this->itemResponse($invoice);
+            //     }
+            //     break;
             case 'email':
                 //check query parameter for email_type and set the template else use calculateTemplate
 
