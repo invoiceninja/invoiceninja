@@ -42,6 +42,9 @@ class StoreRecurringExpenseRequest extends Request
             $rules['client_id'] = 'bail|sometimes|exists:clients,id,company_id,'.auth()->user()->company()->id;
 
         $rules['frequency_id'] = 'required|integer|digits_between:1,12';
+        $rules['tax_amount1'] = 'numeric';
+        $rules['tax_amount2'] = 'numeric';
+        $rules['tax_amount3'] = 'numeric';
 
         return $this->globalRules($rules);
     }
@@ -62,6 +65,10 @@ class StoreRecurringExpenseRequest extends Request
 
         if(array_key_exists('color', $input) && is_null($input['color']))
             $input['color'] = '';
+
+        if(array_key_exists('foreign_amount', $input) && is_null($input['foreign_amount']))
+            $input['foreign_amount'] = 0;
+
 
         $this->replace($input);
     }

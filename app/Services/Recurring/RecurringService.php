@@ -54,8 +54,6 @@ class RecurringService
             return $this;
         }
 
-        // $this->createInvitations()->setStatus(RecurringInvoice::STATUS_ACTIVE);
-
         $this->setStatus(RecurringInvoice::STATUS_ACTIVE);
         
         return $this;
@@ -97,6 +95,20 @@ class RecurringService
         return $this;
     }
     
+    public function triggeredActions($request)
+    {
+
+        if ($request->has('start') && $request->input('start') == 'true') {
+            $this->start();
+        }
+
+        if ($request->has('stop') && $request->input('stop') == 'true') {
+            $this->stop();
+        }
+        
+        return $this;
+    }
+
     public function fillDefaults()
     {
 
@@ -105,7 +117,7 @@ class RecurringService
     
     public function save()
     {
-        $this->recurring_entity->save();
+        $this->recurring_entity->saveQuietly();
 
         return $this->recurring_entity;
     }

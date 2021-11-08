@@ -204,6 +204,7 @@ class PreviewController extends BaseController
             if($request->has('entity_id')){
 
                 $entity_obj = $class::on(config('database.default'))
+                                    ->with('client.company')
                                     ->where('id', $this->decodePrimaryKey($request->input('entity_id')))
                                     ->where('company_id', $company->id)
                                     ->withTrashed()
@@ -216,11 +217,11 @@ class PreviewController extends BaseController
             if(!$request->has('entity_id'))
                 $entity_obj->service()->fillDefaults()->save();
                 
-            $entity_obj->load('client');
+            // $entity_obj->load('client.contacts','client.company');
 
             App::forgetInstance('translator');
             $t = app('translator');
-            App::setLocale($entity_obj->client->contacts()->first()->preferredLocale());
+            App::setLocale($entity_obj->client->locale());
             $t->replace(Ninja::transformTranslations($entity_obj->client->getMergedSettings()));
 
             $html = new HtmlEngine($entity_obj->invitations()->first());
@@ -345,7 +346,7 @@ class PreviewController extends BaseController
         $invoice->setRelation('invitations', $invitation);
         $invoice->setRelation('client', $client);
         $invoice->setRelation('company', auth()->user()->company());
-        $invoice->load('client');
+        $invoice->load('client.company');
 
         // nlog(print_r($invoice->toArray(),1));
 
@@ -380,11 +381,11 @@ class PreviewController extends BaseController
             return $maker->getCompiledHTML();
         }
 
-        if (config('ninja.phantomjs_pdf_generation')) {
+        if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
             return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
         }
 
-        if(config('ninja.invoiceninja_hosted_pdf_generation')){
+        if(config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja'){
             return (new NinjaPdf())->build($maker->getCompiledHTML(true));
         }
             

@@ -37,7 +37,7 @@ class ApplyNumber extends AbstractService
             return $this->credit;
         }
 
-        $this->credit->number = $this->getNextCreditNumber($this->client);
+        $this->credit->number = $this->getNextCreditNumber($this->client, $this->credit);
 
         return $this->credit;
     }

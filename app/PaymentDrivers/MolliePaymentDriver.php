@@ -15,7 +15,6 @@ namespace App\PaymentDrivers;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Http\Requests\Gateways\Mollie\Mollie3dsRequest;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
-use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
@@ -27,6 +26,7 @@ use App\Models\SystemLog;
 use App\PaymentDrivers\Mollie\Bancontact;
 use App\PaymentDrivers\Mollie\BankTransfer;
 use App\PaymentDrivers\Mollie\CreditCard;
+use App\PaymentDrivers\Mollie\IDEAL;
 use App\PaymentDrivers\Mollie\KBC;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Validator;
@@ -70,6 +70,7 @@ class MolliePaymentDriver extends BaseDriver
         GatewayType::BANCONTACT => Bancontact::class,
         GatewayType::BANK_TRANSFER => BankTransfer::class,
         GatewayType::KBC => KBC::class,
+        GatewayType::IDEAL => IDEAL::class,
     ];
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_MOLLIE;
@@ -93,6 +94,7 @@ class MolliePaymentDriver extends BaseDriver
         $types[] = GatewayType::BANCONTACT;
         $types[] = GatewayType::BANK_TRANSFER;
         $types[] = GatewayType::KBC;
+        $types[] = GatewayType::IDEAL;
 
         return $types;
     }
@@ -244,12 +246,7 @@ class MolliePaymentDriver extends BaseDriver
 
             $this->unWindGatewayFees($payment_hash);
 
-            PaymentFailureMailer::dispatch(
-                $this->client,
-                $payment->details,
-                $this->client->company,
-                $amount
-            );
+            $this->sendFailureMail($payment->details);
 
             $message = [
                 'server_response' => $payment,

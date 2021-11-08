@@ -9,38 +9,54 @@
         -moz-osx-font-smoothing: grayscale;
         font-family: Arial, Helvetica, sans-serif;
         font-size: "7px";
-        margin: 0;
-        padding: 0;
         zoom: 80%;
       }
 
+      body, html {
+          margin: 0;
+          padding: 0;
+      }
+
       @page {
-        margin: -0.22cm;
-        size: A4 portrait;
+          margin: 0 !important;
+          size: $page_size $page_layout;
       }
 
       p {
         margin: 0;
         padding: 0;
-        /* page-break-after: always; */
       }
 
-      .header-container {
-        background-color: var(--primary-color);
-        color: white;
-        display: grid;
-        grid-template-columns: 1.5fr 1fr;
-        padding: 3rem;
-        min-width: 100%;
-        height: 160px;
+      #spacer-table > * > tr > td {
+          padding: 0;
+      }
+
+      #spacer-table{
+          width: 100%;
+      }
+
+      #header {
+          background-color: var(--primary-color);
+          color: white;
+          display: grid;
+          grid-template-columns: 1.5fr 1fr;
+          position:fixed;
+          top: 0;
+          width: 100%;
+      }
+
+      #header, #header-spacer {
+          height: 160px;
+          padding: 3rem;
+          margin-bottom: 3rem;
       }
 
       .company-name {
         text-align: left;
       }
 
-      .header-container .company-name {
-        font-size: 2rem;
+      #header .company-name {
+          font-size: 2rem;
       }
 
       #entity-details {
@@ -55,7 +71,7 @@
       }
 
       .logo-client-wrapper {
-        margin: 3rem 2rem;
+        margin: 0 2rem 3rem;
         display: grid;
         grid-template-columns: 1.5fr 1fr;
       }
@@ -121,15 +137,18 @@
         text-align: right;
       }
 
-      .footer-wrapper {
-        margin-top: 1rem;
-        background-color: var(--primary-color);
-        padding-left: 3rem;
-        padding-right: 3rem;
-        height: 220px;
-        width: 100%;
-        position: fixed;
-        bottom: 0;
+      #footer {
+          background-color: var(--primary-color);
+          width: 100%;
+          position: fixed;
+          bottom: 0;
+      }
+
+
+      #footer, #footer-spacer {
+          height: 220px;
+          padding: 1rem 3rem;
+          margin-top: 1rem;
       }
 
       .footer-content {
@@ -204,54 +223,21 @@
         font-size: 1.3rem;
       }
 
-      table.page-container {
-        page-break-after: always;
-        min-width: 100%;
-      }
-
-      thead.page-header {
-        display: table-header-group;
-      }
-
-      tfoot.page-footer {
-        display: table-footer-group;
-      }
-
-      .page-content-cell {
-        padding: 1rem;
-      }
-
       [data-ref="total_table-footer"] {
-        margin-top: 2rem;
-        margin-bottom: 2rem;
+          margin-top: 2rem;
+          margin-bottom: 2rem;
       }
 
-      /** Repeating header & footer styling. */
       table {
-        width: 100%;
+          width: 100%;
       }
 
-      table.print-content {
-      }
-
-      table.print-content th,
-      table.print-content td {
-        padding: 0.2rem 0.4rem;
-        text-align: left;
-        vertical-align: top;
-        border-top: 1px solid #dee2e6;
-      }
-
-      @media print {
-        .print-footer {
-          position: fixed;
-          bottom: 0;
-          left: 0;
-        }
-
-        .no-print {
-          display: none;
-        }
+      table[data-ref="table"] th,
+      table[data-ref="table"] td {
+          padding: 0.2rem 0.4rem;
+          text-align: left;
+          vertical-align: top;
+          border-top: 1px solid #dee2e6;
       }
 
       /** Markdown-specific styles. **/
@@ -306,70 +292,57 @@
       /** For more info, please check our docs: https://invoiceninja.github.io **/
       /** To find out selectors on your own: https://invoiceninja.github.io/docs/custom-fields/#snippets **/
 </style>
+<div id="header">
+    <h1 class="company-name">$company.name</h1>
+    <table id="entity-details" cellspacing="0" dir="$dir"></table>
+</div>
+<div id="body">
+    <table id="spacer-table" cellspacing="0">
+        <thead>
+        <tr>
+            <td>
+                <div id="header-spacer"></div>
+            </td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <div class="logo-client-wrapper">
+                    <img class="company-logo" src="$company.logo" alt="$company.name logo"/>
+                    <div id="client-details"></div>
+                </div>
+                <div class="table-wrapper">
+                    <table id="product-table" cellspacing="0" data-ref="table"></table>
 
-<table>
-    <!-- Start Header -->
-    <thead>
-    <tr>
-        <td>
-            <div class="header-container" id="header">
-                <h1 class="company-name">$company.name</h1>
-                <table id="entity-details" cellspacing="0" dir="$dir"></table>
-            </div>
-        </td>
-    </tr>
-    </thead>
-    <!-- End Header -->
-    <tr>
-        <td id="body">
-            <div class="logo-client-wrapper">
-                <img
-                    class="company-logo"
-                    src="$company.logo"
-                    alt="$company.name logo"
-                />
+                    <table id="task-table" cellspacing="0" data-ref="table"></table>
 
-                <div id="client-details"></div>
-            </div>
+                    <table id="delivery-note-table" cellspacing="0" data-ref="table"></table>
 
-            <!-- Start Print Content -->
-            <div class="table-wrapper">
-                <table id="product-table" cellspacing="0" class="print-content" data-ref="table"></table>
+                    <table id="statement-invoice-table" cellspacing="0" data-ref="table"></table>
+                    <div id="statement-invoice-table-totals" data-ref="statement-totals"></div>
 
-                <table id="task-table" cellspacing="0" class="print-content" data-ref="table"></table>
+                    <table id="statement-payment-table" cellspacing="0" data-ref="table"></table>
+                    <div id="statement-payment-table-totals" data-ref="statement-totals"></div>
 
-                <table id="delivery-note-table" cellspacing="0" class="print-content" data-ref="table"></table>
+                    <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
+                    <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
+                </div>
+                <div id="table-totals" cellspacing="0"></div>
+            </td>
+        </tr>
+        </tbody>
+        <tfoot>
+        <tr>
+            <td>
+                <div id="footer-spacer"></div>
+            </td>
+        </tr>
+        </tfoot>
+    </table>
+</div>
 
-                <table id="statement-invoice-table" cellspacing="0" class="print-content" data-ref="table"></table>
-                <div id="statement-invoice-table-totals" data-ref="statement-totals"></div>
-
-                <table id="statement-payment-table" cellspacing="0" class="print-content" data-ref="table"></table>
-                <div id="statement-payment-table-totals" data-ref="statement-totals"></div>
-
-                <table id="statement-aging-table" cellspacing="0" class="print-content" data-ref="table"></table>
-                <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
-            </div>
-            <!-- End Print Content -->
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <div id="table-totals" cellspacing="0"></div>
-        </td>
-    </tr>
-    <!-- Start Space For Footer -->
-    <tfoot>
-    <tr>
-        <td style="height: 230px">
-            <!-- Leave this empty and don't remove it. This space is where footer placed on print -->
-        </td>
-    </tr>
-    </tfoot>
-    <!-- End Space For Footer -->
-</table>
-
-<!-- Start Footer -->
-<div class="footer-wrapper print-footer" id="footer">
+<div id="footer">
     <div class="footer-content">
         <div>
             <p data-ref="total_table-footer">$entity_footer</p>
@@ -378,14 +351,14 @@
                 // Clear up space a bit, if [product-table, tasks-table, delivery-note-table] isn't present.
                 document.addEventListener('DOMContentLoaded', () => {
                     let tables = [
-                        'product-table', 'task-table', 'delivery-note-table',
-                        'statement-invoice-table', 'statement-payment-table', 'statement-aging-table-totals',
+                        'product-table', 'task-table', 'delivery-note-table',  'statement-invoice-table-totals', 'statement-payment-table-totals','statement-invoice-table-totals',
+                        'statement-invoice-table', 'statement-payment-table', 'statement-aging-table', 'statement-aging-table-totals', 'statement-payment-table-totals'
                     ];
 
                     tables.forEach((tableIdentifier) => {
                         document.getElementById(tableIdentifier).childElementCount === 0
-                            ? document.getElementById(tableIdentifier).style.display = 'none'
-                            : '';
+                                ? document.getElementById(tableIdentifier).remove()
+                                : '';
                     });
                 });
             </script>
@@ -396,4 +369,3 @@
         </div>
     </div>
 </div>
-<!-- End Footer -->

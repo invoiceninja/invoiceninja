@@ -13,7 +13,6 @@
 namespace App\PaymentDrivers\Eway;
 
 use App\Exceptions\PaymentFailed;
-use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
@@ -73,8 +72,8 @@ class Token
         $amount = array_sum(array_column($this->eway_driver->payment_hash->invoices(), 'amount')) + $this->eway_driver->payment_hash->fee_total;
 
         $data = [
-            'gateway_type_id' => $cgt->gateway_type_id,
-            'payment_type' => GatewayType::CREDIT_CARD_OTHER,
+            'gateway_type_id' => GatewayType::CREDIT_CARD,
+            'payment_type' => PaymentType::CREDIT_CARD_OTHER,
             'transaction_reference' => $response->Customer->Reference,
             'amount' => $amount,
         ];
@@ -83,8 +82,8 @@ class Token
         $payment->meta = $cgt->meta;
         $payment->save();
 
-        $payment_hash->payment_id = $payment->id;
-        $payment_hash->save();
+        $this->eway_driver->payment_hash->payment_id = $payment->id;
+        $this->eway_driver->payment_hash->save();
 
         return $payment;
 

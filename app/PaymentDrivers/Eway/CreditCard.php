@@ -13,7 +13,6 @@
 namespace App\PaymentDrivers\Eway;
 
 use App\Exceptions\PaymentFailed;
-use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
@@ -84,8 +83,12 @@ class CreditCard
 
         $response_status = ErrorCode::getStatus($response->ResponseMessage);
 
-        if(!$response_status['success'])
-          throw new PaymentFailed($response_status['message'], 400);
+        if(!$response_status['success']){
+
+            $this->eway_driver->sendFailureMail($response_status['message']);
+
+            throw new PaymentFailed($response_status['message'], 400);
+        }
 
         //success
         $cgt = [];
@@ -158,6 +161,8 @@ class CreditCard
         if(!$response_status['success']){
 
             $this->logResponse($response, false);
+
+            $this->eway_driver->sendFailureMail($response_status['message']);
 
             throw new PaymentFailed($response_status['message'], 400);
         }
@@ -237,6 +242,8 @@ class CreditCard
         if(!$response_status['success']){
 
             $this->logResponse($response, false);
+
+            $this->eway_driver->sendFailureMail($response_status['message']);
 
             throw new PaymentFailed($response_status['message'], 400);
         }

@@ -106,6 +106,46 @@ mix.js("resources/js/app.js", "public/js")
         "resources/js/clients/statements/view.js",
         "public/js/clients/statements/view.js",
     )
+    .js(
+        "resources/js/clients/payments/razorpay-aio.js",
+        "public/js/clients/payments/razorpay-aio.js"
+    )
+    .js(
+        "resources/js/clients/payments/stripe-sepa.js",
+        "public/js/clients/payments/stripe-sepa.js"
+    )
+    .js(
+        "resources/js/clients/payment_methods/authorize-checkout-card.js",
+        "public/js/clients/payment_methods/authorize-checkout-card.js"
+    )
+    .js(
+        "resources/js/clients/payments/stripe-giropay.js",
+        "public/js/clients/payments/stripe-giropay.js"
+    )
+    .js(
+        "resources/js/clients/payments/stripe-acss.js",
+        "public/js/clients/payments/stripe-acss.js"
+    )
+    .js(
+        "resources/js/clients/payments/stripe-bancontact.js",
+        "public/js/clients/payments/stripe-bancontact.js"
+    )
+    .js(
+        "resources/js/clients/payments/stripe-becs.js",
+        "public/js/clients/payments/stripe-becs.js"
+    )
+    .js(
+        "resources/js/clients/payments/stripe-eps.js",
+        "public/js/clients/payments/stripe-eps.js"
+    )
+    .js(
+        "resources/js/clients/payments/stripe-ideal.js",
+        "public/js/clients/payments/stripe-ideal.js"
+    )
+    .js(
+        "resources/js/clients/payments/stripe-przelewy24.js",
+        "public/js/clients/payments/stripe-przelewy24.js"
+    )
 
 mix.copyDirectory('node_modules/card-js/card-js.min.css', 'public/css/card-js.min.css');
 

@@ -86,7 +86,7 @@ class PaymentFailureMailer implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
-                $mail_obj = (new PaymentFailureObject($this->client, $this->error, $this->company, $this->amount))->build();
+                $mail_obj = (new PaymentFailureObject($this->client, $this->error, $this->company, $this->amount, null))->build();
 
                 $nmo = new NinjaMailerObject;
                 $nmo->mailable = new NinjaMailer($mail_obj);
@@ -98,5 +98,7 @@ class PaymentFailureMailer implements ShouldQueue
 
             }
         });
+
+        //add client payment failures here.
     }
 }

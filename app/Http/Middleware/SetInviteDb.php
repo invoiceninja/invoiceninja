@@ -13,6 +13,7 @@ namespace App\Http\Middleware;
 
 use App\Libraries\MultiDB;
 use Closure;
+use Hashids\Hashids;
 use Illuminate\Http\Request;
 use stdClass;
 
@@ -42,6 +43,33 @@ class SetInviteDb
             $entity = $request->route('entity');
         }
 
+        if($entity == "pay")
+            $entity = "invoice";
+
+        /* Try and determine the DB from the invitation key STRING*/
+        if (config('ninja.db.multi_db_enabled')) {
+
+            // nlog("/ Try and determine the DB from the invitation key /");
+
+            $hashids = new Hashids(config('ninja.hash_salt'), 10);
+            $segments = explode('-', $request->route('invitation_key'));
+            $hashed_db = false;
+
+            if(is_array($segments)){
+                $hashed_db = $hashids->decode($segments[0]);
+            }
+                
+            if($hashed_db && is_array($hashed_db) && ($hashed_db[0] == "01" || $hashed_db[0] == "02")){
+                
+                MultiDB::setDB(MultiDB::DB_PREFIX.str_pad($hashed_db[0], 2, '0', STR_PAD_LEFT));
+           
+                return $next($request);
+            
+            }
+
+        }
+            
+        /* Attempt to set DB from invitatation key*/
         if ($request->getSchemeAndHttpHost() && config('ninja.db.multi_db_enabled') && ! MultiDB::findAndSetDbByInvitation($entity, $request->route('invitation_key'))) {
             if (request()->json) {
                 return response()->json($error, 403);

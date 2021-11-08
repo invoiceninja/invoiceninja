@@ -29,8 +29,9 @@ class BaseRepository
     use MakesHash;
     use SavesDocuments;
 
-	public $import_mode = false;
+	public bool $import_mode = false;
 
+    private bool $new_model = false;
     /**
      * @param $entity
      * @param $type
@@ -112,25 +113,26 @@ class BaseRepository
      * @param $action
      *
      * @return int
+     * @deprecated - this doesn't appear to be used anywhere?
      */
-    public function bulk($ids, $action)
-    {
-        if (! $ids) {
-            return 0;
-        }
+    // public function bulk($ids, $action)
+    // {
+    //     if (! $ids) {
+    //         return 0;
+    //     }
 
-        $ids = $this->transformKeys($ids);
+    //     $ids = $this->transformKeys($ids);
 
-        $entities = $this->findByPublicIdsWithTrashed($ids);
+    //     $entities = $this->findByPublicIdsWithTrashed($ids);
 
-        foreach ($entities as $entity) {
-            if (auth()->user()->can('edit', $entity)) {
-                $this->$action($entity);
-            }
-        }
+    //     foreach ($entities as $entity) {
+    //         if (auth()->user()->can('edit', $entity)) {
+    //             $this->$action($entity);
+    //         }
+    //     }
 
-        return count($entities);
-    }
+    //     return count($entities);
+    // }
 
     /* Returns an invoice if defined as a key in the $resource array*/
     public function getInvitation($invitation, $resource)
@@ -174,10 +176,6 @@ class BaseRepository
         if(array_key_exists('client_id', $data)) 
             $model->client_id = $data['client_id'];
 
-        //pickup changes here to recalculate reminders
-        //if($model instanceof Invoice && ($model->isDirty('date') || $model->isDirty('due_date')))
-           // $model->service()->setReminder()->save();
-
         $client = Client::where('id', $model->client_id)->withTrashed()->first();    
 
         $state = [];
@@ -210,6 +208,9 @@ class BaseRepository
         $model->custom_surcharge_tax3 = $client->company->custom_surcharge_taxes3;
         $model->custom_surcharge_tax4 = $client->company->custom_surcharge_taxes4;
 
+        if(!$model->id)
+            $this->new_model = true;
+        
         $model->saveQuietly();
 
         /* Model now persisted, now lets do some child tasks */
@@ -222,15 +223,15 @@ class BaseRepository
             $this->saveDocuments($data['documents'], $model);
 
         /* Marks whether the client contact should receive emails based on the send_email property */
-        if (isset($data['client_contacts'])) {
-            foreach ($data['client_contacts'] as $contact) {
-                if ($contact['send_email'] == 1 && is_string($contact['id'])) {
-                    $client_contact = ClientContact::find($this->decodePrimaryKey($contact['id']));
-                    $client_contact->send_email = true;
-                    $client_contact->save();
-                }
-            }
-        }
+        // if (isset($data['client_contacts'])) {
+        //     foreach ($data['client_contacts'] as $contact) {
+        //         if ($contact['send_email'] == 1 && is_string($contact['id'])) {
+        //             $client_contact = ClientContact::find($this->decodePrimaryKey($contact['id']));
+        //             $client_contact->send_email = true;
+        //             $client_contact->save();
+        //         }
+        //     }
+        // }
 
         /* If invitations are present we need to filter existing invitations with the new ones */
         if (isset($data['invitations'])) {
@@ -239,7 +240,7 @@ class BaseRepository
             /* Get array of Keys which have been removed from the invitations array and soft delete each invitation */
             $model->invitations->pluck('key')->diff($invitations->pluck('key'))->each(function ($invitation) use ($resource) {
                 $invitation_class = sprintf('App\\Models\\%sInvitation', $resource);
-                $invitation = $invitation_class::whereRaw('BINARY `key`= ?', [$invitation])->first();
+                $invitation = $invitation_class::where('key', $invitation)->first();
 
                 if ($invitation) 
                     $invitation->delete();
@@ -276,6 +277,7 @@ class BaseRepository
                             $new_invitation = $invitation_factory_class::create($model->company_id, $model->user_id);
                             $new_invitation->{$lcfirst_resource_id} = $model->id;
                             $new_invitation->client_contact_id = $contact->id;
+                            $new_invitation->key = $this->createDbHash(config('database.default'));
                             $new_invitation->save();
 
                         }
@@ -284,10 +286,8 @@ class BaseRepository
             }
         }
 
-        $model->load('invitations');
-
         /* If no invitations have been created, this is our fail safe to maintain state*/
-        if ($model->invitations->count() == 0) 
+        if ($model->invitations()->count() == 0) 
             $model->service()->createInvitations();
 
         /* Recalculate invoice amounts */
@@ -309,10 +309,6 @@ class BaseRepository
 
         /* Perform model specific tasks */
         if ($model instanceof Invoice) {
-            
-            nlog("Finished amount = " . $state['finished_amount']);
-            nlog("Starting amount = " . $state['starting_amount']);
-            nlog("Diff = " . ($state['finished_amount'] - $state['starting_amount']));
 
             if (($state['finished_amount'] != $state['starting_amount']) && ($model->status_id != Invoice::STATUS_DRAFT)) {
 
@@ -328,6 +324,11 @@ class BaseRepository
             //links tasks and expenses back to the invoice.
             $model->service()->linkEntities()->save();
 
+            if($this->new_model)
+                event('eloquent.created: App\Models\Invoice', $model);
+            else
+                event('eloquent.updated: App\Models\Invoice', $model);
+
         }
 
         if ($model instanceof Credit) {
@@ -336,7 +337,13 @@ class BaseRepository
 
             if (! $model->design_id) 
                 $model->design_id = $this->decodePrimaryKey($client->getSetting('credit_design_id'));
-            
+
+
+            if($this->new_model)
+                event('eloquent.created: App\Models\Credit', $model);            
+            else
+                event('eloquent.updated: App\Models\Credit', $model);
+
         }
 
         if ($model instanceof Quote) {
@@ -346,6 +353,11 @@ class BaseRepository
 
             $model = $model->calc()->getQuote();
 
+
+            if($this->new_model)
+                event('eloquent.created: App\Models\Quote', $model);
+            else
+                event('eloquent.updated: App\Models\Quote', $model);
         }
 
         if ($model instanceof RecurringInvoice) {
@@ -355,6 +367,11 @@ class BaseRepository
             
             $model = $model->calc()->getRecurringInvoice();
 
+
+            if($this->new_model)
+                event('eloquent.created: App\Models\RecurringInvoice', $model);
+            else
+                event('eloquent.updated: App\Models\RecurringInvoice', $model);
         }
 
         $model->save();

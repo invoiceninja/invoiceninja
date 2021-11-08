@@ -13,8 +13,6 @@ namespace App\PaymentDrivers\Braintree;
 
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use App\Http\Requests\Request;
-use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
@@ -24,6 +22,7 @@ use App\Models\SystemLog;
 use App\PaymentDrivers\BraintreePaymentDriver;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Http\Request;
 
 class ACH implements MethodInterface
 {
@@ -158,15 +157,8 @@ class ACH implements MethodInterface
 
     private function processUnsuccessfulPayment($response)
     {
-        PaymentFailureMailer::dispatch($this->braintree->client, $response->transaction->additionalProcessorResponse, $this->braintree->client->company, $this->braintree->payment_hash->data->amount_with_fee);
-
-        PaymentFailureMailer::dispatch(
-            $this->braintree->client,
-            $response,
-            $this->braintree->client->company,
-            $this->braintree->payment_hash->data->amount_with_fee,
-        );
-
+        $this->braintree->sendFailureMail($response->transaction->additionalProcessorResponse);
+        
         $message = [
             'server_response' => $response,
             'data' => $this->braintree->payment_hash->data,

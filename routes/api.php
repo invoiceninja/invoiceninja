@@ -86,6 +86,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
 
     Route::resource('group_settings', 'GroupSettingController');
     Route::post('group_settings/bulk', 'GroupSettingController@bulk');
+    Route::put('group_settings/{group_setting}/upload', 'GroupSettingController@upload')->name('group_settings.upload');
 
     Route::post('import', 'ImportController@import')->name('import.import');
     Route::post('import_json', 'ImportJsonController@import')->name('import.import_json');
@@ -199,6 +200,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::post('stripe/import_customers', 'StripeController@import')->middleware('password_protected')->name('stripe.import');
 
     Route::post('stripe/verify', 'StripeController@verify')->middleware('password_protected')->name('stripe.verify');
+    Route::post('stripe/disconnect/{company_gateway_id}', 'StripeController@disconnect')->middleware('password_protected')->name('stripe.disconnect');
 
     Route::resource('subscriptions', 'SubscriptionController');
     Route::post('subscriptions/bulk', 'SubscriptionController@bulk')->name('subscriptions.bulk');
@@ -214,7 +216,7 @@ Route::match(['get', 'post'], 'payment_notification_webhook/{company_key}/{compa
     ->middleware(['guest'])
     ->name('payment_notification_webhook');
 
-Route::post('api/v1/postmark_webhook', 'PostMarkController@webhook');
+Route::post('api/v1/postmark_webhook', 'PostMarkController@webhook')->middleware(['throttle:5000,1']);
 Route::get('token_hash_router', 'OneTimeTokenController@router');
 Route::get('webcron', 'WebCronController@index');
 Route::post('api/v1/get_migration_account', 'HostedMigrationController@getAccount')->middleware('guest');

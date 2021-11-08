@@ -185,6 +185,10 @@ class InvoiceController extends BaseController
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(ref="#/components/schemas/FillableInvoice")
+     *      ),
      *      @OA\Response(
      *          response=200,
      *          description="Returns the saved invoice object",
@@ -629,7 +633,7 @@ class InvoiceController extends BaseController
     }
 
     private function performAction(Invoice $invoice, $action, $bulk = false)
-    {
+    {   
         /*If we are using bulk actions, we don't want to return anything */
         switch ($action) {
             case 'clone_to_invoice':

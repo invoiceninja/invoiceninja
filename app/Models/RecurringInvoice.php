@@ -449,6 +449,10 @@ class RecurringInvoice extends BaseModel
 
     public function calculateDueDate($date)
     {
+        //if nothing is set, assume we are using terms.
+        if(!$this->due_date_days)
+            return $this->calculateDateFromTerms($date);    
+
         switch ($this->due_date_days) {
             case 'terms':
                 return $this->calculateDateFromTerms($date);

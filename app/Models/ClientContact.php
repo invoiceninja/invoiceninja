@@ -92,7 +92,7 @@ class ClientContact extends Authenticatable implements HasLocalePreference
         'custom_value4',
         'email',
         'is_primary',
-        // 'client_id',
+        'send_email',
     ];
 
     /**

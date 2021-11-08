@@ -1400,7 +1400,7 @@ $LANG = array(
     'more_options' => 'More options',
     'credit_card' => 'Credit Card',
     'bank_transfer' => 'Bank Transfer',
-    'no_transaction_reference' => 'We did not recieve a payment transaction reference from the gateway.',
+    'no_transaction_reference' => 'We did not receive a payment transaction reference from the gateway.',
     'use_bank_on_file' => 'Use Bank on File',
     'auto_bill_email_message' => 'This invoice will automatically be billed to the payment method on file on the due date.',
     'bitcoin' => 'Bitcoin',
@@ -1779,7 +1779,7 @@ $LANG = array(
     'lang_Bulgarian' => 'Bulgarian',
     'lang_Russian (Russia)' => 'Russian (Russia)',
 
-    
+
     // Industries
     'industry_Accounting & Legal' => 'Accounting & Legal',
     'industry_Advertising' => 'Advertising',
@@ -2478,6 +2478,8 @@ $LANG = array(
     'currency_zimbabwean_dollar' => 'Zimbabwean Dollar',
     'currency_cambodian_riel' => 'Cambodian Riel',
     'currency_vanuatu_vatu' => 'Vanuatu Vatu',
+
+    'currency_cuban_peso' => 'Cuban Peso',
 
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider :link we\'d greatly appreciate it!',
     'writing_a_review' => 'writing a review',
@@ -4321,6 +4323,24 @@ $LANG = array(
     'payment_method_cannot_be_preauthorized' => 'This payment method cannot be preauthorized.',
     'kbc_cbc' => 'KBC/CBC',
     'bancontact' => 'Bancontact',
+    'sepa_mandat' => 'By providing your IBAN and confirming this payment, you are authorizing :company and Stripe, our payment service provider, to send instructions to your bank to debit your account and your bank to debit your account in accordance with those instructions. You are entitled to a refund from your bank under the terms and conditions of your agreement with your bank. A refund must be claimed within 8 weeks starting from the date on which your account was debited.',
+    'ideal' => 'iDEAL',
+    'bank_account_holder' => 'Bank Account Holder',
+    'aio_checkout' => 'All-in-one checkout',
+    'przelewy24' => 'Przelewy24',
+    'przelewy24_accept' => 'I declare that I have familiarized myself with the regulations and information obligation of the Przelewy24 service.',
+    'giropay' => 'GiroPay',
+    'giropay_law' => 'By entering your Customer information (such as name, sort code and account number) you (the Customer) agree that this information is given voluntarily.',
+    'eps' => 'EPS',
+    'becs' => 'BECS Direct Debit',
+    'becs_mandate' => 'By providing your bank account details, you agree to this <a class="underline" href="https://stripe.com/au-becs-dd-service-agreement/legal">Direct Debit Request and the Direct Debit Request service agreement</a>, and authorise Stripe Payments Australia Pty Ltd ACN 160 180 343 Direct Debit User ID number 507156 (“Stripe”) to debit your account through the Bulk Electronic Clearing System (BECS) on behalf of :company (the “Merchant”) for any amounts separately communicated to you by the Merchant. You certify that you are either an account holder or an authorised signatory on the account listed above.',
+    'you_need_to_accept_the_terms_before_proceeding' => 'You need to accept the terms before proceeding.',
+    'direct_debit' => 'Direct Debit',
+    'clone_to_expense' => 'Clone to expense',
+    'checkout' => 'Checkout',
+    'acss' => 'Pre-authorized debit payments',
+    'invalid_amount' => 'Invalid amount. Number/Decimal values only.',
+    'client_payment_failure_body' => 'Payment for Invoice :invoice for amount :amount failed.',
 );
 
 return $LANG;

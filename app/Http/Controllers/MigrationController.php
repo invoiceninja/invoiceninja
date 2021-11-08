@@ -180,6 +180,25 @@ class MigrationController extends BaseController
         $company->vendors()->forceDelete();
         $company->expenses()->forceDelete();
 
+        $settings = $company->settings;
+
+        /* Reset all counters to 1 after a purge */
+        $settings->recurring_invoice_number_counter = 1;
+        $settings->invoice_number_counter = 1;
+        $settings->quote_number_counter = 1;
+        $settings->client_number_counter = 1;
+        $settings->credit_number_counter = 1;
+        $settings->task_number_counter = 1;
+        $settings->expense_number_counter = 1;
+        $settings->recurring_expense_number_counter = 1;
+        $settings->recurring_quote_number_counter = 1;
+        $settings->vendor_number_counter = 1;
+        $settings->ticket_number_counter = 1;
+        $settings->payment_number_counter = 1;
+        $settings->project_number_counter = 1;
+
+        $company->settings = $settings;
+
         $company->save();
 
         return response()->json(['message' => 'Settings preserved'], 200);
@@ -234,21 +253,24 @@ class MigrationController extends BaseController
     public function startMigration(Request $request)
     {   
 
-                            // v4 Laravel 6
-
-                            // $companies = [];
-
-                            // foreach($request->all() as $input){
-
-                            //     if($input instanceof UploadedFile)
-                            //         nlog('is file');
-                            //     else
-                            //         $companies[] = json_decode($input);
-                            // }
-
         nlog("Starting Migration");
         
-        $companies = json_decode($request->companies,1);
+        if($request->companies){
+            //handle Laravel 5.5 UniHTTP
+            $companies = json_decode($request->companies,1);
+        }
+        else {
+            //handle Laravel 6 Guzzle
+            $companies = [];
+
+            foreach($request->all() as $input){
+
+                if($input instanceof UploadedFile)
+                    nlog('is file');
+                else
+                    $companies[] = json_decode($input,1);
+            }
+        }
 
         if (app()->environment() === 'local') {
             nlog($request->all());
@@ -267,21 +289,10 @@ class MigrationController extends BaseController
         foreach($companies as $company)
         {
 
+            if(!is_array($company))
+                continue;
+
             $company = (array)$company;
-
-                            // v4 Laravel 6
-                            // $input = $request->all();
-
-                            // foreach ($input as $company) {
-
-                            //     if($company instanceof UploadedFile)
-                            //         continue;
-                            //     else
-                            //         $company = json_decode($company,1);
-
-                            //     if (!$company || !is_int($company['company_index'] || !$request->file($company['company_index'])->isValid())) {
-                            //         continue;
-                            //     }
 
             $user = auth()->user();
 

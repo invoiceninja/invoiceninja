@@ -15,7 +15,6 @@ namespace App\PaymentDrivers;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Http\Requests\Gateways\Checkout3ds\Checkout3dsRequest;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
-use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\Company;
@@ -243,26 +242,17 @@ class CheckoutComPaymentDriver extends BaseDriver
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
         $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->withTrashed()->first();
 
-        if ($invoice) {
-            $description = "Invoice {$invoice->number} for {$amount} for client {$this->client->present()->name()}";
-        } else {
-            $description = "Payment with no invoice for amount {$amount} for client {$this->client->present()->name()}";
-        }
-
         $this->init();
 
         $method = new IdSource($cgt->token);
 
         $payment = new \Checkout\Models\Payments\Payment($method, $this->client->getCurrencyCode());
         $payment->amount = $this->convertToCheckoutAmount($amount, $this->client->getCurrencyCode());
-        //$payment->reference = $cgt->meta->last4 . '-' . now();
         $payment->reference = $invoice->number . '-' . now();
 
         $request = new PaymentResponseRequest();
         $request->setMethod('POST');
         $request->request->add(['payment_hash' => $payment_hash->hash]);
-
-        //$this->setPaymentHash($payment_hash);
 
         try {
             $response = $this->gateway->payments()->request($payment);
@@ -293,11 +283,7 @@ class CheckoutComPaymentDriver extends BaseDriver
             if ($response->status == 'Declined') {
                 $this->unWindGatewayFees($payment_hash);
 
-                PaymentFailureMailer::dispatch(
-                    $this->client, $response->response_summary,
-                    $this->client->company,
-                    $amount
-                );
+                $this->sendFailureMail($response->status . " " . $response->response_summary);
 
                 $message = [
                     'server_response' => $response,
@@ -328,7 +314,16 @@ class CheckoutComPaymentDriver extends BaseDriver
                 'message' => $message,
             ];
 
-            SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_CHECKOUT, $this->client, $this->client->company);
+            $this->sendFailureMail($message);
+
+            SystemLogger::dispatch(
+                $data, 
+                SystemLog::CATEGORY_GATEWAY_RESPONSE, 
+                SystemLog::EVENT_GATEWAY_FAILURE, 
+                SystemLog::TYPE_CHECKOUT, 
+                $this->client, 
+                $this->client->company
+            );
         }
     }
 
@@ -343,7 +338,9 @@ class CheckoutComPaymentDriver extends BaseDriver
         $this->setPaymentHash($request->getPaymentHash());
 
         try {
-            $payment = $this->gateway->payments()->details($request->query('cko-session-id'));
+            $payment = $this->gateway->payments()->details(
+                $request->query('cko-session-id')
+            );
 
             if ($payment->approved) {
                 return $this->processSuccessfulPayment($payment);

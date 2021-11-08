@@ -19,7 +19,7 @@ use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Jobs\Mail\NinjaMailer;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
-use App\Jobs\Mail\PaymentFailureMailer;
+use App\Jobs\Mail\PaymentFailedMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Mail\Admin\ClientPaymentFailureObject;
 use App\Models\Client;
@@ -221,6 +221,19 @@ class BaseDriver extends AbstractPaymentDriver
     {
         $this->confirmGatewayFee();
 
+        /*Never create a payment with a duplicate transaction reference*/
+        if(array_key_exists('transaction_reference', $data)){
+
+            $_payment = Payment::where('transaction_reference', $data['transaction_reference'])
+                               ->where('client_id', $this->client->id)
+                               ->first();
+
+           if($_payment)
+            return $_payment;
+        
+        }
+
+
         $payment = PaymentFactory::create($this->client->company->id, $this->client->user->id);
         $payment->client_id = $this->client->id;
         $payment->company_gateway_id = $this->company_gateway->id;
@@ -236,7 +249,7 @@ class BaseDriver extends AbstractPaymentDriver
         $payment->type_id = $data['payment_type'];
         $payment->transaction_reference = $data['transaction_reference'];
         $payment->client_contact_id = $client_contact_id;
-        $payment->save();
+        $payment->saveQuietly();
 
         $this->payment_hash->payment_id = $payment->id;
         $this->payment_hash->save();
@@ -247,6 +260,8 @@ class BaseDriver extends AbstractPaymentDriver
             $payment = $payment->service()->applyCredits($this->payment_hash)->save();
 
         $payment->service()->updateInvoicePayment($this->payment_hash);
+
+        event('eloquent.created: App\Models\Payment', $payment);
 
         if ($this->client->getSetting('client_online_payment_notification'))
             $payment->service()->sendEmail();
@@ -306,7 +321,7 @@ class BaseDriver extends AbstractPaymentDriver
         $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
 
         $invoices->each(function ($invoice) {
-            $invoice->service()->removeUnpaidGatewayFees();
+            $invoice->service()->removeUnpaidGatewayFees()->save();
         });
     }
 
@@ -371,41 +386,9 @@ class BaseDriver extends AbstractPaymentDriver
         } else
             $error = $e->getMessage();
 
-        PaymentFailureMailer::dispatch(
-            $gateway->client,
-            $error,
-            $gateway->client->company,
-            $this->payment_hash
-        );
+        $amount = array_sum(array_column($this->payment_hash->invoices(), 'amount')) + $this->payment_hash->fee_total;
 
-        if (!is_null($this->payment_hash)) {
-
-            $nmo = new NinjaMailerObject;
-            $nmo->mailable = new NinjaMailer((new ClientPaymentFailureObject($gateway->client, $error, $gateway->client->company, $this->payment_hash))->build());
-            $nmo->company = $gateway->client->company;
-            $nmo->settings = $gateway->client->company->settings;
-
-            $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
-
-            $invoices->each(function ($invoice) {
-
-                $invoice->service()->deletePdf();
-                
-            });
-
-            $invoices->first()->invitations->each(function ($invitation) use ($nmo) {
-
-                if ($invitation->contact->send_email && $invitation->contact->email) {
-
-                    $nmo->to_user = $invitation->contact;
-                    NinjaMailerJob::dispatch($nmo);
-                }
-            
-            });
-
-
-        }
-
+        $this->sendFailureMail($error);
 
         SystemLogger::dispatch(
             $gateway->payment_hash,
@@ -417,6 +400,51 @@ class BaseDriver extends AbstractPaymentDriver
         );
 
         throw new PaymentFailed($error, $e->getCode());
+    }
+
+    public function sendFailureMail(string $error)
+    {
+
+        PaymentFailedMailer::dispatch(
+            $this->payment_hash,
+            $this->client->company,
+            $this->client,
+            $error
+        );
+
+    }
+
+    public function clientPaymentFailureMailer($error)
+    {
+
+        if ($this->payment_hash && is_array($this->payment_hash->invoices())) {
+
+
+            $nmo = new NinjaMailerObject;
+            $nmo->mailable = new NinjaMailer((new ClientPaymentFailureObject($this->client, $error, $this->client->company, $this->payment_hash))->build());
+            $nmo->company = $this->client->company;
+            $nmo->settings = $this->client->company->settings;
+
+            $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
+
+            $invoices->each(function ($invoice) {
+
+                $invoice->service()->deletePdf();
+                
+            });
+
+            $invoices->first()->invitations->each(function ($invitation) use ($nmo) {
+
+                if ($invitation->contact->email) {
+
+                    $nmo->to_user = $invitation->contact;
+                    NinjaMailerJob::dispatch($nmo);
+                }
+            
+            });
+
+        }
+
     }
 
     /**
@@ -442,7 +470,7 @@ class BaseDriver extends AbstractPaymentDriver
 
         $this->unWindGatewayFees($this->payment_hash);
 
-        PaymentFailureMailer::dispatch($this->client, $error, $this->client->company, $this->payment_hash->data->amount_with_fee);
+        $this->sendFailureMail($error);
 
         $nmo = new NinjaMailerObject;
         $nmo->mailable = new NinjaMailer( (new ClientPaymentFailureObject($this->client, $error, $this->client->company, $this->payment_hash))->build() );
@@ -459,7 +487,7 @@ class BaseDriver extends AbstractPaymentDriver
 
         $invoices->first()->invitations->each(function ($invitation) use ($nmo){
 
-            if (!$invitation->contact->trashed() && $invitation->contact->send_email && $invitation->contact->email) {
+            if (!$invitation->contact->trashed()) {
 
                 $nmo->to_user = $invitation->contact;
                 NinjaMailerJob::dispatch($nmo);
@@ -492,84 +520,84 @@ class BaseDriver extends AbstractPaymentDriver
     public function checkRequirements()
     {
         if ($this->company_gateway->require_billing_address) {
-            if ($this->checkRequiredResource(auth()->user('contact')->client->address1)) {
+            if ($this->checkRequiredResource($this->client->address1)) {
                 $this->required_fields[] = 'billing_address1';
             }
 
-            if ($this->checkRequiredResource(auth()->user('contact')->client->address2)) {
+            if ($this->checkRequiredResource($this->client->address2)) {
                 $this->required_fields[] = 'billing_address2';
             }
 
-            if ($this->checkRequiredResource(auth()->user('contact')->client->city)) {
+            if ($this->checkRequiredResource($this->client->city)) {
                 $this->required_fields[] = 'billing_city';
             }
 
-            if ($this->checkRequiredResource(auth()->user('contact')->client->state)) {
+            if ($this->checkRequiredResource($this->client->state)) {
                 $this->required_fields[] = 'billing_state';
             }
 
-            if ($this->checkRequiredResource(auth()->user('contact')->client->postal_code)) {
+            if ($this->checkRequiredResource($this->client->postal_code)) {
                 $this->required_fields[] = 'billing_postal_code';
             }
 
-            if ($this->checkRequiredResource(auth()->user('contact')->client->country_id)) {
+            if ($this->checkRequiredResource($this->client->country_id)) {
                 $this->required_fields[] = 'billing_country';
             }
         }
 
         if ($this->company_gateway->require_shipping_address) {
-            if ($this->checkRequiredResource(auth()->user('contact')->client->shipping_address1)) {
+            if ($this->checkRequiredResource($this->client->shipping_address1)) {
                 $this->required_fields[] = 'shipping_address1';
             }
 
-            if ($this->checkRequiredResource(auth()->user('contact')->client->shipping_address2)) {
+            if ($this->checkRequiredResource($this->client->shipping_address2)) {
                 $this->required_fields[] = 'shipping_address2';
             }
 
-            if ($this->checkRequiredResource(auth()->user('contact')->client->shipping_city)) {
+            if ($this->checkRequiredResource($this->client->shipping_city)) {
                 $this->required_fields[] = 'shipping_city';
             }
 
-            if ($this->checkRequiredResource(auth()->user('contact')->client->shipping_state)) {
+            if ($this->checkRequiredResource($this->client->shipping_state)) {
                 $this->required_fields[] = 'shipping_state';
             }
 
-            if ($this->checkRequiredResource(auth()->user('contact')->client->shipping_postal_code)) {
+            if ($this->checkRequiredResource($this->client->shipping_postal_code)) {
                 $this->required_fields[] = 'shipping_postal_code';
             }
 
-            if ($this->checkRequiredResource(auth()->user('contact')->client->shipping_country_id)) {
+            if ($this->checkRequiredResource($this->client->shipping_country_id)) {
                 $this->required_fields[] = 'shipping_country';
             }
         }
 
         if ($this->company_gateway->require_client_name) {
-            if ($this->checkRequiredResource(auth()->user('contact')->client->name)) {
+            if ($this->checkRequiredResource($this->client->name)) {
                 $this->required_fields[] = 'name';
             }
         }
 
         if ($this->company_gateway->require_client_phone) {
-            if ($this->checkRequiredResource(auth()->user('contact')->client->phone)) {
+            if ($this->checkRequiredResource($this->client->phone)) {
                 $this->required_fields[] = 'phone';
             }
         }
 
         if ($this->company_gateway->require_contact_email) {
-            if ($this->checkRequiredResource(auth()->user('contact')->email)) {
+            if ($this->checkRequiredResource($this->email)) {
                 $this->required_fields[] = 'contact_email';
             }
         }
 
-        if ($this->company_gateway->require_contact_name) {
-            if ($this->checkRequiredResource(auth()->user('contact')->first_name)) {
-                $this->required_fields[] = 'contact_first_name';
-            }
+        // if ($this->company_gateway->require_contact_name) {
+        //     if ($this->checkRequiredResource($this->first_name)) {
+        //         $this->required_fields[] = 'contact_first_name';
+        //     }
 
-            if ($this->checkRequiredResource(auth()->user('contact')->last_name)) {
-                $this->required_fields[] = 'contact_last_name';
-            }
-        }
+        //     if ($this->checkRequiredResource($this->last_name)) {
+        //         $this->required_fields[] = 'contact_last_name';
+        //     }
+        // }
 
         if ($this->company_gateway->require_postal_code) {
             // In case "require_postal_code" is true, we don't need billing address.
@@ -580,7 +608,7 @@ class BaseDriver extends AbstractPaymentDriver
                 }
             }
 
-            if ($this->checkRequiredResource(auth()->user('contact')->client->postal_code)) {
+            if ($this->checkRequiredResource($this->client->postal_code)) {
                 $this->required_fields[] = 'postal_code';
             }
         }
@@ -620,19 +648,25 @@ class BaseDriver extends AbstractPaymentDriver
     {
         $types = [];
 
-        // if($type == GatewayType::BANK_TRANSFER && $this->company_gateway->fees_and_limits->{GatewayType::BANK_TRANSFER}->is_enabled)
-        // {
-        //     $types[] = $type;    
-        // }
-        // elseif($type == GatewayType::CREDIT_CARD && $this->company_gateway->fees_and_limits->{GatewayType::CREDIT_CARD}->is_enabled)
-        // {
-        //     $types[] = $type;    
-        // }
-
         $types[] = GatewayType::CREDIT_CARD;
         $types[] = GatewayType::BANK_TRANSFER;
 
         return $types;
+    }
+
+    /**
+     * Generic description handler
+     */
+    public function getDescription(bool $abbreviated = true)
+    {
+        if(!$this->payment_hash)
+            return "";
+
+        if($abbreviated)
+            return \implode(', ', collect($this->payment_hash->invoices())->pluck('invoice_number')->toArray());
+
+        return sprintf('%s: %s', ctrans('texts.invoices'), \implode(', ', collect($this->payment_hash->invoices())->pluck('invoice_number')->toArray()));
+
     }
 
     public function disconnect()

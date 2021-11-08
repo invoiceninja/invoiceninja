@@ -698,7 +698,7 @@ class PaymentTest extends TestCase
         $payment->amount = 10;
         $payment->client_id = $client->id;
         $payment->date = now();
-        $payment->number = $client->getNextPaymentNumber($client);
+        $payment->number = $client->getNextPaymentNumber($client, $payment);
         $payment->save();
 
         $data = [

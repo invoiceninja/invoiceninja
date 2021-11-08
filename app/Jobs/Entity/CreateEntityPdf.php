@@ -59,6 +59,8 @@ class CreateEntityPdf implements ShouldQueue
 
     public $entity_string = '';
 
+    public $client;
+
     /**
      * Create a new job instance.
      *
@@ -69,15 +71,19 @@ class CreateEntityPdf implements ShouldQueue
         $this->invitation = $invitation;
 
         if ($invitation instanceof InvoiceInvitation) {
+            // $invitation->load('contact.client.company','invoice.client','invoice.user.account');
             $this->entity = $invitation->invoice;
             $this->entity_string = 'invoice';
         } elseif ($invitation instanceof QuoteInvitation) {
+            // $invitation->load('contact.client.company','quote.client','quote.user.account');
             $this->entity = $invitation->quote;
             $this->entity_string = 'quote';
         } elseif ($invitation instanceof CreditInvitation) {
+            // $invitation->load('contact.client.company','credit.client','credit.user.account');
             $this->entity = $invitation->credit;
             $this->entity_string = 'credit';
         } elseif ($invitation instanceof RecurringInvoiceInvitation) {
+            // $invitation->load('contact.client.company','recurring_invoice');
             $this->entity = $invitation->recurring_invoice;
             $this->entity_string = 'recurring_invoice';
         }
@@ -86,23 +92,31 @@ class CreateEntityPdf implements ShouldQueue
 
         $this->contact = $invitation->contact;
 
+        $this->client = $invitation->contact->client;
+        $this->client->load('company');
+        
         $this->disk = Ninja::isHosted() ? config('filesystems.default') : $disk;
 
     }
 
     public function handle()
     {
-        
+        $start = microtime(true);
+        // nlog("Start ". $start);
+
         /* Forget the singleton*/
         App::forgetInstance('translator');
 
         /* Init a new copy of the translator*/
         $t = app('translator');
         /* Set the locale*/
-        App::setLocale($this->contact->preferredLocale());
+        App::setLocale($this->client->locale());
 
         /* Set customized translations _NOW_ */
-        $t->replace(Ninja::transformTranslations($this->entity->client->getMergedSettings()));
+        $t->replace(Ninja::transformTranslations($this->client->getMergedSettings()));
+
+        $translate = microtime(true);
+        // nlog("Translate ". $translate - $start);
 
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
             return (new Phantom)->generate($this->invitation);
@@ -111,22 +125,22 @@ class CreateEntityPdf implements ShouldQueue
         $entity_design_id = '';
 
         if ($this->entity instanceof Invoice) {
-            $path = $this->entity->client->invoice_filepath($this->invitation);
+            $path = $this->client->invoice_filepath($this->invitation);
             $entity_design_id = 'invoice_design_id';
         } elseif ($this->entity instanceof Quote) {
-            $path = $this->entity->client->quote_filepath($this->invitation);
+            $path = $this->client->quote_filepath($this->invitation);
             $entity_design_id = 'quote_design_id';
         } elseif ($this->entity instanceof Credit) {
-            $path = $this->entity->client->credit_filepath($this->invitation);
+            $path = $this->client->credit_filepath($this->invitation);
             $entity_design_id = 'credit_design_id';
         } elseif ($this->entity instanceof RecurringInvoice) {
-            $path = $this->entity->client->recurring_invoice_filepath($this->invitation);
+            $path = $this->client->recurring_invoice_filepath($this->invitation);
             $entity_design_id = 'invoice_design_id';
         }
 
         $file_path = $path.$this->entity->numberFormatter().'.pdf';
 
-        $entity_design_id = $this->entity->design_id ? $this->entity->design_id : $this->decodePrimaryKey($this->entity->client->getSetting($entity_design_id));
+        $entity_design_id = $this->entity->design_id ? $this->entity->design_id : $this->decodePrimaryKey($this->client->getSetting($entity_design_id));
 
         // if(!$this->company->account->hasFeature(Account::FEATURE_DIFFERENT_DESIGNS))
         //     $entity_design_id = 2;
@@ -139,6 +153,9 @@ class CreateEntityPdf implements ShouldQueue
 
         $html = new HtmlEngine($this->invitation);
 
+        $design_time = microtime(true);
+        // nlog("Design ". $design_time - $translate);
+
         if ($design->is_custom) {
             $options = [
             'custom_partials' => json_decode(json_encode($design->design), true)
@@ -150,20 +167,23 @@ class CreateEntityPdf implements ShouldQueue
 
         $variables = $html->generateLabelsAndValues();
 
+        $labels_time = microtime(true);
+        // nlog("Labels ". $labels_time - $design_time);
+
         $state = [
             'template' => $template->elements([
-                'client' => $this->entity->client,
+                'client' => $this->client,
                 'entity' => $this->entity,
-                'pdf_variables' => (array) $this->entity->company->settings->pdf_variables,
+                'pdf_variables' => (array) $this->company->settings->pdf_variables,
                 '$product' => $design->design->product,
                 'variables' => $variables,
             ]),
             'variables' => $variables,
             'options' => [
-                'all_pages_header' => $this->entity->client->getSetting('all_pages_header'),
-                'all_pages_footer' => $this->entity->client->getSetting('all_pages_footer'),
+                'all_pages_header' => $this->client->getSetting('all_pages_header'),
+                'all_pages_footer' => $this->client->getSetting('all_pages_footer'),
             ],
-            'process_markdown' => $this->entity->client->company->markdown_enabled,
+            'process_markdown' => $this->client->company->markdown_enabled,
         ];
 
         $maker = new PdfMakerService($state);
@@ -171,6 +191,10 @@ class CreateEntityPdf implements ShouldQueue
         $maker
             ->design($template)
             ->build();
+
+
+        $template_time = microtime(true);
+        // nlog("Template Build ". $template_time - $labels_time);
 
         $pdf = null;
 
@@ -191,6 +215,9 @@ class CreateEntityPdf implements ShouldQueue
             info($maker->getCompiledHTML());
         }
 
+
+        $pdf_time = microtime(true);
+        // nlog("PDF time " . $pdf_time - $template_time);
 
         if ($pdf) {
 

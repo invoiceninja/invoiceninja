@@ -86,6 +86,9 @@ class DemoMode extends Command
     {
         set_time_limit(0);
 
+        if(config('ninja.is_docker'))
+            return;
+
         $cached_tables = config('ninja.cached_tables');
 
         foreach ($cached_tables as $name => $class) {
@@ -486,7 +489,7 @@ class DemoMode extends Command
         if (rand(0, 1)) {
             $invoice->assigned_user_id = $assigned_user_id;
         }
-        $invoice->number = $this->getNextRecurringInvoiceNumber($client);
+        $invoice->number = $this->getNextRecurringInvoiceNumber($client, $invoice);
         $invoice->save();
     }
 

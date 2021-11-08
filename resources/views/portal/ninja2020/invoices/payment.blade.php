@@ -4,7 +4,7 @@
 @push('head')
 <meta name="show-invoice-terms" content="{{ $settings->show_accept_invoice_terms ? true : false }}">
 <meta name="require-invoice-signature" content="{{ $client->user->account->hasFeature(\App\Models\Account::FEATURE_INVOICE_SETTINGS) && $settings->require_invoice_signature }}">
-<script src="https://cdn.jsdelivr.net/npm/signature_pad@2.3.2/dist/signature_pad.min.js"></script>
+<script src="{{ asset('vendor/signature_pad@2.3.2/signature_pad.min.js') }}"></script>
 @endpush
 
 @section('body')
@@ -67,7 +67,7 @@
                                     {{ ctrans('texts.invoice_date') }}
                                 </dt>
                                 <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                                    {{ $invoice->date }}
+                                    {{ $invoice->formatDate($invoice->date, $invoice->client->date_format()) }}
                                 </dd>
                                 @endif
                             </div>

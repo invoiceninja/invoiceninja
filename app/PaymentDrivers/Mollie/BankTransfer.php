@@ -14,8 +14,7 @@ namespace App\PaymentDrivers\Mollie;
 
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use App\Http\Requests\Request;
-use App\Jobs\Mail\PaymentFailureMailer;
+use Illuminate\Http\Request;
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\Payment;
@@ -81,7 +80,7 @@ class BankTransfer implements MethodInterface
                     'currency' => $this->mollie->client->currency()->code,
                     'value' => $this->mollie->convertToMollieAmount((float) $this->mollie->payment_hash->data->amount_with_fee),
                 ],
-                'description' => \sprintf('Invoices: %s', collect($data['invoices'])->pluck('invoice_number')),
+                'description' => \sprintf('%s: %s', ctrans('texts.invoices'), \implode(', ', collect($data['invoices'])->pluck('invoice_number')->toArray())),
                 'redirectUrl' => route('client.payments.response', [
                     'company_gateway_id' => $this->mollie->company_gateway->id,
                     'payment_hash' => $this->mollie->payment_hash->hash,
@@ -112,12 +111,8 @@ class BankTransfer implements MethodInterface
      */
     public function processUnsuccessfulPayment(\Exception $e): void
     {
-        PaymentFailureMailer::dispatch(
-            $this->mollie->client,
-            $e->getMessage(),
-            $this->mollie->client->company,
-            $this->mollie->payment_hash->data->amount_with_fee
-        );
+
+        $this->mollie->sendFailureMail($e->getMessage());
 
         SystemLogger::dispatch(
             $e->getMessage(),

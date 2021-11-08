@@ -6,7 +6,6 @@ namespace App\PaymentDrivers\Braintree;
 
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\Payment;
@@ -141,7 +140,8 @@ class PayPal
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_SUCCESS,
             SystemLog::TYPE_BRAINTREE,
-            $this->braintree->client
+            $this->braintree->client,
+            $this->braintree->client->company,
         );
 
         return redirect()->route('client.payments.show', ['payment' => $this->braintree->encodePrimaryKey($payment->id)]);
@@ -149,14 +149,7 @@ class PayPal
 
     private function processUnsuccessfulPayment($response)
     {
-        PaymentFailureMailer::dispatch($this->braintree->client, $response->message, $this->braintree->client->company, $this->braintree->payment_hash->data->amount_with_fee);
-
-        PaymentFailureMailer::dispatch(
-            $this->braintree->client,
-            $response,
-            $this->braintree->client->company,
-            $this->braintree->payment_hash->data->amount_with_fee,
-        );
+        $this->braintree->sendFailureMail($response->message);
 
         $message = [
             'server_response' => $response,

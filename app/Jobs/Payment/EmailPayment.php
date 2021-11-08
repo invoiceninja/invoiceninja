@@ -74,12 +74,15 @@ class EmailPayment implements ShouldQueue
 
             MultiDB::setDb($this->company->db);
 
+            $this->payment->load('invoices');
+            $this->contact->load('client');
+
             $email_builder = (new PaymentEmailEngine($this->payment, $this->contact))->build();
 
             $invitation = null;
 
-            if($this->payment->invoices()->exists())
-                $invitation = $this->payment->invoices()->first()->invitations()->first();
+            if($this->payment->invoices && $this->payment->invoices->count() >=1)
+                $invitation = $this->payment->invoices->first()->invitations()->first();
 
             $nmo = new NinjaMailerObject;
             $nmo->mailable = new TemplateEmail($email_builder, $this->contact, $invitation);

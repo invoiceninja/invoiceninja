@@ -185,7 +185,7 @@ class RecurringExpenseApiTest extends TestCase
             ])->post('/api/v1/recurring_expenses/bulk?action=start', $data);
 
         $arr = $response->json();
-nlog($arr);
+
         $this->assertEquals(RecurringInvoice::STATUS_ACTIVE, $arr['data'][0]['status_id']);
     }
 
@@ -207,7 +207,7 @@ nlog($arr);
             ])->post('/api/v1/recurring_expenses/bulk?action=stop', $data);
 
         $arr = $response->json();
-nlog($arr);
+
         $this->assertEquals(RecurringInvoice::STATUS_PAUSED, $arr['data'][0]['status_id']);
     }
 

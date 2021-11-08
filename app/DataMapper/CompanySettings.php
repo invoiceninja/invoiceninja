@@ -126,15 +126,13 @@ class CompanySettings extends BaseSettings
     public $auto_bill = 'off'; //off,always,optin,optout //@implemented
     public $auto_bill_date = 'on_due_date'; // on_due_date , on_send_date //@implemented
 
-    //public $design = 'views/pdf/design1.blade.php'; //@deprecated - never used
-
     public $invoice_terms = ''; //@implemented
     public $quote_terms = ''; //@implemented
     public $invoice_taxes = 0; // ? used in AP only?
-    // public $enabled_item_tax_rates = 0;
-    public $invoice_design_id = 'VolejRejNm'; //@implemented
-    public $quote_design_id = 'VolejRejNm'; //@implemented
-    public $credit_design_id = 'VolejRejNm'; //@implemented
+
+    public $invoice_design_id = 'Wpmbk5ezJn'; //@implemented
+    public $quote_design_id = 'Wpmbk5ezJn'; //@implemented
+    public $credit_design_id = 'Wpmbk5ezJn'; //@implemented
     public $invoice_footer = ''; //@implemented
     public $credit_footer = ''; //@implemented
     public $credit_terms = ''; //@implemented
@@ -146,7 +144,6 @@ class CompanySettings extends BaseSettings
     public $tax_name3 = ''; //@TODO where do we use this?
     public $tax_rate3 = 0; //@TODO where do we use this?
     public $payment_type_id = '0'; //@TODO where do we use this?
-    // public $invoice_fields = ''; //@TODO is this redundant, we store this in the custom_fields on the company?
 
     public $valid_until = ''; //@implemented
 

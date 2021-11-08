@@ -13,7 +13,6 @@
 namespace App\PaymentDrivers;
 
 use App\Exceptions\PaymentFailed;
-use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\Invoice;
@@ -94,7 +93,7 @@ class PayPalExpressPaymentDriver extends BaseDriver
             return $response->redirect();
         }
 
-        PaymentFailureMailer::dispatch($this->client, $response->getData(), $this->client->company, $data['total']['amount_with_fee']);
+        $this->sendFailureMail($response->getMessage());
 
         $message = [
             'server_response' => $response->getMessage(),
@@ -151,8 +150,8 @@ class PayPalExpressPaymentDriver extends BaseDriver
         if (!$response->isSuccessful()) {
 
             $data = $response->getData();
-
-            PaymentFailureMailer::dispatch($this->client, $response->getMessage(), $this->client->company, $this->payment_hash->data->amount);
+            
+            $this->sendFailureMail($response->getMessage());
 
             $message = [
                 'server_response' => $data['L_LONGMESSAGE0'],

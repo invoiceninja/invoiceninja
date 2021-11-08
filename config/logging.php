@@ -129,7 +129,7 @@ return [
             // This optional option determines the channel name sent with the
             // message in the 'facility' field. Default is equal to app.env
             // configuration value
-            'name' => 'my-custom-name',
+            'name' => 'v5_app',
 
             // This optional option determines the system name sent with the
             // message in the 'source' field. When forgotten or set to null,

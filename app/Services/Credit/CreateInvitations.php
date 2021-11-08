@@ -16,10 +16,13 @@ use App\Factory\CreditInvitationFactory;
 use App\Models\Credit;
 use App\Models\CreditInvitation;
 use App\Services\AbstractService;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Str;
 
 class CreateInvitations extends AbstractService
 {
+    use MakesHash;
+
     private $credit;
 
     public function __construct(Credit $credit)
@@ -46,6 +49,7 @@ class CreateInvitations extends AbstractService
 
             if (! $invitation) {
                 $ii = CreditInvitationFactory::create($this->credit->company_id, $this->credit->user_id);
+                $ii->key = $this->createDbHash(config('database.default'));
                 $ii->credit_id = $this->credit->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();

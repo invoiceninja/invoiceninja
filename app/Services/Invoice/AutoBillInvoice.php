@@ -23,6 +23,7 @@ use App\Models\PaymentType;
 use App\Services\AbstractService;
 use App\Utils\Ninja;
 use Illuminate\Support\Str;
+use PDO;
 
 class AutoBillInvoice extends AbstractService
 {
@@ -106,17 +107,24 @@ class AutoBillInvoice extends AbstractService
         /* Build payment hash */
         $payment_hash = PaymentHash::create([
             'hash' => Str::random(64),
-            'data' => ['invoices' => [['invoice_id' => $this->invoice->hashed_id, 'amount' => $amount]]],
+            'data' => ['invoices' => [['invoice_id' => $this->invoice->hashed_id, 'amount' => $amount, 'invoice_number' => $this->invoice->number]]],
             'fee_total' => $fee,
             'fee_invoice_id' => $this->invoice->id,
         ]);
 
         nlog("Payment hash created => {$payment_hash->id}");
 
+        $payment = false;
+
+        try{
         $payment = $gateway_token->gateway
                                  ->driver($this->client)
                                  ->setPaymentHash($payment_hash)
                                  ->tokenBilling($gateway_token, $payment_hash);
+         }
+         catch(\Exception $e){
+            nlog($e->getMessage());
+         }
 
         if($payment){
             info("Auto Bill payment captured for ".$this->invoice->number);
@@ -167,6 +175,8 @@ class AutoBillInvoice extends AbstractService
 
         }
 
+        event('eloquent.created: App\Models\Payment', $payment);
+
         $payment->ledger()
                     ->updatePaymentBalance($amount * -1)
                     ->save();
@@ -181,6 +191,7 @@ class AutoBillInvoice extends AbstractService
                           ->updateInvoiceBalance($amount * -1, "Invoice {$this->invoice->number} payment using Credit {$current_credit->number}")
                           ->updateCreditBalance($amount * -1, "Credit {$current_credit->number} used to pay down Invoice {$this->invoice->number}")
                           ->save();
+
 
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
@@ -296,7 +307,7 @@ class AutoBillInvoice extends AbstractService
     {
 
         //get all client gateway tokens and set the is_default one to the first record
-        $gateway_tokens = $this->client->gateway_tokens()->orderBy('is_default', 'DESC');
+        $gateway_tokens = $this->client->gateway_tokens()->orderBy('is_default', 'DESC')->get();
         // $gateway_tokens = $this->client->gateway_tokens;
 
         $filtered_gateways = $gateway_tokens->filter(function ($gateway_token) use($amount) {
@@ -304,7 +315,7 @@ class AutoBillInvoice extends AbstractService
             $company_gateway = $gateway_token->gateway;
 
             //check if fees and limits are set
-            if (isset($company_gateway->fees_and_limits) && property_exists($company_gateway->fees_and_limits, $gateway_token->gateway_type_id))
+            if (isset($company_gateway->fees_and_limits) && !is_array($company_gateway->fees_and_limits) && property_exists($company_gateway->fees_and_limits, $gateway_token->gateway_type_id))
             {
                 //if valid we keep this gateway_token
                 if ($this->invoice->client->validGatewayForAmount($company_gateway->fees_and_limits->{$gateway_token->gateway_type_id}, $amount))
@@ -348,9 +359,9 @@ class AutoBillInvoice extends AbstractService
         $items[] = $item;
 
         $this->invoice->line_items = $items;
-        $this->invoice->save();
+        $this->invoice->saveQuietly();
 
-        $this->invoice = $this->invoice->calc()->getInvoice()->save();
+        $this->invoice = $this->invoice->calc()->getInvoice()->saveQuietly();
 
         if ($starting_amount != $this->invoice->amount && $this->invoice->status_id != Invoice::STATUS_DRAFT) {
             $this->invoice->client->service()->updateBalance($this->invoice->amount - $starting_amount)->save();

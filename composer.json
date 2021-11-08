@@ -13,7 +13,7 @@
         "tasks",
         "freelancer"
     ],
-    "license": "Attribution Assurance License",
+    "license": "Elastic License",
     "authors": [
         {
             "name": "Hillel Coren",
@@ -73,6 +73,7 @@
         "payfast/payfast-php-sdk": "^1.1",
         "pragmarx/google2fa": "^8.0",
         "predis/predis": "^1.1",
+        "razorpay/razorpay": "2.*",
         "sentry/sentry-laravel": "^2",
         "square/square": "13.0.0.20210721",
         "stripe/stripe-php": "^7.50",

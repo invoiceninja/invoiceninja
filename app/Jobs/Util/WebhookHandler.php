@@ -43,18 +43,19 @@ class WebhookHandler implements ShouldQueue
 
     public $deleteWhenMissingModels = true;
 
-
+    private string $includes;
     /**
      * Create a new job instance.
      *
      * @param $event_id
      * @param $entity
      */
-    public function __construct($event_id, $entity, $company)
+    public function __construct($event_id, $entity, $company, $includes = '')
     {
         $this->event_id = $event_id;
         $this->entity = $entity;
         $this->company = $company;
+        $this->includes = $includes;
     }
 
     /**
@@ -90,6 +91,7 @@ class WebhookHandler implements ShouldQueue
         // generate JSON data
         $manager = new Manager();
         $manager->setSerializer(new ArraySerializer());
+        $manager->parseIncludes($this->includes);
 
         $class = sprintf('App\\Transformers\\%sTransformer', class_basename($this->entity));
 

@@ -38,8 +38,6 @@ class SchedulerCheck implements ShouldQueue
     {
         set_time_limit(0);
 
-        Account::whereNotNull('id')->update(['is_scheduler_running' => true]);
-
         if(config('ninja.app_version') != base_path('VERSION.txt'))
         {
 

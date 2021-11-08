@@ -77,15 +77,13 @@ class PdfMaker
             $this->updateVariables($this->data['variables']);
         }
 
-        $this->processOptions();
-
         return $this;
     }
 
     /**
      * Final method to get compiled HTML.
      * 
-     * @param bool $final @deprecated
+     * @param bool $final @deprecated // is it? i still see it being called elsewhere
      * @return mixed 
      */
     public function getCompiledHTML($final = false)

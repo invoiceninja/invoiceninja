@@ -134,9 +134,9 @@ class InvoiceService
      *
      * @return InvoiceService                     Parent class object
      */
-    public function updateBalance($balance_adjustment)
+    public function updateBalance($balance_adjustment, bool $is_draft = false)
     {
-        $this->invoice = (new UpdateBalance($this->invoice, $balance_adjustment))->run();
+        $this->invoice = (new UpdateBalance($this->invoice, $balance_adjustment, $is_draft))->run();
 
         if ((int)$this->invoice->balance == 0) {
             $this->invoice->next_send_date = null;
@@ -322,6 +322,8 @@ class InvoiceService
 
     public function deletePdf()
     {
+        $this->invoice->load('invitations');
+
         $this->invoice->invitations->each(function ($invitation){
 
             Storage::disk(config('filesystems.default'))->delete($this->invoice->client->invoice_filepath($invitation) . $this->invoice->numberFormatter().'.pdf');
@@ -337,6 +339,10 @@ class InvoiceService
 
     public function removeUnpaidGatewayFees()
     {
+        //return early if type three does not exist.
+        if(!collect($this->invoice->line_items)->contains('type_id', 3))
+            return $this;
+
         $this->invoice->line_items = collect($this->invoice->line_items)
                                      ->reject(function ($item) {
                                          return $item->type_id == '3';
@@ -447,18 +453,20 @@ class InvoiceService
 
     public function fillDefaults()
     {
+        $this->invoice->load('client.company');
+        
         $settings = $this->invoice->client->getMergedSettings();
 
         if (! $this->invoice->design_id) 
             $this->invoice->design_id = $this->decodePrimaryKey($settings->invoice_design_id);
         
-        if (!isset($this->invoice->footer)) 
+        if (!isset($this->invoice->footer) || empty($this->invoice->footer)) 
             $this->invoice->footer = $settings->invoice_footer;
 
-        if (!isset($this->invoice->terms)) 
+        if (!isset($this->invoice->terms)  || empty($this->invoice->terms)) 
             $this->invoice->terms = $settings->invoice_terms;
 
-        if (!isset($this->invoice->public_notes)) 
+        if (!isset($this->invoice->public_notes)  || empty($this->invoice->public_notes)) 
             $this->invoice->public_notes = $this->invoice->client->public_notes;
         
         /* If client currency differs from the company default currency, then insert the client exchange rate on the model.*/
@@ -473,10 +481,36 @@ class InvoiceService
 
         if ($this->invoice->status_id == Invoice::STATUS_PAID && $this->invoice->client->getSetting('auto_archive_invoice')) {
             /* Throws: Payment amount xxx does not match invoice totals. */
+
             $base_repository = new BaseRepository();
             $base_repository->archive($this->invoice);
+            
         }
 
+        /*
+        //if paid invoice is attached to a recurring invoice - check if we need to unpause the recurring invoice
+        
+        if ($this->invoice->status_id == Invoice::STATUS_PAID && 
+        $this->invoice->recurring_id && 
+        $this->invoice->company->pause_recurring_until_paid &&
+        ($this->invoice->recurring_invoice->status_id != RecurringInvoice::STATUS_ACTIVE || $this->invoice->recurring_invoice->status_id != RecurringInvoice::STATUS_COMPLETED))
+        {
+            $recurring_invoice = $this->invoice->recurring_invoice;
+
+            // Check next_send_date if it is in the past - calculate
+            $next_send_date = Carbon::parse($recurring_invoice->next_send_date)->startOfDay();
+
+            if(next_send_date->lt(now())){
+                $recurring_invoice->next_send_date = $recurring_invoice->nextDateByFrequency(now()->format('Y-m-d'));
+                $recurring_invoice->save();
+            }
+
+            // Start the recurring invoice
+            $recurring_invoice->service()
+                              ->start();
+
+        }
+        */
         return $this;
     }
 
@@ -486,8 +520,8 @@ class InvoiceService
      */
     public function save() :?Invoice
     {
-        $this->invoice->save();
+        $this->invoice->saveQuietly();
 
-        return $this->invoice;
+        return $this->invoice->fresh();
     }
 }

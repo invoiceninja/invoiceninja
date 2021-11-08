@@ -738,6 +738,10 @@ class BaseController extends Controller
                 return redirect()->secure(request()->getRequestUri());
             }
 
+            /* Clean up URLs and remove query parameters from the URL*/
+            if(request()->has('login') && request()->input('login') == 'true')
+                return redirect('/')->with(['login' => "true"]);
+
             $data = [];
 
             //pass report errors bool to front end
@@ -748,6 +752,9 @@ class BaseController extends Controller
             $data['build'] = request()->has('build') ? request()->input('build') : '';
             $data['login'] = request()->has('login') ? request()->input('login') : "false";
             
+            if(request()->session()->has('login'))
+                $data['login'] = "true";
+
             $data['user_agent'] = request()->server('HTTP_USER_AGENT');
 
             $data['path'] = $this->setBuild();
@@ -781,7 +788,9 @@ class BaseController extends Controller
             case 'next':
                 return 'main.next.dart.js';      
             case 'profile':
-                return 'main.profile.dart.js';                                     
+                return 'main.profile.dart.js';  
+            case 'html':             
+                return 'main.html.dart.js';                        
             default:
                 return 'main.foss.dart.js';
 

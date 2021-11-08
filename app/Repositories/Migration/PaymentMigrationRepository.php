@@ -107,7 +107,7 @@ class PaymentMigrationRepository extends BaseRepository
 
         /*Ensure payment number generated*/
         if (! $payment->number || strlen($payment->number) == 0) {
-            $payment->number = $payment->client->getNextPaymentNumber($payment->client);
+            $payment->number = $payment->client->getNextPaymentNumber($payment->client, $payment);
         }
 
         $invoice_totals = 0;

@@ -52,6 +52,8 @@ class Handler extends ExceptionHandler
         MaxAttemptsExceededException::class,
         CommandNotFoundException::class,
         ValidationException::class,
+        ModelNotFoundException::class,
+        NotFoundHttpException::class,
     ];
 
     /**

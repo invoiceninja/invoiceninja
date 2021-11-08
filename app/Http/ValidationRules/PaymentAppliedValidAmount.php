@@ -51,7 +51,7 @@ class PaymentAppliedValidAmount implements Rule
         $payment_amounts = 0;
         $invoice_amounts = 0;
 
-        $payment_amounts = $payment->amount - $payment->applied;
+        $payment_amounts = $payment->amount - $payment->refunded - $payment->applied;
 
         if (request()->input('credits') && is_array(request()->input('credits'))) {
             foreach (request()->input('credits') as $credit) {

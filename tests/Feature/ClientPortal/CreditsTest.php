@@ -93,9 +93,9 @@ class CreditsTest extends TestCase
         $this->actingAs($client->contacts->first(), 'contact');
 
         Livewire::test(CreditsTable::class, ['company' => $company])
-            ->assertSee('testing-number-01')
+            ->assertDontSee('testing-number-01')
             ->assertSee('testing-number-02')
-            ->assertDontSee('testing-number-03');
+            ->assertSee('testing-number-03');
     }
 
     public function testShowingCreditsWithNullDueDate()
@@ -122,6 +122,7 @@ class CreditsTest extends TestCase
             'client_id' => $client->id,
             'number' => 'testing-number-01',
             'status_id' => Credit::STATUS_SENT,
+            'due_date' => null,
         ]);
 
         Credit::factory()->create([
@@ -142,12 +143,21 @@ class CreditsTest extends TestCase
             'status_id' => Credit::STATUS_SENT,
         ]);
 
+        Credit::factory()->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'client_id' => $client->id,
+            'number' => 'testing-number-04',
+            'due_date' => '',
+            'status_id' => Credit::STATUS_SENT,
+        ]);
+
         $this->actingAs($client->contacts->first(), 'contact');
 
         Livewire::test(CreditsTable::class, ['company' => $company])
             ->assertSee('testing-number-01')
             ->assertSee('testing-number-02')
-            ->assertDontSee('testing-number-03');
+            ->assertSee('testing-number-03');
     }
 
 }

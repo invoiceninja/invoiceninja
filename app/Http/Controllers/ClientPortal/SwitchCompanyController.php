@@ -27,7 +27,7 @@ class SwitchCompanyController extends Controller
             ->where('id', $this->transformKeys($contact))
             ->first();
 
-        Auth::guard('contact')->login($client_contact, true);
+        auth()->guard('contact')->login($client_contact, true);
 
         return redirect('/client/dashboard');
     }

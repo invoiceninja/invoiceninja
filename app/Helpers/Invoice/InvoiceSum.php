@@ -53,6 +53,9 @@ class InvoiceSum
     {
         $this->invoice = $invoice;
 
+        // if(!$this->invoice->relationLoaded('client'))
+        //     $this->invoice->load('client');
+
         $this->tax_map = new Collection;
     }
 
@@ -200,7 +203,7 @@ class InvoiceSum
     {
         //Build invoice values here and return Invoice
         $this->setCalculatedAttributes();
-        $this->invoice->save();
+        $this->invoice->saveQuietly();
 
         return $this->invoice;
     }
@@ -208,7 +211,7 @@ class InvoiceSum
     public function getQuote()
     {
         $this->setCalculatedAttributes();
-        $this->invoice->save();
+        $this->invoice->saveQuietly();
 
         return $this->invoice;
     }
@@ -216,7 +219,7 @@ class InvoiceSum
     public function getCredit()
     {
         $this->setCalculatedAttributes();
-        $this->invoice->save();
+        $this->invoice->saveQuietly();
 
         return $this->invoice;
     }
@@ -227,7 +230,7 @@ class InvoiceSum
         $this->invoice->total_taxes = $this->getTotalTaxes();
         $this->invoice->balance = $this->formatValue($this->getTotal(), $this->invoice->client->currency()->precision);
 
-        $this->invoice->save();
+        $this->invoice->saveQuietly();
 
         return $this->invoice;
     }

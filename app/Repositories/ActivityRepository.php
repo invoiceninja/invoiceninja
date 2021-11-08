@@ -70,36 +70,34 @@ class ActivityRepository extends BaseRepository
      */
     public function createBackup($entity, $activity)
     {
-        
-        if($entity instanceof User){
-            
-        }
-        else if ($entity->company->is_disabled) {
+        if ($entity instanceof User || $entity->company->is_disabled)
             return;
-        }
-
-        $backup = new Backup();
 
         if (get_class($entity) == Invoice::class 
             || get_class($entity) == Quote::class 
             || get_class($entity) == Credit::class 
             || get_class($entity) == RecurringInvoice::class
         ) {
+
+            $backup = new Backup();
+            $entity->load('client');
             $contact = $entity->client->primary_contact()->first();
             $backup->html_backup = $this->generateHtml($entity);
             $backup->amount = $entity->amount;
+            $backup->activity_id = $activity->id;
+            $backup->json_backup = '';
+            $backup->save();
+
+            $backup->storeRemotely($this->generateHtml($entity), $entity->client);
         }
 
-        $backup->activity_id = $activity->id;
-        $backup->json_backup = '';
-        //$backup->json_backup = $entity->toJson();
-        $backup->save();
+
     }
 
     public function getTokenId(array $event_vars)
     {
         if ($event_vars['token']) {
-            $company_token = CompanyToken::whereRaw('BINARY `token`= ?', [$event_vars['token']])->first();
+            $company_token = CompanyToken::where('token', $event_vars['token'])->first();
 
             if ($company_token) {
                 return $company_token->id;
@@ -121,14 +119,18 @@ class ActivityRepository extends BaseRepository
             $entity_design_id = 'credit_design_id';
         }
 
+        // $entity->load('client.company');
+
         $entity_design_id = $entity->design_id ? $entity->design_id : $this->decodePrimaryKey($entity->client->getSetting($entity_design_id));
 
         $design = Design::find($entity_design_id);
 
         if(!$entity->invitations()->exists() || !$design){
             nlog("No invitations for entity {$entity->id} - {$entity->number}");
-            return;
+            return '';
         }
+
+        $entity->load('client.company', 'invitations');
 
         $html = new HtmlEngine($entity->invitations->first());
 

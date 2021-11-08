@@ -89,7 +89,7 @@ class Client extends BaseModel implements HasLocalePreference
         'contacts.company',
         // 'currency',
         // 'primary_contact',
-        'country',
+        // 'country',
         // 'contacts',
         // 'shipping_country',
         // 'company',
@@ -518,32 +518,32 @@ class Client extends BaseModel implements HasLocalePreference
 
         }
 
+        if ($this->currency()->code == 'EUR' && in_array(GatewayType::SEPA, array_column($pms, 'gateway_type_id'))) {
+            foreach ($pms as $pm) {
+                if ($pm['gateway_type_id'] == GatewayType::SEPA) {
+                    $cg = CompanyGateway::find($pm['company_gateway_id']);
+
+                    if ($cg && $cg->fees_and_limits->{GatewayType::SEPA}->is_enabled) {
+                        return $cg;
+                    }
+                }
+            }
+        }
+
+        if ($this->country->iso_3166_3 == 'GBR' && in_array(GatewayType::DIRECT_DEBIT, array_column($pms, 'gateway_type_id'))) {
+            foreach ($pms as $pm) {
+                if ($pm['gateway_type_id'] == GatewayType::DIRECT_DEBIT) {
+                    $cg = CompanyGateway::find($pm['company_gateway_id']);
+
+                    if ($cg && $cg->fees_and_limits->{GatewayType::DIRECT_DEBIT}->is_enabled) {
+                        return $cg;
+                    }
+                }
+            }
+        }
+
         return null;
-        // $company_gateways = $this->getSetting('company_gateway_ids');
 
-        // if (strlen($company_gateways) >= 1) {
-        //     $transformed_ids = $this->transformKeys(explode(',', $company_gateways));
-        //     $gateways = $this->company
-        //                      ->company_gateways
-        //                      ->whereIn('id', $transformed_ids)
-        //                      ->sortby(function ($model) use ($transformed_ids) {
-        //                          return array_search($model->id, $transformed_ids);
-        //                      });
-        // } else {
-        //     $gateways = $this->company->company_gateways;
-        // }
-
-        // foreach ($gateways as $gateway) {
-        //     if ($this->currency()->code == 'USD' && in_array(GatewayType::BANK_TRANSFER, $gateway->driver($this)->gatewayTypeEnabled(GatewayType::BANK_TRANSFER))) {
-        //         return $gateway;
-        //     }
-
-        //     if ($this->currency()->code == 'EUR' && in_array(GatewayType::SEPA, $gateway->driver($this)->gatewayTypeEnabled(GatewayType::SEPA))) {
-        //         return $gateway;
-        //     }
-        // }
-
-        // return null;
     }
 
     public function getBankTransferMethodType()
@@ -555,6 +555,10 @@ class Client extends BaseModel implements HasLocalePreference
 
         if ($this->currency()->code == 'EUR') {
             return GatewayType::SEPA;
+        }
+
+        if ($this->currency()->code == 'GBP') {
+            return GatewayType::DIRECT_DEBIT;
         }
     }
 
@@ -740,6 +744,12 @@ class Client extends BaseModel implements HasLocalePreference
             return $item->id == $this->getSetting('language_id');
         })->first()->locale;
     }
+
+    public function backup_path()
+    {
+        return $this->company->company_key.'/'.$this->client_hash.'/backups';
+    }
+
 
     public function invoice_filepath($invitation)
     {   

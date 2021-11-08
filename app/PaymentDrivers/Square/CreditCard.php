@@ -13,16 +13,20 @@
 namespace App\PaymentDrivers\Square;
 
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use Illuminate\Http\Request;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
+use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\SquarePaymentDriver;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 use Square\Http\ApiResponse;
 
-class CreditCard
+class CreditCard implements MethodInterface
 {
     use MakesHash;
 
@@ -34,90 +38,27 @@ class CreditCard
         $this->square_driver->init();
     }
 
-    public function authorizeView($data)
+    /**
+     * Authorization page for credit card.
+     *
+     * @param array $data
+     * @return View
+     */
+    public function authorizeView($data): View
     {
         $data['gateway'] = $this->square_driver;
 
         return render('gateways.square.credit_card.authorize', $data);
     }
 
-    public function authorizeResponse($request)
+    /**
+     * Handle authorization for credit card.
+     *
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function authorizeResponse($request): RedirectResponse
     {
-        /* Step one - process a $1 payment - but don't complete it*/
-        $payment = false;
-
-        $amount_money = new \Square\Models\Money();
-        $amount_money->setAmount(100); //amount in cents
-        $amount_money->setCurrency($this->square_driver->client->currency()->code);
-
-        $body = new \Square\Models\CreatePaymentRequest(
-            $request->sourceId,
-            Str::random(32),
-            $amount_money
-        );
-
-        $body->setAutocomplete(false);
-        $body->setLocationId($this->square_driver->company_gateway->getConfigField('locationId'));
-        $body->setReferenceId(Str::random(16));
-
-        $api_response = $this->square_driver->square->getPaymentsApi()->createPayment($body);
-
-        if ($api_response->isSuccess()) {
-            $result = $api_response->getBody();
-            $payment = json_decode($result);
-        } else {
-            $errors = $api_response->getErrors();
-            return $this->processUnsuccessfulPayment($errors);
-        }
-
-    
-        /* Step 3 create the card */
-        $card = new \Square\Models\Card();
-        $card->setCardholderName($this->square_driver->client->present()->name());
-        // $card->setBillingAddress($billing_address);
-        $card->setCustomerId($this->findOrCreateClient());
-        $card->setReferenceId(Str::random(8));
-
-        $body = new \Square\Models\CreateCardRequest(
-            Str::random(32),
-            $payment->payment->id,
-            $card
-        );
-
-        $api_response = $this->square_driver
-                             ->square
-                             ->getCardsApi()
-                             ->createCard($body);
-
-        $card = false;
-
-        if ($api_response->isSuccess()) {
-            $card = $api_response->getBody();
-            $card = json_decode($card);
-        } else {
-            $errors = $api_response->getErrors();
-
-            return $this->processUnsuccessfulPayment($errors);
-        }
-
-        /* Create the token in Invoice Ninja*/
-        $cgt = [];
-        $cgt['token'] = $card->card->id;
-        $cgt['payment_method_id'] = GatewayType::CREDIT_CARD;
-
-        $payment_meta = new \stdClass;
-        $payment_meta->exp_month = $card->card->exp_month;
-        $payment_meta->exp_year = $card->card->exp_year;
-        $payment_meta->brand = $card->card->card_brand;
-        $payment_meta->last4 = $card->card->last_4;
-        $payment_meta->type = GatewayType::CREDIT_CARD;
-
-        $cgt['payment_meta'] = $payment_meta;
-
-        $token = $this->square_driver->storeGatewayToken($cgt, [
-            'gateway_customer_reference' => $this->findOrCreateClient(),
-        ]);
-
         return redirect()->route('client.payment_methods.index');
     }
 
@@ -170,8 +111,9 @@ class CreditCard
         $body->setLocationId($this->square_driver->company_gateway->getConfigField('locationId'));
         $body->setReferenceId(Str::random(16));
 
-        if($request->has('verificationToken') && $request->input('verificationToken'))
+        if ($request->has('verificationToken') && $request->input('verificationToken')) {
             $body->setVerificationToken($request->input('verificationToken'));
+        }
 
         if ($request->shouldUseToken()) {
             $body->setCustomerId($cgt->gateway_customer_reference);
@@ -181,64 +123,10 @@ class CreditCard
         $response = $this->square_driver->square->getPaymentsApi()->createPayment($body);
 
         if ($response->isSuccess()) {
-            if ($request->shouldStoreToken()) {
-                $this->storePaymentMethod($response);
-            }
-
             return $this->processSuccessfulPayment($response);
         }
 
         return $this->processUnsuccessfulPayment($response);
-    }
-
-    private function storePaymentMethod(ApiResponse $response)
-    {
-        $payment = \json_decode($response->getBody());
-
-        $billing_address = new \Square\Models\Address();
-        $billing_address->setAddressLine1($this->square_driver->client->address1);
-        $billing_address->setAddressLine2($this->square_driver->client->address2);
-        $billing_address->setLocality($this->square_driver->client->city);
-        $billing_address->setAdministrativeDistrictLevel1($this->square_driver->client->state);
-        $billing_address->setPostalCode($this->square_driver->client->postal_code);
-        $billing_address->setCountry($this->square_driver->client->country->iso_3166_2);
-
-        $card = new \Square\Models\Card();
-        $card->setCardholderName($this->square_driver->client->present()->first_name(). " " .$this->square_driver->client->present()->last_name());
-        $card->setCustomerId($this->findOrCreateClient());
-        $card->setReferenceId(Str::random(8));
-        $card->setBillingAddress($billing_address);
-
-        $body = new \Square\Models\CreateCardRequest(Str::random(32), $payment->payment->id, $card);
-
-        /** @var ApiResponse */
-        $api_response = $this->square_driver
-        ->square
-        ->getCardsApi()
-        ->createCard($body);
-
-        if (!$api_response->isSuccess()) {
-            return $this->processUnsuccessfulPayment($api_response);
-        }
-
-        $card = \json_decode($api_response->getBody());
-
-        $cgt = [];
-        $cgt['token'] = $card->card->id;
-        $cgt['payment_method_id'] = GatewayType::CREDIT_CARD;
-
-        $payment_meta = new \stdClass;
-        $payment_meta->exp_month = $card->card->exp_month;
-        $payment_meta->exp_year = $card->card->exp_year;
-        $payment_meta->brand = $card->card->card_brand;
-        $payment_meta->last4 = $card->card->last_4;
-        $payment_meta->type = GatewayType::CREDIT_CARD;
-
-        $cgt['payment_meta'] = $payment_meta;
-
-        $this->square_driver->storeGatewayToken($cgt, [
-            'gateway_customer_reference' => $this->findOrCreateClient(),
-        ]);
     }
 
     private function processSuccessfulPayment(ApiResponse $response)
@@ -301,9 +189,9 @@ class CreditCard
             $customers = $api_response->getBody();
             $customers = json_decode($customers);
 
-            if(count(array($api_response->getBody(),1)) == 0)
+            if (count([$api_response->getBody(),1]) == 0) {
                 $customers = false;
-
+            }
         } else {
             $errors = $api_response->getErrors();
         }

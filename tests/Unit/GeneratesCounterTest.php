@@ -12,6 +12,7 @@ namespace Tests\Unit;
 
 use App\DataMapper\ClientSettings;
 use App\Factory\ClientFactory;
+use App\Factory\QuoteFactory;
 use App\Factory\VendorFactory;
 use App\Models\Client;
 use App\Models\Company;
@@ -184,24 +185,22 @@ class GeneratesCounterTest extends TestCase
 
     public function testQuoteNumberValue()
     {
+        $quote = Quote::factory()->create([
+            'user_id' => $this->client->user_id, 
+            'company_id' => $this->client->company_id, 
+            'client_id' => $this->client->id
+        ]);
 
-        $quote_number = $this->getNextQuoteNumber($this->client->fresh());
+        $quote_number = $this->getNextQuoteNumber($this->client->fresh(), $quote);
 
         $this->assertEquals($quote_number, 0002);
 
-        // nlog(Quote::all()->pluck('number'));
 
-        // $quote_number = $this->getNextQuoteNumber($this->client->fresh());
-
-        // nlog($this->company->settings->quote_number_counter);
-        
-        // nlog(Quote::all()->pluck('number'));
-
-        // $this->assertEquals($quote_number, '0003');
     }
 
     public function testInvoiceNumberPattern()
     {
+
         $settings = $this->client->company->settings;
         $settings->invoice_number_counter = 1;
         $settings->invoice_number_pattern = '{$year}-{$counter}';
@@ -234,8 +233,15 @@ class GeneratesCounterTest extends TestCase
         $this->client->save();
         $this->client->fresh();
 
-        $quote_number = $this->getNextQuoteNumber($this->client);
-        $quote_number2 = $this->getNextQuoteNumber($this->client);
+        $quote = Quote::factory()->create([
+            'user_id' => $this->client->user_id, 
+            'company_id' => $this->client->company_id, 
+            'client_id' => $this->client->id
+        ]);
+
+
+        $quote_number = $this->getNextQuoteNumber($this->client, $quote);
+        $quote_number2 = $this->getNextQuoteNumber($this->client, $quote);
 
         $this->assertEquals($quote_number, date('Y').'-0001');
         $this->assertEquals($quote_number2, date('Y').'-0002');
@@ -257,8 +263,14 @@ class GeneratesCounterTest extends TestCase
         $gs->settings = $settings;
         $gs->save();
 
-        $quote_number = $this->getNextQuoteNumber($this->client);
-        $quote_number2 = $this->getNextQuoteNumber($this->client);
+        $quote = Quote::factory()->create([
+            'user_id' => $this->client->user_id, 
+            'company_id' => $this->client->company_id, 
+            'client_id' => $this->client->id
+        ]);
+
+        $quote_number = $this->getNextQuoteNumber($this->client, $quote);
+        $quote_number2 = $this->getNextQuoteNumber($this->client, $quote);
 
         $this->assertEquals($quote_number, date('Y').'-1000');
         $this->assertEquals($quote_number2, date('Y').'-1001');

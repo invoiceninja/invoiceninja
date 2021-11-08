@@ -14,7 +14,6 @@ namespace App\PaymentDrivers\WePay;
 
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\Payment;
@@ -153,24 +152,48 @@ use WePayCommon;
 
         $app_fee = (config('ninja.wepay.fee_cc_multiplier') * $this->wepay_payment_driver->payment_hash->data->amount_with_fee) + config('ninja.wepay.fee_fixed');
         // charge the credit card
-        $response = $this->wepay_payment_driver->wepay->request('checkout/create', array(
-            'unique_id'           => Str::random(40),
-            'account_id'          => $this->wepay_payment_driver->company_gateway->getConfigField('accountId'),
-            'amount'              => $this->wepay_payment_driver->payment_hash->data->amount_with_fee,
-            'currency'            => $this->wepay_payment_driver->client->getCurrencyCode(),
-            'short_description'   => 'Goods and services',
-            'type'                => 'goods',
-            'fee'                 => [
-                'fee_payer' => config('ninja.wepay.fee_payer'),
-                'app_fee' => $app_fee,
-            ],
-            'payment_method'      => array(
-                'type'            => 'credit_card',
-                'credit_card'     => array(
-                    'id'          => $credit_card_id
+
+        try {
+            $response = $this->wepay_payment_driver->wepay->request('checkout/create', array(
+                'unique_id'           => Str::random(40),
+                'account_id'          => $this->wepay_payment_driver->company_gateway->getConfigField('accountId'),
+                'amount'              => $this->wepay_payment_driver->payment_hash->data->amount_with_fee,
+                'currency'            => $this->wepay_payment_driver->client->getCurrencyCode(),
+                'short_description'   => 'Goods and services',
+                'type'                => 'goods',
+                'fee'                 => [
+                    'fee_payer' => config('ninja.wepay.fee_payer'),
+                    'app_fee' => $app_fee,
+                ],
+                'payment_method'      => array(
+                    'type'            => 'credit_card',
+                    'credit_card'     => array(
+                        'id'          => $credit_card_id
+                    )
                 )
-            )
-        ));
+            ));
+        }
+        catch(\Exception $e){
+
+            $this->wepay_payment_driver->sendFailureMail($e->getMessage());
+
+            $message = [
+                'server_response' => $e->getMessage(),
+                'data' => $this->wepay_payment_driver->payment_hash->data,
+            ];
+
+            SystemLogger::dispatch(
+                $e->getMessage(),
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_WEPAY,
+                $this->wepay_payment_driver->client,
+                $this->wepay_payment_driver->client->company,
+            );
+
+            throw new PaymentFailed($e->getMessage(), 500);
+
+        }
 
         /* Merge all data and store in the payment hash*/
         $state = [
