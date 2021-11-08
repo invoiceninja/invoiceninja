@@ -13,9 +13,11 @@
 namespace App\Mail\Import;
 
 use App\Models\Company;
+use App\Utils\Ninja;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
 
 class ImportCompleted extends Mailable
 {
@@ -45,6 +47,11 @@ class ImportCompleted extends Mailable
      */
     public function build()
     {
+
+        App::forgetInstance('translator');
+        $t = app('translator');
+        $t->replace(Ninja::transformTranslations($this->company->settings));
+
         $data = array_merge($this->data, [
             'logo' => $this->company->present()->logo(),
             'settings' => $this->company->settings,
