@@ -151,6 +151,7 @@ class HtmlEngine
 
             if($this->entity->project) {
                 $data['$project.name'] = ['value' => $this->entity->project->name, 'label' => ctrans('texts.project_name')];
+                $data['$invoice.project'] = &$data['$project.name'];
             }
         }
 
