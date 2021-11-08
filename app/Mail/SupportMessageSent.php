@@ -64,7 +64,7 @@ class SupportMessageSent extends Mailable
         $db = str_replace("db-ninja-", "", $company->db);
         $is_large = $company->is_large ? "L" : "S";
         $platform = array_key_exists('platform', $this->data) ? $this->data['platform'] : "U";
-        $migrated = strlen($company->company_key) == 32 ? "M" : ""; 
+        $migrated = strlen($company->company_key) == 32 ? "M" : "T"; 
 
         if(Ninja::isHosted())
             $subject = "{$priority}Hosted-{$db}-{$is_large}{$platform}{$migrated} :: {$plan} :: ".date('M jS, g:ia');
@@ -75,7 +75,7 @@ class SupportMessageSent extends Mailable
                 ->replyTo($user->email, $user->present()->name())
                 ->subject($subject)
                 ->view('email.support.message', [
-                    'support_message' => $this->data['support_message'],
+                    'support_message' => $this->data['message'],
                     'system_info' => $system_info,
                     'laravel_log' => $log_lines,
                     'logo' => $company->present()->logo(),

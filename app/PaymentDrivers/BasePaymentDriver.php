@@ -56,7 +56,7 @@ class BasePaymentDriver
     protected $refundable = false;
 
     /* Token billing */
-    protected $token_billing = false;
+    public $token_billing = false;
 
     /* Authorise payment methods */
     protected $can_authorise_credit_card = false;

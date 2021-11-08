@@ -70,6 +70,9 @@ class ReminderJob implements ShouldQueue
                      $query->where('is_deleted',0)
                            ->where('deleted_at', NULL);
                  })
+                 ->whereHas('company', function ($query) {
+                     $query->where('is_disabled',0);
+                 })
                  ->with('invitations')->cursor()->each(function ($invoice) {
 
             if ($invoice->isPayable()) {

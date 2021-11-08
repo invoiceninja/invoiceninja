@@ -34,6 +34,8 @@ class InvoiceObserver
                             ->where('event_id', Webhook::EVENT_CREATE_INVOICE)
                             ->exists();
 
+        $invoice->load('client');
+
         if ($subscriptions) {
             WebhookHandler::dispatch(Webhook::EVENT_CREATE_INVOICE, $invoice, $invoice->company);
         }
@@ -50,6 +52,9 @@ class InvoiceObserver
         $subscriptions = Webhook::where('company_id', $invoice->company_id)
                             ->where('event_id', Webhook::EVENT_UPDATE_INVOICE)
                             ->exists();
+
+        $invoice->load('client');
+
 
         if ($subscriptions) {
             WebhookHandler::dispatch(Webhook::EVENT_UPDATE_INVOICE, $invoice, $invoice->company);

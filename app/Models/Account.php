@@ -271,9 +271,12 @@ class Account extends BaseModel
 
         $trial_active = false;
 
+        //14 day trial
+        $duration = 60*60*24*14;
+
         if ($trial_plan && $include_trial) {
             $trial_started = $this->trial_started;
-            $trial_expires = Carbon::parse($this->trial_started)->addSeconds($this->trial_duration);
+            $trial_expires = Carbon::parse($this->trial_started)->addSeconds($duration);
 
             if($trial_expires->greaterThan(now())){
                 $trial_active = true;

@@ -124,9 +124,27 @@ class CreditCard
     public function paymentView($data)
     {
         $data['gateway'] = $this->square_driver;
-
+        $data['amount'] = $this->square_driver->payment_hash->data->amount_with_fee;
+        $data['currencyCode'] = $this->square_driver->client->getCurrencyCode();
+        $data['square_contact'] = $this->buildClientObject();
 
         return render('gateways.square.credit_card.pay', $data);
+    }
+
+    private function buildClientObject()
+    {
+        $client = new \stdClass;
+
+        $client->addressLines = [ $this->square_driver->client->address1 ?: '', $this->square_driver->client->address2 ?: ''];
+        $client->givenName = $this->square_driver->client->present()->first_name();
+        $client->familyName = $this->square_driver->client->present()->last_name();
+        $client->email = $this->square_driver->client->present()->email;
+        $client->phone = $this->square_driver->client->phone;
+        $client->city = $this->square_driver->client->city;
+        $client->region = $this->square_driver->client->state;
+        $client->country = $this->square_driver->client->country->iso_3166_2;
+
+        return (array)$client;
     }
 
     public function paymentResponse(PaymentResponseRequest $request)
@@ -152,6 +170,9 @@ class CreditCard
         $body->setLocationId($this->square_driver->company_gateway->getConfigField('locationId'));
         $body->setReferenceId(Str::random(16));
 
+        if($request->has('verificationToken') && $request->input('verificationToken'))
+            $body->setVerificationToken($request->input('verificationToken'));
+
         if ($request->shouldUseToken()) {
             $body->setCustomerId($cgt->gateway_customer_reference);
         }
@@ -174,10 +195,19 @@ class CreditCard
     {
         $payment = \json_decode($response->getBody());
 
+        $billing_address = new \Square\Models\Address();
+        $billing_address->setAddressLine1($this->square_driver->client->address1);
+        $billing_address->setAddressLine2($this->square_driver->client->address2);
+        $billing_address->setLocality($this->square_driver->client->city);
+        $billing_address->setAdministrativeDistrictLevel1($this->square_driver->client->state);
+        $billing_address->setPostalCode($this->square_driver->client->postal_code);
+        $billing_address->setCountry($this->square_driver->client->country->iso_3166_2);
+
         $card = new \Square\Models\Card();
-        $card->setCardholderName($this->square_driver->client->present()->name());
+        $card->setCardholderName($this->square_driver->client->present()->first_name(). " " .$this->square_driver->client->present()->last_name());
         $card->setCustomerId($this->findOrCreateClient());
         $card->setReferenceId(Str::random(8));
+        $card->setBillingAddress($billing_address);
 
         $body = new \Square\Models\CreateCardRequest(Str::random(32), $payment->payment->id, $card);
 
@@ -270,11 +300,16 @@ class CreditCard
         if ($api_response->isSuccess()) {
             $customers = $api_response->getBody();
             $customers = json_decode($customers);
+
+            if(count(array($api_response->getBody(),1)) == 0)
+                $customers = false;
+
         } else {
             $errors = $api_response->getErrors();
         }
 
-        if ($customers) {
+
+        if (property_exists($customers, 'customers')) {
             return $customers->customers[0]->id;
         }
 
