@@ -480,6 +480,8 @@ class HtmlEngine
         $data['$statement_amount'] = ['value' => '', 'label' => ctrans('texts.amount')];
         $data['$statement'] = ['value' => '', 'label' => ctrans('texts.statement')];
 
+        $data['$entity_images'] = ['value' => $this->generateEntityImagesMarkup(), 'label' => ''];
+
         $arrKeysLength = array_map('strlen', array_keys($data));
         array_multisort($arrKeysLength, SORT_DESC, $data);
 
@@ -735,5 +737,35 @@ html {
         $css .= '}';
 
         return $css;
+    }
+
+    /**
+     * Generate markup for HTML images on entity.
+     * 
+     * @return string|void 
+     */
+    protected function generateEntityImagesMarkup()
+    {
+        if ($this->client->getSetting('embed_documents') === false) {
+            return '';
+        }
+
+        $dom = new \DOMDocument('1.0', 'UTF-8');
+
+        $container =  $dom->createElement('div');
+        $container->setAttribute('style', 'display:grid; grid-auto-flow: row; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(2, 1fr);');
+
+        foreach ($this->entity->documents as $document) {
+            $image = $dom->createElement('img');
+
+            $image->setAttribute('src', $document->generateUrl());
+            $image->setAttribute('style', 'max-height: 100px; margin-top: 20px;');
+
+            $container->appendChild($image);
+        }
+
+        $dom->appendChild($container);
+
+        return $dom->saveHTML();
     }
 }
