@@ -4015,6 +4015,11 @@ $LANG = array(
      'no_results' => 'No results found.',
      'payment_failed_subject' => 'Payment failed for Client :client',
      'payment_failed_body' => 'A payment made by client :client failed with message :message',
+     'payment_failed_client_feedback' => 'The payment on :payment_gateway has failed or was refused, please, try again!',
+     'pending_payment_client_feedback' => 'Your payment is pending on :payment_gateway. You will soon be notified by e-mail whether it was approved!',
+     'pending_payment_subject' => 'Pending Payment for client :client',
+     'pending_payment_body' => 'The payment for client :client of amount :amount was marked as pending on gateway :payment_gateway. ' .
+        'You\'ll need to manually verify if it was approved.',
      'register' => 'Register',
      'register_label' => 'Create your account in seconds',
      'password_confirmation' => 'Confirm your password',
