@@ -522,6 +522,9 @@ class InvoiceController extends BaseController
 
         $ids = request()->input('ids');
 
+nlog($action);
+nlog($ids);
+
         $invoices = Invoice::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
         if (! $invoices) {
@@ -532,13 +535,14 @@ class InvoiceController extends BaseController
          * Download Invoice/s
          */
 
-        if ($action == 'download' && $invoices->count() > 1) {
+        if ($action == 'bulk_download' && $invoices->count() > 1) {
             $invoices->each(function ($invoice) {
                 if (auth()->user()->cannot('view', $invoice)) {
+                    nlog("access denied");
                     return response()->json(['message' => ctrans('text.access_denied')]);
                 }
             });
-
+nlog("bulky");
             ZipInvoices::dispatch($invoices, $invoices->first()->company, auth()->user());
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
@@ -713,13 +717,13 @@ class InvoiceController extends BaseController
                     $this->itemResponse($invoice);
                 }
                 break;
-            case 'reverse':
-                $invoice = $invoice->service()->handleReversal()->deletePdf()->save();
+            // case 'reverse':
+            //     $invoice = $invoice->service()->handleReversal()->deletePdf()->save();
 
-                if (! $bulk) {
-                    $this->itemResponse($invoice);
-                }
-                break;
+            //     if (! $bulk) {
+            //         $this->itemResponse($invoice);
+            //     }
+            //     break;
             case 'email':
                 //check query parameter for email_type and set the template else use calculateTemplate
 

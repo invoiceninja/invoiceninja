@@ -134,10 +134,6 @@ class CSVImport implements ShouldQueue {
 			'company' => $this->company,
 		];
 
-        App::forgetInstance('translator');
-        $t = app('translator');
-        $t->replace(Ninja::transformTranslations($this->company->settings));
-
 		$nmo = new NinjaMailerObject;
 		$nmo->mailable = new ImportCompleted($this->company, $data);
 		$nmo->company = $this->company;

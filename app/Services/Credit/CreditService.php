@@ -13,13 +13,14 @@ namespace App\Services\Credit;
 
 use App\Jobs\Util\UnlinkFile;
 use App\Models\Credit;
+use App\Services\Credit\CreateInvitations;
 use App\Utils\Traits\MakesHash;
 
 class CreditService
 {
     use MakesHash;
 
-    protected $credit;
+    public $credit;
 
     public function __construct($credit)
     {

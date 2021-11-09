@@ -338,14 +338,14 @@ class CompanyImport implements ShouldQueue
 
                 if($this->account->plan == 'enterprise'){
 
-                    $total_import_users = count($backup_users_emails);
+                    // $total_import_users = count($backup_users_emails);
 
-                    $account_plan_num_user = $this->account->num_users;
+                    // $account_plan_num_user = $this->account->num_users;
 
-                    if($total_import_users > $account_plan_num_user){
-                        $this->message = "Total user count ({$total_import_users}) greater than your plan allows ({$account_plan_num_user})";
-                        $this->pre_flight_checks_pass = false;
-                    }
+                    // if($total_import_users > $account_plan_num_user){
+                    //     $this->message = "Total user count ({$total_import_users}) greater than your plan allows ({$account_plan_num_user})";
+                    //     $this->pre_flight_checks_pass = false;
+                    // }
 
                 }
             }

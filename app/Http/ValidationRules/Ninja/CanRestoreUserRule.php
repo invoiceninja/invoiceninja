@@ -33,17 +33,16 @@ class CanRestoreUserRule implements Rule
     public function passes($attribute, $value)
     {
 
-        $count = User::query()
-            ->with(['company_user' => function ($query){
-              return $query->whereNull('company_user.deleted_at');
-            }])
-            ->where('account_id', 1)
-            ->distinct()
-            ->select('users.id')
-            ->count();
+          $count = CompanyUser::query()
+                              ->where('company_user.account_id', auth()->user()->account_id)
+                              ->join('users', 'users.id', '=', 'company_user.user_id')
+                              ->whereNull('users.deleted_at')
+                              ->whereNull('company_user.deleted_at')
+                              ->distinct()
+                              ->count('company_user.user_id');
 
         return $count < auth()->user()->company()->account->num_users;
-        //return auth()->user()->company()->account->users->count() < auth()->user()->company()->account->num_users;
+
     }
 
     /**

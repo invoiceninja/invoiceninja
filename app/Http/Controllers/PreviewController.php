@@ -217,8 +217,6 @@ class PreviewController extends BaseController
             if(!$request->has('entity_id'))
                 $entity_obj->service()->fillDefaults()->save();
                 
-            // $entity_obj->load('client.contacts','client.company');
-
             App::forgetInstance('translator');
             $t = app('translator');
             App::setLocale($entity_obj->client->locale());

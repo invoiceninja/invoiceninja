@@ -80,7 +80,10 @@ class InvitationController extends Controller
                                          $query->where('is_deleted',0);
                                     })
                                     ->with('contact.client')
-                                    ->firstOrFail();
+                                    ->first();
+
+        if(!$invitation)
+            return abort(404,'The resource is no longer available.');
 
         /* Return early if we have the correct client_hash embedded */
         $client_contact = $invitation->contact;
