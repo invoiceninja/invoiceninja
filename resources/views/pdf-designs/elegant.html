@@ -1,4 +1,6 @@
 <style id="style">
+    @import url($font_url);
+
     :root {
         --primary-color: $primary_color;
         --secondary-color: $secondary_color;
@@ -8,7 +10,7 @@
     body {
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
-        font-family: Arial, Helvetica, sans-serif;
+        font-family: $font_name, Helvetica, sans-serif;
         font-size: "$font_size";
         zoom: 80%;
     }
@@ -208,6 +210,21 @@
         white-space: nowrap;
     }
 
+    /** .repeating-header,
+    .repeating-header-space, **/
+    .repeating-footer,
+    .repeating-footer-space {
+        height: 160px;
+    }
+    .repeating-header {
+        position: fixed;
+        top: 0;
+    }
+    .repeating-footer {
+        position: fixed;
+        bottom: 0;
+    }
+
     /** Useful snippets, uncomment to enable. **/
 
     /** Hide company logo **/
@@ -238,71 +255,80 @@
     /** To find out selectors on your own: https://invoiceninja.github.io/docs/custom-fields/#snippets **/
 </style>
 
-<div id="header"></div>
-
-<div id="body">
-    <div class="company-logo-wrapper">
-       <img class="company-logo" src="$company.logo" alt="$company.name logo">
-    </div>
-
-    <hr class="double-border">
-
-    <div class="client-entity-wrapper">
-        <div class="wrapper-left-side">
-            <div class="text-with-client">
-                <h2 class="wrapper-info-text">$to_label</h2>
-
-                <div id="client-details"></div>
+<table style="min-width: 100%">
+   <thead>
+      <tr>
+         <td>
+            <div class="repeating-header-space">&nbsp;</div>
+         </td>
+      </tr>
+   </thead>
+   <tbody>
+      <tr>
+         <td>
+            <div id="body">
+               <div class="company-logo-wrapper">
+                  <img class="company-logo" src="$company.logo" alt="$company.name logo">
+               </div>
+               <hr class="double-border">
+               <div class="client-entity-wrapper">
+                  <div class="wrapper-left-side">
+                     <div class="text-with-client">
+                        <h2 class="wrapper-info-text">$to_label</h2>
+                        <div id="client-details"></div>
+                     </div>
+                     <div class="company-info">
+                        <h2 class="wrapper-info-text">$from_label</h2>
+                        <div id="company-details"></div>
+                        <div id="company-address"></div>
+                     </div>
+                  </div>
+                  <div class="wrapper-right-side">
+                     <h2 class="wrapper-info-text">$details_label</h2>
+                     <table id="entity-details" cellspacing="0" dir="$dir"></table>
+                  </div>
+               </div>
+               <table id="product-table" cellspacing="0" data-ref="table"></table>
+               <table id="task-table" cellspacing="0" data-ref="table"></table>
+               <table id="delivery-note-table" cellspacing="0" data-ref="table"></table>
+               <table id="statement-invoice-table" cellspacing="0" data-ref="table"></table>
+               <div id="statement-invoice-table-totals" data-ref="statement-totals"></div>
+               <table id="statement-payment-table" cellspacing="0" data-ref="table"></table>
+               <div id="statement-payment-table-totals" data-ref="statement-totals"></div>
+               <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
+               <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
+               <div id="table-totals" cellspacing="0"></div>
             </div>
+         </td>
+      </tr>
+   </tbody>
+   <tfoot>
+      <tr>
+         <td>
+            <div class="repeating-footer-space">&nbsp;</div>
+         </td>
+      </tr>
+   </tfoot>
+</table>
 
-            <div class="company-info">
-                <h2 class="wrapper-info-text">$from_label</h2>
-                <div id="company-details"></div>
-                <div id="company-address"></div>
-            </div>
-        </div>
+<div class="repeating-header" id="header"></div>
 
-        <div class="wrapper-right-side">
-            <h2 class="wrapper-info-text">$details_label</h2>
-            <table id="entity-details" cellspacing="0" dir="$dir"></table>
-        </div>
-    </div>
-
-    <table id="product-table" cellspacing="0" data-ref="table"></table>
-
-    <table id="task-table" cellspacing="0" data-ref="table"></table>
-
-    <table id="delivery-note-table" cellspacing="0" data-ref="table"></table>
-
-    <table id="statement-invoice-table" cellspacing="0" data-ref="table"></table>
-    <div id="statement-invoice-table-totals" data-ref="statement-totals"></div>
-
-    <table id="statement-payment-table" cellspacing="0" data-ref="table"></table>
-    <div id="statement-payment-table-totals" data-ref="statement-totals"></div>
-
-    <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
-    <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
-
-    <div id="table-totals" cellspacing="0"></div>
+<div class="repeating-footer" id="footer">
+   <p data-ref="total_table-footer">$entity_footer</p>
 </div>
 
-<div id="footer">
-    <p data-ref="total_table-footer">$entity_footer</p>
+<script>
+    // Clear up space a bit, if [product-table, tasks-table, delivery-note-table] isn't present.
+    document.addEventListener('DOMContentLoaded', () => {
+        let tables = [
+            'product-table', 'task-table', 'delivery-note-table',
+            'statement-invoice-table', 'statement-payment-table', 'statement-aging-table-totals',
+        ];
 
-    <script>
-        // Clear up space a bit, if [product-table, tasks-table, delivery-note-table] isn't present.
-        document.addEventListener('DOMContentLoaded', () => {
-            let tables = [
-                'product-table', 'task-table', 'delivery-note-table',
-                'statement-invoice-table', 'statement-payment-table', 'statement-aging-table-totals',
-            ];
-
-            tables.forEach((tableIdentifier) => {
-                document.getElementById(tableIdentifier).childElementCount === 0
-                    ? document.getElementById(tableIdentifier).style.display = 'none'
-                    : '';
-            });
+        tables.forEach((tableIdentifier) => {
+            document.getElementById(tableIdentifier).childElementCount === 0
+                ? document.getElementById(tableIdentifier).style.display = 'none'
+                : '';
         });
-    </script>
-</div>
-
+    });
+</script>

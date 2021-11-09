@@ -40,22 +40,22 @@
                 <tbody>
                 @forelse($invoices as $invoice)
                     <tr class="bg-white group hover:bg-gray-100">
-                        <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
                             <a href="{{ route('client.invoice.show', $invoice->hashed_id) }}"
                                class="button-link text-primary">
                                 {{ $invoice->number }}
                             </a>
                         </td>
-                        <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
                             {{ App\Utils\Number::formatMoney($invoice->amount, $invoice->client) }}
                         </td>
-                        <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
                             {{ $invoice->formatDate($invoice->date, $invoice->client->date_format()) }}
                         </td>
                     </tr>
                 @empty
                     <tr class="bg-white group hover:bg-gray-100">
-                        <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500" colspan="100%">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500" colspan="100%">
                             {{ ctrans('texts.no_results') }}
                         </td>
                     </tr>
@@ -114,22 +114,22 @@
                 <tbody>
                 @forelse($invoices as $invoice)
                     <tr class="bg-white group hover:bg-gray-100">
-                        <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
                             <a href="{{ route('client.invoice.show', $invoice->hashed_id) }}"
                                class="button-link text-primary">
                                 {{ $invoice->number }}
                             </a>
                         </td>
-                        <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
                             {{ App\Utils\Number::formatMoney($invoice->amount, $invoice->client) }}
                         </td>
-                        <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
                             {{ $invoice->formatDate($invoice->date, $invoice->client->date_format()) }}
                         </td>
                     </tr>
                 @empty
                     <tr class="bg-white group hover:bg-gray-100">
-                        <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500" colspan="100%">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500" colspan="100%">
                             {{ ctrans('texts.no_results') }}
                         </td>
                     </tr>

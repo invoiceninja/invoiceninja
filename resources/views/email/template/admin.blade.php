@@ -124,10 +124,6 @@
                                  style="margin-top: 20px; max-width: 155px; display: block; margin-left: auto; margin-right: auto; "
                                  src="{{ $logo ?? '' }}"
                                  width="155" />
-                            <img class="logo-dark"
-                                 style="display: none; margin-top: 20px; max-width: 155px; margin-left: auto; margin-right: auto; "
-                                 src="{{ $logo ?? '' }}"
-                                 width="155" />
                         </div>
                     </td>
                 </tr>

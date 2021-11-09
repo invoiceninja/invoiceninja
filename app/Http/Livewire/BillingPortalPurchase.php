@@ -26,6 +26,8 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use App\DataMapper\ClientSettings;
 use Livewire\Component;
 
 class BillingPortalPurchase extends Component
@@ -241,7 +243,8 @@ class BillingPortalPurchase extends Component
             'contacts' => [
                 ['email' => $this->email],
             ],
-            'settings' => [],
+            'client_hash' => Str::random(40),
+            'settings' => ClientSettings::defaults(),
         ];
 
         foreach ($this->request_data as $field => $value) {

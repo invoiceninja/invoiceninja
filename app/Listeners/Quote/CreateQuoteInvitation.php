@@ -43,7 +43,7 @@ class CreateQuoteInvitation implements ShouldQueue
 
             if (! $invitation && $contact->send_credit) {
                 $ii = QuoteInvitationFactory::create($quote->company_id, $quote->user_id);
-                $ii->key = $this->createDbHash(config('database.default'));
+                $ii->key = $this->createDbHash($quote->company->db);
                 $ii->quote_id = $quote->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();

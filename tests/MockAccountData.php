@@ -170,6 +170,9 @@ trait MockAccountData
         }
 
         $this->account = Account::factory()->create();
+        $this->account->num_users = 3;
+        $this->account->save();
+        
         $this->company = Company::factory()->create([
                             'account_id' => $this->account->id,
                         ]);

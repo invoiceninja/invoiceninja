@@ -233,7 +233,6 @@ class BaseDriver extends AbstractPaymentDriver
         
         }
 
-
         $payment = PaymentFactory::create($this->client->company->id, $this->client->user->id);
         $payment->client_id = $this->client->id;
         $payment->company_gateway_id = $this->company_gateway->id;
@@ -386,6 +385,9 @@ class BaseDriver extends AbstractPaymentDriver
         } else
             $error = $e->getMessage();
 
+        if(!$this->payment_hash)
+            throw new PaymentFailed($error, $e->getCode());
+
         $amount = array_sum(array_column($this->payment_hash->invoices(), 'amount')) + $this->payment_hash->fee_total;
 
         $this->sendFailureMail($error);
@@ -405,6 +407,10 @@ class BaseDriver extends AbstractPaymentDriver
     public function sendFailureMail(string $error)
     {
 
+        if (!is_null($this->payment_hash)) {
+            $this->unWindGatewayFees($this->payment_hash);
+        }
+        
         PaymentFailedMailer::dispatch(
             $this->payment_hash,
             $this->client->company,
@@ -418,7 +424,6 @@ class BaseDriver extends AbstractPaymentDriver
     {
 
         if ($this->payment_hash && is_array($this->payment_hash->invoices())) {
-
 
             $nmo = new NinjaMailerObject;
             $nmo->mailable = new NinjaMailer((new ClientPaymentFailureObject($this->client, $error, $this->client->company, $this->payment_hash))->build());

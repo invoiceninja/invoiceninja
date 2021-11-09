@@ -56,8 +56,15 @@ class HandleReversal extends AbstractService
 
         $paymentables->each(function ($paymentable) use ($total_paid) {
 
+            //new concept - when reversing, we unwind the payments
+            $payment = Payment::find($paymentable->payment_id);
+            
             $reversable_amount = $paymentable->amount - $paymentable->refunded;
             $total_paid -= $reversable_amount;
+
+            $payment->applied -= $reversable_amount;
+            $payment->save();
+
             $paymentable->amount = $paymentable->refunded;
             $paymentable->save();
 
@@ -67,45 +74,45 @@ class HandleReversal extends AbstractService
         $notes = 'Credit for reversal of '.$this->invoice->number;
         $credit = false;
         
-        if ($total_paid > 0) {
+        // if ($total_paid > 0) {
 
-            $credit = CreditFactory::create($this->invoice->company_id, $this->invoice->user_id);
-            $credit->client_id = $this->invoice->client_id;
-            $credit->invoice_id = $this->invoice->id;
-            $credit->date = now();
+        //     $credit = CreditFactory::create($this->invoice->company_id, $this->invoice->user_id);
+        //     $credit->client_id = $this->invoice->client_id;
+        //     $credit->invoice_id = $this->invoice->id;
+        //     $credit->date = now();
             
-            $item = InvoiceItemFactory::create();
-            $item->quantity = 1;
-            $item->cost = (float) $total_paid;
-            $item->notes = $notes;
+        //     $item = InvoiceItemFactory::create();
+        //     $item->quantity = 1;
+        //     $item->cost = (float) $total_paid;
+        //     $item->notes = $notes;
 
-            $line_items[] = $item;
-            $credit->line_items = $line_items;
-            $credit->save();
+        //     $line_items[] = $item;
+        //     $credit->line_items = $line_items;
+        //     $credit->save();
 
-            $credit_calc = new InvoiceSum($credit);
-            $credit_calc->build();
+        //     $credit_calc = new InvoiceSum($credit);
+        //     $credit_calc->build();
 
-            $credit = $credit_calc->purgeTaxes()->getCredit();
-            $credit->service()->markSent()->save();
-        }
+        //     $credit = $credit_calc->purgeTaxes()->getCredit();
+        //     $credit->service()->markSent()->save();
+        // }
 
         /*If there is a payment linked, then the credit needs to be linked back to that payment in case of refund*/
         if ($paymentables->count() > 0 && $credit) {
-            $payment = $paymentables->first()->payment;
-            $payment->credits()->save($credit);
+            // $payment = $paymentables->first()->payment;
+            // $payment->credits()->save($credit);
 
-            $paymentable_credit = $payment->credits()
-                                          ->wherePaymentableType(Credit::class)
-                                          ->wherePaymentableId($credit->id)
-                                          ->first();
+            // $paymentable_credit = $payment->credits()
+            //                               ->wherePaymentableType(Credit::class)
+            //                               ->wherePaymentableId($credit->id)
+            //                               ->first();
 
-            //harvest the credit record and add in the amount for the credit.
-            $paymentable_credit->pivot->amount = $total_paid;
-            $paymentable_credit->pivot->save();
+            // //harvest the credit record and add in the amount for the credit.
+            // $paymentable_credit->pivot->amount = $total_paid;
+            // $paymentable_credit->pivot->save();
 
-            $paymentable_credit->paid_to_date += $total_paid;
-            $paymentable_credit->save();
+            // $paymentable_credit->paid_to_date += $total_paid;
+            // $paymentable_credit->save();
         }
 
         /* Set invoice balance to 0 */
@@ -124,7 +131,7 @@ class HandleReversal extends AbstractService
 
         $this->invoice->client->service()
             ->updateBalance($balance_remaining * -1)
-            ->updatePaidToDate($total_paid * -1)
+            // ->updatePaidToDate($total_paid * -1)
             ->save();
 
         event(new InvoiceWasReversed($this->invoice, $this->invoice->company, Ninja::eventVars()));

@@ -77,7 +77,7 @@ class ConvertQuote
         foreach($quote->invitations as $quote_invitation){
 
             $ii = InvoiceInvitationFactory::create($invoice->company_id, $invoice->user_id);
-            $ii->key = $this->createDbHash(config('database.default'));
+            $ii->key = $this->createDbHash($invoice->company->db);
             $ii->client_contact_id = $quote_invitation->client_contact_id;
         
             $invites[] = $ii;

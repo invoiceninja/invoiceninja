@@ -36,7 +36,7 @@ class PaymentFailedMailer implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, UserNotifies;
 
-    public PaymentHash $payment_hash;
+    public ?PaymentHash $payment_hash;
 
     public string $error;
 

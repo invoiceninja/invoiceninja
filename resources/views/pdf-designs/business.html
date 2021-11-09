@@ -1,4 +1,6 @@
 <style id="style">
+    @import url($font_url);
+    
     :root {
         --primary-color: $primary_color;
         --secondary-color: $secondary_color;
@@ -8,7 +10,7 @@
     body {
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
-        font-family: Arial, Helvetica, sans-serif;
+        font-family: $font_name, Helvetica, sans-serif;
         font-size: "$font_size";
         zoom: 80%;
     }
@@ -247,6 +249,21 @@
         white-space: nowrap;
     }
 
+    /** .repeating-header,
+    .repeating-header-space, **/
+    .repeating-footer,
+    .repeating-footer-space {
+        height: 160px;
+    }
+    .repeating-header {
+        position: fixed;
+        top: 0;
+    }
+    .repeating-footer {
+        position: fixed;
+        bottom: 0;
+    }
+
     /** Useful snippets, uncomment to enable. **/
 
     /** Hide company logo **/
@@ -277,63 +294,75 @@
     /** To find out selectors on your own: https://invoiceninja.github.io/docs/custom-fields/#snippets **/
 </style>
 
-<div id="header"></div>
+<table>
+   <thead>
+      <tr>
+         <td>
+            <div class="repeating-header-space">&nbsp;</div>
+         </td>
+      </tr>
+   </thead>
+   <tbody>
+      <tr>
+         <td>
+            <div id="body">
+               <div class="header-container">
+                  <img
+                     src="$company.logo"
+                     class="company-logo"
+                     alt="$company.name logo"
+                     />
+                  <div id="company-details"></div>
+                  <div id="company-address"></div>
+               </div>
+               <p class="entity-issued-to">$entity_issued_to_label:</p>
+               <div class="client-and-entity-wrapper">
+                  <div id="client-details"></div>
+                  <div class="entity-details-wrapper">
+                     <table id="entity-details" cellspacing="0" dir="$dir"></table>
+                  </div>
+               </div>
+               <table id="product-table" cellspacing="0" data-ref="table"></table>
+               <table id="task-table" cellspacing="0" data-ref="table"></table>
+               <table id="delivery-note-table" cellspacing="0" data-ref="table"></table>
+               <table id="statement-invoice-table" cellspacing="0" data-ref="table"></table>
+               <div id="statement-invoice-table-totals" data-ref="statement-totals"></div>
+               <table id="statement-payment-table" cellspacing="0" data-ref="table"></table>
+               <div id="statement-payment-table-totals" data-ref="statement-totals"></div>
+               <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
+               <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
+               <div id="table-totals" cellspacing="0"></div>
+            </div>
+         </td>
+      </tr>
+   </tbody>
+   <tfoot>
+      <tr>
+         <td>
+            <div class="repeating-footer-space">&nbsp;</div>
+         </td>
+      </tr>
+   </tfoot>
+</table>
 
-<div id="body">
-    <div class="header-container">
-        <img
-            src="$company.logo"
-            class="company-logo"
-            alt="$company.name logo"
-        />
+<div class="repeating-header" id="header"></div>
 
-        <div id="company-details"></div>
-        <div id="company-address"></div>
-    </div>
-
-    <p class="entity-issued-to">$entity_issued_to_label:</p>
-    <div class="client-and-entity-wrapper">
-        <div id="client-details"></div>
-
-        <div class="entity-details-wrapper">
-            <table id="entity-details" cellspacing="0" dir="$dir"></table>
-        </div>
-    </div>
-
-    <table id="product-table" cellspacing="0" data-ref="table"></table>
-
-    <table id="task-table" cellspacing="0" data-ref="table"></table>
-
-    <table id="delivery-note-table" cellspacing="0" data-ref="table"></table>
-
-    <table id="statement-invoice-table" cellspacing="0" data-ref="table"></table>
-    <div id="statement-invoice-table-totals" data-ref="statement-totals"></div>
-
-    <table id="statement-payment-table" cellspacing="0" data-ref="table"></table>
-    <div id="statement-payment-table-totals" data-ref="statement-totals"></div>
-
-    <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
-    <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
-
-    <div id="table-totals" cellspacing="0"></div>
-</div>
-
-<div id="footer">
+<div class="repeating-footer" id="footer">
     <p data-ref="total_table-footer">$entity_footer</p>
-
-    <script>
-        // Clear up space a bit, if [product-table, tasks-table, delivery-note-table] isn't present.
-        document.addEventListener('DOMContentLoaded', () => {
-            let tables = [
-                'product-table', 'task-table', 'delivery-note-table',
-                'statement-invoice-table', 'statement-payment-table', 'statement-aging-table-totals',
-            ];
-
-            tables.forEach((tableIdentifier) => {
-                document.getElementById(tableIdentifier).childElementCount === 0
-                    ? document.getElementById(tableIdentifier).style.display = 'none'
-                    : '';
-            });
-        });
-    </script>
 </div>
+
+<script>
+    // Clear up space a bit, if [product-table, tasks-table, delivery-note-table] isn't present.
+    document.addEventListener('DOMContentLoaded', () => {
+        let tables = [
+            'product-table', 'task-table', 'delivery-note-table',
+            'statement-invoice-table', 'statement-payment-table', 'statement-aging-table-totals',
+        ];
+
+        tables.forEach((tableIdentifier) => {
+            document.getElementById(tableIdentifier).childElementCount === 0
+                ? document.getElementById(tableIdentifier).style.display = 'none'
+                : '';
+        });
+    });
+</script>

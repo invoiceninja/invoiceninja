@@ -120,6 +120,7 @@ class SendRecurring implements ShouldQueue
 
         */
 
+        event('eloquent.created: App\Models\Invoice', $invoice);
 
         //Admin notification for recurring invoice sent. 
         if ($invoice->invitations->count() >= 1 ) {
@@ -171,7 +172,7 @@ class SendRecurring implements ShouldQueue
         $this->recurring_invoice->invitations->each(function ($recurring_invitation) use($invoice){
 
             $ii = InvoiceInvitationFactory::create($invoice->company_id, $invoice->user_id);
-            $ii->key = $this->createDbHash(config('database.default'));
+            $ii->key = $this->createDbHash($invoice->company->db);
             $ii->invoice_id = $invoice->id;
             $ii->client_contact_id = $recurring_invitation->client_contact_id;
             $ii->save();

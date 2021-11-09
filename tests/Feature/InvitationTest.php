@@ -33,18 +33,12 @@ use Tests\TestCase;
 class InvitationTest extends TestCase
 {
     use MakesHash;
-    //use DatabaseTransactions;
-    //use RefreshDatabase;
+    use DatabaseTransactions;
+    // use RefreshDatabase;
 
     public function setUp() :void
     {
         parent::setUp();
-
-        Session::start();
-
-        $this->faker = \Faker\Factory::create();
-
-        Model::reguard();
     }
 
     public function testInvoiceCreationAfterInvoiceMarkedSent()

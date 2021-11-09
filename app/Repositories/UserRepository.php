@@ -70,7 +70,7 @@ class UserRepository extends BaseRepository
         }
 
         if (!$user->confirmation_code) {
-            $user->confirmation_code = $this->createDbHash(config('database.default'));
+            $user->confirmation_code = $this->createDbHash($company->db);
         }
 
         $user->account_id = $account->id;

@@ -24,6 +24,8 @@ class ValidProjectForClient implements Rule
 
     public $input;
 
+    public $message;
+
     public function __construct($input)
     {
         $this->input = $input;
@@ -35,15 +37,20 @@ class ValidProjectForClient implements Rule
      */
     public function passes($attribute, $value)
     {
+        $this->message = ctrans('texts.project_client_do_not_match');
+
         if (empty($this->input['project_id'])) {
             return true;
         }
         
-        if (is_string($this->input['project_id'])) {
-            $this->input['project_id'] = $this->decodePrimaryKey($this->input['project_id']);
-        }
+        // if (is_string($this->input['project_id'])) {
+        //     $this->input['project_id'] = $this->decodePrimaryKey($this->input['project_id']);
+        // }
 
-        $project = Project::findOrFail($this->input['project_id']);
+        $project = Project::find($this->input['project_id']);
+
+        if(!$project)
+            $this->message = "Project not found";
 
         return $project->client_id == $this->input['client_id'];
     }
@@ -53,6 +60,6 @@ class ValidProjectForClient implements Rule
      */
     public function message()
     {
-        return ctrans('texts.project_client_do_not_match');
+        return $this->message;
     }
 }
