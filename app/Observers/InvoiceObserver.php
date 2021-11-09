@@ -29,6 +29,7 @@ class InvoiceObserver
      */
     public function created(Invoice $invoice)
     {
+nlog("ppo0");
 
         $subscriptions = Webhook::where('company_id', $invoice->company_id)
                             ->where('event_id', Webhook::EVENT_CREATE_INVOICE)
