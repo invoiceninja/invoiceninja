@@ -70,7 +70,7 @@ class ZipInvoices implements ShouldQueue
      */
     
     public function handle()
-    {
+    {nlog("bulky");
         # create new zip object
         $zip = new ZipArchive();
 

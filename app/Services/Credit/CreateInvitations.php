@@ -23,7 +23,7 @@ class CreateInvitations extends AbstractService
 {
     use MakesHash;
 
-    private $credit;
+    public $credit;
 
     public function __construct(Credit $credit)
     {
@@ -45,6 +45,7 @@ class CreateInvitations extends AbstractService
             $invitation = CreditInvitation::whereCompanyId($this->credit->company_id)
                 ->whereClientContactId($contact->id)
                 ->whereCreditId($this->credit->id)
+                ->withTrashed()
                 ->first();
 
             if (! $invitation) {
@@ -57,6 +58,34 @@ class CreateInvitations extends AbstractService
                 $invitation->delete();
             }
         });
+
+        if($this->credit->invitations()->count() == 0) {
+            
+            if($contacts->count() == 0){
+                $contact = $this->createBlankContact();
+            }
+            else{
+                $contact = $contacts->first();
+
+                    $invitation = CreditInvitation::where('company_id', $this->credit->company_id)
+                                ->where('client_contact_id', $contact->id)
+                                ->where('credit_id', $this->credit->id)
+                                ->withTrashed()
+                                ->first();
+
+                    if($invitation){
+                        $invitation->restore();
+                        return $this->credit;
+                    }
+            }
+
+                $ii = CreditInvitationFactory::create($this->credit->company_id, $this->credit->user_id);
+                $ii->key = $this->createDbHash($this->credit->company->db);
+                $ii->credit_id = $this->credit->id;
+                $ii->client_contact_id = $contact->id;
+                $ii->save();
+        }
+
 
         return $this->credit;
     }

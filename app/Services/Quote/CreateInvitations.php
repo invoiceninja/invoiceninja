@@ -59,6 +59,33 @@ class CreateInvitations
             }
         });
 
+        if($this->quote->invitations()->count() == 0) {
+            
+            if($contacts->count() == 0){
+                $contact = $this->createBlankContact();
+            }
+            else{
+                $contact = $contacts->first();
+
+                            $invitation = QuoteInvitation::where('company_id', $this->quote->company_id)
+                                        ->where('client_contact_id', $contact->id)
+                                        ->where('quote_id', $this->quote->id)
+                                        ->withTrashed()
+                                        ->first();
+
+                            if($invitation){
+                                $invitation->restore();
+                                return $this->quote;
+                            }
+            }
+
+                $ii = QuoteInvitationFactory::create($this->quote->company_id, $this->quote->user_id);
+                $ii->key = $this->createDbHash($this->quote->company->db);
+                $ii->quote_id = $this->quote->id;
+                $ii->client_contact_id = $contact->id;
+                $ii->save();
+        }
+
         return $this->quote->fresh();
     }
 

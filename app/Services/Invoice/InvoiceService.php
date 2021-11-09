@@ -33,7 +33,7 @@ class InvoiceService
 {
     use MakesHash;
 
-    private $invoice;
+    public $invoice;
 
     public function __construct($invoice)
     {
