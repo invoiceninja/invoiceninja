@@ -756,6 +756,10 @@ html {
         $container->setAttribute('style', 'display:grid; grid-auto-flow: row; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(2, 1fr);');
 
         foreach ($this->entity->documents as $document) {
+            if (!$document->isImage()) {
+                continue;
+            }
+
             $image = $dom->createElement('img');
 
             $image->setAttribute('src', $document->generateUrl());
