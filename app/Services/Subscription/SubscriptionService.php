@@ -290,6 +290,9 @@ class SubscriptionService
 
         $days_in_frequency = $this->getDaysInFrequency();
 
+        if($days_of_subscription_used >= $days_in_frequency)
+            return 0;
+
         $pro_rata_refund = round((($days_in_frequency - $days_of_subscription_used)/$days_in_frequency) * $invoice->amount ,2);
 
         // nlog("days in frequency = {$days_in_frequency} - days of subscription used {$days_of_subscription_used}");
@@ -322,7 +325,8 @@ class SubscriptionService
 
         $days_of_subscription_used = $start_date->diffInDays($current_date);
 
-        $days_in_frequency = $this->getDaysInFrequency();
+        // $days_in_frequency = $this->getDaysInFrequency();
+        $days_in_frequency = $invoice->subscription->service()->getDaysInFrequency();
 
         $ratio = ($days_in_frequency - $days_of_subscription_used)/$days_in_frequency;
 
@@ -427,6 +431,8 @@ class SubscriptionService
 
         nlog("total payable = {$total_payable}");
 
+        $credit = false;
+
         /* Only generate a credit if the previous invoice was paid in full. */
         if($last_invoice->balance == 0)
             $credit = $this->createCredit($last_invoice, $target_subscription, $is_credit);
@@ -436,7 +442,7 @@ class SubscriptionService
             $context = [
                 'context' => 'change_plan',
                 'recurring_invoice' => $new_recurring_invoice->hashed_id,
-                'credit' => $credit->hashed_id,
+                'credit' => $credit ? $credit->hashed_id : null,
                 'client' => $new_recurring_invoice->client->hashed_id,
                 'subscription' => $target_subscription->hashed_id,
                 'contact' => auth('contact')->user()->hashed_id,
@@ -446,7 +452,10 @@ class SubscriptionService
 
             nlog($response);
 
-            return $this->handleRedirect('/client/credits/'.$credit->hashed_id);
+            if($credit)
+                return $this->handleRedirect('/client/credits/'.$credit->hashed_id);
+            else
+                return $this->handleRedirect('/client/credits');      
 
     }
 
@@ -544,6 +553,9 @@ class SubscriptionService
         nlog("handle plan change");
 
         $old_recurring_invoice = RecurringInvoice::find($payment_hash->data->billing_context->recurring_invoice);
+
+        if(!$old_recurring_invoice)        
+            return $this->handleRedirect('/client/recurring_invoices/');
 
         $recurring_invoice = $this->createNewRecurringInvoice($old_recurring_invoice);
 
@@ -702,7 +714,7 @@ class SubscriptionService
 
         $recurring_invoice = RecurringInvoiceFactory::create($this->subscription->company_id, $this->subscription->user_id);
         $recurring_invoice->client_id = $client_id;
-        $recurring_invoice->line_items = $subscription_repo->generateLineItems($this->subscription, true);
+        $recurring_invoice->line_items = $subscription_repo->generateLineItems($this->subscription, true, false);
         $recurring_invoice->subscription_id = $this->subscription->id;
         $recurring_invoice->frequency_id = $this->subscription->frequency_id ?: RecurringInvoice::FREQUENCY_MONTHLY;
         $recurring_invoice->date = now();
