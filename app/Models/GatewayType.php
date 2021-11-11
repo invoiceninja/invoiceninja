@@ -37,6 +37,7 @@ class GatewayType extends StaticModel
     const DIRECT_DEBIT = 18;
     const ACSS = 19;
     const BECS = 20;
+    const INSTANT_BANK_PAY = 21;
 
     public function gateway()
     {
