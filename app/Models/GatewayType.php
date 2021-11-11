@@ -90,6 +90,8 @@ class GatewayType extends StaticModel
                 return ctrans('texts.acss');
             case self::DIRECT_DEBIT:
                 return ctrans('texts.payment_type_direct_debit');
+            case self::INSTANT_BANK_PAY:
+                return ctrans('texts.payment_type_instant_bank_pay');
             default:
                 return 'Undefined.';
                 break;
