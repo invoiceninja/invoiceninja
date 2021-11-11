@@ -107,31 +107,32 @@ class StepsController extends BaseController
     public function forwardUrl(Request $request)
     {
 
-        $this->autoForwardUrl();
+        if(Utils::isNinjaProd())
+            return $this->autoForwardUrl();
         
-        // $rules = [
-        //     'url' => 'nullable|url',
-        // ];
+        $rules = [
+            'url' => 'nullable|url',
+        ];
 
-        // $validator = Validator::make($request->all(), $rules);
+        $validator = Validator::make($request->all(), $rules);
 
-        // if ($validator->fails()) {
-        //     return back()
-        //         ->withErrors($validator)
-        //         ->withInput();
-        // }
+        if ($validator->fails()) {
+            return back()
+                ->withErrors($validator)
+                ->withInput();
+        }
 
-        // $account_settings = \Auth::user()->account->account_email_settings;
+        $account_settings = \Auth::user()->account->account_email_settings;
 
-        // if(strlen($request->input('url')) == 0) {
-        //     $account_settings->is_disabled = false;
-        // }
-        // else {
-        //     $account_settings->is_disabled = true;
-        // }
+        if(strlen($request->input('url')) == 0) {
+            $account_settings->is_disabled = false;
+        }
+        else {
+            $account_settings->is_disabled = true;
+        }
 
-        // $account_settings->forward_url_for_v5 = rtrim($request->input('url'),'/');
-        // $account_settings->save();
+        $account_settings->forward_url_for_v5 = rtrim($request->input('url'),'/');
+        $account_settings->save();
 
         return back();
     }
@@ -221,7 +222,7 @@ class StepsController extends BaseController
 
         }
 
-
+        return back();
 
     }
 
