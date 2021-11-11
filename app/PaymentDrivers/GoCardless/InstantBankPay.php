@@ -3,18 +3,17 @@
 namespace App\PaymentDrivers\GoCardless;
 
 use App\Exceptions\PaymentFailed;
-use Illuminate\Http\Request;
-use App\PaymentDrivers\Common\MethodInterface;
-use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\GoCardlessPaymentDriver;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 class InstantBankPay implements MethodInterface
 {
@@ -29,10 +28,10 @@ class InstantBankPay implements MethodInterface
 
     /**
      * Authorization page for Instant Bank Pay.
-     * 
-     * @param array $data 
-     * @return RedirectResponse 
-     * @throws BindingResolutionException 
+     *
+     * @param array $data
+     * @return RedirectResponse
+     * @throws BindingResolutionException
      */
     public function authorizeView(array $data): RedirectResponse
     {
@@ -41,10 +40,10 @@ class InstantBankPay implements MethodInterface
 
     /**
      * Handle authorization for Instant Bank Pay.
-     * 
-     * @param array $data 
-     * @return RedirectResponse 
-     * @throws BindingResolutionException 
+     *
+     * @param array $data
+     * @return RedirectResponse
+     * @throws BindingResolutionException
      */
     public function authorizeResponse(Request $request): RedirectResponse
     {
