@@ -13,6 +13,8 @@ use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\GoCardlessPaymentDriver;
+use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Http\RedirectResponse;
 
 class InstantBankPay implements MethodInterface
 {
@@ -25,12 +27,28 @@ class InstantBankPay implements MethodInterface
         $this->go_cardless->init();
     }
 
-    public function authorizeView(array $data)
+    /**
+     * Authorization page for Instant Bank Pay.
+     * 
+     * @param array $data 
+     * @return RedirectResponse 
+     * @throws BindingResolutionException 
+     */
+    public function authorizeView(array $data): RedirectResponse
     {
+        return redirect()->back();
     }
 
-    public function authorizeResponse(Request $request)
+    /**
+     * Handle authorization for Instant Bank Pay.
+     * 
+     * @param array $data 
+     * @return RedirectResponse 
+     * @throws BindingResolutionException 
+     */
+    public function authorizeResponse(Request $request): RedirectResponse
     {
+        return redirect()->back();
     }
 
     public function paymentView(array $data)
@@ -94,7 +112,7 @@ class InstantBankPay implements MethodInterface
             return $this->processUnsuccessfulPayment($payment);
         } catch (\Exception $exception) {
             throw new PaymentFailed(
-                $exception->getMessage(), 
+                $exception->getMessage(),
                 $exception->getCode()
             );
         }
@@ -131,7 +149,7 @@ class InstantBankPay implements MethodInterface
         return redirect()->route('client.payments.show', ['payment' => $this->go_cardless->encodePrimaryKey($payment->id)]);
     }
 
-        /**
+    /**
      * Process unsuccessful payments for Direct Debit.
      *
      * @param ResourcesPayment $payment
