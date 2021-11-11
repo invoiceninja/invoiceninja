@@ -57,7 +57,7 @@ class HandleReversal extends AbstractService
         $paymentables->each(function ($paymentable) use ($total_paid) {
 
             //new concept - when reversing, we unwind the payments
-            $payment = Payment::find($paymentable->payment_id);
+            $payment = Payment::withTrashed()->find($paymentable->payment_id);
             
             $reversable_amount = $paymentable->amount - $paymentable->refunded;
             $total_paid -= $reversable_amount;

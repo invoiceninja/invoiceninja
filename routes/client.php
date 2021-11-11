@@ -2,18 +2,18 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('client', 'Auth\ContactLoginController@showLoginForm')->name('client.catchall')->middleware(['domain_db', 'contact_account','locale']); //catch all
+Route::get('client', 'Auth\ContactLoginController@showLoginForm')->name('client.catchall')->middleware(['throttle:10,1','domain_db', 'contact_account','locale']); //catch all
 
-Route::get('client/login', 'Auth\ContactLoginController@showLoginForm')->name('client.login')->middleware(['domain_db', 'contact_account','locale']);
+Route::get('client/login', 'Auth\ContactLoginController@showLoginForm')->name('client.login')->middleware(['throttle:10,1','domain_db', 'contact_account','locale']);
 Route::post('client/login', 'Auth\ContactLoginController@login')->name('client.login.submit');
 
-Route::get('client/register/{company_key?}', 'Auth\ContactRegisterController@showRegisterForm')->name('client.register')->middleware(['domain_db', 'contact_account', 'contact_register','locale']);
-Route::post('client/register/{company_key?}', 'Auth\ContactRegisterController@register')->middleware(['domain_db', 'contact_account', 'contact_register', 'locale']);
+Route::get('client/register/{company_key?}', 'Auth\ContactRegisterController@showRegisterForm')->name('client.register')->middleware(['throttle:10,1','domain_db', 'contact_account', 'contact_register','locale']);
+Route::post('client/register/{company_key?}', 'Auth\ContactRegisterController@register')->middleware(['throttle:10,1','domain_db', 'contact_account', 'contact_register', 'locale']);
 
-Route::get('client/password/reset', 'Auth\ContactForgotPasswordController@showLinkRequestForm')->name('client.password.request')->middleware(['domain_db', 'contact_account','locale']);
-Route::post('client/password/email', 'Auth\ContactForgotPasswordController@sendResetLinkEmail')->name('client.password.email')->middleware('locale');
-Route::get('client/password/reset/{token}', 'Auth\ContactResetPasswordController@showResetForm')->name('client.password.reset')->middleware(['domain_db', 'contact_account','locale']);
-Route::post('client/password/reset', 'Auth\ContactResetPasswordController@reset')->name('client.password.update')->middleware(['domain_db', 'contact_account','locale']);
+Route::get('client/password/reset', 'Auth\ContactForgotPasswordController@showLinkRequestForm')->name('client.password.request')->middleware(['throttle:10,1','domain_db', 'contact_account','locale']);
+Route::post('client/password/email', 'Auth\ContactForgotPasswordController@sendResetLinkEmail')->name('client.password.email')->middleware('throttle:10,1','locale');
+Route::get('client/password/reset/{token}', 'Auth\ContactResetPasswordController@showResetForm')->name('client.password.reset')->middleware(['throttle:10,1','domain_db', 'contact_account','locale']);
+Route::post('client/password/reset', 'Auth\ContactResetPasswordController@reset')->name('client.password.update')->middleware(['throttle:10,1','domain_db', 'contact_account','locale']);
 
 Route::get('view/{entity_type}/{invitation_key}', 'ClientPortal\EntityViewController@index')->name('client.entity_view');
 Route::get('view/{entity_type}/{invitation_key}/password', 'ClientPortal\EntityViewController@password')->name('client.entity_view.password');
@@ -21,14 +21,14 @@ Route::post('view/{entity_type}/{invitation_key}/password', 'ClientPortal\Entity
 
 Route::get('tmp_pdf/{hash}', 'ClientPortal\TempRouteController@index')->name('tmp_pdf');
 
-Route::get('client/key_login/{contact_key}', 'ClientPortal\ContactHashLoginController@login')->name('client.contact_login')->middleware(['domain_db','contact_key_login']);
-Route::get('client/magic_link/{magic_link}', 'ClientPortal\ContactHashLoginController@magicLink')->name('client.contact_magic_link')->middleware(['domain_db','contact_key_login']);
-Route::get('documents/{document_hash}', 'ClientPortal\DocumentController@publicDownload')->name('documents.public_download')->middleware(['document_db']);
+Route::get('client/key_login/{contact_key}', 'ClientPortal\ContactHashLoginController@login')->name('client.contact_login')->middleware(['throttle:40,1','domain_db','contact_key_login']);
+Route::get('client/magic_link/{magic_link}', 'ClientPortal\ContactHashLoginController@magicLink')->name('client.contact_magic_link')->middleware(['throttle:40,1','domain_db','contact_key_login']);
+Route::get('documents/{document_hash}', 'ClientPortal\DocumentController@publicDownload')->name('documents.public_download')->middleware(['throttle:40,1','document_db']);
 Route::get('error', 'ClientPortal\ContactHashLoginController@errorPage')->name('client.error');
-Route::get('client/payment/{contact_key}/{payment_id}', 'ClientPortal\InvitationController@paymentRouter')->middleware(['domain_db','contact_key_login']);
-Route::get('client/ninja/{contact_key}/{company_key}', 'ClientPortal\NinjaPlanController@index')->name('client.ninja_contact_login')->middleware(['domain_db']);
+Route::get('client/payment/{contact_key}/{payment_id}', 'ClientPortal\InvitationController@paymentRouter')->middleware(['throttle:40,1','domain_db','contact_key_login']);
+Route::get('client/ninja/{contact_key}/{company_key}', 'ClientPortal\NinjaPlanController@index')->name('client.ninja_contact_login')->middleware(['throttle:40,1','domain_db']);
 
-Route::group(['middleware' => ['auth:contact', 'locale', 'check_client_existence','domain_db'], 'prefix' => 'client', 'as' => 'client.'], function () {
+Route::group(['middleware' => ['throttle:60,1','auth:contact', 'locale', 'check_client_existence','domain_db'], 'prefix' => 'client', 'as' => 'client.'], function () {
     Route::get('dashboard', 'ClientPortal\DashboardController@index')->name('dashboard'); // name = (dashboard. index / create / show / update / destroy / edit
 
     Route::get('invoices', 'ClientPortal\InvoiceController@index')->name('invoices.index')->middleware('portal_enabled');
@@ -92,7 +92,7 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'check_client_existence
 
 Route::get('client/subscriptions/{subscription}/purchase', 'ClientPortal\SubscriptionPurchaseController@index')->name('client.subscription.purchase')->middleware('domain_db');
 
-Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'client.'], function () {
+Route::group(['middleware' => ['throttle:40,1','invite_db'], 'prefix' => 'client', 'as' => 'client.'], function () {
     /*Invitation catches*/
     Route::get('recurring_invoice/{invitation_key}', 'ClientPortal\InvitationController@recurringRouter');
     Route::get('invoice/{invitation_key}', 'ClientPortal\InvitationController@invoiceRouter');
@@ -108,6 +108,6 @@ Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'clie
 
 });
 
-Route::get('phantom/{entity}/{invitation_key}', '\App\Utils\PhantomJS\Phantom@displayInvitation')->middleware(['invite_db', 'phantom_secret'])->name('phantom_view');
+Route::get('phantom/{entity}/{invitation_key}', '\App\Utils\PhantomJS\Phantom@displayInvitation')->middleware(['throttle:60,1','invite_db', 'phantom_secret'])->name('phantom_view');
 
 Route::fallback('BaseController@notFoundClient');
