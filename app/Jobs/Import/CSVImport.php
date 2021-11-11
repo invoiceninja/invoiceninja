@@ -587,7 +587,7 @@ class CSVImport implements ShouldQueue {
 	}
 
 	private function getCsvData( $entityType ) {
-		$base64_encoded_csv = Cache::get( $this->hash . '-' . $entityType );
+		$base64_encoded_csv = Cache::pull( $this->hash . '-' . $entityType );
 		if ( empty( $base64_encoded_csv ) ) {
 			return null;
 		}

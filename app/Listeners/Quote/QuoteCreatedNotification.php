@@ -53,6 +53,9 @@ class QuoteCreatedNotification implements ShouldQueue
             /* The User */
             $user = $company_user->user;
 
+            if(!$user)
+                continue;
+
             /* This is only here to handle the alternate message channels - ie Slack */
             // $notification = new EntitySentNotification($event->invitation, 'quote');
 
