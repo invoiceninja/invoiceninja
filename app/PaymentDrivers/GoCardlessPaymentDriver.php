@@ -78,7 +78,9 @@ class GoCardlessPaymentDriver extends BaseDriver
             $types[] = GatewayType::SEPA;
         }
 
-        $types[] = GatewayType::INSTANT_BANK_PAY;
+        if ($this->client->currency()->code === 'GBP') {
+            $types[] = GatewayType::INSTANT_BANK_PAY;
+        }
 
         return $types;
     }
