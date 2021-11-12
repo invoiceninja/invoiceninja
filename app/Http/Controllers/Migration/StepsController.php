@@ -142,6 +142,7 @@ class StepsController extends BaseController
         $account = \Auth::user()->account;
 
         $account_settings = $account->account_email_settings;
+        $account_settings->forward_url_for_v5 = '';
         $account_settings->is_disabled = false;
         $account_settings->save();
 
