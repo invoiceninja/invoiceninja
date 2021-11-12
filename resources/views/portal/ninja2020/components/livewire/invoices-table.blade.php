@@ -99,7 +99,7 @@
                                         @csrf
                                         <input type="hidden" name="invoices[]" value="{{ $invoice->hashed_id }}">
                                         <input type="hidden" name="action" value="payment">
-                                        <button class="px-2 py-1 mr-3 text-xs uppercase button button-primary bg-primary" dusk="pay-now">
+                                        <button onclick="setTimeout(() => this.disabled = true, 0); return true;" class="px-2 py-1 mr-3 text-xs uppercase button button-primary bg-primary" dusk="pay-now">
                                             {{ ctrans('texts.pay_now') }}
                                         </button>
                                     </form>
