@@ -1,2 +1,59 @@
-/*! For license information please see authorize-checkout-card.js.LICENSE.txt */
-(()=>{function e(e,n){for(var t=0;t<n.length;t++){var a=n[t];a.enumerable=a.enumerable||!1,a.configurable=!0,"value"in a&&(a.writable=!0),Object.defineProperty(e,a.key,a)}}(new(function(){function n(){!function(e,n){if(!(e instanceof n))throw new TypeError("Cannot call a class as a function")}(this,n),this.button=document.querySelector("#pay-button")}var t,a,r;return t=n,(a=[{key:"init",value:function(){this.frames=Frames.init(document.querySelector("meta[name=public-key]").content)}},{key:"handle",value:function(){var e=this;this.init(),Frames.addEventHandler(Frames.Events.CARD_VALIDATION_CHANGED,(function(n){e.button.disabled=!Frames.isCardValid()})),Frames.addEventHandler(Frames.Events.CARD_TOKENIZED,(function(e){document.querySelector('input[name="gateway_response"]').value=JSON.stringify(e),document.getElementById("server_response").submit()})),document.querySelector("#authorization-form").addEventListener("submit",(function(n){e.button.disabled=!0,n.preventDefault(),Frames.submitCard()}))}}])&&e(t.prototype,a),r&&e(t,r),n}())).handle()})();
+/******/ (() => { // webpackBootstrap
+var __webpack_exports__ = {};
+/*!*************************************************************************!*\
+  !*** ./resources/js/clients/payment_methods/authorize-checkout-card.js ***!
+  \*************************************************************************/
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
+var CheckoutCreditCardAuthorization = /*#__PURE__*/function () {
+  function CheckoutCreditCardAuthorization() {
+    _classCallCheck(this, CheckoutCreditCardAuthorization);
+
+    this.button = document.querySelector('#pay-button');
+  }
+
+  _createClass(CheckoutCreditCardAuthorization, [{
+    key: "init",
+    value: function init() {
+      this.frames = Frames.init(document.querySelector('meta[name=public-key]').content);
+    }
+  }, {
+    key: "handle",
+    value: function handle() {
+      var _this = this;
+
+      this.init();
+      Frames.addEventHandler(Frames.Events.CARD_VALIDATION_CHANGED, function (event) {
+        _this.button.disabled = !Frames.isCardValid();
+      });
+      Frames.addEventHandler(Frames.Events.CARD_TOKENIZED, function (event) {
+        document.querySelector('input[name="gateway_response"]').value = JSON.stringify(event);
+        document.getElementById('server_response').submit();
+      });
+      document.querySelector('#authorization-form').addEventListener('submit', function (event) {
+        _this.button.disabled = true;
+        event.preventDefault();
+        Frames.submitCard();
+      });
+    }
+  }]);
+
+  return CheckoutCreditCardAuthorization;
+}();
+
+new CheckoutCreditCardAuthorization().handle();
+/******/ })()
+;
