@@ -13,6 +13,7 @@ class Payment {
         this.shouldDisplayTerms = displayTerms;
         this.shouldDisplaySignature = displaySignature;
         this.termsAccepted = false;
+        this.submitting = false;
     }
 
     handleMethodSelect(element) {
@@ -95,9 +96,13 @@ class Payment {
         document
             .querySelectorAll(".dropdown-gateway-button")
             .forEach(element => {
-                element.addEventListener("click", () =>
-                    this.handleMethodSelect(element)
-                );
+                element.addEventListener("click", () => {
+                    if (!this.submitting) {
+                        this.handleMethodSelect(element)
+
+                        this.submitting = true;
+                    }
+                });
             });
     }
 }

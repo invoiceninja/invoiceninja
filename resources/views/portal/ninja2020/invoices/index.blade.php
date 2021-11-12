@@ -15,10 +15,10 @@
     <div class="flex items-center">
         <form action="{{ route('client.invoices.bulk') }}" method="post" id="bulkActions">
             @csrf
-            <button type="submit" class="button button-primary bg-primary" name="action" value="download">{{ ctrans('texts.download') }}</button>
+            <button type="submit" onclick="setTimeout(() => this.disabled = true, 0); setTimeout(() => this.disabled = false, 5000); return true;" class="button button-primary bg-primary" name="action" value="download">{{ ctrans('texts.download') }}</button>
 
             @if(!empty(auth()->user()->client->service()->getPaymentMethods(0)))
-                <button type="submit" class="button button-primary bg-primary" name="action" value="payment">{{ ctrans('texts.pay_now') }}</button>
+                <button onclick="setTimeout(() => this.disabled = true, 0); return true;" type="submit" class="button button-primary bg-primary" name="action" value="payment">{{ ctrans('texts.pay_now') }}</button>
             @endif
         </form>
     </div>

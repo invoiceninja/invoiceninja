@@ -31,7 +31,7 @@
                 <span class="ml-2">{{ ctrans('texts.show_aging') }}</span>
             </label> <!-- End show aging checkbox -->
         </div>
-        <button id="pdf-download" class="button button-primary bg-primary mt-4 md:mt-0">{{ ctrans('texts.download') }}</button>
+        <button onclick="setTimeout(() => this.disabled = true, 0); setTimeout(() => this.disabled = false, 5000); return true;" id="pdf-download" class="button button-primary bg-primary mt-4 md:mt-0">{{ ctrans('texts.download') }}</button>
     </div>
 
     @include('portal.ninja2020.components.pdf-viewer', ['url' => route('client.statement.raw')])
