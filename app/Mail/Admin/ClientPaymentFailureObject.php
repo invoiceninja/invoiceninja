@@ -75,7 +75,7 @@ class ClientPaymentFailureObject
         $mail_obj->amount = $this->getAmount();
         $mail_obj->subject = $this->getSubject();
         $mail_obj->data = $this->getData();
-        $mail_obj->markdown = 'email.admin.generic';
+        $mail_obj->markdown = 'email.client.generic';
         $mail_obj->tag = $this->company->company_key;
 
         return $mail_obj;
@@ -113,14 +113,15 @@ class ClientPaymentFailureObject
                 ]
             ),
             'greeting' => ctrans('texts.email_salutation', ['name' => $this->client->present()->name]),
-            'message' => ctrans('texts.client_payment_failure_body', ['invoice' => implode(",", $this->invoices->pluck('number')->toArray()), 'amount' => $this->getAmount()]),
+            'content' => ctrans('texts.client_payment_failure_body', ['invoice' => implode(",", $this->invoices->pluck('number')->toArray()), 'amount' => $this->getAmount()]),
             'signature' => $signature,
             'logo' => $this->company->present()->logo(),
             'settings' => $this->client->getMergedSettings(),
             'whitelabel' => $this->company->account->isPaid() ? true : false,
-            'url' => route('client.login'),
-            'button' => ctrans('texts.login'),
-            'additional_info' => false
+            'view_link' => $html_variables['$payment_link'],
+            'button' => $html_variables['$payment_button'],
+            'additional_info' => false,
+            'company' => $this->company,
         ];
 
         return $data;
