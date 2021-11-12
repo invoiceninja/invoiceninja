@@ -59,7 +59,6 @@ class InvoiceController extends Controller
 
         $invoice->service()->removeUnpaidGatewayFees()->save();
 
-
             $invitation = $invoice->invitations()->where('client_contact_id', auth()->user()->id)->first();
 
             if ($invitation && auth()->guard('contact') && ! request()->has('silent') && ! $invitation->viewed_date) {
