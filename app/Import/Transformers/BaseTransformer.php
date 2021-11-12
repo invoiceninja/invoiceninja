@@ -221,6 +221,9 @@ class BaseTransformer
     {
         $name = strtolower(trim($name));
 
+        if(strlen($name) == 2)
+            return $this->getCountryIdBy2($name);
+        
         return isset($this->maps['countries'][$name]) ? $this->maps['countries'][$name] : null;
     }
 

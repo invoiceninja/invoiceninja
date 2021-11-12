@@ -113,8 +113,14 @@ class Ninja
 
     public static function eventVars($user_id = null)
     {
+
+        if(request()->hasHeader('Cf-Connecting-Ip'))
+            $ip = request()->header('Cf-Connecting-Ip');
+        else 
+            $ip = request()->getClientIp();
+
         return [
-            'ip' => request()->getClientIp(),
+            'ip' => $ip,
             'token' => request()->header('X-API-TOKEN'),
             'is_system' => app()->runningInConsole(),
             'user_id' => $user_id,

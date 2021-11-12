@@ -522,9 +522,6 @@ class InvoiceController extends BaseController
 
         $ids = request()->input('ids');
 
-nlog($action);
-nlog($ids);
-
         $invoices = Invoice::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
         if (! $invoices) {
@@ -542,7 +539,7 @@ nlog($ids);
                     return response()->json(['message' => ctrans('text.access_denied')]);
                 }
             });
-nlog("bulky");
+
             ZipInvoices::dispatch($invoices, $invoices->first()->company, auth()->user());
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
