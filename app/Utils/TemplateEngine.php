@@ -257,7 +257,7 @@ class TemplateEngine
             ]);
 
 
-        if($this->entity == 'invoice')
+        if(!$this->entity || $this->entity == 'invoice')
         {
             $this->entity_obj = Invoice::factory()->create([
                         'user_id' => auth()->user()->id,
