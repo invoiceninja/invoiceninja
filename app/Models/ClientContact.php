@@ -217,6 +217,9 @@ class ClientContact extends Authenticatable implements HasLocalePreference
     {
         $languages = Cache::get('languages');
 
+        if(!$languages)
+            $this->buildCache(true);
+        
         return $languages->filter(function ($item) {
             return $item->id == $this->client->getSetting('language_id');
         })->first()->locale;

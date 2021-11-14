@@ -232,6 +232,7 @@ class Import implements ShouldQueue
 
         $account = $this->company->account;
         $account->default_company_id = $this->company->id;
+        $account->is_migrated = true;
         $account->save();
 
         //company size check

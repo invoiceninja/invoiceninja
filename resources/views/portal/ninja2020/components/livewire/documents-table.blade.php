@@ -64,7 +64,7 @@
                 <option>15</option>
                 <option>20</option>
             </select>
-            <button x-on:click="document.getElementById('multiple-downloads').submit()" class="button button-primary bg-primary py-2 ml-2">
+            <button onclick="document.getElementById('multiple-downloads').submit(); setTimeout(() => this.disabled = true, 0); setTimeout(() => this.disabled = false, 5000);" class="button button-primary bg-primary py-2 ml-2">
                 <span class="hidden md:block">
                     {{ ctrans('texts.download_selected') }}
                 </span>
