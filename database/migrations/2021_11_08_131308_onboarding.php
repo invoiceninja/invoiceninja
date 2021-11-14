@@ -13,9 +13,25 @@ class Onboarding extends Migration
      */
     public function up()
     {
-        Schema::table('accounts', function (Blueprint $table) {
-            $table->boolean('is_onboarding')->default(false);
-            $table->mediumText('onboarding')->nullable();
-        });
+
+        if (!Schema::hasColumn('accounts', 'is_onboarding'))
+        {
+
+            Schema::table('accounts', function (Blueprint $table) {
+                $table->boolean('is_onboarding')->default(false);
+            });
+            
+        }
+
+
+        if (!Schema::hasColumn('accounts', 'onboarding'))
+        {
+
+            Schema::table('accounts', function (Blueprint $table) {
+                $table->mediumText('onboarding')->nullable();
+            });
+            
+        }
+
     }
 }
