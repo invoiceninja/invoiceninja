@@ -12,7 +12,7 @@ let options = JSON.parse(
     document.querySelector('meta[name=razorpay-options]')?.content
 );
 
-options.handler = function(response) {
+options.handler = function (response) {
     document.getElementById('razorpay_payment_id').value =
         response.razorpay_payment_id;
     document.getElementById('razorpay_signature').value =
@@ -20,10 +20,17 @@ options.handler = function(response) {
     document.getElementById('server-response').submit();
 };
 
-let razorpay = new Razorpay(options);
+options.modal = {
+    ondismiss: function () {
+        payNowButton.disabled = false;
+    },
+};
 
-document.getElementById('pay-now').onclick = function(event) {
-    event.target.parentElement.disabled = true;
+let razorpay = new Razorpay(options);
+let payNowButton = document.getElementById('pay-now');
+
+payNowButton.onclick = function (event) {
+    payNowButton.disabled = true;
 
     razorpay.open();
 };
