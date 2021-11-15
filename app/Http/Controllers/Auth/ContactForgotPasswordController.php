@@ -58,7 +58,7 @@ class ContactForgotPasswordController extends Controller
      */
     public function showLinkRequestForm(Request $request)
     {
-        $account_id = $request->get('account_id');
+        $account_id = $request->has('account_id') ? $request->get('account_id') : 1;
         $account = Account::find($account_id);
         $company = $account->companies->first();
 
