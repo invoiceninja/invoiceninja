@@ -22,7 +22,9 @@ use Illuminate\Support\Str;
  */
 class ClientContactRepository extends BaseRepository
 {
-    public $is_primary;
+    private bool $is_primary = true;
+
+    private bool $set_send_email_on_contact = false;
 
     public function save(array $data, Client $client) : void
     {
@@ -36,12 +38,19 @@ class ClientContactRepository extends BaseRepository
             ClientContact::destroy($contact);
         });
 
-        $this->is_primary = true;
+        /* Ensure send_email always exists in at least one contact */
+        if(!$contacts->contains('send_email', true))
+            $this->set_send_email_on_contact = true;
 
         /* Set first record to primary - always */
         $contacts = $contacts->sortByDesc('is_primary')->map(function ($contact) {
             $contact['is_primary'] = $this->is_primary;
             $this->is_primary = false;
+
+            if($this->set_send_email_on_contact){
+                $contact['send_email'] = true;
+                $this->set_send_email_on_contact = false;
+            }
 
             return $contact;
         });
