@@ -129,7 +129,7 @@ class PaymentRepository extends BaseRepository {
 
             //todo optimize this into a single query
             foreach ($data['invoices'] as $paid_invoice) {
-                $invoice = Invoice::whereId($paid_invoice['invoice_id'])->first();
+                $invoice = Invoice::withTrashed()->whereId($paid_invoice['invoice_id'])->first();
 
                 if ($invoice) {
                     $invoice = $invoice->service()

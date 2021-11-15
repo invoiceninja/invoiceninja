@@ -200,6 +200,7 @@ class CreditController extends BaseController
 
         $credit = $credit->service()
                          ->fillDefaults()
+                         ->triggeredActions($request)
                          ->save();
 
         event(new CreditWasCreated($credit, $credit->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
@@ -377,7 +378,9 @@ class CreditController extends BaseController
 
         $credit = $this->credit_repository->save($request->all(), $credit);
 
-        $credit->service()->deletePdf();
+        $credit->service()
+               ->triggeredActions($request)
+               ->deletePdf();
         
         event(new CreditWasUpdated($credit, $credit->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 

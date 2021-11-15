@@ -26,7 +26,7 @@
                         <div class="relative inline-block text-left">
                             <div>
                                 <div class="rounded-md shadow-sm">
-                                    <button type="button" id="approve-button"
+                                    <button type="button" id="approve-button" onclick="setTimeout(() => this.disabled = true, 0); return true;"
                                             class="inline-flex justify-center w-full rounded-md border border-gray-300 px-4 py-2 bg-white text-sm leading-5 font-medium text-gray-700 hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:ring-blue active:bg-gray-50 active:text-gray-800 transition ease-in-out duration-150">
                                         {{ ctrans('texts.approve') }}
                                     </button>

@@ -532,9 +532,10 @@ class InvoiceController extends BaseController
          * Download Invoice/s
          */
 
-        if ($action == 'download' && $invoices->count() > 1) {
+        if ($action == 'bulk_download' && $invoices->count() > 1) {
             $invoices->each(function ($invoice) {
                 if (auth()->user()->cannot('view', $invoice)) {
+                    nlog("access denied");
                     return response()->json(['message' => ctrans('text.access_denied')]);
                 }
             });

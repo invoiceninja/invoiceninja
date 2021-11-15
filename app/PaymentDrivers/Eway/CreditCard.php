@@ -63,8 +63,8 @@ class CreditCard
         $transaction = [
             'Reference' => $this->eway_driver->client->number,
             'Title' => '',
-            'FirstName' => $this->eway_driver->client->contacts()->first()->present()->last_name(),
-            'LastName' => $this->eway_driver->client->contacts()->first()->present()->first_name(),
+            'FirstName' => $this->eway_driver->client->contacts()->first()->present()->first_name(),
+            'LastName' => $this->eway_driver->client->contacts()->first()->present()->last_name(),
             'CompanyName' => $this->eway_driver->client->name,
             'Street1' => $this->eway_driver->client->address1,
             'Street2' => $this->eway_driver->client->address2,

@@ -334,7 +334,7 @@ class BaseController extends Controller
 
             },
             'company.expense_categories'=> function ($query) use ($updated_at, $user) {
-                $query->where('updated_at', '>=', $updated_at);
+                $query->whereNotNull('updated_at');
             },
             'company.task_statuses'=> function ($query) use ($updated_at, $user) {
                 $query->whereNotNull('updated_at');
@@ -568,7 +568,7 @@ class BaseController extends Controller
 
             },
             'company.expense_categories'=> function ($query) use ($created_at, $user) {
-                $query->where('created_at', '>=', $created_at);
+                $query->whereNotNull('created_at');
 
             },
             'company.task_statuses'=> function ($query) use ($created_at, $user) {

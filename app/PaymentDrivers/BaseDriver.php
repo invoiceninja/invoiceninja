@@ -404,7 +404,7 @@ class BaseDriver extends AbstractPaymentDriver
         throw new PaymentFailed($error, $e->getCode());
     }
 
-    public function sendFailureMail(string $error)
+    public function sendFailureMail($error = '')
     {
 
         if (!is_null($this->payment_hash)) {

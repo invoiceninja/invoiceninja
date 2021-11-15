@@ -13,13 +13,15 @@ namespace App\Services\Credit;
 
 use App\Jobs\Util\UnlinkFile;
 use App\Models\Credit;
+use App\Services\Credit\CreateInvitations;
+use App\Services\Credit\TriggeredActions;
 use App\Utils\Traits\MakesHash;
 
 class CreditService
 {
     use MakesHash;
 
-    protected $credit;
+    public $credit;
 
     public function __construct($credit)
     {
@@ -149,6 +151,13 @@ class CreditService
         return $this;
     }
 
+    public function triggeredActions($request)
+    {
+        $this->invoice = (new TriggeredActions($this->credit, $request))->run();
+
+        return $this;
+    }
+    
     /**
      * Saves the credit.
      * @return Credit object

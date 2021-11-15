@@ -134,10 +134,6 @@ class CSVImport implements ShouldQueue {
 			'company' => $this->company,
 		];
 
-        App::forgetInstance('translator');
-        $t = app('translator');
-        $t->replace(Ninja::transformTranslations($this->company->settings));
-
 		$nmo = new NinjaMailerObject;
 		$nmo->mailable = new ImportCompleted($this->company, $data);
 		$nmo->company = $this->company;
@@ -591,7 +587,7 @@ class CSVImport implements ShouldQueue {
 	}
 
 	private function getCsvData( $entityType ) {
-		$base64_encoded_csv = Cache::get( $this->hash . '-' . $entityType );
+		$base64_encoded_csv = Cache::pull( $this->hash . '-' . $entityType );
 		if ( empty( $base64_encoded_csv ) ) {
 			return null;
 		}

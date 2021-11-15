@@ -128,6 +128,7 @@ class CompanyLedgerTest extends TestCase
         $company_token->account_id = $this->account->id;
         $company_token->name = 'test token';
         $company_token->token = $this->token;
+        $company_token->is_system = true;
         $company_token->save();
 
         $this->client = Client::factory()->create([

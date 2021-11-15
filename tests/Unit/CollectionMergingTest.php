@@ -10,6 +10,7 @@
  */
 namespace Tests\Unit;
 
+use App\Factory\ClientContactFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Support\Facades\Session;
@@ -77,4 +78,41 @@ class CollectionMergingTest extends TestCase
         $this->assertTrue(collect($items)->contains('type_id', 3));
 
     }
+
+    public function testClientContactSendEmailExists()
+    {
+        $new_collection = collect();
+
+        $cc = ClientContactFactory::create(1,1);
+        $cc->send_email = true;
+
+        $new_collection->push($cc);
+
+        $cc_false = ClientContactFactory::create(1,1);
+        $cc_false->send_email = false;
+
+        $new_collection->push($cc_false);
+
+        $this->assertTrue($new_collection->contains('send_email', true));
+
+    }
+
+    public function testClientContactSendEmailDoesNotExists()
+    {
+        $new_collection = collect();
+
+        $cc = ClientContactFactory::create(1,1);
+        $cc->send_email = false;
+
+        $new_collection->push($cc);
+
+        $cc_false = ClientContactFactory::create(1,1);
+        $cc_false->send_email = false;
+
+        $new_collection->push($cc_false);
+
+        $this->assertFalse($new_collection->contains('send_email', true));
+
+    }
+
 }
