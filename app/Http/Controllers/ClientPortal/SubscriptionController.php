@@ -13,12 +13,31 @@
 namespace App\Http\Controllers\ClientPortal;
 
 use App\Http\Controllers\Controller;
+use App\Models\RecurringInvoice;
+use App\Utils\Ninja;
 use Illuminate\Http\Request;
 
 class SubscriptionController extends Controller
 {
     public function index()
     {
+
+        if(Ninja::isHosted()){
+
+
+            $count = RecurringInvoice::query()
+                ->where('client_id', auth('contact')->user()->client->id)
+                ->where('company_id', auth('contact')->user()->client->company_id)
+                ->where('status_id', RecurringInvoice::STATUS_ACTIVE)
+                ->whereNotNull('subscription_id')
+                ->count();
+
+                if($count == 0)
+                    return redirect()->route('client.ninja_contact_login', ['contact_key' => auth('contact')->user()->contact_key, 'company_key' => auth('contact')->user()->company->company_key]);
+
+        }
+
+
         return render('subscriptions.index');
     }
 }
