@@ -171,6 +171,7 @@ use App\Listeners\Payment\PaymentEmailedActivity;
 use App\Listeners\Payment\PaymentNotification;
 use App\Listeners\Payment\PaymentRestoredActivity;
 use App\Listeners\Quote\QuoteApprovedActivity;
+use App\Listeners\Quote\QuoteApprovedNotification;
 use App\Listeners\Quote\QuoteApprovedWebhook;
 use App\Listeners\Quote\QuoteArchivedActivity;
 use App\Listeners\Quote\QuoteCreatedNotification;
@@ -437,6 +438,7 @@ class EventServiceProvider extends ServiceProvider
             ReachWorkflowSettings::class,
             QuoteApprovedActivity::class,
             QuoteApprovedWebhook::class,
+            QuoteApprovedNotification::class,
         ],
         QuoteWasCreated::class => [
             CreatedQuoteActivity::class,

@@ -195,7 +195,7 @@ class BaseModel extends Model
         // Remove any runs of periods (thanks falstro!)
         $formatted_number = mb_ereg_replace("([\.]{2,})", '', $formatted_number);
 
-        $formatted_number = str_replace(" ", "", $formatted_number);
+        $formatted_number = str_replace(" ", "_", $formatted_number);
         
         return $formatted_number;
     }
