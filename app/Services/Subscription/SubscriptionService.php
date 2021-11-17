@@ -161,6 +161,11 @@ class SubscriptionService
             $recurring_invoice->discount = $this->subscription->promo_discount;
             $recurring_invoice->is_amount_discount = $this->subscription->is_amount_discount;
         }
+        elseif(strlen($this->subscription->promo_code) == 0 && $this->subscription->promo_discount > 0) {
+            $recurring_invoice->discount = $this->subscription->promo_discount;
+            $recurring_invoice->is_amount_discount = $this->subscription->is_amount_discount;
+        }
+
 
         $recurring_invoice = $recurring_invoice_repo->save($data, $recurring_invoice);
 
@@ -693,6 +698,11 @@ class SubscriptionService
             $invoice->discount = $this->subscription->promo_discount;
             $invoice->is_amount_discount = $this->subscription->is_amount_discount;
         }
+        elseif(strlen($this->subscription->promo_code) == 0 && $this->subscription->promo_discount > 0) {
+            $invoice->discount = $this->subscription->promo_discount;
+            $invoice->is_amount_discount = $this->subscription->is_amount_discount;
+        }
+
 
         return $invoice_repo->save($data, $invoice);
 
