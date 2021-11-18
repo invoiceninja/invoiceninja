@@ -4,7 +4,6 @@ namespace App\Libraries;
 
 use HTMLPurifier;
 use HTMLPurifier_Config;
-use enshrined\svgSanitize\Sanitizer;
 
 class HTMLUtils
 {
@@ -74,16 +73,5 @@ class HTMLUtils
         $key .= $field;
 
         return env($key, env($field, $default));
-    }
-
-    public static function sanitizeSVG($svg)
-    {
-        try {
-            $sanitizer = new Sanitizer();
-
-            return $sanitizer->sanitize($svg);
-        } catch(\Exception $e) {
-            return "";
-        }
     }
 }
