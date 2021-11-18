@@ -7,6 +7,7 @@ use DB;
 use Form;
 use Intervention\Image\ImageManager;
 use Utils;
+use App\Libraries\HTMLUtils;
 
 class DocumentRepository extends BaseRepository
 {
@@ -81,6 +82,14 @@ class DocumentRepository extends BaseRepository
 
         if ($size / 1000 > MAX_DOCUMENT_SIZE) {
             return 'File too large';
+        }
+
+        if($documentType === 'svg') {
+            $stream = file_get_contents($filePath);
+            if(!($stream = HTMLUtils::sanitizeSVG($stream))) {
+                return 'Unsupported file type';
+            }
+            file_put_contents($filePath, $stream);
         }
 
         // don't allow a document to be linked to both an invoice and an expense
