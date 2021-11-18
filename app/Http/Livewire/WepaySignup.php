@@ -84,6 +84,8 @@ class WepaySignup extends Component
 
     public function submit()
     {
+        MultiDB::setDb($this->company->db);
+
         $data = $this->validate($this->rules);
 
         //need to create or get a new WePay CompanyGateway
