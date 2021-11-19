@@ -21,7 +21,7 @@ trait WithTypeHelpers
      */
     public function isImage(): bool
     {
-        if (in_array($this->type, ['png', 'svg', 'jpeg', 'jpg', 'tiff', 'gif'])) {
+        if (in_array($this->type, ['png', 'jpeg', 'jpg', 'tiff', 'gif'])) {
             return true;
         }
 

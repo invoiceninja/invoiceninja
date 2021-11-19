@@ -31,7 +31,7 @@ class UploadCompanyRequest extends Request
     	$rules = [];
 
 		if($this->input('documents'))
-            $rules['documents'] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
+            $rules['documents'] = 'file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
 
     	return $rules;
 
