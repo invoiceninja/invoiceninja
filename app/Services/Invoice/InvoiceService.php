@@ -136,7 +136,17 @@ class InvoiceService
      */
     public function updateBalance($balance_adjustment, bool $is_draft = false)
     {
-        $this->invoice = (new UpdateBalance($this->invoice, $balance_adjustment, $is_draft))->run();
+        // $this->invoice = (new UpdateBalance($this->invoice, $balance_adjustment, $is_draft))->run();
+
+        if ($this->invoice->is_deleted) {
+            return $this;
+        }
+
+        $this->invoice->balance += $balance_adjustment;
+        
+        if ($this->invoice->balance == 0 && !$is_draft) {
+            $this->invoice->status_id = Invoice::STATUS_PAID;
+        }
 
         if ((int)$this->invoice->balance == 0) {
             $this->invoice->next_send_date = null;
