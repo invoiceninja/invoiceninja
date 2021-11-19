@@ -31,7 +31,7 @@ class UploadRecurringInvoiceRequest extends Request
     	$rules = [];
 
 		if($this->input('documents'))
-            $rules['documents'] = 'file|mimes:html,csv,png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:2000000';
+            $rules['documents'] = 'file|mimes:csv,png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:2000000';
 
     	return $rules;
 
