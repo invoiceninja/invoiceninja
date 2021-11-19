@@ -82,9 +82,14 @@ class UpdateInvoicePayment
                 ->updateBalance($paid_amount * -1)
                 ->updatePaidToDate($paid_amount)
                 ->updateStatus()
-                ->deletePdf()
-                ->workFlow()
                 ->save();
+
+                $invoice->refresh();
+
+                $invoice->service()
+                        ->deletePdf()
+                        ->workFlow()
+                        ->save();
 
             event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         });

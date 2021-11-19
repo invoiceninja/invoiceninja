@@ -43,3 +43,4 @@ Route::get('stripe/completed', 'StripeConnectController@completed')->name('strip
 
 Route::get('checkout/3ds_redirect/{company_key}/{company_gateway_id}/{hash}', 'Gateways\Checkout3dsController@index')->name('checkout.3ds_redirect');
 Route::get('mollie/3ds_redirect/{company_key}/{company_gateway_id}/{hash}', 'Gateways\Mollie3dsController@index')->name('mollie.3ds_redirect');
+Route::get('gocardless/ibp_redirect/{company_key}/{company_gateway_id}/{hash}', 'Gateways\GoCardlessController@ibpRedirect')->name('gocardless.ibp_redirect');

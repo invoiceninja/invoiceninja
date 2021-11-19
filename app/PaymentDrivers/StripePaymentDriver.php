@@ -524,14 +524,25 @@ class StripePaymentDriver extends BaseDriver
         if ($request->type === 'charge.succeeded' || $request->type === 'payment_intent.succeeded') {
 
             foreach ($request->data as $transaction) {
-                $payment = Payment::query()
-                        ->where('transaction_reference', $transaction['payment_intent'])
+
+                if(array_key_exists('payment_intent', $transaction))
+                {
+                    $payment = Payment::query()
                         ->where('company_id', $request->getCompany()->id)
                         ->where(function ($query) use ($transaction) {
                             $query->where('transaction_reference', $transaction['payment_intent'])
                                   ->orWhere('transaction_reference', $transaction['id']);
                                 })
                         ->first();
+                }
+                else
+                {
+                     $payment = Payment::query()
+                        ->where('company_id', $request->getCompany()->id)
+                        ->where('transaction_reference', $transaction['id'])
+                        ->first();       
+                }
+
                 if ($payment) {
                     $payment->status_id = Payment::STATUS_COMPLETED;
                     $payment->save();

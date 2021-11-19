@@ -53,6 +53,7 @@ class PaymentType extends StaticModel
     const DIRECT_DEBIT = 42;
     const BECS = 43;
     const ACSS = 44;
+    const INSTANT_BANK_PAY = 45;
 
     public static function parseCardType($cardName)
     {

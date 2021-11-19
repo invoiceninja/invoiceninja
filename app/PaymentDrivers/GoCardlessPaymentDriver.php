@@ -40,6 +40,7 @@ class GoCardlessPaymentDriver extends BaseDriver
         GatewayType::BANK_TRANSFER => \App\PaymentDrivers\GoCardless\ACH::class,
         GatewayType::DIRECT_DEBIT => \App\PaymentDrivers\GoCardless\DirectDebit::class,
         GatewayType::SEPA => \App\PaymentDrivers\GoCardless\SEPA::class,
+        GatewayType::INSTANT_BANK_PAY => \App\PaymentDrivers\GoCardless\InstantBankPay::class,
     ];
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_GOCARDLESS;
@@ -75,6 +76,10 @@ class GoCardlessPaymentDriver extends BaseDriver
 
         if ($this->client->currency()->code === 'EUR') {
             $types[] = GatewayType::SEPA;
+        }
+
+        if ($this->client->currency()->code === 'GBP') {
+            $types[] = GatewayType::INSTANT_BANK_PAY;
         }
 
         return $types;

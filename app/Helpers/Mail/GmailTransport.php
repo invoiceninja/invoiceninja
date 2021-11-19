@@ -70,7 +70,7 @@ class GmailTransport extends Transport
             if($child->getContentType() != 'text/plain')
             {
 
-            $this->gmail->attach(TempFile::filePath($child->getBody(), $child->getHeaders()->get('Content-Type')->getParameter('name') ));
+                $this->gmail->attach(TempFile::filePath($child->getBody(), $child->getHeaders()->get('Content-Type')->getParameter('name') ));
             
             }
 
