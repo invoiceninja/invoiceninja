@@ -29,7 +29,9 @@ class SubscriptionController extends Controller
                 ->where('client_id', auth('contact')->user()->client->id)
                 ->where('company_id', auth('contact')->user()->client->company_id)
                 ->where('status_id', RecurringInvoice::STATUS_ACTIVE)
+                ->where('is_deleted', 0)
                 ->whereNotNull('subscription_id')
+                ->withTrashed()
                 ->count();
 
                 if($count == 0)

@@ -189,6 +189,9 @@ class BillingPortalPurchase extends Component
             $this->coupon = request()->query('coupon');
             $this->handleCoupon();
         }
+        elseif(strlen($this->subscription->promo_code) == 0 && $this->subscription->promo_discount > 0){
+            $this->price = $this->subscription->promo_price;
+        }
     }
 
     /**

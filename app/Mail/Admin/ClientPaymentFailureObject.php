@@ -69,7 +69,7 @@ class ClientPaymentFailureObject
         /* Set customized translations _NOW_ */
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
-        $this->invoices = Invoice::whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->get();
+        $this->invoices = Invoice::withTrashed()->whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->get();
 
         $mail_obj = new stdClass;
         $mail_obj->amount = $this->getAmount();
@@ -101,8 +101,13 @@ class ClientPaymentFailureObject
 
     private function getData()
     {
+        $invitation = $this->invoices->first()->invitations->first();
+
+        if(!$invitation)
+            throw new \Exception('Unable to find invitation for reference');
+
         $signature = $this->client->getSetting('email_signature');
-        $html_variables = (new HtmlEngine($this->invoices->first()->invitations->first()))->makeValues();
+        $html_variables = (new HtmlEngine($invitation))->makeValues();
         $signature = str_replace(array_keys($html_variables), array_values($html_variables), $signature);
 
         $data = [

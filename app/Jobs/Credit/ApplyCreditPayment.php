@@ -69,6 +69,7 @@ class ApplyCreditPayment implements ShouldQueue
 
             $this->credit
                 ->service()
+                ->markSent()
                 ->setStatus(Credit::STATUS_APPLIED)
                 ->adjustBalance($this->amount * -1)
                 ->updatePaidToDate($this->amount)
@@ -78,6 +79,7 @@ class ApplyCreditPayment implements ShouldQueue
 
             $this->credit
                 ->service()
+                ->markSent()
                 ->setStatus(Credit::STATUS_PARTIAL)
                 ->adjustBalance($this->amount * -1)
                 ->updatePaidToDate($this->amount)

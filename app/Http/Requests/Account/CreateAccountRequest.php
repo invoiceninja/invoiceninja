@@ -34,12 +34,12 @@ class CreateAccountRequest extends Request
     public function rules()
     {
         return [
-            //'email' => 'required|string|email|max:100',
             'first_name'        => 'string|max:100',
             'last_name'         =>  'string:max:100',
             'password'          => 'required|string|min:6',
-            'email'             => 'bail|required|email:rfc,dns',
-            'email'             => new NewUniqueUserRule(),
+            // 'email'             => 'bail|required|email:rfc,dns',
+            // 'email'             => new NewUniqueUserRule(),
+            'email'             =>  ['required', 'email:rfc,dns', new NewUniqueUserRule],
             'privacy_policy'    => 'required|boolean',
             'terms_of_service'  => 'required|boolean',
         ];
