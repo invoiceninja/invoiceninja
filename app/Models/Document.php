@@ -43,7 +43,7 @@ class Document extends EntityModel
         'application/msword',
         'application/excel', 'application/vnd.ms-excel', 'application/x-excel', 'application/x-msexcel',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/postscript', 'image/svg+xml',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/postscript',
         'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/vnd.ms-powerpoint',
     ];
 
@@ -56,9 +56,6 @@ class Document extends EntityModel
         ],
         'ai' => [
             'mime' => 'application/postscript',
-        ],
-        'svg' => [
-            'mime' => 'image/svg+xml',
         ],
         'jpeg' => [
             'mime' => 'image/jpeg',
