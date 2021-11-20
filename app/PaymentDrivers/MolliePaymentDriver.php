@@ -310,7 +310,7 @@ class MolliePaymentDriver extends BaseDriver
                 $client = $record->client;
             }
             else{
-                $client = Client::withTrashed()->find($this->decodePrimaryKey($request->metadata->client_id));
+                $client = Client::withTrashed()->find($this->decodePrimaryKey($payment['metadata']->client_id));
             }
 
             $message = [
