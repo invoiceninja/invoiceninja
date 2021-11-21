@@ -160,6 +160,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::post('migration/companies', 'Migration\StepsController@handleCompanies');
     Route::get('migration/completed', 'Migration\StepsController@completed');
     Route::post('migration/forward', 'Migration\StepsController@forwardUrl');
+    Route::get('migration/disable_forward', 'Migration\StepsController@disableForwarding');
 
     Route::get('migration/import', 'Migration\StepsController@import');
 

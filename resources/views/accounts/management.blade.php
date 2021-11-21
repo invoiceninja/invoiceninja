@@ -277,15 +277,13 @@
 					<label for="modules" class="control-label col-lg-4 col-sm-4"></label>
 					<div class="col-lg-8 col-sm-8">
 						<div class="help-block">
-							Once you are ready to forward your customers, enter your client portal URL for V5 here:<br/><br/>
-							<b>Please note once enabled. Your V4 account will become disabled. This means that your recurring invoices and any reminders will no longer fire from V4.</b> <br/><br/>To renable your V4 installation simply set the forwarding url to a blank/empty value.
-						</div><br/>
+						</div>
 					</div>
         		</div>
 				<div class="form-group">                    
                     <label for="url"  class="control-label col-lg-4 col-sm-4 text-right">{!! trans('texts.url') !!}</label>
                     <div class="col-lg-8 col-sm-8">
-                    <input type="text" name="url" placeholder="https://subdomain.invoicing.co" class="form form-control" value="{{ $account->account_email_settings->forward_url_for_v5}}">
+                    <input type="text" name="url" placeholder="https://subdomain.invoicing.co" class="form form-control" value="{{ $account->account_email_settings->forward_url_for_v5}}" @if(Utils::isNinjaProd())disabled @endif>
 		        	@if($errors->has('url')) 
 		                <div class="col-sm-5">
 		                    @foreach ($errors->get('url') as $message)
@@ -301,6 +299,17 @@
                 	</div>
 				</div>
 				</form>
+				<div class="col-lg-8 col-sm-8 col-lg-offset-4 col-sm-offset-4">
+					<br>
+					<br>
+					 <span class="help-block">
+					 	<br>
+					 	If you need to rollback to v4, please disable forwarding using this link.
+					 	<a class="button" href="/migration/disable_forward">Disable Forwarding</a>
+					 </span>
+				</div>
+				</div>
+				</div>
 			</div>
 		</div>
 

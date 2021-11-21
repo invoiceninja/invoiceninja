@@ -1543,7 +1543,7 @@ trait GenerateMigrationResources
             }
             catch(\Exception $e){
             
-                info($config);
+                // info($config);
 
             }
 

@@ -54,15 +54,15 @@ class HostedMigration extends Job
 
         $completeService->data($migrationData)
         ->endpoint('https://v5-app1.invoicing.co')
-        // ->endpoint('http://ninja.test:8000')
+//         ->endpoint('http://devhosted.test:8000')
         ->start();
 
     }
 
     private function getToken()
     {
-        $url = 'https://invoicing.co/api/v1/get_migration_account';
-        // $url = 'http://ninja.test:8000/api/v1/get_migration_account';
+        //$url = 'https://invoicing.co/api/v1/get_migration_account';
+        $url = 'http://devhosted.test:8000/api/v1/get_migration_account';
 
         $headers = [
             'X-API-HOSTED-SECRET' => $this->v4_secret,
@@ -98,26 +98,9 @@ class HostedMigration extends Job
             $this->migration_token = $message_body['token'];
 
         } else {
-            info(json_decode($response->getBody()->getContents()));
+            // info(json_decode($response->getBody()->getContents()));
 
         }
-
-
-        // $body = \Unirest\Request\Body::json($body);
-
-        // $response = Request::post($url, $headers, $body);
-
-        // if (in_array($response->code, [200])) {
-            
-        //     $data = $response->body;
-        //     info(print_r($data,1));
-        //     $this->migration_token = $data->token; 
-
-        // } else {
-        //     info("getting token failed");
-        //     info($response->raw_body);
-
-        // }   
 
         return $this;
     }

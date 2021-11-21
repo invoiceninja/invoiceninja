@@ -75,12 +75,11 @@ class CompleteService
             'headers' => $this->getHeaders(),
         ]);
 
-        
         $payload_data = [
                 'multipart'=> array_merge($files, $payload),
              ];
 
-        info(print_r($payload_data,1));
+        // info(print_r($payload_data,1));
         $response = $client->request("POST", $this->getUrl(),$payload_data);
 
         if($response->getStatusCode() == 200){
@@ -88,7 +87,7 @@ class CompleteService
             $this->isSuccessful = true;
             return json_decode($response->getBody(),true);
         }else {
-            info($response->raw_body);
+            // info($response->raw_body);
 
             $this->isSuccessful = false;
             $this->errors = [
@@ -98,25 +97,6 @@ class CompleteService
 
         return $this;
 
-
-
-
-        // $body = \Unirest\Request\Body::multipart(['companies' => json_encode($data)], $files);
-
-        // $response = Request::post($this->getUrl(), $this->getHeaders(), $body);
-
-        // if (in_array($response->code, [200])) {
-        //     $this->isSuccessful = true;
-        // } else {
-        //     info($response->raw_body);
-
-        //     $this->isSuccessful = false;
-        //     $this->errors = [
-        //         'Oops, something went wrong. Migration can\'t be processed at the moment. Please checks the logs.',
-        //     ];
-        // }
-
-        return $this;
     }
 
     public function isSuccessful()
