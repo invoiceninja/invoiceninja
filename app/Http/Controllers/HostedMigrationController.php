@@ -59,7 +59,7 @@ class HostedMigrationController extends Controller
             return;
 
         $input = $request->all();
-nlog($input);
+
         MultiDB::findAndSetDbByCompanyKey($input['account_key']);
 
         $company = Company::with('account')->where('company_key', $input['account_key'])->first();
