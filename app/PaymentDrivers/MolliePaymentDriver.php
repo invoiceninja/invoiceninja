@@ -176,7 +176,7 @@ class MolliePaymentDriver extends BaseDriver
                 SystemLog::EVENT_GATEWAY_FAILURE,
                 SystemLog::TYPE_MOLLIE,
                 $this->client,
-                $this->client->companyk
+                $this->client->company
             );
 
             nlog($e->getMessage());
@@ -239,7 +239,8 @@ class MolliePaymentDriver extends BaseDriver
                     SystemLog::CATEGORY_GATEWAY_RESPONSE,
                     SystemLog::EVENT_GATEWAY_SUCCESS,
                     SystemLog::TYPE_MOLLIE,
-                    $this->client
+                    $this->client,
+                    $this->client->company
                 );
 
                 return $payment;
@@ -259,7 +260,8 @@ class MolliePaymentDriver extends BaseDriver
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_FAILURE,
                 SystemLog::TYPE_CHECKOUT,
-                $this->client
+                $this->client,
+                $this->client->company
             );
 
             return false;
@@ -331,7 +333,8 @@ class MolliePaymentDriver extends BaseDriver
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 $response,
                 SystemLog::TYPE_MOLLIE,
-                $client
+                $client,
+                $client->company
             );
 
             return response()->json([], 200);
