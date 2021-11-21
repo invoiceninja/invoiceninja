@@ -718,7 +718,7 @@ class SubscriptionService
     public function convertInvoiceToRecurring($client_id) :RecurringInvoice
     {
 
-        $client = Client::find($client_id);
+        $client = Client::withTrashed()->find($client_id);
 
         $subscription_repo = new SubscriptionRepository();
 
