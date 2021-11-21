@@ -57,6 +57,7 @@ class UpdateCreditRequest extends Request
             $rules['number'] = Rule::unique('credits')->where('company_id', auth()->user()->company()->id)->ignore($this->credit->id);
 
         $rules['line_items'] = 'array';
+        $rules['discount']  = 'sometimes|numeric';
 
         return $rules;
     }

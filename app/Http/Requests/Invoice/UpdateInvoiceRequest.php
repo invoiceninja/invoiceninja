@@ -56,6 +56,7 @@ class UpdateInvoiceRequest extends Request
             $rules['number'] = Rule::unique('invoices')->where('company_id', auth()->user()->company()->id)->ignore($this->invoice->id);
 
         $rules['line_items'] = 'array';
+        $rules['discount']  = 'sometimes|numeric';
 
         if($this->input('status_id') != Invoice::STATUS_DRAFT)
             $rules['balance'] = new InvoiceBalanceSanity($this->invoice, $this->all());

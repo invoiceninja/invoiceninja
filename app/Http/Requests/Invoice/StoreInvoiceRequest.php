@@ -56,6 +56,7 @@ class StoreInvoiceRequest extends Request
         $rules['project_id'] =  ['bail', 'sometimes', new ValidProjectForClient($this->all())];
 
         $rules['line_items'] = 'array';
+        $rules['discount']  = 'sometimes|numeric';
 
         return $rules;
     }
