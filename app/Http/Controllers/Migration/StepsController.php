@@ -89,14 +89,6 @@ class StepsController extends BaseController
                 url('/migration/companies?hosted=true')
             );
 
-            //old
-            // return redirect(
-            //     url('/migration/auth')
-            // );
-
-            // return redirect(
-            //     url('/migration/endpoint')
-            // );
         }
 
         return redirect(
@@ -153,6 +145,7 @@ class StepsController extends BaseController
     {
 
         $url = 'https://invoicing.co/api/v1/confirm_forwarding';
+        // $url = 'http://devhosted.test:8000/api/v1/confirm_forwarding';
 
         $headers = [
             'X-API-HOSTED-SECRET' => config('ninja.ninja_hosted_secret'),
@@ -197,6 +190,7 @@ class StepsController extends BaseController
         ]);
 
         if($response->getStatusCode() == 401){
+            info("autoForwardUrl");
             info($response->getBody());
 
         } elseif ($response->getStatusCode() == 200) {
@@ -217,10 +211,21 @@ class StepsController extends BaseController
                 $account_settings->forward_url_for_v5 = rtrim($forwarding_url,'/');
                 $account_settings->save();
 
+            $billing_transferred = $message_body['billing_transferred'];
+
+            if($billing_transferred == 'true'){
+
+                $company = $account->company;
+                $company->plan = null;
+                $company->plan_expires = null;
+                $company->save();
+            }
+
 
         } else {
+            info("failed to autoforward");
             info(json_decode($response->getBody()->getContents()));
-
+            // dd('else');
         }
 
         return back();
@@ -335,7 +340,6 @@ class StepsController extends BaseController
 
         try {
             $migrationData = $this->generateMigrationData($request->all());
-
             
                 $completeService->data($migrationData)
                 ->endpoint(session('MIGRATION_ENDPOINT'))
@@ -435,8 +439,6 @@ class StepsController extends BaseController
 
             Storage::makeDirectory('migrations');
             $file = Storage::path("migrations/{$fileName}.zip");
-
-            //$file = storage_path("migrations/{$fileName}.zip");
 
             ksort($localMigrationData);
 
