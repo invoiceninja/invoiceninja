@@ -59,33 +59,16 @@ class HostedMigrationController extends Controller
             return;
 
         $input = $request->all();
-
+nlog($input);
         MultiDB::findAndSetDbByCompanyKey($input['account_key']);
 
         $company = Company::with('account')->where('company_key', $input['account_key'])->first();
-        $account = $company->account;
-        $client_id = false;
-
-        if($contact = ClientContact::on('db-ninja-01')->where(['email' => $input['email'], 'company_id' => config('ninja.ninja_default_company_id')])->first()){
-            $client_id = $contact->client_id;
-        }
-        else if($client = Client::on('db-ninja-01')->where(['custom_value2' => $account->key, 'company_id' => config('ninja.ninja_default_company_id')])->first()){
-            $client_id = $client->id;
-        }
-
-        //get ninja client_id;
-        
-        if(strlen($input['gateway_reference']) >1 && $client_id){
-
-            Artisan::call('ninja:add-token', [
-                '--customer' => $input['gateway_reference'], '--client_id' => 1
-            ]);
-
-        }
 
         $forward_url = $company->domain();
-         
-        return response()->json(['forward_url' => $forward_url], 200);
+        
+        $billing_transferred = \Modules\Admin\Jobs\Account\TransferAccountPlan::dispatchNow($input);
+
+        return response()->json(['forward_url' => $forward_url, 'billing_transferred' => $billing_transferred], 200);
     }
 
 }
