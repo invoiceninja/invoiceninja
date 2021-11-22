@@ -191,7 +191,7 @@ class PaymentRepository extends BaseRepository {
         if(array_key_exists('exchange_rate', $data) && isset($data['exchange_rate']))
             return $payment;
 
-        $client = Client::find($data['client_id']);
+        $client = Client::withTrashed()->find($data['client_id']);
 
         $client_currency = $client->getSetting('currency_id');
         $company_currency = $client->company->settings->currency_id;
