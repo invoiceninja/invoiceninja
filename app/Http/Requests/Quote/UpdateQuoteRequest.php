@@ -51,6 +51,7 @@ class UpdateQuoteRequest extends Request
             $rules['number'] = Rule::unique('quotes')->where('company_id', auth()->user()->company()->id)->ignore($this->quote->id);
 
         $rules['line_items'] = 'array';
+        $rules['discount']  = 'sometimes|numeric';
 
         return $rules;
     }

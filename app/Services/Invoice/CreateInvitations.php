@@ -33,7 +33,7 @@ class CreateInvitations extends AbstractService
     public function run()
     {
 
-        $contacts = $this->invoice->client->contacts;
+        $contacts = $this->invoice->client->contacts()->where('send_email', true)->get();
 
         if($contacts->count() == 0){
             $this->createBlankContact();

@@ -49,7 +49,7 @@ class SetDomainNameDb
             ];
 
             if($company = MultiDB::findAndSetDbByDomain($query)){
-                $request->attributes->add(['account_id' => $company->account_id]);
+                $request->request->add(['account_id' => $company->account_id]);
             }
             else 
             {
@@ -71,7 +71,7 @@ class SetDomainNameDb
             ];
 
             if($company = MultiDB::findAndSetDbByDomain($query)){
-                $request->attributes->add(['account_id' => $company->account_id]);
+                $request->request->add(['account_id' => $company->account_id]);
             }
             else
             {

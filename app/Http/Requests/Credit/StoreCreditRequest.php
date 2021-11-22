@@ -56,6 +56,7 @@ class StoreCreditRequest extends Request
 
         // $rules['number'] = new UniqueCreditNumberRule($this->all());
         $rules['number'] = ['nullable', Rule::unique('credits')->where('company_id', auth()->user()->company()->id)];
+        $rules['discount']  = 'sometimes|numeric';
 
 
 

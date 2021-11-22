@@ -524,6 +524,11 @@ class CreditController extends BaseController
     {
         /*If we are using bulk actions, we don't want to return anything */
         switch ($action) {
+            case 'mark_paid':
+                $credit->service()->markPaid()->save();
+                return $this->itemResponse($credit);
+            break;
+
             case 'clone_to_credit':
                 $credit = CloneCreditFactory::create($credit, auth()->user()->id);
 
