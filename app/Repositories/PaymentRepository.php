@@ -185,7 +185,7 @@ class PaymentRepository extends BaseRepository {
      * @param $payment
      * @return
      */
-    private function processExchangeRates($data, $payment)
+    public function processExchangeRates($data, $payment)
     {
 
         if(array_key_exists('exchange_rate', $data) && isset($data['exchange_rate']))

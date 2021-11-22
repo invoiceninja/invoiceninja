@@ -16,6 +16,7 @@ use App\Jobs\Util\UnlinkFile;
 use App\Models\Credit;
 use App\Models\Payment;
 use App\Models\PaymentType;
+use App\Repositories\CreditRepository;
 use App\Repositories\PaymentRepository;
 use App\Services\Credit\CreateInvitations;
 use App\Services\Credit\TriggeredActions;
@@ -97,7 +98,7 @@ class CreditService
         if($this->credit->balance > 0)
             return $this;
 
-        $payment_repo = new PaymentRepository();
+        $payment_repo = new PaymentRepository(new CreditRepository());
 
         //set credit balance to zero
         $adjustment = $this->credit->balance;
@@ -129,6 +130,7 @@ class CreditService
         //reduce client paid_to_date by $this->credit->balance amount
         $this->credit
              ->client
+             ->service()
              ->updatePaidToDate($adjustment)
              ->save();
 
