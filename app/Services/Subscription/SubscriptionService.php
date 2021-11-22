@@ -717,7 +717,8 @@ class SubscriptionService
      */
     public function convertInvoiceToRecurring($client_id) :RecurringInvoice
     {
-
+        MultiDB::setDb($this->subscription->company->db);
+        
         $client = Client::withTrashed()->find($client_id);
 
         $subscription_repo = new SubscriptionRepository();
