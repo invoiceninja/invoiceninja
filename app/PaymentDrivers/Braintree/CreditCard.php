@@ -136,7 +136,10 @@ class CreditCard
             return $this->processSuccessfulPayment($result);
         }
 
-        return $this->processUnsuccessfulPayment($result);
+        $error = $result ?: 'Undefined gateway error';
+        
+        return $this->processUnsuccessfulPayment($error);
+
     }
 
     private function getPaymentToken(array $data, $customerId): ?string
