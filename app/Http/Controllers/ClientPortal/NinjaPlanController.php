@@ -18,10 +18,13 @@ use App\Libraries\MultiDB;
 use App\Models\Account;
 use App\Models\ClientContact;
 use App\Models\Company;
+use App\Models\Invoice;
+use App\Models\Subscription;
 use App\Utils\Ninja;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class NinjaPlanController extends Controller
@@ -55,6 +58,49 @@ class NinjaPlanController extends Controller
         }
 
         return redirect()->route('client.catchall');
+
+    }
+
+    public function plan()
+    {
+        //harvest the current plan
+        $data = [];
+
+        if(MultiDB::findAndSetDbByAccountKey(Auth::guard('contact')->user()->client->custom_value2))
+        {
+            $account = Account::where('key', Auth::guard('contact')->user()->client->custom_value2)->first();
+
+            if($account && $account->isPaidHostedClient())
+            {
+
+                if(Carbon::parse($account->plan_expires).lt(now())){
+                    //expired get the most recent invoice for payment
+
+                    $late_invoice = Invoice::on('db-ninja-01')
+                                           ->where('company_id', Auth::guard('contact')->user()->company->id)
+                                           ->where('client_id', Auth::guard('contact')->user()->client->id)
+                                           ->where('status_id', Invoice::STATUS_SENT)
+                                           ->orderBy('id', DESC)
+                                           ->first();
+
+                   if($late_invoice)
+                    $data['late_invoice'] = $late_invoice;
+
+                }
+
+                    //build list of upgrades.
+
+                    $data['monthly_plans'] = Subscription::on('db-ninja-01')
+                                                 ->where('company_id', Auth::guard('contact')->user()->company->id)
+                                                 ->where('group_id', 6)
+                                                 ->get();
+
+                    $data['yearly_plans'] = Subscription::on('db-ninja-01')
+                                                 ->where('company_id', Auth::guard('contact')->user()->company->id)
+                                                 ->where('group_id', 31)
+                                                 ->get();
+            }
+        }
 
     }
 }
