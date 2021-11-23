@@ -19,8 +19,10 @@ use App\Models\Account;
 use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Invoice;
+use App\Models\RecurringInvoice;
 use App\Models\Subscription;
 use App\Utils\Ninja;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -29,6 +31,7 @@ use Illuminate\Support\Facades\Auth;
 
 class NinjaPlanController extends Controller
 {
+    use MakesHash;
 
     public function index(string $contact_key, string $account_or_company_key)
     {
@@ -66,6 +69,7 @@ class NinjaPlanController extends Controller
         //harvest the current plan
         $data = [];
 
+
         if(MultiDB::findAndSetDbByAccountKey(Auth::guard('contact')->user()->client->custom_value2))
         {
             $account = Account::where('key', Auth::guard('contact')->user()->client->custom_value2)->first();
@@ -73,14 +77,17 @@ class NinjaPlanController extends Controller
             if($account && $account->isPaidHostedClient())
             {
 
-                if(Carbon::parse($account->plan_expires).lt(now())){
+                $data['account'] = $account;
+
+                if(Carbon::parse($account->plan_expires)->lt(now())){
                     //expired get the most recent invoice for payment
 
                     $late_invoice = Invoice::on('db-ninja-01')
                                            ->where('company_id', Auth::guard('contact')->user()->company->id)
                                            ->where('client_id', Auth::guard('contact')->user()->client->id)
                                            ->where('status_id', Invoice::STATUS_SENT)
-                                           ->orderBy('id', DESC)
+                                           ->whereNotNull('subscription_id')
+                                           ->orderBy('id', 'DESC')
                                            ->first();
 
                    if($late_invoice)
@@ -90,17 +97,62 @@ class NinjaPlanController extends Controller
 
                     //build list of upgrades.
 
-                    $data['monthly_plans'] = Subscription::on('db-ninja-01')
+                    $monthly_plans = Subscription::on('db-ninja-01')
                                                  ->where('company_id', Auth::guard('contact')->user()->company->id)
                                                  ->where('group_id', 6)
                                                  ->get();
 
-                    $data['yearly_plans'] = Subscription::on('db-ninja-01')
+                    $yearly_plans = Subscription::on('db-ninja-01')
                                                  ->where('company_id', Auth::guard('contact')->user()->company->id)
                                                  ->where('group_id', 31)
                                                  ->get();
+
+                    $monthly_plans->merge($yearly_plans);
             }
         }
 
+        $recurring_invoice =  RecurringInvoice::query()
+                                    ->where('client_id', auth('contact')->user()->client->id)
+                                    ->where('company_id', Auth::guard('contact')->user()->company->id)
+                                    ->whereNotNull('subscription_id')
+                                    ->where('status_id', RecurringInvoice::STATUS_ACTIVE)
+                                    ->orderBy('id', 'desc')
+                                    ->first();
+
+
+        $data['late_invoice'] = Invoice::first();
+
+        $monthly_plans = Subscription::on('db-ninja-01')
+                                     ->where('company_id', Auth::guard('contact')->user()->company->id)
+                                     // ->where('group_id', 6)
+                                     ->orderBy('promo_price', 'ASC')
+                                     ->get();
+
+        $yearly_plans = Subscription::on('db-ninja-01')
+                                     ->where('company_id', Auth::guard('contact')->user()->company->id)
+                                     ->where('group_id', 31)
+                                     ->orderBy('promo_price', 'ASC')
+                                     ->get();
+
+        $monthly_plans->merge($yearly_plans);
+
+        $current_subscription_id = $recurring_invoice ? $this->encodePrimaryKey($recurring_invoice->subscription_id) : false;
+
+        //remove existing subscription
+        if($current_subscription_id){
+        
+            $monthly_plans = $monthly_plans->filter(function ($plan) use($current_subscription_id){
+                return (string)$plan->hashed_id != (string)$current_subscription_id;
+            });   
+        
+        }
+
+        $data['account'] = Account::first();
+        $data['client'] =  Auth::guard('contact')->user()->client;
+        $data['plans'] = $monthly_plans;
+        $data['current_subscription_id'] = $current_subscription_id;
+        $data['current_recurring_id'] = $recurring_invoice ? $this->encodePrimaryKey($recurring_invoice->hashed_id) : false;
+
+        return $this->render('plan.index', $data);
     }
 }
