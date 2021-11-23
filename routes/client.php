@@ -31,6 +31,8 @@ Route::get('client/ninja/{contact_key}/{company_key}', 'ClientPortal\NinjaPlanCo
 Route::group(['middleware' => ['auth:contact', 'locale', 'check_client_existence','domain_db'], 'prefix' => 'client', 'as' => 'client.'], function () {
     Route::get('dashboard', 'ClientPortal\DashboardController@index')->name('dashboard'); // name = (dashboard. index / create / show / update / destroy / edit
 
+    Route::get('plan', 'ClientPortal\NinjaPlanController@plan')->name('plan'); // name = (dashboard. index / create / show / update / destroy / edit
+
     Route::get('invoices', 'ClientPortal\InvoiceController@index')->name('invoices.index')->middleware('portal_enabled');
     Route::post('invoices/payment', 'ClientPortal\InvoiceController@bulk')->name('invoices.bulk');
     Route::get('invoices/{invoice}', 'ClientPortal\InvoiceController@show')->name('invoice.show');
