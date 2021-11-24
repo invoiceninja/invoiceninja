@@ -18,6 +18,7 @@ use App\Factory\InvoiceToRecurringInvoiceFactory;
 use App\Factory\RecurringInvoiceFactory;
 use App\Jobs\Util\SubscriptionWebhookHandler;
 use App\Jobs\Util\SystemLogger;
+use App\Libraries\MultiDB;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Credit;
@@ -240,10 +241,10 @@ class SubscriptionService
         elseif ($outstanding->count() > 1) {
             //user is changing plan mid frequency cycle
             //we cannot handle this if there are more than one invoice outstanding.
-            return null;
+            return $target->price;
         }
 
-        return null;
+        return $target->price;
 
     }
 
@@ -439,7 +440,7 @@ class SubscriptionService
         $credit = false;
 
         /* Only generate a credit if the previous invoice was paid in full. */
-        if($last_invoice->balance == 0)
+        if($last_invoice && $last_invoice->balance == 0)
             $credit = $this->createCredit($last_invoice, $target_subscription, $is_credit);
 
         $new_recurring_invoice = $this->createNewRecurringInvoice($recurring_invoice);

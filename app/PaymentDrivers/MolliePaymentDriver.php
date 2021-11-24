@@ -294,7 +294,7 @@ class MolliePaymentDriver extends BaseDriver
         }
 
         $this->init();
-
+        
         $codes = [
             'open' => Payment::STATUS_PENDING,
             'canceled' => Payment::STATUS_CANCELLED,
@@ -312,6 +312,9 @@ class MolliePaymentDriver extends BaseDriver
                 $client = $record->client;
             }
             else{
+                nlog("mollie webhook");
+                nlog($payment);
+
                 $client = Client::withTrashed()->find($this->decodePrimaryKey($payment->metadata->client_id));
             }
 

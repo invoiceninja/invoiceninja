@@ -2,8 +2,8 @@
       @import url($font_url);
 
       :root {
-        --primary-color: #298aab;
-        --secondary-color: #7081e0;
+        --primary-color: $primary_color;
+        --secondary-color: $secondary_color;
       }
 
       body {
@@ -149,13 +149,13 @@
 
       #footer, #footer-spacer {
           height: 220px;
-          padding: 1rem 3rem;
+          padding: 1rem 1.5rem;
           margin-top: 1rem;
       }
 
       .footer-content {
         display: flex;
-        gap: 20px;
+        gap: 10px;
         width: 100%;
         /* grid-template-columns: 1fr 1fr 1fr; */
         color: #fff4e9;
@@ -165,8 +165,8 @@
 
       .footer-company-details-address-wrapper {
         display: flex;
-        gap: 25px;
-        margin-right: 150px;
+        gap: 5px;
+        margin-right: 60px;
       }
 
       #company-address,
@@ -348,7 +348,7 @@ $entity_images
 
 <div id="footer">
     <div class="footer-content">
-        <div>
+        <div style="width: 70%;">
             <p data-ref="total_table-footer">$entity_footer</p>
 
             <script>

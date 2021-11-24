@@ -188,9 +188,9 @@ class CreateRawPdf implements ShouldQueue
             nlog(print_r($e->getMessage(), 1));
         }
 
-        if (config('ninja.log_pdf_html')) {
+        // if (config('ninja.log_pdf_html')) {
             info($maker->getCompiledHTML());
-        }
+        // }
 
         if ($pdf) 
             return $pdf;

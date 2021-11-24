@@ -121,6 +121,10 @@ class PortalComposer
 
         $data[] = ['title' => ctrans('texts.statement'), 'url' => 'client.statement', 'icon' => 'activity'];
 
+        if(Ninja::isHosted() && auth('contact')->user()->company->id == config('ninja.ninja_default_company_id'))
+            $data[] = ['title' => ctrans('texts.plan'), 'url' => 'client.plan', 'icon' => 'credit-card'];
+
+
         return $data;
     }
 }
