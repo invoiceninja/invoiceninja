@@ -136,7 +136,7 @@ class CreditCard
             return $this->processSuccessfulPayment($result);
         }
 
-        $error = $result ?: 'Undefined gateway error';
+        $error = 'Undefined gateway error';
         
         return $this->processUnsuccessfulPayment($error);
 

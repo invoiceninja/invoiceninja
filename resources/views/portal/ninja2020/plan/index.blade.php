@@ -1,5 +1,5 @@
 @extends('portal.ninja2020.layout.app')
-@section('meta_title', ctrans('texts.pro_plan_call_to_action'))
+@section('meta_title', ctrans('texts.account_management'))
 
 @section('body')
 
@@ -7,11 +7,8 @@
 <div class="bg-white shadow overflow-hidden sm:rounded-lg">
   <div class="px-4 py-5 sm:px-6">
     <h3 class="text-lg leading-6 font-medium text-gray-900">
-      {{ ctrans('texts.account_management') }}
-    </h3>
-    <p class="mt-1 max-w-2xl text-sm text-gray-500">
       {{ ctrans('texts.plan_status') }}
-    </p>
+    </h3>
   </div>
   <div class="border-t border-gray-200">
     <dl>
@@ -49,6 +46,29 @@
 
       @endif
 
+      @if($late_invoice)
+
+	  <div class="px-4 py-5 sm:px-6">
+	    <h3 class="text-lg leading-6 font-medium text-gray-900">
+	      {{ ctrans('texts.invoice_status_id') }}
+	    </h3>
+	    <p class="mt-1 max-w-2xl text-sm text-gray-500">
+	      {{ ctrans('texts.past_due') }}
+	    </p>
+	  </div>
+		<dl>
+		<div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+		<dt class="text-sm font-medium text-gray-500">
+		{{ ctrans('texts.invoice') }}
+		</dt>
+		<dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+		{{ $late_invoice->number }} - {{ \App\Utils\Number::formatMoney($late_invoice->balance, $client) }} <a class="button-link text-primary" href="/client/invoices/{{$late_invoice->hashed_id}}">{{ ctrans('texts.pay_now')}}</a>
+		</dd>
+		</div>
+		</dl>
+
+      @else
+
       <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
         <dt class="text-sm font-medium text-gray-500">
     	  {{ ctrans('texts.plan_change') }}
@@ -71,9 +91,10 @@
                 {{ ctrans('texts.plan_upgrade') }}
           </button>          
           @endif
-
         </dd>
       </div>
+
+      @endif
 
     </dl>
   </div>
@@ -88,13 +109,15 @@
 @if($current_recurring_id)
 document.getElementById('handlePlanChange').addEventListener('click', function() {
   
-  location.href = 'http://ninja.test:8000/client/subscriptions/{{ $current_recurring_id }}/plan_switch/' + document.getElementById("newPlan").value + '';
+  	if(document.getElementById("newPlan").value.length > 1)
+  		location.href = 'https://invoiceninja.invoicing.co/client/subscriptions/{{ $current_recurring_id }}/plan_switch/' + document.getElementById("newPlan").value + '';
 
 });
 @else
 document.getElementById('handleNewPlan').addEventListener('click', function() {
   
-  location.href = 'http://ninja.test:8000/client/subscriptions/' + document.getElementById("newPlan").value + '/purchase';
+	if(document.getElementById("newPlan").value.length > 1)
+    	location.href = 'https://invoiceninja.invoicing.co/client/subscriptions/' + document.getElementById("newPlan").value + '/purchase';
 
 });
 @endif

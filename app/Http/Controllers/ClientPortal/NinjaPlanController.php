@@ -69,15 +69,12 @@ class NinjaPlanController extends Controller
         //harvest the current plan
         $data = [];
 
-
         if(MultiDB::findAndSetDbByAccountKey(Auth::guard('contact')->user()->client->custom_value2))
         {
             $account = Account::where('key', Auth::guard('contact')->user()->client->custom_value2)->first();
 
-            if($account && $account->isPaidHostedClient())
+            if($account)
             {
-
-                $data['account'] = $account;
 
                 if(Carbon::parse($account->plan_expires)->lt(now())){
                     //expired get the most recent invoice for payment
@@ -90,69 +87,58 @@ class NinjaPlanController extends Controller
                                            ->orderBy('id', 'DESC')
                                            ->first();
 
-                   if($late_invoice)
+                    //account status means user cannot perform upgrades until they pay their account.
                     $data['late_invoice'] = $late_invoice;
 
                 }
 
-                    //build list of upgrades.
+                $recurring_invoice =  RecurringInvoice::on('db-ninja-01')
+                                            ->where('client_id', auth('contact')->user()->client->id)
+                                            ->where('company_id', Auth::guard('contact')->user()->company->id)
+                                            ->whereNotNull('subscription_id')
+                                            ->where('status_id', RecurringInvoice::STATUS_ACTIVE)
+                                            ->orderBy('id', 'desc')
+                                            ->first();
 
-                    $monthly_plans = Subscription::on('db-ninja-01')
-                                                 ->where('company_id', Auth::guard('contact')->user()->company->id)
-                                                 ->where('group_id', 6)
-                                                 ->get();
+                $monthly_plans = Subscription::on('db-ninja-01')
+                                             ->where('company_id', Auth::guard('contact')->user()->company->id)
+                                             ->where('group_id', 6)
+                                             ->orderBy('promo_price', 'ASC')
+                                             ->get();
 
-                    $yearly_plans = Subscription::on('db-ninja-01')
-                                                 ->where('company_id', Auth::guard('contact')->user()->company->id)
-                                                 ->where('group_id', 31)
-                                                 ->get();
+                $yearly_plans = Subscription::on('db-ninja-01')
+                                             ->where('company_id', Auth::guard('contact')->user()->company->id)
+                                             ->where('group_id', 31)
+                                             ->orderBy('promo_price', 'ASC')
+                                             ->get();
 
-                    $monthly_plans->merge($yearly_plans);
+                $monthly_plans = $monthly_plans->merge($yearly_plans);
+
+                $current_subscription_id = $recurring_invoice ? $this->encodePrimaryKey($recurring_invoice->subscription_id) : false;
+
+                //remove existing subscription
+                if($current_subscription_id){
+                
+                    $monthly_plans = $monthly_plans->filter(function ($plan) use($current_subscription_id){
+                        return (string)$plan->hashed_id != (string)$current_subscription_id;
+                    });   
+                
+                }
+
+                $data['account'] = $account;
+                $data['client'] =  Auth::guard('contact')->user()->client;
+                $data['plans'] = $monthly_plans;
+                $data['current_subscription_id'] = $current_subscription_id;
+                $data['current_recurring_id'] = $recurring_invoice ? $recurring_invoice->hashed_id : false;
+
+                return $this->render('plan.index', $data);
+
             }
+
         }
+        else
+            return redirect()->route('client.catchall');
 
-        $recurring_invoice =  RecurringInvoice::query()
-                                    ->where('client_id', auth('contact')->user()->client->id)
-                                    ->where('company_id', Auth::guard('contact')->user()->company->id)
-                                    ->whereNotNull('subscription_id')
-                                    ->where('status_id', RecurringInvoice::STATUS_ACTIVE)
-                                    ->orderBy('id', 'desc')
-                                    ->first();
-
-
-        $data['late_invoice'] = Invoice::first();
-
-        $monthly_plans = Subscription::on('db-ninja-01')
-                                     ->where('company_id', Auth::guard('contact')->user()->company->id)
-                                     // ->where('group_id', 6)
-                                     ->orderBy('promo_price', 'ASC')
-                                     ->get();
-
-        $yearly_plans = Subscription::on('db-ninja-01')
-                                     ->where('company_id', Auth::guard('contact')->user()->company->id)
-                                     ->where('group_id', 31)
-                                     ->orderBy('promo_price', 'ASC')
-                                     ->get();
-
-        $monthly_plans->merge($yearly_plans);
-
-        $current_subscription_id = $recurring_invoice ? $this->encodePrimaryKey($recurring_invoice->subscription_id) : false;
-
-        //remove existing subscription
-        if($current_subscription_id){
-        
-            $monthly_plans = $monthly_plans->filter(function ($plan) use($current_subscription_id){
-                return (string)$plan->hashed_id != (string)$current_subscription_id;
-            });   
-        
-        }
-
-        $data['account'] = Account::first();
-        $data['client'] =  Auth::guard('contact')->user()->client;
-        $data['plans'] = $monthly_plans;
-        $data['current_subscription_id'] = $current_subscription_id;
-        $data['current_recurring_id'] = $recurring_invoice ? $this->encodePrimaryKey($recurring_invoice->hashed_id) : false;
-
-        return $this->render('plan.index', $data);
+            
     }
 }
