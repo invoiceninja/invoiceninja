@@ -345,14 +345,6 @@ class BillingPortalPurchase extends Component
             'quantity' => $this->quantity,
         ];
 
-        $this->invoice = $this->subscription
-            ->service()
-            ->createInvoice($data)
-            ->service()
-            ->markSent()
-            ->fillDefaults()
-            ->save();
-
         $is_eligible = $this->subscription->service()->isEligible($this->contact);
 
         if (is_array($is_eligible) && $is_eligible['message'] != 'Success') {
@@ -362,6 +354,14 @@ class BillingPortalPurchase extends Component
 
             return;
         }
+
+        $this->invoice = $this->subscription
+            ->service()
+            ->createInvoice($data)
+            ->service()
+            ->markSent()
+            ->fillDefaults()
+            ->save();
 
         Cache::put($this->hash, [
             'subscription_id' => $this->subscription->id,

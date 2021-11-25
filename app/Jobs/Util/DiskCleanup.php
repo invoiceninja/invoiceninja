@@ -42,8 +42,5 @@ class DiskCleanup implements ShouldQueue
         $files = Storage::allFiles(config('filesystems.default'), 'backups/');
         Storage::delete($files);
 
-        $files = Storage::allFiles('public', 'backups/');
-        Storage::delete($files);
-
     }
 }
