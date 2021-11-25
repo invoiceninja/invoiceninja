@@ -44,10 +44,10 @@ class UpdateInvoiceRequest extends Request
             $documents = count($this->input('documents'));
 
             foreach (range(0, $documents) as $index) {
-                $rules['documents.'.$index] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
+                $rules['documents.'.$index] = 'file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
             }
         } elseif ($this->input('documents')) {
-            $rules['documents'] = 'file|mimes:png,ai,svg,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
+            $rules['documents'] = 'file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
         }
 
         $rules['id'] = new LockedInvoiceRule($this->invoice);
@@ -56,6 +56,7 @@ class UpdateInvoiceRequest extends Request
             $rules['number'] = Rule::unique('invoices')->where('company_id', auth()->user()->company()->id)->ignore($this->invoice->id);
 
         $rules['line_items'] = 'array';
+        $rules['discount']  = 'sometimes|numeric';
 
         if($this->input('status_id') != Invoice::STATUS_DRAFT)
             $rules['balance'] = new InvoiceBalanceSanity($this->invoice, $this->all());

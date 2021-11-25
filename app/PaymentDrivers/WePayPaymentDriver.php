@@ -208,7 +208,7 @@ class WePayPaymentDriver extends BaseDriver
 
             return 'Processed successfully';
         } elseif ($objectType == 'account') {
-            if ($accountId !== $objectId) {
+            if ($accountId != $objectId) {
                 throw new \Exception('Unknown account ' . $accountId . ' does not equal '.$objectId);
             }
 

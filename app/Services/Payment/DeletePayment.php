@@ -139,8 +139,13 @@ class DeletePayment
         if ($this->payment->credits()->exists()) {
             $this->payment->credits()->each(function ($paymentable_credit) {
                 
+                $multiplier = 1;
+
+                    if($paymentable_credit->pivot->amount < 0)
+                        $multiplier = -1;
+
                 $paymentable_credit->service()
-                                   ->updateBalance($paymentable_credit->pivot->amount)
+                                   ->updateBalance($paymentable_credit->pivot->amount*$multiplier)
                                    ->updatePaidToDate($paymentable_credit->pivot->amount*-1)
                                    ->setStatus(Credit::STATUS_SENT)
                                    ->save();

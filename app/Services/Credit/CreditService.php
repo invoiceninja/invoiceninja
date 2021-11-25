@@ -11,8 +11,13 @@
 
 namespace App\Services\Credit;
 
+use App\Factory\PaymentFactory;
 use App\Jobs\Util\UnlinkFile;
 use App\Models\Credit;
+use App\Models\Payment;
+use App\Models\PaymentType;
+use App\Repositories\CreditRepository;
+use App\Repositories\PaymentRepository;
 use App\Services\Credit\CreateInvitations;
 use App\Services\Credit\TriggeredActions;
 use App\Utils\Traits\MakesHash;
@@ -75,6 +80,61 @@ class CreditService
         } elseif ($this->credit->balance > 0) {
             $this->credit->status_id = Credit::STATUS_PARTIAL;
         }
+
+        return $this;
+    }
+
+    /* 
+        For euro users - we mark a credit as paid when
+        we need to document a refund of sorts.
+
+        Criteria: Credit must be a negative value
+                  A negative payment for the balance will be generated
+                  This amount will be reduced from the clients paid to date.
+
+    */
+    public function markPaid()
+    {
+        if($this->credit->balance > 0)
+            return $this;
+
+        $payment_repo = new PaymentRepository(new CreditRepository());
+
+        //set credit balance to zero
+        $adjustment = $this->credit->balance;
+
+        $this->updateBalance($adjustment)
+             ->updatePaidToDate($adjustment)
+             ->save();
+
+        //create a negative payment of total $this->credit->balance
+        $payment = PaymentFactory::create($this->credit->company_id, $this->credit->user_id);
+        $payment->client_id = $this->credit->client_id;
+        $payment->amount = $adjustment;
+        $payment->applied = $adjustment;
+        $payment->refunded = 0;
+        $payment->status_id = Payment::STATUS_COMPLETED;
+        $payment->type_id = PaymentType::CREDIT;
+        $payment->is_manual = true;
+        $payment->date = now();
+
+        $payment->saveQuietly();
+        $payment->number = $payment->client->getNextPaymentNumber($payment->client, $payment);
+        $payment = $payment_repo->processExchangeRates(['client_id' => $this->credit->client_id], $payment);
+        $payment->saveQuietly();
+
+        $payment
+             ->credits()
+             ->attach($this->credit->id, ['amount' => $adjustment]);
+        
+        //reduce client paid_to_date by $this->credit->balance amount
+        $this->credit
+             ->client
+             ->service()
+             ->updatePaidToDate($adjustment)
+             ->save();
+
+        event('eloquent.created: App\Models\Payment', $payment);
 
         return $this;
     }

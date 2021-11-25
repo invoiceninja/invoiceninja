@@ -42,9 +42,6 @@ class Document extends BaseModel
         'ai' => [
             'mime' => 'application/postscript',
         ],
-        'svg' => [
-            'mime' => 'image/svg+xml',
-        ],
         'jpeg' => [
             'mime' => 'image/jpeg',
         ],

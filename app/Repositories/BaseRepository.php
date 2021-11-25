@@ -176,7 +176,7 @@ class BaseRepository
         if(array_key_exists('client_id', $data)) 
             $model->client_id = $data['client_id'];
 
-        $client = Client::where('id', $model->client_id)->withTrashed()->first();    
+        $client = Client::where('id', $model->client_id)->withTrashed()->firstOrFail();    
 
         $state = [];
 
