@@ -226,7 +226,7 @@ class BaseDriver extends AbstractPaymentDriver
 
             $_payment = Payment::where('transaction_reference', $data['transaction_reference'])
                                ->where('client_id', $this->client->id)
-                               ->first();
+                               ->exists();
 
            if($_payment)
             return $_payment;
