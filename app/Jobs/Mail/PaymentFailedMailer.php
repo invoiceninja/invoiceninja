@@ -83,7 +83,9 @@ class PaymentFailedMailer implements ShouldQueue
         $this->company->company_users->each(function ($company_user) use($amount, $settings){        
 
             //determine if this user has the right permissions
-            $methods = $this->findCompanyUserNotificationType($company_user, ['payment_failure','all_notifications']);
+           // $methods = $this->findCompanyUserNotificationType($company_user, ['payment_failure_all','payment_failure','all_notifications']);
+
+            $methods = $this->findUserEntityNotificationType($this->client, $company_user, ['payment_failure_all','payment_failure','all_notifications']);
 
             //if mail is a method type -fire mail!!
             if (($key = array_search('mail', $methods)) !== false) {
