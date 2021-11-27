@@ -52,12 +52,15 @@ class NinjaPlanController extends Controller
             
             Auth::guard('contact')->login($client_contact,true);
 
-            /* Current paid users get pushed straight to subscription overview page*/
-            if($account->isPaidHostedClient())
-                return redirect('/client/dashboard');
+            // /* Current paid users get pushed straight to subscription overview page*/
+            // if($account->isPaidHostedClient())
+            //     return redirect('/client/dashboard');
 
-            /* Users that are not paid get pushed to a custom purchase page */
-            return $this->render('subscriptions.ninja_plan', ['settings' => $client_contact->company->settings]);
+            // /* Users that are not paid get pushed to a custom purchase page */
+            // return $this->render('subscriptions.ninja_plan', ['settings' => $client_contact->company->settings]);
+
+            return $this->plan();
+            
         }
 
         return redirect()->route('client.catchall');
@@ -137,8 +140,7 @@ class NinjaPlanController extends Controller
 
         }
         else
-            return redirect()->route('client.catchall');
-
+            return redirect('/client/dashboard');
             
     }
 }

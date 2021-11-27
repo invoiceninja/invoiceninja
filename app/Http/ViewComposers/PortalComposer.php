@@ -113,7 +113,6 @@ class PortalComposer
 
         $data[] = ['title' => ctrans('texts.payment_methods'), 'url' => 'client.payment_methods.index', 'icon' => 'shield'];
         $data[] = ['title' => ctrans('texts.documents'), 'url' => 'client.documents.index', 'icon' => 'download'];
-        $data[] = ['title' => ctrans('texts.subscriptions'), 'url' => 'client.subscriptions.index', 'icon' => 'calendar'];
 
         if (auth('contact')->user()->client->getSetting('enable_client_portal_tasks')) {
             $data[] = ['title' => ctrans('texts.tasks'), 'url' => 'client.tasks.index', 'icon' => 'clock'];
@@ -123,6 +122,8 @@ class PortalComposer
 
         if(Ninja::isHosted() && auth('contact')->user()->company->id == config('ninja.ninja_default_company_id'))
             $data[] = ['title' => ctrans('texts.plan'), 'url' => 'client.plan', 'icon' => 'credit-card'];
+        else
+            $data[] = ['title' => ctrans('texts.subscriptions'), 'url' => 'client.subscriptions.index', 'icon' => 'calendar'];
 
 
         return $data;
