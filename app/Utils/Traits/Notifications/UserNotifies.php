@@ -38,27 +38,23 @@ trait UserNotifies
         if ($invitation->{$entity_name}->user_id == $company_user->_user_id || $invitation->{$entity_name}->assigned_user_id == $company_user->user_id) {
             $required_permissions = $this->addSpecialUserPermissionForEntity($invitation->{$entity_name}, $required_permissions);
         }
-
-        if (count(array_intersect($required_permissions, $notifications->email)) >= 1 || count(array_intersect(['all_user_notifications'], $notifications->email)) >= 1 || count(array_intersect(['all_notifications'],$notifications->email)) >= 1) {
-            array_push($notifiable_methods, 'mail');
+        else{
+            $required_permissions = $this->removeSpecialUserPermissionForEntity($invitation->{$entity_name}, $required_permissions);
         }
 
-        // if(count(array_intersect($required_permissions, $notifications->slack)) >=1)
-        //     array_push($notifiable_methods, 'slack');
+        if (count(array_intersect($required_permissions, $notifications->email)) >= 1) {
+            array_push($notifiable_methods, 'mail');
+        }
 
         return $notifiable_methods;
     }
 
-    public function findUserEntityNotificationType($entity, $company_user, $required_permissions) :array
+    public function findUserEntityNotificationType($entity, $company_user, array $required_permissions) :array
     {
-        if ($company_user->company->is_disabled) {
-            return [];
-        }
-
         $notifiable_methods = [];
         $notifications = $company_user->notifications;
 
-        if (! $notifications) {
+        if ($company_user->company->is_disabled || ! $notifications) {
             return [];
         }
 
@@ -69,36 +65,41 @@ trait UserNotifies
             $required_permissions = $this->removeSpecialUserPermissionForEntity($entity, $required_permissions);
         }
 
-        if (count(array_intersect($required_permissions, $notifications->email)) >= 1 ||  count(array_intersect(['all_notifications'],$notifications->email)) >= 1) {
+        if (count(array_intersect($required_permissions, $notifications->email)) >= 1) {
             array_push($notifiable_methods, 'mail');
         }
 
         return $notifiable_methods;
     }
 
-    private function addSpecialUserPermissionForEntity($entity, $required_permissions)
+    private function addSpecialUserPermissionForEntity($entity, array $required_permissions) :array
     {
+
+        array_push($required_permissions, ["all_notifications"]);
+
         switch ($entity) {
             case ($entity instanceof Payment || $entity instanceof Client): //we pass client also as this is the proxy for Payment Failures (ie, there is no payment)
-                return array_push($required_permissions, ["all_user_notifications","payment_failure_user","payment_success_user"]);
+                return array_merge($required_permissions, ["all_notifications","all_user_notifications","payment_failure_user","payment_success_user"]);
                 break;
             case ($entity instanceof Invoice):
-                return array_push($required_permissions, ["all_user_notifications","invoice_created_user","invoice_sent_user","invoice_viewed_user","invoice_late_user"]);
+                return array_merge($required_permissions, ["all_notifications","all_user_notifications","invoice_created_user","invoice_sent_user","invoice_viewed_user","invoice_late_user"]);
                 break;
             case ($entity instanceof Quote):
-                return array_push($required_permissions, ["all_user_notifications","quote_created_user","quote_sent_user","quote_viewed_user","quote_approved_user","quote_expired_user"]);
+                return array_merge($required_permissions, ["all_notifications","all_user_notifications","quote_created_user","quote_sent_user","quote_viewed_user","quote_approved_user","quote_expired_user"]);
                 break;
             case ($entity instanceof Credit):
-                return array_push($required_permissions, ["all_user_notifications","credit_created_user","credit_sent_user","credit_viewed_user"]);
+                return array_merge($required_permissions, ["all_notifications","all_user_notifications","credit_created_user","credit_sent_user","credit_viewed_user"]);
                 break;            
             default:
-                // code...
+                return [];
                 break;
         }
     }
 
     private function removeSpecialUserPermissionForEntity($entity, $required_permissions)
     {
+        array_merge($required_permissions, ["all_notifications"]);
+
         switch ($entity) {
             case ($entity instanceof Payment || $entity instanceof Client): //we pass client also as this is the proxy for Payment Failures (ie, there is no payment)
                 return array_diff($required_permissions, ["all_user_notifications","payment_failure_user","payment_success_user"]);
