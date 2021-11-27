@@ -75,7 +75,7 @@ trait UserNotifies
     private function addSpecialUserPermissionForEntity($entity, array $required_permissions) :array
     {
 
-        array_push($required_permissions, ["all_notifications"]);
+        array_merge($required_permissions, ["all_notifications"]);
 
         switch ($entity) {
             case ($entity instanceof Payment || $entity instanceof Client): //we pass client also as this is the proxy for Payment Failures (ie, there is no payment)
