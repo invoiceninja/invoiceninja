@@ -61,18 +61,11 @@ trait UserNotifies
             array_push($required_permissions, 'all_user_notifications');
         }
 
-
-nlog($company_user->notifications);
-nlog($required_permissions);
-nlog(count(array_intersect($required_permissions, ['all_user_notifications'])));
-nlog(count(array_intersect($required_permissions, ['all_notifications'])));
-nlog(count(array_intersect($required_permissions, $notifications->email)));
-
-        if (count(array_intersect($required_permissions, $notifications->email)) >= 1 || count(array_intersect(['all_user_notifications'], $notifications->email)) >= 1 || count(array_intersect(['all_notifications'],$notifications->email)) >= 1) {
+        if (count(array_intersect($required_permissions, $notifications->email)) >= 1 ||  count(array_intersect(['all_notifications'],$notifications->email)) >= 1) {
             array_push($notifiable_methods, 'mail');
         }
 
-
+nlog($notifiable_methods);
         return $notifiable_methods;
     }
 

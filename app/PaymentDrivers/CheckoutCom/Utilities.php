@@ -84,8 +84,9 @@ trait Utilities
 
     public function processUnsuccessfulPayment(Payment $_payment, $throw_exception = true)
     {
-        $this->getParent()->sendFailureMail($_payment->status . " " . optional($_payment)->response_summary);
-
+        $this->getParent()->sendFailureMail($_payment->response_summary);
+        $this->getParent()->clientPaymentFailureMailer($_payment->status);
+                
         $message = [
             'server_response' => $_payment,
             'data' => $this->getParent()->payment_hash->data,

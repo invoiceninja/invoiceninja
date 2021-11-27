@@ -440,7 +440,7 @@ class BaseDriver extends AbstractPaymentDriver
 
             $invoices->first()->invitations->each(function ($invitation) use ($nmo) {
 
-                if ($invitation->contact->email) {
+                if ((bool)$invitation->contact->send_email !== false && $invitation->contact->email) {
 
                     $nmo->to_user = $invitation->contact;
                     NinjaMailerJob::dispatch($nmo);
