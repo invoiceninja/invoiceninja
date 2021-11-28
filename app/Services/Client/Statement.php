@@ -30,6 +30,7 @@ use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\Pdf\PdfMaker as PdfMakerTrait;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\LazyCollection;
 
 class Statement
 {
@@ -217,7 +218,7 @@ class Statement
      *
      * @return Invoice[]|\Illuminate\Database\Eloquent\Collection
      */
-    protected function getInvoices(): Collection
+    protected function getInvoices(): LazyCollection
     {
         return Invoice::withTrashed()
             ->where('is_deleted', false)
@@ -226,7 +227,7 @@ class Statement
             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
             ->whereBetween('date', [$this->options['start_date'], $this->options['end_date']])
             ->orderBy('number', 'ASC')
-            ->get();
+            ->cursor();
     }
 
     /**
@@ -234,7 +235,7 @@ class Statement
      *
      * @return Payment[]|\Illuminate\Database\Eloquent\Collection
      */
-    protected function getPayments(): Collection
+    protected function getPayments(): LazyCollection
     {
         return Payment::withTrashed()
             ->with('client.country','invoices')
@@ -244,7 +245,7 @@ class Statement
             ->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
             ->whereBetween('date', [$this->options['start_date'], $this->options['end_date']])
             ->orderBy('number', 'ASC')
-            ->get();
+            ->cursor();
     }
 
     /**

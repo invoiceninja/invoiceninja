@@ -316,6 +316,10 @@ class MolliePaymentDriver extends BaseDriver
                 nlog($payment);
 
                 $client = Client::withTrashed()->find($this->decodePrimaryKey($payment->metadata->client_id));
+
+                // sometimes if the user is not returned to the site with a response from Mollie 
+                // we may not have a payment record - in these cases we need to re-construct the payment
+                // record from the meta data in the payment hash.
             }
 
             $message = [

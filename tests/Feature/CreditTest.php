@@ -71,7 +71,7 @@ class CreditTest extends TestCase
     public function testCreditRESTEndPoints()
     {
         $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
+        'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->get('/api/v1/credits/'.$this->encodePrimaryKey($this->credit->id));
 
@@ -104,7 +104,7 @@ class CreditTest extends TestCase
             'number' => 'dfdfd',
             'discount' => 0,
             'is_amount_discount' => 1,
-            'number' => '3434343',
+            'number' => '34343xx43',
             'public_notes' => 'notes',
             'is_deleted' => 0,
             'custom_value1' => 0,

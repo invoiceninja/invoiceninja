@@ -138,7 +138,7 @@ class InvoiceService
     {
         // $this->invoice = (new UpdateBalance($this->invoice, $balance_adjustment, $is_draft))->run();
 
-        if ($this->invoice->is_deleted) {
+        if ((bool)$this->invoice->is_deleted !== false) {
             return $this;
         }
 

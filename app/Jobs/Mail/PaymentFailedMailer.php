@@ -20,6 +20,7 @@ use App\Mail\Admin\EntityNotificationMailer;
 use App\Mail\Admin\PaymentFailureObject;
 use App\Models\Client;
 use App\Models\Company;
+use App\Models\Invoice;
 use App\Models\PaymentHash;
 use App\Models\User;
 use App\Utils\Traits\Notifications\UserNotifies;
@@ -75,15 +76,17 @@ class PaymentFailedMailer implements ShouldQueue
 
         $settings = $this->client->getMergedSettings();
         $amount = 0;
+        $invoice = false;
 
-        if($this->payment_hash)
+        if($this->payment_hash){
             $amount = array_sum(array_column($this->payment_hash->invoices(), 'amount')) + $this->payment_hash->fee_total;
+            $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->withTrashed()->first();
+        }
 
         //iterate through company_users
-        $this->company->company_users->each(function ($company_user) use($amount, $settings){        
+        $this->company->company_users->each(function ($company_user) use($amount, $settings, $invoice){        
 
-            //determine if this user has the right permissions
-            $methods = $this->findCompanyUserNotificationType($company_user, ['payment_failure','all_notifications']);
+            $methods = $this->findUserEntityNotificationType($invoice ?: $this->client, $company_user, ['payment_failure_user', 'payment_failure_all', 'payment_failure', 'all_notifications']);
 
             //if mail is a method type -fire mail!!
             if (($key = array_search('mail', $methods)) !== false) {
