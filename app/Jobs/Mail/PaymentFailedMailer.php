@@ -23,6 +23,7 @@ use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\PaymentHash;
 use App\Models\User;
+use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -35,7 +36,7 @@ use Illuminate\Support\Facades\Mail;
 
 class PaymentFailedMailer implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, UserNotifies;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, UserNotifies, MakesHash;
 
     public ?PaymentHash $payment_hash;
 
