@@ -81,7 +81,7 @@ class PaymentFailedMailer implements ShouldQueue
 
         if($this->payment_hash){
             $amount = array_sum(array_column($this->payment_hash->invoices(), 'amount')) + $this->payment_hash->fee_total;
-            $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->withTrashed()->first();
+            $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->withTrashed()->first();
         }
 
         //iterate through company_users
