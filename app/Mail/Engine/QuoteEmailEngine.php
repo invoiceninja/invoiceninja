@@ -44,6 +44,7 @@ class QuoteEmailEngine extends BaseEmailEngine
 
     public function build()
     {
+
         App::forgetInstance('translator');
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->client->getMergedSettings()));
@@ -56,9 +57,10 @@ class QuoteEmailEngine extends BaseEmailEngine
         } else {
             $body_template = $this->client->getSetting('email_template_'.$this->reminder_template);
         }
-        
+
         /* Use default translations if a custom message has not been set*/
         if (iconv_strlen($body_template) == 0) {
+
             $body_template = trans(
                 'texts.quote_message',
                 [
@@ -69,7 +71,10 @@ class QuoteEmailEngine extends BaseEmailEngine
                 null,
                 $this->client->locale()
             );
+
+            $body_template .= '<div class="center">$view_button</div>';
         }
+
 
         if (is_array($this->template_data) &&  array_key_exists('subject', $this->template_data) && strlen($this->template_data['subject']) > 0) {
             $subject_template = $this->template_data['subject'];
