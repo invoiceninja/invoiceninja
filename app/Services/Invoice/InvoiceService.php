@@ -483,6 +483,10 @@ class InvoiceService
         if(!isset($this->invoice->exchange_rate) && $this->invoice->client->currency()->id != (int) $this->invoice->company->settings->currency_id)
             $this->invoice->exchange_rate = $this->invoice->client->currency()->exchange_rate;
 
+        if($settings->counter_number_applied == 'when_saved'){
+            $this->invoice->service()->applyNumber()->save();
+        }
+
         return $this;
     }
 

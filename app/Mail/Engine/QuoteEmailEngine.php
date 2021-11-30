@@ -64,7 +64,7 @@ class QuoteEmailEngine extends BaseEmailEngine
                 [
                     'quote' => $this->quote->number,
                     'company' => $this->quote->company->present()->name(),
-                    'amount' => Number::formatMoney($this->quote->balance, $this->client),
+                    'amount' => Number::formatMoney($this->quote->amount, $this->client),
                 ],
                 null,
                 $this->client->locale()
@@ -98,7 +98,6 @@ class QuoteEmailEngine extends BaseEmailEngine
             ->setViewLink($this->invitation->getLink())
             ->setViewText(ctrans('texts.view_quote'))
             ->setInvitation($this->invitation);
-
 
         if ($this->client->getSetting('pdf_email_attachment') !== false && $this->quote->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
 
