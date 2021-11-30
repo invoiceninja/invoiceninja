@@ -114,7 +114,7 @@ class CreditCard
                     'name' => $this->mollie->client->name,
                     'email' => $this->mollie->client->present()->email(),
                     'metadata' => [
-                        'id' => $this->mollie->client->hashed_id,
+                        'id' => $this->mollie->client->hashed_id
                     ],
                 ]);
 
