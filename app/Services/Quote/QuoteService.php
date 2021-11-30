@@ -124,10 +124,10 @@ class QuoteService
         }
 
 
-        if ($this->quote->client->getSetting('auto_archive_quote')) {
-            $quote_repo = new QuoteRepository();
-            $quote_repo->archive($this->quote);
-        }
+        // if ($this->quote->client->getSetting('auto_archive_quote')) {
+        //     $quote_repo = new QuoteRepository();
+        //     $quote_repo->archive($this->quote);
+        // }
 
         return $this;
     }
