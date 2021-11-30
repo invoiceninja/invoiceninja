@@ -332,18 +332,21 @@ class CSVImport implements ShouldQueue {
 			$invoice = $invoice->service()->markViewed()->save();
 		}
 
-		if ( $invoice->status_id === Invoice::STATUS_SENT ) {
+		if( $invoice->status_id === Invoice::STATUS_DRAFT ){
+
+		}
+		elseif ( $invoice->status_id === Invoice::STATUS_SENT ) {
 			$invoice = $invoice->service()->markSent()->save();
 		}
-
-		if ( $invoice->status_id <= Invoice::STATUS_SENT && $invoice->amount > 0 ) {
-			if ( $invoice->balance < $invoice->amount ) {
-				$invoice->status_id = Invoice::STATUS_PARTIAL;
-				$invoice->save();
-			} elseif ( $invoice->balance <= 0 ) {
+		elseif ( $invoice->status_id <= Invoice::STATUS_SENT && $invoice->amount > 0 ) {
+			if ( $invoice->balance <= 0 ) {
 				$invoice->status_id = Invoice::STATUS_PAID;
 				$invoice->save();
 			}
+			elseif ( $invoice->balance != $invoice->amount ) {
+				$invoice->status_id = Invoice::STATUS_PARTIAL;
+				$invoice->save();
+			} 
 		}
 
 
