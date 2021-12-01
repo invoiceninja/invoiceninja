@@ -62,6 +62,9 @@ class ContactForgotPasswordController extends Controller
         $account = Account::find($account_id);
         $company = $account->companies->first();
 
+        if(!$account)
+            $account = Account::first();
+        
         return $this->render('auth.passwords.request', [
             'title' => 'Client Password Reset',
             'passwordEmailRoute' => 'client.password.email',
