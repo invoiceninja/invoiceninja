@@ -77,8 +77,6 @@ class SubscriptionService
             $recurring_invoice_repo = new RecurringInvoiceRepository();
 
             $recurring_invoice = $recurring_invoice_repo->save([], $recurring_invoice);
-            // $recurring_invoice->next_send_date = now()->format('Y-m-d');
-            // $recurring_invoice->next_send_date = $recurring_invoice->nextSendDate();
             $recurring_invoice->auto_bill = $this->subscription->auto_bill;
             
             /* Start the recurring service */
@@ -87,7 +85,6 @@ class SubscriptionService
                               ->save();
 
             //execute any webhooks
-
             $context = [
                 'context' => 'recurring_purchase',
                 'recurring_invoice' => $recurring_invoice->hashed_id,
@@ -95,6 +92,7 @@ class SubscriptionService
                 'client' => $recurring_invoice->client->hashed_id,
                 'subscription' => $this->subscription->hashed_id,
                 'contact' => auth('contact')->user()->hashed_id,
+                'account_key' => auth('contact')->user()->account->account_key,
             ];
 
             $response = $this->triggerWebhook($context);
@@ -111,6 +109,7 @@ class SubscriptionService
                 'invoice' => $this->encodePrimaryKey($payment_hash->fee_invoice_id),
                 'client'  => $invoice->client->hashed_id,
                 'subscription' => $this->subscription->hashed_id,
+                'account_key' => auth('contact')->user()->account->account_key,
             ];
 
             //execute any webhooks
@@ -1043,6 +1042,7 @@ class SubscriptionService
                 'client' => $invoice->client->hashed_id,
                 'contact' => $invoice->client->primary_contact()->first() ? $invoice->client->primary_contact()->first()->hashed_id: $invoice->client->contacts->first()->hashed_id,
                 'invoice' => $invoice->hashed_id,
+                'account_key' => $invoice->client->custom
             ];
 
         $response = $this->triggerWebhook($context);
