@@ -30,6 +30,7 @@ use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
+use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\Services\Subscription\SubscriptionService;
 use App\Utils\Ninja;
