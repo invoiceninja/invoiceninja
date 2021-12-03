@@ -38,9 +38,9 @@ class StartupCheck
         // set TRUSTED_PROXIES=* if you want to trust every proxy.
         if (isset($_ENV['TRUSTED_PROXIES'])) {
             if (env('TRUSTED_PROXIES') == '*') {
-                $request->setTrustedProxies(['127.0.0.1', $request->server->get('REMOTE_ADDR')]);
+                $request->setTrustedProxies(['127.0.0.1', $request->server->get('REMOTE_ADDR')],Request::HEADER_X_FORWARDED_ALL);
             } else{
-                $request->setTrustedProxies(array_map('trim', explode(',', env('TRUSTED_PROXIES'))));
+                $request->setTrustedProxies(array_map('trim', explode(',', env('TRUSTED_PROXIES'))),Request::HEADER_X_FORWARDED_ALL);
             }
         }
 
