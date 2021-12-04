@@ -267,6 +267,11 @@ class BaseDriver extends AbstractPaymentDriver
         ]))
             $payment->service()->sendEmail();
 
+            //todo
+            //catch any payment failures here also and fire a subsequent failure email if necessary? note only need for delayed payment forms
+            //perhaps this type of functionality should be handled higher up to provide better context?
+
+
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
         if (property_exists($this->payment_hash->data, 'billing_context') && $status == Payment::STATUS_COMPLETED) {
