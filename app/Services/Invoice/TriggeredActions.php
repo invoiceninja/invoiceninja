@@ -37,7 +37,7 @@ class TriggeredActions extends AbstractService
     public function run()
     {
         if ($this->request->has('auto_bill') && $this->request->input('auto_bill') == 'true') {
-            $this->invoice = $this->invoice->service()->autoBill();
+            $this->invoice->service()->autoBill();
         }
 
         if ($this->request->has('paid') && $this->request->input('paid') == 'true') {
