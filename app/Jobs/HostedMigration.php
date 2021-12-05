@@ -61,8 +61,8 @@ class HostedMigration extends Job
 
     private function getToken()
     {
-        //$url = 'https://invoicing.co/api/v1/get_migration_account';
-        $url = 'http://devhosted.test:8000/api/v1/get_migration_account';
+        $url = 'https://invoicing.co/api/v1/get_migration_account';
+        // $url = 'http://devhosted.test:8000/api/v1/get_migration_account';
 
         $headers = [
             'X-API-HOSTED-SECRET' => $this->v4_secret,
