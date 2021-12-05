@@ -71,7 +71,8 @@ class NinjaPlanController extends Controller
     {
         //harvest the current plan
         $data = [];
-
+        $data['late_invoice'] = false;
+        
         if(MultiDB::findAndSetDbByAccountKey(Auth::guard('contact')->user()->client->custom_value2))
         {
             $account = Account::where('key', Auth::guard('contact')->user()->client->custom_value2)->first();

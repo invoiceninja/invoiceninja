@@ -52,7 +52,8 @@ class TemplateEmail extends Mailable
 
     public function build()
     {
-         $template_name = 'email.template.'.$this->build_email->getTemplate();
+        
+        $template_name = 'email.template.'.$this->build_email->getTemplate();
 
         if ($this->build_email->getTemplate() == 'light' || $this->build_email->getTemplate() == 'dark') {
             $template_name = 'email.template.client';

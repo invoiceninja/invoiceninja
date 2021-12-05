@@ -354,30 +354,29 @@
 
 <div class="repeating-header" id="header"></div>
 
-<div class="repeating-footer" id="footer">
-   <p data-ref="total_table-footer">$entity_footer</p>
-</div>
 
 $entity_images
 
-<script>
-    // Clear up space a bit, if [product-table, tasks-table, delivery-note-table] isn't present.
-    document.addEventListener('DOMContentLoaded', () => {
-        let tables = [
-            'product-table', 'task-table', 'delivery-note-table',
-            'statement-invoice-table', 'statement-payment-table', 'statement-aging-table-totals',
-        ];
+<div class="repeating-footer" id="footer">
+   <p data-ref="total_table-footer">$entity_footer</p>
 
-        tables.forEach((tableIdentifier) => {
-            document.getElementById(tableIdentifier).childElementCount === 0
-                ? document.getElementById(tableIdentifier).style.display = 'none'
-                : '';
-        });
+        <script>
+            // Clear up space a bit, if [product-table, tasks-table, delivery-note-table] isn't present.
+            document.addEventListener('DOMContentLoaded', () => {
+                let tables = [
+                    'product-table', 'task-table', 'delivery-note-table',
+                    'statement-invoice-table', 'statement-payment-table', 'statement-aging-table-totals',
+                    'statement-invoice-table-totals', 'statement-payment-table-totals', 'statement-aging-table'
+                ];
 
-        // If we have elements in these tables, we can change label to "Statement" & hide entity details.
-        if (document.querySelectorAll('#statement-payment-table > tbody, #statement-payment-table > tbody, #statement-aging-table-totals > tbody').length > 0) {
-            document.querySelector('.entity-label').innerText = '$statement_label';
-            document.querySelector('.entity-details-wrapper').style.display = 'none';
-        }        
-    });
-</script>
+                tables.forEach((tableIdentifier) => {
+                    console.log(document.getElementById(tableIdentifier));
+
+                    document.getElementById(tableIdentifier)?.childElementCount === 0
+                        ? document.getElementById(tableIdentifier).style.setProperty('display', 'none', 'important')
+                        : '';
+                });
+            });
+        </script>
+</div>
+

@@ -71,6 +71,8 @@ class InvitationController extends Controller
         if(!in_array($entity, ['invoice', 'credit', 'quote', 'recurring_invoice']))
             return response()->json(['message' => 'Invalid resource request']);
 
+        $is_silent = 'false';
+
         $key = $entity.'_id';
 
         $entity_obj = 'App\Models\\'.ucfirst(Str::camel($entity)).'Invitation';
@@ -111,8 +113,16 @@ class InvitationController extends Controller
 
             $this->fireEntityViewedEvent($invitation, $entity);
         }
+        else{
+            $is_silent = 'true';
+
+            return redirect()->route('client.'.$entity.'.show', [$entity => $this->encodePrimaryKey($invitation->{$key}), 'silent' => $is_silent]);
+
+        }
 
         return redirect()->route('client.'.$entity.'.show', [$entity => $this->encodePrimaryKey($invitation->{$key})]);
+
+
     }
 
     private function fireEntityViewedEvent($invitation, $entity_string)

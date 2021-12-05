@@ -77,8 +77,6 @@ class SubscriptionService
             $recurring_invoice_repo = new RecurringInvoiceRepository();
 
             $recurring_invoice = $recurring_invoice_repo->save([], $recurring_invoice);
-            // $recurring_invoice->next_send_date = now()->format('Y-m-d');
-            // $recurring_invoice->next_send_date = $recurring_invoice->nextSendDate();
             $recurring_invoice->auto_bill = $this->subscription->auto_bill;
             
             /* Start the recurring service */
@@ -87,7 +85,6 @@ class SubscriptionService
                               ->save();
 
             //execute any webhooks
-
             $context = [
                 'context' => 'recurring_purchase',
                 'recurring_invoice' => $recurring_invoice->hashed_id,
@@ -95,6 +92,7 @@ class SubscriptionService
                 'client' => $recurring_invoice->client->hashed_id,
                 'subscription' => $this->subscription->hashed_id,
                 'contact' => auth('contact')->user()->hashed_id,
+                'account_key' => $recurring_invoice->client->custom_value2,
             ];
 
             $response = $this->triggerWebhook($context);
@@ -111,6 +109,7 @@ class SubscriptionService
                 'invoice' => $this->encodePrimaryKey($payment_hash->fee_invoice_id),
                 'client'  => $invoice->client->hashed_id,
                 'subscription' => $this->subscription->hashed_id,
+                'account_key' => $invoice->client->custom_value2,
             ];
 
             //execute any webhooks
@@ -130,6 +129,7 @@ class SubscriptionService
             'contact' => $contact->hashed_id,
             'contact_email' => $contact->email,
             'client' => $contact->client->hashed_id,
+            'account_key' => $contact->client->custom_value2,
         ];
 
         $response = $this->triggerWebhook($context);
@@ -180,6 +180,7 @@ class SubscriptionService
                 'recurring_invoice' => $recurring_invoice->hashed_id,
                 'client' => $recurring_invoice->client->hashed_id,
                 'subscription' => $this->subscription->hashed_id,
+                'account_key' => $recurring_invoice->client->custom_value2,
             ];
 
         //execute any webhooks
@@ -452,6 +453,7 @@ class SubscriptionService
                 'client' => $new_recurring_invoice->client->hashed_id,
                 'subscription' => $target_subscription->hashed_id,
                 'contact' => auth('contact')->user()->hashed_id,
+                'account_key' => $new_recurring_invoice->client->custom_value2,
             ];
 
             $response = $this->triggerWebhook($context);
@@ -572,6 +574,7 @@ class SubscriptionService
             'client' => $recurring_invoice->client->hashed_id,
             'subscription' => $this->subscription->hashed_id,
             'contact' => auth('contact')->user()->hashed_id,
+            'account_key' => $recurring_invoice->client->custom_value2,
         ];
 
 
@@ -768,8 +771,6 @@ class SubscriptionService
         $response = false;
 
         $body = array_merge($context, [
-            'company_key' => $this->subscription->company->company_key,
-            'account_key' => $this->subscription->company->account->key,
             'db' => $this->subscription->company->db,
         ]);
 
@@ -921,6 +922,7 @@ class SubscriptionService
                 'recurring_invoice' => $recurring_invoice->hashed_id,
                 'client' => $recurring_invoice->client->hashed_id,
                 'contact' => auth('contact')->user()->hashed_id,
+                'account_key' => $recurring_invoice->client->custom_value2,
             ];
 
             $this->triggerWebhook($context);
@@ -1043,6 +1045,7 @@ class SubscriptionService
                 'client' => $invoice->client->hashed_id,
                 'contact' => $invoice->client->primary_contact()->first() ? $invoice->client->primary_contact()->first()->hashed_id: $invoice->client->contacts->first()->hashed_id,
                 'invoice' => $invoice->hashed_id,
+                'account_key' => $invoice->client->custom_value2,
             ];
 
         $response = $this->triggerWebhook($context);

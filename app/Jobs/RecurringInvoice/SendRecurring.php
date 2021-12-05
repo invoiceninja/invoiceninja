@@ -145,7 +145,7 @@ class SendRecurring implements ShouldQueue
     
         if ($invoice->client->getSetting('auto_bill_date') == 'on_send_date' && $invoice->auto_bill_enabled) {
             nlog("attempting to autobill {$invoice->number}");
-            $invoice->service()->autoBill()->save();
+            $invoice->service()->autoBill();
 
         }
         elseif($invoice->client->getSetting('auto_bill_date') == 'on_due_date' && $invoice->auto_bill_enabled) {
@@ -153,7 +153,7 @@ class SendRecurring implements ShouldQueue
             if($invoice->due_date && Carbon::parse($invoice->due_date)->startOfDay()->lte(now()->startOfDay())) {
             
                 nlog("attempting to autobill {$invoice->number}");
-                $invoice->service()->autoBill()->save();
+                $invoice->service()->autoBill();
             
             }
 

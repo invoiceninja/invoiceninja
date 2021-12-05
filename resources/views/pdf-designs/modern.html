@@ -348,24 +348,28 @@ $entity_images
 
 <div id="footer">
     <div class="footer-content">
-        <div style="width: 70%;">
+        <div style="width: 90%">
             <p data-ref="total_table-footer">$entity_footer</p>
 
-            <script>
-                // Clear up space a bit, if [product-table, tasks-table, delivery-note-table] isn't present.
-                document.addEventListener('DOMContentLoaded', () => {
-                    let tables = [
-                        'product-table', 'task-table', 'delivery-note-table',  'statement-invoice-table-totals', 'statement-payment-table-totals','statement-invoice-table-totals',
-                        'statement-invoice-table', 'statement-payment-table', 'statement-aging-table', 'statement-aging-table-totals', 'statement-payment-table-totals'
-                    ];
+        <script>
+            // Clear up space a bit, if [product-table, tasks-table, delivery-note-table] isn't present.
+            document.addEventListener('DOMContentLoaded', () => {
+                let tables = [
+                    'product-table', 'task-table', 'delivery-note-table',
+                    'statement-invoice-table', 'statement-payment-table', 'statement-aging-table-totals',
+                    'statement-invoice-table-totals', 'statement-payment-table-totals', 'statement-aging-table'
+                ];
 
-                    tables.forEach((tableIdentifier) => {
-                        document.getElementById(tableIdentifier).childElementCount === 0
-                                ? document.getElementById(tableIdentifier).remove()
-                                : '';
-                    });
+                tables.forEach((tableIdentifier) => {
+                    console.log(document.getElementById(tableIdentifier));
+
+                    document.getElementById(tableIdentifier)?.childElementCount === 0
+                        ? document.getElementById(tableIdentifier).style.setProperty('display', 'none', 'important')
+                        : '';
                 });
-            </script>
+            });
+        </script>
+            
         </div>
         <div class="footer-company-details-address-wrapper">
             <div id="company-details"></div>

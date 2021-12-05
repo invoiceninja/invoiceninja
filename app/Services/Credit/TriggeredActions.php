@@ -36,17 +36,6 @@ class TriggeredActions extends AbstractService
 
     public function run()
     {
-        // if ($this->request->has('auto_bill') && $this->request->input('auto_bill') == 'true') {
-        //     $this->credit = $this->credit->service()->autoBill()->save();
-        // }
-
-        // if ($this->request->has('paid') && $this->request->input('paid') == 'true') {
-        //     $this->credit = $this->credit->service()->markPaid()->save();
-        // }
-
-        // if ($this->request->has('amount_paid') && is_numeric($this->request->input('amount_paid')) ) {
-        //     $this->credit = $this->credit->service()->applyPaymentAmount($this->request->input('amount_paid'))->save();
-        // }
 
         if ($this->request->has('send_email') && $this->request->input('send_email') == 'true') {
             $this->sendEmail();

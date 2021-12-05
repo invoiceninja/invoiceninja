@@ -113,7 +113,7 @@
         table-layout: fixed;
         overflow-wrap: break-word;
         margin-top: 3rem;
-        margin-bottom: 200px;
+        margin-bottom: 0px;
     }
 
     [data-ref="table"]:last-child{
@@ -371,20 +371,24 @@
 $entity_images
 
 <div id="footer">
-    <div>
+    <div style="width: 100%;">
         <p data-ref="total_table-footer">$entity_footer</p>
 
         <script>
             // Clear up space a bit, if [product-table, tasks-table, delivery-note-table] isn't present.
             document.addEventListener('DOMContentLoaded', () => {
                 let tables = [
-                    'product-table', 'task-table', 'delivery-note-table',  'statement-invoice-table-totals', 'statement-payment-table-totals','statement-invoice-table-totals',
-                    'statement-invoice-table', 'statement-payment-table', 'statement-aging-table', 'statement-aging-table-totals', 'statement-payment-table-totals'
+                    'product-table', 'task-table', 'delivery-note-table',
+                    'statement-invoice-table', 'statement-payment-table', 'statement-aging-table-totals',
+                    'statement-invoice-table-totals', 'statement-payment-table-totals', 'statement-aging-table'
                 ];
 
                 tables.forEach((tableIdentifier) => {
-                    const el =document.getElementById(tableIdentifier);
-                    if(el && el.childElementCount === 0)el.remove()
+                    console.log(document.getElementById(tableIdentifier));
+
+                    document.getElementById(tableIdentifier)?.childElementCount === 0
+                        ? document.getElementById(tableIdentifier).style.setProperty('display', 'none', 'important')
+                        : '';
                 });
             });
         </script>

@@ -92,7 +92,7 @@ class InvoiceTransformer extends BaseTransformer {
 					'amount'                => $this->getFloat( $invoice_data, 'invoice.amount' ),
 				],
 			];
-		} elseif ( isset( $transformed['amount'] ) && isset( $transformed['balance'] ) ) {
+		} elseif ( isset( $transformed['amount'] ) && isset( $transformed['balance'] ) && ($transformed['amount'] != $transformed['balance'])) {
 			$transformed['payments'] = [
 				[
 					'date'                  => isset( $invoice_data['payment.date'] ) ? date( 'Y-m-d', strtotime( $invoice_data['payment.date'] ) ) : date( 'y-m-d' ),
@@ -125,6 +125,8 @@ class InvoiceTransformer extends BaseTransformer {
 			];
 		}
 		$transformed['line_items'] = $line_items;
+
+nlog($transformed);
 
 		return $transformed;
 	}

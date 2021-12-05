@@ -115,9 +115,6 @@ class CreateEntityPdf implements ShouldQueue
         /* Set customized translations _NOW_ */
         $t->replace(Ninja::transformTranslations($this->client->getMergedSettings()));
 
-        $translate = microtime(true);
-        // nlog("Translate ". $translate - $start);
-
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
             return (new Phantom)->generate($this->invitation);
         }
@@ -142,9 +139,6 @@ class CreateEntityPdf implements ShouldQueue
 
         $entity_design_id = $this->entity->design_id ? $this->entity->design_id : $this->decodePrimaryKey($this->client->getSetting($entity_design_id));
 
-        // if(!$this->company->account->hasFeature(Account::FEATURE_DIFFERENT_DESIGNS))
-        //     $entity_design_id = 2;
-
         $design = Design::find($entity_design_id);
 
         /* Catch all in case migration doesn't pass back a valid design */
@@ -152,9 +146,6 @@ class CreateEntityPdf implements ShouldQueue
             $design = Design::find(2);
 
         $html = new HtmlEngine($this->invitation);
-
-        $design_time = microtime(true);
-        // nlog("Design ". $design_time - $translate);
 
         if ($design->is_custom) {
             $options = [
@@ -166,9 +157,6 @@ class CreateEntityPdf implements ShouldQueue
         }
 
         $variables = $html->generateLabelsAndValues();
-
-        $labels_time = microtime(true);
-        // nlog("Labels ". $labels_time - $design_time);
 
         $state = [
             'template' => $template->elements([
@@ -192,10 +180,6 @@ class CreateEntityPdf implements ShouldQueue
             ->design($template)
             ->build();
 
-
-        $template_time = microtime(true);
-        // nlog("Template Build ". $template_time - $labels_time);
-
         $pdf = null;
 
         try {
@@ -214,10 +198,6 @@ class CreateEntityPdf implements ShouldQueue
         if (config('ninja.log_pdf_html')) {
             info($maker->getCompiledHTML());
         }
-
-
-        $pdf_time = microtime(true);
-        // nlog("PDF time " . $pdf_time - $template_time);
 
         if ($pdf) {
 
