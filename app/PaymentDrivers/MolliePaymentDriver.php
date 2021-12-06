@@ -324,19 +324,18 @@ class MolliePaymentDriver extends BaseDriver
                     /* Harvest Payment Hash*/
                     $payment_hash = PaymentHash::where('hash', $payment->metadata->hash)->first();
                     
-
                     $data = [
                         'gateway_type_id' => $payment->metadata->gateway_type_id,
                         'amount' => $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total,
                         'payment_type' => $payment->metadata->payment_type_id,
                         'transaction_reference' => $payment->id,
                     ];
-
+                    
                     $record = $this->createPayment(
                         $data,
                         $codes[$payment->status]
                     );
-
+                
                 }
             }
 
