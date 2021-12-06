@@ -319,7 +319,7 @@ class MolliePaymentDriver extends BaseDriver
                 // we may not have a payment record - in these cases we need to re-construct the payment
                 // record from the meta data in the payment hash.
 
-                if($payment && $payment->metadata->payment_hash){
+                if($payment && property_exists($payment->metadata, 'payment_hash') && $payment->metadata->payment_hash){
                     
                     /* Harvest Payment Hash*/
                     $payment_hash = PaymentHash::where('hash', $payment->metadata->hash)->first();
