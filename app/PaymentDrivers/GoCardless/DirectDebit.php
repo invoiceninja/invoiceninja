@@ -190,7 +190,6 @@ class DirectDebit implements MethodInterface
     public function processPendingPayment(\GoCardlessPro\Resources\Payment $payment, array $data = [])
     {
         $data = [
-            'payment_method' => $data['token'],
             'payment_type' => PaymentType::DIRECT_DEBIT,
             'amount' => $this->go_cardless->payment_hash->data->amount_with_fee,
             'transaction_reference' => $payment->id,
