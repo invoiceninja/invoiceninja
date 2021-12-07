@@ -38,6 +38,7 @@ class QuotesTable extends Component
     public function render()
     {
         $query = Quote::query()
+            ->with('client.gateway_tokens','company','client.contacts')
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc');
 
         if (count($this->status) > 0) {

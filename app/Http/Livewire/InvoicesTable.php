@@ -43,6 +43,7 @@ class InvoicesTable extends Component
         $local_status = [];
 
         $query = Invoice::query()
+            ->with('client.gateway_tokens','company','client.contacts')
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
             ->where('company_id', $this->company->id)
             ->where('is_deleted', false);
