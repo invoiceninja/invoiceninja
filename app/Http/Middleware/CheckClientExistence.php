@@ -52,7 +52,7 @@ class CheckClientExistence
         }
 
         if (count($multiple_contacts) == 1) {
-            Auth::guard('contact')->login($multiple_contacts[0], true);
+            Auth::guard('contact')->loginUsingId($multiple_contacts[0]->id, true);
         }
 
         session()->put('multiple_contacts', $multiple_contacts);

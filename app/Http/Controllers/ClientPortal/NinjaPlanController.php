@@ -50,7 +50,7 @@ class NinjaPlanController extends Controller
         
             nlog("Ninja Plan Controller - Found and set Client Contact");
             
-            Auth::guard('contact')->login($client_contact,true);
+            Auth::guard('contact')->loginUsingId($client_contact->id,true);
 
             // /* Current paid users get pushed straight to subscription overview page*/
             // if($account->isPaidHostedClient())

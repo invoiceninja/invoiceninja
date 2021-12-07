@@ -106,7 +106,7 @@ class ContactLoginController extends Controller
 
     public function authenticated(Request $request, ClientContact $client)
     {
-        Auth::guard('contact')->login($client, true);
+        Auth::guard('contact')->loginUsingId($client->id, true);
 
         event(new ContactLoggedIn($client, $client->company, Ninja::eventVars()));
 
