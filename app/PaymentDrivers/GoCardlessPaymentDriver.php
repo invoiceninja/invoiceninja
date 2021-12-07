@@ -265,10 +265,11 @@ class GoCardlessPaymentDriver extends BaseDriver
         return response()->json([], 200);
     }
 
-    public function ensureMandateIsReady(ClientGatewayToken $cgt)
+    public function ensureMandateIsReady($token)
     {
         try {
-            $mandate = $this->gateway->mandates()->get($cgt->token);
+            $this->init();
+            $mandate = $this->gateway->mandates()->get($token);
 
             if ($mandate->status !== 'active') {
                 throw new \Exception(ctrans('texts.gocardless_mandate_not_ready'));

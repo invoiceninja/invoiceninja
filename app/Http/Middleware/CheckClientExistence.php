@@ -29,7 +29,7 @@ class CheckClientExistence
     public function handle(Request $request, Closure $next)
     {
         $multiple_contacts = ClientContact::query()
-            ->with('company','client')
+            ->with('client.gateway_tokens')
             ->where('email', auth('contact')->user()->email)
             ->whereNotNull('email')
             ->where('email', '<>', '')
@@ -52,7 +52,7 @@ class CheckClientExistence
         }
 
         if (count($multiple_contacts) == 1) {
-            Auth::guard('contact')->login($multiple_contacts[0], true);
+            Auth::guard('contact')->loginUsingId($multiple_contacts[0]->id, true);
         }
 
         session()->put('multiple_contacts', $multiple_contacts);

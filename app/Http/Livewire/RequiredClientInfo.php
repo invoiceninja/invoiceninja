@@ -60,7 +60,7 @@ class RequiredClientInfo extends Component
 
         'contact_first_name' => 'first_name',
         'contact_last_name' => 'last_name',
-        // 'contact_email' => 'email',
+        'contact_email' => 'email',
         // 'contact_phone' => 'phone',
     ];
 

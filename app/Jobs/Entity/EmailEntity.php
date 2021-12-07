@@ -112,6 +112,9 @@ class EmailEntity implements ShouldQueue
         App::setLocale($this->invitation->contact->preferredLocale());
         $t->replace(Ninja::transformTranslations($this->settings));
 
+        /* Mark entity sent */
+        $this->entity->service()->markSent()->save();
+        
         $nmo = new NinjaMailerObject;
         $nmo->mailable = new TemplateEmail($this->email_entity_builder, $this->invitation->contact, $this->invitation);
         $nmo->company = $this->company;
@@ -124,8 +127,7 @@ class EmailEntity implements ShouldQueue
         
         NinjaMailerJob::dispatchNow($nmo);
 
-        /* Mark entity sent */
-        $this->entity->service()->markSent()->save();
+
     }
 
     private function resolveEntityString() :string

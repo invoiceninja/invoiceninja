@@ -138,7 +138,8 @@ class InvoiceService
     {
         // $this->invoice = (new UpdateBalance($this->invoice, $balance_adjustment, $is_draft))->run();
 
-        if ($this->invoice->is_deleted) {
+        if ((bool)$this->invoice->is_deleted !== false) {
+            nlog($this->invoice->number . " is deleted returning");
             return $this;
         }
 
@@ -245,7 +246,7 @@ class InvoiceService
 
     public function autoBill()
     {
-        $this->invoice = (new AutoBillInvoice($this->invoice, $this->invoice->company->db))->run();
+        (new AutoBillInvoice($this->invoice, $this->invoice->company->db))->run();
 
         return $this;
     }
@@ -482,6 +483,10 @@ class InvoiceService
         /* If client currency differs from the company default currency, then insert the client exchange rate on the model.*/
         if(!isset($this->invoice->exchange_rate) && $this->invoice->client->currency()->id != (int) $this->invoice->company->settings->currency_id)
             $this->invoice->exchange_rate = $this->invoice->client->currency()->exchange_rate;
+
+        if($settings->counter_number_applied == 'when_saved'){
+            $this->invoice->service()->applyNumber()->save();
+        }
 
         return $this;
     }

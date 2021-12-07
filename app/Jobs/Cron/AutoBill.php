@@ -53,7 +53,7 @@ class AutoBill
             
             nlog("autobill {$this->invoice->id}");
 
-            $this->invoice->service()->autoBill()->save();
+            $this->invoice->service()->autoBill();
 
         }
         catch(\Exception $e) {

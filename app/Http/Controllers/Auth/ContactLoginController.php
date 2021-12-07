@@ -42,16 +42,15 @@ class ContactLoginController extends Controller
 
         if($request->has('company_key')){
             MultiDB::findAndSetDbByCompanyKey($request->input('company_key'));
-
             $company = Company::where('company_key', $request->input('company_key'))->first();
-
         }
 
-        if (!$company && strpos($request->getHost(), 'invoicing.co') !== false) {
+        if($company){
+            $account = $company->account;
+        }
+        elseif (!$company && strpos($request->getHost(), 'invoicing.co') !== false) {
             $subdomain = explode('.', $request->getHost())[0];
-
             MultiDB::findAndSetDbByDomain(['subdomain' => $subdomain]);
-
             $company = Company::where('subdomain', $subdomain)->first();
 
         } elseif(Ninja::isHosted()){
@@ -107,7 +106,7 @@ class ContactLoginController extends Controller
 
     public function authenticated(Request $request, ClientContact $client)
     {
-        Auth::guard('contact')->login($client, true);
+        Auth::guard('contact')->loginUsingId($client->id, true);
 
         event(new ContactLoggedIn($client, $client->company, Ninja::eventVars()));
 

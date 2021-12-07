@@ -161,7 +161,8 @@ class PayPal
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_FAILURE,
             SystemLog::TYPE_BRAINTREE,
-            $this->braintree->client
+            $this->braintree->client,
+            $this->braintree->client->company
         );
 
         throw new PaymentFailed($response->message, 0);

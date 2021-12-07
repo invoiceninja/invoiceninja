@@ -75,6 +75,7 @@ class Quote extends BaseModel
         'assigned_user_id',
         'exchange_rate',
         'subscription_id',
+        'uses_inclusive_taxes',
     ];
 
     protected $casts = [

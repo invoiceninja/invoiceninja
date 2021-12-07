@@ -81,6 +81,9 @@ class StoreCompanyRequest extends Request
             }
         }
 
+        if(array_key_exists('portal_domain', $input))
+            $input['portal_domain'] = strtolower($input['portal_domain']);
+
         $this->replace($input);
     }
 }

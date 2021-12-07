@@ -43,7 +43,7 @@ class ContactRegisterController extends Controller
         $client = $this->getClient($request->all());
         $client_contact = $this->getClientContact($request->all(), $client);
 
-        Auth::guard('contact')->login($client_contact, true);
+        Auth::guard('contact')->loginUsingId($client_contact->id, true);
 
         return redirect()->route('client.dashboard');
     }

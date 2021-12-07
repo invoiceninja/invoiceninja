@@ -74,6 +74,9 @@ class InvoiceEmailEngine extends BaseEmailEngine
                 null,
                 $this->client->locale()
             );
+
+            $body_template .= '<div class="center">$view_button</div>';
+
         }
 
         if (is_array($this->template_data) &&  array_key_exists('subject', $this->template_data) && strlen($this->template_data['subject']) > 0) {

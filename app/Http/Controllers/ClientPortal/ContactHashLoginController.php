@@ -25,7 +25,7 @@ class ContactHashLoginController extends Controller
      */
     public function login(string $contact_key)
     {
-        if(request()->has('subscription') && $request->subscription == 'true') {
+        if(request()->has('subscription') && request()->subscription == 'true') {
 
             $recurring_invoice = RecurringInvoice::where('client_id', auth()->guard('contact')->client->id)
                                                  ->whereNotNull('subscription_id')

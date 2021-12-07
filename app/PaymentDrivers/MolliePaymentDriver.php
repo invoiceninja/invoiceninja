@@ -312,10 +312,31 @@ class MolliePaymentDriver extends BaseDriver
                 $client = $record->client;
             }
             else{
-                nlog("mollie webhook");
-                nlog($payment);
 
                 $client = Client::withTrashed()->find($this->decodePrimaryKey($payment->metadata->client_id));
+
+                // sometimes if the user is not returned to the site with a response from Mollie 
+                // we may not have a payment record - in these cases we need to re-construct the payment
+                // record from the meta data in the payment hash.
+
+                if($payment && property_exists($payment->metadata, 'payment_hash') && $payment->metadata->payment_hash){
+                    
+                    /* Harvest Payment Hash*/
+                    $payment_hash = PaymentHash::where('hash', $payment->metadata->hash)->first();
+                    
+                    $data = [
+                        'gateway_type_id' => $payment->metadata->gateway_type_id,
+                        'amount' => $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total,
+                        'payment_type' => $payment->metadata->payment_type_id,
+                        'transaction_reference' => $payment->id,
+                    ];
+                    
+                    $record = $this->createPayment(
+                        $data,
+                        $codes[$payment->status]
+                    );
+                
+                }
             }
 
             $message = [

@@ -46,7 +46,14 @@ class CloneQuoteToInvoiceFactory
         $invoice->date = now()->format('Y-m-d');
         $invoice->balance = 0;
         $invoice->deleted_at = null;
-        
+        $invoice->next_send_date = null;
+        $invoice->reminder1_sent = null;
+        $invoice->reminder2_sent = null;
+        $invoice->reminder3_sent = null;
+        $invoice->reminder_last_sent = null;
+        $invoice->last_sent_date = null;
+        $invoice->last_viewed = null;
+
         return $invoice;
     }
 }
