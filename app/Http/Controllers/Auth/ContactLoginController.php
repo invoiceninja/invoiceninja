@@ -47,8 +47,12 @@ class ContactLoginController extends Controller
 
         }
 
-        if (!$company && strpos($request->getHost(), 'invoicing.co') !== false) {
+        if($company){
+            $account = $company->account;
+        }
+        elseif (!$company && strpos($request->getHost(), 'invoicing.co') !== false) {
             $subdomain = explode('.', $request->getHost())[0];
+            nlog("subdomain = {$subdomain}");
 
             MultiDB::findAndSetDbByDomain(['subdomain' => $subdomain]);
 

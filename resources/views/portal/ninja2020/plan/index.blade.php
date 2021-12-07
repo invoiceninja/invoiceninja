@@ -110,14 +110,14 @@
 document.getElementById('handlePlanChange').addEventListener('click', function() {
   
   	if(document.getElementById("newPlan").value.length > 1)
-  		location.href = 'http://devhosted.test:8000/client/subscriptions/{{ $current_recurring_id }}/plan_switch/' + document.getElementById("newPlan").value + '';
+  		location.href = 'https://invoiceninja.invoicing.co/client/subscriptions/{{ $current_recurring_id }}/plan_switch/' + document.getElementById("newPlan").value + '';
 
 });
 @else
 document.getElementById('handleNewPlan').addEventListener('click', function() {
   
 	if(document.getElementById("newPlan").value.length > 1)
-    	location.href = 'http://devhosted.test:8000/client/subscriptions/' + document.getElementById("newPlan").value + '/purchase';
+    	location.href = 'https://invoiceninja.invoicing.co/client/subscriptions/' + document.getElementById("newPlan").value + '/purchase';
 
 });
 @endif
