@@ -42,9 +42,7 @@ class ContactLoginController extends Controller
 
         if($request->has('company_key')){
             MultiDB::findAndSetDbByCompanyKey($request->input('company_key'));
-
             $company = Company::where('company_key', $request->input('company_key'))->first();
-
         }
 
         if($company){
@@ -52,10 +50,7 @@ class ContactLoginController extends Controller
         }
         elseif (!$company && strpos($request->getHost(), 'invoicing.co') !== false) {
             $subdomain = explode('.', $request->getHost())[0];
-            nlog("subdomain = {$subdomain}");
-
             MultiDB::findAndSetDbByDomain(['subdomain' => $subdomain]);
-
             $company = Company::where('subdomain', $subdomain)->first();
 
         } elseif(Ninja::isHosted()){

@@ -38,10 +38,11 @@ class SetDomainNameDb
         if(!config('ninja.db.multi_db_enabled'))
             return $next($request);
 
+        $domain_name = $request->getHost();
 
-        if (strpos($request->getHost(), 'invoicing.co') !== false) 
+        if (strpos($domain_name, 'invoicing.co') !== false) 
         {
-            $subdomain = explode('.', $request->getHost())[0];
+            $subdomain = explode('.', $domain_name)[0];
             
             $query = [
                 'subdomain' => $subdomain,
@@ -85,8 +86,6 @@ class SetDomainNameDb
             }
 
         }
-
-        // config(['app.url' => $request->getSchemeAndHttpHost()]);
 
         return $next($request);
     }
