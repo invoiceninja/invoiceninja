@@ -30,6 +30,7 @@ use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
+use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\Services\Subscription\SubscriptionService;
 use App\Utils\Ninja;
@@ -262,12 +263,18 @@ class BaseDriver extends AbstractPaymentDriver
 
         event('eloquent.created: App\Models\Payment', $payment);
 
-        if ($this->client->getSetting('client_online_payment_notification'))
+        if ($this->client->getSetting('client_online_payment_notification') && in_array($status, [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING
+        ]))
             $payment->service()->sendEmail();
+
+            //todo
+            //catch any payment failures here also and fire a subsequent failure email if necessary? note only need for delayed payment forms
+            //perhaps this type of functionality should be handled higher up to provide better context?
+
 
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
-        if (property_exists($this->payment_hash->data, 'billing_context')) {
+        if (property_exists($this->payment_hash->data, 'billing_context') && $status == Payment::STATUS_COMPLETED) {
             $billing_subscription = \App\Models\Subscription::find($this->payment_hash->data->billing_context->subscription_id);
 
             // To access campaign hash => $this->payment_hash->data->billing_context->campaign;

@@ -121,6 +121,17 @@ class ExpenseApiTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function testExpenseGetSort()
+    {
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->get('/api/v1/expenses?sort=public_notes|desc');
+
+        $response->assertStatus(200);
+    }
+
+
     public function testExpenseNotArchived()
     {
         $response = $this->withHeaders([
