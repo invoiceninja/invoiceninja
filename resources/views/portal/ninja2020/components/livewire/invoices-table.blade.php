@@ -94,7 +94,7 @@
                                 {!! App\Models\Invoice::badgeForStatus($invoice->status) !!}
                             </td>
                             <td class="flex items-center justify-end px-6 py-4 text-sm font-medium leading-5 whitespace-nowrap">
-                                @if($invoice->isPayable() && $invoice->balance > 0 && !empty(auth()->user()->client->service()->getPaymentMethods(0)))
+                                @if($invoice->isPayable() && $invoice->balance > 0 && $gateway_available)
                                     <form action="{{ route('client.invoices.bulk') }}" method="post">
                                         @csrf
                                         <input type="hidden" name="invoices[]" value="{{ $invoice->hashed_id }}">
@@ -121,7 +121,7 @@
         </div>
     </div>
     <div class="flex justify-center mt-6 mb-6 md:justify-between">
-        @if($invoices->total() > 0)
+        @if($invoices && $invoices->total() > 0)
             <span class="hidden text-sm text-gray-700 md:block mr-2">
                 {{ ctrans('texts.showing_x_of', ['first' => $invoices->firstItem(), 'last' => $invoices->lastItem(), 'total' => $invoices->total()]) }}
             </span>

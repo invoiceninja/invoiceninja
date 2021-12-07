@@ -51,7 +51,7 @@ class ContactTokenAuth
             }
 
             //stateless, don't remember the contact.
-            auth()->guard('contact')->login($client_contact, false);
+            auth()->guard('contact')->loginUsingId($client_contact->id, false);
 
             event(new ContactLoggedIn($client_contact, $client_contact->company, Ninja::eventVars()));
         } else {

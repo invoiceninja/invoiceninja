@@ -285,7 +285,7 @@ class BillingPortalPurchase extends Component
      */
     protected function getPaymentMethods(ClientContact $contact): self
     {
-        Auth::guard('contact')->login($contact, true);
+        Auth::guard('contact')->loginUsingId($contact->id, true);
 
         $this->contact = $contact;
 

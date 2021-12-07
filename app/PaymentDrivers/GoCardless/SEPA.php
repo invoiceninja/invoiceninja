@@ -160,11 +160,7 @@ class SEPA implements MethodInterface
      */
     public function paymentResponse(PaymentResponseRequest $request)
     {
-        $token = ClientGatewayToken::find(
-            $this->decodePrimaryKey($request->source)
-        )->firstOrFail();
-
-        $this->go_cardless->ensureMandateIsReady($token);
+        $this->go_cardless->ensureMandateIsReady($request->source);
 
         try {
             $payment = $this->go_cardless->gateway->payments()->create([
@@ -175,13 +171,13 @@ class SEPA implements MethodInterface
                         'payment_hash' => $this->go_cardless->payment_hash->hash,
                     ],
                     'links' => [
-                        'mandate' => $token->token,
+                        'mandate' => $request->source,
                     ],
                 ],
             ]);
 
             if ($payment->status === 'pending_submission') {
-                return $this->processPendingPayment($payment, ['token' => $token->hashed_id]);
+                return $this->processPendingPayment($payment, ['token' => $request->source]);
             }
 
             return $this->processUnsuccessfulPayment($payment);
@@ -200,7 +196,6 @@ class SEPA implements MethodInterface
     public function processPendingPayment(\GoCardlessPro\Resources\Payment $payment, array $data = [])
     {
         $data = [
-            'payment_method' => $data['token'],
             'payment_type' => PaymentType::SEPA,
             'amount' => $this->go_cardless->payment_hash->data->amount_with_fee,
             'transaction_reference' => $payment->id,

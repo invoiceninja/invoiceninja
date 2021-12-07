@@ -19,10 +19,11 @@ class ContactRegister
      */
     public function handle($request, Closure $next)
     {
+        $domain_name = $request->getHost();
 
-        if (strpos($request->getHost(), 'invoicing.co') !== false) 
+        if (strpos($domain_name, 'invoicing.co') !== false) 
         {
-            $subdomain = explode('.', $request->getHost())[0];
+            $subdomain = explode('.', $domain_name)[0];
             
             $query = [
                 'subdomain' => $subdomain,
@@ -86,6 +87,6 @@ class ContactRegister
             return $next($request);
         }
 
-        abort(404, 'ContactRegister Middlware');
+        abort(404, 'ContactRegister Middleware');
     }
 }

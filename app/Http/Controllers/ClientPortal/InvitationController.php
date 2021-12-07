@@ -94,7 +94,7 @@ class InvitationController extends Controller
             $client_contact->email = Str::random(15) . "@example.com"; $client_contact->save();
 
         if (request()->has('client_hash') && request()->input('client_hash') == $invitation->contact->client->client_hash) {
-            auth()->guard('contact')->login($client_contact, true);
+            auth()->guard('contact')->loginUsingId($client_contact->id, true);
 
         } elseif ((bool) $invitation->contact->client->getSetting('enable_client_portal_password') !== false) {
             $this->middleware('auth:contact');
@@ -102,7 +102,7 @@ class InvitationController extends Controller
 
         } else {
             nlog("else - default - login contact");
-            auth()->guard('contact')->login($client_contact, true);
+            auth()->guard('contact')->loginUsingId($client_contact->id, true);
         }
 
 
@@ -201,7 +201,7 @@ class InvitationController extends Controller
         if($payment->client_id != $contact->client_id)
             abort(403, 'You are not authorized to view this resource');
 
-        auth()->guard('contact')->login($contact, true);
+        auth()->guard('contact')->loginUsingId($contact->id, true);
 
         return redirect()->route('client.payments.show', $payment->hashed_id);
 
@@ -213,7 +213,7 @@ class InvitationController extends Controller
                                     ->with('contact.client')
                                     ->firstOrFail();
         
-        auth()->guard('contact')->login($invitation->contact, true);
+        auth()->guard('contact')->loginUsingId($invitation->contact->id, true);
 
         $invoice = $invitation->invoice;
 
