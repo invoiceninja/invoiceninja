@@ -295,18 +295,25 @@ trait GeneratesCounter
      */
     public function getNextProjectNumber(Project $project) :string
     {
-        $this->resetCompanyCounters($project->company);
+        // 08/12/2021 - allows projects to have client counters.
+        
+        // $this->resetCompanyCounters($project->company);
 
-        $counter = $project->company->settings->project_number_counter;
-        $setting_entity = $project->company->settings->project_number_counter;
+        // $counter = $project->company->settings->project_number_counter;
+        // $setting_entity = $project->company->settings->project_number_counter;
 
-        $project_number = $this->checkEntityNumber(Project::class, $project, $counter, $project->company->settings->counter_padding, $project->company->settings->project_number_pattern);
+        // $project_number = $this->checkEntityNumber(Project::class, $project, $counter, $project->company->settings->counter_padding, $project->company->settings->project_number_pattern);
 
-        $this->incrementCounter($project->company, 'project_number_counter');
+        // $this->incrementCounter($project->company, 'project_number_counter');
 
-        $entity_number = $project_number;
+        // $entity_number = $project_number;
+
+        // return $this->replaceUserVars($project, $entity_number);
+
+        $entity_number = $this->getNextEntityNumber(Project::class, $project->client, false);
 
         return $this->replaceUserVars($project, $entity_number);
+
 
     }
 
