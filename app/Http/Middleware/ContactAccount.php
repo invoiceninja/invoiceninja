@@ -31,8 +31,8 @@ class ContactAccount
 
         if(!Ninja::isHosted()) {
 
-            $account_id = Account::first()->id;
-            $request->request->add(['account_id' => $account_id]);
+            $account = Account::first();
+            $request->merge(['account_id' => $account->id, 'account_key' => $account->key]);
 
         }
 

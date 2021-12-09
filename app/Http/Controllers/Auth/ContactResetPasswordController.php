@@ -68,10 +68,22 @@ class ContactResetPasswordController extends Controller
      */
     public function showResetForm(Request $request, $token = null)
     {
-        $account_id = $request->has('account_id') ? $request->get('account_id') : 1;
-        $account = Account::find($account_id);
-        $db = $account->companies->first()->db;
-        $company = $account->companies->first();
+
+        if($request->has('company_key')){
+            MultiDB::findAndSetDbByCompanyKey($request->input('company_key'));
+            $company = Company::where('company_key', $request->input('company_key'))->first();
+            $db = $company->db;
+            $account = $company->account;
+        }
+        else {
+
+            $account_id = $request->has('account_id') ? $request->get('account_id') : 1;
+            $account = Account::find($account_id);
+            $db = $account->companies->first()->db;
+            $company = $account->companies->first();
+
+        }
+
 
         return $this->render('auth.passwords.reset')->with(
             ['token' => $token, 'email' => $request->email, 'account' => $account, 'db' => $db, 'company' => $company]

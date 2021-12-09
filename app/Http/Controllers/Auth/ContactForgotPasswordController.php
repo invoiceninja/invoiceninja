@@ -58,16 +58,21 @@ class ContactForgotPasswordController extends Controller
      */
     public function showLinkRequestForm(Request $request)
     {
-        $account_id = $request->has('account_id') ? $request->get('account_id') : 1;
-        $account = Account::find($account_id);
-
-        if($request->has('company_key'))
+        // $account_id = $request->has('account_id') ? $request->get('account_id') : 1;
+        // $account = Account::find($account_id);
+        $account = false;
+        
+        if(Ninja::isHosted() && $request->has('company_key'))
+        {
+            MultiDB::findAndSetDbByCompanyKey($request->input('company_key'));
             $company = Company::where('company_key', $request->input('company_key'))->first();
-        else
-            $company = $account->companies->first();
+            $account = $company->first();
+        }
 
-        if(!$account)
+        if(!$account){
             $account = Account::first();
+            $company = $account->companies->first();
+        }
         
         return $this->render('auth.passwords.request', [
             'title' => 'Client Password Reset',
@@ -95,10 +100,7 @@ class ContactForgotPasswordController extends Controller
         
         $this->validateEmail($request);
 
-        // $user = MultiDB::hasContact($request->input('email'));
         $company = Company::where('company_key', $request->input('company_key'))->first();
-        //$contact = MultiDB::findContact(['company_id' => $company->id, 'email' => $request->input('email')]);
-        nlog(['company_id' => $company->id, 'email' => $request->input('email')]);
         $contact = ClientContact::where(['company_id' => $company->id, 'email' => $request->input('email')])->first();
 
         $response = false;

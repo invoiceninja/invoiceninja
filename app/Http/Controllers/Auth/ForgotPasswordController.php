@@ -79,8 +79,15 @@ class ForgotPasswordController extends Controller
 
     public function showLinkRequestForm(Request $request)
     {
-        $account_id = $request->get('account_id');
-        $account = Account::find($account_id);
+        if($request->has('company_key')){
+            MultiDB::findAndSetDbByCompanyKey($request->input('company_key'));
+            $company = Company::where('company_key', $request->input('company_key'))->first();
+            $account = $company->account;
+        }
+        else{
+            $account_id = $request->get('account_id');
+            $account = Account::find($account_id);
+        }
         
         return $this->render('auth.passwords.request', ['root' => 'themes', 'account' => $account]);
     }

@@ -53,8 +53,11 @@ class ResetPasswordController extends Controller
 
     public function showResetForm(Request $request, $token = null)
     {
-        $account_id = $request->get('account_id');
-        $account = Account::find($account_id);
+        // $account_id = $request->get('account_id');
+        // $account = Account::find($account_id);
+        MultiDB::findAndSetDbByCompanyKey($request->input('company_key'));
+        $company = Company::where('company_key', $request->input('company_key'))->first();
+        $account = $company->account;
         
         return $this->render('auth.passwords.reset', ['root' => 'themes', 'token' => $token, 'account' => $account]);
     }

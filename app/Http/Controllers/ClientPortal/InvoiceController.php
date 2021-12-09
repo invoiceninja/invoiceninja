@@ -42,6 +42,9 @@ class InvoiceController extends Controller
      */
     public function index(ShowInvoicesRequest $request)
     {
+        // $request->request->remove('account_id');
+        // $request->request->remove('company_key');
+
         return $this->render('invoices.index');
     }
 
@@ -77,7 +80,7 @@ class InvoiceController extends Controller
         if ($request->query('mode') === 'fullscreen') {
             return render('invoices.show-fullscreen', $data);
         }
-
+            // $request->fullUrlWithQuery(['q' => null]);
         return $this->render('invoices.show', $data);
     }
 
@@ -189,9 +192,9 @@ class InvoiceController extends Controller
         if ($invoices->count() == 1) {
             $invoice = $invoices->first();
             $invitation = $invoice->invitations->first();
-           //$file = $invoice->pdf_file_path($invitation);
+
            $file = $invoice->service()->getInvoicePdf(auth()->user());
-           // return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);;
+
             return response()->streamDownload(function () use($file) {
                     echo Storage::get($file);
             },  basename($file), ['Content-Type' => 'application/pdf']);
