@@ -29,7 +29,7 @@ class ContactRegisterController extends Controller
 
     public function showRegisterForm(string $company_key = '')
     {
-        $key = request()->has('key') ? request('key') : $company_key;
+        $key = request()->session()->has('key') ? request()->session()->get('key') : $company_key;
 
         $company = Company::where('company_key', $key)->firstOrFail();
 

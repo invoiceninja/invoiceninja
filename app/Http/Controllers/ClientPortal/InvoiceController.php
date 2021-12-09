@@ -42,8 +42,6 @@ class InvoiceController extends Controller
      */
     public function index(ShowInvoicesRequest $request)
     {
-        // $request->request->remove('account_id');
-        // $request->request->remove('company_key');
 
         return $this->render('invoices.index');
     }
