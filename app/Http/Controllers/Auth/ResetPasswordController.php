@@ -58,7 +58,11 @@ class ResetPasswordController extends Controller
         
         MultiDB::findAndSetDbByCompanyKey($request->session()->get('company_key'));
         $company = Company::where('company_key', $request->session()->get('company_key'))->first();
-        $account = $company->account;
+
+        if($company)
+            $account = $company->account;
+        else
+            $account = Account::first();
         
         return $this->render('auth.passwords.reset', ['root' => 'themes', 'token' => $token, 'account' => $account]);
     }
