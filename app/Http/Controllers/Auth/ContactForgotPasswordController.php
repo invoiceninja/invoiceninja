@@ -93,14 +93,15 @@ class ContactForgotPasswordController extends Controller
 
     public function sendResetLinkEmail(ContactPasswordResetRequest $request)
     {
-
-        if(Ninja::isHosted() && $request->session()->has('company_key'))
-            MultiDB::findAndSetDbByCompanyKey($request->session()->get('company_key'));
+        if(Ninja::isHosted() && $request->has('company_key'))
+            MultiDB::findAndSetDbByCompanyKey($request->input('company_key'));
         
         $this->validateEmail($request);
 
-        $company = Company::where('company_key', $request->session()->get('company_key'))->first();
-        $contact = ClientContact::where(['company_id' => $company->id, 'email' => $request->input('email')])->first();
+        // $company = Company::where('company_key', $request->input('company_key'))->first();
+        // $contact = ClientContact::where(['company_id' => $company->id, 'email' => $request->input('email')])->first();
+
+        $contact = ClientContact::where(['email' => $request->input('email')])->first();
 
         $response = false;
 
@@ -117,7 +118,7 @@ class ContactForgotPasswordController extends Controller
             return $this->sendResetLinkFailedResponse($request, Password::INVALID_USER);
 
         // We will send the password reset link to this user. Once we have attempted
-        // to send the link, we will examine the response then see the message we
+        // to send the link, we will examine thuser@example.ce response then see the message we
         // need to show to the user. Finally, we'll send out a proper response.
         // $response = $this->broker()->sendResetLink(
         //     $this->credentials($request)
