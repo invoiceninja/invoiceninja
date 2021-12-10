@@ -110,19 +110,12 @@ class ContactForgotPasswordController extends Controller
             /* Update all instances of the client */
             $token = Str::random(60);
             ClientContact::where('email', $contact->email)->update(['token' => $token]);
-            
             $contact->sendPasswordResetNotification($token);
             $response = Password::RESET_LINK_SENT;
+            
         }
         else
             return $this->sendResetLinkFailedResponse($request, Password::INVALID_USER);
-
-        // We will send the password reset link to this user. Once we have attempted
-        // to send the link, we will examine thuser@example.ce response then see the message we
-        // need to show to the user. Finally, we'll send out a proper response.
-        // $response = $this->broker()->sendResetLink(
-        //     $this->credentials($request)
-        // );
 
         if ($request->ajax()) {
 
