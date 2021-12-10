@@ -14,6 +14,7 @@ namespace App\Import\Transformers\Freshbooks;
 use App\Import\ImportException;
 use App\Import\Transformers\BaseTransformer;
 use App\Models\Invoice;
+use App\Utils\Number;
 
 /**
  * Class InvoiceTransformer.
@@ -75,4 +76,11 @@ class InvoiceTransformer extends BaseTransformer {
 
 		return $transformed;
 	}
+
+	/** @return float  */
+	public function getFloat($data, $field)
+	{
+        return Number::parseFloat($data[$field]);
+	}
+	
 }
