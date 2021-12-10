@@ -440,30 +440,25 @@ class CSVImport implements ShouldQueue {
 			'tax_names'          => [],
 		];
 
-		$clients = Client::scope()->get();
-		foreach ( $clients as $client ) {
+		$clients = Client::where('company_id', $this->company->id)->cursor()->each(function ($client){
 			$this->addClientToMaps( $client );
-		}
+		});
 
-		$contacts = ClientContact::scope()->get();
-		foreach ( $contacts as $contact ) {
+		$contacts = ClientContact::where('company_id', $this->company->id)->cursor()->each(function ($contact){
 			$this->addContactToMaps( $contact );
-		}
+		});
 
-		$invoices = Invoice::scope()->get();
-		foreach ( $invoices as $invoice ) {
+		$invoices = Invoice::where('company_id', $this->company->id)->cursor()->each(function ($invoice){
 			$this->addInvoiceToMaps( $invoice );
-		}
+		});
 
-		$products = Product::scope()->get();
-		foreach ( $products as $product ) {
+		$products = Product::where('company_id', $this->company->id)->cursor()->each(function ($product){
 			$this->addProductToMaps( $product );
-		}
+		});
 
-		$projects = Project::scope()->get();
-		foreach ( $projects as $project ) {
+		$projects = Project::where('company_id', $this->company->id)->cursor()->each(function ($project){
 			$this->addProjectToMaps( $project );
-		}
+		});
 
 		$countries = Country::all();
 		foreach ( $countries as $country ) {
@@ -481,17 +476,16 @@ class CSVImport implements ShouldQueue {
 			$this->maps['payment_types'][ strtolower( $payment_type->name ) ] = $payment_type->id;
 		}
 
-		$vendors = Vendor::scope()->get();
-		foreach ( $vendors as $vendor ) {
+		$vendors = Vendor::where('company_id', $this->company->id)->cursor()->each(function ($vendor){
 			$this->addVendorToMaps( $vendor );
-		}
+		});
 
-		$expenseCaegories = ExpenseCategory::scope()->get();
+		$expenseCaegories = ExpenseCategory::where('company_id', $this->company->id)->get();
 		foreach ( $expenseCaegories as $category ) {
 			$this->addExpenseCategoryToMaps( $category );
 		}
 
-		$taxRates = TaxRate::scope()->get();
+		$taxRates = TaxRate::where('company_id', $this->company->id)->get();
 		foreach ( $taxRates as $taxRate ) {
 			$name                             = trim( strtolower( $taxRate->name ) );
 			$this->maps['tax_rates'][ $name ] = $taxRate->rate;
