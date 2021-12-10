@@ -20,6 +20,7 @@ use App\Http\ValidationRules\ValidCreditsPresentRule;
 use App\Http\ValidationRules\ValidPayableInvoicesRule;
 use App\Models\Payment;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Validation\Rule;
 
 class StorePaymentRequest extends Request
 {
@@ -100,7 +101,8 @@ class StorePaymentRequest extends Request
             'credits.*.credit_id' => new ValidCreditsRules($this->all()),
             'credits.*.amount' => ['required', new CreditsSumRule($this->all())],
             'invoices' => new ValidPayableInvoicesRule(),
-            'number' => 'bail|nullable|unique:payments,number,'.$this->id.',id,company_id,'.$this->company_id,
+            'number' => ['nullable', Rule::unique('payments')->where('company_id', auth()->user()->company()->id)],
+
         ];
 
         if ($this->input('documents') && is_array($this->input('documents'))) {
