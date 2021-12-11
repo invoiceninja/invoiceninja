@@ -294,7 +294,7 @@ class PreviewController extends BaseController
             {
                 LightLogs::create(new LivePreview())
                          ->increment()
-                         ->batch();
+                         ->queue();
             }
 
 

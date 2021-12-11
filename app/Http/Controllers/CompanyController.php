@@ -504,7 +504,7 @@ class CompanyController extends BaseController
 
             LightLogs::create(new AccountDeleted())
                      ->increment()
-                     ->batch();
+                     ->queue();
 
         } else {
             $company_id = $company->id;

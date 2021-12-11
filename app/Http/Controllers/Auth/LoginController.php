@@ -176,7 +176,7 @@ class LoginController extends BaseController
 
             LightLogs::create(new LoginSuccess())
                 ->increment()
-                ->batch();
+                ->queue();
 
             $user = $this->guard()->user();
 
@@ -249,7 +249,7 @@ class LoginController extends BaseController
 
             LightLogs::create(new LoginFailure())
                 ->increment()
-                ->batch();
+                ->queue();
 
             // SystemLogger::dispatch(
             //     json_encode(['ip' => request()->getClientIp()]),

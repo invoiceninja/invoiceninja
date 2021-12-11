@@ -136,7 +136,7 @@ class CreateAccount
 
         LightLogs::create(new AnalyticsAccountCreated())
                  ->increment()
-                 ->batch();
+                 ->queue();
 
         
 
