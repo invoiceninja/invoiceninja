@@ -154,6 +154,10 @@ class QuoteController extends Controller
                 }
             }
 
+        if(count($ids) == 1){
+            return redirect()->route('client.quote.show', $quotes->first()->hashed_id);
+        }
+
             return redirect()
                 ->route('client.quotes.index')
                 ->withSuccess('Quote(s) approved successfully.');

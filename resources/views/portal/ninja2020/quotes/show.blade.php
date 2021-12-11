@@ -25,6 +25,8 @@
         <div class="mb-4">
             @include('portal.ninja2020.quotes.includes.actions', ['quote' => $quote])
         </div>
+    @elseif($quote->status_id === \App\Models\Quote::STATUS_APPROVED)
+        <p class="text-right text-gray-900 text-sm mb-4">{{ ctrans('texts.approved') }}</p>
     @else
         <p class="text-right text-gray-900 text-sm mb-4">{{ ctrans('texts.quotes_with_status_sent_can_be_approved') }}</p>
     @endif
