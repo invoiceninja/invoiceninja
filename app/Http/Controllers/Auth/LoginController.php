@@ -236,15 +236,6 @@ class LoginController extends BaseController
               
             }
 
-            //method above override this
-            // $user->company_users->each(function ($company_user) use($request){
-
-            //     if($company_user->tokens->count() == 0){
-            //         CreateCompanyToken::dispatchNow($company_user->company, $company_user->user, $request->server('HTTP_USER_AGENT'));
-            //     }
-
-            // });
-
             /*On the hosted platform, only owners can login for free/pro accounts*/
             if(Ninja::isHosted() && !$cu->first()->is_owner && !$user->account->isEnterpriseClient())
                 return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
