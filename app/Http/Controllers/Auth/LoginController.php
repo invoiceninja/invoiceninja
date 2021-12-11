@@ -102,7 +102,6 @@ class LoginController extends BaseController
      *
      * @return     Response|User Process user login.
      *
-     *
      * @throws \Illuminate\Validation\ValidationException
      * @OA\Post(
      *      path="/api/v1/login",
@@ -386,13 +385,31 @@ class LoginController extends BaseController
                 $cu = CompanyUser::query()
                                   ->where('user_id', auth()->user()->id);
 
-                $cu->first()->account->companies->each(function ($company) use($cu){
+                // $cu->first()->account->companies->each(function ($company) use($cu){
 
-                    if($company->tokens()->where('is_system', true)->count() == 0)
+                //     if($company->tokens()->where('is_system', true)->count() == 0)
+                //     {
+                //         CreateCompanyToken::dispatchNow($company, $cu->first()->user, request()->server('HTTP_USER_AGENT'));
+                //     }
+                // });
+
+            
+                    if($existing_user->company_users()->count() != $existing_user->tokens()->count())
                     {
-                        CreateCompanyToken::dispatchNow($company, $cu->first()->user, request()->server('HTTP_USER_AGENT'));
+                      
+                      $existing_user->companies->each(function($company) use($existing_user){
+                      
+                        if(!CompanyToken::where('user_id', $existing_user->id)->where('company_id', $company->id)->exists()){
+                        
+                          CreateCompanyToken::dispatchNow($company, $existing_user, "Google_O_Auth");
+                          
+                        }
+                      
+                      });
+                      
                     }
-                });
+
+
 
                 if(Ninja::isHosted() && !$cu->first()->is_owner && !$existing_user->account->isEnterpriseClient())
                     return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
@@ -420,13 +437,30 @@ class LoginController extends BaseController
                 $cu = CompanyUser::query()
                                   ->where('user_id', auth()->user()->id);
 
-                $cu->first()->account->companies->each(function ($company) use($cu){
+                // $cu->first()->account->companies->each(function ($company) use($cu){
 
-                    if($company->tokens()->where('is_system', true)->count() == 0)
+                //     if($company->tokens()->where('is_system', true)->count() == 0)
+                //     {
+                //         CreateCompanyToken::dispatchNow($company, $cu->first()->user, request()->server('HTTP_USER_AGENT'));
+                //     }
+                // });
+
+                    if($existing_login_user->company_users()->count() != $existing_login_user->tokens()->count())
                     {
-                        CreateCompanyToken::dispatchNow($company, $cu->first()->user, request()->server('HTTP_USER_AGENT'));
+                      
+                      $existing_login_user->companies->each(function($company) use($existing_login_user){
+                      
+                        if(!CompanyToken::where('user_id', $existing_login_user->id)->where('company_id', $company->id)->exists()){
+                        
+                          CreateCompanyToken::dispatchNow($company, $existing_login_user, "Google_O_Auth");
+                          
+                        }
+                      
+                      });
+                      
                     }
-                });
+
+
 
                 if(Ninja::isHosted() && !$cu->first()->is_owner && !$existing_login_user->account->isEnterpriseClient())
                     return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
@@ -458,13 +492,30 @@ class LoginController extends BaseController
                 $cu = CompanyUser::query()
                                   ->where('user_id', auth()->user()->id);
 
-                $cu->first()->account->companies->each(function ($company) use($cu){
+                // $cu->first()->account->companies->each(function ($company) use($cu){
 
-                    if($company->tokens()->where('is_system', true)->count() == 0)
+                //     if($company->tokens()->where('is_system', true)->count() == 0)
+                //     {
+                //         CreateCompanyToken::dispatchNow($company, $cu->first()->user, request()->server('HTTP_USER_AGENT'));
+                //     }
+                // });
+
+
+                    if($existing_login_user->company_users()->count() != $existing_login_user->tokens()->count())
                     {
-                        CreateCompanyToken::dispatchNow($company, $cu->first()->user, request()->server('HTTP_USER_AGENT'));
+                      
+                      $existing_login_user->companies->each(function($company) use($existing_login_user){
+                      
+                        if(!CompanyToken::where('user_id', $existing_login_user->id)->where('company_id', $company->id)->exists()){
+                        
+                          CreateCompanyToken::dispatchNow($company, $existing_login_user, "Google_O_Auth");
+                          
+                        }
+                      
+                      });
+                      
                     }
-                });
+
 
                 if(Ninja::isHosted() && !$cu->first()->is_owner && !$existing_login_user->account->isEnterpriseClient())
                     return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
@@ -502,13 +553,30 @@ class LoginController extends BaseController
 
             $cu = CompanyUser::whereUserId(auth()->user()->id);
 
-            $cu->first()->account->companies->each(function ($company) use($cu){
+            // $cu->first()->account->companies->each(function ($company) use($cu){
 
-                if($company->tokens()->where('is_system', true)->count() == 0)
-                {
-                    CreateCompanyToken::dispatchNow($company, $cu->first()->user, request()->server('HTTP_USER_AGENT'));
-                }
-            });
+            //     if($company->tokens()->where('is_system', true)->count() == 0)
+            //     {
+            //         CreateCompanyToken::dispatchNow($company, $cu->first()->user, request()->server('HTTP_USER_AGENT'));
+            //     }
+            // });
+
+                   if(auth()->user()->company_users()->count() != auth()->user()->tokens()->count())
+                    {
+                      
+                      auth()->user()->companies->each(function($company) {
+                      
+                        if(!CompanyToken::where('user_id', auth()->user()->id)->where('company_id', $company->id)->exists()){
+                        
+                          CreateCompanyToken::dispatchNow($company, auth()->user(), "Google_O_Auth");
+                          
+                        }
+                      
+                      });
+                      
+                    }
+
+
 
             if(Ninja::isHosted() && !$cu->first()->is_owner && !auth()->user()->account->isEnterpriseClient())
                 return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
