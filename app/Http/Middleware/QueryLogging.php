@@ -68,7 +68,7 @@ class QueryLogging
             }
 
            LightLogs::create(new DbQuery($request->method(), urldecode($request->url()), $count, $time, $ip))
-                 ->batch();
+                 ->queue();
         }
         
 

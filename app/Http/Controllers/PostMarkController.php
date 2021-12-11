@@ -170,7 +170,7 @@ class PostMarkController extends BaseController
             $request->input('MessageID')
         );
 
-        LightLogs::create($bounce)->batch();
+        LightLogs::create($bounce)->queue();
 
         SystemLogger::dispatch($request->all(), SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_BOUNCED, SystemLog::TYPE_WEBHOOK_RESPONSE, $this->invitation->contact->client, $this->invitation->company);
     }
@@ -212,7 +212,7 @@ class PostMarkController extends BaseController
             $request->input('MessageID')
         );
 
-        LightLogs::create($spam)->batch();
+        LightLogs::create($spam)->queue();
 
         SystemLogger::dispatch($request->all(), SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_SPAM_COMPLAINT, SystemLog::TYPE_WEBHOOK_RESPONSE, $this->invitation->contact->client, $this->invitation->company);
     }

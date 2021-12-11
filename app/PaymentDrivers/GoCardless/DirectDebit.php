@@ -14,11 +14,11 @@ namespace App\PaymentDrivers\GoCardless;
 
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use Illuminate\Http\Request;
 use App\Jobs\Mail\PaymentFailureMailer;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
+use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
@@ -26,6 +26,7 @@ use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\GoCardlessPaymentDriver;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
 use Illuminate\View\View;
 
@@ -155,11 +156,21 @@ class DirectDebit implements MethodInterface
 
         $this->go_cardless->ensureMandateIsReady($request->source);
 
+        $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($this->go_cardless->payment_hash->invoices(), 'invoice_id')))
+                          ->withTrashed()
+                          ->first();
+
+        if($invoice)
+            $description = "Invoice {$invoice->number} for {$request->amount} for client {$this->go_cardless->client->present()->name()}";
+        else
+            $description = "Amount {$request->amount} from client {$this->go_cardless->client->present()->name()}";
+
         try {
             $payment = $this->go_cardless->gateway->payments()->create([
                 'params' => [
                     'amount' => $request->amount,
                     'currency' => $request->currency,
+                    'description' => $description,
                     'metadata' => [
                         'payment_hash' => $this->go_cardless->payment_hash->hash,
                     ],

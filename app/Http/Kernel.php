@@ -72,7 +72,7 @@ class Kernel extends HttpKernel
         ConvertEmptyStringsToNull::class,
         TrustProxies::class,
         // \Fruitcake\Cors\HandleCors::class,
-        Cors::class,
+        // Cors::class,
 
     ];
 
@@ -95,6 +95,7 @@ class Kernel extends HttpKernel
         'api' => [
             'throttle:300,1',
             'bindings',
+            'cors',
             'query_logging',
         ],
         'contact' => [
@@ -116,6 +117,7 @@ class Kernel extends HttpKernel
             'throttle:120,1',
             'bindings',
             'query_logging',
+            'cors',
         ],
     ];
 
@@ -132,6 +134,7 @@ class Kernel extends HttpKernel
         'bindings' => SubstituteBindings::class,
         'cache.headers' => SetCacheHeaders::class,
         'can' => Authorize::class,
+        'cors' => Cors::class,
         'guest' => RedirectIfAuthenticated::class,
         'signed' => ValidateSignature::class,
         'throttle' => ThrottleRequests::class,

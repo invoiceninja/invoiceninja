@@ -297,6 +297,7 @@ trait MockAccountData
         $this->project = Project::factory()->create([
                 'user_id' => $user_id,
                 'company_id' => $this->company->id,
+                'client_id' => $this->client->id,
         ]);
 
         $this->expense = Expense::factory()->create([

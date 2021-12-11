@@ -440,63 +440,52 @@ class CSVImport implements ShouldQueue {
 			'tax_names'          => [],
 		];
 
-		$clients = Client::scope()->get();
-		foreach ( $clients as $client ) {
+		Client::where('company_id', $this->company->id)->cursor()->each(function ($client){
 			$this->addClientToMaps( $client );
-		}
+		});
 
-		$contacts = ClientContact::scope()->get();
-		foreach ( $contacts as $contact ) {
+		ClientContact::where('company_id', $this->company->id)->cursor()->each(function ($contact){
 			$this->addContactToMaps( $contact );
-		}
+		});
 
-		$invoices = Invoice::scope()->get();
-		foreach ( $invoices as $invoice ) {
+		Invoice::where('company_id', $this->company->id)->cursor()->each(function ($invoice){
 			$this->addInvoiceToMaps( $invoice );
-		}
+		});
 
-		$products = Product::scope()->get();
-		foreach ( $products as $product ) {
+		Product::where('company_id', $this->company->id)->cursor()->each(function ($product){
 			$this->addProductToMaps( $product );
-		}
+		});
 
-		$projects = Project::scope()->get();
-		foreach ( $projects as $project ) {
+		Project::where('company_id', $this->company->id)->cursor()->each(function ($project){
 			$this->addProjectToMaps( $project );
-		}
+		});
 
-		$countries = Country::all();
-		foreach ( $countries as $country ) {
+		Country::all()->each(function ($country){
 			$this->maps['countries'][ strtolower( $country->name ) ]        = $country->id;
 			$this->maps['countries2'][ strtolower( $country->iso_3166_2 ) ] = $country->id;
-		}
+		});
 
-		$currencies = Currency::all();
-		foreach ( $currencies as $currency ) {
+		Currency::all()->each(function ($currency){
 			$this->maps['currencies'][ strtolower( $currency->code ) ] = $currency->id;
-		}
+		});
 
-		$payment_types = PaymentType::all();
-		foreach ( $payment_types as $payment_type ) {
+		PaymentType::all()->each(function ($payment_type){
 			$this->maps['payment_types'][ strtolower( $payment_type->name ) ] = $payment_type->id;
-		}
+		});
 
-		$vendors = Vendor::scope()->get();
-		foreach ( $vendors as $vendor ) {
+		Vendor::where('company_id', $this->company->id)->cursor()->each(function ($vendor){
 			$this->addVendorToMaps( $vendor );
-		}
+		});
 
-		$expenseCaegories = ExpenseCategory::scope()->get();
-		foreach ( $expenseCaegories as $category ) {
+		ExpenseCategory::where('company_id', $this->company->id)->cursor()->each(function ($category){
 			$this->addExpenseCategoryToMaps( $category );
-		}
+		});
 
-		$taxRates = TaxRate::scope()->get();
-		foreach ( $taxRates as $taxRate ) {
+		TaxRate::where('company_id', $this->company->id)->cursor()->each(function ($taxRate){
 			$name                             = trim( strtolower( $taxRate->name ) );
 			$this->maps['tax_rates'][ $name ] = $taxRate->rate;
 			$this->maps['tax_names'][ $name ] = $taxRate->name;
-		}
+		});
 	}
 
 	/**

@@ -1480,5 +1480,49 @@ class PaymentTest extends TestCase
         $this->assertEquals(10, $this->invoice->fresh()->balance);
         $this->assertEquals(10, $this->invoice->fresh()->balance);
     }
+
+
+    public function testUniquePaymentNumbers()
+    {
+        $data = [
+            'amount' => $this->invoice->amount,
+            'client_id' => $this->client->hashed_id,
+            'date' => '2020/12/12',
+            'number' => 'duplicate',
+        ];
+
+        try {
+            $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/payments', $data);
+        } catch (ValidationException $e) {
+            $message = json_decode($e->validator->getMessageBag(), 1);
+            nlog($message);
+        }
+
+        $arr = $response->json();
+
+        $response->assertStatus(200);
+
+        $response = false;
+        
+        try {
+            $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/payments', $data);
+        } catch (ValidationException $e) {
+            $message = json_decode($e->validator->getMessageBag(), 1);
+            nlog($message);
+        }
+
+        if($response)
+        $response->assertStatus(302);
+
+
+
+
+    }
 }
 

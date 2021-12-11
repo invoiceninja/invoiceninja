@@ -17,6 +17,8 @@ use App\Models\CompanyGateway;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\AbstractService;
+use App\Utils\Ninja;
+use Illuminate\Support\Facades\App;
 
 class AddGatewayFee extends AbstractService
 {
@@ -72,6 +74,10 @@ class AddGatewayFee extends AbstractService
 
     private function processGatewayFee($gateway_fee)
     {
+        App::forgetInstance('translator');
+        $t = app('translator');
+        $t->replace(Ninja::transformTranslations($this->invoice->company->settings));
+
         $invoice_item = new InvoiceItem;
         $invoice_item->type_id = '3';
         $invoice_item->product_key = ctrans('texts.surcharge');
@@ -98,6 +104,10 @@ class AddGatewayFee extends AbstractService
 
     private function processGatewayDiscount($gateway_fee)
     {
+        App::forgetInstance('translator');
+        $t = app('translator');
+        $t->replace(Ninja::transformTranslations($this->invoice->company->settings));
+        
         $invoice_item = new InvoiceItem;
         $invoice_item->type_id = '3';
         $invoice_item->product_key = ctrans('texts.discount');
