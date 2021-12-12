@@ -98,10 +98,12 @@ class ContactForgotPasswordController extends Controller
         
         $this->validateEmail($request);
 
-        // $company = Company::where('company_key', $request->input('company_key'))->first();
-        // $contact = ClientContact::where(['company_id' => $company->id, 'email' => $request->input('email')])->first();
-
-        $contact = ClientContact::where(['email' => $request->input('email')])->first();
+        if(Ninja::isHosted() && $company = Company::where('company_key', $request->input('company_key'))->first())
+        {
+            $contact = ClientContact::where(['email' => $request->input('email'), 'company_id' => $company->id])->first();
+        }
+        else
+            $contact = ClientContact::where(['email' => $request->input('email')])->first();
 
         $response = false;
 
