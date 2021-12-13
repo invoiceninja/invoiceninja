@@ -172,7 +172,7 @@ class Statement
                 $item->tax_rate1 = 5;
             }
 
-            $product = Product::all()->random();
+            $product = Product::first();
 
             $item->cost = (float) $product->cost;
             $item->product_key = $product->product_key;
