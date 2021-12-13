@@ -55,7 +55,7 @@ jobs:
 
     - name: Start mysql service
       run: |
-        sudo /etc/init.d/mysql start
+        sudo systemctl start mysql.service
     - name: Verify MariaDB connection
       env:
         DB_PORT: ${{ job.services.mariadb.ports[3306] }}
