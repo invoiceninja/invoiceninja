@@ -96,7 +96,7 @@ class ContactLoginController extends Controller
             return $this->sendLockoutResponse($request);
         }
 
-        if(Ninja::isHosted() && $company = Company::where('company_key', $request->input('company_key'))->first()){
+        if(Ninja::isHosted() && $request->has('password') && $company = Company::where('company_key', $request->input('company_key'))->first()){
 
             $contact = ClientContact::where(['email' => $request->input('email'), 'company_id' => $company->id])->first();
 
@@ -132,7 +132,6 @@ class ContactLoginController extends Controller
 
     public function authenticated(Request $request, ClientContact $client)
     {
-        // Auth::guard('contact')->loginUsingId($client->id, true);
         auth()->guard('contact')->loginUsingId($client->id, true);
 
         event(new ContactLoggedIn($client, $client->company, Ninja::eventVars()));
