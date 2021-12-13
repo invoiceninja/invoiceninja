@@ -57,9 +57,6 @@ class QuoteApprovedNotification implements ShouldQueue
             if(!$user)
                 continue;
 
-            /* This is only here to handle the alternate message channels - ie Slack */
-            // $notification = new EntitySentNotification($event->invitation, 'quote');
-
             /* Returns an array of notification methods */
             $methods = $this->findUserNotificationTypes($quote->invitations()->first(), $company_user, 'quote', ['all_notifications', 'quote_approved', 'quote_approved_all']);
 
@@ -67,7 +64,6 @@ class QuoteApprovedNotification implements ShouldQueue
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
 
-                
                 $nmo->to_user = $user;
 
                 NinjaMailerJob::dispatch($nmo);
@@ -76,11 +72,6 @@ class QuoteApprovedNotification implements ShouldQueue
                 $first_notification_sent = false;
             }
 
-            /* Override the methods in the Notification Class */
-            // $notification->method = $methods;
-
-            //  Notify on the alternate channels 
-            // $user->notify($notification);
         }
     }
 }

@@ -22,12 +22,14 @@ use Auth;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Route;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Hash;
 
 class ContactLoginController extends Controller
 {
     use AuthenticatesUsers;
 
-    protected $redirectTo = '/client/dashboard';
+    protected $redirectTo = '/client/invoices';
 
     public function __construct()
     {
@@ -40,8 +42,8 @@ class ContactLoginController extends Controller
         $company = false;
         $account = false;
 
-        if($request->has('company_key')){
-            MultiDB::findAndSetDbByCompanyKey($request->input('company_key'));
+        if($request->session()->has('company_key')){
+            MultiDB::findAndSetDbByCompanyKey($request->session()->get('company_key'));
             $company = Company::where('company_key', $request->input('company_key'))->first();
         }
 
@@ -93,7 +95,16 @@ class ContactLoginController extends Controller
 
             return $this->sendLockoutResponse($request);
         }
-        if ($this->attemptLogin($request)) {
+
+        if(Ninja::isHosted() && $request->has('password') && $company = Company::where('company_key', $request->input('company_key'))->first()){
+
+            $contact = ClientContact::where(['email' => $request->input('email'), 'company_id' => $company->id])->first();
+
+            if(Hash::check($request->input('password'), $contact->password))
+                return $this->authenticated($request, $contact);
+
+        }
+        elseif ($this->attemptLogin($request)) {
             return $this->sendLoginResponse($request);
         }
         // If the login attempt was unsuccessful we will increment the number of attempts
@@ -104,9 +115,24 @@ class ContactLoginController extends Controller
         return $this->sendFailedLoginResponse($request);
     }
 
+    protected function sendLoginResponse(Request $request)
+    {
+        $request->session()->regenerate();
+
+        $this->clearLoginAttempts($request);
+
+        if ($response = $this->authenticated($request, $this->guard()->user())) {
+            return $response;
+        }
+
+        return $request->wantsJson()
+                    ? new JsonResponse([], 204)
+                    : redirect()->intended($this->redirectPath());
+    }
+
     public function authenticated(Request $request, ClientContact $client)
     {
-        Auth::guard('contact')->loginUsingId($client->id, true);
+        auth()->guard('contact')->loginUsingId($client->id, true);
 
         event(new ContactLoggedIn($client, $client->company, Ninja::eventVars()));
 

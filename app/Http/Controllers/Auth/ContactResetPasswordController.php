@@ -15,6 +15,7 @@ use App\Http\Controllers\Controller;
 use App\Libraries\MultiDB;
 use App\Models\Account;
 use App\Models\ClientContact;
+use App\Models\Company;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Auth\ResetsPasswords;
@@ -68,20 +69,44 @@ class ContactResetPasswordController extends Controller
      */
     public function showResetForm(Request $request, $token = null)
     {
-        $account_id = $request->has('account_id') ? $request->get('account_id') : 1;
-        $account = Account::find($account_id);
-        $db = $account->companies->first()->db;
-        $company = $account->companies->first();
+
+        if($request->session()->has('company_key')){
+            MultiDB::findAndSetDbByCompanyKey($request->session()->get('company_key'));
+            $company = Company::where('company_key', $request->session()->get('company_key'))->first();
+            $db = $company->db;
+            $account = $company->account;
+        }
+        else {
+
+            $account_key = $request->session()->has('account_key') ? $request->session()->get('account_key') : false;
+
+            if($account_key){
+            
+                MultiDB::findAndSetDbByAccountKey($account_key);
+                $account = Account::where('key', $account_key)->first();
+                $db = $account->companies->first()->db;
+                $company = $account->companies->first();
+            }
+            else{
+
+                $account = Account::first();
+                $db = $account->companies->first()->db;
+                $company = $account->companies->first();
+            }
+
+        }
+
 
         return $this->render('auth.passwords.reset')->with(
             ['token' => $token, 'email' => $request->email, 'account' => $account, 'db' => $db, 'company' => $company]
         );
+            
     }
 
     public function reset(Request $request)
     {
-        if($request->has('company_key'))
-            MultiDB::findAndSetDbByCompanyKey($request->input('company_key'));
+        if($request->session()->has('company_key'))
+            MultiDB::findAndSetDbByCompanyKey($request->session()->get('company_key'));
         
         $request->validate($this->rules(), $this->validationErrorMessages());
 

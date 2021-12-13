@@ -37,7 +37,6 @@ class ExpenseFilters extends QueryFilters
 
         return  $this->builder->where(function ($query) use ($filter) {
             $query->where('expenses.public_notes', 'like', '%'.$filter.'%')
-                          ->orWhere('expenses.id_number', 'like', '%'.$filter.'%')
                           ->orWhere('expenses.custom_value1', 'like', '%'.$filter.'%')
                           ->orWhere('expenses.custom_value2', 'like', '%'.$filter.'%')
                           ->orWhere('expenses.custom_value3', 'like', '%'.$filter.'%')

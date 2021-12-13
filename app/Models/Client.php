@@ -283,6 +283,9 @@ class Client extends BaseModel implements HasLocalePreference
     {
         $date_formats = Cache::get('date_formats');
 
+        if(!$date_formats)
+            $this->buildCache(true);
+        
         return $date_formats->filter(function ($item) {
             return $item->id == $this->getSetting('date_format_id');
         })->first()->format;

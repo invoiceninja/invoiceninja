@@ -28,6 +28,7 @@ use App\Utils\Ninja;
 use App\Utils\Number;
 use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\Pdf\PdfMaker as PdfMakerTrait;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\LazyCollection;
@@ -123,7 +124,7 @@ class Statement
      */
     protected function setupEntity(): self
     {
-        if (count($this->getInvoices()) >= 1) {
+        if ($this->getInvoices()->count() >= 1) {
             $this->entity = $this->getInvoices()->first();
         }
 
@@ -171,7 +172,7 @@ class Statement
                 $item->tax_rate1 = 5;
             }
 
-            $product = Product::all()->random();
+            $product = Product::first();
 
             $item->cost = (float) $product->cost;
             $item->product_key = $product->product_key;
@@ -218,7 +219,7 @@ class Statement
      *
      * @return Invoice[]|\Illuminate\Database\Eloquent\Collection
      */
-    protected function getInvoices(): LazyCollection
+    protected function getInvoices(): Builder
     {
         return Invoice::withTrashed()
             ->where('is_deleted', false)
@@ -226,8 +227,7 @@ class Statement
             ->where('client_id', $this->client->id)
             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
             ->whereBetween('date', [$this->options['start_date'], $this->options['end_date']])
-            ->orderBy('number', 'ASC')
-            ->cursor();
+            ->orderBy('number', 'ASC');
     }
 
     /**
@@ -235,7 +235,7 @@ class Statement
      *
      * @return Payment[]|\Illuminate\Database\Eloquent\Collection
      */
-    protected function getPayments(): LazyCollection
+    protected function getPayments(): Builder
     {
         return Payment::withTrashed()
             ->with('client.country','invoices')
@@ -244,8 +244,7 @@ class Statement
             ->where('client_id', $this->client->id)
             ->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
             ->whereBetween('date', [$this->options['start_date'], $this->options['end_date']])
-            ->orderBy('number', 'ASC')
-            ->cursor();
+            ->orderBy('number', 'ASC');
     }
 
     /**

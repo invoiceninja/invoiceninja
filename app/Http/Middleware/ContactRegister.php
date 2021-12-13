@@ -37,14 +37,14 @@ class ContactRegister
                 if(! $company->client_can_register)
                     abort(400, 'Registration disabled');
 
-                $request->merge(['key' => $company->company_key]);
+                    session()->put('key', $company->company_key);
 
                 return $next($request);
             }
 
         }
 
-       $query = [
+        $query = [
             'portal_domain' => $request->getSchemeAndHttpHost(),
             'portal_mode' => 'domain',
         ];
@@ -55,7 +55,8 @@ class ContactRegister
             if(! $company->client_can_register)
                 abort(400, 'Registration disabled');
 
-            $request->merge(['key' => $company->company_key]);
+           // $request->merge(['key' => $company->company_key]);
+            session()->put('key', $company->company_key);
 
             return $next($request);
         }
@@ -69,7 +70,8 @@ class ContactRegister
             if(! (bool)$company->client_can_register);
                 abort(400, 'Registration disabled');
 
-            $request->merge(['key' => $company->company_key]);
+            //$request->merge(['key' => $company->company_key]);
+            session()->put('key', $company->company_key);
 
             return $next($request);
         }
@@ -82,7 +84,8 @@ class ContactRegister
             if(! $company->client_can_register)
                 abort(400, 'Registration disabled');
 
-            $request->merge(['key' => $company->company_key]);
+            //$request->merge(['key' => $company->company_key]);
+            session()->put('key', $company->company_key);
 
             return $next($request);
         }
