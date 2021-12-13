@@ -1332,15 +1332,17 @@ class CompanyImport implements ShouldQueue
             if(array_key_exists('deleted_at', $obj_array) && $obj_array['deleted_at'] > 1){
                 $obj_array['deleted_at'] = now();
             }
-            
+
             /* New to convert product ids from old hashes to new hashes*/
             if($class == 'App\Models\Subscription'){
-                //$obj_array['product_ids'] = $this->recordProductIds($obj_array['product_ids']); 
-                //$obj_array['recurring_product_ids'] = $this->recordProductIds($obj_array['recurring_product_ids']); 
-                // $obj_array['webhook_configuration'] = json_encode($obj_array['webhook_configuration']);
-                $obj_array['webhook_configuration'] = '';
+                
+                if(array_key_exists('company', $obj_array))
+                    unset($obj_array['company']);
+
+                $obj_array['webhook_configuration'] = (array)$obj_array['webhook_configuration'];
                 $obj_array['recurring_product_ids'] = '';
                 $obj_array['product_ids'] = '';
+                nlog($obj_array);
             }
 
             /* Expenses that don't have a number will not be inserted - so need to override here*/
