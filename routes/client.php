@@ -35,6 +35,7 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'check_client_existence
 
     Route::get('invoices', 'ClientPortal\InvoiceController@index')->name('invoices.index')->middleware('portal_enabled');
     Route::post('invoices/payment', 'ClientPortal\InvoiceController@bulk')->name('invoices.bulk');
+    Route::post('invoices/download', 'ClientPortal\InvoiceController@download')->name('invoices.download');
     Route::get('invoices/{invoice}', 'ClientPortal\InvoiceController@show')->name('invoice.show');
     Route::get('invoices/{invoice_invitation}', 'ClientPortal\InvoiceController@show')->name('invoice.show_invitation');
 

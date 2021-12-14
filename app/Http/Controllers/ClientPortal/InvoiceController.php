@@ -30,6 +30,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
+use Illuminate\Http\Request;
 
 class InvoiceController extends Controller
 {
@@ -95,7 +96,8 @@ class InvoiceController extends Controller
         if ($request->input('action') == 'payment') {
             return $this->makePayment((array) $transformed_ids);
         } elseif ($request->input('action') == 'download') {
-            return $this->downloadInvoicePDF((array) $transformed_ids);
+            return $this->downloadInvoices((array) $transformed_ids);
+            // return $this->downloadInvoicePDF((array) $transformed_ids);
         }
 
         return redirect()
@@ -103,6 +105,25 @@ class InvoiceController extends Controller
             ->with('message', ctrans('texts.no_action_provided'));
     }
 
+    public function downloadInvoices($ids)
+    {
+
+        $data['invoices'] = Invoice::whereIn('id', $ids)
+                            ->whereClientId(auth()->user()->client->id)
+                            ->withTrashed()
+                            ->get();
+
+        if(count($data['invoices']) == 0)
+            return back()->with(['message' => ctrans('texts.no_items_selected')]);
+
+        return $this->render('invoices.download', $data);
+    }
+
+    public function download(Request $request)
+    {
+        $transformed_ids = $this->transformKeys($request->invoices);
+        return $this->downloadInvoicePDF((array) $transformed_ids);
+    }
     /**
      * @param array $ids 
      * @return Factory|View|RedirectResponse 
@@ -178,6 +199,7 @@ class InvoiceController extends Controller
     private function downloadInvoicePDF(array $ids)
     {
         $invoices = Invoice::whereIn('id', $ids)
+                            ->withTrashed()
                             ->whereClientId(auth()->user()->client->id)
                             ->get();
 
@@ -192,6 +214,8 @@ class InvoiceController extends Controller
             $invitation = $invoice->invitations->first();
 
            $file = $invoice->service()->getInvoicePdf(auth()->user());
+
+           // return response()->download(file_get_contents(public_path($file)));
 
             return response()->streamDownload(function () use($file) {
                     echo Storage::get($file);
