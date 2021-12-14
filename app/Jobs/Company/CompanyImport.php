@@ -143,7 +143,7 @@ class CompanyImport implements ShouldQueue
         'tasks',
         'payments',
         'activities',
-        'backups',
+        // 'backups',
         'company_ledger',
         'designs',
         'documents',
@@ -874,20 +874,13 @@ class CompanyImport implements ShouldQueue
 
         $activities = [];
 
-        // foreach($this->backup_file->activities as $activity)
-        // foreach((object)$this->getObject("activities") as $obj)
-        // {
-        //     $activity->account_id = $this->account->id;
-        //     $activities[] = $activity;
-        // }
-
-        // $this->backup_file->activities = $activities;
 
         $this->genericNewClassImport(Activity::class, 
             [
                 'hashed_id',
                 'company_id',
                 'backup',
+                'invitation_id',
             ], 
             [
                 ['users' => 'user_id'], 
@@ -903,7 +896,7 @@ class CompanyImport implements ShouldQueue
                 ['quotes' => 'quote_id'],
                 ['subscriptions' => 'subscription_id'],
                 ['recurring_invoices' => 'recurring_invoice_id'],
-                ['invitations' => 'invitation_id'],
+                // ['invitations' => 'invitation_id'],
             ], 
             'activities');
 
@@ -1438,7 +1431,9 @@ class CompanyImport implements ShouldQueue
         }
 
         if (! array_key_exists($resource, $this->ids)) {
-            // nlog($this->ids);
+             nlog($resource);
+
+            nlog($this->ids);
             
             $this->sendImportMail("The Import failed due to missing data in the import file. Resource {$resource} not available.");
             throw new \Exception("Resource {$resource} not available.");
