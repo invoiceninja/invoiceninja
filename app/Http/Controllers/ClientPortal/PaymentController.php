@@ -69,6 +69,11 @@ class PaymentController extends Controller
         ]);
     }
 
+    public function catch_process(Request $request)
+    {
+        return $this->render('payments.index');
+    }
+
     /**
      * Presents the payment screen for a given
      * gateway and payment method.
