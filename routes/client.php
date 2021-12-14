@@ -67,6 +67,7 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'check_client_existence
     Route::get('quotes', 'ClientPortal\QuoteController@index')->name('quotes.index')->middleware('portal_enabled');
     Route::get('quotes/{quote}', 'ClientPortal\QuoteController@show')->name('quote.show');
     Route::get('quotes/{quote_invitation}', 'ClientPortal\QuoteController@show')->name('quote.show_invitation');
+    Route::post('quotes/download', 'ClientPortal\QuoteController@download')->name('quotes.download');
 
     Route::get('credits', 'ClientPortal\CreditController@index')->name('credits.index');
     Route::get('credits/{credit}', 'ClientPortal\CreditController@show')->name('credit.show');
