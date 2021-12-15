@@ -18,6 +18,7 @@ use App\Models\CompanyGateway;
 use App\Models\PaymentHash;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Http\FormRequest;
+use App\Libraries\MultiDB;
 
 class IbpRequest extends FormRequest
 {
@@ -30,6 +31,8 @@ class IbpRequest extends FormRequest
      */
     public function authorize()
     {
+        MultiDB::findAndSetDbByCompanyKey($this->company_key);
+
         return true;
     }
 

@@ -89,6 +89,12 @@ class InvoiceController extends Controller
      * @param ProcessInvoicesInBulkRequest $request
      * @return mixed
      */
+
+    public function catch_bulk()
+    {
+        return $this->render('invoices.index');
+    }
+
     public function bulk(ProcessInvoicesInBulkRequest $request)
     {
         $transformed_ids = $this->transformKeys($request->invoices);
