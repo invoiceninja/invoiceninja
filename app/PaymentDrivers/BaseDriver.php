@@ -30,6 +30,7 @@ use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
+use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\Services\Subscription\SubscriptionService;
 use App\Utils\Ninja;
@@ -233,7 +234,6 @@ class BaseDriver extends AbstractPaymentDriver
         
         }
 
-
         $payment = PaymentFactory::create($this->client->company->id, $this->client->user->id);
         $payment->client_id = $this->client->id;
         $payment->company_gateway_id = $this->company_gateway->id;
@@ -263,12 +263,18 @@ class BaseDriver extends AbstractPaymentDriver
 
         event('eloquent.created: App\Models\Payment', $payment);
 
-        if ($this->client->getSetting('client_online_payment_notification'))
+        if ($this->client->getSetting('client_online_payment_notification') && in_array($status, [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING
+        ]))
             $payment->service()->sendEmail();
+
+            //todo
+            //catch any payment failures here also and fire a subsequent failure email if necessary? note only need for delayed payment forms
+            //perhaps this type of functionality should be handled higher up to provide better context?
+
 
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
-        if (property_exists($this->payment_hash->data, 'billing_context')) {
+        if (property_exists($this->payment_hash->data, 'billing_context') && $status == Payment::STATUS_COMPLETED) {
             $billing_subscription = \App\Models\Subscription::find($this->payment_hash->data->billing_context->subscription_id);
 
             // To access campaign hash => $this->payment_hash->data->billing_context->campaign;
@@ -386,6 +392,9 @@ class BaseDriver extends AbstractPaymentDriver
         } else
             $error = $e->getMessage();
 
+        if(!$this->payment_hash)
+            throw new PaymentFailed($error, $e->getCode());
+
         $amount = array_sum(array_column($this->payment_hash->invoices(), 'amount')) + $this->payment_hash->fee_total;
 
         $this->sendFailureMail($error);
@@ -402,9 +411,13 @@ class BaseDriver extends AbstractPaymentDriver
         throw new PaymentFailed($error, $e->getCode());
     }
 
-    public function sendFailureMail(string $error)
+    public function sendFailureMail($error = '')
     {
 
+        if (!is_null($this->payment_hash)) {
+            $this->unWindGatewayFees($this->payment_hash);
+        }
+        
         PaymentFailedMailer::dispatch(
             $this->payment_hash,
             $this->client->company,
@@ -418,7 +431,6 @@ class BaseDriver extends AbstractPaymentDriver
     {
 
         if ($this->payment_hash && is_array($this->payment_hash->invoices())) {
-
 
             $nmo = new NinjaMailerObject;
             $nmo->mailable = new NinjaMailer((new ClientPaymentFailureObject($this->client, $error, $this->client->company, $this->payment_hash))->build());
@@ -435,7 +447,7 @@ class BaseDriver extends AbstractPaymentDriver
 
             $invoices->first()->invitations->each(function ($invitation) use ($nmo) {
 
-                if ($invitation->contact->email) {
+                if ((bool)$invitation->contact->send_email !== false && $invitation->contact->email) {
 
                     $nmo->to_user = $invitation->contact;
                     NinjaMailerJob::dispatch($nmo);

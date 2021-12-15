@@ -22,12 +22,14 @@ use Auth;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Route;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Hash;
 
 class ContactLoginController extends Controller
 {
     use AuthenticatesUsers;
 
-    protected $redirectTo = '/client/dashboard';
+    protected $redirectTo = '/client/invoices';
 
     public function __construct()
     {
@@ -36,25 +38,21 @@ class ContactLoginController extends Controller
 
     public function showLoginForm(Request $request)
     {
-        //if we are on the root domain invoicing.co do not show any company logos
-        // if(Ninja::isHosted() && count(explode('.', request()->getHost())) == 2){
-        //     $company = null;
-        // }else
         
         $company = false;
+        $account = false;
 
-        if($request->has('company_key')){
-            MultiDB::findAndSetDbByCompanyKey($request->input('company_key'));
-
+        if($request->session()->has('company_key')){
+            MultiDB::findAndSetDbByCompanyKey($request->session()->get('company_key'));
             $company = Company::where('company_key', $request->input('company_key'))->first();
-
         }
 
-        if (!$company && strpos($request->getHost(), 'invoicing.co') !== false) {
+        if($company){
+            $account = $company->account;
+        }
+        elseif (!$company && strpos($request->getHost(), 'invoicing.co') !== false) {
             $subdomain = explode('.', $request->getHost())[0];
-
             MultiDB::findAndSetDbByDomain(['subdomain' => $subdomain]);
-
             $company = Company::where('subdomain', $subdomain)->first();
 
         } elseif(Ninja::isHosted()){
@@ -65,13 +63,16 @@ class ContactLoginController extends Controller
 
         }
         elseif (Ninja::isSelfHost()) {
-            $company = Account::first()->default_company;
+            $account = Account::first();
+            $company = $account->default_company;
         } else {
             $company = null;
         }
 
-        $account_id = $request->get('account_id');
-        $account = Account::find($account_id);
+        if(!$account){
+            $account_id = $request->get('account_id');
+            $account = Account::find($account_id);
+        }
 
         return $this->render('auth.login', ['account' => $account, 'company' => $company]);
 
@@ -94,7 +95,16 @@ class ContactLoginController extends Controller
 
             return $this->sendLockoutResponse($request);
         }
-        if ($this->attemptLogin($request)) {
+
+        if(Ninja::isHosted() && $request->has('password') && $company = Company::where('company_key', $request->input('company_key'))->first()){
+
+            $contact = ClientContact::where(['email' => $request->input('email'), 'company_id' => $company->id])->first();
+
+            if(Hash::check($request->input('password'), $contact->password))
+                return $this->authenticated($request, $contact);
+
+        }
+        elseif ($this->attemptLogin($request)) {
             return $this->sendLoginResponse($request);
         }
         // If the login attempt was unsuccessful we will increment the number of attempts
@@ -105,9 +115,24 @@ class ContactLoginController extends Controller
         return $this->sendFailedLoginResponse($request);
     }
 
+    protected function sendLoginResponse(Request $request)
+    {
+        $request->session()->regenerate();
+
+        $this->clearLoginAttempts($request);
+
+        if ($response = $this->authenticated($request, $this->guard()->user())) {
+            return $response;
+        }
+
+        return $request->wantsJson()
+                    ? new JsonResponse([], 204)
+                    : redirect()->intended($this->redirectPath());
+    }
+
     public function authenticated(Request $request, ClientContact $client)
     {
-        Auth::guard('contact')->login($client, true);
+        auth()->guard('contact')->loginUsingId($client->id, true);
 
         event(new ContactLoggedIn($client, $client->company, Ninja::eventVars()));
 

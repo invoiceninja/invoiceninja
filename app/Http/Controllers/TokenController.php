@@ -50,6 +50,9 @@ class TokenController extends BaseController
         parent::__construct();
 
         $this->token_repo = $token_repo;
+
+        $this->middleware('password_protected')->only(['store','update']);
+
     }
 
     /**

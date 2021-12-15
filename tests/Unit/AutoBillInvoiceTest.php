@@ -38,7 +38,7 @@ class AutoBillInvoiceTest extends TestCase
         $this->assertEquals($this->client->paid_to_date, 0);
         $this->assertEquals($this->client->credit_balance, 10);
 
-        $this->invoice->service()->markSent()->autoBill()->save();
+        $this->invoice->service()->markSent()->autoBill();
 
         $this->assertNotNull($this->invoice->payments());
         $this->assertEquals(10, $this->invoice->payments()->sum('payments.amount'));

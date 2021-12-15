@@ -82,6 +82,7 @@ class AccountTransformer extends EntityTransformer
             'disable_auto_update' => (bool) config('ninja.disable_auto_update'),
             'emails_sent' => (int) $account->emailsSent(),
             'email_quota' => (int) $account->getDailyEmailLimit(),
+            'is_migrated' => (bool) $account->is_migrated,
         ];
     }
 

@@ -48,7 +48,7 @@
     <div class="grid md:grid-cols-12 gap-4 mt-6">
         <div class="col-span-6">
             <div class="bg-white rounded shadow px-4 py-5 border-b border-gray-200 sm:px-6">
-                <div class="-ml-4 -mt-4 flex justify-between items-center flex-wrap sm:flex-no-wrap">
+                <div class="-ml-4 -mt-4 flex justify-between items-center flex-wrap sm:flex-nowrap">
                     <div class="ml-4 mt-4 w-full">
                         <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4 capitalize">
                             {{ ctrans('texts.group_documents') }}
@@ -81,7 +81,7 @@
 
         <div class="col-span-6">
             <div class="bg-white rounded shadow px-4 py-5 border-b border-gray-200 sm:px-6">
-                <div class="-ml-4 -mt-4 flex justify-between items-center flex-wrap sm:flex-no-wrap">
+                <div class="-ml-4 -mt-4 flex justify-between items-center flex-wrap sm:flex-nowrap">
                     <div class="ml-4 mt-4 w-full">
                         <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4 capitalize">
                             {{ ctrans('texts.default_documents') }}

@@ -38,6 +38,7 @@ class QuotesTable extends Component
     public function render()
     {
         $query = Quote::query()
+            ->with('client.gateway_tokens','company','client.contacts')
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc');
 
         if (count($this->status) > 0) {
@@ -48,6 +49,7 @@ class QuotesTable extends Component
             ->where('company_id', $this->company->id)
             ->where('client_id', auth('contact')->user()->client->id)
             ->where('status_id', '<>', Quote::STATUS_DRAFT)
+            ->where('is_deleted', 0)
             ->withTrashed()
             ->paginate($this->per_page);
 

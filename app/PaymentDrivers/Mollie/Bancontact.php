@@ -86,6 +86,9 @@ class Bancontact implements MethodInterface
                 'webhookUrl' => $this->mollie->company_gateway->webhookUrl(),
                 'metadata' => [
                     'client_id' => $this->mollie->client->hashed_id,
+                    'hash' => $this->mollie->payment_hash->hash,
+                    'gateway_type_id' => GatewayType::BANCONTACT,
+                    'payment_type_id' => PaymentType::BANCONTACT,
                 ],
             ]);
 

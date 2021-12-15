@@ -129,7 +129,7 @@ class PaymentRepository extends BaseRepository {
 
             //todo optimize this into a single query
             foreach ($data['invoices'] as $paid_invoice) {
-                $invoice = Invoice::whereId($paid_invoice['invoice_id'])->first();
+                $invoice = Invoice::withTrashed()->whereId($paid_invoice['invoice_id'])->first();
 
                 if ($invoice) {
                     $invoice = $invoice->service()
@@ -185,13 +185,13 @@ class PaymentRepository extends BaseRepository {
      * @param $payment
      * @return
      */
-    private function processExchangeRates($data, $payment)
+    public function processExchangeRates($data, $payment)
     {
 
         if(array_key_exists('exchange_rate', $data) && isset($data['exchange_rate']))
             return $payment;
 
-        $client = Client::find($data['client_id']);
+        $client = Client::withTrashed()->find($data['client_id']);
 
         $client_currency = $client->getSetting('currency_id');
         $company_currency = $client->company->settings->currency_id;

@@ -11,6 +11,8 @@
 
 namespace App\Http\ValidationRules\Ninja;
 
+use App\Models\CompanyUser;
+use App\Models\User;
 use Illuminate\Contracts\Validation\Rule;
 
 /**
@@ -30,7 +32,17 @@ class CanAddUserRule implements Rule
      */
     public function passes($attribute, $value)
     {
-        return auth()->user()->company()->account->users->count() < auth()->user()->company()->account->num_users;
+
+          $count = CompanyUser::query()
+                              ->where('company_user.account_id', auth()->user()->account_id)
+                              ->join('users', 'users.id', '=', 'company_user.user_id')
+                              ->whereNull('users.deleted_at')
+                              ->whereNull('company_user.deleted_at')
+                              ->distinct()
+                              ->count('company_user.user_id');
+
+        return $count < auth()->user()->company()->account->num_users;
+
     }
 
     /**

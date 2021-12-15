@@ -34,6 +34,9 @@ CREATE TABLE `accounts` (
   `updated_at` timestamp(6) NULL DEFAULT NULL,
   `is_scheduler_running` tinyint(1) NOT NULL DEFAULT '0',
   `trial_duration` int(10) unsigned DEFAULT NULL,
+  `is_onboarding` tinyint(1) NOT NULL DEFAULT '0',
+  `onboarding` mediumtext COLLATE utf8mb4_unicode_ci,
+  `is_migrated` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `accounts_payment_id_index` (`payment_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
@@ -66,6 +69,8 @@ CREATE TABLE `activities` (
   `quote_id` int(10) unsigned DEFAULT NULL,
   `subscription_id` int(10) unsigned DEFAULT NULL,
   `recurring_invoice_id` int(10) unsigned DEFAULT NULL,
+  `recurring_expense_id` int(10) unsigned DEFAULT NULL,
+  `recurring_quote_id` int(10) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `activities_vendor_id_company_id_index` (`vendor_id`,`company_id`),
   KEY `activities_project_id_company_id_index` (`project_id`,`company_id`),
@@ -93,6 +98,7 @@ CREATE TABLE `backups` (
   `created_at` timestamp(6) NULL DEFAULT NULL,
   `updated_at` timestamp(6) NULL DEFAULT NULL,
   `amount` decimal(16,4) NOT NULL,
+  `filename` text COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`id`),
   KEY `backups_activity_id_foreign` (`activity_id`),
   CONSTRAINT `backups_activity_id_foreign` FOREIGN KEY (`activity_id`) REFERENCES `activities` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -378,6 +384,7 @@ CREATE TABLE `companies` (
   `markdown_enabled` tinyint(1) NOT NULL DEFAULT '1',
   `use_comma_as_decimal_place` tinyint(1) NOT NULL DEFAULT '0',
   `report_include_drafts` tinyint(1) NOT NULL DEFAULT '0',
+  `client_registration_fields` mediumtext COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`id`),
   UNIQUE KEY `companies_company_key_unique` (`company_key`),
   KEY `companies_industry_id_foreign` (`industry_id`),
@@ -1371,6 +1378,69 @@ CREATE TABLE `quotes` (
   CONSTRAINT `quotes_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `recurring_expenses`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `recurring_expenses` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `company_id` int(10) unsigned NOT NULL,
+  `vendor_id` int(10) unsigned DEFAULT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `status_id` int(10) unsigned NOT NULL,
+  `invoice_id` int(10) unsigned DEFAULT NULL,
+  `client_id` int(10) unsigned DEFAULT NULL,
+  `bank_id` int(10) unsigned DEFAULT NULL,
+  `project_id` int(10) unsigned DEFAULT NULL,
+  `payment_type_id` int(10) unsigned DEFAULT NULL,
+  `recurring_expense_id` int(10) unsigned DEFAULT NULL,
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+  `uses_inclusive_taxes` tinyint(1) NOT NULL DEFAULT '1',
+  `tax_name1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tax_name2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tax_name3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `date` date DEFAULT NULL,
+  `payment_date` date DEFAULT NULL,
+  `should_be_invoiced` tinyint(1) NOT NULL DEFAULT '0',
+  `invoice_documents` tinyint(1) NOT NULL DEFAULT '0',
+  `transaction_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value1` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value2` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value3` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `custom_value4` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `category_id` int(10) unsigned DEFAULT NULL,
+  `calculate_tax_by_amount` tinyint(1) NOT NULL DEFAULT '0',
+  `tax_amount1` decimal(20,6) DEFAULT NULL,
+  `tax_amount2` decimal(20,6) DEFAULT NULL,
+  `tax_amount3` decimal(20,6) DEFAULT NULL,
+  `tax_rate1` decimal(20,6) DEFAULT NULL,
+  `tax_rate2` decimal(20,6) DEFAULT NULL,
+  `tax_rate3` decimal(20,6) DEFAULT NULL,
+  `amount` decimal(20,6) DEFAULT NULL,
+  `foreign_amount` decimal(20,6) DEFAULT NULL,
+  `exchange_rate` decimal(20,6) NOT NULL DEFAULT '1.000000',
+  `assigned_user_id` int(10) unsigned DEFAULT NULL,
+  `number` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `invoice_currency_id` int(10) unsigned DEFAULT NULL,
+  `currency_id` int(10) unsigned DEFAULT NULL,
+  `private_notes` text COLLATE utf8mb4_unicode_ci,
+  `public_notes` text COLLATE utf8mb4_unicode_ci,
+  `transaction_reference` text COLLATE utf8mb4_unicode_ci,
+  `frequency_id` int(10) unsigned NOT NULL,
+  `last_sent_date` datetime DEFAULT NULL,
+  `next_send_date` datetime DEFAULT NULL,
+  `remaining_cycles` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `recurring_expenses_company_id_number_unique` (`company_id`,`number`),
+  KEY `recurring_expenses_company_id_deleted_at_index` (`company_id`,`deleted_at`),
+  KEY `recurring_expenses_user_id_foreign` (`user_id`),
+  KEY `recurring_expenses_company_id_index` (`company_id`),
+  CONSTRAINT `recurring_expenses_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `recurring_expenses_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `recurring_invoice_invitations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -1481,6 +1551,41 @@ CREATE TABLE `recurring_invoices` (
   CONSTRAINT `recurring_invoices_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `recurring_quote_invitations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `recurring_quote_invitations` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `company_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `client_contact_id` int(10) unsigned NOT NULL,
+  `recurring_quote_id` int(10) unsigned NOT NULL,
+  `key` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `transaction_reference` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `message_id` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email_error` mediumtext COLLATE utf8mb4_unicode_ci,
+  `signature_base64` text COLLATE utf8mb4_unicode_ci,
+  `signature_date` datetime DEFAULT NULL,
+  `sent_date` datetime DEFAULT NULL,
+  `viewed_date` datetime DEFAULT NULL,
+  `opened_date` datetime DEFAULT NULL,
+  `email_status` enum('delivered','bounced','spam') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp(6) NULL DEFAULT NULL,
+  `updated_at` timestamp(6) NULL DEFAULT NULL,
+  `deleted_at` timestamp(6) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `cli_rec_q` (`client_contact_id`,`recurring_quote_id`),
+  KEY `recurring_quote_invitations_user_id_foreign` (`user_id`),
+  KEY `recurring_quote_invitations_company_id_foreign` (`company_id`),
+  KEY `rec_co_del_q` (`deleted_at`,`recurring_quote_id`,`company_id`),
+  KEY `recurring_quote_invitations_recurring_quote_id_index` (`recurring_quote_id`),
+  KEY `recurring_quote_invitations_key_index` (`key`),
+  CONSTRAINT `recurring_quote_invitations_client_contact_id_foreign` FOREIGN KEY (`client_contact_id`) REFERENCES `client_contacts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `recurring_quote_invitations_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `recurring_quote_invitations_recurring_quote_id_foreign` FOREIGN KEY (`recurring_quote_id`) REFERENCES `recurring_invoices` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `recurring_quote_invitations_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `recurring_quotes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -1521,13 +1626,29 @@ CREATE TABLE `recurring_quotes` (
   `balance` decimal(20,6) NOT NULL DEFAULT '0.000000',
   `last_viewed` datetime DEFAULT NULL,
   `frequency_id` int(10) unsigned NOT NULL,
-  `start_date` date DEFAULT NULL,
   `last_sent_date` datetime DEFAULT NULL,
   `next_send_date` datetime DEFAULT NULL,
   `remaining_cycles` int(10) unsigned DEFAULT NULL,
   `created_at` timestamp(6) NULL DEFAULT NULL,
   `updated_at` timestamp(6) NULL DEFAULT NULL,
   `deleted_at` timestamp(6) NULL DEFAULT NULL,
+  `auto_bill` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'off',
+  `auto_bill_enabled` tinyint(1) NOT NULL DEFAULT '0',
+  `paid_to_date` decimal(20,6) NOT NULL DEFAULT '0.000000',
+  `custom_surcharge1` decimal(20,6) DEFAULT NULL,
+  `custom_surcharge2` decimal(20,6) DEFAULT NULL,
+  `custom_surcharge3` decimal(20,6) DEFAULT NULL,
+  `custom_surcharge4` decimal(20,6) DEFAULT NULL,
+  `custom_surcharge_tax1` tinyint(1) NOT NULL DEFAULT '0',
+  `custom_surcharge_tax2` tinyint(1) NOT NULL DEFAULT '0',
+  `custom_surcharge_tax3` tinyint(1) NOT NULL DEFAULT '0',
+  `custom_surcharge_tax4` tinyint(1) NOT NULL DEFAULT '0',
+  `due_date_days` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `exchange_rate` decimal(13,6) NOT NULL DEFAULT '1.000000',
+  `partial` decimal(16,4) DEFAULT NULL,
+  `partial_due_date` date DEFAULT NULL,
+  `subscription_id` int(10) unsigned DEFAULT NULL,
+  `uses_inclusive_taxes` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   KEY `recurring_quotes_company_id_deleted_at_index` (`company_id`,`deleted_at`),
   KEY `recurring_quotes_user_id_foreign` (`user_id`),
@@ -1973,3 +2094,25 @@ INSERT INTO `migrations` VALUES (91,'2021_08_10_034407_add_more_languages',4);
 INSERT INTO `migrations` VALUES (92,'2021_08_18_220124_use_comma_as_decimal_place_companies_table',4);
 INSERT INTO `migrations` VALUES (93,'2021_08_24_115919_update_designs',4);
 INSERT INTO `migrations` VALUES (94,'2021_08_25_093105_report_include_drafts_in_companies_table',5);
+INSERT INTO `migrations` VALUES (95,'2021_08_14_054458_square_payment_driver',6);
+INSERT INTO `migrations` VALUES (96,'2021_08_23_101529_recurring_expenses_schema',6);
+INSERT INTO `migrations` VALUES (97,'2021_09_05_101209_update_braintree_gateway',6);
+INSERT INTO `migrations` VALUES (98,'2021_09_20_233053_set_square_test_mode_boolean',6);
+INSERT INTO `migrations` VALUES (99,'2021_09_23_100629_add_currencies',6);
+INSERT INTO `migrations` VALUES (100,'2021_09_24_201319_add_mollie_bank_transfer_to_payment_types',6);
+INSERT INTO `migrations` VALUES (101,'2021_09_24_211504_add_kbc_to_payment_types',6);
+INSERT INTO `migrations` VALUES (102,'2021_09_24_213858_add_bancontact_to_payment_types',6);
+INSERT INTO `migrations` VALUES (103,'2021_09_28_154647_activate_gocardless_payment_driver',6);
+INSERT INTO `migrations` VALUES (104,'2021_09_29_190258_add_required_client_registration_fields',6);
+INSERT INTO `migrations` VALUES (105,'2021_10_04_134908_add_ideal_to_payment_types',6);
+INSERT INTO `migrations` VALUES (106,'2021_10_06_044800_updated_bold_and_modern_designs',6);
+INSERT INTO `migrations` VALUES (107,'2021_10_07_141737_razorpay',6);
+INSERT INTO `migrations` VALUES (108,'2021_10_07_155410_add_hosted_page_to_payment_types',6);
+INSERT INTO `migrations` VALUES (109,'2021_10_15_00000_stripe_payment_gateways',6);
+INSERT INTO `migrations` VALUES (110,'2021_10_16_135200_add_direct_debit_to_payment_types',6);
+INSERT INTO `migrations` VALUES (111,'2021_10_19_142200_add_gateway_type_for_direct_debit',6);
+INSERT INTO `migrations` VALUES (112,'2021_10_20_005529_add_filename_to_backups_table',6);
+INSERT INTO `migrations` VALUES (113,'2021_11_08_131308_onboarding',6);
+INSERT INTO `migrations` VALUES (114,'2021_11_09_115919_update_designs',6);
+INSERT INTO `migrations` VALUES (115,'2021_11_10_184847_add_is_migrate_column_to_accounts_table',6);
+INSERT INTO `migrations` VALUES (116,'2021_11_11_163121_add_instant_bank_transfer',7);

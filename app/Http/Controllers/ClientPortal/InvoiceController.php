@@ -42,6 +42,7 @@ class InvoiceController extends Controller
      */
     public function index(ShowInvoicesRequest $request)
     {
+
         return $this->render('invoices.index');
     }
 
@@ -58,7 +59,6 @@ class InvoiceController extends Controller
         set_time_limit(0);
 
         $invoice->service()->removeUnpaidGatewayFees()->save();
-
 
             $invitation = $invoice->invitations()->where('client_contact_id', auth()->user()->id)->first();
 
@@ -78,7 +78,7 @@ class InvoiceController extends Controller
         if ($request->query('mode') === 'fullscreen') {
             return render('invoices.show-fullscreen', $data);
         }
-
+            // $request->fullUrlWithQuery(['q' => null]);
         return $this->render('invoices.show', $data);
     }
 
@@ -190,9 +190,9 @@ class InvoiceController extends Controller
         if ($invoices->count() == 1) {
             $invoice = $invoices->first();
             $invitation = $invoice->invitations->first();
-           //$file = $invoice->pdf_file_path($invitation);
+
            $file = $invoice->service()->getInvoicePdf(auth()->user());
-           // return response()->download($file, basename($file), ['Cache-Control:' => 'no-cache'])->deleteFileAfterSend(true);;
+
             return response()->streamDownload(function () use($file) {
                     echo Storage::get($file);
             },  basename($file), ['Content-Type' => 'application/pdf']);

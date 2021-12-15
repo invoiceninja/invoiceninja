@@ -174,12 +174,7 @@ class PreviewController extends BaseController
 
         MultiDB::setDb($company->db);
 
-        if($request->input('entity') == 'invoice'){
-            $repo = new InvoiceRepository();
-            $entity_obj = InvoiceFactory::create($company->id, auth()->user()->id);
-            $class = Invoice::class;
-        }
-        elseif($request->input('entity') == 'quote'){
+        if($request->input('entity') == 'quote'){
             $repo = new QuoteRepository();
             $entity_obj = QuoteFactory::create($company->id, auth()->user()->id);
             $class = Quote::class;
@@ -195,7 +190,11 @@ class PreviewController extends BaseController
             $entity_obj = RecurringInvoiceFactory::create($company->id, auth()->user()->id);
             $class = RecurringInvoice::class;
         }
-            
+        else { //assume it is either an invoice or a null object
+            $repo = new InvoiceRepository();
+            $entity_obj = InvoiceFactory::create($company->id, auth()->user()->id);
+            $class = Invoice::class;
+        }            
 
         try {
 
@@ -217,8 +216,6 @@ class PreviewController extends BaseController
             if(!$request->has('entity_id'))
                 $entity_obj->service()->fillDefaults()->save();
                 
-            // $entity_obj->load('client.contacts','client.company');
-
             App::forgetInstance('translator');
             $t = app('translator');
             App::setLocale($entity_obj->client->locale());
@@ -297,7 +294,7 @@ class PreviewController extends BaseController
             {
                 LightLogs::create(new LivePreview())
                          ->increment()
-                         ->batch();
+                         ->queue();
             }
 
 

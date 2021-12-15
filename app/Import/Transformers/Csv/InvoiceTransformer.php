@@ -49,7 +49,7 @@ class InvoiceTransformer extends BaseTransformer {
 			'due_date'          => isset( $invoice_data['invoice.due_date'] ) ? date( 'Y-m-d', strtotime( $invoice_data['invoice.due_date'] ) ) : null,
 			'terms'             => $this->getString( $invoice_data, 'invoice.terms' ),
 			'public_notes'      => $this->getString( $invoice_data, 'invoice.public_notes' ),
-			'is_sent'           => $this->getString( $invoice_data, 'invoice.is_sent' ),
+			// 'is_sent'           => $this->getString( $invoice_data, 'invoice.is_sent' ),
 			'private_notes'     => $this->getString( $invoice_data, 'invoice.private_notes' ),
 			'tax_name1'         => $this->getString( $invoice_data, 'invoice.tax_name1' ),
 			'tax_rate1'         => $this->getFloat( $invoice_data, 'invoice.tax_rate1' ),
@@ -92,7 +92,7 @@ class InvoiceTransformer extends BaseTransformer {
 					'amount'                => $this->getFloat( $invoice_data, 'invoice.amount' ),
 				],
 			];
-		} elseif ( isset( $transformed['amount'] ) && isset( $transformed['balance'] ) ) {
+		} elseif ( isset( $transformed['amount'] ) && isset( $transformed['balance'] ) && ($transformed['amount'] != $transformed['balance'])) {
 			$transformed['payments'] = [
 				[
 					'date'                  => isset( $invoice_data['payment.date'] ) ? date( 'Y-m-d', strtotime( $invoice_data['payment.date'] ) ) : date( 'y-m-d' ),
@@ -125,6 +125,8 @@ class InvoiceTransformer extends BaseTransformer {
 			];
 		}
 		$transformed['line_items'] = $line_items;
+
+nlog($transformed);
 
 		return $transformed;
 	}

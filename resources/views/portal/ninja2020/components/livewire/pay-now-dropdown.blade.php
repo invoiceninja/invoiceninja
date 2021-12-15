@@ -16,7 +16,7 @@
                 </div>
             </div>
             <div x-show="open" class="absolute right-0 w-56 mt-2 origin-top-right rounded-md shadow-lg">
-                <div class="bg-white rounded-md shadow-xs">
+                <div class="bg-white rounded-md ring-1 ring-black ring-opacity-5">
                     <div class="py-1">
                         @foreach($methods as $index => $method)
                             @if($method['label'] == 'Custom')

@@ -40,6 +40,7 @@ use App\PaymentDrivers\Stripe\EPS;
 use App\PaymentDrivers\Stripe\Bancontact;
 use App\PaymentDrivers\Stripe\BECS;
 use App\PaymentDrivers\Stripe\ACSS;
+use App\PaymentDrivers\Stripe\BrowserPay;
 use App\PaymentDrivers\Stripe\UpdatePaymentMethods;
 use App\PaymentDrivers\Stripe\Utilities;
 use App\Utils\Traits\MakesHash;
@@ -82,7 +83,7 @@ class StripePaymentDriver extends BaseDriver
         GatewayType::BANK_TRANSFER => ACH::class,
         GatewayType::ALIPAY => Alipay::class,
         GatewayType::SOFORT => SOFORT::class,
-        GatewayType::APPLE_PAY => ApplePay::class,
+        GatewayType::APPLE_PAY => BrowserPay::class,
         GatewayType::SEPA => SEPA::class,
         GatewayType::PRZELEWY24 => PRZELEWY24::class,
         GatewayType::GIROPAY => GIROPAY::class,
@@ -139,7 +140,7 @@ class StripePaymentDriver extends BaseDriver
     {
         $types = [
             // GatewayType::CRYPTO,
-            GatewayType::CREDIT_CARD
+            GatewayType::CREDIT_CARD,
         ];
 
         if ($this->client
@@ -217,6 +218,14 @@ class StripePaymentDriver extends BaseDriver
             && isset($this->client->country)
             && in_array($this->client->country->iso_3166_3, ["CAN", "USA"]))
             $types[] = GatewayType::ACSS;
+
+        if (
+            $this->client
+            && isset($this->client->country)
+            && in_array($this->client->country->iso_3166_2, ['AE', 'AT', 'AU', 'BE', 'BG', 'BR', 'CA', 'CH', 'CI', 'CR', 'CY', 'CZ', 'DE', 'DK', 'DO', 'EE', 'ES', 'FI', 'FR', 'GB', 'GI', 'GR', 'GT', 'HK', 'HU', 'ID', 'IE', 'IN', 'IT', 'JP', 'LI', 'LT', 'LU', 'LV', 'MT', 'MX', 'MY', 'NL', 'NO', 'NZ', 'PE', 'PH', 'PL', 'PT', 'RO', 'SE', 'SG', 'SI', 'SK', 'SN', 'TH', 'TT', 'US', 'UY'])
+        ) {
+            $types[] = GatewayType::APPLE_PAY;
+        }
 
         return $types;
     }
@@ -427,7 +436,7 @@ class StripePaymentDriver extends BaseDriver
 
         //Else create a new record
         $data['name'] = $this->client->present()->name();
-        $data['phone'] = $this->client->present()->phone();
+        $data['phone'] = substr($this->client->present()->phone(), 0 , 20);
 
         if (filter_var($this->client->present()->email(), FILTER_VALIDATE_EMAIL)) {
             $data['email'] = $this->client->present()->email();
@@ -515,10 +524,24 @@ class StripePaymentDriver extends BaseDriver
         if ($request->type === 'charge.succeeded' || $request->type === 'payment_intent.succeeded') {
 
             foreach ($request->data as $transaction) {
-                $payment = Payment::query()
-                        ->where('transaction_reference', $transaction['id'])
+
+                if(array_key_exists('payment_intent', $transaction))
+                {
+                    $payment = Payment::query()
                         ->where('company_id', $request->getCompany()->id)
+                        ->where(function ($query) use ($transaction) {
+                            $query->where('transaction_reference', $transaction['payment_intent'])
+                                  ->orWhere('transaction_reference', $transaction['id']);
+                                })
                         ->first();
+                }
+                else
+                {
+                     $payment = Payment::query()
+                        ->where('company_id', $request->getCompany()->id)
+                        ->where('transaction_reference', $transaction['id'])
+                        ->first();       
+                }
 
                 if ($payment) {
                     $payment->status_id = Payment::STATUS_COMPLETED;
@@ -537,10 +560,13 @@ class StripePaymentDriver extends BaseDriver
 
                 if ($charge->captured) {
                     $payment = Payment::query()
-                        ->where('transaction_reference', $transaction['id'])
+                        ->where('transaction_reference', $transaction['payment_intent'])
                         ->where('company_id', $request->getCompany()->id)
+                        ->where(function ($query) use ($transaction) {
+                            $query->where('transaction_reference', $transaction['payment_intent'])
+                                  ->orWhere('transaction_reference', $transaction['id']);
+                                })
                         ->first();
-
                     if ($payment) {
                         $payment->status_id = Payment::STATUS_COMPLETED;
                         $payment->save();

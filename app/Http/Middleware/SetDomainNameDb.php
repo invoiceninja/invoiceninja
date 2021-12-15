@@ -38,10 +38,11 @@ class SetDomainNameDb
         if(!config('ninja.db.multi_db_enabled'))
             return $next($request);
 
+        $domain_name = $request->getHost();
 
-        if (strpos($request->getHost(), 'invoicing.co') !== false) 
+        if (strpos($domain_name, 'invoicing.co') !== false) 
         {
-            $subdomain = explode('.', $request->getHost())[0];
+            $subdomain = explode('.', $domain_name)[0];
             
             $query = [
                 'subdomain' => $subdomain,
@@ -49,7 +50,8 @@ class SetDomainNameDb
             ];
 
             if($company = MultiDB::findAndSetDbByDomain($query)){
-                $request->attributes->add(['account_id' => $company->account_id]);
+                //$request->merge(['company_key' => $company->company_key]);
+                session()->put('company_key', $company->company_key);
             }
             else 
             {
@@ -71,7 +73,8 @@ class SetDomainNameDb
             ];
 
             if($company = MultiDB::findAndSetDbByDomain($query)){
-                $request->attributes->add(['account_id' => $company->account_id]);
+                //$request->merge(['company_key' => $company->company_key]);
+                session()->put('company_key', $company->company_key);
             }
             else
             {
@@ -80,13 +83,10 @@ class SetDomainNameDb
                 } else {
                     MultiDB::setDb('db-ninja-01');
                     nlog("I could not set the DB - defaulting to DB1");
-                    //abort(400, 'Domain not found');
                 }
             }
 
         }
-
-        // config(['app.url' => $request->getSchemeAndHttpHost()]);
 
         return $next($request);
     }

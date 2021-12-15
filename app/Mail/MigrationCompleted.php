@@ -3,9 +3,11 @@
 namespace App\Mail;
 
 use App\Models\Company;
+use App\Utils\Ninja;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
 
 class MigrationCompleted extends Mailable
 {
@@ -33,6 +35,11 @@ class MigrationCompleted extends Mailable
      */
     public function build()
     {
+
+        App::forgetInstance('translator');
+        $t = app('translator');
+        $t->replace(Ninja::transformTranslations($this->company->settings));
+        
         $data['settings'] = $this->company->settings;
         $data['company'] = $this->company->fresh();
         $data['whitelabel'] = $this->company->account->isPaid() ? true : false;

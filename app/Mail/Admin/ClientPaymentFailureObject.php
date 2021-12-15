@@ -56,6 +56,10 @@ class ClientPaymentFailureObject
 
     public function build()
     {
+        if(!$this->payment_hash){
+            nlog("no payment has for failure notification - ClientPaymentFailureObject");
+            return;
+        }
 
         App::forgetInstance('translator');
         /* Init a new copy of the translator*/
@@ -65,13 +69,13 @@ class ClientPaymentFailureObject
         /* Set customized translations _NOW_ */
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
-        $this->invoices = Invoice::whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->get();
+        $this->invoices = Invoice::withTrashed()->whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->get();
 
         $mail_obj = new stdClass;
         $mail_obj->amount = $this->getAmount();
         $mail_obj->subject = $this->getSubject();
         $mail_obj->data = $this->getData();
-        $mail_obj->markdown = 'email.admin.generic';
+        $mail_obj->markdown = 'email.client.generic';
         $mail_obj->tag = $this->company->company_key;
 
         return $mail_obj;
@@ -97,8 +101,13 @@ class ClientPaymentFailureObject
 
     private function getData()
     {
+        $invitation = $this->invoices->first()->invitations->first();
+
+        if(!$invitation)
+            throw new \Exception('Unable to find invitation for reference');
+
         $signature = $this->client->getSetting('email_signature');
-        $html_variables = (new HtmlEngine($this->invoices->first()->invitations->first()))->makeValues();
+        $html_variables = (new HtmlEngine($invitation))->makeValues();
         $signature = str_replace(array_keys($html_variables), array_values($html_variables), $signature);
 
         $data = [
@@ -109,14 +118,15 @@ class ClientPaymentFailureObject
                 ]
             ),
             'greeting' => ctrans('texts.email_salutation', ['name' => $this->client->present()->name]),
-            'message' => ctrans('texts.client_payment_failure_body', ['invoice' => implode(",", $this->invoices->pluck('number')->toArray()), 'amount' => $this->getAmount()]),
+            'content' => ctrans('texts.client_payment_failure_body', ['invoice' => implode(",", $this->invoices->pluck('number')->toArray()), 'amount' => $this->getAmount()]),
             'signature' => $signature,
             'logo' => $this->company->present()->logo(),
             'settings' => $this->client->getMergedSettings(),
             'whitelabel' => $this->company->account->isPaid() ? true : false,
-            'url' => route('client.login'),
-            'button' => ctrans('texts.login'),
-            'additional_info' => false
+            'url' => $this->invoices->first()->invitations->first()->getPaymentLink(),
+            'button' => 'texts.pay_now',
+            'additional_info' => false,
+            'company' => $this->company,
         ];
 
         return $data;

@@ -65,27 +65,27 @@
                 <tbody>
                     @forelse($quotes as $quote)
                         <tr class="bg-white group hover:bg-gray-100">
-                            <td class="px-6 py-4 text-sm font-medium leading-5 text-gray-900 whitespace-no-wrap">
+                            <td class="px-6 py-4 text-sm font-medium leading-5 text-gray-900 whitespace-nowrap">
                                 <label>
                                     <input type="checkbox" class="form-check form-check-child" data-value="{{ $quote->hashed_id }}">
                                 </label>
                             </td>
-                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap">
+                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-nowrap">
                                 {{ $quote->number }}
                             </td>
-                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap">
+                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-nowrap">
                                 {{ $quote->formatDate($quote->date, $quote->client->date_format()) }}
                             </td>
-                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap">
+                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-nowrap">
                                 {{ App\Utils\Number::formatMoney($quote->amount, $quote->client) }}
                             </td>
-                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap">
+                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-nowrap">
                                 {{ $quote->formatDate($quote->due_date, $quote->client->date_format()) }}
                             </td>
-                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap">
+                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-nowrap">
                                 {!! App\Models\Quote::badgeForStatus($quote->status_id) !!}
                             </td>
-                            <td class="flex items-center justify-end px-6 py-4 text-sm font-medium leading-5 whitespace-no-wrap">
+                            <td class="flex items-center justify-end px-6 py-4 text-sm font-medium leading-5 whitespace-nowrap">
                                 <a href="{{ route('client.quote.show', $quote->hashed_id) }}" class="button-link text-primary">
                                     {{ ctrans('texts.view') }}
                                 </a>
@@ -93,7 +93,7 @@
                         </tr>
                     @empty
                         <tr class="bg-white group hover:bg-gray-100">
-                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap" colspan="100%">
+                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-nowrap" colspan="100%">
                                 {{ ctrans('texts.no_results') }}
                             </td>
                         </tr>

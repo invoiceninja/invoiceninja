@@ -37,33 +37,36 @@ class MarkSent extends AbstractService
             return $this->invoice;
         }
 
+        $adjustment = $this->invoice->amount;
+
         /*Set status*/
         $this->invoice
              ->service()
              ->setStatus(Invoice::STATUS_SENT)
+             ->updateBalance($adjustment, true)
              ->save();
-
-         $this->invoice
-             ->service()
-             ->applyNumber()
-             ->setDueDate()
-             ->updateBalance($this->invoice->amount, true)
-             ->deletePdf()
-             ->setReminder()
-             ->save();
-
-        $this->invoice->markInvitationsSent();
 
         /*Adjust client balance*/
         $this->client
              ->service()
-             ->updateBalance($this->invoice->balance)
+             ->updateBalance($adjustment)
              ->save();
 
         /*Update ledger*/
         $this->invoice
              ->ledger()
-             ->updateInvoiceBalance($this->invoice->balance, "Invoice {$this->invoice->number} marked as sent.");
+             ->updateInvoiceBalance($adjustment, "Invoice {$this->invoice->number} marked as sent.");
+
+        /* Perform additional actions on invoice */
+        $this->invoice
+             ->service()
+             ->applyNumber()
+             ->setDueDate()
+             ->deletePdf()
+             ->setReminder()
+             ->save();
+
+        $this->invoice->markInvitationsSent();
 
         event(new InvoiceWasUpdated($this->invoice, $this->invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 

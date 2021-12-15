@@ -176,7 +176,7 @@ class BaseRepository
         if(array_key_exists('client_id', $data)) 
             $model->client_id = $data['client_id'];
 
-        $client = Client::where('id', $model->client_id)->withTrashed()->first();    
+        $client = Client::where('id', $model->client_id)->withTrashed()->firstOrFail();    
 
         $state = [];
 
@@ -277,7 +277,7 @@ class BaseRepository
                             $new_invitation = $invitation_factory_class::create($model->company_id, $model->user_id);
                             $new_invitation->{$lcfirst_resource_id} = $model->id;
                             $new_invitation->client_contact_id = $contact->id;
-                            $new_invitation->key = $this->createDbHash(config('database.default'));
+                            $new_invitation->key = $this->createDbHash($model->company->db);
                             $new_invitation->save();
 
                         }

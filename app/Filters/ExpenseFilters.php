@@ -36,8 +36,7 @@ class ExpenseFilters extends QueryFilters
         }
 
         return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('expenses.name', 'like', '%'.$filter.'%')
-                          ->orWhere('expenses.id_number', 'like', '%'.$filter.'%')
+            $query->where('expenses.public_notes', 'like', '%'.$filter.'%')
                           ->orWhere('expenses.custom_value1', 'like', '%'.$filter.'%')
                           ->orWhere('expenses.custom_value2', 'like', '%'.$filter.'%')
                           ->orWhere('expenses.custom_value3', 'like', '%'.$filter.'%')
@@ -94,7 +93,10 @@ class ExpenseFilters extends QueryFilters
     {
         $sort_col = explode('|', $sort);
 
-        return $this->builder->orderBy($sort_col[0], $sort_col[1]);
+        if(is_array($sort_col) && in_array($sort_col[1], ['asc', 'desc']) && in_array($sort_col[0], ['public_notes', 'date', 'id_number', 'custom_value1', 'custom_value2', 'custom_value3', 'custom_value4']))
+            return $this->builder->orderBy($sort_col[0], $sort_col[1]);
+
+        return $this->builder;
     }
 
     /**

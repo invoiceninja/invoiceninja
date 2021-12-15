@@ -677,7 +677,6 @@ class EventTest extends TestCase
     {
         $this->withoutMiddleware(PasswordProtection::class);
 
-
         $this->expectsEvents([
             UserWasCreated::class,
             UserWasUpdated::class,

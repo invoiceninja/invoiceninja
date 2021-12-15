@@ -4341,6 +4341,11 @@ $LANG = array(
     'acss' => 'Pre-authorized debit payments',
     'invalid_amount' => 'Invalid amount. Number/Decimal values only.',
     'client_payment_failure_body' => 'Payment for Invoice :invoice for amount :amount failed.',
+    'browser_pay' => 'Google Pay, Apple Pay, Microsoft Pay',
+    'no_available_methods' => 'We can\'t find any credit cards on your device. <a href="https://invoiceninja.github.io/docs/payments#apple-pay-google-pay-microsoft-pay" target="_blank" class="underline">Read more about this.</a>',
+    'gocardless_mandate_not_ready' => 'Payment mandate is not ready. Please try again later.',
+    'payment_type_instant_bank_pay' => 'Instant Bank Pay',
+
 );
 
 return $LANG;

@@ -11,6 +11,7 @@
 
 namespace App\PaymentDrivers;
 
+use App\Events\Payment\PaymentFailed;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
@@ -39,6 +40,7 @@ class GoCardlessPaymentDriver extends BaseDriver
         GatewayType::BANK_TRANSFER => \App\PaymentDrivers\GoCardless\ACH::class,
         GatewayType::DIRECT_DEBIT => \App\PaymentDrivers\GoCardless\DirectDebit::class,
         GatewayType::SEPA => \App\PaymentDrivers\GoCardless\SEPA::class,
+        GatewayType::INSTANT_BANK_PAY => \App\PaymentDrivers\GoCardless\InstantBankPay::class,
     ];
 
     const SYSTEM_LOG_TYPE = SystemLog::TYPE_GOCARDLESS;
@@ -74,6 +76,10 @@ class GoCardlessPaymentDriver extends BaseDriver
 
         if ($this->client->currency()->code === 'EUR') {
             $types[] = GatewayType::SEPA;
+        }
+
+        if ($this->client->currency()->code === 'GBP') {
+            $types[] = GatewayType::INSTANT_BANK_PAY;
         }
 
         return $types;
@@ -257,5 +263,19 @@ class GoCardlessPaymentDriver extends BaseDriver
         }
 
         return response()->json([], 200);
+    }
+
+    public function ensureMandateIsReady($token)
+    {
+        try {
+            $this->init();
+            $mandate = $this->gateway->mandates()->get($token);
+
+            if ($mandate->status !== 'active') {
+                throw new \Exception(ctrans('texts.gocardless_mandate_not_ready'));
+            }
+        } catch (\Exception $exception) {
+            throw new \App\Exceptions\PaymentFailed($exception->getMessage());
+        }
     }
 }

@@ -51,9 +51,9 @@ class RecurringExpenseToExpenseFactory
         $expense->payment_type_id = $recurring_expense->payment_type_id;
         $expense->project_id = $recurring_expense->project_id;
         $expense->invoice_documents = $recurring_expense->invoice_documents;
-        $expense->tax_amount1 = $recurring_expense->tax_amount1;
-        $expense->tax_amount2 = $recurring_expense->tax_amount2;
-        $expense->tax_amount3 = $recurring_expense->tax_amount3;
+        $expense->tax_amount1 = $recurring_expense->tax_amount1 ?: 0;
+        $expense->tax_amount2 = $recurring_expense->tax_amount2 ?: 0;
+        $expense->tax_amount3 = $recurring_expense->tax_amount3 ?: 0;
         $expense->uses_inclusive_taxes = $recurring_expense->uses_inclusive_taxes;
         $expense->calculate_tax_by_amount = $recurring_expense->calculate_tax_by_amount;
         

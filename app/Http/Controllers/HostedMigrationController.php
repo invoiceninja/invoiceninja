@@ -13,8 +13,12 @@ namespace App\Http\Controllers;
 
 use App\Jobs\Account\CreateAccount;
 use App\Libraries\MultiDB;
+use App\Models\Client;
+use App\Models\ClientContact;
+use App\Models\Company;
 use App\Models\CompanyToken;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 
 class HostedMigrationController extends Controller
 {
@@ -47,6 +51,24 @@ class HostedMigrationController extends Controller
 
         return response()->json(['token' => $company_token->token], 200);
 
+    }
+
+    public function confirmForwarding(Request $request)
+    {
+        if($request->header('X-API-HOSTED-SECRET') != config('ninja.ninja_hosted_secret'))
+            return;
+
+        $input = $request->all();
+
+        MultiDB::findAndSetDbByCompanyKey($input['account_key']);
+
+        $company = Company::with('account')->where('company_key', $input['account_key'])->first();
+
+        $forward_url = $company->domain();
+        
+        $billing_transferred = \Modules\Admin\Jobs\Account\TransferAccountPlan::dispatchNow($input);
+
+        return response()->json(['forward_url' => $forward_url, 'billing_transferred' => $billing_transferred], 200);
     }
 
 }

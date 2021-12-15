@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Helpers\Document\WithTypeHelpers;
 use App\Models\Filterable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
@@ -19,6 +20,7 @@ class Document extends BaseModel
 {
     use SoftDeletes;
     use Filterable;
+    use WithTypeHelpers;
 
     const DOCUMENT_PREVIEW_SIZE = 300; // pixels
 
@@ -39,9 +41,6 @@ class Document extends BaseModel
         ],
         'ai' => [
             'mime' => 'application/postscript',
-        ],
-        'svg' => [
-            'mime' => 'image/svg+xml',
         ],
         'jpeg' => [
             'mime' => 'image/jpeg',

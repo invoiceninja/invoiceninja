@@ -167,6 +167,7 @@ class UserTest extends TestCase
         $company_token->account_id = $this->account->id;
         $company_token->name = 'test token';
         $company_token->token = \Illuminate\Support\Str::random(64);
+        $company_token->is_system = true;
         $company_token->save();
 
         /*Manually link this user to the company*/

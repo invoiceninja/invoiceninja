@@ -16,6 +16,8 @@ use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
+use App\Models\Quote;
+use App\Models\QuoteInvitation;
 use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
@@ -254,18 +256,38 @@ class TemplateEngine
                 'send_email' => true,
             ]);
 
-        $this->entity_obj = Invoice::factory()->create([
-                    'user_id' => auth()->user()->id,
-                    'company_id' => auth()->user()->company()->id,
-                    'client_id' => $client->id,
-                ]);
 
-        $invitation = InvoiceInvitation::factory()->create([
-                    'user_id' => auth()->user()->id,
-                    'company_id' => auth()->user()->company()->id,
-                    'invoice_id' => $this->entity_obj->id,
-                    'client_contact_id' => $contact->id,
-        ]);
+        if(!$this->entity || $this->entity == 'invoice')
+        {
+            $this->entity_obj = Invoice::factory()->create([
+                        'user_id' => auth()->user()->id,
+                        'company_id' => auth()->user()->company()->id,
+                        'client_id' => $client->id,
+                    ]);
+
+            $invitation = InvoiceInvitation::factory()->create([
+                        'user_id' => auth()->user()->id,
+                        'company_id' => auth()->user()->company()->id,
+                        'invoice_id' => $this->entity_obj->id,
+                        'client_contact_id' => $contact->id,
+            ]);
+        }
+
+        if($this->entity == 'quote')
+        {
+            $this->entity_obj = Quote::factory()->create([
+                        'user_id' => auth()->user()->id,
+                        'company_id' => auth()->user()->company()->id,
+                        'client_id' => $client->id,
+                    ]);
+
+            $invitation = QuoteInvitation::factory()->create([
+                        'user_id' => auth()->user()->id,
+                        'company_id' => auth()->user()->company()->id,
+                        'quote_id' => $this->entity_obj->id,
+                        'client_contact_id' => $contact->id,
+            ]);
+        }
 
         $this->entity_obj->setRelation('invitations', $invitation);
         $this->entity_obj->setRelation('client', $client);

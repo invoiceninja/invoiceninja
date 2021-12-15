@@ -20,10 +20,10 @@
             @if (count($tokens) > 0)
                 @foreach ($tokens as $token)
                     <label class="mr-4">
-                        <input type="radio" data-token="{{ $token->hashed_id }}" name="payment-type"
+                        <input type="radio" data-token="{{ $token->token }}" name="payment-type"
                             class="form-radio cursor-pointer toggle-payment-with-token" />
                         <span class="ml-1 cursor-pointer">{{ ctrans('texts.bank_transfer') }}
-                            (#{{ $token->hashed_id }})</span>
+                            (#{{ $token->token }})</span>
                     </label>
                 @endforeach
             @endisset

@@ -99,4 +99,9 @@ class RazorpayPaymentDriver extends BaseDriver
     {
         return \number_format((float) $amount * 100, 0, '.', '');
     }
+
+    public function processWebhookRequest(): void
+    {
+        //
+    }
 }
