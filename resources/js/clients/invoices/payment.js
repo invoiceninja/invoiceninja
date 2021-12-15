@@ -68,6 +68,8 @@ class Payment {
     }
 
     submitForm() {
+        this.submitting = true;
+
         document.getElementById("payment-form").submit();
     }
 
@@ -99,8 +101,6 @@ class Payment {
                 element.addEventListener("click", () => {
                     if (!this.submitting) {
                         this.handleMethodSelect(element)
-
-                        this.submitting = true;
                     }
                 });
             });
