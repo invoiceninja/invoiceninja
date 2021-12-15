@@ -26,6 +26,8 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use App\DataMapper\ClientSettings;
 use Livewire\Component;
 
 class BillingPortalPurchase extends Component
@@ -187,6 +189,9 @@ class BillingPortalPurchase extends Component
             $this->coupon = request()->query('coupon');
             $this->handleCoupon();
         }
+        elseif(strlen($this->subscription->promo_code) == 0 && $this->subscription->promo_discount > 0){
+            $this->price = $this->subscription->promo_price;
+        }
     }
 
     /**
@@ -241,7 +246,8 @@ class BillingPortalPurchase extends Component
             'contacts' => [
                 ['email' => $this->email],
             ],
-            'settings' => [],
+            'client_hash' => Str::random(40),
+            'settings' => ClientSettings::defaults(),
         ];
 
         foreach ($this->request_data as $field => $value) {
@@ -279,7 +285,7 @@ class BillingPortalPurchase extends Component
      */
     protected function getPaymentMethods(ClientContact $contact): self
     {
-        Auth::guard('contact')->login($contact, true);
+        Auth::guard('contact')->loginUsingId($contact->id, true);
 
         $this->contact = $contact;
 
@@ -290,7 +296,7 @@ class BillingPortalPurchase extends Component
             return $this;
         }
 
-        if ((int)$this->subscription->price == 0)
+        if ((int)$this->price == 0)
             $this->steps['payment_required'] = false;
         else
             $this->steps['fetched_payment_methods'] = true;
@@ -339,14 +345,6 @@ class BillingPortalPurchase extends Component
             'quantity' => $this->quantity,
         ];
 
-        $this->invoice = $this->subscription
-            ->service()
-            ->createInvoice($data)
-            ->service()
-            ->markSent()
-            ->fillDefaults()
-            ->save();
-
         $is_eligible = $this->subscription->service()->isEligible($this->contact);
 
         if (is_array($is_eligible) && $is_eligible['message'] != 'Success') {
@@ -356,6 +354,14 @@ class BillingPortalPurchase extends Component
 
             return;
         }
+
+        $this->invoice = $this->subscription
+            ->service()
+            ->createInvoice($data)
+            ->service()
+            ->markSent()
+            ->fillDefaults()
+            ->save();
 
         Cache::put($this->hash, [
             'subscription_id' => $this->subscription->id,

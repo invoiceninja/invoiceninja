@@ -61,7 +61,7 @@ class RequiredClientInfo extends Component
         'contact_first_name' => 'first_name',
         'contact_last_name' => 'last_name',
         'contact_email' => 'email',
-        'contact_phone' => 'phone',
+        // 'contact_phone' => 'phone',
     ];
 
     public $show_form = false;
@@ -141,7 +141,7 @@ class RequiredClientInfo extends Component
             $_field = $this->mappings[$field['name']];
 
             if (Str::startsWith($field['name'], 'client_')) {
-                if (empty($this->contact->client->{$_field}) || is_null($this->contact->client->{$_field})) {
+                if (empty($this->contact->client->{$_field}) || is_null($this->contact->client->{$_field}) || $this->contact->client->{$_field} == 840) {
                     $this->show_form = true;
                 } else {
                     $this->fields[$index]['filled'] = true;
@@ -149,7 +149,7 @@ class RequiredClientInfo extends Component
             }
 
             if (Str::startsWith($field['name'], 'contact_')) {
-                if ((empty($this->contact->{$_field}) || is_null($this->contact->{$_field}))) {
+                if ((empty($this->contact->{$_field}) || is_null($this->contact->{$_field})) || $this->contact->client->{$_field} == 840) {
                     $this->show_form = true;
                 } else {
                     $this->fields[$index]['filled'] = true;

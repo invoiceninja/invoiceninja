@@ -14,10 +14,10 @@ namespace App\PaymentDrivers\GoCardless;
 
 use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use Illuminate\Http\Request;
 use App\Jobs\Util\SystemLogger;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
+use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
@@ -27,6 +27,7 @@ use App\Utils\Traits\MakesHash;
 use Exception;
 use GoCardlessPro\Resources\Payment as ResourcesPayment;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
 use Illuminate\View\View;
 
@@ -160,20 +161,29 @@ class ACH implements MethodInterface
      */
     public function paymentResponse(PaymentResponseRequest $request)
     {
-        $token = ClientGatewayToken::find(
-            $this->decodePrimaryKey($request->source)
-        )->firstOrFail();
+
+        $this->go_cardless->ensureMandateIsReady($request->source);
+
+        $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($this->go_cardless->payment_hash->invoices(), 'invoice_id')))
+                          ->withTrashed()
+                          ->first();
+
+        if($invoice)
+            $description = "Invoice {$invoice->number} for {$request->amount} for client {$this->go_cardless->client->present()->name()}";
+        else
+            $description = "Amount {$request->amount} from client {$this->go_cardless->client->present()->name()}";
 
         try {
             $payment = $this->go_cardless->gateway->payments()->create([
                 'params' => [
                     'amount' => $request->amount,
                     'currency' => $request->currency,
+                    'description' => $description,
                     'metadata' => [
                         'payment_hash' => $this->go_cardless->payment_hash->hash,
                     ],
                     'links' => [
-                        'mandate' => $token->token,
+                        'mandate' => $request->source,
                     ],
                 ],
             ]);
@@ -199,7 +209,6 @@ class ACH implements MethodInterface
     public function processPendingPayment(\GoCardlessPro\Resources\Payment $payment, array $data = [])
     {
         $data = [
-            'payment_method' => $data['token'],
             'payment_type' => PaymentType::ACH,
             'amount' => $this->go_cardless->payment_hash->data->amount_with_fee,
             'transaction_reference' => $payment->id,

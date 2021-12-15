@@ -31,6 +31,7 @@ class SubdomainController extends BaseController
         'cname',
         'sandbox',
         'stage',
+        'html',
     ];
 
     public function __construct()

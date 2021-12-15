@@ -127,8 +127,8 @@ class WebhookHandler implements ShouldQueue
                 $this->company
             );
 
-            // if ($response->getStatusCode() == 410 || $response->getStatusCode() == 200)
-            //     return true;// $subscription->delete();
+            // if ($response->getStatusCode() == 410)
+            //      return true; $subscription->delete();
 
         }
         catch(\Exception $e){

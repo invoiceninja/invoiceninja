@@ -107,7 +107,7 @@ class LicenseController extends BaseController
                         'message' => trans('texts.invalid_white_label_license'),
                         'errors' => new stdClass,
                     ];
-
+                    $account = auth()->user()->account;
                     $account->plan_term = Account::PLAN_TERM_YEARLY;
                     $account->plan_paid = null;
                     $account->plan_expires = null;
@@ -116,7 +116,7 @@ class LicenseController extends BaseController
 
                     return response()->json($error, 400);
                 } else {
-                    $account = auth()->user()->company()->account;
+                    $account = auth()->user()->account;
 
                     $account->plan_term = Account::PLAN_TERM_YEARLY;
                     $account->plan_paid = $data;
@@ -151,7 +151,7 @@ class LicenseController extends BaseController
 
     private function checkLicense()
     {
-        $account = auth()->user()->company()->account;
+        $account = auth()->user()->account;
 
         if($account->plan == 'white_label' && Carbon::parse($account->plan_expires)->lt(now())){
             $account->plan = null;

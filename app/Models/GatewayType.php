@@ -37,6 +37,7 @@ class GatewayType extends StaticModel
     const DIRECT_DEBIT = 18;
     const ACSS = 19;
     const BECS = 20;
+    const INSTANT_BANK_PAY = 21;
 
     public function gateway()
     {
@@ -89,6 +90,8 @@ class GatewayType extends StaticModel
                 return ctrans('texts.acss');
             case self::DIRECT_DEBIT:
                 return ctrans('texts.payment_type_direct_debit');
+            case self::INSTANT_BANK_PAY:
+                return ctrans('texts.payment_type_instant_bank_pay');
             default:
                 return 'Undefined.';
                 break;

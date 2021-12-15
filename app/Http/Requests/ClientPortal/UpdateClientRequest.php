@@ -32,7 +32,7 @@ class UpdateClientRequest extends Request
     {
         return [
             'name' => 'sometimes|required',
-            'file' => 'sometimes|nullable|max:100000|mimes:png,svg,jpeg,gif,jpg,bmp',
+            'file' => 'sometimes|nullable|max:100000|mimes:png,jpeg,gif,jpg,bmp',
         ];
     }
 }

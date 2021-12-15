@@ -36,6 +36,7 @@ class TasksTable extends Component
     {
         $query = Task::query()
             ->where('company_id', $this->company->id)
+            ->where('is_deleted', false)
             ->where('client_id', auth('contact')->user()->client->id);
 
         if ($this->company->getSetting('show_all_tasks_client_portal') === 'invoiced') {

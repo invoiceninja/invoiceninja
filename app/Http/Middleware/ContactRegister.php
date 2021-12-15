@@ -19,10 +19,11 @@ class ContactRegister
      */
     public function handle($request, Closure $next)
     {
+        $domain_name = $request->getHost();
 
-        if (strpos($request->getHost(), 'invoicing.co') !== false) 
+        if (strpos($domain_name, 'invoicing.co') !== false) 
         {
-            $subdomain = explode('.', $request->getHost())[0];
+            $subdomain = explode('.', $domain_name)[0];
             
             $query = [
                 'subdomain' => $subdomain,
@@ -36,14 +37,14 @@ class ContactRegister
                 if(! $company->client_can_register)
                     abort(400, 'Registration disabled');
 
-                $request->merge(['key' => $company->company_key]);
+                    session()->put('key', $company->company_key);
 
                 return $next($request);
             }
 
         }
 
-       $query = [
+        $query = [
             'portal_domain' => $request->getSchemeAndHttpHost(),
             'portal_mode' => 'domain',
         ];
@@ -54,7 +55,8 @@ class ContactRegister
             if(! $company->client_can_register)
                 abort(400, 'Registration disabled');
 
-            $request->merge(['key' => $company->company_key]);
+           // $request->merge(['key' => $company->company_key]);
+            session()->put('key', $company->company_key);
 
             return $next($request);
         }
@@ -68,7 +70,8 @@ class ContactRegister
             if(! (bool)$company->client_can_register);
                 abort(400, 'Registration disabled');
 
-            $request->merge(['key' => $company->company_key]);
+            //$request->merge(['key' => $company->company_key]);
+            session()->put('key', $company->company_key);
 
             return $next($request);
         }
@@ -81,11 +84,12 @@ class ContactRegister
             if(! $company->client_can_register)
                 abort(400, 'Registration disabled');
 
-            $request->merge(['key' => $company->company_key]);
+            //$request->merge(['key' => $company->company_key]);
+            session()->put('key', $company->company_key);
 
             return $next($request);
         }
 
-        abort(404, 'ContactRegister Middlware');
+        abort(404, 'ContactRegister Middleware');
     }
 }

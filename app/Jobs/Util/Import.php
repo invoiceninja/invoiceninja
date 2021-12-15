@@ -232,6 +232,7 @@ class Import implements ShouldQueue
 
         $account = $this->company->account;
         $account->default_company_id = $this->company->id;
+        $account->is_migrated = true;
         $account->save();
 
         //company size check
@@ -1104,7 +1105,7 @@ class Import implements ShouldQueue
             throw new MigrationValidatorFailed(json_encode($validator->errors()));
         }
 
-        $quote_repository = new QuoteRepository();
+        $quote_repository = new InvoiceMigrationRepository();
 
         foreach ($data as $resource) {
             $modified = $resource;
@@ -1143,7 +1144,7 @@ class Import implements ShouldQueue
                     $resource['invitations'][$key]['user_id'] = $modified['user_id'];
                     $resource['invitations'][$key]['company_id'] = $this->company->id;
                     $resource['invitations'][$key]['email_status'] = '';
-                    unset($resource['invitations'][$key]['invoice_id']);
+                    unset($resource['invitations'][$key]['quote_id']);
                     unset($resource['invitations'][$key]['id']);
                 }
 
@@ -1831,7 +1832,7 @@ class Import implements ShouldQueue
         $job_failure->string_metric6 = $exception->getMessage();
 
         LightLogs::create($job_failure)
-                 ->batch();
+                 ->queue();
 
         info(print_r($exception->getMessage(), 1));
 

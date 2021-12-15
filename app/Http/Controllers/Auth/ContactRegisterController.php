@@ -29,7 +29,7 @@ class ContactRegisterController extends Controller
 
     public function showRegisterForm(string $company_key = '')
     {
-        $key = request()->has('key') ? request('key') : $company_key;
+        $key = request()->session()->has('key') ? request()->session()->get('key') : $company_key;
 
         $company = Company::where('company_key', $key)->firstOrFail();
 
@@ -43,7 +43,7 @@ class ContactRegisterController extends Controller
         $client = $this->getClient($request->all());
         $client_contact = $this->getClientContact($request->all(), $client);
 
-        Auth::guard('contact')->login($client_contact, true);
+        Auth::guard('contact')->loginUsingId($client_contact->id, true);
 
         return redirect()->route('client.dashboard');
     }
@@ -65,7 +65,9 @@ class ContactRegisterController extends Controller
 
         $client_contact->client_id = $client->id;
         $client_contact->is_primary = true;
-        $client_contact->password = Hash::make($data['password']);
+
+        if(array_key_exists('password', $data))
+            $client_contact->password = Hash::make($data['password']);
 
         $client_contact->save();
 

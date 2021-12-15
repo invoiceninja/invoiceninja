@@ -120,6 +120,7 @@ class SendRecurring implements ShouldQueue
 
         */
 
+        event('eloquent.created: App\Models\Invoice', $invoice);
 
         //Admin notification for recurring invoice sent. 
         if ($invoice->invitations->count() >= 1 ) {
@@ -144,7 +145,7 @@ class SendRecurring implements ShouldQueue
     
         if ($invoice->client->getSetting('auto_bill_date') == 'on_send_date' && $invoice->auto_bill_enabled) {
             nlog("attempting to autobill {$invoice->number}");
-            $invoice->service()->autoBill()->save();
+            $invoice->service()->autoBill();
 
         }
         elseif($invoice->client->getSetting('auto_bill_date') == 'on_due_date' && $invoice->auto_bill_enabled) {
@@ -152,7 +153,7 @@ class SendRecurring implements ShouldQueue
             if($invoice->due_date && Carbon::parse($invoice->due_date)->startOfDay()->lte(now()->startOfDay())) {
             
                 nlog("attempting to autobill {$invoice->number}");
-                $invoice->service()->autoBill()->save();
+                $invoice->service()->autoBill();
             
             }
 
@@ -171,7 +172,7 @@ class SendRecurring implements ShouldQueue
         $this->recurring_invoice->invitations->each(function ($recurring_invitation) use($invoice){
 
             $ii = InvoiceInvitationFactory::create($invoice->company_id, $invoice->user_id);
-            $ii->key = $this->createDbHash(config('database.default'));
+            $ii->key = $this->createDbHash($invoice->company->db);
             $ii->invoice_id = $invoice->id;
             $ii->client_contact_id = $recurring_invitation->client_contact_id;
             $ii->save();
@@ -191,7 +192,7 @@ class SendRecurring implements ShouldQueue
         $job_failure->string_metric6 = $exception->getMessage();
 
         LightLogs::create($job_failure)
-                 ->batch();
+                 ->queue();
 
         nlog(print_r($exception->getMessage(), 1));
     }

@@ -33,7 +33,7 @@ class CreateInvitations extends AbstractService
     public function run()
     {
 
-        $contacts = $this->invoice->client->contacts;
+        $contacts = $this->invoice->client->contacts()->where('send_email', true)->get();
 
         if($contacts->count() == 0){
             $this->createBlankContact();
@@ -51,7 +51,7 @@ class CreateInvitations extends AbstractService
 
             if (! $invitation && $contact->send_email) {
                 $ii = InvoiceInvitationFactory::create($this->invoice->company_id, $this->invoice->user_id);
-                $ii->key = $this->createDbHash(config('database.default'));
+                $ii->key = $this->createDbHash($this->invoice->company->db);
                 $ii->invoice_id = $this->invoice->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();
@@ -62,10 +62,26 @@ class CreateInvitations extends AbstractService
 
         if($this->invoice->invitations()->count() == 0) {
             
-            $contact = $this->createBlankContact();
+            if($contacts->count() == 0){
+                $contact = $this->createBlankContact();
+            }
+            else{
+                $contact = $contacts->first();
+
+                            $invitation = InvoiceInvitation::where('company_id', $this->invoice->company_id)
+                                        ->where('client_contact_id', $contact->id)
+                                        ->where('invoice_id', $this->invoice->id)
+                                        ->withTrashed()
+                                        ->first();
+
+                            if($invitation){
+                                $invitation->restore();
+                                return $this->invoice;
+                            }
+            }
 
                 $ii = InvoiceInvitationFactory::create($this->invoice->company_id, $this->invoice->user_id);
-                $ii->key = $this->createDbHash(config('database.default'));
+                $ii->key = $this->createDbHash($this->invoice->company->db);
                 $ii->invoice_id = $this->invoice->id;
                 $ii->client_contact_id = $contact->id;
                 $ii->save();

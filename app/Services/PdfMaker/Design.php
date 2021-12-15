@@ -359,7 +359,7 @@ class Design extends BaseDesign
 
         $tbody = [];
 
-        foreach ($this->invoices as $invoice) {
+        foreach ($this->invoices->cursor() as $invoice) {
             $element = ['element' => 'tr', 'elements' => []];
 
             $element['elements'][] = ['element' => 'td', 'content' => $invoice->number];
@@ -407,7 +407,7 @@ class Design extends BaseDesign
 
         $tbody = [];
 
-        foreach ($this->payments as $payment) {
+        foreach ($this->payments->cursor() as $payment) {
             foreach ($payment->invoices as $invoice) {
                 $element = ['element' => 'tr', 'elements' => []];
 

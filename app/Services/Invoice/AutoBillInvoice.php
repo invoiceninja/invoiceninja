@@ -130,7 +130,7 @@ class AutoBillInvoice extends AbstractService
             info("Auto Bill payment captured for ".$this->invoice->number);
         }
 
-        return $this->invoice;
+        // return $this->invoice->fresh();
     }
 
     /**

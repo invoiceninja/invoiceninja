@@ -47,7 +47,7 @@ class ApplyPayment extends AbstractService
 
                 $amount_paid = $this->payment_amount * -1;
 
-                $this->invoice->service()->clearPartial()->setDueDate()->setStatus(Invoice::STATUS_PARTIAL)->updateBalance($amount_paid);
+                $this->invoice->service()->clearPartial()->setDueDate()->setStatus(Invoice::STATUS_PARTIAL)->updateBalance($amount_paid)->save();
 
             } 
             elseif ($this->invoice->partial > 0 && $this->invoice->partial > $this->payment_amount) 
@@ -56,7 +56,7 @@ class ApplyPayment extends AbstractService
             
                 $amount_paid = $this->payment_amount * -1;
 
-                $this->invoice->service()->updatePartial($amount_paid)->updateBalance($amount_paid);
+                $this->invoice->service()->updatePartial($amount_paid)->updateBalance($amount_paid)->save();
             
             } 
             elseif ($this->invoice->partial > 0 && $this->invoice->partial < $this->payment_amount) 
@@ -65,7 +65,7 @@ class ApplyPayment extends AbstractService
 
                 $amount_paid = $this->payment_amount * -1;
             
-                $this->invoice->service()->clearPartial()->setDueDate()->setStatus(Invoice::STATUS_PARTIAL)->updateBalance($amount_paid);
+                $this->invoice->service()->clearPartial()->setDueDate()->setStatus(Invoice::STATUS_PARTIAL)->updateBalance($amount_paid)->save();
             
             }
 
@@ -76,7 +76,7 @@ class ApplyPayment extends AbstractService
             {   
                 $amount_paid = $this->payment_amount * -1;
 
-                $this->invoice->service()->clearPartial()->setStatus(Invoice::STATUS_PAID)->updateBalance($amount_paid);
+                $this->invoice->service()->clearPartial()->setStatus(Invoice::STATUS_PAID)->updateBalance($amount_paid)->save();
 
             } 
             elseif ($this->payment_amount < $this->invoice->balance) 
@@ -85,7 +85,7 @@ class ApplyPayment extends AbstractService
 
                 $amount_paid = $this->payment_amount * -1;
 
-                $this->invoice->service()->clearPartial()->setStatus(Invoice::STATUS_PARTIAL)->updateBalance($amount_paid);
+                $this->invoice->service()->clearPartial()->setStatus(Invoice::STATUS_PARTIAL)->updateBalance($amount_paid)->save();
 
             
             } 
@@ -95,7 +95,7 @@ class ApplyPayment extends AbstractService
 
                 $amount_paid = $this->invoice->balance * -1;
                 
-                $this->invoice->service()->clearPartial()->setStatus(Invoice::STATUS_PAID)->updateBalance($amount_paid);
+                $this->invoice->service()->clearPartial()->setStatus(Invoice::STATUS_PAID)->updateBalance($amount_paid)->save();
             
             }
         }

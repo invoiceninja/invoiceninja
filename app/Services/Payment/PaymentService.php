@@ -112,7 +112,7 @@ class PaymentService
         /* Iterate through the invoices and apply credits to them */
         collect($payment_hash->invoices())->each(function ($payable_invoice) use ($payment_hash) {
 
-            $invoice = Invoice::find($this->decodePrimaryKey($payable_invoice->invoice_id));
+            $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($payable_invoice->invoice_id));
             
             $amount = $payable_invoice->amount;
 

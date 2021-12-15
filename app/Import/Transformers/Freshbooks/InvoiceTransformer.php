@@ -14,6 +14,7 @@ namespace App\Import\Transformers\Freshbooks;
 use App\Import\ImportException;
 use App\Import\Transformers\BaseTransformer;
 use App\Models\Invoice;
+use App\Utils\Number;
 
 /**
  * Class InvoiceTransformer.
@@ -53,16 +54,16 @@ class InvoiceTransformer extends BaseTransformer {
 			$line_items[]          = [
 				'product_key'        => $this->getString( $record, 'Item Name' ),
 				'notes'              => $this->getString( $record, 'Item Description' ),
-				'cost'               => $this->getFloat( $record, 'Rate' ),
-				'quantity'           => $this->getFloat( $record, 'Quantity' ),
-				'discount'           => $this->getFloat( $record, 'Discount Percentage' ),
+				'cost'               => $this->getFreshbookQuantityFloat( $record, 'Rate' ),
+				'quantity'           => $this->getFreshbookQuantityFloat( $record, 'Quantity' ),
+				'discount'           => $this->getFreshbookQuantityFloat( $record, 'Discount Percentage' ),
 				'is_amount_discount' => false,
 				'tax_name1'          => $this->getString( $record, 'Tax 1 Type' ),
-				'tax_rate1'          => $this->getFloat( $record, 'Tax 1 Amount' ),
+				'tax_rate1'          => $this->getFreshbookQuantityFloat( $record, 'Tax 1 Amount' ),
 				'tax_name2'          => $this->getString( $record, 'Tax 2 Type' ),
-				'tax_rate2'          => $this->getFloat( $record, 'Tax 2 Amount' ),
+				'tax_rate2'          => $this->getFreshbookQuantityFloat( $record, 'Tax 2 Amount' ),
 			];
-			$transformed['amount'] += $this->getFloat( $record, 'Line Total' );
+			$transformed['amount'] += $this->getFreshbookQuantityFloat( $record, 'Line Total' );
 		}
 		$transformed['line_items'] = $line_items;
 
@@ -75,4 +76,11 @@ class InvoiceTransformer extends BaseTransformer {
 
 		return $transformed;
 	}
+
+	/** @return float  */
+	public function getFreshbookQuantityFloat($data, $field)
+	{
+		return $data[$field];
+	}
+
 }

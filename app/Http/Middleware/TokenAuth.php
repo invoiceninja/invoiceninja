@@ -42,6 +42,16 @@ class TokenAuth
                 return response()->json($error, 403);
             }
 
+            if(Ninja::isHosted() && $company_token->is_system == 0 && !$user->account->isPaid()){
+                
+                $error = [
+                    'message' => 'Feature not available with free / unpaid account.',
+                    'errors' => new stdClass,
+                ];
+                
+                return response()->json($error, 403);
+            }
+
             /*
             |
             | Necessary evil here: As we are authenticating on CompanyToken,

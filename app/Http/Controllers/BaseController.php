@@ -255,10 +255,10 @@ class BaseController extends Controller
                   $query->where('expenses.user_id', $user->id)->orWhere('expenses.assigned_user_id', $user->id);
             },
             'company.groups' => function ($query) use ($updated_at, $user) {
-                $query->where('updated_at', '>=', $updated_at)->with('documents');
+                $query->whereNotNull('updated_at')->with('documents');
 
-                if(!$user->isAdmin())
-                  $query->where('group_settings.user_id', $user->id);
+                // if(!$user->isAdmin())
+                //   $query->where('group_settings.user_id', $user->id);
             },
             'company.invoices'=> function ($query) use ($updated_at, $user) {
                 $query->where('updated_at', '>=', $updated_at)->with('invitations', 'documents');
@@ -275,7 +275,7 @@ class BaseController extends Controller
 
             },
             'company.payment_terms'=> function ($query) use ($updated_at, $user) {
-                $query->where('updated_at', '>=', $updated_at);
+                $query->whereNotNull('updated_at');
 
                 if(!$user->isAdmin())
                   $query->where('payment_terms.user_id', $user->id);
@@ -334,7 +334,7 @@ class BaseController extends Controller
 
             },
             'company.expense_categories'=> function ($query) use ($updated_at, $user) {
-                $query->where('updated_at', '>=', $updated_at);
+                $query->whereNotNull('updated_at');
             },
             'company.task_statuses'=> function ($query) use ($updated_at, $user) {
                 $query->whereNotNull('updated_at');
@@ -346,7 +346,7 @@ class BaseController extends Controller
 
             },
             'company.subscriptions'=> function ($query) use($updated_at, $user) {
-              $query->where('updated_at', '>=', $updated_at);
+                $query->whereNotNull('updated_at');
 
               if(!$user->isAdmin())
                   $query->where('subscriptions.user_id', $user->id);
@@ -499,8 +499,8 @@ class BaseController extends Controller
             'company.groups' => function ($query) use ($created_at, $user) {
                 $query->where('created_at', '>=', $created_at)->with('documents');
 
-                if(!$user->isAdmin())
-                  $query->where('group_settings.user_id', $user->id);
+                // if(!$user->isAdmin())
+                //   $query->where('group_settings.user_id', $user->id);
             },
             'company.invoices'=> function ($query) use ($created_at, $user) {
                 $query->where('created_at', '>=', $created_at)->with('invitations', 'documents');
@@ -568,7 +568,7 @@ class BaseController extends Controller
 
             },
             'company.expense_categories'=> function ($query) use ($created_at, $user) {
-                $query->where('created_at', '>=', $created_at);
+                $query->whereNotNull('created_at');
 
             },
             'company.task_statuses'=> function ($query) use ($created_at, $user) {

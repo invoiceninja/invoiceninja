@@ -12,7 +12,9 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Libraries\MultiDB;
 use App\Models\Account;
+use App\Models\Company;
 use Illuminate\Foundation\Auth\ResetsPasswords;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -53,8 +55,14 @@ class ResetPasswordController extends Controller
 
     public function showResetForm(Request $request, $token = null)
     {
-        $account_id = $request->get('account_id');
-        $account = Account::find($account_id);
+        
+        MultiDB::findAndSetDbByCompanyKey($request->session()->get('company_key'));
+        $company = Company::where('company_key', $request->session()->get('company_key'))->first();
+
+        if($company)
+            $account = $company->account;
+        else
+            $account = Account::first();
         
         return $this->render('auth.passwords.reset', ['root' => 'themes', 'token' => $token, 'account' => $account]);
     }

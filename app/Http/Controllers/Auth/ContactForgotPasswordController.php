@@ -58,10 +58,21 @@ class ContactForgotPasswordController extends Controller
      */
     public function showLinkRequestForm(Request $request)
     {
-        $account_id = $request->get('account_id');
-        $account = Account::find($account_id);
-        $company = $account->companies->first();
 
+        $account = false;
+        
+        if(Ninja::isHosted() && $request->session()->has('company_key'))
+        {
+            MultiDB::findAndSetDbByCompanyKey($request->session()->get('company_key'));
+            $company = Company::where('company_key', $request->session()->get('company_key'))->first();
+            $account = $company->account;
+        }
+
+        if(!$account){
+            $account = Account::first();
+            $company = $account->companies->first();
+        }
+        
         return $this->render('auth.passwords.request', [
             'title' => 'Client Password Reset',
             'passwordEmailRoute' => 'client.password.email',
@@ -82,15 +93,17 @@ class ContactForgotPasswordController extends Controller
 
     public function sendResetLinkEmail(ContactPasswordResetRequest $request)
     {
-        
         if(Ninja::isHosted() && $request->has('company_key'))
             MultiDB::findAndSetDbByCompanyKey($request->input('company_key'));
         
         $this->validateEmail($request);
 
-        // $user = MultiDB::hasContact($request->input('email'));
-        $company = Company::where('company_key', $request->input('company_key'))->first();
-        $contact = MultiDB::findContact(['company_id' => $company->id, 'email' => $request->input('email')]);
+        if(Ninja::isHosted() && $company = Company::where('company_key', $request->input('company_key'))->first())
+        {
+            $contact = ClientContact::where(['email' => $request->input('email'), 'company_id' => $company->id])->first();
+        }
+        else
+            $contact = ClientContact::where(['email' => $request->input('email')])->first();
 
         $response = false;
 
@@ -99,19 +112,12 @@ class ContactForgotPasswordController extends Controller
             /* Update all instances of the client */
             $token = Str::random(60);
             ClientContact::where('email', $contact->email)->update(['token' => $token]);
-            
             $contact->sendPasswordResetNotification($token);
             $response = Password::RESET_LINK_SENT;
+            
         }
         else
             return $this->sendResetLinkFailedResponse($request, Password::INVALID_USER);
-
-        // We will send the password reset link to this user. Once we have attempted
-        // to send the link, we will examine the response then see the message we
-        // need to show to the user. Finally, we'll send out a proper response.
-        // $response = $this->broker()->sendResetLink(
-        //     $this->credentials($request)
-        // );
 
         if ($request->ajax()) {
 

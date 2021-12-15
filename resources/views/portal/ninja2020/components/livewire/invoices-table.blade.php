@@ -70,36 +70,36 @@
                 <tbody>
                     @forelse($invoices as $invoice)
                         <tr class="bg-white group hover:bg-gray-100">
-                            <td class="px-6 py-4 text-sm font-medium leading-5 text-gray-900 whitespace-no-wrap">
+                            <td class="px-6 py-4 text-sm font-medium leading-5 text-gray-900 whitespace-nowrap">
                                 <label>
                                     <input type="checkbox" class="form-check form-check-child" data-value="{{ $invoice->hashed_id }}">
                                 </label>
                             </td>
-                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap">
+                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-nowrap">
                                 {{ $invoice->number }}
                             </td>
-                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap">
+                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-nowrap">
                                 {{ $invoice->formatDate($invoice->date, $invoice->client->date_format()) }}
                             </td>
-                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap">
+                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-nowrap">
                                 {{ App\Utils\Number::formatMoney($invoice->amount, $invoice->client) }}
                             </td>
-                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap">
+                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-nowrap">
                             {{ App\Utils\Number::formatMoney($invoice->balance, $invoice->client) }}
                             </td>
-                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap">
+                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-nowrap">
                                 {{ $invoice->formatDate($invoice->due_date, $invoice->client->date_format()) }}
                             </td>
-                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap">
+                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-nowrap">
                                 {!! App\Models\Invoice::badgeForStatus($invoice->status) !!}
                             </td>
-                            <td class="flex items-center justify-end px-6 py-4 text-sm font-medium leading-5 whitespace-no-wrap">
-                                @if($invoice->isPayable() && $invoice->balance > 0 && !empty(auth()->user()->client->service()->getPaymentMethods(0)))
+                            <td class="flex items-center justify-end px-6 py-4 text-sm font-medium leading-5 whitespace-nowrap">
+                                @if($invoice->isPayable() && $invoice->balance > 0 && $gateway_available)
                                     <form action="{{ route('client.invoices.bulk') }}" method="post">
                                         @csrf
                                         <input type="hidden" name="invoices[]" value="{{ $invoice->hashed_id }}">
                                         <input type="hidden" name="action" value="payment">
-                                        <button class="px-2 py-1 mr-3 text-xs uppercase button button-primary bg-primary" dusk="pay-now">
+                                        <button onclick="setTimeout(() => this.disabled = true, 0); return true;" class="px-2 py-1 mr-3 text-xs uppercase button button-primary bg-primary" dusk="pay-now">
                                             {{ ctrans('texts.pay_now') }}
                                         </button>
                                     </form>
@@ -111,7 +111,7 @@
                         </tr>
                     @empty
                         <tr class="bg-white group hover:bg-gray-100">
-                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap" colspan="100%">
+                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-nowrap" colspan="100%">
                                 {{ ctrans('texts.no_results') }}
                             </td>
                         </tr>
@@ -121,7 +121,7 @@
         </div>
     </div>
     <div class="flex justify-center mt-6 mb-6 md:justify-between">
-        @if($invoices->total() > 0)
+        @if($invoices && $invoices->total() > 0)
             <span class="hidden text-sm text-gray-700 md:block mr-2">
                 {{ ctrans('texts.showing_x_of', ['first' => $invoices->firstItem(), 'last' => $invoices->lastItem(), 'total' => $invoices->total()]) }}
             </span>

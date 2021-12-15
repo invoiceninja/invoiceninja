@@ -49,15 +49,19 @@ class SystemLogger implements ShouldQueue
 
     public function handle() :void
     {
-        if(!$this->company)
+        if(!$this->company){
+            nlog("SystemLogger:: No company");
             return;
+        }
 
         MultiDB::setDb($this->company->db);
 
         $client_id = $this->client ? $this->client->id : null;
 
-        if(!$this->client && !$this->company->owner())
+        if(!$this->client && !$this->company->owner()){
+            nlog("SystemLogger:: could not find client and/or company owner");
             return;
+        }
         
         $user_id = $this->client ? $this->client->user_id : $this->company->owner()->id;
 
@@ -71,9 +75,16 @@ class SystemLogger implements ShouldQueue
             'type_id' => $this->type_id,
         ];
 
-        if(!$this->log)
+        if(!$this->log){
+            nlog("SystemLogger:: no log to store");
             return;
+        }
 
         SystemLog::create($sl);
+    }
+
+    public function failed($e)
+    {
+        nlog($e->getMessage());
     }
 }

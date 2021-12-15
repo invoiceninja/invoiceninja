@@ -40,9 +40,9 @@ class ApiSecretCheck
             ];
 
             return response()
-            ->json($error, 403)
-            ->header('X-App-Version', config('ninja.app_version'))
-            ->header('X-Minimum-Client-Version', config('ninja.minimum_client_version'));
+                    ->json($error, 403)
+                    ->header('X-App-Version', config('ninja.app_version'))
+                    ->header('X-Minimum-Client-Version', config('ninja.minimum_client_version'));
         }
     }
 }

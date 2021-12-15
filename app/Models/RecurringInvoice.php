@@ -222,6 +222,9 @@ class RecurringInvoice extends BaseModel
             return null;
         }
         
+        nlog("frequency = $this->frequency_id");
+        nlog("frequency = $this->next_send_date");
+
         $offset = $this->client->timezone_offset();
 
         /* 

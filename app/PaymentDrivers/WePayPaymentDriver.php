@@ -209,7 +209,7 @@ class WePayPaymentDriver extends BaseDriver
             return 'Processed successfully';
         } elseif ($objectType == 'account') {
             if ($accountId != $objectId) {
-                throw new \Exception('Unknown account');
+                throw new \Exception('Unknown account ' . $accountId . ' does not equal '.$objectId);
             }
 
             $wepayAccount = $this->wepay->request('account', array(

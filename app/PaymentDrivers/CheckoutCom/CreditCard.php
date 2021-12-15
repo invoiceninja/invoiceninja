@@ -213,10 +213,10 @@ class CreditCard implements MethodInterface
             if ($response->status == 'Declined') {
                 $this->checkout->unWindGatewayFees($this->checkout->payment_hash);
 
-                $this->checkout->sendFailureMail($response->response_summary);
-
+                // $this->checkout->sendFailureMail($response->response_summary);
+                
                 //@todo - this will double up the checkout . com failed mails
-                $this->checkout->clientPaymentFailureMailer($response->status);
+                // $this->checkout->clientPaymentFailureMailer($response->status);
                 
                 return $this->processUnsuccessfulPayment($response);
             }

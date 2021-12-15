@@ -44,6 +44,7 @@ class QuoteEmailEngine extends BaseEmailEngine
 
     public function build()
     {
+
         App::forgetInstance('translator');
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->client->getMergedSettings()));
@@ -56,20 +57,24 @@ class QuoteEmailEngine extends BaseEmailEngine
         } else {
             $body_template = $this->client->getSetting('email_template_'.$this->reminder_template);
         }
-        
+
         /* Use default translations if a custom message has not been set*/
         if (iconv_strlen($body_template) == 0) {
+
             $body_template = trans(
                 'texts.quote_message',
                 [
                     'quote' => $this->quote->number,
                     'company' => $this->quote->company->present()->name(),
-                    'amount' => Number::formatMoney($this->quote->balance, $this->client),
+                    'amount' => Number::formatMoney($this->quote->amount, $this->client),
                 ],
                 null,
                 $this->client->locale()
             );
+
+            $body_template .= '<div class="center">$view_button</div>';
         }
+
 
         if (is_array($this->template_data) &&  array_key_exists('subject', $this->template_data) && strlen($this->template_data['subject']) > 0) {
             $subject_template = $this->template_data['subject'];
@@ -98,7 +103,6 @@ class QuoteEmailEngine extends BaseEmailEngine
             ->setViewLink($this->invitation->getLink())
             ->setViewText(ctrans('texts.view_quote'))
             ->setInvitation($this->invitation);
-
 
         if ($this->client->getSetting('pdf_email_attachment') !== false && $this->quote->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
 

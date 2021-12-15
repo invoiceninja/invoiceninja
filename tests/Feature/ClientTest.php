@@ -297,6 +297,8 @@ class ClientTest extends TestCase
         $company_token->account_id = $account->id;
         $company_token->name = $user->first_name.' '.$user->last_name;
         $company_token->token = Str::random(64);
+        $company_token->is_system = true;
+        
         $company_token->save();
 
         $this->token = $company_token->token;
@@ -353,6 +355,7 @@ class ClientTest extends TestCase
         $company_token->account_id = $account->id;
         $company_token->name = $user->first_name.' '.$user->last_name;
         $company_token->token = Str::random(64);
+        $company_token->is_system = true;
         $company_token->save();
 
         $this->token = $company_token->token;

@@ -62,11 +62,19 @@ class BaseTransformer
     public function getClient($client_name, $client_email) {
 		$clients = $this->maps['company']->clients;
 
-		$clients = $clients->where( 'id_number', $client_name );
+		$client_id_search = $clients->where( 'id_number', $client_name );
 
-		if ( $clients->count() >= 1 ) {
-			return $clients->first()->id;
+		if ( $client_id_search->count() >= 1 ) {
+			return $client_id_search->first()->id;
+            nlog("found via id number");
 		}
+
+        $client_name_search = $clients->where( 'name', $client_name );
+
+        if ( $client_name_search->count() >= 1 ) {
+            return $client_name_search->first()->id;
+            nlog("found via name");
+        }
 
 		if ( ! empty( $client_email ) ) {
 			$contacts = ClientContact::where( 'company_id', $this->maps['company']->id )
@@ -74,8 +82,10 @@ class BaseTransformer
 
 			if ( $contacts->count() >= 1 ) {
 				return $contacts->first()->client_id;
+nlog("found via contact");
 			}
 		}
+nlog("did not find client");
 
 		return null;
 	}
@@ -221,6 +231,9 @@ class BaseTransformer
     {
         $name = strtolower(trim($name));
 
+        if(strlen($name) == 2)
+            return $this->getCountryIdBy2($name);
+        
         return isset($this->maps['countries'][$name]) ? $this->maps['countries'][$name] : null;
     }
 

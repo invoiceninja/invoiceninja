@@ -338,14 +338,14 @@ class CompanyImport implements ShouldQueue
 
                 if($this->account->plan == 'enterprise'){
 
-                    $total_import_users = count($backup_users_emails);
+                    // $total_import_users = count($backup_users_emails);
 
-                    $account_plan_num_user = $this->account->num_users;
+                    // $account_plan_num_user = $this->account->num_users;
 
-                    if($total_import_users > $account_plan_num_user){
-                        $this->message = "Total user count ({$total_import_users}) greater than your plan allows ({$account_plan_num_user})";
-                        $this->pre_flight_checks_pass = false;
-                    }
+                    // if($total_import_users > $account_plan_num_user){
+                    //     $this->message = "Total user count ({$total_import_users}) greater than your plan allows ({$account_plan_num_user})";
+                    //     $this->pre_flight_checks_pass = false;
+                    // }
 
                 }
             }
@@ -1024,7 +1024,7 @@ class CompanyImport implements ShouldQueue
         foreach((object)$this->getObject("users") as $user)
         {
 
-            if(User::where('email', $user->email)->where('account_id', '!=', $this->account->id)->exists())
+            if(User::withTrashed()->where('email', $user->email)->where('account_id', '!=', $this->account->id)->exists())
                 throw new ImportCompanyFailed("{$user->email} is already in the system attached to a different account");
 
             $user_array = (array)$user;
@@ -1032,7 +1032,9 @@ class CompanyImport implements ShouldQueue
             unset($user_array['hashed_id']);
             unset($user_array['id']);
 
-            $new_user = User::firstOrNew(
+            /*Make sure we are searching for archived users also and restore if we find them.*/
+
+            $new_user = User::withTrashed()->firstOrNew(
                 ['email' => $user->email],
                 $user_array,
             );
@@ -1062,7 +1064,7 @@ class CompanyImport implements ShouldQueue
             unset($cu_array['company_id']);
             unset($cu_array['user_id']);
 
-            $new_cu = CompanyUser::firstOrNew(
+            $new_cu = CompanyUser::withTrashed()->firstOrNew(
                         ['user_id' => $user_id, 'company_id' => $this->company->id],
                         $cu_array,
                     );
@@ -1075,8 +1077,6 @@ class CompanyImport implements ShouldQueue
         CompanyUser::reguard();
 
     }
-
-
 
     private function transformDocumentId($id, $type)
     {
@@ -1332,15 +1332,17 @@ class CompanyImport implements ShouldQueue
             if(array_key_exists('deleted_at', $obj_array) && $obj_array['deleted_at'] > 1){
                 $obj_array['deleted_at'] = now();
             }
-            
+
             /* New to convert product ids from old hashes to new hashes*/
             if($class == 'App\Models\Subscription'){
-                //$obj_array['product_ids'] = $this->recordProductIds($obj_array['product_ids']); 
-                //$obj_array['recurring_product_ids'] = $this->recordProductIds($obj_array['recurring_product_ids']); 
-                // $obj_array['webhook_configuration'] = json_encode($obj_array['webhook_configuration']);
-                $obj_array['webhook_configuration'] = '';
+                
+                if(array_key_exists('company', $obj_array))
+                    unset($obj_array['company']);
+
+                $obj_array['webhook_configuration'] = (array)$obj_array['webhook_configuration'];
                 $obj_array['recurring_product_ids'] = '';
                 $obj_array['product_ids'] = '';
+                nlog($obj_array);
             }
 
             /* Expenses that don't have a number will not be inserted - so need to override here*/

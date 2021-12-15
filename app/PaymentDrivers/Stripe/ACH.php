@@ -231,12 +231,24 @@ class ACH
         $this->stripe->payment_hash->data = array_merge((array)$this->stripe->payment_hash->data, $state);
         $this->stripe->payment_hash->save();
 
+        $amount = array_sum(array_column($this->stripe->payment_hash->invoices(), 'amount')) + $this->stripe->payment_hash->fee_total;
+        $invoice = Invoice::whereIn('id', $this->transformKeys(array_column($this->stripe->payment_hash->invoices(), 'invoice_id')))
+                          ->withTrashed()
+                          ->first();
+
+        if ($invoice) {
+            $description = "Invoice {$invoice->number} for {$amount} for client {$this->stripe->client->present()->name()}";
+        } else {
+            $description = "Payment with no invoice for amount {$amount} for client {$this->stripe->client->present()->name()}";
+        }
+
         try {
             $state['charge'] = \Stripe\Charge::create([
                 'amount' => $state['amount'],
                 'currency' => $state['currency'],
                 'customer' => $state['customer'],
                 'source' => $state['source'],
+                'description' => $description,
             ], $this->stripe->stripe_connect_auth);
 
             $state = array_merge($state, $request->all());

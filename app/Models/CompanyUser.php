@@ -88,7 +88,7 @@ class CompanyUser extends Pivot
 
     public function users()
     {
-        return $this->hasMany(User::class);
+        return $this->hasMany(User::class)->withTrashed();
     }
 
     /*todo monitor this function - may fail under certain conditions*/

@@ -16,6 +16,7 @@ use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Http\Requests\Gateways\Mollie\Mollie3dsRequest;
 use App\Http\Requests\Payments\PaymentWebhookRequest;
 use App\Jobs\Util\SystemLogger;
+use App\Models\Client;
 use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Invoice;
@@ -175,7 +176,7 @@ class MolliePaymentDriver extends BaseDriver
                 SystemLog::EVENT_GATEWAY_FAILURE,
                 SystemLog::TYPE_MOLLIE,
                 $this->client,
-                $this->client->companyk
+                $this->client->company
             );
 
             nlog($e->getMessage());
@@ -238,7 +239,8 @@ class MolliePaymentDriver extends BaseDriver
                     SystemLog::CATEGORY_GATEWAY_RESPONSE,
                     SystemLog::EVENT_GATEWAY_SUCCESS,
                     SystemLog::TYPE_MOLLIE,
-                    $this->client
+                    $this->client,
+                    $this->client->company
                 );
 
                 return $payment;
@@ -258,7 +260,8 @@ class MolliePaymentDriver extends BaseDriver
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_FAILURE,
                 SystemLog::TYPE_CHECKOUT,
-                $this->client
+                $this->client,
+                $this->client->company
             );
 
             return false;
@@ -291,7 +294,7 @@ class MolliePaymentDriver extends BaseDriver
         }
 
         $this->init();
-
+        
         $codes = [
             'open' => Payment::STATUS_PENDING,
             'canceled' => Payment::STATUS_CANCELLED,
@@ -303,12 +306,63 @@ class MolliePaymentDriver extends BaseDriver
 
         try {
             $payment = $this->gateway->payments->get($request->id);
+            $record = Payment::withTrashed()->where('transaction_reference', $request->id)->first();
 
-            $record = Payment::where('transaction_reference', $payment->id)->firstOrFail();
-            $record->status_id = $codes[$payment->status];
-            $record->save();
+            if($record){
+                $client = $record->client;
+            }
+            else{
+
+                $client = Client::withTrashed()->find($this->decodePrimaryKey($payment->metadata->client_id));
+
+                // sometimes if the user is not returned to the site with a response from Mollie 
+                // we may not have a payment record - in these cases we need to re-construct the payment
+                // record from the meta data in the payment hash.
+
+                if($payment && property_exists($payment->metadata, 'payment_hash') && $payment->metadata->payment_hash){
+                    
+                    /* Harvest Payment Hash*/
+                    $payment_hash = PaymentHash::where('hash', $payment->metadata->hash)->first();
+                    
+                    $data = [
+                        'gateway_type_id' => $payment->metadata->gateway_type_id,
+                        'amount' => $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total,
+                        'payment_type' => $payment->metadata->payment_type_id,
+                        'transaction_reference' => $payment->id,
+                    ];
+                    
+                    $record = $this->createPayment(
+                        $data,
+                        $codes[$payment->status]
+                    );
+                
+                }
+            }
+
+            $message = [
+                'server_response' => $payment,
+                'data' => $request->all(),
+            ];
+
+            $response = SystemLog::EVENT_GATEWAY_FAILURE;
+
+            if($record){
+                $record->status_id = $codes[$payment->status];
+                $record->save();
+                $response = SystemLog::EVENT_GATEWAY_SUCCESS;
+            }
+
+            SystemLogger::dispatch(
+                $message,
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                $response,
+                SystemLog::TYPE_MOLLIE,
+                $client,
+                $client->company
+            );
 
             return response()->json([], 200);
+
         } catch (ApiException $e) {
             return response()->json(['message' => $e->getMessage(), 'gatewayStatusCode' => $e->getCode()], 500);
         }

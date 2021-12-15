@@ -60,7 +60,7 @@ class CreateUser
         $user->account_id = $this->account->id;
         $user->password = $this->request['password'] ? bcrypt($this->request['password']) : '';
         $user->accepted_terms_version = config('ninja.terms_version');
-        $user->confirmation_code = $this->createDbHash(config('database.default'));
+        $user->confirmation_code = $this->createDbHash($this->company->db);
         $user->fill($this->request);
         $user->email = $this->request['email']; //todo need to remove this in production
         $user->last_login = now();

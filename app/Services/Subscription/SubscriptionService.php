@@ -18,6 +18,7 @@ use App\Factory\InvoiceToRecurringInvoiceFactory;
 use App\Factory\RecurringInvoiceFactory;
 use App\Jobs\Util\SubscriptionWebhookHandler;
 use App\Jobs\Util\SystemLogger;
+use App\Libraries\MultiDB;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Credit;
@@ -75,9 +76,7 @@ class SubscriptionService
             $recurring_invoice = $this->convertInvoiceToRecurring($payment_hash->payment->client_id);
             $recurring_invoice_repo = new RecurringInvoiceRepository();
 
-            $recurring_invoice->next_send_date = now();
             $recurring_invoice = $recurring_invoice_repo->save([], $recurring_invoice);
-            $recurring_invoice->next_send_date = $recurring_invoice->nextSendDate();
             $recurring_invoice->auto_bill = $this->subscription->auto_bill;
             
             /* Start the recurring service */
@@ -86,7 +85,6 @@ class SubscriptionService
                               ->save();
 
             //execute any webhooks
-
             $context = [
                 'context' => 'recurring_purchase',
                 'recurring_invoice' => $recurring_invoice->hashed_id,
@@ -94,6 +92,7 @@ class SubscriptionService
                 'client' => $recurring_invoice->client->hashed_id,
                 'subscription' => $this->subscription->hashed_id,
                 'contact' => auth('contact')->user()->hashed_id,
+                'account_key' => $recurring_invoice->client->custom_value2,
             ];
 
             $response = $this->triggerWebhook($context);
@@ -110,6 +109,7 @@ class SubscriptionService
                 'invoice' => $this->encodePrimaryKey($payment_hash->fee_invoice_id),
                 'client'  => $invoice->client->hashed_id,
                 'subscription' => $this->subscription->hashed_id,
+                'account_key' => $invoice->client->custom_value2,
             ];
 
             //execute any webhooks
@@ -129,6 +129,7 @@ class SubscriptionService
             'contact' => $contact->hashed_id,
             'contact_email' => $contact->email,
             'client' => $contact->client->hashed_id,
+            'account_key' => $contact->client->custom_value2,
         ];
 
         $response = $this->triggerWebhook($context);
@@ -161,6 +162,11 @@ class SubscriptionService
             $recurring_invoice->discount = $this->subscription->promo_discount;
             $recurring_invoice->is_amount_discount = $this->subscription->is_amount_discount;
         }
+        elseif(strlen($this->subscription->promo_code) == 0 && $this->subscription->promo_discount > 0) {
+            $recurring_invoice->discount = $this->subscription->promo_discount;
+            $recurring_invoice->is_amount_discount = $this->subscription->is_amount_discount;
+        }
+
 
         $recurring_invoice = $recurring_invoice_repo->save($data, $recurring_invoice);
 
@@ -174,6 +180,7 @@ class SubscriptionService
                 'recurring_invoice' => $recurring_invoice->hashed_id,
                 'client' => $recurring_invoice->client->hashed_id,
                 'subscription' => $this->subscription->hashed_id,
+                'account_key' => $recurring_invoice->client->custom_value2,
             ];
 
         //execute any webhooks
@@ -235,10 +242,10 @@ class SubscriptionService
         elseif ($outstanding->count() > 1) {
             //user is changing plan mid frequency cycle
             //we cannot handle this if there are more than one invoice outstanding.
-            return null;
+            return $target->price;
         }
 
-        return null;
+        return $target->price;
 
     }
 
@@ -290,6 +297,9 @@ class SubscriptionService
 
         $days_in_frequency = $this->getDaysInFrequency();
 
+        if($days_of_subscription_used >= $days_in_frequency)
+            return 0;
+
         $pro_rata_refund = round((($days_in_frequency - $days_of_subscription_used)/$days_in_frequency) * $invoice->amount ,2);
 
         // nlog("days in frequency = {$days_in_frequency} - days of subscription used {$days_of_subscription_used}");
@@ -322,7 +332,8 @@ class SubscriptionService
 
         $days_of_subscription_used = $start_date->diffInDays($current_date);
 
-        $days_in_frequency = $this->getDaysInFrequency();
+        // $days_in_frequency = $this->getDaysInFrequency();
+        $days_in_frequency = $invoice->subscription->service()->getDaysInFrequency();
 
         $ratio = ($days_in_frequency - $days_of_subscription_used)/$days_in_frequency;
 
@@ -427,8 +438,10 @@ class SubscriptionService
 
         nlog("total payable = {$total_payable}");
 
+        $credit = false;
+
         /* Only generate a credit if the previous invoice was paid in full. */
-        if($last_invoice->balance == 0)
+        if($last_invoice && $last_invoice->balance == 0)
             $credit = $this->createCredit($last_invoice, $target_subscription, $is_credit);
 
         $new_recurring_invoice = $this->createNewRecurringInvoice($recurring_invoice);
@@ -436,17 +449,21 @@ class SubscriptionService
             $context = [
                 'context' => 'change_plan',
                 'recurring_invoice' => $new_recurring_invoice->hashed_id,
-                'credit' => $credit->hashed_id,
+                'credit' => $credit ? $credit->hashed_id : null,
                 'client' => $new_recurring_invoice->client->hashed_id,
                 'subscription' => $target_subscription->hashed_id,
                 'contact' => auth('contact')->user()->hashed_id,
+                'account_key' => $new_recurring_invoice->client->custom_value2,
             ];
 
             $response = $this->triggerWebhook($context);
 
             nlog($response);
 
-            return $this->handleRedirect('/client/credits/'.$credit->hashed_id);
+            if($credit)
+                return $this->handleRedirect('/client/credits/'.$credit->hashed_id);
+            else
+                return $this->handleRedirect('/client/credits');      
 
     }
 
@@ -545,6 +562,9 @@ class SubscriptionService
 
         $old_recurring_invoice = RecurringInvoice::find($payment_hash->data->billing_context->recurring_invoice);
 
+        if(!$old_recurring_invoice)        
+            return $this->handleRedirect('/client/recurring_invoices/');
+
         $recurring_invoice = $this->createNewRecurringInvoice($old_recurring_invoice);
 
         $context = [
@@ -554,6 +574,7 @@ class SubscriptionService
             'client' => $recurring_invoice->client->hashed_id,
             'subscription' => $this->subscription->hashed_id,
             'contact' => auth('contact')->user()->hashed_id,
+            'account_key' => $recurring_invoice->client->custom_value2,
         ];
 
 
@@ -582,7 +603,7 @@ class SubscriptionService
 
             $recurring_invoice = $this->convertInvoiceToRecurring($old_recurring_invoice->client_id);
             $recurring_invoice = $recurring_invoice_repo->save([], $recurring_invoice);
-            $recurring_invoice->next_send_date = now();
+            $recurring_invoice->next_send_date = now()->format('Y-m-d');
             $recurring_invoice->next_send_date = $recurring_invoice->nextSendDate();
 
             /* Start the recurring service */
@@ -681,6 +702,11 @@ class SubscriptionService
             $invoice->discount = $this->subscription->promo_discount;
             $invoice->is_amount_discount = $this->subscription->is_amount_discount;
         }
+        elseif(strlen($this->subscription->promo_code) == 0 && $this->subscription->promo_discount > 0) {
+            $invoice->discount = $this->subscription->promo_discount;
+            $invoice->is_amount_discount = $this->subscription->is_amount_discount;
+        }
+
 
         return $invoice_repo->save($data, $invoice);
 
@@ -695,14 +721,15 @@ class SubscriptionService
      */
     public function convertInvoiceToRecurring($client_id) :RecurringInvoice
     {
-
-        $client = Client::find($client_id);
+        MultiDB::setDb($this->subscription->company->db);
+        
+        $client = Client::withTrashed()->find($client_id);
 
         $subscription_repo = new SubscriptionRepository();
 
         $recurring_invoice = RecurringInvoiceFactory::create($this->subscription->company_id, $this->subscription->user_id);
         $recurring_invoice->client_id = $client_id;
-        $recurring_invoice->line_items = $subscription_repo->generateLineItems($this->subscription, true);
+        $recurring_invoice->line_items = $subscription_repo->generateLineItems($this->subscription, true, false);
         $recurring_invoice->subscription_id = $this->subscription->id;
         $recurring_invoice->frequency_id = $this->subscription->frequency_id ?: RecurringInvoice::FREQUENCY_MONTHLY;
         $recurring_invoice->date = now();
@@ -710,7 +737,9 @@ class SubscriptionService
         $recurring_invoice->auto_bill = $client->getSetting('auto_bill');
         $recurring_invoice->auto_bill_enabled =  $this->setAutoBillFlag($recurring_invoice->auto_bill);
         $recurring_invoice->due_date_days = 'terms';
-        
+        $recurring_invoice->next_send_date = now()->format('Y-m-d');
+        $recurring_invoice->next_send_date =  $recurring_invoice->nextSendDate();
+
         return $recurring_invoice;
     }
 
@@ -742,8 +771,6 @@ class SubscriptionService
         $response = false;
 
         $body = array_merge($context, [
-            'company_key' => $this->subscription->company->company_key,
-            'account_key' => $this->subscription->company->account->key,
             'db' => $this->subscription->company->db,
         ]);
 
@@ -895,6 +922,7 @@ class SubscriptionService
                 'recurring_invoice' => $recurring_invoice->hashed_id,
                 'client' => $recurring_invoice->client->hashed_id,
                 'contact' => auth('contact')->user()->hashed_id,
+                'account_key' => $recurring_invoice->client->custom_value2,
             ];
 
             $this->triggerWebhook($context);
@@ -1015,8 +1043,9 @@ class SubscriptionService
                 'subscription' => $this->subscription->hashed_id,
                 'recurring_invoice' => $recurring_invoice_hashed_id,
                 'client' => $invoice->client->hashed_id,
-                'contact' => $invoice->client->primary_contact()->first() ? $invoice->client->primary_contact()->first(): $invoice->client->contacts->first(),
+                'contact' => $invoice->client->primary_contact()->first() ? $invoice->client->primary_contact()->first()->hashed_id: $invoice->client->contacts->first()->hashed_id,
                 'invoice' => $invoice->hashed_id,
+                'account_key' => $invoice->client->custom_value2,
             ];
 
         $response = $this->triggerWebhook($context);

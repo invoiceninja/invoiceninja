@@ -46,22 +46,22 @@
                 <tbody>
                     @forelse($credits as $credit)
                         <tr class="bg-white group hover:bg-gray-100">
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
                                 {{ $credit->number }}
                             </td>
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
                                 {{ App\Utils\Number::formatMoney($credit->amount, $credit->client) }}
                             </td>
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
                                 {{ App\Utils\Number::formatMoney($credit->balance, $credit->client) }}
                             </td>
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
                                 {{ $credit->formatDate($credit->date, $credit->client->date_format()) }}
                             </td>
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
                                 {{ $credit->public_notes }}
                             </td>
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
                                 <a href="{{ route('client.credit.show', $credit->hashed_id) }}" class="button-link text-primary">
                                     @lang('texts.view')
                                 </a>
@@ -69,7 +69,7 @@
                         </tr>
                     @empty
                         <tr class="bg-white group hover:bg-gray-100">
-                            <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-gray-500" colspan="100%">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500" colspan="100%">
                                 {{ ctrans('texts.no_results') }}
                             </td>
                         </tr>

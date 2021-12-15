@@ -20,7 +20,10 @@ class WePayBank {
     showBankPopup() {
         WePay.bank_account.create({
                 client_id: document.querySelector('meta[name=wepay-client-id]')?.content,
-                email: document.querySelector('meta[name=contact-email]')?.content
+                email: document.querySelector('meta[name=contact-email]')?.content,
+                options: {
+                    avoidMicrodeposits:true
+                }
             }, function (data) {
                 if (data.error) {
                     errors.textContent = '';
