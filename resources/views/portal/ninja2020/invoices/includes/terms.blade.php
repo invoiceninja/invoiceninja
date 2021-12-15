@@ -25,7 +25,11 @@
         </div>
         <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
             <div class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto">
-                <button type="button" id="accept-terms-button" class="button button-primary bg-primary">
+                <button 
+                    type="button"
+                    id="accept-terms-button" 
+                    onclick="setTimeout(() => this.disabled = true, 0); setTimeout(() => this.disabled = false, 5000); return true;"
+                    class="button button-primary bg-primary">
                     {{ ctrans('texts.i_agree') }}
                 </button>
             </div>
