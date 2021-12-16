@@ -28,7 +28,7 @@
                 </button>
             </div>
             <div class="mt-3 flex w-full rounded-md shadow-sm sm:mt-0 sm:w-auto">
-                <button @click="document.getElementById('displaySignatureModal').style.display = 'none';" type="button" class="button button-secondary">
+                <button onclick="document.getElementById('displaySignatureModal').style.display = 'none'; setTimeout(() => this.disabled = true, 0); setTimeout(() => this.disabled = false, 5000); return true;" type="button" class="button button-secondary">
                     {{ ctrans('texts.close') }}
                 </button>
             </div>

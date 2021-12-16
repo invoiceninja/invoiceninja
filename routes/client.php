@@ -35,6 +35,8 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'check_client_existence
 
     Route::get('invoices', 'ClientPortal\InvoiceController@index')->name('invoices.index')->middleware('portal_enabled');
     Route::post('invoices/payment', 'ClientPortal\InvoiceController@bulk')->name('invoices.bulk');
+    Route::get('invoices/payment', 'ClientPortal\InvoiceController@catch_bulk')->name('invoices.catch_bulk');
+    Route::post('invoices/download', 'ClientPortal\InvoiceController@download')->name('invoices.download');
     Route::get('invoices/{invoice}', 'ClientPortal\InvoiceController@show')->name('invoice.show');
     Route::get('invoices/{invoice_invitation}', 'ClientPortal\InvoiceController@show')->name('invoice.show_invitation');
 
@@ -43,6 +45,8 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'check_client_existence
     Route::get('recurring_invoices/{recurring_invoice}/request_cancellation', 'ClientPortal\RecurringInvoiceController@requestCancellation')->name('recurring_invoices.request_cancellation');
 
     Route::post('payments/process', 'ClientPortal\PaymentController@process')->name('payments.process');
+    Route::get('payments/process', 'ClientPortal\PaymentController@catch_process')->name('payments.catch_process');
+
     Route::post('payments/credit_response', 'ClientPortal\PaymentController@credit_response')->name('payments.credit_response');
 
     Route::get('payments', 'ClientPortal\PaymentController@index')->name('payments.index')->middleware('portal_enabled');
@@ -66,6 +70,7 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'check_client_existence
     Route::get('quotes', 'ClientPortal\QuoteController@index')->name('quotes.index')->middleware('portal_enabled');
     Route::get('quotes/{quote}', 'ClientPortal\QuoteController@show')->name('quote.show');
     Route::get('quotes/{quote_invitation}', 'ClientPortal\QuoteController@show')->name('quote.show_invitation');
+    Route::post('quotes/download', 'ClientPortal\QuoteController@download')->name('quotes.download');
 
     Route::get('credits', 'ClientPortal\CreditController@index')->name('credits.index');
     Route::get('credits/{credit}', 'ClientPortal\CreditController@show')->name('credit.show');

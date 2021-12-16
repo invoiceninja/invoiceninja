@@ -77,6 +77,7 @@ class AddGatewayFee extends AbstractService
         App::forgetInstance('translator');
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->invoice->company->settings));
+        App::setLocale($this->invoice->client->locale());
 
         $invoice_item = new InvoiceItem;
         $invoice_item->type_id = '3';

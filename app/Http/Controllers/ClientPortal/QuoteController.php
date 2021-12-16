@@ -30,6 +30,7 @@ use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
+use Illuminate\Http\Request;
 
 class QuoteController extends Controller
 {
@@ -58,17 +59,16 @@ class QuoteController extends Controller
             'quote' => $quote,
         ];
 
+        $invitation = $quote->invitations()->where('client_contact_id', auth()->user()->id)->first();
 
-            $invitation = $quote->invitations()->where('client_contact_id', auth()->user()->id)->first();
+        if ($invitation && auth()->guard('contact') && ! request()->has('silent') && ! $invitation->viewed_date) {
 
-            if ($invitation && auth()->guard('contact') && ! request()->has('silent') && ! $invitation->viewed_date) {
+            $invitation->markViewed();
 
-                $invitation->markViewed();
-
-                event(new InvitationWasViewed($quote, $invitation, $quote->company, Ninja::eventVars()));
-                event(new QuoteWasViewed($invitation, $invitation->company, Ninja::eventVars()));
-            
-            }
+            event(new InvitationWasViewed($quote, $invitation, $quote->company, Ninja::eventVars()));
+            event(new QuoteWasViewed($invitation, $invitation->company, Ninja::eventVars()));
+        
+        }
 
         if ($request->query('mode') === 'fullscreen') {
             return render('quotes.show-fullscreen', $data);
@@ -82,7 +82,7 @@ class QuoteController extends Controller
         $transformed_ids = $this->transformKeys($request->quotes);
 
         if ($request->action == 'download') {
-            return $this->downloadQuotePdf((array) $transformed_ids);
+            return $this->downloadQuotes((array) $transformed_ids);
         }
 
         if ($request->action = 'approve') {
@@ -92,10 +92,32 @@ class QuoteController extends Controller
         return back();
     }
 
+    public function downloadQuotes($ids)
+    {
+
+        $data['quotes'] = Quote::whereIn('id', $ids)
+                            ->whereClientId(auth()->user()->client->id)
+                            ->withTrashed()
+                            ->get();
+
+        if(count($data['quotes']) == 0)
+            return back()->with(['message' => ctrans('texts.no_items_selected')]);
+
+        return $this->render('quotes.download', $data);
+    }
+
+    public function download(Request $request)
+    {
+        $transformed_ids = $this->transformKeys($request->quotes);
+        
+        return $this->downloadQuotePdf((array) $transformed_ids);
+    }
+
     protected function downloadQuotePdf(array $ids)
     {
         $quotes = Quote::whereIn('id', $ids)
             ->whereClientId(auth()->user()->client->id)
+            ->withTrashed()
             ->get();
 
         if (! $quotes || $quotes->count() == 0) {
@@ -136,6 +158,7 @@ class QuoteController extends Controller
             ->where('client_id', auth('contact')->user()->client->id)
             ->where('company_id', auth('contact')->user()->client->company_id)
             ->where('status_id', Quote::STATUS_SENT)
+            ->withTrashed()
             ->get();
 
         if (!$quotes || $quotes->count() == 0) {

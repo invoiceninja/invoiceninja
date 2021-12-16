@@ -152,9 +152,11 @@ class ReminderJob implements ShouldQueue
      */
     private function setLateFee($invoice, $amount, $percent) :Invoice
     {
+
         App::forgetInstance('translator');
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($invoice->client->getMergedSettings()));
+        App::setLocale($invoice->client->locale());
 
         $temp_invoice_balance = $invoice->balance;
 

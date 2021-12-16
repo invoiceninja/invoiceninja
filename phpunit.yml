@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         operating-system: ['ubuntu-18.04', 'ubuntu-20.04']
-        php-versions: ['7.4','8.0','8.1']
+        php-versions: ['7.3','7.4','8.0']
         phpunit-versions: ['latest']
 
     env:
@@ -49,10 +49,6 @@ jobs:
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
     steps:
-    - name: Add hosts to /etc/hosts
-      run: |
-        sudo echo "127.0.0.1 ninja.test" | sudo tee -a /etc/hosts
-
     - name: Start mysql service
       run: |
         sudo systemctl start mysql.service
@@ -106,8 +102,7 @@ jobs:
         vendor/bin/phpunit --testdox
       env:
         DB_PORT: ${{ job.services.mysql.ports[3306] }}
-        PHP_CS_FIXER_IGNORE_ENV: true
 
     - name: Run php-cs-fixer
       run: |
-        PHP_CS_FIXER_IGNORE_ENV=1 vendor/bin/php-cs-fixer fix
+        vendor/bin/php-cs-fixer fix
