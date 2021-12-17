@@ -91,13 +91,6 @@ class MarkPaid extends AbstractService
                 ->deletePdf()
                 ->save();
 
-        // if ($this->invoice->client->getSetting('client_manual_payment_notification')) 
-        //     $payment->service()->sendEmail();
-        
-        /* Update Invoice balance */
-        event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
-        event(new InvoiceWasPaid($this->invoice, $payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
-
         $payment->ledger()
                 ->updatePaymentBalance($payment->amount * -1);
 
@@ -112,6 +105,10 @@ class MarkPaid extends AbstractService
              ->service()
              ->workFlow()
              ->save();
+
+        /* Update Invoice balance */
+        event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+        event(new InvoiceWasPaid($this->invoice, $payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->invoice;
     }

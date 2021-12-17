@@ -60,18 +60,6 @@ class CreateTestData extends Command
     protected $invoice_repo;
 
     /**
-     * Create a new command instance.
-     *
-     * @param InvoiceRepository $invoice_repo
-     */
-    public function __construct(InvoiceRepository $invoice_repo)
-    {
-        parent::__construct();
-
-        $this->invoice_repo = $invoice_repo;
-    }
-
-    /**
      * Execute the console command.
      *
      * @return mixed
@@ -80,6 +68,11 @@ class CreateTestData extends Command
     {
         if(config('ninja.is_docker'))
             return;
+
+    if (!$this->confirm('Are you sure you want to inject dummy data?'))
+        return;
+
+        $this->invoice_repo = new InvoiceRepository();
         
         $this->info(date('r').' Running CreateTestData...');
         $this->count = $this->argument('count');

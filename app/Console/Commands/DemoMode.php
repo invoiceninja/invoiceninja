@@ -53,28 +53,15 @@ class DemoMode extends Command
 {
     use MakesHash, GeneratesCounter;
 
-    protected $name = 'ninja:demo-mode';
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'ninja:demo-mode';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = 'Setup demo mode';
 
     protected $invoice_repo;
 
-    public function __construct(InvoiceRepository $invoice_repo)
+    public function __construct()
     {
         parent::__construct();
-
-        $this->invoice_repo = $invoice_repo;
     }
 
     /**
@@ -88,6 +75,8 @@ class DemoMode extends Command
 
         if(config('ninja.is_docker'))
             return;
+
+        $this->invoice_repo = new InvoiceRepository();
 
         $cached_tables = config('ninja.cached_tables');
 

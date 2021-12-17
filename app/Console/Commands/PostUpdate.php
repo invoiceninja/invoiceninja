@@ -17,7 +17,6 @@ use Illuminate\Support\Facades\Artisan;
 
 class PostUpdate extends Command
 {
-    protected $name = 'ninja:post-update';
     /**
      * The name and signature of the console command.
      *

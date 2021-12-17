@@ -67,19 +67,12 @@ use Symfony\Component\Console\Input\InputOption;
  */
 class CheckDb extends Command
 {
-    /**
-     * @var string
-     */
+
     protected $signature = 'ninja:check-db';
 
-    /**
-     * @var string
-     */
     protected $description = 'Check MultiDB';
 
-
     protected $log = '';
-
 
     private $entities = [
         Account::class,
