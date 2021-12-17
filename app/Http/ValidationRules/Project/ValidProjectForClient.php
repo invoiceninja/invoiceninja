@@ -49,8 +49,10 @@ class ValidProjectForClient implements Rule
 
         $project = Project::find($this->input['project_id']);
 
-        if(!$project)
+        if(!$project){
             $this->message = "Project not found";
+            return;
+        }
 
         return $project->client_id == $this->input['client_id'];
     }
