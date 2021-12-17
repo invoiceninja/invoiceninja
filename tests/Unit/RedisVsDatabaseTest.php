@@ -38,12 +38,11 @@ class RedisVsDatabaseTest extends TestCase
 
         $currencies = Cache::get('currencies');
 
-        $currency =  $currencies->filter(function ($item) {
+        $currencies->filter(function ($item) {
             return $item->id == 17;
         })->first();
 
-
-        $total_time = microtime(true) - $start;
+        nlog(microtime(true) - $start);
 
         $this->assertTrue(true);
         // nlog($total_time);
@@ -57,8 +56,7 @@ class RedisVsDatabaseTest extends TestCase
 
         $currency = Currency::find(17);
 
-        $total_time = microtime(true) - $start;
-
+        nlog(microtime(true) - $start);
 
         $this->assertTrue(true);
         // nlog($total_time);

@@ -25,6 +25,8 @@ class QuoteApprovedNotification implements ShouldQueue
 {
     use UserNotifies;
 
+    public $delay = 5;
+    
     public function __construct()
     {
     }

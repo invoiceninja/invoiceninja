@@ -91,9 +91,16 @@ class UpdateInvoicePayment
                         ->workFlow()
                         ->save();
 
-            event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         });
         
+        /* Remove the event updater from within the loop to prevent race conditions */
+
+        $invoices->each(function ($invoice) {
+        
+            event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+
+        });
+
         $this->payment->saveQuietly();
 
         return $this->payment;
