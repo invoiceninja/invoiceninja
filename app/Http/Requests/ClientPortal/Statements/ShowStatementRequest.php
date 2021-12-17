@@ -44,7 +44,7 @@ class ShowStatementRequest extends FormRequest
 
     public function client(): Client
     {
-        return Client::withTrashed()->without('contacts.company', 'documents', 'gateway_tokens')->where('id', auth('contact')->user()->client_id)->first();
-        // return auth('contact')->user()->client;
+        // return Client::withTrashed()->without('contacts.company', 'documents', 'gateway_tokens')->where('id', auth('contact')->user()->client_id)->first();
+        return auth('contact')->user()->client;
     }
 }

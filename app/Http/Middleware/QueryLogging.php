@@ -54,10 +54,10 @@ class QueryLogging
 
             // info("Query count = {$count}");
         
-             // if($count > 175){
+             if($count > 175){
                  nlog("Query count = {$count}");
-                 // nlog($queries);
-             // }
+                 nlog($queries);
+             }
                         
             $ip = '';
             
