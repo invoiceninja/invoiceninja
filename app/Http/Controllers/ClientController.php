@@ -382,9 +382,7 @@ class ClientController extends BaseController
         /* Set the client country to the company if none is set */
         if(!$client->country_id && strlen($client->company->settings->country_id) > 1){
 
-            $client->country_id = $client->company->settings->country_id;
-        
-            $client->save();
+            $client->update(['country_id' => $client->company->settings->country_id]);
         
         }
 

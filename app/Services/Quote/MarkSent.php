@@ -45,14 +45,14 @@ class MarkSent
             $this->quote->due_date = Carbon::parse($this->quote->date)->addDays($this->quote->client->getSetting('valid_until'));
         }
 
-        event(new QuoteWasMarkedSent($this->quote, $this->quote->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
-
         $this->quote
              ->service()
              ->setStatus(Quote::STATUS_SENT)
              ->applyNumber()
              ->deletePdf()
              ->save();
+
+        event(new QuoteWasMarkedSent($this->quote, $this->quote->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->quote;
     }

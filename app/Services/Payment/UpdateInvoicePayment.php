@@ -52,8 +52,8 @@ class UpdateInvoicePayment
             }
 
             /* Need to determine here is we have an OVER payment - if YES only apply the max invoice amount */
-                if($paid_amount > $invoice->partial && $paid_amount > $invoice->balance)
-                    $paid_amount = $invoice->balance;
+            if($paid_amount > $invoice->partial && $paid_amount > $invoice->balance)
+                $paid_amount = $invoice->balance;
 
             /* Updates the company ledger */
             $this->payment
@@ -95,13 +95,13 @@ class UpdateInvoicePayment
         
         /* Remove the event updater from within the loop to prevent race conditions */
 
+        $this->payment->saveQuietly();
+
         $invoices->each(function ($invoice) {
         
             event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
-
+        
         });
-
-        $this->payment->saveQuietly();
 
         return $this->payment;
     }
