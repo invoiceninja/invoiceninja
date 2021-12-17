@@ -896,6 +896,7 @@ class CompanyImport implements ShouldQueue
                 ['quotes' => 'quote_id'],
                 ['subscriptions' => 'subscription_id'],
                 ['recurring_invoices' => 'recurring_invoice_id'],
+                ['recurring_expenses' => 'recurring_expense_id'],
                 // ['invitations' => 'invitation_id'],
             ], 
             'activities');
