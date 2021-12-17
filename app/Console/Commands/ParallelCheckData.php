@@ -39,7 +39,7 @@ class ParallelCheckData extends Command
     /**
      * @var string
      */
-    protected $name = 'ninja:pcheck-data';
+    protected $signature = 'ninja:pcheck-data';
 
     /**
      * @var string
