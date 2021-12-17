@@ -16,6 +16,7 @@ use App\Models\Company;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
 
 class DownloadBackup extends Mailable
 {
@@ -36,6 +37,8 @@ class DownloadBackup extends Mailable
      */
     public function build()
     {
+        App::setLocale($this->company->getLocale());
+        
         $company = Company::where('company_key', $this->company->company_key)->first();
 
         return $this->from(config('mail.from.address'), config('mail.from.name'))

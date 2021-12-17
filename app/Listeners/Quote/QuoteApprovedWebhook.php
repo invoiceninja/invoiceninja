@@ -18,7 +18,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 
 class QuoteApprovedWebhook implements ShouldQueue
 {
-
+    public $delay = 5;
+    
     public function __construct()
     {
     }

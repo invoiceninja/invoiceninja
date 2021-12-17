@@ -22,6 +22,9 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 
 class QuoteEmailedNotification implements ShouldQueue
 {
+
+    public $delay = 5;
+        
     use UserNotifies;
 
     public function __construct()

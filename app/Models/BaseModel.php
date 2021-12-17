@@ -113,10 +113,10 @@ class BaseModel extends Model
      * to persist the new settings we will also need to pass back a
      * reference to the parent class.
      *
-     * @param mixes $key The key of property
+     * @param $key The key of property
      * @return
      */
-    public function getSettingsByKey(mixes $key)
+    public function getSettingsByKey($key)
     {
         /* Does Setting Exist @ client level */
         if (isset($this->getSettings()->{$key})) {
