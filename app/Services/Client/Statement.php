@@ -110,7 +110,7 @@ class Statement
         }
 
         if ($this->rollback) {
-            DB::rollBack();
+            \DB::connection(config('database.default'))->rollBack();
         }
 
 
@@ -129,7 +129,8 @@ class Statement
         }
 
         if (\is_null($this->entity)) {
-            DB::beginTransaction();
+            \DB::connection(config('database.default'))->beginTransaction();
+
             $this->rollback = true;
 
             $invoice = InvoiceFactory::create($this->client->company->id, $this->client->user->id);
