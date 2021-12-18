@@ -26,6 +26,7 @@ class MarkSent extends AbstractService
     public function __construct(Client $client, Invoice $invoice)
     {
         $this->client = $client;
+        
         $this->invoice = $invoice;
     }
 

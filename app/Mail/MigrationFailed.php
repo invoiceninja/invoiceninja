@@ -4,6 +4,7 @@ namespace App\Mail;
 
 use App\Models\Company;
 use Illuminate\Mail\Mailable;
+use Illuminate\Support\Facades\App;
 
 class MigrationFailed extends Mailable
 {
@@ -35,6 +36,8 @@ class MigrationFailed extends Mailable
      */
     public function build()
     {
+        App::setLocale($this->company->getLocale());
+        
         return $this
             ->from(config('mail.from.address'), config('mail.from.name'))
             ->view('email.migration.failed', [
