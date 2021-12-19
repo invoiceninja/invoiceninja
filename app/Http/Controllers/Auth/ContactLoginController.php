@@ -100,6 +100,9 @@ class ContactLoginController extends Controller
 
             $contact = ClientContact::where(['email' => $request->input('email'), 'company_id' => $company->id])->first();
 
+            if(!$contact)
+                return $this->sendFailedLoginResponse($request);
+
             if(Hash::check($request->input('password'), $contact->password))
                 return $this->authenticated($request, $contact);
 

@@ -48,6 +48,7 @@ class StoreInvoiceRequest extends Request
         }
 
         $rules['client_id'] = 'bail|required|exists:clients,id,company_id,'.auth()->user()->company()->id;
+        // $rules['client_id'] = ['required', Rule::exists('clients')->where('company_id', auth()->user()->company()->id)];
 
         $rules['invitations.*.client_contact_id'] = 'distinct';
 

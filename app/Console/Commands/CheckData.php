@@ -949,3 +949,19 @@ ORDER BY clients.id;
         return $type.'s';
     }
 }
+
+
+/* query if we want to company company ledger to client balance
+        $results = \DB::select( \DB::raw("
+         SELECT 
+         clients.id as client_id, 
+         clients.balance as client_balance
+         from clients,
+         (select max(company_ledgers.id) as cid, company_ledgers.client_id as client_id, company_ledgers.balance as balance
+         FROM company_ledgers) ledger
+         where clients.id=ledger.client_id 
+         AND clients.balance != ledger.balance
+         GROUP BY clients.id
+         ORDER BY clients.id;
+        ") );
+        */

@@ -307,17 +307,13 @@ class CompanyImport implements ShouldQueue
             nlog("Backup user count = ".count($backup_users));
 
             if(count($backup_users) > 1){
-                // $this->message = 'Only one user can be in the import for a Free Account';
-                // $this->pre_flight_checks_pass = false;
-                //$this->force_user_coalesce = true;
+
             }
 
             nlog("backup users email = " . $backup_users[0]->email);
 
             if(count($backup_users) == 1 && $this->company_owner->email != $backup_users[0]->email) {
-                // $this->message = 'Account emails do not match. Account owner email must match backup user email';
-                // $this->pre_flight_checks_pass = false;
-                // $this->force_user_coalesce = true;
+
             }
 
             $backup_users_emails = array_column($backup_users, 'email');
@@ -331,21 +327,10 @@ class CompanyImport implements ShouldQueue
             if($existing_user_count > 1){
 
                 if($this->account->plan == 'pro'){
-                    // $this->message = 'Pro plan is limited to one user, you have multiple users in the backup file';
-                    // $this->pre_flight_checks_pass = false;
-                   // $this->force_user_coalesce = true;
+
                 }
 
                 if($this->account->plan == 'enterprise'){
-
-                    // $total_import_users = count($backup_users_emails);
-
-                    // $account_plan_num_user = $this->account->num_users;
-
-                    // if($total_import_users > $account_plan_num_user){
-                    //     $this->message = "Total user count ({$total_import_users}) greater than your plan allows ({$account_plan_num_user})";
-                    //     $this->pre_flight_checks_pass = false;
-                    // }
 
                 }
             }
