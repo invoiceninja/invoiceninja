@@ -21,6 +21,8 @@ class CreateQuoteInvitation implements ShouldQueue
 {
     use MakesHash;
     
+    public $delay = 5;
+    
     /**
      * Handle the event.
      *

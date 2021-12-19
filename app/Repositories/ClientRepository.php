@@ -67,13 +67,12 @@ class ClientRepository extends BaseRepository
         
         if (!isset($client->number) || empty($client->number) || strlen($client->number) == 0) {
             $client->number = $this->getNextClientNumber($client);
+            $client->save();
         }
 
         if (empty($data['name'])) {
             $data['name'] = $client->present()->name();
         }
-
-        $client->save();
 
         $this->contact_repo->save($data, $client);
 

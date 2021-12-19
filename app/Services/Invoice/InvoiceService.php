@@ -136,7 +136,6 @@ class InvoiceService
      */
     public function updateBalance($balance_adjustment, bool $is_draft = false)
     {
-        // $this->invoice = (new UpdateBalance($this->invoice, $balance_adjustment, $is_draft))->run();
 
         if ((bool)$this->invoice->is_deleted !== false) {
             nlog($this->invoice->number . " is deleted returning");
@@ -299,12 +298,6 @@ class InvoiceService
     {
         if($this->invoice->status_id == Invoice::STATUS_DRAFT)
             return $this;
-
-        // if ((int)$this->invoice->balance == 0) {
-            
-        //     $this->setStatus(Invoice::STATUS_PAID)->workFlow();
-
-        // }
 
         if ($this->invoice->balance > 0 && $this->invoice->balance < $this->invoice->amount) {
             $this->setStatus(Invoice::STATUS_PARTIAL);

@@ -4345,7 +4345,18 @@ $LANG = array(
     'no_available_methods' => 'We can\'t find any credit cards on your device. <a href="https://invoiceninja.github.io/docs/payments#apple-pay-google-pay-microsoft-pay" target="_blank" class="underline">Read more about this.</a>',
     'gocardless_mandate_not_ready' => 'Payment mandate is not ready. Please try again later.',
     'payment_type_instant_bank_pay' => 'Instant Bank Pay',
-
+    'payment_type_iDEAL' => 'iDEAL',
+    'payment_type_Przelewy24' => 'Przelewy24',
+    'payment_type_Mollie Bank Transfer' => 'Bank Transfer',
+    'payment_type_KBC/CBC' => 'KBC/CBC',
+    'payment_type_Instant Bank Pay' => 'Instant Bank Pay',
+    'payment_type_Hosted Page' => 'Hosted Page',
+    'payment_type_GiroPay' => 'GiroPay',
+    'payment_type_EPS' => 'EPS',
+    'payment_type_Direct Debit' => 'Direct Debit',
+    'payment_type_Bancontact' => 'Bancontact',
+    'payment_type_BECS' => 'BECS',
+    'payment_type_ACSS' => 'ACSS',
 );
 
 return $LANG;

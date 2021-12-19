@@ -105,18 +105,18 @@ class CompanyExport implements ShouldQueue
 
         })->makeHidden(['id'])->all();
 
-        $this->export_data['backups'] = $this->company->all_activities()->with('backup')->cursor()->map(function ($activity){
+        // $this->export_data['backups'] = $this->company->all_activities()->with('backup')->cursor()->map(function ($activity){
 
-            $backup = $activity->backup;
+        //     $backup = $activity->backup;
 
-            if(!$backup)
-                return;
+        //     if(!$backup)
+        //         return;
 
-            $backup->activity_id = $this->encodePrimaryKey($backup->activity_id);
+        //     $backup->activity_id = $this->encodePrimaryKey($backup->activity_id);
 
-            return $backup;
+        //     return $backup;
 
-        })->all();
+        // })->all();
 
         $this->export_data['users'] = $this->company->users()->withTrashed()->cursor()->map(function ($user){
 

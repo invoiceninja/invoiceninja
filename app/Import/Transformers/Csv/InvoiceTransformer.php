@@ -126,8 +126,6 @@ class InvoiceTransformer extends BaseTransformer {
 		}
 		$transformed['line_items'] = $line_items;
 
-nlog($transformed);
-
 		return $transformed;
 	}
 }

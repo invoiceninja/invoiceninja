@@ -37,8 +37,6 @@ class MarkSent
 
         $this->credit->markInvitationsSent();
 
-        event(new CreditWasMarkedSent($this->credit, $this->credit->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
-
         $this->credit
              ->service()
              ->setStatus(Credit::STATUS_SENT)
@@ -47,6 +45,7 @@ class MarkSent
              ->deletePdf()
              ->save();
 
+        event(new CreditWasMarkedSent($this->credit, $this->credit->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->credit;
     }

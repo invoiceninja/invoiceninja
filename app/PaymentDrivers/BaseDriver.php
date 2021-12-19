@@ -204,11 +204,13 @@ class BaseDriver extends AbstractPaymentDriver
         $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($paid_invoices, 'invoice_id')))->withTrashed()->get();
         $payment->invoices()->sync($invoices);
 
+        $payment->service()->applyNumber()->save();
+
         $invoices->each(function ($invoice) use ($payment) {
             event(new InvoiceWasPaid($invoice, $payment, $payment->company, Ninja::eventVars()));
         });
 
-        return $payment->service()->applyNumber()->save();
+        return $payment;
     }
 
     /**
@@ -263,8 +265,7 @@ class BaseDriver extends AbstractPaymentDriver
 
         event('eloquent.created: App\Models\Payment', $payment);
 
-        if ($this->client->getSetting('client_online_payment_notification') && in_array($status, [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING
-        ]))
+        if ($this->client->getSetting('client_online_payment_notification') && in_array($status, [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING]))
             $payment->service()->sendEmail();
 
             //todo

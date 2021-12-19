@@ -354,8 +354,6 @@ class SubscriptionController extends BaseController
 
         event(new SubscriptionWasUpdated($subscription, $subscription->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
-nlog($subscription->id);
-
         return $this->itemResponse($subscription);
     }
 
