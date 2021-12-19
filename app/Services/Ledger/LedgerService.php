@@ -30,7 +30,7 @@ class LedgerService
 
         // \DB::connection(config('database.default'))->beginTransaction();
 
-        \DB::connection(config('database.default'))->transaction(function () use($notes, $adjustment){
+        \DB::connection(config('database.default'))->transaction(function () use($notes, $adjustment, $balance){
 
             $company_ledger = $this->ledger();
 
@@ -61,7 +61,7 @@ class LedgerService
 
         // \DB::connection(config('database.default'))->beginTransaction();
 
-        \DB::connection(config('database.default'))->transaction(function ()  use($notes, $adjustment){
+        \DB::connection(config('database.default'))->transaction(function ()  use($notes, $adjustment, $balance){
 
         /* Get the last record for the client and set the current balance*/
         $company_ledger = $this->ledger();
@@ -93,7 +93,7 @@ class LedgerService
         
         // \DB::connection(config('database.default'))->beginTransaction();
 
-        \DB::connection(config('database.default'))->transaction(function () use($notes, $adjustment){
+        \DB::connection(config('database.default'))->transaction(function () use($notes, $adjustment, $balance){
 
         $company_ledger = $this->ledger();
 
