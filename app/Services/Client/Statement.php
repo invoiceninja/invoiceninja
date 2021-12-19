@@ -30,6 +30,7 @@ use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\Pdf\PdfMaker as PdfMakerTrait;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\LazyCollection;
 
@@ -220,15 +221,16 @@ class Statement
      *
      * @return Invoice[]|\Illuminate\Database\Eloquent\Collection
      */
-    protected function getInvoices(): Builder
+    protected function getInvoices(): \Illuminate\Support\LazyCollection
     {
         return Invoice::withTrashed()
             ->where('is_deleted', false)
             ->where('company_id', $this->client->company_id)
             ->where('client_id', $this->client->id)
             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
-            ->whereBetween('date', [$this->options['start_date'], $this->options['end_date']])
-            ->orderBy('number', 'ASC');
+            ->whereBetween('date', [Carbon::parse($this->options['start_date']), Carbon::parse($this->options['end_date'])])
+            ->orderBy('number', 'ASC')
+            ->cursor();
     }
 
     /**
@@ -236,7 +238,7 @@ class Statement
      *
      * @return Payment[]|\Illuminate\Database\Eloquent\Collection
      */
-    protected function getPayments(): Builder
+    protected function getPayments(): \Illuminate\Support\LazyCollection
     {
         return Payment::withTrashed()
             ->with('client.country','invoices')
@@ -244,8 +246,9 @@ class Statement
             ->where('company_id', $this->client->company_id)
             ->where('client_id', $this->client->id)
             ->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
-            ->whereBetween('date', [$this->options['start_date'], $this->options['end_date']])
-            ->orderBy('number', 'ASC');
+            ->whereBetween('date', [Carbon::parse($this->options['start_date']), Carbon::parse($this->options['end_date'])])
+            ->orderBy('number', 'ASC')
+            ->cursor();
     }
 
     /**
