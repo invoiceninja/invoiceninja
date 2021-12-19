@@ -47,7 +47,7 @@ class PaymentWebhookRequest extends Request
      */
     public function getCompanyGateway()
     {
-        return CompanyGateway::findOrFail($this->decodePrimaryKey($this->company_gateway_id));
+        return CompanyGateway::withTrashed()->findOrFail($this->decodePrimaryKey($this->company_gateway_id));
     }
 
     /**

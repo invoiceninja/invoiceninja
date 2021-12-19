@@ -222,17 +222,6 @@ class BaseRepository
         if (array_key_exists('documents', $data)) 
             $this->saveDocuments($data['documents'], $model);
 
-        /* Marks whether the client contact should receive emails based on the send_email property */
-        // if (isset($data['client_contacts'])) {
-        //     foreach ($data['client_contacts'] as $contact) {
-        //         if ($contact['send_email'] == 1 && is_string($contact['id'])) {
-        //             $client_contact = ClientContact::find($this->decodePrimaryKey($contact['id']));
-        //             $client_contact->send_email = true;
-        //             $client_contact->save();
-        //         }
-        //     }
-        // }
-
         /* If invitations are present we need to filter existing invitations with the new ones */
         if (isset($data['invitations'])) {
             $invitations = collect($data['invitations']);

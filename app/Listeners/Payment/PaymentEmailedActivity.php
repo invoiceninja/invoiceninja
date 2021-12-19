@@ -17,6 +17,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 
 class PaymentEmailedActivity implements ShouldQueue
 {
+    public $delay = 5;
+    
     use UserNotifies;
 
     /**

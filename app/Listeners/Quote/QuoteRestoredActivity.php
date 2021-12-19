@@ -19,6 +19,8 @@ use stdClass;
 
 class QuoteRestoredActivity implements ShouldQueue
 {
+    public $delay = 5;
+        
     protected $activity_repo;
 
     /**

@@ -48,7 +48,6 @@ class ApplyNumber extends AbstractService
                 break;
 
             default:
-                // code...
                 break;
         }
 

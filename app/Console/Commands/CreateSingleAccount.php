@@ -56,13 +56,9 @@ use stdClass;
 class CreateSingleAccount extends Command
 {
     use MakesHash, GeneratesCounter;
-    /**
-     * @var string
-     */
+    
     protected $description = 'Create Single Sample Account';
-    /**
-     * @var string
-     */
+    
     protected $signature = 'ninja:create-single-account {gateway=all} {--database=db-ninja-01}';
 
     protected $invoice_repo;
@@ -70,18 +66,6 @@ class CreateSingleAccount extends Command
     protected $count;
 
     protected $gateway;
-
-    /**
-     * Create a new command instance.
-     *
-     * @param InvoiceRepository $invoice_repo
-     */
-    public function __construct(InvoiceRepository $invoice_repo)
-    {
-        parent::__construct();
-
-        $this->invoice_repo = $invoice_repo;
-    }
 
     /**
      * Execute the console command.
@@ -94,6 +78,11 @@ class CreateSingleAccount extends Command
         if(config('ninja.is_docker'))
             return;
         
+        if (!$this->confirm('Are you sure you want to inject dummy data?'))
+            return;
+
+        $this->invoice_repo = new InvoiceRepository();
+
         MultiDB::setDb($this->option('database'));
 
         $this->info(date('r').' Create Single Sample Account...');

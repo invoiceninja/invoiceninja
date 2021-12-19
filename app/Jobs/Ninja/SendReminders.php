@@ -28,6 +28,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\App;
 
 //@DEPRECATED
 class SendReminders implements ShouldQueue
@@ -284,6 +285,11 @@ class SendReminders implements ShouldQueue
      */
     private function setLateFee($invoice, $amount, $percent) :Invoice
     {
+        App::forgetInstance('translator');
+        $t = app('translator');
+        $t->replace(Ninja::transformTranslations($invoice->client->getMergedSettings()));
+        App::setLocale($invoice->client->locale());
+
         $temp_invoice_balance = $invoice->balance;
 
         if ($amount <= 0 && $percent <= 0) {
@@ -313,8 +319,8 @@ class SendReminders implements ShouldQueue
         /**Refresh Invoice values*/
         $invoice = $invoice->calc()->getInvoice();
 
-        $this->invoice->client->service()->updateBalance($this->invoice->balance - $temp_invoice_balance)->save();
-        $this->invoice->ledger()->updateInvoiceBalance($this->invoice->balance - $temp_invoice_balance, "Late Fee Adjustment for invoice {$this->invoice->number}");
+        $invoice->client->service()->updateBalance($invoice->balance - $temp_invoice_balance)->save();
+        $invoice->ledger()->updateInvoiceBalance($invoice->balance - $temp_invoice_balance, "Late Fee Adjustment for invoice {$invoice->number}");
 
         return $invoice;
     }
