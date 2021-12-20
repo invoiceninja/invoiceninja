@@ -57,6 +57,37 @@ class PaymentTermsApiTest extends TestCase
         $response->assertStatus(200);
     }
 
+
+    public function testPaymentTermsGetStatusActive()
+    {
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->get('/api/v1/payment_terms?status=active');
+
+        $response->assertStatus(200);
+    }
+
+    public function testPaymentTermsGetStatusArchived()
+    {
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->get('/api/v1/payment_terms?status=archived');
+
+        $response->assertStatus(200);
+    }
+
+    public function testPaymentTermsGetStatusDeleted()
+    {
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->get('/api/v1/payment_terms?status=deleted');
+
+        $response->assertStatus(200);
+    }
+    
     public function testPostPaymentTerm()
     {
         $response = $this->withHeaders([
