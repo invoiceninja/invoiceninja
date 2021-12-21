@@ -52,7 +52,7 @@ class CheckClientExistence
             return redirect()->route('client.login');
         }
 
-        if (count($multiple_contacts) == 1) {
+        if (count($multiple_contacts) == 1 && !Auth::guard('contact')->check()) {
             Auth::guard('contact')->loginUsingId($multiple_contacts[0]->id, true);
         }
 

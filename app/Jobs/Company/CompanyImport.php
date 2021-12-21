@@ -866,6 +866,7 @@ class CompanyImport implements ShouldQueue
                 'company_id',
                 'backup',
                 'invitation_id',
+                'payment_id',
             ], 
             [
                 ['users' => 'user_id'], 
@@ -873,7 +874,7 @@ class CompanyImport implements ShouldQueue
                 ['client_contacts' => 'client_contact_id'],
                 ['projects' => 'project_id'],
                 ['vendors' => 'vendor_id'],
-                ['payments' => 'payment_id'],
+                // ['payments' => 'payment_id'],
                 ['invoices' => 'invoice_id'],
                 ['credits' => 'credit_id'],
                 ['tasks' => 'task_id'],
@@ -1418,10 +1419,9 @@ class CompanyImport implements ShouldQueue
 
         if (! array_key_exists($resource, $this->ids)) {
              nlog($resource);
-
-            nlog($this->ids);
             
             $this->sendImportMail("The Import failed due to missing data in the import file. Resource {$resource} not available.");
+            nlog($this->ids);
             throw new \Exception("Resource {$resource} not available.");
         }
 
@@ -1435,6 +1435,8 @@ class CompanyImport implements ShouldQueue
                 return $this->company_owner->id;
 
             $this->sendImportMail("The Import failed due to missing data in the import file. Resource {$resource} not available.");
+            
+            nlog($this->ids[$resource]);
 
             throw new \Exception("Missing {$resource} key: {$old}");
         }

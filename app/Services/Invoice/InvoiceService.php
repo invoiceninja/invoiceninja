@@ -299,7 +299,10 @@ class InvoiceService
         if($this->invoice->status_id == Invoice::STATUS_DRAFT)
             return $this;
 
-        if ($this->invoice->balance > 0 && $this->invoice->balance < $this->invoice->amount) {
+        if($this->invoice->balance == 0){
+            $this->setStatus(Invoice::STATUS_PAID);
+        }
+        elseif ($this->invoice->balance > 0 && $this->invoice->balance < $this->invoice->amount) {
             $this->setStatus(Invoice::STATUS_PARTIAL);
         }
 
