@@ -37,5 +37,22 @@ class ZeroDecimalTest extends TestCase
 
     }
 
+
+    public function testCurrencyMiss()
+    {
+
+        $this->assertFalse(in_array("USD", $this->currencies));
+
+    }
+
+    public function testCurrencyNotexist()
+    {
+
+        $this->assertFalse(in_array("USDddd", $this->currencies));
+
+    }
+
+
+
 }
 
