@@ -13,3 +13,11 @@
 .input-slim {
     @apply py-2;
 }
+
+.form-checkbox {
+    @apply border border-gray-300 rounded cursor-pointer;
+}
+
+.form-select {
+    @apply border border-gray-300;
+}
