@@ -17,7 +17,6 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\File;
 use Illuminate\View\Factory;
-use Symfony\Component\Debug\Exception\FatalThrowableError;
 use Throwable;
 
 /**
@@ -65,7 +64,7 @@ trait MakesInvoiceHtml
                 ob_end_clean();
             }
 
-            throw new FatalThrowableError($e);
+            throw new \Exception($e);
         }
 
         return ob_get_clean();

@@ -82,14 +82,22 @@ class CreateUbl implements ShouldQueue
         $ubl_invoice->setInvoiceLines($invoice_lines);
 
         $taxtotal = new TaxTotal();
-        $taxAmount1 = $taxAmount2 = 0;
+        $taxAmount1 = $taxAmount2 = $taxAmount3 = 0;
 
-        $taxAmount1 = $this->createTaxRate($taxtotal, $taxable, $invoice->tax_rate1, $invoice->tax_name1);
-        if ($invoice->tax_name2 || floatval($invoice->tax_rate2)) {
+        
+        if (strlen($invoice->tax_name1) > 1){
+            $taxAmount1 = $this->createTaxRate($taxtotal, $taxable, $invoice->tax_rate1, $invoice->tax_name1);
+        }
+
+        if (strlen($invoice->tax_name2) > 1) {
             $taxAmount2 = $this->createTaxRate($taxtotal, $taxable, $invoice->tax_rate2, $invoice->tax_name2);
         }
 
-        $taxtotal->setTaxAmount($taxAmount1 + $taxAmount2);
+        if (strlen($invoice->tax_name3) > 1) {
+            $taxAmount3 = $this->createTaxRate($taxtotal, $taxable, $invoice->tax_rate3, $invoice->tax_name3);
+        }
+
+        $taxtotal->setTaxAmount($taxAmount1 + $taxAmount2 + $taxAmount3);
         $ubl_invoice->setTaxTotal($taxtotal);
 
         $ubl_invoice->setLegalMonetaryTotal((new LegalMonetaryTotal())
@@ -144,13 +152,15 @@ class CreateUbl implements ShouldQueue
         $taxtotal = new TaxTotal();
         $itemTaxAmount1 = $itemTaxAmount2 = $itemTaxAmount3 = 0;
 
-        $itemTaxAmount1 = $this->createTaxRate($taxtotal, $taxable, $item->tax_rate1, $item->tax_name1);
+        if(strlen($item->tax_name1) > 1){
+            $itemTaxAmount1 = $this->createTaxRate($taxtotal, $taxable, $item->tax_rate1, $item->tax_name1);
+        }
 
-        if ($item->tax_name2 || floatval($item->tax_rate2)) {
+        if(strlen($item->tax_name2) > 1){
             $itemTaxAmount2 = $this->createTaxRate($taxtotal, $taxable, $item->tax_rate2, $item->tax_name2);
         }
 
-        if ($item->tax_name3 || floatval($item->tax_rate3)) {
+        if(strlen($item->tax_name3) > 1){
             $itemTaxAmount3 = $this->createTaxRate($taxtotal, $taxable, $item->tax_rate3, $item->tax_name3);
         }
 

@@ -445,7 +445,7 @@ class CompanyImport implements ShouldQueue
     {
 //unset / transforms / object_property / match_key
         $this->genericImport(RecurringExpense::class, 
-            ['assigned_user_id', 'user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'project_id', 'vendor_id'], 
+            ['assigned_user_id', 'user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'project_id', 'vendor_id','recurring_expense_id'], 
             [
                 ['users' => 'user_id'], 
                 ['users' => 'assigned_user_id'], 
@@ -455,7 +455,7 @@ class CompanyImport implements ShouldQueue
                 ['invoices' => 'invoice_id'],
                 ['expense_categories' => 'category_id'],
             ], 
-            'expenses',
+            'recurring_expenses',
             'number');
 
         return $this;
@@ -796,7 +796,7 @@ class CompanyImport implements ShouldQueue
 
 
         $this->genericImport(Expense::class, 
-            ['assigned_user_id', 'user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'project_id','vendor_id'], 
+            ['assigned_user_id', 'user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'project_id','vendor_id','recurring_expense_id'], 
             [
                 ['users' => 'user_id'], 
                 ['users' => 'assigned_user_id'], 
@@ -804,7 +804,7 @@ class CompanyImport implements ShouldQueue
                 ['projects' => 'project_id'],
                 ['vendors' => 'vendor_id'],
                 ['invoices' => 'invoice_id'],
-                ['recurring_expenses' => 'recurring_expense_id'],
+                // ['recurring_expenses' => 'recurring_expense_id'],
                 ['expense_categories' => 'category_id'],
             ], 
             'expenses',
@@ -1359,6 +1359,13 @@ class CompanyImport implements ShouldQueue
                 $new_obj->company_id = $this->company->id;
                 $new_obj->fill($obj_array);
                 $new_obj->save(['timestamps' => false]);
+            }
+            elseif($class == 'App\Models\RecurringExpense' && is_null($obj->{$match_key})){
+                $new_obj = new RecurringExpense();
+                $new_obj->company_id = $this->company->id;
+                $new_obj->fill($obj_array);
+                $new_obj->save(['timestamps' => false]);
+                $new_obj->number = $this->getNextRecurringExpenseNumber($client = Client::find($obj_array['client_id']), $new_obj);   
             }
             else{
                 $new_obj = $class::firstOrNew(
