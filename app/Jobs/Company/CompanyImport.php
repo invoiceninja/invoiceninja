@@ -445,7 +445,7 @@ class CompanyImport implements ShouldQueue
     {
 //unset / transforms / object_property / match_key
         $this->genericImport(RecurringExpense::class, 
-            ['assigned_user_id', 'user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'project_id', 'vendor_id'], 
+            ['assigned_user_id', 'user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'project_id', 'vendor_id','recurring_expense_id'], 
             [
                 ['users' => 'user_id'], 
                 ['users' => 'assigned_user_id'], 
@@ -455,7 +455,7 @@ class CompanyImport implements ShouldQueue
                 ['invoices' => 'invoice_id'],
                 ['expense_categories' => 'category_id'],
             ], 
-            'expenses',
+            'recurring_expenses',
             'number');
 
         return $this;
@@ -796,7 +796,7 @@ class CompanyImport implements ShouldQueue
 
 
         $this->genericImport(Expense::class, 
-            ['assigned_user_id', 'user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'project_id','vendor_id'], 
+            ['assigned_user_id', 'user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'project_id','vendor_id','recurring_expense_id'], 
             [
                 ['users' => 'user_id'], 
                 ['users' => 'assigned_user_id'], 
@@ -804,7 +804,7 @@ class CompanyImport implements ShouldQueue
                 ['projects' => 'project_id'],
                 ['vendors' => 'vendor_id'],
                 ['invoices' => 'invoice_id'],
-                ['recurring_expenses' => 'recurring_expense_id'],
+                // ['recurring_expenses' => 'recurring_expense_id'],
                 ['expense_categories' => 'category_id'],
             ], 
             'expenses',
@@ -866,6 +866,7 @@ class CompanyImport implements ShouldQueue
                 'company_id',
                 'backup',
                 'invitation_id',
+                'payment_id',
             ], 
             [
                 ['users' => 'user_id'], 
@@ -873,7 +874,7 @@ class CompanyImport implements ShouldQueue
                 ['client_contacts' => 'client_contact_id'],
                 ['projects' => 'project_id'],
                 ['vendors' => 'vendor_id'],
-                ['payments' => 'payment_id'],
+                // ['payments' => 'payment_id'],
                 ['invoices' => 'invoice_id'],
                 ['credits' => 'credit_id'],
                 ['tasks' => 'task_id'],
@@ -1359,6 +1360,13 @@ class CompanyImport implements ShouldQueue
                 $new_obj->fill($obj_array);
                 $new_obj->save(['timestamps' => false]);
             }
+            elseif($class == 'App\Models\RecurringExpense' && is_null($obj->{$match_key})){
+                $new_obj = new RecurringExpense();
+                $new_obj->company_id = $this->company->id;
+                $new_obj->fill($obj_array);
+                $new_obj->save(['timestamps' => false]);
+                $new_obj->number = $this->getNextRecurringExpenseNumber($client = Client::find($obj_array['client_id']), $new_obj);   
+            }
             else{
                 $new_obj = $class::firstOrNew(
                         [$match_key => $obj->{$match_key}, 'company_id' => $this->company->id],
@@ -1418,10 +1426,9 @@ class CompanyImport implements ShouldQueue
 
         if (! array_key_exists($resource, $this->ids)) {
              nlog($resource);
-
-            nlog($this->ids);
             
             $this->sendImportMail("The Import failed due to missing data in the import file. Resource {$resource} not available.");
+            nlog($this->ids);
             throw new \Exception("Resource {$resource} not available.");
         }
 
@@ -1435,6 +1442,8 @@ class CompanyImport implements ShouldQueue
                 return $this->company_owner->id;
 
             $this->sendImportMail("The Import failed due to missing data in the import file. Resource {$resource} not available.");
+            
+            nlog($this->ids[$resource]);
 
             throw new \Exception("Missing {$resource} key: {$old}");
         }

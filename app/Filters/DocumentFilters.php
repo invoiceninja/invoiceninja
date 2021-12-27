@@ -20,11 +20,6 @@ use Illuminate\Database\Eloquent\Builder;
 class DocumentFilters extends QueryFilters
 {
 
-    // public function client_id(int $client_id) :Builder
-    // {
-    //     return $this->builder->where('client_id', $client_id);
-    // }
-
     /**
      * Filter based on search text.
      *
@@ -39,6 +34,14 @@ class DocumentFilters extends QueryFilters
         }
 
         return $this->builder;
+    }
+
+    /* If client ID passed to this entity, simply return */
+    public function client_id(string $client_id = '') :Builder
+    {
+        
+        return $this->builder;
+        
     }
 
     /**
@@ -64,6 +67,7 @@ class DocumentFilters extends QueryFilters
      */
     public function baseQuery(int $company_id, User $user) : Builder
     {
+        return $this->builder;
     }
 
     /**
