@@ -314,6 +314,7 @@ class HtmlEngine
         $data['$client.address'] = &$data['$client_address'];
         $data['$client.postal_code'] = ['value' => $this->client->postal_code ?: '&nbsp;', 'label' => ctrans('texts.postal_code')];
         $data['$client.city'] = ['value' => $this->client->city ?: '&nbsp;', 'label' => ctrans('texts.city')];
+        $data['$client.state'] = ['value' => $this->client->state ?: '&nbsp;', 'label' => ctrans('texts.state')];
         $data['$client.id_number'] = &$data['$id_number'];
         $data['$client.vat_number'] = &$data['$vat_number'];
         $data['$client.website'] = &$data['$website'];
@@ -324,6 +325,22 @@ class HtmlEngine
         $data['$client.postal_city_state'] = &$data['$postal_city_state'];
         $data['$client.country'] = &$data['$country'];
         $data['$client.email'] = &$data['$email'];
+        
+        $data['$client.billing_address'] = &$data['$client_address'];
+        $data['$client.billing_address1'] = &$data['$client.address1'];
+        $data['$client.billing_address2'] = &$data['$client.address2'];
+        $data['$client.billing_city'] = &$data['$client.city'];
+        $data['$client.billing_state'] = &$data['$client.state'];
+        $data['$client.billing_postal_code'] = &$data['$client.postal_code'];
+        $data['$client.billing_country'] = &$data['$client.country'];
+
+        $data['$client.shipping_address'] = ['value' => $this->client->present()->shipping_address() ?: '&nbsp;', 'label' => ctrans('texts.shipping_address')];
+        $data['$client.shipping_address1'] = ['value' => $this->client->shipping_address1 ?: '&nbsp;', 'label' => ctrans('texts.shipping_address1')];
+        $data['$client.shipping_address2'] = ['value' => $this->client->shipping_address2 ?: '&nbsp;', 'label' => ctrans('texts.shipping_address2')];
+        $data['$client.shipping_city'] = ['value' => $this->client->shipping_city ?: '&nbsp;', 'label' => ctrans('texts.shipping_city')];
+        $data['$client.shipping_state'] = ['value' => $this->client->shipping_state ?: '&nbsp;', 'label' => ctrans('texts.shipping_state')];
+        $data['$client.shipping_postal_code'] = ['value' => $this->client->shipping_postal_code ?: '&nbsp;', 'label' => ctrans('texts.shipping_postal_code')];
+        $data['$client.shipping_country'] = ['value' => isset($this->client->shipping_country->name) ? ctrans('texts.country_' . $this->client->shipping_country->name) : '', 'label' => ctrans('texts.shipping_country')];
 
         $data['$client.currency'] = ['value' => $this->client->currency()->code, 'label' => ''];
 
