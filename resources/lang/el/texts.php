@@ -2600,7 +2600,7 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'converted_amount' => 'Μετατρεπόμενο Ποσό',
     'default' => 'Προεπιλογή',
     'shipping_address' => 'Διεύθυνση Αποστολής',
-    'bllling_address' => 'Διεύθυνση Χρέωσης',
+    'billing_address' => 'Διεύθυνση Χρέωσης',
     'billing_address1' => 'Οδός Χρέωσης',
     'billing_address2' => 'Διαμέρισμα Χρέωσης',
     'billing_city' => 'Πόλη Χρέωσης',

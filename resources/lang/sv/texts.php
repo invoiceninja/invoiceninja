@@ -2609,7 +2609,7 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'converted_amount' => 'Konverterad summa',
     'default' => 'Standard',
     'shipping_address' => 'Leveransadress',
-    'bllling_address' => 'Faktureringsadress',
+    'billing_address' => 'Faktureringsadress',
     'billing_address1' => 'Faktureringsadress 1',
     'billing_address2' => 'Faktureringsadress 2',
     'billing_city' => 'Fakturerings stad',

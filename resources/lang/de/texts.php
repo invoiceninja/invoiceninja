@@ -2613,7 +2613,7 @@ Sobald Sie die Beträge erhalten haben, kommen Sie bitte wieder zurück zu diese
     'converted_amount' => 'Umgerechneter Betrag',
     'default' => 'Standard',
     'shipping_address' => 'Lieferadresse',
-    'bllling_address' => 'Rechnungsadresse',
+    'billing_address' => 'Rechnungsadresse',
     'billing_address1' => 'Strasse Rechnungsanschrift',
     'billing_address2' => 'Rechnung Adresszusatz',
     'billing_city' => 'Stadt Rechnungsanschrift',

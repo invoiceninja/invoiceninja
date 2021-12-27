@@ -2597,7 +2597,7 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
     'converted_amount' => 'Pretvorjeni znesek',
     'default' => 'Privzeto',
     'shipping_address' => 'Naslov za dostavo',
-    'bllling_address' => 'Naslov za račun',
+    'billing_address' => 'Naslov za račun',
     'billing_address1' => 'Ulica (za račun)',
     'billing_address2' => 'Hišna št./Stanovanje (za račun)',
     'billing_city' => 'Mesto (za račun)',

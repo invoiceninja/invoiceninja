@@ -2598,7 +2598,7 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'converted_amount' => 'Converted Amount',
     'default' => 'Default',
     'shipping_address' => 'Shipping Address',
-    'bllling_address' => 'Billing Address',
+    'billing_address' => 'Billing Address',
     'billing_address1' => 'Billing Street',
     'billing_address2' => 'Billing Apt/Suite',
     'billing_city' => 'Billing City',

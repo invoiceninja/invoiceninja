@@ -2612,7 +2612,7 @@ Kada budete imali iznose, vratite se na ovu stranicu sa načinima plaćanja i k
     'converted_amount' => 'Konvertovani iznos',
     'default' => 'Podrazumevano',
     'shipping_address' => 'Adresa za slanje',
-    'bllling_address' => 'Adresa naplate',
+    'billing_address' => 'Adresa naplate',
     'billing_address1' => 'Adresa naplate - Ulica',
     'billing_address2' => 'Adresa računa - Stan/Apartman',
     'billing_city' => 'Adresa naplate - Grad',

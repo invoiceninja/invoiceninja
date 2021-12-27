@@ -2608,7 +2608,7 @@ debitar da sua conta de acordo com essas instruções. Está elegível a um reem
     'converted_amount' => 'Valor convertido',
     'default' => 'Pré-definido',
     'shipping_address' => 'Endereço de envio',
-    'bllling_address' => 'Endereço de faturação',
+    'billing_address' => 'Endereço de faturação',
     'billing_address1' => 'Rua de Faturação',
     'billing_address2' => 'Andar / Fração de Faturação',
     'billing_city' => 'Cidade de Faturação',

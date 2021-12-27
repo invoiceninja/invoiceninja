@@ -2594,7 +2594,7 @@ Quando tiver as quantias, volte a esta página de formas de pagamento e clique "
     'converted_amount' => 'Quantia Convertida',
     'default' => 'Padrão',
     'shipping_address' => 'Endereço de envio',
-    'bllling_address' => 'Endereço de cobrança',
+    'billing_address' => 'Endereço de cobrança',
     'billing_address1' => 'Rua de cobrança',
     'billing_address2' => 'Complemento de cobrança',
     'billing_city' => 'Cidade de cobrança',

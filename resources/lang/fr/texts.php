@@ -2606,7 +2606,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'converted_amount' => 'Montant converti',
     'default' => 'Par défaut',
     'shipping_address' => 'Adresse de Livraison',
-    'bllling_address' => 'Adresse de Facturation',
+    'billing_address' => 'Adresse de Facturation',
     'billing_address1' => 'Rue',
     'billing_address2' => 'Appt/Bâtiment',
     'billing_city' => 'Ville',

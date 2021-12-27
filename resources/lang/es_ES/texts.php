@@ -2602,7 +2602,7 @@ Una vez que tenga los montos, vuelva a esta página de métodos de pago y haga c
     'converted_amount' => 'Cuenta convertida',
     'default' => 'Por defecto',
     'shipping_address' => 'Direccion de Envio',
-    'bllling_address' => 'Dirección de Facturación',
+    'billing_address' => 'Dirección de Facturación',
     'billing_address1' => 'Calle de Facturacion',
     'billing_address2' => 'Piso de Facturacion',
     'billing_city' => 'Ciudad de Facturacion',

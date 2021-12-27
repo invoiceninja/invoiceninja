@@ -2604,7 +2604,7 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'converted_amount' => 'Omgezet bedrag',
     'default' => 'Standaard',
     'shipping_address' => 'Leveringsadres',
-    'bllling_address' => 'Factuuradres',
+    'billing_address' => 'Factuuradres',
     'billing_address1' => 'Facturatie straat',
     'billing_address2' => 'Facturatie Apt/Suite',
     'billing_city' => 'Facturatiestad',

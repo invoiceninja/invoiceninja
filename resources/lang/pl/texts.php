@@ -2609,7 +2609,7 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
     'converted_amount' => 'Kwota przeliczona',
     'default' => 'Default',
     'shipping_address' => 'Shipping Address',
-    'bllling_address' => 'Billing Address',
+    'billing_address' => 'Billing Address',
     'billing_address1' => 'Billing Street',
     'billing_address2' => 'Billing Apt/Suite',
     'billing_city' => 'Billing City',
