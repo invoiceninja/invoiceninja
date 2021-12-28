@@ -4352,6 +4352,7 @@ $LANG = array(
     'payment_type_Bancontact' => 'Bancontact',
     'payment_type_BECS' => 'BECS',
     'payment_type_ACSS' => 'ACSS',
+    'gross_line_total' => 'Gross line total',
 );
 
 return $LANG;
