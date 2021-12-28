@@ -300,10 +300,10 @@ class InvoiceService
             return $this;
 
         if($this->invoice->balance == 0){
-            $this->setStatus(Invoice::STATUS_PAID);
+            $this->invoice->status_id = Invoice::STATUS_PAID;
         }
         elseif ($this->invoice->balance > 0 && $this->invoice->balance < $this->invoice->amount) {
-            $this->setStatus(Invoice::STATUS_PARTIAL);
+            $this->invoice->status_id = Invoice::STATUS_PARTIAL;
         }
 
         return $this;
@@ -319,8 +319,6 @@ class InvoiceService
 
                                          return $item;
                                      })->toArray();
-
-        //$this->invoice = $this->invoice->calc()->getInvoice();
 
         $this->deletePdf();
 
