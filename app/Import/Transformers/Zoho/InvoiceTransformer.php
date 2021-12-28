@@ -57,7 +57,7 @@ class InvoiceTransformer extends BaseTransformer {
 			$line_items[] = [
 				'product_key'        => $this->getString( $record, 'Item Name' ),
 				'notes'              => $this->getString( $record, 'Item Description' ),
-				'cost'               => $this->getFloat( $record, 'Item Price' ),
+				'cost'               => round($this->getFloat( $record, 'Item Price' ),2),
 				'quantity'           => $this->getFloat( $record, 'Quantity' ),
 				'discount'           => $this->getString( $record, 'Discount Amount' ),
 				'is_amount_discount' => true,
