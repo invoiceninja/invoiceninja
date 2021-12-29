@@ -164,7 +164,7 @@ class ClientPortalController extends BaseController
 
         $gatewayTypeIdCast = false;
 
-        if(array_key_exists('gatewayTypeId', $paymentTypes[0]))
+        if(count($paymentTypes) >= 1 && array_key_exists('gatewayTypeId', $paymentTypes[0]))
             $gatewayTypeIdCast = $paymentTypes[0]['gatewayTypeId'];
 
         $data += [
