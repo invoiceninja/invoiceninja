@@ -331,11 +331,18 @@ class InvoiceService
 
         $this->invoice->invitations->each(function ($invitation){
 
+        try{
+
             Storage::disk(config('filesystems.default'))->delete($this->invoice->client->invoice_filepath($invitation) . $this->invoice->numberFormatter().'.pdf');
             
             if(Ninja::isHosted()) {
                 Storage::disk('public')->delete($this->invoice->client->invoice_filepath($invitation) . $this->invoice->numberFormatter().'.pdf');
             }
+
+        }catch(\Exception $e){
+            nlog($e->getMessage());
+        }
+
 
         });
 
