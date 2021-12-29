@@ -49,7 +49,7 @@ class InvoiceTransformer extends BaseTransformer {
 			'balance'      => $this->getFloat( $invoice_data, 'Balance' ),
 			'status_id'    => $invoiceStatusMap[ $status =
 					strtolower( $this->getString( $invoice_data, 'Invoice Status' ) ) ] ?? Invoice::STATUS_SENT,
-			'viewed'       => $status === 'viewed',
+			// 'viewed'       => $status === 'viewed',
 		];
 
 		$line_items = [];
