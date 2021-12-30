@@ -14,6 +14,7 @@ namespace App\Models;
 use App\Models\GatewayType;
 use App\Utils\Number;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use PDO;
 use stdClass;
 
 class CompanyGateway extends BaseModel
@@ -125,7 +126,11 @@ class CompanyGateway extends BaseModel
     {
         $class = static::driver_class();
 
+        if(!$class)
+            return false;
+
         return new $class($this, $client);
+        
     }
 
     private function driver_class()
@@ -136,7 +141,9 @@ class CompanyGateway extends BaseModel
         if (class_exists($class)) 
             return $class;
         
-        throw new \Exception("Payment Driver does not exist");
+        return false;
+
+        // throw new \Exception("Payment Driver does not exist");
     }
 
     /**
