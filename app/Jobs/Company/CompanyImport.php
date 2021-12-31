@@ -794,7 +794,6 @@ class CompanyImport implements ShouldQueue
     private function import_expenses()
     {
 
-
         $this->genericImport(Expense::class, 
             ['assigned_user_id', 'user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'project_id','vendor_id','recurring_expense_id'], 
             [
@@ -1292,8 +1291,8 @@ class CompanyImport implements ShouldQueue
         $class::unguard();
         $x = 0;
         foreach((object)$this->getObject($object_property) as $obj)
-        // foreach($this->backup_file->{$object_property} as $obj)
         {
+            
             /* Remove unwanted keys*/
             $obj_array = (array)$obj;
             foreach($unset as $un){
@@ -1322,16 +1321,26 @@ class CompanyImport implements ShouldQueue
                 $obj_array['webhook_configuration'] = (array)$obj_array['webhook_configuration'];
                 $obj_array['recurring_product_ids'] = '';
                 $obj_array['product_ids'] = '';
-                nlog($obj_array);
             }
 
             /* Expenses that don't have a number will not be inserted - so need to override here*/
             if($class == 'App\Models\Expense' && is_null($obj->{$match_key})){
                 $new_obj = new Expense();
                 $new_obj->company_id = $this->company->id;
+
+                if(array_key_exists('number', $obj_array) && !$this->checkNumberAvailable(Expense::class, $new_obj, $obj_array['number'])){
+                    nlog(" found match - unsetting ".$obj_array['number']);
+                    unset($obj_array['number']);
+                }
+
                 $new_obj->fill($obj_array);
                 $new_obj->save(['timestamps' => false]);
-                $new_obj->number = $this->getNextExpenseNumber($new_obj);
+
+                if(!$new_obj->number){
+                    $new_obj->number = $this->getNextExpenseNumber($new_obj);
+                    nlog($new_obj->number . "setting new expenses number");
+                }
+
             }
             elseif($class == 'App\Models\Invoice' && is_null($obj->{$match_key})){
                 $new_obj = new Invoice();
