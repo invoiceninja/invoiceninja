@@ -381,6 +381,21 @@ class CompanyImport implements ShouldQueue
     private function importSettings()
     {
         $co = (object)$this->getObject("company", true);
+
+        $settings = $co->settings;
+        $settings->invoice_number_counter = 1;
+        $settings->recurring_invoice_number_counter = 1;
+        $settings->quote_number_counter = 1;
+        $settings->credit_number_counter = 1;
+        $settings->task_number_counter = 1;
+        $settings->expense_number_counter = 1;
+        $settings->recurring_expense_number_counter = 1;
+        $settings->recurring_quote_number_counter = 1;
+        $settings->vendor_number_counter = 1;
+        $settings->ticket_number_counter = 1;
+        $settings->payment_number_counter = 1;
+        $settings->project_number_counter = 1;
+
         $this->company->settings = $co->settings;
         // $this->company->settings = $this->backup_file->company->settings;
         $this->company->save();
@@ -881,7 +896,7 @@ class CompanyImport implements ShouldQueue
                 ['quotes' => 'quote_id'],
                 ['subscriptions' => 'subscription_id'],
                 ['recurring_invoices' => 'recurring_invoice_id'],
-                ['recurring_expenses' => 'recurring_expense_id'],
+                // ['recurring_expenses' => 'recurring_expense_id'],
                 // ['invitations' => 'invitation_id'],
             ], 
             'activities');
@@ -1284,12 +1299,13 @@ class CompanyImport implements ShouldQueue
     
     }
 
-
+    /* Ensure if no number is set, we don't overwrite a record with an existing number */
     private function genericImport($class, $unset, $transforms, $object_property, $match_key)
     {
 
         $class::unguard();
         $x = 0;
+
         foreach((object)$this->getObject($object_property) as $obj)
         {
             
@@ -1327,19 +1343,9 @@ class CompanyImport implements ShouldQueue
             if($class == 'App\Models\Expense' && is_null($obj->{$match_key})){
                 $new_obj = new Expense();
                 $new_obj->company_id = $this->company->id;
-
-                if(array_key_exists('number', $obj_array) && !$this->checkNumberAvailable(Expense::class, $new_obj, $obj_array['number'])){
-                    nlog(" found match - unsetting ".$obj_array['number']);
-                    unset($obj_array['number']);
-                }
-
                 $new_obj->fill($obj_array);
                 $new_obj->save(['timestamps' => false]);
-
-                if(!$new_obj->number){
-                    $new_obj->number = $this->getNextExpenseNumber($new_obj);
-                    nlog($new_obj->number . "setting new expenses number");
-                }
+                $new_obj->number = $this->getNextExpenseNumber($new_obj);
 
             }
             elseif($class == 'App\Models\Invoice' && is_null($obj->{$match_key})){
@@ -1377,7 +1383,7 @@ class CompanyImport implements ShouldQueue
                 $new_obj->number = $this->getNextRecurringExpenseNumber($client = Client::find($obj_array['client_id']), $new_obj);   
             }
             else{
-                $new_obj = $class::firstOrNew(
+                $new_obj = $class::withTrashed()->firstOrNew(
                         [$match_key => $obj->{$match_key}, 'company_id' => $this->company->id],
                         $obj_array,
                     );
