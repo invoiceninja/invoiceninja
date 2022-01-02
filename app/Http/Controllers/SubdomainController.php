@@ -20,6 +20,7 @@ class SubdomainController extends BaseController
         'app',
         'ninja',
         'sentry',
+        'sentry2',
         'staging',
         'pdf',
         'demo',
