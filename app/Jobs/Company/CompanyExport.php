@@ -158,7 +158,7 @@ class CompanyExport implements ShouldQueue
         })->all();
 
 
-        $this->export_data['clients'] = $this->company->clients->map(function ($client){
+        $this->export_data['clients'] = $this->company->clients()->orderBy('number', 'ASC')->cursor()->map(function ($client){
 
             $client = $this->transformArrayOfKeys($client, ['company_id', 'user_id', 'assigned_user_id', 'group_settings_id']);
 
@@ -202,7 +202,7 @@ class CompanyExport implements ShouldQueue
 
         })->all();
 
-        $this->export_data['credits'] = $this->company->credits->map(function ($credit){
+        $this->export_data['credits'] = $this->company->credits()->orderBy('number', 'ASC')->cursor()->map(function ($credit){
 
             $credit = $this->transformBasicEntities($credit);
             $credit = $this->transformArrayOfKeys($credit, ['recurring_id','client_id', 'vendor_id', 'project_id', 'design_id', 'subscription_id','invoice_id']);
@@ -240,7 +240,7 @@ class CompanyExport implements ShouldQueue
         })->all();
 
 
-        $this->export_data['expenses'] = $this->company->expenses->map(function ($expense){
+        $this->export_data['expenses'] = $this->company->expenses()->orderBy('number', 'ASC')->cursor()->map(function ($expense){
 
             $expense = $this->transformBasicEntities($expense);
             $expense = $this->transformArrayOfKeys($expense, ['vendor_id', 'invoice_id', 'client_id', 'category_id', 'recurring_expense_id','project_id']);
@@ -258,7 +258,7 @@ class CompanyExport implements ShouldQueue
         })->all();
 
 
-        $this->export_data['invoices'] = $this->company->invoices->map(function ($invoice){
+        $this->export_data['invoices'] = $this->company->invoices()->orderBy('number', 'ASC')->cursor()->map(function ($invoice){
 
             $invoice = $this->transformBasicEntities($invoice);
             $invoice = $this->transformArrayOfKeys($invoice, ['recurring_id','client_id', 'vendor_id', 'project_id', 'design_id', 'subscription_id']);
@@ -289,7 +289,7 @@ class CompanyExport implements ShouldQueue
         })->makeHidden(['id'])->all();
 
 
-        $this->export_data['payments'] = $this->company->payments->map(function ($payment){
+        $this->export_data['payments'] = $this->company->payments()->orderBy('number', 'ASC')->cursor()->map(function ($payment){
 
             $payment = $this->transformBasicEntities($payment);
             $payment = $this->transformArrayOfKeys($payment, ['client_id','project_id', 'vendor_id', 'client_contact_id', 'invitation_id', 'company_gateway_id']);
@@ -309,7 +309,7 @@ class CompanyExport implements ShouldQueue
 
         })->all();
 
-        $this->export_data['projects'] = $this->company->projects->map(function ($project){
+        $this->export_data['projects'] = $this->company->projects()->orderBy('number', 'ASC')->cursor()->map(function ($project){
 
             $project = $this->transformBasicEntities($project);
             $project = $this->transformArrayOfKeys($project, ['client_id']);
@@ -318,7 +318,7 @@ class CompanyExport implements ShouldQueue
 
         })->all();
 
-        $this->export_data['quotes'] = $this->company->quotes->map(function ($quote){
+        $this->export_data['quotes'] = $this->company->quotes()->orderBy('number', 'ASC')->cursor()->map(function ($quote){
 
             $quote = $this->transformBasicEntities($quote);
             $quote = $this->transformArrayOfKeys($quote, ['invoice_id','recurring_id','client_id', 'vendor_id', 'project_id', 'design_id', 'subscription_id']);
@@ -336,7 +336,7 @@ class CompanyExport implements ShouldQueue
 
         })->all();
 
-        $this->export_data['recurring_expenses'] = $this->company->recurring_expenses->map(function ($expense){
+        $this->export_data['recurring_expenses'] = $this->company->recurring_expenses()->orderBy('number', 'ASC')->cursor()->map(function ($expense){
 
             $expense = $this->transformBasicEntities($expense);
             $expense = $this->transformArrayOfKeys($expense, ['vendor_id', 'invoice_id', 'client_id', 'category_id', 'project_id']);
@@ -345,7 +345,7 @@ class CompanyExport implements ShouldQueue
 
         })->all();
 
-        $this->export_data['recurring_invoices'] = $this->company->recurring_invoices->makeVisible(['id'])->map(function ($ri){
+        $this->export_data['recurring_invoices'] = $this->company->recurring_invoices()->orderBy('number', 'ASC')->cursor()->makeVisible(['id'])->map(function ($ri){
 
             $ri = $this->transformBasicEntities($ri);
             $ri = $this->transformArrayOfKeys($ri, ['client_id', 'vendor_id', 'project_id', 'design_id', 'subscription_id']);
@@ -388,7 +388,7 @@ class CompanyExport implements ShouldQueue
 
         })->makeHidden(['id'])->all();
 
-        $this->export_data['tasks'] = $this->company->tasks->map(function ($task){
+        $this->export_data['tasks'] = $this->company->tasks()->orderBy('number', 'ASC')->cursor()->map(function ($task){
 
             $task = $this->transformBasicEntities($task);
             $task = $this->transformArrayOfKeys($task, ['client_id', 'invoice_id', 'project_id', 'status_id']);
@@ -416,7 +416,7 @@ class CompanyExport implements ShouldQueue
 
         })->makeHidden(['id'])->all();
 
-        $this->export_data['vendors'] = $this->company->vendors->map(function ($vendor){
+        $this->export_data['vendors'] = $this->company->vendors()->orderBy('number', 'ASC')->cursor()->map(function ($vendor){
 
             return $this->transformBasicEntities($vendor)->makeVisible(['id']);
 
