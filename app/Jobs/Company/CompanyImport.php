@@ -381,6 +381,21 @@ class CompanyImport implements ShouldQueue
     private function importSettings()
     {
         $co = (object)$this->getObject("company", true);
+
+        $settings = $co->settings;
+        $settings->invoice_number_counter = 1;
+        $settings->recurring_invoice_number_counter = 1;
+        $settings->quote_number_counter = 1;
+        $settings->credit_number_counter = 1;
+        $settings->task_number_counter = 1;
+        $settings->expense_number_counter = 1;
+        $settings->recurring_expense_number_counter = 1;
+        $settings->recurring_quote_number_counter = 1;
+        $settings->vendor_number_counter = 1;
+        $settings->ticket_number_counter = 1;
+        $settings->payment_number_counter = 1;
+        $settings->project_number_counter = 1;
+
         $this->company->settings = $co->settings;
         // $this->company->settings = $this->backup_file->company->settings;
         $this->company->save();
@@ -794,7 +809,6 @@ class CompanyImport implements ShouldQueue
     private function import_expenses()
     {
 
-
         $this->genericImport(Expense::class, 
             ['assigned_user_id', 'user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'project_id','vendor_id','recurring_expense_id'], 
             [
@@ -882,7 +896,7 @@ class CompanyImport implements ShouldQueue
                 ['quotes' => 'quote_id'],
                 ['subscriptions' => 'subscription_id'],
                 ['recurring_invoices' => 'recurring_invoice_id'],
-                ['recurring_expenses' => 'recurring_expense_id'],
+                // ['recurring_expenses' => 'recurring_expense_id'],
                 // ['invitations' => 'invitation_id'],
             ], 
             'activities');
@@ -1285,15 +1299,16 @@ class CompanyImport implements ShouldQueue
     
     }
 
-
+    /* Ensure if no number is set, we don't overwrite a record with an existing number */
     private function genericImport($class, $unset, $transforms, $object_property, $match_key)
     {
 
         $class::unguard();
         $x = 0;
+
         foreach((object)$this->getObject($object_property) as $obj)
-        // foreach($this->backup_file->{$object_property} as $obj)
         {
+            
             /* Remove unwanted keys*/
             $obj_array = (array)$obj;
             foreach($unset as $un){
@@ -1322,7 +1337,6 @@ class CompanyImport implements ShouldQueue
                 $obj_array['webhook_configuration'] = (array)$obj_array['webhook_configuration'];
                 $obj_array['recurring_product_ids'] = '';
                 $obj_array['product_ids'] = '';
-                nlog($obj_array);
             }
 
             /* Expenses that don't have a number will not be inserted - so need to override here*/
@@ -1332,6 +1346,7 @@ class CompanyImport implements ShouldQueue
                 $new_obj->fill($obj_array);
                 $new_obj->save(['timestamps' => false]);
                 $new_obj->number = $this->getNextExpenseNumber($new_obj);
+
             }
             elseif($class == 'App\Models\Invoice' && is_null($obj->{$match_key})){
                 $new_obj = new Invoice();
@@ -1368,7 +1383,7 @@ class CompanyImport implements ShouldQueue
                 $new_obj->number = $this->getNextRecurringExpenseNumber($client = Client::find($obj_array['client_id']), $new_obj);   
             }
             else{
-                $new_obj = $class::firstOrNew(
+                $new_obj = $class::withTrashed()->firstOrNew(
                         [$match_key => $obj->{$match_key}, 'company_id' => $this->company->id],
                         $obj_array,
                     );

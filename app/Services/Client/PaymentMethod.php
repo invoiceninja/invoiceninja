@@ -140,6 +140,10 @@ class PaymentMethod
 
         foreach ($this->gateways as $gateway) {
 
+            //if gateway doesn't exist or is not implemented - continue here //todo
+            if(!$gateway->driver($this->client))
+                continue;
+
             foreach ($gateway->driver($this->client)->gatewayTypes() as $type) {
 
                 if (isset($gateway->fees_and_limits) && is_object($gateway->fees_and_limits) && property_exists($gateway->fees_and_limits, $type)) {

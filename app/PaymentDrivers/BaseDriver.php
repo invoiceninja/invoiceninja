@@ -256,12 +256,12 @@ class BaseDriver extends AbstractPaymentDriver
         $this->payment_hash->payment_id = $payment->id;
         $this->payment_hash->save();
 
-        $this->attachInvoices($payment, $this->payment_hash);
-
         if($this->payment_hash->credits_total() > 0)
             $payment = $payment->service()->applyCredits($this->payment_hash)->save();
 
         $payment->service()->updateInvoicePayment($this->payment_hash);
+
+        $this->attachInvoices($payment, $this->payment_hash);
 
         event('eloquent.created: App\Models\Payment', $payment);
 

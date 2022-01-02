@@ -116,7 +116,7 @@ class WePayPaymentDriver extends BaseDriver
 
         $data['gateway'] = $this->wepay;
         $client = $data['client'];
-        $contact = $client->primary_contact()->first() ? $client->primary_contact()->first() : $lient->contacts->first();
+        $contact = $client->primary_contact()->first() ? $client->primary_contact()->first() : $client->contacts->first();
         $data['contact'] = $contact;
 
         return $this->payment_method->authorizeView($data);

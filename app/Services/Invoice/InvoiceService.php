@@ -300,10 +300,10 @@ class InvoiceService
             return $this;
 
         if($this->invoice->balance == 0){
-            $this->setStatus(Invoice::STATUS_PAID);
+            $this->invoice->status_id = Invoice::STATUS_PAID;
         }
         elseif ($this->invoice->balance > 0 && $this->invoice->balance < $this->invoice->amount) {
-            $this->setStatus(Invoice::STATUS_PARTIAL);
+            $this->invoice->status_id = Invoice::STATUS_PARTIAL;
         }
 
         return $this;
@@ -320,8 +320,6 @@ class InvoiceService
                                          return $item;
                                      })->toArray();
 
-        //$this->invoice = $this->invoice->calc()->getInvoice();
-
         $this->deletePdf();
 
         return $this;
@@ -333,11 +331,18 @@ class InvoiceService
 
         $this->invoice->invitations->each(function ($invitation){
 
+        try{
+
             Storage::disk(config('filesystems.default'))->delete($this->invoice->client->invoice_filepath($invitation) . $this->invoice->numberFormatter().'.pdf');
             
             if(Ninja::isHosted()) {
                 Storage::disk('public')->delete($this->invoice->client->invoice_filepath($invitation) . $this->invoice->numberFormatter().'.pdf');
             }
+
+        }catch(\Exception $e){
+            nlog($e->getMessage());
+        }
+
 
         });
 
