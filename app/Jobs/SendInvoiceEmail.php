@@ -21,7 +21,7 @@ class SendInvoiceEmail extends Job implements ShouldQueue
     /**
      * @var Invoice
      */
-    protected $invoice;
+    public $invoice;
 
     /**
      * @var bool

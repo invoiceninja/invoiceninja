@@ -73,7 +73,7 @@ class UserMailer extends Mailer
         User $user,
         Invoice $invoice,
         $notificationType,
-        Payment $payment = null,
+        ?Payment $payment,
         $notes = false
     ) {
         if (! $user->shouldNotify($invoice)) {
