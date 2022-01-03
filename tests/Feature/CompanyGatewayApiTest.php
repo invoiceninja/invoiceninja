@@ -167,6 +167,21 @@ class CompanyGatewayApiTest extends TestCase
         $cg = $response->json();
 
         $response->assertStatus(200);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/company_gateways');
+
+        $response->assertStatus(200);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get('/api/v1/company_gateways?filter=x');
+
+        $response->assertStatus(200);
+
     }
 
     public function testCompanyGatewayFeesAndLimitsFails()
