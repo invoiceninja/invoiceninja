@@ -109,15 +109,15 @@ class ClientStatementController extends BaseController
      */
 
     public function statement(CreateStatementRequest $request)
-    {
+    { nlog($request->all());
         $pdf = $request->client()->service()->statement(
-            $request->only(['start_date', 'end_date', 'show_payments_table', 'show_aging_table'])
+            $request->only(['start_date', 'end_date', 'show_payments_table', 'show_aging_table', 'status'])
         );
     
         if ($pdf) {
             return response()->streamDownload(function () use ($pdf) {
                 echo $pdf;
-            }, 'statement.pdf', ['Content-Type' => 'application/pdf']);
+            }, ctrans('texts.statement') . '.pdf', ['Content-Type' => 'application/pdf']);
         }
 
         return response()->json(['message' => 'Something went wrong. Please check logs.']);
