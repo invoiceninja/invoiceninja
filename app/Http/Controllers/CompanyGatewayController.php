@@ -13,6 +13,7 @@ namespace App\Http\Controllers;
 
 use App\DataMapper\FeesAndLimits;
 use App\Factory\CompanyGatewayFactory;
+use App\Filters\CompanyGatewayFilters;
 use App\Http\Requests\CompanyGateway\CreateCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\DestroyCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\EditCompanyGatewayRequest;
@@ -95,9 +96,9 @@ class CompanyGatewayController extends BaseController
      *       ),
      *     )
      */
-    public function index()
+    public function index(CompanyGatewayFilters $filters)
     {
-        $company_gateways = CompanyGateway::whereCompanyId(auth()->user()->company()->id);
+        $company_gateways = CompanyGateway::filter($filters);
 
         return $this->listResponse($company_gateways);
     }

@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Models\Filterable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -19,7 +20,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class TaskStatus extends BaseModel
 {
     use SoftDeletes;
-
+    use Filterable;
+    
     /**
      * @var bool
      */

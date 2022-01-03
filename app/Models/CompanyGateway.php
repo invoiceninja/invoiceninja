@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Models\Filterable;
 use App\Models\GatewayType;
 use App\Utils\Number;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -20,7 +21,8 @@ use stdClass;
 class CompanyGateway extends BaseModel
 {
     use SoftDeletes;
-
+    use Filterable;
+    
     public const GATEWAY_CREDIT = 10000000;
 
     protected $casts = [

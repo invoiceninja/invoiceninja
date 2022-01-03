@@ -42,6 +42,7 @@ use App\Models\RecurringInvoice;
 use App\Models\RecurringQuote;
 use App\Models\Task;
 use App\Models\TaskStatus;
+use App\Models\TaxRate;
 use App\Models\User;
 use App\Models\Vendor;
 use App\Models\VendorContact;
@@ -135,6 +136,13 @@ trait MockAccountData
      * @var
      */
     public $cu;
+
+    /**
+     * @var
+     */
+
+    public $tax_rate;
+
 
     /**
      *
@@ -333,6 +341,11 @@ trait MockAccountData
         ]);
 
         $this->task_status = TaskStatus::factory()->create([
+            'user_id' => $user_id,
+            'company_id' => $this->company->id,
+        ]);
+
+        $this->tax_rate = TaxRate::factory()->create([
             'user_id' => $user_id,
             'company_id' => $this->company->id,
         ]);
