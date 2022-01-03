@@ -4349,6 +4349,9 @@ O envio de E-mails foi suspenso. Será retomado às 23:00 UTC.',
     'payment_type_Bancontact' => 'Bancontact',
     'payment_type_BECS' => 'BECS',
     'payment_type_ACSS' => 'ACSS',
+    'gross_line_total' => 'Gross line total',
+    'lang_Slovak' => 'Slovak',
+
 );
 
 return $LANG;

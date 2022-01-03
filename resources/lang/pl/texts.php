@@ -4349,6 +4349,9 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
     'payment_type_Bancontact' => 'Bancontact',
     'payment_type_BECS' => 'BECS',
     'payment_type_ACSS' => 'ACSS',
+    'gross_line_total' => 'Gross line total',
+    'lang_Slovak' => 'Slovak',
+
 );
 
 return $LANG;
