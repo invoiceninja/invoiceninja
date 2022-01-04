@@ -109,7 +109,7 @@ class ClientStatementController extends BaseController
      */
 
     public function statement(CreateStatementRequest $request)
-    { nlog($request->all());
+    { 
         $pdf = $request->client()->service()->statement(
             $request->only(['start_date', 'end_date', 'show_payments_table', 'show_aging_table', 'status'])
         );
