@@ -4344,6 +4344,9 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'payment_type_Bancontact' => 'Bancontact',
     'payment_type_BECS' => 'BECS',
     'payment_type_ACSS' => 'ACSS',
+    'gross_line_total' => 'Gross line total',
+    'lang_Slovak' => 'Slovak',
+
 );
 
 return $LANG;

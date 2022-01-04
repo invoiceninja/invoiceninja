@@ -15,6 +15,7 @@ namespace App\Mail\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
 
 class UserLoggedIn extends Mailable
 {
@@ -45,6 +46,8 @@ class UserLoggedIn extends Mailable
      */
     public function build()
     {
+        App::setLocale($this->company->getLocale());
+
         return $this->from(config('mail.from.address'), config('mail.from.name'))
             ->subject(ctrans('texts.new_login_detected'))
             ->view('email.admin.notification')

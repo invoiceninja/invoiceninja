@@ -12,6 +12,7 @@
 namespace App\Http\Controllers;
 
 use App\Factory\TaxRateFactory;
+use App\Filters\TaxRateFilters;
 use App\Http\Requests\TaxRate\CreateTaxRateRequest;
 use App\Http\Requests\TaxRate\DestroyTaxRateRequest;
 use App\Http\Requests\TaxRate\EditTaxRateRequest;
@@ -79,9 +80,9 @@ class TaxRateController extends BaseController
      *
      * @return Response
      */
-    public function index()
+    public function index(TaxRateFilters $filters)
     {
-        $tax_rates = TaxRate::scope();
+        $tax_rates = TaxRate::filter($filters);
 
         return $this->listResponse($tax_rates);
     }

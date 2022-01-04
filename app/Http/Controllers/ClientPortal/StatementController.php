@@ -39,7 +39,7 @@ class StatementController extends Controller
     public function raw(ShowStatementRequest $request)
     {
         $pdf = $request->client()->service()->statement(
-            $request->only(['start_date', 'end_date', 'show_payments_table', 'show_aging_table'])
+            $request->only(['start_date', 'end_date', 'show_payments_table', 'show_aging_table', 'status'])
         );
 
         if ($pdf && $request->query('download')) {

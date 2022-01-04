@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Models\Filterable;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -18,7 +19,8 @@ class TaxRate extends BaseModel
 {
     use MakesHash;
     use SoftDeletes;
-
+    use Filterable;
+    
     protected $fillable = [
         'name',
         'rate',
