@@ -108,11 +108,9 @@ class GenerateDeliveryNote
         }
 
         if(!Storage::disk($this->disk)->exists($this->invoice->client->invoice_filepath($invitation)))
+
             Storage::disk($this->disk)->makeDirectory($this->invoice->client->invoice_filepath($invitation), 0775);
-
-        Storage::disk($this->disk)->put($file_path, $pdf);
-
-        //return Storage::disk($this->disk)->path($file_path);
+            Storage::disk($this->disk)->put($file_path, $pdf, 'public');
 
         return $file_path;
     }

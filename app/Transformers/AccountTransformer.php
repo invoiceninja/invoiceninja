@@ -77,7 +77,7 @@ class AccountTransformer extends EntityTransformer
             'report_errors' => (bool) $account->report_errors,
             'debug_enabled' => (bool) config('ninja.debug_enabled'),
             'is_docker' => (bool) config('ninja.is_docker'),
-            'is_scheduler_running' => (bool) $account->is_scheduler_running,
+            'is_scheduler_running' => Ninja::isHosted() ? (bool) true : (bool) $account->is_scheduler_running, //force true for hosted 03/01/2022
             'default_company_id' => (string) $this->encodePrimaryKey($account->default_company_id),
             'disable_auto_update' => (bool) config('ninja.disable_auto_update'),
             'emails_sent' => (int) $account->emailsSent(),

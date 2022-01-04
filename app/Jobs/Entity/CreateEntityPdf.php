@@ -13,6 +13,7 @@
 namespace App\Jobs\Entity;
 
 use App\Exceptions\FilePermissionsFailure;
+use App\Libraries\MultiDB;
 use App\Models\Account;
 use App\Models\Credit;
 use App\Models\CreditInvitation;
@@ -101,8 +102,7 @@ class CreateEntityPdf implements ShouldQueue
 
     public function handle()
     {
-        $start = microtime(true);
-        // nlog("Start ". $start);
+        MultiDB::setDb($this->company->db);
 
         /* Forget the singleton*/
         App::forgetInstance('translator');
@@ -204,9 +204,9 @@ class CreateEntityPdf implements ShouldQueue
             try{
                 
                 if(!Storage::disk($this->disk)->exists($path))
+
                     Storage::disk($this->disk)->makeDirectory($path, 0775);
-                
-                    Storage::disk($this->disk)->put($file_path, $pdf);
+                    Storage::disk($this->disk)->put($file_path, $pdf, 'public');
 
             }
             catch(\Exception $e)

@@ -144,7 +144,7 @@ class InvoiceService
 
         $this->invoice->balance += $balance_adjustment;
         
-        if ($this->invoice->balance == 0 && !$is_draft) {
+        if (round($this->invoice->balance,2) == 0 && !$is_draft) {
             $this->invoice->status_id = Invoice::STATUS_PAID;
         }
 
@@ -285,7 +285,7 @@ class InvoiceService
 
     public function setCalculatedStatus()
     {
-        if ((int)$this->invoice->balance == 0) {
+        if (round($this->invoice->balance,2) == 0) {
             $this->setStatus(Invoice::STATUS_PAID);
         } elseif ($this->invoice->balance > 0 && $this->invoice->balance < $this->invoice->amount) {
             $this->setStatus(Invoice::STATUS_PARTIAL);
@@ -299,7 +299,7 @@ class InvoiceService
         if($this->invoice->status_id == Invoice::STATUS_DRAFT)
             return $this;
 
-        if($this->invoice->balance == 0){
+        if(round($this->invoice->balance,2) == 0){
             $this->invoice->status_id = Invoice::STATUS_PAID;
         }
         elseif ($this->invoice->balance > 0 && $this->invoice->balance < $this->invoice->amount) {
