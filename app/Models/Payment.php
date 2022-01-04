@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Events\Payment\PaymentWasRefunded;
 use App\Events\Payment\PaymentWasVoided;
 use App\Services\Ledger\LedgerService;
 use App\Services\Payment\PaymentService;
