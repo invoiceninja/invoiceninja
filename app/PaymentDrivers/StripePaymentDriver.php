@@ -725,6 +725,15 @@ class StripePaymentDriver extends BaseDriver
         return (new Verify($this))->run();
     }
 
+    public function setDomain()
+    {
+        // \Stripe\ApplePayDomain::create([
+        //   'domain_name' => 'example.com',
+        // ],[
+        //   'stripe_account' => '{{CONNECTED_ACCOUNT_ID}}',
+        // ]);
+    }
+
     public function disconnect()
     {
         if(!$this->stripe_connect)
