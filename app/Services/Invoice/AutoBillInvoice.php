@@ -123,7 +123,8 @@ class AutoBillInvoice extends AbstractService
                                  ->tokenBilling($gateway_token, $payment_hash);
          }
          catch(\Exception $e){
-            nlog($e->getMessage());
+            nlog("payment NOT captured for ". $this->invoice->number . " with error " . $e->getMessage());
+            // nlog($e->getMessage());
          }
 
         if($payment){
