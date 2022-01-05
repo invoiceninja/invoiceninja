@@ -101,6 +101,7 @@ class Invoice extends BaseModel
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
+        'is_deleted' => 'bool',
     ];
 
     protected $with = [];
