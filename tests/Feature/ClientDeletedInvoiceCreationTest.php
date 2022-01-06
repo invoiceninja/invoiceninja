@@ -51,7 +51,7 @@ class ClientDeletedInvoiceCreationTest extends TestCase
             'number' => 'dude',
         ];
 
-        $response = $this->withHeaders([
+        $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/invoices/', $data)
@@ -66,7 +66,7 @@ class ClientDeletedInvoiceCreationTest extends TestCase
             'number' => 'dude2',
         ];
 
-        $response = $this->withHeaders([
+        $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/invoices/', $data)
