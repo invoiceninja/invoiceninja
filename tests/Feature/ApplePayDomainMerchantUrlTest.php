@@ -46,7 +46,7 @@ class ApplePayDomainMerchantUrlTest extends TestCase
         $config = new \stdClass;
         $config->publishableKey = "pk_test";
         $config->apiKey = "sk_test";
-        $config->appleMerchantId = "merchant_id";
+        $config->appleDomainVerification = "merchant_id";
 
         $cg = new CompanyGateway;
         $cg->company_id = $this->company->id;

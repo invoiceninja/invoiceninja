@@ -38,8 +38,8 @@ class ApplePayDomainController extends Controller
             foreach($cgs as $cg)
             {
 
-                if($cg->getConfigField('appleMerchantId')){
-                   return response($cg->getConfigField('appleMerchantId'),200);
+                if($cg->getConfigField('appleDomainVerification')){
+                   return response($cg->getConfigField('appleDomainVerification'),200);
                                     
                 }
 
@@ -90,8 +90,8 @@ class ApplePayDomainController extends Controller
         foreach($cgs as $cg)
         {
 
-            if($cg->getConfigField('appleMerchantId')){
-               return response($cg->getConfigField('appleMerchantId'),200);
+            if($cg->getConfigField('appleDomainVerification')){
+               return response($cg->getConfigField('appleDomainVerification'),200);
             }
 
         }
