@@ -55,9 +55,15 @@ class ApplePayDomain implements ShouldQueue
 
         if(in_array($this->company_gateway->gateway_key, $this->stripe_keys))
         {
+            
             $domain = $this->getDomain();
 
-            $this->company_gateway->driver()->setApplePayDomain($domain);
+            try{
+                $this->company_gateway->driver()->setApplePayDomain($domain);
+            }
+            catch(\Exception $e){
+                nlog("failed to set Apple Domain with Stripe " . $e->getMessage());
+            }
 
         }
 
