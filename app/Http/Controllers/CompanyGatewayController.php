@@ -210,6 +210,8 @@ class CompanyGatewayController extends BaseController
             $company_gateway->save();
         }
 
+        ApplePayDomain::dispatch($company_gateway, $company_gateway->company->db);
+
         return $this->itemResponse($company_gateway);
     }
 

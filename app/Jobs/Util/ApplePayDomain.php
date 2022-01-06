@@ -51,6 +51,7 @@ class ApplePayDomain implements ShouldQueue
      */
     public function handle()
     {
+        
         MultiDB::setDB($this->db);
 
         if(in_array($this->company_gateway->gateway_key, $this->stripe_keys))
