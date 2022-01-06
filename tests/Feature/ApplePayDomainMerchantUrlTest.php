@@ -38,6 +38,11 @@ class ApplePayDomainMerchantUrlTest extends TestCase
 
     public function testMerchantFieldGet()
     {
+        
+        if (! config('ninja.testvars.stripe')) {
+            $this->markTestSkipped('Skip test no company gateways installed');
+        }
+
         $config = new \stdClass;
         $config->publishableKey = "pk_test";
         $config->apiKey = "sk_test";
@@ -60,5 +65,28 @@ class ApplePayDomainMerchantUrlTest extends TestCase
         $arr = $response->getContent();
         $response->assertStatus(200);
         $this->assertEquals("merchant_id", $arr);
+    }
+
+    public function testDomainParsing()
+    {
+        $domain = 'http://ninja.test:8000';
+
+        $parsed = parse_url($domain);
+
+        $this->assertEquals('ninja.test', $parsed['host']);
+
+        $domain = 'ninja.test:8000';
+
+        $parsed = parse_url($domain);
+
+        $this->assertEquals('ninja.test', $parsed['host']);
+
+        $domain = 'http://ninja.test:8000/afadf/dfdfdf/dfdfasf';
+
+        $parsed = parse_url($domain);
+
+        $this->assertEquals('ninja.test', $parsed['host']);
+
+
     }
 }

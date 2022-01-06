@@ -24,8 +24,6 @@ class ApplePayDomainController extends Controller
 
     private array $stripe_keys = ['d14dd26a47cecc30fdd65700bfb67b34', 'd14dd26a37cecc30fdd65700bfb55b23'];
 
-    private ?Company $company = null;
-
     public function showAppleMerchantId(Request $request)
     {
 
