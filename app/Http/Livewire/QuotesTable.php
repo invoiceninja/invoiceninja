@@ -49,6 +49,10 @@ class QuotesTable extends Component
             ->where('company_id', $this->company->id)
             ->where('client_id', auth('contact')->user()->client->id)
             ->where('status_id', '<>', Quote::STATUS_DRAFT)
+            ->where(function ($query){
+                $query->whereDate('due_date', '>=', now())
+                      ->orWhereNull('due_date');
+            })
             ->where('is_deleted', 0)
             ->withTrashed()
             ->paginate($this->per_page);
