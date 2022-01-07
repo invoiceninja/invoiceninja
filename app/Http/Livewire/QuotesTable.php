@@ -42,17 +42,45 @@ class QuotesTable extends Component
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc');
 
         if (count($this->status) > 0) {
-            $query = $query->whereIn('status_id', $this->status);
+            
+            /* Special filter for expired*/
+            if(in_array("-1", $this->status)){
+                // $query->whereDate('due_date', '<=', now()->startOfDay());
+    
+                $query->where(function ($query){
+                    $query->whereDate('due_date', '<=', now()->startOfDay())
+                          ->whereNotNull('due_date')
+                          ->where('status_id', '<>', Quote::STATUS_CONVERTED);
+                });
+
+            }
+            
+            if(in_array("2", $this->status)){
+
+                $query->where(function ($query){
+                    $query->whereDate('due_date', '>=', now()->startOfDay())
+                          ->orWhereNull('due_date');
+                })->where('status_id', Quote::STATUS_SENT);
+            
+            }
+
+            if(in_array("3", $this->status)){
+                $query->whereIn('status_id', [Quote::STATUS_APPROVED, Quote::STATUS_CONVERTED]);
+            }
+
+
         }
+
+
 
         $query = $query
             ->where('company_id', $this->company->id)
             ->where('client_id', auth('contact')->user()->client->id)
             ->where('status_id', '<>', Quote::STATUS_DRAFT)
-            ->where(function ($query){
-                $query->whereDate('due_date', '>=', now())
-                      ->orWhereNull('due_date');
-            })
+            // ->where(function ($query){
+            //     $query->whereDate('due_date', '>=', now())
+            //           ->orWhereNull('due_date');
+            // })
             ->where('is_deleted', 0)
             ->withTrashed()
             ->paginate($this->per_page);
