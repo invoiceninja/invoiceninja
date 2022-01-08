@@ -343,7 +343,10 @@ class CompanyGateway extends BaseModel
         }
 
         if ($fees_and_limits->fee_percent) {
-            if ($fees_and_limits->adjust_fee_percent) {
+            if($fees_and_limits->fee_percent == 100){ //unusual edge case if the user wishes to charge a fee of 100% 09/01/2022
+                $fee += $amount;
+            }
+            elseif ($fees_and_limits->adjust_fee_percent) {
                 $fee += round(($amount / (1 - $fees_and_limits->fee_percent / 100) - $amount), 2);
             } else {
                 $fee += round(($amount * $fees_and_limits->fee_percent / 100), 2);
@@ -382,42 +385,6 @@ class CompanyGateway extends BaseModel
     {
         return route('payment_webhook', ['company_key' => $this->company->company_key, 'company_gateway_id' => $this->hashed_id]);
     }
-
-    /**
-     * we need to average out the gateway fees across all the invoices
-     * so lets iterate.
-     *
-     * we MAY need to adjust the final fee to ensure our rounding makes sense!
-     * @param $amount
-     * @param $invoice_count
-     * @return stdClass
-     */
-    // public function calcGatewayFeeObject($amount, $invoice_count)
-    // {
-    //     $total_gateway_fee = $this->calcGatewayFee($amount);
-
-    //     $fee_object = new stdClass;
-
-    //     $fees_and_limits = $this->getFeesAndLimits();
-
-    //     if (! $fees_and_limits) {
-    //         return $fee_object;
-    //     }
-
-    //     $fee_component_amount = $fees_and_limits->fee_amount ?: 0;
-    //     $fee_component_percent = $fees_and_limits->fee_percent ? ($amount * $fees_and_limits->fee_percent / 100) : 0;
-
-    //     $combined_fee_component = $fee_component_amount + $fee_component_percent;
-
-    //     $fee_component_tax_name1 = $fees_and_limits->fee_tax_name1 ?: '';
-    //     $fee_component_tax_rate1 = $fees_and_limits->fee_tax_rate1 ? ($combined_fee_component * $fees_and_limits->fee_tax_rate1 / 100) : 0;
-
-    //     $fee_component_tax_name2 = $fees_and_limits->fee_tax_name2 ?: '';
-    //     $fee_component_tax_rate2 = $fees_and_limits->fee_tax_rate2 ? ($combined_fee_component * $fees_and_limits->fee_tax_rate2 / 100) : 0;
-
-    //     $fee_component_tax_name3 = $fees_and_limits->fee_tax_name3 ?: '';
-    //     $fee_component_tax_rate3 = $fees_and_limits->fee_tax_rate3 ? ($combined_fee_component * $fees_and_limits->fee_tax_rate3 / 100) : 0;
-    // }
 
     public function resolveRouteBinding($value, $field = null)
     {
