@@ -87,6 +87,7 @@ class Quote extends BaseModel
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
+        'is_deleted' => 'boolean',
     ];
 
     protected $dates = [];
@@ -115,6 +116,16 @@ class Quote extends BaseModel
     public function getPartialDueDateAttribute($value)
     {
         return $this->dateMutator($value);
+    }
+
+    public function getStatusIdAttribute($value)
+    {
+        if($this->due_date && !$this->is_deleted && $value == Quote::STATUS_SENT && Carbon::parse($this->due_date)->lte(now()->startOfDay())){
+            return Quote::STATUS_EXPIRED;
+        }
+
+        return $value;
+
     }
 
     public function company()

@@ -117,15 +117,20 @@
     [data-ref="table"] > tbody > tr > td {
         border-top: 1px solid #d8d8d8;
         border-bottom: 1px solid #d8d8d8;
-        padding: 1.5rem;
+        padding: 1.5rem 1rem;
     }
 
     [data-ref="table"] > tbody > tr > td:first-child {
         color: var(--primary-color);
     }
 
+    [data-ref="table"] > thead > tr > th:last-child,
     [data-ref="table"] > tbody > tr > td:last-child {
         text-align: right;
+    }
+
+    [data-ref="table"] > thead > tr > th:last-child {
+        padding-right: 1rem;
     }
 
     [data-ref="table"] > tbody > tr:nth-child(odd) {

@@ -31,6 +31,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use ZipStream\Option\Archive;
 use ZipStream\ZipStream;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class QuoteController extends Controller
 {
@@ -54,7 +55,9 @@ class QuoteController extends Controller
      * @return Factory|View|BinaryFileResponse
      */
     public function show(ShowQuoteRequest $request, Quote $quote)
-    {
+    {   
+        /* If the quote is expired, convert the status here */
+
         $data = [
             'quote' => $quote,
         ];

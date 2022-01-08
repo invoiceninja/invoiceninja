@@ -20,6 +20,7 @@ use App\Http\Requests\CompanyGateway\EditCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\ShowCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\StoreCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\UpdateCompanyGatewayRequest;
+use App\Jobs\Util\ApplePayDomain;
 use App\Models\Client;
 use App\Models\CompanyGateway;
 use App\Repositories\CompanyRepository;
@@ -44,6 +45,9 @@ class CompanyGatewayController extends BaseController
     protected $company_repo;
 
     public $forced_includes = [];
+
+    private array $stripe_keys = ['d14dd26a47cecc30fdd65700bfb67b34', 'd14dd26a37cecc30fdd65700bfb55b23'];
+
 
     /**
      * CompanyGatewayController constructor.
@@ -205,6 +209,8 @@ class CompanyGatewayController extends BaseController
             $company_gateway->fees_and_limits = $fees_and_limits;
             $company_gateway->save();
         }
+
+        ApplePayDomain::dispatch($company_gateway, $company_gateway->company->db);
 
         return $this->itemResponse($company_gateway);
     }
@@ -378,6 +384,8 @@ class CompanyGatewayController extends BaseController
         }
 
         $company_gateway->save();
+
+        ApplePayDomain::dispatch($company_gateway, $company_gateway->company->db);
 
         return $this->itemResponse($company_gateway);
     }
