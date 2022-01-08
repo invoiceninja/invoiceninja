@@ -157,7 +157,8 @@ class AuthorizePaymentMethod
         $paymentOne->setOpaqueData($op);
 
         $contact = $this->authorize->client->primary_contact()->first();
-
+        $billto = false;
+        
         if ($contact) {
             // Create the Bill To info for new payment type
             $billto = new CustomerAddressType();

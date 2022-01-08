@@ -335,11 +335,12 @@ class CompanyImport implements ShouldQueue
                 }
             }
 
-            if($this->company->account->isFreeHostedClient() && $client_count = count($this->getObject('clients', true)) > config('ninja.quotas.free.clients')){
+            if($this->company->account->isFreeHostedClient() && (count($this->getObject('clients', true)) > config('ninja.quotas.free.clients')) ){
                 
                 nlog("client quota busted");
 
                 $client_limit = config('ninja.quotas.free.clients');
+                $client_count = count($this->getObject('clients', true));
 
                 $this->message = "You are attempting to import ({$client_count}) clients, your current plan allows a total of ({$client_limit})";
                 

@@ -471,8 +471,9 @@ class Import implements ShouldQueue
                     
                 }
 
-                if ($key == 'payment_terms' && $key = '') {
-                    $value = -1;
+                /* changes $key = '' to $value == '' and changed the return value from -1 to "0" 06/01/2022 */
+                if ($key == 'payment_terms' && $value == '') {
+                    $value = "0";
                 }
 
                 $company_settings->{$key} = $value;

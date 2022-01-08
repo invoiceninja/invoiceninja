@@ -20,6 +20,8 @@ use App\Models\InvoiceInvitation;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
 use App\Models\SystemLog;
+use App\Notifications\Ninja\EmailBounceNotification;
+use App\Notifications\Ninja\EmailSpamNotification;
 use Illuminate\Http\Request;
 use Turbo124\Beacon\Facades\LightLogs;
 
@@ -173,6 +175,10 @@ class PostMarkController extends BaseController
         LightLogs::create($bounce)->queue();
 
         SystemLogger::dispatch($request->all(), SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_BOUNCED, SystemLog::TYPE_WEBHOOK_RESPONSE, $this->invitation->contact->client, $this->invitation->company);
+
+        if(config('ninja.notification.slack'))
+            $this->invitation->company->notification(new EmailBounceNotification($this->invitation->company->account))->ninja();
+
     }
 
 // {
@@ -215,6 +221,10 @@ class PostMarkController extends BaseController
         LightLogs::create($spam)->queue();
 
         SystemLogger::dispatch($request->all(), SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_SPAM_COMPLAINT, SystemLog::TYPE_WEBHOOK_RESPONSE, $this->invitation->contact->client, $this->invitation->company);
+
+        if(config('ninja.notification.slack'))
+            $this->invitation->company->notification(new EmailSpamNotification($this->invitation->company->account))->ninja();
+
     }
 
     private function discoverInvitation($message_id)

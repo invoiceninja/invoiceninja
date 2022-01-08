@@ -333,9 +333,10 @@ class InvoiceService
 
         try{
 
-            Storage::disk(config('filesystems.default'))->delete($this->invoice->client->invoice_filepath($invitation) . $this->invoice->numberFormatter().'.pdf');
+            if(Storage::disk(config('filesystems.default'))->exists($this->invoice->client->invoice_filepath($invitation) . $this->invoice->numberFormatter().'.pdf'))
+                Storage::disk(config('filesystems.default'))->delete($this->invoice->client->invoice_filepath($invitation) . $this->invoice->numberFormatter().'.pdf');
             
-            if(Ninja::isHosted()) {
+            if(Ninja::isHosted() && Storage::disk(config('filesystems.default'))->exists($this->invoice->client->invoice_filepath($invitation) . $this->invoice->numberFormatter().'.pdf')) {
                 Storage::disk('public')->delete($this->invoice->client->invoice_filepath($invitation) . $this->invoice->numberFormatter().'.pdf');
             }
 

@@ -38,6 +38,7 @@ class TriggeredActions extends AbstractService
     {
 
         if ($this->request->has('send_email') && $this->request->input('send_email') == 'true') {
+            $this->quote = $this->quote->service()->markSent()->save();
             $this->sendEmail();
         }
 
