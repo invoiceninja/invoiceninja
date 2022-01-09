@@ -304,6 +304,8 @@ class MolliePaymentDriver extends BaseDriver
             'paid' => Payment::STATUS_COMPLETED,
         ];
 
+        nlog($request->id);
+
         try {
             $payment = $this->gateway->payments->get($request->id);
             $record = Payment::withTrashed()->where('transaction_reference', $request->id)->first();
