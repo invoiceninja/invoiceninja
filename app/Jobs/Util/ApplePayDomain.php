@@ -78,11 +78,11 @@ class ApplePayDomain implements ShouldQueue
         if(Ninja::isHosted())
         {
 
-            if($this->company->portal_mode == 'domain'){
-                $domain = $this->company->portal_domain;
+            if($this->company_gateway->company->portal_mode == 'domain'){
+                $domain = $this->company_gateway->company->portal_domain;
             }
             else{
-                $domain = $this->company->subdomain . '.' . config('ninja.app_domain');
+                $domain = $this->company_gateway->company->subdomain . '.' . config('ninja.app_domain');
             }
 
         }
