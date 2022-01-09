@@ -27,8 +27,6 @@ class PaymentWebhookRequest extends Request
 
     public function authorize()
     {
-        MultiDB::findAndSetDbByCompanyKey($this->company_key);
-
         return true;
     }
 
@@ -47,6 +45,8 @@ class PaymentWebhookRequest extends Request
      */
     public function getCompanyGateway()
     {
+        MultiDB::findAndSetDbByCompanyKey($this->company_key);
+        
         return CompanyGateway::withTrashed()->findOrFail($this->decodePrimaryKey($this->company_gateway_id));
     }
 
@@ -59,6 +59,9 @@ class PaymentWebhookRequest extends Request
     public function getPaymentHash()
     {
         if ($this->query('hash')) {
+        
+            MultiDB::findAndSetDbByCompanyKey($this->company_key);
+        
             return PaymentHash::where('hash', $this->query('hash'))->firstOrFail();
         }
 
@@ -72,6 +75,8 @@ class PaymentWebhookRequest extends Request
      */
     public function getCompany(): ?Company
     {
+        MultiDB::findAndSetDbByCompanyKey($this->company_key);
+
         return Company::where('company_key', $this->company_key)->firstOrFail();
     }
 }

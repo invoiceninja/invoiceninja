@@ -231,13 +231,13 @@ class PostMarkController extends BaseController
     {
         $invitation = false;
 
-        if($invitation = InvoiceInvitation::whereRaw('BINARY `message_id`= ?', [$message_id])->first())
+        if($invitation = InvoiceInvitation::where('message_id', $message_id)->first())
             return $invitation;
-        elseif($invitation = QuoteInvitation::whereRaw('BINARY `message_id`= ?', [$message_id])->first())
+        elseif($invitation = QuoteInvitation::where('message_id', $message_id)->first())
             return $invitation;
-        elseif($invitation = RecurringInvoiceInvitation::whereRaw('BINARY `message_id`= ?', [$message_id])->first())
+        elseif($invitation = RecurringInvoiceInvitation::where('message_id', $message_id)->first())
             return $invitation;
-        elseif($invitation = CreditInvitation::whereRaw('BINARY `message_id`= ?', [$message_id])->first())
+        elseif($invitation = CreditInvitation::where('message_id', $message_id)->first())
             return $invitation;
         else
             return $invitation;
