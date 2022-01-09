@@ -61,6 +61,6 @@ window.braintree.client.create({
                 });
         });
 }).catch(function (err) {
-    document.getElementById('errors').textContent = `${error.details.originalError.message} ${error.details.originalError.details.originalError[0].message}`;
+    document.getElementById('errors').textContent = `${err.details.originalError.message} ${err.details.originalError.details.originalError[0].message}`;
     document.getElementById('errors').hidden = false;
 });

@@ -23,7 +23,7 @@
     "/js/clients/payments/paytrace-credit-card.js": "/js/clients/payments/paytrace-credit-card.js?id=59d9913b746fe5a540ff",
     "/js/clients/payments/mollie-credit-card.js": "/js/clients/payments/mollie-credit-card.js?id=c2cf632fb3cc91b4ff7c",
     "/js/clients/payments/eway-credit-card.js": "/js/clients/payments/eway-credit-card.js?id=ff17e039dd15d505448f",
-    "/js/clients/payment_methods/braintree-ach.js": "/js/clients/payment_methods/braintree-ach.js?id=656ad159838b726969f5",
+    "/js/clients/payment_methods/braintree-ach.js": "/js/clients/payment_methods/braintree-ach.js?id=8edcb283157989d138e0",
     "/js/clients/payments/square-credit-card.js": "/js/clients/payments/square-credit-card.js?id=8f05ce6bd2d6cae7e5f2",
     "/js/clients/statements/view.js": "/js/clients/statements/view.js?id=4ed4c8a09803ddd0a9a7",
     "/js/clients/payments/razorpay-aio.js": "/js/clients/payments/razorpay-aio.js?id=c36ab5621413ef1de7c8",
@@ -37,6 +37,6 @@
     "/js/clients/payments/stripe-ideal.js": "/js/clients/payments/stripe-ideal.js?id=73ce56676f9252b0cecf",
     "/js/clients/payments/stripe-przelewy24.js": "/js/clients/payments/stripe-przelewy24.js?id=f3a14f78bec8209c30ba",
     "/js/clients/payments/stripe-browserpay.js": "/js/clients/payments/stripe-browserpay.js?id=71e49866d66a6d85b88a",
-    "/css/app.css": "/css/app.css?id=9260888e310e8331d856",
+    "/css/app.css": "/css/app.css?id=cab8a6526b0f9f71842d",
     "/css/card-js.min.css": "/css/card-js.min.css?id=62afeb675235451543ad"
 }
