@@ -26,7 +26,6 @@ The self-host zip includes all third party libraries whereas downloading the cod
 * [StackOverflow](https://stackoverflow.com/tags/invoice-ninja/)
 
 ## Referral Program
-* Earn 50% of Pro & Enterprise Plans up to 4 years - [Learn more](https://www.invoiceninja.com/referral-program/)
 
 ## Mobile App
 * [iPhone](https://itunes.apple.com/us/app/invoice-ninja/id1435514417?ls=1&mt=8)
