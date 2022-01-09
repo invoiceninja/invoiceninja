@@ -232,7 +232,6 @@ trait CompanySettingsSaver
                 return is_float($value) || is_numeric(strval($value));
             case 'string':
                 return (is_string($value) && method_exists($value, '__toString')) || is_null($value) || is_string($value);
-                //return is_null($value) || is_string($value);
             case 'bool':
             case 'boolean':
                 return is_bool($value) || (int) filter_var($value, FILTER_VALIDATE_BOOLEAN);
