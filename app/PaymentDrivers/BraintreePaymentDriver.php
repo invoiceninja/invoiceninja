@@ -25,6 +25,7 @@ use App\PaymentDrivers\Braintree\CreditCard;
 use App\PaymentDrivers\Braintree\PayPal;
 use Braintree\Gateway;
 use Exception;
+use Illuminate\Support\Facades\Validator;
 
 class BraintreePaymentDriver extends BaseDriver
 {
@@ -245,4 +246,37 @@ class BraintreePaymentDriver extends BaseDriver
             return false;
         }
     }
+
+    public function processWebhookRequest($request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'bt_signature' => ['required'],
+            'bt_payload' => ['required'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        $this->init();
+
+        $webhookNotification = $this->gateway->webhookNotification()->parse(
+            $request->input("bt_signature"), $request->input("bt_payload")
+        );
+
+        nlog("braintree webhook");
+
+        if($webhookNotification)
+            nlog($webhookNotification->kind);
+        
+        // // Example values for webhook notification properties
+        // $message = $webhookNotification->kind; // "subscription_went_past_due"
+        // $message = $webhookNotification->timestamp->format('D M j G:i:s T Y'); // "Sun Jan 1 00:00:00 UTC 2012"
+
+        return response()->json([], 200);
+
+    }
+
+
 }
