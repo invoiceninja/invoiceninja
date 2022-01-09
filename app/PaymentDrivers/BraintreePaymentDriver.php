@@ -265,9 +265,14 @@ class BraintreePaymentDriver extends BaseDriver
             $request->input("bt_signature"), $request->input("bt_payload")
         );
 
-        // Example values for webhook notification properties
-        $message = $webhookNotification->kind; // "subscription_went_past_due"
-        $message = $webhookNotification->timestamp->format('D M j G:i:s T Y'); // "Sun Jan 1 00:00:00 UTC 2012"
+        nlog("braintree webhook");
+
+        if($webhookNotification)
+            nlog($webhookNotification->kind);
+        
+        // // Example values for webhook notification properties
+        // $message = $webhookNotification->kind; // "subscription_went_past_due"
+        // $message = $webhookNotification->timestamp->format('D M j G:i:s T Y'); // "Sun Jan 1 00:00:00 UTC 2012"
 
         return response()->json([], 200);
 
