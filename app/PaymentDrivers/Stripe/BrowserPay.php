@@ -194,13 +194,18 @@ class BrowserPay implements MethodInterface
             return;
         }
 
-        $domain = config('ninja.app_url');
+        // $domain = config('ninja.app_url');
 
-        if (Ninja::isHosted()) {
-            $domain = isset($this->stripe->company_gateway->company->portal_domain)
-                ? $this->stripe->company_gateway->company->portal_domain
-                : $this->stripe->company_gateway->company->domain();
-        }
+        // if (Ninja::isHosted()) {
+        //     $domain = isset($this->stripe->company_gateway->company->portal_domain)
+        //         ? $this->stripe->company_gateway->company->portal_domain
+        //         : $this->stripe->company_gateway->company->domain();
+        // }
+
+        $domain = $this->getAppleDomain();
+
+        if(!$domain)
+            throw new PaymentFailed('Unable to register Domain with Apple Pay', 500);
 
         $response = ApplePayDomain::create([
             'domain_name' => $domain,
@@ -212,4 +217,36 @@ class BrowserPay implements MethodInterface
         
         $this->stripe->company_gateway->save();
     }
+
+
+    private function getAppleDomain()
+    {
+
+        $domain = '';
+
+        if(Ninja::isHosted())
+        {
+
+            if($this->company_gateway->company->portal_mode == 'domain'){
+                $domain = $this->company_gateway->company->portal_domain;
+            }
+            else{
+                $domain = $this->company_gateway->company->subdomain . '.' . config('ninja.app_domain');
+            }
+
+        }
+        else {
+
+            $domain = config('ninja.app_url');
+        }
+
+        $parsed_url = parse_url($domain);
+
+        if(array_key_exists('host', $parsed_url))
+            return $parsed_url['host'];
+
+        return false;
+
+    }
+
 }

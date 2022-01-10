@@ -390,18 +390,27 @@ class InvoiceService
      */
     public function touchPdf($force = false)
     {
-        if($force){
+        try {
+        
+            if($force){
+
+                $this->invoice->invitations->each(function ($invitation) {
+                    CreateEntityPdf::dispatchNow($invitation);
+                });
+
+                return $this;
+            }
 
             $this->invoice->invitations->each(function ($invitation) {
-                CreateEntityPdf::dispatchNow($invitation);
+                CreateEntityPdf::dispatch($invitation);
             });
-
-            return $this;
+        
         }
+        catch(\Exception $e){
 
-        $this->invoice->invitations->each(function ($invitation) {
-            CreateEntityPdf::dispatch($invitation);
-        });
+            nlog("failed creating invoices in Touch PDF");
+        
+        }
 
         return $this;
     }
