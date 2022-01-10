@@ -206,7 +206,6 @@ trait GenerateMigrationResources
             'client_number_pattern' => $this->account->client_number_pattern ?: '',
             'payment_number_pattern' => '',
             'payment_number_counter' => 0,
-            'payment_terms' => $this->account->payment_terms ?: '',
             'reset_counter_frequency_id' => $this->account->reset_counter_frequency_id ? (string) $this->transformFrequencyId
             ($this->account->reset_counter_frequency_id) : '0',
             'payment_type_id' => $this->account->payment_type_id ? (string) $this->transformPaymentType($this->account->payment_type_id) : '1',
