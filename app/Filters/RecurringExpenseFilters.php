@@ -58,7 +58,7 @@ class RecurringExpenseFilters extends QueryFilters
             return $this->builder;
         }
 
-        $table = 'expenses';
+        $table = 'recurring_expenses';
         $filters = explode(',', $filter);
 
         return $this->builder->where(function ($query) use ($filters, $table) {
