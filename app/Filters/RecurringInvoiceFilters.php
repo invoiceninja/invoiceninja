@@ -53,7 +53,7 @@ class RecurringInvoiceFilters extends QueryFilters
             return $this->builder;
         }
 
-        $table = 'recurring_';
+        $table = 'recurring_invoices';
         $filters = explode(',', $filter);
 
         return $this->builder->where(function ($query) use ($filters, $table) {
