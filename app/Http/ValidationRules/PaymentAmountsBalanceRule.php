@@ -71,7 +71,8 @@ class PaymentAmountsBalanceRule implements Rule
             return true;
         } 
         
-
-        return  $payment_amounts >= $invoice_amounts;
+        nlog($payment_amounts ." >= " . $invoice_amounts);
+        
+        return $payment_amounts >= $invoice_amounts;
     }
 }
