@@ -75,10 +75,14 @@ class PaymentAmountsBalanceRule implements Rule
             return true;
         } 
         
-nlog(request()->input('invoices'));
-nlog($payment_amounts);
-nlog($invoice_amounts);
+        // nlog(request()->input('invoices'));
+        // nlog($payment_amounts);
+        // nlog($invoice_amounts);
 
-        return  $payment_amounts >= $invoice_amounts;
+        nlog($payment_amounts ." >= " . $invoice_amounts);
+        
+        return $payment_amounts >= $invoice_amounts;
+
     }
+
 }
