@@ -234,6 +234,15 @@ class GoCardlessPaymentDriver extends BaseDriver
 
         $this->init();
 
+
+        if(!is_array($request->events) || !is_object($request->events)){
+
+            nlog("No GoCardless events to process in response?");
+            return response()->json([], 200);
+
+        }
+
+
         foreach ($request->events as $event) {
             if ($event['action'] === 'confirmed') {
                 $payment = Payment::query()

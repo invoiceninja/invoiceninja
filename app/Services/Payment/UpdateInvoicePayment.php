@@ -87,7 +87,7 @@ class UpdateInvoicePayment
                 $invoice->refresh();
 
                 $invoice->service()
-                        ->deletePdf()
+                        ->touchPdf(true)
                         ->workFlow()
                         ->save();
 

@@ -59,19 +59,30 @@ class PaymentAmountsBalanceRule implements Rule
 
         if (request()->input('credits') && is_array(request()->input('credits'))) {
             foreach (request()->input('credits') as $credit) {
-                $payment_amounts += $credit['amount'];
+                
+                if(array_key_exists('amount', $credit))
+                    $payment_amounts += $credit['amount'];
             }
         }
 
         if (request()->input('invoices') && is_array(request()->input('invoices'))) {
             foreach (request()->input('invoices') as $invoice) {
-                $invoice_amounts += $invoice['amount'];
+ 
+                if(array_key_exists('amount', $invoice))
+                    $invoice_amounts += $invoice['amount'];
             }
         } else {
             return true;
         } 
         
+        // nlog(request()->input('invoices'));
+        // nlog($payment_amounts);
+        // nlog($invoice_amounts);
 
-        return  $payment_amounts >= $invoice_amounts;
+        nlog($payment_amounts ." >= " . $invoice_amounts);
+        
+        return $payment_amounts >= $invoice_amounts;
+
     }
+
 }

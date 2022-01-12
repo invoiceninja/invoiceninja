@@ -189,6 +189,14 @@ class UserRepository extends BaseRepository
             return;
         }
 
+        if (Ninja::isHosted()) {
+            
+            $count = User::where('account_id', auth()->user()->account_id)->count();
+            if($count >= auth()->user()->account->num_users)
+                return;
+
+        }
+
         $user->is_deleted = false;
         $user->save();
         $user->restore();

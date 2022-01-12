@@ -88,7 +88,8 @@ class MarkPaid extends AbstractService
         $this->invoice
                 ->service()
                 ->applyNumber()
-                ->deletePdf()
+                // ->deletePdf()
+                ->touchPdf()
                 ->save();
 
         $payment->ledger()

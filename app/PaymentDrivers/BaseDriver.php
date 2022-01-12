@@ -442,7 +442,7 @@ class BaseDriver extends AbstractPaymentDriver
 
             $invoices->each(function ($invoice) {
 
-                $invoice->service()->deletePdf();
+                $invoice->service()->touchPdf();
                 
             });
 
@@ -494,7 +494,7 @@ class BaseDriver extends AbstractPaymentDriver
 
         $invoices->each(function ($invoice){
 
-            $invoice->service()->deletePdf();
+            $invoice->service()->touchPdf();
 
         });
 
