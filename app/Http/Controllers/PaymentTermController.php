@@ -14,6 +14,7 @@ use App\Transformers\PaymentTermTransformer;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use App\Filters\PaymentTermFilters;
 
 class PaymentTermController extends BaseController
 {
@@ -73,9 +74,9 @@ class PaymentTermController extends BaseController
      *       ),
      *     )
      */
-    public function index()
+    public function index(PaymentTermFilters $filters)
     {
-        $payment_terms = PaymentTerm::whereCompanyId(auth()->user()->company()->id)->orWhere('company_id', null);
+        $payment_terms = PaymentTerm::filter($filters);
 
         return $this->listResponse($payment_terms);
     }

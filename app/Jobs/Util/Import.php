@@ -471,8 +471,9 @@ class Import implements ShouldQueue
                     
                 }
 
-                if ($key == 'payment_terms' && $key = '') {
-                    $value = -1;
+                /* changes $key = '' to $value == '' and changed the return value from -1 to "0" 06/01/2022 */
+                if ($key == 'payment_terms' && $value == '') {
+                    $value = "0";
                 }
 
                 $company_settings->{$key} = $value;
@@ -1865,10 +1866,19 @@ class Import implements ShouldQueue
 
     private function processNinjaTokens(array $data)
     {
+        
         nlog("attempting to process Ninja Tokens");
 
-        if(Ninja::isHosted())
-            \Modules\Admin\Jobs\Account\NinjaUser::dispatchNow($data, $this->company);
+        if(Ninja::isHosted()){
+
+            try{
+                \Modules\Admin\Jobs\Account\NinjaUser::dispatchNow($data, $this->company);
+            }
+            catch(\Exception $e){
+                nlog($e->getMessage());
+            }
+
+        }
 
     }
 

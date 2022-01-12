@@ -24,7 +24,7 @@ class AddGatewayFee extends AbstractService
 {
     private $company_gateway;
 
-    private $invoice;
+    public $invoice;
 
     private $amount;
 
@@ -61,7 +61,7 @@ class AddGatewayFee extends AbstractService
 
     private function cleanPendingGatewayFees()
     {
-        $invoice_items = $this->invoice->line_items;
+        $invoice_items = (array)$this->invoice->line_items;
 
         $invoice_items = collect($invoice_items)->filter(function ($item) {
             return $item->type_id != '3';
@@ -92,7 +92,7 @@ class AddGatewayFee extends AbstractService
             $invoice_item->tax_rate3 = $fees_and_limits->fee_tax_rate3;
         }
 
-        $invoice_items = $this->invoice->line_items;
+        $invoice_items = (array)$this->invoice->line_items;
         $invoice_items[] = $invoice_item;
 
         $this->invoice->line_items = $invoice_items;
@@ -122,7 +122,7 @@ class AddGatewayFee extends AbstractService
             $invoice_item->tax_rate3 = $fees_and_limits->fee_tax_rate3;
         }
 
-        $invoice_items = $this->invoice->line_items;
+        $invoice_items = (array)$this->invoice->line_items;
         $invoice_items[] = $invoice_item;
 
         $this->invoice->line_items = $invoice_items;

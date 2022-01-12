@@ -47,7 +47,8 @@ class StoreInvoiceRequest extends Request
             $rules['documents'] = 'file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:20000';
         }
 
-        $rules['client_id'] = 'bail|required|exists:clients,id,company_id,'.auth()->user()->company()->id;
+        $rules['client_id'] = 'bail|required|exists:clients,id,company_id,'.auth()->user()->company()->id.',is_deleted,0';
+        // $rules['client_id'] = ['required', Rule::exists('clients')->where('company_id', auth()->user()->company()->id)];
 
         $rules['invitations.*.client_contact_id'] = 'distinct';
 

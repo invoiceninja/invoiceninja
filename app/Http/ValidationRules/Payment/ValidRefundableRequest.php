@@ -79,6 +79,11 @@ class ValidRefundableRequest implements Rule
     {
         $invoice = Invoice::whereId($invoice['invoice_id'])->whereCompanyId($payment->company_id)->withTrashed()->first();
 
+        if(!$invoice){
+            $this->error_msg = "Invoice not found for refund";
+            return false;
+        }
+
         if ($payment->invoices()->exists()) {
             $paymentable_invoice = $payment->invoices->where('id', $invoice->id)->first();
 

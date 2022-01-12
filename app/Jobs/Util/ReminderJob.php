@@ -80,8 +80,10 @@ class ReminderJob implements ShouldQueue
                 $invoice->service()->touchReminder($reminder_template)->save();
                 $invoice = $this->calcLateFee($invoice, $reminder_template);
 
+                $invoice->service()->touchPdf();
+                
                 //check if this reminder needs to be emailed
-                if(in_array($reminder_template, ['reminder1','reminder2','reminder3']) && $invoice->client->getSetting("enable_".$reminder_template))
+                if(in_array($reminder_template, ['reminder1','reminder2','reminder3','reminder_endless']) && $invoice->client->getSetting("enable_".$reminder_template))
                 {
                     $invoice->invitations->each(function ($invitation) use ($invoice, $reminder_template) {
                         EmailEntity::dispatch($invitation, $invitation->company, $reminder_template);

@@ -22,6 +22,7 @@ use App\Utils\Traits\AppSetup;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use League\Fractal\Manager;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use League\Fractal\Resource\Collection;
@@ -619,7 +620,9 @@ class BaseController extends Controller
 
         $query->with($includes);
 
-        if (auth()->user() && ! auth()->user()->hasPermission('view_'.lcfirst(class_basename($this->entity_type)))) {
+        // 10-01-2022 need to ensure we snake case properly here to ensure permissions work as expected
+        // if (auth()->user() && ! auth()->user()->hasPermission('view_'.lcfirst(class_basename($this->entity_type)))) {
+        if (auth()->user() && ! auth()->user()->hasPermission('view'.lcfirst(class_basename(Str::snake($this->entity_type))))) {
             $query->where('user_id', '=', auth()->user()->id);
         }
 

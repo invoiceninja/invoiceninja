@@ -257,7 +257,7 @@ class BaseDriver extends AbstractPaymentDriver
         $this->payment_hash->save();
 
         $this->attachInvoices($payment, $this->payment_hash);
-
+        
         if($this->payment_hash->credits_total() > 0)
             $payment = $payment->service()->applyCredits($this->payment_hash)->save();
 
@@ -442,7 +442,7 @@ class BaseDriver extends AbstractPaymentDriver
 
             $invoices->each(function ($invoice) {
 
-                $invoice->service()->deletePdf();
+                $invoice->service()->touchPdf();
                 
             });
 
@@ -494,7 +494,7 @@ class BaseDriver extends AbstractPaymentDriver
 
         $invoices->each(function ($invoice){
 
-            $invoice->service()->deletePdf();
+            $invoice->service()->touchPdf();
 
         });
 

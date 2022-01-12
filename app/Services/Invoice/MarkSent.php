@@ -26,6 +26,7 @@ class MarkSent extends AbstractService
     public function __construct(Client $client, Invoice $invoice)
     {
         $this->client = $client;
+        
         $this->invoice = $invoice;
     }
 
@@ -62,7 +63,8 @@ class MarkSent extends AbstractService
              ->service()
              ->applyNumber()
              ->setDueDate()
-             ->deletePdf()
+             // ->deletePdf() //08-01-2022
+             ->touchPdf() //08-01-2022
              ->setReminder()
              ->save();
 

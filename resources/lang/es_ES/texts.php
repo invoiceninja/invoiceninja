@@ -4342,6 +4342,9 @@ Una vez que tenga los montos, vuelva a esta página de métodos de pago y haga c
     'payment_type_Bancontact' => 'Bancontact',
     'payment_type_BECS' => 'BECS',
     'payment_type_ACSS' => 'ACSS',
+    'gross_line_total' => 'Gross line total',
+    'lang_Slovak' => 'Slovak',
+
 );
 
 return $LANG;

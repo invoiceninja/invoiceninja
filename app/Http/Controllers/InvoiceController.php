@@ -401,7 +401,7 @@ class InvoiceController extends BaseController
 
         $invoice = $this->invoice_repo->save($request->all(), $invoice);
         
-        $invoice->service()->triggeredActions($request)->deletePdf();
+        $invoice->service()->triggeredActions($request)->touchPdf();
 
         event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
@@ -708,7 +708,7 @@ class InvoiceController extends BaseController
                 }
                 break;
             case 'cancel':
-                $invoice = $invoice->service()->handleCancellation()->deletePdf()->save();
+                $invoice = $invoice->service()->handleCancellation()->deletePdf()->touchPdf()->save();
 
                 if (! $bulk) {
                     $this->itemResponse($invoice);

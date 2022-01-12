@@ -28,25 +28,29 @@ class LedgerService
     {
         $balance = 0;
 
-        \DB::connection(config('database.default'))->beginTransaction();
+        // \DB::connection(config('database.default'))->beginTransaction();
 
-        $company_ledger = $this->ledger();
+        \DB::connection(config('database.default'))->transaction(function () use($notes, $adjustment, $balance){
 
-        if ($company_ledger) {
-            $balance = $company_ledger->balance;
-        }
+            $company_ledger = $this->ledger();
 
-        $company_ledger = CompanyLedgerFactory::create($this->entity->company_id, $this->entity->user_id);
-        $company_ledger->client_id = $this->entity->client_id;
-        $company_ledger->adjustment = $adjustment;
-        $company_ledger->notes = $notes;
-        $company_ledger->balance = $balance + $adjustment;
-        $company_ledger->activity_id = Activity::UPDATE_INVOICE;
-        $company_ledger->save();
+            if ($company_ledger) {
+                $balance = $company_ledger->balance;
+            }
 
-        $this->entity->company_ledger()->save($company_ledger);
+            $company_ledger = CompanyLedgerFactory::create($this->entity->company_id, $this->entity->user_id);
+            $company_ledger->client_id = $this->entity->client_id;
+            $company_ledger->adjustment = $adjustment;
+            $company_ledger->notes = $notes;
+            $company_ledger->balance = $balance + $adjustment;
+            $company_ledger->activity_id = Activity::UPDATE_INVOICE;
+            $company_ledger->save();
 
-        \DB::connection(config('database.default'))->commit();
+            $this->entity->company_ledger()->save($company_ledger);
+        
+        }, 5);
+
+        // \DB::connection(config('database.default'))->commit();
 
         return $this;
     }
@@ -55,7 +59,9 @@ class LedgerService
     {
         $balance = 0;
 
-        \DB::connection(config('database.default'))->beginTransaction();
+        // \DB::connection(config('database.default'))->beginTransaction();
+
+        \DB::connection(config('database.default'))->transaction(function ()  use($notes, $adjustment, $balance){
 
         /* Get the last record for the client and set the current balance*/
         $company_ledger = $this->ledger();
@@ -74,7 +80,9 @@ class LedgerService
 
         $this->entity->company_ledger()->save($company_ledger);
 
-        \DB::connection(config('database.default'))->commit();
+        }, 5);
+
+        // \DB::connection(config('database.default'))->commit();
         
         return $this;
     }
@@ -83,7 +91,9 @@ class LedgerService
     {
         $balance = 0;
         
-        \DB::connection(config('database.default'))->beginTransaction();
+        // \DB::connection(config('database.default'))->beginTransaction();
+
+        \DB::connection(config('database.default'))->transaction(function () use($notes, $adjustment, $balance){
 
         $company_ledger = $this->ledger();
 
@@ -101,7 +111,9 @@ class LedgerService
 
         $this->entity->company_ledger()->save($company_ledger);
 
-        \DB::connection(config('database.default'))->commit();
+        }, 5);
+
+        // \DB::connection(config('database.default'))->commit();
         
         return $this;
     }
@@ -123,10 +135,3 @@ class LedgerService
     }
 }
 
-/*
-        DB::connection(config('database.default'))->beginTransaction();
-
-        \DB::connection(config('database.default'))->commit();
-
-
-*/

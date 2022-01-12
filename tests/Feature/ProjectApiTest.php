@@ -84,9 +84,34 @@ class ProjectApiTest extends TestCase
             $response->assertStatus(302);
         }
 
+    }
+
+    public function testProjectPostFilters()
+    {
+        $data = [
+            'name' => "Sherlock",
+            'client_id' => $this->client->hashed_id,
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/projects', $data);
+
+        $response->assertStatus(200);
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->get('/api/v1/projects?filter=Sherlock');
+
+        $arr = $response->json();
+
+        $this->assertEquals(1, count($arr['data']));
 
 
     }
+
 
     public function testProjectPut()
     {

@@ -42,6 +42,7 @@ use App\Models\RecurringInvoice;
 use App\Models\RecurringQuote;
 use App\Models\Task;
 use App\Models\TaskStatus;
+use App\Models\TaxRate;
 use App\Models\User;
 use App\Models\Vendor;
 use App\Models\VendorContact;
@@ -137,6 +138,13 @@ trait MockAccountData
     public $cu;
 
     /**
+     * @var
+     */
+
+    public $tax_rate;
+
+
+    /**
      *
      */
     public function makeTestData()
@@ -184,7 +192,7 @@ trait MockAccountData
 
         $settings = CompanySettings::defaults();
 
-        $settings->company_logo = 'https://app.invoiceninja.com/favicon-v2.png';
+        $settings->company_logo = 'https://pdf.invoicing.co/favicon-v2.png';
         // $settings->company_logo = asset('images/new_logo.png');
         $settings->website = 'www.invoiceninja.com';
         $settings->address1 = 'Address 1';
@@ -333,6 +341,11 @@ trait MockAccountData
         ]);
 
         $this->task_status = TaskStatus::factory()->create([
+            'user_id' => $user_id,
+            'company_id' => $this->company->id,
+        ]);
+
+        $this->tax_rate = TaxRate::factory()->create([
             'user_id' => $user_id,
             'company_id' => $this->company->id,
         ]);

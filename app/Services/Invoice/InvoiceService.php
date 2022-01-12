@@ -144,7 +144,7 @@ class InvoiceService
 
         $this->invoice->balance += $balance_adjustment;
         
-        if ($this->invoice->balance == 0 && !$is_draft) {
+        if (round($this->invoice->balance,2) == 0 && !$is_draft) {
             $this->invoice->status_id = Invoice::STATUS_PAID;
         }
 
@@ -285,7 +285,7 @@ class InvoiceService
 
     public function setCalculatedStatus()
     {
-        if ((int)$this->invoice->balance == 0) {
+        if (round($this->invoice->balance,2) == 0) {
             $this->setStatus(Invoice::STATUS_PAID);
         } elseif ($this->invoice->balance > 0 && $this->invoice->balance < $this->invoice->amount) {
             $this->setStatus(Invoice::STATUS_PARTIAL);
@@ -299,8 +299,11 @@ class InvoiceService
         if($this->invoice->status_id == Invoice::STATUS_DRAFT)
             return $this;
 
-        if ($this->invoice->balance > 0 && $this->invoice->balance < $this->invoice->amount) {
-            $this->setStatus(Invoice::STATUS_PARTIAL);
+        if(round($this->invoice->balance,2) == 0){
+            $this->invoice->status_id = Invoice::STATUS_PAID;
+        }
+        elseif ($this->invoice->balance > 0 && $this->invoice->balance < $this->invoice->amount) {
+            $this->invoice->status_id = Invoice::STATUS_PARTIAL;
         }
 
         return $this;
@@ -317,8 +320,6 @@ class InvoiceService
                                          return $item;
                                      })->toArray();
 
-        //$this->invoice = $this->invoice->calc()->getInvoice();
-
         $this->deletePdf();
 
         return $this;
@@ -330,11 +331,19 @@ class InvoiceService
 
         $this->invoice->invitations->each(function ($invitation){
 
-            Storage::disk(config('filesystems.default'))->delete($this->invoice->client->invoice_filepath($invitation) . $this->invoice->numberFormatter().'.pdf');
+        try{
+
+            if(Storage::disk(config('filesystems.default'))->exists($this->invoice->client->invoice_filepath($invitation) . $this->invoice->numberFormatter().'.pdf'))
+                Storage::disk(config('filesystems.default'))->delete($this->invoice->client->invoice_filepath($invitation) . $this->invoice->numberFormatter().'.pdf');
             
-            if(Ninja::isHosted()) {
+            if(Ninja::isHosted() && Storage::disk(config('filesystems.default'))->exists($this->invoice->client->invoice_filepath($invitation) . $this->invoice->numberFormatter().'.pdf')) {
                 Storage::disk('public')->delete($this->invoice->client->invoice_filepath($invitation) . $this->invoice->numberFormatter().'.pdf');
             }
+
+        }catch(\Exception $e){
+            nlog($e->getMessage());
+        }
+
 
         });
 
@@ -381,18 +390,27 @@ class InvoiceService
      */
     public function touchPdf($force = false)
     {
-        if($force){
+        try {
+        
+            if($force){
+
+                $this->invoice->invitations->each(function ($invitation) {
+                    CreateEntityPdf::dispatchNow($invitation);
+                });
+
+                return $this;
+            }
 
             $this->invoice->invitations->each(function ($invitation) {
-                CreateEntityPdf::dispatchNow($invitation);
+                CreateEntityPdf::dispatch($invitation);
             });
-
-            return $this;
+        
         }
+        catch(\Exception $e){
 
-        $this->invoice->invitations->each(function ($invitation) {
-            CreateEntityPdf::dispatch($invitation);
-        });
+            nlog("failed creating invoices in Touch PDF");
+        
+        }
 
         return $this;
     }

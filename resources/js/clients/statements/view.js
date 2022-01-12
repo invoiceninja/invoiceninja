@@ -17,6 +17,7 @@ class Statement {
         this.endDate = '';
         this.showPaymentsTable = false;
         this.showAgingTable = false;
+        this.status = '';
     }
 
     bindEventListeners() {
@@ -25,6 +26,7 @@ class Statement {
             '#date-to',
             '#show-payments-table',
             '#show-aging-table',
+            '#status',
         ].forEach((selector) => {
             document
                 .querySelector(selector)
@@ -54,6 +56,8 @@ class Statement {
         if (this.endDate.length > 0) {
             this.url.searchParams.append('end_date', this.endDate);
         }
+
+            this.url.searchParams.append('status', document.getElementById("status").value);
 
         this.url.searchParams.append(
             'show_payments_table',
