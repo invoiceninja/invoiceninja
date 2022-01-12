@@ -57,6 +57,11 @@ class ValidInvoicesRules implements Rule
 
             $unique_array[] = $invoice['invoice_id'];
 
+            if(!array_key_exists('amount', $invoice)){
+                $this->error_msg = ctrans('texts.amount') . " required";
+                return false;
+            }
+
             $inv = Invoice::whereId($invoice['invoice_id'])->first();
 
             if (! $inv) {
