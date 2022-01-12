@@ -33,13 +33,18 @@ class CanAddUserRule implements Rule
     public function passes($attribute, $value)
     {
 
-          $count = CompanyUser::query()
-                              ->where('company_user.account_id', auth()->user()->account_id)
-                              ->join('users', 'users.id', '=', 'company_user.user_id')
-                              ->whereNull('users.deleted_at')
-                              ->whereNull('company_user.deleted_at')
-                              ->distinct()
-                              ->count('company_user.user_id');
+        /* If the user is active then we can add them to the company */
+        if(User::where('email', request()->input('email'))->where('account_id', auth()->user()->account_id)->where('is_deleted',0)->exists())
+            return true;
+
+        /* Check that we have sufficient quota to allow this to happen */
+        $count = CompanyUser::query()
+                          ->where('company_user.account_id', auth()->user()->account_id)
+                          ->join('users', 'users.id', '=', 'company_user.user_id')
+                          ->whereNull('users.deleted_at')
+                          ->whereNull('company_user.deleted_at')
+                          ->distinct()
+                          ->count('company_user.user_id');
 
         return $count < auth()->user()->company()->account->num_users;
 

@@ -236,7 +236,7 @@ class Statement
     private function invoiceStatuses() :array
     {
         $status = 'all';
-nlog($this->options);
+
         if(array_key_exists('status', $this->options))
             $status = $this->options['status'];
 

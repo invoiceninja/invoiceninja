@@ -150,7 +150,7 @@ class RequiredClientInfo extends Component
             }
 
             if (Str::startsWith($field['name'], 'contact_')) {
-                if (empty($this->contact->client->{$_field}) || is_null($this->contact->client->{$_field})) {
+                if (empty($this->contact->{$_field}) || is_null($this->contact->{$_field})) {
 //                if ((empty($this->contact->{$_field}) || is_null($this->contact->{$_field})) || $this->contact->client->{$_field} == 840) {
                     $this->show_form = true;
                 } else {

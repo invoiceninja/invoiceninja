@@ -1866,10 +1866,19 @@ class Import implements ShouldQueue
 
     private function processNinjaTokens(array $data)
     {
+        
         nlog("attempting to process Ninja Tokens");
 
-        if(Ninja::isHosted())
-            \Modules\Admin\Jobs\Account\NinjaUser::dispatchNow($data, $this->company);
+        if(Ninja::isHosted()){
+
+            try{
+                \Modules\Admin\Jobs\Account\NinjaUser::dispatchNow($data, $this->company);
+            }
+            catch(\Exception $e){
+                nlog($e->getMessage());
+            }
+
+        }
 
     }
 
