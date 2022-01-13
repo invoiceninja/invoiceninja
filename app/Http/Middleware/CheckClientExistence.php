@@ -34,7 +34,7 @@ class CheckClientExistence
             ->where('email', auth('contact')->user()->email)
             ->whereNotNull('email')
             ->where('email', '<>', '')
-            ->whereNull('deleted_at')
+            // ->whereNull('deleted_at')
             ->distinct('company_id')
             ->distinct('email')
             ->whereNotNull('company_id')
