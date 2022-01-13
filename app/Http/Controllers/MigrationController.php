@@ -304,6 +304,7 @@ class MigrationController extends BaseController
             App::forgetInstance('translator');
             $t = app('translator');
             $t->replace(Ninja::transformTranslations($user->account->companies()->first()->settings));
+            App::setLocale($user->account->companies()->first()->getLocale());
 
             if(!$existing_company && $company_count >=10) {
 

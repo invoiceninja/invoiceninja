@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Factory\TaskStatusFactory;
+use App\Filters\TaskStatusFilters;
 use App\Http\Requests\TaskStatus\CreateTaskStatusRequest;
 use App\Http\Requests\TaskStatus\DestroyTaskStatusRequest;
 use App\Http\Requests\TaskStatus\ShowTaskStatusRequest;
@@ -74,9 +75,9 @@ class TaskStatusController extends BaseController
      *       ),
      *     )
      */
-    public function index()
+    public function index(TaskStatusFilters $filters)
     {
-        $task_status = TaskStatus::whereCompanyId(auth()->user()->company()->id)->orWhere('company_id', null);
+        $task_status = TaskStatus::filter($filters);
 
         return $this->listResponse($task_status);
     }

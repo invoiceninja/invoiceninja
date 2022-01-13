@@ -54,7 +54,10 @@ class StorePaymentRequest extends Request
         if (isset($input['invoices']) && is_array($input['invoices']) !== false) {
             foreach ($input['invoices'] as $key => $value) {
                 $input['invoices'][$key]['invoice_id'] = $this->decodePrimaryKey($value['invoice_id']);
-                $invoices_total += $value['amount'];
+
+                if(array_key_exists('amount', $value))
+                    $invoices_total += $value['amount'];
+
             }
         }
 
@@ -91,12 +94,12 @@ class StorePaymentRequest extends Request
     public function rules()
     {
         $rules = [
-            'amount' => 'numeric|required',
+            'amount' => 'sometimes|numeric',
             'amount' => [new PaymentAmountsBalanceRule(), new ValidCreditsPresentRule()],
             'client_id' => 'bail|required|exists:clients,id',
             'invoices.*.invoice_id' => 'bail|required|distinct|exists:invoices,id',
+            'invoices.*.amount' => 'bail|required',
             'invoices.*.invoice_id' => new ValidInvoicesRules($this->all()),
-            'invoices.*.amount' => 'required',
             'credits.*.credit_id' => 'bail|required|exists:credits,id',
             'credits.*.credit_id' => new ValidCreditsRules($this->all()),
             'credits.*.amount' => ['required', new CreditsSumRule($this->all())],

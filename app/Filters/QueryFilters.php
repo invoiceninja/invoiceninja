@@ -88,6 +88,8 @@ abstract class QueryFilters
             }
         }
 
+        // nlog('[Search] SQL: ' . $this->builder->toSql() . " Bindings: " . implode(', ', $this->builder->getBindings()));
+
         return $this->builder->withTrashed();
     }
 

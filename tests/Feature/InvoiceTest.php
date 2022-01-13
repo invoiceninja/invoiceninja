@@ -220,4 +220,19 @@ class InvoiceTest extends TestCase
             ])->put('/api/v1/invoices/'.$arr['data']['id'], $data)
             ->assertStatus(200);
     }
+
+    public function testClientedDeletedAttemptingToCreateInvoice()
+    {
+                /* Test fire new invoice */
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'number' => 'dude',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/invoices/', $data)
+        ->assertStatus(200);
+    }
 }

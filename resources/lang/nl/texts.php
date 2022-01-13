@@ -4344,6 +4344,9 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'payment_type_Bancontact' => 'Bancontact',
     'payment_type_BECS' => 'BECS',
     'payment_type_ACSS' => 'ACSS',
+    'gross_line_total' => 'Gross line total',
+    'lang_Slovak' => 'Slovak',
+
 );
 
 return $LANG;

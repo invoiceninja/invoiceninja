@@ -21,6 +21,7 @@ use App\Http\Requests\Token\StoreTokenRequest;
 use App\Http\Requests\Token\UpdateTokenRequest;
 use App\Models\CompanyToken;
 use App\Repositories\TokenRepository;
+use App\Transformers\CompanyTokenHashedTransformer;
 use App\Transformers\CompanyTokenTransformer;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\MakesHash;
@@ -93,6 +94,8 @@ class TokenController extends BaseController
      */
     public function index(TokenFilters $filters)
     {
+        $this->entity_transformer = CompanyTokenHashedTransformer::class;
+
         $tokens = CompanyToken::filter($filters);
 
         return $this->listResponse($tokens);
@@ -205,6 +208,8 @@ class TokenController extends BaseController
      */
     public function edit(EditTokenRequest $request, CompanyToken $token)
     {
+        $this->entity_transformer = CompanyTokenHashedTransformer::class;
+
         return $this->itemResponse($token);
     }
 
@@ -264,6 +269,8 @@ class TokenController extends BaseController
         if ($request->entityIsDeleted($token)) {
             return $request->disallowUpdate();
         }
+
+        $this->entity_transformer = CompanyTokenHashedTransformer::class;
 
         $token = $this->token_repo->save($request->all(), $token);
 
@@ -419,6 +426,8 @@ class TokenController extends BaseController
         //may not need these destroy routes as we are using actions to 'archive/delete'
         $token->delete();
 
+        $this->entity_transformer = CompanyTokenHashedTransformer::class;
+
         return $this->itemResponse($token);
     }
 
@@ -475,6 +484,9 @@ class TokenController extends BaseController
      */
     public function bulk()
     {
+
+        $this->entity_transformer = CompanyTokenHashedTransformer::class;
+
         $action = request()->input('action');
 
         $ids = request()->input('ids');

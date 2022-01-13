@@ -30,6 +30,7 @@ use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\Pdf\PdfMaker as PdfMakerTrait;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\LazyCollection;
 
@@ -110,7 +111,7 @@ class Statement
         }
 
         if ($this->rollback) {
-            DB::rollBack();
+            \DB::connection(config('database.default'))->rollBack();
         }
 
 
@@ -129,7 +130,8 @@ class Statement
         }
 
         if (\is_null($this->entity)) {
-            DB::beginTransaction();
+            \DB::connection(config('database.default'))->beginTransaction();
+
             $this->rollback = true;
 
             $invoice = InvoiceFactory::create($this->client->company->id, $this->client->user->id);
@@ -219,15 +221,40 @@ class Statement
      *
      * @return Invoice[]|\Illuminate\Database\Eloquent\Collection
      */
-    protected function getInvoices(): Builder
+    protected function getInvoices(): \Illuminate\Support\LazyCollection
     {
         return Invoice::withTrashed()
             ->where('is_deleted', false)
             ->where('company_id', $this->client->company_id)
             ->where('client_id', $this->client->id)
-            ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
-            ->whereBetween('date', [$this->options['start_date'], $this->options['end_date']])
-            ->orderBy('number', 'ASC');
+            ->whereIn('status_id', $this->invoiceStatuses())
+            ->whereBetween('date', [Carbon::parse($this->options['start_date']), Carbon::parse($this->options['end_date'])])
+            ->orderBy('date', 'ASC')
+            ->cursor();
+    }
+
+    private function invoiceStatuses() :array
+    {
+        $status = 'all';
+
+        if(array_key_exists('status', $this->options))
+            $status = $this->options['status'];
+
+        switch ($status) {
+            case 'all':
+                return [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID];
+                break;
+            case 'paid':
+                return [Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID];
+                break;
+            case 'unpaid':
+                return [Invoice::STATUS_SENT];
+                break;
+            
+            default:
+                return [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID];
+                break;
+        }
     }
 
     /**
@@ -235,7 +262,7 @@ class Statement
      *
      * @return Payment[]|\Illuminate\Database\Eloquent\Collection
      */
-    protected function getPayments(): Builder
+    protected function getPayments(): \Illuminate\Support\LazyCollection
     {
         return Payment::withTrashed()
             ->with('client.country','invoices')
@@ -243,8 +270,9 @@ class Statement
             ->where('company_id', $this->client->company_id)
             ->where('client_id', $this->client->id)
             ->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
-            ->whereBetween('date', [$this->options['start_date'], $this->options['end_date']])
-            ->orderBy('number', 'ASC');
+            ->whereBetween('date', [Carbon::parse($this->options['start_date']), Carbon::parse($this->options['end_date'])])
+            ->orderBy('date', 'ASC')
+            ->cursor();
     }
 
     /**

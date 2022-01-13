@@ -171,7 +171,7 @@ class Company extends BaseModel
 
     public function users()
     {
-        return $this->hasManyThrough(User::class, CompanyUser::class, 'company_id', 'id', 'id', 'user_id');
+        return $this->hasManyThrough(User::class, CompanyUser::class, 'company_id', 'id', 'id', 'user_id')->withTrashed();
     }
 
     public function expense_categories()

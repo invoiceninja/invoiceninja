@@ -39,6 +39,7 @@ class MigrationCompleted extends Mailable
         App::forgetInstance('translator');
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->company->settings));
+        App::setLocale($this->company->getLocale());
         
         $data['settings'] = $this->company->settings;
         $data['company'] = $this->company->fresh();

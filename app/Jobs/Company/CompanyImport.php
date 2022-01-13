@@ -307,17 +307,13 @@ class CompanyImport implements ShouldQueue
             nlog("Backup user count = ".count($backup_users));
 
             if(count($backup_users) > 1){
-                // $this->message = 'Only one user can be in the import for a Free Account';
-                // $this->pre_flight_checks_pass = false;
-                //$this->force_user_coalesce = true;
+
             }
 
             nlog("backup users email = " . $backup_users[0]->email);
 
             if(count($backup_users) == 1 && $this->company_owner->email != $backup_users[0]->email) {
-                // $this->message = 'Account emails do not match. Account owner email must match backup user email';
-                // $this->pre_flight_checks_pass = false;
-                // $this->force_user_coalesce = true;
+
             }
 
             $backup_users_emails = array_column($backup_users, 'email');
@@ -331,30 +327,20 @@ class CompanyImport implements ShouldQueue
             if($existing_user_count > 1){
 
                 if($this->account->plan == 'pro'){
-                    // $this->message = 'Pro plan is limited to one user, you have multiple users in the backup file';
-                    // $this->pre_flight_checks_pass = false;
-                   // $this->force_user_coalesce = true;
+
                 }
 
                 if($this->account->plan == 'enterprise'){
 
-                    // $total_import_users = count($backup_users_emails);
-
-                    // $account_plan_num_user = $this->account->num_users;
-
-                    // if($total_import_users > $account_plan_num_user){
-                    //     $this->message = "Total user count ({$total_import_users}) greater than your plan allows ({$account_plan_num_user})";
-                    //     $this->pre_flight_checks_pass = false;
-                    // }
-
                 }
             }
 
-            if($this->company->account->isFreeHostedClient() && $client_count = count($this->getObject('clients', true)) > config('ninja.quotas.free.clients')){
+            if($this->company->account->isFreeHostedClient() && (count($this->getObject('clients', true)) > config('ninja.quotas.free.clients')) ){
                 
                 nlog("client quota busted");
 
                 $client_limit = config('ninja.quotas.free.clients');
+                $client_count = count($this->getObject('clients', true));
 
                 $this->message = "You are attempting to import ({$client_count}) clients, your current plan allows a total of ({$client_limit})";
                 
@@ -396,6 +382,21 @@ class CompanyImport implements ShouldQueue
     private function importSettings()
     {
         $co = (object)$this->getObject("company", true);
+
+        $settings = $co->settings;
+        $settings->invoice_number_counter = 1;
+        $settings->recurring_invoice_number_counter = 1;
+        $settings->quote_number_counter = 1;
+        $settings->credit_number_counter = 1;
+        $settings->task_number_counter = 1;
+        $settings->expense_number_counter = 1;
+        $settings->recurring_expense_number_counter = 1;
+        $settings->recurring_quote_number_counter = 1;
+        $settings->vendor_number_counter = 1;
+        $settings->ticket_number_counter = 1;
+        $settings->payment_number_counter = 1;
+        $settings->project_number_counter = 1;
+
         $this->company->settings = $co->settings;
         // $this->company->settings = $this->backup_file->company->settings;
         $this->company->save();
@@ -460,7 +461,7 @@ class CompanyImport implements ShouldQueue
     {
 //unset / transforms / object_property / match_key
         $this->genericImport(RecurringExpense::class, 
-            ['assigned_user_id', 'user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'project_id', 'vendor_id'], 
+            ['assigned_user_id', 'user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'project_id', 'vendor_id','recurring_expense_id'], 
             [
                 ['users' => 'user_id'], 
                 ['users' => 'assigned_user_id'], 
@@ -470,7 +471,7 @@ class CompanyImport implements ShouldQueue
                 ['invoices' => 'invoice_id'],
                 ['expense_categories' => 'category_id'],
             ], 
-            'expenses',
+            'recurring_expenses',
             'number');
 
         return $this;
@@ -809,9 +810,8 @@ class CompanyImport implements ShouldQueue
     private function import_expenses()
     {
 
-
         $this->genericImport(Expense::class, 
-            ['assigned_user_id', 'user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'project_id','vendor_id'], 
+            ['assigned_user_id', 'user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'project_id','vendor_id','recurring_expense_id'], 
             [
                 ['users' => 'user_id'], 
                 ['users' => 'assigned_user_id'], 
@@ -819,7 +819,7 @@ class CompanyImport implements ShouldQueue
                 ['projects' => 'project_id'],
                 ['vendors' => 'vendor_id'],
                 ['invoices' => 'invoice_id'],
-                ['recurring_expenses' => 'recurring_expense_id'],
+                // ['recurring_expenses' => 'recurring_expense_id'],
                 ['expense_categories' => 'category_id'],
             ], 
             'expenses',
@@ -881,6 +881,7 @@ class CompanyImport implements ShouldQueue
                 'company_id',
                 'backup',
                 'invitation_id',
+                'payment_id',
             ], 
             [
                 ['users' => 'user_id'], 
@@ -888,7 +889,7 @@ class CompanyImport implements ShouldQueue
                 ['client_contacts' => 'client_contact_id'],
                 ['projects' => 'project_id'],
                 ['vendors' => 'vendor_id'],
-                ['payments' => 'payment_id'],
+                // ['payments' => 'payment_id'],
                 ['invoices' => 'invoice_id'],
                 ['credits' => 'credit_id'],
                 ['tasks' => 'task_id'],
@@ -896,7 +897,7 @@ class CompanyImport implements ShouldQueue
                 ['quotes' => 'quote_id'],
                 ['subscriptions' => 'subscription_id'],
                 ['recurring_invoices' => 'recurring_invoice_id'],
-                ['recurring_expenses' => 'recurring_expense_id'],
+                // ['recurring_expenses' => 'recurring_expense_id'],
                 // ['invitations' => 'invitation_id'],
             ], 
             'activities');
@@ -1299,15 +1300,16 @@ class CompanyImport implements ShouldQueue
     
     }
 
-
+    /* Ensure if no number is set, we don't overwrite a record with an existing number */
     private function genericImport($class, $unset, $transforms, $object_property, $match_key)
     {
 
         $class::unguard();
         $x = 0;
+
         foreach((object)$this->getObject($object_property) as $obj)
-        // foreach($this->backup_file->{$object_property} as $obj)
         {
+            
             /* Remove unwanted keys*/
             $obj_array = (array)$obj;
             foreach($unset as $un){
@@ -1336,7 +1338,6 @@ class CompanyImport implements ShouldQueue
                 $obj_array['webhook_configuration'] = (array)$obj_array['webhook_configuration'];
                 $obj_array['recurring_product_ids'] = '';
                 $obj_array['product_ids'] = '';
-                nlog($obj_array);
             }
 
             /* Expenses that don't have a number will not be inserted - so need to override here*/
@@ -1346,6 +1347,7 @@ class CompanyImport implements ShouldQueue
                 $new_obj->fill($obj_array);
                 $new_obj->save(['timestamps' => false]);
                 $new_obj->number = $this->getNextExpenseNumber($new_obj);
+
             }
             elseif($class == 'App\Models\Invoice' && is_null($obj->{$match_key})){
                 $new_obj = new Invoice();
@@ -1374,8 +1376,15 @@ class CompanyImport implements ShouldQueue
                 $new_obj->fill($obj_array);
                 $new_obj->save(['timestamps' => false]);
             }
+            elseif($class == 'App\Models\RecurringExpense' && is_null($obj->{$match_key})){
+                $new_obj = new RecurringExpense();
+                $new_obj->company_id = $this->company->id;
+                $new_obj->fill($obj_array);
+                $new_obj->save(['timestamps' => false]);
+                $new_obj->number = $this->getNextRecurringExpenseNumber($client = Client::find($obj_array['client_id']), $new_obj);   
+            }
             else{
-                $new_obj = $class::firstOrNew(
+                $new_obj = $class::withTrashed()->firstOrNew(
                         [$match_key => $obj->{$match_key}, 'company_id' => $this->company->id],
                         $obj_array,
                     );
@@ -1433,10 +1442,9 @@ class CompanyImport implements ShouldQueue
 
         if (! array_key_exists($resource, $this->ids)) {
              nlog($resource);
-
-            nlog($this->ids);
             
             $this->sendImportMail("The Import failed due to missing data in the import file. Resource {$resource} not available.");
+            nlog($this->ids);
             throw new \Exception("Resource {$resource} not available.");
         }
 
@@ -1450,6 +1458,8 @@ class CompanyImport implements ShouldQueue
                 return $this->company_owner->id;
 
             $this->sendImportMail("The Import failed due to missing data in the import file. Resource {$resource} not available.");
+            
+            nlog($this->ids[$resource]);
 
             throw new \Exception("Missing {$resource} key: {$old}");
         }

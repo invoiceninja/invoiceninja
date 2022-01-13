@@ -15,7 +15,7 @@
                 @if(!array_key_exists('filled', $field))
                     @component('portal.ninja2020.components.general.card-element', ['title' => $field['label']])
                         @if($field['name'] == 'client_country_id' || $field['name'] == 'client_shipping_country_id')
-                            <select id="country" class="input w-full form-select" name="{{ $field['name'] }}">
+                            <select id="client_country" class="input w-full form-select" name="{{ $field['name'] }}">
                                 <option value="none"></option>
 
                                 @foreach($countries as $country)
@@ -60,7 +60,6 @@
         <script>
             document.addEventListener("DOMContentLoaded", function () {
                 document.querySelector('div[data-ref="required-fields-container"]').classList.add('hidden');
-
                 document.querySelector('div[data-ref="gateway-container"]').classList.remove('opacity-25');
                 document.querySelector('div[data-ref="gateway-container"]').classList.remove('pointer-events-none');
             });

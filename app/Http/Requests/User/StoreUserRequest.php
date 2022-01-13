@@ -58,7 +58,7 @@ class StoreUserRequest extends Request
     {
         $input = $this->all();
 
-//unique user rule - check company_user table for user_id / company_id  / account_id if none exist we can add the user. ELSE return false
+        //unique user rule - check company_user table for user_id / company_id  / account_id if none exist we can add the user. ELSE return false
 
         if(array_key_exists('email', $input))
             $input['email'] = trim($input['email']);

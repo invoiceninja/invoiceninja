@@ -99,6 +99,9 @@ trait MakesDates
 
     public function translateDate($date, $format, $locale)
     {
+        if(empty($date))
+            return '';
+
         Carbon::setLocale($locale);
 
         try {

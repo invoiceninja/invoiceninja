@@ -107,7 +107,6 @@ class ProjectFilters extends QueryFilters
         $query = DB::table('projects')
             ->join('companies', 'companies.id', '=', 'projects.company_id')
             ->where('projects.company_id', '=', $company_id)
-            //->whereRaw('(projects.name != "" or contacts.first_name != "" or contacts.last_name != "" or contacts.email != "")') // filter out buy now invoices
             ->select(
                 'projects.id',
                 'projects.name',
@@ -140,6 +139,8 @@ class ProjectFilters extends QueryFilters
     public function entityFilter()
     {
         //return $this->builder->whereCompanyId(auth()->user()->company()->id);
-        return $this->builder->whereCompanyId(auth()->user()->company()->id)->orWhere('company_id', null);
+        // return $this->builder->whereCompanyId(auth()->user()->company()->id)->orWhere('company_id', null);
+        return $this->builder->company();
+
     }
 }

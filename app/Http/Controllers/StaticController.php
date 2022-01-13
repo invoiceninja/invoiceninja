@@ -23,6 +23,43 @@ use Illuminate\Http\Response;
 class StaticController extends BaseController
 {
 
+    /**
+     * Show the list of Invoices.
+     *
+     * @param InvoiceFilters $filters  The filters
+     *
+     * @return Response
+     *
+     * @OA\Get(
+     *      path="/api/v1/statics",
+     *      operationId="getStatics",
+     *      tags={"statics"},
+     *      summary="Gets a list of statics",
+     *      description="Lists all statics",
+     * 
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Response(
+     *          response=200,
+     *          description="A list of static data",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
     public function __invoke()
     {
     

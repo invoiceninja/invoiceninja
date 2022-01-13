@@ -305,12 +305,68 @@ class PreviewController extends BaseController
 
     }
 
-
     private function blankEntity()
     {
         App::forgetInstance('translator');
         $t = app('translator');
         $t->replace(Ninja::transformTranslations(auth()->user()->company()->settings));
+
+        $invitation = InvoiceInvitation::where('company_id', auth()->user()->company()->id)->first();
+
+        /* If we don't have a valid invitation in the system - create a mock using transactions */
+        if(!$invitation)
+            return $this->mockEntity();
+
+        $design_object = json_decode(json_encode(request()->input('design')));
+
+        if (! is_object($design_object)) {
+            return response()->json(['message' => 'Invalid custom design object'], 400);
+        }
+
+        $html = new HtmlEngine($invitation);
+
+        $design = new Design(Design::CUSTOM, ['custom_partials' => request()->design['design']]);
+
+        $state = [
+            'template' => $design->elements([
+                'client' => $invitation->invoice->client,
+                'entity' => $invitation->invoice,
+                'pdf_variables' => (array) $invitation->invoice->company->settings->pdf_variables,
+                'products' => request()->design['design']['product'],
+            ]),
+            'variables' => $html->generateLabelsAndValues(),
+            'process_markdown' => $invitation->invoice->client->company->markdown_enabled,
+        ];
+
+        $maker = new PdfMaker($state);
+
+        $maker
+            ->design($design)
+            ->build();
+
+        if (request()->query('html') == 'true') {
+            return $maker->getCompiledHTML();
+        }
+
+        if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
+            return (new Phantom)->convertHtmlToPdf($maker->getCompiledHTML(true));
+        }
+
+        if(config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja'){
+            return (new NinjaPdf())->build($maker->getCompiledHTML(true));
+        }
+            
+        $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), auth()->user()->company());
+
+        $response = Response::make($file_path, 200);
+        $response->header('Content-Type', 'application/pdf');
+
+        return $response;
+
+    }
+
+    private function mockEntity()
+    {
 
         DB::connection(auth()->user()->company()->db)->beginTransaction();
 
@@ -345,8 +401,6 @@ class PreviewController extends BaseController
         $invoice->setRelation('company', auth()->user()->company());
         $invoice->load('client.company');
 
-        // nlog(print_r($invoice->toArray(),1));
-
         $design_object = json_decode(json_encode(request()->input('design')));
 
         if (! is_object($design_object)) {
@@ -374,6 +428,8 @@ class PreviewController extends BaseController
             ->design($design)
             ->build();
 
+        DB::connection(auth()->user()->company()->db)->rollBack();
+
         if (request()->query('html') == 'true') {
             return $maker->getCompiledHTML();
         }
@@ -387,8 +443,6 @@ class PreviewController extends BaseController
         }
             
         $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), auth()->user()->company());
-
-        DB::connection(auth()->user()->company()->db)->rollBack();
 
         $response = Response::make($file_path, 200);
         $response->header('Content-Type', 'application/pdf');

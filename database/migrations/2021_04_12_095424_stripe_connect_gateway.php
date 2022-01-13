@@ -24,7 +24,7 @@ class StripeConnectGateway extends Migration
             'provider' => 'StripeConnect', 
             'sort_order' => 1, 
             'key' => 'd14dd26a47cecc30fdd65700bfb67b34', 
-            'fields' => '{"account_id":""}'
+            'fields' => '{"account_id":"","appleDomainVerification":""}'
         ];
 
         Gateway::create($gateway);

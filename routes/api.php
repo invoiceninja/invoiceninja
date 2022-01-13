@@ -182,6 +182,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::put('vendors/{vendor}/upload', 'VendorController@upload');
 
     Route::get('users', 'UserController@index');
+    Route::get('users/{user}', 'UserController@show')->middleware('password_protected');
     Route::put('users/{user}', 'UserController@update')->middleware('password_protected');
     Route::post('users', 'UserController@store')->middleware('password_protected');
     //Route::post('users/{user}/attach_to_company', 'UserController@attach')->middleware('password_protected');
@@ -207,6 +208,7 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::resource('subscriptions', 'SubscriptionController');
     Route::post('subscriptions/bulk', 'SubscriptionController@bulk')->name('subscriptions.bulk');
     Route::get('statics', 'StaticController');
+    Route::post('apple_pay/upload_file','ApplyPayController@upload');
 
 });
 

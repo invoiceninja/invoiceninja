@@ -47,9 +47,13 @@ class PaymentRepository extends BaseRepository {
      */
     public function save(array $data, Payment $payment): ?Payment
     {
-        if ($payment->amount >= 0) {
+        // if ($payment->amount >= 0) {
+        //     return $this->applyPayment($data, $payment);
+        // }
+
+
             return $this->applyPayment($data, $payment);
-        }
+
 
         return $payment;
     }
@@ -80,8 +84,8 @@ class PaymentRepository extends BaseRepository {
 
                 $client->service()->updatePaidToDate($data['amount'])->save();
             }
-            elseif($data['amount'] >0){
-
+            // elseif($data['amount'] >0){
+            else{
                 //this fixes an edge case with unapplied payments
                 $client->service()->updatePaidToDate($data['amount'])->save();
             }
