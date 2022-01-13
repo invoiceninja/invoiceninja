@@ -114,7 +114,7 @@ class SOFORT
     {
         $server_response = $this->stripe->payment_hash->data;
 
-        $this->stripe->sendFailureMail($server_response);
+        $this->stripe->sendFailureMail("There was an undefined error processing this payment.");
 
         $message = [
             'server_response' => $server_response,
