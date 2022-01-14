@@ -34,7 +34,7 @@ class CheckClientExistence
             ->where('email', auth('contact')->user()->email)
             ->whereNotNull('email')
             ->where('email', '<>', '')
-            ->whereNull('deleted_at')
+            // ->whereNull('deleted_at')
             ->distinct('company_id')
             ->distinct('email')
             ->whereNotNull('company_id')
@@ -46,10 +46,11 @@ class CheckClientExistence
             })
             ->get();
 
+        /* This catches deleted clients who don't have access to the app. We automatically log them out here*/
         if (count($multiple_contacts) == 0) {
             Auth::logout();
 
-            return redirect()->route('client.login');
+            return redirect()->route('client.login')->with('message', 'Login disabled');
         }
 
         if (count($multiple_contacts) == 1 && !Auth::guard('contact')->check()) {

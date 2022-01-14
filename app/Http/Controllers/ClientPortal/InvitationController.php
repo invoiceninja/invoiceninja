@@ -87,6 +87,10 @@ class InvitationController extends Controller
         if(!$invitation)
             return abort(404,'The resource is no longer available.');
 
+        /* 12/01/2022 Clean up an edge case where if the contact is trashed, restore if a invitation comes back. */
+        if($invitation->contact->trashed())
+            $invitation->contact->restore();
+
         /* Return early if we have the correct client_hash embedded */
         $client_contact = $invitation->contact;
 
