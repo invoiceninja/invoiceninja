@@ -477,6 +477,11 @@ class Import implements ShouldQueue
                 }
 
                 $company_settings->{$key} = $value;
+
+                if($key == 'payment_terms'){
+                    settype($company_settings->payment_terms, 'string');
+                }
+
             }
 
             $data['settings'] = $company_settings;
