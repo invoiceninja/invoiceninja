@@ -60,14 +60,14 @@ class Token
         if(!$response_status['success'])
           return $this->processUnsuccessfulPayment($response);
 
-      	$payment = $this->processSuccessfulPayment($response);
+      	$payment = $this->processSuccessfulPayment($response, $cgt);
 
       	return $payment;
 
     }
 
 
-    private function processSuccessfulPayment($response)
+    private function processSuccessfulPayment($response, $cgt)
     {
         $amount = array_sum(array_column($this->eway_driver->payment_hash->invoices(), 'amount')) + $this->eway_driver->payment_hash->fee_total;
 
@@ -103,7 +103,7 @@ class Token
             'error_code' => $error_code,
         ];
 
-        return $this->driver_class->processUnsuccessfulTransaction($data);
+        return $this->eway_driver->processUnsuccessfulTransaction($data);
 
     }
 
