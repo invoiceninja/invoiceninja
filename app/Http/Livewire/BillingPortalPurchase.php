@@ -409,7 +409,7 @@ class BillingPortalPurchase extends Component
             'quantity' => $this->quantity,
             'contact_id' => $this->contact->id,
             'client_id' => $this->contact->client->id,
-            'coupon' => '',
+            'coupon' => $this->coupon,
         ]);
     }
 
