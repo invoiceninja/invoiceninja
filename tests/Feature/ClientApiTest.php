@@ -68,6 +68,56 @@ class ClientApiTest extends TestCase
     }
 
 
+    public function testClientNoneValidation()
+    {
+
+        $data = [
+            'name' => $this->faker->firstName,
+            'number' => '',
+        ];
+
+        $response = false;
+
+        try{
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/clients/', $data);
+        } catch (ValidationException $e) {
+            $message = json_decode($e->validator->getMessageBag(), 1);
+            nlog($message);
+        }
+
+        $response->assertStatus(200);
+
+    }
+
+
+    public function testClientNullValidation()
+    {
+
+        $data = [
+            'name' => $this->faker->firstName,
+            'number' => null,
+        ];
+
+        $response = false;
+
+        try{
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/clients/', $data);
+        } catch (ValidationException $e) {
+            $message = json_decode($e->validator->getMessageBag(), 1);
+            nlog($message);
+        }
+
+        $response->assertStatus(200);
+
+    }
+
+
     public function testClientCountryCodeValidationTrueIso3()
     {
 

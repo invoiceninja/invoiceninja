@@ -89,8 +89,6 @@ class StoreClientRequest extends Request
     protected function prepareForValidation()
     {
         $input = $this->all();
-
-        //@todo implement feature permissions for > 50 clients
         
         $settings = ClientSettings::defaults();
 
@@ -132,6 +130,10 @@ class StoreClientRequest extends Request
         if (isset($input['shipping_country_code'])) {
             $input['shipping_country_id'] = $this->getCountryCode($input['shipping_country_code']);
         }
+
+        /* If there is no number, just unset it here. */
+        if(array_key_exists('number', $input) && ( is_null($input['number']) || empty($input['number'])))
+            unset($input['number']);
 
         $this->replace($input);
     }
