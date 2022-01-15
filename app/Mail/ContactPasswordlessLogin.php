@@ -18,6 +18,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
 
 class ContactPasswordlessLogin extends Mailable
 {
@@ -52,6 +53,9 @@ class ContactPasswordlessLogin extends Mailable
      */
     public function build()
     {
+        
+        App::setLocale($this->company->getLocale());
+
         return $this
             ->subject(ctrans('texts.account_passwordless_login'))
             ->view('email.billing.passwordless-login', [

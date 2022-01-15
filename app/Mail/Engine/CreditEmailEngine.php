@@ -45,6 +45,7 @@ class CreditEmailEngine extends BaseEmailEngine
     public function build()
     {
         App::forgetInstance('translator');
+        
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->client->getMergedSettings()));
         
