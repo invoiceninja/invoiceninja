@@ -14,6 +14,7 @@ namespace App\Http\Middleware;
 use App\Utils\Ninja;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
 
 class SessionDomains
 {
@@ -29,8 +30,19 @@ class SessionDomains
 
         if(Ninja::isSelfHost())
             return $next($request);
-        
-        config(['session.domain' => '.' . $request->getHost()]);
+
+        $domain_name = $request->getHost();
+
+        if (strpos($domain_name, 'invoicing.co') !== false) 
+        {
+            config(['session.domain' => '.invoicing.co']);
+        }            
+        else{
+
+            // Cookie::queue(Cookie::forget('ninja_session_client', '/', $request->getHost()));
+
+            config(['session.domain' => '.' . $request->getHost()]);
+        }
         
         return $next($request);        
     }
