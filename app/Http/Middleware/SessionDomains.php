@@ -39,9 +39,9 @@ class SessionDomains
         }            
         else{
 
-            // Cookie::queue(Cookie::forget('ninja_session_client', '/', $request->getHost()));
+            Cookie::queue(Cookie::forget('invoice_ninja_session', '/'));
 
-            config(['session.domain' => '.' . $request->getHost()]);
+            config(['session.domain' => $request->getHost()]);
         }
         
         return $next($request);        
