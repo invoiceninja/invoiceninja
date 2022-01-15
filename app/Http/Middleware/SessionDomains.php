@@ -29,7 +29,6 @@ class SessionDomains
 
         if(Ninja::isSelfHost())
             return $next($request);
-
         
         config(['session.domain' => '.' . $request->getHost()]);
         
