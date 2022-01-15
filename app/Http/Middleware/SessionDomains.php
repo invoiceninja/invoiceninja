@@ -41,7 +41,8 @@ class SessionDomains
 
             Cookie::queue(Cookie::forget('invoice_ninja_session', '/'));
 
-            config(['session.domain' => $request->getHost()]);
+            config(['session.domain' => $domain_name]);
+            
         }
         
         return $next($request);        
