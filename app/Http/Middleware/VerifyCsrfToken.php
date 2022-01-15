@@ -33,15 +33,15 @@ class VerifyCsrfToken extends Middleware
     ];
 
 
-    public function handle($request, \Closure $next) {
+    // public function handle($request, \Closure $next) {
 
-        try {
-            return parent::handle($request, $next);
-        } catch (TokenMismatchException $ex) {
+    //     try {
+    //         return parent::handle($request, $next);
+    //     } catch (TokenMismatchException $ex) {
 
-            throw new TokenMismatchException('CSRF token mismatch.');
+    //         throw new TokenMismatchException('CSRF token mismatch.');
 
-        }
-    }
+    //     }
+    // }
 
 }
