@@ -84,6 +84,7 @@ class Kernel extends HttpKernel
      */
     protected $middlewareGroups = [
         'web' => [
+            SessionDomains::class,
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
             StartSession::class,
@@ -163,6 +164,7 @@ class Kernel extends HttpKernel
         'check_client_existence' => CheckClientExistence::class,
         'user_verified' => UserVerified::class,
         'document_db' => SetDocumentDb::class,
+        'session_domain' => SessionDomains::class,
     ];
 
 
