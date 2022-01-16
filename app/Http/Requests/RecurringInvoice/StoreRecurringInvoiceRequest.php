@@ -111,6 +111,10 @@ class StoreRecurringInvoiceRequest extends Request
             }
         }
     
+        /* If there is no number, just unset it here. */
+        if(array_key_exists('number', $input) && ( is_null($input['number']) || empty($input['number'])))
+            unset($input['number']);
+    
         $this->replace($input);
     }
 

@@ -14,6 +14,7 @@ namespace App\Mail\Import;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
 
 class CompanyImportFailure extends Mailable
 {
@@ -51,6 +52,8 @@ class CompanyImportFailure extends Mailable
      */
     public function build()
     {
+        App::setLocale($this->company->getLocale());
+
         $this->settings = $this->company->settings;
         $this->logo = $this->company->present()->logo();
         $this->title = ctrans('texts.company_import_failure_subject', ['company' => $this->company->present()->name()]);

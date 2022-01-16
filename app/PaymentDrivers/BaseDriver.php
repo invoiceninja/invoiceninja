@@ -222,7 +222,9 @@ class BaseDriver extends AbstractPaymentDriver
      */
     public function createPayment($data, $status = Payment::STATUS_COMPLETED): Payment
     {
-        $this->confirmGatewayFee();
+
+        if(in_array($status, [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING]) )        
+            $this->confirmGatewayFee();
 
         /*Never create a payment with a duplicate transaction reference*/
         if(array_key_exists('transaction_reference', $data)){
@@ -252,6 +254,10 @@ class BaseDriver extends AbstractPaymentDriver
         $payment->transaction_reference = $data['transaction_reference'];
         $payment->client_contact_id = $client_contact_id;
         $payment->saveQuietly();
+
+        /* Return early if the payment is no completed or pending*/
+        if(!in_array($status, [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING]) )
+            return $payment;
 
         $this->payment_hash->payment_id = $payment->id;
         $this->payment_hash->save();

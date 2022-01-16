@@ -312,11 +312,12 @@ class MolliePaymentDriver extends BaseDriver
 
             if($record){
                 $client = $record->client;
+                $this->client = $client;
             }
             else{
 
                 $client = Client::withTrashed()->find($this->decodePrimaryKey($payment->metadata->client_id));
-
+                $this->client = $client;
                 // sometimes if the user is not returned to the site with a response from Mollie 
                 // we may not have a payment record - in these cases we need to re-construct the payment
                 // record from the meta data in the payment hash.
@@ -326,6 +327,9 @@ class MolliePaymentDriver extends BaseDriver
                     /* Harvest Payment Hash*/
                     $payment_hash = PaymentHash::where('hash', $payment->metadata->hash)->first();
                     
+                    /* If we are here, then we do not have access to the class payment hash, so lets set it here*/
+                    $this->payment_hash = $payment_hash;
+
                     $data = [
                         'gateway_type_id' => $payment->metadata->gateway_type_id,
                         'amount' => $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total,

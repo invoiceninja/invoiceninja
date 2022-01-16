@@ -29,6 +29,8 @@ class SwitchCompanyController extends Controller
 
         auth()->guard('contact')->loginUsingId($client_contact->id, true);
 
+        request()->session()->regenerate();
+    
         return redirect('/client/dashboard');
     }
 }
