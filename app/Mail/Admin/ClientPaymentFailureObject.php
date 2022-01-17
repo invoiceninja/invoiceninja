@@ -124,7 +124,8 @@ class ClientPaymentFailureObject
             'settings' => $this->client->getMergedSettings(),
             'whitelabel' => $this->company->account->isPaid() ? true : false,
             'url' => $this->invoices->first()->invitations->first()->getPaymentLink(),
-            'button' => 'texts.pay_now',
+            // 'button' => 'texts.pay_now',
+            'button' => ctrans('texts.pay_now'),
             'additional_info' => false,
             'company' => $this->company,
         ];

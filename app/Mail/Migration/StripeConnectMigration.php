@@ -14,6 +14,7 @@ namespace App\Mail\Migration;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
 
 class StripeConnectMigration extends Mailable
 {
@@ -44,6 +45,8 @@ class StripeConnectMigration extends Mailable
      */
     public function build()
     {
+        App::setLocale($this->company->getLocale());
+
         $this->settings = $this->company->settings;
         $this->logo = $this->company->present()->logo();
         $this->whitelabel = $this->company->account->isPaid();

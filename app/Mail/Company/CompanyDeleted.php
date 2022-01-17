@@ -15,6 +15,7 @@ namespace App\Mail\Company;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
 
 class CompanyDeleted extends Mailable
 {
@@ -47,6 +48,7 @@ class CompanyDeleted extends Mailable
      */
     public function build()
     {
+
         return $this->from(config('mail.from.address'), config('mail.from.name'))
             ->subject(ctrans('texts.company_deleted'))
             ->view('email.admin.company_deleted')

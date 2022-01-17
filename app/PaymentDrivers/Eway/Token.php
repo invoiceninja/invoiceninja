@@ -43,6 +43,8 @@ class Token
 
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
 
+        $this->eway_driver->payment_hash = $payment_hash;
+
     	$transaction = [
 		    'Customer' => [
 		        'TokenCustomerID' => $cgt->token,
@@ -74,10 +76,10 @@ class Token
         $data = [
             'gateway_type_id' => GatewayType::CREDIT_CARD,
             'payment_type' => PaymentType::CREDIT_CARD_OTHER,
-            'transaction_reference' => $response->Customer->Reference,
+            'transaction_reference' => $response->TransactionID,
             'amount' => $amount,
         ];
-
+        
         $payment = $this->eway_driver->createPayment($data);
         $payment->meta = $cgt->meta;
         $payment->save();

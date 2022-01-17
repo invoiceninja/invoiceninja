@@ -28,6 +28,7 @@ use App\Http\Middleware\PasswordProtection;
 use App\Http\Middleware\PhantomSecret;
 use App\Http\Middleware\QueryLogging;
 use App\Http\Middleware\RedirectIfAuthenticated;
+use App\Http\Middleware\SessionDomains;
 use App\Http\Middleware\SetDb;
 use App\Http\Middleware\SetDbByCompanyKey;
 use App\Http\Middleware\SetDocumentDb;
@@ -83,6 +84,7 @@ class Kernel extends HttpKernel
      */
     protected $middlewareGroups = [
         'web' => [
+            SessionDomains::class,
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
             StartSession::class,
@@ -103,6 +105,7 @@ class Kernel extends HttpKernel
             'query_logging',
         ],
         'client' => [
+            SessionDomains::class,
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
             StartSession::class,
@@ -161,10 +164,12 @@ class Kernel extends HttpKernel
         'check_client_existence' => CheckClientExistence::class,
         'user_verified' => UserVerified::class,
         'document_db' => SetDocumentDb::class,
+        'session_domain' => SessionDomains::class,
     ];
 
 
     protected $middlewarePriority = [
+        SessionDomains::class,
         Cors::class,
         SetDomainNameDb::class,
         SetDb::class,

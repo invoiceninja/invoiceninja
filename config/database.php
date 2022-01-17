@@ -1,5 +1,7 @@
 <?php
 
+use App\Utils\Ninja;
+
 return [
 
     /*
@@ -94,9 +96,8 @@ return [
             'prefix_indexes' => true,
             'strict'         => env('DB_STRICT', false),
             'engine'         => 'InnoDB ROW_FORMAT=DYNAMIC',
-            //  'options'   => array(
-            //     PDO::ATTR_EMULATE_PREPARES => true
-            // ),
+            'ssl_mode'       => env('SSL_MODE',''),
+            // 'options'        => Ninja::isHosted() ? config('ninja.db_options') : [],
         ],
 
         'db-ninja-01a' => [
@@ -112,9 +113,8 @@ return [
             'prefix_indexes' => true,
             'strict'         => env('DB_STRICT', false),
             'engine'         => 'InnoDB ROW_FORMAT=DYNAMIC',
-            //  'options'   => array(
-            //     PDO::ATTR_EMULATE_PREPARES => true
-            // ),
+            'ssl_mode'       => env('SSL_MODE',''), //required
+            // 'options'        => Ninja::isHosted() ? config('ninja.db_options') : [],
         ],
 
         'db-ninja-02' => [
@@ -130,9 +130,8 @@ return [
             'prefix_indexes' => true,
             'strict'         => env('DB_STRICT', false),
             'engine'         => 'InnoDB ROW_FORMAT=DYNAMIC',
-            //  'options'   => array(
-            //     PDO::ATTR_EMULATE_PREPARES => true
-            // ),
+            'ssl_mode'       => env('SSL_MODE',''),
+            // 'options'        => Ninja::isHosted() ? config('ninja.db_options') : [],
         ],
 
         'db-ninja-02a' => [
@@ -148,9 +147,8 @@ return [
             'prefix_indexes' => true,
             'strict'         => env('DB_STRICT', false),
             'engine'         => 'InnoDB ROW_FORMAT=DYNAMIC',
-            //  'options'   => array(
-            //     PDO::ATTR_EMULATE_PREPARES => true
-            // ),
+            'ssl_mode'       => env('SSL_MODE',''),
+            // 'options'        => Ninja::isHosted() ? config('ninja.db_options') : [],
         ],
     ],
 

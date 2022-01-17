@@ -42,7 +42,7 @@ class CheckClientExistence
                 return $query->where('is_deleted', false);
             })
             ->whereHas('company', function ($query){
-                return $query->where('account_id', auth('contact')->user()->client->company->account->id);
+                return $query->where('id', auth('contact')->user()->client->company_id);
             })
             ->get();
 

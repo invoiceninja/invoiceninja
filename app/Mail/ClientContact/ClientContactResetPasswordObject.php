@@ -35,19 +35,19 @@ class ClientContactResetPasswordObject
     public function build()
     {
 
+        $settings = $this->client_contact->client->getMergedSettings();
         App::forgetInstance('translator');
         $t = app('translator');
         App::setLocale($this->client_contact->preferredLocale());
-        $t->replace(Ninja::transformTranslations($this->client_contact->client->getMergedSettings()));
-
+        $t->replace(Ninja::transformTranslations($settings));
 
         $data = [
             'title' => ctrans('texts.your_password_reset_link'),
             'content' => ctrans('texts.reset_password'),
             'url' => route('client.password.reset', ['token' => $this->token, 'email' => $this->client_contact->email]),
             'button' => ctrans('texts.reset'),
-            'signature' => $this->company->settings->email_signature,
-            'settings' => $this->company->settings,
+            'signature' => $settings->email_signature,
+            'settings' => $settings,
             'company' => $this->company,
             'logo' => $this->company->present()->logo(),
         ];
