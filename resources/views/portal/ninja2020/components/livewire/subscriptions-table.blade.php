@@ -50,7 +50,7 @@
                             {{ App\Utils\Number::formatMoney($invoice->amount, $invoice->client) }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
-                            {{ $invoice->formatDate($invoice->date, $invoice->client->date_format()) }}
+                            {{ $invoice->translateDate($invoice->date, $invoice->client->date_format(), $invoice->client->locale()) }}
                         </td>
                     </tr>
                 @empty
@@ -124,7 +124,7 @@
                             {{ App\Utils\Number::formatMoney($invoice->amount, $invoice->client) }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
-                            {{ $invoice->formatDate($invoice->date, $invoice->client->date_format()) }}
+                            {{ $invoice->translateDate($invoice->date, $invoice->client->date_format(), $invoice->client->locale()) }}
                         </td>
                     </tr>
                 @empty
