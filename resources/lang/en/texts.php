@@ -4530,7 +4530,7 @@ $LANG = array(
     'html_mode_help' => 'Preview updates faster but is less accurate',
     'status_color_theme' => 'Status Color Theme',
     'load_color_theme' => 'Load Color Theme',
-
+    'lang_Estonian' => 'Estonian',
 );
 
 return $LANG;
