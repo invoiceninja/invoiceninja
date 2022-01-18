@@ -35,7 +35,13 @@ class NinjaMailer extends Mailable
     public function build()
     {
 
-        return $this->from(config('mail.from.address'), config('mail.from.name'))
+        $from_name = config('mail.from.name');
+
+        if(property_exists($this->mail_obj, 'from_name')){
+            $from_name = $this->mail_obj->from_name;
+        }
+
+        return $this->from(config('mail.from.address'), $from_name)
                     ->subject($this->mail_obj->subject)
                     ->view($this->mail_obj->markdown, $this->mail_obj->data)
                     ->withSwiftMessage(function ($message) {

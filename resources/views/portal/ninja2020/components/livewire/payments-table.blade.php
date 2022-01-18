@@ -54,7 +54,7 @@
                             {{ $payment->number }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
-                            {{ $payment->formatDate($payment->date, $payment->client->date_format()) }}
+                            {{ $payment->translateDate($payment->date, $payment->client->date_format(), $payment->client->locale()) }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
                             {{ optional($payment->type)->name }}

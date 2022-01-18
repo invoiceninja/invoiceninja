@@ -15,6 +15,7 @@ use App\Http\Controllers\Controller;
 use App\Libraries\MultiDB;
 use App\Models\Account;
 use App\Models\Company;
+use App\Utils\Ninja;
 use Illuminate\Foundation\Auth\ResetsPasswords;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -55,9 +56,14 @@ class ResetPasswordController extends Controller
 
     public function showResetForm(Request $request, $token = null)
     {
+        $company = false;
         
-        MultiDB::findAndSetDbByCompanyKey($request->session()->get('company_key'));
-        $company = Company::where('company_key', $request->session()->get('company_key'))->first();
+        if(Ninja::isHosted()){
+
+            MultiDB::findAndSetDbByCompanyKey($request->session()->get('company_key'));
+            $company = Company::where('company_key', $request->session()->get('company_key'))->first();
+
+        }
 
         if($company)
             $account = $company->account;

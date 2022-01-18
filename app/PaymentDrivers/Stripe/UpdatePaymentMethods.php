@@ -88,7 +88,7 @@ class UpdatePaymentMethods
                     ],
                      $this->stripe->stripe_connect_auth);
 
-                foreach($alipay_methods as $method) 
+                foreach($sofort_methods as $method) 
                 {
                     $this->addOrUpdateCard($method, $customer->id, $client, GatewayType::SOFORT);
                 }

@@ -63,7 +63,7 @@
                             {{ App\Utils\Number::formatMoney($recurring_invoice->amount, $recurring_invoice->client) }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
-                            {{ $recurring_invoice->formatDate($recurring_invoice->date, $recurring_invoice->client->date_format()) }}
+                            {{ $recurring_invoice->translateDate($recurring_invoice->date, $recurring_invoice->client->date_format(), $recurring_invoice->client->locale()) }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
                             <a href="{{ route('client.recurring_invoice.show', $recurring_invoice->hashed_id) }}"

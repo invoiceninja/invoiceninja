@@ -27,7 +27,7 @@
     	  {{ ctrans('texts.expires') }}
         </dt>
         <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-          {{ $client->formatDate($account->plan_expires, $client->date_format()) }}
+          {{ $client->translateDate($account->plan_expires, $client->date_format(), $client->locale()) }}
         </dd>
       </div>
 

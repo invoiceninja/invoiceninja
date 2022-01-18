@@ -276,6 +276,9 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function locale()
     {
+        if(!$this->language())
+            return 'en';
+
         return $this->language()->locale ?: 'en';
     }
 
