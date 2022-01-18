@@ -100,10 +100,18 @@ class ContactForgotPasswordController extends Controller
 
         if(Ninja::isHosted() && $company = Company::where('company_key', $request->input('company_key'))->first())
         {
-            $contact = ClientContact::where(['email' => $request->input('email'), 'company_id' => $company->id])->first();
+            $contact = ClientContact::where(['email' => $request->input('email'), 'company_id' => $company->id])
+                                    ->whereHas('client', function ($query) {
+                                      $query->where('is_deleted',0);
+                                  })->first();
         }
-        else
-            $contact = ClientContact::where(['email' => $request->input('email')])->first();
+        else {
+            
+            $contact = ClientContact::where(['email' => $request->input('email')])
+                                    ->whereHas('client', function ($query) {
+                                      $query->where('is_deleted',0);
+                                  })->first();
+        }
 
         $response = false;
 

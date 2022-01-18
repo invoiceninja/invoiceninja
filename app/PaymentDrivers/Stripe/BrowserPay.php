@@ -227,11 +227,11 @@ class BrowserPay implements MethodInterface
         if(Ninja::isHosted())
         {
 
-            if($this->company_gateway->company->portal_mode == 'domain'){
-                $domain = $this->company_gateway->company->portal_domain;
+            if($this->stripe->company_gateway->company->portal_mode == 'domain'){
+                $domain = $this->stripe->company_gateway->company->portal_domain;
             }
             else{
-                $domain = $this->company_gateway->company->subdomain . '.' . config('ninja.app_domain');
+                $domain = $this->stripe->company_gateway->company->subdomain . '.' . config('ninja.app_domain');
             }
 
         }
