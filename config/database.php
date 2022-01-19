@@ -1,7 +1,5 @@
 <?php
 
-use App\Utils\Ninja;
-
 return [
 
     /*
@@ -96,7 +94,7 @@ return [
             'prefix_indexes' => true,
             'strict'         => env('DB_STRICT', false),
             'engine'         => 'InnoDB ROW_FORMAT=DYNAMIC',
-            // 'options'        => Ninja::isHosted() ? config('ninja.db_options') : [],
+            'options'        => [],
             // 'options'        => [
             //     PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
             //     PDO::MYSQL_ATTR_SSL_KEY => env("DB_CLIENT_KEY", ''),
@@ -118,7 +116,7 @@ return [
             'prefix_indexes' => true,
             'strict'         => env('DB_STRICT', false),
             'engine'         => 'InnoDB ROW_FORMAT=DYNAMIC',
-            // 'options'        => Ninja::isHosted() ? config('ninja.db_options') : [],
+            'options'        => [],
         ],
 
         'db-ninja-02' => [
@@ -134,7 +132,7 @@ return [
             'prefix_indexes' => true,
             'strict'         => env('DB_STRICT', false),
             'engine'         => 'InnoDB ROW_FORMAT=DYNAMIC',
-            // 'options'        => Ninja::isHosted() ? config('ninja.db_options') : [],
+            'options'        => [],
         ],
 
         'db-ninja-02a' => [
@@ -150,7 +148,7 @@ return [
             'prefix_indexes' => true,
             'strict'         => env('DB_STRICT', false),
             'engine'         => 'InnoDB ROW_FORMAT=DYNAMIC',
-            // 'options'        => Ninja::isHosted() ? config('ninja.db_options') : [],
+            'options'        => [],
         ],
     ],
 
