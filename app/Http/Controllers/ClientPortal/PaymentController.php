@@ -119,6 +119,9 @@ class PaymentController extends Controller
         } else {
             $payment = PaymentFactory::create($payment_hash->fee_invoice->company_id, $payment_hash->fee_invoice->user_id);
             $payment->client_id = $payment_hash->fee_invoice->client_id;
+
+            $payment->saveQuietly();
+            $payment->currency_id = $payment->client->getSetting('currency_id');
             $payment->saveQuietly();
 
             $payment_hash->payment_id = $payment->id;

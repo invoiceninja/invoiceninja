@@ -119,6 +119,7 @@ class CreditService
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->type_id = PaymentType::CREDIT;
         $payment->is_manual = true;
+        $payment->currency_id = $this->credit->client->getSetting('currency_id');
         $payment->date = now();
 
         $payment->saveQuietly();
