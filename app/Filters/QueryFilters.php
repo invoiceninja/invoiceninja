@@ -190,9 +190,7 @@ abstract class QueryFilters
             return $this->builder;
         }
 
-        $this->builder->where('client_id', $this->decodePrimaryKey($client_id));
-
-        return $this->builder;
+        return $this->builder->where('client_id', $this->decodePrimaryKey($client_id));
         
     }
 
