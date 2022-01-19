@@ -532,41 +532,41 @@ trait GeneratesCounter
 
         switch ($reset_counter_frequency) {
             case RecurringInvoice::FREQUENCY_DAILY:
-                $new_reset_date = now()->addDay();
+                $new_reset_date = $reset_date->addDay();
                 break;
             case RecurringInvoice::FREQUENCY_WEEKLY:
-                $new_reset_date = now()->addWeek();
+                $new_reset_date = $reset_date->addWeek();
                 break;
             case RecurringInvoice::FREQUENCY_TWO_WEEKS:
-                $new_reset_date = now()->addWeeks(2);
+                $new_reset_date = $reset_date->addWeeks(2);
                 break;
             case RecurringInvoice::FREQUENCY_FOUR_WEEKS:
-                $new_reset_date = now()->addWeeks(4);
+                $new_reset_date = $reset_date->addWeeks(4);
                 break;
             case RecurringInvoice::FREQUENCY_MONTHLY:
-                $new_reset_date = now()->addMonth();
+                $new_reset_date = $reset_date->addMonth();
                 break;
             case RecurringInvoice::FREQUENCY_TWO_MONTHS:
-                $new_reset_date = now()->addMonths(2);
+                $new_reset_date = $reset_date->addMonths(2);
                 break;
             case RecurringInvoice::FREQUENCY_THREE_MONTHS:
-                $new_reset_date = now()->addMonths(3);
+                $new_reset_date = $reset_date->addMonths(3);
                 break;
             case RecurringInvoice::FREQUENCY_FOUR_MONTHS:
-                $new_reset_date = now()->addMonths(4);
+                $new_reset_date = $reset_date->addMonths(4);
                 break;
             case RecurringInvoice::FREQUENCY_SIX_MONTHS:
-                $new_reset_date = now()->addMonths(6);
+                $new_reset_date = $reset_date->addMonths(6);
                 break;
             case RecurringInvoice::FREQUENCY_ANNUALLY:
-                $new_reset_date = now()->addYear();
+                $new_reset_date = $reset_date->addYear();
                 break;
             case RecurringInvoice::FREQUENCY_TWO_YEARS:
-                $new_reset_date = now()->addYears(2);
+                $new_reset_date = $reset_date->addYears(2);
                 break;
 
                 default:
-                $new_reset_date = now()->addYear();
+                $new_reset_date = $reset_date->addYear();
                 break;
         }
 
