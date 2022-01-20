@@ -35,13 +35,6 @@ class ChartService
      */
     public function getCurrencyCodes() :array
     {
-
-        // $currencies = Payment::withTrashed()
-        //     ->where('company_id', $this->company->id)
-        //     ->where('is_deleted', 0)
-        //     ->distinct()
-        //     ->get(['currency_id']);
-
         /* Get all the distinct client currencies */
         $currencies = Client::withTrashed()
             ->where('company_id', $this->company->id)

@@ -19,6 +19,12 @@ use Illuminate\Support\Facades\DB;
 trait ChartQueries
 {
 
+        // $currencies = Payment::withTrashed()
+        //     ->where('company_id', $this->company->id)
+        //     ->where('is_deleted', 0)
+        //     ->distinct()
+        //     ->get(['currency_id']);
+
     public function getRevenueQuery($start_date, $end_date)
     {
 

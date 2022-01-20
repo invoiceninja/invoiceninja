@@ -10,6 +10,8 @@
  */
 namespace Tests\Unit\Chart;
 
+use App\DataMapper\ClientSettings;
+use App\Models\Client;
 use App\Services\Chart\ChartService;
 use App\Utils\Ninja;
 use Tests\MockAccountData;
@@ -17,6 +19,7 @@ use Tests\TestCase;
 
 /**
  * @test
+ * @covers  App\Services\Chart\ChartService
  */
 class ChartCurrencyTest extends TestCase
 {
@@ -29,80 +32,109 @@ class ChartCurrencyTest extends TestCase
         $this->makeTestData();
     }
 
-    // public function testClientServiceDataSetBuild()
-    // {
+    public function testgetCurrencyCodes()
+    {
+        $settings = ClientSettings::defaults();
+        $settings->currency_id = "1"; //USD
 
-    //     $haystack = [
-    //         [
-    //         'currency_id' => null,
-    //         'amount' => 10
-    //         ],
-    //         [
-    //         'currency_id' => 1,
-    //         'amount' => 11
-    //         ],
-    //         [
-    //         'currency_id' => 2,
-    //         'amount' => 12
-    //         ],
-    //         [
-    //         'currency_id' => 3,
-    //         'amount' => 13
-    //         ],
-    //     ];
+        Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'settings' => $settings,
+        ]);
 
-    //     $cs = new ChartService($this->company);
+        $settings = ClientSettings::defaults();
+        $settings->currency_id = "2"; //GBP
 
-    //     nlog($cs->totals(now()->subYears(10), now()));
+        Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'settings' => $settings,
+        ]);
 
-    //     $this->assertTrue(is_array($cs->totals(now()->subYears(10), now())));
+        $cs = new ChartService($this->company);
 
-    // }
+        $this->assertTrue(is_array($cs->getCurrencyCodes()));
 
-    // /* coalesces the company currency with the null currencies */
-    // public function testFindNullValueinArray()
-    // {
+        $this->assertTrue(in_array("GBP", $cs->getCurrencyCodes()));
+        $this->assertTrue(in_array("USD", $cs->getCurrencyCodes()));
+        $this->assertFalse(in_array("AUD", $cs->getCurrencyCodes()));
+    }
 
-    //     $haystack = [
-    //         [
-    //         'currency_id' => null,
-    //         'amount' => 10
-    //         ],
-    //         [
-    //         'currency_id' => 1,
-    //         'amount' => 11
-    //         ],
-    //         [
-    //         'currency_id' => 2,
-    //         'amount' => 12
-    //         ],
-    //         [
-    //         'currency_id' => 3,
-    //         'amount' => 13
-    //         ],
-    //     ];
+    public function testClientServiceDataSetBuild()
+    {
 
-    //     $company_currency_id = 1;
+        $haystack = [
+            [
+            'currency_id' => null,
+            'amount' => 10
+            ],
+            [
+            'currency_id' => 1,
+            'amount' => 11
+            ],
+            [
+            'currency_id' => 2,
+            'amount' => 12
+            ],
+            [
+            'currency_id' => 3,
+            'amount' => 13
+            ],
+        ];
 
-    //     $c_key = array_search($company_currency_id , array_column($haystack, 'currency_id')); 
+        $cs = new ChartService($this->company);
 
-    //     $this->assertNotEquals($c_key, 2);
-    //     $this->assertEquals($c_key, 1);
+        nlog($cs->totals(now()->subYears(10), now()));
 
-    //     $key = array_search(null , array_column($haystack, 'currency_id')); 
+        $this->assertTrue(is_array($cs->totals(now()->subYears(10), now())));
 
-    //     $this->assertNotEquals($key, 39);
-    //     $this->assertEquals($key, 0);
+    }
 
-    //     $null_currency_amount = $haystack[$key]['amount'];
+    /* coalesces the company currency with the null currencies */
+    public function testFindNullValueinArray()
+    {
 
-    //     unset($haystack[$key]);
+        $haystack = [
+            [
+            'currency_id' => null,
+            'amount' => 10
+            ],
+            [
+            'currency_id' => 1,
+            'amount' => 11
+            ],
+            [
+            'currency_id' => 2,
+            'amount' => 12
+            ],
+            [
+            'currency_id' => 3,
+            'amount' => 13
+            ],
+        ];
 
-    //     $haystack[$c_key]['amount'] += $null_currency_amount;
+        $company_currency_id = 1;
 
-    //     $this->assertEquals($haystack[$c_key]['amount'], 21);
+        $c_key = array_search($company_currency_id , array_column($haystack, 'currency_id')); 
 
-    // }
+        $this->assertNotEquals($c_key, 2);
+        $this->assertEquals($c_key, 1);
+
+        $key = array_search(null , array_column($haystack, 'currency_id')); 
+
+        $this->assertNotEquals($key, 39);
+        $this->assertEquals($key, 0);
+
+        $null_currency_amount = $haystack[$key]['amount'];
+
+        unset($haystack[$key]);
+
+        $haystack[$c_key]['amount'] += $null_currency_amount;
+
+        $this->assertEquals($haystack[$c_key]['amount'], 21);
+
+    }
 
 
     public function testCollectionMerging()
