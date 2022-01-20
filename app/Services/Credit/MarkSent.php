@@ -42,7 +42,7 @@ class MarkSent
              ->setStatus(Credit::STATUS_SENT)
              ->applyNumber()
              ->adjustBalance($this->credit->amount)
-             ->deletePdf()
+             ->touchPdf()
              ->save();
 
         event(new CreditWasMarkedSent($this->credit, $this->credit->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));

@@ -286,12 +286,33 @@ class Design extends BaseDesign
             return [];
         }
 
+        $thead = [
+            ['element' => 'th', 'content' => '$item_label', 'properties' => ['data-ref' => 'delivery_note-item_label']],
+            ['element' => 'th', 'content' => '$description_label', 'properties' => ['data-ref' => 'delivery_note-description_label']],
+            ['element' => 'th', 'content' => '$product.quantity_label', 'properties' => ['data-ref' => 'delivery_note-product.quantity_label']],
+        ];
+
+        $items = $this->transformLineItems($this->entity->line_items, $this->type);
+
+        $this->processNewLines($items);
+        $product_customs = [false, false, false, false];
+
+        foreach ($items as $row) {
+            for ($i = 0; $i < count($product_customs); $i++) {
+                if (!empty($row['delivery_note.delivery_note' . ($i + 1)])) {
+                    $product_customs[$i] = true;
+                }
+            }
+        }
+
+        for ($i = 0; $i < count($product_customs); $i++) {
+            if ($product_customs[$i]) {
+                array_push($thead, ['element' => 'th', 'content' => '$product.product' . ($i + 1) . '_label', 'properties' => ['data-ref' => 'delivery_note-product.product' . ($i + 1) . '_label']]);
+            }
+        }
+
         return [
-            ['element' => 'thead', 'elements' => [
-                ['element' => 'th', 'content' => '$item_label', 'properties' => ['data-ref' => 'delivery_note-item_label']],
-                ['element' => 'th', 'content' => '$description_label', 'properties' => ['data-ref' => 'delivery_note-description_label']],
-                ['element' => 'th', 'content' => '$product.quantity_label', 'properties' => ['data-ref' => 'delivery_note-product.quantity_label']],
-            ]],
+            ['element' => 'thead', 'elements' => $thead],
             ['element' => 'tbody', 'elements' => $this->buildTableBody(self::DELIVERY_NOTE)],
         ];
     }
@@ -528,12 +549,28 @@ class Design extends BaseDesign
         }
 
         if ($type == self::DELIVERY_NOTE) {
+            $product_customs = [false, false, false, false];
+
+            foreach ($items as $row) {
+                for ($i = 0; $i < count($product_customs); $i++) {
+                    if (!empty($row['delivery_note.delivery_note' . ($i + 1)])) {
+                        $product_customs[$i] = true;
+                    }
+                }
+            }
+
             foreach ($items as $row) {
                 $element = ['element' => 'tr', 'elements' => []];
 
                 $element['elements'][] = ['element' => 'td', 'content' => $row['delivery_note.product_key'], 'properties' => ['data-ref' => 'delivery_note_table.product_key-td']];
                 $element['elements'][] = ['element' => 'td', 'content' => $row['delivery_note.notes'], 'properties' => ['data-ref' => 'delivery_note_table.notes-td']];
                 $element['elements'][] = ['element' => 'td', 'content' => $row['delivery_note.quantity'], 'properties' => ['data-ref' => 'delivery_note_table.quantity-td']];
+
+                for ($i = 0; $i < count($product_customs); $i++) {
+                    if ($product_customs[$i]) {
+                        $element['elements'][] = ['element' => 'td', 'content' => $row['delivery_note.delivery_note' . ($i + 1)], 'properties' => ['data-ref' => 'delivery_note_table.product' . ($i + 1) . '-td']];
+                    }
+                }
 
                 $elements[] = $element;
             }
