@@ -41,6 +41,7 @@ use App\PaymentDrivers\Stripe\Bancontact;
 use App\PaymentDrivers\Stripe\BECS;
 use App\PaymentDrivers\Stripe\ACSS;
 use App\PaymentDrivers\Stripe\BrowserPay;
+use App\PaymentDrivers\Stripe\FPX;
 use App\PaymentDrivers\Stripe\UpdatePaymentMethods;
 use App\PaymentDrivers\Stripe\Utilities;
 use App\Utils\Traits\MakesHash;
@@ -200,6 +201,13 @@ class StripePaymentDriver extends BaseDriver
 
         if ($this->client
             && $this->client->currency()
+            && ($this->client->currency()->code == 'MYR')
+            && isset($this->client->country)
+            && in_array($this->client->country->iso_3166_3, ["MYS"]))
+            $types[] = GatewayType::FPX;
+
+        if ($this->client
+            && $this->client->currency()
             && ($this->client->currency()->code == 'EUR')
             && isset($this->client->country)
             && in_array($this->client->country->iso_3166_3, ["BEL"]))
@@ -266,6 +274,8 @@ class StripePaymentDriver extends BaseDriver
                 return 'gateways.stripe.becs';
             case GatewayType::ACSS:
                 return 'gateways.stripe.acss';
+            case GatewayType::FPX:
+                return 'gateways.stripe.fpx';
             default:
                 break;
         }
@@ -540,7 +550,7 @@ class StripePaymentDriver extends BaseDriver
                      $payment = Payment::query()
                         ->where('company_id', $request->getCompany()->id)
                         ->where('transaction_reference', $transaction['id'])
-                        ->first();       
+                        ->first();
                 }
 
                 if ($payment) {

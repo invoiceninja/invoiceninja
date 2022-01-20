@@ -4543,6 +4543,7 @@ $LANG = array(
     'activity_122' => ':user archived recurring expense :recurring_expense',
     'activity_123' => ':user deleted recurring expense :recurring_expense',
     'activity_124' => ':user restored recurring expense :recurring_expense',
+    'fpx' => "FPX",
 
 );
 
