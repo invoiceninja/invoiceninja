@@ -29,80 +29,80 @@ class ChartCurrencyTest extends TestCase
         $this->makeTestData();
     }
 
-    public function testClientServiceDataSetBuild()
-    {
+    // public function testClientServiceDataSetBuild()
+    // {
 
-        $haystack = [
-            [
-            'currency_id' => null,
-            'amount' => 10
-            ],
-            [
-            'currency_id' => 1,
-            'amount' => 11
-            ],
-            [
-            'currency_id' => 2,
-            'amount' => 12
-            ],
-            [
-            'currency_id' => 3,
-            'amount' => 13
-            ],
-        ];
+    //     $haystack = [
+    //         [
+    //         'currency_id' => null,
+    //         'amount' => 10
+    //         ],
+    //         [
+    //         'currency_id' => 1,
+    //         'amount' => 11
+    //         ],
+    //         [
+    //         'currency_id' => 2,
+    //         'amount' => 12
+    //         ],
+    //         [
+    //         'currency_id' => 3,
+    //         'amount' => 13
+    //         ],
+    //     ];
 
-        $cs = new ChartService($this->company);
+    //     $cs = new ChartService($this->company);
 
-        nlog($cs->totals(now()->subYears(10), now()));
+    //     nlog($cs->totals(now()->subYears(10), now()));
 
-        $this->assertTrue(is_array($cs->totals(now()->subYears(10), now())));
+    //     $this->assertTrue(is_array($cs->totals(now()->subYears(10), now())));
 
-    }
+    // }
 
-    /* coalesces the company currency with the null currencies */
-    public function testFindNullValueinArray()
-    {
+    // /* coalesces the company currency with the null currencies */
+    // public function testFindNullValueinArray()
+    // {
 
-        $haystack = [
-            [
-            'currency_id' => null,
-            'amount' => 10
-            ],
-            [
-            'currency_id' => 1,
-            'amount' => 11
-            ],
-            [
-            'currency_id' => 2,
-            'amount' => 12
-            ],
-            [
-            'currency_id' => 3,
-            'amount' => 13
-            ],
-        ];
+    //     $haystack = [
+    //         [
+    //         'currency_id' => null,
+    //         'amount' => 10
+    //         ],
+    //         [
+    //         'currency_id' => 1,
+    //         'amount' => 11
+    //         ],
+    //         [
+    //         'currency_id' => 2,
+    //         'amount' => 12
+    //         ],
+    //         [
+    //         'currency_id' => 3,
+    //         'amount' => 13
+    //         ],
+    //     ];
 
-        $company_currency_id = 1;
+    //     $company_currency_id = 1;
 
-        $c_key = array_search($company_currency_id , array_column($haystack, 'currency_id')); 
+    //     $c_key = array_search($company_currency_id , array_column($haystack, 'currency_id')); 
 
-        $this->assertNotEquals($c_key, 2);
-        $this->assertEquals($c_key, 1);
+    //     $this->assertNotEquals($c_key, 2);
+    //     $this->assertEquals($c_key, 1);
 
-        $key = array_search(null , array_column($haystack, 'currency_id')); 
+    //     $key = array_search(null , array_column($haystack, 'currency_id')); 
 
-        $this->assertNotEquals($key, 39);
-        $this->assertEquals($key, 0);
+    //     $this->assertNotEquals($key, 39);
+    //     $this->assertEquals($key, 0);
 
-        $null_currency_amount = $haystack[$key]['amount'];
+    //     $null_currency_amount = $haystack[$key]['amount'];
 
-        unset($haystack[$key]);
+    //     unset($haystack[$key]);
 
-        $haystack[$c_key]['amount'] += $null_currency_amount;
+    //     $haystack[$c_key]['amount'] += $null_currency_amount;
 
-        $this->assertEquals($haystack[$c_key]['amount'], 21);
+    //     $this->assertEquals($haystack[$c_key]['amount'], 21);
 
-    }
+    // }
 
 
     public function testCollectionMerging()

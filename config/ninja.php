@@ -14,8 +14,8 @@ return [
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', 'invoicing.co'),
-    'app_version' => '5.3.48',
-    'app_tag' => '5.3.48',
+    'app_version' => '5.3.49',
+    'app_tag' => '5.3.49',
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', ''),
@@ -59,12 +59,12 @@ return [
         'default' => env('DB_CONNECTION', 'mysql'),
     ],
 
-    'db_options' => [
-                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
-                PDO::MYSQL_ATTR_SSL_KEY => env("DB_CLIENT_KEY", ''),
-                PDO::MYSQL_ATTR_SSL_CERT => env("DB_CLIENT_CERT", ''),
-                PDO::MYSQL_ATTR_SSL_CA => env("DB_CA_CERT", ''),
-    ],
+    // 'db_options' => [
+    //             PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+    //             PDO::MYSQL_ATTR_SSL_KEY => env("DB_CLIENT_KEY", ''),
+    //             PDO::MYSQL_ATTR_SSL_CERT => env("DB_CLIENT_CERT", ''),
+    //             PDO::MYSQL_ATTR_SSL_CA => env("DB_CA_CERT", ''),
+    // ],
 
     'i18n' => [
         'timezone_id' => env('DEFAULT_TIMEZONE', 1),
