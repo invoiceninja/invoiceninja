@@ -72,7 +72,14 @@ class ChartController extends BaseController
     {
         $cs = new ChartService(auth()->user()->company());
 
-        return response()->json($cs->totals($request->input('start_date'), $request->input('end_date')),200);
+        return response()->json($cs->totals($request->input('start_date'), $request->input('end_date')), 200);
+    }
+
+    public function chart_summary(ShowChartRequest $request)
+    {
+        $cs = new ChartService(auth()->user()->company());
+
+        return response()->json($cs->chart_summary($request->input('start_date'), $request->input('end_date')), 200);
     }
 
 }

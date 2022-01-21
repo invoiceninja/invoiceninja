@@ -33,6 +33,7 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
 
 
     Route::post('charts/totals', 'ChartController@totals')->name('chart.totals');
+    Route::post('charts/chart_summary', 'ChartController@chart_summary')->name('chart.chart_summary');
 
     Route::post('claim_license', 'LicenseController@index')->name('license.index');
 

@@ -98,37 +98,79 @@ trait ChartQueries
         "), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]  );
     }
 
-    public function getChartData($start_date, $end_date, $group_by = 'DAYOFYEAR', $entity_type = 'invoice', $currency_id)
+    public function getInvoiceChartQuery($start_date, $end_date, $currency_id)
     {
 
-        if(!$currency_id)
-            $currency_id = $this->company->settings->currency_id;
-
-        return DB::select( DB::raw("
+         return DB::select( DB::raw("
             SELECT
-            sum(invoices.balance) as balance,
-            sum(invoices.amount) as amount,
-            IFNULL(JSON_EXTRACT( settings, '$.currency_id' ), :company_currency) AS currency_id
+            -- sum(invoices.balance) as balance,
+            sum(invoices.amount) as total,
+            invoices.date,
+            IFNULL(CAST(JSON_EXTRACT( settings, '$.currency_id' ) AS SIGNED), :company_currency) AS currency_id
             FROM clients
             JOIN invoices
             on invoices.client_id = clients.id
             WHERE invoices.status_id IN (2,3,4)
+            AND (invoices.date BETWEEN :start_date AND :end_date)
             AND invoices.company_id = :company_id
             AND clients.is_deleted = 0
             AND invoices.is_deleted = 0
-            AND (invoices.date BETWEEN :start_date AND :end_date)
+            GROUP BY invoices.date
             HAVING currency_id = :currency_id
-            GROUP BY :group_by
         "), [
+            'company_currency' => $this->company->settings->currency_id,
             'currency_id' => $currency_id,
-            'group_by' => $group_by, 
-            'company_currency' => $this->company->settings->currency_id, 
             'company_id' => $this->company->id, 
             'start_date' => $start_date, 
             'end_date' => $end_date
         ]);
+    }
 
-    
+    public function getPaymentChartQuery($start_date, $end_date, $currency_id)
+    {
+
+         return DB::select( DB::raw("
+            SELECT
+            sum(payments.amount - payments.refunded) as total,
+            payments.date,
+            IFNULL(payments.currency_id, :company_currency) AS currency_id
+            FROM payments
+            WHERE payments.status_id IN (4,5,6)
+            AND (payments.date BETWEEN :start_date AND :end_date)
+            AND payments.company_id = :company_id
+            AND payments.is_deleted = 0
+            GROUP BY payments.date
+            HAVING currency_id = :currency_id
+        "), [
+            'company_currency' => $this->company->settings->currency_id,
+            'currency_id' => $currency_id,
+            'company_id' => $this->company->id, 
+            'start_date' => $start_date, 
+            'end_date' => $end_date
+        ]);
+    }
+
+    public function getExpenseChartQuery($start_date, $end_date, $currency_id)
+    {
+
+         return DB::select( DB::raw("
+            SELECT
+            sum(expenses.amount) as total,
+            expenses.date,
+            IFNULL(expenses.currency_id, :company_currency) AS currency_id
+            FROM expenses
+            WHERE (expenses.date BETWEEN :start_date AND :end_date)
+            AND expenses.company_id = :company_id
+            AND expenses.is_deleted = 0
+            GROUP BY expenses.date
+            HAVING currency_id = :currency_id
+        "), [
+            'company_currency' => $this->company->settings->currency_id,
+            'currency_id' => $currency_id,
+            'company_id' => $this->company->id, 
+            'start_date' => $start_date, 
+            'end_date' => $end_date
+        ]);
     }
 
 
