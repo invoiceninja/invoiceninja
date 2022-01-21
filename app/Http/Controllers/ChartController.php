@@ -12,6 +12,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Chart\ShowChartRequest;
+use App\Services\Chart\ChartService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -25,8 +26,8 @@ class ChartController extends BaseController
 
     /**
      * @OA\Post(
-     *      path="/api/v1/charts",
-     *      operationId="getCharts",
+     *      path="/api/v1/charts/totals",
+     *      operationId="getChartTotals",
      *      tags={"charts"},
      *      summary="Get chart data",
      *      description="Get chart data",
@@ -67,10 +68,11 @@ class ChartController extends BaseController
      * @param Request $request
      * @return Response|mixed
      */
-    public function index(ShowChartRequest $request)
+    public function totals(ShowChartRequest $request)
     {
+        $cs = new ChartService(auth()->user()->company());
 
-        return response()->json([],200);
+        return response()->json($cs->totals($request->input('start_date'), $request->input('end_date')),200);
     }
 
 }

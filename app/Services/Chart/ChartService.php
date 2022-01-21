@@ -50,7 +50,7 @@ class ChartService
             ->where('company_id', $this->company->id)
             ->where('is_deleted', 0)
             ->distinct()
-            ->get(['currency_id']);
+            ->pluck('currency_id as id');
 
         /* Merge and filter by unique */
         $currencies = $currencies->merge($expense_currencies)->unique();
@@ -72,10 +72,11 @@ class ChartService
 
 
 
-    public function totals($start_date, $end_date)
+    public function totals($start_date, $end_date) :array
     {
         $data = [];
 
+        $data['currencies'] = $this->getCurrencyCodes();
         $data['revenue'] = $this->getRevenue($start_date, $end_date);
         $data['outstanding'] = $this->getOutstanding($start_date, $end_date);
         $data['expenses'] = $this->getExpenses($start_date, $end_date);
@@ -110,7 +111,7 @@ class ChartService
 
     }
 
-    private function getRevenue($start_date, $end_date)
+    private function getRevenue($start_date, $end_date) :array
     {
         $revenue = $this->getRevenueQuery($start_date, $end_date);
         $revenue = $this->parseTotals($revenue);
@@ -119,7 +120,7 @@ class ChartService
         return $revenue;
     }
 
-    private function getOutstanding($start_date, $end_date)
+    private function getOutstanding($start_date, $end_date) :array
     {
         $outstanding = $this->getOutstandingQuery($start_date, $end_date);   
         $outstanding = $this->parseTotals($outstanding);
@@ -128,16 +129,15 @@ class ChartService
         return $outstanding;
     }
 
-    private function getExpenses($start_date, $end_date)
+    private function getExpenses($start_date, $end_date) :array
     {
         $expenses = $this->getExpenseQuery($start_date, $end_date);
         $expenses = $this->parseTotals($expenses);
         $expenses = $this->addCountryCodes($expenses);
-
         return $expenses;
     }
 
-    private function parseTotals($data_set)
+    private function parseTotals($data_set) :array
     {
         /* Find the key where the company currency amount lives*/
         $c_key = array_search($this->company->id , array_column($data_set, 'currency_id')); 
@@ -160,22 +160,25 @@ class ChartService
 
     }
 
-    private function addCountryCodes($data_set)
+    private function addCountryCodes($data_set) :array
     {
 
         $currencies = Cache::get('currencies');
 
         foreach($data_set as $key => $value)
         {
-            $data_set[$key]['code'] = $this->getCode($currencies, $value); 
+            $data_set[$key]->currency_id = str_replace('"', '', $value->currency_id);
+            $data_set[$key]->code = $this->getCode($currencies, $data_set[$key]->currency_id); 
         }
 
         return $data_set;
 
     }
 
-    private function getCode($currencies, $currency_id)
+    private function getCode($currencies, $currency_id) :string
     {
+        nlog($currency_id);
+
         $currency = $currencies->filter(function ($item) use($currency_id) {
             return $item->id == $currency_id;
         })->first();

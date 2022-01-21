@@ -31,6 +31,9 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::get('activities', 'ActivityController@index');
     Route::get('activities/download_entity/{activity}', 'ActivityController@downloadHistoricalEntity');
 
+
+    Route::post('charts/totals', 'ChartController@totals')->name('chart.totals');
+
     Route::post('claim_license', 'LicenseController@index')->name('license.index');
 
     Route::resource('clients', 'ClientController'); // name = (clients. index / create / show / update / destroy / edit

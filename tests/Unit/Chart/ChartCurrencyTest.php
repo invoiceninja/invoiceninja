@@ -12,8 +12,10 @@ namespace Tests\Unit\Chart;
 
 use App\DataMapper\ClientSettings;
 use App\Models\Client;
+use App\Models\Invoice;
 use App\Services\Chart\ChartService;
 use App\Utils\Ninja;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -24,6 +26,7 @@ use Tests\TestCase;
 class ChartCurrencyTest extends TestCase
 {
     use MockAccountData;
+    use DatabaseTransactions;
 
     public function setUp() :void
     {
@@ -31,6 +34,42 @@ class ChartCurrencyTest extends TestCase
 
         $this->makeTestData();
     }
+
+    public function testRevenueValues()
+    {
+
+        Invoice::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'paid_to_date' => 100,
+            'status_id' => 4,
+            'date' => now(),
+            'due_date'=> now(),
+            'number' => 'db_record'
+        ]);
+
+        $this->assertDatabaseHas('invoices', ['number' => 'db_record']);  
+
+        $cs = new ChartService($this->company);
+        nlog($cs->getRevenueQuery(now()->subDays(20)->format('Y-m-d'), now()->addDays(100)->format('Y-m-d')));
+
+        $data = [
+            'start_date' => now()->subDays(30)->format('Y-m-d'),
+            'end_date' => now()->addDay()->format('Y-m-d')
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/charts/totals', $data);
+
+        $response->assertStatus(200);
+
+        nlog($response->json());
+
+    }
+
 
     public function testgetCurrencyCodes()
     {
@@ -59,6 +98,23 @@ class ChartCurrencyTest extends TestCase
         $this->assertTrue(in_array("GBP", $cs->getCurrencyCodes()));
         $this->assertTrue(in_array("USD", $cs->getCurrencyCodes()));
         $this->assertFalse(in_array("AUD", $cs->getCurrencyCodes()));
+    }
+
+    public function testGetChartTotalsApi()
+    {
+
+        $data = [
+            'start_date' => now()->subDays(30)->format('Y-m-d'),
+            'end_date' => now()->format('Y-m-d')
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/charts/totals', $data);
+
+        $response->assertStatus(200);
+
     }
 
     public function testClientServiceDataSetBuild()
