@@ -47,7 +47,7 @@ class FPX
 
         $intent = \Stripe\PaymentIntent::create([
             'amount' => $data['stripe_amount'],
-            'currency' => 'eur',
+            'currency' => $this->stripe->client->getCurrencyCode(),
             'payment_method_types' => ['fpx'],
             'customer' => $this->stripe->findOrCreateCustomer(),
             'description' => $this->stripe->decodeUnicodeString(ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number')),

@@ -70,6 +70,16 @@ class ChartService
 
     }
 
+/* Payments */
+    public function payments($start_date, $end_date)
+    {
+        $payments = $this->getPaymentQuery();
+    }
+
+/* Payments */
+
+/* Totals */
+
     public function totals($start_date, $end_date) :array
     {
         $data = [];
@@ -81,33 +91,6 @@ class ChartService
 
         return $data;
     }    
-
-    public function oustanding($start_date, $end_date)
-    {
-
-        $company_currency = (int) $this->company->settings->currency_id;
-
-        $results = \DB::select( \DB::raw("
-            SELECT
-            sum(invoices.balance) as balance,
-            JSON_EXTRACT( settings, '$.currency_id' ) AS currency_id
-            FROM clients
-            JOIN invoices
-            on invoices.client_id = clients.id
-            WHERE invoices.status_id IN (2,3)
-            AND invoices.company_id = :company_id
-            AND invoices.balance > 0
-            AND clients.is_deleted = 0
-            AND invoices.is_deleted = 0
-            AND (invoices.due_date BETWEEN :start_date AND :end_date)
-            GROUP BY currency_id
-        "), ['company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date] );
-    
-        //return $results;
-
-        //the output here will most likely contain a currency_id = null value - we need to merge this value with the company currency
-
-    }
 
     private function getRevenue($start_date, $end_date) :array
     {
@@ -132,6 +115,10 @@ class ChartService
 
         return $expenses;
     }
+
+/* Totals */
+
+/* Helpers */
 
     private function addCountryCodes($data_set) :array
     {
