@@ -103,7 +103,6 @@ trait ChartQueries
 
          return DB::select( DB::raw("
             SELECT
-            -- sum(invoices.balance) as balance,
             sum(invoices.amount) as total,
             invoices.date,
             IFNULL(CAST(JSON_EXTRACT( settings, '$.currency_id' ) AS SIGNED), :company_currency) AS currency_id
