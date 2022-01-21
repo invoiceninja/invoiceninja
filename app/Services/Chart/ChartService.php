@@ -70,8 +70,6 @@ class ChartService
 
     }
 
-
-
     public function totals($start_date, $end_date) :array
     {
         $data = [];
@@ -114,7 +112,6 @@ class ChartService
     private function getRevenue($start_date, $end_date) :array
     {
         $revenue = $this->getRevenueQuery($start_date, $end_date);
-        $revenue = $this->parseTotals($revenue);
         $revenue = $this->addCountryCodes($revenue);
 
         return $revenue;
@@ -123,7 +120,6 @@ class ChartService
     private function getOutstanding($start_date, $end_date) :array
     {
         $outstanding = $this->getOutstandingQuery($start_date, $end_date);   
-        $outstanding = $this->parseTotals($outstanding);
         $outstanding = $this->addCountryCodes($outstanding);
     
         return $outstanding;
@@ -132,32 +128,9 @@ class ChartService
     private function getExpenses($start_date, $end_date) :array
     {
         $expenses = $this->getExpenseQuery($start_date, $end_date);
-        $expenses = $this->parseTotals($expenses);
         $expenses = $this->addCountryCodes($expenses);
+
         return $expenses;
-    }
-
-    private function parseTotals($data_set) :array
-    {
-        /* Find the key where the company currency amount lives*/
-        $c_key = array_search($this->company->id , array_column($data_set, 'currency_id')); 
-
-        if(!$c_key)
-            return $data_set;
-
-        /* Find the key where null currency_id lives */
-        $key = array_search(null , array_column($data_set, 'currency_id')); 
-
-        if(!$key)
-            return $data_set;
-
-        $null_currency_amount = $data_set[$key]['amount'];
-        unset($data_set[$key]);
-
-        $data_set[$c_key]['amount'] += $null_currency_amount;
-
-        return $data_set;
-
     }
 
     private function addCountryCodes($data_set) :array
@@ -177,7 +150,7 @@ class ChartService
 
     private function getCode($currencies, $currency_id) :string
     {
-        nlog($currency_id);
+        $currency_id = str_replace('"', '', $currency_id);
 
         $currency = $currencies->filter(function ($item) use($currency_id) {
             return $item->id == $currency_id;

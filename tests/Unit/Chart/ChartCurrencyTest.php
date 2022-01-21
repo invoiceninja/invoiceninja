@@ -52,11 +52,11 @@ class ChartCurrencyTest extends TestCase
         $this->assertDatabaseHas('invoices', ['number' => 'db_record']);  
 
         $cs = new ChartService($this->company);
-        nlog($cs->getRevenueQuery(now()->subDays(20)->format('Y-m-d'), now()->addDays(100)->format('Y-m-d')));
+        // nlog($cs->getRevenueQuery(now()->subDays(20)->format('Y-m-d'), now()->addDays(100)->format('Y-m-d')));
 
         $data = [
             'start_date' => now()->subDays(30)->format('Y-m-d'),
-            'end_date' => now()->addDay()->format('Y-m-d')
+            'end_date' => now()->addDays(100)->format('Y-m-d')
         ];
 
         $response = $this->withHeaders([
@@ -65,8 +65,6 @@ class ChartCurrencyTest extends TestCase
             ])->post('/api/v1/charts/totals', $data);
 
         $response->assertStatus(200);
-
-        nlog($response->json());
 
     }
 
@@ -141,7 +139,7 @@ class ChartCurrencyTest extends TestCase
 
         $cs = new ChartService($this->company);
 
-        nlog($cs->totals(now()->subYears(10), now()));
+        // nlog($cs->totals(now()->subYears(10), now()));
 
         $this->assertTrue(is_array($cs->totals(now()->subYears(10), now())));
 

@@ -31,7 +31,7 @@ trait ChartQueries
         return DB::select( DB::raw("
             SELECT
             sum(invoices.paid_to_date) as paid_to_date,
-            JSON_EXTRACT( settings, '$.currency_id' ) AS currency_id
+            IFNULL(JSON_EXTRACT( settings, '$.currency_id' ), :company_currency) AS currency_id
             FROM clients
             JOIN invoices
             on invoices.client_id = clients.id
@@ -42,7 +42,7 @@ trait ChartQueries
             AND invoices.is_deleted = 0
             AND (invoices.date BETWEEN :start_date AND :end_date)
             GROUP BY currency_id
-        "), ['company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]  );
+        "), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]  );
 
     }
 
@@ -52,7 +52,7 @@ trait ChartQueries
         return DB::select( DB::raw("
             SELECT
             sum(invoices.balance) as balance,
-            JSON_EXTRACT( settings, '$.currency_id' ) AS currency_id
+            IFNULL(JSON_EXTRACT( settings, '$.currency_id' ), :company_currency) AS currency_id
             FROM clients
             JOIN invoices
             on invoices.client_id = clients.id
@@ -63,7 +63,7 @@ trait ChartQueries
             AND invoices.is_deleted = 0
             AND (invoices.due_date BETWEEN :start_date AND :end_date)
             GROUP BY currency_id
-        "), ['company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]  );
+        "), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]  );
     
     }
 
@@ -72,13 +72,13 @@ trait ChartQueries
 
         return DB::select( DB::raw("
             SELECT sum(expenses.amount) as amount,
-            expenses.currency_id as currency_id
+            IFNULL(expenses.currency_id, :company_currency) as currency_id
             FROM expenses
             WHERE expenses.is_deleted = 0
             AND expenses.company_id = :company_id
             AND (expenses.date BETWEEN :start_date AND :end_date)
             GROUP BY currency_id
-        "), ['company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]  );
+        "), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]  );
     
     }
 
