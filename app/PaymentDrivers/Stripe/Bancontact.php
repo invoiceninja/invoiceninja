@@ -37,6 +37,8 @@ class Bancontact
 
     public function paymentView(array $data)
     {
+        $this->stripe->init();
+        
         $data['gateway'] = $this->stripe;
         $data['return_url'] = $this->buildReturnUrl();
         $data['stripe_amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency());
@@ -51,7 +53,7 @@ class Bancontact
             'customer' => $this->stripe->findOrCreateCustomer(),
             'description' => $this->stripe->decodeUnicodeString(ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number')),
 
-        ]);
+        ], $this->stripe->stripe_connect_auth);
 
         $data['pi_client_secret'] = $intent->client_secret;
 

@@ -54,7 +54,7 @@ class SEPA
             'setup_future_usage' => 'off_session',
             'customer' => $this->stripe->findOrCreateCustomer(),
             'description' => $this->stripe->decodeUnicodeString(ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number')),
-        ]);
+        ], $this->stripe->stripe_connect_auth);
 
         $data['pi_client_secret'] = $intent->client_secret;
 
