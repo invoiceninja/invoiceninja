@@ -219,7 +219,7 @@ class NinjaMailerJob implements ShouldQueue
             $google->getClient()->setAccessToken(json_encode($user->oauth_user_token));
 
             //need to slow down gmail requests otherwise we hit 429's
-            sleep(rand(1,3));
+            sleep(rand(2,6));
         }
         catch(\Exception $e) {
             $this->logMailError('Gmail Token Invalid', $this->company->clients()->first());

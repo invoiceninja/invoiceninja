@@ -13,7 +13,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::group(['middleware' => ['throttle:10,1', 'api_secret_check']], function () {
+Route::group(['middleware' => ['throttle:300,1', 'api_secret_check']], function () {
     Route::post('api/v1/signup', 'AccountController@store')->name('signup.submit');
     Route::post('api/v1/oauth_login', 'Auth\LoginController@oauthApiLogin');
 });
