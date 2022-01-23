@@ -401,7 +401,7 @@ class DesignController extends BaseController
         }
 
         $design->design = $d;
-        $design->save();
+       // $design->save();
 
 /*
  This is required as the base template does not know to inject the table elements 
