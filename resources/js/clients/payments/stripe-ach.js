@@ -20,10 +20,19 @@ class AuthorizeACH {
     }
 
     setupStripe = () => {
-        this.stripe = Stripe(this.key);
 
-        if(this.stripe_connect)
-            this.stripe.stripeAccount = this.stripe_connect;
+        if (this.stripeConnect){
+           // this.stripe.stripeAccount = this.stripeConnect;
+           
+           this.stripe = Stripe(this.key, {
+              stripeAccount: this.stripeConnect,
+            }); 
+           
+        }
+        else {
+            this.stripe = Stripe(this.key);
+        }
+
 
         return this;
     };

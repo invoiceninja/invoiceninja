@@ -35,13 +35,6 @@ class ChartService
      */
     public function getCurrencyCodes() :array
     {
-
-        // $currencies = Payment::withTrashed()
-        //     ->where('company_id', $this->company->id)
-        //     ->where('is_deleted', 0)
-        //     ->distinct()
-        //     ->get(['currency_id']);
-
         /* Get all the distinct client currencies */
         $currencies = Client::withTrashed()
             ->where('company_id', $this->company->id)
@@ -57,7 +50,7 @@ class ChartService
             ->where('company_id', $this->company->id)
             ->where('is_deleted', 0)
             ->distinct()
-            ->get(['currency_id']);
+            ->pluck('currency_id as id');
 
         /* Merge and filter by unique */
         $currencies = $currencies->merge($expense_currencies)->unique();
@@ -77,112 +70,95 @@ class ChartService
 
     }
 
+/* Chart Data */
+    public function chart_summary($start_date, $end_date) :array
+    {
+        $currencies = $this->getCurrencyCodes();
 
+        $data = [];
 
-    public function totals($start_date, $end_date)
+        foreach($currencies as $key => $value)
+        {
+            $data[$key]['invoices'] = $this->getInvoiceChartQuery($start_date, $end_date, $key);
+            $data[$key]['payments'] = $this->getPaymentChartQuery($start_date, $end_date, $key);
+            $data[$key]['expenses'] = $this->getExpenseChartQuery($start_date, $end_date, $key);
+        }
+
+        return $data;
+    }
+
+/* Chart Data */
+
+/* Totals */
+
+    public function totals($start_date, $end_date) :array
     {
         $data = [];
 
-        $data['revenue'] = $this->getRevenue($start_date, $end_date);
-        $data['outstanding'] = $this->getOutstanding($start_date, $end_date);
-        $data['expenses'] = $this->getExpenses($start_date, $end_date);
+        $data['currencies'] = $this->getCurrencyCodes();
+
+        foreach($data['currencies'] as $key => $value)
+        {
+            $revenue = $this->getRevenue($start_date, $end_date);
+            $outstanding = $this->getOutstanding($start_date, $end_date);
+            $expenses = $this->getExpenses($start_date, $end_date);
+
+            $data[$key]['revenue'] = count($revenue) > 0 ? $revenue[array_search($key,array_column($revenue,'currency_id'))] : new \stdClass;
+            $data[$key]['outstanding'] = count($outstanding) > 0 ? $outstanding[array_search($key,array_column($outstanding,'currency_id'))] : new \stdClass;
+            $data[$key]['expenses'] = count($expenses) > 0 ? $expenses[array_search($key,array_column($expenses,'currency_id'))] : new \stdClass;
+
+        }
 
         return $data;
     }    
 
-    public function oustanding($start_date, $end_date)
-    {
-
-        $company_currency = (int) $this->company->settings->currency_id;
-
-        $results = \DB::select( \DB::raw("
-            SELECT
-            sum(invoices.balance) as balance,
-            JSON_EXTRACT( settings, '$.currency_id' ) AS currency_id
-            FROM clients
-            JOIN invoices
-            on invoices.client_id = clients.id
-            WHERE invoices.status_id IN (2,3)
-            AND invoices.company_id = :company_id
-            AND invoices.balance > 0
-            AND clients.is_deleted = 0
-            AND invoices.is_deleted = 0
-            AND (invoices.due_date BETWEEN :start_date AND :end_date)
-            GROUP BY currency_id
-        "), ['company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date] );
-    
-        //return $results;
-
-        //the output here will most likely contain a currency_id = null value - we need to merge this value with the company currency
-
-    }
-
-    private function getRevenue($start_date, $end_date)
+    public function getRevenue($start_date, $end_date) :array
     {
         $revenue = $this->getRevenueQuery($start_date, $end_date);
-        $revenue = $this->parseTotals($revenue);
-        $revenue = $this->addCountryCodes($revenue);
+        $revenue = $this->addCurrencyCodes($revenue);
 
         return $revenue;
     }
 
-    private function getOutstanding($start_date, $end_date)
+    public function getOutstanding($start_date, $end_date) :array
     {
         $outstanding = $this->getOutstandingQuery($start_date, $end_date);   
-        $outstanding = $this->parseTotals($outstanding);
-        $outstanding = $this->addCountryCodes($outstanding);
+        $outstanding = $this->addCurrencyCodes($outstanding);
     
         return $outstanding;
     }
 
-    private function getExpenses($start_date, $end_date)
+    public function getExpenses($start_date, $end_date) :array
     {
         $expenses = $this->getExpenseQuery($start_date, $end_date);
-        $expenses = $this->parseTotals($expenses);
-        $expenses = $this->addCountryCodes($expenses);
+        $expenses = $this->addCurrencyCodes($expenses);
 
         return $expenses;
     }
 
-    private function parseTotals($data_set)
-    {
-        /* Find the key where the company currency amount lives*/
-        $c_key = array_search($this->company->id , array_column($data_set, 'currency_id')); 
+/* Totals */
 
-        if(!$c_key)
-            return $data_set;
+/* Helpers */
 
-        /* Find the key where null currency_id lives */
-        $key = array_search(null , array_column($data_set, 'currency_id')); 
-
-        if(!$key)
-            return $data_set;
-
-        $null_currency_amount = $data_set[$key]['amount'];
-        unset($data_set[$key]);
-
-        $data_set[$c_key]['amount'] += $null_currency_amount;
-
-        return $data_set;
-
-    }
-
-    private function addCountryCodes($data_set)
+    private function addCurrencyCodes($data_set) :array
     {
 
         $currencies = Cache::get('currencies');
 
         foreach($data_set as $key => $value)
         {
-            $data_set[$key]['code'] = $this->getCode($currencies, $value); 
+            $data_set[$key]->currency_id = str_replace('"', '', $value->currency_id);
+            $data_set[$key]->code = $this->getCode($currencies, $data_set[$key]->currency_id); 
         }
 
         return $data_set;
 
     }
 
-    private function getCode($currencies, $currency_id)
+    private function getCode($currencies, $currency_id) :string
     {
+        $currency_id = str_replace('"', '', $currency_id);
+
         $currency = $currencies->filter(function ($item) use($currency_id) {
             return $item->id == $currency_id;
         })->first();
