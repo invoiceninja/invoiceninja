@@ -454,6 +454,7 @@ class BillingPortalPurchase extends Component
 
         $contact = ClientContact::query()
             ->where('email', $this->email)
+            ->where('company_id', $this->subscription->company_id)
             ->first();
 
         $mailer = new NinjaMailerObject();
