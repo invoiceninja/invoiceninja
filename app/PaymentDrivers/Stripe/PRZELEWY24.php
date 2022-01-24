@@ -52,7 +52,10 @@ class PRZELEWY24
             'payment_method_types' => ['p24'],
             'customer' => $this->stripe->findOrCreateCustomer(),
             'description' => $this->stripe->decodeUnicodeString(ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number')),
-
+            'metadata' => [
+                'payment_hash' => $this->stripe->payment_hash->hash,
+                'gateway_type_id' => GatewayType::PRZELEWY24,
+            ],
         ], $this->stripe->stripe_connect_auth);
 
         $data['pi_client_secret'] = $intent->client_secret;

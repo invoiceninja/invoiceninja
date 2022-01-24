@@ -78,6 +78,10 @@ class Charge
               'customer' => $cgt->gateway_customer_reference,
               'confirm' => true,
               'description' => $description,
+              'metadata' => [
+                'payment_hash' => $payment_hash->hash,
+                'gateway_type_id' => GatewayType::CREDIT_CARD,
+                ],
             ];
 
             $response = $this->stripe->createPaymentIntent($data, $this->stripe->stripe_connect_auth);
