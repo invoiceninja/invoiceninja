@@ -92,8 +92,6 @@ class PaymentIntentWebhook implements ShouldQueue
                 $this->updateCreditCardPayment($payment_hash, $client);
             }
 
-            //create the payment
-
         }
 
     }
