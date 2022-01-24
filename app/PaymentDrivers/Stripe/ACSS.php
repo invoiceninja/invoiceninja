@@ -154,7 +154,6 @@ class ACSS
                         'interval_description' => 'when any invoice becomes due',
                         'transaction_type' => 'personal' // TODO: check if is company or personal https://stripe.com/docs/payments/acss-debit
                     ],
-                    'currency' => $this->stripe->client->currency()->code,
                 ]
             ]
         ], $this->stripe->stripe_connect_auth);

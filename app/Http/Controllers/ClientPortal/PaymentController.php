@@ -90,6 +90,7 @@ class PaymentController extends Controller
 
     public function response(PaymentResponseRequest $request)
     {
+        
         $gateway = CompanyGateway::findOrFail($request->input('company_gateway_id'));
 
         $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$request->payment_hash])->first();
