@@ -95,8 +95,12 @@ class PaymentController extends Controller
 
         $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$request->payment_hash])->first();
 
+        $invoice = Invoice::with('client')->find($payment_hash->fee_invoice_id);
+        $client = $invoice->client->exists() ? $invoice->client : auth()->user()->client;
+
             return $gateway
-                ->driver(auth()->user()->client)
+                // ->driver(auth()->user()->client)
+                ->driver($client)
                 ->setPaymentMethod($request->input('payment_method_id'))
                 ->setPaymentHash($payment_hash)
                 ->checkRequirements()

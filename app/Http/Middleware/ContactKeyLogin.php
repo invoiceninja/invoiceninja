@@ -37,6 +37,7 @@ class ContactKeyLogin
     {
         if (Auth::guard('contact')->check()) {
             Auth::guard('contact')->logout();
+            $request->session()->invalidate();
         }
 
         if ($request->segment(2) && $request->segment(2) == 'magic_link' && $request->segment(3)) {
