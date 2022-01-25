@@ -152,6 +152,7 @@ class ContactLoginController extends Controller
     public function logout()
     {
         Auth::guard('contact')->logout();
+        request()->session()->invalidate();
 
         return redirect('/client/login');
     }
