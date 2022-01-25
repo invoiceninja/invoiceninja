@@ -1381,7 +1381,7 @@ class CompanyImport implements ShouldQueue
                 $new_obj->company_id = $this->company->id;
                 $new_obj->fill($obj_array);
                 $new_obj->save(['timestamps' => false]);
-                $new_obj->number = $this->getNextRecurringExpenseNumber($client = Client::find($obj_array['client_id']), $new_obj);   
+                $new_obj->number = $this->getNextRecurringExpenseNumber($new_obj);   
             }
             else{
                 $new_obj = $class::withTrashed()->firstOrNew(
