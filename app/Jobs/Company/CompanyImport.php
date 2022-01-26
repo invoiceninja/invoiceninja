@@ -1383,6 +1383,12 @@ class CompanyImport implements ShouldQueue
                 $new_obj->save(['timestamps' => false]);
                 $new_obj->number = $this->getNextRecurringExpenseNumber($new_obj);   
             }
+            elseif($class == 'App\Models\CompanyLedger'){
+                $new_obj = $class::firstOrNew(
+                        [$match_key => $obj->{$match_key}, 'company_id' => $this->company->id],
+                        $obj_array,
+                    );
+            }
             else{
                 $new_obj = $class::withTrashed()->firstOrNew(
                         [$match_key => $obj->{$match_key}, 'company_id' => $this->company->id],
