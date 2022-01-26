@@ -92,9 +92,7 @@ class PaymentController extends Controller
     {
         
         $gateway = CompanyGateway::findOrFail($request->input('company_gateway_id'));
-
-        $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$request->payment_hash])->first();
-
+        $payment_hash = PaymentHash::where('hash', $request->payment_hash)->first();
         $invoice = Invoice::with('client')->find($payment_hash->fee_invoice_id);
         $client = $invoice->client->exists() ? $invoice->client : auth()->user()->client;
 
