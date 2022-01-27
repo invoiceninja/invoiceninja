@@ -18,6 +18,7 @@ use App\Factory\CloneQuoteToInvoiceFactory;
 use App\Factory\QuoteFactory;
 use App\Filters\QuoteFilters;
 use App\Http\Requests\Quote\ActionQuoteRequest;
+use App\Http\Requests\Quote\BulkActionQuoteRequest;
 use App\Http\Requests\Quote\CreateQuoteRequest;
 use App\Http\Requests\Quote\DestroyQuoteRequest;
 use App\Http\Requests\Quote\EditQuoteRequest;
@@ -510,7 +511,7 @@ class QuoteController extends BaseController
      *       ),
      *     )
      */
-    public function bulk()
+    public function bulk(BulkActionQuoteRequest $request)
     {
         $action = request()->input('action');
 
