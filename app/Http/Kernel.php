@@ -73,7 +73,7 @@ class Kernel extends HttpKernel
         ConvertEmptyStringsToNull::class,
         TrustProxies::class,
         // \Fruitcake\Cors\HandleCors::class,
-        Cors::class,
+        //Cors::class,
 
     ];
 
@@ -96,6 +96,7 @@ class Kernel extends HttpKernel
 
         'api' => [
             // 'throttle:300,1',
+            'cors',
             'bindings',
             'query_logging',
         ],
