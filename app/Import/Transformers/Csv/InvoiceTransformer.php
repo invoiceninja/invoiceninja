@@ -45,7 +45,7 @@ class InvoiceTransformer extends BaseTransformer {
 			'client_id'         => $this->getClient( $this->getString( $invoice_data, 'client.name' ), $this->getString( $invoice_data, 'client.email' ) ),
 			'discount'          => $this->getFloat( $invoice_data, 'invoice.discount' ),
 			'po_number'         => $this->getString( $invoice_data, 'invoice.po_number' ),
-			'date'              => isset( $invoice_data['invoice.date'] ) ? date( 'Y-m-d', strtotime( $invoice_data['invoice.date'] ) ) : null,
+			'date'              => isset( $invoice_data['invoice.date'] ) ? date( 'Y-m-d', strtotime( $invoice_data['invoice.date'] ) ) : now()->format('Y-m-d'),
 			'due_date'          => isset( $invoice_data['invoice.due_date'] ) ? date( 'Y-m-d', strtotime( $invoice_data['invoice.due_date'] ) ) : null,
 			'terms'             => $this->getString( $invoice_data, 'invoice.terms' ),
 			'public_notes'      => $this->getString( $invoice_data, 'invoice.public_notes' ),
