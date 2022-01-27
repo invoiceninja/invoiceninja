@@ -156,7 +156,8 @@ class AuthorizePaymentMethod
         $paymentOne = new PaymentType();
         $paymentOne->setOpaqueData($op);
 
-        $contact = $this->authorize->client->primary_contact()->first();
+        $contact = $this->authorize->client->primary_contact()->first() ?: $this->authorize->client->contacts()->first();
+
         $billto = false;
         
         if ($contact) {
