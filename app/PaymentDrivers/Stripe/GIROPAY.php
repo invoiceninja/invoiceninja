@@ -52,7 +52,10 @@ class GIROPAY
             'payment_method_types' => ['giropay'],
             'customer' => $this->stripe->findOrCreateCustomer(),
             'description' => $this->stripe->decodeUnicodeString(ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number')),
-
+            'metadata' => [
+                'payment_hash' => $this->stripe->payment_hash->hash,
+                'gateway_type_id' => GatewayType::GIROPAY,
+            ],
         ], $this->stripe->stripe_connect_auth);
 
         $data['pi_client_secret'] = $intent->client_secret;

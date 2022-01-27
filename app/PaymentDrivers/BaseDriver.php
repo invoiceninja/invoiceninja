@@ -418,12 +418,15 @@ class BaseDriver extends AbstractPaymentDriver
         throw new PaymentFailed($error, $e->getCode());
     }
 
-    public function sendFailureMail($error = '')
+    public function sendFailureMail($error)
     {
 
         if (!is_null($this->payment_hash)) {
             $this->unWindGatewayFees($this->payment_hash);
         }
+
+        if(!$error)
+            $error = '';
         
         PaymentFailedMailer::dispatch(
             $this->payment_hash,

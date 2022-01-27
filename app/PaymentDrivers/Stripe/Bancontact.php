@@ -52,6 +52,10 @@ class Bancontact
             'payment_method_types' => ['bancontact'],
             'customer' => $this->stripe->findOrCreateCustomer(),
             'description' => $this->stripe->decodeUnicodeString(ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number')),
+            'metadata' => [
+                'payment_hash' => $this->stripe->payment_hash->hash,
+                'gateway_type_id' => GatewayType::BANCONTACT,
+            ],
 
         ], $this->stripe->stripe_connect_auth);
 

@@ -76,7 +76,24 @@ class GmailTransport extends Transport
 
         } 
 
-        $this->gmail->send();
+        /**
+         * Google is very strict with their
+         * sending limits, if we hit 429s, sleep and
+         * retry again later.
+         */
+        try{
+
+            $this->gmail->send();
+
+        }
+        catch(\Google\Service\Exception $e)
+        {
+            nlog("gmail exception");
+            nlog($e->getErrors());
+
+            sleep(5);
+            $this->gmail->send();
+        }
 
         $this->sendPerformed($message);
 

@@ -143,6 +143,10 @@ class ACSS
             'payment_method_types' => ['acss_debit'],
             'customer' => $this->stripe->findOrCreateCustomer(),
             'description' => $this->stripe->decodeUnicodeString(ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number')),
+            'metadata' => [
+                'payment_hash' => $this->stripe->payment_hash->hash,
+                'gateway_type_id' => GatewayType::ACSS,
+            ],
             'payment_method_options' => [
                 'acss_debit' => [
                     'mandate_options' => [
@@ -150,7 +154,6 @@ class ACSS
                         'interval_description' => 'when any invoice becomes due',
                         'transaction_type' => 'personal' // TODO: check if is company or personal https://stripe.com/docs/payments/acss-debit
                     ],
-                    'currency' => $this->stripe->client->currency()->code,
                 ]
             ]
         ], $this->stripe->stripe_connect_auth);

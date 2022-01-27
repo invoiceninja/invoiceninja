@@ -25,25 +25,26 @@ use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Stripe\ACH;
+use App\PaymentDrivers\Stripe\ACSS;
 use App\PaymentDrivers\Stripe\Alipay;
 use App\PaymentDrivers\Stripe\ApplePay;
+use App\PaymentDrivers\Stripe\BECS;
+use App\PaymentDrivers\Stripe\Bancontact;
+use App\PaymentDrivers\Stripe\BrowserPay;
 use App\PaymentDrivers\Stripe\Charge;
 use App\PaymentDrivers\Stripe\Connect\Verify;
 use App\PaymentDrivers\Stripe\CreditCard;
-use App\PaymentDrivers\Stripe\ImportCustomers;
-use App\PaymentDrivers\Stripe\SOFORT;
-use App\PaymentDrivers\Stripe\SEPA;
-use App\PaymentDrivers\Stripe\PRZELEWY24;
-use App\PaymentDrivers\Stripe\GIROPAY;
-use App\PaymentDrivers\Stripe\iDeal;
 use App\PaymentDrivers\Stripe\EPS;
-use App\PaymentDrivers\Stripe\Bancontact;
-use App\PaymentDrivers\Stripe\BECS;
-use App\PaymentDrivers\Stripe\ACSS;
-use App\PaymentDrivers\Stripe\BrowserPay;
 use App\PaymentDrivers\Stripe\FPX;
+use App\PaymentDrivers\Stripe\GIROPAY;
+use App\PaymentDrivers\Stripe\ImportCustomers;
+use App\PaymentDrivers\Stripe\Jobs\PaymentIntentWebhook;
+use App\PaymentDrivers\Stripe\PRZELEWY24;
+use App\PaymentDrivers\Stripe\SEPA;
+use App\PaymentDrivers\Stripe\SOFORT;
 use App\PaymentDrivers\Stripe\UpdatePaymentMethods;
 use App\PaymentDrivers\Stripe\Utilities;
+use App\PaymentDrivers\Stripe\iDeal;
 use App\Utils\Traits\MakesHash;
 use Exception;
 use Illuminate\Http\RedirectResponse;
@@ -472,10 +473,7 @@ class StripePaymentDriver extends BaseDriver
         $response = null;
 
         try {
-            // $response = $this->stripe
-            //     ->refunds
-            //     ->create(['charge' => $payment->transaction_reference, 'amount' => $this->convertToStripeAmount($amount, $this->client->currency()->precision, $this->client->currency())], $meta);
-
+            
             $response = \Stripe\Refund::create([
                 'charge' => $payment->transaction_reference,
                 'amount' => $this->convertToStripeAmount($amount, $this->client->currency()->precision, $this->client->currency())
@@ -532,7 +530,15 @@ class StripePaymentDriver extends BaseDriver
         // Allow app to catch up with webhook request.
         sleep(2);
 
-        if ($request->type === 'charge.succeeded' || $request->type === 'payment_intent.succeeded') {
+        //payment_intent.succeeded - this will confirm or cancel the payment
+        if($request->type === 'payment_intent.succeeded'){
+            PaymentIntentWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id)->delay(10);
+            // PaymentIntentWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id);
+            return response()->json([], 200);
+        }
+
+        if ($request->type === 'charge.succeeded') {
+        // if ($request->type === 'charge.succeeded' || $request->type === 'payment_intent.succeeded') {
 
             foreach ($request->data as $transaction) {
 
@@ -559,6 +565,7 @@ class StripePaymentDriver extends BaseDriver
                     $payment->save();
                 }
             }
+
         } elseif ($request->type === 'source.chargeable') {
             $this->init();
 

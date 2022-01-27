@@ -98,6 +98,7 @@ class InvitationController extends Controller
             $client_contact->email = Str::random(15) . "@example.com"; $client_contact->save();
 
         if (request()->has('client_hash') && request()->input('client_hash') == $invitation->contact->client->client_hash) {
+            request()->session()->invalidate();
             auth()->guard('contact')->loginUsingId($client_contact->id, true);
 
         } elseif ((bool) $invitation->contact->client->getSetting('enable_client_portal_password') !== false) {
@@ -106,6 +107,7 @@ class InvitationController extends Controller
 
         } else {
             nlog("else - default - login contact");
+            request()->session()->invalidate();
             auth()->guard('contact')->loginUsingId($client_contact->id, true);
         }
 

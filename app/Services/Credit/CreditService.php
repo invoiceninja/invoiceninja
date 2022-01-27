@@ -108,6 +108,7 @@ class CreditService
 
         $this->updateBalance($adjustment)
              ->updatePaidToDate($adjustment)
+             ->setStatus(Credit::STATUS_APPLIED)
              ->save();
 
         //create a negative payment of total $this->credit->balance
@@ -136,7 +137,6 @@ class CreditService
              ->client
              ->service()
              ->updatePaidToDate($adjustment)
-             ->setStatus(Credit::STATUS_APPLIED)
              ->save();
 
         event('eloquent.created: App\Models\Payment', $payment);
