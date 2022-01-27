@@ -74,6 +74,7 @@ class PaymentAppliedValidAmount implements Rule
             }
         }
 
-        return  $payment_amounts >= $invoice_amounts;
+        // nlog("{round($payment_amounts,3)} >= {round($invoice_amounts,3)}");
+        return  round($payment_amounts,3) >= round($invoice_amounts,3);
     }
 }

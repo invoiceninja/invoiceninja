@@ -35,7 +35,7 @@ class SessionDomains
 
         if (strpos($domain_name, 'invoicing.co') !== false) 
         {
-            config(['session.domain' => '.invoicing.co']);
+            // config(['session.domain' => '.invoicing.co']);
         }            
         else{
 
