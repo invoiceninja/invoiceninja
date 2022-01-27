@@ -114,6 +114,7 @@
 
                             <img
                                 style="margin-top: 40px; height: 40px; display: block; margin-left: auto; margin-right: auto;"
+                                alt=""
                                 src="{{ $logo ?? '' }}"/>
                         </div>
                     </td>
