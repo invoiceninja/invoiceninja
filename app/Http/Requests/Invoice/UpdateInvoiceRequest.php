@@ -58,8 +58,8 @@ class UpdateInvoiceRequest extends Request
         $rules['line_items'] = 'array';
         $rules['discount']  = 'sometimes|numeric';
 
-        if($this->input('status_id') != Invoice::STATUS_DRAFT)
-            $rules['balance'] = new InvoiceBalanceSanity($this->invoice, $this->all());
+        // if($this->input('status_id') != Invoice::STATUS_DRAFT)
+        //     $rules['balance'] = new InvoiceBalanceSanity($this->invoice, $this->all());
 
         return $rules;
     }
