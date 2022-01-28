@@ -658,7 +658,8 @@ class InvoiceController extends BaseController
                 // code...
                 break;
             case 'mark_paid':
-                if ($invoice->balance < 0 || $invoice->status_id == Invoice::STATUS_PAID || $invoice->is_deleted === true) {
+                if ($invoice->status_id == Invoice::STATUS_PAID || $invoice->is_deleted === true) {
+                // if ($invoice->balance < 0 || $invoice->status_id == Invoice::STATUS_PAID || $invoice->is_deleted === true) {
                     return $this->errorResponse(['message' => ctrans('texts.invoice_cannot_be_marked_paid')], 400);
                 }
 

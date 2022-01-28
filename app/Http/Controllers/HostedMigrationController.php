@@ -42,7 +42,10 @@ class HostedMigrationController extends Controller
         }
 
         $account = CreateAccount::dispatchNow($request->all(), $request->getClientIp());
-
+        $account->hosted_client_count = 100;
+        $account->hosted_company_count = 10;
+        $account->save();
+        
         $company = $account->companies->first();
 
         $company_token = CompanyToken::where('user_id', auth()->user()->id)

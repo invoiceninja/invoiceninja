@@ -39,7 +39,7 @@ class SessionDomains
         }            
         else{
 
-            Cookie::queue(Cookie::forget('invoice_ninja_session', '/'));
+            // Cookie::queue(Cookie::forget('invoice_ninja_session', '/'));
 
             config(['session.domain' => $domain_name]);
             
