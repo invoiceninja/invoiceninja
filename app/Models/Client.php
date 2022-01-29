@@ -245,6 +245,11 @@ class Client extends BaseModel implements HasLocalePreference
         return $this->hasMany(RecurringInvoice::class)->withTrashed();
     }
 
+    public function recurring_expenses()
+    {
+        return $this->hasMany(RecurringExpense::class)->withTrashed();
+    }
+
     public function shipping_country()
     {
         return $this->belongsTo(Country::class, 'shipping_country_id', 'id');

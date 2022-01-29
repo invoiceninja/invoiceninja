@@ -510,7 +510,7 @@ class ClientController extends BaseController
         $ids = request()->input('ids');
         $clients = Client::withTrashed()->whereIn('id', $this->transformKeys($ids))->cursor();
 
-        if(!in_array($action, ['restore','archive','delete']))
+        if(!in_array($action, ['restore','archive','delete','purge']))
             return response()->json(['message' => 'That action is not available.'], 400);
 
         $clients->each(function ($client, $key) use ($action) {
