@@ -305,8 +305,14 @@ trait MakesInvoiceValues
             //$data[$key][$table_type.'.quantity'] = Number::formatValue($item->quantity, $this->client->currency());
             
             //change quantity from localized number, to decimal format with no trailing zeroes 06/09/21
-            $data[$key][$table_type.'.quantity'] =  rtrim($item->quantity, $locale_info['decimal_point']);
-            $data[$key][$table_type.'.unit_cost'] = Number::formatMoney($item->cost, $this->client);
+        
+            //30-01-2022 - improve rounding display for Unit quantity
+            $data[$key][$table_type.'.quantity'] = $item->quantity >=1 ? rtrim(number_format($item->quantity, $this->client->currency()->precision), $locale_info['decimal_point']) : rtrim(number_format($item->quantity,15), 0);
+            // $data[$key][$table_type.'.quantity'] =  rtrim($item->quantity, $locale_info['decimal_point']);
+
+            //30-01-2022 - improve rounding display for Unit Cost
+            $data[$key][$table_type.'.unit_cost'] = Number::formatMoneyNoRounding($item->cost, $this->client);
+
             $data[$key][$table_type.'.cost'] = Number::formatMoney($item->cost, $this->client);
 
             $data[$key][$table_type.'.line_total'] = Number::formatMoney($item->line_total, $this->client);
