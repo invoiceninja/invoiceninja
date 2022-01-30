@@ -226,8 +226,9 @@ Route::match(['get', 'post'], 'payment_notification_webhook/{company_key}/{compa
 
 Route::post('api/v1/postmark_webhook', 'PostMarkController@webhook')->middleware('throttle:1000,1');
 Route::get('token_hash_router', 'OneTimeTokenController@router')->middleware('throttle:100,1');
-Route::get('webcron', 'WebCronController@index')->middleware('throttle:100,1');;
-Route::post('api/v1/get_migration_account', 'HostedMigrationController@getAccount')->middleware('guest')->middleware('throttle:100,1');;
-Route::post('api/v1/confirm_forwarding', 'HostedMigrationController@confirmForwarding')->middleware('guest')->middleware('throttle:100,1');;
-
+Route::get('webcron', 'WebCronController@index')->middleware('throttle:100,1');
+Route::post('api/v1/get_migration_account', 'HostedMigrationController@getAccount')->middleware('guest')->middleware('throttle:100,1');
+Route::post('api/v1/confirm_forwarding', 'HostedMigrationController@confirmForwarding')->middleware('guest')->middleware('throttle:100,1');
+Route::post('api/v1/process_webhook', 'InAppPurchase\AppleController@process_webhook')->middleware('throttle:1000,1');
+Route::post('api/v1/confirm_purchase', 'InAppPurchase\AppleController@confirm_purchase')->middleware('throttle:1000,1');
 Route::fallback('BaseController@notFound');
