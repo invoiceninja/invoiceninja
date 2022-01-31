@@ -40,6 +40,7 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
     Route::resource('clients', 'ClientController'); // name = (clients. index / create / show / update / destroy / edit
     Route::put('clients/{client}/adjust_ledger', 'ClientController@adjustLedger')->name('clients.adjust_ledger');
     Route::put('clients/{client}/upload', 'ClientController@upload')->name('clients.upload');
+    Route::post('clients/{client}/purge', 'ClientController@purge')->name('clients.purge')->middleware('password_protected');
     Route::post('clients/bulk', 'ClientController@bulk')->name('clients.bulk');
 
     Route::post('filters/{entity}', 'FilterController@index')->name('filters');
