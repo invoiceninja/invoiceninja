@@ -44,7 +44,7 @@ class AuthorizeCreateCustomer
         $this->authorize->init();
         // Create the Bill To info for new payment type
 
-        $contact = $this->client->primary_contact()->first();
+        $contact = $this->client->primary_contact()->first() ?: $this->client->contacts()->first();
         $refId = 'ref'.time();
 
         // Create a new CustomerProfileType and add the payment profile object

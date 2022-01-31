@@ -35,7 +35,7 @@ class CanStoreClientsRule implements Rule
     {
         $company = Company::find($this->company_id);
 
-        return $company->clients->count() < config('ninja.quotas.free.clients');
+        return $company->clients->count() < $company->account->hosted_client_count;
     }
 
     /**
@@ -43,6 +43,6 @@ class CanStoreClientsRule implements Rule
      */
     public function message()
     {
-        return ctrans('texts.limit_clients', ['count' => config('ninja.quotas.free.clients')]);
+        return ctrans('texts.limit_clients', ['count' => $company->account->hosted_client_count]);
     }
 }
