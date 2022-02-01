@@ -186,8 +186,8 @@ trait MockAccountData
         $this->account->save();
         
         $this->company = Company::factory()->create([
-                            'account_id' => $this->account->id,
-                        ]);
+                'account_id' => $this->account->id,
+            ]);
 
         $this->company->client_registration_fields = ClientRegistrationFields::generate();
 
