@@ -17,6 +17,7 @@ use App\Models\PaymentType;
 use App\Utils\Number;
 use Exception;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Class BaseTransformer.
@@ -38,23 +39,29 @@ class BaseTransformer
 
     public function getCurrencyByCode( $data, $key = 'client.currency_id' ) 
     {
-		$code = array_key_exists( $key, $data ) ? $data[ $key ] : false;
 
-		return $this->maps['currencies'][ $code ] ?? $this->company->settings->currency_id;
-	}
+        $code = array_key_exists( $key, $data ) ? $data[ $key ] : false;
+
+        $currencies = Cache::get('currencies');
+
+        $currency = $currencies->filter(function ($item) use($code) {
+            return $item->code == $code;
+        })->first();
+
+        return $currency ? $currency->id : $this->company->settings->currency_id;
+
+    }
 
     public function getClient($client_name, $client_email) {
 
-		$clients = $this->company->clients();
-
-		$client_id_search = $clients->where( 'id_number', $client_name );
+		$client_id_search = $this->company->clients()->where( 'id_number', $client_name );
 
 		if ( $client_id_search->count() >= 1 ) {
 			return $client_id_search->first()->id;
             nlog("found via id number");
 		}
 
-        $client_name_search = $clients->where( 'name', $client_name );
+        $client_name_search = $this->company->clients()->where( 'name', $client_name );
 
         if ( $client_name_search->count() >= 1 ) {
             return $client_name_search->first()->id;
