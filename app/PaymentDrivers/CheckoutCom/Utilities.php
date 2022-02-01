@@ -62,7 +62,7 @@ trait Utilities
 
         $data = [
             'payment_method' => $_payment->source['id'],
-            'payment_type' => PaymentType::parseCardType(strtolower($_payment->source['scheme'])),
+            'payment_type' => 12,
             'amount' => $this->getParent()->payment_hash->data->raw_value,
             'transaction_reference' => $_payment->id,
             'gateway_type_id' => GatewayType::CREDIT_CARD,

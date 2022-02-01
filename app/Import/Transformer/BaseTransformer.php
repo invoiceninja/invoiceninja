@@ -1,0 +1,354 @@
+<?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
+
+namespace App\Import\Transformer;
+
+use App\Models\ClientContact;
+use App\Models\Country;
+use App\Models\PaymentType;
+use App\Models\User;
+use App\Utils\Number;
+use Exception;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
+
+/**
+ * Class BaseTransformer.
+ */
+class BaseTransformer
+{
+
+    protected $company;
+
+    public function __construct($company)
+    {
+        $this->company = $company;
+    }
+
+    public function getString($data, $field)
+    {
+        return (isset($data[$field]) && $data[$field]) ? $data[$field] : '';
+    }
+
+    public function getCurrencyByCode( $data, $key = 'client.currency_id' ) 
+    {
+
+        $code = array_key_exists( $key, $data ) ? $data[ $key ] : false;
+
+        $currencies = Cache::get('currencies');
+
+        $currency = $currencies->filter(function ($item) use($code) {
+            return $item->code == $code;
+        })->first();
+
+        return $currency ? $currency->id : $this->company->settings->currency_id;
+
+    }
+
+    public function getClient($client_name, $client_email) {
+
+		$client_id_search = $this->company->clients()->where( 'id_number', $client_name );
+
+		if ( $client_id_search->count() >= 1 ) {
+			return $client_id_search->first()->id;
+            nlog("found via id number");
+		}
+
+        $client_name_search = $this->company->clients()->where( 'name', $client_name );
+
+        if ( $client_name_search->count() >= 1 ) {
+            return $client_name_search->first()->id;
+            nlog("found via name");
+        }
+
+		if ( ! empty( $client_email ) ) {
+			$contacts = ClientContact::where( 'company_id', $this->company->id )
+									 ->where( 'email', $client_email );
+
+			if ( $contacts->count() >= 1 ) {
+				return $contacts->first()->client_id;
+                nlog("found via contact");
+			}
+		}
+                nlog("did not find client");
+
+		return null;
+	}
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////
+    /**
+     * @param $name
+     *
+     * @return bool
+     */
+    public function hasClient($name)
+    {
+		return $this->company->clients()->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [strtolower(str_replace(' ', '', $name))])->exists();
+    }
+
+    /**
+     * @param $name
+     *
+     * @return bool
+     */
+    public function hasVendor($name)
+    {
+		return $this->company->vendors()->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [strtolower(str_replace(' ', '', $name))])->exists();
+    }
+
+    /**
+     * @param $key
+     *
+     * @return bool
+     */
+    public function hasProduct($key)
+    {
+        return $this->company->products()->whereRaw("LOWER(REPLACE(`product_key`, ' ' ,''))  = ?", [strtolower(str_replace(' ', '', $key))])->exists();
+    }
+
+    /**
+     * @param $data
+     * @param $field
+     *
+     * @return float
+     */
+    public function getFloat($data, $field)
+    {
+        if (array_key_exists($field, $data)) {
+            $number = preg_replace('/[^0-9-.]+/', '', $data[$field]);
+        } else {
+            $number = 0;
+        }
+
+        return Number::parseFloat($number);
+    }
+
+    /**
+     * @param $name
+     *
+     * @return int|null
+     */
+    public function getClientId($name)
+    {
+        $client = $this->company->clients()->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [strtolower(str_replace(' ', '', $name))])->first();
+
+        return $client ? $client->id : null;
+    }
+
+    /**
+     * @param $name
+     *
+     * @return string
+     */
+    public function getProduct($data, $key, $field, $default = false)
+    {
+
+        $product = $this->company->products()->whereRaw("LOWER(REPLACE(`product_key`, ' ' ,''))  = ?", [strtolower(str_replace(' ', '', $data->{$key}))])->first();
+
+        if($product)
+            return $product->{$field} ?: $default;
+
+        return $default;
+
+    }
+
+    /**
+     * @param $email
+     *
+     * @return ?Contact
+     */
+    public function getContact($email)
+    {
+        
+        $contact = $this->company->client_contacts()->whereRaw("LOWER(REPLACE(`email`, ' ' ,''))  = ?", [strtolower(str_replace(' ', '', $email))])->first();
+
+        if(!$contact)
+            return null;
+
+        return $contact;
+
+    }
+
+    /**
+     * @param $name
+     *
+     * @return int|null
+     */
+    public function getCountryId($name)
+    {
+        if(strlen($name) == 2)
+            return $this->getCountryIdBy2($name);
+
+        $country = Country::whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [strtolower(str_replace(' ', '', $name))])->first();
+
+        return $country ? $country->id : null;
+    }
+
+    /**
+     * @param $name
+     *
+     * @return int|null
+     */
+    public function getCountryIdBy2($name)
+    {
+        return Country::where('iso_3166_2', $name)->exists() ? Country::where('iso_3166_2', $name)->first()->id : null;
+    }
+
+    /**
+     * @param $name
+     *
+     * @return int
+     */
+    public function getTaxRate($name)
+    {
+        $name = strtolower(trim($name));
+
+        $tax_rate =  $this->company->tax_rates()->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [strtolower(str_replace(' ', '', $name))])->first();
+
+        return $tax_rate ? $tax_rate->rate : 0;
+    }
+
+    /**
+     * @param $name
+     *
+     * @return string
+     */
+    public function getTaxName($name)
+    {
+        $name = strtolower(trim($name));
+
+        $tax_rate =  $this->company->tax_rates()->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [strtolower(str_replace(' ', '', $name))])->first();
+
+        return $tax_rate ? $tax_rate->name : '';
+
+    }
+
+    /**
+     * @param $date
+     * @param string $format
+     * @param mixed  $data
+     * @param mixed  $field
+     *
+     * @return null
+     */
+    public function getDate($data, $field)
+    {
+        if ($date = data_get($data, $field)) {
+            try {
+                $date = new Carbon($date);
+            } catch (\Exception $e) {
+                // if we fail to parse return blank
+                $date = false;
+            }
+        }
+
+        return $date ? $date->format('Y-m-d') : null;
+    }
+
+    /**
+     * @param $number
+     *
+     * @return ?string
+     */
+    public function getInvoiceNumber($number)
+    {
+		return $number ? ltrim( trim( $number ), '0' ) : null;
+    }
+
+    /**
+     * @param $invoice_number
+     *
+     * @return int|null
+     */
+    public function getInvoiceId($invoice_number)
+    {
+        $invoice = $this->company->invoices()->whereRaw("LOWER(REPLACE(`number`, ' ' ,''))  = ?", [strtolower(str_replace(' ', '', $invoice_number))])->first();
+
+		return $invoice ? $invoice->id : null;
+    }
+
+    /**
+     * @param $invoice_number
+     *
+     * @return bool
+     */
+    public function hasInvoice($invoice_number)
+    {
+
+        return $this->company->invoices()->whereRaw("LOWER(REPLACE(`number`, ' ' ,''))  = ?", [strtolower(str_replace(' ', '', $invoice_number))])->exists();
+
+    }
+
+    /**
+     * @param $invoice_number
+     *
+     * @return int|null
+     */
+    public function getInvoiceClientId($invoice_number)
+    {
+        $invoice = $this->company->invoices()->whereRaw("LOWER(REPLACE(`number`, ' ' ,''))  = ?", [strtolower(str_replace(' ', '', $invoice_number))])->first();
+
+        return $invoice ? $invoice->client_id : null;
+    }
+
+    /**
+     * @param $name
+     *
+     * @return int|null
+     */
+    public function getVendorId($name)
+    {
+        $vendor = $this->company->vendors()->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [strtolower(str_replace(' ', '', $name))])->first();
+
+        return $vendor ? $vendor->id : null;
+    }
+
+	/**
+	 * @param $name
+	 *
+	 * @return int|null
+	 */
+	public function getExpenseCategoryId( $name ) {
+
+        $ec = $this->company->expense_categories()->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [strtolower(str_replace(' ', '', $name))])->first();
+
+        return $ec ? $ec->id : null;
+
+	}
+
+	/**
+	 * @param $name
+	 *
+	 * @return int|null
+	 */
+	public function getProjectId( $name ) {
+
+        $project = $this->company->projects()->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [strtolower(str_replace(' ', '', $name))])->first();
+
+        return $project ? $project->id : null;
+	}
+
+	/**
+	 * @param $name
+	 *
+	 * @return int|null
+	 */
+	public function getPaymentTypeId( $name ) {
+
+        $pt = PaymentType::whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [strtolower(str_replace(' ', '', $name))])->first();
+
+        return $pt ? $pt->id : null;
+	}
+
+
+}

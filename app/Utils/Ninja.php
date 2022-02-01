@@ -119,9 +119,9 @@ class Ninja
             if(request()->hasHeader('Cf-Connecting-Ip'))
                 $ip = request()->header('Cf-Connecting-Ip');
             elseif(request()->hasHeader('X-Forwarded-For'))
-                $ip = request()->header('Cf-Connecting-Ip');
+                $ip = request()->header('X-Forwarded-For');
             else
-                $ip = request()->ip();
+                $ip = request()->ip() ?: ' ';
 
         return [
             'ip' => $ip,

@@ -1,0 +1,99 @@
+<?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
+
+namespace App\Jobs\Import;
+
+use App\Import\Providers\Csv;
+use App\Import\Providers\Freshbooks;
+use App\Import\Providers\Invoice2Go;
+use App\Import\Providers\Invoicely;
+use App\Import\Providers\Wave;
+use App\Import\Providers\Zoho;
+use App\Libraries\MultiDB;
+use App\Models\Company;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+
+class CSVIngest implements ShouldQueue {
+	
+	use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    public Company $company;
+
+    public string $hash;
+
+    public string $import_type;
+
+    public ?string $skip_header;
+
+    public array $column_map;
+
+    public function __construct( array $request, Company $company ) {
+        $this->company     = $company;
+        $this->request = $request;
+        $this->hash        = $request['hash'];
+        $this->import_type = $request['import_type'];
+        $this->skip_header = $request['skip_header'] ?? null;
+        $this->column_map  =
+            ! empty( $request['column_map'] ) ?
+                array_combine( array_keys( $request['column_map'] ), array_column( $request['column_map'], 'mapping' ) ) : null;
+    }
+
+    /**
+     * Execute the job.
+     *
+     *
+     * @return void
+     */
+    public function handle() {
+
+        MultiDB::setDb( $this->company->db );
+
+        $engine = $this->bootEngine($this->import_type);
+
+        foreach ( [ 'client', 'product', 'invoice', 'payment', 'vendor', 'expense' ] as $entity ) {
+        
+            $engine->import($entity);
+
+        }
+
+    }
+
+    private function bootEngine(string $import_type)
+    {
+        switch ($import_type) {
+            case 'csv':
+                return new Csv( $this->request,  $this->company);
+                break;
+            case 'waveaccounting':
+                return new Wave( $this->request,  $this->company);
+                break;
+            case 'invoicely':
+                return new Invoicely( $this->request,  $this->company);
+                break;
+            case 'invoice2go':
+                return new Invoice2Go( $this->request,  $this->company);
+                break;
+            case 'zoho':
+                return new Zoho( $this->request,  $this->company);
+                break;
+            case 'freshbooks':
+                return new Freshbooks( $this->request,  $this->company);
+                break;                          
+            default:
+                // code...
+                break;
+        }
+    }
+}
