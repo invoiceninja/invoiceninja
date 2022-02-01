@@ -177,7 +177,11 @@ trait MockAccountData
             }
         }
 
-        $this->account = Account::factory()->create();
+        $this->account = Account::factory()->create([
+            'hosted_client_count' => 1000,
+            'hosted_company_count' => 1000
+        ]);
+        
         $this->account->num_users = 3;
         $this->account->save();
         
