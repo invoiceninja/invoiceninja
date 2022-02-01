@@ -102,13 +102,28 @@ class BaseTransformerTest extends TestCase
         $this->assertEquals($client->id, $base_transformer->getClient('hit', 'null'));
         $this->assertEquals($client->id, $base_transformer->getClient('magic', 'null'));
         $this->assertEquals($client->id, $base_transformer->getClient('nomagic', 'test@gmail.com'));
-
     	$this->assertEquals($client->id, $base_transformer->getClient(null, 'test@gmail.com'));
         $this->assertNull($base_transformer->getClient('null', 'notest@gmail.com'));
 
 	}
 
+	public function testHasClient()
+	{
+        $base_transformer = new BaseTransformer($this->company);
 
+		$client = 		Client::factory()->create([
+				                'user_id' => $this->user->id,
+				                'company_id' => $this->company->id,
+				                'id_number' => 'hit',
+				                'name' => 'magic ',
+				        ]);
+
+
+		$this->assertTrue($base_transformer->hasClient("magic"));
+		$this->assertTrue($base_transformer->hasClient("Magic"));
+		$this->assertTrue($base_transformer->hasClient("Ma gi c "));
+
+	}
 
 
 	// public function testClientCsvImport()
