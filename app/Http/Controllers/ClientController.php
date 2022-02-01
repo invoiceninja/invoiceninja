@@ -19,6 +19,7 @@ use App\Http\Requests\Client\AdjustClientLedgerRequest;
 use App\Http\Requests\Client\CreateClientRequest;
 use App\Http\Requests\Client\DestroyClientRequest;
 use App\Http\Requests\Client\EditClientRequest;
+use App\Http\Requests\Client\PurgeClientRequest;
 use App\Http\Requests\Client\ShowClientRequest;
 use App\Http\Requests\Client\StoreClientRequest;
 use App\Http\Requests\Client\UpdateClientRequest;
@@ -36,7 +37,7 @@ use App\Utils\Traits\SavesDocuments;
 use App\Utils\Traits\Uploadable;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-
+use Illuminate\Support\Facades\Storage;
 /**
  * Class ClientController.
  * @covers App\Http\Controllers\ClientController
@@ -510,7 +511,7 @@ class ClientController extends BaseController
         $ids = request()->input('ids');
         $clients = Client::withTrashed()->whereIn('id', $this->transformKeys($ids))->cursor();
 
-        if(!in_array($action, ['restore','archive','delete','purge']))
+        if(!in_array($action, ['restore','archive','delete']))
             return response()->json(['message' => 'That action is not available.'], 400);
 
         $clients->each(function ($client, $key) use ($action) {
@@ -586,5 +587,71 @@ class ClientController extends BaseController
 
     }
 
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param UploadClientRequest $request
+     * @param Client $client
+     * @return Response
+     *
+     *
+     *
+     * @OA\Put(
+     *      path="/api/v1/clients/{id}/purge",
+     *      operationId="uploadClient",
+     *      tags={"clients"},
+     *      summary="Purges a client from the system",
+     *      description="Handles purging a client",
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Api-Token"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Client Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns the client object",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit")
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
+    public function purge(PurgeClientRequest $request, Client $client)
+    {
+        //delete all documents
+        $client->documents->each(function ($document){
+
+            Storage::disk(config('filesystems.default'))->delete($document->url);
+
+        });
+
+        //force delete the client
+        $this->client_repo->purge($client);
+
+        return response()->json(['message' => 'Success'], 200);
+
+        //todo add an event here using the client name as reference for purge event
+    }
 
 }

@@ -54,7 +54,7 @@ class ActivityRepository extends BaseRepository
             $activity->token_id = $token_id;
         }
 
-        $activity->ip = $event_vars['ip'];
+        $activity->ip = $event_vars['ip'] ?: ' ';
         $activity->is_system = $event_vars['is_system'];
 
         $activity->save();
