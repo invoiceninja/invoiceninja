@@ -15,7 +15,7 @@ interface ImportInterface
 
     public function import(string $entity);
 
-    public function preTransform(array $data);
+    public function preTransform(array $data, string $entity_type);
 
     public function transform(array $data);
 }

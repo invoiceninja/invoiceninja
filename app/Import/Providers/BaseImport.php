@@ -13,6 +13,8 @@ namespace App\Import\Providers;
 use App\Import\ImportException;
 use App\Models\Company;
 use App\Models\User;
+use App\Repositories\InvoiceRepository;
+use App\Utils\Traits\CleanLineItems;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -23,6 +25,8 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 
 class BaseImport {
 
+	use CleanLineItems;
+	
 	public Company $company;
 
 	public array $request;
@@ -55,17 +59,6 @@ class BaseImport {
         auth()->user()->setCompany($this->company);
     }
 
-	protected function findUser( $user_hash ) {
-		$user = User::where( 'account_id', $this->company->account_id )
-					->where( DB::raw( 'CONCAT_WS(" ", first_name, last_name)' ), 'like', '%' . $user_hash . '%' )
-					->first();
-
-		if ( $user ) {
-			return $user->id;
-		} else {
-			return $this->company->owner()->id;
-		}
-	}
 
 	protected function getCsvData( $entity_type ) {
 
@@ -127,6 +120,8 @@ class BaseImport {
 
 	public function ingest($data, $entity_type)
 	{
+		$count = 0;
+
 		foreach ( $data as $record ) {
             try {
                 $entity = $this->transformer->transform( $record );
@@ -148,6 +143,7 @@ class BaseImport {
                             $this->factory_name::create( $this->company->id, $this->getUserIDForRecord( $entity ) ) );
 
                     $entity->saveQuietly();
+                    $count++;
 
                 }
             } catch ( \Exception $ex ) {
@@ -160,7 +156,151 @@ class BaseImport {
 
                 $this->error_array[ $entity_type ][] = [ $entity_type => $record, 'error' => $message ];
             }
+            
+            return $count;
         }
 	}
+
+	public function ingestInvoices( $invoices ) {
+		$invoice_transformer = $this->transformer;
+
+		/** @var PaymentRepository $payment_repository */
+		$payment_repository              = app()->make( PaymentRepository::class );
+		$payment_repository->import_mode = true;
+
+		/** @var ClientRepository $client_repository */
+		$client_repository              = app()->make( ClientRepository::class );
+		$client_repository->import_mode = true;
+
+		$invoice_repository              = new InvoiceRepository();
+		$invoice_repository->import_mode = true;
+
+		foreach ( $invoices as $raw_invoice ) {
+			try {
+				$invoice_data = $invoice_transformer->transform( $raw_invoice );
+
+				$invoice_data['line_items'] = $this->cleanItems( $invoice_data['line_items'] ?? [] );
+
+
+				// If we don't have a client ID, but we do have client data, go ahead and create the client.
+				if ( empty( $invoice_data['client_id'] ) && ! empty( $invoice_data['client'] ) ) {
+					$client_data            = $invoice_data['client'];
+					$client_data['user_id'] = $this->getUserIDForRecord( $invoice_data );
+
+					$client_repository->save(
+						$client_data,
+						$client = ClientFactory::create( $this->company->id, $client_data['user_id'] )
+					);
+					$invoice_data['client_id'] = $client->id;
+					unset( $invoice_data['client'] );
+				}
+
+				$validator = Validator::make( $invoice_data, ( new StoreInvoiceRequest() )->rules() );
+				if ( $validator->fails() ) {
+					$this->error_array['invoice'][] =
+						[ 'invoice' => $invoice_data, 'error' => $validator->errors()->all() ];
+				} else {
+					$invoice = InvoiceFactory::create( $this->company->id, $this->getUserIDForRecord( $invoice_data ) );
+					if ( ! empty( $invoice_data['status_id'] ) ) {
+						$invoice->status_id = $invoice_data['status_id'];
+					}
+					$invoice_repository->save( $invoice_data, $invoice );
+					$this->addInvoiceToMaps( $invoice );
+
+					// If we're doing a generic CSV import, only import payment data if we're not importing a payment CSV.
+					// If we're doing a platform-specific import, trust the platform to only return payment info if there's not a separate payment CSV.
+					if ( $this->import_type !== 'csv' || empty( $this->column_map['payment'] ) ) {
+						// Check for payment columns
+						if ( ! empty( $invoice_data['payments'] ) ) {
+							foreach ( $invoice_data['payments'] as $payment_data ) {
+								$payment_data['user_id']   = $invoice->user_id;
+								$payment_data['client_id'] = $invoice->client_id;
+								$payment_data['invoices']  = [
+									[
+										'invoice_id' => $invoice->id,
+										'amount'     => $payment_data['amount'] ?? null,
+									],
+								];
+
+								/* Make sure we don't apply any payments to invoices with a Zero Amount*/
+								if($invoice->amount > 0)
+								{
+									$payment_repository->save(
+										$payment_data,
+										PaymentFactory::create( $this->company->id, $invoice->user_id, $invoice->client_id )
+									);
+								}
+							}
+						}
+					}
+
+					$this->actionInvoiceStatus( $invoice, $invoice_data, $invoice_repository );
+				}
+			} catch ( \Exception $ex ) {
+				if ( $ex instanceof ImportException ) {
+					$message = $ex->getMessage();
+				} else {
+					report( $ex );
+					$message = 'Unknown error';
+				}
+
+				$this->error_array['invoice'][] = [ 'invoice' => $raw_invoice, 'error' => $message ];
+			}
+		}
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    protected function getUserIDForRecord( $record ) {
+        if ( ! empty( $record['user_id'] ) ) {
+            return $this->findUser( $record['user_id'] );
+        } else {
+            return $this->company->owner()->id;
+        }
+    }
+
+    protected function findUser( $user_hash ) {
+        $user = User::where( 'account_id', $this->company->account->id )
+                    ->where( \DB::raw( 'CONCAT_WS(" ", first_name, last_name)' ), 'like', '%' . $user_hash . '%' )
+                    ->first();
+
+        if ( $user ) {
+            return $user->id;
+        } else {
+            return $this->company->owner()->id;
+        }
+    }
 
 }

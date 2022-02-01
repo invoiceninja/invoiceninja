@@ -18,6 +18,7 @@ use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Product;
+use App\Models\TaxRate;
 use App\Models\Vendor;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Routing\Middleware\ThrottleRequests;
@@ -105,9 +106,12 @@ class BaseTransformerTest extends TestCase
     	$this->assertEquals($client->id, $base_transformer->getClient(null, 'test@gmail.com'));
         $this->assertNull($base_transformer->getClient('null', 'notest@gmail.com'));
 
+        $this->assertEquals($client->id, $base_transformer->getClientId(' magic'));
+        $this->assertEquals($client->id, $base_transformer->getClientId('Magic '));
+
 	}
 
-	public function testHasClient()
+    public function testGetContact()
 	{
         $base_transformer = new BaseTransformer($this->company);
 
@@ -118,12 +122,193 @@ class BaseTransformerTest extends TestCase
 				                'name' => 'magic ',
 				        ]);
 
+        $contact = ClientContact::factory()->create([
+                'user_id' => $this->user->id,
+                'client_id' => $client->id,
+                'company_id' => $this->company->id,
+                'is_primary' => 1,
+                'send_email' => true,
+                'email' => 'test@gmail.com'
+        ]);
+
+        $this->assertEquals($contact->id, $base_transformer->getContact('TeSt@gmail.com')->id);
+        $this->assertEquals($contact->id, $base_transformer->getContact('TeSt@gmail.com ')->id);
+        $this->assertEquals($contact->id, $base_transformer->getContact('TeSt@gmaiL.com')->id);
+
+	}
+
+	public function testHasClient()
+	{
+        $base_transformer = new BaseTransformer($this->company);
+
+		$client = 		Client::factory()->create([
+				                'user_id' => $this->user->id,
+				                'company_id' => $this->company->id,
+				                'id_number' => 'hit',
+				                'name' => 'maGic ',
+				        ]);
+
 
 		$this->assertTrue($base_transformer->hasClient("magic"));
 		$this->assertTrue($base_transformer->hasClient("Magic"));
 		$this->assertTrue($base_transformer->hasClient("Ma gi c "));
 
 	}
+
+	public function testHasVendor()
+	{
+        $base_transformer = new BaseTransformer($this->company);
+
+		$client = 		Vendor::factory()->create([
+				                'user_id' => $this->user->id,
+				                'company_id' => $this->company->id,
+				                'id_number' => 'hit',
+				                'name' => 'maGic ',
+				        ]);
+
+
+		$this->assertTrue($base_transformer->hasVendor("magic"));
+		$this->assertTrue($base_transformer->hasVendor("Magic"));
+		$this->assertTrue($base_transformer->hasVendor("Ma gi c "));
+
+	}
+
+	public function testHasProduct()
+	{
+        $base_transformer = new BaseTransformer($this->company);
+
+		$client = 		Product::factory()->create([
+				                'user_id' => $this->user->id,
+				                'company_id' => $this->company->id,
+				                'product_key' => 'HiT ',
+				        ]);
+
+
+		$this->assertTrue($base_transformer->hasProduct("hit"));
+		$this->assertTrue($base_transformer->hasProduct(" hIt"));
+		$this->assertTrue($base_transformer->hasProduct("  h i T "));
+
+	}
+
+
+
+	public function testGetCountryId()
+	{
+        $base_transformer = new BaseTransformer($this->company);
+
+		$this->assertEquals(840, $base_transformer->getCountryId("us"));
+		$this->assertEquals(840, $base_transformer->getCountryId("US"));
+		$this->assertEquals(840, $base_transformer->getCountryId("United States"));
+
+	}
+
+
+	public function testGetTaxRate()
+	{
+        $base_transformer = new BaseTransformer($this->company);
+
+		$client = 		TaxRate::factory()->create([
+				                'user_id' => $this->user->id,
+				                'company_id' => $this->company->id,
+				                'rate' => '10',
+				                'name' => 'GST'
+				        ]);
+
+		$this->assertEquals(10, $base_transformer->getTaxRate("gst"));
+		$this->assertEquals(10, $base_transformer->getTaxRate(" GST"));
+		$this->assertEquals(10, $base_transformer->getTaxRate("  gS t "));
+
+	}
+
+
+	public function testGetTaxName()
+	{
+        $base_transformer = new BaseTransformer($this->company);
+
+		$client = 		TaxRate::factory()->create([
+				                'user_id' => $this->user->id,
+				                'company_id' => $this->company->id,
+				                'rate' => '17.5',
+				                'name' => 'VAT'
+				        ]);
+
+		$this->assertEquals("VAT", $base_transformer->getTaxName("vat"));
+		$this->assertEquals("VAT", $base_transformer->getTaxName(" VaT"));
+		$this->assertEquals("VAT", $base_transformer->getTaxName("  va T "));
+
+	}
+
+	public function testGetInvoiceId()
+	{
+        $base_transformer = new BaseTransformer($this->company);
+
+		$invoice = 		Invoice::factory()->create([
+				                'user_id' => $this->user->id,
+				                'company_id' => $this->company->id,
+				                'client_id' => $this->client->id,
+				                'number' => 'trick_number_123',
+				        ]);
+
+		$this->assertEquals($invoice->id, $base_transformer->getInvoiceId("TRICK_number_123"));
+		$this->assertEquals($invoice->id, $base_transformer->getInvoiceId(" TRICK_number_123"));
+		$this->assertEquals($invoice->id, $base_transformer->getInvoiceId("  TRICK_number_123 "));
+
+	}
+
+
+
+	public function testHasInvoiceWithNumber()
+	{
+        $base_transformer = new BaseTransformer($this->company);
+
+		$client = 		Invoice::factory()->create([
+				                'user_id' => $this->user->id,
+				                'company_id' => $this->company->id,
+				                'client_id' => $this->client->id,
+				                'number' => 'tricky_number_123',
+				        ]);
+
+		$this->assertTrue($base_transformer->hasInvoice("TRICKY_number_123"));
+		$this->assertTrue($base_transformer->hasInvoice(" TRICKY_number_123"));
+		$this->assertTrue($base_transformer->hasInvoice("  TRICKY_number_123 "));
+
+	}
+	public function testInvoiceClientId()
+	{
+        $base_transformer = new BaseTransformer($this->company);
+
+		$client = 		Invoice::factory()->create([
+				                'user_id' => $this->user->id,
+				                'company_id' => $this->company->id,
+				                'client_id' => $this->client->id,
+				                'number' => 'tricky_number_123',
+				        ]);
+
+		$this->assertEquals($this->client->id, $base_transformer->getInvoiceClientId("TRICKY_number_123"));
+		$this->assertEquals($this->client->id, $base_transformer->getInvoiceClientId(" TRICKY_number_123"));
+		$this->assertEquals($this->client->id, $base_transformer->getInvoiceClientId("  TRICKY_number_123 "));
+
+	}
+
+	public function testGetVendorId()
+	{
+        $base_transformer = new BaseTransformer($this->company);
+
+		$vendor = 		Vendor::factory()->create([
+				                'user_id' => $this->user->id,
+				                'company_id' => $this->company->id,
+				                'id_number' => 'hit',
+				                'name' => 'maGic ',
+				        ]);
+
+
+		$this->assertEquals($vendor->id, $base_transformer->getVendorId("magic"));
+		$this->assertEquals($vendor->id, $base_transformer->getVendorId("Magic"));
+		$this->assertEquals($vendor->id, $base_transformer->getVendorId("Ma gi c "));
+
+	}
+
+
 
 
 	// public function testClientCsvImport()
