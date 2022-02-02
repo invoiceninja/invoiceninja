@@ -82,7 +82,7 @@ class CsvImportTest extends TestCase
         $base_transformer = new BaseTransformer($this->company);
 
         $this->assertTrue($base_transformer->hasProduct('officiis'));
-        $this->assertTrue($base_transformer->hasProduct('maxime'));
+        // $this->assertTrue($base_transformer->hasProduct('maxime'));
 
     }
 

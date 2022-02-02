@@ -43,7 +43,7 @@ class BouncedEmail extends Mailable
         
         return
             $this->from(config('mail.from.address'), config('mail.from.name'))
-                ->text()
+                ->text('bounced mail')
                 ->subject($subject);
 
     }
