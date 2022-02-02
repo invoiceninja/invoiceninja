@@ -10,10 +10,17 @@
  */
 namespace App\Import\Providers;
 
+use App\Factory\ClientFactory;
+use App\Factory\InvoiceFactory;
+use App\Factory\PaymentFactory;
+use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Import\ImportException;
 use App\Models\Company;
+use App\Models\Invoice;
 use App\Models\User;
+use App\Repositories\ClientRepository;
 use App\Repositories\InvoiceRepository;
+use App\Repositories\PaymentRepository;
 use App\Utils\Traits\CleanLineItems;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -161,7 +168,7 @@ class BaseImport {
         }
 	}
 
-	public function ingestInvoices( $invoices ) {
+	public function ingestInvoices( $invoices , $invoice_number_key) {
 		$invoice_transformer = $this->transformer;
 
 		/** @var PaymentRepository $payment_repository */
@@ -175,12 +182,13 @@ class BaseImport {
 		$invoice_repository              = new InvoiceRepository();
 		$invoice_repository->import_mode = true;
 
+		$invoices = $this->groupInvoices($invoices, $invoice_number_key);
+
 		foreach ( $invoices as $raw_invoice ) {
 			try {
+
 				$invoice_data = $invoice_transformer->transform( $raw_invoice );
-
 				$invoice_data['line_items'] = $this->cleanItems( $invoice_data['line_items'] ?? [] );
-
 
 				// If we don't have a client ID, but we do have client data, go ahead and create the client.
 				if ( empty( $invoice_data['client_id'] ) && ! empty( $invoice_data['client'] ) ) {
@@ -205,7 +213,6 @@ class BaseImport {
 						$invoice->status_id = $invoice_data['status_id'];
 					}
 					$invoice_repository->save( $invoice_data, $invoice );
-					$this->addInvoiceToMaps( $invoice );
 
 					// If we're doing a generic CSV import, only import payment data if we're not importing a payment CSV.
 					// If we're doing a platform-specific import, trust the platform to only return payment info if there's not a separate payment CSV.
@@ -273,13 +280,36 @@ class BaseImport {
 
 
 
+	private function actionInvoiceStatus( $invoice, $invoice_data, $invoice_repository ) {
+		if ( ! empty( $invoice_data['archived'] ) ) {
+			$invoice_repository->archive( $invoice );
+			$invoice->fresh();
+		}
+
+		if ( ! empty( $invoice_data['viewed'] ) ) {
+			$invoice = $invoice->service()->markViewed()->save();
+		}
+
+		if( $invoice->status_id === Invoice::STATUS_DRAFT ){
+
+		}
+		elseif ( $invoice->status_id === Invoice::STATUS_SENT ) {
+			$invoice = $invoice->service()->markSent()->save();
+		}
+		elseif ( $invoice->status_id <= Invoice::STATUS_SENT && $invoice->amount > 0 ) {
+			if ( $invoice->balance <= 0 ) {
+				$invoice->status_id = Invoice::STATUS_PAID;
+				$invoice->save();
+			}
+			elseif ( $invoice->balance != $invoice->amount ) {
+				$invoice->status_id = Invoice::STATUS_PARTIAL;
+				$invoice->save();
+			} 
+		}
 
 
-
-
-
-
-
+		return $invoice;
+	}
 
 
 

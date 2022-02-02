@@ -20,6 +20,7 @@ use App\Import\ImportException;
 use App\Import\Providers\BaseImport;
 use App\Import\Providers\ImportInterface;
 use App\Import\Transformer\Csv\ClientTransformer;
+use App\Import\Transformer\Csv\InvoiceTransformer;
 use App\Import\Transformer\Csv\ProductTransformer;
 use App\Repositories\ClientRepository;
 use App\Repositories\InvoiceRepository;
@@ -123,9 +124,9 @@ class Csv extends BaseImport implements ImportInterface
         $this->repository = app()->make( $this->repository_name );
         $this->repository->import_mode = true;
 
-        $this->transformer = new ProductTransformer($this->company);
+        $this->transformer = new InvoiceTransformer($this->company);
 
-        $invoice_count = $this->ingest($data, $entity_type);
+        $invoice_count = $this->ingestInvoices($data, 'invoice.number');
 
         $this->entity_count['invoices'] = $invoice_count;
 

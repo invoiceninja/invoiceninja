@@ -53,20 +53,23 @@ class BaseTransformer
 
     }
 
-    public function getClient($client_name, $client_email) {
+    public function getClient($client_name, $client_email) 
+    {
 
+        // nlog("searching for {$client_name} with email {$client_email}");
+    
 		$client_id_search = $this->company->clients()->where( 'id_number', $client_name );
 
 		if ( $client_id_search->count() >= 1 ) {
+            // nlog("found via id number => {$client_id_search->first()->id}");
 			return $client_id_search->first()->id;
-            nlog("found via id number");
 		}
 
         $client_name_search = $this->company->clients()->where( 'name', $client_name );
 
         if ( $client_name_search->count() >= 1 ) {
+            // nlog("found via name {$client_name_search->first()->id}");
             return $client_name_search->first()->id;
-            nlog("found via name");
         }
 
 		if ( ! empty( $client_email ) ) {
@@ -74,11 +77,12 @@ class BaseTransformer
 									 ->where( 'email', $client_email );
 
 			if ( $contacts->count() >= 1 ) {
+                // nlog("found via contact {$contacts->first()->client_id}");
 				return $contacts->first()->client_id;
-                nlog("found via contact");
 			}
 		}
-                nlog("did not find client");
+        
+        // nlog("did not find client");
 
 		return null;
 	}

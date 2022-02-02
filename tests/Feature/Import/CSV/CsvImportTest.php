@@ -101,6 +101,95 @@ class CsvImportTest extends TestCase
 
     }
 
+    public function testInvoiceImport()
+    {
+        /*Need to import clients first*/
+        $csv = file_get_contents(base_path().'/tests/Feature/Import/clients.csv');
+        $hash = Str::random(32);
+        $column_map = [
+            1 => 'client.balance',
+            2 => 'client.paid_to_date',
+            0 => 'client.name',
+            19 => 'client.currency_id',
+            20 => 'client.public_notes',
+            21 => 'client.private_notes',
+            22 => 'contact.first_name',
+            23 => 'contact.last_name',
+        ];
+
+        $data = [
+            'hash'        => $hash,
+            'column_map'  => [ 'client' => [ 'mapping' => $column_map ] ],
+            'skip_header' => true,
+            'import_type' => 'csv',
+        ];
+
+        Cache::put( $hash . '-client', base64_encode( $csv ), 360 );
+
+        $csv_importer = new Csv($data, $this->company);
+     
+        $this->assertInstanceOf(Csv::class, $csv_importer);
+
+        $csv_importer->import('client');
+
+        $base_transformer = new BaseTransformer($this->company);
+
+        $this->assertTrue($base_transformer->hasClient("Ludwig Krajcik DVM"));
+
+        /* client import verified*/
+
+        /*Now import invoices*/
+        $csv = file_get_contents(base_path().'/tests/Feature/Import/invoice.csv');
+        $hash = Str::random(32);
+
+        $column_map = [
+            1 => 'client.email',
+            3 => 'payment.amount',
+            5 => 'invoice.po_number',
+            8 => 'invoice.due_date',
+            9 => 'item.discount',
+            11 => 'invoice.partial_due_date',
+            12 => 'invoice.public_notes',
+            13 => 'invoice.private_notes',
+            0 => 'client.name',
+            2 => 'invoice.number',
+            7 => 'invoice.date',
+            14 => 'item.product_key',
+            15 => 'item.notes',
+            16 => 'item.cost',
+            17 => 'item.quantity',
+        ];
+
+        $data = [
+            'hash'        => $hash,
+            'column_map'  => [ 'invoice' => [ 'mapping' => $column_map ] ],
+            'skip_header' => true,
+            'import_type' => 'csv',
+        ];
+
+        Cache::put( $hash . '-invoice', base64_encode( $csv ), 360 );
+
+        $csv_importer = new Csv($data, $this->company);
+
+        $csv_importer->import('invoice');
+
+        $this->assertTrue($base_transformer->hasInvoice("801"));
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 
