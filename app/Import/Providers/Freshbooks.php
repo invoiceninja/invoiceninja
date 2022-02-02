@@ -12,5 +12,4 @@ namespace App\Import\Providers;
 
 class Freshbooks extends BaseImport
 {
-    
 }
