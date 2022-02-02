@@ -13,18 +13,22 @@ namespace App\Import\Transformer\Csv;
 
 use App\Import\ImportException;
 use App\Import\Transformer\BaseTransformer;
+use App\Import\Transformer\Csv\ClientTransformer;
 use App\Models\Invoice;
 
 /**
  * Class InvoiceTransformer.
  */
 class InvoiceTransformer extends BaseTransformer {
+
+
 	/**
 	 * @param $data
 	 *
 	 * @return bool|array
 	 */
 	public function transform( $line_items_data ) {
+
 		$invoice_data = reset( $line_items_data );
 
 		if ( $this->hasInvoice( $invoice_data['invoice.number'] ) ) {
@@ -74,6 +78,16 @@ class InvoiceTransformer extends BaseTransformer {
 			'archived'          => $status === 'archived',
 		];
 
+		/* If we can't find the client, then lets try and create a client */
+		if(!$transformed['client_id']){
+			
+			$client_transformer = new ClientTransformer($this->company);
+
+			$transformed['client'] = $client_transformer->transform($invoice_data);
+
+		}
+
+
 		if ( isset( $invoice_data['payment.amount'] ) ) {
 			$transformed['payments'] = [
 				[
@@ -119,7 +133,7 @@ class InvoiceTransformer extends BaseTransformer {
 				'custom_value2'      => $this->getString( $record, 'item.custom_value2' ),
 				'custom_value3'      => $this->getString( $record, 'item.custom_value3' ),
 				'custom_value4'      => $this->getString( $record, 'item.custom_value4' ),
-				'type_id'            => $this->getInvoiceTypeId( $record, 'item.type_id' ),
+				'type_id'            => "1", //$this->getInvoiceTypeId( $record, 'item.type_id' ),
 			];
 		}
 		$transformed['line_items'] = $line_items;
