@@ -78,12 +78,13 @@ class InvoiceTransformer extends BaseTransformer {
 			'archived'          => $status === 'archived',
 		];
 
+		/* If we can't find the client, then lets try and create a client */
 		if(!$transformed['client_id']){
 			
 			$client_transformer = new ClientTransformer($this->company);
 
 			$transformed['client'] = $client_transformer->transform($invoice_data);
-			
+
 		}
 
 

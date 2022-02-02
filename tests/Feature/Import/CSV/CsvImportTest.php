@@ -54,7 +54,39 @@ class CsvImportTest extends TestCase
         $this->withoutExceptionHandling();
     }
 
-    public function testCsvFeature()
+    public function testProductImport()
+    {
+        $csv  = file_get_contents( base_path() . '/tests/Feature/Import/products.csv' );
+        $hash = Str::random( 32 );
+        Cache::put( $hash . '-product', base64_encode( $csv ), 360 );
+
+        $column_map = [
+            1 => 'product.product_key',
+            2 => 'product.notes',
+            3 => 'product.cost',
+        ];
+
+        $data = [
+            'hash'        => $hash,
+            'column_map'  => [ 'product' => [ 'mapping' => $column_map ] ],
+            'skip_header' => true,
+            'import_type' => 'csv',
+        ];
+
+        $csv_importer = new Csv($data, $this->company);
+     
+        $this->assertInstanceOf(Csv::class, $csv_importer);
+
+        $csv_importer->import('product');
+
+        $base_transformer = new BaseTransformer($this->company);
+
+        $this->assertTrue($base_transformer->hasProduct('officiis'));
+        $this->assertTrue($base_transformer->hasProduct('maxime'));
+
+    }
+
+    public function testClientImport()
     {
         $csv = file_get_contents(base_path().'/tests/Feature/Import/clients.csv');
         $hash = Str::random(32);
