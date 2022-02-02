@@ -14,8 +14,8 @@ return [
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', 'invoicing.co'),
-    'app_version' => '5.3.54',
-    'app_tag' => '5.3.54',
+    'app_version' => '5.3.55',
+    'app_tag' => '5.3.55',
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', ''),
@@ -58,13 +58,6 @@ return [
         'multi_db_enabled' => env('MULTI_DB_ENABLED', false),
         'default' => env('DB_CONNECTION', 'mysql'),
     ],
-
-    // 'db_options' => [
-    //             PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
-    //             PDO::MYSQL_ATTR_SSL_KEY => env("DB_CLIENT_KEY", ''),
-    //             PDO::MYSQL_ATTR_SSL_CERT => env("DB_CLIENT_CERT", ''),
-    //             PDO::MYSQL_ATTR_SSL_CA => env("DB_CA_CERT", ''),
-    // ],
 
     'i18n' => [
         'timezone_id' => env('DEFAULT_TIMEZONE', 1),
@@ -187,4 +180,10 @@ return [
     'ninja_default_company_gateway_id' => env('NINJA_COMPANY_GATEWAY_ID', null),
     'ninja_hosted_secret' => env('NINJA_HOSTED_SECRET', null),
     'internal_queue_enabled' => env('INTERNAL_QUEUE_ENABLED', true),
+    'ninja_apple_api_key' => env('APPLE_API_KEY', false),
+    'ninja_apple_private_key' => env('APPLE_PRIVATE_KEY', false),
+    'ninja_apple_bundle_id' => env('APPLE_BUNDLE_ID', false),
+    'ninja_apple_issuer_id' => env('APPLE_ISSUER_ID', false)
+      
 ];
+

@@ -140,7 +140,15 @@ class CreateAccount
                  ->increment()
                  ->queue();
                  
-        $ip = request()->hasHeader('Cf-Connecting-Ip') ? request()->header('Cf-Connecting-Ip') : request()->getClientIp();
+        $ip = '';
+        
+        if(request()->hasHeader('Cf-Connecting-Ip'))
+            $ip = request()->header('Cf-Connecting-Ip');
+        elseif(request()->hasHeader('X-Forwarded-For'))
+            $ip = request()->header('Cf-Connecting-Ip');
+        else
+            $ip = request()->ip();
+
         $platform = request()->has('platform') ? request()->input('platform') : 'www';
 
         LightLogs::create(new AccountPlatform($platform, request()->server('HTTP_USER_AGENT'), $ip))

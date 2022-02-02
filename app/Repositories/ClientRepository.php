@@ -92,4 +92,26 @@ class ClientRepository extends BaseRepository
             ClientFactory::create(auth()->user()->company()->id, auth()->user()->id)
         );
     }
+
+    public function purge($client)
+    {
+
+        $client->contacts()->forceDelete();
+        $client->tasks()->forceDelete();
+        $client->invoices()->forceDelete();
+        $client->ledger()->forceDelete();
+        $client->gateway_tokens()->forceDelete();
+        $client->projects()->forceDelete();
+        $client->credits()->forceDelete();
+        $client->quotes()->forceDelete();
+        $client->activities()->forceDelete();
+        $client->recurring_invoices()->forceDelete();
+        $client->expenses()->forceDelete();
+        $client->recurring_expenses()->forceDelete();
+        $client->system_logs()->forceDelete();
+        $client->documents()->forceDelete();
+        $client->payments()->forceDelete();
+        $client->forceDelete();
+
+    }
 }

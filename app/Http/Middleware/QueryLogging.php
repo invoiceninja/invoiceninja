@@ -14,9 +14,8 @@ namespace App\Http\Middleware;
 use App\DataMapper\Analytics\DbQuery;
 use App\Utils\Ninja;
 use Closure;
-use DB;
 use Illuminate\Http\Request;
-use Log;
+use Illuminate\Support\Facades\DB;
 use Turbo124\Beacon\Facades\LightLogs;
 
 /**
@@ -61,7 +60,9 @@ class QueryLogging
                         
             $ip = '';
             
-            if(request()->header('Cf-Connecting-Ip'))
+            if(request()->hasHeader('Cf-Connecting-Ip'))
+                $ip = request()->header('Cf-Connecting-Ip');
+            elseif(request()->hasHeader('X-Forwarded-For'))
                 $ip = request()->header('Cf-Connecting-Ip');
             else{
                 $ip = request()->ip();

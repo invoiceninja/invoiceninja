@@ -39,6 +39,10 @@ class Request extends FormRequest
             }
         }
 
+        //01-02-2022 needed for CSV Imports
+        if(!$merge_rules)
+            return $rules;
+
         return array_merge($merge_rules, $rules);
     }
 
