@@ -12,18 +12,22 @@ namespace App\Import\Providers;
 
 use App\Factory\ClientFactory;
 use App\Factory\InvoiceFactory;
+use App\Factory\PaymentFactory;
 use App\Factory\ProductFactory;
 use App\Http\Requests\Client\StoreClientRequest;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
+use App\Http\Requests\Payment\StorePaymentRequest;
 use App\Http\Requests\Product\StoreProductRequest;
 use App\Import\ImportException;
 use App\Import\Providers\BaseImport;
 use App\Import\Providers\ImportInterface;
 use App\Import\Transformer\Csv\ClientTransformer;
 use App\Import\Transformer\Csv\InvoiceTransformer;
+use App\Import\Transformer\Csv\PaymentTransformer;
 use App\Import\Transformer\Csv\ProductTransformer;
 use App\Repositories\ClientRepository;
 use App\Repositories\InvoiceRepository;
+use App\Repositories\PaymentRepository;
 use App\Repositories\ProductRepository;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -130,6 +134,35 @@ class Csv extends BaseImport implements ImportInterface
 
         $this->entity_count['invoices'] = $invoice_count;
     }
+
+
+    private function payment()
+    {
+        $entity_type = 'payment';
+
+        $data = $this->getCsvData($entity_type);
+
+        $data = $this->preTransform($data, $entity_type);
+
+        if (empty($data)) {
+            $this->entity_count['payments'] = 0;
+            return;
+        }
+
+        $this->request_name = StorePaymentRequest::class;
+        $this->repository_name = PaymentRepository::class;
+        $this->factory_name = PaymentFactory::class;
+
+        $this->repository = app()->make($this->repository_name);
+        $this->repository->import_mode = true;
+
+        $this->transformer = new PaymentTransformer($this->company);
+
+        $payment_count = $this->ingest($data, $entity_type);
+
+        $this->entity_count['payments'] = $payment_count;
+    }
+
 
     public function preTransform(array $data, $entity_type)
     {

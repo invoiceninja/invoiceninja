@@ -207,6 +207,44 @@ class CsvImportTest extends TestCase
 
         $this->assertTrue($base_transformer->hasInvoice("801"));
 
+
+
+        /* Lets piggy back payments tests here to save rebuilding the test multiple times*/
+
+
+        $csv  = file_get_contents( base_path() . '/tests/Feature/Import/payments.csv' );
+        $hash = Str::random( 32 );
+
+        $column_map = [
+            0 => 'payment.client_id',
+            1 => 'payment.invoice_number',
+            2 => 'payment.amount',
+            3 => 'payment.date',
+        ];
+
+        $data = [
+            'hash'        => $hash,
+            'column_map'  => [ 'payment' => [ 'mapping' => $column_map ] ],
+            'skip_header' => true,
+            'import_type' => 'csv',
+        ];
+
+        Cache::put( $hash . '-payment', base64_encode( $csv ), 360 );
+
+        $csv_importer = new Csv($data, $this->company);
+
+        $csv_importer->import('payment');
+
+        $this->assertTrue($base_transformer->hasInvoice("801"));
+
+        $invoice_id = $base_transformer->getInvoiceId("801");
+
+        $invoice = Invoice::find($invoice_id);
+
+        $this->assertTrue($invoice->payments()->exists());
+        $this->assertEquals(1, $invoice->payments()->count());
+        $this->assertEquals(400, $invoice->payments()->sum('payments.amount'));
+
     }
 
 
