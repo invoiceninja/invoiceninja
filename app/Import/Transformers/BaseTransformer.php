@@ -85,7 +85,7 @@ class BaseTransformer
                 nlog("found via contact");
 			}
 		}
-                nlog("did not find client");
+                // nlog("did not find client");
 
 		return null;
 	}

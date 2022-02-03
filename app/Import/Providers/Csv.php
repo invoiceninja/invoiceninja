@@ -14,10 +14,12 @@ use App\Factory\ClientFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\PaymentFactory;
 use App\Factory\ProductFactory;
+use App\Factory\VendorFactory;
 use App\Http\Requests\Client\StoreClientRequest;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Http\Requests\Payment\StorePaymentRequest;
 use App\Http\Requests\Product\StoreProductRequest;
+use App\Http\Requests\Vendor\StoreVendorRequest;
 use App\Import\ImportException;
 use App\Import\Providers\BaseImport;
 use App\Import\Providers\ImportInterface;
@@ -25,10 +27,12 @@ use App\Import\Transformer\Csv\ClientTransformer;
 use App\Import\Transformer\Csv\InvoiceTransformer;
 use App\Import\Transformer\Csv\PaymentTransformer;
 use App\Import\Transformer\Csv\ProductTransformer;
+use App\Import\Transformer\Csv\VendorTransformer;
 use App\Repositories\ClientRepository;
 use App\Repositories\InvoiceRepository;
 use App\Repositories\PaymentRepository;
 use App\Repositories\ProductRepository;
+use App\Repositories\VendorRepository;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
@@ -135,7 +139,6 @@ class Csv extends BaseImport implements ImportInterface
         $this->entity_count['invoices'] = $invoice_count;
     }
 
-
     private function payment()
     {
         $entity_type = 'payment';
@@ -163,6 +166,44 @@ class Csv extends BaseImport implements ImportInterface
         $this->entity_count['payments'] = $payment_count;
     }
 
+    private function vendor()
+    {
+        $entity_type = 'vendor';
+
+        $data = $this->getCsvData($entity_type);
+
+        $data = $this->preTransform($data, $entity_type);
+
+        if (empty($data)) {
+            $this->entity_count['vendors'] = 0;
+            return;
+        }
+
+        $this->request_name = StoreVendorRequest::class;
+        $this->repository_name = VendorRepository::class;
+        $this->factory_name = VendorFactory::class;
+
+        $this->repository = app()->make($this->repository_name);
+        $this->repository->import_mode = true;
+
+        $this->transformer = new VendorTransformer($this->company);
+
+        $vendor_count = $this->ingest($data, $entity_type);
+
+        $this->entity_count['vendors'] = $vendor_count;
+    }
+
+    private function expense()
+    {
+    }
+
+    private function quote()
+    {
+    }
+
+    private function task()
+    {
+    }
 
     public function preTransform(array $data, $entity_type)
     {

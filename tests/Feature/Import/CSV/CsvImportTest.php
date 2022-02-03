@@ -54,6 +54,43 @@ class CsvImportTest extends TestCase
         $this->withoutExceptionHandling();
     }
 
+
+    public function testVendorCsvImport() {
+        $csv        = file_get_contents( base_path() . '/tests/Feature/Import/vendors.csv' );
+        $hash       = Str::random( 32 );
+        $column_map = [
+            0  => 'vendor.name',
+            19 => 'vendor.currency_id',
+            20 => 'vendor.public_notes',
+            21 => 'vendor.private_notes',
+            22 => 'vendor.first_name',
+            23 => 'vendor.last_name',
+        ];
+
+        $data = [
+            'hash'        => $hash,
+            'column_map'  => [ 'vendor' => [ 'mapping' => $column_map ] ],
+            'skip_header' => true,
+            'import_type' => 'csv',
+        ];
+
+        $pre_import = Vendor::count();
+
+        Cache::put( $hash . '-vendor', base64_encode( $csv ), 360 );
+
+        $csv_importer = new Csv($data, $this->company);
+
+        $csv_importer->import('vendor');
+
+        $base_transformer = new BaseTransformer($this->company);
+
+        $this->assertTrue($base_transformer->hasVendor("Ludwig Krajcik DVM"));
+
+
+    }
+
+    
+
     public function testProductImport()
     {
         $csv  = file_get_contents( base_path() . '/tests/Feature/Import/products.csv' );
@@ -246,10 +283,6 @@ class CsvImportTest extends TestCase
         $this->assertEquals(400, $invoice->payments()->sum('payments.amount'));
 
     }
-
-
-
-
 
 
 
