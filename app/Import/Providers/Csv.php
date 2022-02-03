@@ -126,7 +126,7 @@ class Csv extends BaseImport implements ImportInterface
 
         $this->transformer = new InvoiceTransformer($this->company);
 
-        $invoice_count = $this->ingestInvoices($data);
+        $invoice_count = $this->ingestInvoices($data, 'invoice.number');
 
         $this->entity_count['invoices'] = $invoice_count;
     }
