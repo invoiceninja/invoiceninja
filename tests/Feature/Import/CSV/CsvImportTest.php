@@ -8,6 +8,7 @@
  *
  * @license https://opensource.org/licenses/AAL
  */
+
 namespace Tests\Feature\Import\CSV;
 
 use App\Import\Providers\Csv;
@@ -61,7 +62,7 @@ class CsvImportTest extends TestCase
         $column_map = [
             0 => 'expense.client',
             1 => 'expense.project',
-            2 => 'expense.notes',
+            2 => 'expense.public_notes',
             3 => 'expense.amount',
         ];
 
@@ -79,8 +80,6 @@ class CsvImportTest extends TestCase
         $count = $csv_importer->import('expense');
 
         $base_transformer = new BaseTransformer($this->company);
-
-    nlog($csv_importer->entity_count);
 
         $this->assertTrue($base_transformer->hasProject('officiis'));
     }

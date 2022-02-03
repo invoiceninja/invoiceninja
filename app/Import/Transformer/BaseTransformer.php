@@ -11,6 +11,7 @@
 
 namespace App\Import\Transformer;
 
+use App\Factory\ProjectFactory;
 use App\Models\ClientContact;
 use App\Models\Country;
 use App\Models\PaymentType;
@@ -418,7 +419,7 @@ class BaseTransformer
      *
      * @return int|null
      */
-    public function getProjectId($name)
+    public function getProjectId($name, $clientId = null)
     {
         $project = $this->company
             ->projects()
@@ -427,7 +428,21 @@ class BaseTransformer
             ])
             ->first();
 
-        return $project ? $project->id : null;
+        return $project ? $project->id : $this->createProject($name, $clientId);
+    }
+
+    private function createProject($name, $clientId)
+    {
+        $project = ProjectFactory::create($this->company->id, $this->company->owner()->id);
+        $project->name = $name;
+
+        if($clientId)
+            $project->client_id = $clientId;
+        
+        $project->saveQuietly();
+
+
+        return $project->id;
     }
 
     /**
