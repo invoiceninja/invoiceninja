@@ -8,14 +8,17 @@
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace App\Import\Providers;
 
 use App\Factory\ClientFactory;
+use App\Factory\ExpenseFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\PaymentFactory;
 use App\Factory\ProductFactory;
 use App\Factory\VendorFactory;
 use App\Http\Requests\Client\StoreClientRequest;
+use App\Http\Requests\Expense\StoreExpenseRequest;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Http\Requests\Payment\StorePaymentRequest;
 use App\Http\Requests\Product\StoreProductRequest;
@@ -24,11 +27,13 @@ use App\Import\ImportException;
 use App\Import\Providers\BaseImport;
 use App\Import\Providers\ImportInterface;
 use App\Import\Transformer\Csv\ClientTransformer;
+use App\Import\Transformer\Csv\ExpenseTransformer;
 use App\Import\Transformer\Csv\InvoiceTransformer;
 use App\Import\Transformer\Csv\PaymentTransformer;
 use App\Import\Transformer\Csv\ProductTransformer;
 use App\Import\Transformer\Csv\VendorTransformer;
 use App\Repositories\ClientRepository;
+use App\Repositories\ExpenseRepository;
 use App\Repositories\InvoiceRepository;
 use App\Repositories\PaymentRepository;
 use App\Repositories\ProductRepository;
@@ -195,6 +200,29 @@ class Csv extends BaseImport implements ImportInterface
 
     private function expense()
     {
+        $entity_type = 'expense';
+
+        $data = $this->getCsvData($entity_type);
+
+        $data = $this->preTransform($data, $entity_type);
+
+        if (empty($data)) {
+            $this->entity_count['expenses'] = 0;
+            return;
+        }
+
+        $this->request_name = StoreExpenseRequest::class;
+        $this->repository_name = ExpenseRepository::class;
+        $this->factory_name = ExpenseFactory::class;
+
+        $this->repository = app()->make($this->repository_name);
+        $this->repository->import_mode = true;
+
+        $this->transformer = new ExpenseTransformer($this->company);
+
+        $expense_count = $this->ingest($data, $entity_type);
+
+        $this->entity_count['expenses'] = $expense_count;        
     }
 
     private function quote()

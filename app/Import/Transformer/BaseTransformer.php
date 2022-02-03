@@ -125,6 +125,21 @@ class BaseTransformer
     }
 
     /**
+     * @param $name
+     *
+     * @return bool
+     */
+    public function hasProject($name)
+    {
+        return $this->company
+            ->projects()
+            ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [
+                strtolower(str_replace(' ', '', $name)),
+            ])
+            ->exists();
+    }
+
+    /**
      * @param $key
      *
      * @return bool

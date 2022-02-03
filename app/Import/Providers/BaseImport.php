@@ -142,8 +142,11 @@ class BaseImport
 	{
 		$count = 0;
 
-		foreach ($data as $record) {
+	nlog("importing ".count($data) ." ". $entity_type);
+
+		foreach ($data as $key => $record) {
 			try {
+				nlog("importing {$key}");
 				$entity = $this->transformer->transform($record);
 
 				/** @var \App\Http\Requests\Request $request */
@@ -169,8 +172,11 @@ class BaseImport
 
 					$entity->saveQuietly();
 					$count++;
+
+					nlog("finished importing {$key}");
 				}
 			} catch (\Exception $ex) {
+				nlog("caught exception for {$key}");
 				if ($ex instanceof ImportException) {
 					$message = $ex->getMessage();
 				} else {
