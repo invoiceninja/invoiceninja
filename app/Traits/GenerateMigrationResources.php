@@ -799,8 +799,8 @@ trait GenerateMigrationResources
                 'due_date_days' => $this->transformDueDate($invoice),
                 'remaining_cycles' => $this->getRemainingCycles($invoice),
                 'invitations' => $this->getResourceInvitations($invoice->invitations, 'recurring_invoice_id'),
-                'auto_bill_enabled' => $this->calcAutoBillEnabled($invoice),
-                'auto_bill' => $this->calcAutoBill($invoice),
+                'auto_bill_enabled' => $this->calcAutoBill($invoice),
+                'auto_bill' => $this->calcAutoBillEnabled($invoice),
             ];
         }
 
