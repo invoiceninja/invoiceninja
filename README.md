@@ -48,7 +48,7 @@ The self-host zip includes all third party libraries whereas downloading the cod
 ## Development
 * [API Documentation](https://invoice-ninja.readthedocs.io/en/latest/api.html)
 * [PHP SDK](https://github.com/invoiceninja/sdk-php)
-* [Zend Framework](https://github.com/alexz707/InvoiceNinjaModule)
+* [Laminas Framework](https://github.com/alexz707/InvoiceNinjaModule)
 * [Custom Module](https://invoice-ninja.readthedocs.io/en/latest/custom_modules.html) | [Watch Video](https://www.youtube.com/watch?v=8jJ-PYuq85k)
 
 ## Third Party Modules
