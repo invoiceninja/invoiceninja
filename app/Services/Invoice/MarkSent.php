@@ -33,8 +33,8 @@ class MarkSent extends AbstractService
     public function run()
     {
 
-        /* Return immediately if status is not draft */
-        if ($this->invoice && $this->invoice->fresh()->status_id != Invoice::STATUS_DRAFT) {
+        /* Return immediately if status is not draft or invoice has been deleted */
+        if ($this->invoice && ($this->invoice->fresh()->status_id != Invoice::STATUS_DRAFT || $this->invoice->is_deleted)) {
             return $this->invoice;
         }
 
