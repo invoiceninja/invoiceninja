@@ -51,6 +51,7 @@ class PdfMaker
 
         $this->commonmark = new CommonMarkConverter([
             'allow_unsafe_links' => false,
+            // 'html_input' => 'allow',
         ]);
     }
 
