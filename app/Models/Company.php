@@ -97,6 +97,7 @@ class Company extends BaseModel
         'use_comma_as_decimal_place',
         'report_include_drafts',
         'client_registration_fields',
+        'convert_rate_to_client',
     ];
 
     protected $hidden = [

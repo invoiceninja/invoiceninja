@@ -10,9 +10,11 @@
  */
 namespace Tests\Feature;
 
+use App\Helpers\Invoice\InvoiceSum;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Invoice;
+use App\Repositories\InvoiceRepository;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -41,6 +43,62 @@ class InvoiceTest extends TestCase
         Model::reguard();
 
         $this->makeTestData();
+    }
+
+    public function testMarkingDeletedInvoiceAsSent()
+    {
+
+     Client::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id])->each(function ($c) {
+            ClientContact::factory()->create([
+                'user_id' => $this->user->id,
+                'client_id' => $c->id,
+                'company_id' => $this->company->id,
+                'is_primary' => 1,
+            ]);
+
+            ClientContact::factory()->create([
+                'user_id' => $this->user->id,
+                'client_id' => $c->id,
+                'company_id' => $this->company->id,
+            ]);
+        });
+
+        $client = Client::all()->first();
+
+        $invoice = Invoice::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $this->client->id]);
+        $invoice->status_id = Invoice::STATUS_DRAFT;
+
+        $invoice->line_items = $this->buildLineItems();
+        $invoice->uses_inclusive_taxes = false;
+        $invoice->tax_rate1 = 0;
+        $invoice->tax_rate2 = 0;
+        $invoice->tax_rate3 = 0;
+        $invoice->discount = 0;
+
+        $invoice->save();
+
+        $invoice_calc = new InvoiceSum($invoice);
+        $invoice_calc->build();
+
+        $invoice = $invoice_calc->getInvoice();
+        $invoice->save();
+
+        $this->assertEquals(Invoice::STATUS_DRAFT, $invoice->status_id);
+        $this->assertEquals(10, $invoice->amount);
+        $this->assertEquals(0, $invoice->balance);
+
+        $invoice_repository  = new InvoiceRepository();
+        $invoice = $invoice_repository->delete($invoice);
+
+
+        $this->assertEquals(10, $invoice->amount);
+        $this->assertEquals(0, $invoice->balance);
+        $this->assertTrue($invoice->is_deleted);
+
+        $invoice->service()->markSent()->save();
+
+        $this->assertEquals(0, $invoice->balance);
+
     }
 
     public function testInvoiceList()
