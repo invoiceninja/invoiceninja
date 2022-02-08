@@ -2,12 +2,19 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
+use App\Events\Credit\CreditWasViewed;
+use App\Events\Invoice\InvoiceWasViewed;
+use App\Events\Misc\InvitationWasViewed;
+use App\Events\Quote\QuoteWasViewed;
 use App\Http\Controllers\Controller;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class EntityViewController extends Controller
@@ -19,7 +26,7 @@ class EntityViewController extends Controller
      *
      * @var array
      */
-    private $entity_types = ['invoice', 'quote'];
+    private $entity_types = ['invoice', 'quote', 'credit', 'recurring_invoice'];
 
     /**
      * Show the entity outside client portal.
@@ -118,4 +125,54 @@ class EntityViewController extends Controller
 
         return back();
     }
+
+    public function handlePasswordSet(Request $request)
+    {
+        $entity_obj = 'App\Models\\'.ucfirst(Str::camel($request->entity_type)).'Invitation';
+        $key = $request->entity_type.'_id';
+
+        $invitation = $entity_obj::where('key', $request->invitation_key)
+                                    ->whereHas($request->entity_type, function ($query) {
+                                         $query->where('is_deleted',0);
+                                    })
+                                    ->with('contact.client')
+                                    ->first();
+
+        $contact = $invitation->contact;
+        $contact->password = Hash::make($request->password);
+        $contact->save();
+
+        $request->session()->invalidate();
+        auth()->guard('contact')->loginUsingId($contact->id, true);
+
+        if (! $invitation->viewed_date) {
+            $invitation->markViewed();
+
+            event(new InvitationWasViewed($invitation->{$request->entity_type}, $invitation, $invitation->{$request->entity_type}->company, Ninja::eventVars()));
+
+            $this->fireEntityViewedEvent($invitation, $request->entity_type);
+        }
+        
+        return redirect()->route('client.'.$request->entity_type.'.show', [$request->entity_type => $this->encodePrimaryKey($invitation->{$key})]);
+        
+    }
+
+    private function fireEntityViewedEvent($invitation, $entity_string)
+    {
+        switch ($entity_string) {
+            case 'invoice':
+                event(new InvoiceWasViewed($invitation, $invitation->company, Ninja::eventVars()));
+                break;
+            case 'quote':
+                event(new QuoteWasViewed($invitation, $invitation->company, Ninja::eventVars()));
+                break;
+            case 'credit':
+                event(new CreditWasViewed($invitation, $invitation->company, Ninja::eventVars()));
+                break;
+            default:
+                // code...
+                break;
+        }
+    }
+
 }
