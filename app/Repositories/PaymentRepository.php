@@ -107,6 +107,10 @@ class PaymentRepository extends BaseRepository {
         $payment->is_manual = true;
         $payment->status_id = Payment::STATUS_COMPLETED;
 
+        if (! $payment->currency_id) {
+            $payment->currency_id = $client->company->settings->currency_id;
+        }
+
         $payment->save();
 
         /*Save documents*/
