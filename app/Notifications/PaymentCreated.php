@@ -33,7 +33,7 @@ class PaymentCreated extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-        return ['slack'];
+        return [];
     }
 
     /**

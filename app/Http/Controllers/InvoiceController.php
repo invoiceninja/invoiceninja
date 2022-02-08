@@ -25,9 +25,9 @@ use App\Services\RecurringInvoiceService;
 use Auth;
 use Cache;
 use DB;
+use Illuminate\Support\Facades\Session;
 use Redirect;
 use Request;
-use Session;
 use URL;
 use Utils;
 use View;
@@ -427,7 +427,7 @@ class InvoiceController extends BaseController
             $response = $this->emailRecurringInvoice($invoice);
         } else {
             $userId = Auth::user()->id;
-            $this->dispatch(new SendInvoiceEmail($invoice, $userId, $reminder, $template));
+            dispatch(new SendInvoiceEmail($invoice, $userId, $reminder, $template));
             $response = true;
         }
 

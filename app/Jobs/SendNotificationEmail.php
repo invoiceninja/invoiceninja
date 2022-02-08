@@ -2,51 +2,53 @@
 
 namespace App\Jobs;
 
+use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Traits\SerialisesDeletedModels;
+use App\Models\User;
 use App\Ninja\Mailers\UserMailer;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use App\Models\Traits\SerialisesDeletedModels;
 
 /**
  * Class SendInvoiceEmail.
  */
 class SendNotificationEmail extends Job implements ShouldQueue
 {
-    use InteractsWithQueue, SerializesModels, SerialisesDeletedModels {
-        SerialisesDeletedModels::getRestoredPropertyValue insteadof SerializesModels;
-    }
+    use InteractsWithQueue;
+
+    public $deleteWhenMissingModels = true;
 
     /**
      * @var User
      */
-    protected $user;
+    public User $user;
 
     /**
      * @var Invoice
      */
-    protected $invoice;
+    public Invoice $invoice;
 
     /**
      * @var string
      */
-    protected $type;
+    public $type;
 
     /**
      * @var Payment
      */
-    protected $payment;
+    public ?Payment $payment;
 
     /**
      * @var string
      */
-    protected $notes;
+    public $notes;
 
     /**
      * @var string
      */
-    protected $server;
+    public $server;
 
     /**
      * Create a new job instance.
@@ -59,7 +61,7 @@ class SendNotificationEmail extends Job implements ShouldQueue
      * @param mixed         $type
      * @param mixed         $payment
      */
-    public function __construct($user, $invoice, $type, $payment, $notes)
+    public function __construct(User $user, Invoice $invoice, $type, ?Payment $payment, $notes)
     {
         $this->user = $user;
         $this->invoice = $invoice;

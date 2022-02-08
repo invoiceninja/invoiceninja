@@ -140,7 +140,7 @@ class ClientPortalController extends BaseController
         $paymentURL = '';
         if (count($paymentTypes) == 1) {
             $paymentURL = $paymentTypes[0]['url'];
-            if (in_array($paymentTypes[0]['gatewayTypeId'], [GATEWAY_TYPE_CUSTOM1, GATEWAY_TYPE_CUSTOM2, GATEWAY_TYPE_CUSTOM3])) {
+            if (array_key_exists('gatewayTypeId', $paymentTypes[0]) && in_array($paymentTypes[0]['gatewayTypeId'], [GATEWAY_TYPE_CUSTOM1, GATEWAY_TYPE_CUSTOM2, GATEWAY_TYPE_CUSTOM3])) {
                 // do nothing
             } elseif (! $account->isGatewayConfigured(GATEWAY_PAYPAL_EXPRESS)) {
                 $paymentURL = URL::to($paymentURL);
@@ -162,6 +162,11 @@ class ClientPortalController extends BaseController
             $showApprove = false;
         }
 
+        $gatewayTypeIdCast = false;
+
+        if(count($paymentTypes) >= 1 && array_key_exists('gatewayTypeId', $paymentTypes[0]))
+            $gatewayTypeIdCast = $paymentTypes[0]['gatewayTypeId'];
+
         $data += [
             'account' => $account,
             'showApprove' => $showApprove,
@@ -173,7 +178,7 @@ class ClientPortalController extends BaseController
             'paymentTypes' => $paymentTypes,
             'paymentURL' => $paymentURL,
             'phantomjs' => Request::has('phantomjs'),
-            'gatewayTypeId' => count($paymentTypes) == 1 ? $paymentTypes[0]['gatewayTypeId'] : false,
+            'gatewayTypeId' => count($paymentTypes) == 1 ? $gatewayTypeIdCast : false,
         ];
 
         if ($invoice->canBePaid()) {

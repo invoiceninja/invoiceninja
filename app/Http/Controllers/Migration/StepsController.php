@@ -167,7 +167,7 @@ class StepsController extends BaseController
 
         $body = [
             'account_key' => $account->account_key,
-            'email' => \Auth::user()->email,
+            'email' => $account->getPrimaryUser()->email,
             'plan' => $account->company->plan,
             'plan_term' =>$account->company->plan_term,
             'plan_started' =>$account->company->plan_started,

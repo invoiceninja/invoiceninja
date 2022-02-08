@@ -206,7 +206,6 @@ trait GenerateMigrationResources
             'client_number_pattern' => $this->account->client_number_pattern ?: '',
             'payment_number_pattern' => '',
             'payment_number_counter' => 0,
-            'payment_terms' => $this->account->payment_terms ?: '',
             'reset_counter_frequency_id' => $this->account->reset_counter_frequency_id ? (string) $this->transformFrequencyId
             ($this->account->reset_counter_frequency_id) : '0',
             'payment_type_id' => $this->account->payment_type_id ? (string) $this->transformPaymentType($this->account->payment_type_id) : '1',
@@ -800,8 +799,8 @@ trait GenerateMigrationResources
                 'due_date_days' => $this->transformDueDate($invoice),
                 'remaining_cycles' => $this->getRemainingCycles($invoice),
                 'invitations' => $this->getResourceInvitations($invoice->invitations, 'recurring_invoice_id'),
-                'auto_bill_enabled' => $this->calcAutoBillEnabled($invoice),
-                'auto_bill' => $this->calcAutoBill($invoice),
+                'auto_bill_enabled' => $this->calcAutoBill($invoice),
+                'auto_bill' => $this->calcAutoBillEnabled($invoice),
             ];
         }
 

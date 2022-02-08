@@ -1,17 +1,20 @@
-<?php namespace App\Listeners;
+<?php 
 
-use App\Ninja\Mailers\UserMailer;
-use App\Ninja\Mailers\ContactMailer;
-use App\Events\InvoiceWasEmailed;
-use App\Events\QuoteWasEmailed;
+namespace App\Listeners;
+
 use App\Events\InvoiceInvitationWasViewed;
-use App\Events\QuoteInvitationWasViewed;
-use App\Events\QuoteInvitationWasApproved;
+use App\Events\InvoiceWasEmailed;
 use App\Events\PaymentWasCreated;
-use App\Services\PushService;
+use App\Events\QuoteInvitationWasApproved;
+use App\Events\QuoteInvitationWasViewed;
+use App\Events\QuoteWasEmailed;
 use App\Jobs\SendNotificationEmail;
 use App\Jobs\SendPaymentEmail;
+use App\Models\Invoice;
+use App\Ninja\Mailers\ContactMailer;
+use App\Ninja\Mailers\UserMailer;
 use App\Notifications\PaymentCreated;
+use App\Services\PushService;
 
 /**
  * Class NotificationListener
@@ -49,7 +52,7 @@ class NotificationListener
      * @param $type
      * @param null $payment
      */
-    private function sendNotifications($invoice, $type, $payment = null, $notes = false)
+    private function sendNotifications(Invoice $invoice, $type, $payment = null, $notes = false)
     {
         foreach ($invoice->account->users as $user)
         {

@@ -34,7 +34,7 @@ require __DIR__.'/../bootstrap/autoload.php';
 
 $app = require_once __DIR__.'/../bootstrap/app.php';
 
-require_once __DIR__.'/../app/Constants.php';
+// require_once __DIR__.'/../app/Constants.php';
 /*
 |--------------------------------------------------------------------------
 | Run The Application
