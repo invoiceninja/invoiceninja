@@ -302,12 +302,13 @@ trait MakesInvoiceValues
             $data[$key][$table_type . ".{$_table_type}3"] = $helpers->formatCustomFieldValue($this->client->company->custom_fields, "{$_table_type}3", $item->custom_value3, $this->client);
             $data[$key][$table_type . ".{$_table_type}4"] = $helpers->formatCustomFieldValue($this->client->company->custom_fields, "{$_table_type}4", $item->custom_value4, $this->client);
 
-            //$data[$key][$table_type.'.quantity'] = Number::formatValue($item->quantity, $this->client->currency());
+            // 08-02-2022 - fix for regression below
+            $data[$key][$table_type.'.quantity'] = Number::formatValue($item->quantity, $this->client->currency());
             
             //change quantity from localized number, to decimal format with no trailing zeroes 06/09/21
         
             //30-01-2022 - improve rounding display for Unit quantity
-            $data[$key][$table_type.'.quantity'] = $item->quantity >=1 ? rtrim(number_format($item->quantity, $this->client->currency()->precision), $locale_info['decimal_point']) : rtrim(number_format($item->quantity,15), 0);
+            // $data[$key][$table_type.'.quantity'] = $item->quantity >=1 ? rtrim(number_format($item->quantity, $this->client->currency()->precision), $locale_info['decimal_point']) : rtrim(number_format($item->quantity,15), 0);
             // $data[$key][$table_type.'.quantity'] =  rtrim($item->quantity, $locale_info['decimal_point']);
 
             //30-01-2022 - improve rounding display for Unit Cost
