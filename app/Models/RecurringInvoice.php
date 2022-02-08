@@ -107,6 +107,7 @@ class RecurringInvoice extends BaseModel
         'design_id',
         'assigned_user_id',
         'exchange_rate',
+        'vendor_id',
     ];
 
     protected $casts = [
@@ -155,6 +156,11 @@ class RecurringInvoice extends BaseModel
         }
 
         return $value;
+    }
+
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class);
     }
 
     public function activities()

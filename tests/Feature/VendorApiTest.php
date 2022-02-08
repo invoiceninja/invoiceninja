@@ -75,6 +75,42 @@ class VendorApiTest extends TestCase
 
     }
 
+
+    public function testAddVendorToRecurringInvoice()
+    {
+        $data = [
+            'name' => $this->faker->firstName,
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/vendors', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+        $vendor_id = $arr['data']['id'];
+
+        $data = [
+            'vendor_id' => $vendor_id,
+            'client_id' => $this->client->hashed_id,
+            'frequency_id' => 1,   
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/recurring_invoices', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals($arr['data']['vendor_id'], $vendor_id);
+
+    }
+
     public function testAddVendorToQuote()
     {
         $data = [
