@@ -13,14 +13,18 @@ namespace App\Import\Providers;
 use App\Factory\ClientFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\PaymentFactory;
+use App\Factory\QuoteFactory;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
+use App\Http\Requests\Quote\StoreQuoteRequest;
 use App\Import\ImportException;
 use App\Models\Company;
 use App\Models\Invoice;
+use App\Models\Quote;
 use App\Models\User;
 use App\Repositories\ClientRepository;
 use App\Repositories\InvoiceRepository;
 use App\Repositories\PaymentRepository;
+use App\Repositories\QuoteRepository;
 use App\Utils\Traits\CleanLineItems;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -352,6 +356,116 @@ class BaseImport
 		}
 
 		return $invoice;
+	}
+
+	private function actionQuoteStatus(
+		$quote,
+		$quote_data,
+		$quote_repository
+	) {
+		if (!empty($invoice_data['archived'])) {
+			$quote_repository->archive($quote);
+			$quote->fresh();
+		}
+
+		if (!empty($invoice_data['viewed'])) {
+			$quote = $quote
+				->service()
+				->markViewed()
+				->save();
+		}
+
+		if ($quote->status_id === Quote::STATUS_DRAFT) {
+		} elseif ($quote->status_id === Quote::STATUS_SENT) {
+			$quote = $quote
+				->service()
+				->markSent()
+				->save();
+		} 
+
+		return $quote;
+	}
+
+	public function ingestQuotes($quotes, $quote_number_key)
+	{
+		$quote_transformer = $this->transformer;
+
+		/** @var ClientRepository $client_repository */
+		$client_repository = app()->make(ClientRepository::class);
+		$client_repository->import_mode = true;
+
+		$quote_repository = new QuoteRepository();
+		$quote_repository->import_mode = true;
+
+		$quotes = $this->groupInvoices($quotes, $quote_number_key);
+
+		foreach ($quotes as $raw_quote) {
+			try {
+				$quote_data = $quote_transformer->transform($raw_quote);
+				$quote_data['line_items'] = $this->cleanItems(
+					$quote_data['line_items'] ?? []
+				);
+
+				// If we don't have a client ID, but we do have client data, go ahead and create the client.
+				if (
+					empty($quote_data['client_id']) &&
+					!empty($quote_data['client'])
+				) {
+					$client_data = $quote_data['client'];
+					$client_data['user_id'] = $this->getUserIDForRecord(
+						$quote_data
+					);
+
+					$client_repository->save(
+						$client_data,
+						$client = ClientFactory::create(
+							$this->company->id,
+							$client_data['user_id']
+						)
+					);
+					$quote_data['client_id'] = $client->id;
+					unset($quote_data['client']);
+				}
+
+				$validator = Validator::make(
+					$quote_data,
+					(new StoreQuoteRequest())->rules()
+				);
+				if ($validator->fails()) {
+					$this->error_array['invoice'][] = [
+						'quote' => $quote_data,
+						'error' => $validator->errors()->all(),
+					];
+				} else {
+					$quote = QuoteFactory::create(
+						$this->company->id,
+						$this->getUserIDForRecord($quote_data)
+					);
+					if (!empty($quote_data['status_id'])) {
+						$quote->status_id = $quote_data['status_id'];
+					}
+					$quote_repository->save($quote_data, $quote);
+
+					$this->actionQuoteStatus(
+						$quote,
+						$quote_data,
+						$quote_repository
+					);
+				}
+			} catch (\Exception $ex) {
+				if ($ex instanceof ImportException) {
+					$message = $ex->getMessage();
+				} else {
+					report($ex);
+					$message = 'Unknown error';
+				}
+
+				$this->error_array['quote'][] = [
+					'invoice' => $raw_quote,
+					'error' => $message,
+				];
+			}
+		}
 	}
 
 	protected function getUserIDForRecord($record)
