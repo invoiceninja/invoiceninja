@@ -160,7 +160,7 @@ class QuoteController extends Controller
         $quotes = Quote::whereIn('id', $ids)
             ->where('client_id', auth('contact')->user()->client->id)
             ->where('company_id', auth('contact')->user()->client->company_id)
-            ->where('status_id', Quote::STATUS_SENT)
+            ->whereIn('status_id', [Quote::STATUS_DRAFT, Quote::STATUS_SENT])
             ->withTrashed()
             ->get();
 

@@ -79,7 +79,7 @@ class InvoiceService
     public function setExchangeRate()
     {
 
-        if($this->invoice->exchange_rate != 0)
+        if($this->invoice->exchange_rate != 1)
             return $this;
 
         $client_currency = $this->invoice->client->getSetting('currency_id');
