@@ -41,6 +41,111 @@ class VendorApiTest extends TestCase
         Model::reguard();
     }
 
+    public function testAddVendorToInvoice()
+    {
+        $data = [
+            'name' => $this->faker->firstName,
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/vendors', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+        $vendor_id =$arr['data']['id'];
+
+        $data = [
+            'vendor_id' => $vendor_id,
+            'client_id' => $this->client->hashed_id   
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/invoices', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals($arr['data']['vendor_id'], $vendor_id);
+
+    }
+
+    public function testAddVendorToQuote()
+    {
+        $data = [
+            'name' => $this->faker->firstName,
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/vendors', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+        $vendor_id =$arr['data']['id'];
+
+        $data = [
+            'vendor_id' => $vendor_id,
+            'client_id' => $this->client->hashed_id   
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/quotes', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals($arr['data']['vendor_id'], $vendor_id);
+
+    }
+
+
+    public function testAddVendorToCredit()
+    {
+        $data = [
+            'name' => $this->faker->firstName,
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/vendors', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+        $vendor_id =$arr['data']['id'];
+
+        $data = [
+            'vendor_id' => $vendor_id,
+            'client_id' => $this->client->hashed_id   
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/credits', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals($arr['data']['vendor_id'], $vendor_id);
+
+    }
+
+
+
     public function testVendorPost()
     {
         $data = [
