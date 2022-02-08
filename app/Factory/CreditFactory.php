@@ -37,6 +37,8 @@ class CreditFactory
         $credit->tax_rate1 = 0;
         $credit->tax_name2 = '';
         $credit->tax_rate2 = 0;
+        $credit->tax_name3 = '';
+        $credit->tax_rate3 = 0;
         $credit->custom_value1 = '';
         $credit->custom_value2 = '';
         $credit->custom_value3 = '';

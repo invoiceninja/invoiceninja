@@ -364,6 +364,21 @@ class BaseTransformer
     }
 
     /**
+     * @param $quote_number
+     *
+     * @return bool
+     */
+    public function hasQuote($quote_number)
+    {
+        return $this->company
+            ->quotes()
+            ->whereRaw("LOWER(REPLACE(`number`, ' ' ,''))  = ?", [
+                strtolower(str_replace(' ', '', $quote_number)),
+            ])
+            ->exists();
+    }
+
+    /**
      * @param $invoice_number
      *
      * @return int|null

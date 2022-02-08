@@ -88,10 +88,65 @@ class ProcessPostmarkWebhook implements ShouldQueue
                 return $this->processBounce();
             case 'SpamComplaint':
                 return $this->processSpamComplaint();
+            case 'Open':
+                return $this->processOpen();
             default:
                 # code...
                 break;
         }
+
+    }
+
+// {
+//   "Metadata": {
+//     "example": "value",
+//     "example_2": "value"
+//   },
+//   "RecordType": "Open",
+//   "FirstOpen": true,
+//   "Client": {
+//     "Name": "Chrome 35.0.1916.153",
+//     "Company": "Google",
+//     "Family": "Chrome"
+//   },
+//   "OS": {
+//     "Name": "OS X 10.7 Lion",
+//     "Company": "Apple Computer, Inc.",
+//     "Family": "OS X 10"
+//   },
+//   "Platform": "WebMail",
+//   "UserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36",
+//   "ReadSeconds": 5,
+//   "Geo": {
+//     "CountryISOCode": "RS",
+//     "Country": "Serbia",
+//     "RegionISOCode": "VO",
+//     "Region": "Autonomna Pokrajina Vojvodina",
+//     "City": "Novi Sad",
+//     "Zip": "21000",
+//     "Coords": "45.2517,19.8369",
+//     "IP": "188.2.95.4"
+//   },
+//   "MessageID": "00000000-0000-0000-0000-000000000000",
+//   "MessageStream": "outbound",
+//   "ReceivedAt": "2022-02-06T06:37:48Z",
+//   "Tag": "welcome-email",
+//   "Recipient": "john@example.com"
+// }    
+
+    private function processOpen()
+    {
+
+        $this->invitation->opened_date = now();
+        $this->invitation->save();
+
+        SystemLogger::dispatch($this->request, 
+            SystemLog::CATEGORY_MAIL, 
+            SystemLog::EVENT_MAIL_OPENED, 
+            SystemLog::TYPE_WEBHOOK_RESPONSE, 
+            $this->invitation->contact->client,
+            $this->invitation->company
+        );
 
     }
 

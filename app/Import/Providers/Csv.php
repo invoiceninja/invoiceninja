@@ -227,10 +227,12 @@ class Csv extends BaseImport implements ImportInterface
 
     private function quote()
     {
+
     }
 
     private function task()
     {
+        
     }
 
     public function preTransform(array $data, $entity_type)

@@ -153,6 +153,10 @@ class HtmlEngine
                 $data['$project.name'] = ['value' => $this->entity->project->name, 'label' => ctrans('texts.project_name')];
                 $data['$invoice.project'] = &$data['$project.name'];
             }
+
+            if($this->entity->vendor) {
+                $data['$invoice.vendor'] = ['value' => $this->entity->vendor->present()->name(), 'label' => ctrans('texts.vendor_name')];
+            }
         }
 
         if ($this->entity_string == 'quote') {
