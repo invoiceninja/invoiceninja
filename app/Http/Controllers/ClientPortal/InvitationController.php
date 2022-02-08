@@ -102,6 +102,17 @@ class InvitationController extends Controller
             auth()->guard('contact')->loginUsingId($client_contact->id, true);
 
         } elseif ((bool) $invitation->contact->client->getSetting('enable_client_portal_password') !== false) {
+
+            //if no contact password has been set - allow user to set password - then continue to view entity
+            if(empty($invitation->contact->password)){
+
+                    return $this->render('view_entity.set_password', [
+                                'root' => 'themes',
+                                'entity_type' => $entity,
+                                'invitation_key' => $invitation_key
+                            ]);
+            }
+
             $this->middleware('auth:contact');
             return redirect()->route('client.login');
 

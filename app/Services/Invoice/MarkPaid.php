@@ -116,6 +116,9 @@ class MarkPaid extends AbstractService
     private function setExchangeRate(Payment $payment)
     {
 
+        if($payment->exchange_rate != 1)
+            return;
+
         $client_currency = $payment->client->getSetting('currency_id');
         $company_currency = $payment->client->company->settings->currency_id;
 

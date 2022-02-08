@@ -210,6 +210,7 @@ class PaymentRepository extends BaseRepository {
             $payment->exchange_currency_id = $company_currency;
             $payment->currency_id = $client_currency;
 
+            return $payment;
         }
         
         $payment->currency_id = $company_currency;

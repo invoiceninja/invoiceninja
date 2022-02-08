@@ -78,6 +78,7 @@ class Credit extends BaseModel
         'assigned_user_id',
         'exchange_rate',
         'subscription_id',
+        'vendor_id',
     ];
 
     protected $casts = [
@@ -121,6 +122,11 @@ class Credit extends BaseModel
     public function assigned_user()
     {
         return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
+    }
+
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class);
     }
 
     public function history()

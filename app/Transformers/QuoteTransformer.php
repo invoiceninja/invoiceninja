@@ -95,6 +95,7 @@ class QuoteTransformer extends EntityTransformer
             'status_id' => (string) $quote->status_id,
             'design_id' => (string) $this->encodePrimaryKey($quote->design_id),
             'invoice_id' => (string) $this->encodePrimaryKey($quote->invoice_id),
+            'vendor_id' => (string) $this->encodePrimaryKey($quote->vendor_id),
             'updated_at' => (int) $quote->updated_at,
             'archived_at' => (int) $quote->deleted_at,
             'created_at' => (int) $quote->created_at,

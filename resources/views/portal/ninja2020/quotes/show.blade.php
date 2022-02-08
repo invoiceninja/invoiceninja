@@ -21,14 +21,12 @@
         @endcomponent
     @endif
 
-    @if($quote->status_id === \App\Models\Quote::STATUS_SENT)
+    @if(in_array($quote->status_id, [\App\Models\Quote::STATUS_SENT, \App\Models\Quote::STATUS_DRAFT]))
         <div class="mb-4">
             @include('portal.ninja2020.quotes.includes.actions', ['quote' => $quote])
         </div>
     @elseif($quote->status_id === \App\Models\Quote::STATUS_APPROVED)
         <p class="text-right text-gray-900 text-sm mb-4">{{ ctrans('texts.approved') }}</p>
-    @else
-        <p class="text-right text-gray-900 text-sm mb-4">{{ ctrans('texts.quotes_with_status_sent_can_be_approved') }}</p>
     @endif
 
     @include('portal.ninja2020.components.entity-documents', ['entity' => $quote])

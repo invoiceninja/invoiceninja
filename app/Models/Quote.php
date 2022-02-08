@@ -76,6 +76,7 @@ class Quote extends BaseModel
         'exchange_rate',
         'subscription_id',
         'uses_inclusive_taxes',
+        'vendor_id',
     ];
 
     protected $casts = [
@@ -131,6 +132,11 @@ class Quote extends BaseModel
     public function company()
     {
         return $this->belongsTo(Company::class);
+    }
+
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class);
     }
 
     public function history()
