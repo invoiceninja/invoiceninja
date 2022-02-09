@@ -14,11 +14,13 @@ namespace App\Utils;
 
 use App\Models\Country;
 use App\Models\CreditInvitation;
+use App\Models\GatewayType;
 use App\Models\InvoiceInvitation;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
 use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
 use App\Utils\Ninja;
+use App\Utils\Number;
 use App\Utils\Traits\MakesDates;
 use App\Utils\transformTranslations;
 use Exception;
@@ -511,6 +513,20 @@ class HtmlEngine
         $data['$statement'] = ['value' => '', 'label' => ctrans('texts.statement')];
 
         $data['$entity_images'] = ['value' => $this->generateEntityImagesMarkup(), 'label' => ''];
+
+        $data['$payments'] = ['value' => '', 'label' => ctrans('texts.payments')];
+
+        if ($this->entity_string == 'invoice' && $this->entity->payments()->exists()) {
+            
+            $payment_list = '<br><br>';
+
+            foreach ($this->entity->payments as $payment) {
+                $payment_list .= ctrans('texts.payment_subject') . ": " . $this->formatDate($payment->date, $this->client->date_format()) . " :: " . Number::formatMoney($payment->amount, $this->client) ." :: ". GatewayType::getAlias($payment->gateway_type_id) . "<br>";
+            }
+
+            $data['$payments'] = ['value' => $payment_list, 'label' => ctrans('texts.payments')];
+        }
+
 
         $arrKeysLength = array_map('strlen', array_keys($data));
         array_multisort($arrKeysLength, SORT_DESC, $data);
