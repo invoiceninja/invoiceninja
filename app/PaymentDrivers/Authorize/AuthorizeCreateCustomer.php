@@ -119,4 +119,30 @@ class AuthorizeCreateCustomer
 
         return $response;
     }
+
+
+
+// This is how we can harvest client profiles and attach them within Invoice Ninja
+// $request = new net\authorize\api\contract\v1\GetCustomerProfileRequest();
+// $request->setMerchantAuthentication($driver->merchant_authentication);
+// $request->setCustomerProfileId($gateway_customer_reference);
+// $controller = new net\authorize\api\controller\GetCustomerProfileController($request);
+// $response = $controller->executeWithApiResponse($driver->mode());
+
+// if (($response != null) && ($response->getMessages()->getResultCode() == "Ok") )
+// {
+//   echo "GetCustomerProfile SUCCESS : " .  "\n";
+//   $profileSelected = $response->getProfile();
+//   $paymentProfilesSelected = $profileSelected->getPaymentProfiles();
+//   echo "Profile Has " . count($paymentProfilesSelected). " Payment Profiles" . "\n";
+
+// foreach ($profileSelected->getPaymentProfiles() as $paymentProfile) {
+//   echo "\nCustomer Profile ID: " . $paymentProfile->getCustomerProfileId() . "\n";
+//   echo "Payment profile ID: " . $paymentProfile->getCustomerPaymentProfileId() . "\n";
+//   echo "Credit Card Number: " . $paymentProfile->getPayment()->getCreditCard()->getCardNumber() . "\n";
+//   if ($paymentProfile->getBillTo() != null) {
+//       echo "First Name in Billing Address: " . $paymentProfile->getBillTo()->getFirstName() . "\n";
+//   }
+// }
+  
 }
