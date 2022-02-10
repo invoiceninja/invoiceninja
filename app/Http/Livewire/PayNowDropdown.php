@@ -29,7 +29,7 @@ class PayNowDropdown extends Component
 
         $this->total = $total;
 
-        $this->methods = auth()->user()->client->service()->getPaymentMethods($total);
+        $this->methods = auth()->guard('contact')->user()->client->service()->getPaymentMethods($total);
     }
 
     public function render()

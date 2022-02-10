@@ -18,4 +18,17 @@ interface ImportInterface
     public function preTransform(array $data, string $entity_type);
 
     public function transform(array $data);
+
+    public function client();
+
+    public function product();
+
+    public function invoice();
+
+    public function payment();
+
+    public function vendor();
+
+    public function expense();
+
 }

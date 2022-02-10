@@ -74,12 +74,12 @@ class InvoiceController extends Controller
 
         $data = [
             'invoice' => $invoice,
+            'key' => $invitation->key
         ];
 
         if ($request->query('mode') === 'fullscreen') {
             return render('invoices.show-fullscreen', $data);
         }
-            // $request->fullUrlWithQuery(['q' => null]);
         return $this->render('invoices.show', $data);
     }
 

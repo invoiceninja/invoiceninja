@@ -7,6 +7,7 @@
     @include('portal.ninja2020.components.no-cache')
     
     <script src="{{ asset('vendor/signature_pad@2.3.2/signature_pad.min.js') }}"></script>
+
 @endpush
 
 @section('body')
@@ -38,6 +39,14 @@
                                 {{ ctrans('texts.invoice_number_placeholder', ['invoice' => $invoice->number])}}
                                 - {{ ctrans('texts.unpaid') }}
                             </h3>
+
+                            <div class="btn" data-clipboard-text="{{url("client/invoice/{$key}")}}" aria-label="Copied!">
+                                <div class="flex text-sm leading-6 font-medium text-gray-500">
+                                    <p class="mr-2">{{url("client/invoice/{$key}")}}</p>
+                                    <p><img class="h-5 w-5" src="{{ asset('assets/clippy.svg') }}" alt="Copy to clipboard"></p>
+                                </div>
+                            </div>
+
                         </div>
                         <div class="mt-5 sm:mt-0 sm:ml-6 flex justify-end">
                             <div class="inline-flex rounded-md shadow-sm">
@@ -64,6 +73,13 @@
                             {{ ctrans('texts.invoice_number_placeholder', ['invoice' => $invoice->number])}}
                             - {{ \App\Models\Invoice::stringStatus($invoice->status_id) }}
                         </h3>
+
+                            <div class="btn" data-clipboard-text="{{url("client/invoice/{$key}")}}" aria-label="Copied!">
+                                <div class="flex text-sm leading-6 font-medium text-gray-500">
+                                    <p class="pr-10">{{url("client/invoice/{$key}")}}</p>
+                                    <p><img class="h-5 w-5" src="{{ asset('assets/clippy.svg') }}" alt="Copy to clipboard"></p>
+                                </div>
+                            </div>
                     </div>
                 </div>
             </div>
@@ -78,4 +94,24 @@
 
 @section('footer')
     <script src="{{ asset('js/clients/invoices/payment.js') }}"></script>
+    <script src="{{ asset('vendor/clipboard.min.js') }}"></script>
+
+    <script type="text/javascript">
+
+        var clipboard = new ClipboardJS('.btn');
+
+            // clipboard.on('success', function(e) {
+            //     console.info('Action:', e.action);
+            //     console.info('Text:', e.text);
+            //     console.info('Trigger:', e.trigger);
+
+            //     e.clearSelection();
+            // });
+
+            // clipboard.on('error', function(e) {
+            //     console.error('Action:', e.action);
+            //     console.error('Trigger:', e.trigger);
+            // });
+
+    </script>
 @endsection

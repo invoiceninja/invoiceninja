@@ -96,7 +96,7 @@ class GatewayType extends StaticModel
             case self::FPX:
                 return ctrans('texts.fpx');
             default:
-                return 'Undefined.';
+                return ' ';
                 break;
         }
     }

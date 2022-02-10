@@ -58,11 +58,13 @@ class QuoteController extends Controller
     {   
         /* If the quote is expired, convert the status here */
 
-        $data = [
-            'quote' => $quote,
-        ];
 
         $invitation = $quote->invitations()->where('client_contact_id', auth()->user()->id)->first();
+
+        $data = [
+            'quote' => $quote,
+            'key' => $invitation->key,
+        ];
 
         if ($invitation && auth()->guard('contact') && ! request()->has('silent') && ! $invitation->viewed_date) {
 

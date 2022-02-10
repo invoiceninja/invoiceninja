@@ -17,6 +17,9 @@ use App\Factory\QuoteFactory;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Http\Requests\Quote\StoreQuoteRequest;
 use App\Import\ImportException;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
+use App\Mail\Import\ImportCompleted;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Quote;
@@ -492,5 +495,21 @@ class BaseImport
 		} else {
 			return $this->company->owner()->id;
 		}
+	}
+
+	protected function finalizeImport()
+	{
+		$data = [
+			'errors'  => $this->error_array,
+			'company' => $this->company,
+		];
+
+		$nmo = new NinjaMailerObject;
+		$nmo->mailable = new ImportCompleted($this->company, $data);
+		$nmo->company = $this->company;
+		$nmo->settings = $this->company->settings;
+		$nmo->to_user = $this->company->owner();
+
+		NinjaMailerJob::dispatch($nmo);
 	}
 }

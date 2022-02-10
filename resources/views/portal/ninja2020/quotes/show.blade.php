@@ -25,8 +25,67 @@
         <div class="mb-4">
             @include('portal.ninja2020.quotes.includes.actions', ['quote' => $quote])
         </div>
+    @elseif($quote->status_id === \App\Models\Quote::STATUS_CONVERTED)
+
+        <div class="bg-white shadow sm:rounded-lg mb-4">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="sm:flex sm:items-start sm:justify-between">
+                    <div>
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">
+                            {{ ctrans('texts.approved') }}
+                        </h3>
+
+                            <div class="btn" data-clipboard-text="{{url("client/quote/{$key}")}}" aria-label="Copied!">
+                                <div class="flex text-sm leading-6 font-medium text-gray-500">
+                                    <p class="mr-2">{{url("client/quote/{$key}")}}</p>
+                                    <p><img class="h-5 w-5" src="{{ asset('assets/clippy.svg') }}" alt="Copy to clipboard"></p>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     @elseif($quote->status_id === \App\Models\Quote::STATUS_APPROVED)
-        <p class="text-right text-gray-900 text-sm mb-4">{{ ctrans('texts.approved') }}</p>
+
+        <div class="bg-white shadow sm:rounded-lg mb-4">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="sm:flex sm:items-start sm:justify-between">
+                    <div>
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">
+                            {{ ctrans('texts.approved') }}
+                        </h3>
+
+                            <div class="btn" data-clipboard-text="{{url("client/quote/{$key}")}}" aria-label="Copied!">
+                                <div class="flex text-sm leading-6 font-medium text-gray-500">
+                                    <p class="mr-2">{{url("client/quote/{$key}")}}</p>
+                                    <p><img class="h-5 w-5" src="{{ asset('assets/clippy.svg') }}" alt="Copy to clipboard"></p>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @else
+
+        <div class="bg-white shadow sm:rounded-lg mb-4">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="sm:flex sm:items-start sm:justify-between">
+                    <div>
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">
+                            {{ ctrans('texts.expired') }}
+                        </h3>
+
+                            <div class="btn" data-clipboard-text="{{url("client/quote/{$key}")}}" aria-label="Copied!">
+                                <div class="flex text-sm leading-6 font-medium text-gray-500">
+                                    <p class="mr-2">{{url("client/quote/{$key}")}}</p>
+                                    <p><img class="h-5 w-5" src="{{ asset('assets/clippy.svg') }}" alt="Copy to clipboard"></p>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     @endif
 
     @include('portal.ninja2020.components.entity-documents', ['entity' => $quote])
@@ -37,4 +96,24 @@
 
 @section('footer')
     <script src="{{ asset('js/clients/quotes/approve.js') }}"></script>
+    <script src="{{ asset('vendor/clipboard.min.js') }}"></script>
+
+    <script type="text/javascript">
+
+        var clipboard = new ClipboardJS('.btn');
+
+            // clipboard.on('success', function(e) {
+            //     console.info('Action:', e.action);
+            //     console.info('Text:', e.text);
+            //     console.info('Trigger:', e.trigger);
+
+            //     e.clearSelection();
+            // });
+
+            // clipboard.on('error', function(e) {
+            //     console.error('Action:', e.action);
+            //     console.error('Trigger:', e.trigger);
+            // });
+
+    </script>
 @endsection

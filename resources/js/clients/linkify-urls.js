@@ -13,7 +13,13 @@ const linkifyUrls = require('linkify-urls');
 document
     .querySelectorAll('[data-ref=entity-terms]')
     .forEach((text) => {
-        text.innerHTML = linkifyUrls(text.innerText, {
-            attributes: {target: '_blank', class: 'text-primary'}
-        });
+
+        if (linkifyUrls === 'function') {
+
+            text.innerHTML = linkifyUrls(text.innerText, {
+                attributes: {target: '_blank', class: 'text-primary'}
+            });
+
+        }
+
     });
