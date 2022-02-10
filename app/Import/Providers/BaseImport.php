@@ -148,16 +148,12 @@ class BaseImport
 	public function ingest($data, $entity_type)
 	{
 		$count = 0;
-nlog("record count = ".count($data));
-nlog($data);
 
 		foreach ($data as $key => $record) {
 
 			try {
-nlog($key);
-nlog($record);
+
 				$entity = $this->transformer->transform($record);
-nlog($entity);
 				/** @var \App\Http\Requests\Request $request */
 				$request = new $this->request_name();
 
@@ -178,20 +174,15 @@ nlog($entity);
 							$this->getUserIDForRecord($entity)
 						)
 					);
-nlog("saving {$entity->name}");
 
 					$entity->saveQuietly();
 					$count++;
 
-					nlog("entity number");
-					nlog($entity->id);
-nlog("after save");
-
 				}
+
 			} catch (\Exception $ex) {
 
-nlog("exception");
-nlog($ex->getMessage());
+
 
 				if ($ex instanceof ImportException) {
 					$message = $ex->getMessage();
@@ -200,16 +191,15 @@ nlog($ex->getMessage());
 					$message = 'Unknown error';
 				}
 
-nlog($message);
-
 				$this->error_array[$entity_type][] = [
 					$entity_type => $record,
 					'error' => $message,
 				];
 			}
 
-			return $count;
 		}
+
+			return $count;
 	}
 
 	public function ingestInvoices($invoices, $invoice_number_key)

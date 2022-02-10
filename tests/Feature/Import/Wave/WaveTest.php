@@ -58,7 +58,7 @@ class WaveTest extends TestCase
             2 => 'contact_first_name',
             3 => 'contact_last_name',
             4 => 'customer_currency',
-            // 5 => 'account_number',
+            5 => 'account_number',
             6 => 'phone',
             7 => 'fax',
             8 => 'mobile',
