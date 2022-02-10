@@ -149,9 +149,13 @@ class BaseImport
 	{
 		$count = 0;
 nlog("record count = ".count($data));
-		foreach ($data as $key => $record) {
-			try {
+nlog($data);
 
+		foreach ($data as $key => $record) {
+
+			try {
+nlog($key);
+nlog($record);
 				$entity = $this->transformer->transform($record);
 nlog($entity);
 				/** @var \App\Http\Requests\Request $request */
@@ -179,10 +183,15 @@ nlog("saving {$entity->name}");
 					$entity->saveQuietly();
 					$count++;
 
+					nlog("entity number");
+					nlog($entity->id);
+nlog("after save");
+
 				}
 			} catch (\Exception $ex) {
 
-nlog($e->getMessage());
+nlog("exception");
+nlog($ex->getMessage());
 
 				if ($ex instanceof ImportException) {
 					$message = $ex->getMessage();
@@ -190,6 +199,8 @@ nlog($e->getMessage());
 					report($ex);
 					$message = 'Unknown error';
 				}
+
+nlog($message);
 
 				$this->error_array[$entity_type][] = [
 					$entity_type => $record,

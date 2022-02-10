@@ -13,6 +13,7 @@ namespace Tests\Feature\Import\CSV;
 
 use App\Import\Providers\Wave;
 use App\Import\Transformer\BaseTransformer;
+use App\Models\Client;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
@@ -50,33 +51,42 @@ class WaveTest extends TestCase
             base_path() . '/tests/Feature/Import/wave_clients.csv'
         );
         $hash = Str::random(32);
-        
+
         $column_map = [
-            0  => 'client.name',
-            1  => 'contact.email',
-            2  => 'contact.first_name',
-            3  => 'contact.last_name',
-            4  => 'client.currency_id',
-            6  => 'client.phone',
-            10 => 'client.website',
-            11 => 'client.country_id',
-            12 => 'client.state',
-            13 => 'client.address1',
-            14 => 'client.address2',
-            15 => 'client.city',
-            16 => 'client.postal_code',
-            19 => 'client.shipping_country_id',
-            20 => 'client.shipping_state',
-            21 => 'client.shipping_address1',
-            22 => 'client.shipping_address2',
-            23 => 'client.shipping_city',
+            0 => 'customer_name',
+            1 => 'email',
+            2 => 'contact_first_name',
+            3 => 'contact_last_name',
+            4 => 'customer_currency',
+            // 5 => 'account_number',
+            6 => 'phone',
+            7 => 'fax',
+            8 => 'mobile',
+            9 => 'toll_free',
+            10 => 'website',
+            11 => 'country',
+            12 => 'province/state',
+            13 => 'address_line_1',
+            14 => 'address_line_2',
+            15 => 'city',
+            16 => 'postal_code/zip_code',
+            17 => 'shipping_address',
+            18 => 'ship-to_contact',
+            19 => 'ship-to_country',
+            20 => 'ship-to_province/state',
+            21 => 'ship-to_address_line_1',
+            22 => 'ship-to_address_line_2',
+            23 => 'ship-to_city',
+            24 => 'ship-to_postal_code/zip_code',
+            25 => 'ship-to_phone',
+            26 => 'delivery_instructions',        
         ];
 
         $data = [
             'hash' => $hash,
             'column_map' => ['client' => ['mapping' => $column_map]],
             'skip_header' => true,
-            'import_type' => 'wave',
+            'import_type' => 'waveaccounting',
         ];
 
         Cache::put($hash . '-client', base64_encode($csv), 360);
@@ -88,9 +98,9 @@ class WaveTest extends TestCase
         $base_transformer = new BaseTransformer($this->company);
 
         $this->assertTrue($base_transformer->hasClient('Homer Simpson'));
-        // $this->assertTrue($base_transformer->hasClient('Jessica Jones'));
-        // $this->assertTrue($base_transformer->hasClient('Lucas Cage'));
-        // $this->assertTrue($base_transformer->hasClient('Mark Walberg'));
+        $this->assertTrue($base_transformer->hasClient('Jessica Jones'));
+        $this->assertTrue($base_transformer->hasClient('Lucas Cage'));
+        $this->assertTrue($base_transformer->hasClient('Mark Walberg'));
 
     }
 

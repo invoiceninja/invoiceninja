@@ -233,6 +233,8 @@ trait MockAccountData
         $user_id = $user->id;
         $this->user = $user;
 
+        auth()->login($user);
+
         CreateCompanyTaskStatuses::dispatchNow($this->company, $this->user);
 
         $this->cu = CompanyUserFactory::create($user->id, $this->company->id, $this->account->id);

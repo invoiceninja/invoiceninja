@@ -48,10 +48,10 @@ class Wave extends BaseImport implements ImportInterface
         $entity_type = 'client';
 
         $data = $this->getCsvData($entity_type);
-nlog($data);
+// nlog($data);
 
         $data = $this->preTransform($data, $entity_type);
-nlog($data);
+// nlog($data);
 
         if (empty($data)) {
             $this->entity_count['clients'] = 0;
@@ -72,6 +72,7 @@ nlog($data);
         $this->entity_count['clients'] = $client_count;
 
         nlog($this->entity_count);
+        nlog($this->error_array);
     }
 
     public function transform(array $data){}
