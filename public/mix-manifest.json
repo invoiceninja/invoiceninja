@@ -15,7 +15,7 @@
     "/js/clients/payments/card-js.min.js": "/js/clients/payments/card-js.min.js?id=8ce33c3deae058ad314f",
     "/js/clients/shared/pdf.js": "/js/clients/shared/pdf.js?id=73a0d914ad3577f257f4",
     "/js/clients/shared/multiple-downloads.js": "/js/clients/shared/multiple-downloads.js?id=c2caa29f753ad1f3a12c",
-    "/js/clients/linkify-urls.js": "/js/clients/linkify-urls.js?id=44c51b4838d1f135bbe3",
+    "/js/clients/linkify-urls.js": "/js/clients/linkify-urls.js?id=dd6a49267dfe156c3bc9",
     "/js/clients/payments/braintree-credit-card.js": "/js/clients/payments/braintree-credit-card.js?id=a334dd9257dd510a1feb",
     "/js/clients/payments/braintree-paypal.js": "/js/clients/payments/braintree-paypal.js?id=37950e8a39281d2f596a",
     "/js/clients/payments/wepay-credit-card.js": "/js/clients/payments/wepay-credit-card.js?id=ba4d5b7175117ababdb2",
@@ -39,5 +39,6 @@
     "/js/clients/payments/stripe-browserpay.js": "/js/clients/payments/stripe-browserpay.js?id=71e49866d66a6d85b88a",
     "/js/clients/payments/stripe-fpx.js": "/js/clients/payments/stripe-fpx.js?id=3a1cac8fb671c2e4337f",
     "/css/app.css": "/css/app.css?id=cab8a6526b0f9f71842d",
-    "/css/card-js.min.css": "/css/card-js.min.css?id=62afeb675235451543ad"
+    "/css/card-js.min.css": "/css/card-js.min.css?id=62afeb675235451543ad",
+    "/vendor/clipboard.min.js": "/vendor/clipboard.min.js?id=ad98572d415d2f245284"
 }

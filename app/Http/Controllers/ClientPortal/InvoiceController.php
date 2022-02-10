@@ -74,6 +74,7 @@ class InvoiceController extends Controller
 
         $data = [
             'invoice' => $invoice,
+            'key' => $invitation->key
         ];
 
         if ($request->query('mode') === 'fullscreen') {
