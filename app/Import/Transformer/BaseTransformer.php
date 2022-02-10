@@ -14,6 +14,7 @@ namespace App\Import\Transformer;
 use App\Factory\ProjectFactory;
 use App\Models\ClientContact;
 use App\Models\Country;
+use App\Models\ExpenseCategory;
 use App\Models\PaymentType;
 use App\Models\User;
 use App\Utils\Number;
@@ -36,6 +37,11 @@ class BaseTransformer
     public function getString($data, $field)
     {
         return isset($data[$field]) && $data[$field] ? $data[$field] : '';
+    }
+
+    public function getValueOrNull($data, $field)
+    {
+      return isset($data[$field]) && $data[$field] ? $data[$field] : null;
     }
 
     public function getCurrencyByCode($data, $key = 'client.currency_id')
@@ -429,6 +435,20 @@ class BaseTransformer
         return $ec ? $ec->id : null;
     }
 
+    public function getOrCreateExpenseCategry($name)
+    {
+        $ec = $this->getExpenseCategoryId($name);
+
+        if($ec)
+            return $ec;
+
+        $expense_category = ExpenseCategory::create($this->company->id, $this->company->owner()->id);
+        $expense_category->name = $name;
+        $expense_category->save();
+
+        return $expense_category->id; 
+    }
+
     /**
      * @param $name
      *
@@ -473,4 +493,6 @@ class BaseTransformer
 
         return $pt ? $pt->id : null;
     }
+
+
 }

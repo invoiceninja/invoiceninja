@@ -237,27 +237,6 @@ class Csv extends BaseImport implements ImportInterface
         
     }
 
-    public function preTransform(array $data, $entity_type)
-    {
-        if (empty($this->column_map[$entity_type])) {
-            return false;
-        }
-
-        if ($this->skip_header) {
-            array_shift($data);
-        }
-
-        //sort the array by key
-        $keys = $this->column_map[$entity_type];
-        ksort($keys);
-
-        $data = array_map(function ($row) use ($keys) {
-            return array_combine($keys, array_intersect_key($row, $keys));
-        }, $data);
-
-        return $data;
-    }
-
     public function transform(array $data)
     {
     }

@@ -148,12 +148,12 @@ class BaseImport
 	public function ingest($data, $entity_type)
 	{
 		$count = 0;
-
+nlog("record count = ".count($data));
 		foreach ($data as $key => $record) {
 			try {
 
 				$entity = $this->transformer->transform($record);
-
+nlog($entity);
 				/** @var \App\Http\Requests\Request $request */
 				$request = new $this->request_name();
 
@@ -174,12 +174,15 @@ class BaseImport
 							$this->getUserIDForRecord($entity)
 						)
 					);
+nlog("saving {$entity->name}");
 
 					$entity->saveQuietly();
 					$count++;
 
 				}
 			} catch (\Exception $ex) {
+
+nlog($e->getMessage());
 
 				if ($ex instanceof ImportException) {
 					$message = $ex->getMessage();
@@ -512,4 +515,25 @@ class BaseImport
 
 		NinjaMailerJob::dispatch($nmo);
 	}
+
+    public function preTransform(array $data, $entity_type)
+    {
+        if (empty($this->column_map[$entity_type])) {
+            return false;
+        }
+
+        if ($this->skip_header) {
+            array_shift($data);
+        }
+
+        //sort the array by key
+        $keys = $this->column_map[$entity_type];
+        ksort($keys);
+
+        $data = array_map(function ($row) use ($keys) {
+            return array_combine($keys, array_intersect_key($row, $keys));
+        }, $data);
+
+        return $data;
+    }
 }

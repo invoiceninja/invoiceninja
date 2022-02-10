@@ -1,0 +1,334 @@
+<?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */
+
+namespace Tests\Feature\Import\CSV;
+
+use App\Import\Providers\Wave;
+use App\Import\Transformer\BaseTransformer;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
+use Tests\MockAccountData;
+use Tests\TestCase;
+
+/**
+ * @test
+ * @covers App\Import\Providers\Wave
+ */
+class WaveTest extends TestCase
+{
+    use MakesHash;
+    use MockAccountData;
+    use DatabaseTransactions;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->withoutMiddleware(ThrottleRequests::class);
+
+        config(['database.default' => config('ninja.db.default')]);
+
+        $this->makeTestData();
+
+        $this->withoutExceptionHandling();
+    }
+
+    public function testClientWaveImport()
+    {
+        $csv = file_get_contents(
+            base_path() . '/tests/Feature/Import/wave_clients.csv'
+        );
+        $hash = Str::random(32);
+        
+        $column_map = [
+            0  => 'client.name',
+            1  => 'contact.email',
+            2  => 'contact.first_name',
+            3  => 'contact.last_name',
+            4  => 'client.currency_id',
+            6  => 'client.phone',
+            10 => 'client.website',
+            11 => 'client.country_id',
+            12 => 'client.state',
+            13 => 'client.address1',
+            14 => 'client.address2',
+            15 => 'client.city',
+            16 => 'client.postal_code',
+            19 => 'client.shipping_country_id',
+            20 => 'client.shipping_state',
+            21 => 'client.shipping_address1',
+            22 => 'client.shipping_address2',
+            23 => 'client.shipping_city',
+        ];
+
+        $data = [
+            'hash' => $hash,
+            'column_map' => ['client' => ['mapping' => $column_map]],
+            'skip_header' => true,
+            'import_type' => 'wave',
+        ];
+
+        Cache::put($hash . '-client', base64_encode($csv), 360);
+
+        $csv_importer = new Wave($data, $this->company);
+
+        $count = $csv_importer->import('client');
+
+        $base_transformer = new BaseTransformer($this->company);
+
+        $this->assertTrue($base_transformer->hasClient('Homer Simpson'));
+        // $this->assertTrue($base_transformer->hasClient('Jessica Jones'));
+        // $this->assertTrue($base_transformer->hasClient('Lucas Cage'));
+        // $this->assertTrue($base_transformer->hasClient('Mark Walberg'));
+
+    }
+
+    // public function testVendorCsvImport()
+    // {
+    //     $csv = file_get_contents(
+    //         base_path() . '/tests/Feature/Import/vendors.csv'
+    //     );
+    //     $hash = Str::random(32);
+    //     $column_map = [
+    //         0 => 'vendor.name',
+    //         19 => 'vendor.currency_id',
+    //         20 => 'vendor.public_notes',
+    //         21 => 'vendor.private_notes',
+    //         22 => 'vendor.first_name',
+    //         23 => 'vendor.last_name',
+    //     ];
+
+    //     $data = [
+    //         'hash' => $hash,
+    //         'column_map' => ['vendor' => ['mapping' => $column_map]],
+    //         'skip_header' => true,
+    //         'import_type' => 'csv',
+    //     ];
+
+    //     $pre_import = Vendor::count();
+
+    //     Cache::put($hash . '-vendor', base64_encode($csv), 360);
+
+    //     $csv_importer = new Csv($data, $this->company);
+
+    //     $csv_importer->import('vendor');
+
+    //     $base_transformer = new BaseTransformer($this->company);
+
+    //     $this->assertTrue($base_transformer->hasVendor('Ludwig Krajcik DVM'));
+    // }
+
+    // public function testProductImport()
+    // {
+    //     $csv = file_get_contents(
+    //         base_path() . '/tests/Feature/Import/products.csv'
+    //     );
+    //     $hash = Str::random(32);
+    //     Cache::put($hash . '-product', base64_encode($csv), 360);
+
+    //     $column_map = [
+    //         1 => 'product.product_key',
+    //         2 => 'product.notes',
+    //         3 => 'product.cost',
+    //     ];
+
+    //     $data = [
+    //         'hash' => $hash,
+    //         'column_map' => ['product' => ['mapping' => $column_map]],
+    //         'skip_header' => true,
+    //         'import_type' => 'csv',
+    //     ];
+
+    //     $csv_importer = new Csv($data, $this->company);
+
+    //     $this->assertInstanceOf(Csv::class, $csv_importer);
+
+    //     $csv_importer->import('product');
+
+    //     $base_transformer = new BaseTransformer($this->company);
+
+    //     $this->assertTrue($base_transformer->hasProduct('officiis'));
+    //     // $this->assertTrue($base_transformer->hasProduct('maxime'));
+    // }
+
+    // public function testClientImport()
+    // {
+    //     $csv = file_get_contents(
+    //         base_path() . '/tests/Feature/Import/clients.csv'
+    //     );
+    //     $hash = Str::random(32);
+    //     $column_map = [
+    //         1 => 'client.balance',
+    //         2 => 'client.paid_to_date',
+    //         0 => 'client.name',
+    //         19 => 'client.currency_id',
+    //         20 => 'client.public_notes',
+    //         21 => 'client.private_notes',
+    //         22 => 'contact.first_name',
+    //         23 => 'contact.last_name',
+    //         24 => 'contact.email',
+    //     ];
+
+    //     $data = [
+    //         'hash' => $hash,
+    //         'column_map' => ['client' => ['mapping' => $column_map]],
+    //         'skip_header' => true,
+    //         'import_type' => 'csv',
+    //     ];
+
+    //     Cache::put($hash . '-client', base64_encode($csv), 360);
+
+    //     $csv_importer = new Csv($data, $this->company);
+
+    //     $this->assertInstanceOf(Csv::class, $csv_importer);
+
+    //     $csv_importer->import('client');
+
+    //     $base_transformer = new BaseTransformer($this->company);
+
+    //     $this->assertTrue($base_transformer->hasClient('Ludwig Krajcik DVM'));
+
+    //     $client_id = $base_transformer->getClient('Ludwig Krajcik DVM', null);
+
+    //     $c = Client::find($client_id);
+
+    //     $this->assertEquals($client_id, $c->id);
+
+    //     $client_id = $base_transformer->getClient(
+    //         'a non existent clent',
+    //         'brook59@example.org'
+    //     );
+
+    //     $this->assertEquals($client_id, $c->id);
+    // }
+
+    // public function testInvoiceImport()
+    // {
+    //     /*Need to import clients first*/
+    //     $csv = file_get_contents(
+    //         base_path() . '/tests/Feature/Import/clients.csv'
+    //     );
+    //     $hash = Str::random(32);
+    //     $column_map = [
+    //         1 => 'client.balance',
+    //         2 => 'client.paid_to_date',
+    //         0 => 'client.name',
+    //         19 => 'client.currency_id',
+    //         20 => 'client.public_notes',
+    //         21 => 'client.private_notes',
+    //         22 => 'contact.first_name',
+    //         23 => 'contact.last_name',
+    //     ];
+
+    //     $data = [
+    //         'hash' => $hash,
+    //         'column_map' => ['client' => ['mapping' => $column_map]],
+    //         'skip_header' => true,
+    //         'import_type' => 'csv',
+    //     ];
+
+    //     Cache::put($hash . '-client', base64_encode($csv), 360);
+
+    //     $csv_importer = new Csv($data, $this->company);
+
+    //     $this->assertInstanceOf(Csv::class, $csv_importer);
+
+    //     $csv_importer->import('client');
+
+    //     $base_transformer = new BaseTransformer($this->company);
+
+    //     $this->assertTrue($base_transformer->hasClient('Ludwig Krajcik DVM'));
+
+    //     /* client import verified*/
+
+    //     /*Now import invoices*/
+    //     $csv = file_get_contents(
+    //         base_path() . '/tests/Feature/Import/invoice.csv'
+    //     );
+    //     $hash = Str::random(32);
+
+    //     $column_map = [
+    //         1 => 'client.email',
+    //         3 => 'payment.amount',
+    //         5 => 'invoice.po_number',
+    //         8 => 'invoice.due_date',
+    //         9 => 'item.discount',
+    //         11 => 'invoice.partial_due_date',
+    //         12 => 'invoice.public_notes',
+    //         13 => 'invoice.private_notes',
+    //         0 => 'client.name',
+    //         2 => 'invoice.number',
+    //         7 => 'invoice.date',
+    //         14 => 'item.product_key',
+    //         15 => 'item.notes',
+    //         16 => 'item.cost',
+    //         17 => 'item.quantity',
+    //     ];
+
+    //     $data = [
+    //         'hash' => $hash,
+    //         'column_map' => ['invoice' => ['mapping' => $column_map]],
+    //         'skip_header' => true,
+    //         'import_type' => 'csv',
+    //     ];
+
+    //     Cache::put($hash . '-invoice', base64_encode($csv), 360);
+
+    //     $csv_importer = new Csv($data, $this->company);
+
+    //     $csv_importer->import('invoice');
+
+    //     $this->assertTrue($base_transformer->hasInvoice('801'));
+
+    //     /* Lets piggy back payments tests here to save rebuilding the test multiple times*/
+
+    //     $csv = file_get_contents(
+    //         base_path() . '/tests/Feature/Import/payments.csv'
+    //     );
+    //     $hash = Str::random(32);
+
+    //     $column_map = [
+    //         0 => 'payment.client_id',
+    //         1 => 'payment.invoice_number',
+    //         2 => 'payment.amount',
+    //         3 => 'payment.date',
+    //     ];
+
+    //     $data = [
+    //         'hash' => $hash,
+    //         'column_map' => ['payment' => ['mapping' => $column_map]],
+    //         'skip_header' => true,
+    //         'import_type' => 'csv',
+    //     ];
+
+    //     Cache::put($hash . '-payment', base64_encode($csv), 360);
+
+    //     $csv_importer = new Csv($data, $this->company);
+
+    //     $csv_importer->import('payment');
+
+    //     $this->assertTrue($base_transformer->hasInvoice('801'));
+
+    //     $invoice_id = $base_transformer->getInvoiceId('801');
+
+    //     $invoice = Invoice::find($invoice_id);
+
+    //     $this->assertTrue($invoice->payments()->exists());
+    //     $this->assertEquals(1, $invoice->payments()->count());
+    //     $this->assertEquals(400, $invoice->payments()->sum('payments.amount'));
+    // }
+
+
+}
+
