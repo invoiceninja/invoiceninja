@@ -76,6 +76,10 @@ class StoreRecurringInvoiceRequest extends Request
             $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
         }
 
+        if (array_key_exists('vendor_id', $input) && is_string($input['vendor_id'])) {
+            $input['vendor_id'] = $this->decodePrimaryKey($input['vendor_id']);
+        }
+
         if (isset($input['client_contacts'])) {
             foreach ($input['client_contacts'] as $key => $contact) {
                 if (! array_key_exists('send_email', $contact) || ! array_key_exists('id', $contact)) {

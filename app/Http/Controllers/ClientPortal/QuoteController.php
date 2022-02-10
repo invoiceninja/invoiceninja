@@ -58,11 +58,13 @@ class QuoteController extends Controller
     {   
         /* If the quote is expired, convert the status here */
 
-        $data = [
-            'quote' => $quote,
-        ];
 
         $invitation = $quote->invitations()->where('client_contact_id', auth()->user()->id)->first();
+
+        $data = [
+            'quote' => $quote,
+            'key' => $invitation->key,
+        ];
 
         if ($invitation && auth()->guard('contact') && ! request()->has('silent') && ! $invitation->viewed_date) {
 
@@ -160,7 +162,7 @@ class QuoteController extends Controller
         $quotes = Quote::whereIn('id', $ids)
             ->where('client_id', auth('contact')->user()->client->id)
             ->where('company_id', auth('contact')->user()->client->company_id)
-            ->where('status_id', Quote::STATUS_SENT)
+            ->whereIn('status_id', [Quote::STATUS_DRAFT, Quote::STATUS_SENT])
             ->withTrashed()
             ->get();
 

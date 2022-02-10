@@ -4544,7 +4544,7 @@ $LANG = array(
     'activity_123' => ':user deleted recurring expense :recurring_expense',
     'activity_124' => ':user restored recurring expense :recurring_expense',
     'fpx' => "FPX",
-
+    'to_view_entity_set_password' => 'To view the :entity you need to set password.',
 );
 
 return $LANG;

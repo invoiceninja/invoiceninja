@@ -202,6 +202,9 @@ class PaymentMigrationRepository extends BaseRepository
      */
     private function processExchangeRates($data, $payment)
     {
+        if($payment->exchange_rate != 1)
+            return $payment;
+        
         $client = Client::where('id', $data['client_id'])->withTrashed()->first();
 
         $client_currency = $client->getSetting('currency_id');

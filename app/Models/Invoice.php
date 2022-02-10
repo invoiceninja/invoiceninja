@@ -152,6 +152,11 @@ class Invoice extends BaseModel
         return $this->belongsTo(Project::class);
     }
 
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class);
+    }
+
     public function design()
     {
         return $this->belongsTo(Design::class);

@@ -61,9 +61,11 @@ class Csv extends BaseImport implements ImportInterface
         }
 
         //collate any errors
+
+        $this->finalizeImport();
     }
 
-    private function client()
+    public function client()
     {
         $entity_type = 'client';
 
@@ -90,7 +92,7 @@ class Csv extends BaseImport implements ImportInterface
         $this->entity_count['clients'] = $client_count;
     }
 
-    private function product()
+    public function product()
     {
         $entity_type = 'product';
 
@@ -117,7 +119,7 @@ class Csv extends BaseImport implements ImportInterface
         $this->entity_count['products'] = $product_count;
     }
 
-    private function invoice()
+    public function invoice()
     {
         $entity_type = 'invoice';
 
@@ -144,7 +146,7 @@ class Csv extends BaseImport implements ImportInterface
         $this->entity_count['invoices'] = $invoice_count;
     }
 
-    private function payment()
+    public function payment()
     {
         $entity_type = 'payment';
 
@@ -171,7 +173,7 @@ class Csv extends BaseImport implements ImportInterface
         $this->entity_count['payments'] = $payment_count;
     }
 
-    private function vendor()
+    public function vendor()
     {
         $entity_type = 'vendor';
 
@@ -198,7 +200,7 @@ class Csv extends BaseImport implements ImportInterface
         $this->entity_count['vendors'] = $vendor_count;
     }
 
-    private function expense()
+    public function expense()
     {
         $entity_type = 'expense';
 
@@ -225,33 +227,14 @@ class Csv extends BaseImport implements ImportInterface
         $this->entity_count['expenses'] = $expense_count;        
     }
 
-    private function quote()
+    public function quote()
     {
+
     }
 
-    private function task()
+    public function task()
     {
-    }
-
-    public function preTransform(array $data, $entity_type)
-    {
-        if (empty($this->column_map[$entity_type])) {
-            return false;
-        }
-
-        if ($this->skip_header) {
-            array_shift($data);
-        }
-
-        //sort the array by key
-        $keys = $this->column_map[$entity_type];
-        ksort($keys);
-
-        $data = array_map(function ($row) use ($keys) {
-            return array_combine($keys, array_intersect_key($row, $keys));
-        }, $data);
-
-        return $data;
+        
     }
 
     public function transform(array $data)

@@ -11,9 +11,12 @@
 
 namespace App\Import\Transformer;
 
+use App\Factory\ExpenseCategoryFactory;
 use App\Factory\ProjectFactory;
+use App\Factory\VendorFactory;
 use App\Models\ClientContact;
 use App\Models\Country;
+use App\Models\ExpenseCategory;
 use App\Models\PaymentType;
 use App\Models\User;
 use App\Utils\Number;
@@ -35,7 +38,12 @@ class BaseTransformer
 
     public function getString($data, $field)
     {
-        return isset($data[$field]) && $data[$field] ? $data[$field] : '';
+        return isset($data[$field]) && $data[$field] ? trim($data[$field]) : '';
+    }
+
+    public function getValueOrNull($data, $field)
+    {
+      return isset($data[$field]) && $data[$field] ? $data[$field] : null;
     }
 
     public function getCurrencyByCode($data, $key = 'client.currency_id')
@@ -363,6 +371,34 @@ class BaseTransformer
             ->exists();
     }
 
+    /**     *
+     * @return bool
+     */
+    public function hasExpense($expense_number)
+    {
+        return $this->company
+            ->expenses()
+            ->whereRaw("LOWER(REPLACE(`number`, ' ' ,''))  = ?", [
+                strtolower(str_replace(' ', '', $expense_number)),
+            ])
+            ->exists();
+    }
+
+    /**
+     * @param $quote_number
+     *
+     * @return bool
+     */
+    public function hasQuote($quote_number)
+    {
+        return $this->company
+            ->quotes()
+            ->whereRaw("LOWER(REPLACE(`number`, ' ' ,''))  = ?", [
+                strtolower(str_replace(' ', '', $quote_number)),
+            ])
+            ->exists();
+    }
+
     /**
      * @param $invoice_number
      *
@@ -397,6 +433,23 @@ class BaseTransformer
         return $vendor ? $vendor->id : null;
     }
 
+    public function getVendorIdOrCreate($name)
+    {
+        if(empty($name))
+            return null;
+
+        $vendor = $this->getVendorId($name);
+
+        if($vendor)
+            return $vendor;
+
+        $vendor = VendorFactory::create($this->company->id, $this->company->owner()->id);
+        $vendor->name = $name;
+        $vendor->save();
+
+        return $vendor->id;
+    }
+
     /**
      * @param $name
      *
@@ -412,6 +465,23 @@ class BaseTransformer
             ->first();
 
         return $ec ? $ec->id : null;
+    }
+
+    public function getOrCreateExpenseCategry($name)
+    {
+        if(empty($name))
+            return null;
+
+        $ec = $this->getExpenseCategoryId($name);
+
+        if($ec)
+            return $ec;
+
+        $expense_category = ExpenseCategoryFactory::create($this->company->id, $this->company->owner()->id);
+        $expense_category->name = $name;
+        $expense_category->save();
+
+        return $expense_category->id; 
     }
 
     /**
@@ -458,4 +528,6 @@ class BaseTransformer
 
         return $pt ? $pt->id : null;
     }
+
+
 }

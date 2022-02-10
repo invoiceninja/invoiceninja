@@ -1,7 +1,22 @@
 @php
-    $token_billing = $gateway instanceof \App\Models\CompanyGateway
-            ? $gateway->token_billing !== 'always'
-            : $gateway->company_gateway->token_billing !== 'always';
+    // $token_billing = $gateway instanceof \App\Models\CompanyGateway
+    //         ? $gateway->token_billing !== 'always'
+    //         : $gateway->company_gateway->token_billing !== 'always';
+
+    $gateway_instance = $gateway instanceof \App\Models\CompanyGateway ? $gateway : $gateway->company_gateway;
+    $token_billing = true;
+    $checked_on = '';
+    $checked_off = 'checked';
+
+    if($gateway_instance->token_billing == 'off' || $gateway_instance->token_billing == 'always'){
+        $token_billing = false;
+    }
+    
+    if($gateway_instance->token_billing == 'optout' || $gateway_instance->token_billing == 'always'){
+        $checked_on = 'checked';
+        $checked_off = '';
+    }
+    
 @endphp
 
 @if($token_billing)
@@ -13,13 +28,13 @@
             <label class="mr-4">
                 <input type="radio" class="form-radio cursor-pointer" name="token-billing-checkbox"
                        id="proxy_is_default"
-                       value="true"/>
+                       value="true" {{ $checked_on }}/>
                 <span class="ml-1 cursor-pointer">{{ ctrans('texts.yes') }}</span>
             </label>
             <label>
                 <input type="radio" class="form-radio cursor-pointer" name="token-billing-checkbox"
                        id="proxy_is_default"
-                       value="false" checked />
+                       value="false" {{ $checked_off }} />
                 <span class="ml-1 cursor-pointer">{{ ctrans('texts.no') }}</span>
             </label>
         </dd>

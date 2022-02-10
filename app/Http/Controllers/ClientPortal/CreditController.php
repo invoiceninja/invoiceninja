@@ -30,9 +30,12 @@ class CreditController extends Controller
     {
         set_time_limit(0);
 
-        $data = ['credit' => $credit];
+        $invitation = $credit->invitations()->where('client_contact_id', auth()->user()->id)->first();
 
-            $invitation = $credit->invitations()->where('client_contact_id', auth()->user()->id)->first();
+        $data = [
+            'credit' => $credit,
+            'key' => $invitation->key
+        ];
 
             if ($invitation && auth()->guard('contact') && ! request()->has('silent') && ! $invitation->viewed_date) {
 

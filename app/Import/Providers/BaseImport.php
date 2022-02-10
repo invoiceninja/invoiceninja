@@ -13,14 +13,21 @@ namespace App\Import\Providers;
 use App\Factory\ClientFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\PaymentFactory;
+use App\Factory\QuoteFactory;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
+use App\Http\Requests\Quote\StoreQuoteRequest;
 use App\Import\ImportException;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
+use App\Mail\Import\ImportCompleted;
 use App\Models\Company;
 use App\Models\Invoice;
+use App\Models\Quote;
 use App\Models\User;
 use App\Repositories\ClientRepository;
 use App\Repositories\InvoiceRepository;
 use App\Repositories\PaymentRepository;
+use App\Repositories\QuoteRepository;
 use App\Utils\Traits\CleanLineItems;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -71,7 +78,7 @@ class BaseImport
 			->setCompany($this->company);
 	}
 
-	protected function getCsvData($entity_type)
+	public function getCsvData($entity_type)
 	{
 		$base64_encoded_csv = Cache::pull($this->hash . '-' . $entity_type);
 		if (empty($base64_encoded_csv)) {
@@ -143,10 +150,10 @@ class BaseImport
 		$count = 0;
 
 		foreach ($data as $key => $record) {
+
 			try {
 
 				$entity = $this->transformer->transform($record);
-
 				/** @var \App\Http\Requests\Request $request */
 				$request = new $this->request_name();
 
@@ -172,6 +179,7 @@ class BaseImport
 					$count++;
 
 				}
+
 			} catch (\Exception $ex) {
 
 				if ($ex instanceof ImportException) {
@@ -187,8 +195,9 @@ class BaseImport
 				];
 			}
 
-			return $count;
 		}
+
+		return $count;
 	}
 
 	public function ingestInvoices($invoices, $invoice_number_key)
@@ -209,8 +218,10 @@ class BaseImport
 		$invoices = $this->groupInvoices($invoices, $invoice_number_key);
 
 		foreach ($invoices as $raw_invoice) {
+
 			try {
 				$invoice_data = $invoice_transformer->transform($raw_invoice);
+				nlog($invoice_data);
 				$invoice_data['line_items'] = $this->cleanItems(
 					$invoice_data['line_items'] ?? []
 				);
@@ -354,6 +365,116 @@ class BaseImport
 		return $invoice;
 	}
 
+	private function actionQuoteStatus(
+		$quote,
+		$quote_data,
+		$quote_repository
+	) {
+		if (!empty($invoice_data['archived'])) {
+			$quote_repository->archive($quote);
+			$quote->fresh();
+		}
+
+		if (!empty($invoice_data['viewed'])) {
+			$quote = $quote
+				->service()
+				->markViewed()
+				->save();
+		}
+
+		if ($quote->status_id === Quote::STATUS_DRAFT) {
+		} elseif ($quote->status_id === Quote::STATUS_SENT) {
+			$quote = $quote
+				->service()
+				->markSent()
+				->save();
+		} 
+
+		return $quote;
+	}
+
+	public function ingestQuotes($quotes, $quote_number_key)
+	{
+		$quote_transformer = $this->transformer;
+
+		/** @var ClientRepository $client_repository */
+		$client_repository = app()->make(ClientRepository::class);
+		$client_repository->import_mode = true;
+
+		$quote_repository = new QuoteRepository();
+		$quote_repository->import_mode = true;
+
+		$quotes = $this->groupInvoices($quotes, $quote_number_key);
+
+		foreach ($quotes as $raw_quote) {
+			try {
+				$quote_data = $quote_transformer->transform($raw_quote);
+				$quote_data['line_items'] = $this->cleanItems(
+					$quote_data['line_items'] ?? []
+				);
+
+				// If we don't have a client ID, but we do have client data, go ahead and create the client.
+				if (
+					empty($quote_data['client_id']) &&
+					!empty($quote_data['client'])
+				) {
+					$client_data = $quote_data['client'];
+					$client_data['user_id'] = $this->getUserIDForRecord(
+						$quote_data
+					);
+
+					$client_repository->save(
+						$client_data,
+						$client = ClientFactory::create(
+							$this->company->id,
+							$client_data['user_id']
+						)
+					);
+					$quote_data['client_id'] = $client->id;
+					unset($quote_data['client']);
+				}
+
+				$validator = Validator::make(
+					$quote_data,
+					(new StoreQuoteRequest())->rules()
+				);
+				if ($validator->fails()) {
+					$this->error_array['invoice'][] = [
+						'quote' => $quote_data,
+						'error' => $validator->errors()->all(),
+					];
+				} else {
+					$quote = QuoteFactory::create(
+						$this->company->id,
+						$this->getUserIDForRecord($quote_data)
+					);
+					if (!empty($quote_data['status_id'])) {
+						$quote->status_id = $quote_data['status_id'];
+					}
+					$quote_repository->save($quote_data, $quote);
+
+					$this->actionQuoteStatus(
+						$quote,
+						$quote_data,
+						$quote_repository
+					);
+				}
+			} catch (\Exception $ex) {
+				if ($ex instanceof ImportException) {
+					$message = $ex->getMessage();
+				} else {
+					report($ex);
+					$message = 'Unknown error';
+				}
+
+				$this->error_array['quote'][] = [
+					'invoice' => $raw_quote,
+					'error' => $message,
+				];
+			}
+		}
+	}
+
 	protected function getUserIDForRecord($record)
 	{
 		if (!empty($record['user_id'])) {
@@ -379,4 +500,41 @@ class BaseImport
 			return $this->company->owner()->id;
 		}
 	}
+
+	protected function finalizeImport()
+	{
+		$data = [
+			'errors'  => $this->error_array,
+			'company' => $this->company,
+		];
+
+		$nmo = new NinjaMailerObject;
+		$nmo->mailable = new ImportCompleted($this->company, $data);
+		$nmo->company = $this->company;
+		$nmo->settings = $this->company->settings;
+		$nmo->to_user = $this->company->owner();
+
+		NinjaMailerJob::dispatch($nmo);
+	}
+
+    public function preTransform(array $data, $entity_type)
+    {
+        if (empty($this->column_map[$entity_type])) {
+            return false;
+        }
+
+        if ($this->skip_header) {
+            array_shift($data);
+        }
+
+        //sort the array by key
+        $keys = $this->column_map[$entity_type];
+        ksort($keys);
+
+        $data = array_map(function ($row) use ($keys) {
+            return array_combine($keys, array_intersect_key($row, $keys));
+        }, $data);
+
+        return $data;
+    }
 }
