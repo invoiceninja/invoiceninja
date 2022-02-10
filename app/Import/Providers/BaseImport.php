@@ -78,7 +78,7 @@ class BaseImport
 			->setCompany($this->company);
 	}
 
-	protected function getCsvData($entity_type)
+	public function getCsvData($entity_type)
 	{
 		$base64_encoded_csv = Cache::pull($this->hash . '-' . $entity_type);
 		if (empty($base64_encoded_csv)) {
@@ -150,10 +150,10 @@ class BaseImport
 		$count = 0;
 
 		foreach ($data as $key => $record) {
+
 			try {
 
 				$entity = $this->transformer->transform($record);
-
 				/** @var \App\Http\Requests\Request $request */
 				$request = new $this->request_name();
 
@@ -179,6 +179,7 @@ class BaseImport
 					$count++;
 
 				}
+
 			} catch (\Exception $ex) {
 
 				if ($ex instanceof ImportException) {
@@ -194,8 +195,9 @@ class BaseImport
 				];
 			}
 
-			return $count;
 		}
+
+		return $count;
 	}
 
 	public function ingestInvoices($invoices, $invoice_number_key)
@@ -216,8 +218,10 @@ class BaseImport
 		$invoices = $this->groupInvoices($invoices, $invoice_number_key);
 
 		foreach ($invoices as $raw_invoice) {
+
 			try {
 				$invoice_data = $invoice_transformer->transform($raw_invoice);
+				nlog($invoice_data);
 				$invoice_data['line_items'] = $this->cleanItems(
 					$invoice_data['line_items'] ?? []
 				);
@@ -512,4 +516,25 @@ class BaseImport
 
 		NinjaMailerJob::dispatch($nmo);
 	}
+
+    public function preTransform(array $data, $entity_type)
+    {
+        if (empty($this->column_map[$entity_type])) {
+            return false;
+        }
+
+        if ($this->skip_header) {
+            array_shift($data);
+        }
+
+        //sort the array by key
+        $keys = $this->column_map[$entity_type];
+        ksort($keys);
+
+        $data = array_map(function ($row) use ($keys) {
+            return array_combine($keys, array_intersect_key($row, $keys));
+        }, $data);
+
+        return $data;
+    }
 }

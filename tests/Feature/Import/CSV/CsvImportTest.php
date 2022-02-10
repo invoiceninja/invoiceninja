@@ -188,7 +188,8 @@ class CsvImportTest extends TestCase
         $base_transformer = new BaseTransformer($this->company);
 
         $this->assertTrue($base_transformer->hasClient('Ludwig Krajcik DVM'));
-
+        $this->assertTrue($base_transformer->hasClient('Bradly Jaskolski Sr.'));
+        
         $client_id = $base_transformer->getClient('Ludwig Krajcik DVM', null);
 
         $c = Client::find($client_id);
