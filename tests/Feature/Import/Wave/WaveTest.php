@@ -102,6 +102,22 @@ class WaveTest extends TestCase
         $this->assertTrue($base_transformer->hasClient('Lucas Cage'));
         $this->assertTrue($base_transformer->hasClient('Mark Walberg'));
 
+        $client_id = $base_transformer->getClient('Jessica Jones', 'jessica@jones.com');
+
+        $client = Client::find($client_id);
+
+        $this->assertInstanceOf(Client::class, $client);
+
+        $this->assertEquals('12', $client->settings->currency_id);
+        $this->assertEquals('Queensland', $client->state);
+        $this->assertEquals('NYC', $client->city);
+        $this->assertEquals('11213', $client->postal_code);
+
+        $this->assertEquals('Jessica Jones', $client->contacts->first()->first_name);
+        $this->assertEquals('', $client->contacts->first()->last_name);
+        $this->assertEquals('jessica@jones.com', $client->contacts->first()->email);
+        $this->assertEquals('555-867-5309', $client->contacts->first()->phone);
+        
     }
 
     // public function testVendorCsvImport()
