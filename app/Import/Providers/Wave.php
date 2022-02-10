@@ -13,10 +13,14 @@
 namespace App\Import\Providers;
 
 use App\Factory\ClientFactory;
+use App\Factory\InvoiceFactory;
 use App\Http\Requests\Client\StoreClientRequest;
+use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Import\Transformer\Wave\ClientTransformer;
+use App\Import\Transformer\Wave\InvoiceTransformer;
 use App\Models\Client;
 use App\Repositories\ClientRepository;
+use App\Repositories\InvoiceRepository;
 
 class Wave extends BaseImport implements ImportInterface
 {
@@ -28,8 +32,8 @@ class Wave extends BaseImport implements ImportInterface
         if (
             in_array($entity, [
                 'client',
+                'invoice',
                 // 'product',
-                // 'invoice',
                 // 'payment',
                 // 'vendor',
                 // 'expense',
@@ -48,10 +52,8 @@ class Wave extends BaseImport implements ImportInterface
         $entity_type = 'client';
 
         $data = $this->getCsvData($entity_type);
-// nlog($data);
 
         $data = $this->preTransform($data, $entity_type);
-// nlog($data);
 
         if (empty($data)) {
             $this->entity_count['clients'] = 0;
@@ -71,15 +73,52 @@ class Wave extends BaseImport implements ImportInterface
 
         $this->entity_count['clients'] = $client_count;
 
-        nlog($this->entity_count);
-        nlog($this->error_array);
     }
 
-    public function transform(array $data){}
 
-    public function product() {}
+    public function product() {
 
-    public function invoice() {}
+        //done automatically inside the invoice() method as we need to harvest the products from the line items
+
+    }
+
+    public function invoice() {
+
+        //make sure we update and create products with wave
+        $initial_update_products_value = $this->company->update_products; 
+        $this->company->update_products = true;
+
+        $this->company->save();
+
+        $entity_type = 'invoice';
+
+        $data = $this->getCsvData($entity_type);
+nlog($data);
+
+        $data = $this->preTransform($data, $entity_type);
+nlog($data);
+        if (empty($data)) {
+            $this->entity_count['invoices'] = 0;
+            return;
+        }
+
+        $this->request_name = StoreInvoiceRequest::class;
+        $this->repository_name = InvoiceRepository::class;
+        $this->factory_name = InvoiceFactory::class;
+
+        $this->repository = app()->make($this->repository_name);
+        $this->repository->import_mode = true;
+
+        $this->transformer = new InvoiceTransformer($this->company);
+
+        $invoice_count = $this->ingestInvoices($data, 'Invoice Number');
+
+        $this->entity_count['invoices'] = $invoice_count;
+
+        $this->company->update_products = $initial_update_products_value;
+        $this->company->save();    
+
+    }
 
     public function payment() {}
 
@@ -87,4 +126,5 @@ class Wave extends BaseImport implements ImportInterface
 
     public function expense() {}
 
+    public function transform(array $data){}
 }

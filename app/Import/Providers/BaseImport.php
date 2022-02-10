@@ -182,8 +182,6 @@ class BaseImport
 
 			} catch (\Exception $ex) {
 
-
-
 				if ($ex instanceof ImportException) {
 					$message = $ex->getMessage();
 				} else {
@@ -199,7 +197,7 @@ class BaseImport
 
 		}
 
-			return $count;
+		return $count;
 	}
 
 	public function ingestInvoices($invoices, $invoice_number_key)
@@ -220,8 +218,10 @@ class BaseImport
 		$invoices = $this->groupInvoices($invoices, $invoice_number_key);
 
 		foreach ($invoices as $raw_invoice) {
+			nlog($raw_invoice);
 			try {
 				$invoice_data = $invoice_transformer->transform($raw_invoice);
+				nlog($invoice_data);
 				$invoice_data['line_items'] = $this->cleanItems(
 					$invoice_data['line_items'] ?? []
 				);

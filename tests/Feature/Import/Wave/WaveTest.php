@@ -14,6 +14,8 @@ namespace Tests\Feature\Import\CSV;
 use App\Import\Providers\Wave;
 use App\Import\Transformer\BaseTransformer;
 use App\Models\Client;
+use App\Models\Invoice;
+use App\Models\Product;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
@@ -119,6 +121,127 @@ class WaveTest extends TestCase
         $this->assertEquals('555-867-5309', $client->contacts->first()->phone);
         
     }
+
+    public function testInvoiceWaveImport()
+    {
+        //first import all the clients
+
+                $csv = file_get_contents(
+            base_path() . '/tests/Feature/Import/wave_clients.csv'
+        );
+        $hash = Str::random(32);
+
+        $column_map = [
+            0 => 'customer_name',
+            1 => 'email',
+            2 => 'contact_first_name',
+            3 => 'contact_last_name',
+            4 => 'customer_currency',
+            5 => 'account_number',
+            6 => 'phone',
+            7 => 'fax',
+            8 => 'mobile',
+            9 => 'toll_free',
+            10 => 'website',
+            11 => 'country',
+            12 => 'province/state',
+            13 => 'address_line_1',
+            14 => 'address_line_2',
+            15 => 'city',
+            16 => 'postal_code/zip_code',
+            17 => 'shipping_address',
+            18 => 'ship-to_contact',
+            19 => 'ship-to_country',
+            20 => 'ship-to_province/state',
+            21 => 'ship-to_address_line_1',
+            22 => 'ship-to_address_line_2',
+            23 => 'ship-to_city',
+            24 => 'ship-to_postal_code/zip_code',
+            25 => 'ship-to_phone',
+            26 => 'delivery_instructions',        
+        ];
+
+        $data = [
+            'hash' => $hash,
+            'column_map' => ['client' => ['mapping' => $column_map]],
+            'skip_header' => true,
+            'import_type' => 'waveaccounting',
+        ];
+
+        Cache::put($hash . '-client', base64_encode($csv), 360);
+
+        $csv_importer = new Wave($data, $this->company);
+
+        $count = $csv_importer->import('client');
+
+        //now import the invoices
+
+        $csv = file_get_contents(
+            base_path() . '/tests/Feature/Import/wave_invoices.csv'
+        );
+        $hash = Str::random(32);
+
+        $column_map = [
+            0 => 'Transaction ID',
+            1 => 'Transaction Date',
+            2 => 'Account Name',
+            3 => 'Transaction Description',
+            4 => 'Transaction Line Description',
+            5 => 'Amount (One column)',
+            6 => ' ',
+            7 => 'Debit Amount (Two Column Approach)',
+            8 => 'Credit Amount (Two Column Approach)',
+            9 => 'Other Accounts for this Transaction',
+            10 => 'Customer',
+            11 => 'Vendor',
+            12 => 'Invoice Number',
+            13 => 'Bill Number',
+            14 => 'Notes / Memo',
+            15 => 'Amount Before Sales Tax',
+            16 => 'Sales Tax Amount',
+            17 => 'Sales Tax Name',
+            18 => 'Transaction Date Added',
+            19 => 'Transaction Date Last Modified',
+            20 => 'Account Group',
+            21 => 'Account Type',
+            22 => 'Account ID',    
+        ];
+
+        $data = [
+            'hash' => $hash,
+            'column_map' => ['invoice' => ['mapping' => $column_map]],
+            'skip_header' => true,
+            'import_type' => 'waveaccounting',
+        ];
+
+        Cache::put($hash . '-invoice', base64_encode($csv), 360);
+
+        $csv_importer = new Wave($data, $this->company);
+
+        $count = $csv_importer->import('invoice');
+
+        $base_transformer = new BaseTransformer($this->company);
+
+        $this->assertTrue($base_transformer->hasInvoice("2"));
+        $this->assertTrue($base_transformer->hasInvoice("3"));
+        $this->assertTrue($base_transformer->hasInvoice("4"));
+
+        $invoice_id = $base_transformer->getInvoiceId("4");
+        $invoice = Invoice::find($invoice_id);
+
+        $this->assertEquals(3500.41 , $invoice->amount);
+        $this->assertEquals(0 , $invoice->balance);
+        $this->assertEquals(2 , count($invoice->line_items));
+
+        $this->assertTrue($invoice->payments()->exists());
+        $this->assertEquals(3500.41, $invoice->payments->first()->amount);
+
+        $product = Product::where('notes', 'Lawn Service')->where('company_id', $this->company->id)->first();
+
+
+        nlog(Product::all()->pluck('notes'));
+    }
+
 
     // public function testVendorCsvImport()
     // {

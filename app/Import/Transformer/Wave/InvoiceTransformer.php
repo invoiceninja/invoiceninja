@@ -9,7 +9,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Import\Transformer\Waveaccounting;
+namespace App\Import\Transformer\Wave;
 
 use App\Import\ImportException;
 use App\Import\Transformer\BaseTransformer;
