@@ -11,7 +11,9 @@
 
 namespace App\Import\Transformer;
 
+use App\Factory\ExpenseCategoryFactory;
 use App\Factory\ProjectFactory;
+use App\Factory\VendorFactory;
 use App\Models\ClientContact;
 use App\Models\Country;
 use App\Models\ExpenseCategory;
@@ -369,6 +371,19 @@ class BaseTransformer
             ->exists();
     }
 
+    /**     *
+     * @return bool
+     */
+    public function hasExpense($expense_number)
+    {
+        return $this->company
+            ->expenses()
+            ->whereRaw("LOWER(REPLACE(`number`, ' ' ,''))  = ?", [
+                strtolower(str_replace(' ', '', $expense_number)),
+            ])
+            ->exists();
+    }
+
     /**
      * @param $quote_number
      *
@@ -418,6 +433,23 @@ class BaseTransformer
         return $vendor ? $vendor->id : null;
     }
 
+    public function getVendorIdOrCreate($name)
+    {
+        if(empty($name))
+            return null;
+
+        $vendor = $this->getVendorId($name);
+
+        if($vendor)
+            return $vendor;
+
+        $vendor = VendorFactory::create($this->company->id, $this->company->owner()->id);
+        $vendor->name = $name;
+        $vendor->save();
+
+        return $vendor->id;
+    }
+
     /**
      * @param $name
      *
@@ -437,12 +469,15 @@ class BaseTransformer
 
     public function getOrCreateExpenseCategry($name)
     {
+        if(empty($name))
+            return null;
+
         $ec = $this->getExpenseCategoryId($name);
 
         if($ec)
             return $ec;
 
-        $expense_category = ExpenseCategory::create($this->company->id, $this->company->owner()->id);
+        $expense_category = ExpenseCategoryFactory::create($this->company->id, $this->company->owner()->id);
         $expense_category->name = $name;
         $expense_category->save();
 

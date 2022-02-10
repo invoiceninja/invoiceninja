@@ -78,7 +78,7 @@ class BaseImport
 			->setCompany($this->company);
 	}
 
-	protected function getCsvData($entity_type)
+	public function getCsvData($entity_type)
 	{
 		$base64_encoded_csv = Cache::pull($this->hash . '-' . $entity_type);
 		if (empty($base64_encoded_csv)) {
@@ -218,7 +218,7 @@ class BaseImport
 		$invoices = $this->groupInvoices($invoices, $invoice_number_key);
 
 		foreach ($invoices as $raw_invoice) {
-			nlog($raw_invoice);
+
 			try {
 				$invoice_data = $invoice_transformer->transform($raw_invoice);
 				nlog($invoice_data);

@@ -11,6 +11,7 @@
 
 namespace Tests\Feature\Import\CSV;
 
+use App\Import\Providers\BaseImport;
 use App\Import\Providers\Wave;
 use App\Import\Transformer\BaseTransformer;
 use App\Models\Client;
@@ -48,7 +49,57 @@ class WaveTest extends TestCase
         $this->withoutExceptionHandling();
     }
 
-    public function testVendorWaveImport()
+    // public function testExpenseImport()
+    // {
+
+    //     $csv = file_get_contents(
+    //         base_path() . '/tests/Feature/Import/wave_expenses.csv'
+    //     );
+    //     $hash = Str::random(32);
+    
+    //     $column_map = [
+    //         0 => 'Transaction ID',
+    //         1 => 'Transaction Date',
+    //         2 => 'Account Name',
+    //         3 => 'Transaction Description',
+    //         4 => 'Transaction Line Description',
+    //         5 => 'Amount (One column)',
+    //         6 => ' ',
+    //         7 => 'Debit Amount (Two Column Approach)',
+    //         8 => 'Credit Amount (Two Column Approach)',
+    //         9 => 'Other Accounts for this Transaction',
+    //         10 => 'Customer',
+    //         11 => 'Vendor',
+    //         12 => 'Invoice Number',
+    //         13 => 'Bill Number',
+    //         14 => 'Notes / Memo',
+    //         15 => 'Amount Before Sales Tax',
+    //         16 => 'Sales Tax Amount',
+    //         17 => 'Sales Tax Name',
+    //         18 => 'Transaction Date Added',
+    //         19 => 'Transaction Date Last Modified',
+    //         20 => 'Account Group',
+    //         21 => 'Account Type',
+    //         22 => 'Account ID',    
+    //     ];
+
+    //     $data = [
+    //         'hash' => $hash,
+    //         'column_map' => ['expense' => ['mapping' => $column_map]],
+    //         'skip_header' => true,
+    //         'import_type' => 'waveaccounting',
+    //     ];
+
+    //     Cache::put($hash . '-expense', base64_encode($csv), 360);
+
+    //     $csv_importer = new Wave($data, $this->company);
+
+    //     $count = $csv_importer->import('expense');
+
+
+    // }
+
+    public function testVendorAndExpenseWaveImport()
     {
         $csv = file_get_contents(
             base_path() . '/tests/Feature/Import/wave_vendors.csv'
@@ -107,6 +158,56 @@ class WaveTest extends TestCase
         $this->assertEquals('lastname', $vendor->contacts->first()->last_name);
         $this->assertEquals('vendor@gmail.com', $vendor->contacts->first()->email);
         $this->assertEquals('phone', $vendor->contacts->first()->phone);
+        
+
+        // now lets try importing expenses / bills
+        $csv = file_get_contents(
+            base_path() . '/tests/Feature/Import/wave_expenses.csv'
+        );
+        $hash = Str::random(32);
+
+        $column_map = [
+            0 => 'Transaction ID',
+            1 => 'Transaction Date',
+            2 => 'Account Name',
+            3 => 'Transaction Description',
+            4 => 'Transaction Line Description',
+            5 => 'Amount (One column)',
+            6 => ' ',
+            7 => 'Debit Amount (Two Column Approach)',
+            8 => 'Credit Amount (Two Column Approach)',
+            9 => 'Other Accounts for this Transaction',
+            10 => 'Customer',
+            11 => 'Vendor',
+            12 => 'Invoice Number',
+            13 => 'Bill Number',
+            14 => 'Notes / Memo',
+            15 => 'Amount Before Sales Tax',
+            16 => 'Sales Tax Amount',
+            17 => 'Sales Tax Name',
+            18 => 'Transaction Date Added',
+            19 => 'Transaction Date Last Modified',
+            20 => 'Account Group',
+            21 => 'Account Type',
+            22 => 'Account ID',    
+        ];
+
+        $data = [
+            'hash' => $hash,
+            'column_map' => ['expense' => ['mapping' => $column_map]],
+            'skip_header' => true,
+            'import_type' => 'waveaccounting',
+        ];
+
+        Cache::put($hash . '-expense', base64_encode($csv), 360);
+
+        $csv_importer = new Wave($data, $this->company);
+
+        $count = $csv_importer->import('expense');
+
+        $base_transformer = new BaseTransformer($this->company);
+
+        $this->assertTrue($base_transformer->hasExpense("66"));
         
     }
 
