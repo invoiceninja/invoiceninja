@@ -16,6 +16,7 @@ use App\Import\Transformer\BaseTransformer;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Product;
+use App\Models\Vendor;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
@@ -46,6 +47,70 @@ class WaveTest extends TestCase
 
         $this->withoutExceptionHandling();
     }
+
+    public function testVendorWaveImport()
+    {
+        $csv = file_get_contents(
+            base_path() . '/tests/Feature/Import/wave_vendors.csv'
+        );
+        $hash = Str::random(32);
+
+        $column_map = [
+            0 => 'vendor_name',
+            1 => 'email',
+            2 => 'contact_first_name',
+            3 => 'contact_last_name',
+            4 => 'vendor_currency',
+            5 => 'account_number',
+            6 => 'phone',
+            7 => 'fax',
+            8 => 'mobile',
+            9 => 'toll_free',
+            10 => 'website',
+            11 => 'country',
+            12 => 'province/state',
+            13 => 'address_line_1',
+            14 => 'address_line_2',
+            15 => 'city',
+            16 => 'postal_code/zip_code',      
+        ];
+
+        $data = [
+            'hash' => $hash,
+            'column_map' => ['vendor' => ['mapping' => $column_map]],
+            'skip_header' => true,
+            'import_type' => 'waveaccounting',
+        ];
+
+        Cache::put($hash . '-vendor', base64_encode($csv), 360);
+
+        $csv_importer = new Wave($data, $this->company);
+
+        $count = $csv_importer->import('vendor');
+
+        $base_transformer = new BaseTransformer($this->company);
+
+        $this->assertTrue($base_transformer->hasVendor('Vendor Name'));
+
+        $vendor_id = $base_transformer->getVendorId('Vendor Name');
+
+        $vendor = Vendor::find($vendor_id);
+
+        $this->assertInstanceOf(Vendor::class, $vendor);
+
+        $this->assertEquals(12, $vendor->currency_id);
+        $this->assertEquals('Australian Capital Territory', $vendor->state);
+        $this->assertEquals('city', $vendor->city);
+        $this->assertEquals('postal_cod', $vendor->postal_code);
+
+        $this->assertEquals('firstname', $vendor->contacts->first()->first_name);
+        $this->assertEquals('lastname', $vendor->contacts->first()->last_name);
+        $this->assertEquals('vendor@gmail.com', $vendor->contacts->first()->email);
+        $this->assertEquals('phone', $vendor->contacts->first()->phone);
+        
+    }
+
+
 
     public function testClientWaveImport()
     {
@@ -236,10 +301,6 @@ class WaveTest extends TestCase
         $this->assertTrue($invoice->payments()->exists());
         $this->assertEquals(3500.41, $invoice->payments->first()->amount);
 
-        $product = Product::where('notes', 'Lawn Service')->where('company_id', $this->company->id)->first();
-
-
-        nlog(Product::all()->pluck('notes'));
     }
 
 

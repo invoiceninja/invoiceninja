@@ -36,7 +36,7 @@ class BaseTransformer
 
     public function getString($data, $field)
     {
-        return isset($data[$field]) && $data[$field] ? $data[$field] : '';
+        return isset($data[$field]) && $data[$field] ? trim($data[$field]) : '';
     }
 
     public function getValueOrNull($data, $field)
