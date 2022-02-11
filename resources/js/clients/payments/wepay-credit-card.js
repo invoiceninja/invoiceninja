@@ -110,9 +110,11 @@ class WePayCreditCard {
     completePaymentWithoutToken() {
         if (!this.validateCreditCardFields()) {
 
-            document.getElementById('pay-now').disabled = false;
-            document.querySelector('#pay-now > svg').classList.add('hidden');
-            document.querySelector('#pay-now > span').classList.remove('hidden');
+            let cardButton = document.getElementById('card_button');
+            cardButton.disabled = false;
+
+            cardButton.querySelector('svg').classList.add('hidden');
+            cardButton.querySelector('span').classList.remove('hidden');
             
             return;
         }
