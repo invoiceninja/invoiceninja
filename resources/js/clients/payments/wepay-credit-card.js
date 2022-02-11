@@ -32,31 +32,39 @@ class WePayCreditCard {
             this.errors.textContent = "Cardholder name required.";
             this.errors.hidden = false;
 
-            return;
+            return false;
         } else if (this.myCard.CardJs('cardNumber').replace(/[^\d]/g, '') === "") {
             document.getElementById('card_number').focus();
             this.errors.textContent = "Card number required.";
             this.errors.hidden = false;
 
-            return;
+            return false;
         } else if (this.myCard.CardJs('cvc').replace(/[^\d]/g, '') === "") {
             document.getElementById('cvv').focus();
             this.errors.textContent = "CVV number required.";
             this.errors.hidden = false;
 
-            return;
+            return false;
         } else if (this.myCard.CardJs('expiryMonth').replace(/[^\d]/g, '') === "") {
-            // document.getElementById('expiry_month').focus();
             this.errors.textContent = "Expiry Month number required.";
             this.errors.hidden = false;
 
-            return;
+            return false;
         } else if (this.myCard.CardJs('expiryYear').replace(/[^\d]/g, '') === "") {
-            // document.getElementById('expiry_year').focus();
             this.errors.textContent = "Expiry Year number required.";
             this.errors.hidden = false;
 
-            return;
+            return false;
+        }else if (document.querySelector('input[name="expiry-year"]').value === "") {
+            this.errors.textContent = "Expiry Year number required.";
+            this.errors.hidden = false;
+
+            return false;
+        }else if (document.querySelector('input[name="expiry-month"]').value === "") {
+            this.errors.textContent = "Expiry Month number required.";
+            this.errors.hidden = false;
+
+            return false;
         }
 
         return true;
