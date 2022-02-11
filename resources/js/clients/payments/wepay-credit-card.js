@@ -32,39 +32,31 @@ class WePayCreditCard {
             this.errors.textContent = "Cardholder name required.";
             this.errors.hidden = false;
 
-            return false;
+            return;
         } else if (this.myCard.CardJs('cardNumber').replace(/[^\d]/g, '') === "") {
             document.getElementById('card_number').focus();
             this.errors.textContent = "Card number required.";
             this.errors.hidden = false;
 
-            return false;
+            return;
         } else if (this.myCard.CardJs('cvc').replace(/[^\d]/g, '') === "") {
             document.getElementById('cvv').focus();
             this.errors.textContent = "CVV number required.";
             this.errors.hidden = false;
 
-            return false;
+            return;
         } else if (this.myCard.CardJs('expiryMonth').replace(/[^\d]/g, '') === "") {
+            // document.getElementById('expiry_month').focus();
             this.errors.textContent = "Expiry Month number required.";
             this.errors.hidden = false;
 
-            return false;
+            return;
         } else if (this.myCard.CardJs('expiryYear').replace(/[^\d]/g, '') === "") {
+            // document.getElementById('expiry_year').focus();
             this.errors.textContent = "Expiry Year number required.";
             this.errors.hidden = false;
 
-            return false;
-        }else if (document.querySelector('input[name="expiry-year"]').value === "") {
-            this.errors.textContent = "Expiry Year number required.";
-            this.errors.hidden = false;
-
-            return false;
-        }else if (document.querySelector('input[name="expiry-month"]').value === "") {
-            this.errors.textContent = "Expiry Month number required.";
-            this.errors.hidden = false;
-
-            return false;
+            return;
         }
 
         return true;
@@ -117,10 +109,11 @@ class WePayCreditCard {
 
     completePaymentWithoutToken() {
         if (!this.validateCreditCardFields()) {
-            this.payNowButton = document.getElementById('pay-now');
-            this.payNowButton.disabled = false;
-            this.payNowButton.querySelector('svg').classList.add('hidden');
-            this.payNowButton.querySelector('span').classList.remove('hidden');
+
+            document.getElementById('pay-now').disabled = false;
+            document.querySelector('#pay-now > svg').classList.add('hidden');
+            document.querySelector('#pay-now > span').classList.remove('hidden');
+            
             return;
         }
 
