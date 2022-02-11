@@ -87,7 +87,10 @@ class InvoiceItemSumInclusive
 
     private function sumLineItem()
     {
-        $this->setLineTotal($this->formatValue($this->item->cost, $this->currency->precision) * $this->formatValue($this->item->quantity, $this->currency->precision));
+        $this->setLineTotal($this->item->cost * $this->item->quantity);
+
+        //11-02-2022
+        // $this->setLineTotal($this->formatValue($this->item->cost, $this->currency->precision) * $this->formatValue($this->item->quantity, $this->currency->precision));
 
         return $this;
     }

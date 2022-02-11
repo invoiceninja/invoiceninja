@@ -3,8 +3,8 @@
     <div class="card-js" id="my-card" data-capture-name="true">
         <input class="name" id="cardholder_name" name="card-holders-name" placeholder="{{ ctrans('texts.name')}}" required>
         <input class="card-number my-custom-class" id="card_number" name="card-number" required>
-        <input class="expiry-month" name="expiry-month" id="expiration_month" required>
-        <input class="expiry-year" name="expiry-year" id="expiration_year" required>
+        <input class="expiry-month" name="expiry-month" id="expiration_month" role="presentation" autocomplete="off" required>
+        <input class="expiry-year" name="expiry-year" id="expiration_year" role="presentation" autocomplete="off" required>
         <input class="cvc" name="cvc" id="cvv" required>
     </div>
 
