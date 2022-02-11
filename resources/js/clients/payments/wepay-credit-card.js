@@ -59,8 +59,6 @@ class WePayCreditCard {
             return;
         }
 
-        console.log("i DID pass the validation");
-
         return true;
     }
 
@@ -111,13 +109,14 @@ class WePayCreditCard {
 
     completePaymentWithoutToken() {
         if (!this.validateCreditCardFields()) {
-
-            console.log("i did not pass the validation");
             
+            this.payNowButton = document.getElementById('pay-now');
+            this.payNowButton.disabled = false;
+            this.payNowButton.querySelector('svg').classList.add('hidden');
+            this.payNowButton.querySelector('span').classList.remove('hidden');
+
             return;
         }
-
-console.log("completing payment now");
 
         WePay.credit_card.create({
             client_id: document.querySelector('meta[name=wepay-client-id]').content,
@@ -175,7 +174,6 @@ console.log("completing payment now");
                 .getElementById('pay-now')
                 .addEventListener('click', () => {
                     this.payNowButton = document.getElementById('pay-now');
-
                     this.payNowButton.disabled = true;
                     this.payNowButton.querySelector('svg').classList.remove('hidden');
                     this.payNowButton.querySelector('span').classList.add('hidden');
