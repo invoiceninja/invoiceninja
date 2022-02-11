@@ -59,6 +59,8 @@ class WePayCreditCard {
             return;
         }
 
+        console.log("i DID pass the validation");
+
         return true;
     }
 
@@ -110,14 +112,12 @@ class WePayCreditCard {
     completePaymentWithoutToken() {
         if (!this.validateCreditCardFields()) {
 
-            let cardButton = document.getElementById('card_button');
-            cardButton.disabled = false;
-
-            cardButton.querySelector('svg').classList.add('hidden');
-            cardButton.querySelector('span').classList.remove('hidden');
+            console.log("i did not pass the validation");
             
             return;
         }
+
+console.log("completing payment now");
 
         WePay.credit_card.create({
             client_id: document.querySelector('meta[name=wepay-client-id]').content,
