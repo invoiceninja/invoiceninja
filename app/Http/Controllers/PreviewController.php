@@ -387,6 +387,9 @@ class PreviewController extends BaseController
                     'user_id' => auth()->user()->id,
                     'company_id' => auth()->user()->company()->id,
                     'client_id' => $client->id,
+                    'terms' => 'Sample Terms',
+                    'footer' => 'Sample Footer',
+                    'public_notes' => 'Sample Public Notes',
                 ]);
 
         $invitation = InvoiceInvitation::factory()->create([
