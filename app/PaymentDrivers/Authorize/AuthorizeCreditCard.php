@@ -22,6 +22,10 @@ use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\AuthorizePaymentDriver;
 use App\Utils\Traits\MakesHash;
+use net\authorize\api\contract\v1\DeleteCustomerPaymentProfileRequest;
+use net\authorize\api\contract\v1\DeleteCustomerProfileRequest;
+use net\authorize\api\controller\DeleteCustomerPaymentProfileController;
+use net\authorize\api\controller\DeleteCustomerProfileController;
 
 /**
  * Class AuthorizeCreditCard.
@@ -69,14 +73,52 @@ class AuthorizeCreditCard
         $payment_profile = $authorise_payment_method->addPaymentMethodToClient($gateway_customer_reference, $data);
         $payment_profile_id = $payment_profile->getPaymentProfile()->getCustomerPaymentProfileId();
 
+        $data = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($gateway_customer_reference, $payment_profile_id, $data['amount_with_fee']);
+
         if ($request->has('store_card') && $request->input('store_card') === true) {
             $authorise_payment_method->payment_method = GatewayType::CREDIT_CARD;
             $client_gateway_token = $authorise_payment_method->createClientGatewayToken($payment_profile, $gateway_customer_reference);
         }
-
-        $data = (new ChargePaymentProfile($this->authorize))->chargeCustomerProfile($gateway_customer_reference, $payment_profile_id, $data['amount_with_fee']);
+        else{
+            //remove the payment profile
+            $this->removePaymentProfile($gateway_customer_reference, $payment_profile_id);
+        }
 
         return $this->handleResponse($data, $request);
+    }
+
+    private function removePaymentProfile($customer_profile_id, $customer_payment_profile_id)
+    {
+        
+      $request = new DeleteCustomerPaymentProfileRequest();
+      $request->setMerchantAuthentication($this->authorize->merchant_authentication);
+      $request->setCustomerProfileId($customer_profile_id);
+      $request->setCustomerPaymentProfileId($customer_payment_profile_id);
+      $controller = new DeleteCustomerPaymentProfileController($request);
+      $response = $controller->executeWithApiResponse($this->authorize->mode());
+        
+        if (($response != null) && ($response->getMessages()->getResultCode() == "Ok") )
+        {
+          nlog("SUCCESS: Delete Customer Payment Profile  SUCCESS");
+        }
+        else
+            nlog("unable to delete profile {$customer_profile_id} with payment id {$customer_payment_profile_id}");
+
+      // Delete a customer profile  
+      $request = new DeleteCustomerProfileRequest();
+      $request->setMerchantAuthentication($this->authorize->merchant_authentication);
+      $request->setCustomerProfileId( $customer_profile_id );
+
+      $controller = new DeleteCustomerProfileController($request);
+      $response = $controller->executeWithApiResponse($this->authorize->mode());
+      if (($response != null) && ($response->getMessages()->getResultCode() == "Ok") )
+      {
+          nlog("SUCCESS: Delete Customer Payment Profile  SUCCESS");
+      }
+      else
+        nlog("unable to delete profile {$customer_profile_id}");
+
+
     }
 
     private function processTokenPayment($request)
