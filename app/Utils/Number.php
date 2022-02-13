@@ -50,6 +50,25 @@ class Number
     }
 
     /**
+     * Formats a given value based on the clients currency.
+     *
+     * @param  float  $value    The number to be formatted
+     * @param  object $currency The client currency object
+     *
+     * @return string           The formatted value
+     */
+    public static function formatValueNoTrailingZeroes($value, $currency) :string
+    {
+        $value = floatval($value);
+
+        $thousand = $currency->thousand_separator;
+        $decimal = $currency->decimal_separator;
+        $precision = $currency->precision;
+
+        return rtrim(rtrim(number_format($value, $precision, $decimal, $thousand), "0"),$decimal);
+    }
+
+    /**
      * Formats a given value based on the clients currency
      * BACK to a float.
      *
