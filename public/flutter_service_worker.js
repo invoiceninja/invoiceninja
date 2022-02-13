@@ -28,17 +28,17 @@ const RESOURCES = {
 "assets/NOTICES": "9a4bf0423a5e265f38c4df37f7a0a913",
 "assets/fonts/MaterialIcons-Regular.otf": "4e6447691c9509f7acdbf8a931a85ca1",
 "favicon.ico": "51636d3a390451561744c42188ccd628",
-"/": "d9829928376d8c2193b8af876898ddaa",
+"/": "b6c5f00cd3e5c5c039ed62e2a9f75381",
 "version.json": "a00481850d5c63ba5df4e22636643438",
 "icons/Icon-512.png": "0f9aff01367f0a0c69773d25ca16ef35",
 "icons/Icon-192.png": "bb1cf5f6982006952211c7c8404ffbed",
-"main.dart.js": "90f76748bc2c212eb97403132f720821",
+"main.dart.js": "6f26c06179f0d0a0328e25e494826ca6",
 "favicon.png": "dca91c54388f52eded692718d5a98b8b",
 "manifest.json": "ef43d90e57aa7682d7e2cfba2f484a40",
-"canvaskit/profiling/canvaskit.js": "3783918f48ef691e230156c251169480",
-"canvaskit/profiling/canvaskit.wasm": "6d1b0fc1ec88c3110db88caa3393c580",
-"canvaskit/canvaskit.js": "62b9906717d7215a6ff4cc24efbd1b5c",
-"canvaskit/canvaskit.wasm": "b179ba02b7a9f61ebc108f82c5a1ecdb"
+"canvaskit/profiling/canvaskit.js": "ae2949af4efc61d28a4a80fffa1db900",
+"canvaskit/profiling/canvaskit.wasm": "95e736ab31147d1b2c7b25f11d4c32cd",
+"canvaskit/canvaskit.js": "c2b4e5f3d7a3d82aed024e7249a78487",
+"canvaskit/canvaskit.wasm": "4b83d89d9fecbea8ca46f2f760c5a9ba"
 };
 
 // The application shell files that are downloaded before a service worker can
