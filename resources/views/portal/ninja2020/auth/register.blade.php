@@ -53,7 +53,7 @@
                                     <select 
                                         id="shipping_country"
                                         class="input w-full form-select"
-                                        name="shipping_country">
+                                        name="country_id">
                                             <option value="none"></option>
                                         @foreach(App\Utils\TranslationHelper::getCountries() as $country)
                                             <option
