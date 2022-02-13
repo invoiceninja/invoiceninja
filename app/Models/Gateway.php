@@ -136,7 +136,7 @@ class Gateway extends StaticModel
                 break;
             case 56:
                 return [
-                    GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true],
+                    GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true, 'webhooks' => ['payment_intent.succeeded']],
                     GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable','charge.succeeded']],
                     GatewayType::ALIPAY => ['refund' => false, 'token_billing' => false],
                     GatewayType::APPLE_PAY => ['refund' => false, 'token_billing' => false],

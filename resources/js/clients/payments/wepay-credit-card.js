@@ -109,6 +109,12 @@ class WePayCreditCard {
 
     completePaymentWithoutToken() {
         if (!this.validateCreditCardFields()) {
+            
+            this.payNowButton = document.getElementById('pay-now');
+            this.payNowButton.disabled = false;
+            this.payNowButton.querySelector('svg').classList.add('hidden');
+            this.payNowButton.querySelector('span').classList.remove('hidden');
+
             return;
         }
 
@@ -168,7 +174,6 @@ class WePayCreditCard {
                 .getElementById('pay-now')
                 .addEventListener('click', () => {
                     this.payNowButton = document.getElementById('pay-now');
-
                     this.payNowButton.disabled = true;
                     this.payNowButton.querySelector('svg').classList.remove('hidden');
                     this.payNowButton.querySelector('span').classList.add('hidden');
