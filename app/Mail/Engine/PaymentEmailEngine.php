@@ -243,6 +243,9 @@ class PaymentEmailEngine extends BaseEmailEngine
         $data['$invoice.po_number'] = ['value' => $this->formatPoNumber(), 'label' => ctrans('texts.po_number')];
         $data['$poNumber'] = &$data['$invoice.po_number'];
 
+        $arrKeysLength = array_map('strlen', array_keys($data));
+        array_multisort($arrKeysLength, SORT_DESC, $data);
+        
         return $data;
     }
 

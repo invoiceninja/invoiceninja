@@ -183,6 +183,11 @@ class QuoteController extends Controller
             }
 
         if(count($ids) == 1){
+
+            //forward client to the invoice if it exists
+            if($quote->invoice()->exists())
+                return redirect()->route('client.invoice.show', $quote->invoice->hashed_id);
+                    
             return redirect()->route('client.quote.show', $quotes->first()->hashed_id);
         }
 
