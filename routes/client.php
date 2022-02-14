@@ -18,7 +18,7 @@ Route::post('client/password/reset', 'Auth\ContactResetPasswordController@reset'
 Route::get('view/{entity_type}/{invitation_key}', 'ClientPortal\EntityViewController@index')->name('client.entity_view');
 Route::get('view/{entity_type}/{invitation_key}/password', 'ClientPortal\EntityViewController@password')->name('client.entity_view.password');
 Route::post('view/{entity_type}/{invitation_key}/password', 'ClientPortal\EntityViewController@handlePassword');
-Route::post('set_password', 'ClientPortal\EntityViewController@handlePasswordSet')->name('client.set_password');
+Route::post('set_password', 'ClientPortal\EntityViewController@handlePasswordSet')->name('client.set_password')->middleware('domain_db');
 
 Route::get('tmp_pdf/{hash}', 'ClientPortal\TempRouteController@index')->name('tmp_pdf');
 
