@@ -148,6 +148,10 @@ class InvoiceFilters extends QueryFilters
     {
         $sort_col = explode('|', $sort);
 
+        //catch invalid explode array count
+        if(count($sort_col) == 1)
+            return $this->builder;
+
         return $this->builder->orderBy($sort_col[0], $sort_col[1]);
     }
 
