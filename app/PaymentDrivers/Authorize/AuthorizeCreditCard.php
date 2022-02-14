@@ -105,18 +105,18 @@ class AuthorizeCreditCard
             nlog("unable to delete profile {$customer_profile_id} with payment id {$customer_payment_profile_id}");
 
       // Delete a customer profile  
-      $request = new DeleteCustomerProfileRequest();
-      $request->setMerchantAuthentication($this->authorize->merchant_authentication);
-      $request->setCustomerProfileId( $customer_profile_id );
+      // $request = new DeleteCustomerProfileRequest();
+      // $request->setMerchantAuthentication($this->authorize->merchant_authentication);
+      // $request->setCustomerProfileId( $customer_profile_id );
 
-      $controller = new DeleteCustomerProfileController($request);
-      $response = $controller->executeWithApiResponse($this->authorize->mode());
-      if (($response != null) && ($response->getMessages()->getResultCode() == "Ok") )
-      {
-          nlog("SUCCESS: Delete Customer Payment Profile  SUCCESS");
-      }
-      else
-        nlog("unable to delete profile {$customer_profile_id}");
+      // $controller = new DeleteCustomerProfileController($request);
+      // $response = $controller->executeWithApiResponse($this->authorize->mode());
+      // if (($response != null) && ($response->getMessages()->getResultCode() == "Ok") )
+      // {
+      //     nlog("SUCCESS: Delete Customer Payment Profile  SUCCESS");
+      // }
+      // else
+      //   nlog("unable to delete profile {$customer_profile_id}");
 
 
     }
