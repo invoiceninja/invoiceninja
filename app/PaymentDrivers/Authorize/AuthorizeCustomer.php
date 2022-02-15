@@ -124,8 +124,12 @@ class AuthorizeCustomer
             }
             else {
                 nlog("creating client");
+
                 $first_payment_profile = $profile['payment_profiles'][0];
 
+                if(!$first_payment_profile)
+                    continue;
+                
                 $client = ClientFactory::create($company->id, $user->id);
                 $billTo = $first_payment_profile->getBillTo();
                 $client->address1 = $billTo->getAddress();
