@@ -18,6 +18,7 @@ use App\Factory\ClientFactory;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\ClientGatewayToken;
+use App\Models\GatewayType;
 use App\PaymentDrivers\AuthorizePaymentDriver;
 use Illuminate\Support\Facades\Cache;
 use net\authorize\api\contract\v1\CreateCustomerProfileRequest;
@@ -107,21 +108,22 @@ class AuthorizeCustomer
         $company = $this->authorize->company_gateway->company;
         $user = $company->owner();
 
-        foreach($auth_customers as $customer)
+        foreach($auth_customers as $gateway_customer_reference)
         {
 
-
-            $profile = $this->getCustomerProfile($customer);
+            $profile = $this->getCustomerProfile($gateway_customer_reference);
 
             //if the profile ID already exists in ClientGatewayToken we continue else - add.
-            if($client = ClientGatewayToken::where('company_id', $company->id)->where('gateway_customer_reference', $customer)->first()){
-                
+            if($client_gateway_token = ClientGatewayToken::where('company_id', $company->id)->where('gateway_customer_reference', $gateway_customer_reference)->first()){
+                nlog("found client");
+                $client = $client_gateway_token->client;
             }
             elseif($client_contact = ClientContact::where('company_id', $company->id)->where('email', $profile['email'])->first()){
                 $client = $client_contact->client;
+                nlog("found client through contact");
             }
             else {
-
+                nlog("creating client");
                 $first_payment_profile = $profile['payment_profiles'][0];
 
                 $client = ClientFactory::create($company->id, $user->id);
@@ -144,15 +146,23 @@ class AuthorizeCustomer
 
             if($client){
 
+                $this->authorize->setClient($client);
+
                 foreach($profile['payment_profiles'] as $payment_profile)
                 {
+                    
+                    $payment_meta = new \stdClass;
+                    $payment_meta->brand = (string) $payment_profile->getPayment()->getCreditCard()->getCardType();
+                    $payment_meta->last4 = (string) $payment_profile->getPayment()->getCreditCard()->getCardNumber();
+                    $payment_meta->type = GatewayType::CREDIT_CARD;
 
-                    $data['payment_profile_id'] = $payment_profile->getCustomerPaymentProfileId();
-                    $data['card_number'] = $payment_profile->getPayment()->getCreditCard()->getCardNumber();
-                    $data['card_expiry'] = $payment_profile->getPayment()->getCreditCard()->getExpirationDate();
-                    $data['card_type'] = $payment_profile->getPayment()->getCreditCard()->getCardType();
+                    $data['payment_method_id'] = GatewayType::CREDIT_CARD;
+                    $data['payment_meta'] = $payment_meta;
+                    $data['token'] = $payment_profile->getCustomerPaymentProfileId();
+                    $additional['gateway_customer_reference'] = $gateway_customer_reference;
 
-                    return $data;
+                    $this->authorize->storeGatewayToken($data, $additional);
+
                 }
             }
 
