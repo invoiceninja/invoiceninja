@@ -34,7 +34,7 @@ class CreditController extends Controller
 
         $data = [
             'credit' => $credit,
-            'key' => $invitation->key
+            'key' => $invitation ? $invitation->key : false
         ];
 
             if ($invitation && auth()->guard('contact') && ! request()->has('silent') && ! $invitation->viewed_date) {
