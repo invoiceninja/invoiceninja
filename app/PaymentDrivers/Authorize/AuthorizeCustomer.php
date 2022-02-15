@@ -115,15 +115,15 @@ class AuthorizeCustomer
 
             //if the profile ID already exists in ClientGatewayToken we continue else - add.
             if($client_gateway_token = ClientGatewayToken::where('company_id', $company->id)->where('gateway_customer_reference', $gateway_customer_reference)->first()){
-                nlog("found client");
+                // nlog("found client");
                 $client = $client_gateway_token->client;
             }
             elseif($client_contact = ClientContact::where('company_id', $company->id)->where('email', $profile['email'])->first()){
                 $client = $client_contact->client;
-                nlog("found client through contact");
+                // nlog("found client through contact");
             }
             else {
-                nlog("creating client");
+                // nlog("creating client");
 
                 $first_payment_profile = $profile['payment_profiles'][0];
 
@@ -148,14 +148,25 @@ class AuthorizeCustomer
                 $client_contact->save();
             }
 
-            if($client){
+            if($client && is_array($profile['payment_profiles'])){
 
                 $this->authorize->setClient($client);
 
                 foreach($profile['payment_profiles'] as $payment_profile)
                 {
                     
+                    $token_exists = ClientGatewayToken::where('company_id', $company->id)
+                                                      ->where('token', $payment_profile->getCustomerPaymentProfileId())
+                                                      ->where('gateway_customer_reference', $gateway_customer_reference)
+                                                      ->exists();
+                    if($token_exists)
+                        continue;
+
+//                    $expiry = $payment_profile->getPayment()->getCreditCard()->getExpirationDate();
+
                     $payment_meta = new \stdClass;
+                    $payment_meta->exp_month = 'xx';
+                    $payment_meta->exp_year = 'xx';
                     $payment_meta->brand = (string) $payment_profile->getPayment()->getCreditCard()->getCardType();
                     $payment_meta->last4 = (string) $payment_profile->getPayment()->getCreditCard()->getCardNumber();
                     $payment_meta->type = GatewayType::CREDIT_CARD;
@@ -171,10 +182,7 @@ class AuthorizeCustomer
             }
 
         }
-        //iterate through auth.net list
-        
-        //exclude any existing customers (ie. only import their missing payment profiles)
-        
+       
     }
 
     private function getCountryCode($country_code)
