@@ -80,7 +80,7 @@ class AuthorizeCreditCard
             $client_gateway_token = $authorise_payment_method->createClientGatewayToken($payment_profile, $gateway_customer_reference);
         }
         else{
-            //remove the payment profile
+            //remove the payment profile if we are not storing tokens in our system
             $this->removePaymentProfile($gateway_customer_reference, $payment_profile_id);
         }
 
