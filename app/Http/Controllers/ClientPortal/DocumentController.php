@@ -75,7 +75,7 @@ class DocumentController extends Controller
             ->get();
 
         $documents->map(function ($document) {
-            if (auth()->user('contact')->client->id != $document->documentable->id) {
+            if (auth()->guard('contact')->user()->client->id != $document->documentable->id) {
                 abort(401, 'Permission denied');
             }
         });
