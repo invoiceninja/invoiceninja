@@ -19,7 +19,7 @@ class ProcessInvoicesInBulkRequest extends FormRequest
 {
     public function authorize()
     {
-        return auth('contact')->user()->company->enabled_modules & PortalComposer::MODULE_INVOICES;
+        return auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_INVOICES;
     }
 
     public function rules()

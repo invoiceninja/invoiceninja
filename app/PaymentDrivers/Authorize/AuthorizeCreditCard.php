@@ -125,7 +125,7 @@ class AuthorizeCreditCard
     {
         $client_gateway_token = ClientGatewayToken::query()
             ->where('id', $this->decodePrimaryKey($request->token))
-            ->where('company_id', auth('contact')->user()->client->company->id)
+            ->where('company_id', auth()->guard('contact')->user()->client->company->id)
             ->first();
 
         if (!$client_gateway_token) {

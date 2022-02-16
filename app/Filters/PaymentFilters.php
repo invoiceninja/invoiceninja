@@ -119,7 +119,7 @@ class PaymentFilters extends QueryFilters
      */
     public function entityFilter()
     {
-        if (auth('contact')->user()) {
+        if (auth()->guard('contact')->user()) {
             return $this->contactViewFilter();
         } else {
             return $this->builder->company();
@@ -135,7 +135,7 @@ class PaymentFilters extends QueryFilters
     private function contactViewFilter() : Builder
     {
         return $this->builder
-                    ->whereCompanyId(auth('contact')->user()->company->id)
+                    ->whereCompanyId(auth()->guard('contact')->user()->company->id)
                     ->whereIsDeleted(false);
     }
 }

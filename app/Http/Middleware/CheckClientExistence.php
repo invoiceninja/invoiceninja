@@ -31,7 +31,7 @@ class CheckClientExistence
 
         $multiple_contacts = ClientContact::query()
             ->with('client.gateway_tokens','company')
-            ->where('email', auth('contact')->user()->email)
+            ->where('email', auth()->guard('contact')->user()->email)
             ->whereNotNull('email')
             ->where('email', '<>', '')
             // ->whereNull('deleted_at')
@@ -42,7 +42,7 @@ class CheckClientExistence
                 return $query->where('is_deleted', false);
             })
             ->whereHas('company', function ($query){
-                return $query->where('id', auth('contact')->user()->client->company_id);
+                return $query->where('id', auth()->guard('contact')->user()->client->company_id);
             })
             ->get();
 

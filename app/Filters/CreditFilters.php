@@ -163,7 +163,7 @@ class CreditFilters extends QueryFilters
      */
     public function entityFilter()
     {
-        if (auth('contact')->user()) {
+        if (auth()->guard('contact')->user()) {
             return $this->contactViewFilter();
         } else {
             return $this->builder->company();
@@ -181,7 +181,7 @@ class CreditFilters extends QueryFilters
     private function contactViewFilter() : Builder
     {
         return $this->builder
-                    ->whereCompanyId(auth('contact')->user()->company->id)
+                    ->whereCompanyId(auth()->guard('contact')->user()->company->id)
                     ->whereNotIn('status_id', [Credit::STATUS_DRAFT]);
     }
 }

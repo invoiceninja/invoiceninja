@@ -57,7 +57,7 @@
         <!-- Styles -->
         <link href="{{ mix('css/app.css') }}" rel="stylesheet">
 
-        @if(!auth('contact')->user()->user->account->isPaid())
+        @if(!auth()->guard('contact')->user()->user->account->isPaid())
             <link href="{{ asset('favicon.png') }}" rel="shortcut icon" type="image/png">
         @endif
 

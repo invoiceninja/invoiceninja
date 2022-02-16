@@ -100,7 +100,7 @@ class NinjaPlanController extends Controller
                 }
 
                 $recurring_invoice =  RecurringInvoice::on('db-ninja-01')
-                                            ->where('client_id', auth('contact')->user()->client->id)
+                                            ->where('client_id', auth()->guard('contact')->user()->client->id)
                                             ->where('company_id', Auth::guard('contact')->user()->company->id)
                                             ->whereNotNull('subscription_id')
                                             ->where('status_id', RecurringInvoice::STATUS_ACTIVE)

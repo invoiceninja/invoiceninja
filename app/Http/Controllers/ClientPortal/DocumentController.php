@@ -71,7 +71,7 @@ class DocumentController extends Controller
     public function downloadMultiple(DownloadMultipleDocumentsRequest $request)
     {
         $documents = Document::whereIn('id', $this->transformKeys($request->file_hash))
-            ->where('company_id', auth('contact')->user()->company->id)
+            ->where('company_id', auth()->guard('contact')->user()->company->id)
             ->get();
 
         $documents->map(function ($document) {

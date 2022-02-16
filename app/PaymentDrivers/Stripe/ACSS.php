@@ -66,13 +66,13 @@ class ACSS
         $mailer = new NinjaMailerObject();
 
         $mailer->mailable = new ACHVerificationNotification(
-            auth('contact')->user()->client->company,
-            route('client.contact_login', ['contact_key' => auth('contact')->user()->contact_key, 'next' => $verification])
+            auth()->guard('contact')->user()->client->company,
+            route('client.contact_login', ['contact_key' => auth()->guard('contact')->user()->contact_key, 'next' => $verification])
         );
 
-        $mailer->company = auth('contact')->user()->client->company;
-        $mailer->settings = auth('contact')->user()->client->company->settings;
-        $mailer->to_user = auth('contact')->user();
+        $mailer->company = auth()->guard('contact')->user()->client->company;
+        $mailer->settings = auth()->guard('contact')->user()->client->company->settings;
+        $mailer->to_user = auth()->guard('contact')->user();
 
         NinjaMailerJob::dispatch($mailer);
 
