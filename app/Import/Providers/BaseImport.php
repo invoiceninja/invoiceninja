@@ -216,7 +216,7 @@ class BaseImport
 
 			try {
 				$invoice_data = $invoice_transformer->transform($raw_invoice);
-				nlog($invoice_data);
+
 				$invoice_data['line_items'] = $this->cleanItems(
 					$invoice_data['line_items'] ?? []
 				);

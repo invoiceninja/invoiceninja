@@ -42,7 +42,7 @@ class InvoiceTransformer extends BaseTransformer {
 			'client_id'   => $this->getClient( $this->getString( $invoice_data, 'Client Name' ), null ),
 			'number'      => $this->getString( $invoice_data, 'Invoice #' ),
 			'date'        => isset( $invoice_data['Date Issued'] ) ? date( 'Y-m-d', strtotime( $invoice_data['Date Issued'] ) ) : null,
-			'currency_id' => $this->getCurrencyByCode( $invoice_data, 'Currency' ),
+			// 'currency_id' => $this->getCurrencyByCode( $invoice_data, 'Currency' ),
 			'amount'      => 0,
 			'status_id'   => $invoiceStatusMap[ $status =
 					strtolower( $this->getString( $invoice_data, 'Invoice Status' ) ) ] ?? Invoice::STATUS_SENT,
@@ -73,6 +73,7 @@ class InvoiceTransformer extends BaseTransformer {
 				'amount' => $transformed['amount'],
 			]];
 		}
+nlog($transformed);
 
 		return $transformed;
 	}

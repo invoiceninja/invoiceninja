@@ -32,7 +32,7 @@ class ClientTransformer extends BaseTransformer {
 		return [
 			'company_id'     => $this->company->id,
 			'name'           => $this->getString( $data, 'Organization' ),
-			'work_phone'     => $this->getString( $data, 'Phone' ),
+			'phone'     => $this->getString( $data, 'Phone' ),
 			'address1'       => $this->getString( $data, 'Street' ),
 			'city'           => $this->getString( $data, 'City' ),
 			'state'          => $this->getString( $data, 'Province/State' ),

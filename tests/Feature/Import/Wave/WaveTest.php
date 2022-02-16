@@ -9,7 +9,7 @@
  * @license https://opensource.org/licenses/AAL
  */
 
-namespace Tests\Feature\Import\CSV;
+namespace Tests\Feature\Import\Wave;
 
 use App\Import\Providers\BaseImport;
 use App\Import\Providers\Wave;
