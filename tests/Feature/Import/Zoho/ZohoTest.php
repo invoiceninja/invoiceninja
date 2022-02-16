@@ -331,14 +331,12 @@ class ZohoTest extends TestCase
         $invoice_id = $base_transformer->getInvoiceId("INV-000003");
         $invoice = Invoice::find($invoice_id);
 
-nlog($invoice->toArray());
-
         $this->assertEquals(390 , $invoice->amount);
-        // $this->assertEquals(390 , $invoice->balance);
+        $this->assertEquals(1 , $invoice->status_id);
+        $this->assertEquals(0 , $invoice->balance);
         $this->assertEquals(4 , count($invoice->line_items));
 
         $this->assertFalse($invoice->payments()->exists());
-        // $this->assertEquals(3500.41, $invoice->payments->first()->amount);
 
     }
 
