@@ -2,8 +2,8 @@
     <div class="flex flex-col w-64">
         <div class="flex items-center h-16 flex-shrink-0 px-4 bg-white border-r justify-center z-10">
             <a href="{{ route('client.dashboard') }}">
-                <img class="h-10 w-auto" src="{!! auth('contact')->user()->company->present()->logo($settings) !!}"
-                     alt="{{ auth('contact')->user()->company->present()->name() }} logo"/>
+                <img class="h-10 w-auto" src="{!! auth()->guard('contact')->user()->company->present()->logo($settings) !!}"
+                     alt="{{ auth()->guard('contact')->user()->company->present()->name() }} logo"/>
             </a>
         </div>
         <div class="h-0 flex-1 flex flex-col overflow-y-auto z-0 border-r">
@@ -24,7 +24,7 @@
                 @endforeach
             </nav>
 
-            @if(!auth('contact')->user()->user->account->isPaid())
+            @if(!auth()->guard('contact')->user()->user->account->isPaid())
                 <div class="flex-shrink-0 flex bg-white p-4 justify-center">
                     <div class="flex items-center">
                         <a target="_blank" href="https://www.facebook.com/invoiceninja/">

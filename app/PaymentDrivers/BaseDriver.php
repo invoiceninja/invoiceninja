@@ -182,7 +182,10 @@ class BaseDriver extends AbstractPaymentDriver
     {
     }
 
-
+    public function setClient(Client $client)
+    {
+        $this->client = $client;
+    }
     /************************** Helper methods *************************************/
 
     public function setPaymentHash(PaymentHash $payment_hash)

@@ -327,6 +327,7 @@ class HtmlEngine
         $data['$client_address'] = ['value' => $this->client->present()->address() ?: '&nbsp;', 'label' => ctrans('texts.address')];
         $data['$client.address'] = &$data['$client_address'];
         $data['$client.postal_code'] = ['value' => $this->client->postal_code ?: '&nbsp;', 'label' => ctrans('texts.postal_code')];
+        $data['$client.public_notes'] = ['value' => $this->client->public_notes ?: '&nbsp;', 'label' => ctrans('texts.notes')];
         $data['$client.city'] = ['value' => $this->client->city ?: '&nbsp;', 'label' => ctrans('texts.city')];
         $data['$client.state'] = ['value' => $this->client->state ?: '&nbsp;', 'label' => ctrans('texts.state')];
         $data['$client.id_number'] = &$data['$id_number'];
@@ -490,7 +491,8 @@ class HtmlEngine
 
         //$data['$entity_footer'] = ['value' => $this->client->getSetting("{$this->entity_string}_footer"), 'label' => ''];
         $data['$entity_footer'] = ['value' => Helpers::processReservedKeywords(\nl2br($this->entity->footer), $this->client), 'label' => ''];
-
+        $data['$footer'] = &$data['$entity_footer'];
+        
         $data['$page_size'] = ['value' => $this->settings->page_size, 'label' => ''];
         $data['$page_layout'] = ['value' => property_exists($this->settings, 'page_layout') ? $this->settings->page_layout : 'Portrait', 'label' => ''];
 

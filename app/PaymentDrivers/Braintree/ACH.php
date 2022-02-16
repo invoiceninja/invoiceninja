@@ -109,7 +109,7 @@ class ACH implements MethodInterface
         $customer = $this->braintree->findOrCreateCustomer();
 
         $token = ClientGatewayToken::query()
-            ->where('client_id', auth('contact')->user()->client->id)
+            ->where('client_id', auth()->guard('contact')->user()->client->id)
             ->where('id', $this->decodePrimaryKey($request->source))
             ->firstOrFail();
 

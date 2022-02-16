@@ -32,8 +32,8 @@ class Locale
         if ($request->has('lang')) {
             $locale = $request->input('lang');
             App::setLocale($locale);
-        } elseif (auth('contact')->user()) {
-            App::setLocale(auth('contact')->user()->client->locale());
+        } elseif (auth()->guard('contact')->user()) {
+            App::setLocale(auth()->guard('contact')->user()->client->locale());
         } elseif (auth()->user()) {
 
             try{

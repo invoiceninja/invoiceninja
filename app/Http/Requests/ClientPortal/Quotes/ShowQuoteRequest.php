@@ -20,7 +20,7 @@ class ShowQuoteRequest extends FormRequest
     public function authorize()
     {
          return auth()->user()->client->id === $this->quote->client_id
-             && auth('contact')->user()->company->enabled_modules & PortalComposer::MODULE_QUOTES;
+             && auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_QUOTES;
     }
 
     public function rules()

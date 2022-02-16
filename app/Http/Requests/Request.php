@@ -11,6 +11,7 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\RuntimeFormRequest;
 use App\Http\ValidationRules\User\RelatedUserRule;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Http\FormRequest;
@@ -18,7 +19,7 @@ use Illuminate\Foundation\Http\FormRequest;
 class Request extends FormRequest
 {
     use MakesHash;
-
+    use RuntimeFormRequest;
     /**
      * Get the validation rules that apply to the request.
      *
@@ -163,9 +164,18 @@ class Request extends FormRequest
                     }
                 }
 
+                if (array_key_exists('email', $contact)) 
+                    $input['contacts'][$key]['email'] = trim($contact['email']);
+
+
             }
         }
         
         return $input;
+    }
+
+    protected function prepareForValidation()
+    {
+
     }
 }

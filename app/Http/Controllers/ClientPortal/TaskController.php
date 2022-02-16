@@ -26,7 +26,7 @@ class TaskController extends Controller
     public function index(ShowTasksRequest $request)
     {
         \Carbon\Carbon::setLocale(
-            auth('contact')->user()->preferredLocale()
+            auth()->guard('contact')->user()->preferredLocale()
         );
 
         return render('tasks.index');

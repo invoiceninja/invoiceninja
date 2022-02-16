@@ -91,7 +91,7 @@ class SubscriptionService
                 'invoice' => $this->encodePrimaryKey($payment_hash->fee_invoice_id),
                 'client' => $recurring_invoice->client->hashed_id,
                 'subscription' => $this->subscription->hashed_id,
-                'contact' => auth('contact')->user() ? auth('contact')->user()->hashed_id : $recurring_invoice->client->contacts()->first()->hashed_id,
+                'contact' => auth()->guard('contact')->user() ? auth()->guard('contact')->user()->hashed_id : $recurring_invoice->client->contacts()->first()->hashed_id,
                 'account_key' => $recurring_invoice->client->custom_value2,
             ];
 
@@ -452,7 +452,7 @@ class SubscriptionService
                 'credit' => $credit ? $credit->hashed_id : null,
                 'client' => $new_recurring_invoice->client->hashed_id,
                 'subscription' => $target_subscription->hashed_id,
-                'contact' => auth('contact')->user()->hashed_id,
+                'contact' => auth()->guard('contact')->user()->hashed_id,
                 'account_key' => $new_recurring_invoice->client->custom_value2,
             ];
 
@@ -573,7 +573,7 @@ class SubscriptionService
             'invoice' => $this->encodePrimaryKey($payment_hash->fee_invoice_id),
             'client' => $recurring_invoice->client->hashed_id,
             'subscription' => $this->subscription->hashed_id,
-            'contact' => auth('contact')->user()->hashed_id,
+            'contact' => auth()->guard('contact')->user()->hashed_id,
             'account_key' => $recurring_invoice->client->custom_value2,
         ];
 
@@ -921,7 +921,7 @@ class SubscriptionService
                 'subscription' => $this->subscription->hashed_id,
                 'recurring_invoice' => $recurring_invoice->hashed_id,
                 'client' => $recurring_invoice->client->hashed_id,
-                'contact' => auth('contact')->user()->hashed_id,
+                'contact' => auth()->guard('contact')->user()->hashed_id,
                 'account_key' => $recurring_invoice->client->custom_value2,
             ];
 

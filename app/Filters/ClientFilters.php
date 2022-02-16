@@ -80,12 +80,12 @@ class ClientFilters extends QueryFilters
         
     }
 
-    public function id_number(string $id_number):Builder
+    public function id_number(string $id_number = ''):Builder
     {
         return $this->builder->where('id_number', $id_number);
     }
 
-    public function number(string $number):Builder
+    public function number(string $number = ''):Builder
     {
         return $this->builder->where('number', $number);
     }

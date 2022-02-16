@@ -40,12 +40,15 @@
                                 - {{ ctrans('texts.unpaid') }}
                             </h3>
 
-                            <div class="btn" data-clipboard-text="{{url("client/invoice/{$key}")}}" aria-label="Copied!">
+                            @if($key)
+                            <div class="btn hidden md:block" data-clipboard-text="{{url("client/invoice/{$key}")}}" aria-label="Copied!">
                                 <div class="flex text-sm leading-6 font-medium text-gray-500">
                                     <p class="mr-2">{{url("client/invoice/{$key}")}}</p>
                                     <p><img class="h-5 w-5" src="{{ asset('assets/clippy.svg') }}" alt="Copy to clipboard"></p>
                                 </div>
                             </div>
+                            @endif
+
 
                         </div>
                         <div class="mt-5 sm:mt-0 sm:ml-6 flex justify-end">
@@ -74,12 +77,14 @@
                             - {{ \App\Models\Invoice::stringStatus($invoice->status_id) }}
                         </h3>
 
-                            <div class="btn" data-clipboard-text="{{url("client/invoice/{$key}")}}" aria-label="Copied!">
+                            @if($key)
+                            <div class="btn hidden md:block" data-clipboard-text="{{url("client/invoice/{$key}")}}" aria-label="Copied!">
                                 <div class="flex text-sm leading-6 font-medium text-gray-500">
                                     <p class="pr-10">{{url("client/invoice/{$key}")}}</p>
                                     <p><img class="h-5 w-5" src="{{ asset('assets/clippy.svg') }}" alt="Copy to clipboard"></p>
                                 </div>
                             </div>
+                            @endif
                     </div>
                 </div>
             </div>
