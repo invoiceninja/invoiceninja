@@ -36,8 +36,6 @@ class ClientTransformer extends BaseTransformer {
 			$settings->payment_terms = $data['Payment Terms'];
 		}
 
-nlog($settings);
-
 		return [
 			'company_id'    => $this->company->id,
 			'name'          => $this->getString( $data, 'Company Name' ),
