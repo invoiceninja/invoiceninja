@@ -154,12 +154,7 @@ class BaseImport
 			try {
 
 				$entity = $this->transformer->transform($record);
-				/** @var \App\Http\Requests\Request $request */
-				$request = new $this->request_name();
-
-				// Pass entity data to request so it can be validated
-				$request->query = $request->request = new ParameterBag($entity);
-				$validator = Validator::make($entity, $request->rules());
+				$validator = $this->request_name::runFormRequest($entity);
 
 				if ($validator->fails()) {
 					$this->error_array[$entity_type][] = [
@@ -247,10 +242,12 @@ class BaseImport
 					unset($invoice_data['client']);
 				}
 
-				$validator = Validator::make(
-					$invoice_data,
-					(new StoreInvoiceRequest())->rules()
-				);
+				// $validator = Validator::make(
+				// 	$invoice_data,
+				// 	(new StoreInvoiceRequest())->rules()
+				// );
+				$validator = $this->request_name::runFormRequest($invoice_data);
+
 				if ($validator->fails()) {
 					$this->error_array['invoice'][] = [
 						'invoice' => $invoice_data,
