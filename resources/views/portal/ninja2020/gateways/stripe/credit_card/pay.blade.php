@@ -1,5 +1,17 @@
 @extends('portal.ninja2020.layout.payments', ['gateway_title' => 'Credit card', 'card_title' => 'Credit card'])
 
+@php
+    $gateway_instance = $gateway instanceof \App\Models\CompanyGateway ? $gateway : $gateway->company_gateway;
+    $token_billing_string = 'true';
+
+    if($gateway_instance->token_billing == 'off' || $gateway_instance->token_billing == 'optin'){
+        $token_billing_string = 'false';
+    }
+    
+    
+@endphp
+
+
 @section('gateway_head')
     @if($gateway->company_gateway->getConfigField('account_id'))
         <meta name="stripe-account-id" content="{{ $gateway->company_gateway->getConfigField('account_id') }}">
@@ -18,7 +30,7 @@
     <form action="{{ route('client.payments.response') }}" method="post" id="server-response">
         @csrf
         <input type="hidden" name="gateway_response">
-        <input type="hidden" name="store_card">
+        <input type="hidden" name="store_card" value="{{ $token_billing_string }}">
         <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
 
         <input type="hidden" name="company_gateway_id" value="{{ $gateway->getCompanyGatewayId() }}">
