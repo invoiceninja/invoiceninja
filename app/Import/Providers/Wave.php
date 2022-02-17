@@ -218,8 +218,6 @@ class Wave extends BaseImport implements ImportInterface
 
         $expenses = $this->groupExpenses($data);
 
-// nlog($expenses);
-// exit;
         foreach ($expenses as $raw_expense) {
 
             try {

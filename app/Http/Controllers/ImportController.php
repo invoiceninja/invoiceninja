@@ -14,6 +14,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Import\ImportRequest;
 use App\Http\Requests\Import\PreImportRequest;
 use App\Jobs\Import\CSVImport;
+use App\Jobs\Import\CSVIngest;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
@@ -116,7 +117,9 @@ class ImportController extends Controller {
 			}
 		}
 
-		CSVImport::dispatch( $data, auth()->user()->company() );
+		unset($data['files']);
+		// CSVImport::dispatch( $data, auth()->user()->company() );
+		CSVIngest::dispatch( $data, auth()->user()->company() );
 
 		return response()->json( [ 'message' => ctrans( 'texts.import_started' ) ], 200 );
 	}

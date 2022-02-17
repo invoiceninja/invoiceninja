@@ -29,12 +29,14 @@ class CheckClientExistence
     public function handle(Request $request, Closure $next)
     {
 
+        if(session()->has('multiple_contacts'))
+            return $next($request);
+
         $multiple_contacts = ClientContact::query()
             ->with('client.gateway_tokens','company')
             ->where('email', auth()->guard('contact')->user()->email)
             ->whereNotNull('email')
             ->where('email', '<>', '')
-            // ->whereNull('deleted_at')
             ->distinct('company_id')
             ->distinct('email')
             ->whereNotNull('company_id')

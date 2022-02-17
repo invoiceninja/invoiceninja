@@ -80,6 +80,8 @@ class BaseImport
 
 	public function getCsvData($entity_type)
 	{
+		nlog("get csv data = entity name = " . $entity_type);
+
 		$base64_encoded_csv = Cache::pull($this->hash . '-' . $entity_type);
 		if (empty($base64_encoded_csv)) {
 			return null;
@@ -123,6 +125,9 @@ class BaseImport
 
 	private function groupInvoices($csvData, $key)
 	{
+		if(!$key)
+			return $csvData;
+
 		// Group by invoice.
 		$grouped = [];
 
@@ -154,12 +159,7 @@ class BaseImport
 			try {
 
 				$entity = $this->transformer->transform($record);
-				/** @var \App\Http\Requests\Request $request */
-				$request = new $this->request_name();
-
-				// Pass entity data to request so it can be validated
-				$request->query = $request->request = new ParameterBag($entity);
-				$validator = Validator::make($entity, $request->rules());
+				$validator = $this->request_name::runFormRequest($entity);
 
 				if ($validator->fails()) {
 					$this->error_array[$entity_type][] = [
@@ -220,8 +220,9 @@ class BaseImport
 		foreach ($invoices as $raw_invoice) {
 
 			try {
+
 				$invoice_data = $invoice_transformer->transform($raw_invoice);
-				nlog($invoice_data);
+
 				$invoice_data['line_items'] = $this->cleanItems(
 					$invoice_data['line_items'] ?? []
 				);
@@ -247,10 +248,8 @@ class BaseImport
 					unset($invoice_data['client']);
 				}
 
-				$validator = Validator::make(
-					$invoice_data,
-					(new StoreInvoiceRequest())->rules()
-				);
+				$validator = $this->request_name::runFormRequest($invoice_data);
+
 				if ($validator->fails()) {
 					$this->error_array['invoice'][] = [
 						'invoice' => $invoice_data,
@@ -519,22 +518,41 @@ class BaseImport
 
     public function preTransform(array $data, $entity_type)
     {
-        if (empty($this->column_map[$entity_type])) {
-            return false;
-        }
-
-        if ($this->skip_header) {
-            array_shift($data);
-        }
-
         //sort the array by key
-        $keys = $this->column_map[$entity_type];
+        // $keys = $this->column_map[$entity_type];
+
+		$keys = array_shift( $data );
         ksort($keys);
 
-        $data = array_map(function ($row) use ($keys) {
-            return array_combine($keys, array_intersect_key($row, $keys));
-        }, $data);
+		return array_map( function ( $values ) use ( $keys ) {
+			return array_combine( $keys, $values );
+		}, $data );
+		
 
-        return $data;
     }
+
+	public function preTransformCsv(array $data, $entity_type)
+	{
+
+		if ( empty( $this->column_map[ $entity_type ] ) ) {
+			return false;
+		}
+
+		if ( $this->skip_header ) {
+			array_shift( $data );
+		}
+
+		//sort the array by key
+		$keys = $this->column_map[ $entity_type ];
+		ksort( $keys );
+
+		$data = array_map( function ( $row ) use ( $keys ) {
+			return array_combine( $keys, array_intersect_key( $row, $keys ) );
+		}, $data );
+
+
+		return $data;
+
+	}
+
 }
