@@ -517,22 +517,41 @@ class BaseImport
     public function preTransform(array $data, $entity_type)
     {
 
-        if (empty($this->column_map[$entity_type])) {
-            return $data;
-        }
-
-        if ($this->skip_header) {
-            array_shift($data);
-        }
-
         //sort the array by key
         $keys = $this->column_map[$entity_type];
         ksort($keys);
 
-        $data = array_map(function ($row) use ($keys) {
-            return array_combine($keys, array_intersect_key($row, $keys));
-        }, $data);
+		$keys = array_shift( $data );
 
-        return $data;
+		return array_map( function ( $values ) use ( $keys ) {
+			return array_combine( $keys, $values );
+		}, $data );
+		
+
     }
+
+	public function preTransformCsv(array $data, $entity_type)
+	{
+
+		if ( empty( $this->column_map[ $entity_type ] ) ) {
+			return false;
+		}
+
+		if ( $this->skip_header ) {
+			array_shift( $data );
+		}
+
+		//sort the array by key
+		$keys = $this->column_map[ $entity_type ];
+		ksort( $keys );
+
+		$data = array_map( function ( $row ) use ( $keys ) {
+			return array_combine( $keys, array_intersect_key( $row, $keys ) );
+		}, $data );
+
+
+		return $data;
+
+	}
+
 }
