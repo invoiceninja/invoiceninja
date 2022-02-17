@@ -80,6 +80,8 @@ class BaseImport
 
 	public function getCsvData($entity_type)
 	{
+		nlog("get csv data = entity name = " . $entity_type);
+
 		$base64_encoded_csv = Cache::pull($this->hash . '-' . $entity_type);
 		if (empty($base64_encoded_csv)) {
 			return null;

@@ -71,7 +71,8 @@ class Csv extends BaseImport implements ImportInterface
 
         $data = $this->getCsvData($entity_type);
 
-        $data = $this->preTransformCsv($data, $entity_type);
+        if(is_array($data))
+            $data = $this->preTransformCsv($data, $entity_type);
 
         if (empty($data)) {
             $this->entity_count['clients'] = 0;
@@ -98,7 +99,8 @@ class Csv extends BaseImport implements ImportInterface
 
         $data = $this->getCsvData($entity_type);
 
-        $data = $this->preTransformCsv($data, $entity_type);
+        if(is_array($data))
+            $data = $this->preTransformCsv($data, $entity_type);
 
         if (empty($data)) {
             $this->entity_count['products'] = 0;
@@ -125,7 +127,8 @@ class Csv extends BaseImport implements ImportInterface
 
         $data = $this->getCsvData($entity_type);
 
-        $data = $this->preTransformCsv($data, $entity_type);
+        if(is_array($data))
+            $data = $this->preTransformCsv($data, $entity_type);
 
         if (empty($data)) {
             $this->entity_count['invoices'] = 0;
@@ -152,7 +155,8 @@ class Csv extends BaseImport implements ImportInterface
 
         $data = $this->getCsvData($entity_type);
 
-        $data = $this->preTransformCsv($data, $entity_type);
+        if(is_array($data))
+            $data = $this->preTransformCsv($data, $entity_type);
 
         if (empty($data)) {
             $this->entity_count['payments'] = 0;
@@ -179,7 +183,8 @@ class Csv extends BaseImport implements ImportInterface
 
         $data = $this->getCsvData($entity_type);
 
-        $data = $this->preTransformCsv($data, $entity_type);
+        if(is_array($data))
+            $data = $this->preTransformCsv($data, $entity_type);
 
         if (empty($data)) {
             $this->entity_count['vendors'] = 0;
@@ -206,7 +211,8 @@ class Csv extends BaseImport implements ImportInterface
 
         $data = $this->getCsvData($entity_type);
 
-        $data = $this->preTransformCsv($data, $entity_type);
+        if(is_array($data))
+            $data = $this->preTransformCsv($data, $entity_type);
 
         if (empty($data)) {
             $this->entity_count['expenses'] = 0;
