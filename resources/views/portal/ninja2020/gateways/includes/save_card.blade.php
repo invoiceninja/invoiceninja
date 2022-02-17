@@ -30,7 +30,7 @@
             <label class="mr-4">
                 <input type="radio" class="form-radio cursor-pointer" name="token-billing-checkbox"
                        id="proxy_is_default"
-                       value="{{ $token_billing_string }}" {{ $checked_on }}/>
+                       value="true" {{ $checked_on }}/>
                 <span class="ml-1 cursor-pointer">{{ ctrans('texts.yes') }}</span>
             </label>
             <label>
@@ -46,6 +46,6 @@
         <input type="radio" class="form-radio cursor-pointer hidden" style="display: none !important;"
                name="token-billing-checkbox"
                id="proxy_is_default"
-               value="true" checked hidden disabled/>
+               value="{{ $token_billing_string }}" checked hidden disabled/>
     </div>
 @endif
