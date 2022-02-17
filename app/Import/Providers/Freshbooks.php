@@ -49,7 +49,6 @@ class Freshbooks extends BaseImport
         $entity_type = 'client';
 
         $data = $this->getCsvData($entity_type);
-
         $data = $this->preTransform($data, $entity_type);
 
         if (empty($data)) {

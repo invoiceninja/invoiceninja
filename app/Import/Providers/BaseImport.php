@@ -123,6 +123,9 @@ class BaseImport
 
 	private function groupInvoices($csvData, $key)
 	{
+		if(!$key)
+			return $csvData;
+
 		// Group by invoice.
 		$grouped = [];
 
@@ -215,6 +218,7 @@ class BaseImport
 		foreach ($invoices as $raw_invoice) {
 
 			try {
+
 				$invoice_data = $invoice_transformer->transform($raw_invoice);
 
 				$invoice_data['line_items'] = $this->cleanItems(
@@ -242,10 +246,6 @@ class BaseImport
 					unset($invoice_data['client']);
 				}
 
-				// $validator = Validator::make(
-				// 	$invoice_data,
-				// 	(new StoreInvoiceRequest())->rules()
-				// );
 				$validator = $this->request_name::runFormRequest($invoice_data);
 
 				if ($validator->fails()) {
@@ -516,8 +516,9 @@ class BaseImport
 
     public function preTransform(array $data, $entity_type)
     {
+
         if (empty($this->column_map[$entity_type])) {
-            return false;
+            return $data;
         }
 
         if ($this->skip_header) {
