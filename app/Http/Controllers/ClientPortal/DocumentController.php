@@ -71,11 +71,11 @@ class DocumentController extends Controller
     public function downloadMultiple(DownloadMultipleDocumentsRequest $request)
     {
         $documents = Document::whereIn('id', $this->transformKeys($request->file_hash))
-            ->where('company_id', auth('contact')->user()->company->id)
+            ->where('company_id', auth()->guard('contact')->user()->company->id)
             ->get();
 
         $documents->map(function ($document) {
-            if (auth()->user('contact')->client->id != $document->documentable->id) {
+            if (auth()->guard('contact')->user()->client->id != $document->documentable->id) {
                 abort(401, 'Permission denied');
             }
         });

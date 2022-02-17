@@ -25,7 +25,6 @@ use Illuminate\Validation\Rule;
 class StoreClientRequest extends Request
 {
     use MakesHash;
-
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -89,7 +88,7 @@ class StoreClientRequest extends Request
     protected function prepareForValidation()
     {
         $input = $this->all();
-        
+
         $settings = ClientSettings::defaults();
 
         if (array_key_exists('settings', $input) && ! empty($input['settings'])) {

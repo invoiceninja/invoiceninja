@@ -145,7 +145,7 @@ class CreditCard implements MethodInterface
     {
         $cgt = ClientGatewayToken::query()
             ->where('id', $this->decodePrimaryKey($request->input('token')))
-            ->where('company_id', auth('contact')->user()->client->company->id)
+            ->where('company_id', auth()->guard('contact')->user()->client->company->id)
             ->first();
 
         if (!$cgt) {

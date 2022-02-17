@@ -37,11 +37,13 @@ class CSVIngest implements ShouldQueue {
 
     public ?string $skip_header;
 
-    public array $column_map;
+    public $column_map;
+
+    public array $request;
 
     public function __construct( array $request, Company $company ) {
         $this->company     = $company;
-        $this->request = $request;
+        $this->request     = $request;
         $this->hash        = $request['hash'];
         $this->import_type = $request['import_type'];
         $this->skip_header = $request['skip_header'] ?? null;

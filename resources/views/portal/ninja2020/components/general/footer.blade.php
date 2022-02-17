@@ -1,7 +1,7 @@
 <footer class="bg-white px-4 py-5 shadow px-4 sm:px-6 md:px-8 flex justify-center border-t border-gray-200 justify-between items-center" x-data="{ privacy: false, tos: false }">
     <section>
-        @if(auth('contact')->user() && auth('contact')->user()->user->account->isPaid())
-            <span class="text-xs md:text-sm text-gray-700">{{ ctrans('texts.footer_label', ['company' => auth('contact')->user()->company->present()->name(), 'year' => date('Y')]) }}</span>
+        @if(auth()->guard('contact')->user() && auth()->guard('contact')->user()->user->account->isPaid())
+            <span class="text-xs md:text-sm text-gray-700">{{ ctrans('texts.footer_label', ['company' => auth()->guard('contact')->user()->company->present()->name(), 'year' => date('Y')]) }}</span>
         @else
             <span href="https://invoiceninja.com" target="_blank" class="text-xs md:text-sm text-gray-700">
                 {{ ctrans('texts.copyright') }} &copy; {{ date('Y') }}
@@ -26,7 +26,7 @@
         </div>
     </section>
 
-    @if(auth('contact')->user()->user && !auth('contact')->user()->user->account->isPaid())
+    @if(auth()->guard('contact')->user()->user && !auth()->guard('contact')->user()->user->account->isPaid())
         <a href="https://invoiceninja.com" target="_blank">
             <img class="h-8" src="{{ asset('images/invoiceninja-black-logo-2.png') }}" alt="Invoice Ninja Logo">
         </a>

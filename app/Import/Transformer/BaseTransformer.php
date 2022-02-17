@@ -65,26 +65,28 @@ class BaseTransformer
 
     public function getClient($client_name, $client_email)
     {
-        // nlog("searching for {$client_name} with email {$client_email}");
 
-        $client_id_search = $this->company
-            ->clients()
-            ->where('id_number', $client_name);
+        if(!empty($client_name))
+        {
 
-        if ($client_id_search->count() >= 1) {
-            // nlog("found via id number => {$client_id_search->first()->id}");
-            return $client_id_search->first()->id;
+            $client_id_search = $this->company
+                ->clients()
+                ->where('id_number', $client_name);
+
+            if ($client_id_search->count() >= 1) {
+                // nlog("found via id number => {$client_id_search->first()->id}");
+                return $client_id_search->first()->id;
+            }
+
+            $client_name_search = $this->company
+                ->clients()
+                ->where('name', $client_name);
+
+            if ($client_name_search->count() >= 1) {
+                // nlog("found via name {$client_name_search->first()->id}");
+                return $client_name_search->first()->id;
+            }
         }
-
-        $client_name_search = $this->company
-            ->clients()
-            ->where('name', $client_name);
-
-        if ($client_name_search->count() >= 1) {
-            // nlog("found via name {$client_name_search->first()->id}");
-            return $client_name_search->first()->id;
-        }
-
         if (!empty($client_email)) {
             $contacts = ClientContact::where(
                 'company_id',

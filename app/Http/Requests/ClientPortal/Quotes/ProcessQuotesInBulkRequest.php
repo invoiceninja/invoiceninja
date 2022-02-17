@@ -20,7 +20,7 @@ class ProcessQuotesInBulkRequest extends FormRequest
 {
     public function authorize()
     {
-        return auth('contact')->user()->company->enabled_modules & PortalComposer::MODULE_QUOTES;
+        return auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_QUOTES;
     }
 
     public function rules()

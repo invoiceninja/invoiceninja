@@ -78,7 +78,8 @@ class ProcessPostmarkWebhook implements ShouldQueue
         if(!$this->invitation)
             return;
 
-        $this->invitation->email_error = $this->request['Details'];
+        if(array_key_exists('Details', $this->request))
+            $this->invitation->email_error = $this->request['Details'];
         
         switch ($this->request['RecordType']) 
         {

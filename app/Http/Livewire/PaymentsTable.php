@@ -43,7 +43,7 @@ class PaymentsTable extends Component
             ->with('type', 'client')
             ->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING, Payment::STATUS_REFUNDED, Payment::STATUS_PARTIALLY_REFUNDED])
             ->where('company_id', $this->company->id)
-            ->where('client_id', auth('contact')->user()->client->id)
+            ->where('client_id', auth()->guard('contact')->user()->client->id)
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
             ->withTrashed()
             ->paginate($this->per_page);

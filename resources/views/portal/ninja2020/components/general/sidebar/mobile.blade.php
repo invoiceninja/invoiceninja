@@ -9,7 +9,7 @@
             </button>
         </div>
         <div class="flex-shrink-0 flex items-center px-4">
-            <img class="h-8 w-auto" src="{!! auth('contact')->user()->company->present()->logo($settings) !!}" alt="{{ auth('contact')->user()->company->present()->name() }} logo" />
+            <img class="h-8 w-auto" src="{!! auth()->guard('contact')->user()->company->present()->logo($settings) !!}" alt="{{ auth()->guard('contact')->user()->company->present()->name() }} logo" />
         </div>
         <div class="mt-5 flex-1 h-0 overflow-y-auto">
             <nav class="flex-1 pb-4 pt-0 bg-white">
@@ -28,7 +28,7 @@
                 @endforeach
             </nav>
 
-            @if(!auth('contact')->user()->user->account->isPaid())
+            @if(!auth()->guard('contact')->user()->user->account->isPaid())
             <div class="flex-shrink-0 flex bg-white p-4 justify-center">
                 <div class="flex items-center">
                     <a target="_blank" href="https://www.facebook.com/invoiceninja/">

@@ -63,7 +63,7 @@ class QuoteController extends Controller
 
         $data = [
             'quote' => $quote,
-            'key' => $invitation->key,
+            'key' => $invitation ? $invitation->key : false,
         ];
 
         if ($invitation && auth()->guard('contact') && ! request()->has('silent') && ! $invitation->viewed_date) {
@@ -160,8 +160,8 @@ class QuoteController extends Controller
     protected function approve(array $ids, $process = false)
     {
         $quotes = Quote::whereIn('id', $ids)
-            ->where('client_id', auth('contact')->user()->client->id)
-            ->where('company_id', auth('contact')->user()->client->company_id)
+            ->where('client_id', auth()->guard('contact')->user()->client->id)
+            ->where('company_id', auth()->guard('contact')->user()->client->company_id)
             ->whereIn('status_id', [Quote::STATUS_DRAFT, Quote::STATUS_SENT])
             ->withTrashed()
             ->get();
@@ -175,7 +175,7 @@ class QuoteController extends Controller
         if ($process) {
             foreach ($quotes as $quote) {
                 $quote->service()->approve(auth()->user())->save();
-                event(new QuoteWasApproved(auth('contact')->user(), $quote, $quote->company, Ninja::eventVars()));
+                event(new QuoteWasApproved(auth()->guard('contact')->user(), $quote, $quote->company, Ninja::eventVars()));
 
                 if (request()->has('signature') && !is_null(request()->signature) && !empty(request()->signature)) {
                     InjectSignature::dispatch($quote, request()->signature);
