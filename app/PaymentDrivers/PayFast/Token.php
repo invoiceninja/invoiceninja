@@ -57,7 +57,7 @@ class Token
         
         $header['signature'] = $this->payfast->generateTokenSignature(array_merge($body, $header));
 
-        nlog($header['signature']);
+        // nlog($header['signature']);
 
         $result = $this->send($header, $body, $cgt->token);
 
@@ -95,7 +95,7 @@ class Token
             $parameter_string = rtrim( $parameter_string, '&' );
         }
 
-        nlog($parameter_string);
+        // nlog($parameter_string);
 
         return $parameter_string;
 

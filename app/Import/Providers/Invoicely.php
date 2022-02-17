@@ -83,7 +83,7 @@ class Invoicely extends BaseImport
         $data = $this->getCsvData($entity_type);
 
         $data = $this->preTransform($data, $entity_type);
-nlog($data);
+
         if (empty($data)) {
             $this->entity_count['invoices'] = 0;
             return;

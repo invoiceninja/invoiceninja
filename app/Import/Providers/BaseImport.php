@@ -516,12 +516,11 @@ class BaseImport
 
     public function preTransform(array $data, $entity_type)
     {
-
         //sort the array by key
-        $keys = $this->column_map[$entity_type];
-        ksort($keys);
+        // $keys = $this->column_map[$entity_type];
 
 		$keys = array_shift( $data );
+        ksort($keys);
 
 		return array_map( function ( $values ) use ( $keys ) {
 			return array_combine( $keys, $values );

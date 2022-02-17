@@ -267,8 +267,8 @@ class BraintreePaymentDriver extends BaseDriver
 
         nlog("braintree webhook");
 
-        if($webhookNotification)
-            nlog($webhookNotification->kind);
+        // if($webhookNotification)
+        //     nlog($webhookNotification->kind);
         
         // // Example values for webhook notification properties
         // $message = $webhookNotification->kind; // "subscription_went_past_due"

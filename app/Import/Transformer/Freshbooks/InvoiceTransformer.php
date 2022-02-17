@@ -73,7 +73,6 @@ class InvoiceTransformer extends BaseTransformer {
 				'amount' => $transformed['amount'],
 			]];
 		}
-nlog($transformed);
 
 		return $transformed;
 	}

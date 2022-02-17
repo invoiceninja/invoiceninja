@@ -28,7 +28,6 @@ class ClientTransformer extends BaseTransformer {
 		if ( isset( $data['Client Name'] ) && $this->hasClient( $data['Client Name'] ) ) {
 			throw new ImportException('Client already exists');
 		}
-		nlog($data);
 
 		$transformed = [
 			'company_id'     => $this->company->id,
