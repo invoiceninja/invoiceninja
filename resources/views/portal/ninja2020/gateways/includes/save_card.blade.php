@@ -5,11 +5,13 @@
 
     $gateway_instance = $gateway instanceof \App\Models\CompanyGateway ? $gateway : $gateway->company_gateway;
     $token_billing = true;
+    $token_billing_string = 'true';
     $checked_on = '';
     $checked_off = 'checked';
 
     if($gateway_instance->token_billing == 'off' || $gateway_instance->token_billing == 'always'){
         $token_billing = false;
+        $token_billing_string = 'false';
     }
     
     if($gateway_instance->token_billing == 'optout' || $gateway_instance->token_billing == 'always'){
@@ -28,7 +30,7 @@
             <label class="mr-4">
                 <input type="radio" class="form-radio cursor-pointer" name="token-billing-checkbox"
                        id="proxy_is_default"
-                       value="true" {{ $checked_on }}/>
+                       value="{{ $token_billing_string }}" {{ $checked_on }}/>
                 <span class="ml-1 cursor-pointer">{{ ctrans('texts.yes') }}</span>
             </label>
             <label>
