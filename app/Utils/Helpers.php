@@ -262,7 +262,11 @@ class Helpers
             }
         }
 
-        return $value;
+        $x = str_replace(["\n", "<br>"], ["\r", "<br>"], $value);
+
+        nlog($x);
+
+        return $x;
     }
 
     /**
