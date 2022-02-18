@@ -65,7 +65,6 @@
         "league/fractal": "^0.17.0",
         "league/omnipay": "^3.1",
         "livewire/livewire": "^2.6",
-        "maennchen/zipstream-php": "^1.2",
         "mollie/mollie-api-php": "^2.36",
         "nelexa/zip": "^4.0",
         "nwidart/laravel-modules": "^8.0",

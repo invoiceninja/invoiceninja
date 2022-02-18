@@ -28,8 +28,6 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
-use ZipStream\Option\Archive;
-use ZipStream\ZipStream;
 use Illuminate\Http\Request;
 
 class InvoiceController extends Controller
@@ -198,9 +196,6 @@ class InvoiceController extends Controller
      * @param array $ids
      *
      * @return void
-     * @throws \ZipStream\Exception\FileNotFoundException
-     * @throws \ZipStream\Exception\FileNotReadableException
-     * @throws \ZipStream\Exception\OverflowException
      */
     private function downloadInvoicePDF(array $ids)
     {
@@ -230,22 +225,6 @@ class InvoiceController extends Controller
 
         return $this->buildZip($invoices);
 
-        // // enable output of HTTP headers
-        // $options = new Archive();
-        // $options->setSendHttpHeaders(true);
-
-        // // create a new zipstream object
-        // $zip = new ZipStream(date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.invoices')).'.zip', $options);
-
-        // foreach ($invoices as $invoice) {
-
-        //     #add it to the zip
-        //     $zip->addFile(basename($invoice->pdf_file_path()), file_get_contents($invoice->pdf_file_path(null, 'url', true)));
-
-        // }
-
-        // // finish the zip stream
-        // $zip->finish();
     }
 
 
