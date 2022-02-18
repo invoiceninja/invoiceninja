@@ -228,21 +228,54 @@ class InvoiceController extends Controller
             },  basename($file), ['Content-Type' => 'application/pdf']);
         }
 
-        // enable output of HTTP headers
-        $options = new Archive();
-        $options->setSendHttpHeaders(true);
+        return $this->buildZip($invoices);
 
-        // create a new zipstream object
-        $zip = new ZipStream(date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.invoices')).'.zip', $options);
+        // // enable output of HTTP headers
+        // $options = new Archive();
+        // $options->setSendHttpHeaders(true);
 
-        foreach ($invoices as $invoice) {
+        // // create a new zipstream object
+        // $zip = new ZipStream(date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.invoices')).'.zip', $options);
 
-            #add it to the zip
-            $zip->addFile(basename($invoice->pdf_file_path()), file_get_contents($invoice->pdf_file_path(null, 'url', true)));
+        // foreach ($invoices as $invoice) {
+
+        //     #add it to the zip
+        //     $zip->addFile(basename($invoice->pdf_file_path()), file_get_contents($invoice->pdf_file_path(null, 'url', true)));
+
+        // }
+
+        // // finish the zip stream
+        // $zip->finish();
+    }
+
+
+    private function buildZip($invoices)
+    {
+        // create new archive
+        $zipFile = new \PhpZip\ZipFile();
+        try{
+            
+            foreach ($invoices as $invoice) {
+
+                #add it to the zip
+                $zipFile->addFromString(basename($invoice->pdf_file_path()), file_get_contents($invoice->pdf_file_path(null, 'url', true)));
+
+            }
+
+            $filename = date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.invoices')).'.zip';
+            $filepath = sys_get_temp_dir() . '/' . $filename;
+
+           $zipFile->saveAsFile($filepath) // save the archive to a file
+                   ->close(); // close archive
+                    
+           return response()->download($filepath, $filename)->deleteFileAfterSend(true);
 
         }
-
-        // finish the zip stream
-        $zip->finish();
+        catch(\PhpZip\Exception\ZipException $e){
+            // handle exception
+        }
+        finally{
+            $zipFile->close();
+        }
     }
 }
