@@ -264,8 +264,6 @@ class Helpers
 
         $x = str_replace(["\n", "<br>"], ["\r", "<br>"], $value);
 
-        nlog($x);
-
         return $x;
     }
 
