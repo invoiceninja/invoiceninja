@@ -25,8 +25,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
-use ZipStream\Option\Archive;
-use ZipStream\ZipStream;
 use ZipArchive;
 
 class ZipInvoices implements ShouldQueue

@@ -24,6 +24,7 @@ const appendToElement = (parent, value) => {
     _temp.hidden = true;
 
     _parent.append(_temp);
+
 };
 
 window.appendToElement = appendToElement;

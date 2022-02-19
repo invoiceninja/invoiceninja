@@ -33,8 +33,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
-use ZipStream\Option\Archive;
-use ZipStream\ZipStream;
 use Illuminate\Support\Facades\App;
 
 class CompanyExport implements ShouldQueue

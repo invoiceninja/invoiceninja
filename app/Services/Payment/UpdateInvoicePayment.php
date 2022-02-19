@@ -87,23 +87,6 @@ class UpdateInvoicePayment
 
             $this->payment->applied += $paid_amount;
 
-            // $invoice->service() //caution what if we amount paid was less than partial - we wipe it!
-            //     ->clearPartial()
-            //     ->updateBalance($paid_amount * -1)
-            //     ->updatePaidToDate($paid_amount)
-            //     ->updateStatus()
-            //     ->save();
-
-            //     $invoice->refresh();
-
-            //     $invoice->service()
-            //             ->touchPdf(true)
-            //             ->workFlow()
-            //             ->save();
-
-
-
-
         });
         
         /* Remove the event updater from within the loop to prevent race conditions */

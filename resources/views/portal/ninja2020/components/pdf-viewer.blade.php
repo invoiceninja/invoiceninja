@@ -1,5 +1,5 @@
 @php
-    $mobile = stripos($_SERVER['HTTP_USER_AGENT'], 'Android') || stripos($_SERVER['HTTP_USER_AGENT'], 'iPhone') || stripos($_SERVER['HTTP_USER_AGENT'], 'iPod') || stripos($_SERVER['HTTP_USER_AGENT'], 'iPad');
+    $mobile = stripos(request()->server('HTTP_USER_AGENT'), 'Android') || stripos(request()->server('HTTP_USER_AGENT'), 'iPhone') || stripos(request()->server('HTTP_USER_AGENT'), 'iPod') || stripos(request()->server('HTTP_USER_AGENT'), 'iPad');
 @endphp
 
 @push('head')

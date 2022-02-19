@@ -75,16 +75,19 @@ class BackupUpdate extends Command
 
     private function handleOnDb()
     {
+        set_time_limit(0);
+        
+        Backup::chunk(100, function ($backups) {
+            foreach ($backups as $backup) {
+                
+                if($backup->activity->client()->exists()){
 
-        Backup::whereHas('activity')->whereNotNull('html_backup')->cursor()->each(function($backup){
+                    $client = $backup->activity->client;
+                    $backup->storeRemotely($backup->html_backup, $client);
 
-            if($backup->activity->client()->exists()){
-
-                $client = $backup->activity->client;
-                $backup->storeRemotely($backup->html_backup, $client);
+                }
 
             }
-
         });
 
     }
