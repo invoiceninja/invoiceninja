@@ -102,6 +102,7 @@ trait GenerateMigrationResources
             'custom_surcharge_taxes1' => $this->account->custom_invoice_taxes1,
             'custom_surcharge_taxes2' => $this->account->custom_invoice_taxes2,
             'subdomain' => $this->account->subdomain,
+            'portal_mode' => 'subdomain',
             'size_id' => $this->account->size_id,
             'enable_modules' => $this->account->enabled_modules,
             'custom_fields' => $this->account->custom_fields,
@@ -552,13 +553,14 @@ trait GenerateMigrationResources
     {
 
         $credits = [];
+        $export_credits = collect([]);
 
-        $export_credits = Invoice::where('account_id', $this->account->id)
-            ->where('balance', '<', '0')
-            ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
-            ->where('is_public', true)
-            ->withTrashed()
-            ->get();
+        // $export_credits = Invoice::where('account_id', $this->account->id)
+        //     ->where('balance', '<', '0')
+        //     ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
+        //     ->where('is_public', true)
+        //     ->withTrashed()
+        //     ->get();
 
         info("get credit notes => " . $export_credits->count());
 
@@ -613,7 +615,7 @@ trait GenerateMigrationResources
         $invoices = [];
 
         $export_invoices = Invoice::where('account_id', $this->account->id)
-            ->where('amount', '>=', 0)
+            // ->where('amount', '>=', 0)
             ->where('invoice_type_id', INVOICE_TYPE_STANDARD)
             ->where('is_recurring', false)
             ->withTrashed()
