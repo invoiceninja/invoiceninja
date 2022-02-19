@@ -33,7 +33,7 @@ class Locale
             $locale = $request->input('lang');
             App::setLocale($locale);
         } elseif (auth()->guard('contact')->user()) {
-            App::setLocale(auth()->guard('contact')->user()->client->locale());
+            App::setLocale(auth()->guard('contact')->user()->client()->setEagerLoads([])->first()->locale());
         } elseif (auth()->user()) {
 
             try{

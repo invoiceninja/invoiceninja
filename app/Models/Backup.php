@@ -26,10 +26,10 @@ class Backup extends BaseModel
         return $this->belongsTo(Activity::class);
     }
 
-    public function storeRemotely(string $html, Client $client)
+    public function storeRemotely(?string $html, Client $client)
     {
 
-        if(strlen($html) == 0)
+        if(!$html || strlen($html) == 0)
             return;
 
         $path = $client->backup_path() . "/";

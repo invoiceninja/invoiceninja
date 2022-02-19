@@ -165,7 +165,7 @@ class HtmlEngine
             $data['$entity'] = ['value' => '', 'label' => ctrans('texts.quote')];
             $data['$number'] = ['value' => $this->entity->number ?: '', 'label' => ctrans('texts.quote_number')];
             $data['$number_short'] = ['value' => $this->entity->number ?: '', 'label' => ctrans('texts.quote_number_short')];
-            $data['$entity.terms'] = ['value' => $this->entity->terms ?: '', 'label' => ctrans('texts.quote_terms')];
+            $data['$entity.terms'] = ['value' => Helpers::processReservedKeywords(\nl2br($this->entity->terms), $this->client) ?: '', 'label' => ctrans('texts.quote_terms')];
             $data['$terms'] = &$data['$entity.terms'];
             $data['$view_link'] = ['value' => '<a class="button" href="'.$this->invitation->getLink().'">'.ctrans('texts.view_quote').'</a>', 'label' => ctrans('texts.view_quote')];
             $data['$viewLink'] = &$data['$view_link'];
@@ -180,7 +180,7 @@ class HtmlEngine
             $data['$entity'] = ['value' => '', 'label' => ctrans('texts.credit')];
             $data['$number'] = ['value' => $this->entity->number ?: '', 'label' => ctrans('texts.credit_number')];
             $data['$number_short'] = ['value' => $this->entity->number ?: '', 'label' => ctrans('texts.credit_number_short')];
-            $data['$entity.terms'] = ['value' => $this->entity->terms ?: '', 'label' => ctrans('texts.credit_terms')];
+            $data['$entity.terms'] = ['value' => Helpers::processReservedKeywords(\nl2br($this->entity->terms), $this->client) ?: '', 'label' => ctrans('texts.credit_terms')];
             $data['$terms'] = &$data['$entity.terms'];
             $data['$view_link'] = ['value' => '<a class="button" href="'.$this->invitation->getLink().'">'.ctrans('texts.view_credit').'</a>', 'label' => ctrans('texts.view_credit')];
             $data['$viewButton'] = &$data['$view_link'];

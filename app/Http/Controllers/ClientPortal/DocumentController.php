@@ -22,8 +22,6 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
-use ZipStream\Option\Archive;
-use ZipStream\ZipStream;
 
 class DocumentController extends Controller
 {
@@ -71,25 +69,34 @@ class DocumentController extends Controller
     public function downloadMultiple(DownloadMultipleDocumentsRequest $request)
     {
         $documents = Document::whereIn('id', $this->transformKeys($request->file_hash))
-            ->where('company_id', auth()->guard('contact')->user()->company->id)
+            ->where('company_id', auth()->guard('contact')->user()->company_id)
             ->get();
 
-        $documents->map(function ($document) {
-            if (auth()->guard('contact')->user()->client->id != $document->documentable->id) {
-                abort(401, 'Permission denied');
+        $zipFile = new \PhpZip\ZipFile();
+
+        try{
+            
+            foreach ($documents as $document) {
+                $zipFile->addFile(TempFile::path($document->filePath()), $document->name);
             }
-        });
 
-        $options = new Archive();
+            $filename = now() . '-documents.zip';
+            $filepath = sys_get_temp_dir() . '/' . $filename;
 
-        $options->setSendHttpHeaders(true);
+           $zipFile->saveAsFile($filepath) // save the archive to a file
+                   ->close(); // close archive
+                    
+           return response()->download($filepath, $filename)->deleteFileAfterSend(true);
 
-        $zip = new ZipStream(now() . '-documents.zip', $options);
-
-        foreach ($documents as $document) {
-            $zip->addFileFromPath(basename($document->diskPath()), TempFile::path($document->filePath()));
+        }
+        catch(\PhpZip\Exception\ZipException $e){
+            // handle exception
+        }
+        finally{
+            $zipFile->close();
         }
 
-        $zip->finish();
     }
+
+
 }

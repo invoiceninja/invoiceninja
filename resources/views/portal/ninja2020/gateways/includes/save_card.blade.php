@@ -1,7 +1,4 @@
 @php
-    // $token_billing = $gateway instanceof \App\Models\CompanyGateway
-    //         ? $gateway->token_billing !== 'always'
-    //         : $gateway->company_gateway->token_billing !== 'always';
 
     $gateway_instance = $gateway instanceof \App\Models\CompanyGateway ? $gateway : $gateway->company_gateway;
     $token_billing = true;
@@ -9,7 +6,7 @@
     $checked_on = '';
     $checked_off = 'checked';
 
-    if($gateway_instance->token_billing == 'off' || $gateway_instance->token_billing == 'always'){
+    if($gateway_instance->token_billing == 'off'){
         $token_billing = false;
         $token_billing_string = 'false';
     }

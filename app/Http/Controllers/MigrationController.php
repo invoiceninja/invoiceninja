@@ -265,15 +265,16 @@ class MigrationController extends BaseController
 
             foreach($request->all() as $input){
 
-                if($input instanceof UploadedFile)
-                    nlog('is file');
+                if($input instanceof UploadedFile){
+
+                }
                 else
                     $companies[] = json_decode($input,1);
             }
         }
 
         if (app()->environment() === 'local') {
-            nlog($request->all());
+
         }
 
     try {

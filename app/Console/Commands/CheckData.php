@@ -115,6 +115,8 @@ class CheckData extends Command
         $this->checkEntityInvitations();
         $this->checkCompanyData();
 
+        if(Ninja::isHosted())
+            $this->checkAccountStatuses();
 
         if (! $this->option('client_id')) {
             $this->checkOAuth();
@@ -244,38 +246,6 @@ class CheckData extends Command
             }
         }
 
-        // // check for more than one primary contact
-        // $clients = DB::table('clients')
-        //             ->leftJoin('client_contacts', function ($join) {
-        //                 $join->on('client_contacts.client_id', '=', 'clients.id')
-        //                     ->where('client_contacts.is_primary', '=', true)
-        //                     ->whereNull('client_contacts.deleted_at');
-        //             })
-        //             ->groupBy('clients.id')
-        //             ->havingRaw('count(client_contacts.id) != 1');
-
-        // if ($this->option('client_id')) {
-        //     $clients->where('clients.id', '=', $this->option('client_id'));
-        // }
-
-        // $clients = $clients->get(['clients.id', 'clients.user_id', 'clients.company_id']);
-        // // $this->logMessage($clients->count().' clients without a single primary contact');
-
-        // // if ($this->option('fix') == 'true') {
-        // //     foreach ($clients as $client) {
-        // //         $this->logMessage("Fixing missing primary contacts #{$client->id}");
-                
-        // //         $new_contact = ClientContactFactory::create($client->company_id, $client->user_id);
-        // //         $new_contact->client_id = $client->id;
-        // //         $new_contact->contact_key = Str::random(40);
-        // //         $new_contact->is_primary = true;
-        // //         $new_contact->save();
-        // //     }
-        // // }
-
-        // if ($clients->count() > 0) {
-        //     $this->isValid = false;
-        // }
     }
 
     private function checkFailedJobs()
@@ -447,6 +417,7 @@ class CheckData extends Command
         payments.id = paymentables.payment_id
         WHERE paymentable_type = 'App\\Models\\Credit'
         AND paymentables.deleted_at is NULL
+        AND payments.is_deleted = 0
         AND payments.client_id = ?;
         "), [$client->id] );
     
@@ -948,6 +919,30 @@ ORDER BY clients.id;
 
         return $type.'s';
     }
+
+    public function checkAccountStatuses()
+    {
+        Account::where('plan_expires', '<=', now()->subDays(2))->cursor()->each(function ($account){
+
+        $client = Client::on('db-ninja-01')->where('company_id', config('ninja.ninja_default_company_id'))->where('custom_value2', $account->key)->first();
+          
+        if($client){  
+            $payment = Payment::on('db-ninja-01')
+                          ->where('company_id', config('ninja.ninja_default_company_id'))
+                          ->where('client_id', $client->id)
+                          ->where('date', '>=', now()->subDays(2))
+                          ->exists();
+          
+          if($payment)
+                $this->logMessage("I found a payment for {$account->key}");
+
+
+        }
+          
+          
+        });
+    }
+
 }
 
 

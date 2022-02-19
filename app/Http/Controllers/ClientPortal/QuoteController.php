@@ -28,8 +28,6 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use ZipStream\Option\Archive;
-use ZipStream\ZipStream;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
@@ -140,21 +138,38 @@ class QuoteController extends Controller
             },  basename($file), ['Content-Type' => 'application/pdf']);
         }
 
-        // enable output of HTTP headers
-        $options = new Archive();
-        $options->setSendHttpHeaders(true);
+        return $this->buildZip($quotes);
 
-        // create a new zipstream object
-        $zip = new ZipStream(date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.invoices')).'.zip', $options);
+    }
 
-        foreach ($quotes as $quote) {
-            $zip->addFile(basename($quote->pdf_file_path()), file_get_contents($quote->pdf_file_path(null, 'url', true)));
+    private function buildZip($quotes)
+    {
+        // create new archive
+        $zipFile = new \PhpZip\ZipFile();
+        try{
+            
+            foreach ($quotes as $quote) {
 
-            // $zip->addFileFromPath(basename($quote->pdf_file_path()), TempFile::path($quote->pdf_file_path()));
+                #add it to the zip
+                $zipFile->addFromString(basename($quote->pdf_file_path()), file_get_contents($quote->pdf_file_path(null, 'url', true)));
+
+            }
+
+            $filename = date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.quotes')).'.zip';
+            $filepath = sys_get_temp_dir() . '/' . $filename;
+
+           $zipFile->saveAsFile($filepath) // save the archive to a file
+                   ->close(); // close archive
+                    
+           return response()->download($filepath, $filename)->deleteFileAfterSend(true);
+
         }
-
-        // finish the zip stream
-        $zip->finish();
+        catch(\PhpZip\Exception\ZipException $e){
+            // handle exception
+        }
+        finally{
+            $zipFile->close();
+        }
     }
 
     protected function approve(array $ids, $process = false)

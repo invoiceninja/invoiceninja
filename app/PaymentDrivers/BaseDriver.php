@@ -258,7 +258,7 @@ class BaseDriver extends AbstractPaymentDriver
         $payment->client_contact_id = $client_contact_id;
         $payment->saveQuietly();
 
-        /* Return early if the payment is no completed or pending*/
+        /* Return early if the payment is not completed or pending*/
         if(!in_array($status, [Payment::STATUS_COMPLETED, Payment::STATUS_PENDING]) )
             return $payment;
 
