@@ -23,7 +23,7 @@ class ShowInvoiceRequest extends Request
      */
     public function authorize() : bool
     {
-        return auth('contact')->user()->client->id == $this->invoice->client_id
-            &&  auth('contact')->user()->company->enabled_modules & PortalComposer::MODULE_INVOICES;
+        return auth()->guard('contact')->user()->client_id === $this->invoice->client_id
+            &&  auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_INVOICES;
     }
 }

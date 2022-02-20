@@ -35,7 +35,8 @@ class InvoiceTransformer extends BaseTransformer {
 			'company_id'  => $this->maps['company']->id,
 			'client_id'   => $this->getClient( $customer_name = $this->getString( $invoice_data, 'Customer' ), null ),
 			'number'      => $invoice_number = $this->getString( $invoice_data, 'Invoice Number' ),
-			'date'        => isset( $invoice_data['Invoice Date'] ) ? date( 'Y-m-d', strtotime( $invoice_data['Transaction Date'] ) ) : null,
+			'date'        => date( 'Y-m-d', strtotime( $invoice_data['Transaction Date'] ) ) ?: now()->format('Y-m-d'), //27-01-2022
+			// 'date'        => isset( $invoice_data['Invoice Date'] ) ? date( 'Y-m-d', strtotime( $invoice_data['Transaction Date'] ) ) : null,
 			'currency_id' => $this->getCurrencyByCode( $invoice_data, 'Currency' ),
 			'status_id'   => Invoice::STATUS_SENT,
 		];

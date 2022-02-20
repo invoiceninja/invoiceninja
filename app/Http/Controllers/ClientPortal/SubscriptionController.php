@@ -26,8 +26,8 @@ class SubscriptionController extends Controller
 
 
             $count = RecurringInvoice::query()
-                ->where('client_id', auth('contact')->user()->client->id)
-                ->where('company_id', auth('contact')->user()->client->company_id)
+                ->where('client_id', auth()->guard('contact')->user()->client->id)
+                ->where('company_id', auth()->guard('contact')->user()->client->company_id)
                 ->where('status_id', RecurringInvoice::STATUS_ACTIVE)
                 ->where('is_deleted', 0)
                 ->whereNotNull('subscription_id')
@@ -35,7 +35,7 @@ class SubscriptionController extends Controller
                 ->count();
 
                 if($count == 0)
-                    return redirect()->route('client.ninja_contact_login', ['contact_key' => auth('contact')->user()->contact_key, 'company_key' => auth('contact')->user()->company->company_key]);
+                    return redirect()->route('client.ninja_contact_login', ['contact_key' => auth()->guard('contact')->user()->contact_key, 'company_key' => auth()->guard('contact')->user()->company->company_key]);
 
         }
 

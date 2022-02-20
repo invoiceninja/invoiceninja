@@ -166,6 +166,7 @@ class CompanyTransformer extends EntityTransformer
             'use_comma_as_decimal_place' => (bool) $company->use_comma_as_decimal_place,
             'report_include_drafts' => (bool) $company->report_include_drafts,
             'client_registration_fields' => (array) $company->client_registration_fields,
+            'convert_rate_to_client' => (bool) $company->convert_rate_to_client,
         ];
     }
 

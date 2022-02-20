@@ -130,6 +130,7 @@ class AuthorizePaymentMethod
 
     public function buildPaymentMethod($payment_profile)
     {
+
         $payment_meta = new stdClass;
         $payment_meta->exp_month = 'xx';
         $payment_meta->exp_year = 'xx';
@@ -156,7 +157,8 @@ class AuthorizePaymentMethod
         $paymentOne = new PaymentType();
         $paymentOne->setOpaqueData($op);
 
-        $contact = $this->authorize->client->primary_contact()->first();
+        $contact = $this->authorize->client->primary_contact()->first() ?: $this->authorize->client->contacts()->first();
+
         $billto = false;
         
         if ($contact) {

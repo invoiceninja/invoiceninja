@@ -37,7 +37,7 @@ class General extends Component
 
     public function mount()
     {
-        $profile = auth()->user('contact');
+        $profile = auth()->guard('contact')->user();
 
         $this->fill([
             'profile' => $profile,

@@ -150,8 +150,11 @@ mix.js("resources/js/app.js", "public/js")
         "resources/js/clients/payments/stripe-browserpay.js",
         "public/js/clients/payments/stripe-browserpay.js"
     )
+    .js("resources/js/clients/payments/stripe-fpx.js",
+        "public/js/clients/payments/stripe-fpx.js")
 
 mix.copyDirectory('node_modules/card-js/card-js.min.css', 'public/css/card-js.min.css');
+mix.copyDirectory('node_modules/clipboard/dist/clipboard.min.js', 'public/vendor/clipboard.min.js');
 
 mix.sass("resources/sass/app.scss", "public/css")
     .options({

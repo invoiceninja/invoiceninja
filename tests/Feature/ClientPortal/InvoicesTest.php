@@ -13,6 +13,7 @@
 namespace Tests\Feature\ClientPortal;
 
 
+use App\DataMapper\ClientSettings;
 use App\Http\Livewire\InvoicesTable;
 use App\Models\Account;
 use App\Models\Client;
@@ -49,8 +50,14 @@ class InvoicesTest extends TestCase
         );
 
         $company = Company::factory()->create(['account_id' => $account->id]);
+        $company->settings->language_id = "1";
+        $company->save();
 
         $client = Client::factory()->create(['company_id' => $company->id, 'user_id' => $user->id]);
+        $settings = $client->settings;
+        $settings->language_id = "1";
+        $client->settings = $settings;
+        $client->save();
 
         ClientContact::factory()->count(2)->create([
             'user_id' => $user->id,
@@ -58,21 +65,21 @@ class InvoicesTest extends TestCase
             'company_id' => $company->id,
         ]);
 
-        $sent = Invoice::factory()->create([
+        $sent = Invoice::factory()->for($client)->create([
             'user_id' => $user->id,
             'company_id' => $company->id,
             'client_id' => $client->id,
             'status_id' => Invoice::STATUS_SENT,
         ]);
 
-        $paid = Invoice::factory()->create([
+        $paid = Invoice::factory()->for($client)->create([
             'user_id' => $user->id,
             'company_id' => $company->id,
             'client_id' => $client->id,
             'status_id' => Invoice::STATUS_PAID,
         ]);
 
-        $unpaid = Invoice::factory()->create([
+        $unpaid = Invoice::factory()->for($client)->create([
             'user_id' => $user->id,
             'company_id' => $company->id,
             'client_id' => $client->id,

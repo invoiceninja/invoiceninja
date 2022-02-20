@@ -36,7 +36,7 @@ class CreditsTable extends Component
     {
 
         $query = Credit::query()
-            ->where('client_id', auth('contact')->user()->client->id)
+            ->where('client_id', auth()->guard('contact')->user()->client->id)
             ->where('company_id', $this->company->id)
             ->where('status_id', '<>', Credit::STATUS_DRAFT)
             ->where('is_deleted', 0)

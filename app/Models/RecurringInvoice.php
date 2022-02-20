@@ -107,6 +107,7 @@ class RecurringInvoice extends BaseModel
         'design_id',
         'assigned_user_id',
         'exchange_rate',
+        'vendor_id',
     ];
 
     protected $casts = [
@@ -155,6 +156,11 @@ class RecurringInvoice extends BaseModel
         }
 
         return $value;
+    }
+
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class);
     }
 
     public function activities()
@@ -452,14 +458,13 @@ class RecurringInvoice extends BaseModel
 
     public function calculateDueDate($date)
     {
-        //if nothing is set, assume we are using terms.
-        if(!$this->due_date_days)
-            return $this->calculateDateFromTerms($date);    
 
         switch ($this->due_date_days) {
             case 'terms':
+            case '':
                 return $this->calculateDateFromTerms($date);
                 break;
+
             default:
                 return $this->setDayOfMonth($date, $this->due_date_days);
                 break;

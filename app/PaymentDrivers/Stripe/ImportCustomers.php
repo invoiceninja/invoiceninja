@@ -55,13 +55,20 @@ class ImportCustomers
         if(Ninja::isHosted() && strlen($this->stripe->company_gateway->getConfigField('account_id')) < 1)
             throw new StripeConnectFailure('Stripe Connect has not been configured');
 
-        $customers = Customer::all([], $this->stripe->stripe_connect_auth);
+        $starting_after = null;
 
-        foreach($customers as $customer)
-        {
-            $this->addCustomer($customer);
-        }   
+        do {
+        
+            $customers = Customer::all(['limit' => 100, 'starting_after' => $starting_after], $this->stripe->stripe_connect_auth);
 
+            foreach($customers as $customer)
+            {
+                $this->addCustomer($customer);
+            }   
+
+            $starting_after = end($customers->data)['id'];
+
+        } while($customers->has_more);
     }
 
     private function addCustomer(Customer $customer)
@@ -72,7 +79,7 @@ class ImportCustomers
     if(!$account->isPaidHostedClient() && Client::where('company_id', $this->stripe->company_gateway->company_id)->count() > config('ninja.quotas.free.clients'))
         return;
 
-        nlog("search Stripe for {$customer->id}");
+        // nlog("search Stripe for {$customer->id}");
 
         $existing_customer_token = $this->stripe
                                   ->company_gateway
@@ -97,7 +104,7 @@ class ImportCustomers
             return;
         }
 
-        nlog("inserting a customer");
+        // nlog("inserting a customer");
         //nlog($customer);
         
         $client = ClientFactory::create($this->stripe->company_gateway->company_id, $this->stripe->company_gateway->user_id);

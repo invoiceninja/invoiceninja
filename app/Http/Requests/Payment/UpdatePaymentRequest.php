@@ -71,10 +71,6 @@ class UpdatePaymentRequest extends Request
             unset($input['amount']);
         }
 
-        // if (isset($input['number'])) {
-        //     unset($input['number']);
-        // }
-
         if (isset($input['invoices']) && is_array($input['invoices']) !== false) {
             foreach ($input['invoices'] as $key => $value) {
                 $input['invoices'][$key]['invoice_id'] = $this->decodePrimaryKey($value['invoice_id']);

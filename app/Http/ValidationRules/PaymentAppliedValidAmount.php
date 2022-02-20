@@ -42,7 +42,7 @@ class PaymentAppliedValidAmount implements Rule
 
     private function calculateAmounts() :bool
     {
-        $payment = Payment::whereId($this->decodePrimaryKey(request()->segment(4)))->company()->first();
+        $payment = Payment::withTrashed()->whereId($this->decodePrimaryKey(request()->segment(4)))->company()->first();
 
         if (! $payment) {
             return false;
@@ -52,6 +52,15 @@ class PaymentAppliedValidAmount implements Rule
         $invoice_amounts = 0;
 
         $payment_amounts = $payment->amount - $payment->refunded - $payment->applied;
+
+        if(request()->has('credits') 
+            && is_array(request()->input('credits')) 
+            && count(request()->input('credits')) == 0 
+            && request()->has('invoices') 
+            && is_array(request()->input('invoices')) 
+            && count(request()->input('invoices')) == 0){
+           return true;
+        }
 
         if (request()->input('credits') && is_array(request()->input('credits'))) {
             foreach (request()->input('credits') as $credit) {
@@ -65,6 +74,7 @@ class PaymentAppliedValidAmount implements Rule
             }
         }
 
-        return  $payment_amounts >= $invoice_amounts;
+        // nlog("{round($payment_amounts,3)} >= {round($invoice_amounts,3)}");
+        return  round($payment_amounts,3) >= round($invoice_amounts,3);
     }
 }

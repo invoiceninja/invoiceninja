@@ -6,6 +6,7 @@ use App\Models\Company;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
 
 class DownloadInvoices extends Mailable
 {
@@ -27,6 +28,9 @@ class DownloadInvoices extends Mailable
      */
     public function build()
     {
+
+        App::setLocale($this->company->getLocale());
+
         return $this->from(config('mail.from.address'), config('mail.from.name'))
             ->subject(ctrans('texts.download_files'))
             ->view('email.admin.download_invoices', [

@@ -48,6 +48,10 @@ class ApplePay
         $data['intent'] =  \Stripe\PaymentIntent::create([
                               'amount' => $data['stripe_amount'],
                               'currency' => $this->stripe_driver->client->getCurrencyCode(),
+                              'metadata' => [
+                                    'payment_hash' => $this->stripe_driver->payment_hash->hash,
+                                    'gateway_type_id' => GatewayType::APPLE_PAY,
+                                ],
                             ], $this->stripe_driver->stripe_connect_auth);
 
         $this->stripe_driver->payment_hash->data = array_merge((array) $this->stripe_driver->payment_hash->data, ['stripe_amount' => $data['stripe_amount']]);

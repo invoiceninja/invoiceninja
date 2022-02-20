@@ -28,8 +28,6 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
-use ZipStream\Option\Archive;
-use ZipStream\ZipStream;
 use Illuminate\Http\Request;
 
 class InvoiceController extends Controller
@@ -61,7 +59,7 @@ class InvoiceController extends Controller
 
         $invoice->service()->removeUnpaidGatewayFees()->save();
 
-            $invitation = $invoice->invitations()->where('client_contact_id', auth()->user()->id)->first();
+        $invitation = $invoice->invitations()->where('client_contact_id', auth()->guard('contact')->user()->id)->first();
 
             if ($invitation && auth()->guard('contact') && ! request()->has('silent') && ! $invitation->viewed_date) {
 
@@ -74,12 +72,12 @@ class InvoiceController extends Controller
 
         $data = [
             'invoice' => $invoice,
+            'key' => $invitation ? $invitation->key : false
         ];
 
         if ($request->query('mode') === 'fullscreen') {
             return render('invoices.show-fullscreen', $data);
         }
-            // $request->fullUrlWithQuery(['q' => null]);
         return $this->render('invoices.show', $data);
     }
 
@@ -198,9 +196,6 @@ class InvoiceController extends Controller
      * @param array $ids
      *
      * @return void
-     * @throws \ZipStream\Exception\FileNotFoundException
-     * @throws \ZipStream\Exception\FileNotReadableException
-     * @throws \ZipStream\Exception\OverflowException
      */
     private function downloadInvoicePDF(array $ids)
     {
@@ -228,21 +223,38 @@ class InvoiceController extends Controller
             },  basename($file), ['Content-Type' => 'application/pdf']);
         }
 
-        // enable output of HTTP headers
-        $options = new Archive();
-        $options->setSendHttpHeaders(true);
+        return $this->buildZip($invoices);
 
-        // create a new zipstream object
-        $zip = new ZipStream(date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.invoices')).'.zip', $options);
+    }
 
-        foreach ($invoices as $invoice) {
 
-            #add it to the zip
-            $zip->addFile(basename($invoice->pdf_file_path()), file_get_contents($invoice->pdf_file_path(null, 'url', true)));
+    private function buildZip($invoices)
+    {
+        // create new archive
+        $zipFile = new \PhpZip\ZipFile();
+        try{
+            
+            foreach ($invoices as $invoice) {
+
+                #add it to the zip
+                $zipFile->addFromString(basename($invoice->pdf_file_path()), file_get_contents($invoice->pdf_file_path(null, 'url', true)));
+
+            }
+
+            $filename = date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.invoices')).'.zip';
+            $filepath = sys_get_temp_dir() . '/' . $filename;
+
+           $zipFile->saveAsFile($filepath) // save the archive to a file
+                   ->close(); // close archive
+                    
+           return response()->download($filepath, $filename)->deleteFileAfterSend(true);
 
         }
-
-        // finish the zip stream
-        $zip->finish();
+        catch(\PhpZip\Exception\ZipException $e){
+            // handle exception
+        }
+        finally{
+            $zipFile->close();
+        }
     }
 }

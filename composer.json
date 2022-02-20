@@ -67,6 +67,7 @@
         "maennchen/zipstream-php": "^1.2",
         "mercadopago/dx-php": "^2.4",
         "mollie/mollie-api-php": "^2.36",
+        "nelexa/zip": "^4.0",
         "nwidart/laravel-modules": "^8.0",
         "omnipay/paypal": "^3.0",
         "payfast/payfast-php-sdk": "^1.1",
@@ -85,6 +86,7 @@
         "wildbit/swiftmailer-postmark": "^3.3"
     },
     "require-dev": {
+        "php": "^7.3|^7.4|^8.0",
         "anahkiasen/former": "^4.2",
         "barryvdh/laravel-debugbar": "^3.4",
         "beyondcode/laravel-query-detector": "^1.5",

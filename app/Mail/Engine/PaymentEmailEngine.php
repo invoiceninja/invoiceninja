@@ -240,6 +240,12 @@ class PaymentEmailEngine extends BaseEmailEngine
         $data['$invoices'] = ['value' => $this->formatInvoices(), 'label' => ctrans('texts.invoices')];
         $data['$invoice_references'] = ['value' => $this->formatInvoiceReferences(), 'label' => ctrans('texts.invoices')];
         $data['$invoice'] = ['value' => $this->formatInvoice(), 'label' => ctrans('texts.invoices')];
+        $data['$invoice.po_number'] = ['value' => $this->formatPoNumber(), 'label' => ctrans('texts.po_number')];
+        $data['$poNumber'] = &$data['$invoice.po_number'];
+
+        $arrKeysLength = array_map('strlen', array_keys($data));
+        array_multisort($arrKeysLength, SORT_DESC, $data);
+        
         return $data;
     }
 
@@ -249,6 +255,16 @@ class PaymentEmailEngine extends BaseEmailEngine
 
         if($this->payment->invoices()->exists())
             $invoice = ctrans('texts.invoice_number_short') . implode(",", $this->payment->invoices->pluck('number')->toArray());
+
+        return $invoice;
+    }
+
+    private function formatPoNumber()
+    {
+        $invoice = '';
+
+        if($this->payment->invoices()->exists())
+            $invoice = ctrans('texts.po_number_short') . implode(",", $this->payment->invoices->pluck('po_number')->toArray());
 
         return $invoice;
     }

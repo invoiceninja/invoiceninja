@@ -104,6 +104,7 @@ class CountriesSeeder extends Seeder
             'FR' => [ // France
                 'swap_postal_code' => true,
                 'swap_currency_symbol' => true,
+                'thousand_separator' => ' ',
             ],
             'GR' => [ // Greece
                 'swap_currency_symbol' => true,

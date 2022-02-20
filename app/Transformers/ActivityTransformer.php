@@ -40,6 +40,7 @@ class ActivityTransformer extends EntityTransformer
             'activity_type_id' => (string) $activity->activity_type_id,
             'client_id' => $activity->client_id ? (string) $this->encodePrimaryKey($activity->client_id) : '',
             'recurring_invoice_id' => $activity->recurring_invoice_id ? (string) $this->encodePrimaryKey($activity->recurring_invoice_id) : '',
+            'recurring_expense_id' => $activity->recurring_expense_id ? (string) $this->encodePrimaryKey($activity->recurring_expense_id) : '',
             'company_id' => $activity->company_id ? (string) $this->encodePrimaryKey($activity->company_id) : '',
             'user_id' => (string) $this->encodePrimaryKey($activity->user_id),
             'invoice_id' => $activity->invoice_id ? (string) $this->encodePrimaryKey($activity->invoice_id) : '',

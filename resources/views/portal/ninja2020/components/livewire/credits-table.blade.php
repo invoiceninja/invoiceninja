@@ -56,7 +56,7 @@
                                 {{ App\Utils\Number::formatMoney($credit->balance, $credit->client) }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
-                                {{ $credit->formatDate($credit->date, $credit->client->date_format()) }}
+                                {{ $credit->translateDate($credit->date, $credit->client->date_format(), $credit->client->locale()) }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
                                 {{ $credit->public_notes }}

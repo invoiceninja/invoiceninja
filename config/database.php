@@ -94,9 +94,13 @@ return [
             'prefix_indexes' => true,
             'strict'         => env('DB_STRICT', false),
             'engine'         => 'InnoDB ROW_FORMAT=DYNAMIC',
-            //  'options'   => array(
-            //     PDO::ATTR_EMULATE_PREPARES => true
-            // ),
+            'options'        => [],
+            // 'options'        => [
+            //     PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+            //     PDO::MYSQL_ATTR_SSL_KEY => env("DB_CLIENT_KEY", ''),
+            //     PDO::MYSQL_ATTR_SSL_CERT => env("DB_CLIENT_CERT", ''),
+            //     PDO::MYSQL_ATTR_SSL_CA => env("DB_CA_CERT", ''),
+            // ],
         ],
 
         'db-ninja-01a' => [
@@ -112,9 +116,7 @@ return [
             'prefix_indexes' => true,
             'strict'         => env('DB_STRICT', false),
             'engine'         => 'InnoDB ROW_FORMAT=DYNAMIC',
-            //  'options'   => array(
-            //     PDO::ATTR_EMULATE_PREPARES => true
-            // ),
+            'options'        => [],
         ],
 
         'db-ninja-02' => [
@@ -130,9 +132,7 @@ return [
             'prefix_indexes' => true,
             'strict'         => env('DB_STRICT', false),
             'engine'         => 'InnoDB ROW_FORMAT=DYNAMIC',
-            //  'options'   => array(
-            //     PDO::ATTR_EMULATE_PREPARES => true
-            // ),
+            'options'        => [],
         ],
 
         'db-ninja-02a' => [
@@ -148,9 +148,7 @@ return [
             'prefix_indexes' => true,
             'strict'         => env('DB_STRICT', false),
             'engine'         => 'InnoDB ROW_FORMAT=DYNAMIC',
-            //  'options'   => array(
-            //     PDO::ATTR_EMULATE_PREPARES => true
-            // ),
+            'options'        => [],
         ],
     ],
 

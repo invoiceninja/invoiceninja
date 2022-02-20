@@ -14,6 +14,7 @@ namespace App\Mail\Migration;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
 
 class MaxCompanies extends Mailable
 {
@@ -48,6 +49,8 @@ class MaxCompanies extends Mailable
      */
     public function build()
     {
+        App::setLocale($this->company->getLocale());
+
         $this->settings = $this->company->settings;
         $this->logo = $this->company->present()->logo();
         $this->title = ctrans('texts.max_companies');

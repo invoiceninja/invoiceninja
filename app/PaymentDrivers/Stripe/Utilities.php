@@ -18,7 +18,7 @@ trait Utilities
     public function convertFromStripeAmount($amount, $precision, $currency)
     {
 
-       if(in_array($amount, ["BIF","CLP","DJF","GNF","JPY","KMF","KRW","MGA","PYG","RWF","UGX","VND","VUV","XAF","XOF","XPF"]))
+       if(in_array($currency->code, ["BIF","CLP","DJF","GNF","JPY","KMF","KRW","MGA","PYG","RWF","UGX","VND","VUV","XAF","XOF","XPF"]))
             return $amount;
 
         return $amount / pow(10, $precision);
@@ -28,7 +28,7 @@ trait Utilities
     public function convertToStripeAmount($amount, $precision, $currency)
     {
 
-       if(in_array($amount, ["BIF","CLP","DJF","GNF","JPY","KMF","KRW","MGA","PYG","RWF","UGX","VND","VUV","XAF","XOF","XPF"]))
+       if(in_array($currency->code, ["BIF","CLP","DJF","GNF","JPY","KMF","KRW","MGA","PYG","RWF","UGX","VND","VUV","XAF","XOF","XPF"]))
             return $amount; 
 
         return round(($amount * pow(10, $precision)),0);

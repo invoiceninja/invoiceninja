@@ -76,6 +76,10 @@ class StoreRecurringInvoiceRequest extends Request
             $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
         }
 
+        if (array_key_exists('vendor_id', $input) && is_string($input['vendor_id'])) {
+            $input['vendor_id'] = $this->decodePrimaryKey($input['vendor_id']);
+        }
+
         if (isset($input['client_contacts'])) {
             foreach ($input['client_contacts'] as $key => $contact) {
                 if (! array_key_exists('send_email', $contact) || ! array_key_exists('id', $contact)) {
@@ -110,6 +114,10 @@ class StoreRecurringInvoiceRequest extends Request
                 $input['auto_bill_enabled'] = $this->setAutoBillFlag($input['auto_bill']);
             }
         }
+    
+        /* If there is no number, just unset it here. */
+        if(array_key_exists('number', $input) && ( is_null($input['number']) || empty($input['number'])))
+            unset($input['number']);
     
         $this->replace($input);
     }

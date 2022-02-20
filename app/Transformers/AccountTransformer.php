@@ -83,6 +83,8 @@ class AccountTransformer extends EntityTransformer
             'emails_sent' => (int) $account->emailsSent(),
             'email_quota' => (int) $account->getDailyEmailLimit(),
             'is_migrated' => (bool) $account->is_migrated,
+            'hosted_client_count' => (int) $account->hosted_client_count,
+            'hosted_company_count' => (int) $account->hosted_company_count,
         ];
     }
 

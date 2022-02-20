@@ -87,7 +87,10 @@ class InvoiceItemSumInclusive
 
     private function sumLineItem()
     {
-        $this->setLineTotal($this->formatValue($this->item->cost, $this->currency->precision) * $this->formatValue($this->item->quantity, $this->currency->precision));
+        $this->setLineTotal($this->item->cost * $this->item->quantity);
+
+        //11-02-2022
+        // $this->setLineTotal($this->formatValue($this->item->cost, $this->currency->precision) * $this->formatValue($this->item->quantity, $this->currency->precision));
 
         return $this;
     }
@@ -119,21 +122,22 @@ class InvoiceItemSumInclusive
 
         $item_tax += $this->formatValue($item_tax_rate1_total, $this->currency->precision);
 
-        if($item_tax_rate1_total != 0)     
+        // if($item_tax_rate1_total != 0)     
+        if (strlen($this->item->tax_name1) > 1)     
             $this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total);        
 
         $item_tax_rate2_total = $this->calcInclusiveLineTax($this->item->tax_rate2, $amount);
 
         $item_tax += $this->formatValue($item_tax_rate2_total, $this->currency->precision);
 
-        if($item_tax_rate2_total != 0)     
+        if (strlen($this->item->tax_name2) > 1)   
             $this->groupTax($this->item->tax_name2, $this->item->tax_rate2, $item_tax_rate2_total);
         
         $item_tax_rate3_total = $this->calcInclusiveLineTax($this->item->tax_rate3, $amount);
 
         $item_tax += $this->formatValue($item_tax_rate3_total, $this->currency->precision);
 
-        if($item_tax_rate3_total != 0)     
+        if (strlen($this->item->tax_name3) > 1)   
             $this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total);
         
 

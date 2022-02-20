@@ -203,6 +203,11 @@ class CreditController extends BaseController
                          ->triggeredActions($request)
                          ->save();
 
+        if($credit->invoice_id){
+            $credit = $credit->service()->markSent()->save();
+            $credit->client->service()->updatePaidToDate(-1 * $credit->balance)->save();
+        }
+
         event(new CreditWasCreated($credit, $credit->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->itemResponse($credit);

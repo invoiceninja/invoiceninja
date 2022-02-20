@@ -311,7 +311,7 @@ class PreviewController extends BaseController
         $t = app('translator');
         $t->replace(Ninja::transformTranslations(auth()->user()->company()->settings));
 
-        $invitation = InvoiceInvitation::where('company_id', auth()->user()->company()->id)->first();
+        $invitation = InvoiceInvitation::where('company_id', auth()->user()->company()->id)->orderBy('id', 'desc')->first();
 
         /* If we don't have a valid invitation in the system - create a mock using transactions */
         if(!$invitation)
@@ -387,6 +387,9 @@ class PreviewController extends BaseController
                     'user_id' => auth()->user()->id,
                     'company_id' => auth()->user()->company()->id,
                     'client_id' => $client->id,
+                    'terms' => 'Sample Terms',
+                    'footer' => 'Sample Footer',
+                    'public_notes' => 'Sample Public Notes',
                 ]);
 
         $invitation = InvoiceInvitation::factory()->create([

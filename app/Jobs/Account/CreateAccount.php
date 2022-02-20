@@ -12,6 +12,7 @@
 namespace App\Jobs\Account;
 
 use App\DataMapper\Analytics\AccountCreated as AnalyticsAccountCreated;
+use App\DataMapper\Analytics\AccountPlatform;
 use App\Events\Account\AccountCreated;
 use App\Jobs\Company\CreateCompany;
 use App\Jobs\Company\CreateCompanyPaymentTerms;
@@ -81,7 +82,8 @@ class CreateAccount
 
         if(Ninja::isHosted())
         {
-        
+            $sp794f3f->hosted_client_count = config('ninja.quotas.free.clients');
+            $sp794f3f->hosted_company_count = config('ninja.quotas.free.max_companies');
             $sp794f3f->trial_started = now();
             $sp794f3f->trial_plan = 'pro';
         
@@ -137,52 +139,63 @@ class CreateAccount
         LightLogs::create(new AnalyticsAccountCreated())
                  ->increment()
                  ->queue();
-
+                 
+        $ip = '';
         
+        if(request()->hasHeader('Cf-Connecting-Ip'))
+            $ip = request()->header('Cf-Connecting-Ip');
+        elseif(request()->hasHeader('X-Forwarded-For'))
+            $ip = request()->header('Cf-Connecting-Ip');
+        else
+            $ip = request()->ip();
 
+        $platform = request()->has('platform') ? request()->input('platform') : 'www';
+
+        LightLogs::create(new AccountPlatform($platform, request()->server('HTTP_USER_AGENT'), $ip))
+                 ->queue();        
 
         return $sp794f3f;
     }
 
-    private function processSettings($settings)
-    {
-        if(Ninja::isHosted() && Cache::get('currencies'))
-        {
+    // private function processSettings($settings)
+    // {
+    //     if(Ninja::isHosted() && Cache::get('currencies'))
+    //     {
 
-            $currency = Cache::get('currencies')->filter(function ($item) use ($currency_code) {
-                return strtolower($item->code) == $currency_code;
-            })->first();
+    //         $currency = Cache::get('currencies')->filter(function ($item) use ($currency_code) {
+    //             return strtolower($item->code) == $currency_code;
+    //         })->first();
 
-            if ($currency) {
-                $settings->currency_id = (string)$currency->id;
-            }
+    //         if ($currency) {
+    //             $settings->currency_id = (string)$currency->id;
+    //         }
 
-            $country = Cache::get('countries')->filter(function ($item) use ($country_code) {
-                return strtolower($item->iso_3166_2) == $country_code || strtolower($item->iso_3166_3) == $country_code;
-            })->first();
+    //         $country = Cache::get('countries')->filter(function ($item) use ($country_code) {
+    //             return strtolower($item->iso_3166_2) == $country_code || strtolower($item->iso_3166_3) == $country_code;
+    //         })->first();
 
-            if ($country) {
-                $settings->country_id = (string)$country->id;
-            }
+    //         if ($country) {
+    //             $settings->country_id = (string)$country->id;
+    //         }
             
-            $language = Cache::get('languages')->filter(function ($item) use ($currency_code) {
-                return strtolower($item->locale) == $currency_code;
-            })->first();
+    //         $language = Cache::get('languages')->filter(function ($item) use ($currency_code) {
+    //             return strtolower($item->locale) == $currency_code;
+    //         })->first();
 
-            if ($language) {
-                $settings->language_id = (string)$language->id;
-            }
+    //         if ($language) {
+    //             $settings->language_id = (string)$language->id;
+    //         }
 
-            if($timezone) {
-                $settings->timezone_id = (string)$timezone->id;
-            }
+    //         if($timezone) {
+    //             $settings->timezone_id = (string)$timezone->id;
+    //         }
 
-            return $settings;
-        }
+    //         return $settings;
+    //     }
 
 
-        return $settings;
-    }
+    //     return $settings;
+    // }
 }
 
 

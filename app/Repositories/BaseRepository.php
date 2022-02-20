@@ -327,6 +327,8 @@ class BaseRepository
             if (! $model->design_id) 
                 $model->design_id = $this->decodePrimaryKey($client->getSetting('credit_design_id'));
 
+            if(array_key_exists('invoice_id', $data) && $data['invoice_id'])
+                $model->invoice_id = $data['invoice_id'];
 
             if($this->new_model)
                 event('eloquent.created: App\Models\Credit', $model);            

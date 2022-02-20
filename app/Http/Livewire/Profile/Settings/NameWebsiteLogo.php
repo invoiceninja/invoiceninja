@@ -25,11 +25,11 @@ class NameWebsiteLogo extends Component
     public function mount()
     {
         $this->fill([
-            'profile' => auth()->user('contact')->client,
-            'name' => auth()->user('contact')->client->present()->name,
-            'vat_number' => auth()->user('contact')->client->present()->vat_number,
-            'website' => auth()->user('contact')->client->present()->website,
-            'phone' => auth()->user('contact')->client->present()->phone,
+            'profile' => auth()->guard('contact')->user()->client,
+            'name' => auth()->guard('contact')->user()->client->present()->name,
+            'vat_number' => auth()->guard('contact')->user()->client->present()->vat_number,
+            'website' => auth()->guard('contact')->user()->client->present()->website,
+            'phone' => auth()->guard('contact')->user()->client->present()->phone,
             'saved' => ctrans('texts.save'),
         ]);
     }

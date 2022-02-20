@@ -13,6 +13,7 @@ namespace App\Http\Requests\Credit;
 
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\Credit\UniqueCreditNumberRule;
+use App\Http\ValidationRules\Credit\ValidInvoiceCreditRule;
 use App\Models\Credit;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
@@ -58,7 +59,8 @@ class StoreCreditRequest extends Request
         $rules['number'] = ['nullable', Rule::unique('credits')->where('company_id', auth()->user()->company()->id)];
         $rules['discount']  = 'sometimes|numeric';
 
-
+        if($this->invoice_id)
+            $rules['invoice_id'] = new ValidInvoiceCreditRule();
 
         $rules['line_items'] = 'array';
 

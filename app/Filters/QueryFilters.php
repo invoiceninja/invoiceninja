@@ -161,8 +161,8 @@ abstract class QueryFilters
      */
     public function clientFilter()
     {
-        if (auth('contact')->user()) {
-            return $this->builder->whereClientId(auth('contact')->user()->client->id);
+        if (auth()->guard('contact')->user()) {
+            return $this->builder->whereClientId(auth()->guard('contact')->user()->client->id);
         }
     }
 
@@ -190,9 +190,7 @@ abstract class QueryFilters
             return $this->builder;
         }
 
-        $this->builder->where('client_id', $this->decodePrimaryKey($client_id));
-
-        return $this->builder;
+        return $this->builder->where('client_id', $this->decodePrimaryKey($client_id));
         
     }
 

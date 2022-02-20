@@ -11,6 +11,7 @@
 
 namespace App\Http\ValidationRules\Company;
 
+use App\Utils\Ninja;
 use Illuminate\Contracts\Validation\Rule;
 
 /**
@@ -25,7 +26,12 @@ class ValidCompanyQuantity implements Rule
      */
     public function passes($attribute, $value)
     {
-        return auth()->user()->company()->account->companies->count() <= 10;
+        if(Ninja::isSelfHost())
+            return auth()->user()->company()->account->companies->count() < 10;
+
+
+        return auth()->user()->company()->account->companies->count() < auth()->user()->company()->account->hosted_company_count;
+
     }
 
     /**

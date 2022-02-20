@@ -174,15 +174,17 @@ class Statement
                 $item->tax_rate1 = 5;
             }
 
-            $product = Product::first();
+            //$product = Product::first();
 
-            $item->cost = (float) $product->cost;
-            $item->product_key = $product->product_key;
-            $item->notes = $product->notes;
-            $item->custom_value1 = $product->custom_value1;
-            $item->custom_value2 = $product->custom_value2;
-            $item->custom_value3 = $product->custom_value3;
-            $item->custom_value4 = $product->custom_value4;
+            $product = new \stdClass;
+
+            $item->cost = (float) 10;
+            $item->product_key = 'test';
+            $item->notes = 'test notes';
+            $item->custom_value1 = 'custom value1';
+            $item->custom_value2 = 'custom value2';
+            $item->custom_value3 = 'custom value3';
+            $item->custom_value4 = 'custom value4';
 
             $line_items[] = $item;
         }

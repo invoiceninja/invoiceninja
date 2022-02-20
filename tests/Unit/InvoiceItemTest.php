@@ -208,7 +208,9 @@ class InvoiceItemTest extends TestCase
         $item->cost = 10;
         $item->is_amount_discount = true;
         $item->discount = 2.521254522145214511;
+        $item->tax_name1 = "GST";
         $item->tax_rate1 = 10;
+        $item->tax_name2 = "VAT";
         $item->tax_rate2 = 17.5;
 
         $this->invoice->line_items = [$item];

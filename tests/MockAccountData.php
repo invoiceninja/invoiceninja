@@ -177,13 +177,17 @@ trait MockAccountData
             }
         }
 
-        $this->account = Account::factory()->create();
+        $this->account = Account::factory()->create([
+            'hosted_client_count' => 1000,
+            'hosted_company_count' => 1000
+        ]);
+        
         $this->account->num_users = 3;
         $this->account->save();
         
         $this->company = Company::factory()->create([
-                            'account_id' => $this->account->id,
-                        ]);
+                'account_id' => $this->account->id,
+            ]);
 
         $this->company->client_registration_fields = ClientRegistrationFields::generate();
 
@@ -228,6 +232,8 @@ trait MockAccountData
 
         $user_id = $user->id;
         $this->user = $user;
+
+        // auth()->login($user);
 
         CreateCompanyTaskStatuses::dispatchNow($this->company, $this->user);
 

@@ -13,17 +13,17 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::group(['middleware' => ['api_secret_check']], function () {
+Route::group(['middleware' => ['throttle:300,1', 'api_secret_check']], function () {
     Route::post('api/v1/signup', 'AccountController@store')->name('signup.submit');
     Route::post('api/v1/oauth_login', 'Auth\LoginController@oauthApiLogin');
 });
 
-Route::group(['middleware' => ['api_secret_check','email_db']], function () {
+Route::group(['middleware' => ['throttle:10,1','api_secret_check','email_db']], function () {
     Route::post('api/v1/login', 'Auth\LoginController@apiLogin')->name('login.submit');
     Route::post('api/v1/reset_password', 'Auth\ForgotPasswordController@sendResetLinkEmail');
 });
 
-Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'api/v1', 'as' => 'api.'], function () {
+Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale'], 'prefix' => 'api/v1', 'as' => 'api.'], function () {
     Route::post('check_subdomain', 'SubdomainController@index')->name('check_subdomain');
     Route::get('ping', 'PingController@index')->name('ping');
     Route::get('health_check', 'PingController@health')->name('health_check');
@@ -31,11 +31,16 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::get('activities', 'ActivityController@index');
     Route::get('activities/download_entity/{activity}', 'ActivityController@downloadHistoricalEntity');
 
+
+    Route::post('charts/totals', 'ChartController@totals')->name('chart.totals');
+    Route::post('charts/chart_summary', 'ChartController@chart_summary')->name('chart.chart_summary');
+
     Route::post('claim_license', 'LicenseController@index')->name('license.index');
 
     Route::resource('clients', 'ClientController'); // name = (clients. index / create / show / update / destroy / edit
     Route::put('clients/{client}/adjust_ledger', 'ClientController@adjustLedger')->name('clients.adjust_ledger');
     Route::put('clients/{client}/upload', 'ClientController@upload')->name('clients.upload');
+    Route::post('clients/{client}/purge', 'ClientController@purge')->name('clients.purge')->middleware('password_protected');
     Route::post('clients/bulk', 'ClientController@bulk')->name('clients.bulk');
 
     Route::post('filters/{entity}', 'FilterController@index')->name('filters');
@@ -208,22 +213,23 @@ Route::group(['middleware' => ['api_db', 'token_auth', 'locale'], 'prefix' => 'a
     Route::resource('subscriptions', 'SubscriptionController');
     Route::post('subscriptions/bulk', 'SubscriptionController@bulk')->name('subscriptions.bulk');
     Route::get('statics', 'StaticController');
-    Route::post('apple_pay/upload_file','ApplyPayController@upload');
+    // Route::post('apple_pay/upload_file','ApplyPayController@upload');
 
 });
 
 Route::match(['get', 'post'], 'payment_webhook/{company_key}/{company_gateway_id}', 'PaymentWebhookController')
-    ->middleware(['guest'])
+    ->middleware(['throttle:1000,1','guest'])
     ->name('payment_webhook');
 
 Route::match(['get', 'post'], 'payment_notification_webhook/{company_key}/{company_gateway_id}/{client}', 'PaymentNotificationWebhookController')
-    ->middleware(['guest'])
+    ->middleware(['throttle:1000,1', 'guest'])
     ->name('payment_notification_webhook');
 
-Route::post('api/v1/postmark_webhook', 'PostMarkController@webhook')->middleware(['throttle:10000,1']);
-Route::get('token_hash_router', 'OneTimeTokenController@router');
-Route::get('webcron', 'WebCronController@index');
-Route::post('api/v1/get_migration_account', 'HostedMigrationController@getAccount')->middleware('guest');
-Route::post('api/v1/confirm_forwarding', 'HostedMigrationController@confirmForwarding')->middleware('guest');
-
+Route::post('api/v1/postmark_webhook', 'PostMarkController@webhook')->middleware('throttle:1000,1');
+Route::get('token_hash_router', 'OneTimeTokenController@router')->middleware('throttle:100,1');
+Route::get('webcron', 'WebCronController@index')->middleware('throttle:100,1');
+Route::post('api/v1/get_migration_account', 'HostedMigrationController@getAccount')->middleware('guest')->middleware('throttle:100,1');
+Route::post('api/v1/confirm_forwarding', 'HostedMigrationController@confirmForwarding')->middleware('guest')->middleware('throttle:100,1');
+Route::post('api/v1/process_webhook', 'InAppPurchase\AppleController@process_webhook')->middleware('throttle:1000,1');
+Route::post('api/v1/confirm_purchase', 'InAppPurchase\AppleController@confirm_purchase')->middleware('throttle:1000,1');
 Route::fallback('BaseController@notFound');

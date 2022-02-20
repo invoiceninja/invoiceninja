@@ -409,7 +409,7 @@ class BillingPortalPurchase extends Component
             'quantity' => $this->quantity,
             'contact_id' => $this->contact->id,
             'client_id' => $this->contact->client->id,
-            'coupon' => '',
+            'coupon' => $this->coupon,
         ]);
     }
 
@@ -454,6 +454,7 @@ class BillingPortalPurchase extends Component
 
         $contact = ClientContact::query()
             ->where('email', $this->email)
+            ->where('company_id', $this->subscription->company_id)
             ->first();
 
         $mailer = new NinjaMailerObject();

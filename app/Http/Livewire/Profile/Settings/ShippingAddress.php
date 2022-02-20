@@ -31,13 +31,13 @@ class ShippingAddress extends Component
     public function mount($countries)
     {
         $this->fill([
-            'profile' => auth()->user('contact')->client,
-            'shipping_address1' => auth()->user('contact')->client->shipping_address1,
-            'shipping_address2' => auth()->user('contact')->client->shipping_address2,
-            'shipping_city' => auth()->user('contact')->client->shipping_city,
-            'shipping_state' => auth()->user('contact')->client->shipping_state,
-            'shipping_postal_code' => auth()->user('contact')->client->shipping_postal_code,
-            'shipping_country_id' => auth()->user('contact')->client->shipping_country_id,
+            'profile' => auth()->guard('contact')->user()->client,
+            'shipping_address1' => auth()->guard('contact')->user()->client->shipping_address1,
+            'shipping_address2' => auth()->guard('contact')->user()->client->shipping_address2,
+            'shipping_city' => auth()->guard('contact')->user()->client->shipping_city,
+            'shipping_state' => auth()->guard('contact')->user()->client->shipping_state,
+            'shipping_postal_code' => auth()->guard('contact')->user()->client->shipping_postal_code,
+            'shipping_country_id' => auth()->guard('contact')->user()->client->shipping_country_id,
 
             'countries' => $countries,
             'saved' => ctrans('texts.save'),

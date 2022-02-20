@@ -52,7 +52,19 @@ class Verify
         if($this->stripe->stripe_connect && strlen($this->stripe->company_gateway->getConfigField('account_id')) < 1)
             throw new StripeConnectFailure('Stripe Connect has not been configured');
 
-        $customers = Customer::all([], $this->stripe->stripe_connect_auth);
+        $total_stripe_customers = 0;
+
+        $starting_after = null;
+
+        do {
+        
+            $customers = Customer::all(['limit' => 100, 'starting_after' => $starting_after], $this->stripe->stripe_connect_auth);  
+
+            $total_stripe_customers += count($customers->data);
+            $starting_after = end($customers->data)['id'];
+
+        } while($customers->has_more);
+
 
         $stripe_customers = $this->stripe->company_gateway->client_gateway_tokens->map(function ($cgt){
 
@@ -66,7 +78,7 @@ class Verify
         });
 
         $data = [
-            'stripe_customer_count' => count($customers),
+            'stripe_customer_count' => $total_stripe_customers,
             'stripe_customers' => $stripe_customers,
         ];
 

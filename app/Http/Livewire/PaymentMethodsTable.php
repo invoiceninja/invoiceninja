@@ -36,6 +36,10 @@ class PaymentMethodsTable extends Component
             ->with('gateway_type')
             ->where('company_id', $this->company->id)
             ->where('client_id', $this->client->id)
+            ->whereHas('gateway', function ($query) {
+                 $query->where('is_deleted',0)
+                       ->where('deleted_at', NULL);
+            })
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
             ->paginate($this->per_page);
 

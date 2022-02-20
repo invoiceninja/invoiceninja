@@ -13,6 +13,7 @@ namespace App\Http\Controllers;
 
 use App\DataMapper\Analytics\Mail\EmailBounce;
 use App\DataMapper\Analytics\Mail\EmailSpam;
+use App\Jobs\PostMark\ProcessPostmarkWebhook;
 use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Models\CreditInvitation;
@@ -77,27 +78,7 @@ class PostMarkController extends BaseController
         if($request->header('X-API-SECURITY') && $request->header('X-API-SECURITY') == config('postmark.secret'))
         {
 
-            MultiDB::findAndSetDbByCompanyKey($request->input('Tag'));
-            
-            $this->invitation = $this->discoverInvitation($request->input('MessageID'));
-
-            if($this->invitation)
-                $this->invitation->email_error = $request->input('Details');
-            else
-                return response()->json(['message' => 'Message not found']);
-
-            switch ($request->input('RecordType')) 
-            {
-                case 'Delivery':
-                    return $this->processDelivery($request);
-                case 'Bounce':
-                    return $this->processBounce($request);
-                case 'SpamComplaint':
-                    return $this->processSpamComplaint($request);
-                default:
-                    # code...
-                    break;
-            }
+            ProcessPostmarkWebhook::dispatch($request->all());
 
             return response()->json(['message' => 'Success'], 200);
 
@@ -107,139 +88,4 @@ class PostMarkController extends BaseController
 
     }
 
-// {
-//   "RecordType": "Delivery",
-//   "ServerID": 23,
-//   "MessageStream": "outbound",
-//   "MessageID": "00000000-0000-0000-0000-000000000000",
-//   "Recipient": "john@example.com",
-//   "Tag": "welcome-email",
-//   "DeliveredAt": "2021-02-21T16:34:52Z",
-//   "Details": "Test delivery webhook details",
-//   "Metadata": {
-//     "example": "value",
-//     "example_2": "value"
-//   }
-// }
-    private function processDelivery($request)
-    {
-        $this->invitation->email_status = 'delivered';
-        $this->invitation->save();
-
-        SystemLogger::dispatch($request->all(), 
-            SystemLog::CATEGORY_MAIL, 
-            SystemLog::EVENT_MAIL_DELIVERY, 
-            SystemLog::TYPE_WEBHOOK_RESPONSE, 
-            $this->invitation->contact->client,
-            $this->invitation->company
-        );
-    }
-
-// {
-//   "Metadata": {
-//     "example": "value",
-//     "example_2": "value"
-//   },
-//   "RecordType": "Bounce",
-//   "ID": 42,
-//   "Type": "HardBounce",
-//   "TypeCode": 1,
-//   "Name": "Hard bounce",
-//   "Tag": "Test",
-//   "MessageID": "00000000-0000-0000-0000-000000000000",
-//   "ServerID": 1234,
-//   "MessageStream": "outbound",
-//   "Description": "The server was unable to deliver your message (ex: unknown user, mailbox not found).",
-//   "Details": "Test bounce details",
-//   "Email": "john@example.com",
-//   "From": "sender@example.com",
-//   "BouncedAt": "2021-02-21T16:34:52Z",
-//   "DumpAvailable": true,
-//   "Inactive": true,
-//   "CanActivate": true,
-//   "Subject": "Test subject",
-//   "Content": "Test content"
-// }
-
-    private function processBounce($request)
-    {
-        $this->invitation->email_status = 'bounced';
-        $this->invitation->save();
-
-        $bounce = new EmailBounce(
-            $request->input('Tag'),
-            $request->input('From'),
-            $request->input('MessageID')
-        );
-
-        LightLogs::create($bounce)->queue();
-
-        SystemLogger::dispatch($request->all(), SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_BOUNCED, SystemLog::TYPE_WEBHOOK_RESPONSE, $this->invitation->contact->client, $this->invitation->company);
-
-        if(config('ninja.notification.slack'))
-            $this->invitation->company->notification(new EmailBounceNotification($this->invitation->company->account))->ninja();
-
-    }
-
-// {
-//   "Metadata": {
-//     "example": "value",
-//     "example_2": "value"
-//   },
-//   "RecordType": "SpamComplaint",
-//   "ID": 42,
-//   "Type": "SpamComplaint",
-//   "TypeCode": 100001,
-//   "Name": "Spam complaint",
-//   "Tag": "Test",
-//   "MessageID": "00000000-0000-0000-0000-000000000000",
-//   "ServerID": 1234,
-//   "MessageStream": "outbound",
-//   "Description": "The subscriber explicitly marked this message as spam.",
-//   "Details": "Test spam complaint details",
-//   "Email": "john@example.com",
-//   "From": "sender@example.com",
-//   "BouncedAt": "2021-02-21T16:34:52Z",
-//   "DumpAvailable": true,
-//   "Inactive": true,
-//   "CanActivate": false,
-//   "Subject": "Test subject",
-//   "Content": "Test content"
-// }
-    private function processSpamComplaint($request)
-    {
-
-        $this->invitation->email_status = 'spam';
-        $this->invitation->save();
-
-        $spam = new EmailSpam(
-            $request->input('Tag'),
-            $request->input('From'),
-            $request->input('MessageID')
-        );
-
-        LightLogs::create($spam)->queue();
-
-        SystemLogger::dispatch($request->all(), SystemLog::CATEGORY_MAIL, SystemLog::EVENT_MAIL_SPAM_COMPLAINT, SystemLog::TYPE_WEBHOOK_RESPONSE, $this->invitation->contact->client, $this->invitation->company);
-
-        if(config('ninja.notification.slack'))
-            $this->invitation->company->notification(new EmailSpamNotification($this->invitation->company->account))->ninja();
-
-    }
-
-    private function discoverInvitation($message_id)
-    {
-        $invitation = false;
-
-        if($invitation = InvoiceInvitation::where('message_id', $message_id)->first())
-            return $invitation;
-        elseif($invitation = QuoteInvitation::where('message_id', $message_id)->first())
-            return $invitation;
-        elseif($invitation = RecurringInvoiceInvitation::where('message_id', $message_id)->first())
-            return $invitation;
-        elseif($invitation = CreditInvitation::where('message_id', $message_id)->first())
-            return $invitation;
-        else
-            return $invitation;
-    }
 }

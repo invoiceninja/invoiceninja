@@ -34,10 +34,10 @@ class UpdateExpenseRequest extends Request
     public function rules()
     {
         /* Ensure we have a client name, and that all emails are unique*/
+        $rules = [];
+        // $rules['country_id'] = 'integer|nullable';
 
-        $rules['country_id'] = 'integer|nullable';
-
-        $rules['contacts.*.email'] = 'nullable|distinct';
+        // $rules['contacts.*.email'] = 'nullable|distinct';
 
         if (isset($this->number)) {
             $rules['number'] = Rule::unique('expenses')->where('company_id', auth()->user()->company()->id)->ignore($this->expense->id);

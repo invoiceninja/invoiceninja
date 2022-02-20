@@ -51,10 +51,14 @@ class CreditsTest extends TestCase
 
         $company = Company::factory()->create(['account_id' => $account->id]);
         $company->settings = CompanySettings::defaults();
+        $company->settings->language_id = "1";
         $company->save();
 
         $client = Client::factory()->create(['company_id' => $company->id, 'user_id' => $user->id]);
         $client->settings = ClientSettings::defaults();
+        $settings = $client->settings;
+        $settings->language_id = "1";
+        $client->settings = $settings;
         $client->save();
 
         ClientContact::factory()->count(2)->create([
@@ -63,7 +67,7 @@ class CreditsTest extends TestCase
             'company_id' => $company->id,
         ]);
 
-        Credit::factory()->create([
+        $c1 = Credit::factory()->create([
             'user_id' => $user->id,
             'company_id' => $company->id,
             'client_id' => $client->id,
@@ -72,7 +76,7 @@ class CreditsTest extends TestCase
             'status_id' => Credit::STATUS_SENT,
         ]);
 
-        Credit::factory()->create([
+        $c2 = Credit::factory()->create([
             'user_id' => $user->id,
             'company_id' => $company->id,
             'client_id' => $client->id,
@@ -81,7 +85,7 @@ class CreditsTest extends TestCase
             'status_id' => Credit::STATUS_SENT,
         ]);
 
-        Credit::factory()->create([
+        $c3 = Credit::factory()->create([
             'user_id' => $user->id,
             'company_id' => $company->id,
             'client_id' => $client->id,
@@ -91,6 +95,10 @@ class CreditsTest extends TestCase
         ]);
 
         $this->actingAs($client->contacts->first(), 'contact');
+
+        $c1->load('client');
+        $c2->load('client');
+        $c3->load('client');
 
         Livewire::test(CreditsTable::class, ['company' => $company])
             ->assertDontSee('testing-number-01')
@@ -108,7 +116,13 @@ class CreditsTest extends TestCase
 
         $company = Company::factory()->create(['account_id' => $account->id]);
 
+
         $client = Client::factory()->create(['company_id' => $company->id, 'user_id' => $user->id]);
+        $client->settings = ClientSettings::defaults();
+        $settings = $client->settings;
+        $settings->language_id = "1";
+        $client->settings = $settings;
+        $client->save();
 
         ClientContact::factory()->count(2)->create([
             'user_id' => $user->id,

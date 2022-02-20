@@ -43,7 +43,7 @@ class InvoicesTable extends Component
         $local_status = [];
 
         $query = Invoice::query()
-            ->with('client.gateway_tokens','company','client.contacts')
+            ->with('client.gateway_tokens','client.contacts')
             ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc')
             ->where('company_id', $this->company->id)
             ->where('is_deleted', false);
@@ -75,7 +75,7 @@ class InvoicesTable extends Component
         }
 
         $query = $query
-            ->where('client_id', auth('contact')->user()->client->id)
+            ->where('client_id', auth()->guard('contact')->user()->client_id)
             ->where('status_id', '<>', Invoice::STATUS_DRAFT)
             ->where('status_id', '<>', Invoice::STATUS_CANCELLED)
             ->withTrashed()

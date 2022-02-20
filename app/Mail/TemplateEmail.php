@@ -109,7 +109,7 @@ class TemplateEmail extends Mailable
                 'settings' => $settings,
                 'company' => $company,
                 'whitelabel' => $this->client->user->account->isPaid() ? true : false,
-                'logo' => $this->company->present()->logo(),
+                'logo' => $this->company->present()->logo($settings),
             ])
             ->withSwiftMessage(function ($message) use($company){
                 $message->getHeaders()->addTextHeader('Tag', $company->company_key);
@@ -132,8 +132,6 @@ class TemplateEmail extends Mailable
         if($this->invitation && $this->invitation->invoice && $settings->ubl_email_attachment && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)){
 
             $ubl_string = CreateUbl::dispatchNow($this->invitation->invoice);
-
-            nlog($ubl_string);
             
             if($ubl_string)
                 $this->attachData($ubl_string, $this->invitation->invoice->getFileName('xml'));

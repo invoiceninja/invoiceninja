@@ -18,7 +18,7 @@
                             {{ ctrans('texts.start_date') }}
                         </dt>
                         <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                            {{ $invoice->formatDate($invoice->start_date, $invoice->client->date_format()) }}
+                            {{ $invoice->translateDate($invoice->start_date, $invoice->client->date_format(), $invoice->client->locale()) }}
                         </dd>
                     </div>
                     <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -26,7 +26,7 @@
                             {{ ctrans('texts.next_send_date') }}
                         </dt>
                         <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                            {{ $invoice->formatDate($invoice->next_send_date, $invoice->client->date_format()) }}
+                            {{ $invoice->translateDate($invoice->next_send_date, $invoice->client->date_format(), $invoice->client->locale()) }}
                         </dd>
                     </div>
                     <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">

@@ -43,6 +43,8 @@ class Token
 
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
 
+        $this->eway_driver->payment_hash = $payment_hash;
+
     	$transaction = [
 		    'Customer' => [
 		        'TokenCustomerID' => $cgt->token,
@@ -60,24 +62,24 @@ class Token
         if(!$response_status['success'])
           return $this->processUnsuccessfulPayment($response);
 
-      	$payment = $this->processSuccessfulPayment($response);
+      	$payment = $this->processSuccessfulPayment($response, $cgt);
 
       	return $payment;
 
     }
 
 
-    private function processSuccessfulPayment($response)
+    private function processSuccessfulPayment($response, $cgt)
     {
         $amount = array_sum(array_column($this->eway_driver->payment_hash->invoices(), 'amount')) + $this->eway_driver->payment_hash->fee_total;
 
         $data = [
             'gateway_type_id' => GatewayType::CREDIT_CARD,
             'payment_type' => PaymentType::CREDIT_CARD_OTHER,
-            'transaction_reference' => $response->Customer->Reference,
+            'transaction_reference' => $response->TransactionID,
             'amount' => $amount,
         ];
-
+        
         $payment = $this->eway_driver->createPayment($data);
         $payment->meta = $cgt->meta;
         $payment->save();
@@ -103,7 +105,7 @@ class Token
             'error_code' => $error_code,
         ];
 
-        return $this->driver_class->processUnsuccessfulTransaction($data);
+        return $this->eway_driver->processUnsuccessfulTransaction($data);
 
     }
 
