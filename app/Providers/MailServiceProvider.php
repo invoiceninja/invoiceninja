@@ -17,6 +17,7 @@ use Coconuts\Mail\PostmarkTransport;
 use GuzzleHttp\Client as HttpClient;
 use Illuminate\Mail\MailServiceProvider as MailProvider;
 use Illuminate\Mail\TransportManager;
+use Illuminate\Container\Container;
 
 class MailServiceProvider extends MailProvider
 {
@@ -33,10 +34,16 @@ class MailServiceProvider extends MailProvider
 
     protected function registerIlluminateMailer()
     {
-        //this is not octane safe
+        // //this is not octane safe
         $this->app->singleton('mail.manager', function($app) {
             return new GmailTransportManager($app);
         });
+
+
+        //this is octane ready - but is untested
+        // $this->app->bind('mail.manager', function ($app){
+        //     return new GmailTransportManager($app);
+        // });
 
         $this->app->bind('mailer', function ($app) {
             return $app->make('mail.manager')->mailer();
