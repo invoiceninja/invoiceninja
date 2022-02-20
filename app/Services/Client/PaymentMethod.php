@@ -70,24 +70,26 @@ class PaymentMethod
 
             $transformed_ids = $this->transformKeys(explode(',', $company_gateways));
 
-            $this->gateways = 
-                             CompanyGateway::with('gateway')
-                             ->where('company_id', $this->client->company_id)
+            $this->gateways = $this->client
+                             ->company
+                             ->company_gateways
                              ->whereIn('id', $transformed_ids)
                              ->where('is_deleted', false)
                              ->whereNull('deleted_at')
                              ->where('gateway_key', '!=', '54faab2ab6e3223dbe848b1686490baa')
                              ->sortby(function ($model) use ($transformed_ids) { //company gateways are sorted in order of priority
                                  return array_search($model->id, $transformed_ids);// this closure sorts for us
-                             })->get();
+                             });
 
         } else {
 
-             $this->gateways = CompanyGateway::with('gateway')
-                             ->where('company_id', $this->client->company_id)
+             $this->gateways = $this->client
+                             ->company
+                             ->company_gateways
                              ->where('gateway_key', '!=', '54faab2ab6e3223dbe848b1686490baa')
                              ->whereNull('deleted_at')
-                             ->where('is_deleted', false)->get();
+                             ->where('is_deleted', false);
+
 
         }
         
@@ -105,23 +107,25 @@ class PaymentMethod
 
             $transformed_ids = $this->transformKeys(explode(',', $company_gateways));
 
-            $this->gateways = CompanyGateway::with('gateway')
-                             ->where('company_id', $this->client->company_id)
+            $this->gateways = $this->client
+                             ->company
+                             ->company_gateways
                              ->whereIn('id', $transformed_ids)
                              ->where('is_deleted', false)
                              ->whereNull('deleted_at')
                              ->where('gateway_key', '54faab2ab6e3223dbe848b1686490baa')
                              ->sortby(function ($model) use ($transformed_ids) { //company gateways are sorted in order of priority
                                  return array_search($model->id, $transformed_ids);// this closure sorts for us
-                             })->get();
+                             });
 
         } else {
 
-             $this->gateways = CompanyGateway::with('gateway')
-                             ->where('company_id', $this->client->company_id)
+             $this->gateways = $this->client
+                             ->company
+                             ->company_gateways
                              ->where('gateway_key', '54faab2ab6e3223dbe848b1686490baa')
                              ->whereNull('deleted_at')
-                             ->where('is_deleted', false)->get();
+                             ->where('is_deleted', false);
 
         }
         
