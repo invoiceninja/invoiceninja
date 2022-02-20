@@ -200,13 +200,13 @@ class Number
 
         /* 08-01-2022 allow increased precision for unit price*/
         $v = rtrim(sprintf('%f', $value),"0");
-        $precision = strlen(substr(strrchr($v, $decimal), 1));
+        // $precision = strlen(substr(strrchr($v, $decimal), 1));
         
-        // if($v<1)
-        //     $precision = strlen($v) - strrpos($v, '.') - 1;
+        if($v<1)
+            $precision = strlen($v) - strrpos($v, '.') - 1;
 
-        if($precision == 1)
-            $precision = 2;
+        // if($precision == 1)
+        //     $precision = 2;
 
         $value = number_format($v, $precision, $decimal, $thousand);
         $symbol = $currency->symbol;
