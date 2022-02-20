@@ -19,7 +19,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 
 class CreateAccountActivity implements ShouldQueue
 {
-
     /**
      * Create the event listener.
      *
@@ -39,11 +38,10 @@ class CreateAccountActivity implements ShouldQueue
     {
         MultiDB::setDb($event->company->db);
 
-        if(Ninja::isHosted())
-        {
-            $nmo = new NinjaMailerObject;
+        if (Ninja::isHosted()) {
+            $nmo = new NinjaMailerObject();
             $nmo->mailable = new \Modules\Admin\Mail\Welcome($event->user);
-            $nmo->company =  $event->company;
+            $nmo->company = $event->company;
             $nmo->settings = $event->company->settings;
             $nmo->to_user = $event->user;
 

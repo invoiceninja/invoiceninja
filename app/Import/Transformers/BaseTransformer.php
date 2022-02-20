@@ -82,10 +82,10 @@ class BaseTransformer
 
 			if ( $contacts->count() >= 1 ) {
 				return $contacts->first()->client_id;
-nlog("found via contact");
+                nlog("found via contact");
 			}
 		}
-nlog("did not find client");
+                // nlog("did not find client");
 
 		return null;
 	}

@@ -54,6 +54,7 @@ class Account extends BaseModel
         'utm_term',
         'utm_content',
         'user_agent',
+        'platform',
     ];
 
     /**

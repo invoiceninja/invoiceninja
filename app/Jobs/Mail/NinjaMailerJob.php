@@ -210,10 +210,16 @@ class NinjaMailerJob implements ShouldQueue
                 $user = $user->fresh();
             }
 
+                //17-01-2022 - ensure we have a token otherwise we fail gracefully to default sending engine
+                // if(strlen($user->oauth_user_token) == 0){
+                //     $this->nmo->settings->email_sending_method = 'default';
+                //     return $this->setMailDriver();
+                // }
+
             $google->getClient()->setAccessToken(json_encode($user->oauth_user_token));
 
             //need to slow down gmail requests otherwise we hit 429's
-            sleep(1);
+            sleep(rand(2,6));
         }
         catch(\Exception $e) {
             $this->logMailError('Gmail Token Invalid', $this->company->clients()->first());

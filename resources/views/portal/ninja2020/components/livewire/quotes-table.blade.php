@@ -74,13 +74,13 @@
                                 {{ $quote->number }}
                             </td>
                             <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-nowrap">
-                                {{ $quote->formatDate($quote->date, $quote->client->date_format()) }}
+                                {{ $quote->translateDate($quote->date, $quote->client->date_format(), $quote->client->locale()) }}
                             </td>
                             <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-nowrap">
                                 {{ App\Utils\Number::formatMoney($quote->amount, $quote->client) }}
                             </td>
                             <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-nowrap">
-                                {{ $quote->formatDate($quote->due_date, $quote->client->date_format()) }}
+                                {{ $quote->translateDate($quote->due_date, $quote->client->date_format(), $quote->client->locale()) }}
                             </td>
                             <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-nowrap">
                                 {!! App\Models\Quote::badgeForStatus($quote->status_id) !!}

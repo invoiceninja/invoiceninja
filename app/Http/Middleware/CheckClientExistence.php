@@ -29,12 +29,14 @@ class CheckClientExistence
     public function handle(Request $request, Closure $next)
     {
 
+        if(session()->has('multiple_contacts'))
+            return $next($request);
+
         $multiple_contacts = ClientContact::query()
             ->with('client.gateway_tokens','company')
-            ->where('email', auth('contact')->user()->email)
+            ->where('email', auth()->guard('contact')->user()->email)
             ->whereNotNull('email')
             ->where('email', '<>', '')
-            ->whereNull('deleted_at')
             ->distinct('company_id')
             ->distinct('email')
             ->whereNotNull('company_id')
@@ -42,14 +44,15 @@ class CheckClientExistence
                 return $query->where('is_deleted', false);
             })
             ->whereHas('company', function ($query){
-                return $query->where('account_id', auth('contact')->user()->client->company->account->id);
+                return $query->where('id', auth()->guard('contact')->user()->client->company_id);
             })
             ->get();
 
+        /* This catches deleted clients who don't have access to the app. We automatically log them out here*/
         if (count($multiple_contacts) == 0) {
             Auth::logout();
 
-            return redirect()->route('client.login');
+            return redirect()->route('client.login')->with('message', 'Login disabled');
         }
 
         if (count($multiple_contacts) == 1 && !Auth::guard('contact')->check()) {

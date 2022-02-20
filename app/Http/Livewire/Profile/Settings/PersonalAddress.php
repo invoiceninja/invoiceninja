@@ -31,13 +31,13 @@ class PersonalAddress extends Component
     public function mount($countries)
     {
         $this->fill([
-            'profile' => auth()->user('contact')->client,
-            'address1' => auth()->user('contact')->client->address1,
-            'address2' => auth()->user('contact')->client->address2,
-            'city' => auth()->user('contact')->client->city,
-            'state' => auth()->user('contact')->client->state,
-            'postal_code' => auth()->user('contact')->client->postal_code,
-            'country_id' => auth()->user('contact')->client->country_id,
+            'profile' => auth()->guard('contact')->user()->client,
+            'address1' => auth()->guard('contact')->user()->client->address1,
+            'address2' => auth()->guard('contact')->user()->client->address2,
+            'city' => auth()->guard('contact')->user()->client->city,
+            'state' => auth()->guard('contact')->user()->client->state,
+            'postal_code' => auth()->guard('contact')->user()->client->postal_code,
+            'country_id' => auth()->guard('contact')->user()->client->country_id,
 
             'countries' => $countries,
             'saved' => ctrans('texts.save'),

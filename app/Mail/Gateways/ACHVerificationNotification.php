@@ -15,6 +15,7 @@ namespace App\Mail\Gateways;
 use App\Models\Company;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
 
 class ACHVerificationNotification extends Mailable
 {
@@ -49,6 +50,8 @@ class ACHVerificationNotification extends Mailable
      */
     public function build()
     {
+        App::setLocale($this->company->getLocale());
+
         return $this
             ->subject(ctrans('texts.ach_verification_notification_label'))
             ->view('email.gateways.ach-verification-notification', [

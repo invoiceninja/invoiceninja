@@ -16,6 +16,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
 
 class BouncedEmail extends Mailable 
 {
@@ -34,13 +35,15 @@ class BouncedEmail extends Mailable
      */
     public function build()
     {
+        App::setLocale($this->invitation->company->getLocale());
+
         $entity_type = class_basename(lcfirst($this->invitation->getEntityType()));
 
-        $subject = ctrans("texts.notification_{$entity_type}_bounced_subject", ['invoice' => $invoice->number]);
+        $subject = ctrans("texts.notification_{$entity_type}_bounced_subject", ['invoice' => $this->invitation->invoice->number]);
         
         return
             $this->from(config('mail.from.address'), config('mail.from.name'))
-                ->text()
+                ->text('bounced mail')
                 ->subject($subject);
 
     }

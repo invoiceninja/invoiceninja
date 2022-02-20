@@ -18,6 +18,7 @@ use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Authorize\AuthorizeCreditCard;
+use App\PaymentDrivers\Authorize\AuthorizeCustomer;
 use App\PaymentDrivers\Authorize\AuthorizePaymentMethod;
 use App\PaymentDrivers\Authorize\RefundTransaction;
 use net\authorize\api\constants\ANetEnvironment;
@@ -158,5 +159,10 @@ class AuthorizePaymentDriver extends BaseDriver
     public function detach(ClientGatewayToken $token)
     {
         return (new AuthorizePaymentMethod($this))->deletePaymentProfile($token->gateway_customer_reference, $token->token);
+    }
+
+    public function import()
+    {
+        return (new AuthorizeCustomer($this))->importCustomers();
     }
 }

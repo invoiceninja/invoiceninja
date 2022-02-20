@@ -71,7 +71,7 @@ class ZeroCostProduct extends AbstractService
                 'invoice' => $invoice->hashed_id,
                 'client' => $recurring_invoice->client->hashed_id,
                 'subscription' => $this->subscription->hashed_id,
-                'contact' => auth('contact')->user()->hashed_id,
+                'contact' => auth()->guard('contact')->user()->hashed_id,
                 'redirect_url' => "/client/recurring_invoices/{$recurring_invoice->hashed_id}",
             ];
 

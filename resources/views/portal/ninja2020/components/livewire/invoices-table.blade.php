@@ -79,7 +79,7 @@
                                 {{ $invoice->number }}
                             </td>
                             <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-nowrap">
-                                {{ $invoice->formatDate($invoice->date, $invoice->client->date_format()) }}
+                                {{ $invoice->translateDate($invoice->date, $invoice->client->date_format(), $invoice->client->locale()) }}
                             </td>
                             <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-nowrap">
                                 {{ App\Utils\Number::formatMoney($invoice->amount, $invoice->client) }}
@@ -88,7 +88,7 @@
                             {{ App\Utils\Number::formatMoney($invoice->balance, $invoice->client) }}
                             </td>
                             <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-nowrap">
-                                {{ $invoice->formatDate($invoice->due_date, $invoice->client->date_format()) }}
+                                {{ $invoice->translateDate($invoice->due_date, $invoice->client->date_format(), $invoice->client->locale()) }}
                             </td>
                             <td class="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-nowrap">
                                 {!! App\Models\Invoice::badgeForStatus($invoice->status) !!}

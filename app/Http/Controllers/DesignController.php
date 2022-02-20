@@ -357,6 +357,57 @@ class DesignController extends BaseController
         $design->fill($request->all());
         $design->save();
 
+/*
+ This is required as the base template does not know to inject the table elements 
+*/
+
+        $properties = ['includes','header','body','footer'];
+
+        $d = $design->design;
+
+        $old_header = '<div class="repeating-header" id="header"></div>';
+        $new_header = '<table style="min-width: 100%">
+   <thead>
+      <tr>
+         <td>
+            <div class="repeating-header-space">&nbsp;</div>
+         </td>
+      </tr>
+   </thead>
+   <tbody>
+      <tr>
+         <td>';
+
+        $old_footer = '<div class="repeating-footer" id="footer">';
+        $new_footer = '</td>
+      </tr>
+   </tbody>
+   <tfoot>
+      <tr>
+         <td>
+            <div class="repeating-footer-space">&nbsp;</div>
+         </td>
+      </tr>
+   </tfoot>
+</table>
+
+<div class="repeating-header" id="header"></div>
+
+<div class="repeating-footer" id="footer">';
+
+        foreach($properties as $property){
+            $d->{$property} = str_replace($old_header, $new_header, $d->{$property});
+            $d->{$property} = str_replace($old_footer, $new_footer, $d->{$property});
+        }
+
+        $design->design = $d;
+       // $design->save();
+
+/*
+ This is required as the base template does not know to inject the table elements 
+*/
+
+
         return $this->itemResponse($design->fresh());
     }
 

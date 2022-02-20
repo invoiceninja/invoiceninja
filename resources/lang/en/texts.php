@@ -4535,7 +4535,21 @@ $LANG = array(
     'html_mode_help' => 'Preview updates faster but is less accurate',
     'status_color_theme' => 'Status Color Theme',
     'load_color_theme' => 'Load Color Theme',
-
+    'lang_Estonian' => 'Estonian',
+    'marked_credit_as_paid' => 'Successfully marked credit as paid',
+    'marked_credits_as_paid' => 'Successfully marked credits as paid',
+    'wait_for_loading' => 'Data loading - please wait for it to complete',
+    'wait_for_saving' => 'Data saving - please wait for it to complete',
+    'html_preview_warning' => 'Note: changes made here are only previewed, they must be applied in the tabs above to be saved',
+    'remaining' => 'Remaining',
+    'invoice_paid' => 'Invoice Paid',
+    'activity_120' => ':user created recurring expense :recurring_expense',
+    'activity_121' => ':user updated recurring expense :recurring_expense',
+    'activity_122' => ':user archived recurring expense :recurring_expense',
+    'activity_123' => ':user deleted recurring expense :recurring_expense',
+    'activity_124' => ':user restored recurring expense :recurring_expense',
+    'fpx' => "FPX",
+    'to_view_entity_set_password' => 'To view the :entity you need to set password.',
 );
 
 return $LANG;

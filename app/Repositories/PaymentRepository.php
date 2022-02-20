@@ -106,6 +106,7 @@ class PaymentRepository extends BaseRepository {
         $payment->fill($data);
         $payment->is_manual = true;
         $payment->status_id = Payment::STATUS_COMPLETED;
+
         $payment->save();
 
         /*Save documents*/
@@ -207,8 +208,13 @@ class PaymentRepository extends BaseRepository {
             $payment->exchange_rate = $exchange_rate->exchangeRate($client_currency, $company_currency, Carbon::parse($payment->date));
             // $payment->exchange_currency_id = $client_currency;
             $payment->exchange_currency_id = $company_currency;
+            $payment->currency_id = $client_currency;
 
+            return $payment;
         }
+        
+        $payment->currency_id = $company_currency;
+
 
         return $payment;
     }

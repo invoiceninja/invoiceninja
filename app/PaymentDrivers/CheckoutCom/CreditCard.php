@@ -145,7 +145,7 @@ class CreditCard implements MethodInterface
     {
         $cgt = ClientGatewayToken::query()
             ->where('id', $this->decodePrimaryKey($request->input('token')))
-            ->where('company_id', auth('contact')->user()->client->company->id)
+            ->where('company_id', auth()->guard('contact')->user()->client->company->id)
             ->first();
 
         if (!$cgt) {
@@ -170,12 +170,17 @@ class CreditCard implements MethodInterface
 
     private function completePayment($method, PaymentResponseRequest $request)
     {
+
         $payment = new Payment($method, $this->checkout->payment_hash->data->currency);
         $payment->amount = $this->checkout->payment_hash->data->value;
         $payment->reference = $this->checkout->getDescription();
         $payment->customer = [
             'name' => $this->checkout->client->present()->name() ,
             'email' => $this->checkout->client->present()->email(),
+        ];
+
+        $payment->metadata = [
+            'udf1' => "Invoice Ninja",
         ];
 
         $this->checkout->payment_hash->data = array_merge((array)$this->checkout->payment_hash->data, ['checkout_payment_ref' => $payment]);

@@ -25,7 +25,6 @@ use Illuminate\Validation\Rule;
 class StoreClientRequest extends Request
 {
     use MakesHash;
-
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -90,8 +89,6 @@ class StoreClientRequest extends Request
     {
         $input = $this->all();
 
-        //@todo implement feature permissions for > 50 clients
-        
         $settings = ClientSettings::defaults();
 
         if (array_key_exists('settings', $input) && ! empty($input['settings'])) {
@@ -132,6 +129,10 @@ class StoreClientRequest extends Request
         if (isset($input['shipping_country_code'])) {
             $input['shipping_country_id'] = $this->getCountryCode($input['shipping_country_code']);
         }
+
+        /* If there is no number, just unset it here. */
+        if(array_key_exists('number', $input) && ( is_null($input['number']) || empty($input['number'])))
+            unset($input['number']);
 
         $this->replace($input);
     }

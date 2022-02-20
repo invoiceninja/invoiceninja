@@ -98,7 +98,10 @@ class ContactLoginController extends Controller
 
         if(Ninja::isHosted() && $request->has('password') && $company = Company::where('company_key', $request->input('company_key'))->first()){
 
-            $contact = ClientContact::where(['email' => $request->input('email'), 'company_id' => $company->id])->first();
+            $contact = ClientContact::where(['email' => $request->input('email'), 'company_id' => $company->id])
+                                     ->whereHas('client', function ($query) {
+                                            $query->where('is_deleted',0);
+                                   })->first();
 
             if(!$contact)
                 return $this->sendFailedLoginResponse($request);
@@ -149,6 +152,7 @@ class ContactLoginController extends Controller
     public function logout()
     {
         Auth::guard('contact')->logout();
+        request()->session()->invalidate();
 
         return redirect('/client/login');
     }

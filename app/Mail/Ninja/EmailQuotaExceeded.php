@@ -14,6 +14,7 @@ namespace App\Mail\Ninja;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\App;
 
 class EmailQuotaExceeded extends Mailable
 {
@@ -47,6 +48,8 @@ class EmailQuotaExceeded extends Mailable
      */
     public function build()
     {
+        App::setLocale($this->company->getLocale());
+
         $this->settings = $this->company->settings;
         $this->logo = $this->company->present()->logo();
         $this->title = ctrans('texts.email_quota_exceeded_subject');

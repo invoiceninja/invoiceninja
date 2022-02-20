@@ -592,7 +592,7 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('credit_id')->index();
             $t->string('key')->index();
             $t->string('transaction_reference')->nullable();
-            $t->string('message_id')->nullable();
+            $t->string('message_id')->nullable()->index();
             $t->mediumText('email_error')->nullable();
             $t->text('signature_base64')->nullable();
             $t->datetime('signature_date')->nullable();
@@ -829,7 +829,7 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('invoice_id')->index();
             $t->string('key')->index();
             $t->string('transaction_reference')->nullable();
-            $t->string('message_id')->nullable();
+            $t->string('message_id')->nullable()->index();
             $t->mediumText('email_error')->nullable();
             $t->text('signature_base64')->nullable();
             $t->datetime('signature_date')->nullable();
@@ -858,7 +858,7 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('quote_id')->index();
             $t->string('key')->index();
             $t->string('transaction_reference')->nullable();
-            $t->string('message_id')->nullable();
+            $t->string('message_id')->nullable()->index();
             $t->mediumText('email_error')->nullable();
             $t->text('signature_base64')->nullable();
             $t->datetime('signature_date')->nullable();

@@ -37,6 +37,8 @@ class SOFORT
 
     public function paymentView(array $data)
     {
+        $this->stripe->init();
+        
         $data['gateway'] = $this->stripe;
         $data['return_url'] = $this->buildReturnUrl();
         $data['stripe_amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency());
@@ -50,8 +52,11 @@ class SOFORT
             'payment_method_types' => ['sofort'],
             'customer' => $this->stripe->findOrCreateCustomer(),
             'description' => $this->stripe->decodeUnicodeString(ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number')),
-
-        ]);
+            'metadata' => [
+                'payment_hash' => $this->stripe->payment_hash->hash,
+                'gateway_type_id' => GatewayType::SOFORT,
+            ],
+        ], $this->stripe->stripe_connect_auth);
 
         $data['pi_client_secret'] = $intent->client_secret;
 
@@ -114,7 +119,7 @@ class SOFORT
     {
         $server_response = $this->stripe->payment_hash->data;
 
-        $this->stripe->sendFailureMail($server_response);
+        $this->stripe->sendFailureMail("There was an undefined error processing this payment.");
 
         $message = [
             'server_response' => $server_response,

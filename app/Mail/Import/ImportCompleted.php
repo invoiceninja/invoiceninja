@@ -49,6 +49,8 @@ class ImportCompleted extends Mailable
     {
 
         App::forgetInstance('translator');
+        App::setLocale($this->company->getLocale());
+
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->company->settings));
 

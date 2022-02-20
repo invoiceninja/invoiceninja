@@ -37,6 +37,8 @@ class ClientContactRequestCancellationObject
     {
 
         App::forgetInstance('translator');
+        App::setLocale($this->company->getLocale());
+
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->company->settings));
 

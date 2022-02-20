@@ -90,12 +90,15 @@ class PaymentController extends Controller
 
     public function response(PaymentResponseRequest $request)
     {
+        
         $gateway = CompanyGateway::findOrFail($request->input('company_gateway_id'));
-
-        $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$request->payment_hash])->first();
+        $payment_hash = PaymentHash::where('hash', $request->payment_hash)->first();
+        $invoice = Invoice::with('client')->find($payment_hash->fee_invoice_id);
+        $client = $invoice ? $invoice->client : auth()->user()->client;
 
             return $gateway
-                ->driver(auth()->user()->client)
+                // ->driver(auth()->user()->client)
+                ->driver($client)
                 ->setPaymentMethod($request->input('payment_method_id'))
                 ->setPaymentHash($payment_hash)
                 ->checkRequirements()
@@ -119,6 +122,9 @@ class PaymentController extends Controller
         } else {
             $payment = PaymentFactory::create($payment_hash->fee_invoice->company_id, $payment_hash->fee_invoice->user_id);
             $payment->client_id = $payment_hash->fee_invoice->client_id;
+
+            $payment->saveQuietly();
+            $payment->currency_id = $payment->client->getSetting('currency_id');
             $payment->saveQuietly();
 
             $payment_hash->payment_id = $payment->id;

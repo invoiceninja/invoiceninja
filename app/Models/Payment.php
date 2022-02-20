@@ -13,6 +13,7 @@ namespace App\Models;
 
 use App\Events\Payment\PaymentWasRefunded;
 use App\Events\Payment\PaymentWasVoided;
+use App\Models\GatewayType;
 use App\Services\Ledger\LedgerService;
 use App\Services\Payment\PaymentService;
 use App\Utils\Ninja;
@@ -146,6 +147,11 @@ class Payment extends BaseModel
     public function type()
     {
         return $this->belongsTo(PaymentType::class);
+    }
+
+    public function gateway_type()
+    {
+        return $this->belongsTo(GatewayType::class);
     }
 
     public function paymentables()

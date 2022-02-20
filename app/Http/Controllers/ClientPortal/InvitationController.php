@@ -87,6 +87,10 @@ class InvitationController extends Controller
         if(!$invitation)
             return abort(404,'The resource is no longer available.');
 
+        /* 12/01/2022 Clean up an edge case where if the contact is trashed, restore if a invitation comes back. */
+        if($invitation->contact->trashed())
+            $invitation->contact->restore();
+
         /* Return early if we have the correct client_hash embedded */
         $client_contact = $invitation->contact;
 
@@ -94,14 +98,27 @@ class InvitationController extends Controller
             $client_contact->email = Str::random(15) . "@example.com"; $client_contact->save();
 
         if (request()->has('client_hash') && request()->input('client_hash') == $invitation->contact->client->client_hash) {
+            request()->session()->invalidate();
             auth()->guard('contact')->loginUsingId($client_contact->id, true);
 
         } elseif ((bool) $invitation->contact->client->getSetting('enable_client_portal_password') !== false) {
+
+            //if no contact password has been set - allow user to set password - then continue to view entity
+            if(empty($invitation->contact->password)){
+
+                    return $this->render('view_entity.set_password', [
+                                'root' => 'themes',
+                                'entity_type' => $entity,
+                                'invitation_key' => $invitation_key
+                            ]);
+            }
+
             $this->middleware('auth:contact');
             return redirect()->route('client.login');
 
         } else {
             nlog("else - default - login contact");
+            request()->session()->invalidate();
             auth()->guard('contact')->loginUsingId($client_contact->id, true);
         }
 

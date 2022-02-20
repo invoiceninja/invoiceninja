@@ -92,12 +92,15 @@ class NinjaPlanController extends Controller
                                            ->first();
 
                     //account status means user cannot perform upgrades until they pay their account.
-                    $data['late_invoice'] = $late_invoice;
+                    // $data['late_invoice'] = $late_invoice;
+
+                   //14-01-2022 remove late invoices from blocking upgrades
+                       $data['late_invoice'] = false;
 
                 }
 
                 $recurring_invoice =  RecurringInvoice::on('db-ninja-01')
-                                            ->where('client_id', auth('contact')->user()->client->id)
+                                            ->where('client_id', auth()->guard('contact')->user()->client->id)
                                             ->where('company_id', Auth::guard('contact')->user()->company->id)
                                             ->whereNotNull('subscription_id')
                                             ->where('status_id', RecurringInvoice::STATUS_ACTIVE)

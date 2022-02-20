@@ -372,11 +372,13 @@ class CSVImport implements ShouldQueue {
 				$entity = $transformer->transform( $record );
 
 				/** @var \App\Http\Requests\Request $request */
-				$request = new $request_name();
+				// $request = new $request_name();
+				// $request->prepareForValidation();
 
 				// Pass entity data to request so it can be validated
-				$request->query = $request->request = new ParameterBag( $entity );
-				$validator = Validator::make( $entity, $request->rules() );
+				// $request->query = $request->request = new ParameterBag( $entity );
+				// $validator = Validator::make( $entity, $request->rules() );
+				$validator = $request_name::runFormRequest($entity);
 
 				if ( $validator->fails() ) {
 					$this->error_array[ $entity_type ][] =

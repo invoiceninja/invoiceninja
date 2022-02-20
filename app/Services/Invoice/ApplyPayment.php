@@ -104,7 +104,7 @@ class ApplyPayment extends AbstractService
              ->ledger()
              ->updatePaymentBalance($amount_paid);
 
-        nlog("updating client balance by amount {$amount_paid}");
+        // nlog("updating client balance by amount {$amount_paid}");
         
         $this->invoice
              ->client

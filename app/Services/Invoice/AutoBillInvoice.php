@@ -307,8 +307,14 @@ class AutoBillInvoice extends AbstractService
     {
 
         //get all client gateway tokens and set the is_default one to the first record
-        $gateway_tokens = $this->client->gateway_tokens()->orderBy('is_default', 'DESC')->get();
-        // $gateway_tokens = $this->client->gateway_tokens;
+        $gateway_tokens = $this->client
+                               ->gateway_tokens()
+                               ->whereHas('gateway', function ($query) {
+                                    $query->where('is_deleted',0)
+                                          ->where('deleted_at', NULL);
+                             })->orderBy('is_default', 'DESC')
+                               ->get();
+
 
         $filtered_gateways = $gateway_tokens->filter(function ($gateway_token) use($amount) {
 

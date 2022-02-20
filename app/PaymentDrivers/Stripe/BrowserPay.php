@@ -71,6 +71,10 @@ class BrowserPay implements MethodInterface
             'currency' => $this->stripe->client->getCurrencyCode(),
             'customer' => $this->stripe->findOrCreateCustomer(),
             'description' => $this->stripe->decodeUnicodeString(ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number')),
+            'metadata' => [
+                'payment_hash' => $this->stripe->payment_hash->hash,
+                'gateway_type_id' => GatewayType::APPLE_PAY,
+            ],
         ];
 
         $data['gateway'] = $this->stripe;
@@ -227,11 +231,11 @@ class BrowserPay implements MethodInterface
         if(Ninja::isHosted())
         {
 
-            if($this->company_gateway->company->portal_mode == 'domain'){
-                $domain = $this->company_gateway->company->portal_domain;
+            if($this->stripe->company_gateway->company->portal_mode == 'domain'){
+                $domain = $this->stripe->company_gateway->company->portal_domain;
             }
             else{
-                $domain = $this->company_gateway->company->subdomain . '.' . config('ninja.app_domain');
+                $domain = $this->stripe->company_gateway->company->subdomain . '.' . config('ninja.app_domain');
             }
 
         }

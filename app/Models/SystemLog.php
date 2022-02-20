@@ -50,6 +50,7 @@ class SystemLog extends Model
     const EVENT_MAIL_BOUNCED = 32;
     const EVENT_MAIL_SPAM_COMPLAINT = 33;
     const EVENT_MAIL_DELIVERY = 34;
+    const EVENT_MAIL_OPENED = 35;
 
     const EVENT_WEBHOOK_RESPONSE = 40;
     const EVENT_WEBHOOK_SUCCESS = 41;
@@ -103,7 +104,7 @@ class SystemLog extends Model
     public function resolveRouteBinding($value, $field = null)
     {
         if (is_numeric($value)) {
-            throw new ModelNotFoundException("Record with value {$value} not found");
+            throw new \Illuminate\Database\Eloquent\ModelNotFoundException("Record with value {$value} not found");
         }
 
         return $this

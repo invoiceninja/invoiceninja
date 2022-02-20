@@ -76,6 +76,7 @@ class Quote extends BaseModel
         'exchange_rate',
         'subscription_id',
         'uses_inclusive_taxes',
+        'vendor_id',
     ];
 
     protected $casts = [
@@ -133,6 +134,11 @@ class Quote extends BaseModel
         return $this->belongsTo(Company::class);
     }
 
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class);
+    }
+
     public function history()
     {
         return $this->hasManyThrough(Backup::class, Activity::class);
@@ -153,10 +159,10 @@ class Quote extends BaseModel
         return $this->belongsTo(Client::class)->withTrashed();
     }
 
-    // public function contacts()
-    // {
-    //     return $this->hasManyThrough(ClientContact::class, Client::class);
-    // }
+    public function invoice()
+    {
+        return $this->belongsTo(Invoice::class)->withTrashed();
+    }
 
     public function assigned_user()
     {

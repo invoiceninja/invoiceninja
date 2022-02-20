@@ -12,6 +12,7 @@
 namespace App\Services\Credit;
 
 use App\Factory\PaymentFactory;
+use App\Jobs\Entity\CreateEntityPdf;
 use App\Jobs\Util\UnlinkFile;
 use App\Models\Credit;
 use App\Models\Payment;
@@ -98,6 +99,8 @@ class CreditService
         if($this->credit->balance > 0)
             return $this;
 
+        $this->markSent();
+
         $payment_repo = new PaymentRepository(new CreditRepository());
 
         //set credit balance to zero
@@ -105,6 +108,7 @@ class CreditService
 
         $this->updateBalance($adjustment)
              ->updatePaidToDate($adjustment)
+             ->setStatus(Credit::STATUS_APPLIED)
              ->save();
 
         //create a negative payment of total $this->credit->balance
@@ -116,6 +120,7 @@ class CreditService
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->type_id = PaymentType::CREDIT;
         $payment->is_manual = true;
+        $payment->currency_id = $this->credit->client->getSetting('currency_id');
         $payment->date = now();
 
         $payment->saveQuietly();
@@ -172,6 +177,38 @@ class CreditService
     public function updateBalance($adjustment)
     {
         $this->credit->balance -= $adjustment;
+
+        return $this;
+    }
+
+    /**
+     * Sometimes we need to refresh the
+     * PDF when it is updated etc.
+     * @return InvoiceService
+     */
+    public function touchPdf($force = false)
+    {
+        try {
+        
+            if($force){
+
+                $this->credit->invitations->each(function ($invitation) {
+                    CreateEntityPdf::dispatchNow($invitation);
+                });
+
+                return $this;
+            }
+
+            $this->credit->invitations->each(function ($invitation) {
+                CreateEntityPdf::dispatch($invitation);
+            });
+        
+        }
+        catch(\Exception $e){
+
+            nlog("failed creating invoices in Touch PDF");
+        
+        }
 
         return $this;
     }

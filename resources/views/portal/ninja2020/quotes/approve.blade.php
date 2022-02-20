@@ -62,7 +62,7 @@
                                         {{ ctrans('texts.quote_date') }}
                                     </dt>
                                     <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                                        {{ $quote->formatDate($quote->date, $quote->client->date_format()) }}
+                                        {{ $quote->translateDate($quote->date, $quote->client->date_format(), $quote->client->locale()) }}
                                     </dd>
                                 </div>
                                 <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">

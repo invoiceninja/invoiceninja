@@ -36,8 +36,6 @@ trait GeneratesCounter
     //todo in the form validation, we need to ensure that if a prefix and pattern is set we throw a validation error,
     //only one type is allow else this will cause confusion to the end user
 
-
-
     private function getNextEntityNumber($entity, Client $client, $is_recurring = false)
     {
         $prefix = '';
@@ -534,42 +532,46 @@ trait GeneratesCounter
 
         switch ($reset_counter_frequency) {
             case RecurringInvoice::FREQUENCY_DAILY:
-                now()->addDay();
+                $new_reset_date = $reset_date->addDay();
                 break;
             case RecurringInvoice::FREQUENCY_WEEKLY:
-                now()->addWeek();
+                $new_reset_date = $reset_date->addWeek();
                 break;
             case RecurringInvoice::FREQUENCY_TWO_WEEKS:
-                now()->addWeeks(2);
+                $new_reset_date = $reset_date->addWeeks(2);
                 break;
             case RecurringInvoice::FREQUENCY_FOUR_WEEKS:
-                now()->addWeeks(4);
+                $new_reset_date = $reset_date->addWeeks(4);
                 break;
             case RecurringInvoice::FREQUENCY_MONTHLY:
-                now()->addMonth();
+                $new_reset_date = $reset_date->addMonth();
                 break;
             case RecurringInvoice::FREQUENCY_TWO_MONTHS:
-                now()->addMonths(2);
+                $new_reset_date = $reset_date->addMonths(2);
                 break;
             case RecurringInvoice::FREQUENCY_THREE_MONTHS:
-                now()->addMonths(3);
+                $new_reset_date = $reset_date->addMonths(3);
                 break;
             case RecurringInvoice::FREQUENCY_FOUR_MONTHS:
-                now()->addMonths(4);
+                $new_reset_date = $reset_date->addMonths(4);
                 break;
             case RecurringInvoice::FREQUENCY_SIX_MONTHS:
-                now()->addMonths(6);
+                $new_reset_date = $reset_date->addMonths(6);
                 break;
             case RecurringInvoice::FREQUENCY_ANNUALLY:
-                now()->addYear();
+                $new_reset_date = $reset_date->addYear();
                 break;
             case RecurringInvoice::FREQUENCY_TWO_YEARS:
-                now()->addYears(2);
+                $new_reset_date = $reset_date->addYears(2);
+                break;
+
+                default:
+                $new_reset_date = $reset_date->addYear();
                 break;
         }
 
         $settings = $client->company->settings;
-        $settings->reset_counter_date = $reset_date->format('Y-m-d');
+        $settings->reset_counter_date = $new_reset_date->format('Y-m-d');
         $settings->invoice_number_counter = 1;
         $settings->quote_number_counter = 1;
         $settings->credit_number_counter = 1;

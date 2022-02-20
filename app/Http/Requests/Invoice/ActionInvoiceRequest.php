@@ -30,7 +30,7 @@ class ActionInvoiceRequest extends Request
     private $invoice;
 
     public function authorize() : bool
-    {
+    { 
         return auth()->user()->can('edit', $this->invoice);
     }
 

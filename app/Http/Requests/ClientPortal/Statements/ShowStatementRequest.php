@@ -44,6 +44,6 @@ class ShowStatementRequest extends FormRequest
 
     public function client(): Client
     {
-        return auth('contact')->user()->client;
+        return auth()->guard('contact')->user()->client;
     }
 }

@@ -90,6 +90,7 @@ class Invoice extends BaseModel
         'subscription_id',
         'auto_bill_enabled',
         'uses_inclusive_taxes',
+        'vendor_id',
     ];
 
     protected $casts = [
@@ -149,6 +150,11 @@ class Invoice extends BaseModel
     public function project()
     {
         return $this->belongsTo(Project::class);
+    }
+
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class);
     }
 
     public function design()

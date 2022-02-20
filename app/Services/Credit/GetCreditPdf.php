@@ -46,8 +46,6 @@ class GetCreditPdf extends AbstractService
 
         $file_path = CreateEntityPdf::dispatchNow($this->invitation);
 
-nlog($file_path);
         return $file_path;
-        // return Storage::disk($disk)->path($file_path);
     }
 }
