@@ -33,7 +33,7 @@ class MailServiceProvider extends MailProvider
 
     protected function registerIlluminateMailer()
     {
-
+        //this is not octane safe
         $this->app->singleton('mail.manager', function($app) {
             return new GmailTransportManager($app);
         });
