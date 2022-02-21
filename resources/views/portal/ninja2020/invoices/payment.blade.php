@@ -78,7 +78,7 @@
                                     {{ ctrans('texts.due_date') }}
                                 </dt>
                                 <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                                    {{ $invoice->due_date }}
+                                    {{ $invoice->translateDate($invoice->due_date, $invoice->client->date_format(), $invoice->client->locale()) }}
                                 </dd>
                             </div>
                             @endif

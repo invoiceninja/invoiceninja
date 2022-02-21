@@ -77,7 +77,7 @@ class BackupUpdate extends Command
     {
         set_time_limit(0);
         
-        Backup::chunk(100, function ($backups) {
+        Backup::whereRaw('html_backup != "" OR html_backup IS NOT NULL')->chunk(5000, function ($backups) {
             foreach ($backups as $backup) {
                 
                 if($backup->activity->client()->exists()){
