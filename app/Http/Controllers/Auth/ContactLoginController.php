@@ -13,6 +13,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Events\Contact\ContactLoggedIn;
 use App\Http\Controllers\Controller;
+use App\Http\ViewComposers\PortalComposer;
 use App\Libraries\MultiDB;
 use App\Models\Account;
 use App\Models\ClientContact;
@@ -20,10 +21,10 @@ use App\Models\Company;
 use App\Utils\Ninja;
 use Auth;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
-use Illuminate\Http\Request;
-use Route;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Route;
 
 class ContactLoginController extends Controller
 {
@@ -131,6 +132,8 @@ class ContactLoginController extends Controller
             return $response;
         }
 
+        $this->setRedirectPath();
+
         return $request->wantsJson()
                     ? new JsonResponse([], 204)
                     : redirect()->intended($this->redirectPath());
@@ -155,5 +158,23 @@ class ContactLoginController extends Controller
         request()->session()->invalidate();
 
         return redirect('/client/login');
+    }
+
+    private function setRedirectPath()
+    {
+
+        if(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_INVOICES)
+            $this->redirectTo = '/client/invoices';
+        elseif(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_RECURRING_INVOICES)
+            $this->redirectTo = '/client/recurring_invoices';
+        elseif(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_QUOTES)
+            $this->redirectTo = '/client/quotes';
+        elseif(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_CREDITS)
+            $this->redirectTo = '/client/credits';
+        elseif(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_TASKS)
+            $this->redirectTo = '/client/tasks';
+        elseif(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_EXPENSES)
+            $this->redirectTo = '/client/expenses';
+
     }
 }
