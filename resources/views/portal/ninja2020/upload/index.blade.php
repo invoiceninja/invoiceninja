@@ -11,3 +11,9 @@
         </div>
     </form>
 </div>
+
+<script>
+
+Dropzone.prototype.defaultOptions.dictDefaultMessage = '{!! ctrans('texts.dropzone_default_message') !!}';
+
+</script>
