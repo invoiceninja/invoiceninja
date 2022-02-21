@@ -70,6 +70,12 @@ class CreditCard
                     'sequenceType' => 'recurring',
                     'description' => \sprintf('Hash: %s', $this->mollie->payment_hash->hash),
                     'webhookUrl'  => $this->mollie->company_gateway->webhookUrl(),
+                    'metadata' => [
+                        'client_id' => $this->mollie->client->hashed_id,
+                        'hash' => $this->mollie->payment_hash->hash,
+                        'gateway_type_id' => GatewayType::CREDIT_CARD,
+                        'payment_type_id' => PaymentType::CREDIT_CARD_OTHER,
+                    ],
                 ]);
 
                 if ($payment->status === 'paid') {
@@ -106,6 +112,12 @@ class CreditCard
                     'hash' => $this->mollie->payment_hash->hash,
                 ]),
                 'webhookUrl'  => $this->mollie->company_gateway->webhookUrl(),
+                'metadata' => [
+                        'client_id' => $this->mollie->client->hashed_id,
+                        'hash' => $this->mollie->payment_hash->hash,
+                        'gateway_type_id' => GatewayType::CREDIT_CARD,
+                        'payment_type_id' => PaymentType::CREDIT_CARD_OTHER,
+                    ],
                 'cardToken' => $request->gateway_response,
             ];
 

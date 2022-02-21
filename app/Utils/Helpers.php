@@ -262,9 +262,11 @@ class Helpers
             }
         }
 
-        $x = str_replace(["\n", "<br>"], ["\r", "<br>"], $value);
+        return $value;
 
-        return $x;
+        // $x = str_replace(["\n", "<br>"], ["\r", "<br>"], $value);
+
+        // return $x;
     }
 
     /**

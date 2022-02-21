@@ -41,7 +41,7 @@ Route::group(['middleware' => ['url_db']], function () {
 Route::get('stripe/signup/{token}', 'StripeConnectController@initialize')->name('stripe_connect.initialization');
 Route::get('stripe/completed', 'StripeConnectController@completed')->name('stripe_connect.return');
 
-Route::get('checkout/3ds_redirect/{company_key}/{company_gateway_id}/{hash}', 'Gateways\Checkout3dsController@index')->name('checkout.3ds_redirect');
-Route::get('mollie/3ds_redirect/{company_key}/{company_gateway_id}/{hash}', 'Gateways\Mollie3dsController@index')->name('mollie.3ds_redirect');
-Route::get('gocardless/ibp_redirect/{company_key}/{company_gateway_id}/{hash}', 'Gateways\GoCardlessController@ibpRedirect')->name('gocardless.ibp_redirect');
+Route::get('checkout/3ds_redirect/{company_key}/{company_gateway_id}/{hash}', 'Gateways\Checkout3dsController@index')->middleware('domain_db')->name('checkout.3ds_redirect');
+Route::get('mollie/3ds_redirect/{company_key}/{company_gateway_id}/{hash}', 'Gateways\Mollie3dsController@index')->middleware('domain_db')->name('mollie.3ds_redirect');
+Route::get('gocardless/ibp_redirect/{company_key}/{company_gateway_id}/{hash}', 'Gateways\GoCardlessController@ibpRedirect')->middleware('domain_db')->name('gocardless.ibp_redirect');
 Route::get('.well-known/apple-developer-merchantid-domain-association', 'ClientPortal\ApplePayDomainController@showAppleMerchantId');

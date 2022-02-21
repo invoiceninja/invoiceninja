@@ -26,7 +26,7 @@
                 @elseif(isset($company) && !is_null($company))
                     <div>
                         <img src="{{ $company->present()->logo()  }}"
-                             class="border-b border-gray-100 h-18 pb-4" alt="{{ $company->present()->name() }} logo">
+                             class="mx-auto border-b border-gray-100 h-18 pb-4" alt="{{ $company->present()->name() }} logo">
                     </div>
                 @endif
 
