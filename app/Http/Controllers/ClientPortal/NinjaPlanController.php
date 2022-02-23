@@ -18,6 +18,7 @@ use App\Libraries\MultiDB;
 use App\Models\Account;
 use App\Models\ClientContact;
 use App\Models\Company;
+use App\Models\CompanyGateway;
 use App\Models\Invoice;
 use App\Models\RecurringInvoice;
 use App\Models\Subscription;
@@ -35,6 +36,7 @@ class NinjaPlanController extends Controller
 
     public function index(string $contact_key, string $account_or_company_key)
     {
+
         MultiDB::findAndSetDbByCompanyKey($account_or_company_key);
         $company = Company::where('company_key', $account_or_company_key)->first();
 
@@ -67,8 +69,32 @@ class NinjaPlanController extends Controller
 
     }
 
+    public function trial()
+    {
+
+        $gateway = CompanyGateway::where('gateway_key', 'd14dd26a37cecc30fdd65700bfb55b23')->first();
+
+        $data['gateway'] = $gateway;
+
+        $gateway_driver = $gateway->driver()->init();
+
+        $setupIntent = \Stripe\SetupIntent::create([
+          'payment_method_types' => ['card'],
+        ]);
+
+        $data['intent'] = $setupIntent;
+        // $data['account'] = $account;
+        $data['client'] =  Auth::guard('contact')->user()->client;
+
+        return $this->render('plan.trial', $data);
+
+         
+    }
+
     public function plan()
     {
+        return $this->trial();
+
         //harvest the current plan
         $data = [];
         $data['late_invoice'] = false;
