@@ -216,10 +216,10 @@ class ProcessSEPA {
 }
 
 const publishableKey =
-    document.querySelector('meta[name="stripe-publishable-key"]') ? .content ? ?
+    document.querySelector('meta[name="stripe-publishable-key"]')?.content ??
     '';
 
 const stripeConnect =
-    document.querySelector('meta[name="stripe-account-id"]') ? .content ? ? '';
+    document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
 
 new ProcessSEPA(publishableKey, stripeConnect).setupStripe().handle();
