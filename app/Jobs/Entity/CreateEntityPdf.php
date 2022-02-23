@@ -168,10 +168,10 @@ class CreateEntityPdf implements ShouldQueue
             ]),
             'variables' => $variables,
             'options' => [
-                'all_pages_header' => $this->client->getSetting('all_pages_header'),
-                'all_pages_footer' => $this->client->getSetting('all_pages_footer'),
+                'all_pages_header' => $this->entity->client->getSetting('all_pages_header'),
+                'all_pages_footer' => $this->entity->client->getSetting('all_pages_footer'),
             ],
-            'process_markdown' => $this->client->company->markdown_enabled,
+            'process_markdown' => $this->entity->client->company->markdown_enabled,
         ];
 
         $maker = new PdfMakerService($state);
