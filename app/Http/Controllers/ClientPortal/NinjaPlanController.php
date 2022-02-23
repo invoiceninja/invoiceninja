@@ -116,8 +116,6 @@ class NinjaPlanController extends Controller
         $gateway_driver->attach($stripe_response->payment_method, $customer);
         $method = $gateway_driver->getStripePaymentMethod($stripe_response->payment_method);
 
-        $this->storePaymentMethod($method, $request->payment_method_id, $customer);
-
         $payment_meta = new \stdClass;
         $payment_meta->exp_month = (string) $method->card->exp_month;
         $payment_meta->exp_year = (string) $method->card->exp_year;
@@ -142,7 +140,7 @@ class NinjaPlanController extends Controller
         //create recurring invoice
         $subscription_repo = new SubscriptionRepository();
         $subscription = Subscription::find(6);
-        
+
         $recurring_invoice = RecurringInvoiceFactory::create($subscription->company_id, $subscription->user_id);
         $recurring_invoice->client_id = $client->id;
         $recurring_invoice->line_items = $subscription_repo->generateLineItems($subscription, true, false);
@@ -154,7 +152,6 @@ class NinjaPlanController extends Controller
         $recurring_invoice->auto_bill_enabled =  $this->setAutoBillFlag($recurring_invoice->auto_bill);
         $recurring_invoice->due_date_days = 'terms';
         $recurring_invoice->next_send_date = now()->addDays(14)->format('Y-m-d');
-        $recurring_invoice->next_send_date =  $recurring_invoice->nextSendDate();
 
         $recurring_invoice->save();
         $recurring_invoice->service()->start();
@@ -176,8 +173,7 @@ class NinjaPlanController extends Controller
 
     public function plan()
     {
-        return $this->trial();
-
+     
         //harvest the current plan
         $data = [];
         $data['late_invoice'] = false;
@@ -188,6 +184,9 @@ class NinjaPlanController extends Controller
 
             if($account)
             {
+                //offer the option to have a free trial
+                if(!$account->trial_started)
+                    return $this->trial();
 
                 if(Carbon::parse($account->plan_expires)->lt(now())){
                     //expired get the most recent invoice for payment

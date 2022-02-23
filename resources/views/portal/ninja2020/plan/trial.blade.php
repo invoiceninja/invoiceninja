@@ -168,8 +168,9 @@
 
   <div class="form-group mb-2">
       <select name="country" id="country" class="form-select w-full py-2 text-gray-700">
+          <option value="{{ $client->country->id}}" selected>{{ $client->country->iso_3166_2 }} ({{ $client->country->name }})</option>
           @foreach($countries as $country)
-              <option value="{{ $client->country->id }}">{{ $client->country->iso_3166_2 }} ({{ $client->country->name }})</option>
+              <option value="{{ $country->id }}">{{ $country->iso_3166_2 }} ({{ $country->name }})></option>
           @endforeach
       </select>
   </div>
