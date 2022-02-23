@@ -10,7 +10,26 @@
 <div class="flex flex-wrap overflow-hidden">
 
   <div class="w-1/2 overflow-hidden">
-    plan details
+    <h1 style="font-size:24px;">Start your 14 day Pro Trial!</h1>
+    <p class="mt-6">Enjoy 14 days of our Pro Plan</p>
+
+<div>
+
+    <ul class="list-decimal mx-20 w-100">
+      <li>Unlimited clients, invoices and quotes</li>
+      <li>Remove "Created by Invoice Ninja" from invoices</li>
+      <li>Enable emails to be sent from your GMail</li>
+      <li>Create subscriptions: Recurring & Auto-billing</li>
+      <li>API integration with 3rd party apps & platforms</li>
+      <li>Custom reminders</li>
+      <li>Attach PDF's to client emails</li>
+      <li>Display clients e-signature on invoices and quotes</li>
+      <li>Enable clients to "Approve Terms' checkbox</li>
+      <li>Bulk emailing of invoices and quotes</li>
+    </ul>
+
+</div>
+
   </div>
   <div class="w-1/2 overflow-hidden">
 
@@ -19,7 +38,7 @@
       <input type="text" class="form-control block
         w-full
         px-3
-        py-3
+        py-2
         text-base
         font-normal
         text-gray-700
@@ -39,7 +58,7 @@
       <input type="text" class="form-control block
         w-full
         px-3
-        py-3
+        py-2
         text-base
         font-normal
         text-gray-700
@@ -58,7 +77,7 @@
       <input type="text" class="form-control block
         w-full
         px-3
-        py-3
+        py-2
         text-base
         font-normal
         text-gray-700
@@ -81,7 +100,7 @@
         <input type="text" class="form-control block
           w-full
           px-3
-          py-3
+          py-2
           text-base
           font-normal
           text-gray-700
@@ -103,7 +122,7 @@
         <input type="text" class="form-control block
           w-full
           px-3
-          py-3
+          py-2
           text-base
           font-normal
           text-gray-700
@@ -125,7 +144,7 @@
         <input type="text" class="form-control block
           w-full
           px-3
-          py-3
+          py-2
           text-base
           font-normal
           text-gray-700
@@ -144,7 +163,7 @@
   </div>
 
   <div class="form-group mb-2">
-      <select name="countries" id="country" class="form-select w-full py-3">
+      <select name="countries" id="country" class="form-select w-full py-2 text-gray-700">
           @foreach($countries as $country)
               <option value="{{ $client->country->iso_3166_2 }}">{{ $client->country->iso_3166_2 }} ({{ $client->country->name }})</option>
           @endforeach
@@ -175,6 +194,9 @@
               </svg>
           <span>{{ $slot ?? ctrans('texts.trial_call_to_action') }}</span>
       </button>
+  </div>
+  <div class="flex justify-end mt-5">
+    <span class="text-gray-700" style="font-size:12px;">* At the end of your 14 day trial your card will be charged $10/month. Cancel anytime.</span>
   </div>
 
   </form>
