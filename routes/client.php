@@ -28,6 +28,7 @@ Route::get('documents/{document_hash}', 'ClientPortal\DocumentController@publicD
 Route::get('error', 'ClientPortal\ContactHashLoginController@errorPage')->name('client.error');
 Route::get('client/payment/{contact_key}/{payment_id}', 'ClientPortal\InvitationController@paymentRouter')->middleware(['domain_db','contact_key_login']);
 Route::get('client/ninja/{contact_key}/{company_key}', 'ClientPortal\NinjaPlanController@index')->name('client.ninja_contact_login')->middleware(['domain_db']);
+Route::post('client/ninja/trial_confirmation', 'ClientPortal\NinjaPlanController@trial_confirmation')->name('client.trial.response')->middleware(['domain_db']);
 
 Route::group(['middleware' => ['auth:contact', 'locale', 'domain_db','check_client_existence'], 'prefix' => 'client', 'as' => 'client.'], function () {
     Route::get('dashboard', 'ClientPortal\DashboardController@index')->name('dashboard'); // name = (dashboard. index / create / show / update / destroy / edit

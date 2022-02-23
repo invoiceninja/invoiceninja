@@ -33,7 +33,11 @@
   </div>
   <div class="w-1/2 overflow-hidden">
 
-  <form>
+  <form id="card-form" action="{{ route('client.trial.response') }}" method="post">
+    @csrf
+    <input type="hidden" name="gateway_response">
+    <div class="alert alert-failure mb-4" hidden id="errors"></div>
+
     <div class="form-group mb-2">
       <input type="text" class="form-control block
         w-full
@@ -48,7 +52,7 @@
         transition
         ease-in-out
         m-0
-        focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" id="address1"
+        focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" id="name"
         placeholder="{{ ctrans('texts.name') }}"
         name="name"
         value="{{$client->present()->name()}}">
@@ -68,7 +72,7 @@
         transition
         ease-in-out
         m-0
-        focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" id="exampleInput91"
+        focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" id="address1"
         placeholder="{{ ctrans('texts.address1') }}"
         name="address1"
         value="{{$client->address1}}">
@@ -163,9 +167,9 @@
   </div>
 
   <div class="form-group mb-2">
-      <select name="countries" id="country" class="form-select w-full py-2 text-gray-700">
+      <select name="country" id="country" class="form-select w-full py-2 text-gray-700">
           @foreach($countries as $country)
-              <option value="{{ $client->country->iso_3166_2 }}">{{ $client->country->iso_3166_2 }} ({{ $client->country->name }})</option>
+              <option value="{{ $client->country->id }}">{{ $client->country->iso_3166_2 }} ({{ $client->country->name }})</option>
           @endforeach
       </select>
   </div>
@@ -213,21 +217,69 @@
 <script type="text/javascript">
 
 var stripe = Stripe('{{ $gateway->getPublishableKey()}}');
+var client_secret = '{{ $intent->client_secret }}';
 
 var elements = stripe.elements({
-  clientSecret: '{{ $intent->client_secret }}',
+  clientSecret: client_secret,
 });
 
 var cardElement = elements.create('card', {
     value: {
-        postalCode: document.querySelector('meta[name=client-postal-code]').content,
-        name: document.querySelector('meta[name=client-name').content
+        postalCode: document.querySelector('input[name=postal_code]').content,
+        name: document.querySelector('input[name=name]').content
     }
 });
 
 cardElement.mount('#card-element');
 
+const form = document.getElementById('card-form');
 
+var e = document.getElementById("country");
+var country_value = e.options[e.selectedIndex].value;
+
+  document
+      .getElementById('pay-now')
+      .addEventListener('click', () => {
+
+        let payNowButton = document.getElementById('pay-now');
+        payNowButton = payNowButton;
+        payNowButton.disabled = true;
+        payNowButton.querySelector('svg').classList.remove('hidden');
+        payNowButton.querySelector('span').classList.add('hidden');
+
+        stripe.handleCardSetup(this.client_secret, cardElement, {
+                payment_method_data: {
+                      billing_details: {
+                        name: document.querySelector('input[name=name]').content,
+                },
+              }
+            })
+            .then((result) => {
+                if (result.error) {
+
+                  let errors = document.getElementById('errors');
+                  let payNowButton = document.getElementById('pay-now');
+
+                  errors.textContent = '';
+                  errors.textContent = result.error.message;
+                  errors.hidden = false;
+
+                  payNowButton.disabled = false;
+                  payNowButton.querySelector('svg').classList.add('hidden');
+                  payNowButton.querySelector('span').classList.remove('hidden');
+                  return;
+
+                }
+
+              document.querySelector(
+                  'input[name="gateway_response"]'
+              ).value = JSON.stringify(result.setupIntent);
+
+                document.getElementById('card-form').submit();
+                
+              });
+
+      });
 
 </script>
 @endpush
