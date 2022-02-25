@@ -90,6 +90,7 @@ class TemplateEngine
         if (strlen($this->entity) > 1 && strlen($this->entity_id) > 1) {
             $class = 'App\Models\\'.ucfirst($this->entity);
             $this->entity_obj = $class::withTrashed()->where('id', $this->decodePrimaryKey($this->entity_id))->company()->first();
+            nlog("the entity id = ".$this->entity_obj->id);
         } else {
             $this->mockEntity();
         }
