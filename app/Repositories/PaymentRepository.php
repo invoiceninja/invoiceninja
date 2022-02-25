@@ -68,13 +68,14 @@ class PaymentRepository extends BaseRepository {
     {
 
         $is_existing_payment = true;
-        $client = Client::where('id', $data['client_id'])->withTrashed()->first();
+        $client = false;
 
         //check currencies here and fill the exchange rate data if necessary
         if (! $payment->id) {
             $this->processExchangeRates($data, $payment);
 
             $is_existing_payment = false;
+            $client = Client::where('id', $data['client_id'])->withTrashed()->first();
 
             /*We only update the paid to date ONCE per payment*/
             if (array_key_exists('invoices', $data) && is_array($data['invoices']) && count($data['invoices']) > 0) {
@@ -107,7 +108,7 @@ class PaymentRepository extends BaseRepository {
         $payment->is_manual = true;
         $payment->status_id = Payment::STATUS_COMPLETED;
 
-        if (! $payment->currency_id) {
+        if (! $payment->currency_id && $client) {
             $payment->currency_id = $client->company->settings->currency_id;
         }
 
