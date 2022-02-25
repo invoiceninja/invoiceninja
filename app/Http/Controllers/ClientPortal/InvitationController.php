@@ -19,8 +19,10 @@ use App\Http\Controllers\Controller;
 use App\Jobs\Entity\CreateRawPdf;
 use App\Models\Client;
 use App\Models\ClientContact;
+use App\Models\CreditInvitation;
 use App\Models\InvoiceInvitation;
 use App\Models\Payment;
+use App\Models\QuoteInvitation;
 use App\Services\ClientPortal\InstantPayment;
 use App\Utils\CurlUtils;
 use App\Utils\Ninja;
@@ -265,4 +267,24 @@ class InvitationController extends Controller
 
         abort(404, "Invoice not found");
     }
+
+    public function unsubscribe(Request $request, string $invitation_key)
+    {
+        if($invite = InvoiceInvitation::where('key', $invitation_key)->first()){
+            $invite->contact->send_email = false;
+            $invite->contact->save();
+        }elseif($invite = QuoteInvitation::where('key', $invitation_key)->first()){
+            $invite->contact->send_email = false;
+            $invite->contact->save();
+        }elseif($invite = CreditInvitation::where('key', $invitation_key)->first()){
+            $invite->contact->send_email = false;
+            $invite->contact->save();
+        }
+
+        $data['logo'] = auth()->user()->company()->present()->logo();
+
+        return $this->render('generic.unsubscribe', $data);
+
+    }
+
 }
