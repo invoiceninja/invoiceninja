@@ -86,7 +86,6 @@ class CreateAccount
             $sp794f3f->hosted_company_count = config('ninja.quotas.free.max_companies');
             // $sp794f3f->trial_started = now();
             // $sp794f3f->trial_plan = 'pro';
-        
         }
         
         $sp794f3f->save();
