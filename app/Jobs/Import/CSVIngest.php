@@ -11,6 +11,8 @@
 
 namespace App\Jobs\Import;
 
+use App\Factory\ClientContactFactory;
+use App\Factory\VendorContactFactory;
 use App\Import\Providers\Csv;
 use App\Import\Providers\Freshbooks;
 use App\Import\Providers\Invoice2Go;
@@ -18,12 +20,15 @@ use App\Import\Providers\Invoicely;
 use App\Import\Providers\Wave;
 use App\Import\Providers\Zoho;
 use App\Libraries\MultiDB;
+use App\Models\Client;
 use App\Models\Company;
+use App\Models\Vendor;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Str;
 
 class CSVIngest implements ShouldQueue {
 	
@@ -69,6 +74,33 @@ class CSVIngest implements ShouldQueue {
             $engine->import($entity);
 
         }
+
+        $this->checkContacts();
+    }
+
+    private function checkContacts()
+    {
+        $vendors = Vendor::withTrashed()->where('company_id', $this->company->id)->doesntHave('contacts')->get();
+
+            foreach ($vendors as $vendor) {
+                
+                $new_contact = VendorContactFactory::create($vendor->company_id, $vendor->user_id);
+                $new_contact->vendor_id = $vendor->id;
+                $new_contact->contact_key = Str::random(40);
+                $new_contact->is_primary = true;
+                $new_contact->save();
+            }
+
+        $clients = Client::withTrashed()->where('company_id', $this->company->id)->doesntHave('contacts')->get();
+
+            foreach ($clients as $client) {
+                
+                $new_contact = ClientContactFactory::create($client->company_id, $client->user_id);
+                $new_contact->client_id = $client->id;
+                $new_contact->contact_key = Str::random(40);
+                $new_contact->is_primary = true;
+                $new_contact->save();
+            }
 
     }
 
