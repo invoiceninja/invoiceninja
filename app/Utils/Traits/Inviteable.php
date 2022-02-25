@@ -54,6 +54,18 @@ trait Inviteable
         return $domain.'/client/pay/'.$this->key;
     }
 
+    public function getUnsubscribeLink()
+    {
+        if(Ninja::isHosted()){
+            $domain = $this->company->domain();
+        }
+        else
+            $domain = config('ninja.app_url');
+
+        return $domain.'/client/unsubscribe/'.$this->key;
+
+    }
+
     public function getLink() :string
     {
         $entity_type = Str::snake(class_basename($this->entityType()));

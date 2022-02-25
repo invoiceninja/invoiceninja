@@ -270,18 +270,20 @@ class InvitationController extends Controller
 
     public function unsubscribe(Request $request, string $invitation_key)
     {
-        if($invite = InvoiceInvitation::where('key', $invitation_key)->first()){
+        if($invite = InvoiceInvitation::withTrashed()->where('key', $invitation_key)->first()){
             $invite->contact->send_email = false;
             $invite->contact->save();
-        }elseif($invite = QuoteInvitation::where('key', $invitation_key)->first()){
+        }elseif($invite = QuoteInvitation::withTrashed()->where('key', $invitation_key)->first()){
             $invite->contact->send_email = false;
             $invite->contact->save();
-        }elseif($invite = CreditInvitation::where('key', $invitation_key)->first()){
+        }elseif($invite = CreditInvitation::withTrashed()->where('key', $invitation_key)->first()){
             $invite->contact->send_email = false;
             $invite->contact->save();
         }
+        else
+            return abort(404);
 
-        $data['logo'] = auth()->user()->company()->present()->logo();
+        $data['logo'] = $invite->company->present()->logo();
 
         return $this->render('generic.unsubscribe', $data);
 
