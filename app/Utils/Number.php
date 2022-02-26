@@ -65,6 +65,8 @@ class Number
         $decimal = $currency->decimal_separator;
         $precision = $currency->precision;
 
+        $precision = 10;
+
         return rtrim(rtrim(number_format($value, $precision, $decimal, $thousand), "0"),$decimal);
     }
 

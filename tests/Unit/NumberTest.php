@@ -78,4 +78,67 @@ class NumberTest extends TestCase
     //         }
     //     });
     // }
+
+    public function testRoundingDecimalsTwo()
+    {
+        $currency = Currency::find(1);
+
+        $x = Number::formatValueNoTrailingZeroes(0.05, $currency);
+
+        $this->assertEquals(0.05, $x);
+    }
+
+    public function testRoundingDecimalsThree()
+    {
+        $currency = Currency::find(1);
+
+        $x = Number::formatValueNoTrailingZeroes(0.005, $currency);
+
+        $this->assertEquals(0.005, $x);
+    }
+
+    public function testRoundingDecimalsFour()
+    {
+        $currency = Currency::find(1);
+
+        $x = Number::formatValueNoTrailingZeroes(0.0005, $currency);
+
+        $this->assertEquals(0.0005, $x);
+    }
+
+    public function testRoundingDecimalsFive()
+    {
+        $currency = Currency::find(1);
+
+        $x = Number::formatValueNoTrailingZeroes(0.00005, $currency);
+
+        $this->assertEquals(0.00005, $x);
+    }    
+
+    public function testRoundingDecimalsSix()
+    {
+        $currency = Currency::find(1);
+
+        $x = Number::formatValueNoTrailingZeroes(0.000005, $currency);
+
+        $this->assertEquals(0.000005, $x);
+    }
+
+    public function testRoundingDecimalsSeven()
+    {
+        $currency = Currency::find(1);
+
+        $x = Number::formatValueNoTrailingZeroes(0.0000005, $currency);
+
+        $this->assertEquals(0.0000005, $x);
+    }
+
+    public function testRoundingDecimalsEight()
+    {
+        $currency = Currency::find(1);
+
+        $x = Number::formatValueNoTrailingZeroes(0.00000005, $currency);
+
+        $this->assertEquals(0.00000005, $x);
+    }    
 }
