@@ -50,7 +50,7 @@ class InvoiceRepository extends BaseRepository
 
     public function getInvitationByKey($key) :?InvoiceInvitation
     {
-        return InvoiceInvitation::whereRaw('BINARY `key`= ?', [$key])->first();
+        return InvoiceInvitation::where('key', $key)->first();
     }
 
     /**

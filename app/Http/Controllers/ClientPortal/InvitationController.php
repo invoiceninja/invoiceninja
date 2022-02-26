@@ -181,10 +181,6 @@ class InvitationController extends Controller
 
         $entity_obj = 'App\Models\\'.ucfirst(Str::camel($entity)).'Invitation';
 
-        // $invitation = $entity_obj::whereRaw('BINARY `key`= ?', [$invitation_key])
-        //                             ->with('contact.client')
-        //                             ->firstOrFail();
-
         $invitation = $entity_obj::where('key', $invitation_key)
                                     ->with('contact.client')
                                     ->firstOrFail();

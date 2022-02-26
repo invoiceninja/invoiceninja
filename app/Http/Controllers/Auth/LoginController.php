@@ -310,7 +310,7 @@ class LoginController extends BaseController
      */
     public function refresh(Request $request)
     {
-        $company_token = CompanyToken::whereRaw('BINARY `token`= ?', [$request->header('X-API-TOKEN')])->first();
+        $company_token = CompanyToken::where('token', $request->header('X-API-TOKEN'))->first();
 
         $cu = CompanyUser::query()
                           ->where('user_id', $company_token->user_id);
