@@ -62,23 +62,6 @@ class NumberTest extends TestCase
         $this->assertEquals(7.99, $converted_amount);
     }
 
-    // public function testParsingFloats()
-    // {
-    //     Currency::all()->each(function ($currency) {
-    //         $amount = 123456789.12;
-
-    //         $formatted_amount = Number::formatValue($amount, $currency);
-
-    //         $float_amount = Number::parseFloat($formatted_amount);
-
-    //         if ($currency->precision == 0) {
-    //             $this->assertEquals(123456789, $float_amount);
-    //         } else {
-    //             $this->assertEquals($amount, $float_amount);
-    //         }
-    //     });
-    // }
-
     public function testRoundingDecimalsTwo()
     {
         $currency = Currency::find(1);
@@ -141,4 +124,25 @@ class NumberTest extends TestCase
 
         $this->assertEquals(0.00000005, $x);
     }    
+
+
+    public function testRoundingPositive()
+    {
+        $currency = Currency::find(1);
+
+        $x = Number::formatValueNoTrailingZeroes(1.5, $currency);
+        $this->assertEquals(1.5, $x);
+
+        $x = Number::formatValueNoTrailingZeroes(1.50, $currency);
+        $this->assertEquals(1.5, $x);
+
+        $x = Number::formatValueNoTrailingZeroes(1.500, $currency);
+        $this->assertEquals(1.5, $x);
+
+        $x = Number::formatValueNoTrailingZeroes(1.50005, $currency);
+        $this->assertEquals(1.50005, $x);
+
+        $x = Number::formatValueNoTrailingZeroes(1.50000005, $currency);
+        $this->assertEquals(1.50000005, $x);
+    }  
 }
