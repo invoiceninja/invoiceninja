@@ -97,7 +97,7 @@ class TemplateEmail extends Mailable
                 'footer' => $this->build_email->getFooter(),
                 'whitelabel' => $this->client->user->account->isPaid() ? true : false,
                 'settings' => $settings,
-                'unsubscribe_link' => $this->invitation->getUnsubscribeLink(),
+                'unsubscribe_link' => $this->invitation ? $this->invitation->getUnsubscribeLink() : '',
             ])
             ->view($template_name, [
                 'greeting' => ctrans('texts.email_salutation', ['name' => $this->contact->present()->name()]),
