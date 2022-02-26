@@ -11,6 +11,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Http\ViewComposers\PortalComposer;
 use App\Libraries\MultiDB;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -59,7 +60,7 @@ class ContactKeyLogin
                     return redirect()->to($request->query('redirect'));
                 }
 
-                return redirect()->to('client/dashboard');
+                return redirect($this->setRedirectPath());
             }
         }
         elseif ($request->segment(3) && config('ninja.db.multi_db_enabled')) {
@@ -77,8 +78,8 @@ class ContactKeyLogin
                     return redirect()->to($request->query('next'));
                 }
 
-                return redirect()->to('client/dashboard');
-             }
+                return redirect($this->setRedirectPath());
+            }
 
             }
         } elseif ($request->segment(2) && $request->segment(2) == 'key_login' && $request->segment(3)) {
@@ -93,7 +94,7 @@ class ContactKeyLogin
                     return redirect($request->query('next'));
                 }
 
-                return redirect()->to('client/dashboard');
+                return redirect($this->setRedirectPath());
             }
         } elseif ($request->has('client_hash') && config('ninja.db.multi_db_enabled')) {
             if (MultiDB::findAndSetDbByClientHash($request->input('client_hash'))) {
@@ -106,7 +107,7 @@ class ContactKeyLogin
                     $primary_contact->email = Str::random(6) . "@example.com"; $primary_contact->save();
 
                     auth()->guard('contact')->loginUsingId($primary_contact->id, true);
-                    return redirect()->to('client/dashboard');
+                    return redirect($this->setRedirectPath());
                 }
             }
         } elseif ($request->has('client_hash')) {
@@ -119,10 +120,28 @@ class ContactKeyLogin
 
                     auth()->guard('contact')->loginUsingId($primary_contact->id, true);
 
-                return redirect()->to('client/dashboard');
+                    return redirect($this->setRedirectPath());
             }
         }
 
         return $next($request);
+    }
+
+    private function setRedirectPath()
+    {
+
+        if(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_INVOICES)
+            return '/client/invoices';
+        elseif(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_RECURRING_INVOICES)
+            return '/client/recurring_invoices';
+        elseif(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_QUOTES)
+            return '/client/quotes';
+        elseif(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_CREDITS)
+            return '/client/credits';
+        elseif(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_TASKS)
+            return '/client/tasks';
+        elseif(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_EXPENSES)
+            return '/client/expenses';
+
     }
 }

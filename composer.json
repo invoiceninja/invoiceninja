@@ -30,6 +30,7 @@
         "ext-dom": "*",
         "ext-json": "*",
         "ext-libxml": "*",
+        "afosto/yaac": "^1.4",
         "asm/php-ansible": "dev-main",
         "authorizenet/authorizenet": "^2.0",
         "bacon/bacon-qr-code": "^2.0",

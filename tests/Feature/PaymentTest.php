@@ -297,7 +297,7 @@ class PaymentTest extends TestCase
 
         $this->invoice = $this->invoice_calc->getInvoice();
         $this->invoice->save();
-        $this->invoice->service()->markSent()->save();
+        $this->invoice->service()->markSent()->createInvitations()->save();
 
         $data = [
             'amount' => 2.0,

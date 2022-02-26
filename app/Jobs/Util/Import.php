@@ -374,6 +374,9 @@ class Import implements ShouldQueue
                 $data['subdomain'] = MultiDB::randomSubdomainGenerator();
 
         }
+        else {
+            $data['email_sending_method'] = 'default';
+        }
 
         $rules = (new UpdateCompanyRequest())->rules();
 

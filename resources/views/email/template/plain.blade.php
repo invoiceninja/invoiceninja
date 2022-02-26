@@ -29,3 +29,6 @@
         </p>
     @endif
 @endisset
+@if(isset($unsubscribe_link))
+<p><a href="{{$unsubscribe_link}}">{{ ctrans('texts.unsubscribe') }}</a></p>
+@endif

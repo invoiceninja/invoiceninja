@@ -4545,6 +4545,9 @@ $LANG = array(
     'activity_124' => ':user restored recurring expense :recurring_expense',
     'fpx' => "FPX",
     'to_view_entity_set_password' => 'To view the :entity you need to set password.',
+    'unsubscribe' => 'Unsubscribe',
+    'unsubscribed' => 'Unsubscribed',
+    'unsubscribed_text' => 'You have been removed from notifications for this document'
 );
 
 return $LANG;

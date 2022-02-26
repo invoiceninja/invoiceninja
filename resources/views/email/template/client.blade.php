@@ -177,6 +177,9 @@
                                 </p>
                             @endif
                         </div>
+                        @if(isset($unsubscribe_link))
+                        <p><a href="{{$unsubscribe_link}}">{{ ctrans('texts.unsubscribe') }}</a></p>
+                        @endif
                     </td>
                 </tr>
             </table>

@@ -321,7 +321,6 @@ https://developer.wepay.com/api/api-calls/checkout
 
         $amount = array_sum(array_column($this->wepay_payment_driver->payment_hash->invoices(), 'amount')) + $this->wepay_payment_driver->payment_hash->fee_total;
 
-
         $app_fee = (config('ninja.wepay.fee_cc_multiplier') * $amount) + config('ninja.wepay.fee_fixed');
         // charge the credit card
         $response = $this->wepay_payment_driver->wepay->request('checkout/create', array(

@@ -27,7 +27,7 @@
     "/js/clients/payments/square-credit-card.js": "/js/clients/payments/square-credit-card.js?id=8f05ce6bd2d6cae7e5f2",
     "/js/clients/statements/view.js": "/js/clients/statements/view.js?id=4ed4c8a09803ddd0a9a7",
     "/js/clients/payments/razorpay-aio.js": "/js/clients/payments/razorpay-aio.js?id=c36ab5621413ef1de7c8",
-    "/js/clients/payments/stripe-sepa.js": "/js/clients/payments/stripe-sepa.js?id=2daa1a70aa5f8e6988f5",
+    "/js/clients/payments/stripe-sepa.js": "/js/clients/payments/stripe-sepa.js?id=da7b16ffaf5645535c7c",
     "/js/clients/payment_methods/authorize-checkout-card.js": "/js/clients/payment_methods/authorize-checkout-card.js?id=61becda97682c7909f29",
     "/js/clients/payments/stripe-giropay.js": "/js/clients/payments/stripe-giropay.js?id=2a973971ed2b890524ee",
     "/js/clients/payments/stripe-acss.js": "/js/clients/payments/stripe-acss.js?id=41367f4e80e52a0ab436",

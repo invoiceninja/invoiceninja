@@ -97,6 +97,7 @@ class TemplateEmail extends Mailable
                 'footer' => $this->build_email->getFooter(),
                 'whitelabel' => $this->client->user->account->isPaid() ? true : false,
                 'settings' => $settings,
+                'unsubscribe_link' => $this->invitation ? $this->invitation->getUnsubscribeLink() : '',
             ])
             ->view($template_name, [
                 'greeting' => ctrans('texts.email_salutation', ['name' => $this->contact->present()->name()]),
@@ -110,6 +111,7 @@ class TemplateEmail extends Mailable
                 'company' => $company,
                 'whitelabel' => $this->client->user->account->isPaid() ? true : false,
                 'logo' => $this->company->present()->logo($settings),
+                'unsubscribe_link' => $this->invitation->getUnsubscribeLink(),
             ])
             ->withSwiftMessage(function ($message) use($company){
                 $message->getHeaders()->addTextHeader('Tag', $company->company_key);

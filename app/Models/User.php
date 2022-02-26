@@ -177,7 +177,7 @@ class User extends Authenticatable implements MustVerifyEmail
         
         }
         elseif (request()->header('X-API-TOKEN')) {
-            $company_token = CompanyToken::with(['company'])->whereRaw('BINARY `token`= ?', [request()->header('X-API-TOKEN')])->first();
+            $company_token = CompanyToken::with(['company'])->where('token', request()->header('X-API-TOKEN'))->first();
 
             return $company_token->company;
         }

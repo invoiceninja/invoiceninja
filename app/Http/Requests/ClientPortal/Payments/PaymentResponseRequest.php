@@ -34,7 +34,7 @@ class PaymentResponseRequest extends FormRequest
     {
         $input = $this->all();
 
-        return PaymentHash::whereRaw('BINARY `hash`= ?', [$input['payment_hash']])->first();
+        return PaymentHash::where('hash', $input['payment_hash'])->first();
     }
 
     public function shouldStoreToken(): bool

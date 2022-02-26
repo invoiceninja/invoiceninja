@@ -12,15 +12,19 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
+use App\Factory\RecurringInvoiceFactory;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\Uploads\StoreUploadRequest;
 use App\Libraries\MultiDB;
 use App\Models\Account;
 use App\Models\ClientContact;
 use App\Models\Company;
+use App\Models\CompanyGateway;
+use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\RecurringInvoice;
 use App\Models\Subscription;
+use App\Repositories\SubscriptionRepository;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Routing\ResponseFactory;
@@ -35,6 +39,7 @@ class NinjaPlanController extends Controller
 
     public function index(string $contact_key, string $account_or_company_key)
     {
+
         MultiDB::findAndSetDbByCompanyKey($account_or_company_key);
         $company = Company::where('company_key', $account_or_company_key)->first();
 
@@ -67,8 +72,108 @@ class NinjaPlanController extends Controller
 
     }
 
+    public function trial()
+    {
+
+        $gateway = CompanyGateway::where('gateway_key', 'd14dd26a37cecc30fdd65700bfb55b23')->first();
+
+        $data['gateway'] = $gateway;
+
+        $gateway_driver = $gateway->driver(auth()->guard('contact')->user()->client)->init();
+
+        $customer = $gateway_driver->findOrCreateCustomer();
+
+        $setupIntent = \Stripe\SetupIntent::create([
+          'payment_method_types' => ['card'],
+          'usage' => 'off_session',
+          'customer' => $customer->id
+        ]);
+
+        $data['intent'] = $setupIntent;
+        // $data['account'] = $account;
+        $data['client'] =  Auth::guard('contact')->user()->client;
+
+        return $this->render('plan.trial', $data);
+
+         
+    }
+
+    public function trial_confirmation(Request $request)
+    {
+
+        $client = auth()->guard('contact')->user()->client;
+        $client->fill($request->all());
+        $client->save();
+
+        //store payment method
+
+        $gateway = CompanyGateway::where('gateway_key', 'd14dd26a37cecc30fdd65700bfb55b23')->first();
+        $gateway_driver = $gateway->driver(auth()->guard('contact')->user()->client)->init();
+
+        $stripe_response = json_decode($request->input('gateway_response'));
+        $customer = $gateway_driver->findOrCreateCustomer();
+
+        $gateway_driver->attach($stripe_response->payment_method, $customer);
+        $method = $gateway_driver->getStripePaymentMethod($stripe_response->payment_method);
+
+        $payment_meta = new \stdClass;
+        $payment_meta->exp_month = (string) $method->card->exp_month;
+        $payment_meta->exp_year = (string) $method->card->exp_year;
+        $payment_meta->brand = (string) $method->card->brand;
+        $payment_meta->last4 = (string) $method->card->last4;
+        $payment_meta->type = GatewayType::CREDIT_CARD;
+
+        $data = [
+            'payment_meta' => $payment_meta,
+            'token' => $method->id,
+            'payment_method_id' => GatewayType::CREDIT_CARD,
+        ];
+
+        $gateway_driver->storeGatewayToken($data, ['gateway_customer_reference' => $customer->id]);
+
+        //set free trial
+        $account = auth()->guard('contact')->user()->company->account;
+        $account->trial_started = now();
+        $account->trial_plan = 'pro';
+        $account->save();
+        
+        //create recurring invoice
+        $subscription_repo = new SubscriptionRepository();
+        $subscription = Subscription::find(6);
+
+        $recurring_invoice = RecurringInvoiceFactory::create($subscription->company_id, $subscription->user_id);
+        $recurring_invoice->client_id = $client->id;
+        $recurring_invoice->line_items = $subscription_repo->generateLineItems($subscription, true, false);
+        $recurring_invoice->subscription_id = $subscription->id;
+        $recurring_invoice->frequency_id = $subscription->frequency_id ?: RecurringInvoice::FREQUENCY_MONTHLY;
+        $recurring_invoice->date = now()->addDays(14);
+        $recurring_invoice->remaining_cycles = -1;
+        $recurring_invoice->auto_bill = $client->getSetting('auto_bill');
+        $recurring_invoice->auto_bill_enabled =  $this->setAutoBillFlag($recurring_invoice->auto_bill);
+        $recurring_invoice->due_date_days = 'terms';
+        $recurring_invoice->next_send_date = now()->addDays(14)->format('Y-m-d');
+
+        $recurring_invoice->save();
+        $recurring_invoice->service()->start();
+
+        return redirect('/');
+
+    }
+
+
+    private function setAutoBillFlag($auto_bill)
+    {
+        if ($auto_bill == 'always' || $auto_bill == 'optout') {
+            return true;
+        }
+
+        return false;
+        
+    }
+
     public function plan()
     {
+     
         //harvest the current plan
         $data = [];
         $data['late_invoice'] = false;
@@ -79,6 +184,9 @@ class NinjaPlanController extends Controller
 
             if($account)
             {
+                //offer the option to have a free trial
+                if(!$account->trial_started)
+                    return $this->trial();
 
                 if(Carbon::parse($account->plan_expires)->lt(now())){
                     //expired get the most recent invoice for payment

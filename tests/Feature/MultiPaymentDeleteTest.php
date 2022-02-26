@@ -121,7 +121,7 @@ class MultiPaymentDeleteTest extends TestCase
         $this->assertEquals(0, $invoice->balance);
 //mark sent
 
-        $invoice = $invoice->service()->markSent()->save();
+        $invoice = $invoice->service()->markSent()->createInvitations()->save();
 
         $invoice->fresh();
         $invoice->client->fresh();

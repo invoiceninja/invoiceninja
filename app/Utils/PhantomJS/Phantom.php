@@ -169,7 +169,7 @@ class Phantom
         $key = $entity.'_id';
 
         $invitation_instance = 'App\Models\\'.ucfirst(Str::camel($entity)).'Invitation';
-        $invitation = $invitation_instance::whereRaw('BINARY `key`= ?', [$invitation_key])->first();
+        $invitation = $invitation_instance::where('key', $invitation_key)->first();
 
         $entity_obj = $invitation->{$entity};
 
