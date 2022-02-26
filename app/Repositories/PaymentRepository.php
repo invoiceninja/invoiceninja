@@ -68,6 +68,7 @@ class PaymentRepository extends BaseRepository {
     {
 
         $is_existing_payment = true;
+        $client = false;
 
         //check currencies here and fill the exchange rate data if necessary
         if (! $payment->id) {
@@ -106,6 +107,10 @@ class PaymentRepository extends BaseRepository {
         $payment->fill($data);
         $payment->is_manual = true;
         $payment->status_id = Payment::STATUS_COMPLETED;
+
+        if (! $payment->currency_id && $client) {
+            $payment->currency_id = $client->company->settings->currency_id;
+        }
 
         $payment->save();
 

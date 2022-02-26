@@ -112,7 +112,8 @@ class StripeConnectController extends BaseController
             "livemode" => $response->livemode,
             "stripe_user_id" => $response->stripe_user_id,
             "refresh_token" => $response->refresh_token,
-            "access_token" => $response->access_token
+            "access_token" => $response->access_token,
+            "appleDomainVerification" => '',
         ];
 
         $company_gateway->setConfig($payload);

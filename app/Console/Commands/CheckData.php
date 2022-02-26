@@ -28,6 +28,7 @@ use App\Models\Payment;
 use App\Models\Paymentable;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
+use App\Models\Vendor;
 use App\Utils\Ninja;
 use Exception;
 use Illuminate\Console\Command;
@@ -295,6 +296,9 @@ class CheckData extends Command
         }
 
         if ($this->option('fix') == 'true') {
+
+            $vendors = Vendor::withTrashed()->doesntHave('contacts')->get();
+
             foreach ($vendors as $vendor) {
                 $this->logMessage("Fixing missing vendor contacts #{$vendor->id}");
                 
