@@ -205,7 +205,7 @@ class MultiDB
         $current_db = config('database.default');  
 
         foreach (self::$dbs as $db) {
-            if (ClientContact::on($db)->whereRaw('BINARY `token`= ?', [$token])->exists()) {
+            if (ClientContact::on($db)->where('token', $token)->exists()) {
                 self::setDb($db);
                 return true;
             }
@@ -257,7 +257,7 @@ class MultiDB
         $current_db = config('database.default');  
 
         foreach (self::$dbs as $db) {
-            if (CompanyToken::on($db)->whereRaw('BINARY `token`= ?', [$token])->exists()) {
+            if (CompanyToken::on($db)->where('token', $token)->exists()) {
                 self::setDb($db);
                 return true;
             }

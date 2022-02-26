@@ -45,9 +45,14 @@ class EntityViewController extends Controller
 
         $key = $entity_type.'_id';
 
-        $invitation = $invitation_entity::whereRaw('BINARY `key`= ?', [$invitation_key])
+
+        $invitation = $invitation_entity::where('key', $invitation_key)
                                         ->with('contact.client')
                                         ->firstOrFail();
+
+        // $invitation = $invitation_entity::whereRaw('BINARY `key`= ?', [$invitation_key])
+        //                                 ->with('contact.client')
+        //                                 ->firstOrFail();
 
         $contact = $invitation->contact;
         $client = $contact->client;
@@ -105,7 +110,8 @@ class EntityViewController extends Controller
 
         $key = $entity_type.'_id';
 
-        $invitation = $invitation_entity::whereRaw('BINARY `key`= ?', [$invitation_key])->firstOrFail();
+        $invitation = $invitation_entity::where('key', $invitation_key)->firstOrFail();
+        // $invitation = $invitation_entity::whereRaw('BINARY `key`= ?', [$invitation_key])->firstOrFail();
 
         $contact = $invitation->contact;
 

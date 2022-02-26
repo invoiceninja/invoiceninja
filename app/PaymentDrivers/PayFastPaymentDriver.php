@@ -224,7 +224,7 @@ class PayFastPaymentDriver extends BaseDriver
 
                 default:
 
-                    $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$data['m_payment_id']])->first();
+                    $payment_hash = PaymentHash::where('hash', $data['m_payment_id'])->first();
 
                     $this->setPaymentMethod(GatewayType::CREDIT_CARD)
                          ->setPaymentHash($payment_hash)

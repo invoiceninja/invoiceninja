@@ -37,6 +37,10 @@ CREATE TABLE `accounts` (
   `is_onboarding` tinyint(1) NOT NULL DEFAULT '0',
   `onboarding` mediumtext COLLATE utf8mb4_unicode_ci,
   `is_migrated` tinyint(1) NOT NULL DEFAULT '0',
+  `platform` varchar(128) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `hosted_client_count` int(10) unsigned DEFAULT NULL,
+  `hosted_company_count` int(10) unsigned DEFAULT NULL,
+  `inapp_transaction_id` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `accounts_payment_id_index` (`payment_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
@@ -385,6 +389,7 @@ CREATE TABLE `companies` (
   `use_comma_as_decimal_place` tinyint(1) NOT NULL DEFAULT '0',
   `report_include_drafts` tinyint(1) NOT NULL DEFAULT '0',
   `client_registration_fields` mediumtext COLLATE utf8mb4_unicode_ci,
+  `convert_rate_to_client` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `companies_company_key_unique` (`company_key`),
   KEY `companies_industry_id_foreign` (`industry_id`),
@@ -2116,3 +2121,12 @@ INSERT INTO `migrations` VALUES (113,'2021_11_08_131308_onboarding',6);
 INSERT INTO `migrations` VALUES (114,'2021_11_09_115919_update_designs',6);
 INSERT INTO `migrations` VALUES (115,'2021_11_10_184847_add_is_migrate_column_to_accounts_table',6);
 INSERT INTO `migrations` VALUES (116,'2021_11_11_163121_add_instant_bank_transfer',7);
+INSERT INTO `migrations` VALUES (117,'2021_12_20_095542_add_serbian_language_translations',8);
+INSERT INTO `migrations` VALUES (118,'2022_01_02_022421_add_slovak_language',8);
+INSERT INTO `migrations` VALUES (119,'2022_01_06_061231_add_app_domain_id_to_gateways_table',8);
+INSERT INTO `migrations` VALUES (120,'2022_01_18_004856_add_estonian_language',8);
+INSERT INTO `migrations` VALUES (121,'2022_01_19_085907_add_platform_column_to_accounts_table',8);
+INSERT INTO `migrations` VALUES (122,'2022_01_19_232436_add_kyd_currency',8);
+INSERT INTO `migrations` VALUES (123,'2022_01_27_223617_add_client_count_to_accounts_table',8);
+INSERT INTO `migrations` VALUES (124,'2022_02_06_091629_add_client_currency_conversion_to_companies_table',8);
+INSERT INTO `migrations` VALUES (125,'2022_02_25_015411_update_stripe_apple_domain_config',9);
