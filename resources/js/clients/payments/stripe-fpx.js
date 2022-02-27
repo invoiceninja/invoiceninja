@@ -60,10 +60,28 @@ class ProcessFPXPay {
                         'meta[name="return-url"]'
                     ).content,
                 }
-            );
+            ).then((result) => {
+                if (result.error) {
+                    this.handleFailure(result.error.message);
+                }
+            });;
         });
     };
+
+    handleFailure(message) {
+        let errors = document.getElementById('errors');
+
+        errors.textContent = '';
+        errors.textContent = message;
+        errors.hidden = false;
+
+        document.getElementById('pay-now').disabled = false;
+        document.querySelector('#pay-now > svg').classList.add('hidden');
+        document.querySelector('#pay-now > span').classList.remove('hidden');
+    }
 }
+
+
 
 const publishableKey = document.querySelector(
     'meta[name="stripe-publishable-key"]'

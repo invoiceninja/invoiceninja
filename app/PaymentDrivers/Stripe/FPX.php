@@ -141,6 +141,6 @@ class FPX
             $this->stripe->client->company,
         );
 
-        throw new PaymentFailed('Failed to process the payment.', 500);
+        throw new PaymentFailed('Failed to process the payment.', 400);
     }
 }

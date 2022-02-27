@@ -27,7 +27,7 @@ class ActionInvoiceRequest extends Request
      */
     private $error_msg;
 
-    private $invoice;
+    // private $invoice;
 
     public function authorize() : bool
     { 
@@ -45,7 +45,9 @@ class ActionInvoiceRequest extends Request
     {
         $input = $this->all();
 
-        if (!array_key_exists('action', $input)) {
+        if($this->action){
+            $input['action'] = $this->action;
+        } elseif (!array_key_exists('action', $input) ) {
             $this->error_msg = 'Action is a required field';
         } elseif (!$this->invoiceDeletable($this->invoice)) {
             unset($input['action']);

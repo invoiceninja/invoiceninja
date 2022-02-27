@@ -264,15 +264,18 @@ class InvitationController extends Controller
         abort(404, "Invoice not found");
     }
 
-    public function unsubscribe(Request $request, string $invitation_key)
+    public function unsubscribe(Request $request, string $entity_type, string $invitation_key)
     {
-        if($invite = InvoiceInvitation::withTrashed()->where('key', $invitation_key)->first()){
+        if($entity_type == 'invoice'){
+            $invite = InvoiceInvitation::withTrashed()->where('key', $invitation_key)->first();
             $invite->contact->send_email = false;
             $invite->contact->save();
-        }elseif($invite = QuoteInvitation::withTrashed()->where('key', $invitation_key)->first()){
+        }elseif($entity_type == 'quote'){
+            $invite = QuoteInvitation::withTrashed()->where('key', $invitation_key)->first();
             $invite->contact->send_email = false;
             $invite->contact->save();
-        }elseif($invite = CreditInvitation::withTrashed()->where('key', $invitation_key)->first()){
+        }elseif($entity_type == 'credit'){
+            $invite = CreditInvitation::withTrashed()->where('key', $invitation_key)->first();
             $invite->contact->send_email = false;
             $invite->contact->save();
         }
