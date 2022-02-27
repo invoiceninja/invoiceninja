@@ -75,7 +75,7 @@ class NinjaPlanController extends Controller
     public function trial()
     {
 
-        $gateway = CompanyGateway::where('gateway_key', 'd14dd26a37cecc30fdd65700bfb55b23')->first();
+        $gateway = CompanyGateway::on('db-ninja-01')->find(config('ninja.ninja_default_company_gateway_id'));
 
         $data['gateway'] = $gateway;
 
@@ -106,8 +106,7 @@ class NinjaPlanController extends Controller
         $client->save();
 
         //store payment method
-
-        $gateway = CompanyGateway::where('gateway_key', 'd14dd26a37cecc30fdd65700bfb55b23')->first();
+        $gateway = CompanyGateway::on('db-ninja-01')->find(config('ninja.ninja_default_company_gateway_id'));
         $gateway_driver = $gateway->driver(auth()->guard('contact')->user()->client)->init();
 
         $stripe_response = json_decode($request->input('gateway_response'));
@@ -132,10 +131,16 @@ class NinjaPlanController extends Controller
         $gateway_driver->storeGatewayToken($data, ['gateway_customer_reference' => $customer->id]);
 
         //set free trial
-        $account = auth()->guard('contact')->user()->company->account;
-        $account->trial_started = now();
-        $account->trial_plan = 'pro';
-        $account->save();
+        // $account = auth()->guard('contact')->user()->company->account;
+        if(auth()->guard('contact')->user()->client->custom_value2){
+            MultiDB::findAndSetDbByAccountKey(auth()->guard('contact')->user()->client->custom_value2);
+            $account = Account::where('key', auth()->guard('contact')->user()->client->custom_value2);
+            $account->trial_started = now();
+            $account->trial_plan = 'pro';
+            $account->save();
+        }
+
+        MultiDB::setDB('db-ninja-01');
         
         //create recurring invoice
         $subscription_repo = new SubscriptionRepository();
