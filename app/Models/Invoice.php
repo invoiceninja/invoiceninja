@@ -498,6 +498,20 @@ class Invoice extends BaseModel
         return $this->calc()->getTotal();
     }
 
+    public function getPayableAmount()
+    {
+        if($this->partial > 0)
+            return $this->partial;
+
+        if($this->balance > 0)
+            return $this->balance;
+
+        if($this->status_id = 1)
+            return $this->amount;
+
+        return 0;
+    }
+
     public function entityEmailEvent($invitation, $reminder_template, $template)
     {
         switch ($reminder_template) {
