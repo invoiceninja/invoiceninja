@@ -52,6 +52,8 @@ class StoreQuoteRequest extends Request
         $rules['number'] = ['nullable',Rule::unique('quotes')->where('company_id', auth()->user()->company()->id)];
         $rules['discount']  = 'sometimes|numeric';
 
+        $rules['is_amount_discount'] = ['boolean'];
+        
         // $rules['number'] = new UniqueQuoteNumberRule($this->all());
         $rules['line_items'] = 'array';
 
