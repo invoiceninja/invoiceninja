@@ -54,8 +54,6 @@
 
     @include('portal.ninja2020.gateways.includes.save_card')
 
-    @include('portal.ninja2020.gateways.wepay.includes.credit_card')
-
     @include('portal.ninja2020.gateways.includes.pay_now')
 
    </form> 

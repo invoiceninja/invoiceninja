@@ -62,7 +62,9 @@ trait Inviteable
         else
             $domain = config('ninja.app_url');
 
-        return $domain.'/client/unsubscribe/'.$this->key;
+        $entity_type = Str::snake(class_basename($this->entityType()));
+
+        return $domain.'/client/unsubscribe/'.$entity_type.'/'.$this->key;
 
     }
 

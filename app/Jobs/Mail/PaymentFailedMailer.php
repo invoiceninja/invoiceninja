@@ -110,13 +110,10 @@ class PaymentFailedMailer implements ShouldQueue
         });
 
         //add client payment failures here.
-        nlog("pre client failure email");
-
+        //
         if($contact = $this->client->primary_contact()->first())
         {
         
-        nlog("inside failure");
-
             $mail_obj = (new ClientPaymentFailureObject($this->client, $this->error, $this->company, $this->payment_hash))->build();
 
             $nmo = new NinjaMailerObject;

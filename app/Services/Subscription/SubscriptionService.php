@@ -228,10 +228,14 @@ class SubscriptionService
                                          ->where('is_deleted', 0)
                                          ->orderBy('id', 'desc')
                                          ->first();
-        
         }
 
-        if ($outstanding->count() == 0){
+        //need to ensure at this point that a refund is appropriate!!
+        //28-02-2022
+        if($recurring_invoice->invoices()->count() == 0){
+            return $target->price;
+        }
+        elseif ($outstanding->count() == 0){
             //nothing outstanding
             return $target->price - $this->calculateProRataRefundForSubscription($outstanding_invoice);
         }

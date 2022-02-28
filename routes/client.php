@@ -114,7 +114,7 @@ Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'clie
     Route::get('{entity}/{invitation_key}/download', 'ClientPortal\InvitationController@routerForDownload');
     Route::get('pay/{invitation_key}', 'ClientPortal\InvitationController@payInvoice')->name('pay.invoice');
 
-    Route::get('unsubscribe/{invitation_key}', 'ClientPortal\InvitationController@unsubscribe')->name('unsubscribe');
+    Route::get('unsubscribe/{entity_type}/{invitation_key}', 'ClientPortal\InvitationController@unsubscribe')->name('unsubscribe');
 
     // Route::get('{entity}/{client_hash}/{invitation_key}', 'ClientPortal\InvitationController@routerForIframe')->name('invoice.client_hash_and_invitation_key'); //should never need this
 
