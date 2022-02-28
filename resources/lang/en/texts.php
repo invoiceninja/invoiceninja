@@ -4547,7 +4547,25 @@ $LANG = array(
     'to_view_entity_set_password' => 'To view the :entity you need to set password.',
     'unsubscribe' => 'Unsubscribe',
     'unsubscribed' => 'Unsubscribed',
-    'unsubscribed_text' => 'You have been removed from notifications for this document'
+    'unsubscribed_text' => 'You have been removed from notifications for this document',
+    'client_shipping_state' => 'Client Shipping State',
+    'client_shipping_city' => 'Client Shipping City',
+    'client_shipping_postal_code' => 'Client Shipping Postal Code',
+    'client_shipping_country' => 'Client Shipping Country',
+    'load_pdf' => 'Load PDF',
+    'start_free_trial' => 'Start Free Trial',
+    'start_free_trial_message' => 'Start your FREE 14 day trial of the pro plan',
+    'due_on_receipt' => 'Due on Receipt',
+    'is_paid' => 'Is Paid',
+    'age_group_paid' => 'Paid',
+    'id' => 'Id',
+    'convert_to' => 'Convert To',
+    'client_currency' => 'Client Currency',
+    'company_currency' => 'Company Currency',
+    'custom_emails_disabled_help' => 'To prevent spam we require upgrading to a paid account to customize the email',
+    'upgrade_to_add_company' => 'Upgrade your plan to add companies',
+    'file_saved_in_downloads_folder' => 'The file has been saved in the downloads folder',
+    'small' => 'Small',
 );
 
 return $LANG;
