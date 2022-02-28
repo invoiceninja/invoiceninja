@@ -159,6 +159,8 @@ class NinjaPlanController extends Controller
         $recurring_invoice->next_send_date = now()->addDays(14)->format('Y-m-d');
 
         $recurring_invoice->save();
+        $recurring_invoice = $recurring_invoice->calc()->getRecurringInvoice();
+
         $recurring_invoice->service()->start();
 
         return redirect('/');
