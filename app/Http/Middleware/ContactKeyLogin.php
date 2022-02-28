@@ -123,6 +123,8 @@ class ContactKeyLogin
                     return redirect($this->setRedirectPath());
             }
         }
+        //28-02-2022 middleware should not allow this to progress as we should have redirected by this stage.
+        abort(404, "Unable to authenticate.");
 
         return $next($request);
     }

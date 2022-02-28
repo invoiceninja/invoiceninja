@@ -51,7 +51,7 @@ class ContactHashLoginController extends Controller
         return render('generic.error', ['title' => session()->get('title'), 'notification' => session()->get('notification')]);
     }
 
-        private function setRedirectPath()
+    private function setRedirectPath()
     {
 
         if(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_INVOICES)
