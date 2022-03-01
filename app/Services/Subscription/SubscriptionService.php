@@ -412,7 +412,10 @@ class SubscriptionService
                                          ->orderBy('id', 'desc')
                                          ->first();
 
-        if(!$last_invoice){
+        if($recurring_invoice->invoices()->count() == 0){
+            $pro_rata_refund_amount = 0;
+        }
+        elseif(!$last_invoice){
 
             $is_credit = true;
 

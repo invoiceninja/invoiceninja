@@ -46,6 +46,8 @@ class CSVIngest implements ShouldQueue {
 
     public array $request;
 
+    public $tries = 1;
+
     public function __construct( array $request, Company $company ) {
         $this->company     = $company;
         $this->request     = $request;

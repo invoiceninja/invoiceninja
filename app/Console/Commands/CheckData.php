@@ -480,11 +480,11 @@ class CheckData extends Command
         LEFT JOIN paymentables
         ON
         payments.id = paymentables.payment_id
-        WHERE paymentable_type = 'App\\Models\\Credit'
+        WHERE paymentable_type = ?
         AND paymentables.deleted_at is NULL
         AND payments.is_deleted = 0
         AND payments.client_id = ?;
-        "), [$client->id] );
+        "), [App\Models\Credit::class, $client->id] );
     
         return $results;
     }
@@ -507,7 +507,7 @@ class CheckData extends Command
 
                 $this->wrong_paid_to_dates++;
 
-                $this->logMessage($client->present()->name.' id = # '.$client->id." - Paid to date does not match Client Paid To Date = {$client->paid_to_date} - Invoice Payments = {$total_paid_to_date}");
+                $this->logMessage($client->present()->name.' id = # '.$client->id." - Client Paid To Date = {$client->paid_to_date} != Invoice Payments = {$total_paid_to_date} - {$_client->payments_applied} + {$credits_used_for_payments[0]->credit_payment}");
 
                 $this->isValid = false;
 
