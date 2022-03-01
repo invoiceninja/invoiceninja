@@ -375,7 +375,7 @@ class Import implements ShouldQueue
 
         }
         else {
-            $data['email_sending_method'] = 'default';
+            $data['settings']['email_sending_method'] = 'default';
         }
 
         $rules = (new UpdateCompanyRequest())->rules();
