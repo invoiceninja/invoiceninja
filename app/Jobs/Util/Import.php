@@ -362,6 +362,7 @@ class Import implements ShouldQueue
         ) {
             $data['settings']['invoice_design_id'] = 1;
         }
+            $data['settings']['email_sending_method'] = 'default';
 
         $data = $this->transformCompanyData($data);
 
@@ -373,9 +374,6 @@ class Import implements ShouldQueue
             if(strlen($data['subdomain']) == 0)
                 $data['subdomain'] = MultiDB::randomSubdomainGenerator();
 
-        }
-        else {
-            $data['email_sending_method'] = 'default';
         }
 
         $rules = (new UpdateCompanyRequest())->rules();

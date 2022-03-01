@@ -99,6 +99,6 @@ class ClientService
     {
         $this->client->save();
 
-        return $this->client;
+        return $this->client->fresh();
     }
 }
