@@ -11,6 +11,7 @@
 
 namespace App\Jobs\Invoice;
 
+use App\Jobs\Entity\CreateEntityPdf;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Util\UnlinkFile;
@@ -39,6 +40,8 @@ class ZipInvoices implements ShouldQueue
     private $user;
 
     public $settings;
+
+    public $tries = 1;
 
     /**
      * @param $invoices
@@ -77,6 +80,12 @@ class ZipInvoices implements ShouldQueue
         $file_name = date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.invoices')).'.zip';
         $invitation = $this->invoices->first()->invitations->first();
         $path = $this->invoices->first()->client->invoice_filepath($invitation);
+
+        $this->invoices->each(function ($invoice){
+
+            CreateEntityPdf::dispatchNow($invoice->invitations()->first());
+
+        });
 
         try{
             

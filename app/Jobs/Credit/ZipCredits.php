@@ -11,6 +11,7 @@
 
 namespace App\Jobs\Credit;
 
+use App\Jobs\Entity\CreateEntityPdf;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Util\UnlinkFile;
@@ -78,6 +79,13 @@ class ZipCredits implements ShouldQueue
         $file_name = date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.credits')).'.zip';
         $invitation = $this->credits->first()->invitations->first();
         $path = $this->credits->first()->client->quote_filepath($invitation);
+
+
+        $this->credits->each(function ($credit){
+
+            CreateEntityPdf::dispatchNow($credit->invitations()->first());
+            
+        });
 
         try{
             

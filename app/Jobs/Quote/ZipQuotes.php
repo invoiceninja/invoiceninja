@@ -11,6 +11,7 @@
 
 namespace App\Jobs\Quote;
 
+use App\Jobs\Entity\CreateEntityPdf;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Util\UnlinkFile;
@@ -39,6 +40,8 @@ class ZipQuotes implements ShouldQueue
     private $user;
 
     public $settings;
+
+    public $tries = 1;
 
     /**
      * @param $invoices
@@ -77,6 +80,13 @@ class ZipQuotes implements ShouldQueue
         $file_name = date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.quotes')).'.zip';
         $invitation = $this->quotes->first()->invitations->first();
         $path = $this->quotes->first()->client->quote_filepath($invitation);
+
+
+        $this->quotes->each(function ($quote){
+
+        CreateEntityPdf::dispatchNow($quote->invitations()->first());
+            
+        });
 
         try{
             
