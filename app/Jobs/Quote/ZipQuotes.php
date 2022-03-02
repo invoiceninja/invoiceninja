@@ -9,13 +9,13 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Jobs\Invoice;
+namespace App\Jobs\Quote;
 
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Util\UnlinkFile;
 use App\Libraries\MultiDB;
-use App\Mail\DownloadInvoices;
+use App\Mail\DownloadQuotes;
 use App\Models\Company;
 use App\Models\User;
 use App\Utils\TempFile;
@@ -28,11 +28,11 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use ZipArchive;
 
-class ZipInvoices implements ShouldQueue
+class ZipQuotes implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $invoices;
+    public $quotes;
 
     private $company;
 
@@ -48,9 +48,9 @@ class ZipInvoices implements ShouldQueue
      * Create a new job instance.
      *
      */
-    public function __construct($invoices, Company $company, User $user)
+    public function __construct($quotes, Company $company, User $user)
     {
-        $this->invoices = $invoices;
+        $this->quotes = $quotes;
 
         $this->company = $company;
 
@@ -74,23 +74,23 @@ class ZipInvoices implements ShouldQueue
 
         # create new zip object
         $zipFile = new \PhpZip\ZipFile();
-        $file_name = date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.invoices')).'.zip';
-        $invitation = $this->invoices->first()->invitations->first();
-        $path = $this->invoices->first()->client->invoice_filepath($invitation);
+        $file_name = date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.quotes')).'.zip';
+        $invitation = $this->quotes->first()->invitations->first();
+        $path = $this->quotes->first()->client->quote_filepath($invitation);
 
         try{
             
-            foreach ($this->invoices as $invoice) {
+            foreach ($this->quotes as $quote) {
         
-                $download_file = file_get_contents($invoice->pdf_file_path($invitation, 'url', true));
-                $zipFile->addFromString(basename($invoice->pdf_file_path($invitation)), $download_file);
+                $download_file = file_get_contents($quote->pdf_file_path($invitation, 'url', true));
+                $zipFile->addFromString(basename($quote->pdf_file_path($invitation)), $download_file);
 
             }
 
             Storage::put($path.$file_name, $zipFile->outputAsString());
 
             $nmo = new NinjaMailerObject;
-            $nmo->mailable = new DownloadInvoices(Storage::url($path.$file_name), $this->company);
+            $nmo->mailable = new DownloadQuotes(Storage::url($path.$file_name), $this->company);
             $nmo->to_user = $this->user;
             $nmo->settings = $this->settings;
             $nmo->company = $this->company;

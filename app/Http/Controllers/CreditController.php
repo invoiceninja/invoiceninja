@@ -24,6 +24,7 @@ use App\Http\Requests\Credit\ShowCreditRequest;
 use App\Http\Requests\Credit\StoreCreditRequest;
 use App\Http\Requests\Credit\UpdateCreditRequest;
 use App\Http\Requests\Credit\UploadCreditRequest;
+use App\Jobs\Credit\ZipCredits;
 use App\Jobs\Entity\EmailEntity;
 use App\Jobs\Invoice\EmailCredit;
 use App\Jobs\Invoice\ZipInvoices;
@@ -506,7 +507,7 @@ class CreditController extends BaseController
 
         $ids = request()->input('ids');
 
-        $credits = Credit::withTrashed()->whereIn('id', $this->transformKeys($ids));
+        $credits = Credit::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
         if (! $credits) {
             return response()->json(['message' => ctrans('texts.no_credits_found')]);
@@ -517,14 +518,14 @@ class CreditController extends BaseController
          */
 
         if ($action == 'bulk_download' && $credits->count() > 1) {
-            $credits->each(function ($invoice) {
+            $credits->each(function ($credit) {
                 if (auth()->user()->cannot('view', $credit)) {
                     nlog("access denied");
                     return response()->json(['message' => ctrans('text.access_denied')]);
                 }
             });
 
-            ZipInvoices::dispatch($credits, $credits->first()->company, auth()->user());
+            ZipCredits::dispatch($credits, $credits->first()->company, auth()->user());
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }

@@ -27,6 +27,7 @@ use App\Http\Requests\Quote\StoreQuoteRequest;
 use App\Http\Requests\Quote\UpdateQuoteRequest;
 use App\Http\Requests\Quote\UploadQuoteRequest;
 use App\Jobs\Invoice\ZipInvoices;
+use App\Jobs\Quote\ZipQuotes;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Invoice;
@@ -534,7 +535,7 @@ class QuoteController extends BaseController
                 }
             });
 
-            ZipInvoices::dispatch($quotes, $quotes->first()->company, auth()->user());
+            ZipQuotes::dispatch($quotes, $quotes->first()->company, auth()->user());
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }

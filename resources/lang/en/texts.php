@@ -4566,6 +4566,9 @@ $LANG = array(
     'upgrade_to_add_company' => 'Upgrade your plan to add companies',
     'file_saved_in_downloads_folder' => 'The file has been saved in the downloads folder',
     'small' => 'Small',
+    'quotes_backup_subject' => 'Your quotes are ready for download',
+    'credits_backup_subject' => 'Your credits are ready for download',
+
 );
 
 return $LANG;
