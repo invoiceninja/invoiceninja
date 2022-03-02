@@ -70,40 +70,71 @@ class ZipInvoices implements ShouldQueue
     public function handle()
     {
         # create new zip object
-        $zip = new ZipArchive();
-
-        $invitation = $this->invoices->first()->invitations->first();
-        $path = $this->invoices->first()->client->invoice_filepath($invitation);
+        $zipFile = new \PhpZip\ZipFile();
         $file_name = date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.invoices')).'.zip';
-        
-        $tmp_file = @tempnam('.', '');
-        $zip->open($tmp_file , ZipArchive::OVERWRITE);
+        $invitation = $this->invoices->invitations->first();
+        $path = $this->invoices->first()->client->invoice_filepath($invitation);
 
-        # loop through each file
-        foreach ($this->invoices as $invoice) {
+        try{
             
-            $inv = $invoice->invitations->first();
+            foreach ($this->invoices as $invoice) {
+        
+                $download_file = file_get_contents($invoice->pdf_file_path($invitation, 'url', true));
+                $zipFile->addFromString(basename($invoice->pdf_file_path($invitation)), $download_file);
 
-            # download file
-            $download_file = file_get_contents($invoice->pdf_file_path($inv, 'url', true));
+            }
 
-            #add it to the zip
-            $zip->addFromString(basename($invoice->pdf_file_path($inv)), $download_file);
+            Storage::put($path.$file_name, $zipFile->outputAsString());
+
+            $nmo = new NinjaMailerObject;
+            $nmo->mailable = new DownloadInvoices(Storage::url($path.$file_name), $this->company);
+            $nmo->to_user = $this->user;
+            $nmo->settings = $this->settings;
+            $nmo->company = $this->company;
+            
+            NinjaMailerJob::dispatch($nmo);
+            
+            UnlinkFile::dispatch(config('filesystems.default'), $path.$file_name)->delay(now()->addHours(1));
+            
+
+        }
+        catch(\PhpZip\Exception\ZipException $e){
+            // handle exception
+        }
+        finally{
+            $zipFile->close();
         }
 
-        # close zip
-        $zip->close();
-        
-        Storage::put($path.$file_name, file_get_contents($tmp_file));
 
-        $nmo = new NinjaMailerObject;
-        $nmo->mailable = new DownloadInvoices(Storage::url($path.$file_name), $this->company);
-        $nmo->to_user = $this->user;
-        $nmo->settings = $this->settings;
-        $nmo->company = $this->company;
+    }
+
+    private function zipFiles()
+    {
+
+        $zipFile = new \PhpZip\ZipFile();
+        $file_name = date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.invoices')).'.zip';
+        $invitation = $this->invoices->invitations->first();
+        $path = $this->invoices->first()->client->invoice_filepath($invitation);
+
+        try{
+            
+            foreach ($this->invoices as $invoice) {
         
-        NinjaMailerJob::dispatch($nmo);
-        
-        UnlinkFile::dispatch(config('filesystems.default'), $path.$file_name)->delay(now()->addHours(1));
+                $download_file = file_get_contents($invoice->pdf_file_path($invitation, 'url', true));
+                $zipFile->addFromString(basename($invoice->pdf_file_path($invitation)), $download_file);
+
+            }
+
+        Storage::put($path.$file_name, $zipFile->outputAsString());
+
+
+        }
+        catch(\PhpZip\Exception\ZipException $e){
+            // handle exception
+        }
+        finally{
+            $zipFile->close();
+        }
+
     }
 }

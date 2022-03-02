@@ -26,6 +26,7 @@ use App\Http\Requests\Credit\UpdateCreditRequest;
 use App\Http\Requests\Credit\UploadCreditRequest;
 use App\Jobs\Entity\EmailEntity;
 use App\Jobs\Invoice\EmailCredit;
+use App\Jobs\Invoice\ZipInvoices;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Credit;
@@ -510,6 +511,24 @@ class CreditController extends BaseController
         if (! $credits) {
             return response()->json(['message' => ctrans('texts.no_credits_found')]);
         }
+
+        /*
+         * Download Invoice/s
+         */
+
+        if ($action == 'bulk_download' && $credits->count() > 1) {
+            $credits->each(function ($invoice) {
+                if (auth()->user()->cannot('view', $credit)) {
+                    nlog("access denied");
+                    return response()->json(['message' => ctrans('text.access_denied')]);
+                }
+            });
+
+            ZipInvoices::dispatch($credits, $credits->first()->company, auth()->user());
+
+            return response()->json(['message' => ctrans('texts.sent_message')], 200);
+        }
+
 
         $credits->each(function ($credit, $key) use ($action) {
             if (auth()->user()->can('edit', $credit)) {

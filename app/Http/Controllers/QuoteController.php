@@ -527,7 +527,7 @@ class QuoteController extends BaseController
          * Download Invoice/s
          */
 
-        if ($action == 'download' && $quotes->count() >= 1) {
+        if ($action == 'bulk_download' && $quotes->count() >= 1) {
             $quotes->each(function ($quote) {
                 if (auth()->user()->cannot('view', $quote)) {
                     return response()->json(['message'=> ctrans('texts.access_denied')]);
