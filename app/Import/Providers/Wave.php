@@ -140,6 +140,10 @@ class Wave extends BaseImport implements ImportInterface
         $entity_type = 'vendor';
 
         $data = $this->getCsvData($entity_type);
+
+        if(!is_array($data))
+            return;
+        
         $data = $this->preTransform($data, $entity_type);
 
         if (empty($data)) {
