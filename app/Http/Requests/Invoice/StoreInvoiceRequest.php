@@ -55,7 +55,8 @@ class StoreInvoiceRequest extends Request
         $rules['number'] = ['nullable', Rule::unique('invoices')->where('company_id', auth()->user()->company()->id)];
 
         $rules['project_id'] =  ['bail', 'sometimes', new ValidProjectForClient($this->all())];
-
+        $rules['is_amount_discount'] = ['boolean'];
+        
         $rules['line_items'] = 'array';
         $rules['discount']  = 'sometimes|numeric';
 

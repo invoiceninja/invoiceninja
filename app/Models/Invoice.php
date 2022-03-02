@@ -103,6 +103,7 @@ class Invoice extends BaseModel
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
         'is_deleted' => 'bool',
+        'is_amount_discount' => 'bool',
     ];
 
     protected $with = [];
@@ -495,6 +496,20 @@ class Invoice extends BaseModel
     public function getTotalAttribute()
     {
         return $this->calc()->getTotal();
+    }
+
+    public function getPayableAmount()
+    {
+        if($this->partial > 0)
+            return $this->partial;
+
+        if($this->balance > 0)
+            return $this->balance;
+
+        if($this->status_id = 1)
+            return $this->amount;
+
+        return 0;
     }
 
     public function entityEmailEvent($invitation, $reminder_template, $template)

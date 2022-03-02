@@ -111,7 +111,7 @@ class TemplateEmail extends Mailable
                 'company' => $company,
                 'whitelabel' => $this->client->user->account->isPaid() ? true : false,
                 'logo' => $this->company->present()->logo($settings),
-                'unsubscribe_link' => $this->invitation->getUnsubscribeLink(),
+                'unsubscribe_link' => $this->invitation ? $this->invitation->getUnsubscribeLink() : '',
             ])
             ->withSwiftMessage(function ($message) use($company){
                 $message->getHeaders()->addTextHeader('Tag', $company->company_key);

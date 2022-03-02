@@ -89,6 +89,7 @@ class Quote extends BaseModel
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
         'is_deleted' => 'boolean',
+        'is_amount_discount' => 'bool',
     ];
 
     protected $dates = [];
