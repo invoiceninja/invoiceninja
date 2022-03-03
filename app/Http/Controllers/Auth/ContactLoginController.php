@@ -149,7 +149,9 @@ class ContactLoginController extends Controller
             return redirect(session()->get('url.intended'));
         }
 
-        return redirect(route('client.dashboard'));
+        $this->setRedirectPath();
+
+        return redirect($this->redirectTo);
     }
 
     public function logout()
