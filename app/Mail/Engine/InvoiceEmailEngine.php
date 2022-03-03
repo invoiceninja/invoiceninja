@@ -79,6 +79,17 @@ class InvoiceEmailEngine extends BaseEmailEngine
 
         }
 
+        $text_body = trans(
+                'texts.invoice_message',
+                [
+                    'invoice' => $this->invoice->number,
+                    'company' => $this->invoice->company->present()->name(),
+                    'amount' => Number::formatMoney($this->invoice->balance, $this->client),
+                ],
+                null,
+                $this->client->locale()
+            ) . "\n\n" . $this->invitation->getLink();
+
         if (is_array($this->template_data) &&  array_key_exists('subject', $this->template_data) && strlen($this->template_data['subject']) > 0) {
             $subject_template = $this->template_data['subject'];
             nlog("subject = template data");
@@ -111,7 +122,8 @@ class InvoiceEmailEngine extends BaseEmailEngine
             ->setFooter("<a href='{$this->invitation->getLink()}'>".ctrans('texts.view_invoice').'</a>')
             ->setViewLink($this->invitation->getLink())
             ->setViewText(ctrans('texts.view_invoice'))
-            ->setInvitation($this->invitation);
+            ->setInvitation($this->invitation)
+            ->setTextBody($text_body);
 
         if ($this->client->getSetting('pdf_email_attachment') !== false && $this->invoice->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
 

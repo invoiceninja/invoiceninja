@@ -26,7 +26,7 @@
     ],
     "type": "project",
     "require": {
-        "php": "^7.4|^8",
+        "php": "^8.0",
         "ext-dom": "*",
         "ext-json": "*",
         "ext-libxml": "*",
@@ -64,6 +64,7 @@
         "league/flysystem-aws-s3-v3": "~1.0",
         "league/flysystem-cached-adapter": "^1.1",
         "league/fractal": "^0.17.0",
+        "league/html-to-markdown": "^5.1",
         "league/omnipay": "^3.1",
         "livewire/livewire": "^2.6",
         "mollie/mollie-api-php": "^2.36",
