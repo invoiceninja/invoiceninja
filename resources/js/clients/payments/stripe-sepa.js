@@ -97,8 +97,6 @@ class ProcessSEPA {
 
         document.getElementById('pay-now').addEventListener('click', (e) => {
 
-            console.log(document.querySelector('input[name=token]').value);
-
             if (document.querySelector('input[name=token]').value.length !== 0) {
 
                 document.getElementById('pay-now').disabled = true;
@@ -197,6 +195,10 @@ class ProcessSEPA {
         if (tokenBillingCheckbox) {
             document.querySelector('input[name="store_card"]').value =
                 tokenBillingCheckbox.value;
+        }
+
+        if(document.querySelector('input[name=token]').value.length > 2){
+            document.querySelector('input[name="store_card"]').value = false;
         }
 
         document.getElementById('server-response').submit();

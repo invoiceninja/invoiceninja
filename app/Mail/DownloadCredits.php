@@ -17,7 +17,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
 
-class DownloadInvoices extends Mailable
+class DownloadCredits extends Mailable
 {
     // use Queueable, SerializesModels;
 
@@ -42,7 +42,7 @@ class DownloadInvoices extends Mailable
 
         return $this->from(config('mail.from.address'), config('mail.from.name'))
             ->subject(ctrans('texts.download_files'))
-            ->view('email.admin.download_invoices', [
+            ->view('email.admin.download_credits', [
                 'url' => $this->file_path,
                 'logo' => $this->company->present()->logo,
                 'whitelabel' => $this->company->account->isPaid() ? true : false,

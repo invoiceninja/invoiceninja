@@ -9,14 +9,14 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Jobs\Invoice;
+namespace App\Jobs\Credit;
 
 use App\Jobs\Entity\CreateEntityPdf;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Util\UnlinkFile;
 use App\Libraries\MultiDB;
-use App\Mail\DownloadInvoices;
+use App\Mail\DownloadCredits;
 use App\Models\Company;
 use App\Models\User;
 use App\Utils\TempFile;
@@ -29,11 +29,11 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use ZipArchive;
 
-class ZipInvoices implements ShouldQueue
+class ZipCredits implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $invoices;
+    public $credits;
 
     private $company;
 
@@ -42,7 +42,6 @@ class ZipInvoices implements ShouldQueue
     public $settings;
 
     public $tries = 1;
-
     /**
      * @param $invoices
      * @param Company $company
@@ -51,9 +50,9 @@ class ZipInvoices implements ShouldQueue
      * Create a new job instance.
      *
      */
-    public function __construct($invoices, Company $company, User $user)
+    public function __construct($credits, Company $company, User $user)
     {
-        $this->invoices = $invoices;
+        $this->credits = $credits;
 
         $this->company = $company;
 
@@ -77,29 +76,30 @@ class ZipInvoices implements ShouldQueue
 
         # create new zip object
         $zipFile = new \PhpZip\ZipFile();
-        $file_name = date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.invoices')).'.zip';
-        $invitation = $this->invoices->first()->invitations->first();
-        $path = $this->invoices->first()->client->invoice_filepath($invitation);
+        $file_name = date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.credits')).'.zip';
+        $invitation = $this->credits->first()->invitations->first();
+        $path = $this->credits->first()->client->quote_filepath($invitation);
 
-        $this->invoices->each(function ($invoice){
 
-            CreateEntityPdf::dispatchNow($invoice->invitations()->first());
+        $this->credits->each(function ($credit){
 
+            CreateEntityPdf::dispatchNow($credit->invitations()->first());
+            
         });
 
         try{
             
-            foreach ($this->invoices as $invoice) {
+            foreach ($this->credits as $credit) {
         
-                $download_file = file_get_contents($invoice->pdf_file_path($invitation, 'url', true));
-                $zipFile->addFromString(basename($invoice->pdf_file_path($invitation)), $download_file);
+                $download_file = file_get_contents($credit->pdf_file_path($invitation, 'url', true));
+                $zipFile->addFromString(basename($credit->pdf_file_path($invitation)), $download_file);
 
             }
 
             Storage::put($path.$file_name, $zipFile->outputAsString());
 
             $nmo = new NinjaMailerObject;
-            $nmo->mailable = new DownloadInvoices(Storage::url($path.$file_name), $this->company);
+            $nmo->mailable = new DownloadCredits(Storage::url($path.$file_name), $this->company);
             $nmo->to_user = $this->user;
             $nmo->settings = $this->settings;
             $nmo->company = $this->company;
