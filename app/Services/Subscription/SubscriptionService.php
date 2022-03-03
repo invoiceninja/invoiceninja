@@ -102,7 +102,7 @@ class SubscriptionService
         }
         else
         {
-            $invoice = Invoice::find($payment_hash->fee_invoice_id);
+            $invoice = Invoice::withTrashed()->find($payment_hash->fee_invoice_id);
 
             $context = [
                 'context' => 'single_purchase',
