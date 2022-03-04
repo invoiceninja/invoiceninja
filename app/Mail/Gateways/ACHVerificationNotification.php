@@ -54,6 +54,7 @@ class ACHVerificationNotification extends Mailable
 
         return $this
             ->subject(ctrans('texts.ach_verification_notification_label'))
+            ->text('email.gateways.ach-verification-notification_text')
             ->view('email.gateways.ach-verification-notification', [
                 'logo' => $this->company->present()->logo(),
                 'settings' => $this->company->settings,
