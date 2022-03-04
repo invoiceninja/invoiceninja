@@ -38,7 +38,7 @@ class PaymentHash extends Model
 
     public function fee_invoice()
     {
-        return $this->belongsTo(Invoice::class, 'fee_invoice_id', 'id');
+        return $this->belongsTo(Invoice::class, 'fee_invoice_id', 'id')->withTrashed();
     }
 
     public function withData(string $property, $value): self
