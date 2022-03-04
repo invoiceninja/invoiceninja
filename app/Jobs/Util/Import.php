@@ -362,6 +362,7 @@ class Import implements ShouldQueue
         ) {
             $data['settings']['invoice_design_id'] = 1;
         }
+            $data['settings']['email_sending_method'] = 'default';
 
         $data = $this->transformCompanyData($data);
 

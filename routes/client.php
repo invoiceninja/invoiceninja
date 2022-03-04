@@ -28,6 +28,7 @@ Route::get('documents/{document_hash}', 'ClientPortal\DocumentController@publicD
 Route::get('error', 'ClientPortal\ContactHashLoginController@errorPage')->name('client.error');
 Route::get('client/payment/{contact_key}/{payment_id}', 'ClientPortal\InvitationController@paymentRouter')->middleware(['domain_db','contact_key_login']);
 Route::get('client/ninja/{contact_key}/{company_key}', 'ClientPortal\NinjaPlanController@index')->name('client.ninja_contact_login')->middleware(['domain_db']);
+Route::post('client/ninja/trial_confirmation', 'ClientPortal\NinjaPlanController@trial_confirmation')->name('client.trial.response')->middleware(['domain_db']);
 
 Route::group(['middleware' => ['auth:contact', 'locale', 'domain_db','check_client_existence'], 'prefix' => 'client', 'as' => 'client.'], function () {
     Route::get('dashboard', 'ClientPortal\DashboardController@index')->name('dashboard'); // name = (dashboard. index / create / show / update / destroy / edit
@@ -112,6 +113,9 @@ Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'clie
     Route::get('credit/{invitation_key}/download_pdf', 'CreditController@downloadPdf')->name('credit.download_invitation_key');
     Route::get('{entity}/{invitation_key}/download', 'ClientPortal\InvitationController@routerForDownload');
     Route::get('pay/{invitation_key}', 'ClientPortal\InvitationController@payInvoice')->name('pay.invoice');
+
+    Route::get('unsubscribe/{entity_type}/{invitation_key}', 'ClientPortal\InvitationController@unsubscribe')->name('unsubscribe');
+
     // Route::get('{entity}/{client_hash}/{invitation_key}', 'ClientPortal\InvitationController@routerForIframe')->name('invoice.client_hash_and_invitation_key'); //should never need this
 
 });

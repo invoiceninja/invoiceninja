@@ -55,6 +55,8 @@ class UpdateInvoiceRequest extends Request
         if($this->number)
             $rules['number'] = Rule::unique('invoices')->where('company_id', auth()->user()->company()->id)->ignore($this->invoice->id);
 
+        $rules['is_amount_discount'] = ['boolean'];
+        
         $rules['line_items'] = 'array';
         $rules['discount']  = 'sometimes|numeric';
 

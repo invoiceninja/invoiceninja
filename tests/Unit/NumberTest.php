@@ -62,20 +62,87 @@ class NumberTest extends TestCase
         $this->assertEquals(7.99, $converted_amount);
     }
 
-    // public function testParsingFloats()
-    // {
-    //     Currency::all()->each(function ($currency) {
-    //         $amount = 123456789.12;
+    public function testRoundingDecimalsTwo()
+    {
+        $currency = Currency::find(1);
 
-    //         $formatted_amount = Number::formatValue($amount, $currency);
+        $x = Number::formatValueNoTrailingZeroes(0.05, $currency);
 
-    //         $float_amount = Number::parseFloat($formatted_amount);
+        $this->assertEquals(0.05, $x);
+    }
 
-    //         if ($currency->precision == 0) {
-    //             $this->assertEquals(123456789, $float_amount);
-    //         } else {
-    //             $this->assertEquals($amount, $float_amount);
-    //         }
-    //     });
-    // }
+    public function testRoundingDecimalsThree()
+    {
+        $currency = Currency::find(1);
+
+        $x = Number::formatValueNoTrailingZeroes(0.005, $currency);
+
+        $this->assertEquals(0.005, $x);
+    }
+
+    public function testRoundingDecimalsFour()
+    {
+        $currency = Currency::find(1);
+
+        $x = Number::formatValueNoTrailingZeroes(0.0005, $currency);
+
+        $this->assertEquals(0.0005, $x);
+    }
+
+    public function testRoundingDecimalsFive()
+    {
+        $currency = Currency::find(1);
+
+        $x = Number::formatValueNoTrailingZeroes(0.00005, $currency);
+
+        $this->assertEquals(0.00005, $x);
+    }    
+
+    public function testRoundingDecimalsSix()
+    {
+        $currency = Currency::find(1);
+
+        $x = Number::formatValueNoTrailingZeroes(0.000005, $currency);
+
+        $this->assertEquals(0.000005, $x);
+    }
+
+    public function testRoundingDecimalsSeven()
+    {
+        $currency = Currency::find(1);
+
+        $x = Number::formatValueNoTrailingZeroes(0.0000005, $currency);
+
+        $this->assertEquals(0.0000005, $x);
+    }
+
+    public function testRoundingDecimalsEight()
+    {
+        $currency = Currency::find(1);
+
+        $x = Number::formatValueNoTrailingZeroes(0.00000005, $currency);
+
+        $this->assertEquals(0.00000005, $x);
+    }    
+
+
+    public function testRoundingPositive()
+    {
+        $currency = Currency::find(1);
+
+        $x = Number::formatValueNoTrailingZeroes(1.5, $currency);
+        $this->assertEquals(1.5, $x);
+
+        $x = Number::formatValueNoTrailingZeroes(1.50, $currency);
+        $this->assertEquals(1.5, $x);
+
+        $x = Number::formatValueNoTrailingZeroes(1.500, $currency);
+        $this->assertEquals(1.5, $x);
+
+        $x = Number::formatValueNoTrailingZeroes(1.50005, $currency);
+        $this->assertEquals(1.50005, $x);
+
+        $x = Number::formatValueNoTrailingZeroes(1.50000005, $currency);
+        $this->assertEquals(1.50000005, $x);
+    }  
 }

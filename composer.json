@@ -30,6 +30,7 @@
         "ext-dom": "*",
         "ext-json": "*",
         "ext-libxml": "*",
+        "afosto/yaac": "^1.4",
         "asm/php-ansible": "dev-main",
         "authorizenet/authorizenet": "^2.0",
         "bacon/bacon-qr-code": "^2.0",
@@ -86,7 +87,6 @@
         "wildbit/swiftmailer-postmark": "^3.3"
     },
     "require-dev": {
-        "php": "^7.3|^7.4|^8.0",
         "anahkiasen/former": "^4.2",
         "barryvdh/laravel-debugbar": "^3.4",
         "beyondcode/laravel-query-detector": "^1.5",

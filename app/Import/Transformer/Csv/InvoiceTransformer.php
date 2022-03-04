@@ -125,7 +125,7 @@ class InvoiceTransformer extends BaseTransformer
 						$this->getString($invoice_data, 'invoice.status')
 					))
 				] ?? Invoice::STATUS_SENT,
-			'archived' => $status === 'archived',
+			// 'archived' => $status === 'archived',
 		];
 
 		/* If we can't find the client, then lets try and create a client */

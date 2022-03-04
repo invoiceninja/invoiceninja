@@ -142,7 +142,7 @@ class BaseRepository
         
         $invitation_class = sprintf('App\\Models\\%sInvitation', $resource);
 
-        $invitation = $invitation_class::whereRaw('BINARY `key`= ?', [$invitation['key']])->first();
+        $invitation = $invitation_class::where('key', $invitation['key'])->first();
 
         return $invitation;
     }

@@ -145,10 +145,23 @@ class DeletePayment
                         $multiplier = -1;
 
                 $paymentable_credit->service()
-                                   ->updateBalance($paymentable_credit->pivot->amount*$multiplier)
-                                   ->updatePaidToDate($paymentable_credit->pivot->amount*-1)
+                                   ->updateBalance($paymentable_credit->pivot->amount*$multiplier*-1)
+                                   ->updatePaidToDate($paymentable_credit->pivot->amount*$multiplier)
                                    ->setStatus(Credit::STATUS_SENT)
                                    ->save();
+
+                    $this->payment
+                    ->client
+                    ->service()
+                    ->updatePaidToDate(($paymentable_credit->pivot->amount)*-1)
+                    ->save();
+
+                    //01-03-2022
+                // $paymentable_credit->service()
+                //                    ->updateBalance($paymentable_credit->pivot->amount*$multiplier)
+                //                    ->updatePaidToDate($paymentable_credit->pivot->amount*-1)
+                //                    ->setStatus(Credit::STATUS_SENT)
+                //                    ->save();
             });
         }
 

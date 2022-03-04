@@ -37,14 +37,13 @@ class CheckClientExistence
             ->where('email', auth()->guard('contact')->user()->email)
             ->whereNotNull('email')
             ->where('email', '<>', '')
-            ->distinct('company_id')
-            ->distinct('email')
+            ->distinct('client_id')
             ->whereNotNull('company_id')
             ->whereHas('client', function ($query) {
                 return $query->where('is_deleted', false);
             })
             ->whereHas('company', function ($query){
-                return $query->where('id', auth()->guard('contact')->user()->client->company_id);
+                return $query->where('companies.account_id', auth()->guard('contact')->user()->company->account_id);
             })
             ->get();
 

@@ -65,6 +65,8 @@ class Number
         $decimal = $currency->decimal_separator;
         $precision = $currency->precision;
 
+        $precision = 10;
+
         return rtrim(rtrim(number_format($value, $precision, $decimal, $thousand), "0"),$decimal);
     }
 
@@ -204,6 +206,9 @@ class Number
         
         if($v<1)
             $precision = strlen($v) - strrpos($v, '.') - 1;
+
+        // if($precision == 1)
+        //     $precision = 2;
 
         $value = number_format($v, $precision, $decimal, $thousand);
         $symbol = $currency->symbol;

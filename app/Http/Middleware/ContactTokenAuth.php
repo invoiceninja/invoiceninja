@@ -29,7 +29,7 @@ class ContactTokenAuth
      */
     public function handle($request, Closure $next)
     {
-        if ($request->header('X-API-TOKEN') && ($client_contact = ClientContact::with(['company'])->whereRaw('BINARY `token`= ?', [$request->header('X-API-TOKEN')])->first())) {
+        if ($request->header('X-API-TOKEN') && ($client_contact = ClientContact::with(['company'])->where('token', $request->header('X-API-TOKEN'))->first())) {
             $error = [
                 'message' => 'Authentication disabled for user.',
                 'errors' => new stdClass,

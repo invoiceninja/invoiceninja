@@ -6,6 +6,8 @@
     <meta name="amount" content="{{ $stripe_amount }}">
     <meta name="country" content="{{ $country }}">
     <meta name="customer" content="{{ $customer }}">
+    <meta name="client_name" content="{{ $client->present()->name() }}">
+    <meta name="client_email" content="{{ $client->present()->email() }}">
     <meta name="pi-client-secret" content="{{ $pi_client_secret }}">
     <meta name="si-client-secret" content="{{ $si_client_secret ?? '' }}">
 
