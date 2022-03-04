@@ -77,10 +77,10 @@ class BackupUpdate extends Command
     {
         set_time_limit(0);
         
-        Backup::chunk(100, function ($backups) {
+        Backup::whereRaw('html_backup IS NOT NULL')->chunk(5000, function ($backups) {
             foreach ($backups as $backup) {
                 
-                if($backup->activity->client()->exists()){
+                if(strlen($backup->html_backup) > 1 && $backup->activity->client()->exists()){
 
                     $client = $backup->activity->client;
                     $backup->storeRemotely($backup->html_backup, $client);

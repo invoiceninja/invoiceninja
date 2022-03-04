@@ -223,7 +223,7 @@ class AuthorizeCreditCard
 
     private function processSuccessfulResponse($data, $request)
     {
-        $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$request->input('payment_hash')])->firstOrFail();
+        $payment_hash = PaymentHash::where('hash', $request->input('payment_hash'))->firstOrFail();
         $payment = $this->storePayment($payment_hash, $data);
 
         $vars = [

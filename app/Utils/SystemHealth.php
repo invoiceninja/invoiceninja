@@ -164,6 +164,8 @@ class SystemHealth
 
     private static function extensions(): array
     {
+        $loaded_extensions = null;
+        
         $loaded_extensions = [];
 
         foreach (self::$extensions as $extension) {

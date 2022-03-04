@@ -47,7 +47,7 @@ class SEPA
         $data['country'] = $this->stripe->client->country->iso_3166_2;
         $data['payment_hash'] = $this->stripe->payment_hash->hash;
 
-        $intent = \Stripe\PaymentIntent::create([
+        $intent_data = [
             'amount' => $data['stripe_amount'],
             'currency' => 'eur',
             'payment_method_types' => ['sepa_debit'],
@@ -58,18 +58,11 @@ class SEPA
                 'payment_hash' => $this->stripe->payment_hash->hash,
                 'gateway_type_id' => GatewayType::SEPA,
             ],
-        ], $this->stripe->stripe_connect_auth);
+        ];
+
+        $intent = \Stripe\PaymentIntent::create($intent_data, $this->stripe->stripe_connect_auth);
 
         $data['pi_client_secret'] = $intent->client_secret;
-
-        if (count($data['tokens']) > 0) {
-            $setup_intent = $this->stripe->stripe->setupIntents->create([
-                'payment_method_types' => ['sepa_debit'],
-                'customer' => $this->stripe->findOrCreateCustomer()->id,
-            ]);
-            
-            $data['si_client_secret'] = $setup_intent->client_secret;
-        }
 
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['stripe_amount' => $data['stripe_amount']]);
         $this->stripe->payment_hash->save();

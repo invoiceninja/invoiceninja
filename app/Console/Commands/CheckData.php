@@ -13,6 +13,7 @@ namespace App\Console\Commands;
 
 use App;
 use App\Factory\ClientContactFactory;
+use App\Factory\VendorContactFactory;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -27,6 +28,7 @@ use App\Models\Payment;
 use App\Models\Paymentable;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
+use App\Models\Vendor;
 use App\Utils\Ninja;
 use Exception;
 use Illuminate\Console\Command;
@@ -72,7 +74,7 @@ class CheckData extends Command
     /**
      * @var string
      */
-    protected $signature = 'ninja:check-data {--database=} {--fix=} {--client_id=} {--paid_to_date=} {--client_balance=}';
+    protected $signature = 'ninja:check-data {--database=} {--fix=} {--client_id=} {--vendor_id=} {--paid_to_date=} {--client_balance=}';
 
     /**
      * @var string
@@ -112,6 +114,7 @@ class CheckData extends Command
         $this->checkClientBalances();
 
         $this->checkContacts();
+        $this->checkVendorContacts();
         $this->checkEntityInvitations();
         $this->checkCompanyData();
 
@@ -247,6 +250,68 @@ class CheckData extends Command
         }
 
     }
+
+    private function checkVendorContacts()
+    {
+        // check for contacts with the contact_key value set
+        $contacts = DB::table('vendor_contacts')
+                        ->whereNull('contact_key')
+                        ->orderBy('id')
+                        ->get(['id']);
+        $this->logMessage($contacts->count().' contacts without a contact_key');
+
+        if ($contacts->count() > 0) {
+            $this->isValid = false;
+        }
+
+        if ($this->option('fix') == 'true') {
+            foreach ($contacts as $contact) {
+                DB::table('vendor_contacts')
+                    ->where('id', '=', $contact->id)
+                    ->whereNull('contact_key')
+                    ->update([
+                        'contact_key' => Str::random(config('ninja.key_length')),
+                    ]);
+            }
+        }
+
+        // check for missing contacts
+        $vendors = DB::table('vendors')
+                    ->leftJoin('vendor_contacts', function ($join) {
+                        $join->on('vendor_contacts.vendor_id', '=', 'vendors.id')
+                            ->whereNull('vendor_contacts.deleted_at');
+                    })
+                    ->groupBy('vendors.id', 'vendors.user_id', 'vendors.company_id')
+                    ->havingRaw('count(vendor_contacts.id) = 0');
+
+        if ($this->option('vendor_id')) {
+            $vendors->where('vendors.id', '=', $this->option('vendor_id'));
+        }
+
+        $vendors = $vendors->get(['vendors.id', 'vendors.user_id', 'vendors.company_id']);
+        $this->logMessage($vendors->count().' vendors without any contacts');
+
+        if ($vendors->count() > 0) {
+            $this->isValid = false;
+        }
+
+        if ($this->option('fix') == 'true') {
+
+            $vendors = Vendor::withTrashed()->doesntHave('contacts')->get();
+
+            foreach ($vendors as $vendor) {
+                $this->logMessage("Fixing missing vendor contacts #{$vendor->id}");
+                
+                $new_contact = VendorContactFactory::create($vendor->company_id, $vendor->user_id);
+                $new_contact->vendor_id = $vendor->id;
+                $new_contact->contact_key = Str::random(40);
+                $new_contact->is_primary = true;
+                $new_contact->save();
+            }
+        }
+
+    }
+
 
     private function checkFailedJobs()
     {
@@ -415,11 +480,11 @@ class CheckData extends Command
         LEFT JOIN paymentables
         ON
         payments.id = paymentables.payment_id
-        WHERE paymentable_type = 'App\\Models\\Credit'
+        WHERE paymentable_type = ?
         AND paymentables.deleted_at is NULL
         AND payments.is_deleted = 0
         AND payments.client_id = ?;
-        "), [$client->id] );
+        "), [App\Models\Credit::class, $client->id] );
     
         return $results;
     }
@@ -442,7 +507,7 @@ class CheckData extends Command
 
                 $this->wrong_paid_to_dates++;
 
-                $this->logMessage($client->present()->name.' id = # '.$client->id." - Paid to date does not match Client Paid To Date = {$client->paid_to_date} - Invoice Payments = {$total_paid_to_date}");
+                $this->logMessage($client->present()->name.' id = # '.$client->id." - Client Paid To Date = {$client->paid_to_date} != Invoice Payments = {$total_paid_to_date} - {$_client->payments_applied} + {$credits_used_for_payments[0]->credit_payment}");
 
                 $this->isValid = false;
 

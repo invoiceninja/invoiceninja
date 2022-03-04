@@ -12,6 +12,7 @@
 namespace App\Http\Controllers\ClientPortal;
 
 use App\Http\Controllers\Controller;
+use App\Http\ViewComposers\PortalComposer;
 use App\Models\RecurringInvoice;
 use Auth;
 
@@ -36,16 +37,36 @@ class ContactHashLoginController extends Controller
 
         }
 
-        return redirect('/client/invoices');
+       return redirect($this->setRedirectPath());
     }
 
     public function magicLink(string $magic_link)
     {
-        return redirect('/client/invoices');
+
+        return redirect($this->setRedirectPath());
     }
 
     public function errorPage()
     {
         return render('generic.error', ['title' => session()->get('title'), 'notification' => session()->get('notification')]);
     }
+
+    private function setRedirectPath()
+    {
+
+        if(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_INVOICES)
+            return '/client/invoices';
+        elseif(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_RECURRING_INVOICES)
+            return '/client/recurring_invoices';
+        elseif(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_QUOTES)
+            return '/client/quotes';
+        elseif(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_CREDITS)
+            return '/client/credits';
+        elseif(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_TASKS)
+            return '/client/tasks';
+        elseif(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_EXPENSES)
+            return '/client/expenses';
+
+    }
+
 }

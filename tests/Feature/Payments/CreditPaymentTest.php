@@ -79,7 +79,7 @@ class CreditPaymentTest extends TestCase
         $invoice = $invoice_calc->getInvoice();
         $invoice->setRelation('client', $this->client);
         $invoice->setRelation('company', $this->company);
-        $invoice->service()->markSent()->save();
+        $invoice->service()->markSent()->createInvitations()->save();
 
 
        $data = [

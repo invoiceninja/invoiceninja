@@ -42,6 +42,6 @@ class CreditRepository extends BaseRepository
 
     public function getInvitationByKey($key) :?CreditInvitation
     {
-        return CreditInvitation::whereRaw('BINARY `key`= ?', [$key])->first();
+        return CreditInvitation::where('key', $key)->first();
     }
 }

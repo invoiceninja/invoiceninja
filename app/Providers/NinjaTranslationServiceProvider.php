@@ -33,6 +33,7 @@ class NinjaTranslationServiceProvider extends TranslationServiceProvider
          *
          */
 
+        //this is not octane safe
         $this->app->singleton('translator', function ($app) {
 
             $loader = $app['translation.loader'];

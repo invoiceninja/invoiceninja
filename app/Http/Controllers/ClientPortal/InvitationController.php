@@ -19,8 +19,10 @@ use App\Http\Controllers\Controller;
 use App\Jobs\Entity\CreateRawPdf;
 use App\Models\Client;
 use App\Models\ClientContact;
+use App\Models\CreditInvitation;
 use App\Models\InvoiceInvitation;
 use App\Models\Payment;
+use App\Models\QuoteInvitation;
 use App\Services\ClientPortal\InstantPayment;
 use App\Utils\CurlUtils;
 use App\Utils\Ninja;
@@ -123,7 +125,7 @@ class InvitationController extends Controller
         }
 
 
-        if (auth()->guard('contact') && ! request()->has('silent') && ! $invitation->viewed_date) {
+        if (auth()->guard('contact')->user() && ! request()->has('silent') && ! $invitation->viewed_date) {
             $invitation->markViewed();
 
             event(new InvitationWasViewed($invitation->{$entity}, $invitation, $invitation->{$entity}->company, Ninja::eventVars()));
@@ -178,10 +180,6 @@ class InvitationController extends Controller
         $key = $entity.'_id';
 
         $entity_obj = 'App\Models\\'.ucfirst(Str::camel($entity)).'Invitation';
-
-        // $invitation = $entity_obj::whereRaw('BINARY `key`= ?', [$invitation_key])
-        //                             ->with('contact.client')
-        //                             ->firstOrFail();
 
         $invitation = $entity_obj::where('key', $invitation_key)
                                     ->with('contact.client')
@@ -265,4 +263,29 @@ class InvitationController extends Controller
 
         abort(404, "Invoice not found");
     }
+
+    public function unsubscribe(Request $request, string $entity_type, string $invitation_key)
+    {
+        if($entity_type == 'invoice'){
+            $invite = InvoiceInvitation::withTrashed()->where('key', $invitation_key)->first();
+            $invite->contact->send_email = false;
+            $invite->contact->save();
+        }elseif($entity_type == 'quote'){
+            $invite = QuoteInvitation::withTrashed()->where('key', $invitation_key)->first();
+            $invite->contact->send_email = false;
+            $invite->contact->save();
+        }elseif($entity_type == 'credit'){
+            $invite = CreditInvitation::withTrashed()->where('key', $invitation_key)->first();
+            $invite->contact->send_email = false;
+            $invite->contact->save();
+        }
+        else
+            return abort(404);
+
+        $data['logo'] = $invite->company->present()->logo();
+
+        return $this->render('generic.unsubscribe', $data);
+
+    }
+
 }

@@ -114,7 +114,7 @@ class PaymentController extends Controller
     public function credit_response(Request $request)
     {   
         
-        $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$request->input('payment_hash')])->first();
+        $payment_hash = PaymentHash::where('hash', $request->input('payment_hash'))->first();
 
         /* Hydrate the $payment */
         if ($payment_hash->payment()->exists()) {
