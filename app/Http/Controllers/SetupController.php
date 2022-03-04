@@ -169,7 +169,8 @@ class SetupController extends Controller
 
             /* Run migrations */
             if (!config('ninja.disable_auto_update')) {
-                Artisan::call('optimize');
+                Artisan::call('config:clear');
+                // Artisan::call('optimize');
             }
 
             Artisan::call('migrate', ['--force' => true]);

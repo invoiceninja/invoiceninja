@@ -42,6 +42,9 @@ class DownloadCredits extends Mailable
 
         return $this->from(config('mail.from.address'), config('mail.from.name'))
             ->subject(ctrans('texts.download_files'))
+            ->text('email.admin.download_credits_text', [
+                'url' => $this->file_path,
+            ])
             ->view('email.admin.download_credits', [
                 'url' => $this->file_path,
                 'logo' => $this->company->present()->logo,
