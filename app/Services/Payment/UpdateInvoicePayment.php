@@ -41,6 +41,8 @@ class UpdateInvoicePayment
 
         collect($paid_invoices)->each(function ($paid_invoice) use ($invoices) {
 
+            $client = $this->payment->client->fresh();
+
             $invoice = $invoices->first(function ($inv) use ($paid_invoice) {
                 return $paid_invoice->invoice_id == $inv->hashed_id;
             });
@@ -70,8 +72,7 @@ class UpdateInvoicePayment
                  ->ledger()
                  ->updatePaymentBalance($paid_amount * -1);
 
-            $this->payment
-                ->client
+            $client
                 ->service()
                 ->updateBalance($paid_amount * -1)
                 ->updatePaidToDate($paid_amount)
@@ -94,11 +95,12 @@ class UpdateInvoicePayment
         $this->payment->saveQuietly();
 
         $invoices->each(function ($invoice) {
-        
+            
+            $invoice = $invoice->fresh();
             event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         
         });
 
-        return $this->payment;
+        return $this->payment->fresh();
     }
 }

@@ -43,6 +43,9 @@ class DownloadBackup extends Mailable
 
         return $this->from(config('mail.from.address'), config('mail.from.name'))
             ->subject(ctrans('texts.download_backup_subject', ['company' => $company->present()->name()]))
+            ->text('email.admin.download_files_text',[
+               'url' => $this->file_path,
+            ])
             ->view('email.admin.download_files', [
                 'url' => $this->file_path,
                 'logo' => $company->present()->logo,

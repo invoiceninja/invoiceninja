@@ -12,6 +12,7 @@
 namespace App\Console\Commands;
 
 use App\Jobs\Util\VersionCheck;
+use App\Utils\Ninja;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 
@@ -59,7 +60,12 @@ class PostUpdate extends Command
         info("finished running composer install ");
 
         try {
-            Artisan::call('optimize');
+
+            if(Ninja::isHosted())
+                Artisan::call('optimize');
+            else
+                Artisan::call('config:clear');
+
         } catch (\Exception $e) {
             info("I wasn't able to optimize.");
         }

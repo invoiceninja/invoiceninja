@@ -27,6 +27,7 @@ use App\Http\Requests\Quote\StoreQuoteRequest;
 use App\Http\Requests\Quote\UpdateQuoteRequest;
 use App\Http\Requests\Quote\UploadQuoteRequest;
 use App\Jobs\Invoice\ZipInvoices;
+use App\Jobs\Quote\ZipQuotes;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Invoice;
@@ -527,14 +528,14 @@ class QuoteController extends BaseController
          * Download Invoice/s
          */
 
-        if ($action == 'download' && $quotes->count() >= 1) {
+        if ($action == 'bulk_download' && $quotes->count() >= 1) {
             $quotes->each(function ($quote) {
                 if (auth()->user()->cannot('view', $quote)) {
                     return response()->json(['message'=> ctrans('texts.access_denied')]);
                 }
             });
 
-            ZipInvoices::dispatch($quotes, $quotes->first()->company, auth()->user());
+            ZipQuotes::dispatch($quotes, $quotes->first()->company, auth()->user());
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }

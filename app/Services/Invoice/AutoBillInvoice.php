@@ -47,7 +47,7 @@ class AutoBillInvoice extends AbstractService
 
         MultiDB::setDb($this->db);
 
-        $this->client = $this->invoice->client;
+        $this->client = $this->invoice->client->fresh();
 
         $is_partial = false;
 
@@ -178,14 +178,16 @@ class AutoBillInvoice extends AbstractService
         }
 
         $payment->ledger()
-                    ->updatePaymentBalance($amount * -1)
-                    ->save();
+            ->updatePaymentBalance($amount * -1)
+            ->save();
 
-        $this->invoice->client->service()
-                                  ->updateBalance($amount * -1)
-                                  ->updatePaidToDate($amount)
-                                  ->adjustCreditBalance($amount * -1)
-                                  ->save();
+        $client = $this->invoice->client->fresh();
+
+        $client->service()
+              ->updateBalance($amount * -1)
+              ->updatePaidToDate($amount)
+              ->adjustCreditBalance($amount * -1)
+              ->save();
 
         $this->invoice->ledger()
                           ->updateInvoiceBalance($amount * -1, "Invoice {$this->invoice->number} payment using Credit {$current_credit->number}")

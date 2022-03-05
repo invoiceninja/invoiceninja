@@ -92,12 +92,10 @@ class TemplateEmail extends Mailable
             $this->bcc(explode(",",str_replace(" ", "", $settings->bcc_email)));//remove whitespace if any has been inserted.
 
         $this->subject($this->build_email->getSubject())
-            ->text('email.template.plain', [
-                'body' => $this->build_email->getBody(),
-                'footer' => $this->build_email->getFooter(),
+            ->text('email.template.text', [
+                'text_body' => $this->build_email->getTextBody(),
                 'whitelabel' => $this->client->user->account->isPaid() ? true : false,
                 'settings' => $settings,
-                'unsubscribe_link' => $this->invitation ? $this->invitation->getUnsubscribeLink() : '',
             ])
             ->view($template_name, [
                 'greeting' => ctrans('texts.email_salutation', ['name' => $this->contact->present()->name()]),
@@ -111,7 +109,6 @@ class TemplateEmail extends Mailable
                 'company' => $company,
                 'whitelabel' => $this->client->user->account->isPaid() ? true : false,
                 'logo' => $this->company->present()->logo($settings),
-                'unsubscribe_link' => $this->invitation ? $this->invitation->getUnsubscribeLink() : '',
             ])
             ->withSwiftMessage(function ($message) use($company){
                 $message->getHeaders()->addTextHeader('Tag', $company->company_key);

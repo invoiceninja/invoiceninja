@@ -60,7 +60,9 @@ class CreditCard
     {
 
 
-        $description = $this->stripe->decodeUnicodeString(ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number')) . " for client {$this->stripe->client->present()->name()}";
+        // $description = $this->stripe->decodeUnicodeString(ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number')) . " for client {$this->stripe->client->present()->name()}";
+        $invoice_numbers =  collect($data['invoices'])->pluck('invoice_number')->implode(',');
+        $description = "Invoices: {$invoice_numbers} for {$data['total']['amount_with_fee']} for client {$this->stripe->client->present()->name()}";
 
 
         $payment_intent_data = [
