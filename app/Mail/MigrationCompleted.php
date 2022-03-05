@@ -48,6 +48,7 @@ class MigrationCompleted extends Mailable
         $data['logo'] = $this->company->present()->logo();
         
         $result = $this->from(config('mail.from.address'), config('mail.from.name'))
+                    ->text('email.import.completed_text', $data)
                     ->view('email.import.completed', $data);
 
         return $result;

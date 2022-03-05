@@ -58,6 +58,7 @@ class ClientContactRequestCancellationObject
         $mail_obj->data = $data;
         $mail_obj->markdown = 'email.admin.generic';
         $mail_obj->tag = $this->company->company_key;
+        $mail_obj->text_view = 'email.admin.generic_text';
 
         return $mail_obj;
     }

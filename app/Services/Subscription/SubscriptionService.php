@@ -16,9 +16,13 @@ use App\Factory\CreditFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceToRecurringInvoiceFactory;
 use App\Factory\RecurringInvoiceFactory;
+use App\Jobs\Mail\NinjaMailer;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Util\SubscriptionWebhookHandler;
 use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
+use App\Mail\RecurringInvoice\ClientContactRequestCancellationObject;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Credit;
@@ -36,6 +40,7 @@ use App\Services\Subscription\ZeroCostProduct;
 use App\Utils\Ninja;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\Notifications\UserNotifies;
 use App\Utils\Traits\SubscriptionHooker;
 use Carbon\Carbon;
 use GuzzleHttp\RequestOptions;
@@ -46,6 +51,7 @@ class SubscriptionService
     use MakesHash;
     use CleanLineItems;
     use SubscriptionHooker;
+    use UserNotifies;
 
     /** @var subscription */
     private $subscription;
@@ -102,7 +108,7 @@ class SubscriptionService
         }
         else
         {
-            $invoice = Invoice::find($payment_hash->fee_invoice_id);
+            $invoice = Invoice::withTrashed()->find($payment_hash->fee_invoice_id);
 
             $context = [
                 'context' => 'single_purchase',
@@ -933,6 +939,29 @@ class SubscriptionService
             ];
 
             $this->triggerWebhook($context);
+
+            $nmo = new NinjaMailerObject;
+            $nmo->mailable = (new NinjaMailer((new ClientContactRequestCancellationObject($recurring_invoice, auth()->guard('contact')->user()))->build()));
+            $nmo->company = $recurring_invoice->company;
+            $nmo->settings = $recurring_invoice->company->settings;
+            
+            $recurring_invoice->company->company_users->each(function ($company_user) use ($nmo){
+
+                $methods = $this->findCompanyUserNotificationType($company_user, ['recurring_cancellation', 'all_notifications']);
+
+                //if mail is a method type -fire mail!!
+                if (($key = array_search('mail', $methods)) !== false) {
+                    unset($methods[$key]);
+
+                    $nmo->to_user = $company_user->user;
+                    NinjaMailerJob::dispatch($nmo);
+
+                }
+
+
+            });
+
+
 
             return $this->handleRedirect('client/subscriptions');
 

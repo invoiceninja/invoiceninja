@@ -93,6 +93,18 @@ class CreditEmailEngine extends BaseEmailEngine
             );
         }
 
+        $text_body = trans(
+                'texts.credit_message',
+                [
+                    'credit' => $this->credit->number,
+                    'company' => $this->credit->company->present()->name(),
+                    'amount' => Number::formatMoney($this->credit->balance, $this->client),
+                ],
+                null,
+                $this->client->locale()
+
+            ) . "\n\n" . $this->invitation->getLink();
+
         $this->setTemplate($this->client->getSetting('email_style'))
             ->setContact($this->contact)
             ->setVariables((new HtmlEngine($this->invitation))->makeValues())//move make values into the htmlengine
@@ -101,7 +113,8 @@ class CreditEmailEngine extends BaseEmailEngine
             ->setFooter("<a href='{$this->invitation->getLink()}'>".ctrans('texts.view_credit').'</a>')
             ->setViewLink($this->invitation->getLink())
             ->setViewText(ctrans('texts.view_credit'))
-            ->setInvitation($this->invitation);
+            ->setInvitation($this->invitation)
+            ->setTextBody($text_body);
 
         if ($this->client->getSetting('pdf_email_attachment') !== false && $this->credit->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
 

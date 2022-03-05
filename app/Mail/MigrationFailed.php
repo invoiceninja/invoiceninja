@@ -40,6 +40,7 @@ class MigrationFailed extends Mailable
         
         return $this
             ->from(config('mail.from.address'), config('mail.from.name'))
+            ->text('email.migration.failed_text')
             ->view('email.migration.failed', [
                 'logo' => $this->company->present()->logo(),
                 'settings' => $this->company->settings,

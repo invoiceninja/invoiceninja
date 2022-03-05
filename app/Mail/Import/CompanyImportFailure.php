@@ -59,10 +59,9 @@ class CompanyImportFailure extends Mailable
         $this->title = ctrans('texts.company_import_failure_subject', ['company' => $this->company->present()->name()]);
         $this->whitelabel = $this->company->account->isPaid();
 
-        nlog($this->user_message);
-        
         return $this->from(config('mail.from.address'), config('mail.from.name'))
                     ->subject(ctrans('texts.company_import_failure_subject', ['company' => $this->company->present()->name()]))
+                    ->text('email.import.import_failure_text')
                     ->view('email.import.import_failure', ['user_message' => $this->user_message, 'title' => $this->title]);
     }
 }

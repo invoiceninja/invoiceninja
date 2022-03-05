@@ -111,7 +111,7 @@ class ZipInvoices implements ShouldQueue
 
         }
         catch(\PhpZip\Exception\ZipException $e){
-            // handle exception
+            nlog("could not make zip => ". $e->getMessage());
         }
         finally{
             $zipFile->close();

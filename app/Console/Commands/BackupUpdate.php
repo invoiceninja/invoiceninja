@@ -77,17 +77,27 @@ class BackupUpdate extends Command
     {
         set_time_limit(0);
         
-        Backup::whereRaw('html_backup IS NOT NULL')->chunk(5000, function ($backups) {
-            foreach ($backups as $backup) {
-                
-                if(strlen($backup->html_backup) > 1 && $backup->activity->client()->exists()){
+        Backup::whereHas('activity')->whereRaw('html_backup IS NOT NULL')->cursor()->each( function ($backup) {
 
-                    $client = $backup->activity->client;
+                
+                if(strlen($backup->html_backup) > 1 && $backup->activity->invoice->exists()){
+
+                    $client = $backup->activity->invoice->client;
+                    $backup->storeRemotely($backup->html_backup, $client);
+
+                }else if(strlen($backup->html_backup) > 1 && $backup->activity->quote->exists()){
+
+                    $client = $backup->activity->quote->client;
+                    $backup->storeRemotely($backup->html_backup, $client);
+
+                }else if(strlen($backup->html_backup) > 1 && $backup->activity->credit->exists()){
+
+                    $client = $backup->activity->credit->client;
                     $backup->storeRemotely($backup->html_backup, $client);
 
                 }
 
-            }
+            
         });
 
     }

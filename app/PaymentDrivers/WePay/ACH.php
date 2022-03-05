@@ -75,7 +75,6 @@ class ACH
 
             $message = [
                 'server_response' => $e->getMessage(),
-                'data' => $this->wepay_payment_driver->payment_hash->data,
             ];
 
             SystemLogger::dispatch(
