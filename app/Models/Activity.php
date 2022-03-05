@@ -177,6 +177,11 @@ class Activity extends StaticModel
         return $this->belongsTo(Invoice::class)->withTrashed();
     }
 
+    public function credit()
+    {
+        return $this->belongsTo(Credit::class)->withTrashed();
+    }
+
     /**
      * @return mixed
      */

@@ -77,8 +77,8 @@ class BackupUpdate extends Command
     {
         set_time_limit(0);
         
-        Backup::whereRaw('html_backup IS NOT NULL')->chunk(5000, function ($backups) {
-            foreach ($backups as $backup) {
+        Backup::whereHas('activity')->whereRaw('html_backup IS NOT NULL')->cursor()->each( function ($backup) {
+
                 
                 if(strlen($backup->html_backup) > 1 && $backup->activity->invoice->exists()){
 
@@ -97,7 +97,7 @@ class BackupUpdate extends Command
 
                 }
 
-            }
+            
         });
 
     }
