@@ -316,8 +316,8 @@ class CsvImportTest extends TestCase
         $invoice = Invoice::find($invoice_id);
 
         $this->assertTrue($invoice->payments()->exists());
-        $this->assertEquals(1, $invoice->payments()->count());
-        $this->assertEquals(400, $invoice->payments()->sum('payments.amount'));
+        $this->assertEquals(3, $invoice->payments()->count());
+        $this->assertEquals(1200, $invoice->payments()->sum('payments.amount'));
     }
 }
 
