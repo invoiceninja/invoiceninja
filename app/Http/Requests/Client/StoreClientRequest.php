@@ -76,7 +76,7 @@ class StoreClientRequest extends Request
                                         ];
 
         if (auth()->user()->company()->account->isFreeHostedClient()) {
-            $rules['hosted_clients'] = new CanStoreClientsRule($this->company_id);
+            $rules['id'] = new CanStoreClientsRule(auth()->user()->company()->id);
         }
 
         $rules['number'] = ['nullable',Rule::unique('clients')->where('company_id', auth()->user()->company()->id)];
