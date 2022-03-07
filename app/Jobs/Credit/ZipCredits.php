@@ -91,8 +91,9 @@ class ZipCredits implements ShouldQueue
             
             foreach ($this->credits as $credit) {
         
-                $download_file = file_get_contents($credit->pdf_file_path($invitation, 'url', true));
-                $zipFile->addFromString(basename($credit->pdf_file_path($invitation)), $download_file);
+                $file = $credit->service()->getCreditPdf($credit->invitations()->first());
+                $zip_file_name = basename($file);
+                $zipFile->addFromString($zip_file_name, Storage::get($file));
 
             }
 

@@ -198,14 +198,6 @@ class BrowserPay implements MethodInterface
             return;
         }
 
-        // $domain = config('ninja.app_url');
-
-        // if (Ninja::isHosted()) {
-        //     $domain = isset($this->stripe->company_gateway->company->portal_domain)
-        //         ? $this->stripe->company_gateway->company->portal_domain
-        //         : $this->stripe->company_gateway->company->domain();
-        // }
-
         $domain = $this->getAppleDomain();
 
         if(!$domain)
@@ -244,12 +236,7 @@ class BrowserPay implements MethodInterface
             $domain = config('ninja.app_url');
         }
 
-        $parsed_url = parse_url($domain);
-
-        if(array_key_exists('host', $parsed_url))
-            return $parsed_url['host'];
-
-        return false;
+        return str_replace("https://", "", $domain);
 
     }
 

@@ -34,7 +34,7 @@ class GetCreditPdf extends AbstractService
     public function run()
     {
         if (! $this->contact) {
-            $this->contact = $this->credit->client->primary_contact()->first();
+            $this->contact = $this->credit->client->primary_contact()->first() ?: $this->credit->client->contacts()->first();
         }
 
         $path = $this->credit->client->credit_filepath($this->invitation);

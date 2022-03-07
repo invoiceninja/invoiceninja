@@ -163,7 +163,7 @@ class NinjaPlanController extends Controller
 
         $recurring_invoice->service()->start();
 
-        return redirect('/');
+        return redirect('https://invoicing.co');
 
     }
 
