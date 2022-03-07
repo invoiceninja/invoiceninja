@@ -27,7 +27,7 @@ class QuoteFactory
         $quote->terms = '';
         $quote->public_notes = '';
         $quote->private_notes = '';
-        $quote->date = null;
+        $quote->date = now()->format('Y-m-d');
         $quote->due_date = null;
         $quote->partial_due_date = null;
         $quote->is_deleted = false;
