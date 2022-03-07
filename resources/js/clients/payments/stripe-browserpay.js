@@ -67,24 +67,15 @@ class StripeBrowserPay {
                     { handleActions: false }
                 )
                 .then(function (confirmResult) {
-                        console.log(confirmResult);
-                        console.log(confirmResult.error);
-                        
                     if (confirmResult.error) {
-
-                        console.log(confirmResult);
-                        console.log(confirmResult.error);
-
                         ev.complete('fail');
 
-                        // document.querySelector('#errors').innerText =
-                        //     confirmResult.error.message;
+                        document.querySelector('#errors').innerText =
+                            confirmResult.error.message;
 
-                        // document.querySelector('#errors').hidden = false;
+                        document.querySelector('#errors').hidden = false;
                     } else {
                         ev.complete('success');
-
-                        console.log(confirmResult);
 
                         if (
                             confirmResult.paymentIntent.status ===
