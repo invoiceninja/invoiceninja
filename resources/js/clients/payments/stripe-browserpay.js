@@ -67,6 +67,9 @@ class StripeBrowserPay {
                     { handleActions: false }
                 )
                 .then(function (confirmResult) {
+                        console.log(confirmResult);
+                        console.log(confirmResult.error);
+                        
                     if (confirmResult.error) {
 
                         console.log(confirmResult);
