@@ -1010,6 +1010,27 @@ ORDER BY clients.id;
 }
 
 
+/* //used to set a company owner on the company_users table
+
+$c = Company::whereDoesntHave('company_users', function ($query){
+  $query->where('is_owner', true)->withTrashed();
+})->cursor()->each(function ($company){
+  
+    if(!$company->company_users()->exists()){
+        echo "No company users AT ALL {$company->id}\n";
+       
+    }
+    else{
+
+      $cu = $company->company_users()->orderBy('id', 'ASC')->orderBy('is_admin', 'ASC')->first();
+        echo "{$company->id} - {$cu->id} \n";
+        $cu->is_owner=true;
+        $cu->save();
+      
+    }
+});
+*/
+
 /* query if we want to company company ledger to client balance
         $results = \DB::select( \DB::raw("
          SELECT 
