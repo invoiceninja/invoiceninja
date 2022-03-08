@@ -134,7 +134,7 @@ class NinjaPlanController extends Controller
         // $account = auth()->guard('contact')->user()->company->account;
         if(auth()->guard('contact')->user()->client->custom_value2){
             MultiDB::findAndSetDbByAccountKey(auth()->guard('contact')->user()->client->custom_value2);
-            $account = Account::where('key', auth()->guard('contact')->user()->client->custom_value2);
+            $account = Account::where('key', auth()->guard('contact')->user()->client->custom_value2)->first();
             $account->trial_started = now();
             $account->trial_plan = 'pro';
             $account->save();

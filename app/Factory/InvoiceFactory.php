@@ -27,7 +27,7 @@ class InvoiceFactory
         $invoice->terms = '';
         $invoice->public_notes = '';
         $invoice->private_notes = '';
-        $invoice->date = null;
+        $invoice->date = now()->format('Y-m-d');
         $invoice->due_date = null;
         $invoice->partial_due_date = null;
         $invoice->is_deleted = false;
