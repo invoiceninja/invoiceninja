@@ -15,7 +15,7 @@
                 @if(!array_key_exists('filled', $field))
                     @component('portal.ninja2020.components.general.card-element', ['title' => $field['label']])
                         @if($field['name'] == 'client_country_id' || $field['name'] == 'client_shipping_country_id')
-                            <select id="client_country" class="input w-full form-select" name="{{ $field['name'] }}">
+                            <select id="client_country" class="input w-full form-select" name="{{ $field['name'] }}" wire:model="{{ str_replace(["client_","_line_"], ["client.",""], $field['name']) }}">
                                 <option value="none"></option>
 
                                 @foreach($countries as $country)
@@ -25,7 +25,7 @@
                                 @endforeach
                             </select>
                         @else
-                            <input class="input w-full" type="{{ $field['type'] ?? 'text' }}" name="{{ $field['name'] }}">
+                            <input class="input w-full" type="{{ $field['type'] ?? 'text' }}" name="{{ $field['name'] }}" wire:model="{{ str_replace(["client_","_line_"], ["client.",""], $field['name']) }}">
                         @endif
 
                         @if(session()->has('validation_errors') && array_key_exists($field['name'], session('validation_errors')))

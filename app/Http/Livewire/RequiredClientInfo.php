@@ -28,6 +28,8 @@ class RequiredClientInfo extends Component
      */
     public $contact;
 
+    public $client;
+
     /**
      * @var array
      */
@@ -65,12 +67,21 @@ class RequiredClientInfo extends Component
     ];
 
     public $client_address_array = [
-        'address_line_1',
-        'address_line_2',
+        'address1',
+        'address2',
         'city',
         'state',
         'postal_code',
         'country_id',
+    ];
+
+    protected $rules = [
+        'client.address1' => '',
+        'client.address2' => '',
+        'client.city' => '',
+        'client.state' => '',
+        'client.postal_code' => '',
+        'client.country_id' => '',
     ];
 
     public $show_form = false;
@@ -80,6 +91,8 @@ class RequiredClientInfo extends Component
     public function mount()
     {
         MultiDB::setDb($this->company->db);
+
+        $this->client = $this->contact->client;
     }
 
     public function handleSubmit(array $data): bool
