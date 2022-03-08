@@ -64,6 +64,15 @@ class RequiredClientInfo extends Component
         // 'contact_phone' => 'phone',
     ];
 
+    public $client_address_array = [
+        'address_line_1',
+        'address_line_2',
+        'city',
+        'state',
+        'postal_code',
+        'country_id',
+    ];
+
     public $show_form = false;
 
     public $company;
@@ -141,8 +150,7 @@ class RequiredClientInfo extends Component
             $_field = $this->mappings[$field['name']];
 
             if (Str::startsWith($field['name'], 'client_')) {
-                if (empty($this->contact->client->{$_field}) || is_null($this->contact->client->{$_field})) {
-                // if (empty($this->contact->client->{$_field}) || is_null($this->contact->client->{$_field}) || $this->contact->client->{$_field} == 840) {
+                if (empty($this->contact->client->{$_field}) || is_null($this->contact->client->{$_field}) || in_array($_field, $this->client_address_array)) {
                     $this->show_form = true;
                 } else {
                     $this->fields[$index]['filled'] = true;
@@ -151,7 +159,6 @@ class RequiredClientInfo extends Component
 
             if (Str::startsWith($field['name'], 'contact_')) {
                 if (empty($this->contact->{$_field}) || is_null($this->contact->{$_field})) {
-//                if ((empty($this->contact->{$_field}) || is_null($this->contact->{$_field})) || $this->contact->client->{$_field} == 840) {
                     $this->show_form = true;
                 } else {
                     $this->fields[$index]['filled'] = true;
