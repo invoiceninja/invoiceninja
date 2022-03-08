@@ -74,7 +74,7 @@ class CheckData extends Command
     /**
      * @var string
      */
-    protected $signature = 'ninja:check-data {--database=} {--fix=} {--client_id=} {--vendor_id=} {--paid_to_date=} {--client_balance=}';
+    protected $signature = 'ninja:check-data {--database=} {--fix=} {--client_id=} {--vendor_id=} {--paid_to_date=} {--client_balance=} {--ledger_balance=}';
 
     /**
      * @var string
@@ -102,7 +102,7 @@ class CheckData extends Command
             config(['database.default' => $database]);
         }
 
-        // $this->checkInvoiceBalances();
+        $this->checkInvoiceBalances();
         $this->checkInvoiceBalancesNew();
         //$this->checkInvoicePayments();
         
@@ -482,6 +482,7 @@ class CheckData extends Command
         payments.id = paymentables.payment_id
         WHERE paymentable_type = ?
         AND paymentables.deleted_at is NULL
+        AND payments.amount > 0
         AND payments.is_deleted = 0
         AND payments.client_id = ?;
         "), [App\Models\Credit::class, $client->id] );
@@ -853,18 +854,16 @@ ORDER BY clients.id;
 
         foreach (Client::where('is_deleted', 0)->where('clients.updated_at', '>', now()->subDays(2))->cursor() as $client) {
             $invoice_balance = $client->invoices()->where('is_deleted', false)->where('status_id', '>', 1)->sum('balance');
-            $credit_balance = $client->credits()->where('is_deleted', false)->sum('balance');
-
             $ledger = CompanyLedger::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
 
-            if ($ledger && number_format($invoice_balance, 4) != number_format($client->balance, 4)) {
+            if ($ledger && number_format($ledger->balance, 4) != number_format($client->balance, 4)) {
                 $this->wrong_balances++;
-                $this->logMessage("# {$client->id} " . $client->present()->name.' - '.$client->number." - Balance Failure - Invoice Balances = {$invoice_balance} Client Balance = {$client->balance} Ledger Balance = {$ledger->balance}");
+                $this->logMessage("# {$client->id} " . $client->present()->name.' - '.$client->number." - Balance Failure - Client Balance = {$client->balance} Ledger Balance = {$ledger->balance}");
 
                 $this->isValid = false;
 
 
-                if($this->option('client_balance')){
+                if($this->option('ledger_balance')){
                     
                     $this->logMessage("# {$client->id} " . $client->present()->name.' - '.$client->number." Fixing {$client->balance} to {$invoice_balance}");
                     $client->balance = $invoice_balance;
@@ -879,7 +878,7 @@ ORDER BY clients.id;
             }
         }
 
-        $this->logMessage("{$this->wrong_balances} clients with incorrect balances");
+        $this->logMessage("{$this->wrong_balances} clients with incorrect ledger balances");
     }
 
     private function checkLogoFiles()

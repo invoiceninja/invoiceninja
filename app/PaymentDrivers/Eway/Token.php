@@ -43,6 +43,14 @@ class Token
 
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
 
+
+        $invoice_numbers = '';
+
+        if($this->eway_driver->payment_hash->data)
+            $invoice_numbers =  collect($this->eway_driver->payment_hash->data->invoices)->pluck('invoice_number')->implode(',');
+        
+        $description = "Invoices: {$invoice_numbers} for {$amount} for client {$this->eway_driver->client->present()->name()}";
+
         $this->eway_driver->payment_hash = $payment_hash;
 
     	$transaction = [
@@ -51,6 +59,10 @@ class Token
 		    ],
 		    'Payment' => [
 		        'TotalAmount' => $this->eway_driver->convertAmount($amount),
+                'CurrencyCode' => $this->eway_driver->client->currency()->code,
+                'InvoiceNumber' => $invoice_numbers,
+                'InvoiceDescription' => $description,
+                'InvoiceReference' => $description,
 		    ],
 		    'TransactionType' => \Eway\Rapid\Enum\TransactionType::RECURRING,
 		];
