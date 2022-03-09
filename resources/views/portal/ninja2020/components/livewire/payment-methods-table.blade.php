@@ -67,7 +67,7 @@
                             {{ $payment_method->formatDateTimestamp($payment_method->created_at, $client->date_format()) }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
-                            {{ ctrans("texts.{$payment_method->gateway_type->alias}") }}
+                            {{ App\Models\GatewayType::getAlias($payment_method->gateway_type_id) }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
                             {{ ucfirst(optional($payment_method->meta)->brand) }}

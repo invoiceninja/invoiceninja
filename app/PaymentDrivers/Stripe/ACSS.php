@@ -154,6 +154,7 @@ class ACSS
                         'interval_description' => 'when any invoice becomes due',
                         'transaction_type' => 'personal' // TODO: check if is company or personal https://stripe.com/docs/payments/acss-debit
                     ],
+                'verification_method' => 'instant',
                 ]
             ]
         ], $this->stripe->stripe_connect_auth);
@@ -183,7 +184,7 @@ class ACSS
         $this->stripe->payment_hash->save();
 
         if (property_exists($gateway_response, 'status') && $gateway_response->status == 'processing') {
-            $this->storePaymentMethod($gateway_response);
+            // $this->storePaymentMethod($gateway_response);
             return $this->processSuccessfulPayment($gateway_response->id);
         }
         return $this->processUnsuccessfulPayment();
@@ -243,12 +244,13 @@ class ACSS
 
     private function storePaymentMethod($intent)
     {
+
         try {
             $method = $this->stripe->getStripePaymentMethod($intent->payment_method);
 
             $payment_meta = new \stdClass;
-            $payment_meta->brand = (string) \sprintf('%s (%s)', $method->au_becs_debit->bank_code, ctrans('texts.acss'));
-            $payment_meta->last4 = (string) $method->au_becs_debit->last4;
+            $payment_meta->brand = (string) $method->acss_debit->bank_name;
+            $payment_meta->last4 = (string) $method->acss_debit->last4;
             $payment_meta->state = 'authorized';
             $payment_meta->type = GatewayType::ACSS;
 

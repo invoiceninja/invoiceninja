@@ -28,6 +28,9 @@
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.payment_type')])
         {{ ctrans('texts.acss') }} ({{ ctrans('texts.bank_transfer') }})
     @endcomponent
+
+    @include('portal.ninja2020.gateways.stripe.acss.acss')
+
     @include('portal.ninja2020.gateways.includes.pay_now')
 @endsection
 

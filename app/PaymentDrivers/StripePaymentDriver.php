@@ -533,12 +533,10 @@ class StripePaymentDriver extends BaseDriver
         //payment_intent.succeeded - this will confirm or cancel the payment
         if($request->type === 'payment_intent.succeeded'){
             PaymentIntentWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id)->delay(10);
-            // PaymentIntentWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id);
             return response()->json([], 200);
         }
 
         if ($request->type === 'charge.succeeded') {
-        // if ($request->type === 'charge.succeeded' || $request->type === 'payment_intent.succeeded') {
 
             foreach ($request->data as $transaction) {
 
