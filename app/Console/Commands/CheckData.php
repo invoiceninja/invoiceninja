@@ -737,7 +737,7 @@ ORDER BY clients.id;
                 $this->logMessage($client_object->present()->name.' - '.$client_object->id." - calculated client balances do not match Invoice Balances = {$invoice_balance} - Client Balance = ".rtrim($client['client_balance'], '0'). " Ledger balance = {$ledger->balance}");
  
      
-                if($this->option('client_balance')){
+                if($this->option('ledger_balance')){
                     
                     $this->logMessage("# {$client_object->id} " . $client_object->present()->name.' - '.$client_object->number." Fixing {$client_object->balance} to {$invoice_balance}");
                     $client_object->balance = $invoice_balance;
