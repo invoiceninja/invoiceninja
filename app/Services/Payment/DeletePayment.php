@@ -82,6 +82,8 @@ class DeletePayment
 
                 $net_deletable = $paymentable_invoice->pivot->amount - $paymentable_invoice->pivot->refunded;
                 
+                $client = $this->payment->client->fresh();
+
                 nlog("net deletable amount - refunded = {$net_deletable}");
                 
                 if(!$paymentable_invoice->is_deleted)
@@ -95,11 +97,9 @@ class DeletePayment
                                         ->updateInvoiceBalance($net_deletable, "Adjusting invoice {$paymentable_invoice->number} due to deletion of Payment {$this->payment->number}")
                                         ->save();
 
-                    $paymentable_invoice->client
-                                        ->service()
-                                        ->updateBalance($net_deletable)
-                                        // ->updatePaidToDate($net_deletable * -1)
-                                        ->save();
+                    $client = $client->service()
+                                     ->updateBalance($net_deletable)
+                                     ->save();
 
                     if ($paymentable_invoice->balance == $paymentable_invoice->amount) {
                         $paymentable_invoice->service()->setStatus(Invoice::STATUS_SENT)->save();
