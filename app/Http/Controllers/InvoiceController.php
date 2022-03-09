@@ -935,6 +935,9 @@ class InvoiceController extends BaseController
         if ($request->has('documents')) 
             $this->saveDocuments($request->file('documents'), $invoice);
 
+        if ($request->has('file')) 
+            $this->saveDocuments($request->file('documents'), $invoice);
+
         return $this->itemResponse($invoice->fresh());
 
     }    

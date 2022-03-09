@@ -123,17 +123,6 @@ class Request extends FormRequest
             }
         }
 
-        if(request()->has('file'))
-        {
-
-            request()->merge(['documents' => request()->file('file')]);
-
-            // $requestFile = request()->files->get('file');
-
-            // request()->files->add(['documents' => $requestFile]);
-
-        }
-
         if (isset($input['invitations'])) {
             foreach ($input['invitations'] as $key => $value) {
                 if (isset($input['invitations'][$key]['id']) && is_numeric($input['invitations'][$key]['id'])) {

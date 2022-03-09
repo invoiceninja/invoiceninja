@@ -82,8 +82,6 @@ class UpdateInvoiceRequest extends Request
             unset($input['documents']);
         }
 
-nlog($input);
-
         $this->replace($input);
     }
 
