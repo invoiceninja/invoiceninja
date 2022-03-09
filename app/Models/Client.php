@@ -153,7 +153,7 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function gateway_tokens()
     {
-        return $this->hasMany(ClientGatewayToken::class);
+        return $this->hasMany(ClientGatewayToken::class)->orderBy('is_default', 'ASC');
     }
 
     public function expenses()
