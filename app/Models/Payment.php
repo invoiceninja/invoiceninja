@@ -324,4 +324,16 @@ class Payment extends BaseModel
 
     }
 
+    public function transaction_event()
+    {
+        return [
+            'payment_id' => $this->id, 
+            'payment_amount' => $this->amount, 
+            'payment_applied' => $this->applied, 
+            'payment_refunded' => $this->refunded, 
+            'payment_status' => $this->status_id,
+            'paymentables' => $this->paymentables->toArray(),
+        ];
+    }
+
 }

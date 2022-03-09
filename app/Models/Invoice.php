@@ -535,4 +535,16 @@ class Invoice extends BaseModel
                 break;
         }
     }
+
+    public function transaction_event()
+    {
+        return [
+            'id' => $this->id, 
+            'amount' => $this->amount, 
+            'partial' => $this->partial, 
+            'balance' => $this->balance, 
+            'paid_to_date' => $this->paid_to_date,
+            'status_id' => $this->status_id,
+        ];
+    }
 }
