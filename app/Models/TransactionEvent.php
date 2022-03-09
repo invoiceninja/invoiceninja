@@ -27,4 +27,17 @@ class TransactionEvent extends StaticModel
         'paymentables' => 'array',
     ];
 
+    public const INVOICE_MARK_PAID = 1;
+    public const INVOICE_UPDATED = 2;
+    public const INVOICE_DELETED = 3;
+    public const INVOICE_PAYMENT_APPLIED = 4;
+    public const INVOICE_CANCELLED = 5;
+    public const INVOICE_FEE_APPLIED = 6;
+
+    public const PAYMENT_MADE = 100;
+    public const PAYMENT_APPLIED = 101;
+    public const PAYMENT_REFUND = 102;
+    public const PAYMENT_FAILED = 103;
+    
+
 }
