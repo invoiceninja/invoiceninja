@@ -185,11 +185,38 @@ class TaskRepository extends BaseRepository
 
     public function start(Task $task)
     {
+        $log = $task->time_log;
+
+        $last = end($log);
+        
+        if($last[1] !== 0){
+            
+            $new = [time(), 0];
+            array_push($log, $new);
+
+            $task->time_log = $log;
+            $task->save();
+
+        }
 
     }
 
     public function stop(Task $task)
     {
+        $log = $task->time_log;
+
+        $last = end($log);
+        
+        if($last[1] === 0){
+
+            $last[1] = time();
+
+            array_pop($log);
+            array_push($log, $last);
+
+            $task->time_log = $log;
+            $task->save();
+        }
 
     }
 }
