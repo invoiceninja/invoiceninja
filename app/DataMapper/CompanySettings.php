@@ -66,7 +66,7 @@ class CompanySettings extends BaseSettings
     public $auto_convert_quote = true; //@implemented
     public $auto_email_invoice = true; //@only used for Recurring Invoices, if set to false, we never send?
 
-    public $entity_send_time = 0;
+    public $entity_send_time = 12;
 
     public $inclusive_taxes = false; //@implemented
     public $quote_footer = ''; //@implmented
