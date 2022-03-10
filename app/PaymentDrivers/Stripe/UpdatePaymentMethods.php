@@ -33,33 +33,10 @@ class UpdatePaymentMethods
         $this->stripe = $stripe;
     }
 
-    // public function run()
-    // {
-    //     $this->stripe->init();
-
-    //     $this->stripe
-    //          ->company_gateway
-    //          ->client_gateway_tokens
-    //          ->each(function ($token){
-
-
-    //             // $bank_accounts = Customer::allSources(
-    //             //     $token->gateway_customer_reference,
-    //             //     ['object' => 'bank_account', 'limit' => 300]
-    //             // );
-
-    //             // foreach($bank_accounts as $bank_account)
-    //             // {
-    //             //     $this->addOrUpdateBankAccount($bank_account, $token);
-    //             // }
-    //             // $this->processCustomer($token->gateway_customer_reference);
-
-    //     });
-
-    // }
-
     public function updateMethods(Customer $customer, Client $client)
     {
+                $this->stripe->client = $client;
+
                 $card_methods = PaymentMethod::all([
                     'customer' => $customer->id,
                     'type' => 'card',
@@ -93,36 +70,46 @@ class UpdatePaymentMethods
                     $this->addOrUpdateCard($method, $customer->id, $client, GatewayType::SOFORT);
                 }
 
-                //$this->importBankAccounts($customer, $client);
+                $this->importBankAccounts($customer, $client);
     }
 
     private function importBankAccounts($customer, $client)
     {
 
+        $sources = $customer->sources;
+
+            foreach($sources->data as $method)
+            {
+            
+                $token_exists = ClientGatewayToken::where([
+                    'gateway_customer_reference' => $customer->id,
+                    'token' => $method->id,
+                    'client_id' => $client->id,
+                    'company_id' => $client->company_id,
+                ])->exists();
+
+                /* Already exists return */
+                if($token_exists)
+                    continue;
+
+                $payment_meta = new \stdClass;
+                $payment_meta->brand = (string) \sprintf('%s (%s)', $method->bank_name, ctrans('texts.ach'));
+                $payment_meta->last4 = (string) $method->last4;
+                $payment_meta->type = GatewayType::BANK_TRANSFER;
+                $payment_meta->state = $method->status;
+
+                $data = [
+                    'payment_meta' => $payment_meta,
+                    'token' => $method->id,
+                    'payment_method_id' => GatewayType::BANK_TRANSFER,
+                ];
+
+                $this->stripe->storeGatewayToken($data, ['gateway_customer_reference' => $customer->id]);
+
+            }
+
+
     }
-
-    // private function addOrUpdateBankAccount($bank_account, $customer_reference, Client $client)
-    // {
-    //     $token_exists = ClientGatewayToken::where([
-    //         'gateway_customer_reference' => $customer_reference,
-    //         'token' => $bank_account->id,
-    //     ])->exists();
-
-    //     /* Already exists return */
-    //     if($token_exists)
-    //         return;
-
-    //     $cgt = ClientGatewayTokenFactory::create($client->company_id);
-    //     $cgt->client_id = $client->id;
-    //     $cgt->token = $bank_account->id;
-    //     $cgt->gateway_customer_reference = $customer_reference;
-    //     $cgt->company_gateway_id = $this->stripe->company_gateway->id;
-    //     $cgt->gateway_type_id = GatewayType::BANK_TRANSFER;
-    //     $cgt->meta = new \stdClass;
-    //     $cgt->routing_number = $bank_account->routing_number;
-    //     $cgt->save();
-
-    // }
 
     private function addOrUpdateCard(PaymentMethod $method, $customer_reference, Client $client, $type_id)
     {

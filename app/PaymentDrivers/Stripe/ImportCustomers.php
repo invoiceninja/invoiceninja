@@ -76,10 +76,8 @@ class ImportCustomers
 
     $account = $this->stripe->company_gateway->company->account;
         
-    if(!$account->isPaidHostedClient() && Client::where('company_id', $this->stripe->company_gateway->company_id)->count() > config('ninja.quotas.free.clients'))
+    if(Ninja::isHosted() && !$account->isPaidHostedClient() && Client::where('company_id', $this->stripe->company_gateway->company_id)->count() > config('ninja.quotas.free.clients'))
         return;
-
-        // nlog("search Stripe for {$customer->id}");
 
         $existing_customer_token = $this->stripe
                                   ->company_gateway
@@ -104,9 +102,6 @@ class ImportCustomers
             return;
         }
 
-        // nlog("inserting a customer");
-        //nlog($customer);
-        
         $client = ClientFactory::create($this->stripe->company_gateway->company_id, $this->stripe->company_gateway->user_id);
 
         if($customer->address)
