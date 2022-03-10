@@ -500,9 +500,11 @@ class CheckData extends Command
         {
             $client = Client::withTrashed()->find($_client->client_id);
 
+            $credits_from_reversal = Credit::withTrashed()->where('client_id', $client->id)->where('is_deleted', 0)->whereNotNull('invoice_id')->sum('amount');
+
             $credits_used_for_payments = $this->clientCreditPaymentables($client);
 
-            $total_paid_to_date = $_client->payments_applied + $credits_used_for_payments[0]->credit_payment;
+            $total_paid_to_date = $_client->payments_applied + $credits_used_for_payments[0]->credit_payment - $credits_from_reversal;
 
             if(round($total_paid_to_date,2) != round($_client->client_paid_to_date,2)){
 

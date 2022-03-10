@@ -305,13 +305,13 @@ class Credit extends BaseModel
     public function transaction_event()
     {
 
-        $this->fresh();
+        $credit = $this->fresh();
 
         return [
-            'credit_id' => $this->id, 
-            'credit_amount' => $this->amount ?: 0, 
-            'credit_balance' => $this->balance ?: 0, 
-            'credit_status' => $this->status_id ?: 1,
+            'credit_id' => $credit->id, 
+            'credit_amount' => $credit->amount ?: 0, 
+            'credit_balance' => $credit->balance ?: 0, 
+            'credit_status' => $credit->status_id ?: 1,
         ];
     }
 }

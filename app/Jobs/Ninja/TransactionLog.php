@@ -17,6 +17,7 @@ use App\DataMapper\Transactions\InvoiceCancelledTransaction;
 use App\DataMapper\Transactions\InvoiceDeletedTransaction;
 use App\DataMapper\Transactions\InvoiceFeeAppliedTransaction;
 use App\DataMapper\Transactions\InvoicePaymentTransaction;
+use App\DataMapper\Transactions\InvoiceReversalTransaction;
 use App\DataMapper\Transactions\InvoiceUpdatedTransaction;
 use App\DataMapper\Transactions\MarkPaidTransaction;
 use App\DataMapper\Transactions\PaymentAppliedTransaction;
@@ -54,6 +55,7 @@ class TransactionLog implements ShouldQueue
         TransactionEvent::INVOICE_DELETED => InvoiceDeletedTransaction::class,
         TransactionEvent::INVOICE_PAYMENT_APPLIED => InvoicePaymentTransaction::class,
         TransactionEvent::INVOICE_CANCELLED => InvoiceCancelledTransaction::class,
+        TransactionEvent::INVOICE_REVERSED => InvoiceReversalTransaction::class,
         TransactionEvent::INVOICE_FEE_APPLIED => InvoiceFeeAppliedTransaction::class,
         TransactionEvent::PAYMENT_MADE => PaymentMadeTransaction::class,
         TransactionEvent::GATEWAY_PAYMENT_MADE => GatewayPaymentMadeTransaction::class,

@@ -539,15 +539,15 @@ class Invoice extends BaseModel
     public function transaction_event()
     {
 
-        $this->fresh();
+        $invoice = $this->fresh();
 
         return [
-            'invoice_id' => $this->id, 
-            'invoice_amount' => $this->amount ?: 0, 
-            'invoice_partial' => $this->partial ?: 0, 
-            'invoice_balance' => $this->balance ?: 0, 
-            'invoice_paid_to_date' => $this->paid_to_date ?: 0,
-            'invoice_status' => $this->status_id ?: 1,
+            'invoice_id' => $invoice->id, 
+            'invoice_amount' => $invoice->amount ?: 0, 
+            'invoice_partial' => $invoice->partial ?: 0, 
+            'invoice_balance' => $invoice->balance ?: 0, 
+            'invoice_paid_to_date' => $invoice->paid_to_date ?: 0,
+            'invoice_status' => $invoice->status_id ?: 1,
         ];
     }
 }
