@@ -140,13 +140,13 @@ class HandleReversal extends AbstractService
 
         $transaction = [
             'invoice' => $this->invoice->transaction_event(),
-            'payment' => $this->payment->transaction_event(),
+            'payment' => [],
             'client' => $this->invoice->client->transaction_event(),
             'credit' => [],
             'metadata' => [],
         ];
 
-        TransactionLog::dispatch(TransactionEvent::PAYMENT_REVERSED, $transaction, $this->invoice->company->db);
+        TransactionLog::dispatch(TransactionEvent::INVOICE_REVERSED, $transaction, $this->invoice->company->db);
 
         return $this->invoice;
         //create a ledger row for this with the resulting Credit ( also include an explanation in the notes section )
