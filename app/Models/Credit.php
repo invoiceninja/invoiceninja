@@ -302,4 +302,16 @@ class Credit extends BaseModel
         });
     }
 
+    public function transaction_event()
+    {
+
+        $this->fresh();
+
+        return [
+            'credit_id' => $this->id, 
+            'credit_amount' => $this->amount ?: 0, 
+            'credit_balance' => $this->balance ?: 0, 
+            'credit_status' => $this->status_id ?: 1,
+        ];
+    }
 }

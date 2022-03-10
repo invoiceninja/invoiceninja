@@ -840,4 +840,17 @@ class Client extends BaseModel implements HasLocalePreference
 
         return $offset;
     }
+
+    public function transaction_event()
+    {
+        $this->fresh();
+
+        return [
+            'client_id' => $this->id, 
+            'client_balance' => $this->balance ?: 0, 
+            'client_paid_to_date' => $this->paid_to_date ?: 0,
+            'client_credit_balance' => $this->credit_balance ?: 0
+        ];
+    }
+
 }

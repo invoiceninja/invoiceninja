@@ -29,11 +29,13 @@ use App\Http\Requests\Invoice\UploadInvoiceRequest;
 use App\Jobs\Entity\EmailEntity;
 use App\Jobs\Invoice\StoreInvoice;
 use App\Jobs\Invoice\ZipInvoices;
+use App\Jobs\Ninja\TransactionLog;
 use App\Jobs\Util\UnlinkFile;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Quote;
+use App\Models\TransactionEvent;
 use App\Repositories\InvoiceRepository;
 use App\Transformers\InvoiceTransformer;
 use App\Transformers\QuoteTransformer;
@@ -224,6 +226,16 @@ class InvoiceController extends BaseController
 
         event(new InvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         
+        $transaction = [
+            'invoice' => $invoice->transaction_event(),
+            'payment' => [],
+            'client' => $invoice->client->transaction_event(),
+            'credit' => [],
+            'metadata' => [],
+        ];
+
+        TransactionLog::dispatch(TransactionEvent::INVOICE_UPDATED, $transaction, $invoice->company->db);
+        
         return $this->itemResponse($invoice);
     }
 
@@ -404,6 +416,16 @@ class InvoiceController extends BaseController
         $invoice->service()->triggeredActions($request)->touchPdf();
 
         event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+
+        $transaction = [
+            'invoice' => $invoice->transaction_event(),
+            'payment' => [],
+            'client' => $invoice->client->transaction_event(),
+            'credit' => [],
+            'metadata' => [],
+        ];
+
+        TransactionLog::dispatch(TransactionEvent::INVOICE_UPDATED, $transaction, $invoice->company->db);
 
         return $this->itemResponse($invoice);
     }

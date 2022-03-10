@@ -18,11 +18,11 @@ use App\Models\Payment;
 use App\Models\TransactionEvent;
 
 /**
- * BaseTransaction.
+ * InvoiceUpdatedTransaction.
  */
-class MarkPaidTransaction extends BaseTransaction implements TransactionInterface
+class InvoiceUpdatedTransaction extends BaseTransaction implements TransactionInterface
 {
     
-    public $event_id = TransactionEvent::INVOICE_MARK_PAID; 
+    public $event_id = TransactionEvent::INVOICE_UPDATED; 
 
 }

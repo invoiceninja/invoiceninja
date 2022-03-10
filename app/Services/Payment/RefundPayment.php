@@ -14,10 +14,12 @@ namespace App\Services\Payment;
 use App\Exceptions\PaymentRefundFailed;
 use App\Factory\CreditFactory;
 use App\Factory\InvoiceItemFactory;
+use App\Jobs\Ninja\TransactionLog;
 use App\Models\Activity;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\TransactionEvent;
 use App\Repositories\ActivityRepository;
 use App\Utils\Ninja;
 use stdClass;
@@ -61,6 +63,17 @@ class RefundPayment
             ->adjustInvoices()
             ->processGatewayRefund() //process the gateway refund if needed
             ->save();
+
+
+            $transaction = [
+                'invoice' => [],
+                'payment' => $this->payment->transaction_event(),
+                'client' => $this->payment->client->transaction_event(),
+                'credit' => [],
+                'metadata' => [],
+            ];
+
+            TransactionLog::dispatch(TransactionEvent::PAYMENT_REFUND, $transaction, $this->payment->company->db);
     }
 
     /**

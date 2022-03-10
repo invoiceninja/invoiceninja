@@ -11,9 +11,11 @@
 
 namespace App\Services\Payment;
 
+use App\Jobs\Ninja\TransactionLog;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\TransactionEvent;
 use App\Repositories\ActivityRepository;
 
 class DeletePayment
@@ -106,6 +108,7 @@ class DeletePayment
                     } else {
                         $paymentable_invoice->service()->setStatus(Invoice::STATUS_PARTIAL)->save();
                     }
+
                 }
                 else {
 
@@ -118,19 +121,36 @@ class DeletePayment
 
                 }
 
+                $transaction = [
+                    'invoice' => $paymentable_invoice->transaction_event(),
+                    'payment' => $this->payment->transaction_event(),
+                    'client' => $client->transaction_event(),
+                    'credit' => [],
+                    'metadata' => [],
+                ];
+
+                TransactionLog::dispatch(TransactionEvent::PAYMENT_DELETED, $transaction, $paymentable_invoice->company->db);
+
             });
         }
-        // else {
 
-            /* If there are no invoices - then we need to still adjust the total client->paid_to_date amount*/
+        $this->payment
+        ->client
+        ->service()
+        ->updatePaidToDate(($this->payment->amount - $this->payment->refunded)*-1)
+        ->save();
 
-            $this->payment
-            ->client
-            ->service()
-            ->updatePaidToDate(($this->payment->amount - $this->payment->refunded)*-1)
-            ->save();
+        $transaction = [
+            'invoice' => [],
+            'payment' => [],
+            'client' => $this->payment->client->transaction_event(),
+            'credit' => [],
+            'metadata' => [],
+        ];
 
-        // }
+        TransactionLog::dispatch(TransactionEvent::CLIENT_STATUS, $transaction, $this->payment->company->db);
+
+    
         return $this;
     }
 

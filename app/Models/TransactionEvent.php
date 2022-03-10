@@ -22,7 +22,7 @@ class TransactionEvent extends StaticModel
     public $guarded = ['id'];
 
     public $casts = [
-        'metadata' => 'object',
+        'metadata' => 'array',
         'payment_request' => 'array',
         'paymentables' => 'array',
     ];
@@ -38,6 +38,8 @@ class TransactionEvent extends StaticModel
     public const PAYMENT_APPLIED = 101;
     public const PAYMENT_REFUND = 102;
     public const PAYMENT_FAILED = 103;
+    public const GATEWAY_PAYMENT_MADE = 104;
+    public const PAYMENT_DELETED = 105;
     
-
+    public const CLIENT_STATUS = 200;
 }

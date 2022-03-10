@@ -11,7 +11,19 @@
 
 namespace App\Jobs\Ninja;
 
+use App\DataMapper\Transactions\ClientStatusTransaction;
+use App\DataMapper\Transactions\GatewayPaymentMadeTransaction;
+use App\DataMapper\Transactions\InvoiceCancelledTransaction;
+use App\DataMapper\Transactions\InvoiceDeletedTransaction;
+use App\DataMapper\Transactions\InvoiceFeeAppliedTransaction;
+use App\DataMapper\Transactions\InvoicePaymentTransaction;
+use App\DataMapper\Transactions\InvoiceUpdatedTransaction;
 use App\DataMapper\Transactions\MarkPaidTransaction;
+use App\DataMapper\Transactions\PaymentAppliedTransaction;
+use App\DataMapper\Transactions\PaymentDeletedTransaction;
+use App\DataMapper\Transactions\PaymentFailedTransaction;
+use App\DataMapper\Transactions\PaymentMadeTransaction;
+use App\DataMapper\Transactions\PaymentRefundedTransaction;
 use App\Libraries\MultiDB;
 use App\Models\TransactionEvent;
 use App\Utils\Ninja;
@@ -38,15 +50,18 @@ class TransactionLog implements ShouldQueue
 
     private array $transformer_array = [
         TransactionEvent::INVOICE_MARK_PAID => MarkPaidTransaction::class,
-        TransactionEvent::INVOICE_UPDATED => MarkPaidTransaction::class,
-        TransactionEvent::INVOICE_DELETED => MarkPaidTransaction::class,
-        TransactionEvent::INVOICE_PAYMENT_APPLIED => MarkPaidTransaction::class,
-        TransactionEvent::INVOICE_CANCELLED => MarkPaidTransaction::class,
-        TransactionEvent::INVOICE_FEE_APPLIED => MarkPaidTransaction::class,
-        TransactionEvent::PAYMENT_MADE => MarkPaidTransaction::class,
-        TransactionEvent::PAYMENT_APPLIED => MarkPaidTransaction::class,
-        TransactionEvent::PAYMENT_REFUND => MarkPaidTransaction::class,
-        TransactionEvent::PAYMENT_FAILED => MarkPaidTransaction::class,
+        TransactionEvent::INVOICE_UPDATED => InvoiceUpdatedTransaction::class,
+        TransactionEvent::INVOICE_DELETED => InvoiceDeletedTransaction::class,
+        TransactionEvent::INVOICE_PAYMENT_APPLIED => InvoicePaymentTransaction::class,
+        TransactionEvent::INVOICE_CANCELLED => InvoiceCancelledTransaction::class,
+        TransactionEvent::INVOICE_FEE_APPLIED => InvoiceFeeAppliedTransaction::class,
+        TransactionEvent::PAYMENT_MADE => PaymentMadeTransaction::class,
+        TransactionEvent::GATEWAY_PAYMENT_MADE => GatewayPaymentMadeTransaction::class,
+        TransactionEvent::PAYMENT_APPLIED => PaymentAppliedTransaction::class,
+        TransactionEvent::PAYMENT_REFUND => PaymentRefundedTransaction::class,
+        TransactionEvent::PAYMENT_FAILED => PaymentFailedTransaction::class,
+        TransactionEvent::PAYMENT_DELETED => PaymentDeletedTransaction::class,
+        TransactionEvent::CLIENT_STATUS => ClientStatusTransaction::class,
     ];
 
     /**
@@ -69,8 +84,8 @@ class TransactionLog implements ShouldQueue
      */
     public function handle()
     {
-        if(!Ninja::isHosted())
-            return;
+        // if(!Ninja::isHosted())
+        //     return;
 
         $this->setTransformer();
 
