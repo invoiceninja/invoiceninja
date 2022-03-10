@@ -185,7 +185,7 @@ class TaskRepository extends BaseRepository
 
     public function start(Task $task)
     {
-        $log = $task->time_log;
+        $log = json_decode($task->time_log,true);;
 
         $last = end($log);
         
@@ -194,7 +194,7 @@ class TaskRepository extends BaseRepository
             $new = [time(), 0];
             array_push($log, $new);
 
-            $task->time_log = $log;
+            $task->time_log = (string)$log;
             $task->save();
 
         }
@@ -203,7 +203,7 @@ class TaskRepository extends BaseRepository
 
     public function stop(Task $task)
     {
-        $log = $task->time_log;
+        $log = json_decode($task->time_log,true);;
 
         $last = end($log);
         
@@ -214,7 +214,7 @@ class TaskRepository extends BaseRepository
             array_pop($log);
             array_push($log, $last);
 
-            $task->time_log = $log;
+            $task->time_log = (string)$log;
             $task->save();
         }
 
