@@ -68,7 +68,7 @@ class TaskApiTest extends TestCase
         $last = end($log);
         $last[1] = time();
 
-        $this->assertTrue($last[1] !== 0)
+        $this->assertTrue($last[1] !== 0);
 
 
     }
