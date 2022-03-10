@@ -57,13 +57,13 @@ class TransactionLog implements ShouldQueue
         TransactionEvent::INVOICE_CANCELLED => InvoiceCancelledTransaction::class,
         TransactionEvent::INVOICE_REVERSED => InvoiceReversalTransaction::class, //
         TransactionEvent::INVOICE_FEE_APPLIED => InvoiceFeeAppliedTransaction::class, //
-        TransactionEvent::PAYMENT_MADE => PaymentMadeTransaction::class,
-        TransactionEvent::GATEWAY_PAYMENT_MADE => GatewayPaymentMadeTransaction::class,
+        TransactionEvent::PAYMENT_MADE => PaymentMadeTransaction::class, //
+        TransactionEvent::GATEWAY_PAYMENT_MADE => GatewayPaymentMadeTransaction::class, //
         TransactionEvent::PAYMENT_APPLIED => PaymentAppliedTransaction::class,
-        TransactionEvent::PAYMENT_REFUND => PaymentRefundedTransaction::class,
+        TransactionEvent::PAYMENT_REFUND => PaymentRefundedTransaction::class, //
         TransactionEvent::PAYMENT_FAILED => PaymentFailedTransaction::class,
         TransactionEvent::PAYMENT_DELETED => PaymentDeletedTransaction::class, //
-        TransactionEvent::CLIENT_STATUS => ClientStatusTransaction::class,
+        TransactionEvent::CLIENT_STATUS => ClientStatusTransaction::class, //
     ];
 
     /**
