@@ -50,19 +50,19 @@ class TransactionLog implements ShouldQueue
     private $event_transformer;
 
     private array $transformer_array = [
-        TransactionEvent::INVOICE_MARK_PAID => MarkPaidTransaction::class,
-        TransactionEvent::INVOICE_UPDATED => InvoiceUpdatedTransaction::class,
-        TransactionEvent::INVOICE_DELETED => InvoiceDeletedTransaction::class,
+        TransactionEvent::INVOICE_MARK_PAID => MarkPaidTransaction::class, //
+        TransactionEvent::INVOICE_UPDATED => InvoiceUpdatedTransaction::class, //
+        TransactionEvent::INVOICE_DELETED => InvoiceDeletedTransaction::class, //
         TransactionEvent::INVOICE_PAYMENT_APPLIED => InvoicePaymentTransaction::class,
         TransactionEvent::INVOICE_CANCELLED => InvoiceCancelledTransaction::class,
-        TransactionEvent::INVOICE_REVERSED => InvoiceReversalTransaction::class,
-        TransactionEvent::INVOICE_FEE_APPLIED => InvoiceFeeAppliedTransaction::class,
+        TransactionEvent::INVOICE_REVERSED => InvoiceReversalTransaction::class, //
+        TransactionEvent::INVOICE_FEE_APPLIED => InvoiceFeeAppliedTransaction::class, //
         TransactionEvent::PAYMENT_MADE => PaymentMadeTransaction::class,
         TransactionEvent::GATEWAY_PAYMENT_MADE => GatewayPaymentMadeTransaction::class,
         TransactionEvent::PAYMENT_APPLIED => PaymentAppliedTransaction::class,
         TransactionEvent::PAYMENT_REFUND => PaymentRefundedTransaction::class,
         TransactionEvent::PAYMENT_FAILED => PaymentFailedTransaction::class,
-        TransactionEvent::PAYMENT_DELETED => PaymentDeletedTransaction::class,
+        TransactionEvent::PAYMENT_DELETED => PaymentDeletedTransaction::class, //
         TransactionEvent::CLIENT_STATUS => ClientStatusTransaction::class,
     ];
 

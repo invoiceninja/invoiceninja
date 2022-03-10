@@ -53,7 +53,7 @@ class RefundPayment
 
     public function run()
     {
-        return $this->calculateTotalRefund() //sets amount for the refund (needed if we are refunding multiple invoices in one payment)
+        $this->payment = $this->calculateTotalRefund() //sets amount for the refund (needed if we are refunding multiple invoices in one payment)
             ->setStatus() //sets status of payment
             //->reversePayment()
             //->buildCreditNote() //generate the credit note
@@ -64,7 +64,6 @@ class RefundPayment
             ->processGatewayRefund() //process the gateway refund if needed
             ->save();
 
-
             $transaction = [
                 'invoice' => [],
                 'payment' => $this->payment->transaction_event(),
@@ -74,6 +73,8 @@ class RefundPayment
             ];
 
             TransactionLog::dispatch(TransactionEvent::PAYMENT_REFUND, $transaction, $this->payment->company->db);
+
+        return $this->payment;
     }
 
     /**
@@ -269,27 +270,51 @@ class RefundPayment
 
                 $adjustment_amount += $refunded_invoice['amount'];
                 $client->balance += $refunded_invoice['amount'];
-                //$client->paid_to_date -= $refunded_invoice['amount'];//todo refund balancing
                 $client->save();
 
-                //todo adjust ledger balance here? or after and reference the credit and its total
+
+                $transaction = [
+                    'invoice' => $invoice->transaction_event(),
+                    'payment' => [],
+                    'client' => $client->transaction_event(),
+                    'credit' => [],
+                    'metadata' => [],
+                ];
+
+                TransactionLog::dispatch(TransactionEvent::PAYMENT_REFUND, $transaction, $invoice->company->db);
+
             }
 
-            // $ledger_string = "Refund for Invoice {$invoice->number} for amount " . $refunded_invoice['amount']; //todo
-
-            // $this->credit_note->ledger()->updateCreditBalance($adjustment_amount, $ledger_string);
-
-            $client = $this->payment->client->fresh();
-            
+            $client = $this->payment->client->fresh();            
             $client->service()->updatePaidToDate(-1 * $refunded_invoice['amount'])->save();
+
+
+                $transaction = [
+                    'invoice' => [],
+                    'payment' => [],
+                    'client' => $client->transaction_event(),
+                    'credit' => [],
+                    'metadata' => [],
+                ];
+
+                TransactionLog::dispatch(TransactionEvent::PAYMENT_REFUND, $transaction, $client->company->db);
+
         }
         else{
             //if we are refunding and no payments have been tagged, then we need to decrement the client->paid_to_date by the total refund amount.
             
             $client = $this->payment->client->fresh();
-            
             $client->service()->updatePaidToDate(-1 * $this->total_refund)->save();
 
+                $transaction = [
+                    'invoice' => [],
+                    'payment' => [],
+                    'client' => $client->transaction_event(),
+                    'credit' => [],
+                    'metadata' => [],
+                ];
+
+                TransactionLog::dispatch(TransactionEvent::PAYMENT_REFUND, $transaction, $client->company->db);
         }
 
         return $this;
