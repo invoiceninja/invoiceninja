@@ -91,14 +91,14 @@ class UpdateInvoicePayment
             $this->payment->applied += $paid_amount;
 
             $transaction = [
-                'invoice' => $this->invoice->transaction_event(),
+                'invoice' => $invoice->transaction_event(),
                 'payment' => $this->payment->transaction_event(),
                 'client' => $client->transaction_event(),
                 'credit' => [],
                 'metadata' => [],
             ];
 
-            TransactionLog::dispatch(TransactionEvent::GATEWAY_PAYMENT_MADE, $transaction, $this->invoice->company->db);
+            TransactionLog::dispatch(TransactionEvent::GATEWAY_PAYMENT_MADE, $transaction, $invoice->company->db);
 
 
         });

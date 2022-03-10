@@ -82,6 +82,18 @@ class RequiredClientInfo extends Component
         'client.state' => '',
         'client.postal_code' => '',
         'client.country_id' => '',
+        'client.shipping_address1' => '',
+        'client.shipping_address2' => '',
+        'client.shipping_city' => '',
+        'client.shipping_state' => '',
+        'client.shipping_postal_code' => '',
+        'client.shipping_country_id' => '',
+        'contact.first_name' => '',
+        'contact.last_name' => '',
+        'contact.email' => '',
+        'client.name' => '',
+        'client.website' => '',
+        'client.phone' => '',
     ];
 
     public $show_form = false;
@@ -93,6 +105,11 @@ class RequiredClientInfo extends Component
         MultiDB::setDb($this->company->db);
 
         $this->client = $this->contact->client;
+
+        count($this->fields) > 0
+            ? $this->checkFields()
+            : $this->show_form = false;
+
     }
 
     public function handleSubmit(array $data): bool
@@ -213,10 +230,6 @@ class RequiredClientInfo extends Component
 
     public function render()
     {
-        count($this->fields) > 0
-            ? $this->checkFields()
-            : $this->show_form = false;
-
         return render('components.livewire.required-client-info');
     }
 }
