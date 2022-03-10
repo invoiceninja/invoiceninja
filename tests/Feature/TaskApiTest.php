@@ -41,6 +41,39 @@ class TaskApiTest extends TestCase
         Model::reguard();
     }
 
+    public function testStartTask()
+    {
+        $log = [
+            [2,1],
+            [10,20]
+        ];
+
+        $last = end($log);
+
+        $this->assertEquals(10, $last[0]);
+        $this->assertEquals(20, $last[1]);
+
+        $new = [time(), 0];
+
+        array_push($log, $new);
+
+        $this->assertEquals(3, count($log));
+
+
+        //test task is started
+        $last = end($log);
+        $this->assertTrue($last[1] === 0);
+
+        //stop task
+        $last = end($log);
+        $last[1] = time();
+
+        $this->assertTrue($last[1] !== 0)
+
+
+    }
+
+
     public function testTaskPost()
     {
         $data = [

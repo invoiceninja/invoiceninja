@@ -182,4 +182,14 @@ class TaskRepository extends BaseRepository
         });
 
     }
+
+    public function start(Task $task)
+    {
+
+    }
+
+    public function stop(Task $task)
+    {
+
+    }
 }
