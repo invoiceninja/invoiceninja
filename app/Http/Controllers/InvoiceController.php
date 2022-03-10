@@ -685,7 +685,7 @@ class InvoiceController extends BaseController
                     return $this->errorResponse(['message' => ctrans('texts.invoice_cannot_be_marked_paid')], 400);
                 }
 
-                $invoice = $invoice->service()->markPaid();
+                $invoice = $invoice->service()->markPaid()->save();
 
                 if (! $bulk) {
                     return $this->itemResponse($invoice);
