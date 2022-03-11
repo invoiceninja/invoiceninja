@@ -174,6 +174,16 @@ class HtmlEngine
             $data['$approveButton'] = ['value' => '<a class="button" href="'.$this->invitation->getLink().'">'.ctrans('texts.view_quote').'</a>', 'label' => ctrans('texts.approve')];
             $data['$view_url'] = ['value' => $this->invitation->getLink(), 'label' => ctrans('texts.view_quote')];
             $data['$date'] = ['value' => $this->translateDate($this->entity->date, $this->client->date_format(), $this->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.quote_date')];
+
+            if($this->entity->project) {
+                $data['$project.name'] = ['value' => $this->entity->project->name, 'label' => ctrans('texts.project_name')];
+                $data['$invoice.project'] = &$data['$project.name'];
+            }
+
+            if($this->entity->vendor) {
+                $data['$invoice.vendor'] = ['value' => $this->entity->vendor->present()->name(), 'label' => ctrans('texts.vendor_name')];
+            }
+
         }
 
         if ($this->entity_string == 'credit') {
