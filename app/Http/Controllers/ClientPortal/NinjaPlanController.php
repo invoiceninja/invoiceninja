@@ -12,6 +12,7 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
+use App\DataMapper\Analytics\TrialStarted;
 use App\Factory\RecurringInvoiceFactory;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\Uploads\StoreUploadRequest;
@@ -32,6 +33,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Turbo124\Beacon\Facades\LightLogs;
 
 class NinjaPlanController extends Controller
 {
@@ -159,13 +161,15 @@ class NinjaPlanController extends Controller
         $recurring_invoice->next_send_date = now()->addDays(14)->format('Y-m-d');
 
         $recurring_invoice->save();
-        $recurring_invoice = $recurring_invoice->calc()->getRecurringInvoice();
+        $r = $recurring_invoice->calc()->getRecurringInvoice();
 
-        $recurring_invoice->service()->start();
+        $recurring_invoice->service()->start()->save();
+
+        LightLogs::create(new TrialStarted())
+                 ->increment()
+                 ->queue();
 
         return $this->render('plan.trial_confirmed', $data);
-
-        // return redirect('https://invoicing.co');
 
     }
 
@@ -182,8 +186,6 @@ class NinjaPlanController extends Controller
 
     public function plan()
     {
-
-        return $this->render('plan.trial_confirmed');
 
         //harvest the current plan
         $data = [];
