@@ -228,9 +228,9 @@ class Invoice extends BaseModel
         return $this->hasMany(Task::class);
     }
 
-    public function expenses()
+    public function expense()
     {
-        return $this->hasMany(Expense::class);
+        return $this->hasOne(Expense::class);
     }
     /**
      * Service entry points.

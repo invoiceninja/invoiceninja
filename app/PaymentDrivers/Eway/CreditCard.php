@@ -160,7 +160,6 @@ class CreditCard
                 'TotalAmount' => $this->convertAmountForEway(),
                 'CurrencyCode' => $this->eway_driver->client->currency()->code,
                 'InvoiceNumber' => $invoice_numbers,
-                'InvoiceDescription' => $description,
                 'InvoiceReference' => $description,
             ],
             'TransactionType' => \Eway\Rapid\Enum\TransactionType::PURCHASE,

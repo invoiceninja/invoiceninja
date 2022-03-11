@@ -231,7 +231,7 @@
   <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
     <h2 class="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
       <span class="block">Enterprise Plan (1-2 Users) Annual</span>
-      <span class="block text-indigo-600 mt-2">Buy 10 months, get 2 free!</span>
+      <span class="block text-indigo-600 mt-2">Buy 10 months, get 2 free! $140</span>
     </h2>
     <div class="mt-8 flex lg:mt-0 lg:flex-shrink-0">
       <div class="inline-flex rounded-md shadow">
@@ -247,7 +247,7 @@
   <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
     <h2 class="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
       <span class="block">Pro Plan Annual</span>
-      <span class="block text-indigo-600 mt-2">Buy 10 months, get 2 free!</span>
+      <span class="block text-indigo-600 mt-2">Buy 10 months, get 2 free! $100</span>
     </h2>
     <div class="mt-8 flex lg:mt-0 lg:flex-shrink-0">
       <div class="inline-flex rounded-md shadow">
