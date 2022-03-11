@@ -185,6 +185,16 @@ class TaskRepository extends BaseRepository
 
     public function start(Task $task)
     {
+        if(strlen($task->time_log) < 5)
+        {   
+            $log = [];
+
+            $log = array_merge($log, [[time(),0]]);
+            $task->time_log = json_encode($log);
+            $task->save();
+
+        }
+
         $log = json_decode($task->time_log,true);;
 
         $last = end($log);
@@ -192,9 +202,8 @@ class TaskRepository extends BaseRepository
         if($last[1] !== 0){
             
             $new = [time(), 0];
-            array_push($log, $new);
-
-            $task->time_log = (string)$log;
+            $log = array_merge($log, [$new]);
+            $task->time_log = json_encode($log);
             $task->save();
 
         }
@@ -212,9 +221,9 @@ class TaskRepository extends BaseRepository
             $last[1] = time();
 
             array_pop($log);
-            array_push($log, $last);
+            $log = array_merge($log, [$last]);
 
-            $task->time_log = (string)$log;
+            $task->time_log = json_encode($log);
             $task->save();
         }
 
