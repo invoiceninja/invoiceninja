@@ -104,7 +104,12 @@ class UpdatePaymentMethods
                     'payment_method_id' => GatewayType::BANK_TRANSFER,
                 ];
 
-                $this->stripe->storeGatewayToken($data, ['gateway_customer_reference' => $customer->id]);
+                $additional_data = ['gateway_customer_reference' => $customer->id];
+
+                if($customer->default_source === $method->id)
+                    $additional_data = ['gateway_customer_reference' => $customer->id, 'is_default', 1];
+
+                $this->stripe->storeGatewayToken($data, $additional_data);
 
             }
 
