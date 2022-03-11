@@ -163,7 +163,9 @@ class NinjaPlanController extends Controller
 
         $recurring_invoice->service()->start();
 
-        return redirect('https://invoicing.co');
+        return $this->render('plan.trial_confirmed', $data);
+
+        // return redirect('https://invoicing.co');
 
     }
 
@@ -180,7 +182,9 @@ class NinjaPlanController extends Controller
 
     public function plan()
     {
-     
+
+        return $this->render('plan.trial_confirmed');
+
         //harvest the current plan
         $data = [];
         $data['late_invoice'] = false;
