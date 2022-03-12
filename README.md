@@ -34,7 +34,7 @@ The self-host zip includes all third party libraries whereas downloading the cod
 
 ## Installation Options
 * [Ansible](https://github.com/invoiceninja/ansible-installer)
-* [Self-Host Zip](https://docs.invoiceninja.com/install.html)
+* [Self-Host Zip](https://invoice-ninja.readthedocs.io/en/latest/install.html)
 * [Docker File](https://hub.docker.com/r/invoiceninja/invoiceninja/)
 * [Cloudron](https://cloudron.io/store/com.invoiceninja.cloudronapp.html)
 * [Softaculous](https://www.softaculous.com/apps/ecommerce/Invoice_Ninja)
