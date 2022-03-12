@@ -36,7 +36,7 @@ class PaymentTransformer extends BaseTransformer
 		}
 
 		$transformed = [
-			'company_id' => $this->maps['company']->id,
+			'company_id' => $this->company->id,
 			'number' => $this->getString($data, 'payment.number'),
 			'user_id' => $this->getString($data, 'payment.user_id'),
 			'amount' => $this->getFloat($data, 'payment.amount'),

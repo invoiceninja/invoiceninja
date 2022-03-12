@@ -11,7 +11,9 @@
 
 namespace App\Services\Invoice;
 
+use App\Jobs\Ninja\TransactionLog;
 use App\Models\Invoice;
+use App\Models\TransactionEvent;
 use App\Services\AbstractService;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Support\Facades\DB;
@@ -46,6 +48,16 @@ class MarkInvoiceDeleted extends AbstractService
              ->adjustPaidToDate()
              ->adjustBalance()
              ->adjustLedger();
+
+            $transaction = [
+                'invoice' => $this->invoice->transaction_event(),
+                'payment' => $this->invoice->payments()->exists() ? $this->invoice->payments()->first()->transaction_event() : [],
+                'client' => $this->invoice->client->transaction_event(),
+                'credit' => [],
+                'metadata' => ['total_payments' => $this->total_payments, 'balance_adjustment' => $this->balance_adjustment, 'adjustment_amount' => $this->adjustment_amount],
+            ];
+
+            TransactionLog::dispatch(TransactionEvent::INVOICE_DELETED, $transaction, $this->invoice->company->db);
 
         return $this->invoice;
     }
@@ -127,11 +139,6 @@ class MarkInvoiceDeleted extends AbstractService
         $this->total_payments = $this->invoice->payments->sum('amount') - $this->invoice->payments->sum('refunded');
 
         $this->balance_adjustment = $this->invoice->balance;
-        
-        //$this->total_payments = $this->invoice->payments->sum('amount - refunded');
-
-        // nlog("adjustment amount = {$this->adjustment_amount}");
-        // nlog("total payments = {$this->total_payments}");
 
         return $this;
     }

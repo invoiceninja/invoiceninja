@@ -146,9 +146,21 @@ class CreditCard
 
         }
 
+        $invoice_numbers = '';
+
+        if($this->eway_driver->payment_hash->data)
+            $invoice_numbers =  collect($this->eway_driver->payment_hash->data->invoices)->pluck('invoice_number')->implode(',');
+        
+        $amount = array_sum(array_column($this->eway_driver->payment_hash->invoices(), 'amount')) + $this->eway_driver->payment_hash->fee_total;
+
+        $description = "Invoices: {$invoice_numbers} for {$amount} for client {$this->eway_driver->client->present()->name()}";
+
         $transaction = [
             'Payment' => [
                 'TotalAmount' => $this->convertAmountForEway(),
+                'CurrencyCode' => $this->eway_driver->client->currency()->code,
+                'InvoiceNumber' => $invoice_numbers,
+                'InvoiceReference' => $description,
             ],
             'TransactionType' => \Eway\Rapid\Enum\TransactionType::PURCHASE,
             'SecuredCardData' => $request->input('securefieldcode'),
@@ -225,12 +237,22 @@ class CreditCard
     {
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
 
+
+        if($this->eway_driver->payment_hash->data)
+            $invoice_numbers =  collect($this->eway_driver->payment_hash->data->invoices)->pluck('invoice_number')->implode(',');
+        
+        $description = "Invoices: {$invoice_numbers} for {$amount} for client {$this->eway_driver->client->present()->name()}";
+
         $transaction = [
             'Customer' => [
                 'TokenCustomerID' => $token,
             ],
             'Payment' => [
                 'TotalAmount' => $this->convertAmountForEway($amount),
+                'CurrencyCode' => $this->eway_driver->client->currency()->code,
+                'InvoiceNumber' => $invoice_numbers,
+                'InvoiceDescription' => $description,
+                'InvoiceReference' => $description,
             ],
             'TransactionType' => \Eway\Rapid\Enum\TransactionType::RECURRING,
         ];

@@ -13,9 +13,11 @@ namespace App\Services\Payment;
 
 use App\Events\Invoice\InvoiceWasUpdated;
 use App\Jobs\Invoice\InvoiceWorkflowSettings;
+use App\Jobs\Ninja\TransactionLog;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentHash;
+use App\Models\TransactionEvent;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 
@@ -87,6 +89,17 @@ class UpdateInvoicePayment
             $pivot_invoice->pivot->save();
 
             $this->payment->applied += $paid_amount;
+
+            $transaction = [
+                'invoice' => $invoice->transaction_event(),
+                'payment' => $this->payment->transaction_event(),
+                'client' => $client->transaction_event(),
+                'credit' => [],
+                'metadata' => [],
+            ];
+
+            TransactionLog::dispatch(TransactionEvent::GATEWAY_PAYMENT_MADE, $transaction, $invoice->company->db);
+
 
         });
         

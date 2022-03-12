@@ -1,6 +1,6 @@
 {!! ctrans('texts.migration_failed_label') !!}
 
-{!! ctrans('texts.migration_failed') }} {{ $company->present()->name() !!}
+{!! ctrans('texts.migration_failed') !!} {!! $company->present()->name() !!}
 
 @if(\App\Utils\Ninja::isSelfHost() || $is_system)
     {!! $exception->getMessage() !!}

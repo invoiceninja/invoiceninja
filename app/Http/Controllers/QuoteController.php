@@ -672,8 +672,7 @@ class QuoteController extends BaseController
                 return $this->itemResponse($quote);
                 break;
             case 'approve':
-            //make sure it hasn't already been approved!!
-                if ($quote->status_id != Quote::STATUS_SENT) {
+                if (!in_array($quote->status_id, [Quote::STATUS_SENT, Quote::STATUS_DRAFT]) ) {
                     return response()->json(['message' => ctrans('texts.quote_unapprovable')], 400);
                 }
 

@@ -28,7 +28,7 @@ class CreditFactory
         $credit->terms = '';
         $credit->public_notes = '';
         $credit->private_notes = '';
-        $credit->date = null;
+        $credit->date = now()->format('Y-m-d');
         $credit->due_date = null;
         $credit->partial_due_date = null;
         $credit->is_deleted = false;

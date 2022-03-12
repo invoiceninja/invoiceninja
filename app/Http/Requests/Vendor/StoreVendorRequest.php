@@ -36,13 +36,18 @@ class StoreVendorRequest extends Request
 
         /* Ensure we have a client name, and that all emails are unique*/
         //$rules['name'] = 'required|min:1';
-        $rules['id_number'] = 'unique:vendors,id_number,'.$this->id.',id,company_id,'.$this->company_id;
+        // $rules['id_number'] = 'unique:vendors,id_number,'.$this->id.',id,company_id,'.auth()->user()->company()->id;
         //$rules['settings'] = new ValidVendorGroupSettingsRule();
-        $rules['contacts.*.email'] = 'nullable|distinct';
+        
+        $rules['contacts.*.email'] = 'bail|nullable|distinct|sometimes|email';
 
         if (isset($this->number)) {
             $rules['number'] = Rule::unique('vendors')->where('company_id', auth()->user()->company()->id);
         }
+
+        // if (isset($this->id_number)) {
+        //     $rules['id_number'] = Rule::unique('vendors')->where('company_id', auth()->user()->company()->id);
+        // }
 
         return $rules;
     }
@@ -59,7 +64,7 @@ class StoreVendorRequest extends Request
     public function messages()
     {
         return [
-            'unique' => ctrans('validation.unique', ['attribute' => 'email']),
+            // 'unique' => ctrans('validation.unique', ['attribute' => 'email']),
             //'required' => trans('validation.required', ['attribute' => 'email']),
             'contacts.*.email.required' => ctrans('validation.email', ['attribute' => 'email']),
         ];

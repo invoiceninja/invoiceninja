@@ -15,6 +15,7 @@ namespace App\PaymentDrivers\Authorize;
 use App\PaymentDrivers\AuthorizePaymentDriver;
 use net\authorize\api\contract\v1\CreateTransactionRequest;
 use net\authorize\api\contract\v1\CustomerProfilePaymentType;
+use net\authorize\api\contract\v1\OrderType;
 use net\authorize\api\contract\v1\PaymentProfileType;
 use net\authorize\api\contract\v1\TransactionRequestType;
 use net\authorize\api\controller\CreateTransactionController;
@@ -42,9 +43,21 @@ class ChargePaymentProfile
         $paymentProfile->setPaymentProfileId($payment_profile_id);
         $profileToCharge->setPaymentProfile($paymentProfile);
 
+        $invoice_numbers = '';
+
+        if($this->authorize->payment_hash->data)
+            $invoice_numbers =  collect($this->authorize->payment_hash->data->invoices)->pluck('invoice_number')->implode(',');
+        
+        $description = "Invoices: {$invoice_numbers} for {$amount} for client {$this->authorize->client->present()->name()}";
+
+        $order = new OrderType();
+        $order->setInvoiceNumber($invoice_numbers);
+        $order->setDescription($description);
+
         $transactionRequestType = new TransactionRequestType();
         $transactionRequestType->setTransactionType('authCaptureTransaction');
         $transactionRequestType->setAmount($amount);
+        $transactionRequestType->setOrder($order);
         $transactionRequestType->setProfile($profileToCharge);
         $transactionRequestType->setCurrencyCode($this->authorize->client->currency()->code);
 

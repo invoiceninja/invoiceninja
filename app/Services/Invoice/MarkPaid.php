@@ -15,10 +15,12 @@ use App\Events\Invoice\InvoiceWasPaid;
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
 use App\Jobs\Invoice\InvoiceWorkflowSettings;
+use App\Jobs\Ninja\TransactionLog;
 use App\Jobs\Payment\EmailPayment;
 use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\TransactionEvent;
 use App\Services\AbstractService;
 use App\Services\Client\ClientService;
 use App\Utils\Ninja;
@@ -109,6 +111,16 @@ class MarkPaid extends AbstractService
         /* Update Invoice balance */
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         event(new InvoiceWasPaid($this->invoice, $payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+
+        $transaction = [
+            'invoice' => $this->invoice->transaction_event(),
+            'payment' => $payment->transaction_event(),
+            'client' => $this->invoice->client->transaction_event(),
+            'credit' => [],
+            'metadata' => [],
+        ];
+
+        TransactionLog::dispatch(TransactionEvent::INVOICE_MARK_PAID, $transaction, $this->invoice->company->db);
 
         return $this->invoice;
     }

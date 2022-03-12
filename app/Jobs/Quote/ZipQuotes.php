@@ -92,8 +92,12 @@ class ZipQuotes implements ShouldQueue
             
             foreach ($this->quotes as $quote) {
         
-                $download_file = file_get_contents($quote->pdf_file_path($invitation, 'url', true));
-                $zipFile->addFromString(basename($quote->pdf_file_path($invitation)), $download_file);
+                $file = $quote->service()->getQuotePdf();
+                $zip_file_name = basename($file);
+                $zipFile->addFromString($zip_file_name, Storage::get($file));
+
+                // $download_file = file_get_contents($quote->pdf_file_path($invitation, 'url', true));
+                // $zipFile->addFromString(basename($quote->pdf_file_path($invitation)), $download_file);
 
             }
 

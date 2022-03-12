@@ -143,7 +143,7 @@ class PaymentMethodController extends Controller
 
         return redirect()
             ->route('client.payment_methods.index')
-            ->withSuccess('Payment method has been successfully removed.');
+            ->withSuccess(ctrans('texts.payment_method_removed'));
     }
 
     private function getClientGateway()

@@ -14,11 +14,13 @@ namespace App\Repositories;
 use App\Events\Payment\PaymentWasCreated;
 use App\Events\Payment\PaymentWasDeleted;
 use App\Jobs\Credit\ApplyCreditPayment;
+use App\Jobs\Ninja\TransactionLog;
 use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\TransactionEvent;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
@@ -94,11 +96,8 @@ class PaymentRepository extends BaseRepository {
             if (array_key_exists('credits', $data) && is_array($data['credits']) && count($data['credits']) > 0) {
                 $_credit_totals = array_sum(array_column($data['credits'], 'amount'));
 
-                // if ($data['amount'] == $_credit_totals) {
-                //     $data['amount'] = 0;
-                // } else {
-                    $client->service()->updatePaidToDate($_credit_totals)->save();
-                // }
+                $client->service()->updatePaidToDate($_credit_totals)->save();
+                
             }
 
         }
@@ -181,9 +180,18 @@ class PaymentRepository extends BaseRepository {
 		}
 
         $payment->applied += ($invoice_totals - $credit_totals); //wont work because - check tests
-        // $payment->applied += $invoice_totals; //wont work because - check tests
 
         $payment->save();
+
+        $transaction = [
+            'invoice' => [],
+            'payment' => $payment->transaction_event(),
+            'client' => $payment->client->transaction_event(),
+            'credit' => [],
+            'metadata' => [],
+        ];
+
+        TransactionLog::dispatch(TransactionEvent::PAYMENT_MADE, $transaction, $payment->company->db);
 
         return $payment->fresh();
     }

@@ -23,6 +23,7 @@ use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Payment\Refundable;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Cache;
 
 class Payment extends BaseModel
 {
@@ -147,6 +148,15 @@ class Payment extends BaseModel
     public function type()
     {
         return $this->belongsTo(PaymentType::class);
+    }
+
+    public function translatedType()
+    {
+        if(!$this->type)
+            return '';
+
+        return ctrans('texts.payment_type_'.$this->type->name);
+
     }
 
     public function gateway_type()
@@ -312,6 +322,21 @@ class Payment extends BaseModel
 
         
 
+    }
+
+    public function transaction_event()
+    {
+        $payment = $this->fresh();
+
+        return [
+            'payment_id' => $payment->id, 
+            'payment_amount' => $payment->amount ?: 0, 
+            'payment_applied' => $payment->applied ?: 0, 
+            'payment_refunded' => $payment->refunded ?: 0, 
+            'payment_status' => $payment->status_id ?: 1,
+            'paymentables' => $payment->paymentables->toArray(),
+            'payment_request' => request() ? request()->all() : [],
+        ];
     }
 
 }

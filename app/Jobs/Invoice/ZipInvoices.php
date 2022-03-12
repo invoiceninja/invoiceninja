@@ -91,8 +91,12 @@ class ZipInvoices implements ShouldQueue
             
             foreach ($this->invoices as $invoice) {
         
-                $download_file = file_get_contents($invoice->pdf_file_path($invitation, 'url', true));
-                $zipFile->addFromString(basename($invoice->pdf_file_path($invitation)), $download_file);
+                $file = $invoice->service()->getInvoicePdf();
+                $zip_file_name = basename($file);
+                $zipFile->addFromString($zip_file_name, Storage::get($file));
+
+                //$download_file = file_get_contents($invoice->pdf_file_path($invitation, 'url', true));
+                //$zipFile->addFromString(basename($invoice->pdf_file_path($invitation)), $download_file);
 
             }
 
