@@ -650,6 +650,7 @@ class Import implements ShouldQueue
             if(array_key_exists('updated_at', $modified))
                 $client->updated_at = Carbon::parse($modified['updated_at']);
 
+            $client->country_id = array_key_exists('country_id', $modified) ? $modified['country_id'] : $this->company->settings->country_id;
             $client->save(['timestamps' => false]);
             $client->fresh();
             

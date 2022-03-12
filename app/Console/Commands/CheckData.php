@@ -74,7 +74,7 @@ class CheckData extends Command
     /**
      * @var string
      */
-    protected $signature = 'ninja:check-data {--database=} {--fix=} {--client_id=} {--vendor_id=} {--paid_to_date=} {--client_balance=}';
+    protected $signature = 'ninja:check-data {--database=} {--fix=} {--client_id=} {--vendor_id=} {--paid_to_date=} {--client_balance=} {--ledger_balance=}';
 
     /**
      * @var string
@@ -102,7 +102,7 @@ class CheckData extends Command
             config(['database.default' => $database]);
         }
 
-        // $this->checkInvoiceBalances();
+        $this->checkInvoiceBalances();
         $this->checkInvoiceBalancesNew();
         //$this->checkInvoicePayments();
         
@@ -482,6 +482,7 @@ class CheckData extends Command
         payments.id = paymentables.payment_id
         WHERE paymentable_type = ?
         AND paymentables.deleted_at is NULL
+        AND payments.amount > 0
         AND payments.is_deleted = 0
         AND payments.client_id = ?;
         "), [App\Models\Credit::class, $client->id] );
@@ -499,9 +500,11 @@ class CheckData extends Command
         {
             $client = Client::withTrashed()->find($_client->client_id);
 
+            $credits_from_reversal = Credit::withTrashed()->where('client_id', $client->id)->where('is_deleted', 0)->whereNotNull('invoice_id')->sum('amount');
+
             $credits_used_for_payments = $this->clientCreditPaymentables($client);
 
-            $total_paid_to_date = $_client->payments_applied + $credits_used_for_payments[0]->credit_payment;
+            $total_paid_to_date = $_client->payments_applied + $credits_used_for_payments[0]->credit_payment - $credits_from_reversal;
 
             if(round($total_paid_to_date,2) != round($_client->client_paid_to_date,2)){
 
@@ -736,7 +739,7 @@ ORDER BY clients.id;
                 $this->logMessage($client_object->present()->name.' - '.$client_object->id." - calculated client balances do not match Invoice Balances = {$invoice_balance} - Client Balance = ".rtrim($client['client_balance'], '0'). " Ledger balance = {$ledger->balance}");
  
      
-                if($this->option('client_balance')){
+                if($this->option('ledger_balance')){
                     
                     $this->logMessage("# {$client_object->id} " . $client_object->present()->name.' - '.$client_object->number." Fixing {$client_object->balance} to {$invoice_balance}");
                     $client_object->balance = $invoice_balance;
@@ -853,18 +856,16 @@ ORDER BY clients.id;
 
         foreach (Client::where('is_deleted', 0)->where('clients.updated_at', '>', now()->subDays(2))->cursor() as $client) {
             $invoice_balance = $client->invoices()->where('is_deleted', false)->where('status_id', '>', 1)->sum('balance');
-            $credit_balance = $client->credits()->where('is_deleted', false)->sum('balance');
-
             $ledger = CompanyLedger::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
 
-            if ($ledger && number_format($invoice_balance, 4) != number_format($client->balance, 4)) {
+            if ($ledger && number_format($ledger->balance, 4) != number_format($client->balance, 4)) {
                 $this->wrong_balances++;
-                $this->logMessage("# {$client->id} " . $client->present()->name.' - '.$client->number." - Balance Failure - Invoice Balances = {$invoice_balance} Client Balance = {$client->balance} Ledger Balance = {$ledger->balance}");
+                $this->logMessage("# {$client->id} " . $client->present()->name.' - '.$client->number." - Balance Failure - Client Balance = {$client->balance} Ledger Balance = {$ledger->balance}");
 
                 $this->isValid = false;
 
 
-                if($this->option('client_balance')){
+                if($this->option('ledger_balance')){
                     
                     $this->logMessage("# {$client->id} " . $client->present()->name.' - '.$client->number." Fixing {$client->balance} to {$invoice_balance}");
                     $client->balance = $invoice_balance;
@@ -879,7 +880,7 @@ ORDER BY clients.id;
             }
         }
 
-        $this->logMessage("{$this->wrong_balances} clients with incorrect balances");
+        $this->logMessage("{$this->wrong_balances} clients with incorrect ledger balances");
     }
 
     private function checkLogoFiles()
@@ -1010,6 +1011,27 @@ ORDER BY clients.id;
 
 }
 
+
+/* //used to set a company owner on the company_users table
+
+$c = Company::whereDoesntHave('company_users', function ($query){
+  $query->where('is_owner', true)->withTrashed();
+})->cursor()->each(function ($company){
+  
+    if(!$company->company_users()->exists()){
+        echo "No company users AT ALL {$company->id}\n";
+       
+    }
+    else{
+
+      $cu = $company->company_users()->orderBy('id', 'ASC')->orderBy('is_admin', 'ASC')->first();
+        echo "{$company->id} - {$cu->id} \n";
+        $cu->is_owner=true;
+        $cu->save();
+      
+    }
+});
+*/
 
 /* query if we want to company company ledger to client balance
         $results = \DB::select( \DB::raw("

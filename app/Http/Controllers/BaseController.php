@@ -764,7 +764,8 @@ class BaseController extends Controller
 
             $this->buildCache();
 
-            return view('index.index', $data);
+            return response()->view('index.index', $data)->header('X-Frame-Options', 'SAMEORIGIN', false);
+
         }
 
         return redirect('/setup');

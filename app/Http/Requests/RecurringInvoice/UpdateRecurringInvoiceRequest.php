@@ -12,6 +12,7 @@
 namespace App\Http\Requests\RecurringInvoice;
 
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\Project\ValidProjectForClient;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
@@ -51,6 +52,7 @@ class UpdateRecurringInvoiceRequest extends Request
         if($this->number)
             $rules['number'] = Rule::unique('recurring_invoices')->where('company_id', auth()->user()->company()->id)->ignore($this->recurring_invoice->id);
 
+        $rules['project_id'] =  ['bail', 'sometimes', new ValidProjectForClient($this->all())];
 
         return $rules;
     }
@@ -59,16 +61,6 @@ class UpdateRecurringInvoiceRequest extends Request
     {
         $input = $this->all();
 
-        // foreach($this->input('documents') as $document)
-        // {
-        //     if($document instanceof UploadedFile){
-        //         nlog("i am an uploaded file");
-        //         nlog($document);
-        //     }
-        //     else
-        //         nlog($document);
-        // }
-        
         if (array_key_exists('design_id', $input) && is_string($input['design_id'])) {
             $input['design_id'] = $this->decodePrimaryKey($input['design_id']);
         }
@@ -80,6 +72,11 @@ class UpdateRecurringInvoiceRequest extends Request
         if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
             $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
         }
+
+        if (array_key_exists('project_id', $input) && is_string($input['project_id'])) {
+            $input['project_id'] = $this->decodePrimaryKey($input['project_id']);
+        }
+
 
         if (isset($input['invitations'])) {
             foreach ($input['invitations'] as $key => $value) {

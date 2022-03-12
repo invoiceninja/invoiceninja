@@ -182,4 +182,50 @@ class TaskRepository extends BaseRepository
         });
 
     }
+
+    public function start(Task $task)
+    {
+        if(strlen($task->time_log) < 5)
+        {   
+            $log = [];
+
+            $log = array_merge($log, [[time(),0]]);
+            $task->time_log = json_encode($log);
+            $task->save();
+
+        }
+
+        $log = json_decode($task->time_log,true);;
+
+        $last = end($log);
+        
+        if($last[1] !== 0){
+            
+            $new = [time(), 0];
+            $log = array_merge($log, [$new]);
+            $task->time_log = json_encode($log);
+            $task->save();
+
+        }
+
+    }
+
+    public function stop(Task $task)
+    {
+        $log = json_decode($task->time_log,true);;
+
+        $last = end($log);
+        
+        if($last[1] === 0){
+
+            $last[1] = time();
+
+            array_pop($log);
+            $log = array_merge($log, [$last]);
+
+            $task->time_log = json_encode($log);
+            $task->save();
+        }
+
+    }
 }

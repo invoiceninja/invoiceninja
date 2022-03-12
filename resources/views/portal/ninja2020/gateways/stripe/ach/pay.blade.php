@@ -52,6 +52,12 @@
             }));
 
         document.getElementById('pay-now').addEventListener('click', function () {
+
+                    let payNowButton = document.getElementById('pay-now');
+                    payNowButton.disabled = true;
+                    payNowButton.querySelector('svg').classList.remove('hidden');
+                    payNowButton.querySelector('span').classList.add('hidden');
+
             document.getElementById('server-response').submit();
         });
     </script>

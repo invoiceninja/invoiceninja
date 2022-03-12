@@ -232,6 +232,11 @@ class Invoice extends BaseModel
     {
         return $this->hasMany(Expense::class);
     }
+
+    public function expense()
+    {
+        return $this->hasOne(Expense::class);
+    }
     /**
      * Service entry points.
      */
@@ -534,5 +539,20 @@ class Invoice extends BaseModel
                 # code...
                 break;
         }
+    }
+
+    public function transaction_event()
+    {
+
+        $invoice = $this->fresh();
+
+        return [
+            'invoice_id' => $invoice->id, 
+            'invoice_amount' => $invoice->amount ?: 0, 
+            'invoice_partial' => $invoice->partial ?: 0, 
+            'invoice_balance' => $invoice->balance ?: 0, 
+            'invoice_paid_to_date' => $invoice->paid_to_date ?: 0,
+            'invoice_status' => $invoice->status_id ?: 1,
+        ];
     }
 }

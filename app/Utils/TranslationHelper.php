@@ -31,7 +31,7 @@ class TranslationHelper
         return Cache::get('countries')->each(function ($country) {
             $country->name = ctrans('texts.country_'.$country->name);
         })->sortBy(function ($country) {
-            return $country->name;
+            return $country->iso_3166_2;
         });
     }
 

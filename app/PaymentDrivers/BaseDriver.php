@@ -20,6 +20,7 @@ use App\Jobs\Mail\NinjaMailer;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Jobs\Mail\PaymentFailedMailer;
+use App\Jobs\Ninja\TransactionLog;
 use App\Jobs\Util\SystemLogger;
 use App\Mail\Admin\ClientPaymentFailureObject;
 use App\Models\Client;
@@ -32,6 +33,7 @@ use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\Models\TransactionEvent;
 use App\Services\Subscription\SubscriptionService;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
@@ -317,11 +319,23 @@ class BaseDriver extends AbstractPaymentDriver
         $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($payment_invoices, 'invoice_id')))->withTrashed()->get();
 
         $invoices->each(function ($invoice) use ($fee_total) {
+
             if (collect($invoice->line_items)->contains('type_id', '3')) {
                 $invoice->service()->toggleFeesPaid()->save();
                 $invoice->client->service()->updateBalance($fee_total)->save();
                 $invoice->ledger()->updateInvoiceBalance($fee_total, "Gateway fee adjustment for invoice {$invoice->number}");
             }
+
+            $transaction = [
+                'invoice' => $invoice->transaction_event(),
+                'payment' => [],
+                'client' => $invoice->client->transaction_event(),
+                'credit' => [],
+                'metadata' => [],
+            ];
+
+            TransactionLog::dispatch(TransactionEvent::INVOICE_FEE_APPLIED, $transaction, $invoice->company->db);
+
         });
     }
 

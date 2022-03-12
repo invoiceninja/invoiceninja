@@ -145,8 +145,11 @@ class InvoiceService
             return $this;
         }
 
-        $this->invoice->balance += $balance_adjustment;
+        // $this->invoice->balance += $balance_adjustment;
         
+        $this->invoice->increment('balance', $balance_adjustment);
+
+
         if (round($this->invoice->balance,2) == 0 && !$is_draft) {
             $this->invoice->status_id = Invoice::STATUS_PAID;
         }
@@ -160,7 +163,10 @@ class InvoiceService
 
     public function updatePaidToDate($adjustment)
     {
-        $this->invoice->paid_to_date += $adjustment;
+        // $this->invoice->paid_to_date += $adjustment;
+
+        $this->invoice->increment('paid_to_date', $adjustment);
+
 
         return $this;
     }
@@ -381,7 +387,8 @@ class InvoiceService
     /*Update the partial amount of a invoice*/
     public function updatePartial($amount)
     {
-        $this->invoice->partial += $amount;
+        // $this->invoice->partial += $amount;
+        $this->invoice->increment('partial', $amount);
 
         return $this;
     }

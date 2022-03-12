@@ -189,8 +189,8 @@ class AutoBillInvoice extends AbstractService
               ->adjustCreditBalance($amount * -1)
               ->save();
 
-        $this->invoice->ledger()
-                          ->updateInvoiceBalance($amount * -1, "Invoice {$this->invoice->number} payment using Credit {$current_credit->number}")
+        $this->invoice->ledger() //09-03-2022
+                          // ->updateInvoiceBalance($amount * -1, "Invoice {$this->invoice->number} payment using Credit {$current_credit->number}")
                           ->updateCreditBalance($amount * -1, "Credit {$current_credit->number} used to pay down Invoice {$this->invoice->number}")
                           ->save();
 

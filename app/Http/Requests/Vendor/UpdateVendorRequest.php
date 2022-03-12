@@ -40,11 +40,11 @@ class UpdateVendorRequest extends Request
         if($this->number)
             $rules['number'] = Rule::unique('vendors')->where('company_id', auth()->user()->company()->id)->ignore($this->vendor->id);
 
-        if($this->id_number)   
-            $rules['id_number'] = Rule::unique('vendors')->where('company_id', auth()->user()->company()->id)->ignore($this->vendor->id);
+        // if($this->id_number)   
+        //     $rules['id_number'] = Rule::unique('vendors')->where('company_id', auth()->user()->company()->id)->ignore($this->vendor->id);
 
         $rules['contacts.*.email'] = 'nullable|distinct';
-
+        // $rules['id_number'] = 'unique:vendors,id_number,'.$this->id.',id,company_id,'.auth()->user()->company()->id;
 
         return $rules;
     }

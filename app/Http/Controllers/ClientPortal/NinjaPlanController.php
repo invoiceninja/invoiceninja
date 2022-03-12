@@ -12,6 +12,7 @@
 
 namespace App\Http\Controllers\ClientPortal;
 
+use App\DataMapper\Analytics\TrialStarted;
 use App\Factory\RecurringInvoiceFactory;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\Uploads\StoreUploadRequest;
@@ -32,6 +33,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Turbo124\Beacon\Facades\LightLogs;
 
 class NinjaPlanController extends Controller
 {
@@ -134,7 +136,7 @@ class NinjaPlanController extends Controller
         // $account = auth()->guard('contact')->user()->company->account;
         if(auth()->guard('contact')->user()->client->custom_value2){
             MultiDB::findAndSetDbByAccountKey(auth()->guard('contact')->user()->client->custom_value2);
-            $account = Account::where('key', auth()->guard('contact')->user()->client->custom_value2);
+            $account = Account::where('key', auth()->guard('contact')->user()->client->custom_value2)->first();
             $account->trial_started = now();
             $account->trial_plan = 'pro';
             $account->save();
@@ -159,11 +161,15 @@ class NinjaPlanController extends Controller
         $recurring_invoice->next_send_date = now()->addDays(14)->format('Y-m-d');
 
         $recurring_invoice->save();
-        $recurring_invoice = $recurring_invoice->calc()->getRecurringInvoice();
+        $r = $recurring_invoice->calc()->getRecurringInvoice();
 
-        $recurring_invoice->service()->start();
+        $recurring_invoice->service()->start()->save();
 
-        return redirect('https://invoicing.co');
+        LightLogs::create(new TrialStarted())
+                 ->increment()
+                 ->queue();
+
+        return $this->render('plan.trial_confirmed', $data);
 
     }
 
@@ -180,7 +186,7 @@ class NinjaPlanController extends Controller
 
     public function plan()
     {
-     
+        // return $this->trial();
         //harvest the current plan
         $data = [];
         $data['late_invoice'] = false;

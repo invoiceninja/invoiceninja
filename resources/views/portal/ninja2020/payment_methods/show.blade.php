@@ -1,12 +1,12 @@
 @extends('portal.ninja2020.layout.app')
-@section('meta_title', ucfirst($payment_method->gateway_type->name))
+@section('meta_title', App\Models\GatewayType::getAlias($payment_method->gateway_type_id))
 
 @section('body')
     <div class="container mx-auto">
         <div class="overflow-hidden bg-white shadow sm:rounded-lg">
             <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
                 <h3 class="text-lg font-medium leading-6 text-gray-900">
-                    {{ ctrans("texts.{$payment_method->gateway_type->alias}") }}
+                    {{ App\Models\GatewayType::getAlias($payment_method->gateway_type_id) }}
                 </h3>
                 <p class="max-w-2xl mt-1 text-sm leading-5 text-gray-500" translate>
                     {{ ctrans('texts.payment_method_details') }}
@@ -14,13 +14,13 @@
             </div>
             <div>
                 <dl>
-                    @if(!empty($payment_method->gateway_type->name) && !is_null($payment_method->gateway_type->name))
+                    @if(!empty(App\Models\GatewayType::getAlias($payment_method->gateway_type_id)) && !is_null(App\Models\GatewayType::getAlias($payment_method->gateway_type_id)))
                         <div class="px-4 py-5 bg-gray-50 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                             <dt class="text-sm font-medium leading-5 text-gray-500">
                                 {{ ctrans('texts.payment_type') }}
                             </dt>
                             <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                                {{ ucfirst($payment_method->gateway_type->name) }}
+                                {{ App\Models\GatewayType::getAlias($payment_method->gateway_type_id) }}
                             </dd>
                         </div>
                     @endif
