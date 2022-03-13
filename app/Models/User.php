@@ -142,6 +142,16 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(CompanyToken::class)->orderBy('id', 'ASC');
     }
 
+    public function token()
+    {
+        if (request()->header('X-API-TOKEN')) {
+            return CompanyToken::with(['company','cu'])->where('token', request()->header('X-API-TOKEN'))->first();
+        }
+
+
+        return $this->tokens()->first();
+    }
+
     /**
      * Returns all companies a user has access to.
      *
@@ -219,17 +229,20 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function co_user()
     {
-        return $this->company_user();
+        return $this->token()->cu;
+        // return $this->company_user();
     }
 
     public function company_user()
     {
-        if (! $this->id && auth()->user()) {
-            $this->id = auth()->user()->id;
-        }
+        // if (! $this->id && auth()->user()) {
+        //     $this->id = auth()->user()->id;
+        // }
 
-        return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'user_id', 'id', 'user_id')
-        ->withTrashed();
+        return $this->token()->cu;
+
+        // return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'user_id', 'id', 'user_id')
+        // ->withTrashed();
 
         // if (request()->header('X-API-TOKEN')) {
 
@@ -268,7 +281,9 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function permissions()
     {
-        return $this->company_user->permissions;
+        return $this->token()->cu->permissions;
+        
+        // return $this->company_user->permissions;
     }
 
     /**
@@ -278,7 +293,9 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function settings()
     {
-        return json_decode($this->company_user->settings);
+        return json_decode($this->token()->cu->settings);
+
+        //return json_decode($this->company_user->settings);
     }
 
     /**
@@ -288,12 +305,16 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function isAdmin() : bool
     {
-        return $this->company_user->is_admin;
+        return $this->token()->cu->is_admin;
+
+       // return $this->company_user->is_admin;
     }
 
     public function isOwner() : bool
     {
-        return $this->company_user->is_owner;
+        return $this->token()->cu->is_owner;
+        
+        // return $this->company_user->is_owner;
     }
 
     /**
@@ -345,8 +366,13 @@ class User extends Authenticatable implements MustVerifyEmail
 
         return  $this->isOwner() ||
                 $this->isAdmin() ||
-                (stripos($this->company_user->permissions, $all_permission) !== false) ||
-                (stripos($this->company_user->permissions, $permission) !== false);
+                (stripos($this->token()->cu->permissions, $all_permission) !== false) ||
+                (stripos($this->token()->cu->permissions, $permission) !== false);
+
+        // return  $this->isOwner() ||
+        //         $this->isAdmin() ||
+        //         (stripos($this->company_user->permissions, $all_permission) !== false) ||
+        //         (stripos($this->company_user->permissions, $permission) !== false);
     }
 
     public function documents()
@@ -370,9 +396,12 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function routeNotificationForSlack($notification)
     {
-        if ($this->company_user->slack_webhook_url) {
-            return $this->company_user->slack_webhook_url;
-        }
+
+        if($this->token()->cu->slack_webhook_url)
+            return $this->token()->cu->slack_webhook_url;
+        // if ($this->company_user->slack_webhook_url) {
+        //     return $this->company_user->slack_webhook_url;
+        // }
     }
 
     public function routeNotificationForMail($notification)

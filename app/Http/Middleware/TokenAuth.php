@@ -30,7 +30,7 @@ class TokenAuth
      */
     public function handle($request, Closure $next)
     {
-        if ($request->header('X-API-TOKEN') && ($company_token = CompanyToken::with(['user', 'company'])->where('token', $request->header('X-API-TOKEN'))->first())) {
+        if ($request->header('X-API-TOKEN') && ($company_token = CompanyToken::with(['user', 'company', 'cu'])->where('token', $request->header('X-API-TOKEN'))->first())) {
             $user = $company_token->user;
 
             $error = [
@@ -65,7 +65,7 @@ class TokenAuth
             });
 
             //user who once existed, but has been soft deleted
-            if ($company_token->company_user->is_locked) {
+            if ($company_token->cu->is_locked) {
                 $error = [
                     'message' => 'User access locked',
                     'errors' => new stdClass,
