@@ -622,7 +622,7 @@ class BaseController extends Controller
 
         // 10-01-2022 need to ensure we snake case properly here to ensure permissions work as expected
         // if (auth()->user() && ! auth()->user()->hasPermission('view_'.lcfirst(class_basename($this->entity_type)))) {
-        if (auth()->user() && ! auth()->user()->hasPermission('view'.lcfirst(class_basename(Str::snake($this->entity_type))))) {
+        if (auth()->user() && ! auth()->user()->hasPermission('view_'.lcfirst(class_basename(Str::snake($this->entity_type))))) {
             $query->where('user_id', '=', auth()->user()->id);
         }
 
