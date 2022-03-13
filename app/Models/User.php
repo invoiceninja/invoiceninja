@@ -21,6 +21,7 @@ use App\Services\User\UserService;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\UserSessionAttributes;
 use App\Utils\Traits\UserSettings;
+use App\Utils\TruthSource;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -30,8 +31,8 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Laracasts\Presenter\PresentableTrait;
 use Illuminate\Support\Facades\Cache;
+use Laracasts\Presenter\PresentableTrait;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -142,6 +143,22 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(CompanyToken::class)->orderBy('id', 'ASC');
     }
 
+    public function token()
+    {
+        $truth = app()->make(TruthSource::class);
+
+        if($truth->getCompanyToken()){
+            return $truth->getCompanyToken();
+        }
+
+        if (request()->header('X-API-TOKEN')) {
+            return CompanyToken::with(['cu'])->where('token', request()->header('X-API-TOKEN'))->first();
+        }
+
+
+        return $this->tokens()->first();
+    }
+
     /**
      * Returns all companies a user has access to.
      *
@@ -170,11 +187,15 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getCompany()
     {
+        $truth = app()->make(TruthSource::class);
 
         if ($this->company){
 
             return $this->company;
         
+        }
+        elseif($truth->getCompany()){
+            return $truth->getCompany();
         }
         elseif (request()->header('X-API-TOKEN')) {
             $company_token = CompanyToken::with(['company'])->where('token', request()->header('X-API-TOKEN'))->first();
@@ -219,31 +240,30 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function co_user()
     {
-        return $this->company_user();
+        $truth = app()->make(TruthSource::class);
+
+        if($truth->getCompanyUser()){
+            return $truth->getCompanyUser();
+        }
+        
+        return $this->token()->cu;
+
     }
 
     public function company_user()
     {
-        if (! $this->id && auth()->user()) {
-            $this->id = auth()->user()->id;
+
+        // return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'user_id', 'id', 'user_id')
+        // ->withTrashed();
+
+        $truth = app()->make(TruthSource::class);
+
+        if($truth->getCompanyUser()){
+            return $truth->getCompanyUser();
         }
+        
+        return $this->token()->cu;
 
-        return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'user_id', 'id', 'user_id')
-        ->withTrashed();
-
-        // if (request()->header('X-API-TOKEN')) {
-
-        //     nlog("with an API token");
-        //     nlog(request()->header('X-API-TOKEN'));
-
-        //     return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'company_id', 'id', 'company_id')
-        //     ->where('company_tokens.token', request()->header('X-API-TOKEN'))
-        //     ->withTrashed();
-        // } else {
-        //     return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'company_id', 'id', 'company_id')
-        //     ->where('company_user.user_id', $this->id)
-        //     ->withTrashed();
-        // }
     }
 
     /**
@@ -268,7 +288,9 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function permissions()
     {
-        return $this->company_user->permissions;
+        return $this->token()->cu->permissions;
+        
+        // return $this->company_user->permissions;
     }
 
     /**
@@ -278,7 +300,9 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function settings()
     {
-        return json_decode($this->company_user->settings);
+        return json_decode($this->token()->cu->settings);
+
+        //return json_decode($this->company_user->settings);
     }
 
     /**
@@ -288,12 +312,16 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function isAdmin() : bool
     {
-        return $this->company_user->is_admin;
+        return $this->token()->cu->is_admin;
+
+       // return $this->company_user->is_admin;
     }
 
     public function isOwner() : bool
     {
-        return $this->company_user->is_owner;
+        return $this->token()->cu->is_owner;
+        
+        // return $this->company_user->is_owner;
     }
 
     /**
@@ -345,8 +373,13 @@ class User extends Authenticatable implements MustVerifyEmail
 
         return  $this->isOwner() ||
                 $this->isAdmin() ||
-                (stripos($this->company_user->permissions, $all_permission) !== false) ||
-                (stripos($this->company_user->permissions, $permission) !== false);
+                (stripos($this->token()->cu->permissions, $all_permission) !== false) ||
+                (stripos($this->token()->cu->permissions, $permission) !== false);
+
+        // return  $this->isOwner() ||
+        //         $this->isAdmin() ||
+        //         (stripos($this->company_user->permissions, $all_permission) !== false) ||
+        //         (stripos($this->company_user->permissions, $permission) !== false);
     }
 
     public function documents()
@@ -370,9 +403,12 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function routeNotificationForSlack($notification)
     {
-        if ($this->company_user->slack_webhook_url) {
-            return $this->company_user->slack_webhook_url;
-        }
+
+        if($this->token()->cu->slack_webhook_url)
+            return $this->token()->cu->slack_webhook_url;
+        // if ($this->company_user->slack_webhook_url) {
+        //     return $this->company_user->slack_webhook_url;
+        // }
     }
 
     public function routeNotificationForMail($notification)

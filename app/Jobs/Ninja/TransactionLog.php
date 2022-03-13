@@ -86,8 +86,8 @@ class TransactionLog implements ShouldQueue
      */
     public function handle()
     {
-        // if(!Ninja::isHosted())
-        //     return;
+        if(!Ninja::isHosted())
+            return;
 
         $this->setTransformer();
 

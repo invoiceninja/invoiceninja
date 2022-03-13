@@ -634,9 +634,11 @@ class HtmlEngine
     {
         $country = Country::find($this->settings->country_id);
 
-        if ($country) {
-            return ctrans('texts.country_' . $country->iso_3166_2);
-        }
+        if($country)
+            return $country->iso_3166_2;
+        // if ($country) {
+        //     return ctrans('texts.country_' . $country->iso_3166_2);
+        // }
 
         return '&nbsp;';
     }

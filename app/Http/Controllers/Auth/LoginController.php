@@ -33,6 +33,7 @@ use App\Transformers\CompanyUserTransformer;
 use App\Utils\Ninja;
 use App\Utils\Traits\UserSessionAttributes;
 use App\Utils\Traits\User\LoginCache;
+use App\Utils\TruthSource;
 use Google_Client;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
@@ -250,15 +251,6 @@ class LoginController extends BaseController
                 ->increment()
                 ->queue();
 
-            // SystemLogger::dispatch(
-            //     json_encode(['ip' => request()->getClientIp()]),
-            //     SystemLog::CATEGORY_SECURITY,
-            //     SystemLog::EVENT_USER,
-            //     SystemLog::TYPE_LOGIN_FAILURE,
-            //     null,
-            //     Company::first(),
-            // );
-
             $this->incrementLoginAttempts($request);
 
             return response()
@@ -310,7 +302,12 @@ class LoginController extends BaseController
      */
     public function refresh(Request $request)
     {
-        $company_token = CompanyToken::where('token', $request->header('X-API-TOKEN'))->first();
+        $truth = app()->make(TruthSource::class);
+
+        if($truth->getCompanyToken())
+            $company_token = $truth->getCompanyToken();
+        else
+            $company_token = CompanyToken::where('token', $request->header('X-API-TOKEN'))->first();
 
         $cu = CompanyUser::query()
                           ->where('user_id', $company_token->user_id);
@@ -606,6 +603,10 @@ class LoginController extends BaseController
         if (request()->has('code')) {
             return $this->handleProviderCallback($provider);
         } else {
+        
+            if(!in_array($provider, ['google']))
+                return abort(400, 'Invalid provider');
+
             return Socialite::driver($provider)->with($parameters)->scopes($scopes)->redirect();
         }
     }
