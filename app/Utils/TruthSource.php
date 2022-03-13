@@ -21,6 +21,7 @@ class TruthSource
 
     public $company_user;
 
+    public $company_token;
 
     public function setCompanyUser($company_user)
     {
@@ -39,6 +40,13 @@ class TruthSource
         return $this;
     }
 
+    public function setCompanyToken($company_token)
+    {
+        $this->company_token = $company_token;
+        return $this;
+    }
+
+
     public function getCompany()
     {
         return $this->company;
@@ -53,4 +61,10 @@ class TruthSource
     {
         return $this->user;
     }
+
+    public function getCompanyToken()
+    {
+        return $this->company_token;
+    }
+
 }

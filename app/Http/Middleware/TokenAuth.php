@@ -58,6 +58,7 @@ class TokenAuth
             $truth->setCompanyUser($company_token->cu);
             $truth->setUser($company_token->user);
             $truth->setCompany($company_token->company);
+            $truth->setCompanyToken($company_token);
             
             /*
             |

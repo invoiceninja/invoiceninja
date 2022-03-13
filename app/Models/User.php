@@ -145,6 +145,12 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function token()
     {
+        $truth = app()->make(TruthSource::class);
+
+        if($truth->getCompanyToken()){
+            return $truth->getCompanyToken();
+        }
+
         if (request()->header('X-API-TOKEN')) {
             return CompanyToken::with(['cu'])->where('token', request()->header('X-API-TOKEN'))->first();
         }
