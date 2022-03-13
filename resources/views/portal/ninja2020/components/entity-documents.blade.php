@@ -1,4 +1,4 @@
-@if ($entity->documents->count() > 0 || $entity->company->documents->count() > 0 || ($entity->expense->exists() && $entity->expense->invoice_documents))
+@if ($entity->documents->count() > 0 || $entity->company->documents->count() > 0 || ($entity->expense && $entity->expense->invoice_documents))
     <div class="bg-white shadow sm:rounded-lg my-4">
         <div class="px-4 py-5 sm:p-6">
             <div class="sm:flex sm:items-start sm:justify-between">
@@ -42,7 +42,7 @@
                         </div>
                     @endforeach
 
-                    @if($entity->expense->exists() && $entity->expense->invoice_documents)
+                    @if($entity->expense && $entity->expense->invoice_documents)
                         @foreach ($entity->expense->documents as $document)
                             <div class="inline-flex items-center space-x-1">
                                 <a href="{{ route('client.documents.show', $document->hashed_id) }}" target="_blank"
