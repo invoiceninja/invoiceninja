@@ -243,7 +243,7 @@ class User extends Authenticatable implements MustVerifyEmail
         $truth = app()->make(TruthSource::class);
 
         if($truth->getCompanyUser()){
-            return $truth->getCompany();
+            return $truth->getCompanyUser();
         }
         
         return $this->token()->cu;
@@ -259,24 +259,14 @@ class User extends Authenticatable implements MustVerifyEmail
         // return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'user_id', 'id', 'user_id')
         // ->withTrashed();
 
+        $truth = app()->make(TruthSource::class);
+
+        if($truth->getCompanyUser()){
+            return $truth->getCompanyUser();
+        }
+        
         return $this->token()->cu;
 
-        // return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'user_id', 'id', 'user_id')
-        // ->withTrashed();
-
-        // if (request()->header('X-API-TOKEN')) {
-
-        //     nlog("with an API token");
-        //     nlog(request()->header('X-API-TOKEN'));
-
-        //     return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'company_id', 'id', 'company_id')
-        //     ->where('company_tokens.token', request()->header('X-API-TOKEN'))
-        //     ->withTrashed();
-        // } else {
-        //     return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'company_id', 'id', 'company_id')
-        //     ->where('company_user.user_id', $this->id)
-        //     ->withTrashed();
-        // }
     }
 
     /**
