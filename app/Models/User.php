@@ -247,14 +247,11 @@ class User extends Authenticatable implements MustVerifyEmail
         }
         
         return $this->token()->cu;
-        // return $this->company_user();
+
     }
 
     public function company_user()
     {
-        // if (! $this->id && auth()->user()) {
-        //     $this->id = auth()->user()->id;
-        // }
 
         // return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'user_id', 'id', 'user_id')
         // ->withTrashed();

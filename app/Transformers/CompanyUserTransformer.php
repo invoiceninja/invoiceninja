@@ -16,6 +16,7 @@ use App\Models\Company;
 use App\Models\CompanyToken;
 use App\Models\CompanyUser;
 use App\Models\User;
+use App\Utils\TruthSource;
 
 class CompanyUserTransformer extends EntityTransformer
 {
@@ -79,7 +80,12 @@ class CompanyUserTransformer extends EntityTransformer
 
     public function includeToken(CompanyUser $company_user)
     {
-        $token = $company_user->tokens->where('company_id', $company_user->company_id)->where('user_id', $company_user->user_id)->first();
+        $truth = app()->make(TruthSource::class);
+
+        if($truth->getCompanyToken())
+            $token = $truth->getCompanyToken();
+        else
+            $token = $company_user->tokens->where('company_id', $company_user->company_id)->where('user_id', $company_user->user_id)->first();
 
         $transformer = new CompanyTokenTransformer($this->serializer);
 
