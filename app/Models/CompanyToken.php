@@ -55,4 +55,9 @@ class CompanyToken extends BaseModel
                     ->where('company_id', $this->company_id)
                     ->where('user_id', $this->user_id);
     }
+
+    public function cu()
+    {
+        return $this->hasOneThrough(CompanyUser::class, Company::class, 'id', 'company_id', 'company_id', 'id');
+    }
 }

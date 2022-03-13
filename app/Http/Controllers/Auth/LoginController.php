@@ -606,6 +606,10 @@ class LoginController extends BaseController
         if (request()->has('code')) {
             return $this->handleProviderCallback($provider);
         } else {
+        
+            if(!in_array($provider, ['google']))
+                return abort(400, 'Invalid provider');
+
             return Socialite::driver($provider)->with($parameters)->scopes($scopes)->redirect();
         }
     }
