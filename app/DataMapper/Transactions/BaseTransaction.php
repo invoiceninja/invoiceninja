@@ -66,7 +66,7 @@ class BaseTransaction implements TransactionInterface
             $data['payment'],
             $data['client'],
             $data['credit'],
-            $data['metadata'],
+            ['metadata' => $data['metadata']],
             ['event_id' => $this->event_id, 'timestamp' =>time()],
         );
         // return [
