@@ -611,9 +611,6 @@ class BaseController extends Controller
 
     protected function listResponse($query)
     {
-        $truth = app()->make(TruthSource::class);
-
-        nlog($truth->getCompany());
 
         $this->buildManager();
 
