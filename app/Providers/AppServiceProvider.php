@@ -15,6 +15,7 @@ use App\Http\Middleware\SetDomainNameDb;
 use App\Models\Invoice;
 use App\Models\Proposal;
 use App\Utils\Ninja;
+use App\Utils\TruthSource;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Queue\Events\JobProcessing;
@@ -71,6 +72,9 @@ class AppServiceProvider extends ServiceProvider
         //     \Log::error('Event Job '.$event->job->getJobId);
         //     // \Log::info('Event Job '.$event->job->payload());
         // });
+ 
+        app()->instance(TruthSource::class, new TruthSource());
+
     }
 
     /**

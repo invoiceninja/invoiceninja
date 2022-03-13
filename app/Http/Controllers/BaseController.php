@@ -19,6 +19,7 @@ use App\Transformers\EntityTransformer;
 use App\Utils\Ninja;
 use App\Utils\Statics;
 use App\Utils\Traits\AppSetup;
+use App\Utils\TruthSource;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -610,6 +611,10 @@ class BaseController extends Controller
 
     protected function listResponse($query)
     {
+        $truth = app()->make(TruthSource::class);
+
+        nlog($truth->getCompany());
+
         $this->buildManager();
 
         $transformer = new $this->entity_transformer(request()->input('serializer'));

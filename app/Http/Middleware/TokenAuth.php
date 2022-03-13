@@ -15,6 +15,7 @@ use App\Events\User\UserLoggedIn;
 use App\Models\CompanyToken;
 use App\Models\User;
 use App\Utils\Ninja;
+use App\Utils\TruthSource;
 use Closure;
 use Illuminate\Http\Request;
 use stdClass;
@@ -52,6 +53,12 @@ class TokenAuth
                 return response()->json($error, 403);
             }
 
+            $truth = app()->make(TruthSource::class);
+
+            $truth->setCompanyUser($company_token->cu);
+            $truth->setUser($company_token->user);
+            $truth->setCompany($company_token->company);
+            
             /*
             |
             | Necessary evil here: As we are authenticating on CompanyToken,

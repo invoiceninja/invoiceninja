@@ -21,6 +21,7 @@ use App\Services\User\UserService;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\UserSessionAttributes;
 use App\Utils\Traits\UserSettings;
+use App\Utils\TruthSource;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -30,8 +31,8 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Laracasts\Presenter\PresentableTrait;
 use Illuminate\Support\Facades\Cache;
+use Laracasts\Presenter\PresentableTrait;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -145,7 +146,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function token()
     {
         if (request()->header('X-API-TOKEN')) {
-            return CompanyToken::with(['company','cu'])->where('token', request()->header('X-API-TOKEN'))->first();
+            return CompanyToken::with(['cu'])->where('token', request()->header('X-API-TOKEN'))->first();
         }
 
 
@@ -180,11 +181,15 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function getCompany()
     {
+        $truth = app()->make(TruthSource::class);
 
         if ($this->company){
 
             return $this->company;
         
+        }
+        elseif($truth->getCompany()){
+            return $truth->getCompany();
         }
         elseif (request()->header('X-API-TOKEN')) {
             $company_token = CompanyToken::with(['company'])->where('token', request()->header('X-API-TOKEN'))->first();
@@ -229,6 +234,12 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function co_user()
     {
+        $truth = app()->make(TruthSource::class);
+
+        if($truth->getCompanyUser()){
+            return $truth->getCompany();
+        }
+        
         return $this->token()->cu;
         // return $this->company_user();
     }
@@ -238,6 +249,9 @@ class User extends Authenticatable implements MustVerifyEmail
         // if (! $this->id && auth()->user()) {
         //     $this->id = auth()->user()->id;
         // }
+
+        // return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'user_id', 'id', 'user_id')
+        // ->withTrashed();
 
         return $this->token()->cu;
 
