@@ -68,7 +68,7 @@
         "livewire/livewire": "^2.6",
         "mollie/mollie-api-php": "^2.36",
         "nelexa/zip": "^4.0",
-        "nwidart/laravel-modules": "^8.0",
+        "nwidart/laravel-modules": "8.3",
         "omnipay/paypal": "^3.0",
         "payfast/payfast-php-sdk": "^1.1",
         "pragmarx/google2fa": "^8.0",
