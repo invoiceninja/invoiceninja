@@ -17,8 +17,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\RegisterRequest;
 use App\Models\Client;
 use App\Models\Company;
+use App\Utils\Ninja;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\App;
 
 class ContactRegisterController extends Controller
 {
@@ -29,9 +31,14 @@ class ContactRegisterController extends Controller
 
     public function showRegisterForm(string $company_key = '')
     {
+
         $key = request()->session()->has('company_key') ? request()->session()->get('company_key') : $company_key;
 
         $company = Company::where('company_key', $key)->firstOrFail();
+
+        App::forgetInstance('translator');
+        $t = app('translator');
+        $t->replace(Ninja::transformTranslations($company->settings));
 
         return render('auth.register', ['company' => $company, 'account' => $company->account]);
     }
