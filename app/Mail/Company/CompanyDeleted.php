@@ -12,6 +12,7 @@
 
 namespace App\Mail\Company;
 
+use App\Utils\Ninja;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -48,6 +49,10 @@ class CompanyDeleted extends Mailable
      */
     public function build()
     {
+        App::forgetInstance('translator');
+        App::setLocale($this->company->getLocale());
+        $t = app('translator');
+        $t->replace(Ninja::transformTranslations($this->settings));
 
         return $this->from(config('mail.from.address'), config('mail.from.name'))
             ->subject(ctrans('texts.company_deleted'))
