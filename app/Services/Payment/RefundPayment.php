@@ -15,6 +15,7 @@ use App\Exceptions\PaymentRefundFailed;
 use App\Factory\CreditFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Jobs\Ninja\TransactionLog;
+use App\Jobs\Payment\EmailRefundPayment;
 use App\Models\Activity;
 use App\Models\Credit;
 use App\Models\Invoice;
@@ -66,7 +67,10 @@ class RefundPayment
 
         
             if(array_key_exists('email_receipt', $this->refund_data) && $this->refund_data['email_receipt'] == 'true'){
-                // $this->payment->service()->sendEmail();
+            
+                $contact = $this->payment->client->contacts()->whereNotNull('email')->first();
+                    EmailRefundPayment::dispatch($this->payment, $this->payment->company, $contact);
+                
             }
 
             $transaction = [
