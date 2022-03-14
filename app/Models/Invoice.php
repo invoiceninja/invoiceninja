@@ -228,6 +228,11 @@ class Invoice extends BaseModel
         return $this->hasMany(Task::class);
     }
 
+    public function task()
+    {
+        return $this->hasOne(Task::class);
+    }
+
     public function expenses()
     {
         return $this->hasMany(Expense::class);
