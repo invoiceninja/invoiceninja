@@ -541,7 +541,6 @@ class HtmlEngine
             $data['$payments'] = ['value' => $payment_list, 'label' => ctrans('texts.payments')];
         }
 
-
         $arrKeysLength = array_map('strlen', array_keys($data));
         array_multisort($arrKeysLength, SORT_DESC, $data);
 
