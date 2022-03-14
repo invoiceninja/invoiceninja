@@ -217,6 +217,12 @@ class LoginController extends BaseController
             $cu = CompanyUser::query()
                   ->where('user_id', auth()->user()->id);
 
+            $truth = app()->make(TruthSource::class);
+
+            $truth->setCompanyUser($cu->first());
+            $truth->setUser(auth()->user());
+            $truth->setCompany($user->account->default_company);
+
             if(!$cu->exists())
                 return response()->json(['message' => 'User not linked to any companies'], 403);
 
