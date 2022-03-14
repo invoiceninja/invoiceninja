@@ -812,13 +812,13 @@ trait GenerateMigrationResources
 
     private function calcAutoBillEnabled($invoice)
     {
-        if($invoice->auto_bill == 1)
+        if($invoice->auto_bill === 1)
             return 'off';
-        elseif($invoice->auto_bill == 2)
+        elseif($invoice->auto_bill === 2)
             return 'optin';
-        elseif($invoice->auto_bill == 3)
+        elseif($invoice->auto_bill === 3)
             return 'optout';
-        elseif($invoice->auto_bill == 4)
+        elseif($invoice->auto_bill === 4)
             return 'always';
         else
             return 'off';
