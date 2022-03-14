@@ -64,6 +64,11 @@ class RefundPayment
             ->processGatewayRefund() //process the gateway refund if needed
             ->save();
 
+        
+            if(array_key_exists('email_receipt', $this->refund_data) && $this->refund_data['email_receipt'] == 'true'){
+                // $this->payment->service()->sendEmail();
+            }
+
             $transaction = [
                 'invoice' => [],
                 'payment' => $this->payment->transaction_event(),

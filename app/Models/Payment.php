@@ -232,8 +232,6 @@ class Payment extends BaseModel
     public function refund(array $data) :self
     {
         return $this->service()->refundPayment($data);
-
-        //return $this->processRefund($data);
     }
 
     /**
