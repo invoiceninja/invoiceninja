@@ -83,7 +83,7 @@ class EmailRefundPayment implements ShouldQueue
             App::setLocale($this->contact->preferredLocale());
             $t->replace(Ninja::transformTranslations($this->settings));
 
-            $template_data['body'] = ctrans('texts.refunded_payment') . ' $amount <br><br>$invoices';
+            $template_data['body'] = ctrans('texts.refunded_payment') . ' $payment.refunded <br><br>$invoices';
             $template_data['subject'] = ctrans('texts.refunded_payment');
 
             $email_builder = (new PaymentEmailEngine($this->payment, $this->contact, $template_data))->build();
