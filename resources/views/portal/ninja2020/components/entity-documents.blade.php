@@ -63,7 +63,7 @@
                         @endforeach
                     @endif
 
-                    @if($entity->task && $entity->task->invoice_documents)
+                    @if($entity->task && $entity->company->invoice_task_documents)
                         @foreach ($entity->task->documents as $document)
                             <div class="inline-flex items-center space-x-1">
                                 <a href="{{ route('client.documents.show', $document->hashed_id) }}" target="_blank"
