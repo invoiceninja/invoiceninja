@@ -90,6 +90,8 @@ class DeletePayment
                 
                 if(!$paymentable_invoice->is_deleted)
                 {
+                    $paymentable_invoice->restore();
+
                     $paymentable_invoice->service()
                                         ->updateBalance($net_deletable)
                                         ->updatePaidToDate($net_deletable * -1)
@@ -111,6 +113,8 @@ class DeletePayment
 
                 }
                 else {
+
+                    $paymentable_invoice->restore();
 
                     //If the invoice is deleted we only update the meta data on the invoice
                     //and reduce the clients paid to date
