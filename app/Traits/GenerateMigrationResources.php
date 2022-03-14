@@ -1328,6 +1328,7 @@ trait GenerateMigrationResources
                 'refunded' => $payment->refunded ?: 0,
                 'date' => $payment->payment_date,
                 'transaction_reference' => $payment->transaction_reference ?: '',
+                'private_notes' => $payment->private_notes ?: '',
                 'payer_id' => $payment->payer_id,
                 'is_deleted' => (bool)$payment->is_deleted,
                 'exchange_rate' => $payment->exchange_rate ? number_format((float) $payment->exchange_rate, 6) : null,
@@ -1367,10 +1368,26 @@ trait GenerateMigrationResources
     const SEPA = 29;
     const GOCARDLESS = 30;
     const CRYPTO = 31;
+
+    const MOLLIE_BANK_TRANSFER = 34;
+    const KBC = 35;
+    const BANCONTACT = 36;
+    const IDEAL = 37;
+    const HOSTED_PAGE = 38;
+    const GIROPAY = 39;
+    const PRZELEWY24 = 40;
+    const EPS = 41;
+    const DIRECT_DEBIT = 42;
+    const BECS = 43;
+    const ACSS = 44;
+    const INSTANT_BANK_PAY = 45;
+    const FPX = 46;
     */
     private function transformPaymentType($payment_type_id)
     {
         switch ($payment_type_id) {
+            case 4:
+                return 42;
             case PAYMENT_TYPE_CREDIT:
                 return 32;
             case PAYMENT_TYPE_ACH:
