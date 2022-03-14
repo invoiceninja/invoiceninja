@@ -190,9 +190,7 @@ class User extends Authenticatable implements MustVerifyEmail
         $truth = app()->make(TruthSource::class);
 
         if ($this->company){
-
             return $this->company;
-        
         }
         elseif($truth->getCompany()){
             return $truth->getCompany();
