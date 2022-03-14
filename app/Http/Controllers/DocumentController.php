@@ -8,6 +8,7 @@ use App\Http\Requests\Document\EditDocumentRequest;
 use App\Http\Requests\Document\ShowDocumentRequest;
 use App\Http\Requests\Document\StoreDocumentRequest;
 use App\Http\Requests\Document\UpdateDocumentRequest;
+use App\Jobs\Document\ZipDocuments;
 use App\Models\Document;
 use App\Repositories\DocumentRepository;
 use App\Transformers\DocumentTransformer;

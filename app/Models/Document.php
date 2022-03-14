@@ -138,6 +138,6 @@ class Document extends BaseModel
 
     public function getFile()
     {
-        return Storage::get($this->filePath());
+        return Storage::get($this->url);
     }
 }
