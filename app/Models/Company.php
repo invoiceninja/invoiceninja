@@ -508,6 +508,11 @@ class Company extends BaseModel
         return $this->slack_webhook_url;
     }
 
+    public function file_path()
+    {
+        return $this->company_key.'/';
+    }
+
     public function rBits()
     {
         $user = $this->owner();
