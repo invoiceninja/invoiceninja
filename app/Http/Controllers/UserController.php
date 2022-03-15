@@ -380,7 +380,7 @@ class UserController extends BaseController
      */
     public function update(UpdateUserRequest $request, User $user)
     {
-        $old_company_user = $user->company_user();
+        $old_company_user = $user->company_user;
         $old_user = json_encode($user);
         $old_user_email = $user->getOriginal('email');
 
@@ -398,8 +398,8 @@ class UserController extends BaseController
         
         
         if(
-            strcasecmp($old_company_user->permissions, $user->company_user()->permissions) != 0 ||
-            $old_company_user->is_admin != $user->company_user()->is_admin
+            strcasecmp($old_company_user->permissions, $user->company_user->permissions) != 0 ||
+            $old_company_user->is_admin != $user->company_user->is_admin
           ){
             $user->company_user()->update(["permissions_updated_at" => now()]);
         }
