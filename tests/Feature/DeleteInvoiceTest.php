@@ -436,11 +436,11 @@ class DeleteInvoiceTest extends TestCase
         $this->assertFalse((bool)$invoice_one->is_deleted);
         $this->assertNull($invoice_one->deleted_at);
 
-        $payment = $payment->fresh();
+        // $payment = $payment->fresh();
 
-        $this->assertEquals(40, $payment->fresh()->applied);
-        $this->assertEquals(40, $payment->fresh()->amount);
-        $this->assertEquals(40, $client->fresh()->paid_to_date);
+        // $this->assertEquals(40, $payment->fresh()->applied);
+        // $this->assertEquals(40, $payment->fresh()->amount);
+        // $this->assertEquals(40, $client->fresh()->paid_to_date);
     }
 
 

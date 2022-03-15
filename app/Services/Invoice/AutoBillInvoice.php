@@ -60,7 +60,7 @@ class AutoBillInvoice extends AbstractService
 
         /* Mark the invoice as paid if there is no balance */
         if ((int)$this->invoice->balance == 0)
-            return $this->invoice->service()->markPaid()->workFlow()->save();
+            return $this->invoice->service()->markPaid()->save();
 
         //if the credits cover the payments, we stop here, build the payment with credits and exit early
         if ($this->client->getSetting('use_credits_payment') != 'off')

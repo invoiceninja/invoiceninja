@@ -31,6 +31,8 @@ class HandleRestore extends AbstractService
 
     public function run()
     {
+        $this->invoice->restore();
+        
         if (!$this->invoice->is_deleted) {
             return $this->invoice;
         }
@@ -39,63 +41,64 @@ class HandleRestore extends AbstractService
         
         foreach ($this->invoice->payments as $payment) {
             //restore the payment record
-            $payment->restore();
+            // $payment->restore();
+            $this->invoice->restore();
 
-            //determine the paymentable amount before paymentable restoration
-            $pre_restore_amount =    $payment->paymentables()
-                                     ->where('paymentable_type', '=', 'invoices')
-                                     ->sum(\DB::raw('amount'));
+//             //determine the paymentable amount before paymentable restoration
+//             $pre_restore_amount =    $payment->paymentables()
+//                                      ->where('paymentable_type', '=', 'invoices')
+//                                      ->sum(\DB::raw('amount'));
 
-nlog("first pre restore amount = {$pre_restore_amount}");
+// nlog("first pre restore amount = {$pre_restore_amount}");
 
-            $pre_restore_amount -=  $payment->paymentables()
-                                     ->where('paymentable_type', '=', 'invoices')
-                                     ->sum(\DB::raw('refunded'));
+//             $pre_restore_amount -=  $payment->paymentables()
+//                                      ->where('paymentable_type', '=', 'invoices')
+//                                      ->sum(\DB::raw('refunded'));
 
-nlog("second pre restore amount = {$pre_restore_amount}");
+// nlog("second pre restore amount = {$pre_restore_amount}");
 
 
             //restore the paymentables
-            $payment->paymentables()
-                    ->where('paymentable_type', '=', 'invoices')
-                    ->where('paymentable_id', $this->invoice->id)
-                    ->restore();
+            // $payment->paymentables()
+            //         ->where('paymentable_type', '=', 'invoices')
+            //         ->where('paymentable_id', $this->invoice->id)
+            //         ->restore();
 
             //determine the post restore paymentable amount (we need to increment the payment amount by the difference between pre and post)
-            $payment_amount = $payment->paymentables()
-                                     ->where('paymentable_type', '=', 'invoices')
-                                     ->sum(\DB::raw('amount'));
+//             $payment_amount = $payment->paymentables()
+//                                      ->where('paymentable_type', '=', 'invoices')
+//                                      ->sum(\DB::raw('amount'));
 
-nlog("first payment_amount = {$payment_amount}");
+// nlog("first payment_amount = {$payment_amount}");
 
-            $payment_amount -= $payment->paymentables()
-                                     ->where('paymentable_type', '=', 'invoices')
-                                     ->sum(\DB::raw('refunded'));
+//             $payment_amount -= $payment->paymentables()
+//                                      ->where('paymentable_type', '=', 'invoices')
+//                                      ->sum(\DB::raw('refunded'));
 
-nlog("second payment_amount = {$payment_amount}");
+// nlog("second payment_amount = {$payment_amount}");
 
-            nlog($payment->amount . " == " . $payment_amount);
+//             nlog($payment->amount . " == " . $payment_amount);
 
-            if ($payment->amount == $payment_amount) {
-                $payment->is_deleted = false;
-                $payment->save();
+            // if ($payment->amount == $payment_amount) {
+            //     $payment->is_deleted = false;
+            //     $payment->save();
 
-                $this->payment_total += $payment_amount;
-            } else {
-                $payment->is_deleted = false;
-                $payment->amount += ($payment_amount - $pre_restore_amount);
-                $payment->applied += ($payment_amount - $pre_restore_amount);
-                $payment->save();
+            //     $this->payment_total += $payment_amount;
+            // } else {
+            //     $payment->is_deleted = false;
+            //     $payment->amount += ($payment_amount - $pre_restore_amount);
+            //     $payment->applied += ($payment_amount - $pre_restore_amount);
+            //     $payment->save();
 
-                $this->payment_total += ($payment_amount - $pre_restore_amount);
-            }
+            //     $this->payment_total += ($payment_amount - $pre_restore_amount);
+            // }
         }
 
         //adjust ledger balance
         $this->invoice->ledger()->updateInvoiceBalance($this->invoice->balance, "Restored invoice {$this->invoice->number}")->save();
 
         //adjust paid to dates
-        $this->invoice->client->service()->updatePaidToDate($this->payment_total)->save();
+        // $this->invoice->client->service()->updatePaidToDate($this->payment_total)->save();
 
         $this->invoice->client->service()->updateBalance($this->invoice->balance)->save();
 
@@ -104,6 +107,9 @@ nlog("second payment_amount = {$payment_amount}");
 
         $this->windBackInvoiceNumber();
 
+        $this->invoice->is_deleted = false;
+        $this->invoice->save();
+        
         return $this->invoice;
     }
 

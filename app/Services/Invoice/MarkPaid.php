@@ -96,6 +96,11 @@ class MarkPaid extends AbstractService
         $payment->ledger()
                 ->updatePaymentBalance($payment->amount * -1);
 
+        // $client = $this->invoice->client->fresh();
+        // $client->paid_to_date += $payment->amount;
+        // $client->balance += $payment->amount * -1;
+        // $client->save();
+
         $this->invoice
             ->client
             ->service()
@@ -103,10 +108,10 @@ class MarkPaid extends AbstractService
             ->updatePaidToDate($payment->amount)
             ->save();
 
-        $this->invoice
-             ->service()
-             ->workFlow()
-             ->save();
+        $this->invoice = $this->invoice
+                             ->service()
+                             ->workFlow()
+                             ->save();
 
         /* Update Invoice balance */
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
