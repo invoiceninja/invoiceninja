@@ -44,6 +44,7 @@ class User extends Authenticatable implements MustVerifyEmail
     use UserSettings;
     use Filterable;
     use HasFactory;
+    use \Awobaz\Compoships\Compoships;
 
     protected $guard = 'user';
 
@@ -250,17 +251,18 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function company_user()
     {
-
-        // return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'user_id', 'id', 'user_id')
-        // ->withTrashed();
+        if($this->companyId())
+            return $this->belongsTo(CompanyUser::class)->where('company_id', $this->companyId())->withTrashed();
 
         $truth = app()->make(TruthSource::class);
 
-        if($truth->getCompanyUser()){
+        if($truth->getCompanyUser())
             return $truth->getCompanyUser();
-        }
         
         return $this->token()->cu;
+
+        // return $this->hasOneThrough(CompanyUser::class, CompanyToken::class, 'user_id', 'user_id', 'id', 'user_id')
+        // ->withTrashed();
 
     }
 
