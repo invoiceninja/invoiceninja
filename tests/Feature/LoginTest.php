@@ -175,7 +175,7 @@ class LoginTest extends TestCase
         $this->assertTrue($user->companies !== null);
         $this->assertTrue($user->company_users !== null);
         $this->assertTrue($user->company_users->first() !== null);
-        $this->assertTrue($user->company_user()->account !== null);
+        $this->assertTrue($user->account !== null);
 
         $this->assertEquals($user->email, 'test@example.com');
         $this->assertTrue(\Hash::check('123456', $user->password));
