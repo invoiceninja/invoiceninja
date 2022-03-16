@@ -51,8 +51,8 @@ class ChargePaymentProfile
         $description = "Invoices: {$invoice_numbers} for {$amount} for client {$this->authorize->client->present()->name()}";
 
         $order = new OrderType();
-        $order->setInvoiceNumber($invoice_numbers);
-        $order->setDescription($description);
+        $order->setInvoiceNumber(substr($invoice_numbers,0,19));
+        $order->setDescription(substr($description,0,255));
 
         $transactionRequestType = new TransactionRequestType();
         $transactionRequestType->setTransactionType('authCaptureTransaction');
