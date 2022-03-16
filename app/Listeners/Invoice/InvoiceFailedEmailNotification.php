@@ -38,8 +38,7 @@ class InvoiceFailedEmailNotification
      */
     public function handle($event)
     {
-        nlog("inside a failed notification");
-        
+    
         MultiDB::setDb($event->company->db);
 
         $first_notification_sent = true;

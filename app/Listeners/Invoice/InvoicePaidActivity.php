@@ -58,7 +58,6 @@ class InvoicePaidActivity implements ShouldQueue
 
         if($event->invoice->subscription()->exists())
         {
-            nlog("subscription exists");
             $event->invoice->subscription->service()->planPaid($event->invoice);
         }
 

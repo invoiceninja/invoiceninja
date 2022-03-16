@@ -256,7 +256,7 @@ class AuthorizeCreditCard
         $code = "Error";
         $description = "There was an error processing the payment";
 
-        if ($response->getErrors() != null) {
+        if ($response && $response->getErrors() != null) {
             $code = $response->getErrors()[0]->getErrorCode();
             $description = $response->getErrors()[0]->getErrorText();
         }
