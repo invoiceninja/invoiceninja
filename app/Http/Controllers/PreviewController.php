@@ -147,7 +147,7 @@ class PreviewController extends BaseController
                 ->build();
 
             if (request()->query('html') == 'true') {
-                return $maker->getCompiledHTML;
+                return $maker->getCompiledHTML();
             }
 
             //if phantom js...... inject here..
@@ -266,7 +266,7 @@ class PreviewController extends BaseController
             DB::connection(config('database.default'))->rollBack();
 
             if (request()->query('html') == 'true') {
-                return $maker->getCompiledHTML;
+                return $maker->getCompiledHTML();
             }
 
 
