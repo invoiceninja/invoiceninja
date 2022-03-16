@@ -11,7 +11,7 @@
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         font-family: $font_name, Helvetica, sans-serif;
-        font-size: $font_size;
+        font-size: "$font_size";
         zoom: 80%;
     }
 
@@ -102,7 +102,7 @@
     [data-ref="table"] {
         padding-left: 3rem;
         padding-right: 3rem;
-        margin-top: 3rem;
+        margin-top: 1rem;
         /* margin-bottom: 200px; */
         min-width: 100%;
         table-layout: fixed;
@@ -155,10 +155,6 @@
     }
 
     #table-totals {
-        page-break-inside: avoid;
-    }
-
-    #table-totals {
         margin-top: 1rem;
         display: grid;
         grid-template-columns: 2fr 1fr;
@@ -166,6 +162,8 @@
         padding-left: 3rem;
         padding-right: 3rem;
         margin-right: .75rem;
+        page-break-inside:auto;
+        overflow: visible !important;
     }
 
     #table-totals .totals-table-right-side>* {

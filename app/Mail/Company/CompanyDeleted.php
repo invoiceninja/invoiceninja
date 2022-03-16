@@ -50,7 +50,7 @@ class CompanyDeleted extends Mailable
     public function build()
     {
         App::forgetInstance('translator');
-        App::setLocale($this->company->getLocale());
+        App::setLocale($this->account->default_company->getLocale());
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->settings));
 

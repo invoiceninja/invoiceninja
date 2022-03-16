@@ -4569,7 +4569,7 @@ $LANG = array(
     'quotes_backup_subject' => 'Your quotes are ready for download',
     'credits_backup_subject' => 'Your credits are ready for download',
     'document_download_subject' => 'Your documents are ready for download',
-
+    'reminder_message' => 'Reminder for invoice :number for :balance',
 );
 
 return $LANG;
