@@ -676,7 +676,7 @@ class QuoteController extends BaseController
                     return response()->json(['message' => ctrans('texts.quote_unapprovable')], 400);
                 }
 
-                return $this->itemResponse($quote->service()->approve()->save());
+                return $this->itemResponse($quote->service()->approveWithNoCoversion()->save());
                 break;
             case 'history':
                 // code...

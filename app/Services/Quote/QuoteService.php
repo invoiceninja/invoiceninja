@@ -126,6 +126,15 @@ class QuoteService
         return $this;
     }
 
+
+    public function approveWithNoCoversion($contact = null) :self
+    {
+        $this->setStatus(Quote::STATUS_APPROVED)->save();
+
+        return $this;
+    }
+    
+
     public function convertToInvoice()
     {
 
