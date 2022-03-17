@@ -126,6 +126,21 @@ class QuoteService
         return $this;
     }
 
+
+    public function approveWithNoCoversion($contact = null) :self
+    {
+        $this->setStatus(Quote::STATUS_APPROVED)->save();
+
+        if (!$contact) {
+            $contact = $this->quote->invitations->first()->contact;
+        }
+        
+        event(new QuoteWasApproved($contact, $this->quote, $this->quote->company, Ninja::eventVars()));
+
+        return $this;
+    }
+    
+
     public function convertToInvoice()
     {
 

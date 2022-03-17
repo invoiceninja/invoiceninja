@@ -189,12 +189,11 @@ class DocumentController extends BaseController
          */
         $documents->each(function ($document, $key) use ($action) {
             if (auth()->user()->can('edit', $document)) {
-                $this->{$action}($document);
+                $this->document_repo->{$action}($document);
             }
         });
 
         /* Need to understand which permission are required for the given bulk action ie. view / edit */
-
         return $this->listResponse(Document::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
     }
 }
