@@ -187,7 +187,7 @@ class SystemHealth
             config(['database.connections.mysql.password' => $request->input('db_password')]);
             config(['database.default' => 'mysql']);
 
-            DB::purge('db-ninja-01');
+            DB::purge('mysql');
         }
 
         if (!config('ninja.db.multi_db_enabled')) {
