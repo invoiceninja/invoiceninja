@@ -61,10 +61,7 @@ class PostUpdate extends Command
 
         try {
 
-            if(Ninja::isHosted())
-                Artisan::call('optimize');
-            else
-                Artisan::call('config:clear');
+            Artisan::call('optimize');
 
         } catch (\Exception $e) {
             info("I wasn't able to optimize.");
