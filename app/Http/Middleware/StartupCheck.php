@@ -66,9 +66,8 @@ class StartupCheck
             $this->buildTemplates();
         }
 
-        $response = $next($request);
+        return $next($request);
 
-        return $response;
     }
 
 

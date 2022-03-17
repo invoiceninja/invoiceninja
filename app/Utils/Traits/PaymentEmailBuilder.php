@@ -81,7 +81,7 @@ trait PaymentEmailBuilder
                 'allow_unsafe_links' => false,
             ]);
 
-            $data = $converter->convertToHtml($data);
+            $data = $converter->convert($data);
         }
 
         return $data;

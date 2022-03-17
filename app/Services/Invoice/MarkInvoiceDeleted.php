@@ -72,14 +72,21 @@ class MarkInvoiceDeleted extends AbstractService
 
     private function adjustPaidToDate()
     {
-        $this->invoice->client->service()->updatePaidToDate($this->adjustment_amount * -1)->save(); //reduces the paid to date by the payment totals
+        $client = $this->invoice->client->fresh();
+        $client->paid_to_date += $this->adjustment_amount * -1;
+        $client->save();
+        // $this->invoice->client->service()->updatePaidToDate($this->adjustment_amount * -1)->save(); //reduces the paid to date by the payment totals
 
         return $this;
     }
 
     private function adjustBalance()
     {
-        $this->invoice->client->service()->updateBalance($this->balance_adjustment * -1)->save(); //reduces the client balance by the invoice amount.
+        $client = $this->invoice->client->fresh();
+        $client->balance += $this->balance_adjustment * -1;
+        $client->save();
+        
+        // $this->invoice->client->service()->updateBalance($this->balance_adjustment * -1)->save(); //reduces the client balance by the invoice amount.
 
         return $this;
     }

@@ -143,6 +143,7 @@ class PaymentEmailEngine extends BaseEmailEngine
         $data['$payment.number'] = &$data['$number'];
         $data['$entity'] = ['value' => '', 'label' => ctrans('texts.payment')];
         $data['$payment.amount'] = ['value' => Number::formatMoney($this->payment->amount, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.amount')];
+        $data['$payment.refunded'] = ['value' => Number::formatMoney($this->payment->refunded, $this->client) ?: '&nbsp;', 'label' => ctrans('texts.refund')];
         $data['$amount'] = &$data['$payment.amount'];
         $data['$payment.date'] = ['value' => $this->translateDate($this->payment->date, $this->client->date_format(), $this->client->locale()), 'label' => ctrans('texts.payment_date')];
         $data['$transaction_reference'] = ['value' => $this->payment->transaction_reference, 'label' => ctrans('texts.transaction_reference')];
@@ -230,12 +231,14 @@ class PaymentEmailEngine extends BaseEmailEngine
 
         $data['$view_link'] = ['value' => '<a class="button" href="'.$this->payment->getLink().'">'.ctrans('texts.view_payment').'</a>', 'label' => ctrans('texts.view_payment')];
         $data['$view_button'] = &$data['$view_link'];
+        $data['$viewLink'] = &$data['$view_link'];
         $data['$paymentLink'] = &$data['$view_link'];
         $data['$portalButton'] = ['value' => "<a href='{$this->payment->getPortalLink()}'>".ctrans('texts.login')."</a>", 'label' =>''];
         $data['$portal_url'] = &$data['$portalButton'];
 
         $data['$view_url'] = ['value' => $this->payment->getLink(), 'label' => ctrans('texts.view_payment')];
         $data['$signature'] = ['value' => $this->settings->email_signature ?: '&nbsp;', 'label' => ''];
+        $data['$emailSignature'] = &$data['$signature'];
 
         $data['$invoices'] = ['value' => $this->formatInvoices(), 'label' => ctrans('texts.invoices')];
         $data['$invoice_references'] = ['value' => $this->formatInvoiceReferences(), 'label' => ctrans('texts.invoices')];

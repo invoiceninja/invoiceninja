@@ -4279,7 +4279,7 @@ $LANG = array(
     'company_import_failure_subject' => 'Error importing :company',
     'company_import_failure_body' => 'There was an error importing the company data, the error message was:',
     'recurring_invoice_due_date' => 'Due Date',
-    'amount_cents' => 'Amount in pennies,pence or cents',
+    'amount_cents' => 'Amount in pennies,pence or cents. ie for $0.10 please enter 10',
     'default_payment_method_label' => 'Default Payment Method',
     'default_payment_method' => 'Make this your preferred way of paying.',
     'already_default_payment_method' => 'This is your preferred way of paying.',
@@ -4568,7 +4568,8 @@ $LANG = array(
     'small' => 'Small',
     'quotes_backup_subject' => 'Your quotes are ready for download',
     'credits_backup_subject' => 'Your credits are ready for download',
-
+    'document_download_subject' => 'Your documents are ready for download',
+    'reminder_message' => 'Reminder for invoice :number for :balance',
 );
 
 return $LANG;

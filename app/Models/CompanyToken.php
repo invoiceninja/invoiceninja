@@ -17,6 +17,7 @@ class CompanyToken extends BaseModel
 {
     use SoftDeletes;
     use Filterable;
+    use \Awobaz\Compoships\Compoships;
 
     protected $fillable = [
         'name',

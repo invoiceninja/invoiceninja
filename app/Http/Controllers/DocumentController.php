@@ -8,6 +8,7 @@ use App\Http\Requests\Document\EditDocumentRequest;
 use App\Http\Requests\Document\ShowDocumentRequest;
 use App\Http\Requests\Document\StoreDocumentRequest;
 use App\Http\Requests\Document\UpdateDocumentRequest;
+use App\Jobs\Document\ZipDocuments;
 use App\Models\Document;
 use App\Repositories\DocumentRepository;
 use App\Transformers\DocumentTransformer;
@@ -173,10 +174,16 @@ class DocumentController extends BaseController
 
         $documents = Document::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
-        if (! $invoices) {
+        if (! $documents) {
             return response()->json(['message' => ctrans('texts.no_documents_found')]);
         }
 
+        if($action == 'download'){
+
+            ZipDocuments::dispatch($documents->pluck('id'), auth()->user()->company(), auth()->user());
+            
+            return response()->json(['message' => ctrans('texts.sent_message')], 200);
+        }
         /*
          * Send the other actions to the switch
          */

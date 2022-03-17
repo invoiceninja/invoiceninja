@@ -16,7 +16,10 @@
     }
 
     @page {
-        margin: $global_margin;
+        margin-left: $global_margin;
+        margin-right: $global_margin;
+        margin-bottom: 0;
+        margin-top: 0;
         size: $page_size $page_layout;
     }
 
@@ -91,7 +94,7 @@
     }
 
     [data-ref="table"] {
-        margin-top: 3rem;
+        margin-top: 1rem;
         /* margin-bottom: 200px; */
         min-width: 100%;
         table-layout: fixed;
@@ -138,16 +141,14 @@
     }
 
     #table-totals {
-        page-break-inside: avoid;
-    }
-
-    #table-totals {
-        margin-top: 1rem;
+        margin-top: 0rem;
         display: grid;
         grid-template-columns: 2fr 1fr;
         padding-top: .5rem;
         padding-right: 1rem;
         gap: 80px;
+        page-break-inside:auto;
+        overflow: visible !important;
     }
 
     #table-totals .totals-table-right-side > * {
@@ -316,7 +317,7 @@
 
 $entity_images
 
-<div class="repeating-footer" id="footer">
+<div class="repeating-footerx" id="footer">
    <p data-ref="total_table-footer">$entity_footer</p>
 
 
