@@ -131,6 +131,12 @@ class QuoteService
     {
         $this->setStatus(Quote::STATUS_APPROVED)->save();
 
+        if (!$contact) {
+            $contact = $this->quote->invitations->first()->contact;
+        }
+        
+        event(new QuoteWasApproved($contact, $this->quote, $this->quote->company, Ninja::eventVars()));
+
         return $this;
     }
     
