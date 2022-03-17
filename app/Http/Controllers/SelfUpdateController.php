@@ -81,7 +81,7 @@ class SelfUpdateController extends BaseController
         Artisan::call('clear-compiled');
         Artisan::call('route:clear');
         Artisan::call('view:clear');
-        Artisan::call('config:clear');
+        Artisan::call('optimize');
 
         return response()->json(['message' => 'Update completed'], 200);
 
