@@ -205,7 +205,7 @@ class BrowserPay implements MethodInterface
 
         $response = ApplePayDomain::create([
             'domain_name' => $domain,
-        ]);
+        ], $this->stripe->stripe_connect_auth);
 
         $config->apple_pay_domain_id = $response->id;
 
