@@ -214,13 +214,29 @@ class ACH
 
     public function paymentResponse($request)
     {
-        // nlog($request->all());
         
         $token = ClientGatewayToken::find($this->decodePrimaryKey($request->input('source')));
         $token_meta = $token->meta;
 
-        if(!property_exists($token_meta, 'state') || $token_meta->state != "authorized")
-            return redirect()->route('client.payment_methods.verification', ['payment_method' => $token->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
+        if(!property_exists($token_meta, 'state') || $token_meta->state != "authorized"){
+
+                $response = $this->wepay_payment_driver->wepay->request('/payment_bank', [
+                                'client_id'          => config('ninja.wepay.client_id'),
+                                'client_secret'      => config('ninja.wepay.client_secret'),
+                                'payment_bank_id'    => $token->token,
+                            ]);
+                
+                if($response->state == 'authorized')
+                {     
+                    $meta = $token->meta;
+                    $meta->state = $response->state;
+                    $token->meta = $meta;
+                    $token->save();
+                }
+                else
+                    return redirect()->route('client.payment_methods.verification', ['payment_method' => $token->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
+
+        }
 
         $app_fee = (config('ninja.wepay.fee_ach_multiplier') * $this->wepay_payment_driver->payment_hash->data->amount_with_fee) + config('ninja.wepay.fee_fixed');
 

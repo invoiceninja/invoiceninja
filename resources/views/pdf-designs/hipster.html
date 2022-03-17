@@ -141,16 +141,14 @@
     }
 
     #table-totals {
-        page-break-inside: avoid;
-    }
-
-    #table-totals {
         margin-top: 1rem;
         display: grid;
         grid-template-columns: 2fr 1fr;
         padding-top: 0.5rem;
         margin-right: .75rem;
         gap: 80px;
+        page-break-inside:auto;
+        overflow: visible !important;
     }
 
     #table-totals .totals-table-right-side>* {
@@ -231,7 +229,7 @@
     .repeating-header-space, **/
     .repeating-footer,
     .repeating-footer-space {
-        height: 160px;
+        height: 0;
     }
     .repeating-header {
         position: fixed;
@@ -357,7 +355,7 @@
 
 $entity_images
 
-<div class="repeating-footer" id="footer">
+<div class="repeating-footerx" id="footer">
    <p data-ref="total_table-footer">$entity_footer</p>
 
         <script>

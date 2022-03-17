@@ -482,7 +482,7 @@ class CheckData extends Command
         payments.id = paymentables.payment_id
         WHERE paymentable_type = ?
         AND paymentables.deleted_at is NULL
-        AND payments.amount > 0
+        AND paymentables.amount > 0
         AND payments.is_deleted = 0
         AND payments.client_id = ?;
         "), [App\Models\Credit::class, $client->id] );

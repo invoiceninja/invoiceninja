@@ -338,21 +338,44 @@ class CompanyGateway extends BaseModel
 
         $fee = 0;
 
-        if ($fees_and_limits->fee_amount) {
-            $fee += $fees_and_limits->fee_amount;
-        }
 
-        if ($fees_and_limits->fee_percent) {
-            if($fees_and_limits->fee_percent == 100){ //unusual edge case if the user wishes to charge a fee of 100% 09/01/2022
-                $fee += $amount;
-            }
-            elseif ($fees_and_limits->adjust_fee_percent) {
-                $fee += round(($amount / (1 - $fees_and_limits->fee_percent / 100) - $amount), 2);
-            } else {
-                $fee += round(($amount * $fees_and_limits->fee_percent / 100), 2);
-            }
-        }
+        if($fees_and_limits->adjust_fee_percent)
+        {
+                $adjusted_fee = 0;
 
+                if ($fees_and_limits->fee_amount) {
+                    $adjusted_fee += $fees_and_limits->fee_amount + $amount;
+                }
+
+                if ($fees_and_limits->fee_percent) {
+
+                        $divisor = 1 - ($fees_and_limits->fee_percent/100);
+
+                        $gross_amount = round($adjusted_fee/$divisor,2);
+                        $fee = $gross_amount - $amount;
+
+                }        
+
+        }
+        else
+        {
+                if ($fees_and_limits->fee_amount) {
+                    $fee += $fees_and_limits->fee_amount;
+                }
+
+                if ($fees_and_limits->fee_percent) {
+                    if($fees_and_limits->fee_percent == 100){ //unusual edge case if the user wishes to charge a fee of 100% 09/01/2022
+                        $fee += $amount;
+                    }
+                    else
+                        $fee += round(($amount * $fees_and_limits->fee_percent / 100), 2);
+                    //elseif ($fees_and_limits->adjust_fee_percent) {
+                     //   $fee += round(($amount / (1 - $fees_and_limits->fee_percent / 100) - $amount), 2);
+                    //} else {
+                        
+                    //}
+                }
+        }
         /* Cap fee if we have to here. */
         if ($fees_and_limits->fee_cap > 0 && ($fee > $fees_and_limits->fee_cap)) {
             $fee = $fees_and_limits->fee_cap;

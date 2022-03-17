@@ -90,6 +90,8 @@ class DeletePayment
                 
                 if(!$paymentable_invoice->is_deleted)
                 {
+                    $paymentable_invoice->restore();
+
                     $paymentable_invoice->service()
                                         ->updateBalance($net_deletable)
                                         ->updatePaidToDate($net_deletable * -1)
@@ -111,6 +113,8 @@ class DeletePayment
 
                 }
                 else {
+
+                    $paymentable_invoice->restore();
 
                     //If the invoice is deleted we only update the meta data on the invoice
                     //and reduce the clients paid to date
@@ -134,8 +138,10 @@ class DeletePayment
             });
         }
 
-        $this->payment
-        ->client
+
+        $client = $this->payment->client->fresh();
+
+        $client
         ->service()
         ->updatePaidToDate(($this->payment->amount - $this->payment->refunded)*-1)
         ->save();
@@ -143,7 +149,7 @@ class DeletePayment
         $transaction = [
             'invoice' => [],
             'payment' => [],
-            'client' => $this->payment->client->transaction_event(),
+            'client' => $client->transaction_event(),
             'credit' => [],
             'metadata' => [],
         ];
@@ -161,8 +167,8 @@ class DeletePayment
                 
                 $multiplier = 1;
 
-                    if($paymentable_credit->pivot->amount < 0)
-                        $multiplier = -1;
+                if($paymentable_credit->pivot->amount < 0)
+                    $multiplier = -1;
 
                 $paymentable_credit->service()
                                    ->updateBalance($paymentable_credit->pivot->amount*$multiplier*-1)
@@ -170,18 +176,13 @@ class DeletePayment
                                    ->setStatus(Credit::STATUS_SENT)
                                    ->save();
 
-                    $this->payment
-                    ->client
-                    ->service()
-                    ->updatePaidToDate(($paymentable_credit->pivot->amount)*-1)
-                    ->save();
+                $client = $this->payment->client->fresh();
 
-                    //01-03-2022
-                // $paymentable_credit->service()
-                //                    ->updateBalance($paymentable_credit->pivot->amount*$multiplier)
-                //                    ->updatePaidToDate($paymentable_credit->pivot->amount*-1)
-                //                    ->setStatus(Credit::STATUS_SENT)
-                //                    ->save();
+                $client
+                ->service()
+                ->updatePaidToDate(($paymentable_credit->pivot->amount)*-1)
+                ->save();
+
             });
         }
 

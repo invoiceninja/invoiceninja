@@ -33,6 +33,7 @@ class Company extends BaseModel
     use CompanySettingsSaver;
     use ThrottlesEmail;
     use AppSetup;
+    use \Awobaz\Compoships\Compoships;
 
     const ENTITY_RECURRING_INVOICE = 'recurring_invoice';
     const ENTITY_CREDIT = 'credit';
@@ -471,7 +472,7 @@ class Company extends BaseModel
 
     public function company_users()
     {
-        return $this->hasMany(CompanyUser::class);
+        return $this->hasMany(CompanyUser::class)->withTrashed();
     }
 
     public function owner()
@@ -506,6 +507,11 @@ class Company extends BaseModel
     public function routeNotificationForSlack($notification)
     {
         return $this->slack_webhook_url;
+    }
+
+    public function file_path()
+    {
+        return $this->company_key.'/';
     }
 
     public function rBits()

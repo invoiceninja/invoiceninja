@@ -1,4 +1,4 @@
-{!! ctrans('texts.invoices_backup_subject') !!}
+{!! ctrans('texts.document_download_subject') !!}
 
 {!! ctrans('texts.download_timeframe') !!}
 

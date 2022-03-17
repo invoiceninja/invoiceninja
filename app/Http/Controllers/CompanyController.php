@@ -14,6 +14,7 @@ namespace App\Http\Controllers;
 use App\DataMapper\Analytics\AccountDeleted;
 use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
+use App\Factory\CompanyFactory;
 use App\Http\Requests\Company\CreateCompanyRequest;
 use App\Http\Requests\Company\DefaultCompanyRequest;
 use App\Http\Requests\Company\DestroyCompanyRequest;
@@ -229,8 +230,12 @@ class CompanyController extends BaseController
             'permissions' => '',
             'settings' => null,
             'notifications' => CompanySettings::notificationDefaults(),
-            //'settings' => DefaultSettings::userSettings(),
         ]);
+
+        if(auth()->user()->company()->account->companies()->where('is_large', 1)->exists())
+        {
+            $company->account->companies()->update(['is_large' => true]);
+        }
 
         /*
          * Required dependencies
@@ -417,7 +422,6 @@ class CompanyController extends BaseController
         if ($request->hasFile('company_logo') || (is_array($request->input('settings')) && !array_key_exists('company_logo', $request->input('settings')))) 
             $this->removeLogo($company);
         
-
         $company = $this->company_repo->save($request->all(), $company);
 
         $company->saveSettings($request->input('settings'), $company);

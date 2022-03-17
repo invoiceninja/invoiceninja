@@ -128,6 +128,13 @@ class EmailTemplateDefaults
         return $invoice_message;
     }
 
+    public static function emailInvoiceReminderTemplate()
+    {
+        $invoice_message = '<p>$client<br><br>'.self::transformText('reminder_message').'</p><div class="center">$view_button</div>';
+
+        return $invoice_message;
+    }
+
     public static function emailQuoteSubject()
     {
         return ctrans('texts.quote_subject', ['number'=>'$number', 'account'=>'$company.name']);

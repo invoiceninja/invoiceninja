@@ -89,7 +89,7 @@ trait QuoteEmailBuilder
                 'allow_unsafe_links' => true,
             ]);
 
-            $data = $converter->convertToHtml($data);
+            $data = $converter->convert($data);
         }
 
         return $data;

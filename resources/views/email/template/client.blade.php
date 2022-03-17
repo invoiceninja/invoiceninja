@@ -22,43 +22,33 @@
             color-scheme: light dark;
             supported-color-schemes: light dark;
         }
-
         @if(isset($settings) && $settings->email_style === 'dark')
             body {
             background-color: #1a1a1a !important;
             color: #ffffff !important;
         }
-
         div, tr, td {
             border-color: #222222 !important;
         }
-
         h1, h2, h3, p, td {
             color: #ffffff !important;
         }
-
         p {
             color: #bbbbbc !important;
         }
-
         .dark-bg-base {
             background-color: #222222 !important;
         }
-
         .dark-bg {
             background-color: #3a3a3c !important;
         }
-
         .dark-text-white p {
             color: #ffffff !important;
         }
-
         hr {
             border-color: #474849 !important;
         }
-
         @endif
-
          /** Content-specific styles. **/
         #content .button {
             display: inline-block;
@@ -72,7 +62,6 @@
             font-weight: 600;
             margin-bottom: 30px;
         }
-
         #content h1 {
             font-family: 'canada-type-gibson', 'roboto', Arial, Helvetica, sans-serif;
             font-weight: 600;
@@ -80,17 +69,14 @@
             margin-top: 20px;
             margin-bottom: 30px;
         }
-
         #content > p {
             font-size: 16px;
             font-family: 'roboto', Arial, Helvetica, sans-serif;
             font-weight: 500;
         }
-
         #content .center {
             text-align: center;
         }
-
         #content .left {
             text-align: left !important;
         }

@@ -43,7 +43,7 @@
 
     .client-entity-wrapper {
         display: flex;
-        margin-top: 3rem;
+        margin-top: 1rem;
         gap: 20px;
         margin-left: 10px;
         line-height: var(--line-height);
@@ -133,17 +133,15 @@
     }
 
     #table-totals {
-        page-break-inside: avoid;
-    }
-
-    #table-totals {
-        margin-top: 1rem;
+        margin-top: 0.5rem;
         display: grid;
         grid-template-columns: 2fr 1fr;
         padding-top: 0.5rem;
         padding-left: 1rem;
         margin-right: .75rem;
         gap: 80px;
+        page-break-inside:auto;
+        overflow: visible !important;
     }
 
     #table-totals .totals-table-right-side>* {
@@ -316,7 +314,7 @@
 
 $entity_images
 
-<div class="repeating-footer" id="footer">
+<div class="repeating-footerx" id="footer">
    <p data-ref="total_table-footer">$entity_footer</p>
 
         <script>

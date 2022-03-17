@@ -11,7 +11,7 @@
         <input type="hidden" name="source" value="{{ $token->token }}">
 
         @component('portal.ninja2020.components.general.card-element', ['title' => '#1 ' . ctrans('texts.amount_cents')])
-            <input type="text" name="transactions[]" class="w-full input" required dusk="verification-1st" value="{{ old('transactions.0') }}">
+            <input type="number" pattern="[0-9]" min="1" step="1" name="transactions[]" class="w-full input" required dusk="verification-1st" value="{{ old('transactions.0') }}">
 
             @error('transactions.0')
                 <div class="validation validation-fail">
@@ -21,7 +21,7 @@
         @endcomponent
 
         @component('portal.ninja2020.components.general.card-element', ['title' => '#2 ' . ctrans('texts.amount_cents')])
-            <input type="text" name="transactions[]" class="w-full input" required dusk="verification-2nd" value="{{ old('transactions.1') }}">
+            <input type="number" pattern="[0-9]" min="1" step="1" name="transactions[]" class="w-full input" required dusk="verification-2nd" value="{{ old('transactions.1') }}">
 
             @error('transactions.1')
                 <div class="validation validation-fail">

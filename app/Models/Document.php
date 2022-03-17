@@ -135,4 +135,9 @@ class Document extends BaseModel
     {
         return Storage::disk($this->disk)->path($this->url);
     }
+
+    public function getFile()
+    {
+        return Storage::get($this->url);
+    }
 }

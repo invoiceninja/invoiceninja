@@ -41,8 +41,6 @@ class InvoiceEmailFailedActivity implements ShouldQueue
      */
     public function handle($event)
     {
-        nlog("inside activity_repo");
-        
         MultiDB::setDb($event->company->db);
 
         if(strpos($event->message, 'shared/public') !== false)
