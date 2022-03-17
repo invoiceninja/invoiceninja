@@ -237,7 +237,8 @@ class CreditCard
     {
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
 
-
+        $invoice_numbers = '';
+        
         if($this->eway_driver->payment_hash->data)
             $invoice_numbers =  collect($this->eway_driver->payment_hash->data->invoices)->pluck('invoice_number')->implode(',');
         
@@ -251,7 +252,6 @@ class CreditCard
                 'TotalAmount' => $this->convertAmountForEway($amount),
                 'CurrencyCode' => $this->eway_driver->client->currency()->code,
                 'InvoiceNumber' => $invoice_numbers,
-                'InvoiceDescription' => $description,
                 'InvoiceReference' => $description,
             ],
             'TransactionType' => \Eway\Rapid\Enum\TransactionType::RECURRING,
