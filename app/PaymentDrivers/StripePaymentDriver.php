@@ -169,7 +169,7 @@ class StripePaymentDriver extends BaseDriver
             && $this->client->currency()
             && ($this->client->currency()->code == 'EUR')
             && isset($this->client->country)
-            && in_array($this->client->country->iso_3166_3, ['AUS', 'FRA','DNK', 'DEU', 'ITA', 'LUX', 'NOR', 'SVN', 'GBR', 'EST', 'GRC', 'JPN', 'PRT', 'ESP', 'USA', 'BEL', 'FIN'])) { // TODO: More has to be added https://stripe.com/docs/payments/sepa-debit
+            && in_array($this->client->country->iso_3166_3, ['AUT', 'BEL', 'CHE', 'CYP', 'CZE', 'BGR', 'DNK', 'DEU', 'ESP', 'FIN', 'FRA', 'HUN', 'IRL', 'ITA', 'LVA', 'LUX', 'LTA', 'MLT', 'NLD', 'NOR', 'POL', 'ROU', 'SVK', 'SVN', 'SWE', 'GBR', 'EST', 'GRC', 'PRT' ])) { // TODO: More has to be added https://stripe.com/docs/payments/sepa-debit
             $types[] = GatewayType::SEPA;
         }
 
