@@ -4,7 +4,7 @@
     @keydown.window.escape="sidebarOpen = false"
     id="main-sidebar">
 
-    @if($settings->enable_client_portal)
+    @if($settings && $settings->enable_client_portal)
         <!-- Off-canvas menu for mobile -->
         @include('portal.ninja2020.components.general.sidebar.mobile')
 
@@ -15,7 +15,7 @@
     @endif
 
     <div class="flex flex-col w-0 flex-1 overflow-hidden">
-        @if($settings->enable_client_portal)
+        @if($settings && $settings->enable_client_portal)
             @include('portal.ninja2020.components.general.sidebar.header')
         @endif
         
