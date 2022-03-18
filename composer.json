@@ -67,7 +67,7 @@
         "league/flysystem-rackspace": "~1.0",
         "league/fractal": "0.13.*",
         "lokielse/omnipay-alipay": "~1.4",
-        "maatwebsite/excel": "dev-carbon#8b17952",
+        "maatwebsite/excel": "dev-php-fix",
         "meebio/omnipay-creditcall": "dev-master",
         "meebio/omnipay-secure-trading": "dev-master",
         "mfauveau/omnipay-pacnet": "~2.0",
@@ -207,7 +207,7 @@
         },
         {
             "type": "vcs",
-            "url": "https://github.com/tainmar/Laravel-Excel"
+            "url": "https://github.com/turbo124/Laravel-Excel"
         }
     ]
 }
