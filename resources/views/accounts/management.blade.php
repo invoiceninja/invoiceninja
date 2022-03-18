@@ -295,7 +295,7 @@
 		                </div>
 		            @endif
 		        	<br/>
-		        		<button form="forward-form" class="btn btn-primary btn-lg">{!! trans('texts.submit') !!}</button>
+		        		<button form="forward-form" class="btn btn-primary btn-lg">Enable Forwarding</button>
                 	</div>
 				</div>
 				</form>

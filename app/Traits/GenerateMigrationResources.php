@@ -149,6 +149,8 @@ trait GenerateMigrationResources
             $timezone_id = (string)($timezone_id - 1);
 
         return [
+            'entity_send_time' => 6,
+            'auto_bill_date' => $this->account->auto_bill_on_due_date ? 'on_due_date' : 'on_send_date',
             'auto_bill' => $this->transformAutoBill($this->account->token_billing_id),
             'payment_terms' => $this->account->payment_terms ? (string) $this->account->payment_terms : '',
             'timezone_id' => $timezone_id,
