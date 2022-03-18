@@ -16,8 +16,13 @@
     }
 
     @page {
-        margin: 5px $global_margin $global_margin $global_margin;
-        size: $page_size $page_layout;
+        position: absolute;
+        top: 0;
+        margin-left: $global_margin;
+        margin-right: $global_margin;
+        margin-top: 0;
+        margin-bottom: 0;
+
     }
 
     p {
@@ -71,10 +76,10 @@
     }
 
     [data-ref="table"] {
+        margin-top: 1rem;
         min-width: 100%;
         table-layout: fixed;
         overflow-wrap: break-word;
-        margin-top: 1rem;
         /* margin-bottom: 200px; */
     }
 
