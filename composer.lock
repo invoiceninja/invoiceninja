@@ -471,16 +471,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.214.0",
+            "version": "3.215.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "a2eacf8c1b55de4733f4cfc315da38f1d4c66501"
+                "reference": "79c4ffdf93cdcc7be9196ae2e22f0d0323cb2557"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/a2eacf8c1b55de4733f4cfc315da38f1d4c66501",
-                "reference": "a2eacf8c1b55de4733f4cfc315da38f1d4c66501",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/79c4ffdf93cdcc7be9196ae2e22f0d0323cb2557",
+                "reference": "79c4ffdf93cdcc7be9196ae2e22f0d0323cb2557",
                 "shasum": ""
             },
             "require": {
@@ -556,9 +556,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.214.0"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.215.0"
             },
-            "time": "2022-03-16T19:00:00+00:00"
+            "time": "2022-03-18T18:16:01+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -11272,16 +11272,16 @@
         },
         {
             "name": "stripe/stripe-php",
-            "version": "v7.116.0",
+            "version": "v7.117.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stripe/stripe-php.git",
-                "reference": "7a39f594f213ed3f443a95adf769d1ecbc8393e7"
+                "reference": "c9d40524c63f3c5042d704f88a60f49a349b1221"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/7a39f594f213ed3f443a95adf769d1ecbc8393e7",
-                "reference": "7a39f594f213ed3f443a95adf769d1ecbc8393e7",
+                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/c9d40524c63f3c5042d704f88a60f49a349b1221",
+                "reference": "c9d40524c63f3c5042d704f88a60f49a349b1221",
                 "shasum": ""
             },
             "require": {
@@ -11326,9 +11326,9 @@
             ],
             "support": {
                 "issues": "https://github.com/stripe/stripe-php/issues",
-                "source": "https://github.com/stripe/stripe-php/tree/v7.116.0"
+                "source": "https://github.com/stripe/stripe-php/tree/v7.117.0"
             },
-            "time": "2022-03-02T15:51:15+00:00"
+            "time": "2022-03-18T18:16:15+00:00"
         },
         {
             "name": "superbalist/flysystem-google-storage",
@@ -14305,12 +14305,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/turbo124/PHPExcel.git",
-                "reference": "98c34af2fed9cd5ab864943768477a4e4ed44734"
+                "reference": "d17f7057c3b6e62e025b81fe09c27dde2a1bb119"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/turbo124/PHPExcel/zipball/98c34af2fed9cd5ab864943768477a4e4ed44734",
-                "reference": "98c34af2fed9cd5ab864943768477a4e4ed44734",
+                "url": "https://api.github.com/repos/turbo124/PHPExcel/zipball/d17f7057c3b6e62e025b81fe09c27dde2a1bb119",
+                "reference": "d17f7057c3b6e62e025b81fe09c27dde2a1bb119",
                 "shasum": ""
             },
             "require": {
@@ -14362,7 +14362,7 @@
             "support": {
                 "source": "https://github.com/turbo124/PHPExcel/tree/php74fix"
             },
-            "time": "2022-03-18T02:29:54+00:00"
+            "time": "2022-03-19T04:21:11+00:00"
         },
         {
             "name": "twbs/bootstrap",
@@ -15374,16 +15374,16 @@
         },
         {
             "name": "zircote/swagger-php",
-            "version": "4.2.11",
+            "version": "4.2.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zircote/swagger-php.git",
-                "reference": "1c7a04e381b07e14aae080a61e02f2fe9cdea424"
+                "reference": "4ad0dc2245b6b603d732630fbea251ac92c630f2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zircote/swagger-php/zipball/1c7a04e381b07e14aae080a61e02f2fe9cdea424",
-                "reference": "1c7a04e381b07e14aae080a61e02f2fe9cdea424",
+                "url": "https://api.github.com/repos/zircote/swagger-php/zipball/4ad0dc2245b6b603d732630fbea251ac92c630f2",
+                "reference": "4ad0dc2245b6b603d732630fbea251ac92c630f2",
                 "shasum": ""
             },
             "require": {
@@ -15443,9 +15443,9 @@
             ],
             "support": {
                 "issues": "https://github.com/zircote/swagger-php/issues",
-                "source": "https://github.com/zircote/swagger-php/tree/4.2.11"
+                "source": "https://github.com/zircote/swagger-php/tree/4.2.12"
             },
-            "time": "2022-03-06T19:16:21+00:00"
+            "time": "2022-03-15T20:43:30+00:00"
         }
     ],
     "packages-dev": [
