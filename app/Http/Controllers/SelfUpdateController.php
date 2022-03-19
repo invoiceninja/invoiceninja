@@ -15,7 +15,7 @@ use App\Exceptions\FilePermissionsFailure;
 use App\Utils\Ninja;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Artisan;
-
+use Illuminate\Support\Facades\Storage;
 class SelfUpdateController extends BaseController
 {
     use DispatchesJobs;
@@ -109,7 +109,7 @@ class SelfUpdateController extends BaseController
 
         $zipFile->openFile($file);
 
-        $zipFile->extractTo('/home/david/Downloads/1/');
+        $zipFile->extractTo(base_path());
 
         $zipFile->close();
 
@@ -162,6 +162,6 @@ class SelfUpdateController extends BaseController
     {
         $version = $this->checkVersion();
 
-        return "https://github.com/invoiceninja/invoiceninja/releases/download/v{$version}/invoiceninja.zip"
+        return "https://github.com/invoiceninja/invoiceninja/releases/download/v{$version}/invoiceninja.zip";
     }
 }
