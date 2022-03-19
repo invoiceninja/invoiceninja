@@ -7,6 +7,11 @@
         --line-height: 1.6;
     }
 
+    html {
+        width: 210mm;
+        height: 200mm;     
+    }
+
     body {
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
@@ -20,7 +25,9 @@
         margin-right: $global_margin;
         margin-top: 0;
         margin-bottom: 0;
+        size: $page_size $page_layout;
     }
+
 
     p {
         margin: 0;
@@ -119,7 +126,7 @@
     [data-ref="table"] > tbody > tr > td {
         border-top: 1px solid #d8d8d8;
         border-bottom: 1px solid #d8d8d8;
-        padding: 1.5rem 1rem;
+        padding: 1rem 1rem;
     }
 
     [data-ref="table"] > tbody > tr > td:first-child {
@@ -191,7 +198,7 @@
     }
 
     #footer {
-        margin-top: 30px;
+        margin-top: 10px;
     }
 
     /** Markdown-specific styles. **/
@@ -222,7 +229,7 @@
     .repeating-header-space, **/
     .repeating-footer,
     .repeating-footer-space {
-        height: 160px;
+        height: 10px;
     }
     .repeating-header {
         position: fixed;

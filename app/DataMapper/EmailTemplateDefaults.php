@@ -185,8 +185,7 @@ class EmailTemplateDefaults
 
     public static function emailReminder1Template()
     {
-        return self::emailInvoiceTemplate();
-        //return '';
+        return self::emailInvoiceReminderTemplate();
     }
 
     public static function emailReminder2Subject()
@@ -196,8 +195,7 @@ class EmailTemplateDefaults
 
     public static function emailReminder2Template()
     {
-        return self::emailInvoiceTemplate();
-        //return '';
+        return self::emailInvoiceReminderTemplate();
     }
 
     public static function emailReminder3Subject()
@@ -207,8 +205,7 @@ class EmailTemplateDefaults
 
     public static function emailReminder3Template()
     {
-        return self::emailInvoiceTemplate();
-        //return '';
+        return self::emailInvoiceReminderTemplate();
     }
 
     public static function emailReminderEndlessSubject()
@@ -218,8 +215,7 @@ class EmailTemplateDefaults
 
     public static function emailReminderEndlessTemplate()
     {
-        return self::emailInvoiceTemplate();
-        return '';
+        return self::emailInvoiceReminderTemplate();
     }
 
     public static function emailStatementSubject()

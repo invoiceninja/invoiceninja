@@ -55,6 +55,11 @@ class UpdateInvoicePayment
                 $paid_amount = $paid_invoice->amount;
             }
 
+            $client
+                ->service()
+                ->updatePaidToDate($paid_amount)
+                ->save();
+
             /* Need to determine here is we have an OVER payment - if YES only apply the max invoice amount */
             if($paid_amount > $invoice->partial && $paid_amount > $invoice->balance)
                 $paid_amount = $invoice->balance;
@@ -77,7 +82,6 @@ class UpdateInvoicePayment
             $client
                 ->service()
                 ->updateBalance($paid_amount * -1)
-                ->updatePaidToDate($paid_amount)
                 ->save();
 
             $pivot_invoice = $this->payment->invoices->first(function ($inv) use ($paid_invoice) {
