@@ -102,6 +102,7 @@ trait GenerateMigrationResources
             'custom_surcharge_taxes1' => $this->account->custom_invoice_taxes1,
             'custom_surcharge_taxes2' => $this->account->custom_invoice_taxes2,
             'subdomain' => $this->account->subdomain,
+            'portal_mode' => 'subdomain',
             'size_id' => $this->account->size_id,
             'enable_modules' => $this->account->enabled_modules,
             'custom_fields' => $this->account->custom_fields,
@@ -148,6 +149,8 @@ trait GenerateMigrationResources
             $timezone_id = (string)($timezone_id - 1);
 
         return [
+            'entity_send_time' => 6,
+            'auto_bill_date' => $this->account->auto_bill_on_due_date ? 'on_due_date' : 'on_send_date',
             'auto_bill' => $this->transformAutoBill($this->account->token_billing_id),
             'payment_terms' => $this->account->payment_terms ? (string) $this->account->payment_terms : '',
             'timezone_id' => $timezone_id,
@@ -552,13 +555,14 @@ trait GenerateMigrationResources
     {
 
         $credits = [];
+        $export_credits = collect([]);
 
-        $export_credits = Invoice::where('account_id', $this->account->id)
-            ->where('balance', '<', '0')
-            ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
-            ->where('is_public', true)
-            ->withTrashed()
-            ->get();
+        // $export_credits = Invoice::where('account_id', $this->account->id)
+        //     ->where('balance', '<', '0')
+        //     ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
+        //     ->where('is_public', true)
+        //     ->withTrashed()
+        //     ->get();
 
         info("get credit notes => " . $export_credits->count());
 
@@ -613,7 +617,7 @@ trait GenerateMigrationResources
         $invoices = [];
 
         $export_invoices = Invoice::where('account_id', $this->account->id)
-            ->where('amount', '>=', 0)
+            // ->where('amount', '>=', 0)
             ->where('invoice_type_id', INVOICE_TYPE_STANDARD)
             ->where('is_recurring', false)
             ->withTrashed()
@@ -810,13 +814,13 @@ trait GenerateMigrationResources
 
     private function calcAutoBillEnabled($invoice)
     {
-        if($invoice->auto_bill == 1)
+        if($invoice->auto_bill === 1)
             return 'off';
-        elseif($invoice->auto_bill == 2)
+        elseif($invoice->auto_bill === 2)
             return 'optin';
-        elseif($invoice->auto_bill == 3)
+        elseif($invoice->auto_bill === 3)
             return 'optout';
-        elseif($invoice->auto_bill == 4)
+        elseif($invoice->auto_bill === 4)
             return 'always';
         else
             return 'off';
@@ -1326,6 +1330,7 @@ trait GenerateMigrationResources
                 'refunded' => $payment->refunded ?: 0,
                 'date' => $payment->payment_date,
                 'transaction_reference' => $payment->transaction_reference ?: '',
+                'private_notes' => $payment->private_notes ?: '',
                 'payer_id' => $payment->payer_id,
                 'is_deleted' => (bool)$payment->is_deleted,
                 'exchange_rate' => $payment->exchange_rate ? number_format((float) $payment->exchange_rate, 6) : null,
@@ -1365,10 +1370,26 @@ trait GenerateMigrationResources
     const SEPA = 29;
     const GOCARDLESS = 30;
     const CRYPTO = 31;
+
+    const MOLLIE_BANK_TRANSFER = 34;
+    const KBC = 35;
+    const BANCONTACT = 36;
+    const IDEAL = 37;
+    const HOSTED_PAGE = 38;
+    const GIROPAY = 39;
+    const PRZELEWY24 = 40;
+    const EPS = 41;
+    const DIRECT_DEBIT = 42;
+    const BECS = 43;
+    const ACSS = 44;
+    const INSTANT_BANK_PAY = 45;
+    const FPX = 46;
     */
     private function transformPaymentType($payment_type_id)
     {
         switch ($payment_type_id) {
+            case 4:
+                return 42;
             case PAYMENT_TYPE_CREDIT:
                 return 32;
             case PAYMENT_TYPE_ACH:

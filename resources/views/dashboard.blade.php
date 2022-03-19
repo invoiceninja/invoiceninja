@@ -253,6 +253,12 @@
 	@include('partials/white_label_expired')
 @endif
 
+@if($account->account_email_settings->forward_url_for_v5)
+<div class="alert alert-danger">
+Your account is currently forwarding all requests to v5, this installation is now disabled.
+</div>
+@endif
+
 @if (Auth::user()->hasPermission('admin'))
 <div class="row">
     <div class="col-md-4">

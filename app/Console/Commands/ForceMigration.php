@@ -97,20 +97,20 @@ class ForceMigration extends Command
 
         }
 
-        $company = Company::on($this->db)
-                          ->whereNull('plan')
-                          ->orWhereIn('plan', ['','free'])
-                          ->whereHas('accounts', function ($query){
-                            $query->where('account_key', '!=', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
-                            $query->orWhere('account_key', '!=', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx702');
-                            $query->orWhere('account_key', '!=', 'AsFmBAeLXF0IKf7tmi0eiyZfmWW9hxMT');
-                           })
-                          ->with('accounts')
-                          ->withCount('accounts')
-                          ->having('accounts_count', '>=', 1)
-                          ->first();
+        // $company = Company::on($this->db)
+        //                   ->whereNull('plan')
+        //                   ->orWhereIn('plan', ['','free'])
+        //                   ->whereHas('accounts', function ($query){
+        //                     $query->where('account_key', '!=', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
+        //                     $query->orWhere('account_key', '!=', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx702');
+        //                     $query->orWhere('account_key', '!=', 'AsFmBAeLXF0IKf7tmi0eiyZfmWW9hxMT');
+        //                    })
+        //                   ->with('accounts')
+        //                   ->withCount('accounts')
+        //                   ->having('accounts_count', '>=', 1)
+        //                   ->first();
 
-        return $company;
+        // return $company;
 
     }
 
