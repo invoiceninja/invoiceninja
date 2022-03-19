@@ -557,12 +557,9 @@ trait GenerateMigrationResources
         $credits = [];
         $export_credits = collect([]);
 
-        // $export_credits = Invoice::where('account_id', $this->account->id)
-        //     ->where('balance', '<', '0')
-        //     ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
-        //     ->where('is_public', true)
-        //     ->withTrashed()
-        //     ->get();
+        $export_credits = Credit::where('account_id', $this->account->id)->where('amount', '>', 0)->whereIsDeleted(false)
+            ->withTrashed()
+            ->get();
 
         info("get credit notes => " . $export_credits->count());
 
@@ -572,35 +569,35 @@ trait GenerateMigrationResources
                 'client_id' => $credit->client_id,
                 'user_id' => $credit->user_id,
                 'company_id' => $credit->account_id,
-                'status_id' => $credit->invoice_status_id,
-                'design_id' => $this->getDesignId($credit->invoice_design_id),
-                'number' => $credit->invoice_number,
-                'discount' => $credit->discount ? $credit->discount*-1: 0,
-                'is_amount_discount' => $credit->is_amount_discount ?: false,
-                'po_number' => $credit->po_number ?: '',
-                'date' => $credit->invoice_date,
-                'last_sent_date' => $credit->last_sent_date,
-                'due_date' => $credit->due_date,
+                'status_id' => 2,
+                'design_id' => 2,
+                'number' => $credit->credit_number ?: null,
+                'discount' => 0,
+                'is_amount_discount' => 0,
+                'po_number' => '',
+                'date' => $credit->date,
+                'last_sent_date' => null,
+                'due_date' => null,
                 'uses_inclusive_taxes' => $this->account->inclusive_taxes,
                 'is_deleted' => $credit->is_deleted,
-                'footer' => $credit->invoice_footer ?: '',
-                'public_notes' => $credit->public_notes ?: '',
-                'private_notes' => $credit->private_notes ?: '',
-                'terms' => $credit->terms ?: '',
-                'tax_name1' => $credit->tax_name1,
-                'tax_name2' => $credit->tax_name2,
-                'tax_rate1' => $credit->tax_rate1 ?: 0,
-                'tax_rate2' => $credit->tax_rate2 ?: 0,
+                'footer' => '',
+                'public_notes' => $credit->public_notes,
+                'private_notes' => $credit->private_notes,
+                'terms' => '',
+                'tax_name1' => '',
+                'tax_name2' => '',
+                'tax_rate1' => 0,
+                'tax_rate2' => 0,
                 'tax_name3' => '',
                 'tax_rate3' => 0,
-                'custom_value1' => $credit->custom_value1 ?: '',
-                'custom_value2' => $credit->custom_value2 ?: '',
+                'custom_value1' => '',
+                'custom_value2' => '',
                 'next_send_date' => null,
                 'amount' => $credit->amount ? $credit->amount * -1: 0,
-                'balance' => $credit->balance ? $credit->balance * -1 : 0,
-                'partial' => $credit->partial ? $credit->partial * -1 : 0,
-                'partial_due_date' => $credit->partial_due_date,
-                'line_items' => $this->getCreditItems($credit->invoice_items),
+                'balance' => $credit->balance ? $credit->balance  * -1: 0,
+                'partial' => 0,
+                'partial_due_date' => null,
+                'line_items' => $this->getCreditItems($credit->balance),
                 'created_at' => $credit->created_at ? Carbon::parse($credit->created_at)->toDateString() : null,
                 'updated_at' => $credit->updated_at ? Carbon::parse($credit->updated_at)->toDateString() : null,
                 'deleted_at' => $credit->deleted_at ? Carbon::parse($credit->deleted_at)->toDateString() : null,
@@ -1139,43 +1136,33 @@ trait GenerateMigrationResources
         return $transformed;
     }
 
-    public function getCreditItems($items)
+    public function getCreditItems($balance)
     {
         info("get credit items");
 
         $transformed = [];
 
-        foreach ($items as $item) {
-
-            // if($item->cost < 0)
-            //     $item->cost = $item->cost * -1;
-
-            $item->qty = $item->qty * -1;
-
-            // if($item->discount < 0)
-            //     $item->discount = $item->discount * -1;
-
             $transformed[] = [
-                'id' => $item->id,
-                'quantity' => (float) $item->qty,
-                'cost' => (float) $item->cost,
-                'product_key' => $item->product_key,
-                'notes' => $item->notes,
-                'discount' => (float) $item->discount,
-                'tax_name1' => (string)$item->tax_name1,
-                'tax_rate1' => (float) $item->tax_rate1,
-                'tax_name2' => (string) $item->tax_name2,
-                'tax_rate2' => (float) $item->tax_rate2,
-                'tax_name3' => (string) '',
-                'tax_rate3' => (float) 0,
-                'date' => Carbon::parse($item->created_at)->toDateString(),
-                'custom_value1' => $item->custom_value1 ?: '',
-                'custom_value2' => $item->custom_value2 ?: '',
+                'id' => '',
+                'quantity' => (float) 1,
+                'cost' => (float) $balance,
+                'product_key' => trans('texts.balance'),
+                'notes' => trans('texts.credit_balance'),
+                'discount' => 0,
+                'tax_name1' => '',
+                'tax_rate1' => 0,
+                'tax_name2' => '',
+                'tax_rate2' => 0,
+                'tax_name3' => '',
+                'tax_rate3' => 0,
+                'date' => '',
+                'custom_value1' => '',
+                'custom_value2' => '',
                 'custom_value3' => '',
                 'custom_value4' => '',
-                'type_id' => (string)$item->invoice_item_type_id,
+                'type_id' => '1',
             ];
-        }
+
 
         return $transformed;
     }

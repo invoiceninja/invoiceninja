@@ -425,7 +425,7 @@ class StepsController extends BaseController
                 'recurring_expenses' => $this->getRecurringExpenses(),
                 'recurring_invoices' => $this->getRecurringInvoices(),
                 'quotes' => $this->getQuotes(),
-                'payments' => array_merge($this->getPayments(), $this->getCredits()),
+                'payments' => $this->getPayments(),
                 'documents' => $this->getDocuments(),
                 'expense_categories' => $this->getExpenseCategories(),
                 'task_statuses' => $this->getTaskStatuses(),
