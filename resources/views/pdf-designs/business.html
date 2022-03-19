@@ -7,6 +7,11 @@
         --line-height: 1.6;
     }
 
+    html {
+        width: 210mm;
+        height: 200mm;     
+    }
+
     body {
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
@@ -20,6 +25,7 @@
         margin-right: $global_margin;
         margin-top: 0;
         margin-bottom: 0;
+        size: $page_size $page_layout;
     }
 
     p {
@@ -56,7 +62,7 @@
     }
 
     .entity-issued-to {
-        margin-top: 3rem;
+        margin-top: 2rem;
         font-weight: bold;
     }
 
@@ -161,7 +167,7 @@
     }
 
     #table-totals {
-        margin-top: 1rem;
+        margin-top: 0.5rem;
         display: grid;
         grid-template-columns: 2fr 1fr;
         gap: 80px;
@@ -253,7 +259,7 @@
     .repeating-header-space, **/
     .repeating-footer,
     .repeating-footer-space {
-        height: 160px;
+        height: 10px;
     }
     .repeating-header {
         position: fixed;

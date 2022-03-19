@@ -6,6 +6,11 @@
         --secondary-color: $secondary_color;
       }
 
+      html {
+          width: 210mm;
+          height: 200mm;     
+      }
+
       body {
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
@@ -21,6 +26,7 @@
 
       @page {
           margin: 0 !important;
+          size: $page_size $page_layout;
       }
 
       p {
