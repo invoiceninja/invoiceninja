@@ -113,4 +113,11 @@ class SelfUpdateController extends BaseController
     {
         return trim(file_get_contents(config('ninja.version_url')));
     }
+
+    private function getDownloadUrl()
+    {
+        $version = $this->checkVersion();
+        
+        return "https://github.com/invoiceninja/invoiceninja/releases/download/v{$verion}/invoiceninja.zip"
+    }
 }
