@@ -153,7 +153,7 @@ class GoCardlessPaymentDriver extends BaseDriver
                     'gateway_type_id' => GatewayType::BANK_TRANSFER,
                 ];
 
-                $payment = $this->createPayment($data, Payment::STATUS_COMPLETED);
+                $payment = $this->createPayment($data, Payment::STATUS_PENDING);
 
                 SystemLogger::dispatch(
                     ['response' => $payment, 'data' => $data],
@@ -241,7 +241,6 @@ class GoCardlessPaymentDriver extends BaseDriver
             return response()->json([], 200);
 
         }
-
 
         foreach ($request->events as $event) {
             if ($event['action'] === 'confirmed') {

@@ -40,7 +40,7 @@
                                         class="input w-full" 
                                         type="email"
                                         name="{{ $field['key'] }}"
-                                        value="{{ old($field['key']) }}"
+                                        value=""
                                         {{ $field['required'] ? 'required' : '' }} />
                                 @elseif($field['key'] === 'password')
                                     <input 
