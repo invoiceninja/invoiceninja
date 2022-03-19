@@ -87,6 +87,28 @@ class SelfUpdateController extends BaseController
 
     }
 
+    public function new_update()
+    {
+
+        $contents = file_get_contents($this->getDownloadUrl());
+
+        Storage::disk('local')->put('invoiceninja.zip', $contents);
+
+        $file = Storage::disk('local')->path('invoiceninja.zip');
+
+        $zipFile = new \PhpZip\ZipFile();
+
+        $zipFile->openFile($file);
+
+        $zipFile->extractTo('/home/david/Downloads/1/');
+
+        $zipFile->close();
+
+        unlink($file);
+
+
+    }
+
     private function testWritable()
     {
         $directoryIterator = new \RecursiveDirectoryIterator(base_path(), \RecursiveDirectoryIterator::SKIP_DOTS);
@@ -117,7 +139,7 @@ class SelfUpdateController extends BaseController
     private function getDownloadUrl()
     {
         $version = $this->checkVersion();
-        
-        return "https://github.com/invoiceninja/invoiceninja/releases/download/v{$verion}/invoiceninja.zip"
+
+        return "https://github.com/invoiceninja/invoiceninja/releases/download/v{$version}/invoiceninja.zip"
     }
 }
