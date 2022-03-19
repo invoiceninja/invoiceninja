@@ -16,6 +16,7 @@ use App\Utils\Ninja;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
+
 class SelfUpdateController extends BaseController
 {
     use DispatchesJobs;
