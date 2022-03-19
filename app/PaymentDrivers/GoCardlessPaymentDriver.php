@@ -253,10 +253,13 @@ class GoCardlessPaymentDriver extends BaseDriver
                     $payment->status_id = Payment::STATUS_COMPLETED;
                     $payment->save();
                 }
+
+
+                //finalize payments on invoices here.
+
             }
 
             if ($event['action'] === 'failed') {
-                // Update invoices, etc?
 
                 $payment = Payment::query()
                     ->where('transaction_reference', $event['links']['payment'])
