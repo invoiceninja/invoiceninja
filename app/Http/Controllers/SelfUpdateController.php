@@ -141,7 +141,7 @@ class SelfUpdateController extends BaseController
             if(strpos($file->getPathname(), '.git') !== false)
                 continue;
 
-            // nlog($file->getPathname());
+            //nlog($file->getPathname());
 
             if ($file->isFile() && ! $file->isWritable()) {
                 // throw new FilePermissionsFailure($file);

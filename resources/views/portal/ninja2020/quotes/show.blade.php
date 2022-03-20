@@ -15,9 +15,9 @@
 
 @section('body')
 
-    @if(!$quote->isApproved() && $client->getSetting('custom_message_unpaid_invoice'))
+    @if(!$quote->isApproved() && $client->getSetting('custom_message_unapproved_quote'))
         @component('portal.ninja2020.components.message')
-            {{ $client->getSetting('custom_message_unpaid_invoice') }}
+            {{ $client->getSetting('custom_message_unapproved_quote') }}
         @endcomponent
     @endif
 

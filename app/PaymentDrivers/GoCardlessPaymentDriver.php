@@ -153,7 +153,7 @@ class GoCardlessPaymentDriver extends BaseDriver
                     'gateway_type_id' => GatewayType::BANK_TRANSFER,
                 ];
 
-                $payment = $this->createPayment($data, Payment::STATUS_COMPLETED);
+                $payment = $this->createPayment($data, Payment::STATUS_PENDING);
 
                 SystemLogger::dispatch(
                     ['response' => $payment, 'data' => $data],
@@ -242,7 +242,6 @@ class GoCardlessPaymentDriver extends BaseDriver
 
         }
 
-
         foreach ($request->events as $event) {
             if ($event['action'] === 'confirmed') {
                 $payment = Payment::query()
@@ -254,10 +253,13 @@ class GoCardlessPaymentDriver extends BaseDriver
                     $payment->status_id = Payment::STATUS_COMPLETED;
                     $payment->save();
                 }
+
+
+                //finalize payments on invoices here.
+
             }
 
             if ($event['action'] === 'failed') {
-                // Update invoices, etc?
 
                 $payment = Payment::query()
                     ->where('transaction_reference', $event['links']['payment'])

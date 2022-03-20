@@ -18,12 +18,15 @@ use App\Http\Requests\ClientPortal\RegisterRequest;
 use App\Models\Client;
 use App\Models\Company;
 use App\Utils\Ninja;
+use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\App;
 
 class ContactRegisterController extends Controller
 {
+    use GeneratesCounter;
+
     public function __construct()
     {
         $this->middleware(['guest']);
@@ -61,6 +64,16 @@ class ContactRegisterController extends Controller
 
         $client->fill($data);
         $client->save();
+        $client->number = $this->getNextClientNumber($client);
+        $client->save();
+
+        if(!$client->country_id && strlen($client->company->settings->country_id) > 1){
+
+            $client->update(['country_id' => $client->company->settings->country_id]);
+        
+        }
+
+        $this->getClientContact($data, $client);
 
         return $client;
     }
