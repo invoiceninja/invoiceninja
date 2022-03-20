@@ -170,33 +170,4 @@ class PaymentIntentWebhook implements ShouldQueue
 
     }
 
-        //charge # optional($this->stripe_request['object']['charges']['data'][0])['id']
-        //metadata # optional($this->stripe_request['object']['charges']['data'][0]['metadata']['gateway_type_id']
-        //metadata # optional($this->stripe_request['object']['charges']['data'][0]['metadata']['payment_hash']
-
-
-/**
- * 
-                * $intent = \Stripe\PaymentIntent::retrieve('{{PAYMENT_INTENT_ID}}');
-                $charges = $intent->charges->data;
- * 
- * 
- *                      $payment = Payment::query()
-                        ->where('company_id', $request->getCompany()->id)
-                        ->where('transaction_reference', $transaction['id'])
-                        ->first();
-
-
-                    if ($payment) {
-                    $payment->status_id = Payment::STATUS_COMPLETED;
-                    $payment->save();
-                }
-
-
-
-
- * */
-
-    
-
 }
