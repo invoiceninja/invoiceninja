@@ -18,7 +18,7 @@ class CreatePaymentMethodRequest extends FormRequest
     public function authorize(): bool
     {
         /** @var Client $client */
-        $client = auth()->user()->client;
+        $client = auth()->('guard')->user()->client;
 
         $available_methods = [];
 
