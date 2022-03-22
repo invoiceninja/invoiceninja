@@ -388,13 +388,12 @@ class LoginController extends BaseController
                 $cu = CompanyUser::query()
                                   ->where('user_id', auth()->user()->id);
 
-                // $cu->first()->account->companies->each(function ($company) use($cu){
 
-                //     if($company->tokens()->where('is_system', true)->count() == 0)
-                //     {
-                //         CreateCompanyToken::dispatchNow($company, $cu->first()->user, request()->server('HTTP_USER_AGENT'));
-                //     }
-                // });
+                    $truth = app()->make(TruthSource::class);
+
+                    $truth->setCompanyUser($cu->first());
+                    $truth->setUser(auth()->user());
+                    $truth->setCompany(auth()->user()->account->default_company);
 
             
                     if($existing_user->company_users()->count() != $existing_user->tokens()->count())
