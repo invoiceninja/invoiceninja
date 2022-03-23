@@ -156,8 +156,6 @@ class User extends Authenticatable implements MustVerifyEmail
             return CompanyToken::with(['cu'])->where('token', request()->header('X-API-TOKEN'))->first();
         }
 
-        if($truth->getCompany())
-            return $this->tokens()->where('company_id', $truth->getCompany()->id)->first();
 
         return $this->tokens()->first();
     }
