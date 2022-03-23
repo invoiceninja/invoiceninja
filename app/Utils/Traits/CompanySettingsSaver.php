@@ -193,6 +193,11 @@ trait CompanySettingsSaver
                 settype($settings->{$key}, 'object');
             }
 
+            //try casting floats here
+            if($value == 'float'){
+                $settings->{$key} = floatval($settings->{$key});
+            }
+
             /* Handles unset settings or blank strings */
             if (! property_exists($settings, $key) || is_null($settings->{$key}) || ! isset($settings->{$key}) || $settings->{$key} == '') {
                 continue;
