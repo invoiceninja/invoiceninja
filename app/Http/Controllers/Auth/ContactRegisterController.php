@@ -35,7 +35,10 @@ class ContactRegisterController extends Controller
     public function showRegisterForm(string $company_key = '')
     {
 
-        $key = request()->session()->has('company_key') ? request()->session()->get('company_key') : $company_key;
+        if(strlen($company_key) > 2)
+            $key = $company_key;
+        else
+            $key = request()->session()->has('company_key') ? request()->session()->get('company_key') : $company_key;
 
         $company = Company::where('company_key', $key)->firstOrFail();
 
@@ -43,7 +46,7 @@ class ContactRegisterController extends Controller
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($company->settings));
 
-        return render('auth.register', ['company' => $company, 'account' => $company->account]);
+        return render('auth.register', ['register_company' => $company, 'account' => $company->account]);
     }
 
     public function register(RegisterRequest $request)
@@ -60,6 +63,7 @@ class ContactRegisterController extends Controller
 
     private function getClient(array $data)
     {
+
         $client = ClientFactory::create($data['company']->id, $data['company']->owner()->id);
 
         $client->fill($data);
@@ -73,7 +77,7 @@ class ContactRegisterController extends Controller
         
         }
 
-        $this->getClientContact($data, $client);
+        // $this->getClientContact($data, $client);
 
         return $client;
     }

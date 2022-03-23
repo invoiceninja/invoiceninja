@@ -5,21 +5,21 @@
     <div class="grid lg:grid-cols-12 py-8">
         <div class="col-span-12 lg:col-span-8 lg:col-start-3 xl:col-span-6 xl:col-start-4 px-6">
             <div class="flex justify-center">
-                <img class="h-32 w-auto" src="{{ $company->present()->logo() }}" alt="{{ ctrans('texts.logo') }}">
+                <img class="h-32 w-auto" src="{{ $register_company->present()->logo() }}" alt="{{ ctrans('texts.logo') }}">
             </div>
             <h1 class="text-center text-3xl mt-8">{{ ctrans('texts.register') }}</h1>
             <p class="block text-center text-gray-600">{{ ctrans('texts.register_label') }}</p>
 
             <form action="{{ route('client.register', request()->route('company_key')) }}" method="POST" x-data="{ more: false }">
-                @if($company)
-                <input type="hidden" name="company_key" value="{{ $company->company_key }}">
+                @if($register_company)
+                <input type="hidden" name="company_key" value="{{ $register_company->company_key }}">
                 @endif
 
                 @csrf
 
                 <div class="grid grid-cols-12 gap-4 mt-10">
-                    @if($company->client_registration_fields)
-                    @foreach($company->client_registration_fields as $field)
+                    @if($register_company->client_registration_fields)
+                    @foreach($register_company->client_registration_fields as $field)
                         @if($field['required'])
                             <div class="col-span-12 md:col-span-6">
                                 <section class="flex items-center">
@@ -108,15 +108,15 @@
 
                 <div class="flex justify-between items-center mt-8">
                     <span class="inline-flex items-center" x-data="{ terms_of_service: false, privacy_policy: false }">
-                            @if(!empty($company->settings->client_portal_terms) || !empty($company->settings->client_portal_privacy_policy))
+                            @if(!empty($register_company->settings->client_portal_terms) || !empty($register_company->settings->client_portal_privacy_policy))
                                 <input type="checkbox" name="terms" class="form-checkbox mr-2 cursor-pointer" checked>
                                 <span class="text-sm text-gray-800">
 
                                 {{ ctrans('texts.i_agree_to_the') }}
                             @endif
 
-                            @includeWhen(!empty($company->settings->client_portal_terms), 'portal.ninja2020.auth.includes.register.popup', ['property' => 'terms_of_service', 'title' => ctrans('texts.terms_of_service'), 'content' => $company->settings->client_portal_terms])
-                            @includeWhen(!empty($company->settings->client_portal_privacy_policy), 'portal.ninja2020.auth.includes.register.popup', ['property' => 'privacy_policy', 'title' => ctrans('texts.privacy_policy'), 'content' => $company->settings->client_portal_privacy_policy])
+                            @includeWhen(!empty($register_company->settings->client_portal_terms), 'portal.ninja2020.auth.includes.register.popup', ['property' => 'terms_of_service', 'title' => ctrans('texts.terms_of_service'), 'content' => $register_company->settings->client_portal_terms])
+                            @includeWhen(!empty($register_company->settings->client_portal_privacy_policy), 'portal.ninja2020.auth.includes.register.popup', ['property' => 'privacy_policy', 'title' => ctrans('texts.privacy_policy'), 'content' => $register_company->settings->client_portal_privacy_policy])
 
                             @error('terms')
                                 <p class="text-red-600">{{ $message }}</p>
