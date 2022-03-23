@@ -71,13 +71,11 @@ class ContactRegisterController extends Controller
         $client->number = $this->getNextClientNumber($client);
         $client->save();
 
-        if(!$client->country_id && strlen($client->company->settings->country_id) > 1){
+        if(!array_key_exists('country_id', $data) && strlen($client->company->settings->country_id) > 1){
 
             $client->update(['country_id' => $client->company->settings->country_id]);
         
         }
-
-        // $this->getClientContact($data, $client);
 
         return $client;
     }
