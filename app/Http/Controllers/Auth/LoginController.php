@@ -390,7 +390,6 @@ class LoginController extends BaseController
 
 
                     $truth = app()->make(TruthSource::class);
-
                     $truth->setCompanyUser($cu->first());
                     $truth->setUser(auth()->user());
                     $truth->setCompany(auth()->user()->account->default_company);
