@@ -156,7 +156,6 @@ class User extends Authenticatable implements MustVerifyEmail
             return CompanyToken::with(['cu'])->where('token', request()->header('X-API-TOKEN'))->first();
         }
 
-
         return $this->tokens()->first();
     }
 
@@ -371,9 +370,10 @@ class User extends Authenticatable implements MustVerifyEmail
 
         return  $this->isOwner() ||
                 $this->isAdmin() ||
-                (stripos($this->token()->cu->permissions, $all_permission) !== false) ||
-                (stripos($this->token()->cu->permissions, $permission) !== false);
+                (is_int(stripos($this->token()->cu->permissions, $all_permission))) ||
+                (is_int(stripos($this->token()->cu->permissions, $permission)));
 
+        //23-03-2021 - stripos return an int if true and bool false, but 0 is also interpreted as false, so we simply use is_int() to verify state
         // return  $this->isOwner() ||
         //         $this->isAdmin() ||
         //         (stripos($this->company_user->permissions, $all_permission) !== false) ||
@@ -404,9 +404,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
         if($this->token()->cu->slack_webhook_url)
             return $this->token()->cu->slack_webhook_url;
-        // if ($this->company_user->slack_webhook_url) {
-        //     return $this->company_user->slack_webhook_url;
-        // }
     }
 
     public function routeNotificationForMail($notification)
