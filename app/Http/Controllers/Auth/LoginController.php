@@ -242,6 +242,8 @@ class LoginController extends BaseController
               
             }
 
+            $truth->setCompanyToken(CompanyToken::where('user_id', auth()->user()->id)->where('company_id', $user->account->default_company->id)->first());
+
             /*On the hosted platform, only owners can login for free/pro accounts*/
             if(Ninja::isHosted() && !$cu->first()->is_owner && !$user->account->isEnterpriseClient())
                 return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
@@ -391,8 +393,8 @@ class LoginController extends BaseController
 
                     $truth = app()->make(TruthSource::class);
                     $truth->setCompanyUser($cu->first());
-                    $truth->setUser(auth()->user());
-                    $truth->setCompany(auth()->user()->account->default_company);
+                    $truth->setUser($existing_user);
+                    $truth->setCompany($existing_user->account->default_company);
 
             
                     if($existing_user->company_users()->count() != $existing_user->tokens()->count())
@@ -410,6 +412,7 @@ class LoginController extends BaseController
                       
                     }
 
+                    $truth->setCompanyToken(CompanyToken::where('user_id', $existing_user->id)->where('company_id', $existing_user->account->default_company->id)->first());
 
 
                 if(Ninja::isHosted() && !$cu->first()->is_owner && !$existing_user->account->isEnterpriseClient())
@@ -438,6 +441,12 @@ class LoginController extends BaseController
                 $cu = CompanyUser::query()
                                   ->where('user_id', auth()->user()->id);
 
+                    $truth = app()->make(TruthSource::class);
+                    $truth->setCompanyUser($cu->first());
+                    $truth->setUser($existing_login_user);
+                    $truth->setCompany($existing_login_user->account->default_company);
+
+
                     if($existing_login_user->company_users()->count() != $existing_login_user->tokens()->count())
                     {
                       
@@ -452,6 +461,8 @@ class LoginController extends BaseController
                       });
                       
                     }
+
+                    $truth->setCompanyToken(CompanyToken::where('user_id', $existing_login_user->id)->where('company_id', $existing_login_user->account->default_company->id)->first());
 
 
 
@@ -485,13 +496,10 @@ class LoginController extends BaseController
                 $cu = CompanyUser::query()
                                   ->where('user_id', auth()->user()->id);
 
-                // $cu->first()->account->companies->each(function ($company) use($cu){
-
-                //     if($company->tokens()->where('is_system', true)->count() == 0)
-                //     {
-                //         CreateCompanyToken::dispatchNow($company, $cu->first()->user, request()->server('HTTP_USER_AGENT'));
-                //     }
-                // });
+                $truth = app()->make(TruthSource::class);
+                $truth->setCompanyUser($cu->first());
+                $truth->setUser($existing_login_user);
+                $truth->setCompany($existing_login_user->account->default_company);
 
 
                     if($existing_login_user->company_users()->count() != $existing_login_user->tokens()->count())
@@ -509,6 +517,7 @@ class LoginController extends BaseController
                       
                     }
 
+                $truth->setCompanyToken(CompanyToken::where('user_id', $existing_login_user->id)->where('company_id', $existing_login_user->account->default_company->id)->first());
 
                 if(Ninja::isHosted() && !$cu->first()->is_owner && !$existing_login_user->account->isEnterpriseClient())
                     return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
@@ -546,13 +555,11 @@ class LoginController extends BaseController
 
             $cu = CompanyUser::whereUserId(auth()->user()->id);
 
-            // $cu->first()->account->companies->each(function ($company) use($cu){
 
-            //     if($company->tokens()->where('is_system', true)->count() == 0)
-            //     {
-            //         CreateCompanyToken::dispatchNow($company, $cu->first()->user, request()->server('HTTP_USER_AGENT'));
-            //     }
-            // });
+                $truth = app()->make(TruthSource::class);
+                $truth->setCompanyUser($cu->first());
+                $truth->setUser(auth()->user());
+                $truth->setCompany(auth()->user()->account->default_company);
 
                    if(auth()->user()->company_users()->count() != auth()->user()->tokens()->count())
                     {
@@ -569,6 +576,7 @@ class LoginController extends BaseController
                       
                     }
 
+                $truth->setCompanyToken(CompanyToken::where('user_id', auth()->user()->id)->where('company_id', auth()->user()->account->default_company->id)->first());
 
 
             if(Ninja::isHosted() && !$cu->first()->is_owner && !auth()->user()->account->isEnterpriseClient())
