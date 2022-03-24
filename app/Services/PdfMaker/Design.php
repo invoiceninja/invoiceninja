@@ -428,16 +428,33 @@ class Design extends BaseDesign
 
         $tbody = [];
 
-        foreach ($this->payments as $payment) {
-            foreach ($payment->invoices as $invoice) {
+        // foreach ($this->payments as $payment) {
+        //     foreach ($payment->invoices as $invoice) {
+        //         $element = ['element' => 'tr', 'elements' => []];
+
+        //         $element['elements'][] = ['element' => 'td', 'content' => $invoice->number];
+        //         $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($payment->date, $this->client->date_format(), $this->client->locale()) ?: '&nbsp;'];
+        //         $element['elements'][] = ['element' => 'td', 'content' => $payment->type ? $payment->type->name : ctrans('texts.manual_entry')];
+        //         $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($payment->amount, $this->client) ?: '&nbsp;'];
+
+        //         $tbody[] = $element;
+        //     }
+        // }
+
+
+        //24-03-2022 show payments per invoice
+        foreach ($this->invoices as $invoice) {
+            foreach ($invoice->payments as $payment) {
+
                 $element = ['element' => 'tr', 'elements' => []];
 
                 $element['elements'][] = ['element' => 'td', 'content' => $invoice->number];
                 $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($payment->date, $this->client->date_format(), $this->client->locale()) ?: '&nbsp;'];
                 $element['elements'][] = ['element' => 'td', 'content' => $payment->type ? $payment->type->name : ctrans('texts.manual_entry')];
-                $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($payment->amount, $this->client) ?: '&nbsp;'];
+                $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($payment->pivot->amount, $this->client) ?: '&nbsp;'];
 
                 $tbody[] = $element;
+                
             }
         }
 
