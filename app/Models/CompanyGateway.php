@@ -346,6 +346,8 @@ class CompanyGateway extends BaseModel
                 if ($fees_and_limits->fee_amount) {
                     $adjusted_fee += $fees_and_limits->fee_amount + $amount;
                 }
+                else 
+                    $adjusted_fee = $amount;
 
                 if ($fees_and_limits->fee_percent) {
 
