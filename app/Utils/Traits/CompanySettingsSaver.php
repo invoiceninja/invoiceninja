@@ -194,7 +194,7 @@ trait CompanySettingsSaver
             }
 
             //try casting floats here
-            if($value == 'float'){
+            if($value == 'float' && property_exists($settings, $key)){
                 $settings->{$key} = floatval($settings->{$key});
             }
 
