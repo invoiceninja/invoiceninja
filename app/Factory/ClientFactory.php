@@ -28,7 +28,7 @@ class ClientFactory
         $client->public_notes = '';
         $client->balance = 0;
         $client->paid_to_date = 0;
-        $client->country_id = 840;
+        $client->country_id = null;
         $client->is_deleted = 0;
         $client->client_hash = Str::random(40);
         $client->settings = ClientSettings::defaults();
