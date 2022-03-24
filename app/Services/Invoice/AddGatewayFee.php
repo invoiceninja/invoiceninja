@@ -74,6 +74,8 @@ class AddGatewayFee extends AbstractService
 
     private function processGatewayFee($gateway_fee)
     {
+        $balance = $this->invoice->balance;
+
         App::forgetInstance('translator');
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->invoice->company->settings));
@@ -100,11 +102,30 @@ class AddGatewayFee extends AbstractService
         /**Refresh Invoice values*/
         $this->invoice = $this->invoice->calc()->getInvoice();
 
+        $new_balance = $this->invoice->balance;
+
+        if(floatval($new_balance) - floatval($balance) != 0)
+        {
+            $adjustment = $new_balance - $balance;
+
+            $this->invoice
+            ->client
+            ->service()
+            ->updateBalance($adjustment)
+            ->save();
+
+            $this->invoice
+            ->ledger()
+            ->updateInvoiceBalance($adjustment, 'Adjustment for removing gateway fee');
+        }
+
         return $this->invoice;
     }
 
     private function processGatewayDiscount($gateway_fee)
     {
+        $balance = $this->invoice->balance;
+
         App::forgetInstance('translator');
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->invoice->company->settings));
@@ -128,6 +149,25 @@ class AddGatewayFee extends AbstractService
         $this->invoice->line_items = $invoice_items;
 
         $this->invoice = $this->invoice->calc()->getInvoice();
+
+        $new_balance = $this->invoice->balance;
+
+
+        if(floatval($new_balance) - floatval($balance) != 0)
+        {
+            $adjustment = $new_balance - $balance;
+
+            $this->invoice
+            ->client
+            ->service()
+            ->updateBalance($adjustment * -1)
+            ->save();
+
+            $this->invoice
+            ->ledger()
+            ->updateInvoiceBalance($adjustment * -1, 'Adjustment for removing gateway fee');
+        }
+
 
         return $this->invoice;
     }

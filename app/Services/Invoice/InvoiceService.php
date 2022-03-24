@@ -361,6 +361,8 @@ class InvoiceService
 
     public function removeUnpaidGatewayFees()
     {
+        $balance = $this->invoice->balance;
+
         //return early if type three does not exist.
         if(!collect($this->invoice->line_items)->contains('type_id', 3))
             return $this;
@@ -371,6 +373,25 @@ class InvoiceService
                                      })->toArray();
 
         $this->invoice = $this->invoice->calc()->getInvoice();
+
+        /* 24-03-2022 */
+        $new_balance = $this->invoice->balance;
+
+        if(floatval($balance) - floatval($new_balance) != 0)
+        {
+            $adjustment = $balance - $new_balance;
+
+            $this->invoice
+            ->client
+            ->service()
+            ->updateBalance($adjustment * -1)
+            ->save();
+
+            $this->invoice
+            ->ledger()
+            ->updateInvoiceBalance($adjustment * -1, 'Adjustment for removing gateway fee');
+        }
+
 
         return $this;
     }
