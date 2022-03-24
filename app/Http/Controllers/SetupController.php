@@ -52,6 +52,9 @@ class SetupController extends Controller
         if ($check['system_health'] == true && $check['simple_db_check'] && Schema::hasTable('accounts') && $account = Account::all()->first()) {
             return redirect('/');
         }
+
+        if(Ninja::isHosted())
+            return redirect('/');
         
         return view('setup.index', ['check' => $check]);
     }
