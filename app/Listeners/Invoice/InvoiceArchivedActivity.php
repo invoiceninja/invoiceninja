@@ -42,8 +42,6 @@ class InvoiceArchivedActivity implements ShouldQueue
     public function handle($event)
     {
         MultiDB::setDb($event->company->db);
-
-        // $event->invoice->service()->deletePdf();
         
         $fields = new stdClass;
 

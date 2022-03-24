@@ -52,11 +52,7 @@ class SetupController extends Controller
         if ($check['system_health'] == true && $check['simple_db_check'] && Schema::hasTable('accounts') && $account = Account::all()->first()) {
             return redirect('/');
         }
-
-        // not sure if we really need this.
-        // if(File::exists(base_path('.env')))
-        //     abort(400, '.env file already exists, delete file to start Setup again.');
-
+        
         return view('setup.index', ['check' => $check]);
     }
 

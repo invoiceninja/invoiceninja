@@ -71,6 +71,9 @@ class UpdateInvoicePayment
                 ->updatePaidToDate($paid_amount)
                 ->updateStatus()
                 ->touchPdf()
+                ->save();
+
+            $invoice->service()
                 ->workFlow()
                 ->save();
 
