@@ -249,12 +249,14 @@ class CreditCard
                 'TotalAmount' => $this->convertAmountForEway($amount),
                 'CurrencyCode' => $this->eway_driver->client->currency()->code,
                 'InvoiceNumber' => $invoice_numbers,
-                'InvoiceReference' => $description,
             ],
             'TransactionType' => \Eway\Rapid\Enum\TransactionType::RECURRING,
         ];
 
         $response = $this->eway_driver->init()->eway->createTransaction(\Eway\Rapid\Enum\ApiMethod::DIRECT, $transaction);
+
+        nlog('eway');
+        nlog($response);
 
         $response_status = ErrorCode::getStatus($response->ResponseMessage);
 
