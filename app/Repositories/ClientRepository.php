@@ -59,11 +59,15 @@ class ClientRepository extends BaseRepository
         }
 
         $client->fill($data);
+        
 
-        if(!$client->country_id)
+        if(auth()->user() && !$client->country_id){
             $client->country_id = auth()->user()->company()->settings->country_id;
+            
+        }
 
         $client->save();
+
         
         if (!isset($client->number) || empty($client->number) || strlen($client->number) == 0) {
             $client->number = $this->getNextClientNumber($client);
