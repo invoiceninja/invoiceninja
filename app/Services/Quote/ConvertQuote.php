@@ -17,11 +17,13 @@ use App\Factory\InvoiceInvitationFactory;
 use App\Models\Invoice;
 use App\Models\Quote;
 use App\Repositories\InvoiceRepository;
+use App\Utils\Traits\GeneratesConvertedQuoteCounter;
 use App\Utils\Traits\MakesHash;
 
 class ConvertQuote
 {
     use MakesHash;
+    use GeneratesConvertedQuoteCounter;
 
     private $client;
 
@@ -48,6 +50,19 @@ class ConvertQuote
         $invites = $this->createConversionInvitations($invoice, $quote);
         $invoice_array = $invoice->toArray();
         $invoice_array['invitations'] = $invites;
+
+        //try and convert the invoice number to a quote number here.
+        if($this->client->getSetting('shared_invoice_quote_counter'))
+        {
+           
+            $converted_number = $this->harvestQuoteCounter($quote, $invoice, $this->client);
+
+            if($converted_number)
+            {
+                $invoice_array['number'] = $converted_number;
+            }
+            
+        }
 
         $invoice = $this->invoice_repo->save($invoice_array, $invoice);
         

@@ -37,6 +37,7 @@ class ApplyNumber extends AbstractService
             return $this->invoice;
         }
 
+nlog($this->invoice->toArray());
         switch ($this->client->getSetting('counter_number_applied')) {
             case 'when_saved':
                 $this->invoice->number = $this->getNextInvoiceNumber($this->client, $this->invoice, $this->invoice->recurring_id);
