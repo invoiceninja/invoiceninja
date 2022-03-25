@@ -55,10 +55,6 @@ class GeneratesConvertedQuoteCounterTest extends TestCase
     public function testCounterExtraction()
     {
 
-        $user = User::whereEmail('user@example.com')->first();
-
-        $user_id = $user->id;
-
         $this->account = Account::factory()->create([
             'hosted_client_count' => 1000,
             'hosted_company_count' => 1000
@@ -66,6 +62,18 @@ class GeneratesConvertedQuoteCounterTest extends TestCase
         
         $this->account->num_users = 3;
         $this->account->save();
+
+        $user = User::whereEmail('user@example.com')->first();
+
+        if (! $user) {
+            $user = User::factory()->create([
+                'account_id' => $this->account->id,
+                'confirmation_code' => $this->createDbHash(config('database.default')),
+                'email' => 'user@example.com',
+            ]);
+        }
+
+        $user_id = $user->id;
         
         $this->company = Company::factory()->create([
                 'account_id' => $this->account->id,
