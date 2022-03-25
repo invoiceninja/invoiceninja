@@ -111,68 +111,35 @@ class GeneratesConvertedQuoteCounterTest extends TestCase
         $this->assertEquals('2022-Q0001', $quote->number);
         $this->assertEquals('2022-I0001', $invoice->number);
 
+
+        $settings = $this->client->getMergedSettings();
+        $settings->invoice_number_counter = 100;
+        $settings->invoice_number_pattern = 'I{$counter}';
+        $settings->quote_number_pattern = 'Q{$counter}';
+        $settings->shared_invoice_quote_counter = 1;
+        $this->company->settings = $settings;
+
+        $this->company->save();
+
+        $this->client->settings = $settings;
+        $this->client->save();
+
+        $quote = Quote::factory()->create([
+            'user_id' => $this->client->user_id, 
+            'company_id' => $this->client->company_id, 
+            'client_id' => $this->client->id
+        ]);
+
+        $quote = $quote->service()->markSent()->convert()->save();
+
+        $invoice = Invoice::find($quote->invoice_id);
+
+        $this->assertNotNull($invoice);
+
+        $this->assertEquals('Q0100', $quote->number);
+        $this->assertEquals('I0100', $invoice->number);
+
     }
-
-    // public function testResetCounter()
-    // {
-    //     $timezone = Timezone::find(1);
-
-    //     $date_formatted = now($timezone->name)->format('Ymd');
-
-    //     $settings = $this->company->settings;
-    //     $settings->invoice_number_pattern = '{$date:Ymd}-{$counter}';
-    //     $settings->timezone_id = 1;
-    //     $this->company->settings = $settings;
-    //     $this->company->save();
-
-    //     $this->client->settings = $settings;
-    //     $this->client->save();
-
-    //     $invoice_number = $this->getNextInvoiceNumber($this->client->fresh(), $this->invoice->fresh());
-    //     $this->assertEquals($date_formatted."-0001", $invoice_number);
-    //     $invoice_number = $this->getNextInvoiceNumber($this->client->fresh(), $this->invoice->fresh());
-    //     $this->assertEquals($date_formatted."-0002", $invoice_number);
-    //     $invoice_number = $this->getNextInvoiceNumber($this->client->fresh(), $this->invoice->fresh());
-    //     $this->assertEquals($date_formatted."-0003", $invoice_number);
-    //     $invoice_number = $this->getNextInvoiceNumber($this->client->fresh(), $this->invoice->fresh());
-    //     $this->assertEquals($date_formatted."-0004", $invoice_number);
-
-    //     $settings->reset_counter_date = now($timezone->name)->format('Y-m-d');
-    //     $settings->reset_counter_frequency_id = RecurringInvoice::FREQUENCY_DAILY;
-    //     $this->company->settings = $settings;
-    //     $this->company->save();
-
-    //     $this->client->settings = $settings;
-    //     $this->client->save();
-        
-    //     $this->travel(5)->days();
-    //     $date_formatted = now($timezone->name)->format('Ymd');
-
-    //     $invoice_number = $this->getNextInvoiceNumber($this->client->fresh(), $this->invoice->fresh());
-    //     $this->assertEquals($date_formatted."-0001", $invoice_number);
-        
-    //     $invoice_number = $this->getNextInvoiceNumber($this->client->fresh(), $this->invoice->fresh());
-    //     $this->assertEquals($date_formatted."-0002", $invoice_number);
-
-    //     $settings->reset_counter_date = now($timezone->name)->format('Y-m-d');
-    //     $settings->reset_counter_frequency_id = RecurringInvoice::FREQUENCY_DAILY;
-    //     $this->company->settings = $settings;
-    //     $this->company->save();
-
-    //     $this->travel(5)->days();
-    //     $date_formatted = now($timezone->name)->format('Ymd');
-
-    //     $invoice_number = $this->getNextInvoiceNumber($this->client->fresh(), $this->invoice->fresh());
-    //     $this->assertEquals($date_formatted."-0001", $invoice_number);
-
-    //     $this->travelBack();
-
-    // }
-
-    // public function testHasSharedCounter()
-    // {
-    //     $this->assertFalse($this->hasSharedCounter($this->client,));
-    // }
 
 
 }
