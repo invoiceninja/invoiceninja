@@ -263,7 +263,8 @@ class RefundPayment
             foreach ($this->refund_data['invoices'] as $refunded_invoice) {
                 $invoice = Invoice::withTrashed()->find($refunded_invoice['invoice_id']);
 
-                $invoice->restore();
+                if($invoice->trashed())
+                    $invoice->restore();
 
                 $invoice->service()->updateBalance($refunded_invoice['amount'])->save();
                 $invoice->ledger()->updateInvoiceBalance($refunded_invoice['amount'], "Refund of payment # {$this->payment->number}")->save();
@@ -300,6 +301,10 @@ class RefundPayment
             }
 
             $client = $this->payment->client->fresh();            
+
+            if($client->trashed())
+                $client->restore();
+
             $client->service()->updatePaidToDate(-1 * $refunded_invoice['amount'])->save();
 
 
@@ -318,6 +323,10 @@ class RefundPayment
             //if we are refunding and no payments have been tagged, then we need to decrement the client->paid_to_date by the total refund amount.
             
             $client = $this->payment->client->fresh();
+
+            if($client->trashed())
+                $client->restore();
+            
             $client->service()->updatePaidToDate(-1 * $this->total_refund)->save();
 
                 $transaction = [
