@@ -14,8 +14,10 @@ namespace App\Models;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
 use App\Mail\Ninja\EmailQuotaExceeded;
+use App\Mail\Ninja\GmailTokenInvalid;
 use App\Models\Presenters\AccountPresenter;
 use App\Notifications\Ninja\EmailQuotaNotification;
+use App\Notifications\Ninja\GmailCredentialNotification;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Carbon\Carbon;
@@ -422,6 +424,45 @@ class Account extends BaseModel
         }
 
         return false;
+    }
+
+    public function gmailCredentialNotification() :bool
+    {
+
+        if(is_null(Cache::get($this->key)))
+            return false;
+
+        try {
+
+            if(is_null(Cache::get("gmail_credentials_notified:{$this->key}"))) {
+
+                App::forgetInstance('translator');
+                $t = app('translator');
+                $t->replace(Ninja::transformTranslations($this->companies()->first()->settings));
+
+                $nmo = new NinjaMailerObject;
+                $nmo->mailable = new GmailTokenInvalid($this->companies()->first());
+                $nmo->company = $this->companies()->first();
+                $nmo->settings = $this->companies()->first()->settings;
+                $nmo->to_user = $this->companies()->first()->owner();
+                NinjaMailerJob::dispatch($nmo);
+
+                Cache::put("gmail_credentials_notified:{$this->key}", true, 60 * 24);
+
+                if(config('ninja.notification.slack'))
+                    $this->companies()->first()->notification(new GmailCredentialNotification($this))->ninja();
+            }
+
+            return true;
+            
+        }
+        catch(\Exception $e){
+            \Sentry\captureMessage("I encountered an error with sending with gmail for account {$this->key}");
+        }
+
+        return false;
+
+
     }
 
 }

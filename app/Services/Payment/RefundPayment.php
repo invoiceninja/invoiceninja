@@ -263,6 +263,8 @@ class RefundPayment
             foreach ($this->refund_data['invoices'] as $refunded_invoice) {
                 $invoice = Invoice::withTrashed()->find($refunded_invoice['invoice_id']);
 
+                $invoice->restore();
+
                 $invoice->service()->updateBalance($refunded_invoice['amount'])->save();
                 $invoice->ledger()->updateInvoiceBalance($refunded_invoice['amount'], "Refund of payment # {$this->payment->number}")->save();
                 $invoice->paid_to_date -= $refunded_invoice['amount'];
@@ -291,6 +293,9 @@ class RefundPayment
                 ];
 
                 TransactionLog::dispatch(TransactionEvent::PAYMENT_REFUND, $transaction, $invoice->company->db);
+
+                if($invoice->is_deleted)
+                    $invoice->delete();
 
             }
 

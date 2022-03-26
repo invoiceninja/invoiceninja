@@ -29,50 +29,35 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 /**
- * Class GeneratesCounter.
+ * Class GeneratesConvertedQuoteCounter.
  */
-trait GeneratesCounter
+trait GeneratesConvertedQuoteCounter
 {
-    //todo in the form validation, we need to ensure that if a prefix and pattern is set we throw a validation error,
-    //only one type is allow else this will cause confusion to the end user
 
-    private function getNextEntityNumber($entity, Client $client, $is_recurring = false)
+    private function harvestQuoteCounter($quote, $invoice, Client $client)
     {
-        $prefix = '';
+    
+        $settings = $client->getMergedSettings();
 
-        $this->resetCounters($client);
+        $pattern = $settings->quote_number_pattern;
+        
+        if(strlen($pattern) > 1 && (stripos($pattern, 'counter') === false))
+            $pattern = $pattern.'{$counter}';
 
-        $is_client_counter = false;
+        $number = $this->applyNumberPattern($quote, '_stubling_', $pattern);
 
-        $counter_string = $this->getEntityCounter($entity, $client);  
-        $pattern = $this->getNumberPattern($entity, $client);  
+        $prefix_counter = str_replace('_stubling_', "", $number);
+        $counter = str_replace($prefix_counter, "", $quote->number);
 
-        if ((strpos($pattern, 'clientCounter') !== false) || (strpos($pattern, 'client_counter') !==false) ) {
+        return $this->getNextEntityNumber($invoice, $client, intval($counter));
+    }
 
-            if (property_exists($client->settings, $counter_string)) {
-                $counter = $client->settings->{$counter_string};
-            } else {
-                $counter = 1;
-            }
+    private function getNextEntityNumber($invoice, Client $client, $counter)
+    {
 
-            $counter_entity = $client;
-        } elseif ((strpos($pattern, 'groupCounter') !== false) || (strpos($pattern, 'group_counter') !== false)) {
+        $settings = $client->getMergedSettings();
 
-            if (property_exists($client->group_settings, $counter_string)) {
-            $counter = $client->group_settings->{$counter_string};
-            } else {
-                $counter = 1;
-            }
-
-            $counter_entity = $client->group_settings;
-
-        } else {
-            $counter = $client->company->settings->{$counter_string};
-            $counter_entity = $client->company;
-        }
-
-        //If it is a quote - we need to 
-        $pattern = $this->getNumberPattern($entity, $client);
+        $pattern = $settings->invoice_number_pattern;
         
         if(strlen($pattern) > 1 && (stripos($pattern, 'counter') === false)){
             $pattern = $pattern.'{$counter}';
@@ -80,14 +65,17 @@ trait GeneratesCounter
 
         $padding = $client->getSetting('counter_padding');
 
-        if($is_recurring)
-            $prefix = $client->getSetting('recurring_number_prefix');
+        $number = $this->padCounter($counter, $padding);
 
-        $entity_number = $this->checkEntityNumber($entity, $client, $counter, $padding, $pattern, $prefix);
+        $number = $this->applyNumberPattern($invoice, $number, $pattern);
 
-        $this->incrementCounter($counter_entity, $counter_string);
+        $check = Invoice::whereCompanyId($client->company_id)->whereNumber($number)->withTrashed()->exists();
 
-        return $entity_number;
+        if($check){
+            return false;
+        }
+
+        return $number;
 
     }
 

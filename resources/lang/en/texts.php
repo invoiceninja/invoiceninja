@@ -4570,6 +4570,8 @@ $LANG = array(
     'credits_backup_subject' => 'Your credits are ready for download',
     'document_download_subject' => 'Your documents are ready for download',
     'reminder_message' => 'Reminder for invoice :number for :balance',
+    'gmail_credentials_invalid_subject' => 'Send with GMail invalid credentials',
+    'gmail_credentials_invalid_body' => 'Your GMail credentials are not correct, please log into the administrator portal and navigate to Settings > User Details and disconnect and reconnect your GMail account. We will send you this notification daily until this issue is resolved',
 );
 
 return $LANG;

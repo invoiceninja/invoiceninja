@@ -163,7 +163,7 @@ class NinjaPlanController extends Controller
         $recurring_invoice->save();
         $r = $recurring_invoice->calc()->getRecurringInvoice();
 
-        $recurring_invoice->service()->start()->save();
+        $recurring_invoice->service()->applyNumber()->start()->save();
 
         LightLogs::create(new TrialStarted())
                  ->increment()

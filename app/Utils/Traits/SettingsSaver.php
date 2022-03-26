@@ -92,7 +92,8 @@ trait SettingsSaver
             case 'real':
             case 'float':
             case 'double':
-                return is_float($value) || is_numeric(strval($value));
+                return !is_string($value) && (is_float($value) || is_numeric(strval($value)));
+                // return is_float($value) || is_numeric(strval($value));
             case 'string':
                 return !is_int($value) || ( is_string( $value ) && method_exists($value, '__toString') ) || is_null($value) || is_string($value);
             case 'bool':
