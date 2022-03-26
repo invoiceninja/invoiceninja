@@ -43,11 +43,18 @@ class UpdateInvoicePayment
 
         collect($paid_invoices)->each(function ($paid_invoice) use ($invoices) {
 
-            $client = $this->payment->client->fresh();
+            $client = $this->payment->client;
+
+            if($client->trashed())
+                $client->restore();
 
             $invoice = $invoices->first(function ($inv) use ($paid_invoice) {
                 return $paid_invoice->invoice_id == $inv->hashed_id;
             });
+
+
+            if($invoice->trashed())
+                $invoice->restore();
 
             if ($invoice->id == $this->payment_hash->fee_invoice_id) {
                 $paid_amount = $paid_invoice->amount + $this->payment_hash->fee_total;
@@ -116,7 +123,6 @@ class UpdateInvoicePayment
 
         $invoices->each(function ($invoice) {
             
-            $invoice = $invoice->fresh();
             event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         
         });
