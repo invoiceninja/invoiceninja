@@ -53,10 +53,9 @@ class SetupController extends Controller
             return redirect('/');
         }
 
-        // not sure if we really need this.
-        // if(File::exists(base_path('.env')))
-        //     abort(400, '.env file already exists, delete file to start Setup again.');
-
+        if(Ninja::isHosted())
+            return redirect('/');
+        
         return view('setup.index', ['check' => $check]);
     }
 

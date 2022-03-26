@@ -370,6 +370,8 @@ class HtmlEngine
 
         $data['$client.currency'] = ['value' => $this->client->currency()->code, 'label' => ''];
 
+        $data['$client.lang_2'] = ['value' => optional($this->client->language())->locale, 'label' => ''];
+
         $data['$client.balance'] = ['value' => Number::formatMoney($this->client->balance, $this->client), 'label' => ctrans('texts.account_balance')];
         $data['$client_balance'] = ['value' => Number::formatMoney($this->client->balance, $this->client), 'label' => ctrans('texts.account_balance')];
         $data['$paid_to_date'] = ['value' => Number::formatMoney($this->entity->paid_to_date, $this->client), 'label' => ctrans('texts.paid_to_date')];

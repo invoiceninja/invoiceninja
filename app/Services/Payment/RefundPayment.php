@@ -263,9 +263,15 @@ class RefundPayment
             foreach ($this->refund_data['invoices'] as $refunded_invoice) {
                 $invoice = Invoice::withTrashed()->find($refunded_invoice['invoice_id']);
 
-                $invoice->service()->updateBalance($refunded_invoice['amount'])->save();
+                if($invoice->trashed())
+                    $invoice->restore();
+
+                $invoice->service()
+                        ->updateBalance($refunded_invoice['amount'])
+                        ->updatePaidToDate($refunded_invoice['amount'] * -1)
+                        ->save();
+
                 $invoice->ledger()->updateInvoiceBalance($refunded_invoice['amount'], "Refund of payment # {$this->payment->number}")->save();
-                $invoice->paid_to_date -= $refunded_invoice['amount'];
                 
                 if ($invoice->amount == $invoice->balance) {
                     $invoice->service()->setStatus(Invoice::STATUS_SENT);
@@ -276,7 +282,6 @@ class RefundPayment
                 $invoice->saveQuietly();
 
                 $client = $invoice->client;
-
                 $adjustment_amount += $refunded_invoice['amount'];
                 $client->balance += $refunded_invoice['amount'];
                 $client->save();
@@ -292,11 +297,17 @@ class RefundPayment
 
                 TransactionLog::dispatch(TransactionEvent::PAYMENT_REFUND, $transaction, $invoice->company->db);
 
+                if($invoice->is_deleted)
+                    $invoice->delete();
+
             }
 
             $client = $this->payment->client->fresh();            
-            $client->service()->updatePaidToDate(-1 * $refunded_invoice['amount'])->save();
 
+            if($client->trashed())
+                $client->restore();
+
+            $client->service()->updatePaidToDate(-1 * $refunded_invoice['amount'])->save();
 
                 $transaction = [
                     'invoice' => [],
@@ -313,6 +324,10 @@ class RefundPayment
             //if we are refunding and no payments have been tagged, then we need to decrement the client->paid_to_date by the total refund amount.
             
             $client = $this->payment->client->fresh();
+
+            if($client->trashed())
+                $client->restore();
+
             $client->service()->updatePaidToDate(-1 * $this->total_refund)->save();
 
                 $transaction = [

@@ -11,6 +11,7 @@
 
 namespace App\Services\Invoice;
 
+use App\Events\Invoice\InvoiceWasArchived;
 use App\Jobs\Entity\CreateEntityPdf;
 use App\Jobs\Invoice\InvoiceWorkflowSettings;
 use App\Jobs\Util\UnlinkFile;
@@ -145,11 +146,8 @@ class InvoiceService
             return $this;
         }
 
-        // $this->invoice->balance += $balance_adjustment;
+        $this->invoice->balance += $balance_adjustment;
         
-        $this->invoice->increment('balance', $balance_adjustment);
-
-
         if (round($this->invoice->balance,2) == 0 && !$is_draft) {
             $this->invoice->status_id = Invoice::STATUS_PAID;
         }
@@ -163,10 +161,7 @@ class InvoiceService
 
     public function updatePaidToDate($adjustment)
     {
-        // $this->invoice->paid_to_date += $adjustment;
-
-        $this->invoice->increment('paid_to_date', $adjustment);
-
+        $this->invoice->paid_to_date += $adjustment;
 
         return $this;
     }
@@ -361,6 +356,8 @@ class InvoiceService
 
     public function removeUnpaidGatewayFees()
     {
+        $balance = $this->invoice->balance;
+
         //return early if type three does not exist.
         if(!collect($this->invoice->line_items)->contains('type_id', 3))
             return $this;
@@ -371,6 +368,25 @@ class InvoiceService
                                      })->toArray();
 
         $this->invoice = $this->invoice->calc()->getInvoice();
+
+        /* 24-03-2022 */
+        $new_balance = $this->invoice->balance;
+
+        if(floatval($balance) - floatval($new_balance) != 0)
+        {
+            $adjustment = $balance - $new_balance;
+
+            $this->invoice
+            ->client
+            ->service()
+            ->updateBalance($adjustment * -1)
+            ->save();
+
+            $this->invoice
+            ->ledger()
+            ->updateInvoiceBalance($adjustment * -1, 'Adjustment for removing gateway fee');
+        }
+
 
         return $this;
     }
@@ -518,35 +534,16 @@ class InvoiceService
         if ($this->invoice->status_id == Invoice::STATUS_PAID && $this->invoice->client->getSetting('auto_archive_invoice')) {
             /* Throws: Payment amount xxx does not match invoice totals. */
 
-            $base_repository = new BaseRepository();
-            $base_repository->archive($this->invoice);
-            
-        }
+            if ($this->invoice->trashed()) 
+                return;
 
-        /*
-        //if paid invoice is attached to a recurring invoice - check if we need to unpause the recurring invoice
+            $this->invoice->delete();
+
+            event(new InvoiceWasArchived($this->invoice, $this->invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         
-        if ($this->invoice->status_id == Invoice::STATUS_PAID && 
-        $this->invoice->recurring_id && 
-        $this->invoice->company->pause_recurring_until_paid &&
-        ($this->invoice->recurring_invoice->status_id != RecurringInvoice::STATUS_ACTIVE || $this->invoice->recurring_invoice->status_id != RecurringInvoice::STATUS_COMPLETED))
-        {
-            $recurring_invoice = $this->invoice->recurring_invoice;
-
-            // Check next_send_date if it is in the past - calculate
-            $next_send_date = Carbon::parse($recurring_invoice->next_send_date)->startOfDay();
-
-            if(next_send_date->lt(now())){
-                $recurring_invoice->next_send_date = $recurring_invoice->nextDateByFrequency(now()->format('Y-m-d'));
-                $recurring_invoice->save();
-            }
-
-            // Start the recurring invoice
-            $recurring_invoice->service()
-                              ->start();
 
         }
-        */
+
         return $this;
     }
 

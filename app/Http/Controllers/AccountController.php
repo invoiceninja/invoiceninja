@@ -16,6 +16,7 @@ use App\Jobs\Account\CreateAccount;
 use App\Models\Account;
 use App\Models\CompanyUser;
 use App\Transformers\CompanyUserTransformer;
+use App\Utils\TruthSource;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Response;
 
@@ -150,7 +151,11 @@ class AccountController extends BaseController
 
         $ct = CompanyUser::whereUserId(auth()->user()->id);
 
-        config(['ninja.company_id' => $ct->first()->company->id]);
+            $truth = app()->make(TruthSource::class);
+            $truth->setCompanyUser($ct->first());
+            $truth->setUser(auth()->user());
+            $truth->setCompany($ct->first()->company);
+
 
         return $this->listResponse($ct);
     }
