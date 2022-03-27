@@ -28,21 +28,21 @@ class ClientService
 
     public function updateBalance(float $amount)
     {
-        $this->client->increment('balance', $amount);
+        $this->client->balance += $amount;
 
         return $this;
     }
 
     public function updatePaidToDate(float $amount)
     {
-        $this->client->increment('paid_to_date', $amount);
+        $this->client->paid_to_date += $amount;
 
         return $this;
     }
 
     public function adjustCreditBalance(float $amount)
     {
-        $this->client->increment('credit_balance', $amount);
+        $this->client->credit_balance += $amount;
 
         return $this;
     }

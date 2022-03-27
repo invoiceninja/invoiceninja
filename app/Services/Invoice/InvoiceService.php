@@ -403,8 +403,8 @@ class InvoiceService
     /*Update the partial amount of a invoice*/
     public function updatePartial($amount)
     {
-        // $this->invoice->partial += $amount;
-        $this->invoice->increment('partial', $amount);
+        $this->invoice->partial += $amount;
+        // $this->invoice->increment('partial', $amount);
 
         return $this;
     }
