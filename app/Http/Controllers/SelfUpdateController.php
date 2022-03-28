@@ -100,9 +100,10 @@ class SelfUpdateController extends BaseController
 
         $this->testWritable();
 
-        $contents = file_get_contents($this->getDownloadUrl());
+        copy($this->getDownloadUrl(), storage_path('app/invoiceninja.zip'));
 
-        Storage::disk('local')->put('invoiceninja.zip', $contents);
+        // $contents = file_get_contents($this->getDownloadUrl());
+        // Storage::disk('local')->put('invoiceninja.zip', $contents);
 
         $file = Storage::disk('local')->path('invoiceninja.zip');
 

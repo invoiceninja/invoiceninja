@@ -35,6 +35,12 @@ trait SettingsSaver
         ksort($casts);
 
         foreach ($casts as $key => $value) {
+            
+            //try casting floats here
+            if($value == 'float' && property_exists($settings, $key)){
+                $settings->{$key} = floatval($settings->{$key});
+            }
+
             if (in_array($key, CompanySettings::$string_casts)) {
                 $value = 'string';
                 if (! property_exists($settings, $key)) {

@@ -383,8 +383,11 @@ class RecurringInvoice extends BaseModel
             case self::FREQUENCY_TWO_YEARS:
                 return ctrans('texts.freq_two_years');
                 break;
+            case self::FREQUENCY_THREE_YEARS:
+                return ctrans('texts.freq_three_years');
+                break;
             default:
-                // code...
+                return '';
                 break;
         }
     }

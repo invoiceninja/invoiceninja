@@ -198,7 +198,7 @@ class NinjaPlanController extends Controller
             if($account)
             {
                 //offer the option to have a free trial
-                if(!$account->trial_started)
+                if(!$account->trial_started && !$account->plan)
                     return $this->trial();
 
                 if(Carbon::parse($account->plan_expires)->lt(now())){

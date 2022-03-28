@@ -42,6 +42,7 @@ class QueryLogging
         $timeStart = microtime(true);
         DB::enableQueryLog();
 
+        $response = $next($request);
         // hide requests made by debugbar
         if (strstr($request->url(), '_debugbar') === false) {
 
@@ -71,7 +72,6 @@ class QueryLogging
                  ->queue();
         }
         
-
-        return $next($request);
+        return $response;
     }
 }

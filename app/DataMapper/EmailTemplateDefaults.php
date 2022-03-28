@@ -180,7 +180,7 @@ class EmailTemplateDefaults
 
     public static function emailReminder1Subject()
     {
-        return ctrans('texts.reminder_subject', ['invoice'=>'$invoice.number', 'account'=>'$company.name']);
+        return ctrans('texts.reminder_subject', ['invoice'=>'$number', 'account'=>'$company.name']);
     }
 
     public static function emailReminder1Template()
@@ -190,7 +190,7 @@ class EmailTemplateDefaults
 
     public static function emailReminder2Subject()
     {
-        return ctrans('texts.reminder_subject', ['invoice'=>'$invoice.number', 'account'=>'$company.name']);
+        return ctrans('texts.reminder_subject', ['invoice'=>'$number', 'account'=>'$company.name']);
     }
 
     public static function emailReminder2Template()
@@ -200,7 +200,7 @@ class EmailTemplateDefaults
 
     public static function emailReminder3Subject()
     {
-        return ctrans('texts.reminder_subject', ['invoice'=>'$invoice.number', 'account'=>'$company.name']);
+        return ctrans('texts.reminder_subject', ['invoice'=>'$number', 'account'=>'$company.name']);
     }
 
     public static function emailReminder3Template()
@@ -210,7 +210,7 @@ class EmailTemplateDefaults
 
     public static function emailReminderEndlessSubject()
     {
-        return ctrans('texts.reminder_subject', ['invoice'=>'$invoice.number', 'account'=>'$company.name']);
+        return ctrans('texts.reminder_subject', ['invoice'=>'$number', 'account'=>'$company.name']);
     }
 
     public static function emailReminderEndlessTemplate()
