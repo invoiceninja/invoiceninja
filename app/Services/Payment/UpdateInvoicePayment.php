@@ -40,18 +40,19 @@ class UpdateInvoicePayment
         $paid_invoices = $this->payment_hash->invoices();
 
         $invoices = Invoice::whereIn('id', $this->transformKeys(array_column($paid_invoices, 'invoice_id')))->withTrashed()->get();
+        
+        $client = $this->payment->client;
 
-        collect($paid_invoices)->each(function ($paid_invoice) use ($invoices) {
+        if($client->trashed())
+            $client->restore();
 
-            $client = $this->payment->client;
+        collect($paid_invoices)->each(function ($paid_invoice) use ($invoices, $client) {
 
-            if($client->trashed())
-                $client->restore();
+            $client = $client->fresh();
 
             $invoice = $invoices->first(function ($inv) use ($paid_invoice) {
                 return $paid_invoice->invoice_id == $inv->hashed_id;
             });
-
 
             if($invoice->trashed())
                 $invoice->restore();
@@ -62,23 +63,23 @@ class UpdateInvoicePayment
                 $paid_amount = $paid_invoice->amount;
             }
 
-            $client
-                ->service()
-                ->updatePaidToDate($paid_amount)
-                ->save();
+            $client->paid_to_date += $paid_amount;
+            $client->balance -= $paid_amount;
+            $client->save();
 
             /* Need to determine here is we have an OVER payment - if YES only apply the max invoice amount */
             if($paid_amount > $invoice->partial && $paid_amount > $invoice->balance)
                 $paid_amount = $invoice->balance;
 
             /*Improve performance here - 26-01-2022 - also change the order of events for invoice first*/
-            $invoice->service() //caution what if we amount paid was less than partial - we wipe it!
-                ->clearPartial()
-                ->updateBalance($paid_amount * -1)
-                ->updatePaidToDate($paid_amount)
-                ->updateStatus()
-                ->touchPdf()
-                ->save();
+            //caution what if we amount paid was less than partial - we wipe it!
+            $invoice =  $invoice->service() 
+                                ->clearPartial()
+                                ->updateBalance($paid_amount * -1)
+                                ->updatePaidToDate($paid_amount)
+                                ->updateStatus()
+                                ->touchPdf()
+                                ->save();
 
             $invoice->service()
                 ->workFlow()
@@ -88,11 +89,6 @@ class UpdateInvoicePayment
             $this->payment
                  ->ledger()
                  ->updatePaymentBalance($paid_amount * -1);
-
-            $client
-                ->service()
-                ->updateBalance($paid_amount * -1)
-                ->save();
 
             $pivot_invoice = $this->payment->invoices->first(function ($inv) use ($paid_invoice) {
                 return $inv->hashed_id == $paid_invoice->invoice_id;

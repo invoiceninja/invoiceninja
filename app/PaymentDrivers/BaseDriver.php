@@ -322,8 +322,6 @@ class BaseDriver extends AbstractPaymentDriver
 
             if (collect($invoice->line_items)->contains('type_id', '3')) {
                 $invoice->service()->toggleFeesPaid()->save();
-                // $invoice->client->service()->updateBalance($fee_total)->save();
-                // $invoice->ledger()->updateInvoiceBalance($fee_total, "Gateway fee adjustment for invoice {$invoice->number}");
             }
 
             $transaction = [

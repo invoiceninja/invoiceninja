@@ -167,25 +167,22 @@ class CreditService
 
     public function adjustBalance($adjustment)
     {
-        // $this->credit->balance += $adjustment;
-        $this->credit->increment('balance', $adjustment);
-
+        $this->credit->balance += $adjustment;
+        
         return $this;
     }
 
     public function updatePaidToDate($adjustment)
     {
-        // $this->credit->paid_to_date += $adjustment;
-                $this->credit->increment('paid_to_date', $adjustment);
-
+         $this->credit->paid_to_date += $adjustment;
+        
         return $this;
     }
 
     public function updateBalance($adjustment)
     {
-        // $this->credit->balance -= $adjustment;
-        $this->credit->decrement('balance', $adjustment);
-
+        $this->credit->balance -= $adjustment;
+        
         return $this;
     }
 
