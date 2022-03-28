@@ -404,7 +404,6 @@ class InvoiceService
     public function updatePartial($amount)
     {
         $this->invoice->partial += $amount;
-        // $this->invoice->increment('partial', $amount);
 
         return $this;
     }
@@ -535,7 +534,7 @@ class InvoiceService
             /* Throws: Payment amount xxx does not match invoice totals. */
 
             if ($this->invoice->trashed()) 
-                return;
+                return $this;
 
             $this->invoice->delete();
 
