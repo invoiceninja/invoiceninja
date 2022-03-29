@@ -123,7 +123,7 @@ if (Utils::isTravis()) {
     Route::get('/check_data', 'AppController@checkData');
 }
 
-Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
+Route::group(['middleware' => ['lookup:user', 'auth:user','migration_channel:user']], function () {
     Route::get('logged_in', 'HomeController@loggedIn');
     Route::get('dashboard', 'DashboardController@index');
     Route::get('dashboard_chart_data/{group_by}/{start_date}/{end_date}/{currency_id}/{include_expenses}', 'DashboardController@chartData');

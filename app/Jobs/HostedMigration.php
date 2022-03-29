@@ -165,7 +165,7 @@ class HostedMigration extends Job
             $localMigrationData['force'] = array_key_exists('force', $company);
 
             Storage::makeDirectory('migrations');
-            $file = Storage::path("migrations/{$fileName}.zip");
+            $file = Storage::path("app/migrations/{$fileName}.zip");
 
             //$file = storage_path("migrations/{$fileName}.zip");
 

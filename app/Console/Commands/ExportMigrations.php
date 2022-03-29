@@ -99,6 +99,7 @@ class ExportMigrations extends Command
     private function export($user)
     {
         $this->account = $user->account;
+        Auth::login($user);
 
         $date = date('Y-m-d');
         $accountKey = $this->account->account_key;
