@@ -74,7 +74,7 @@
         {{-- Feel free to push anything to header using @push('header') --}}
         @stack('head')
 
-        @if((isset($account) && $account->isPaid()) || ((bool) \App\Utils\Ninja::isSelfHost() && !empty($client->getSetting('portal_custom_head'))))
+        @if((isset($company) && $company->account->isPaid() && !empty($client->getSetting('portal_custom_head'))) || ((bool) \App\Utils\Ninja::isSelfHost() && !empty($client->getSetting('portal_custom_head'))))
             <div class="py-1 text-sm text-center text-white bg-primary">
                 {!! $client->getSetting('portal_custom_head') !!}
             </div>
