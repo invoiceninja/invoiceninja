@@ -345,7 +345,12 @@ class AppController extends BaseController
                     FROM information_schema.TABLES
                     WHERE TABLE_NAME='clients' AND TABLE_SCHEMA='ninja'");
 
-        if (count($result) && $result[0]->engine == 'InnoDB') {
+        if(property_exists($result[0], 'engine'))
+            $engine = $result[0]->engine;
+        else
+            $engine = $result[0]->ENGINE;
+
+        if (count($result) && $engine == 'InnoDB') {
             return;
         }
 
