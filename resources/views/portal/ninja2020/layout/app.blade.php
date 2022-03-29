@@ -31,7 +31,7 @@
         @endif
 
         <!-- Title -->
-        @if(isset($account) && !$account->isPaid())
+        @if(isset($company->account) && !$company->account->isPaid())
             <title>@yield('meta_title', '') — Invoice Ninja</title>
         @elseif(isset($company) && !is_null($company))
             <title>@yield('meta_title', '') — {{ $company->present()->name() }}</title>
