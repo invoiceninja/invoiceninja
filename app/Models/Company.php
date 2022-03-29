@@ -99,6 +99,7 @@ class Company extends BaseModel
         'report_include_drafts',
         'client_registration_fields',
         'convert_rate_to_client',
+        'markdown_email_enabled',
     ];
 
     protected $hidden = [
