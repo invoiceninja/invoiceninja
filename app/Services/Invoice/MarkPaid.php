@@ -96,10 +96,10 @@ class MarkPaid extends AbstractService
         $payment->ledger()
                 ->updatePaymentBalance($payment->amount * -1);
 
-        $client = $this->invoice->client->fresh();
-        $client->paid_to_date += $payment->amount;
-        $client->balance += $payment->amount * -1;
-        $client->save();
+        $this->invoice->client->fresh();
+        $this->invoice->client->paid_to_date += $payment->amount;
+        $this->invoice->client->balance += $payment->amount * -1;
+        $this->invoice->client->push();
 
         $this->invoice = $this->invoice
                              ->service()
