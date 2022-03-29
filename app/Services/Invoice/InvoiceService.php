@@ -362,6 +362,8 @@ class InvoiceService
         if(!collect($this->invoice->line_items)->contains('type_id', 3))
             return $this;
 
+        $pre_count = count($this->invoice->line_items);
+
         $this->invoice->line_items = collect($this->invoice->line_items)
                                      ->reject(function ($item) {
                                          return $item->type_id == '3';
@@ -372,7 +374,7 @@ class InvoiceService
         /* 24-03-2022 */
         $new_balance = $this->invoice->balance;
 
-        if(floatval($balance) - floatval($new_balance) != 0)
+        if($pre_count != count($this->invoice->line_items))
         {
             $adjustment = $balance - $new_balance;
 
