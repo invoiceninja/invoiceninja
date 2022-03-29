@@ -34,6 +34,12 @@ class SEPA
 
     public function authorizeView($data)
     {
+        $data['gateway'] = $this->stripe;
+        $data['payment_method_id'] = GatewayType::SEPA;
+        $data['client'] = $this->stripe->client;
+        $data['country'] = $this->stripe->client->country->iso_3166_2;
+        $data['currency'] = $this->stripe->client->currency();
+        
         return render('gateways.stripe.sepa.authorize', $data);
     }
 

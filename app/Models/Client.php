@@ -529,17 +529,17 @@ class Client extends BaseModel implements HasLocalePreference
 
         }
 
-        if ($this->currency()->code == 'EUR' && in_array(GatewayType::SEPA, array_column($pms, 'gateway_type_id'))) {
-            foreach ($pms as $pm) {
-                if ($pm['gateway_type_id'] == GatewayType::SEPA) {
-                    $cg = CompanyGateway::find($pm['company_gateway_id']);
+        // if ($this->currency()->code == 'EUR' && in_array(GatewayType::SEPA, array_column($pms, 'gateway_type_id'))) {
+        //     foreach ($pms as $pm) {
+        //         if ($pm['gateway_type_id'] == GatewayType::SEPA) {
+        //             $cg = CompanyGateway::find($pm['company_gateway_id']);
 
-                    if ($cg && $cg->fees_and_limits->{GatewayType::SEPA}->is_enabled) {
-                        return $cg;
-                    }
-                }
-            }
-        }
+        //             if ($cg && $cg->fees_and_limits->{GatewayType::SEPA}->is_enabled) {
+        //                 return $cg;
+        //             }
+        //         }
+        //     }
+        // }
 
         if ($this->country && $this->country->iso_3166_3 == 'GBR' && in_array(GatewayType::DIRECT_DEBIT, array_column($pms, 'gateway_type_id'))) {
             foreach ($pms as $pm) {
