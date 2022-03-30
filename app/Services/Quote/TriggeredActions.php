@@ -50,6 +50,10 @@ class TriggeredActions extends AbstractService
             $this->quote = $this->quote->service()->convert()->save();
         }        
 
+        if ($this->request->has('approve') && $this->request->input('approve') == 'true' && in_array($this->quote->status_id, [Quote::STATUS_SENT, Quote::STATUS_DRAFT])) {
+            $this->quote = $this->quote->service()->convert()->save();
+        }        
+
         
         return $this->quote;
     }

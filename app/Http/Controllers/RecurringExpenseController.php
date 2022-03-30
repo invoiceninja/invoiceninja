@@ -276,7 +276,8 @@ class RecurringExpenseController extends BaseController
         }
 
         $recurring_expense = $this->recurring_expense_repo->save($request->all(), $recurring_expense);
-
+        $recurring_expense->service()->triggeredActions($request)->save();
+        
         $this->uploadLogo($request->file('company_logo'), $recurring_expense->company, $recurring_expense);
 
         event(new RecurringExpenseWasUpdated($recurring_expense, $recurring_expense->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
@@ -372,6 +373,7 @@ class RecurringExpenseController extends BaseController
     public function store(StoreRecurringExpenseRequest $request)
     {
         $recurring_expense = $this->recurring_expense_repo->save($request->all(), RecurringExpenseFactory::create(auth()->user()->company()->id, auth()->user()->id));
+        $recurring_expense->service()->triggeredActions($request)->save();
 
         event(new RecurringExpenseWasCreated($recurring_expense, $recurring_expense->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
