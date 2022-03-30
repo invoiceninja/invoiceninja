@@ -50,6 +50,7 @@
         "fzaninotto/faker": "^1.5",
         "google/apiclient": "^2.0",
         "guzzlehttp/guzzle": "^6.3",
+        "guzzlehttp/psr7": "1.8.5",
         "intervention/image": "dev-master",
         "jaybizzle/laravel-crawler-detect": "1.*",
         "jlapp/swaggervel": "master-dev",
