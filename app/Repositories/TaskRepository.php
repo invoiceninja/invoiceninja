@@ -203,7 +203,7 @@ class TaskRepository extends BaseRepository
 
         $last = end($log);
         
-        if($last[1] !== 0){
+        if(is_array($last) && $last[1] !== 0){
             
             $new = [time(), 0];
             $log = array_merge($log, [$new]);
@@ -212,6 +212,7 @@ class TaskRepository extends BaseRepository
 
         }
 
+        return $task;
     }
 
     public function stop(Task $task)
@@ -220,7 +221,7 @@ class TaskRepository extends BaseRepository
 
         $last = end($log);
         
-        if($last[1] === 0){
+        if(is_array($last) && $last[1] === 0){
 
             $last[1] = time();
 
@@ -231,5 +232,21 @@ class TaskRepository extends BaseRepository
             $task->save();
         }
 
+        return $task;
+
+    }
+
+    public function triggeredActions($request, $task)
+    {
+
+        if ($request->has('start') && $request->input('start') == 'true') {
+            $task = $this->start($task);
+        }
+
+        if ($request->has('stop') && $request->input('stop') == 'true') {
+            $task = $this->stop($task);
+        }
+        
+        return $task;
     }
 }
