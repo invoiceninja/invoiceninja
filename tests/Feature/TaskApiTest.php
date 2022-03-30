@@ -90,7 +90,7 @@ class TaskApiTest extends TestCase
         $response->assertStatus(200);
 
         $this->assertEquals('taskynumber', $arr['data']['number']);
-
+        $this->assertLessThan(5, strlen($arr['data']['time_log']));
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
@@ -112,6 +112,23 @@ class TaskApiTest extends TestCase
 
         $this->assertNotEmpty($arr['data']['number']);
     }
+
+    public function testTaskPostNoDefinedTaskNumber()
+    {
+        $data = [
+            'description' => $this->faker->firstName,
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/tasks', $data);
+
+        $arr = $response->json();
+        $response->assertStatus(200);
+        $this->assertNotEmpty($arr['data']['number']);
+    }
+
 
     public function testTaskPostWithActionStart()
     {
@@ -224,4 +241,46 @@ class TaskApiTest extends TestCase
 
         $this->assertTrue($arr['data'][0]['is_deleted']);
     }
+
+
+    public function testTaskPostWithStartAction()
+    {
+        $data = [
+            'description' => $this->faker->firstName,
+            'number' => 'taskynumber2'
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/tasks?start=true', $data);
+
+        $arr = $response->json();
+        $response->assertStatus(200);
+
+        $this->assertEquals('taskynumber2', $arr['data']['number']);
+        $this->assertGreaterThan(5, strlen($arr['data']['time_log']));
+
+    }
+
+    public function testTaskPostWithStopAction()
+    {
+        $data = [
+            'description' => $this->faker->firstName,
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/tasks?stop=true', $data);
+
+        $arr = $response->json();
+        $response->assertStatus(200);
+
+        $this->assertLessThan(5, strlen($arr['data']['time_log']));
+
+    }
+
+
+
 }

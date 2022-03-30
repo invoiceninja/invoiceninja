@@ -74,7 +74,6 @@ class BaseTransformer
                 ->where('id_number', $client_name);
 
             if ($client_id_search->count() >= 1) {
-                // nlog("found via id number => {$client_id_search->first()->id}");
                 return $client_id_search->first()->id;
             }
 
@@ -83,7 +82,6 @@ class BaseTransformer
                 ->where('name', $client_name);
 
             if ($client_name_search->count() >= 1) {
-                // nlog("found via name {$client_name_search->first()->id}");
                 return $client_name_search->first()->id;
             }
         }
@@ -94,12 +92,9 @@ class BaseTransformer
             )->where('email', $client_email);
 
             if ($contacts->count() >= 1) {
-                // nlog("found via contact {$contacts->first()->client_id}");
                 return $contacts->first()->client_id;
             }
         }
-
-        // nlog("did not find client");
 
         return null;
     }

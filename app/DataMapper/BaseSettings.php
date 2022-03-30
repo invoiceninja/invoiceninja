@@ -46,7 +46,6 @@ class BaseSettings
                 return is_null($value) ? '' : (string) $value;
             case 'bool':
             case 'boolean':
-            nlog($value);
                 return boolval($value);
             case 'object':
                 return json_decode($value);

@@ -483,8 +483,6 @@ class CompanyImport implements ShouldQueue
         $tmp_company->db = config('database.default');
         $tmp_company->account_id = $this->account->id;
 
-nlog($tmp_company);
-
         if(Ninja::isHosted())
             $tmp_company->subdomain = MultiDB::randomSubdomainGenerator();
         else 

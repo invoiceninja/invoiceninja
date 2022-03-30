@@ -13,6 +13,7 @@ namespace App\Repositories;
 
 use App\Factory\ClientFactory;
 use App\Models\Client;
+use App\Models\Company;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\SavesDocuments;
 
@@ -59,10 +60,10 @@ class ClientRepository extends BaseRepository
         }
 
         $client->fill($data);
-        
 
-        if(auth()->user() && !$client->country_id){
-            $client->country_id = auth()->user()->company()->settings->country_id;
+        if(!$client->country_id){
+            $company = Company::find($client->company_id);
+            $client->country_id = $company->settings->country_id;
             
         }
 
