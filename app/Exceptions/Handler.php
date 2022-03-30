@@ -124,7 +124,7 @@ class Handler extends ExceptionHandler
                 }
             });
 
-            if ($this->validException($exception) && auth()->guard('contact')->user()->company->account->report_errors) {
+            if ($this->validException($exception)) {
                 app('sentry')->captureException($exception);
             }
         }

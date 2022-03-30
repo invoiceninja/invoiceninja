@@ -47,12 +47,6 @@ class MarkSent extends AbstractService
              ->updateBalance($adjustment, true)
              ->save();
 
-        /*Adjust client balance*/
-        $this->client
-             ->service()
-             ->updateBalance($adjustment)
-             ->save();
-
         /*Update ledger*/
         $this->invoice
              ->ledger()
@@ -67,6 +61,12 @@ class MarkSent extends AbstractService
              ->touchPdf() //08-01-2022
              ->setReminder()
              ->save();
+
+        /*Adjust client balance*/
+        $this->client->fresh();
+        $this->client->balance += $adjustment;
+        $this->client->save();
+
 
         $this->invoice->markInvitationsSent();
 

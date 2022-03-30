@@ -151,8 +151,6 @@ class PayFastPaymentDriver extends BaseDriver
         if($this->company_gateway->getConfigField('passphrase'))
             $fields['passphrase'] = $this->company_gateway->getConfigField('passphrase');
 
-        nlog(http_build_query($fields));
-
         return md5(http_build_query($fields));
     }
 

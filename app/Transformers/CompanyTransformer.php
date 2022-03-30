@@ -167,6 +167,7 @@ class CompanyTransformer extends EntityTransformer
             'report_include_drafts' => (bool) $company->report_include_drafts,
             'client_registration_fields' => (array) $company->client_registration_fields,
             'convert_rate_to_client' => (bool) $company->convert_rate_to_client,
+            'markdown_email_enabled' => (bool) $company->markdown_email_enabled,
         ];
     }
 

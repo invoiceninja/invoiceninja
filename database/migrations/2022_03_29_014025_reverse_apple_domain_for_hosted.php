@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Company;
 use App\Models\Gateway;
 use App\Utils\Ninja;
 use Illuminate\Database\Migrations\Migration;
@@ -26,6 +27,10 @@ class ReverseAppleDomainForHosted extends Migration
                 $stripe_connect->save();
             }
         }
+
+        Company::cursor()->each(function ($company){
+            $company->update(['markdown_email_enabled' => true]);
+        });
 
     }
 

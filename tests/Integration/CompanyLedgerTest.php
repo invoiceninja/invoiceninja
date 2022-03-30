@@ -182,7 +182,8 @@ class CompanyLedgerTest extends TestCase
         //client->balance should = 10
         $invoice->service()->markSent()->save();
 
-        $this->assertEquals($invoice->client->balance, 10);
+        $this->client = Client::find($this->client->id);
+        $this->assertEquals($this->client->balance, 10);
 
         $invoice_ledger = $invoice->company_ledger->sortByDesc('id')->first();
 

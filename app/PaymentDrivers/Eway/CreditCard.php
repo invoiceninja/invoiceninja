@@ -255,9 +255,6 @@ class CreditCard
 
         $response = $this->eway_driver->init()->eway->createTransaction(\Eway\Rapid\Enum\ApiMethod::DIRECT, $transaction);
 
-        nlog('eway');
-        nlog($response);
-
         $response_status = ErrorCode::getStatus($response->ResponseMessage);
 
         if(!$response_status['success']){

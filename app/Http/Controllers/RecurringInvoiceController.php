@@ -388,7 +388,10 @@ class RecurringInvoiceController extends BaseController
 
         $recurring_invoice = $this->recurring_invoice_repo->save($request->all(), $recurring_invoice);
 
-        $recurring_invoice->service()->deletePdf()->save();
+        $recurring_invoice->service()
+                          ->triggeredActions($request)
+                          ->deletePdf()
+                          ->save();
 
         event(new RecurringInvoiceWasUpdated($recurring_invoice, $recurring_invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 

@@ -211,5 +211,76 @@ class RecurringExpenseApiTest extends TestCase
         $this->assertEquals(RecurringInvoice::STATUS_PAUSED, $arr['data'][0]['status_id']);
     }
 
+    public function testRecurringExpenseStartedWithTriggeredAction()
+    {
+        $data = [
+            'ids' => [$this->encodePrimaryKey($this->recurring_expense->id)],
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->put('/api/v1/recurring_expenses/'.$this->recurring_expense->hashed_id.'?start=true', []);
+
+        $arr = $response->json();
+
+        $this->assertEquals(RecurringInvoice::STATUS_ACTIVE, $arr['data']['status_id']);
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->put('/api/v1/recurring_expenses/'.$this->recurring_expense->hashed_id.'?stop=true', []);
+
+        $arr = $response->json();
+
+        $this->assertEquals(RecurringInvoice::STATUS_PAUSED, $arr['data']['status_id']);
+
+    }
+
+    public function testRecurringExpensePostWithStartAction()
+    {
+        $data = [
+            'amount' => 10,
+            'client_id' => $this->client->hashed_id,
+            'number' => '123321',
+            'frequency_id' => 5,
+            'remaining_cycles' =>5
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/recurring_expenses?start=true', $data);
+
+        $response->assertStatus(200);
+   
+        $arr = $response->json();
+
+        $this->assertEquals(RecurringInvoice::STATUS_ACTIVE, $arr['data']['status_id']);
+
+    }
+
+
+    public function testRecurringExpensePostWithStopAction()
+    {
+        $data = [
+            'amount' => 10,
+            'client_id' => $this->client->hashed_id,
+            'number' => '1233x21',
+            'frequency_id' => 5,
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/recurring_expenses?stop=true', $data);
+
+        $response->assertStatus(200);
+   
+        $arr = $response->json();
+
+        $this->assertEquals(RecurringInvoice::STATUS_PAUSED, $arr['data']['status_id']);
+
+    }
 
 }
