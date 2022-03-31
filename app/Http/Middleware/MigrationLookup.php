@@ -16,6 +16,11 @@ use Utils;
 
 class MigrationLookup
 {
+    private string $migration_notification = 'The Invoice Ninja v4 platform is now disabled for free users. Please <a class="btn btn-primary btn-sm" href="/migration/start">Migrate Now</a> to the new Invoice Ninja v5 platform to remain as a free account.<br><br>
+*Not ready for v5? Upgrade to Pro or Enterprise to remain on v4. *Please note that the v4 platform will be "sunset" in November 2022.';
+
+    private string $silo = 'V4 is now disabled for your account. Please migrate. <a class="btn btn-primary btn-sm" href="/migration/start">Migrate Now</a>';
+
     public function handle(Request $request, Closure $next, $guard = 'user')
     {
         if (! env('MULTI_DB_ENABLED')) {
@@ -37,10 +42,10 @@ class MigrationLookup
 
                 }
 
-                return redirect('/settings/account_management')->with('warning','V4 is now disabled for your account. Please migrate.');
+                return redirect('/settings/account_management')->with('warning',$this->silo);
         }
         elseif(!auth()->user()->account->company->plan_expires || Carbon::parse(auth()->user()->account->company->plan_expires)->lt(now())){
-            session()->flash('warning','Please consider migrating to V5, V4 has entered end of life.');
+            session()->flash('warning',$this->migration_notification);
         }
 
         return $next($request);
