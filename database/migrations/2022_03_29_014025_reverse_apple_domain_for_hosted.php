@@ -34,8 +34,12 @@ class ReverseAppleDomainForHosted extends Migration
         });
 
         $chf = Currency::find(17);
-        $chf->symbol = 'CHF';
-        $chf->save();
+        
+        if($chf)
+        {
+            $chf->symbol = 'CHF';
+            $chf->save();
+        }
     }
 
     /**
