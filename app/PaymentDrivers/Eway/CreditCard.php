@@ -160,6 +160,7 @@ class CreditCard
                 'TotalAmount' => $this->convertAmountForEway(),
                 'CurrencyCode' => $this->eway_driver->client->currency()->code,
                 'InvoiceNumber' => $invoice_numbers,
+                'InvoiceDescription' => substr($invoice_numbers, 0, 63)
             ],
             'TransactionType' => \Eway\Rapid\Enum\TransactionType::PURCHASE,
             'SecuredCardData' => $request->input('securefieldcode'),
@@ -249,6 +250,7 @@ class CreditCard
                 'TotalAmount' => $this->convertAmountForEway($amount),
                 'CurrencyCode' => $this->eway_driver->client->currency()->code,
                 'InvoiceNumber' => $invoice_numbers,
+                'InvoiceDescription' => substr($invoice_numbers, 0, 63)
             ],
             'TransactionType' => \Eway\Rapid\Enum\TransactionType::RECURRING,
         ];
