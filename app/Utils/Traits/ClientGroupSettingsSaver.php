@@ -64,13 +64,13 @@ trait ClientGroupSettingsSaver
         }
 
         //this pass will handle any null values that are in the translations
-        foreach ($settings->translations as $key => $value) {
-            if (is_null($settings->translations[$key])) {
-                $settings->translations[$key] = '';
-            }
-        }
+        // foreach ($settings->translations as $key => $value) {
+        //     if (is_null($settings->translations[$key])) {
+        //         $settings->translations[$key] = '';
+        //     }
+        // }
 
-        $entity_settings->translations = $settings->translations;
+        // $entity_settings->translations = $settings->translations;
 
         $entity->settings = $entity_settings;
         $entity->save();
@@ -93,6 +93,9 @@ trait ClientGroupSettingsSaver
         $casts = CompanySettings::$casts;
 
         ksort($casts);
+
+        if(property_exists($settings, 'translations'))
+            unset($settings->translations);
 
         foreach ($settings as $key => $value) {
             if (! isset($settings->{$key}) || empty($settings->{$key}) || (! is_object($settings->{$key}) && strlen($settings->{$key}) == 0)) {
