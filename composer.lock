@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "132170f65edf4d1f4ab102171903e7d0",
+    "content-hash": "9bc9b45c0c0864b0f16869ba0870fde5",
     "packages": [
         {
             "name": "afosto/yaac",
@@ -434,16 +434,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.216.2",
+            "version": "3.218.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "9e09386c3a5b313eeb324490beff4eb843ed339d"
+                "reference": "714ed40bc2e60d4af907eb2d41fbfb75f980d2e2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/9e09386c3a5b313eeb324490beff4eb843ed339d",
-                "reference": "9e09386c3a5b313eeb324490beff4eb843ed339d",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/714ed40bc2e60d4af907eb2d41fbfb75f980d2e2",
+                "reference": "714ed40bc2e60d4af907eb2d41fbfb75f980d2e2",
                 "shasum": ""
             },
             "require": {
@@ -519,9 +519,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.216.2"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.218.0"
             },
-            "time": "2022-03-25T18:17:03+00:00"
+            "time": "2022-03-31T18:20:58+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -2287,16 +2287,16 @@
         },
         {
             "name": "google/apiclient-services",
-            "version": "v0.240.0",
+            "version": "v0.241.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-api-php-client-services.git",
-                "reference": "c6d39cda24d7ada02ecf8c464a1c8adb02607ba7"
+                "reference": "b4ba0dbcffa9ae30cf09ad3f8597f1374098acbf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/c6d39cda24d7ada02ecf8c464a1c8adb02607ba7",
-                "reference": "c6d39cda24d7ada02ecf8c464a1c8adb02607ba7",
+                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/b4ba0dbcffa9ae30cf09ad3f8597f1374098acbf",
+                "reference": "b4ba0dbcffa9ae30cf09ad3f8597f1374098acbf",
                 "shasum": ""
             },
             "require": {
@@ -2325,9 +2325,9 @@
             ],
             "support": {
                 "issues": "https://github.com/googleapis/google-api-php-client-services/issues",
-                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.240.0"
+                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.241.0"
             },
-            "time": "2022-03-21T01:20:11+00:00"
+            "time": "2022-03-28T00:56:15+00:00"
         },
         {
             "name": "google/auth",
@@ -3325,16 +3325,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v8.83.5",
+            "version": "v8.83.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "33b1b981266e3a19fbc826b60c4a6847e311ac95"
+                "reference": "dffcec0cb686eafaa3b8f33db11da2cd9d69af1c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/33b1b981266e3a19fbc826b60c4a6847e311ac95",
-                "reference": "33b1b981266e3a19fbc826b60c4a6847e311ac95",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/dffcec0cb686eafaa3b8f33db11da2cd9d69af1c",
+                "reference": "dffcec0cb686eafaa3b8f33db11da2cd9d69af1c",
                 "shasum": ""
             },
             "require": {
@@ -3494,7 +3494,7 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2022-03-15T13:37:44+00:00"
+            "time": "2022-03-29T14:41:02+00:00"
         },
         {
             "name": "laravel/serializable-closure",
@@ -3687,16 +3687,16 @@
         },
         {
             "name": "laravel/tinker",
-            "version": "v2.7.1",
+            "version": "v2.7.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/tinker.git",
-                "reference": "1e2d500585a4e546346fadd3adc6f9c1a97e15f4"
+                "reference": "dff39b661e827dae6e092412f976658df82dbac5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/tinker/zipball/1e2d500585a4e546346fadd3adc6f9c1a97e15f4",
-                "reference": "1e2d500585a4e546346fadd3adc6f9c1a97e15f4",
+                "url": "https://api.github.com/repos/laravel/tinker/zipball/dff39b661e827dae6e092412f976658df82dbac5",
+                "reference": "dff39b661e827dae6e092412f976658df82dbac5",
                 "shasum": ""
             },
             "require": {
@@ -3749,9 +3749,9 @@
             ],
             "support": {
                 "issues": "https://github.com/laravel/tinker/issues",
-                "source": "https://github.com/laravel/tinker/tree/v2.7.1"
+                "source": "https://github.com/laravel/tinker/tree/v2.7.2"
             },
-            "time": "2022-03-15T15:25:01+00:00"
+            "time": "2022-03-23T12:38:24+00:00"
         },
         {
             "name": "laravel/ui",
@@ -7890,16 +7890,16 @@
         },
         {
             "name": "stripe/stripe-php",
-            "version": "v7.119.0",
+            "version": "v7.121.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stripe/stripe-php.git",
-                "reference": "a454dde82f5698cc4bcc5016c5328f533f516690"
+                "reference": "e36e7afb71ae5511aae23b52dca712a0ef06d981"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/a454dde82f5698cc4bcc5016c5328f533f516690",
-                "reference": "a454dde82f5698cc4bcc5016c5328f533f516690",
+                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/e36e7afb71ae5511aae23b52dca712a0ef06d981",
+                "reference": "e36e7afb71ae5511aae23b52dca712a0ef06d981",
                 "shasum": ""
             },
             "require": {
@@ -7944,9 +7944,9 @@
             ],
             "support": {
                 "issues": "https://github.com/stripe/stripe-php/issues",
-                "source": "https://github.com/stripe/stripe-php/tree/v7.119.0"
+                "source": "https://github.com/stripe/stripe-php/tree/v7.121.0"
             },
-            "time": "2022-03-25T20:09:27+00:00"
+            "time": "2022-03-30T15:51:23+00:00"
         },
         {
             "name": "swiftmailer/swiftmailer",
@@ -11154,7 +11154,7 @@
                 "issues": "https://github.com/webpatser/laravel-countries/issues",
                 "source": "https://github.com/webpatser/laravel-countries"
             },
-            "time": "2019-07-12T14:06:05+00:00"
+            "time": "2022-03-29T15:40:48+00:00"
         },
         {
             "name": "wepay/php-sdk",
@@ -11464,16 +11464,16 @@
         },
         {
             "name": "brianium/paratest",
-            "version": "v6.4.3",
+            "version": "v6.4.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/paratestphp/paratest.git",
-                "reference": "5123a31dbf0b5deeaec17b00c0c5f31732c14483"
+                "reference": "589cdb23728b2a19872945580b95d8aa2c6619da"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/paratestphp/paratest/zipball/5123a31dbf0b5deeaec17b00c0c5f31732c14483",
-                "reference": "5123a31dbf0b5deeaec17b00c0c5f31732c14483",
+                "url": "https://api.github.com/repos/paratestphp/paratest/zipball/589cdb23728b2a19872945580b95d8aa2c6619da",
+                "reference": "589cdb23728b2a19872945580b95d8aa2c6619da",
                 "shasum": ""
             },
             "require": {
@@ -11536,7 +11536,7 @@
             ],
             "support": {
                 "issues": "https://github.com/paratestphp/paratest/issues",
-                "source": "https://github.com/paratestphp/paratest/tree/v6.4.3"
+                "source": "https://github.com/paratestphp/paratest/tree/v6.4.4"
             },
             "funding": [
                 {
@@ -11548,7 +11548,7 @@
                     "type": "paypal"
                 }
             ],
-            "time": "2022-02-18T13:23:47+00:00"
+            "time": "2022-03-28T07:55:11+00:00"
         },
         {
             "name": "composer/pcre",
@@ -11770,31 +11770,31 @@
         },
         {
             "name": "darkaonline/l5-swagger",
-            "version": "8.3.0",
+            "version": "8.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DarkaOnLine/L5-Swagger.git",
-                "reference": "b2e7885df13b0c43b48a8a1028d77428126228da"
+                "reference": "aab46bf494ba52dcdd7d259ce178ad33d0327d04"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DarkaOnLine/L5-Swagger/zipball/b2e7885df13b0c43b48a8a1028d77428126228da",
-                "reference": "b2e7885df13b0c43b48a8a1028d77428126228da",
+                "url": "https://api.github.com/repos/DarkaOnLine/L5-Swagger/zipball/aab46bf494ba52dcdd7d259ce178ad33d0327d04",
+                "reference": "aab46bf494ba52dcdd7d259ce178ad33d0327d04",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "laravel/framework": "^9.0 || >=8.40.0 || ^7.0",
+                "laravel/framework": ">=8.40.0 || ^7.0",
                 "php": "^7.2 || ^8.0",
-                "swagger-api/swagger-ui": "^3.0 || ^4.0",
+                "swagger-api/swagger-ui": "^3.0",
                 "symfony/yaml": "^5.0",
-                "zircote/swagger-php": "^3.2 || ^4.0"
+                "zircote/swagger-php": "3.*"
             },
             "require-dev": {
                 "mockery/mockery": "1.*",
                 "orchestra/testbench": "6.* || 5.*",
                 "php-coveralls/php-coveralls": "^2.0",
-                "phpunit/phpunit": "^9.5"
+                "phpunit/phpunit": "9.*"
             },
             "type": "library",
             "extra": {
@@ -11837,7 +11837,7 @@
             ],
             "support": {
                 "issues": "https://github.com/DarkaOnLine/L5-Swagger/issues",
-                "source": "https://github.com/DarkaOnLine/L5-Swagger/tree/8.3.0"
+                "source": "https://github.com/DarkaOnLine/L5-Swagger/tree/8.1.0"
             },
             "funding": [
                 {
@@ -11845,7 +11845,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-02-14T07:30:01+00:00"
+            "time": "2022-01-07T09:08:44+00:00"
         },
         {
             "name": "doctrine/annotations",
@@ -12418,16 +12418,16 @@
         },
         {
             "name": "laravel/dusk",
-            "version": "v6.22.1",
+            "version": "v6.22.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/dusk.git",
-                "reference": "bc9fd27ea167746ba0616a7661e6b5bd4a80c472"
+                "reference": "f62afe10fd37c96b1e1e9afe17174961cc2b0f0a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/dusk/zipball/bc9fd27ea167746ba0616a7661e6b5bd4a80c472",
-                "reference": "bc9fd27ea167746ba0616a7661e6b5bd4a80c472",
+                "url": "https://api.github.com/repos/laravel/dusk/zipball/f62afe10fd37c96b1e1e9afe17174961cc2b0f0a",
+                "reference": "f62afe10fd37c96b1e1e9afe17174961cc2b0f0a",
                 "shasum": ""
             },
             "require": {
@@ -12485,9 +12485,9 @@
             ],
             "support": {
                 "issues": "https://github.com/laravel/dusk/issues",
-                "source": "https://github.com/laravel/dusk/tree/v6.22.1"
+                "source": "https://github.com/laravel/dusk/tree/v6.22.2"
             },
-            "time": "2022-02-12T17:43:36+00:00"
+            "time": "2022-03-24T14:57:29+00:00"
         },
         {
             "name": "maximebf/debugbar",
@@ -13116,16 +13116,16 @@
         },
         {
             "name": "phpdocumentor/type-resolver",
-            "version": "1.6.0",
+            "version": "1.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/TypeResolver.git",
-                "reference": "93ebd0014cab80c4ea9f5e297ea48672f1b87706"
+                "reference": "77a32518733312af16a44300404e945338981de3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/93ebd0014cab80c4ea9f5e297ea48672f1b87706",
-                "reference": "93ebd0014cab80c4ea9f5e297ea48672f1b87706",
+                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/77a32518733312af16a44300404e945338981de3",
+                "reference": "77a32518733312af16a44300404e945338981de3",
                 "shasum": ""
             },
             "require": {
@@ -13160,9 +13160,9 @@
             "description": "A PSR-5 based resolver of Class names, Types and Structural Element Names",
             "support": {
                 "issues": "https://github.com/phpDocumentor/TypeResolver/issues",
-                "source": "https://github.com/phpDocumentor/TypeResolver/tree/1.6.0"
+                "source": "https://github.com/phpDocumentor/TypeResolver/tree/1.6.1"
             },
-            "time": "2022-01-04T19:58:01+00:00"
+            "time": "2022-03-15T21:29:03+00:00"
         },
         {
             "name": "phpspec/prophecy",
@@ -14618,16 +14618,16 @@
         },
         {
             "name": "swagger-api/swagger-ui",
-            "version": "v4.9.1",
+            "version": "v3.52.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/swagger-api/swagger-ui.git",
-                "reference": "56fe8a1c279be6b55cd9aef7ce5e06e0ec364880"
+                "reference": "f1ad60dc92e7edb0898583e16c3e66fe3e9eada2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/swagger-api/swagger-ui/zipball/56fe8a1c279be6b55cd9aef7ce5e06e0ec364880",
-                "reference": "56fe8a1c279be6b55cd9aef7ce5e06e0ec364880",
+                "url": "https://api.github.com/repos/swagger-api/swagger-ui/zipball/f1ad60dc92e7edb0898583e16c3e66fe3e9eada2",
+                "reference": "f1ad60dc92e7edb0898583e16c3e66fe3e9eada2",
                 "shasum": ""
             },
             "type": "library",
@@ -14673,9 +14673,9 @@
             ],
             "support": {
                 "issues": "https://github.com/swagger-api/swagger-ui/issues",
-                "source": "https://github.com/swagger-api/swagger-ui/tree/v4.9.1"
+                "source": "https://github.com/swagger-api/swagger-ui/tree/v3.52.5"
             },
-            "time": "2022-03-25T18:33:52+00:00"
+            "time": "2021-10-14T14:25:14+00:00"
         },
         {
             "name": "symfony/debug",
@@ -15002,41 +15002,39 @@
         },
         {
             "name": "zircote/swagger-php",
-            "version": "4.2.13",
+            "version": "3.3.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zircote/swagger-php.git",
-                "reference": "8888655d7dc21eda6ec71e521f71a757605f48fe"
+                "reference": "7313ff7d1991d00e52d0e852087693d4482df631"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zircote/swagger-php/zipball/8888655d7dc21eda6ec71e521f71a757605f48fe",
-                "reference": "8888655d7dc21eda6ec71e521f71a757605f48fe",
+                "url": "https://api.github.com/repos/zircote/swagger-php/zipball/7313ff7d1991d00e52d0e852087693d4482df631",
+                "reference": "7313ff7d1991d00e52d0e852087693d4482df631",
                 "shasum": ""
             },
             "require": {
                 "doctrine/annotations": "^1.7",
                 "ext-json": "*",
                 "php": ">=7.2",
-                "psr/log": "^1.1 || ^2.0 || 3.0",
+                "psr/log": "^1.1 || ^2.0 || ^3.0",
                 "symfony/finder": ">=2.2",
                 "symfony/yaml": ">=3.3"
             },
             "require-dev": {
-                "composer/package-versions-deprecated": "^1.11",
+                "composer/package-versions-deprecated": "1.11.99.2",
                 "friendsofphp/php-cs-fixer": "^2.17 || ^3.0",
-                "phpunit/phpunit": ">=8"
+                "phpunit/phpunit": ">=8.5.14"
             },
             "bin": [
                 "bin/openapi"
             ],
             "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "4.x-dev"
-                }
-            },
             "autoload": {
+                "files": [
+                    "src/functions.php"
+                ],
                 "psr-4": {
                     "OpenApi\\": "src"
                 }
@@ -15071,9 +15069,9 @@
             ],
             "support": {
                 "issues": "https://github.com/zircote/swagger-php/issues",
-                "source": "https://github.com/zircote/swagger-php/tree/4.2.13"
+                "source": "https://github.com/zircote/swagger-php/tree/3.3.4"
             },
-            "time": "2022-03-23T08:54:27+00:00"
+            "time": "2022-02-22T21:09:06+00:00"
         }
     ],
     "aliases": [],

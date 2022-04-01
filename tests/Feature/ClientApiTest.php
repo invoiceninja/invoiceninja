@@ -42,35 +42,6 @@ class ClientApiTest extends TestCase
         Model::reguard();
     }
 
-
-    public function testClientCountryCodeBe()
-    {
-
-        $data = [
-            'name' => $this->faker->firstName,
-            'id_number' => 'Coolio',
-            'country_id' => '056'
-        ];
-
-        $response = false;
-
-        try{
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/clients/', $data);
-        } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            nlog($message);
-        }
-
-        $response->assertStatus(200);
-
-        $arr = $response->json();
-
-        $this->assertEquals("56", $arr['data']['country_id']);
-    }
-
     public function testClientLanguageCodeIllegal()
     {
 

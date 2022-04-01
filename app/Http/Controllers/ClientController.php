@@ -598,7 +598,7 @@ class ClientController extends BaseController
      *
      * @OA\Put(
      *      path="/api/v1/clients/{id}/purge",
-     *      operationId="uploadClient",
+     *      operationId="purgeClient",
      *      tags={"clients"},
      *      summary="Purges a client from the system",
      *      description="Handles purging a client",
