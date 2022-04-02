@@ -370,7 +370,6 @@ class InvoiceService
                                      })->toArray();
 
         $this->invoice = $this->invoice->calc()->getInvoice();
-        $this->invoice->save();
         
         /* 24-03-2022 */
         $new_balance = $this->invoice->balance;
@@ -378,7 +377,7 @@ class InvoiceService
         $post_count = count($this->invoice->line_items);
         nlog("pre count = {$pre_count} post count = {$post_count}");
 
-        if($pre_count != $post_count)
+        if((int)$pre_count != (int)$post_count)
         {
             $adjustment = $balance - $new_balance;
 
