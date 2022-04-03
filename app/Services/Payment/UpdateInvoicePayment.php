@@ -75,12 +75,16 @@ class UpdateInvoicePayment
             //caution what if we amount paid was less than partial - we wipe it!
             $invoice =  $invoice->service() 
                                 ->clearPartial()
-                                ->updateBalance($paid_amount * -1)
-                                ->updatePaidToDate($paid_amount)
+                                // ->updateBalance($paid_amount * -1)
+                                // ->updatePaidToDate($paid_amount)
                                 ->updateStatus()
                                 ->touchPdf()
                                 ->save();
 
+            $invoice->balance -= $paid_amount;
+            $invoice->paid_to_date += $paid_amount;
+            $invoice->save();
+            
             $invoice->service()
                 ->workFlow()
                 ->save();

@@ -324,7 +324,7 @@ class InvoiceService
                                          return $item;
                                      })->toArray();
 
-        $this->deletePdf();
+        $this->touchPdf();
 
         return $this;
     }
@@ -370,11 +370,14 @@ class InvoiceService
                                      })->toArray();
 
         $this->invoice = $this->invoice->calc()->getInvoice();
-
+        
         /* 24-03-2022 */
         $new_balance = $this->invoice->balance;
 
-        if($pre_count != count($this->invoice->line_items))
+        $post_count = count($this->invoice->line_items);
+        nlog("pre count = {$pre_count} post count = {$post_count}");
+
+        if((int)$pre_count != (int)$post_count)
         {
             $adjustment = $balance - $new_balance;
 
