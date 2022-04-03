@@ -40,6 +40,19 @@ class ReverseAppleDomainForHosted extends Migration
             $chf->symbol = 'CHF';
             $chf->save();
         }
+
+        if(Ninja::isSelfHost())
+        {
+
+            $gateway = Gateway::find(20);
+
+            if($gateway)
+            {
+                $gateway->fields = '{"publishableKey":"","apiKey":"","appleDomainVerification":""}';
+                $gateway->save();
+            }
+            
+        }
     }
 
     /**
