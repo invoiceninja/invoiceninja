@@ -22,6 +22,7 @@ use App\Models\Quote;
 use App\Models\Task;
 use App\Services\Client\ClientService;
 use App\Utils\Traits\AppSetup;
+use App\Utils\Traits\ClientGroupSettingsSaver;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
@@ -40,6 +41,7 @@ class Client extends BaseModel implements HasLocalePreference
     use Filterable;
     use GeneratesCounter;
     use AppSetup;
+    use ClientGroupSettingsSaver;
 
     protected $presenter = ClientPresenter::class;
 
