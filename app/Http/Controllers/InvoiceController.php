@@ -215,7 +215,7 @@ class InvoiceController extends BaseController
     public function store(StoreInvoiceRequest $request)
     {
 
-        $client = Client::find($request->input('client_id'));
+        // $client = Client::find($request->input('client_id'));
 
         $invoice = $this->invoice_repo->save($request->all(), InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
