@@ -49,15 +49,7 @@ class PaymentRepository extends BaseRepository {
      */
     public function save(array $data, Payment $payment): ?Payment
     {
-        // if ($payment->amount >= 0) {
-        //     return $this->applyPayment($data, $payment);
-        // }
-
-
-            return $this->applyPayment($data, $payment);
-
-
-        return $payment;
+        return $this->applyPayment($data, $payment);
     }
 
     /**

@@ -48,7 +48,7 @@ class RecurringInvoiceFactory
         $invoice->frequency_id = RecurringInvoice::FREQUENCY_MONTHLY;
         $invoice->last_sent_date = null;
         $invoice->next_send_date = null;
-        $invoice->remaining_cycles = 0;
+        $invoice->remaining_cycles = -1;
         $invoice->paid_to_date = 0;
 
         return $invoice;
