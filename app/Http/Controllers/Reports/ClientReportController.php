@@ -13,6 +13,7 @@ namespace App\Http\Controllers\Reports;
 
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\Report\ClientReportRequest;
+use App\Models\Client;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Response;
 use League\Csv\Writer;
@@ -21,7 +22,17 @@ class ClientReportController extends BaseController
 {
     use MakesHash;
 
-    public Writer $csv;
+    private Writer $csv;
+
+    private array $keys;
+
+    /*
+    [
+        'client',
+        'contacts',
+        ''
+    ]
+    */
 
     public function __construct()
     {
@@ -64,7 +75,8 @@ class ClientReportController extends BaseController
         $company = auth()->user()->company();
 
         $header = ['first name', 'last name', 'email'];
-        
+        $this->keys = $request->input('keys');
+
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
 
@@ -76,10 +88,14 @@ class ClientReportController extends BaseController
         //insert all the records
         // $this->csv->insertAll($records);
 
-
         Client::with('contacts')->where('company_id')
                                 ->where('is_deleted',0)
                                 ->cursor()
+                                ->each(function ($client){
+
+                                    // $row = 
+
+                                });
 
         echo $this->csv->toString(); 
 
