@@ -712,4 +712,8 @@ class Client extends BaseModel implements HasLocalePreference
         ];
     }
 
+    public function translate_entity()
+    {
+        return ctrans('texts.client');
+    }
 }

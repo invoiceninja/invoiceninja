@@ -488,5 +488,9 @@ class RecurringQuote extends BaseModel
         return new RecurringService($this);
     }
 
+    public function translate_entity()
+    {
+        return ctrans('texts.recurring_quote');
+    }
 
 }

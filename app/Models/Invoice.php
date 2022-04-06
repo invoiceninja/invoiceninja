@@ -560,4 +560,9 @@ class Invoice extends BaseModel
             'invoice_status' => $invoice->status_id ?: 1,
         ];
     }
+
+    public function translate_entity()
+    {
+        return ctrans('texts.invoice');
+    }
 }

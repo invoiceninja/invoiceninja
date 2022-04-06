@@ -549,4 +549,9 @@ class Company extends BaseModel
 
         return $data;
     }
+
+    public function translate_entity()
+    {
+        return ctrans('texts.company');
+    }
 }

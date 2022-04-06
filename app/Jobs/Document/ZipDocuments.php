@@ -88,7 +88,7 @@ class ZipDocuments implements ShouldQueue
 
             foreach ($documents as $document) {
 
-                $zipFile->addFromString($document->name, $document->getFile());
+                $zipFile->addFromString($this->buildFileName($document), $document->getFile());
 
             }
 
@@ -112,7 +112,12 @@ class ZipDocuments implements ShouldQueue
             $zipFile->close();
         }
 
-
     }
 
+
+    private function buildFileName($document) :string
+    {
+        $filename = $document->name;
+
+    }
 }
