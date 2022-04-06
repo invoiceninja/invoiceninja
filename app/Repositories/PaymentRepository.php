@@ -156,6 +156,7 @@ class PaymentRepository extends BaseRepository {
                 $credit = Credit::withTrashed()->find($this->decodePrimaryKey($paid_credit['credit_id']));
 
                 if ($credit) {
+                    $credit = $credit->service()->markSent()->save();
                     ApplyCreditPayment::dispatchNow($credit, $payment, $paid_credit['amount'], $credit->company);
                 }
             }
