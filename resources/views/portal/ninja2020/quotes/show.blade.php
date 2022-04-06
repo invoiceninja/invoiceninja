@@ -44,7 +44,19 @@
                             </div>
                             @endif
 
+
+
                     </div>
+
+
+
+                                @if($quote->invoice_id) 
+                                    <div class="mt-5 sm:mt-0 sm:ml-6 flex justify-end">
+                                        <div class="inline-flex rounded-md shadow-sm">
+                                            <a class="button button-primary bg-primary" href="/client/invoices/{{ $quote->invoice->hashed_id }}">{{ ctrans('texts.view_invoice') }}</a>
+                                        </div>
+                                    </div>
+                                @endif
                 </div>
             </div>
         </div>
@@ -71,6 +83,7 @@
                 </div>
             </div>
         </div>
+
     @else
 
         <div class="bg-white shadow sm:rounded-lg mb-4">
