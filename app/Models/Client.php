@@ -89,12 +89,6 @@ class Client extends BaseModel implements HasLocalePreference
         'gateway_tokens',
         'documents',
         'contacts.company',
-        // 'currency',
-        // 'primary_contact',
-        // 'country',
-        // 'contacts',
-        // 'shipping_country',
-        // 'company',
     ];
 
     protected $casts = [
