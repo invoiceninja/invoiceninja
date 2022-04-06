@@ -43,7 +43,7 @@
         "digitickets/omnipay-gocardlessv2": "dev-payment-fix",
         "digitickets/omnipay-realex": "~5.0",
         "doctrine/dbal": "2.6.x",
-        "dompdf/dompdf": "0.7.0",
+        "dompdf/dompdf": "1.2.1",
         "ezyang/htmlpurifier": "~v4.7",
         "fotografde/omnipay-checkoutcom": "~2.0",
         "fruitcakestudio/omnipay-sisow": "~2.0",
