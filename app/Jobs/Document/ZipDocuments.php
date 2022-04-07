@@ -21,19 +21,23 @@ use App\Mail\DownloadInvoices;
 use App\Models\Company;
 use App\Models\Document;
 use App\Models\User;
+use App\Utils\Ninja;
 use App\Utils\TempFile;
+use App\Utils\Traits\MakesDates;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use ZipArchive;
 
 class ZipDocuments implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesDates;
 
     public $document_ids;
 
@@ -77,6 +81,11 @@ class ZipDocuments implements ShouldQueue
     {
         MultiDB::setDb($this->company->db);
 
+        App::setLocale($this->company->locale());
+        App::forgetInstance('translator');
+        $t = app('translator');
+        $t->replace(Ninja::transformTranslations($this->company->settings));
+
         # create new zip object
         $zipFile = new \PhpZip\ZipFile();
         $file_name = date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.documents')).'.zip';
@@ -88,7 +97,7 @@ class ZipDocuments implements ShouldQueue
 
             foreach ($documents as $document) {
 
-                $zipFile->addFromString($document->name, $document->getFile());
+                $zipFile->addFromString($this->buildFileName($document), $document->getFile());
 
             }
 
@@ -112,7 +121,20 @@ class ZipDocuments implements ShouldQueue
             $zipFile->close();
         }
 
-
     }
 
+
+    private function buildFileName($document) :string
+    {
+        $filename = $document->name;
+
+        $date = $this->formatDate(Carbon::createFromTimestamp($document->created_at), 'Y-m-d');
+
+        $number = "_";
+
+        if(isset($document->documentable->number))
+            $number = "_".$document->documentable->number;
+
+        return "{$date}_{$document->documentable->translate_entity()}{$number}_{$filename}";
+    }
 }

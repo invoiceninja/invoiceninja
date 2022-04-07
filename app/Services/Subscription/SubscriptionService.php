@@ -121,7 +121,10 @@ class SubscriptionService
             //execute any webhooks
             $this->triggerWebhook($context);
 
-            $this->handleRedirect('/client/invoices/'.$this->encodePrimaryKey($payment_hash->fee_invoice_id));
+            /* 06-04-2022 */
+            /* We may not be in a state where the user is present */
+            if(auth()->guard('contact'))
+                $this->handleRedirect('/client/invoices/'.$this->encodePrimaryKey($payment_hash->fee_invoice_id));
 
         }
     }

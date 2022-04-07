@@ -15,6 +15,7 @@ use App\Models\Client;
 use App\Models\Invoice;
 use App\Services\AbstractService;
 use App\Utils\Traits\GeneratesCounter;
+use Illuminate\Database\QueryException;
 
 class ApplyNumber extends AbstractService
 {
@@ -23,6 +24,8 @@ class ApplyNumber extends AbstractService
     private $client;
 
     private $invoice;
+
+    private $completed = true;
 
     public function __construct(Client $client, Invoice $invoice)
     {
@@ -39,11 +42,13 @@ class ApplyNumber extends AbstractService
 
         switch ($this->client->getSetting('counter_number_applied')) {
             case 'when_saved':
-                $this->invoice->number = $this->getNextInvoiceNumber($this->client, $this->invoice, $this->invoice->recurring_id);
+                $this->trySaving();
+                // $this->invoice->number = $this->getNextInvoiceNumber($this->client, $this->invoice, $this->invoice->recurring_id);
                 break;
             case 'when_sent':
                 if ($this->invoice->status_id == Invoice::STATUS_SENT) {
-                    $this->invoice->number = $this->getNextInvoiceNumber($this->client, $this->invoice, $this->invoice->recurring_id);
+                    $this->trySaving();
+                // $this->invoice->number = $this->getNextInvoiceNumber($this->client, $this->invoice, $this->invoice->recurring_id);
                 }
                 break;
 
@@ -52,5 +57,34 @@ class ApplyNumber extends AbstractService
         }
 
         return $this->invoice;
+    }
+
+    private function trySaving()
+    {
+
+        $x=1;
+
+        do{
+
+            try{
+
+                $this->invoice->number = $this->getNextInvoiceNumber($this->client, $this->invoice, $this->invoice->recurring_id);
+                $this->invoice->saveQuietly();
+
+                $this->completed = false;
+                
+
+            }
+            catch(QueryException $e){
+
+                $x++;
+
+                if($x>10)
+                    $this->completed = false;
+            }
+        
+        }
+        while($this->completed);
+
     }
 }

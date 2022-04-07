@@ -449,4 +449,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return new UserService($this);
     }
+
+    public function translate_entity()
+    {
+        return ctrans('texts.user');
+    }
 }

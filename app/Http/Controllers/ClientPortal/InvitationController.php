@@ -210,7 +210,7 @@ class InvitationController extends Controller
 
     public function paymentRouter(string $contact_key, string $payment_id)
     {
-        $contact = ClientContact::where('contact_key', $contact_key)->firstOrFail();
+        $contact = ClientContact::withTrashed()->where('contact_key', $contact_key)->firstOrFail();
         $payment = Payment::find($this->decodePrimaryKey($payment_id));
 
         if($payment->client_id != $contact->client_id)

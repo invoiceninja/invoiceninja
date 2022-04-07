@@ -314,4 +314,9 @@ class Credit extends BaseModel
             'credit_status' => $credit->status_id ?: 1,
         ];
     }
+
+    public function translate_entity()
+    {
+        return ctrans('texts.credit');
+    }
 }

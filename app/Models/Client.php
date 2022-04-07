@@ -22,6 +22,7 @@ use App\Models\Quote;
 use App\Models\Task;
 use App\Services\Client\ClientService;
 use App\Utils\Traits\AppSetup;
+use App\Utils\Traits\ClientGroupSettingsSaver;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
@@ -40,6 +41,7 @@ class Client extends BaseModel implements HasLocalePreference
     use Filterable;
     use GeneratesCounter;
     use AppSetup;
+    use ClientGroupSettingsSaver;
 
     protected $presenter = ClientPresenter::class;
 
@@ -87,12 +89,6 @@ class Client extends BaseModel implements HasLocalePreference
         'gateway_tokens',
         'documents',
         'contacts.company',
-        // 'currency',
-        // 'primary_contact',
-        // 'country',
-        // 'contacts',
-        // 'shipping_country',
-        // 'company',
     ];
 
     protected $casts = [
@@ -710,4 +706,8 @@ class Client extends BaseModel implements HasLocalePreference
         ];
     }
 
+    public function translate_entity()
+    {
+        return ctrans('texts.client');
+    }
 }

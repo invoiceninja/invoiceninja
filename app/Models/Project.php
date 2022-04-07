@@ -78,4 +78,8 @@ class Project extends BaseModel
         return $this->hasMany(Task::class);
     }
     
+    public function translate_entity()
+    {
+        return ctrans('texts.project');
+    }
 }

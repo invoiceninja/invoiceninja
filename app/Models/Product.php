@@ -64,4 +64,9 @@ class Product extends BaseModel
     {
         return $this->morphMany(Document::class, 'documentable');
     }
+
+    public function translate_entity()
+    {
+        return ctrans('texts.product');
+    }
 }

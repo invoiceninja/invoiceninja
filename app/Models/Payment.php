@@ -337,4 +337,8 @@ class Payment extends BaseModel
         ];
     }
 
+    public function translate_entity()
+    {
+        return ctrans('texts.payment');
+    }
 }

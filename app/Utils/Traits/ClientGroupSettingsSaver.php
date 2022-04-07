@@ -104,6 +104,11 @@ trait ClientGroupSettingsSaver
         }
 
         foreach ($casts as $key => $value) {
+
+            if($value == 'float' && property_exists($settings, $key)){
+                $settings->{$key} = floatval($settings->{$key});
+            }
+
             if (in_array($key, CompanySettings::$string_casts)) {
                 $value = 'string';
 
@@ -160,6 +165,10 @@ trait ClientGroupSettingsSaver
 
         foreach ($casts as $key => $value) {
 
+            if($value == 'float' && property_exists($settings, $key)){
+                $settings->{$key} = floatval($settings->{$key});
+            }
+            
             /*Separate loop if it is a _id field which is an integer cast as a string*/
             if (substr($key, -3) == '_id' || substr($key, -14) == 'number_counter') {
                 $value = 'integer';
