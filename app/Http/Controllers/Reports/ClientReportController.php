@@ -11,28 +11,16 @@
 
 namespace App\Http\Controllers\Reports;
 
+use App\Export\CSV\ClientExport;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\Report\ClientReportRequest;
 use App\Models\Client;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Response;
-use League\Csv\Writer;
 
 class ClientReportController extends BaseController
 {
     use MakesHash;
-
-    private Writer $csv;
-
-    private array $keys;
-
-    /*
-    [
-        'client',
-        'contacts',
-        ''
-    ]
-    */
 
     public function __construct()
     {
@@ -72,34 +60,9 @@ class ClientReportController extends BaseController
         // expect a list of visible fields, or use the default
 
         // return response()->json(['message' => 'Processing'], 200);
-        $company = auth()->user()->company();
+        $export = new ClientExport(auth()->user()->company(), $request->input('keys'));
 
-        $header = ['first name', 'last name', 'email'];
-        $this->keys = $request->input('keys');
-
-        //load the CSV document from a string
-        $this->csv = Writer::createFromString();
-
-        //insert the header
-        $this->csv->insertOne($header);
-
-        $records = [];
-
-        //insert all the records
-        // $this->csv->insertAll($records);
-
-        Client::with('contacts')->where('company_id')
-                                ->where('is_deleted',0)
-                                ->cursor()
-                                ->each(function ($client){
-
-                                    // $row = 
-
-                                });
-
-        echo $this->csv->toString(); 
-
-
+        $csv = $export->run();
     }
 
 
