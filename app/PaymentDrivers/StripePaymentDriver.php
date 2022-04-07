@@ -443,8 +443,11 @@ class StripePaymentDriver extends BaseDriver
                     "starting_after" => null
         ],$this->stripe_connect_auth);
 
-        if(count($searchResults) == 1)
-            return $searchResults->data[0];
+        if(count($searchResults) == 1){
+            $customer = $searchResults->data[0];
+            $this->updateStripeCustomer($customer);
+            return $customer; 
+        }
 
         //Else create a new record
         $data['name'] = $this->client->present()->name();
@@ -454,6 +457,13 @@ class StripePaymentDriver extends BaseDriver
             $data['email'] = $this->client->present()->email();
         }
 
+        $data['address']['line1'] = $this->client->address1;
+        $data['address']['line2'] = $this->client->address2;
+        $data['address']['city'] = $this->client->city;
+        $data['address']['postal_code'] = $this->client->postal_code;
+        $data['address']['state'] = $this->client->state;
+        $data['address']['country'] = $this->client->country ? $this->client->country->iso_3166_2 : "";
+
         $customer = Customer::create($data, $this->stripe_connect_auth);
 
         if (!$customer) {
@@ -461,6 +471,32 @@ class StripePaymentDriver extends BaseDriver
         }
 
         return $customer;
+    }
+
+    public function updateStripeCustomer($customer)
+    {
+        //Else create a new record
+        $data['name'] = $this->client->present()->name();
+        $data['phone'] = substr($this->client->present()->phone(), 0 , 20);
+
+        if (filter_var($this->client->present()->email(), FILTER_VALIDATE_EMAIL)) {
+            $data['email'] = $this->client->present()->email();
+        }
+
+        $data['address']['line1'] = $this->client->address1;
+        $data['address']['line2'] = $this->client->address2;
+        $data['address']['city'] = $this->client->city;
+        $data['address']['postal_code'] = $this->client->postal_code;
+        $data['address']['state'] = $this->client->state;
+        $data['address']['country'] = $this->client->country ? $this->client->country->iso_3166_2 : "";
+
+        try{
+            \Stripe\Customer::update($customer->id, $data, $this->stripe_connect_auth);
+        }
+        catch(Exception $e){
+            nlog("unable to update clients in Stripe");
+        }
+
     }
 
     public function refund(Payment $payment, $amount, $return_client_response = false)

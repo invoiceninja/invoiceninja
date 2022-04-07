@@ -163,7 +163,7 @@ class InvoiceController extends Controller
 
         //format data
         $invoices->map(function ($invoice) {
-            $invoice->service()->removeUnpaidGatewayFees()->save();
+            $invoice->service()->removeUnpaidGatewayFees();
             $invoice->balance = $invoice->balance > 0 ? Number::formatValue($invoice->balance, $invoice->client->currency()) : 0;
             $invoice->partial =  $invoice->partial > 0 ? Number::formatValue($invoice->partial, $invoice->client->currency()) : 0;
 

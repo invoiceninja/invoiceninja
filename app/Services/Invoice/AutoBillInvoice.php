@@ -125,7 +125,7 @@ class AutoBillInvoice extends AbstractService
          }
          catch(\Exception $e){
             nlog("payment NOT captured for ". $this->invoice->number . " with error " . $e->getMessage());
-            $this->invoice->service()->removeUnpaidGatewayFees()->save();
+         //   $this->invoice->service()->removeUnpaidGatewayFees();
          }
 
         if($payment){

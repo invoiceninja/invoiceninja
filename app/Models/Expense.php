@@ -101,4 +101,9 @@ class Expense extends BaseModel
     {
         return $this->belongsTo(Client::class);
     }
+
+    public function translate_entity()
+    {
+        return ctrans('texts.expense');
+    }
 }

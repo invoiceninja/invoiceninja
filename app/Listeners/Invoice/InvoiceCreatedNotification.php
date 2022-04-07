@@ -64,7 +64,7 @@ class InvoiceCreatedNotification implements ShouldQueue
             /* Returns an array of notification methods */
             $methods = $this->findUserNotificationTypes($invoice->invitations()->first(), $company_user, 'invoice', ['all_notifications', 'invoice_created', 'invoice_created_all']);
             /* If one of the methods is email then we fire the EntitySentMailer */
-            // if (($key = array_search('mail', $methods))) {
+
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
                 

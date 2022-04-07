@@ -14,6 +14,7 @@ namespace App\Repositories;
 use App\Factory\ClientFactory;
 use App\Models\Client;
 use App\Models\Company;
+use App\Utils\Traits\ClientGroupSettingsSaver;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\SavesDocuments;
 
@@ -61,10 +62,14 @@ class ClientRepository extends BaseRepository
 
         $client->fill($data);
 
+
+        if (array_key_exists('settings', $data)) {
+            $client->saveSettings($data['settings'], $client);
+        }
+
         if(!$client->country_id){
             $company = Company::find($client->company_id);
             $client->country_id = $company->settings->country_id;
-            
         }
 
         $client->save();

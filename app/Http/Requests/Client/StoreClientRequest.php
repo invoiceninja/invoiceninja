@@ -50,6 +50,8 @@ class StoreClientRequest extends Request
         if (isset($this->number)) {
             $rules['number'] = Rule::unique('clients')->where('company_id', auth()->user()->company()->id);
         }
+        
+        $rules['country_id'] = 'integer|nullable';
 
         if(isset($this->currency_code)){
             $rules['currency_code'] = 'sometimes|exists:currencies,code';
@@ -120,6 +122,10 @@ class StoreClientRequest extends Request
             $settings->currency_id = $this->getCurrencyCode($input['currency_code']);
         }
 
+        if (isset($input['language_code'])) {
+            $settings->language_id = $this->getLanguageId($input['language_code']);
+        }
+
         $input['settings'] = $settings;
 
         if (isset($input['country_code'])) {
@@ -146,6 +152,21 @@ class StoreClientRequest extends Request
             'currency_code' => 'Currency code does not exist',
         ];
     }
+
+    private function getLanguageId($language_code)
+    {
+        $languages = Cache::get('languages');
+
+        $language = $languages->filter(function ($item) use ($language_code) {
+            return $item->locale == $language_code;
+        })->first();
+
+        if($language)
+            return (string) $language->id;
+
+        return "";
+    }
+
 
     private function getCountryCode($country_code)
     {

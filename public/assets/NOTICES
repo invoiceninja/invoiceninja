@@ -5804,6 +5804,8 @@ shared_preferences_macos
 shared_preferences_web
 shared_preferences_windows
 url_launcher
+url_launcher_android
+url_launcher_ios
 url_launcher_linux
 url_launcher_macos
 url_launcher_platform_interface

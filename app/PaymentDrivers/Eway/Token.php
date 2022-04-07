@@ -61,8 +61,7 @@ class Token
 		        'TotalAmount' => $this->eway_driver->convertAmount($amount),
                 'CurrencyCode' => $this->eway_driver->client->currency()->code,
                 'InvoiceNumber' => $invoice_numbers,
-                'InvoiceDescription' => $description,
-                'InvoiceReference' => $description,
+                'InvoiceDescription' => substr($description, 0,63),
 		    ],
 		    'TransactionType' => \Eway\Rapid\Enum\TransactionType::RECURRING,
 		];

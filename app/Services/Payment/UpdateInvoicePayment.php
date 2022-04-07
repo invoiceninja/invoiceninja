@@ -73,14 +73,18 @@ class UpdateInvoicePayment
 
             /*Improve performance here - 26-01-2022 - also change the order of events for invoice first*/
             //caution what if we amount paid was less than partial - we wipe it!
+            $invoice->balance -= $paid_amount;
+            $invoice->paid_to_date += $paid_amount;
+            $invoice->save();
+
             $invoice =  $invoice->service() 
                                 ->clearPartial()
-                                ->updateBalance($paid_amount * -1)
-                                ->updatePaidToDate($paid_amount)
+                                // ->updateBalance($paid_amount * -1)
+                                // ->updatePaidToDate($paid_amount)
                                 ->updateStatus()
                                 ->touchPdf()
                                 ->save();
-
+            
             $invoice->service()
                 ->workFlow()
                 ->save();

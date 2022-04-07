@@ -16,6 +16,7 @@ use App\Http\Requests\Request;
 use App\Http\ValidationRules\ValidClientGroupSettingsRule;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\Rule;
 
 class UpdateClientRequest extends Request
@@ -103,6 +104,10 @@ class UpdateClientRequest extends Request
             $input['settings']['currency_id'] = (string) auth()->user()->company()->settings->currency_id;
         }
 
+        if (isset($input['language_code'])) {
+            $input['settings']['language_id'] = $this->getLanguageId($input['language_code']);
+        }
+
         $input = $this->decodePrimaryKeys($input);
 
         if (array_key_exists('settings', $input)) {
@@ -111,6 +116,22 @@ class UpdateClientRequest extends Request
 
         $this->replace($input);
     }
+
+
+    private function getLanguageId($language_code)
+    {
+        $languages = Cache::get('languages');
+
+        $language = $languages->filter(function ($item) use ($language_code) {
+            return $item->locale == $language_code;
+        })->first();
+
+        if($language)
+            return (string) $language->id;
+
+        return "";
+    }
+
 
     /**
      * For the hosted platform, we restrict the feature settings.

@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Company;
+use App\Models\Currency;
 use App\Models\Gateway;
 use App\Utils\Ninja;
 use Illuminate\Database\Migrations\Migration;
@@ -32,6 +33,26 @@ class ReverseAppleDomainForHosted extends Migration
             $company->update(['markdown_email_enabled' => true]);
         });
 
+        $chf = Currency::find(17);
+        
+        if($chf)
+        {
+            $chf->symbol = 'CHF';
+            $chf->save();
+        }
+
+        if(Ninja::isSelfHost())
+        {
+
+            $gateway = Gateway::find(20);
+
+            if($gateway)
+            {
+                $gateway->fields = '{"publishableKey":"","apiKey":"","appleDomainVerification":""}';
+                $gateway->save();
+            }
+            
+        }
     }
 
     /**

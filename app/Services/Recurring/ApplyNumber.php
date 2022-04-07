@@ -14,6 +14,7 @@ namespace App\Services\Recurring;
 use App\Models\Client;
 use App\Services\AbstractService;
 use App\Utils\Traits\GeneratesCounter;
+use Illuminate\Database\QueryException;
 
 class ApplyNumber extends AbstractService
 {
@@ -22,6 +23,8 @@ class ApplyNumber extends AbstractService
     private $client;
 
     private $recurring_entity;
+
+    private bool $completed = true;
 
     public function __construct(Client $client, $recurring_entity)
     {
@@ -36,8 +39,38 @@ class ApplyNumber extends AbstractService
         if ($this->recurring_entity->number != '')
             return $this->recurring_entity;
 
-        $this->recurring_entity->number = $this->getNextRecurringInvoiceNumber($this->client, $this->recurring_entity);
+        $this->trySaving();
+        //$this->recurring_entity->number = $this->getNextRecurringInvoiceNumber($this->client, $this->recurring_entity);
 
         return $this->recurring_entity;
+    }
+
+    private function trySaving()
+    {
+
+        $x=1;
+
+        do{
+
+            try{
+
+                $this->recurring_entity->number = $this->getNextRecurringInvoiceNumber($this->client, $this->recurring_entity);
+                $this->recurring_entity->saveQuietly();
+
+                $this->completed = false;
+                
+
+            }
+            catch(QueryException $e){
+
+                $x++;
+
+                if($x>10)
+                    $this->completed = false;
+            }
+        
+        }
+        while($this->completed);
+
     }
 }

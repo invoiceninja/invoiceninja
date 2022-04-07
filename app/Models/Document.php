@@ -140,4 +140,9 @@ class Document extends BaseModel
     {
         return Storage::get($this->url);
     }
+
+    public function translate_entity()
+    {
+        return ctrans('texts.document');
+    }
 }

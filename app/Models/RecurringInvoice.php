@@ -505,4 +505,9 @@ class RecurringInvoice extends BaseModel
     {
         return $this->belongsTo(Subscription::class);
     }
+
+    public function translate_entity()
+    {
+        return ctrans('texts.recurring_invoice');
+    }
 }
