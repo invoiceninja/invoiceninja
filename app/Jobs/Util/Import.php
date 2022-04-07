@@ -568,7 +568,9 @@ class Import implements ShouldQueue
             unset($modified['id']);
             unset($modified['password']); //cant import passwords.
             unset($modified['confirmation_code']); //cant import passwords.
-
+            unset($modified['oauth_user_id']);
+            unset($modified['oauth_provider_id']);
+            
             $user = $user_repository->save($modified, $this->fetchUser($resource['email']), true, true);
             $user->email_verified_at = now();
             // $user->confirmation_code = '';
