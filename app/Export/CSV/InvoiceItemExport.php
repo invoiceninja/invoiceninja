@@ -20,7 +20,7 @@ use App\Utils\Ninja;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
-class InvoiceExport
+class InvoiceItemExport
 {
     private $company;
 
@@ -61,14 +61,31 @@ class InvoiceExport
         'tax_rate3' => 'tax_rate3',
         'terms' => 'terms',
         'total_taxes' => 'total_taxes',
-        'currency' => 'client_id'
+        'currency' => 'currency_id',
+        'qty' => 'item.quantity',
+        'unit_cost' => 'item.cost',
+        'product_key' => 'item.product_key',
+        'cost' => 'item.product_cost',
+        'notes' => 'item.notes',
+        'discount' => 'item.discount',
+        'is_amount_discount' => 'item.is_amount_discount',
+        'tax_rate1' => 'item.tax_rate1',
+        'tax_rate2' => 'item.tax_rate2',
+        'tax_rate3' => 'item.tax_rate3',
+        'tax_name1' => 'item.tax_name1',
+        'tax_name2' => 'item.tax_name2',
+        'tax_name3' => 'item.tax_name3',
+        'line_total' => 'item.line_total',
+        'gross_line_total' => 'item.gross_line_total',
+        'invoice1' => 'item.custom_value1',
+        'invoice2' => 'item.custom_value2',
+        'invoice3' => 'item.custom_value3',
+        'invoice4' => 'item.custom_value4',
     ];
 
     private array $decorate_keys = [
-        'country',
         'client',
         'currency',
-        'status',
     ];
 
     public function __construct(Company $company, array $report_keys)
@@ -98,10 +115,9 @@ class InvoiceExport
                             ->cursor()
                             ->each(function ($invoice){
 
-                                $this->csv->insertOne($this->buildRow($invoice)); 
+                                $this->iterateItems($invoice);
 
                             });
-
 
         return $this->csv->toString(); 
 
@@ -118,6 +134,44 @@ class InvoiceExport
         return $header;
     }
 
+    private function iterateItems(Invoice $invoice)
+    {
+        $transformed_invoice = $this->buildRow($invoice);
+
+        $transformed_items = [];
+
+        foreach($invoice->line_items as $item)
+        {
+            $item_array = [];
+
+            foreach(array_values($this->report_keys) as $key){
+            
+                if(str_contains($key, "item.")){
+
+                    $key = str_replace("item.", "", $key);
+                    $item_array[$key] = $item->{$key};
+                }
+
+            }
+
+            $entity = [];
+
+            $transformed_items = array_merge($transformed_invoice, $item_array);
+
+            $transformed_items = $this->decorateAdvancedFields($invoice, $transformed_items);
+
+            foreach(array_values($this->report_keys) as $key)
+            {
+                $key = str_replace("item.", "", $key);
+                $entity[$key] = $transformed_items[$key];
+            }
+
+            $this->csv->insertOne($entity); 
+
+        }
+
+    }
+
     private function buildRow(Invoice $invoice) :array
     {
 
@@ -127,7 +181,9 @@ class InvoiceExport
 
         foreach(array_values($this->report_keys) as $key){
 
+            if(!str_contains($key, "item."))    
                 $entity[$key] = $transformed_invoice[$key];
+
         }
 
         return $this->decorateAdvancedFields($invoice, $entity);
@@ -136,8 +192,8 @@ class InvoiceExport
 
     private function decorateAdvancedFields(Invoice $invoice, array $entity) :array
     {
-        if(array_key_exists('currency', $entity))
-            $entity['currency'] = $invoice->client->currency()->code;
+        if(array_key_exists('currency_id', $entity))
+            $entity['currency_id'] = $invoice->client->currency()->code;
 
         if(array_key_exists('client_id', $entity))
             $entity['client_id'] = $invoice->client->present()->name();
