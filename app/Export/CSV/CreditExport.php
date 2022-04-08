@@ -14,19 +14,19 @@ namespace App\Export\CSV;
 use App\Libraries\MultiDB;
 use App\Models\Client;
 use App\Models\Company;
-use App\Models\Invoice;
-use App\Transformers\InvoiceTransformer;
+use App\Models\Credit;
+use App\Transformers\CreditTransformer;
 use App\Utils\Ninja;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
-class InvoiceExport
+class CreditExport
 {
     private $company;
 
     private $report_keys;
 
-    private $invoice_transformer;
+    private $credit_transformer;
 
     private array $entity_keys = [
         'amount' => 'amount',
@@ -36,6 +36,7 @@ class InvoiceExport
         'custom_surcharge2' => 'custom_surcharge2',
         'custom_surcharge3' => 'custom_surcharge3',
         'custom_surcharge4' => 'custom_surcharge4',
+        'country' => 'country_id',
         'custom_value1' => 'custom_value1',
         'custom_value2' => 'custom_value2',
         'custom_value3' => 'custom_value3',
@@ -45,6 +46,7 @@ class InvoiceExport
         'due_date' => 'due_date',
         'exchange_rate' => 'exchange_rate',
         'footer' => 'footer',
+        'invoice' => 'invoice_id',
         'number' => 'number',
         'paid_to_date' => 'paid_to_date',
         'partial' => 'partial',
@@ -61,21 +63,21 @@ class InvoiceExport
         'tax_rate3' => 'tax_rate3',
         'terms' => 'terms',
         'total_taxes' => 'total_taxes',
-        'currency' => 'client_id'
+        'currency' => 'currency'
     ];
 
     private array $decorate_keys = [
         'country',
         'client',
+        'invoice',
         'currency',
-        'status',
     ];
 
     public function __construct(Company $company, array $report_keys)
     {
         $this->company = $company;
         $this->report_keys = $report_keys;
-        $this->invoice_transformer = new InvoiceTransformer();
+        $this->credit_transformer = new CreditTransformer();
     }
 
     public function run()
@@ -93,12 +95,12 @@ class InvoiceExport
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-        Invoice::with('client')->where('company_id', $this->company->id)
+        Credit::with('client')->where('company_id', $this->company->id)
                             ->where('is_deleted',0)
                             ->cursor()
-                            ->each(function ($invoice){
+                            ->each(function ($credit){
 
-                                $this->csv->insertOne($this->buildRow($invoice)); 
+                                $this->csv->insertOne($this->buildRow($credit)); 
 
                             });
 
@@ -118,32 +120,36 @@ class InvoiceExport
         return $header;
     }
 
-    private function buildRow(Invoice $invoice) :array
+    private function buildRow(Credit $credit) :array
     {
 
-        $transformed_invoice = $this->invoice_transformer->transform($invoice);
+        $transformed_credit = $this->credit_transformer->transform($credit);
 
         $entity = [];
 
         foreach(array_values($this->report_keys) as $key){
 
-                $entity[$key] = $transformed_invoice[$key];
+                $entity[$key] = $transformed_credit[$key];
         }
 
-        return $this->decorateAdvancedFields($invoice, $entity);
+        return $this->decorateAdvancedFields($credit, $entity);
 
     }
 
-    private function decorateAdvancedFields(Invoice $invoice, array $entity) :array
+    private function decorateAdvancedFields(Credit $credit, array $entity) :array
     {
+
+        if(array_key_exists('country_id', $entity))
+            $entity['country_id'] = $credit->client->country ? ctrans("texts.country_{$credit->client->country->name}") : ""; 
+
         if(array_key_exists('currency', $entity))
-            $entity['currency'] = $invoice->client->currency()->code;
+            $entity['currency'] = $credit->client->currency()->code;
+
+        if(array_key_exists('invoice_id', $entity))
+            $entity['invoice_id'] = $credit->invoice ? $credit->invoice->number : "";
 
         if(array_key_exists('client_id', $entity))
-            $entity['client_id'] = $invoice->client->present()->name();
-
-        if(array_key_exists('status_id', $entity))
-            $entity['status_id'] = $invoice->stringStatus($invoice->status_id);
+            $entity['client_id'] = $credit->client->present()->name();
 
         return $entity;
     }

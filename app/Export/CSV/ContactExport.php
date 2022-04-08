@@ -13,6 +13,7 @@ namespace App\Export\CSV;
 
 use App\Libraries\MultiDB;
 use App\Models\Client;
+use App\Models\ClientContact;
 use App\Models\Company;
 use App\Transformers\ClientContactTransformer;
 use App\Transformers\ClientTransformer;
@@ -20,7 +21,7 @@ use App\Utils\Ninja;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
-class ClientExport
+class ContactExport
 {
     private $company;
 
@@ -101,14 +102,13 @@ class ClientExport
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-        Client::with('contacts')->where('company_id', $this->company->id)
-                                ->where('is_deleted',0)
-                                ->cursor()
-                                ->each(function ($client){
+        ClientContact::where('company_id', $this->company->id)
+                        ->cursor()
+                        ->each(function ($contact){
 
-                                    $this->csv->insertOne($this->buildRow($client)); 
+                            $this->csv->insertOne($this->buildRow($contact)); 
 
-                                });
+                        });
 
 
         return $this->csv->toString(); 
@@ -126,16 +126,13 @@ class ClientExport
         return $header;
     }
 
-    private function buildRow(Client $client) :array
+    private function buildRow(ClientContact $contact) :array
     {
 
         $transformed_contact = false;
 
-        $transformed_client = $this->client_transformer->transform($client);
-
-        if($contact = $client->contacts()->first())
-            $transformed_contact = $this->contact_transformer->transform($contact);
-
+        $transformed_client = $this->client_transformer->transform($contact->client);
+        $transformed_contact = $this->contact_transformer->transform($contact);
 
         $entity = [];
 
@@ -153,7 +150,7 @@ class ClientExport
 
         }
 
-        return $this->decorateAdvancedFields($client, $entity);
+        return $this->decorateAdvancedFields($contact->client, $entity);
 
     }
 
