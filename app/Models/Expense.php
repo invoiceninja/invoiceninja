@@ -106,4 +106,24 @@ class Expense extends BaseModel
     {
         return ctrans('texts.expense');
     }
+
+    public function currency()
+    {
+        return $this->belongsTo(Currency::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(ExpenseCategory::class);
+    }
+
+    public function payment_type()
+    {
+        return $this->belongsTo(PaymentType::class);
+    }
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
+    }    
 }
