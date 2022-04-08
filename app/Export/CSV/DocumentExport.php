@@ -96,7 +96,8 @@ class DocumentExport
 
         foreach(array_values($this->report_keys) as $key){
 
-                $entity[$key] = $transformed_entity[$key];
+            $entity[$key] = $transformed_entity[$key];
+        
         }
 
         return $this->decorateAdvancedFields($document, $entity);
@@ -106,8 +107,11 @@ class DocumentExport
     private function decorateAdvancedFields(Document $document, array $entity) :array
     {
 
-        // if(array_key_exists('country_id', $entity))
-        //     $entity['country_id'] = $credit->client->country ? ctrans("texts.country_{$credit->client->country->name}") : ""; 
+        if(array_key_exists('record_type', $entity))
+            $entity['record_type'] = class_basename($document->documentable);
+
+        if(array_key_exists('record_name', $entity))
+            $entity['record_name'] = $document->hashed_id;
 
         return $entity;
     }
