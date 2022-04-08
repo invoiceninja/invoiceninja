@@ -104,7 +104,6 @@ class ContactExport
         $this->csv->insertOne($this->buildHeader());
 
         ClientContact::where('company_id', $this->company->id)
-                        ->where('is_deleted',0)
                         ->cursor()
                         ->each(function ($contact){
 
