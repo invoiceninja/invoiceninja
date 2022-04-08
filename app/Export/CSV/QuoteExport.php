@@ -1,10 +1,10 @@
 <?php
 /**
- * Invoice Ninja (https://invoiceninja.com).
+ * Quote Ninja (https://quoteninja.com).
  *
- * @link https://github.com/invoiceninja/invoiceninja source repository
+ * @link https://github.com/quoteninja/quoteninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2021. Quote Ninja LLC (https://quoteninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -14,19 +14,19 @@ namespace App\Export\CSV;
 use App\Libraries\MultiDB;
 use App\Models\Client;
 use App\Models\Company;
-use App\Models\Invoice;
-use App\Transformers\InvoiceTransformer;
+use App\Models\Quote;
+use App\Transformers\QuoteTransformer;
 use App\Utils\Ninja;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
-class InvoiceExport
+class QuoteExport
 {
     private $company;
 
     private $report_keys;
 
-    private $invoice_transformer;
+    private $quote_transformer;
 
     private array $entity_keys = [
         'amount' => 'amount',
@@ -61,20 +61,21 @@ class InvoiceExport
         'tax_rate3' => 'tax_rate3',
         'terms' => 'terms',
         'total_taxes' => 'total_taxes',
-        'currency' => 'client_id'
+        'currency' => 'client_id',
+        'invoice' => 'invoice_id',
     ];
 
     private array $decorate_keys = [
-        'country',
         'client',
         'currency',
+        'invoice'
     ];
 
     public function __construct(Company $company, array $report_keys)
     {
         $this->company = $company;
         $this->report_keys = $report_keys;
-        $this->invoice_transformer = new InvoiceTransformer();
+        $this->quote_transformer = new QuoteTransformer();
     }
 
     public function run()
@@ -92,12 +93,12 @@ class InvoiceExport
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-        Invoice::with('client')->where('company_id', $this->company->id)
+        Quote::with('client')->where('company_id', $this->company->id)
                             ->where('is_deleted',0)
                             ->cursor()
-                            ->each(function ($invoice){
+                            ->each(function ($quote){
 
-                                $this->csv->insertOne($this->buildRow($invoice)); 
+                                $this->csv->insertOne($this->buildRow($quote)); 
 
                             });
 
@@ -117,29 +118,32 @@ class InvoiceExport
         return $header;
     }
 
-    private function buildRow(Invoice $invoice) :array
+    private function buildRow(Quote $quote) :array
     {
 
-        $transformed_invoice = $this->invoice_transformer->transform($invoice);
+        $transformed_quote = $this->quote_transformer->transform($quote);
 
         $entity = [];
 
         foreach(array_values($this->report_keys) as $key){
 
-                $entity[$key] = $transformed_invoice[$key];
+                $entity[$key] = $transformed_quote[$key];
         }
 
-        return $this->decorateAdvancedFields($invoice, $entity);
+        return $this->decorateAdvancedFields($quote, $entity);
 
     }
 
-    private function decorateAdvancedFields(Invoice $invoice, array $entity) :array
+    private function decorateAdvancedFields(Quote $quote, array $entity) :array
     {
         if(array_key_exists('currency', $entity))
-            $entity['currency'] = $invoice->client->currency()->code;
+            $entity['currency'] = $quote->client->currency()->code;
 
         if(array_key_exists('client_id', $entity))
-            $entity['client_id'] = $invoice->client->present()->name();
+            $entity['client_id'] = $quote->client->present()->name();
+
+        if(array_key_exists('invoice', $entity))
+            $entity['invoice'] = $quote->invoice ? $quote->invoice->number : "";
 
         return $entity;
     }
