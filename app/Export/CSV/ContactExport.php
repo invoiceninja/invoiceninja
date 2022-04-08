@@ -11,7 +11,6 @@
 
 namespace App\Export\CSV;
 
-use App\Http\Controllers\ClientPortal\setLocale;
 use App\Libraries\MultiDB;
 use App\Models\Client;
 use App\Models\ClientContact;

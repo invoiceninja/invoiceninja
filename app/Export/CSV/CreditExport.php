@@ -14,61 +14,52 @@ namespace App\Export\CSV;
 use App\Libraries\MultiDB;
 use App\Models\Client;
 use App\Models\Company;
-use App\Transformers\ClientContactTransformer;
-use App\Transformers\ClientTransformer;
+use App\Transformers\CreditTransformer;
 use App\Utils\Ninja;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
-class ClientExport
+class CreditExport
 {
     private $company;
 
     private $report_keys;
 
-    private $client_transformer;
-
-    private $contact_transformer;
+    private $credit_transformer;
 
     private array $entity_keys = [
-        'address1' => 'client.address1',
-        'address2' => 'client.address2',
-        'balance' => 'client.balance',
-        'city' => 'client.city',
+        'amount' => 'amount',
+        'balance' => 'balance',
+        'client' => 'client_id',
+        'custom_surcharge1' => 'custom_surcharge1',
+        'custom_surcharge2' => 'custom_surcharge2',
+        'custom_surcharge3' => 'custom_surcharge3',
+        'custom_surcharge4' => 'custom_surcharge4',
         'country' => 'client.country_id',
-        'credit_balance' => 'client.credit_balance',
-        'custom_value1' => 'client.custom_value1',
-        'custom_value2' => 'client.custom_value2',
-        'custom_value3' => 'client.custom_value3',
-        'custom_value4' => 'client.custom_value4',
-        'id_number' => 'client.id_number',
-        'industry' => 'client.industry_id',
-        'last_login' => 'client.last_login',
-        'name' => 'client.name',
-        'number' => 'client.number',
-        'paid_to_date' => 'client.paid_to_date',
-        'phone' => 'client.phone',
-        'postal_code' => 'client.postal_code',
-        'private_notes' => 'client.private_notes',
-        'public_notes' => 'client.public_notes',
-        'shipping_address1' => 'client.shipping_address1',
-        'shipping_address2' => 'client.shipping_address2',
-        'shipping_city' => 'client.shipping_city',
-        'shipping_country' => 'client.shipping_country_id',
-        'shipping_postal_code' => 'client.shipping_postal_code',
-        'shipping_state' => 'client.shipping_state',
-        'state' => 'client.state',
-        'vat_number' => 'client.vat_number',
-        'website' => 'client.website',
-        'currency' => 'client.currency',
-        'first_name' => 'contact.first_name',
-        'last_name' => 'contact.last_name',
-        'phone' => 'contact.phone',
-        'contact_custom_value1' => 'contact.custom_value1',
-        'contact_custom_value2' => 'contact.custom_value2',
-        'contact_custom_value3' => 'contact.custom_value3',
-        'contact_custom_value4' => 'contact.custom_value4',
-        'email' => 'contact.email',
+        'custom_value1' => 'custom_value1',
+        'custom_value2' => 'custom_value2',
+        'custom_value3' => 'custom_value3',
+        'custom_value4' => 'custom_value4',
+        'date' => 'date',
+        'discount' => 'discount',
+        'due_date' => 'due_date',
+        'exchange_rate' => 'exchange_rate',
+        'footer' => 'footer',
+        'invoice' => 'invoice_id',
+        'number' => 'number',
+        'paid_to_date' => 'paid_to_date',
+        'partial' => 'partial',
+        'partial_due_date' => 'partial_due_date',
+        'po_number' => 'po_number',
+        'private_notes' => 'private_notes',
+        'public_notes' => 'public_notes',
+        'status' => 'status_id',
+        'tax_name1' => 'tax_name1',
+        'tax_name2' => 'tax_name2',
+        'tax_name3' => 'tax_name3',
+        'tax_rate1' => 'tax_rate1',
+        'tax_rate1' => 'tax_rate1',
+        'tax_rate1' => 'tax_rate1',
     ];
 
     private array $decorate_keys = [
@@ -82,8 +73,7 @@ class ClientExport
     {
         $this->company = $company;
         $this->report_keys = $report_keys;
-        $this->client_transformer = new ClientTransformer();
-        $this->contact_transformer = new ClientContactTransformer();
+        $this->credit_transformer = new CreditTransformer();
     }
 
     public function run()
