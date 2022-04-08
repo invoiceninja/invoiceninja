@@ -237,7 +237,8 @@ class Import implements ShouldQueue
 
         //company size check
         if ($this->company->invoices()->count() > 500 || $this->company->products()->count() > 500 || $this->company->clients()->count() > 500) {
-            $this->company->is_large = true;
+            // $this->company->is_large = true;
+            $this->company->account->companies()->update(['is_large' => true]);
         }
 
 
@@ -567,7 +568,9 @@ class Import implements ShouldQueue
             unset($modified['id']);
             unset($modified['password']); //cant import passwords.
             unset($modified['confirmation_code']); //cant import passwords.
-
+            unset($modified['oauth_user_id']);
+            unset($modified['oauth_provider_id']);
+            
             $user = $user_repository->save($modified, $this->fetchUser($resource['email']), true, true);
             $user->email_verified_at = now();
             // $user->confirmation_code = '';
@@ -649,6 +652,7 @@ class Import implements ShouldQueue
             if(array_key_exists('updated_at', $modified))
                 $client->updated_at = Carbon::parse($modified['updated_at']);
 
+            $client->country_id = array_key_exists('country_id', $modified) ? $modified['country_id'] : $this->company->settings->country_id;
             $client->save(['timestamps' => false]);
             $client->fresh();
             
@@ -1475,6 +1479,9 @@ class Import implements ShouldQueue
                 $modified['fees_and_limits'] = $this->cleanFeesAndLimits($modified['fees_and_limits']);
             }
 
+            if(!array_key_exists('accepted_credit_cards', $modified) || (array_key_exists('accepted_credit_cards', $modified) && empty($modified['accepted_credit_cards'])))
+                $modified['accepted_credit_cards'] = 0;
+
             // /* On Hosted platform we need to advise Stripe users to connect with Stripe Connect */
             if(Ninja::isHosted() && $modified['gateway_key'] == 'd14dd26a37cecc30fdd65700bfb55b23'){
 
@@ -1486,9 +1493,6 @@ class Import implements ShouldQueue
                 NinjaMailerJob::dispatch($nmo, true);
 
                 $modified['gateway_key'] = 'd14dd26a47cecc30fdd65700bfb67b34';
-                
-                //why do we set this to a blank array?
-                //$modified['fees_and_limits'] = [];
 
             }
             

@@ -94,6 +94,18 @@ class QuoteEmailEngine extends BaseEmailEngine
             );
         }
 
+        $text_body = trans(
+                'texts.quote_message',
+                [
+                    'quote' => $this->quote->number,
+                    'company' => $this->quote->company->present()->name(),
+                    'amount' => Number::formatMoney($this->quote->amount, $this->client),
+                ],
+                null,
+                $this->client->locale()
+
+            ) . "\n\n" . $this->invitation->getLink();
+
         $this->setTemplate($this->client->getSetting('email_style'))
             ->setContact($this->contact)
             ->setVariables((new HtmlEngine($this->invitation))->makeValues())//move make values into the htmlengine
@@ -102,7 +114,8 @@ class QuoteEmailEngine extends BaseEmailEngine
             ->setFooter("<a href='{$this->invitation->getLink()}'>".ctrans('texts.view_quote').'</a>')
             ->setViewLink($this->invitation->getLink())
             ->setViewText(ctrans('texts.view_quote'))
-            ->setInvitation($this->invitation);
+            ->setInvitation($this->invitation)
+            ->setTextBody($text_body);
 
         if ($this->client->getSetting('pdf_email_attachment') !== false && $this->quote->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
 

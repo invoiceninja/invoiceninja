@@ -41,6 +41,39 @@ class TaskApiTest extends TestCase
         Model::reguard();
     }
 
+    public function testStartTask()
+    {
+        $log = [
+            [2,1],
+            [10,20]
+        ];
+
+        $last = end($log);
+
+        $this->assertEquals(10, $last[0]);
+        $this->assertEquals(20, $last[1]);
+
+        $new = [time(), 0];
+
+        array_push($log, $new);
+
+        $this->assertEquals(3, count($log));
+
+
+        //test task is started
+        $last = end($log);
+        $this->assertTrue($last[1] === 0);
+
+        //stop task
+        $last = end($log);
+        $last[1] = time();
+
+        $this->assertTrue($last[1] !== 0);
+
+
+    }
+
+
     public function testTaskPost()
     {
         $data = [
@@ -57,7 +90,7 @@ class TaskApiTest extends TestCase
         $response->assertStatus(200);
 
         $this->assertEquals('taskynumber', $arr['data']['number']);
-
+        $this->assertLessThan(5, strlen($arr['data']['time_log']));
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
@@ -79,6 +112,23 @@ class TaskApiTest extends TestCase
 
         $this->assertNotEmpty($arr['data']['number']);
     }
+
+    public function testTaskPostNoDefinedTaskNumber()
+    {
+        $data = [
+            'description' => $this->faker->firstName,
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/tasks', $data);
+
+        $arr = $response->json();
+        $response->assertStatus(200);
+        $this->assertNotEmpty($arr['data']['number']);
+    }
+
 
     public function testTaskPostWithActionStart()
     {
@@ -191,4 +241,46 @@ class TaskApiTest extends TestCase
 
         $this->assertTrue($arr['data'][0]['is_deleted']);
     }
+
+
+    public function testTaskPostWithStartAction()
+    {
+        $data = [
+            'description' => $this->faker->firstName,
+            'number' => 'taskynumber2'
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/tasks?start=true', $data);
+
+        $arr = $response->json();
+        $response->assertStatus(200);
+
+        $this->assertEquals('taskynumber2', $arr['data']['number']);
+        $this->assertGreaterThan(5, strlen($arr['data']['time_log']));
+
+    }
+
+    public function testTaskPostWithStopAction()
+    {
+        $data = [
+            'description' => $this->faker->firstName,
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/tasks?stop=true', $data);
+
+        $arr = $response->json();
+        $response->assertStatus(200);
+
+        $this->assertLessThan(5, strlen($arr['data']['time_log']));
+
+    }
+
+
+
 }

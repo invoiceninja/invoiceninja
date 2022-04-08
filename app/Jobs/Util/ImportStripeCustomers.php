@@ -27,6 +27,10 @@ class ImportStripeCustomers implements ShouldQueue
     public $company;
 
     private $stripe_keys = ['d14dd26a47cecc30fdd65700bfb67b34', 'd14dd26a37cecc30fdd65700bfb55b23'];
+
+    public $tries = 1;
+
+    
     /**
      * Create a new job instance.
      *

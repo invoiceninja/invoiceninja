@@ -69,16 +69,5 @@ class CompanySizeCheck implements ShouldQueue
            
          });
 
-        // Company::where('is_large', false)->cursor()->each(function ($company) {
-
-        //     if ($company->invoices()->count() > 500 || $company->products()->count() > 500 || $company->clients()->count() > 500) {
-                
-        //         nlog("Marking company {$company->id} as large");
-
-        //         $company->account->companies->update(['is_large' => true])
-
-        //     }
-            
-        // });
     }
 }

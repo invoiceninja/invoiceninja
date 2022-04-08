@@ -16,7 +16,10 @@ class CreateStatementRequest extends Request
      */
     public function authorize(): bool
     {
-        return auth()->user()->isAdmin();
+        // return auth()->user()->isAdmin();
+
+        return auth()->user()->can('view', $this->client());
+
     }
 
     /**
@@ -52,7 +55,6 @@ class CreateStatementRequest extends Request
 
     public function client(): ?Client
     {
-        // return Client::without('gateway_tokens','documents','contacts.company',)->where('id', $this->client_id)->withTrashed()->first();
-        return Client::without('company',)->where('id', $this->client_id)->withTrashed()->first();
+        return Client::without('company')->where('id', $this->client_id)->withTrashed()->first();
     }
 }

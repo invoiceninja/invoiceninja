@@ -62,20 +62,45 @@ class RecurringInvoiceController extends Controller
 
     public function requestCancellation(RequestCancellationRequest $request, RecurringInvoice $recurring_invoice)
     {
-        if (is_null($recurring_invoice->subscription_id) || optional($recurring_invoice->subscription)->allow_cancellation) {
+        nlog("outside cancellation");
+
+        if (optional($recurring_invoice->subscription)->allow_cancellation) {
+
+            nlog("inside the cancellation");
+
             $nmo = new NinjaMailerObject;
             $nmo->mailable = (new NinjaMailer((new ClientContactRequestCancellationObject($recurring_invoice, auth()->user()))->build()));
             $nmo->company = $recurring_invoice->company;
             $nmo->settings = $recurring_invoice->company->settings;
 
-            $notifiable_users = $this->filterUsersByPermissions($recurring_invoice->company->company_users, $recurring_invoice, ['recurring_cancellation']);
+            // $notifiable_users = $this->filterUsersByPermissions($recurring_invoice->company->company_users, $recurring_invoice, ['recurring_cancellation']);
 
-            $notifiable_users->each(function ($company_user) use($nmo){
+            $recurring_invoice->company->company_users->each(function ($company_user) use ($nmo){
 
-                $nmo->to_user = $company_user->user;
-                NinjaMailerJob::dispatch($nmo);
+
+                $methods = $this->findCompanyUserNotificationType($company_user, ['recurring_cancellation', 'all_notifications']);
+
+
+                //if mail is a method type -fire mail!!
+                if (($key = array_search('mail', $methods)) !== false) {
+                    unset($methods[$key]);
+
+
+                    $nmo->to_user = $company_user->user;
+                    NinjaMailerJob::dispatch($nmo);
+
+                }
+
+
 
             });
+
+            // $notifiable_users->each(function ($company_user) use($nmo){
+
+            //     $nmo->to_user = $company_user->user;
+            //     NinjaMailerJob::dispatch($nmo);
+
+            // });
 
             //$recurring_invoice->user->notify(new ClientContactRequestCancellation($recurring_invoice, auth()->user()));
 

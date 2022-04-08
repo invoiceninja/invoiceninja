@@ -13,6 +13,8 @@ namespace App\Repositories;
 
 use App\Factory\ClientFactory;
 use App\Models\Client;
+use App\Models\Company;
+use App\Utils\Traits\ClientGroupSettingsSaver;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\SavesDocuments;
 
@@ -58,12 +60,20 @@ class ClientRepository extends BaseRepository
             return $client;
         }
 
-        if(!$client->id && auth()->user() && auth()->user()->company() && (!array_key_exists('country_id', $data) || empty($data['country_id']))){
-            $data['country_id'] = auth()->user()->company()->settings->country_id;
+        $client->fill($data);
+
+
+        if (array_key_exists('settings', $data)) {
+            $client->saveSettings($data['settings'], $client);
         }
 
-        $client->fill($data);
+        if(!$client->country_id){
+            $company = Company::find($client->company_id);
+            $client->country_id = $company->settings->country_id;
+        }
+
         $client->save();
+
         
         if (!isset($client->number) || empty($client->number) || strlen($client->number) == 0) {
             $client->number = $this->getNextClientNumber($client);

@@ -311,4 +311,9 @@ class Quote extends BaseModel
     {
         return $this->calc()->getTotal();
     }
+
+    public function translate_entity()
+    {
+        return ctrans('texts.quote');
+    }
 }

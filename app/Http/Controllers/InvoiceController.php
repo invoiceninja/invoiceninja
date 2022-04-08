@@ -29,11 +29,13 @@ use App\Http\Requests\Invoice\UploadInvoiceRequest;
 use App\Jobs\Entity\EmailEntity;
 use App\Jobs\Invoice\StoreInvoice;
 use App\Jobs\Invoice\ZipInvoices;
+use App\Jobs\Ninja\TransactionLog;
 use App\Jobs\Util\UnlinkFile;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Quote;
+use App\Models\TransactionEvent;
 use App\Repositories\InvoiceRepository;
 use App\Transformers\InvoiceTransformer;
 use App\Transformers\QuoteTransformer;
@@ -213,7 +215,7 @@ class InvoiceController extends BaseController
     public function store(StoreInvoiceRequest $request)
     {
 
-        $client = Client::find($request->input('client_id'));
+        // $client = Client::find($request->input('client_id'));
 
         $invoice = $this->invoice_repo->save($request->all(), InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
@@ -223,6 +225,16 @@ class InvoiceController extends BaseController
                            ->save();
 
         event(new InvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+        
+        $transaction = [
+            'invoice' => $invoice->transaction_event(),
+            'payment' => [],
+            'client' => $invoice->client->transaction_event(),
+            'credit' => [],
+            'metadata' => [],
+        ];
+
+        TransactionLog::dispatch(TransactionEvent::INVOICE_UPDATED, $transaction, $invoice->company->db);
         
         return $this->itemResponse($invoice);
     }
@@ -404,6 +416,16 @@ class InvoiceController extends BaseController
         $invoice->service()->triggeredActions($request)->touchPdf();
 
         event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+
+        $transaction = [
+            'invoice' => $invoice->transaction_event(),
+            'payment' => [],
+            'client' => $invoice->client->transaction_event(),
+            'credit' => [],
+            'metadata' => [],
+        ];
+
+        TransactionLog::dispatch(TransactionEvent::INVOICE_UPDATED, $transaction, $invoice->company->db);
 
         return $this->itemResponse($invoice);
     }
@@ -663,7 +685,7 @@ class InvoiceController extends BaseController
                     return $this->errorResponse(['message' => ctrans('texts.invoice_cannot_be_marked_paid')], 400);
                 }
 
-                $invoice = $invoice->service()->markPaid();
+                $invoice = $invoice->service()->markPaid()->save();
 
                 if (! $bulk) {
                     return $this->itemResponse($invoice);
@@ -933,6 +955,9 @@ class InvoiceController extends BaseController
             return $this->featureFailure();
         
         if ($request->has('documents')) 
+            $this->saveDocuments($request->file('documents'), $invoice);
+
+        if ($request->has('file')) 
             $this->saveDocuments($request->file('documents'), $invoice);
 
         return $this->itemResponse($invoice->fresh());

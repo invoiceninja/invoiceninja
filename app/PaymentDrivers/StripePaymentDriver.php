@@ -169,7 +169,7 @@ class StripePaymentDriver extends BaseDriver
             && $this->client->currency()
             && ($this->client->currency()->code == 'EUR')
             && isset($this->client->country)
-            && in_array($this->client->country->iso_3166_3, ['AUS', 'DNK', 'DEU', 'ITA', 'LUX', 'NOR', 'SVN', 'GBR', 'EST', 'GRC', 'JPN', 'PRT', 'ESP', 'USA', 'BEL', 'FIN'])) { // TODO: More has to be added https://stripe.com/docs/payments/sepa-debit
+            && in_array($this->client->country->iso_3166_3, ['AUT', 'BEL', 'CHE', 'CYP', 'CZE', 'BGR', 'DNK', 'DEU', 'ESP', 'FIN', 'FRA', 'HUN', 'IRL', 'ITA', 'LVA', 'LUX', 'LTA', 'MLT', 'NLD', 'NOR', 'POL', 'ROU', 'SVK', 'SVN', 'SWE', 'GBR', 'EST', 'GRC', 'PRT' ])) { // TODO: More has to be added https://stripe.com/docs/payments/sepa-debit
             $types[] = GatewayType::SEPA;
         }
 
@@ -443,8 +443,11 @@ class StripePaymentDriver extends BaseDriver
                     "starting_after" => null
         ],$this->stripe_connect_auth);
 
-        if(count($searchResults) == 1)
-            return $searchResults->data[0];
+        if(count($searchResults) == 1){
+            $customer = $searchResults->data[0];
+            $this->updateStripeCustomer($customer);
+            return $customer; 
+        }
 
         //Else create a new record
         $data['name'] = $this->client->present()->name();
@@ -454,6 +457,13 @@ class StripePaymentDriver extends BaseDriver
             $data['email'] = $this->client->present()->email();
         }
 
+        $data['address']['line1'] = $this->client->address1;
+        $data['address']['line2'] = $this->client->address2;
+        $data['address']['city'] = $this->client->city;
+        $data['address']['postal_code'] = $this->client->postal_code;
+        $data['address']['state'] = $this->client->state;
+        $data['address']['country'] = $this->client->country ? $this->client->country->iso_3166_2 : "";
+
         $customer = Customer::create($data, $this->stripe_connect_auth);
 
         if (!$customer) {
@@ -461,6 +471,32 @@ class StripePaymentDriver extends BaseDriver
         }
 
         return $customer;
+    }
+
+    public function updateStripeCustomer($customer)
+    {
+        //Else create a new record
+        $data['name'] = $this->client->present()->name();
+        $data['phone'] = substr($this->client->present()->phone(), 0 , 20);
+
+        if (filter_var($this->client->present()->email(), FILTER_VALIDATE_EMAIL)) {
+            $data['email'] = $this->client->present()->email();
+        }
+
+        $data['address']['line1'] = $this->client->address1;
+        $data['address']['line2'] = $this->client->address2;
+        $data['address']['city'] = $this->client->city;
+        $data['address']['postal_code'] = $this->client->postal_code;
+        $data['address']['state'] = $this->client->state;
+        $data['address']['country'] = $this->client->country ? $this->client->country->iso_3166_2 : "";
+
+        try{
+            \Stripe\Customer::update($customer->id, $data, $this->stripe_connect_auth);
+        }
+        catch(Exception $e){
+            nlog("unable to update clients in Stripe");
+        }
+
     }
 
     public function refund(Payment $payment, $amount, $return_client_response = false)
@@ -533,12 +569,10 @@ class StripePaymentDriver extends BaseDriver
         //payment_intent.succeeded - this will confirm or cancel the payment
         if($request->type === 'payment_intent.succeeded'){
             PaymentIntentWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id)->delay(10);
-            // PaymentIntentWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id);
             return response()->json([], 200);
         }
 
         if ($request->type === 'charge.succeeded') {
-        // if ($request->type === 'charge.succeeded' || $request->type === 'payment_intent.succeeded') {
 
             foreach ($request->data as $transaction) {
 

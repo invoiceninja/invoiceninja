@@ -15,9 +15,18 @@
         zoom: 80%;
     }
 
+    html {
+        width: 210mm;
+        height: 200mm;     
+    }
+
     @page {
-        margin: 5px $global_margin $global_margin $global_margin;
+        margin-left: $global_margin;
+        margin-right: $global_margin;
+        margin-top: 0;
+        margin-bottom: 0;
         size: $page_size $page_layout;
+
     }
 
     p {
@@ -71,10 +80,10 @@
     }
 
     [data-ref="table"] {
+        margin-top: 1rem;
         min-width: 100%;
         table-layout: fixed;
         overflow-wrap: break-word;
-        margin-top: 1rem;
         /* margin-bottom: 200px; */
     }
 
@@ -107,10 +116,6 @@
     }
 
     #table-totals {
-        page-break-inside: avoid;
-    }
-
-    #table-totals {
         margin-top: 0rem;
         display: grid;
         grid-template-columns: 2fr 1fr;
@@ -118,6 +123,8 @@
         padding-left: 1rem;
         margin-right: .75rem;
         gap: 80px;
+        page-break-inside:auto;
+        overflow: visible !important;
     }
 
     #table-totals .totals-table-right-side>* {
@@ -126,7 +133,7 @@
     }
 
     #table-totals>.totals-table-right-side>*> :nth-child(1) {
-        text-align: "$dir_text_align";
+        text-align: $dir_text_align;
         margin-top: .25rem;
         padding-left: 7px;
     }
@@ -197,7 +204,7 @@
     .repeating-header-space, **/
     .repeating-footer,
     .repeating-footer-space {
-        height: 100px;
+        height: 10px;
     }
     .repeating-header {
         position: fixed;
@@ -290,7 +297,7 @@
 
 $entity_images
 
-<div class="repeating-footer" id="footer">
+<div class="repeating-footerx" id="footer">
    <p data-ref="total_table-footer">$entity_footer</p>
 
         <script>

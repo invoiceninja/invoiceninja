@@ -22,6 +22,7 @@ use App\Models\Quote;
 use App\Models\Task;
 use App\Services\Client\ClientService;
 use App\Utils\Traits\AppSetup;
+use App\Utils\Traits\ClientGroupSettingsSaver;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
@@ -40,6 +41,7 @@ class Client extends BaseModel implements HasLocalePreference
     use Filterable;
     use GeneratesCounter;
     use AppSetup;
+    use ClientGroupSettingsSaver;
 
     protected $presenter = ClientPresenter::class;
 
@@ -87,12 +89,6 @@ class Client extends BaseModel implements HasLocalePreference
         'gateway_tokens',
         'documents',
         'contacts.company',
-        // 'currency',
-        // 'primary_contact',
-        // 'country',
-        // 'contacts',
-        // 'shipping_country',
-        // 'company',
     ];
 
     protected $casts = [
@@ -153,7 +149,7 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function gateway_tokens()
     {
-        return $this->hasMany(ClientGatewayToken::class);
+        return $this->hasMany(ClientGatewayToken::class)->orderBy('is_default', 'DESC');
     }
 
     public function expenses()
@@ -529,17 +525,17 @@ class Client extends BaseModel implements HasLocalePreference
 
         }
 
-        if ($this->currency()->code == 'EUR' && in_array(GatewayType::SEPA, array_column($pms, 'gateway_type_id'))) {
-            foreach ($pms as $pm) {
-                if ($pm['gateway_type_id'] == GatewayType::SEPA) {
-                    $cg = CompanyGateway::find($pm['company_gateway_id']);
+        // if ($this->currency()->code == 'EUR' && in_array(GatewayType::SEPA, array_column($pms, 'gateway_type_id'))) {
+        //     foreach ($pms as $pm) {
+        //         if ($pm['gateway_type_id'] == GatewayType::SEPA) {
+        //             $cg = CompanyGateway::find($pm['company_gateway_id']);
 
-                    if ($cg && $cg->fees_and_limits->{GatewayType::SEPA}->is_enabled) {
-                        return $cg;
-                    }
-                }
-            }
-        }
+        //             if ($cg && $cg->fees_and_limits->{GatewayType::SEPA}->is_enabled) {
+        //                 return $cg;
+        //             }
+        //         }
+        //     }
+        // }
 
         if ($this->country && $this->country->iso_3166_3 == 'GBR' && in_array(GatewayType::DIRECT_DEBIT, array_column($pms, 'gateway_type_id'))) {
             foreach ($pms as $pm) {
@@ -581,149 +577,6 @@ class Client extends BaseModel implements HasLocalePreference
 
         return 'USD';
     }
-
-    /**
-     * Generates an array of payment urls per client
-     * for a given amount.
-     *
-     * The route produced will provide the
-     * company_gateway and payment_type ids
-     *
-     * The invoice/s will need to be injected
-     * upstream of this method as they are not
-     * included in this logic.
-     *
-     * @param  float $amount The amount to be charged
-     * @return array         Array of payment labels and urls
-     * @deprecated 5.0.38 - see service()->getPaymentMethods($amount);
-     */
-    // public function getPaymentMethods($amount) :array
-    // {
-    //     //this method will get all the possible gateways a client can pay with
-    //     //but we also need to consider payment methods that are already stored
-    //     //so we MUST filter the company gateways and remove duplicates.
-
-    //     //Also need to harvest the list of client gateway tokens and present these
-    //     //for instant payment
-
-    //     $company_gateways = $this->getSetting('company_gateway_ids');
-
-    //     //we need to check for "0" here as we disable a payment gateway for a client with the number "0"
-    //     if ($company_gateways || $company_gateways == '0') {
-    //         $transformed_ids = $this->transformKeys(explode(',', $company_gateways));
-    //         $gateways = $this->company
-    //                          ->company_gateways
-    //                          ->whereIn('id', $transformed_ids)
-    //                          ->where('gateway_key', '!=', '54faab2ab6e3223dbe848b1686490baa')
-    //                          ->sortby(function ($model) use ($transformed_ids) { //company gateways are sorted in order of priority
-    //                              return array_search($model->id, $transformed_ids);// this closure sorts for us
-    //                          });
-    //     } else {
-    //         $gateways = $this->company
-    //                          ->company_gateways
-    //                          ->where('gateway_key', '!=', '54faab2ab6e3223dbe848b1686490baa')
-    //                          ->where('is_deleted', false);
-    //     }
-
-    //     $payment_methods = [];
-
-    //     foreach ($gateways as $gateway) {
-    //         foreach ($gateway->driver($this)->gatewayTypes() as $type) {
-    //             if (isset($gateway->fees_and_limits) && property_exists($gateway->fees_and_limits, $type)) {
-    //                 if ($this->validGatewayForAmount($gateway->fees_and_limits->{$type}, $amount)) {
-    //                     $payment_methods[] = [$gateway->id => $type];
-    //                 }
-    //             } else {
-    //                 $payment_methods[] = [$gateway->id => $type];
-    //             }
-    //         }
-    //     }
-
-    //     $payment_methods_collections = collect($payment_methods);
-
-    //     //** Plucks the remaining keys into its own collection
-    //     $payment_methods_intersect = $payment_methods_collections->intersectByKeys($payment_methods_collections->flatten(1)->unique());
-
-    //     // handle custom gateways as they are not unique'd()---------------------------------------------------------
-    //     // we need to split the query here as we allow multiple custom gateways, so we must show all of them, they query logic
-    //     // above only pulls in unique gateway types.. ie.. we only allow 1 credit card gateway, but many custom gateways.
-
-    //     if ($company_gateways || $company_gateways == '0') {
-    //         $transformed_ids = $this->transformKeys(explode(',', $company_gateways));
-    //         $gateways = $this->company
-    //                          ->company_gateways
-    //                          ->whereIn('id', $transformed_ids)
-    //                          ->where('gateway_key', '=', '54faab2ab6e3223dbe848b1686490baa')
-    //                          ->sortby(function ($model) use ($transformed_ids) { //company gateways are sorted in order of priority
-    //                              return array_search($model->id, $transformed_ids);// this closure sorts for us
-    //                          });
-    //     } else {
-    //         $gateways = $this->company
-    //                          ->company_gateways
-    //                          ->where('gateway_key', '=', '54faab2ab6e3223dbe848b1686490baa')
-    //                          ->where('is_deleted', false);
-    //     }
-
-    //     //note we have to use GatewayType::CREDIT_CARD as alias for CUSTOM
-    //     foreach ($gateways as $gateway) {
-    //         foreach ($gateway->driver($this)->gatewayTypes() as $type) {
-    //             if (isset($gateway->fees_and_limits) && property_exists($gateway->fees_and_limits, $type)) {
-    //                 if ($this->validGatewayForAmount($gateway->fees_and_limits->{GatewayType::CREDIT_CARD}, $amount)) {
-    //                     $payment_methods_intersect->push([$gateway->id => $type]);
-    //                 }
-    //             } else {
-    //                 $payment_methods_intersect->push([$gateway->id => NULL]);
-    //             }
-    //         }
-    //     }
-
-    //     //handle custom gateways as they are not unique'd()---------------------------------------------------------
-
-    //     $payment_urls = [];
-
-    //     foreach ($payment_methods_intersect as $key => $child_array) {
-    //         foreach ($child_array as $gateway_id => $gateway_type_id) {
-    //             $gateway = CompanyGateway::find($gateway_id);
-
-    //             $fee_label = $gateway->calcGatewayFeeLabel($amount, $this);
-
-    //             if(!$gateway_type_id){
-
-    //                 $payment_urls[] = [
-    //                     'label' => $gateway->getConfigField('name') . $fee_label,
-    //                     'company_gateway_id'  => $gateway_id,
-    //                     'gateway_type_id' => GatewayType::CREDIT_CARD,
-    //                 ];
-    //             }
-    //             else
-    //             {
-    //                 $payment_urls[] = [
-    //                     'label' => $gateway->getTypeAlias($gateway_type_id) . $fee_label,
-    //                     'company_gateway_id'  => $gateway_id,
-    //                     'gateway_type_id' => $gateway_type_id,
-    //                 ];
-    //             }
-    //         }
-    //     }
-
-    //     if (($this->getSetting('use_credits_payment') == 'option' || $this->getSetting('use_credits_payment') == 'always') && $this->service()->getCreditBalance() > 0) {
-
-    //         // Show credits as only payment option if both statements are true.
-    //         if (
-    //             $this->service()->getCreditBalance() > $amount
-    //             && $this->getSetting('use_credits_payment') == 'always') {
-    //             $payment_urls = [];
-    //         }
-
-    //         $payment_urls[] = [
-    //                 'label' => ctrans('texts.apply_credit'),
-    //                 'company_gateway_id'  => CompanyGateway::GATEWAY_CREDIT,
-    //                 'gateway_type_id' => GatewayType::CREDIT,
-    //             ];
-    //     }
-
-    //     return $payment_urls;
-    // }
 
     public function validGatewayForAmount($fees_and_limits_for_payment_type, $amount) :bool
     {
@@ -839,5 +692,22 @@ class Client extends BaseModel implements HasLocalePreference
         $offset += ($entity_send_time * 3600);
 
         return $offset;
+    }
+
+    public function transaction_event()
+    {
+        $client = $this->fresh();
+
+        return [
+            'client_id' => $client->id, 
+            'client_balance' => $client->balance ?: 0, 
+            'client_paid_to_date' => $client->paid_to_date ?: 0,
+            'client_credit_balance' => $client->credit_balance ?: 0
+        ];
+    }
+
+    public function translate_entity()
+    {
+        return ctrans('texts.client');
     }
 }

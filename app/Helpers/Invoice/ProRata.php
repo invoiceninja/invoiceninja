@@ -54,10 +54,7 @@ class ProRata
     {
         $days = $from_date->copy()->diffInDays($to_date);
         $days_in_frequency = $this->getDaysInFrequency($frequency);
-nlog($from_date->format('Y-m-d'));
-nlog($days);
-nlog($days_in_frequency);
-nlog($amount);
+
         return round( (($days/$days_in_frequency) * $amount),2);
     }
 

@@ -79,8 +79,6 @@ class ImportMigrations extends Command
         $this->buildCache();
     
         $path = $this->option('path') ?? public_path('storage/migrations/import');
-
-        nlog(public_path('storage/migrations/import'));
         
         $directory = new DirectoryIterator($path);
 

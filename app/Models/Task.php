@@ -147,4 +147,9 @@ class Task extends BaseModel
 
         return round($duration);
     }
+
+    public function translate_entity()
+    {
+        return ctrans('texts.task');
+    }
 }

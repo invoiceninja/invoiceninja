@@ -122,6 +122,20 @@ class ContactKeyLogin
 
                     return redirect($this->setRedirectPath());
             }
+        }elseif ($request->segment(3)) {
+            if ($client_contact = ClientContact::where('contact_key', $request->segment(3))->first()) {
+                if(empty($client_contact->email)) {
+                    $client_contact->email = Str::random(6) . "@example.com"; $client_contact->save();
+                }
+    
+                auth()->guard('contact')->loginUsingId($client_contact->id, true);
+
+                if ($request->query('next')) {
+                    return redirect($request->query('next'));
+                }
+
+                return redirect($this->setRedirectPath());
+            }
         }
         //28-02-2022 middleware should not allow this to progress as we should have redirected by this stage.
         abort(404, "Unable to authenticate.");

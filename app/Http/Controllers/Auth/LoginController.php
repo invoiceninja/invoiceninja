@@ -33,6 +33,7 @@ use App\Transformers\CompanyUserTransformer;
 use App\Utils\Ninja;
 use App\Utils\Traits\UserSessionAttributes;
 use App\Utils\Traits\User\LoginCache;
+use App\Utils\TruthSource;
 use Google_Client;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
@@ -216,6 +217,12 @@ class LoginController extends BaseController
             $cu = CompanyUser::query()
                   ->where('user_id', auth()->user()->id);
 
+            $truth = app()->make(TruthSource::class);
+
+            $truth->setCompanyUser($cu->first());
+            $truth->setUser(auth()->user());
+            $truth->setCompany($user->account->default_company);
+
             if(!$cu->exists())
                 return response()->json(['message' => 'User not linked to any companies'], 403);
 
@@ -235,6 +242,8 @@ class LoginController extends BaseController
               
             }
 
+            $truth->setCompanyToken(CompanyToken::where('user_id', auth()->user()->id)->where('company_id', $user->account->default_company->id)->first());
+
             /*On the hosted platform, only owners can login for free/pro accounts*/
             if(Ninja::isHosted() && !$cu->first()->is_owner && !$user->account->isEnterpriseClient())
                 return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
@@ -249,15 +258,6 @@ class LoginController extends BaseController
             LightLogs::create(new LoginFailure())
                 ->increment()
                 ->queue();
-
-            // SystemLogger::dispatch(
-            //     json_encode(['ip' => request()->getClientIp()]),
-            //     SystemLog::CATEGORY_SECURITY,
-            //     SystemLog::EVENT_USER,
-            //     SystemLog::TYPE_LOGIN_FAILURE,
-            //     null,
-            //     Company::first(),
-            // );
 
             $this->incrementLoginAttempts($request);
 
@@ -310,7 +310,12 @@ class LoginController extends BaseController
      */
     public function refresh(Request $request)
     {
-        $company_token = CompanyToken::where('token', $request->header('X-API-TOKEN'))->first();
+        $truth = app()->make(TruthSource::class);
+
+        if($truth->getCompanyToken())
+            $company_token = $truth->getCompanyToken();
+        else
+            $company_token = CompanyToken::where('token', $request->header('X-API-TOKEN'))->first();
 
         $cu = CompanyUser::query()
                           ->where('user_id', $company_token->user_id);
@@ -385,13 +390,11 @@ class LoginController extends BaseController
                 $cu = CompanyUser::query()
                                   ->where('user_id', auth()->user()->id);
 
-                // $cu->first()->account->companies->each(function ($company) use($cu){
 
-                //     if($company->tokens()->where('is_system', true)->count() == 0)
-                //     {
-                //         CreateCompanyToken::dispatchNow($company, $cu->first()->user, request()->server('HTTP_USER_AGENT'));
-                //     }
-                // });
+                    $truth = app()->make(TruthSource::class);
+                    $truth->setCompanyUser($cu->first());
+                    $truth->setUser($existing_user);
+                    $truth->setCompany($existing_user->account->default_company);
 
             
                     if($existing_user->company_users()->count() != $existing_user->tokens()->count())
@@ -409,6 +412,7 @@ class LoginController extends BaseController
                       
                     }
 
+                    $truth->setCompanyToken(CompanyToken::where('user_id', $existing_user->id)->where('company_id', $existing_user->account->default_company->id)->first());
 
 
                 if(Ninja::isHosted() && !$cu->first()->is_owner && !$existing_user->account->isEnterpriseClient())
@@ -437,13 +441,11 @@ class LoginController extends BaseController
                 $cu = CompanyUser::query()
                                   ->where('user_id', auth()->user()->id);
 
-                // $cu->first()->account->companies->each(function ($company) use($cu){
+                    $truth = app()->make(TruthSource::class);
+                    $truth->setCompanyUser($cu->first());
+                    $truth->setUser($existing_login_user);
+                    $truth->setCompany($existing_login_user->account->default_company);
 
-                //     if($company->tokens()->where('is_system', true)->count() == 0)
-                //     {
-                //         CreateCompanyToken::dispatchNow($company, $cu->first()->user, request()->server('HTTP_USER_AGENT'));
-                //     }
-                // });
 
                     if($existing_login_user->company_users()->count() != $existing_login_user->tokens()->count())
                     {
@@ -459,6 +461,8 @@ class LoginController extends BaseController
                       });
                       
                     }
+
+                    $truth->setCompanyToken(CompanyToken::where('user_id', $existing_login_user->id)->where('company_id', $existing_login_user->account->default_company->id)->first());
 
 
 
@@ -492,13 +496,10 @@ class LoginController extends BaseController
                 $cu = CompanyUser::query()
                                   ->where('user_id', auth()->user()->id);
 
-                // $cu->first()->account->companies->each(function ($company) use($cu){
-
-                //     if($company->tokens()->where('is_system', true)->count() == 0)
-                //     {
-                //         CreateCompanyToken::dispatchNow($company, $cu->first()->user, request()->server('HTTP_USER_AGENT'));
-                //     }
-                // });
+                $truth = app()->make(TruthSource::class);
+                $truth->setCompanyUser($cu->first());
+                $truth->setUser($existing_login_user);
+                $truth->setCompany($existing_login_user->account->default_company);
 
 
                     if($existing_login_user->company_users()->count() != $existing_login_user->tokens()->count())
@@ -516,6 +517,7 @@ class LoginController extends BaseController
                       
                     }
 
+                $truth->setCompanyToken(CompanyToken::where('user_id', $existing_login_user->id)->where('company_id', $existing_login_user->account->default_company->id)->first());
 
                 if(Ninja::isHosted() && !$cu->first()->is_owner && !$existing_login_user->account->isEnterpriseClient())
                     return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
@@ -553,13 +555,11 @@ class LoginController extends BaseController
 
             $cu = CompanyUser::whereUserId(auth()->user()->id);
 
-            // $cu->first()->account->companies->each(function ($company) use($cu){
 
-            //     if($company->tokens()->where('is_system', true)->count() == 0)
-            //     {
-            //         CreateCompanyToken::dispatchNow($company, $cu->first()->user, request()->server('HTTP_USER_AGENT'));
-            //     }
-            // });
+                $truth = app()->make(TruthSource::class);
+                $truth->setCompanyUser($cu->first());
+                $truth->setUser(auth()->user());
+                $truth->setCompany(auth()->user()->account->default_company);
 
                    if(auth()->user()->company_users()->count() != auth()->user()->tokens()->count())
                     {
@@ -576,6 +576,7 @@ class LoginController extends BaseController
                       
                     }
 
+                $truth->setCompanyToken(CompanyToken::where('user_id', auth()->user()->id)->where('company_id', auth()->user()->account->default_company->id)->first());
 
 
             if(Ninja::isHosted() && !$cu->first()->is_owner && !auth()->user()->account->isEnterpriseClient())
@@ -606,6 +607,10 @@ class LoginController extends BaseController
         if (request()->has('code')) {
             return $this->handleProviderCallback($provider);
         } else {
+        
+            if(!in_array($provider, ['google']))
+                return abort(400, 'Invalid provider');
+
             return Socialite::driver($provider)->with($parameters)->scopes($scopes)->redirect();
         }
     }

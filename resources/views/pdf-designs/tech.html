@@ -6,6 +6,11 @@
         --secondary-color: $secondary_color;
     }
 
+    html {
+        width: 210mm;
+        height: 200mm;     
+    }
+
     body {
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
@@ -185,7 +190,7 @@
     }
 
     #table-totals>.totals-table-right-side>*> :nth-child(1) {
-        text-align: "$dir_text_align";
+        text-align: $dir_text_align;
         padding: 7px;
     }
 
@@ -236,7 +241,7 @@
     .repeating-header-space, **/
     .repeating-footer,
     .repeating-footer-space {
-        height: 160px;
+        height: 10px;
     }
     .repeating-header {
         position: fixed;
@@ -355,7 +360,7 @@
 
 $entity_images
 
-<div class="repeating-footer" id="footer">
+<div class="repeating-footerx" id="footer">
    <p data-ref="total_table-footer">$entity_footer</p>
 
         <script>

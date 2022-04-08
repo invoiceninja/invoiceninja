@@ -15,11 +15,13 @@ use App\Events\Invoice\InvoiceWasReversed;
 use App\Factory\CreditFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Helpers\Invoice\InvoiceSum;
+use App\Jobs\Ninja\TransactionLog;
 use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Paymentable;
+use App\Models\TransactionEvent;
 use App\Services\AbstractService;
 use App\Utils\Ninja;
 use App\Utils\Traits\GeneratesCounter;
@@ -135,6 +137,16 @@ class HandleReversal extends AbstractService
             ->save();
 
         event(new InvoiceWasReversed($this->invoice, $this->invoice->company, Ninja::eventVars()));
+
+        $transaction = [
+            'invoice' => $this->invoice->transaction_event(),
+            'payment' => [],
+            'client' => $this->invoice->client->transaction_event(),
+            'credit' => [],
+            'metadata' => [],
+        ];
+
+        TransactionLog::dispatch(TransactionEvent::INVOICE_REVERSED, $transaction, $this->invoice->company->db);
 
         return $this->invoice;
         //create a ledger row for this with the resulting Credit ( also include an explanation in the notes section )

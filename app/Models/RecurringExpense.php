@@ -239,5 +239,8 @@ class RecurringExpense extends BaseModel
         }
     }
 
-
+    public function translate_entity()
+    {
+        return ctrans('texts.recurring_expense');
+    }
 }

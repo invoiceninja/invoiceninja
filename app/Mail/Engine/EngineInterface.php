@@ -46,4 +46,7 @@ interface EngineInterface
     public function getViewText();
 
     public function build();
+
+    public function getTextBody();
+
 }

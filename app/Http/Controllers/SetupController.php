@@ -53,10 +53,9 @@ class SetupController extends Controller
             return redirect('/');
         }
 
-        // not sure if we really need this.
-        // if(File::exists(base_path('.env')))
-        //     abort(400, '.env file already exists, delete file to start Setup again.');
-
+        if(Ninja::isHosted())
+            return redirect('/');
+        
         return view('setup.index', ['check' => $check]);
     }
 
@@ -73,34 +72,6 @@ class SetupController extends Controller
         if ($check['system_health'] === false) {
             return response('Oops, something went wrong. Check your logs.'); /* We should never reach this block, but just in case. */
         }
-
-        // try {
-        //     $db = SystemHealth::dbCheck($request);
-
-        //     if ($db['success'] == false) {
-        //         throw new Exception($db['message']);
-        //     }
-        // } catch (Exception $e) {
-        //     return response([
-        //         'message' => 'Oops, connection to database was not successful.',
-        //         'error' => $e->getMessage(),
-        //     ]);
-        // }
-
-        // try {
-        //     if ($request->mail_driver != 'log') {
-        //         $smtp = SystemHealth::testMailServer($request);
-
-        //         if ($smtp['success'] == false) {
-        //             throw new Exception($smtp['message']);
-        //         }
-        //     }
-        // } catch (Exception $e) {
-        //     return response([
-        //         'message' => 'Oops, connection to mail server was not successful.',
-        //         'error' => $e->getMessage(),
-        //     ]);
-        // }
 
         $mail_driver = $request->input('mail_driver');
 
@@ -164,14 +135,8 @@ class SetupController extends Controller
             define('STDIN', fopen('php://stdin', 'r'));
 
             /* Make sure no stale connections are cached */
-            DB::purge('db-ninja-01');
-            //DB::reconnect('db-ninja-01');
-
-            /* Run migrations */
-            if (!config('ninja.disable_auto_update')) {
-                Artisan::call('optimize');
-            }
-
+            DB::purge('mysql');
+            Artisan::call('optimize');
             Artisan::call('migrate', ['--force' => true]);
             Artisan::call('db:seed', ['--force' => true]);
             
@@ -294,6 +259,30 @@ class SetupController extends Controller
         }
     }
 
+    public function clearCompiledCache()
+    {
+ 
+       $cacheCompiled = base_path('bootstrap/cache/compiled.php');
+        if (file_exists($cacheCompiled)) {
+            unlink ($cacheCompiled);
+        }
+
+        $cacheServices = base_path('bootstrap/cache/packages.php');
+        if (file_exists($cacheServices)) {
+            unlink ($cacheServices);
+        }
+
+        $cacheServices = base_path('bootstrap/cache/services.php');
+        if (file_exists($cacheServices)) {
+            unlink ($cacheServices);
+        }
+
+        $cacheRoute = base_path('bootstrap/cache/routes-v7.php');
+        if (file_exists($cacheRoute)) {
+            unlink ($cacheRoute);
+        }  
+    }
+
     public function update()
     {
 
@@ -318,7 +307,7 @@ class SetupController extends Controller
         Artisan::call('clear-compiled');
         Artisan::call('route:clear');
         Artisan::call('view:clear');
-        Artisan::call('config:clear');
+        Artisan::call('optimize');
 
         Artisan::call('migrate', ['--force' => true]);
         Artisan::call('db:seed', ['--force' => true]);

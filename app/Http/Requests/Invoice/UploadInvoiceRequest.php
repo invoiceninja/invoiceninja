@@ -33,6 +33,9 @@ class UploadInvoiceRequest extends Request
 		if($this->input('documents'))
             $rules['documents'] = 'file|mimes:csv,png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:2000000';
 
+        if($this->input('file'))
+            $rules['file'] = 'file|mimes:csv,png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx|max:2000000';
+
     	return $rules;
 
     }

@@ -21,6 +21,8 @@ class CanStoreClientsRule implements Rule
 {
     public $company_id;
 
+    public $company;
+
     public function __construct($company_id)
     {
         $this->company_id = $company_id;
@@ -33,9 +35,9 @@ class CanStoreClientsRule implements Rule
      */
     public function passes($attribute, $value)
     {
-        $company = Company::find($this->company_id);
+        $this->company = Company::find($this->company_id);
 
-        return $company->clients->count() < $company->account->hosted_client_count;
+        return $this->company->clients()->count() < $this->company->account->hosted_client_count;
     }
 
     /**
@@ -43,6 +45,6 @@ class CanStoreClientsRule implements Rule
      */
     public function message()
     {
-        return ctrans('texts.limit_clients', ['count' => $company->account->hosted_client_count]);
+        return ctrans('texts.limit_clients', ['count' => $this->company->account->hosted_client_count]);
     }
 }

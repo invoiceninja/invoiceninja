@@ -31,19 +31,30 @@ class InvoiceTransformer extends BaseTransformer {
 			throw new ImportException( 'Invoice number already exists' );
 		}
 
+		if(array_key_exists('Invoice Date', $invoice_data))
+			$date_key = 'Invoice Date';
+		else
+			$date_key = 'Transaction Date';
+
+		if(array_key_exists('Customer Name', $invoice_data))
+			$customer_key = 'Customer Name';
+		else
+			$customer_key = 'Customer';
+
 		$transformed = [
 			'company_id'  => $this->company->id,
-			'client_id'   => $this->getClient( $customer_name = $this->getString( $invoice_data, 'Customer' ), null ),
+			'client_id'   => $this->getClient( $customer_name = $this->getString( $invoice_data, $customer_key ), null ),
 			'number'      => $invoice_number = $this->getString( $invoice_data, 'Invoice Number' ),
-			'date'        => date( 'Y-m-d', strtotime( $invoice_data['Transaction Date'] ) ) ?: now()->format('Y-m-d'), //27-01-2022
+			'date'        => date( 'Y-m-d', strtotime( $invoice_data[$date_key] ) ) ?: now()->format('Y-m-d'), //27-01-2022
 			'currency_id' => $this->getCurrencyByCode( $invoice_data, 'Currency' ),
 			'status_id'   => Invoice::STATUS_SENT,
+			'due_date'	  => array_key_exists('Due Date', $invoice_data) ? date( 'Y-m-d', strtotime( $invoice_data['Due Date'] ) ) : null,
 		];
 
 		$line_items = [];
 		$payments   = [];
 		foreach ( $line_items_data as $record ) {
-			if ( $record['Account Type'] === 'Income' ) {
+			if (array_key_exists('Account Type', $record) && $record['Account Type'] === 'Income' ) {
 				$description = $this->getString( $record, 'Transaction Line Description' );
 
 				// Remove duplicate data from description
@@ -63,12 +74,30 @@ class InvoiceTransformer extends BaseTransformer {
 
 					'quantity' => 1,
 				];
-			} elseif ( $record['Account Type'] === 'System Receivable Invoice' ) {
+			} elseif (array_key_exists('Account Type', $record) && $record['Account Type'] === 'System Receivable Invoice' ) {
 				// This is a payment
 				$payments[] = [
-					'date'   => date( 'Y-m-d', strtotime( $invoice_data['Transaction Date'] ) ),
+					'date'   => date( 'Y-m-d', strtotime( $invoice_data[$date_key] ) ),
 					'amount' => $this->getFloat( $record, 'Amount (One column)' ),
 				];
+			}
+			else {
+				//could be a generate invoices.csv file
+				$line_items[] = [
+					'notes'     => 'Imported Invoice',
+					'cost'      => $this->getFloat( $record, 'Invoice Total' ),
+					'tax_name1' => 'Tax',
+					'tax_rate1' => round($this->getFloat( $record, 'Invoice Tax Total' ) / $this->getFloat( $record, 'Invoice Total' ) * 100,2),
+					'quantity' => 1,
+				];
+
+				if($record['Invoice Paid'] > 0){
+					$payments[] = [
+						'date'   => date( 'Y-m-d', strtotime( $record['Last Payment Date'] ) ),
+						'amount' => $this->getFloat( $record, 'Invoice Paid' ),
+					];
+				} 
+
 			}
 		}
 

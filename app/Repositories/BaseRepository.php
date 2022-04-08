@@ -222,6 +222,9 @@ class BaseRepository
         if (array_key_exists('documents', $data)) 
             $this->saveDocuments($data['documents'], $model);
 
+        if (array_key_exists('file', $data)) 
+            $this->saveDocuments($data['file'], $model);
+
         /* If invitations are present we need to filter existing invitations with the new ones */
         if (isset($data['invitations'])) {
             $invitations = collect($data['invitations']);

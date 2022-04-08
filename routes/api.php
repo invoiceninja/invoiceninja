@@ -154,6 +154,9 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
 
     Route::post('refresh', 'Auth\LoginController@refresh');
 
+    Route::post('reports/clients', 'Reports\ClientReportController');
+
+
     Route::get('scheduler', 'SchedulerController@index');
     Route::post('support/messages/send', 'Support\Messages\SendingController');
 

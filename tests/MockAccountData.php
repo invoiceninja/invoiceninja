@@ -211,7 +211,8 @@ trait MockAccountData
         $settings->id_number = 'id number';
         $settings->use_credits_payment = 'always';
         $settings->timezone_id = '1';
-
+        $settings->entity_send_time = 0;
+        
         $this->company->settings = $settings;
         $this->company->save();
 

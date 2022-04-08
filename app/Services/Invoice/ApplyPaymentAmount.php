@@ -84,6 +84,13 @@ class ApplyPaymentAmount extends AbstractService
                 ->deletePdf()
                 ->save();
 
+        $this->invoice
+            ->client
+            ->service()
+            ->updateBalance($payment->amount * -1)
+            ->updatePaidToDate($payment->amount)
+            ->save();
+
         if ($this->invoice->client->getSetting('client_manual_payment_notification')) 
             $payment->service()->sendEmail();
         
@@ -91,13 +98,6 @@ class ApplyPaymentAmount extends AbstractService
 
         $payment->ledger()
                 ->updatePaymentBalance($payment->amount * -1);
-
-        $this->invoice
-            ->client
-            ->service()
-            ->updateBalance($payment->amount * -1)
-            ->updatePaidToDate($payment->amount)
-            ->save();
 
         $this->invoice->service()->workFlow()->save();
 

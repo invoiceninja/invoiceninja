@@ -42,6 +42,98 @@ class ClientApiTest extends TestCase
         Model::reguard();
     }
 
+    public function testIllegalPropertiesInClientSettings()
+    {
+        $settings = [
+            'currency_id' => "1",
+            'translations' => [
+                'email' => 'legal@eagle.com'
+            ],
+        ];
+
+        $data = [
+            'name' => $this->faker->firstName,
+            'settings' => $settings,
+        ];
+
+        $response = false;
+
+        try{
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/clients/', $data);
+        } catch (ValidationException $e) {
+            $message = json_decode($e->validator->getMessageBag(), 1);
+            nlog($message);
+        }
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+        $this->assertFalse(array_key_exists('translations', $arr['data']['settings']));
+
+    }
+
+    public function testClientLanguageCodeIllegal()
+    {
+
+        $data = [
+            'name' => $this->faker->firstName,
+            'id_number' => 'Coolio',
+            'language_code' => 'not_really_a_VALID-locale'
+        ];
+
+        $response = false;
+
+        try{
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/clients/', $data);
+        } catch (ValidationException $e) {
+            $message = json_decode($e->validator->getMessageBag(), 1);
+            nlog($message);
+        }
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertFalse(array_key_exists('language_id', $arr['data']['settings']));
+
+    }
+
+
+    public function testClientLanguageCodeValidationTrue()
+    {
+
+        $data = [
+            'name' => $this->faker->firstName,
+            'id_number' => 'Coolio',
+            'language_code' => 'de'
+        ];
+
+        $response = false;
+
+        try{
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/clients/', $data);
+        } catch (ValidationException $e) {
+            $message = json_decode($e->validator->getMessageBag(), 1);
+            nlog($message);
+        }
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals("3", $arr['data']['settings']['language_id']);
+
+    }
+
+
     public function testClientCountryCodeValidationTrue()
     {
 

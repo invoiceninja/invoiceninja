@@ -15,10 +15,12 @@ use App\Events\Invoice\InvoiceWasPaid;
 use App\Events\Payment\PaymentWasCreated;
 use App\Factory\PaymentFactory;
 use App\Jobs\Invoice\InvoiceWorkflowSettings;
+use App\Jobs\Ninja\TransactionLog;
 use App\Jobs\Payment\EmailPayment;
 use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\TransactionEvent;
 use App\Services\AbstractService;
 use App\Services\Client\ClientService;
 use App\Utils\Ninja;
@@ -59,6 +61,9 @@ class MarkPaid extends AbstractService
         $payment->currency_id = $this->invoice->client->getSetting('currency_id');
         $payment->is_manual = true;
         
+        if($this->invoice->company->timezone())
+            $payment->date = now()->addSeconds($this->invoice->company->timezone()->utc_offset)->format('Y-m-d');
+
         $payment_type_id = $this->invoice->client->getSetting('payment_type_id');
 
         if((int)$payment_type_id > 0)
@@ -94,21 +99,29 @@ class MarkPaid extends AbstractService
         $payment->ledger()
                 ->updatePaymentBalance($payment->amount * -1);
 
-        $this->invoice
-            ->client
-            ->service()
-            ->updateBalance($payment->amount * -1)
-            ->updatePaidToDate($payment->amount)
-            ->save();
+        $this->invoice->client->fresh();
+        $this->invoice->client->paid_to_date += $payment->amount;
+        $this->invoice->client->balance += $payment->amount * -1;
+        $this->invoice->client->push();
 
-        $this->invoice
-             ->service()
-             ->workFlow()
-             ->save();
+        $this->invoice = $this->invoice
+                             ->service()
+                             ->workFlow()
+                             ->save();
 
         /* Update Invoice balance */
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         event(new InvoiceWasPaid($this->invoice, $payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+
+        $transaction = [
+            'invoice' => $this->invoice->transaction_event(),
+            'payment' => $payment->transaction_event(),
+            'client' => $this->invoice->client->transaction_event(),
+            'credit' => [],
+            'metadata' => [],
+        ];
+
+        TransactionLog::dispatch(TransactionEvent::INVOICE_MARK_PAID, $transaction, $this->invoice->company->db);
 
         return $this->invoice;
     }

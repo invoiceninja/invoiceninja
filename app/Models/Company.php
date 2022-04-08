@@ -33,6 +33,7 @@ class Company extends BaseModel
     use CompanySettingsSaver;
     use ThrottlesEmail;
     use AppSetup;
+    use \Awobaz\Compoships\Compoships;
 
     const ENTITY_RECURRING_INVOICE = 'recurring_invoice';
     const ENTITY_CREDIT = 'credit';
@@ -98,6 +99,7 @@ class Company extends BaseModel
         'report_include_drafts',
         'client_registration_fields',
         'convert_rate_to_client',
+        'markdown_email_enabled',
     ];
 
     protected $hidden = [
@@ -471,12 +473,13 @@ class Company extends BaseModel
 
     public function company_users()
     {
-        return $this->hasMany(CompanyUser::class);
+        return $this->hasMany(CompanyUser::class)->withTrashed();
     }
 
     public function owner()
     {
-        return $this->company_users->where('is_owner', true)->first()->user;
+        return $this->company_users()->withTrashed()->where('is_owner', true)->first()->user;
+        //return $this->company_users->where('is_owner', true)->first()->user;
     }
 
     public function resolveRouteBinding($value, $field = null)
@@ -505,6 +508,11 @@ class Company extends BaseModel
     public function routeNotificationForSlack($notification)
     {
         return $this->slack_webhook_url;
+    }
+
+    public function file_path()
+    {
+        return $this->company_key.'/';
     }
 
     public function rBits()
@@ -540,5 +548,10 @@ class Company extends BaseModel
         }
 
         return $data;
+    }
+
+    public function translate_entity()
+    {
+        return ctrans('texts.company');
     }
 }
