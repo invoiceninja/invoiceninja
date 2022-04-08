@@ -47,7 +47,7 @@ class AutoBillInvoice extends AbstractService
 
         MultiDB::setDb($this->db);
 
-        $this->client = $this->invoice->client;
+        $this->client = $this->invoice->client->fresh();
 
         $is_partial = false;
 
@@ -60,7 +60,7 @@ class AutoBillInvoice extends AbstractService
 
         /* Mark the invoice as paid if there is no balance */
         if ((int)$this->invoice->balance == 0)
-            return $this->invoice->service()->markPaid()->workFlow()->save();
+            return $this->invoice->service()->markPaid()->save();
 
         //if the credits cover the payments, we stop here, build the payment with credits and exit early
         if ($this->client->getSetting('use_credits_payment') != 'off')
@@ -125,7 +125,7 @@ class AutoBillInvoice extends AbstractService
          }
          catch(\Exception $e){
             nlog("payment NOT captured for ". $this->invoice->number . " with error " . $e->getMessage());
-            $this->invoice->service()->removeUnpaidGatewayFees()->save();
+         //   $this->invoice->service()->removeUnpaidGatewayFees();
          }
 
         if($payment){
@@ -178,17 +178,19 @@ class AutoBillInvoice extends AbstractService
         }
 
         $payment->ledger()
-                    ->updatePaymentBalance($amount * -1)
-                    ->save();
+            ->updatePaymentBalance($amount * -1)
+            ->save();
 
-        $this->invoice->client->service()
-                                  ->updateBalance($amount * -1)
-                                  ->updatePaidToDate($amount)
-                                  ->adjustCreditBalance($amount * -1)
-                                  ->save();
+        $client = $this->invoice->client->fresh();
 
-        $this->invoice->ledger()
-                          ->updateInvoiceBalance($amount * -1, "Invoice {$this->invoice->number} payment using Credit {$current_credit->number}")
+        $client->service()
+              ->updateBalance($amount * -1)
+              ->updatePaidToDate($amount)
+              ->adjustCreditBalance($amount * -1)
+              ->save();
+
+        $this->invoice->ledger() //09-03-2022
+                          // ->updateInvoiceBalance($amount * -1, "Invoice {$this->invoice->number} payment using Credit {$current_credit->number}")
                           ->updateCreditBalance($amount * -1, "Credit {$current_credit->number} used to pay down Invoice {$this->invoice->number}")
                           ->save();
 

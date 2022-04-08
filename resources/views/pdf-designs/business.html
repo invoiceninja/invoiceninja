@@ -7,6 +7,11 @@
         --line-height: 1.6;
     }
 
+    html {
+        width: 210mm;
+        height: 200mm;     
+    }
+
     body {
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
@@ -16,7 +21,10 @@
     }
 
     @page {
-        margin: $global_margin;
+        margin-left: $global_margin;
+        margin-right: $global_margin;
+        margin-top: 0;
+        margin-bottom: 0;
         size: $page_size $page_layout;
     }
 
@@ -54,7 +62,7 @@
     }
 
     .entity-issued-to {
-        margin-top: 3rem;
+        margin-top: 2rem;
         font-weight: bold;
     }
 
@@ -96,7 +104,7 @@
     }
 
     [data-ref="table"] {
-        margin-top: 3.5rem;
+        margin-top: 0.5rem;
         /* margin-bottom: 200px; */
         min-width: 100%;
         table-layout: fixed;
@@ -153,17 +161,13 @@
         font-weight: bold !important;
     }
 
-    #table-totals {
-        page-break-inside: avoid;
-    }
-
     #table-totals > *:last-child {
         border-bottom-left-radius: 1rem;
         border-bottom-right-radius: 1rem;
     }
 
     #table-totals {
-        margin-top: 1rem;
+        margin-top: 0.5rem;
         display: grid;
         grid-template-columns: 2fr 1fr;
         gap: 80px;
@@ -171,6 +175,8 @@
         padding-top: 0.5rem;
         padding-bottom: 0.8rem;
         margin-right: .5rem;
+        page-break-inside:auto;
+        overflow: visible !important;
     }
 
     #table-totals .totals-table-right-side>* {
@@ -179,7 +185,7 @@
     }
 
     #table-totals>.totals-table-right-side>*> :nth-child(1) {
-        text-align: "$dir_text_align";
+        text-align: $dir_text_align;
         margin-top: .75rem;
         padding-left: 7px;
     }
@@ -253,7 +259,7 @@
     .repeating-header-space, **/
     .repeating-footer,
     .repeating-footer-space {
-        height: 160px;
+        height: 10px;
     }
     .repeating-header {
         position: fixed;
@@ -349,7 +355,7 @@
 
 $entity_images
 
-<div class="repeating-footer" id="footer">
+<div class="repeating-footerx" id="footer">
     <p data-ref="total_table-footer">$entity_footer</p>
 
 

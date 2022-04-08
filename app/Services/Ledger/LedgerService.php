@@ -48,7 +48,7 @@ class LedgerService
 
             $this->entity->company_ledger()->save($company_ledger);
         
-        }, 5);
+        }, 1);
 
         // \DB::connection(config('database.default'))->commit();
 
@@ -80,7 +80,7 @@ class LedgerService
 
         $this->entity->company_ledger()->save($company_ledger);
 
-        }, 5);
+        }, 1);
 
         // \DB::connection(config('database.default'))->commit();
         
@@ -111,7 +111,7 @@ class LedgerService
 
         $this->entity->company_ledger()->save($company_ledger);
 
-        }, 5);
+        }, 1);
 
         // \DB::connection(config('database.default'))->commit();
         

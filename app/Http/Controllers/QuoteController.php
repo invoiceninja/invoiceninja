@@ -27,6 +27,7 @@ use App\Http\Requests\Quote\StoreQuoteRequest;
 use App\Http\Requests\Quote\UpdateQuoteRequest;
 use App\Http\Requests\Quote\UploadQuoteRequest;
 use App\Jobs\Invoice\ZipInvoices;
+use App\Jobs\Quote\ZipQuotes;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Invoice;
@@ -527,14 +528,14 @@ class QuoteController extends BaseController
          * Download Invoice/s
          */
 
-        if ($action == 'download' && $quotes->count() >= 1) {
+        if ($action == 'bulk_download' && $quotes->count() >= 1) {
             $quotes->each(function ($quote) {
                 if (auth()->user()->cannot('view', $quote)) {
                     return response()->json(['message'=> ctrans('texts.access_denied')]);
                 }
             });
 
-            ZipInvoices::dispatch($quotes, $quotes->first()->company, auth()->user());
+            ZipQuotes::dispatch($quotes, $quotes->first()->company, auth()->user());
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }
@@ -671,12 +672,11 @@ class QuoteController extends BaseController
                 return $this->itemResponse($quote);
                 break;
             case 'approve':
-            //make sure it hasn't already been approved!!
-                if ($quote->status_id != Quote::STATUS_SENT) {
+                if (!in_array($quote->status_id, [Quote::STATUS_SENT, Quote::STATUS_DRAFT]) ) {
                     return response()->json(['message' => ctrans('texts.quote_unapprovable')], 400);
                 }
 
-                return $this->itemResponse($quote->service()->approve()->save());
+                return $this->itemResponse($quote->service()->approveWithNoCoversion()->save());
                 break;
             case 'history':
                 // code...

@@ -146,9 +146,21 @@ class CreditCard
 
         }
 
+        $invoice_numbers = '';
+
+        if($this->eway_driver->payment_hash->data)
+            $invoice_numbers =  collect($this->eway_driver->payment_hash->data->invoices)->pluck('invoice_number')->implode(',');
+        
+        $amount = array_sum(array_column($this->eway_driver->payment_hash->invoices(), 'amount')) + $this->eway_driver->payment_hash->fee_total;
+
+        $description = "Invoices: {$invoice_numbers} for {$amount} for client {$this->eway_driver->client->present()->name()}";
+
         $transaction = [
             'Payment' => [
                 'TotalAmount' => $this->convertAmountForEway(),
+                'CurrencyCode' => $this->eway_driver->client->currency()->code,
+                'InvoiceNumber' => $invoice_numbers,
+                'InvoiceDescription' => substr($invoice_numbers, 0, 63)
             ],
             'TransactionType' => \Eway\Rapid\Enum\TransactionType::PURCHASE,
             'SecuredCardData' => $request->input('securefieldcode'),
@@ -156,18 +168,16 @@ class CreditCard
 
         $response = $this->eway_driver->init()->eway->createTransaction(\Eway\Rapid\Enum\ApiMethod::DIRECT, $transaction);
 
+        $this->logResponse($response);
+
         $response_status = ErrorCode::getStatus($response->ResponseMessage);
 
         if(!$response_status['success']){
-
-            $this->logResponse($response, false);
 
             $this->eway_driver->sendFailureMail($response_status['message']);
 
             throw new PaymentFailed($response_status['message'], 400);
         }
-
-        $this->logResponse($response, true);
 
         $payment = $this->storePayment($response);
 
@@ -225,12 +235,22 @@ class CreditCard
     {
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
 
+        $invoice_numbers = '';
+        
+        if($this->eway_driver->payment_hash->data)
+            $invoice_numbers =  collect($this->eway_driver->payment_hash->data->invoices)->pluck('invoice_number')->implode(',');
+        
+        $description = "Invoices: {$invoice_numbers} for {$amount} for client {$this->eway_driver->client->present()->name()}";
+
         $transaction = [
             'Customer' => [
                 'TokenCustomerID' => $token,
             ],
             'Payment' => [
                 'TotalAmount' => $this->convertAmountForEway($amount),
+                'CurrencyCode' => $this->eway_driver->client->currency()->code,
+                'InvoiceNumber' => $invoice_numbers,
+                'InvoiceDescription' => substr($invoice_numbers, 0, 63)
             ],
             'TransactionType' => \Eway\Rapid\Enum\TransactionType::RECURRING,
         ];

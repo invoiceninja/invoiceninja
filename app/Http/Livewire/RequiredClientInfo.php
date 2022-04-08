@@ -28,6 +28,8 @@ class RequiredClientInfo extends Component
      */
     public $contact;
 
+    public $client;
+
     /**
      * @var array
      */
@@ -64,6 +66,36 @@ class RequiredClientInfo extends Component
         // 'contact_phone' => 'phone',
     ];
 
+    public $client_address_array = [
+        'address1',
+        'address2',
+        'city',
+        'state',
+        'postal_code',
+        'country_id',
+    ];
+
+    protected $rules = [
+        'client.address1' => '',
+        'client.address2' => '',
+        'client.city' => '',
+        'client.state' => '',
+        'client.postal_code' => '',
+        'client.country_id' => '',
+        'client.shipping_address1' => '',
+        'client.shipping_address2' => '',
+        'client.shipping_city' => '',
+        'client.shipping_state' => '',
+        'client.shipping_postal_code' => '',
+        'client.shipping_country_id' => '',
+        'contact.first_name' => '',
+        'contact.last_name' => '',
+        'contact.email' => '',
+        'client.name' => '',
+        'client.website' => '',
+        'client.phone' => '',
+    ];
+
     public $show_form = false;
 
     public $company;
@@ -71,6 +103,13 @@ class RequiredClientInfo extends Component
     public function mount()
     {
         MultiDB::setDb($this->company->db);
+
+        $this->client = $this->contact->client;
+
+        count($this->fields) > 0
+            ? $this->checkFields()
+            : $this->show_form = false;
+
     }
 
     public function handleSubmit(array $data): bool
@@ -141,8 +180,7 @@ class RequiredClientInfo extends Component
             $_field = $this->mappings[$field['name']];
 
             if (Str::startsWith($field['name'], 'client_')) {
-                if (empty($this->contact->client->{$_field}) || is_null($this->contact->client->{$_field})) {
-                // if (empty($this->contact->client->{$_field}) || is_null($this->contact->client->{$_field}) || $this->contact->client->{$_field} == 840) {
+                if (empty($this->contact->client->{$_field}) || is_null($this->contact->client->{$_field}) || in_array($_field, $this->client_address_array)) {
                     $this->show_form = true;
                 } else {
                     $this->fields[$index]['filled'] = true;
@@ -151,7 +189,6 @@ class RequiredClientInfo extends Component
 
             if (Str::startsWith($field['name'], 'contact_')) {
                 if (empty($this->contact->{$_field}) || is_null($this->contact->{$_field})) {
-//                if ((empty($this->contact->{$_field}) || is_null($this->contact->{$_field})) || $this->contact->client->{$_field} == 840) {
                     $this->show_form = true;
                 } else {
                     $this->fields[$index]['filled'] = true;
@@ -193,10 +230,6 @@ class RequiredClientInfo extends Component
 
     public function render()
     {
-        count($this->fields) > 0
-            ? $this->checkFields()
-            : $this->show_form = false;
-
         return render('components.livewire.required-client-info');
     }
 }

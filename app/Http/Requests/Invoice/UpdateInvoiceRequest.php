@@ -14,6 +14,7 @@ namespace App\Http\Requests\Invoice;
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\Invoice\InvoiceBalanceSanity;
 use App\Http\ValidationRules\Invoice\LockedInvoiceRule;
+use App\Http\ValidationRules\Project\ValidProjectForClient;
 use App\Models\Invoice;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\CleanLineItems;
@@ -59,6 +60,7 @@ class UpdateInvoiceRequest extends Request
         
         $rules['line_items'] = 'array';
         $rules['discount']  = 'sometimes|numeric';
+        $rules['project_id'] =  ['bail', 'sometimes', new ValidProjectForClient($this->all())];
 
         // if($this->input('status_id') != Invoice::STATUS_DRAFT)
         //     $rules['balance'] = new InvoiceBalanceSanity($this->invoice, $this->all());

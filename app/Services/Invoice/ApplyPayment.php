@@ -11,8 +11,10 @@
 
 namespace App\Services\Invoice;
 
+use App\Jobs\Ninja\TransactionLog;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\TransactionEvent;
 use App\Services\AbstractService;
 
 class ApplyPayment extends AbstractService
@@ -127,6 +129,16 @@ class ApplyPayment extends AbstractService
         });
 
         $this->invoice->service()->applyNumber()->workFlow()->save();
+
+        $transaction = [
+            'invoice' => $this->invoice->transaction_event(),
+            'payment' => $this->payment->transaction_event(),
+            'client' => $this->invoice->client->transaction_event(),
+            'credit' => [],
+            'metadata' => [],
+        ];
+
+        TransactionLog::dispatch(TransactionEvent::INVOICE_PAYMENT_APPLIED, $transaction, $this->invoice->company->db);
 
         return $this->invoice;
     }

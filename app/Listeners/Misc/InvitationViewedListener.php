@@ -47,6 +47,9 @@ class InvitationViewedListener implements ShouldQueue
         $entity_name = lcfirst(class_basename($event->entity));
         $invitation = $event->invitation;
 
+        if($entity_name == 'recurringInvoice')
+            return;
+
         $nmo = new NinjaMailerObject;
         $nmo->mailable = new NinjaMailer( (new EntityViewedObject($invitation, $entity_name))->build() );
         $nmo->company = $invitation->company;

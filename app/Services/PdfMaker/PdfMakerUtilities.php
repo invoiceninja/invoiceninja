@@ -95,7 +95,7 @@ trait PdfMakerUtilities
                 if (array_key_exists('process_markdown', $this->data) && array_key_exists('content', $child) && $this->data['process_markdown']) {
 
                     $child['content'] = str_replace("<br>", "\r", $child['content']);
-                    $child['content'] = $this->commonmark->convertToHtml($child['content'] ?? '');
+                    $child['content'] = $this->commonmark->convert($child['content'] ?? '');
                 }
             }
 

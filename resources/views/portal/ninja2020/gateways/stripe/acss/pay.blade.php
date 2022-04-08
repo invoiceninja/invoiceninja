@@ -1,8 +1,15 @@
 @extends('portal.ninja2020.layout.payments', ['gateway_title' => 'Pre-authorized debit payments', 'card_title' => 'Pre-authorized debit payments'])
 
 @section('gateway_head')
-    <meta name="stripe-publishable-key" content="{{ $gateway->getPublishableKey() }}">
-    <meta name="stripe-account-id" content="{{ $gateway->company_gateway->getConfigField('account_id') }}">
+
+    @if($gateway->company_gateway->getConfigField('account_id'))
+        <meta name="stripe-account-id" content="{{ $gateway->company_gateway->getConfigField('account_id') }}">
+        <meta name="stripe-publishable-key" content="{{ config('ninja.ninja_stripe_publishable_key') }}">
+    @else
+        <meta name="stripe-publishable-key" content="{{ $gateway->getPublishableKey() }}">
+    @endif
+
+
     <meta name="return-url" content="{{ $return_url }}">
     <meta name="amount" content="{{ $stripe_amount }}">
     <meta name="country" content="{{ $country }}">
@@ -21,6 +28,9 @@
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.payment_type')])
         {{ ctrans('texts.acss') }} ({{ ctrans('texts.bank_transfer') }})
     @endcomponent
+
+    @include('portal.ninja2020.gateways.stripe.acss.acss')
+
     @include('portal.ninja2020.gateways.includes.pay_now')
 @endsection
 

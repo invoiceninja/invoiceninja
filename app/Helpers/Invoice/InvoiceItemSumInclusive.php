@@ -89,9 +89,6 @@ class InvoiceItemSumInclusive
     {
         $this->setLineTotal($this->item->cost * $this->item->quantity);
 
-        //11-02-2022
-        // $this->setLineTotal($this->formatValue($this->item->cost, $this->currency->precision) * $this->formatValue($this->item->quantity, $this->currency->precision));
-
         return $this;
     }
 
@@ -171,6 +168,8 @@ class InvoiceItemSumInclusive
 
     public function setLineTotal($total)
     {
+        $this->item->gross_line_total = $total;
+
         $this->item->line_total = $total;
 
         return $this;

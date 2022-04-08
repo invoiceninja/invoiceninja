@@ -280,6 +280,7 @@ class TaskController extends BaseController
         $old_task = json_decode(json_encode($task));
         
         $task = $this->task_repo->save($request->all(), $task);
+        $task = $this->task_repo->triggeredActions($request, $task);
 
         if($task->status_order != $old_task->status_order)
             $this->task_repo->sortStatuses($old_task, $task);
@@ -377,6 +378,7 @@ class TaskController extends BaseController
     public function store(StoreTaskRequest $request)
     {
         $task = $this->task_repo->save($request->all(), TaskFactory::create(auth()->user()->company()->id, auth()->user()->id));
+        $task = $this->task_repo->triggeredActions($request, $task);
 
         event(new TaskWasCreated($task, $task->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 

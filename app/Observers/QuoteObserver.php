@@ -33,7 +33,7 @@ class QuoteObserver
 
         if ($subscriptions) {
             $quote->load('client');
-            WebhookHandler::dispatch(Webhook::EVENT_CREATE_QUOTE, $quote, $quote->company);
+            WebhookHandler::dispatch(Webhook::EVENT_CREATE_QUOTE, $quote, $quote->company, 'client');
         }
     }
 
@@ -53,7 +53,7 @@ class QuoteObserver
 
         if ($subscriptions) {
             $quote->load('client');
-            WebhookHandler::dispatch(Webhook::EVENT_UPDATE_QUOTE, $quote, $quote->company);
+            WebhookHandler::dispatch(Webhook::EVENT_UPDATE_QUOTE, $quote, $quote->company, 'client');
         }
 
     }
@@ -72,7 +72,7 @@ class QuoteObserver
 
         if ($subscriptions) {
             $quote->load('client');
-            WebhookHandler::dispatch(Webhook::EVENT_DELETE_QUOTE, $quote, $quote->company);
+            WebhookHandler::dispatch(Webhook::EVENT_DELETE_QUOTE, $quote, $quote->company, 'client');
         }
     }
 

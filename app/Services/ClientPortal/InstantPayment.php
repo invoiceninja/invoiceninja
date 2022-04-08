@@ -72,8 +72,7 @@ class InstantPayment
         $invoices->each(function($invoice){
             $invoice->service()
                     ->markSent()
-                    ->removeUnpaidGatewayFees()
-                    ->save();
+                    ->removeUnpaidGatewayFees();
         });
 
         /* pop non payable invoice from the $payable_invoices array */
@@ -157,7 +156,6 @@ class InstantPayment
         $payable_invoice_collection = collect();
 
         foreach ($payable_invoices as $payable_invoice) {
-            // nlog($payable_invoice);
 
             $payable_invoice['amount'] = Number::parseFloat($payable_invoice['amount']);
 

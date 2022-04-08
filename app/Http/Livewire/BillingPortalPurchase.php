@@ -238,7 +238,8 @@ class BillingPortalPurchase extends Component
     {
         $company = $this->subscription->company;
         $user = $this->subscription->user;
-
+        $user->setCompany($company);
+        
         $client_repo = new ClientRepository(new ClientContactRepository());
 
         $data = [

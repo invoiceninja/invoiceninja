@@ -15,6 +15,7 @@ use App\Libraries\MultiDB;
 use App\Models\TaskStatus;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Support\Facades\App;
 
 class CreateCompanyTaskStatuses
 {
@@ -51,6 +52,10 @@ class CreateCompanyTaskStatuses
         if(TaskStatus::where('company_id', $this->company->id)->count() > 0)
             return;
         
+        App::forgetInstance('translator');
+        $t = app('translator');
+        App::setLocale($this->company->locale());
+
         $task_statuses = [
             ['name' => ctrans('texts.backlog'), 'company_id' => $this->company->id, 'user_id' => $this->user->id, 'created_at' => now(), 'updated_at' => now(), 'status_order' => 1],
             ['name' => ctrans('texts.ready_to_do'), 'company_id' => $this->company->id, 'user_id' => $this->user->id, 'created_at' => now(), 'updated_at' => now(), 'status_order' => 2],

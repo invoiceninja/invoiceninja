@@ -133,11 +133,16 @@ class CreditService
              ->attach($this->credit->id, ['amount' => $adjustment]);
         
         //reduce client paid_to_date by $this->credit->balance amount
-        $this->credit
-             ->client
-             ->service()
-             ->updatePaidToDate($adjustment)
-             ->save();
+        // $this->credit
+        //      ->client
+        //      ->service()
+        //      ->updatePaidToDate($adjustment)
+        //      ->save();
+
+         $client = $this->credit->client->fresh();
+         $client->service()
+                ->updatePaidToDate($adjustment)
+                ->save();
 
         event('eloquent.created: App\Models\Payment', $payment);
 
@@ -163,13 +168,13 @@ class CreditService
     public function adjustBalance($adjustment)
     {
         $this->credit->balance += $adjustment;
-
+        
         return $this;
     }
 
     public function updatePaidToDate($adjustment)
     {
-        $this->credit->paid_to_date += $adjustment;
+         $this->credit->paid_to_date += $adjustment;
         
         return $this;
     }
@@ -177,7 +182,7 @@ class CreditService
     public function updateBalance($adjustment)
     {
         $this->credit->balance -= $adjustment;
-
+        
         return $this;
     }
 

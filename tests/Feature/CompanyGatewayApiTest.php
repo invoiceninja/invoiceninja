@@ -326,6 +326,7 @@ class CompanyGatewayApiTest extends TestCase
         $fee = new FeesAndLimits;
         $fee->fee_amount = 0;
         $fee->fee_percent = 100;
+        $fee->adjust_fee_percent = false;
         // $fee->fee_tax_name1 = 'GST';
         // $fee->fee_tax_rate1 = '10.0';
 

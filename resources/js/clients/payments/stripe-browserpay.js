@@ -68,12 +68,12 @@ class StripeBrowserPay {
                 )
                 .then(function (confirmResult) {
                     if (confirmResult.error) {
-                        ev.complete('fail');
-
+                        
                         document.querySelector('#errors').innerText =
                             confirmResult.error.message;
-
                         document.querySelector('#errors').hidden = false;
+
+                        ev.complete('fail');
                     } else {
                         ev.complete('success');
 

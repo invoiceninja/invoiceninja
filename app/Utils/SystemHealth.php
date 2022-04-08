@@ -180,14 +180,14 @@ class SystemHealth
         $result = ['success' => false];
 
         if ($request && !config('ninja.preconfigured_install')) {
-            config(['database.connections.db-ninja-01.host' => $request->input('db_host')]);
-            config(['database.connections.db-ninja-01.port' => $request->input('db_port')]);
-            config(['database.connections.db-ninja-01.database' => $request->input('db_database')]);
-            config(['database.connections.db-ninja-01.username' => $request->input('db_username')]);
-            config(['database.connections.db-ninja-01.password' => $request->input('db_password')]);
-            config(['database.default' => 'db-ninja-01']);
+            config(['database.connections.mysql.host' => $request->input('db_host')]);
+            config(['database.connections.mysql.port' => $request->input('db_port')]);
+            config(['database.connections.mysql.database' => $request->input('db_database')]);
+            config(['database.connections.mysql.username' => $request->input('db_username')]);
+            config(['database.connections.mysql.password' => $request->input('db_password')]);
+            config(['database.default' => 'mysql']);
 
-            DB::purge('db-ninja-01');
+            DB::purge('mysql');
         }
 
         if (!config('ninja.db.multi_db_enabled')) {

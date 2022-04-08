@@ -101,7 +101,6 @@ class InvoiceController extends Controller
             return $this->makePayment((array) $transformed_ids);
         } elseif ($request->input('action') == 'download') {
             return $this->downloadInvoices((array) $transformed_ids);
-            // return $this->downloadInvoicePDF((array) $transformed_ids);
         }
 
         return redirect()
@@ -113,7 +112,7 @@ class InvoiceController extends Controller
     {
 
         $data['invoices'] = Invoice::whereIn('id', $ids)
-                            ->whereClientId(auth()->user()->client->id)
+                            ->whereClientId(auth()->guard('contact')->user()->client->id)
                             ->withTrashed()
                             ->get();
 
@@ -135,7 +134,7 @@ class InvoiceController extends Controller
     private function makePayment(array $ids)
     {
         $invoices = Invoice::whereIn('id', $ids)
-                            ->whereClientId(auth()->user()->client->id)
+                            ->whereClientId(auth()->guard('contact')->user()->client->id)
                             ->withTrashed()
                             ->get();
 
@@ -164,7 +163,7 @@ class InvoiceController extends Controller
 
         //format data
         $invoices->map(function ($invoice) {
-            $invoice->service()->removeUnpaidGatewayFees()->save();
+            $invoice->service()->removeUnpaidGatewayFees();
             $invoice->balance = $invoice->balance > 0 ? Number::formatValue($invoice->balance, $invoice->client->currency()) : 0;
             $invoice->partial =  $invoice->partial > 0 ? Number::formatValue($invoice->partial, $invoice->client->currency()) : 0;
 
@@ -172,14 +171,14 @@ class InvoiceController extends Controller
         });
 
         //format totals
-        $formatted_total = Number::formatMoney($total, auth()->user()->client);
+        $formatted_total = Number::formatMoney($total, auth()->guard('contact')->user()->client);
 
-        $payment_methods = auth()->user()->client->service()->getPaymentMethods($total);
+        $payment_methods = auth()->guard('contact')->user()->client->service()->getPaymentMethods($total);
 
         //if there is only one payment method -> lets return straight to the payment page
 
         $data = [
-            'settings' => auth()->user()->client->getMergedSettings(),
+            'settings' => auth()->guard('contact')->user()->client->getMergedSettings(),
             'invoices' => $invoices,
             'formatted_total' => $formatted_total,
             'payment_methods' => $payment_methods,
@@ -201,7 +200,7 @@ class InvoiceController extends Controller
     {
         $invoices = Invoice::whereIn('id', $ids)
                             ->withTrashed()
-                            ->whereClientId(auth()->user()->client->id)
+                            ->whereClientId(auth()->guard('contact')->user()->client->id)
                             ->get();
 
         //generate pdf's of invoices locally
@@ -212,9 +211,8 @@ class InvoiceController extends Controller
         //if only 1 pdf, output to buffer for download
         if ($invoices->count() == 1) {
             $invoice = $invoices->first();
-            $invitation = $invoice->invitations->first();
 
-           $file = $invoice->service()->getInvoicePdf(auth()->user());
+           $file = $invoice->service()->getInvoicePdf(auth()->guard('contact')->user());
 
            // return response()->download(file_get_contents(public_path($file)));
 

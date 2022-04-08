@@ -13,6 +13,7 @@ namespace App\Services\Quote;
 
 use App\Events\Quote\QuoteWasApproved;
 use App\Factory\InvoiceInvitationFactory;
+use App\Jobs\Entity\CreateEntityPdf;
 use App\Jobs\Util\UnlinkFile;
 use App\Models\Invoice;
 use App\Models\Quote;
@@ -116,7 +117,7 @@ class QuoteService
             $this->invoice
                  ->service()
                  ->markSent()
-                 ->deletePdf()
+                 ->touchPdf()
                  ->save();
 
         }
@@ -125,6 +126,52 @@ class QuoteService
 
         return $this;
     }
+
+    /**
+     * Sometimes we need to refresh the
+     * PDF when it is updated etc.
+     * @return InvoiceService
+     */
+    public function touchPdf($force = false)
+    {
+        try {
+        
+            if($force){
+
+                $this->quote->invitations->each(function ($invitation) {
+                    CreateEntityPdf::dispatchNow($invitation);
+                });
+
+                return $this;
+            }
+
+            $this->quote->invitations->each(function ($invitation) {
+                CreateEntityPdf::dispatch($invitation);
+            });
+        
+        }
+        catch(\Exception $e){
+
+            nlog("failed creating invoices in Touch PDF");
+        
+        }
+
+        return $this;
+    }
+
+    public function approveWithNoCoversion($contact = null) :self
+    {
+        $this->setStatus(Quote::STATUS_APPROVED)->save();
+
+        if (!$contact) {
+            $contact = $this->quote->invitations->first()->contact;
+        }
+        
+        event(new QuoteWasApproved($contact, $this->quote, $this->quote->company, Ninja::eventVars()));
+
+        return $this;
+    }
+    
 
     public function convertToInvoice()
     {

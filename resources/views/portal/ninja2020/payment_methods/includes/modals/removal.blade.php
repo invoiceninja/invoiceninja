@@ -33,7 +33,7 @@
         </div>
         <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
             <div class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto">
-                <form action="{{ route('client.payment_methods.destroy', [$payment_method->hashed_id, 'method' => $payment_method->gateway_type->id]) }}" method="post">
+                <form action="{{ route('client.payment_methods.destroy', [$payment_method->hashed_id, 'method' => $payment_method->gateway_type_id]) }}" method="post">
                     @csrf
                     @method('DELETE')
                     <button type="submit" onclick="setTimeout(() => this.disabled = true, 0); return true;" class="button button-danger button-block" dusk="confirm-payment-removal">

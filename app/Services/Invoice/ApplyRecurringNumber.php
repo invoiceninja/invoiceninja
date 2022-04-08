@@ -15,6 +15,7 @@ use App\Models\Client;
 use App\Models\Invoice;
 use App\Services\AbstractService;
 use App\Utils\Traits\GeneratesCounter;
+use Illuminate\Database\QueryException;
 
 class ApplyRecurringNumber extends AbstractService
 {
@@ -23,6 +24,8 @@ class ApplyRecurringNumber extends AbstractService
     private $client;
 
     private $invoice;
+
+    private bool $completed = true;
 
     public function __construct(Client $client, Invoice $invoice)
     {
@@ -39,11 +42,13 @@ class ApplyRecurringNumber extends AbstractService
 
         switch ($this->client->getSetting('counter_number_applied')) {
             case 'when_saved':
-                $this->invoice->number = $this->getNextRecurringInvoiceNumber($this->client, $this->invoice);
+                $this->trySaving();
+                //$this->invoice->number = $this->getNextRecurringInvoiceNumber($this->client, $this->invoice);
                 break;
             case 'when_sent':
                 if ($this->invoice->status_id == Invoice::STATUS_SENT) {
-                    $this->invoice->number = $this->getNextRecurringInvoiceNumber($this->client, $this->invoice);
+                    $this->trySaving();
+                    // $this->invoice->number = $this->getNextRecurringInvoiceNumber($this->client, $this->invoice);
                 }
                 break;
 
@@ -53,5 +58,34 @@ class ApplyRecurringNumber extends AbstractService
         }
 
         return $this->invoice;
+    }
+
+    private function trySaving()
+    {
+
+        $x=1;
+
+        do{
+
+            try{
+
+                $this->invoice->number = $this->getNextRecurringInvoiceNumber($this->client, $this->invoice);
+                $this->invoice->saveQuietly();
+
+                $this->completed = false;
+                
+
+            }
+            catch(QueryException $e){
+
+                $x++;
+
+                if($x>10)
+                    $this->completed = false;
+            }
+        
+        }
+        while($this->completed);
+
     }
 }

@@ -23,6 +23,7 @@ use App\Utils\Traits\MakesDates;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\Payment\Refundable;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Cache;
 
 class Payment extends BaseModel
 {
@@ -149,6 +150,15 @@ class Payment extends BaseModel
         return $this->belongsTo(PaymentType::class);
     }
 
+    public function translatedType()
+    {
+        if(!$this->type)
+            return '';
+
+        return ctrans('texts.payment_type_'.$this->type->name);
+
+    }
+
     public function gateway_type()
     {
         return $this->belongsTo(GatewayType::class);
@@ -222,8 +232,6 @@ class Payment extends BaseModel
     public function refund(array $data) :self
     {
         return $this->service()->refundPayment($data);
-
-        //return $this->processRefund($data);
     }
 
     /**
@@ -314,4 +322,23 @@ class Payment extends BaseModel
 
     }
 
+    public function transaction_event()
+    {
+        $payment = $this->fresh();
+
+        return [
+            'payment_id' => $payment->id, 
+            'payment_amount' => $payment->amount ?: 0, 
+            'payment_applied' => $payment->applied ?: 0, 
+            'payment_refunded' => $payment->refunded ?: 0, 
+            'payment_status' => $payment->status_id ?: 1,
+            'paymentables' => $payment->paymentables->toArray(),
+            'payment_request' => request() ? request()->all() : [],
+        ];
+    }
+
+    public function translate_entity()
+    {
+        return ctrans('texts.payment');
+    }
 }

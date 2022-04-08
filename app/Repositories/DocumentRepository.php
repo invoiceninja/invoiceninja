@@ -19,6 +19,7 @@ use App\Utils\Ninja;
  */
 class DocumentRepository extends BaseRepository
 {
+
     public function delete($document)
     {
         $document->deleteFile();
@@ -27,14 +28,18 @@ class DocumentRepository extends BaseRepository
 
     public function restore($document)
     {
-        if (! $document->trashed()) {
-            return;
-        }
-
-        $document->restore();
-
-        // if (class_exists($className)) {
-        //     event(new $className($document, $document->company, Ninja::eventVars()));
+        return;
+        // if (! $document->trashed()) {
+        //     return;
         // }
+
+        // $document->restore();
+
     }
+
+    public function archive($document)
+    {
+        return;
+    }
+
 }

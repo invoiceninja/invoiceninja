@@ -379,7 +379,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'allow_unsafe_links' => false,
         ]);
 
-        return $converter->convertToHtml($markdown);
+        return $converter->convert($markdown);
     }
 
     // public function processMarkdownOnLineItems(array &$items): void

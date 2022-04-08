@@ -182,4 +182,71 @@ class TaskRepository extends BaseRepository
         });
 
     }
+
+    public function start(Task $task)
+    {
+        //do no allow an task to be restarted if it has been invoiced
+        if($task->invoice_id)
+            return;
+
+        if(strlen($task->time_log) < 5)
+        {   
+            $log = [];
+
+            $log = array_merge($log, [[time(),0]]);
+            $task->time_log = json_encode($log);
+            $task->save();
+
+        }
+
+        $log = json_decode($task->time_log,true);;
+
+        $last = end($log);
+        
+        if(is_array($last) && $last[1] !== 0){
+            
+            $new = [time(), 0];
+            $log = array_merge($log, [$new]);
+            $task->time_log = json_encode($log);
+            $task->save();
+
+        }
+
+        return $task;
+    }
+
+    public function stop(Task $task)
+    {
+        $log = json_decode($task->time_log,true);;
+
+        $last = end($log);
+        
+        if(is_array($last) && $last[1] === 0){
+
+            $last[1] = time();
+
+            array_pop($log);
+            $log = array_merge($log, [$last]);
+
+            $task->time_log = json_encode($log);
+            $task->save();
+        }
+
+        return $task;
+
+    }
+
+    public function triggeredActions($request, $task)
+    {
+
+        if ($request->has('start') && $request->input('start') == 'true') {
+            $task = $this->start($task);
+        }
+
+        if ($request->has('stop') && $request->input('stop') == 'true') {
+            $task = $this->stop($task);
+        }
+        
+        return $task;
+    }
 }

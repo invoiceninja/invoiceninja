@@ -15,9 +15,11 @@ use App\Http\Middleware\SetDomainNameDb;
 use App\Models\Invoice;
 use App\Models\Proposal;
 use App\Utils\Ninja;
+use App\Utils\TruthSource;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Queue\Events\JobProcessing;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\RateLimiter;
@@ -60,17 +62,13 @@ class AppServiceProvider extends ServiceProvider
             ]);
         }
 
-        // Queue::before(function (JobProcessing $event) {
-        //     // \Log::info('Event Job '.$event->connectionName);
-        //     \Log::error('Event Job '.$event->job->getJobId);
-        //     // \Log::info('Event Job '.$event->job->payload());
-        // });
-        //! Update Posted AT
-        // Queue::after(function (JobProcessed $event) {
-        //     // \Log::info('Event Job '.$event->connectionName);
-        //     \Log::error('Event Job '.$event->job->getJobId);
-        //     // \Log::info('Event Job '.$event->job->payload());
-        // });
+        /* Ensure we don't have stale state in jobs */
+        Queue::before(function (JobProcessing $event) {
+            App::forgetInstance('truthsource');
+        });
+ 
+        app()->instance(TruthSource::class, new TruthSource());
+
     }
 
     /**

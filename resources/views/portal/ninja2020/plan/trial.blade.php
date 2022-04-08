@@ -15,22 +15,27 @@
 
 <div>
 
-    <ul class="list-decimal mx-20 w-100">
-      <li>Unlimited clients, invoices and quotes</li>
-      <li>Remove "Created by Invoice Ninja" from invoices</li>
-      <li>Enable emails to be sent from your GMail</li>
-      <li>Create subscriptions: Recurring & Auto-billing</li>
-      <li>API integration with 3rd party apps & platforms</li>
-      <li>Custom reminders</li>
-      <li>Attach PDF's to client emails</li>
-      <li>Display clients e-signature on invoices and quotes</li>
-      <li>Enable clients to "Approve Terms' checkbox</li>
-      <li>Bulk emailing of invoices and quotes</li>
+    <ul class="mx-20 w-100" style="list-style-type:disc;">
+      <li>Unlimited Clients & Invoices & Quotes</li>
+      <li>Remove "Created by Invoice Ninja"</li>
+      <li>10 Professional Invoice & Quote Templates</li>
+      <li>Send Invoice Emails Sent via Your Gmail</li>
+      <li>Attach Invoice PDF's to Client Emails</li>
+      <li>Customize Auto-Reminder Emails</li>
+      <li>Display Client E-Signatures on Invoices</li>
+      <li>Enable a Client "Approve Terms' Checkbox</li>
+      <li>Interlink Multiple Companies (x10) with 1 Login</li>
+      <li>Customize Invoice Designs & Email Templates</li>
+      <li>Custom Settings for Different Client "Groups"</li>
+      <li>Client Subscriptions: Recurring & Auto-billing</li>
+      <li>Password Protected Client-Side Portal</li>
+      <li>API Integration with 3rd Party Apps</li>
+      <li>& Much More!</li>
     </ul>
 
 </div>
 
-  </div>
+</div>
   <div class="w-1/2 overflow-hidden">
 
   <form id="card-form" action="{{ route('client.trial.response') }}" method="post">
@@ -208,6 +213,50 @@
 
 </div>
 
+
+<div class="w-full mt-6 pt-6">
+  <div class="relative">
+    <div class="absolute inset-0 flex items-center" aria-hidden="true">
+      <div class="w-full border-t border-gray-300"></div>
+    </div>
+    <div class="relative flex justify-center">
+      <span class="px-2 bg-white text-sm text-gray-500"> Discounted Plans </span>
+    </div>
+  </div>
+</div>
+
+
+<div class="w-full mt-6 pt-6">
+<div class="bg-gray-50">
+  <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
+    <h2 class="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+      <span class="block">Enterprise Plan (1-2 Users) Annual</span>
+      <span class="block text-indigo-600 mt-2">Buy 10 months, get 2 free! $140</span>
+    </h2>
+    <div class="mt-8 flex lg:mt-0 lg:flex-shrink-0">
+      <div class="inline-flex rounded-md shadow">
+        <a href="https://invoiceninja.invoicing.co/client/subscriptions/LYqaQWldnj/purchase" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"> Buy Now! </a>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="w-full mt-6 pt-6">
+<div class="bg-gray-50">
+  <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
+    <h2 class="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+      <span class="block">Pro Plan Annual</span>
+      <span class="block text-indigo-600 mt-2">Buy 10 months, get 2 free! $100</span>
+    </h2>
+    <div class="mt-8 flex lg:mt-0 lg:flex-shrink-0">
+      <div class="inline-flex rounded-md shadow">
+        <a href="https://invoiceninja.invoicing.co/client/subscriptions/q9wdL9wejP/purchase" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"> Buy Now! </a>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
 
 
 @endsection

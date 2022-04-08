@@ -11,6 +11,7 @@
 
 namespace App\Console\Commands;
 
+use App\DataMapper\ClientRegistrationFields;
 use App\DataMapper\CompanySettings;
 use App\DataMapper\FeesAndLimits;
 use App\Events\Invoice\InvoiceWasCreated;
@@ -115,6 +116,7 @@ class CreateSingleAccount extends Command
         $settings->invoice_footer = 'Default invoice footer';
 
         $company->settings = $settings;
+        $company->client_registration_fields = ClientRegistrationFields::generate();
         $company->save();
 
         $account->default_company_id = $company->id;

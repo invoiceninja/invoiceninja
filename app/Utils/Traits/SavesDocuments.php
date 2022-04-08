@@ -45,6 +45,7 @@ trait SavesDocuments
                 $is_public
             );
         }
+
     }
 
     public function saveDocument($document, $entity, $is_public = true)

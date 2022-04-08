@@ -104,4 +104,9 @@ class Vendor extends BaseModel
     {
         return $this->belongsTo(User::class)->withTrashed();
     }
+
+    public function translate_entity()
+    {
+        return ctrans('texts.vendor');
+    }
 }

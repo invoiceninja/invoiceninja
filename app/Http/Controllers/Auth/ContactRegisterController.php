@@ -17,11 +17,16 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientPortal\RegisterRequest;
 use App\Models\Client;
 use App\Models\Company;
+use App\Utils\Ninja;
+use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\App;
 
 class ContactRegisterController extends Controller
 {
+    use GeneratesCounter;
+
     public function __construct()
     {
         $this->middleware(['guest']);
@@ -29,11 +34,19 @@ class ContactRegisterController extends Controller
 
     public function showRegisterForm(string $company_key = '')
     {
-        $key = request()->session()->has('company_key') ? request()->session()->get('company_key') : $company_key;
+
+        if(strlen($company_key) > 2)
+            $key = $company_key;
+        else
+            $key = request()->session()->has('company_key') ? request()->session()->get('company_key') : $company_key;
 
         $company = Company::where('company_key', $key)->firstOrFail();
 
-        return render('auth.register', ['company' => $company, 'account' => $company->account]);
+        App::forgetInstance('translator');
+        $t = app('translator');
+        $t->replace(Ninja::transformTranslations($company->settings));
+
+        return render('auth.register', ['register_company' => $company, 'account' => $company->account]);
     }
 
     public function register(RegisterRequest $request)
@@ -50,10 +63,19 @@ class ContactRegisterController extends Controller
 
     private function getClient(array $data)
     {
+
         $client = ClientFactory::create($data['company']->id, $data['company']->owner()->id);
 
         $client->fill($data);
         $client->save();
+        $client->number = $this->getNextClientNumber($client);
+        $client->save();
+
+        if(!array_key_exists('country_id', $data) && strlen($client->company->settings->country_id) > 1){
+
+            $client->update(['country_id' => $client->company->settings->country_id]);
+        
+        }
 
         return $client;
     }

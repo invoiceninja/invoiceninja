@@ -12,6 +12,7 @@
 namespace App\Console\Commands;
 
 use App\Jobs\Util\VersionCheck;
+use App\Utils\Ninja;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 
@@ -53,13 +54,15 @@ class PostUpdate extends Command
 
         $output = [];
 
-        exec('vendor/bin/composer install --no-dev -o', $output);
+        // exec('vendor/bin/composer install --no-dev -o', $output);
 
         info(print_r($output,1));
         info("finished running composer install ");
 
         try {
+
             Artisan::call('optimize');
+
         } catch (\Exception $e) {
             info("I wasn't able to optimize.");
         }

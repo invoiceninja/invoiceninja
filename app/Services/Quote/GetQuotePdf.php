@@ -30,7 +30,7 @@ class GetQuotePdf extends AbstractService
     public function run()
     {
         if (! $this->contact) {
-            $this->contact = $this->quote->client->primary_contact()->first();
+            $this->contact = $this->quote->client->primary_contact()->first() ?: $this->quote->client->contacts()->first();
         }
 
         $invitation = $this->quote->invitations->where('client_contact_id', $this->contact->id)->first();

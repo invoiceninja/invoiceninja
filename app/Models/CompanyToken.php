@@ -17,6 +17,7 @@ class CompanyToken extends BaseModel
 {
     use SoftDeletes;
     use Filterable;
+    use \Awobaz\Compoships\Compoships;
 
     protected $fillable = [
         'name',
@@ -54,5 +55,13 @@ class CompanyToken extends BaseModel
         return $this->hasOne(CompanyUser::class, 'user_id', 'user_id')
                     ->where('company_id', $this->company_id)
                     ->where('user_id', $this->user_id);
+    }
+
+    public function cu()
+    {
+        return $this->hasOne(CompanyUser::class, 'user_id', 'user_id')
+            ->where('company_id', $this->company_id)
+            ->where('user_id', $this->user_id);
+            
     }
 }

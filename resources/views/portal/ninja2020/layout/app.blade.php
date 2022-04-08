@@ -31,7 +31,7 @@
         @endif
 
         <!-- Title -->
-        @if(isset($account) && !$account->isPaid())
+        @if(isset($company->account) && !$company->account->isPaid())
             <title>@yield('meta_title', '') — Invoice Ninja</title>
         @elseif(isset($company) && !is_null($company))
             <title>@yield('meta_title', '') — {{ $company->present()->name() }}</title>
@@ -57,7 +57,7 @@
         <!-- Styles -->
         <link href="{{ mix('css/app.css') }}" rel="stylesheet">
 
-        @if(!auth()->guard('contact')->user()->user->account->isPaid())
+        @if(auth()->guard('contact')->user() && !auth()->guard('contact')->user()->user->account->isPaid())
             <link href="{{ asset('favicon.png') }}" rel="shortcut icon" type="image/png">
         @endif
 
@@ -74,7 +74,7 @@
         {{-- Feel free to push anything to header using @push('header') --}}
         @stack('head')
 
-        @if((bool) \App\Utils\Ninja::isSelfHost() && !empty($client->getSetting('portal_custom_head')))
+        @if((isset($company) && $company->account->isPaid() && !empty($client->getSetting('portal_custom_head'))) || ((bool) \App\Utils\Ninja::isSelfHost() && !empty($client->getSetting('portal_custom_head'))))
             <div class="py-1 text-sm text-center text-white bg-primary">
                 {!! $client->getSetting('portal_custom_head') !!}
             </div>

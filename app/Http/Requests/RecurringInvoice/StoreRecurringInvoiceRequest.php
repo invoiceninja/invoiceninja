@@ -12,6 +12,7 @@
 namespace App\Http\Requests\RecurringInvoice;
 
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\Project\ValidProjectForClient;
 use App\Http\ValidationRules\Recurring\UniqueRecurringInvoiceNumberRule;
 use App\Models\Client;
 use App\Models\RecurringInvoice;
@@ -55,6 +56,8 @@ class StoreRecurringInvoiceRequest extends Request
 
         $rules['frequency_id'] = 'required|integer|digits_between:1,12';
 
+        $rules['project_id'] =  ['bail', 'sometimes', new ValidProjectForClient($this->all())];
+
         $rules['number'] = new UniqueRecurringInvoiceNumberRule($this->all());
 
         return $rules;
@@ -79,6 +82,11 @@ class StoreRecurringInvoiceRequest extends Request
         if (array_key_exists('vendor_id', $input) && is_string($input['vendor_id'])) {
             $input['vendor_id'] = $this->decodePrimaryKey($input['vendor_id']);
         }
+
+        if (array_key_exists('project_id', $input) && is_string($input['project_id'])) {
+            $input['project_id'] = $this->decodePrimaryKey($input['project_id']);
+        }
+
 
         if (isset($input['client_contacts'])) {
             foreach ($input['client_contacts'] as $key => $contact) {

@@ -200,7 +200,6 @@ class UserRepository extends BaseRepository
         $user->is_deleted = false;
         $user->save();
         $user->restore();
-        // $user->company_user->restore();
 
         $cu = CompanyUser::withTrashed()
                          ->where('user_id', $user->id)

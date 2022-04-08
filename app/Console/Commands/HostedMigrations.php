@@ -85,8 +85,6 @@ class HostedMigrations extends Command
         }
 
         $path = public_path('storage/migrations/import');
-
-        nlog(public_path('storage/migrations/import'));
         
         $directory = new DirectoryIterator($path);
 

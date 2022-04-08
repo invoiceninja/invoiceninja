@@ -33,6 +33,10 @@ class BaseEmailEngine implements EngineInterface
 
     public $invitation;
     
+    public $text_body;
+
+    public $text_footer;
+
     public function setFooter($footer)
     {
         $this->footer = $footer;
@@ -105,6 +109,13 @@ class BaseEmailEngine implements EngineInterface
         return $this;
     }
     
+    public function setTextBody($text)
+    {
+        $this->text_body = $text;
+
+        return $this;
+    }
+
     public function getSubject()
     {
         return $this->subject;
@@ -148,11 +159,37 @@ class BaseEmailEngine implements EngineInterface
     public function setInvitation($invitation)
     {
         $this->invitation = $invitation;
+
+        return $this;
     }
 
     public function getInvitation()
     {
         return $this->invitation;
+    }
+
+    public function getTextBody()
+    {
+        return $this->text_body;
+    }
+
+    private function replaceEntities($content)
+    {
+        $find = [
+            '<p>',
+            '</p>',
+            '<div class="center">',
+            '<\div>',
+        ];
+
+        $replace = [
+            '',
+            '\n\n',
+            '',
+            '\n\n',
+        ];
+
+        return str_replace($find, $replace, $content);
     }
 }
 

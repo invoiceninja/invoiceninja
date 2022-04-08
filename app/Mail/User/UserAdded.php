@@ -50,6 +50,7 @@ class UserAdded extends Mailable
 
         return $this->from(config('mail.from.address'), config('mail.from.name'))
             ->subject(ctrans('texts.created_user'))
+            ->text('email.admin.user_added_text')
             ->view('email.admin.user_added')
             ->with([
                 'settings' => $this->company->settings,

@@ -57,7 +57,10 @@ class TriggeredActions extends AbstractService
             $this->invoice = $this->invoice->service()->markSent()->save();
         }
 
-        
+        if ($this->request->has('cancel') && $this->request->input('cancel') == 'true') {
+            $this->invoice = $this->invoice->service()->handleCancellation()->save();
+        }        
+
         return $this->invoice;
     }
 

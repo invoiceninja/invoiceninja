@@ -58,6 +58,7 @@ class ContactPasswordlessLogin extends Mailable
 
         return $this
             ->subject(ctrans('texts.account_passwordless_login'))
+            ->text('email.billing.passwordless-login_text')
             ->view('email.billing.passwordless-login', [
                 'logo' => $this->company->present()->logo(),
                 'settings' => $this->company->settings,
