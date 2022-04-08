@@ -14,6 +14,7 @@ namespace App\Export\CSV;
 use App\Libraries\MultiDB;
 use App\Models\Client;
 use App\Models\Company;
+use App\Models\Credit;
 use App\Transformers\CreditTransformer;
 use App\Utils\Ninja;
 use Illuminate\Support\Facades\App;
@@ -35,7 +36,7 @@ class CreditExport
         'custom_surcharge2' => 'custom_surcharge2',
         'custom_surcharge3' => 'custom_surcharge3',
         'custom_surcharge4' => 'custom_surcharge4',
-        'country' => 'client.country_id',
+        'country' => 'country_id',
         'custom_value1' => 'custom_value1',
         'custom_value2' => 'custom_value2',
         'custom_value3' => 'custom_value3',
@@ -58,15 +59,18 @@ class CreditExport
         'tax_name2' => 'tax_name2',
         'tax_name3' => 'tax_name3',
         'tax_rate1' => 'tax_rate1',
-        'tax_rate1' => 'tax_rate1',
-        'tax_rate1' => 'tax_rate1',
+        'tax_rate2' => 'tax_rate2',
+        'tax_rate3' => 'tax_rate3',
+        'terms' => 'terms',
+        'total_taxes' => 'total_taxes',
+        'currency' => 'currency'
     ];
 
     private array $decorate_keys = [
-        'client.country_id',
-        'client.shipping_country_id',
-        'client.currency',
-        'client.industry',
+        'country',
+        'client',
+        'invoice',
+        'currency',
     ];
 
     public function __construct(Company $company, array $report_keys)
@@ -91,14 +95,14 @@ class CreditExport
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-        Client::with('contacts')->where('company_id', $this->company->id)
-                                ->where('is_deleted',0)
-                                ->cursor()
-                                ->each(function ($client){
+        Credit::with('client')->where('company_id', $this->company->id)
+                            ->where('is_deleted',0)
+                            ->cursor()
+                            ->each(function ($credit){
 
-                                    $this->csv->insertOne($this->buildRow($client)); 
+                                $this->csv->insertOne($this->buildRow($credit)); 
 
-                                });
+                            });
 
 
         return $this->csv->toString(); 
@@ -116,51 +120,36 @@ class CreditExport
         return $header;
     }
 
-    private function buildRow(Client $client) :array
+    private function buildRow(Credit $credit) :array
     {
 
-        $transformed_contact = false;
-
-        $transformed_client = $this->client_transformer->transform($client);
-
-        if($contact = $client->contacts()->first())
-            $transformed_contact = $this->contact_transformer->transform($contact);
-
+        $transformed_credit = $this->credit_transformer->transform($credit);
 
         $entity = [];
 
         foreach(array_values($this->report_keys) as $key){
 
-            $parts = explode(".",$key);
-            $entity[$parts[1]] = "";
-
-            if($parts[0] == 'client') {
-                $entity[$parts[1]] = $transformed_client[$parts[1]];
-            }
-            elseif($parts[0] == 'contact') {
-                $entity[$parts[1]] = $transformed_contact[$parts[1]];
-            }
-
+                $entity[$key] = $transformed_credit[$key];
         }
 
-        return $this->decorateAdvancedFields($client, $entity);
+        return $this->decorateAdvancedFields($credit, $entity);
 
     }
 
-    private function decorateAdvancedFields(Client $client, array $entity) :array
+    private function decorateAdvancedFields(Credit $credit, array $entity) :array
     {
 
         if(array_key_exists('country_id', $entity))
-            $entity['country_id'] = $client->country ? ctrans("texts.country_{$client->country->name}") : ""; 
-
-        if(array_key_exists('shipping_country_id', $entity))
-            $entity['shipping_country_id'] = $client->shipping_country ? ctrans("texts.country_{$client->shipping_country->name}") : ""; 
+            $entity['country_id'] = $credit->client->country ? ctrans("texts.country_{$credit->client->country->name}") : ""; 
 
         if(array_key_exists('currency', $entity))
-            $entity['currency'] = $client->currency()->code;
+            $entity['currency'] = $credit->client->currency()->code;
 
-        if(array_key_exists('industry_id', $entity))
-            $entity['industry_id'] = $client->industry ? ctrans("texts.industry_{$client->industry->name}") : ""; 
+        if(array_key_exists('invoice_id', $entity))
+            $entity['invoice_id'] = $credit->invoice ? $credit->invoice->number : "";
+
+        if(array_key_exists('client_id', $entity))
+            $entity['client_id'] = $credit->client->present()->name();
 
         return $entity;
     }
