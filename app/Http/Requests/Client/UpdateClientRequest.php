@@ -157,6 +157,10 @@ class UpdateClientRequest extends Request
             if (! array_key_exists($key, $saveable_casts)) {
                 unset($settings->{$key});
             }
+
+            if($key == 'default_task_rate'){
+                $settings->default_task_rate = floatval($value);
+            }
         }
 
         return $settings;
