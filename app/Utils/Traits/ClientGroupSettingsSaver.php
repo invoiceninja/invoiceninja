@@ -11,6 +11,7 @@
 
 namespace App\Utils\Traits;
 
+use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use stdClass;
 
@@ -63,15 +64,6 @@ trait ClientGroupSettingsSaver
             $entity_settings->{$key} = $value;
         }
 
-        //this pass will handle any null values that are in the translations
-        // foreach ($settings->translations as $key => $value) {
-        //     if (is_null($settings->translations[$key])) {
-        //         $settings->translations[$key] = '';
-        //     }
-        // }
-
-        // $entity_settings->translations = $settings->translations;
-
         $entity->settings = $entity_settings;
         $entity->save();
 
@@ -91,6 +83,8 @@ trait ClientGroupSettingsSaver
     {
         $settings = (object) $settings;
         $casts = CompanySettings::$casts;
+
+        // $casts = ClientSettings::$property_casts;
 
         ksort($casts);
 
@@ -121,7 +115,7 @@ trait ClientGroupSettingsSaver
                 continue;
             }
             /*Separate loop if it is a _id field which is an integer cast as a string*/
-            elseif (substr($key, -3) == '_id' || substr($key, -14) == 'number_counter') {
+            elseif (substr($key, -3) == '_id' || substr($key, -14) == 'number_counter' || $key == 'payment_terms' || $key == 'valid_until') {
                 $value = 'integer';
 
                 if (! property_exists($settings, $key)) {
@@ -170,7 +164,7 @@ trait ClientGroupSettingsSaver
             }
             
             /*Separate loop if it is a _id field which is an integer cast as a string*/
-            if (substr($key, -3) == '_id' || substr($key, -14) == 'number_counter') {
+            if (substr($key, -3) == '_id' || substr($key, -14) == 'number_counter' || $key == 'payment_terms' || $key == 'valid_until') {
                 $value = 'integer';
 
                 if (! property_exists($settings, $key)) {

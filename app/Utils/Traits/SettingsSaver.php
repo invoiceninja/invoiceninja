@@ -52,7 +52,7 @@ trait SettingsSaver
                 continue;
             }
             /*Separate loop if it is a _id field which is an integer cast as a string*/
-            elseif (substr($key, -3) == '_id' || substr($key, -14) == 'number_counter') {
+            elseif (substr($key, -3) == '_id' || substr($key, -14) == 'number_counter' || $key == 'payment_terms' || $key == 'valid_until') {    
                 $value = 'integer';
 
                 if($key == 'gmail_sending_user_id')
