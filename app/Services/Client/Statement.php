@@ -231,7 +231,7 @@ class Statement
             ->where('client_id', $this->client->id)
             ->whereIn('status_id', $this->invoiceStatuses())
             ->whereBetween('date', [Carbon::parse($this->options['start_date']), Carbon::parse($this->options['end_date'])])
-            ->orderBy('date', 'ASC')
+            ->orderBy('due_date', 'ASC')
             ->cursor();
     }
 
