@@ -36,6 +36,13 @@ class CreditCard
     public function __construct(FortePaymentDriver $forte)
     {
         $this->forte = $forte;
+
+        $this->forte_base_uri = $this->forte->company_gateway->getConfigField('baseUri');
+        $this->forte_api_access_id = $this->forte->company_gateway->getConfigField('apiAccessId');
+        $this->forte_secure_key = $this->forte->company_gateway->getConfigField('secureKey');
+        $this->forte_auth_organization_id = $this->forte->company_gateway->getConfigField('authOrganizationId');
+        $this->forte_organization_id = $this->forte->company_gateway->getConfigField('organizationId');
+        $this->forte_location_id = $this->forte->company_gateway->getConfigField('locationId');
     }
 
     public function authorizeView(array $data)
@@ -67,9 +74,9 @@ class CreditCard
                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                 CURLOPT_CUSTOMREQUEST => 'POST',
                 CURLOPT_POSTFIELDS =>'{
-                    "first_name": "'.$this->forte->client->name.'",
-                    "last_name": "'.$this->forte->client->name.'",
-                    "company_name": "'.$this->forte->client->name.'",
+                    "first_name": "'.$this->forte->client->present()->name().'",
+                    "last_name": "'.$this->forte->client->present()->name().'",
+                    "company_name": "'.$this->forte->client->present()->name().'",
                     "customer_id": "'.$this->forte->client->number.'"
                 }',
                 CURLOPT_HTTPHEADER => array(
