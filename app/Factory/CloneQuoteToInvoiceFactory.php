@@ -30,7 +30,7 @@ class CloneQuoteToInvoiceFactory
         unset($quote_array['invitations']);
         
         //preserve terms if they exist on Quotes
-        if(strlen($quote_array['terms']) < 2)
+        if(array_key_exists('terms', $quote_array) && strlen($quote_array['terms']) < 2)
             unset($quote_array['terms']);
 
         // unset($quote_array['public_notes']);

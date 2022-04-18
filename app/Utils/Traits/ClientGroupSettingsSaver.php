@@ -84,8 +84,6 @@ trait ClientGroupSettingsSaver
         $settings = (object) $settings;
         $casts = CompanySettings::$casts;
 
-        // $casts = ClientSettings::$property_casts;
-
         ksort($casts);
 
         if(property_exists($settings, 'translations'))
@@ -115,8 +113,12 @@ trait ClientGroupSettingsSaver
                 continue;
             }
             /*Separate loop if it is a _id field which is an integer cast as a string*/
-            elseif (substr($key, -3) == '_id' || substr($key, -14) == 'number_counter' || $key == 'payment_terms' || $key == 'valid_until') {
-                $value = 'integer';
+            elseif (substr($key, -3) == '_id' || 
+                substr($key, -14) == 'number_counter' || 
+                ($key == 'payment_terms' && property_exists($settings, 'payment_terms') && strlen($settings->{$key}) >= 1) || 
+                ($key == 'valid_until' && property_exists($settings, 'valid_until') && strlen($settings->{$key}) >= 1)) {  
+                    
+                    $value = 'integer';
 
                 if (! property_exists($settings, $key)) {
                     continue;
@@ -164,7 +166,11 @@ trait ClientGroupSettingsSaver
             }
             
             /*Separate loop if it is a _id field which is an integer cast as a string*/
-            if (substr($key, -3) == '_id' || substr($key, -14) == 'number_counter' || $key == 'payment_terms' || $key == 'valid_until') {
+            if (substr($key, -3) == '_id' || 
+                substr($key, -14) == 'number_counter' || 
+                ($key == 'payment_terms' && property_exists($settings, 'payment_terms') && strlen($settings->{$key}) >= 1) || 
+                ($key == 'valid_until' && property_exists($settings, 'valid_until') && strlen($settings->{$key}) >= 1)) {    
+
                 $value = 'integer';
 
                 if (! property_exists($settings, $key)) {
@@ -213,8 +219,7 @@ trait ClientGroupSettingsSaver
         switch ($key) {
             case 'int':
             case 'integer':
-                // return ctype_digit(strval(abs($value)));
-                return ctype_digit(strval($value));
+                return is_numeric($value) && ctype_digit(strval(abs($value)));
             case 'real':
             case 'float':
             case 'double':

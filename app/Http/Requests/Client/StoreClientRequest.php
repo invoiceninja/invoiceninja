@@ -36,7 +36,7 @@ class StoreClientRequest extends Request
     }
 
     public function rules()
-    {
+    {nlog($this->input);
         if ($this->input('documents') && is_array($this->input('documents'))) {
             $documents = count($this->input('documents'));
 
