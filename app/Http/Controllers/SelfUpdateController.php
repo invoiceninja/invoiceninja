@@ -21,6 +21,15 @@ class SelfUpdateController extends BaseController
 {
     use DispatchesJobs;
 
+    private array $purge_file_list = [
+        'bootstrap/cache/compiled.php',
+        'bootstrap/cache/config.php',
+        'bootstrap/cache/packages.php',
+        'bootstrap/cache/services.php',
+        'bootstrap/cache/routes-v7.php',
+        'bootstrap/cache/livewire-components.php',
+    ];
+
     public function __construct()
     {
     }
@@ -117,10 +126,12 @@ class SelfUpdateController extends BaseController
 
         unlink($file);
 
-        $cacheCompiled = base_path('bootstrap/cache/compiled.php');
-        if (file_exists($cacheCompiled)) { unlink ($cacheCompiled); }
-        $cacheServices = base_path('bootstrap/cache/services.php');
-        if (file_exists($cacheServices)) { unlink ($cacheServices); }
+        foreach($this->purge_file_list as $purge_file_path)
+        {
+            $purge_file = base_path($purge_file_path);
+            if (file_exists($purge_file)) { unlink ($purge_file); }
+
+        }
 
         Artisan::call('clear-compiled');
         Artisan::call('route:clear');

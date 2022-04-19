@@ -218,7 +218,7 @@ class BaseController extends Controller
         $query->with(
             [
             'company' => function ($query) use ($updated_at, $user) {
-                $query->whereNotNull('updated_at')->with('documents')->with('users');
+                $query->whereNotNull('updated_at')->with('documents','users');
             },
             'company.clients' => function ($query) use ($updated_at, $user) {
                 $query->where('clients.updated_at', '>=', $updated_at)->with('contacts.company', 'gateway_tokens', 'documents');
@@ -392,7 +392,7 @@ class BaseController extends Controller
         $query->with(
             [
             'company' => function ($query) use ($created_at, $user) {
-                $query->whereNotNull('created_at')->with('documents');
+                $query->whereNotNull('created_at')->with('documents','users');
             },
             'company.designs'=> function ($query) use ($created_at, $user) {
                 $query->where('created_at', '>=', $created_at)->with('company');
@@ -466,7 +466,7 @@ class BaseController extends Controller
         $query->with(
             [
             'company' => function ($query) use ($created_at, $user) {
-                $query->whereNotNull('created_at')->with('documents');
+                $query->whereNotNull('created_at')->with('documents','users');
             },
             'company.clients' => function ($query) use ($created_at, $user) {
                 $query->where('clients.created_at', '>=', $created_at)->with('contacts.company', 'gateway_tokens', 'documents');
@@ -500,9 +500,6 @@ class BaseController extends Controller
             },
             'company.groups' => function ($query) use ($created_at, $user) {
                 $query->where('created_at', '>=', $created_at)->with('documents');
-
-                // if(!$user->isAdmin())
-                //   $query->where('group_settings.user_id', $user->id);
             },
             'company.invoices'=> function ($query) use ($created_at, $user) {
                 $query->where('created_at', '>=', $created_at)->with('invitations', 'documents');
@@ -583,13 +580,30 @@ class BaseController extends Controller
                   $query->where('activities.user_id', $user->id);
 
             },
+            'company.webhooks'=> function ($query) use($user) {
+
+              if(!$user->isAdmin())
+                  $query->where('webhooks.user_id', $user->id);
+
+            },
+            'company.tokens'=> function ($query) use($user) {
+                  $query->where('company_tokens.user_id', $user->id);
+            },
+            'company.system_logs',
             'company.subscriptions'=> function ($query) use($created_at, $user) {
               $query->where('created_at', '>=', $created_at);
 
               if(!$user->isAdmin())
                   $query->where('subscriptions.user_id', $user->id);
 
-            }
+            },
+            'company.recurring_expenses'=> function ($query) use ($created_at, $user) {
+                $query->where('created_at', '>=', $created_at)->with('documents');
+
+                if(!$user->hasPermission('view_recurring_expense'))
+                  $query->where('recurring_expenses.user_id', $user->id)->orWhere('recurring_expenses.assigned_user_id', $user->id);
+
+            },
           ]
         );
 

@@ -23,7 +23,7 @@ class CompanyGatewayFactory
         $company_gateway->user_id = $user_id;
         $company_gateway->require_billing_address = false;
         $company_gateway->require_shipping_address = false;
-        // $company_gateway->fees_and_limits = new FeesAndLimits;
+        $company_gateway->config = encrypt(json_encode(new \stdClass));
         
         return $company_gateway;
     }
