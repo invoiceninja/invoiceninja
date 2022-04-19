@@ -50,7 +50,7 @@
     @include('portal.ninja2020.gateways.includes.save_card')
 
     @component('portal.ninja2020.components.general.card-element-single')
-        <div class="w-screen items-center" id="paytrace--credit-card-container">
+        <div class="items-center" id="paytrace--credit-card-container">
             <div id="pt_hpf_form"></div>
         </div>
     @endcomponent
