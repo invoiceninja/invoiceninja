@@ -1015,7 +1015,7 @@ trait GenerateMigrationResources
         if($invoice->is_public == 0)
             return 1;
 
-        if($invoice->end_date < now())
+        if($invoice->end_date && $invoice->end_date < now())
             return 4;
 
         return 1;
