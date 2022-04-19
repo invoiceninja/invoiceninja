@@ -12,12 +12,13 @@
 
 namespace App\PaymentDrivers\Forte;
 
+use App\Models\Payment;
 use App\Models\GatewayType;
+use App\Models\PaymentType;
 use App\Http\Requests\Request;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Validator;
 use App\PaymentDrivers\FortePaymentDriver;
-use App\Models\Payment;
 
 class ACH
 {
@@ -229,7 +230,7 @@ class ACH
 
         $data['gateway_type_id']=GatewayType::CREDIT_CARD;
         $data['amount']=$request->system_amount_with_fee;
-        $data['payment_type']=GatewayType::CREDIT_CARD;
+        $data['payment_type']=PaymentType::ACH;
         $data['transaction_reference']=$response->transaction_id;
 
         $payment=$this->forte->createPayment($data, Payment::STATUS_COMPLETED);

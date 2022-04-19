@@ -37,6 +37,7 @@
             @if(count($tokens) > 0)
                 @foreach($tokens as $token)
                     <label class="mr-4">
+                        <input type="hidden" name="card_brand" value="{{optional($token->meta)->brand}}">
                         <input
                             type="radio"
                             data-token="{{ $token->hashed_id }}"

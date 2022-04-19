@@ -14,6 +14,7 @@ namespace App\PaymentDrivers\Forte;
 
 use App\Models\Payment;
 use App\Models\GatewayType;
+use App\Models\PaymentType;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
@@ -231,7 +232,7 @@ class CreditCard
 
         $data['gateway_type_id']=GatewayType::CREDIT_CARD;
         $data['amount']=$request->system_amount_with_fee;
-        $data['payment_type']=GatewayType::CREDIT_CARD;
+        $data['payment_type']=PaymentType::parseCardType(strtolower($request->card_brand)) ?: PaymentType::CREDIT_CARD_OTHER;
         $data['transaction_reference']=$response->transaction_id;
 
         $payment=$this->forte->createPayment($data, Payment::STATUS_COMPLETED);
