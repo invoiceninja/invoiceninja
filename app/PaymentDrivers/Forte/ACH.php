@@ -14,6 +14,7 @@ namespace App\PaymentDrivers\Forte;
 
 use App\Models\Payment;
 use App\Models\GatewayType;
+use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Http\Requests\Request;
 use App\Utils\Traits\MakesHash;
@@ -160,7 +161,7 @@ class ACH
 
         $this->forte->storeGatewayToken($data, ['gateway_customer_reference' => $customer_token]);
 
-        return redirect()->route('client.payment_methods.index');
+        return redirect()->route('client.payment_methods.index')->withSuccess('Payment Method added.');
     }
 
     public function paymentView(array $data)
@@ -169,17 +170,12 @@ class ACH
         $this->forte->payment_hash->save();
 
         $data['gateway'] = $this;
-        $data['system_amount_with_fee'] = $data['amount_with_fee'];
-        $data['fee_percent'] = $this->forte->company_gateway->fees_and_limits->{GatewayType::BANK_TRANSFER}->fee_percent;
-        $data['total']['fee_total'] = $data['total']['invoice_totals'] * $data['fee_percent'] / 100;
-        $data['total']['amount_with_fee'] = $data['total']['fee_total'] + $data['total']['invoice_totals'];
-        $data['amount_with_fee'] = $data['total']['amount_with_fee'];
         return render('gateways.forte.ach.pay', $data);
     }
 
     public function paymentResponse($request)
     {
-        $data=$request;
+        $payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$request->input('payment_hash')])->firstOrFail();
 
         try {
             $curl = curl_init();
@@ -194,8 +190,8 @@ class ACH
             CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POSTFIELDS =>'{
                 "action":"sale",
-                "authorization_amount": '.$data->amount_with_fee.',
-                "paymethod_token": "'.$data->payment_token.'",
+                "authorization_amount": '.$payment_hash->data->total->amount_with_fee.',
+                "paymethod_token": "'.$request->payment_token.'",
                 "echeck":{
                     "sec_code":"PPD",
                 },
@@ -228,10 +224,13 @@ class ACH
             return redirect('client/invoices')->withErrors($error);
         }
 
-        $data['gateway_type_id']=GatewayType::CREDIT_CARD;
-        $data['amount']=$request->system_amount_with_fee;
-        $data['payment_type']=PaymentType::ACH;
-        $data['transaction_reference']=$response->transaction_id;
+        $data = [
+            'payment_method' => $request->payment_method_id,
+            'payment_type' => PaymentType::parseCardType(strtolower($request->card_brand)) ?: PaymentType::CREDIT_CARD_OTHER,
+            'amount' => $payment_hash->data->amount_with_fee,
+            'transaction_reference' => $response->transaction_id,
+            'gateway_type_id' => GatewayType::CREDIT_CARD,
+        ];
 
         $payment=$this->forte->createPayment($data, Payment::STATUS_COMPLETED);
         return redirect('client/invoices')->withSuccess('Invoice paid.');

@@ -21,9 +21,6 @@
         <input type="hidden" name="dataDescriptor" id="dataDescriptor"/>
         <input type="hidden" name="token" id="token"/>
         <input type="hidden" name="store_card" id="store_card"/>
-        <input type="hidden" name="amount_with_fee" id="amount_with_fee" value="{{ $total['amount_with_fee'] }}"/>
-        <input type="hidden" name="system_amount_with_fee" id="system_amount_with_fee" value="{{ $system_amount_with_fee }}"/>
-        <input type="hidden" name="fee_total" id="fee_total" value="{{ $total['fee_total'] }}"/>
 
         <div id="errors"></div>
 
@@ -48,7 +45,16 @@
                         <span class="ml-1 cursor-pointer">**** {{ optional($token->meta)->last4 }}</span>
                     </label>
                 @endforeach
-            @endisset
+            @else
+                <div class="relative" x-data="{ open: false }" x-on:click.away="open = false">
+                    <!-- Add payment method button -->
+                    @if($client->getCreditCardGateway())
+                        <a data-cy="add-credit-card-link" href="{{ route('client.payment_methods.create', ['method' => App\Models\GatewayType::CREDIT_CARD]) }}" class="button button-primary bg-primary">
+                            {{ ctrans('texts.credit_card') }}
+                        </a>
+                    @endif
+                </div>
+            @endif
 
         @endcomponent
         <div class="bg-white px-4 py-5 flex justify-end">
