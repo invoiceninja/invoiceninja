@@ -3,12 +3,12 @@ const MANIFEST = 'flutter-app-manifest';
 const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 const RESOURCES = {
-  "main.dart.js": "697673403e6766bb57bddbf63867c707",
-"/": "30d854c5d8c226cb2c9b4c7e62accc55",
+  "main.dart.js": "490e9bf677a08a199d133d81b6284ae3",
+"/": "76a4ee7a4c831007fe570334d3ae66d9",
 "favicon.png": "dca91c54388f52eded692718d5a98b8b",
 "assets/fonts/MaterialIcons-Regular.otf": "7e7a6cccddf6d7b20012a548461d5d81",
 "assets/AssetManifest.json": "38d9aea341601f3a5c6fa7b5a1216ea5",
-"assets/packages/material_design_icons_flutter/lib/fonts/materialdesignicons-webfont.ttf": "015400679694f1f51047e46da0e1dc98",
+"assets/packages/material_design_icons_flutter/lib/fonts/materialdesignicons-webfont.ttf": "b62641afc9ab487008e996a5c5865e56",
 "assets/FontManifest.json": "cf3c681641169319e61b61bd0277378f",
 "assets/assets/images/payment_types/paypal.png": "8e06c094c1871376dfea1da8088c29d1",
 "assets/assets/images/payment_types/ach.png": "7433f0aff779dc98a649b7a2daf777cf",
@@ -29,7 +29,7 @@ const RESOURCES = {
 "assets/assets/images/logo_dark.png": "a233ed1d4d0f7414bf97a9a10f11fb0a",
 "assets/assets/images/logo_light.png": "e5f46d5a78e226e7a9553d4ca6f69219",
 "assets/assets/images/icon.png": "090f69e23311a4b6d851b3880ae52541",
-"assets/NOTICES": "cf43cdaf5dacbabcdacd7a402a0a7cb2",
+"assets/NOTICES": "e85d9402df435f95cdc3e10e32a7a6b5",
 "icons/Icon-192.png": "bb1cf5f6982006952211c7c8404ffbed",
 "icons/Icon-512.png": "0f9aff01367f0a0c69773d25ca16ef35",
 "manifest.json": "ef43d90e57aa7682d7e2cfba2f484a40",
