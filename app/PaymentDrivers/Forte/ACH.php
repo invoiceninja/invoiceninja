@@ -226,10 +226,10 @@ class ACH
 
         $data = [
             'payment_method' => $request->payment_method_id,
-            'payment_type' => PaymentType::parseCardType(strtolower($request->card_brand)) ?: PaymentType::CREDIT_CARD_OTHER,
+            'payment_type' => PaymentType::ACH,
             'amount' => $payment_hash->data->amount_with_fee,
             'transaction_reference' => $response->transaction_id,
-            'gateway_type_id' => GatewayType::CREDIT_CARD,
+            'gateway_type_id' => GatewayType::BANK_TRANSFER,
         ];
 
         $payment=$this->forte->createPayment($data, Payment::STATUS_COMPLETED);
