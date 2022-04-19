@@ -190,7 +190,7 @@ class BaseModel extends Model
 
     public function numberFormatter()
     {
-        $number = strlen($this->number) >= 1 ? $this->number : class_basename($this) . "_" . Str::random(5); ;
+        $number = strlen($this->number) >= 1 ? $this->number : class_basename($this) . "_" . Str::random(5); 
 
         $formatted_number =  mb_ereg_replace("([^\w\s\d\-_~,;\[\]\(\).])", '', $number);
         // Remove any runs of periods (thanks falstro!)

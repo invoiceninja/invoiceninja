@@ -36,7 +36,7 @@ class UpdateCompanyUserTest extends TestCase
 
     public function testUpdatingCompanyUserAsAdmin()
     {
-        User::unguard();
+        // User::unguard();
 
         $settings = new \stdClass;
         $settings->invoice = 'ninja';
@@ -59,7 +59,7 @@ class UpdateCompanyUserTest extends TestCase
             $message = json_decode($e->validator->getMessageBag(), 1);
             $this->assertNotNull($message);
         }
-
+        
         $response->assertStatus(200);
 
         $arr = $response->json();

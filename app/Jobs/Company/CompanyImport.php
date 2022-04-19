@@ -140,7 +140,7 @@ class CompanyImport implements ShouldQueue
         'expenses',
         'tasks',
         'payments',
-        'activities',
+        // 'activities',
         // 'backups',
         'company_ledger',
         'designs',

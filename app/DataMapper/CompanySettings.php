@@ -503,6 +503,7 @@ class CompanySettings extends BaseSettings
         'language_id'                        => 'string',
         'show_currency_code'                 => 'bool',
         'website'                            => 'string',
+        'default_task_rate'                  => 'float',
     ];
 
     /**
