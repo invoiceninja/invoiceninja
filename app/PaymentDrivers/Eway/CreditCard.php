@@ -168,8 +168,6 @@ class CreditCard
 
         $response = $this->eway_driver->init()->eway->createTransaction(\Eway\Rapid\Enum\ApiMethod::DIRECT, $transaction);
 
-nlog($response);
-
         $this->logResponse($response);
 
         // if(!$response || !property_exists($response, 'ResponseMessage'))
