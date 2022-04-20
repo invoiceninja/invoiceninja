@@ -110,12 +110,20 @@ class ActivityRepository extends BaseRepository
     private function generateHtml($entity)
     {
         $entity_design_id = '';
+        $entity_type = '';
 
-        if ($entity instanceof Invoice || $entity instanceof RecurringInvoice) {
+        if ($entity instanceof Invoice ) {
+            $entity_type = 'invoice';
             $entity_design_id = 'invoice_design_id';
-        } elseif ($entity instanceof Quote) {
+        } elseif ($entity instanceof RecurringInvoice){
+            $entity_type = 'recurring_invoice';
+            $entity_design_id = 'invoice_design_id';
+        } 
+        elseif ($entity instanceof Quote) {
+            $entity_type = 'quote';
             $entity_design_id = 'quote_design_id';
         } elseif ($entity instanceof Credit) {
+            $entity_type = 'credit';
             $entity_design_id = 'credit_design_id';
         }
 
@@ -132,7 +140,7 @@ class ActivityRepository extends BaseRepository
 
         $entity->load('client.company', 'invitations');
 
-        $html = new HtmlEngine($entity->invitations->first());
+        $html = new HtmlEngine($entity->invitations->first()->load($entity_type, "contact"));
 
         if ($design->is_custom) {
             $options = [

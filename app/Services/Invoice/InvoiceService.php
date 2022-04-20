@@ -242,7 +242,7 @@ class InvoiceService
 
     public function triggeredActions($request)
     {
-        $this->invoice = (new TriggeredActions($this->invoice, $request))->run();
+        $this->invoice = (new TriggeredActions($this->invoice->load('invitations'), $request))->run();
 
         return $this;
     }

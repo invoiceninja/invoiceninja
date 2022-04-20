@@ -70,7 +70,6 @@ class AppServiceProvider extends ServiceProvider
  
         app()->instance(TruthSource::class, new TruthSource());
 
-
         // Model::preventLazyLoading(
         //     !$this->app->isProduction()
         // );

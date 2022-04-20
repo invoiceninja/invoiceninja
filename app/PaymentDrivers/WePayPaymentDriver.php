@@ -191,7 +191,7 @@ class WePayPaymentDriver extends BaseDriver
         if ($objectType == 'credit_card') {
             $payment_method = ClientGatewayToken::where('token', $objectId)->first();
 
-            if (! $paymentMethod) 
+            if (! $payment_method) 
                 throw new \Exception('Unknown payment method');
 
             $source = $this->wepay->request('credit_card', array(
