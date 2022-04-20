@@ -36,7 +36,7 @@ class LoginRequest extends Request
     {
         return [
             'email' => 'required',
-            'password' => 'required',
+            'password' => 'required|max:1000',
         ];
     }
 
