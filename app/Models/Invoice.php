@@ -466,6 +466,7 @@ class Invoice extends BaseModel
     {
         $this->invitations->each(function ($invitation) {
             if (! isset($invitation->sent_date)) {
+                $invitation->load('invoice');
                 $invitation->sent_date = Carbon::now();
                 $invitation->save();
             }

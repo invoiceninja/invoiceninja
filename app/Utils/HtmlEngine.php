@@ -58,7 +58,7 @@ class HtmlEngine
 
         $this->company = $invitation->company;
 
-        $this->contact = $invitation->contact;
+        $this->contact = $invitation->contact->load('client');
         
         $this->client = $this->contact->client->load('company','country');
         
