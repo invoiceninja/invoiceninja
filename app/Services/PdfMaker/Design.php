@@ -225,10 +225,13 @@ class Design extends BaseDesign
     public function entityDetails(): array
     {
         if ($this->type === 'statement') {
+
+            $s_date = $this->translateDate($this->options['end_date'], $this->client->date_format(), $this->client->locale());
+            
             return [
                 ['element' => 'tr', 'properties' => [], 'elements' => [
                     ['element' => 'th', 'properties' => [], 'content' => ctrans('texts.statement_date')],
-                    ['element' => 'th', 'properties' => [], 'content' => $this->options['end_date'] ?? ''],
+                    ['element' => 'th', 'properties' => [], 'content' => $s_date ?? ''],
                 ]],
                 ['element' => 'tr', 'properties' => [], 'elements' => [
                     ['element' => 'th', 'properties' => [], 'content' => '$balance_due_label'],
