@@ -221,7 +221,7 @@ class QuoteService
 
     public function triggeredActions($request)
     {
-        $this->quote = (new TriggeredActions($this->quote, $request))->run();
+        $this->quote = (new TriggeredActions($this->quote->load('invitations'), $request))->run();
 
         return $this;
     }

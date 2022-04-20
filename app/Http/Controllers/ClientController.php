@@ -596,7 +596,7 @@ class ClientController extends BaseController
      *
      *
      *
-     * @OA\Put(
+     * @OA\Post(
      *      path="/api/v1/clients/{id}/purge",
      *      operationId="purgeClient",
      *      tags={"clients"},

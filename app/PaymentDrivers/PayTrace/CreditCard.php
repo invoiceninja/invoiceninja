@@ -99,6 +99,29 @@ class CreditCard
 
         $response = $this->paytrace->gatewayRequest('/v1/customer/pt_protect_create', $post_data);
 
+        if(!$response->success)
+        {
+
+            $error = 'Error creating customer in gateway';
+            $error_code = isset($response->response_code) ? $response->response_code : 'PT_ERR';
+
+            if(isset($response->errors))
+            {
+                foreach($response->errors as $err)
+                {
+                    $error = end($err);
+                }
+            }
+
+            $data = [
+                'response' => $response,
+                'error' => $error,
+                'error_code' => $error_code,
+            ];
+
+            return $this->paytrace->processUnsuccessfulTransaction($data);
+        }
+
         $cgt = [];
         $cgt['token'] = $response->customer_id;
         $cgt['payment_method_id'] = GatewayType::CREDIT_CARD;
@@ -124,7 +147,6 @@ class CreditCard
         $profile = $this->paytrace->gatewayRequest('/v1/customer/export', [
             'integrator_id' =>  $this->paytrace->company_gateway->getConfigField('integratorId'),
             'customer_id' => $customer_id,
-            // 'include_bin' => true,
         ]);
 
         return $profile->customers[0];

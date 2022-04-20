@@ -35,9 +35,9 @@ class QueryLogging
     {
 
         // Enable query logging for development
-        if (!Ninja::isHosted() || !config('beacon.enabled')) {
-            return $next($request);
-        }
+        // if (!Ninja::isHosted() || !config('beacon.enabled')) {
+        //     return $next($request);
+        // }
 
         $timeStart = microtime(true);
         DB::enableQueryLog();
@@ -52,11 +52,12 @@ class QueryLogging
             $time = $timeEnd - $timeStart;
 
             // info("Query count = {$count}");
-        
-             if($count > 175){
-                 nlog("Query count = {$count}");
-                 nlog($queries);
-             }
+            $url = urldecode($request->url());
+            $method = $request->method();
+             // if($count > 175){
+                 nlog("Query count = {$count} - {$method} - {$url} ");
+                 // nlog($queries);
+             // }
                         
             $ip = '';
             
