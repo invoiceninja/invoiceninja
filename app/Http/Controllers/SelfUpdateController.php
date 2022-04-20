@@ -111,9 +111,6 @@ class SelfUpdateController extends BaseController
 
         copy($this->getDownloadUrl(), storage_path('app/invoiceninja.zip'));
 
-        // $contents = file_get_contents($this->getDownloadUrl());
-        // Storage::disk('local')->put('invoiceninja.zip', $contents);
-
         $file = Storage::disk('local')->path('invoiceninja.zip');
 
         $zipFile = new \PhpZip\ZipFile();
