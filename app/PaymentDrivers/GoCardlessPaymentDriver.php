@@ -238,6 +238,7 @@ class GoCardlessPaymentDriver extends BaseDriver
         if(!is_array($request->events) || !is_object($request->events)){
 
             nlog("No GoCardless events to process in response?");
+            nlog($request);
             return response()->json([], 200);
 
         }
