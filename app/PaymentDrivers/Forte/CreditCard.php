@@ -40,7 +40,7 @@ class CreditCard
         $this->forte = $forte;
 
         $this->forte_base_uri = "https://sandbox.forte.net/api/v3/";
-            if($this->forte->company_gateway->getConfigField('testMode') == true){
+            if($this->forte->company_gateway->getConfigField('testMode') == false){
                 $this->forte_base_uri = "https://api.forte.net/v3/";
             }
         $this->forte_api_access_id = $this->forte->company_gateway->getConfigField('apiAccessId');
