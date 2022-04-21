@@ -17,7 +17,7 @@ class FortePaymentGateway extends Migration
     public function up()
     {
         $fields = new \stdClass;
-        $fields->testMode = true;
+        $fields->testMode = false;
         $fields->apiAccessId = "";
         $fields->secureKey = "";
         $fields->authOrganizationId = "";
