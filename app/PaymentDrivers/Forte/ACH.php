@@ -38,7 +38,10 @@ class ACH
     {
         $this->forte = $forte;
 
-        $this->forte_base_uri = $this->forte->company_gateway->getConfigField('baseUri');
+        $this->forte_base_uri = "https://sandbox.forte.net/api/v3";
+        if($this->forte->company_gateway->getConfigField('testMode') == true){
+            $this->forte_base_uri = "https://api.forte.net/v3";
+        }
         $this->forte_api_access_id = $this->forte->company_gateway->getConfigField('apiAccessId');
         $this->forte_secure_key = $this->forte->company_gateway->getConfigField('secureKey');
         $this->forte_auth_organization_id = $this->forte->company_gateway->getConfigField('authOrganizationId');
