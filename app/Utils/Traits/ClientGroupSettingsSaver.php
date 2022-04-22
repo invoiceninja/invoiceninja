@@ -176,7 +176,9 @@ trait ClientGroupSettingsSaver
                 if (! property_exists($settings, $key)) {
                     continue;
                 } elseif ($this->checkAttribute($value, $settings->{$key})) {
-                    if (substr($key, -3) == '_id') {
+                    if (substr($key, -3) == '_id'|| 
+                        ($key == 'payment_terms' && property_exists($settings, 'payment_terms') && strlen($settings->{$key}) >= 1) || 
+                        ($key == 'valid_until' && property_exists($settings, 'valid_until') && strlen($settings->{$key}) >= 1)) {
                         settype($settings->{$key}, 'string');
                     } else {
                         settype($settings->{$key}, $value);

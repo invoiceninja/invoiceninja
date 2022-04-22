@@ -187,7 +187,7 @@ class CompanyLedgerTest extends TestCase
 
         $invoice_ledger = $invoice->company_ledger->sortByDesc('id')->first();
 
-        $this->assertEquals($invoice_ledger->balance, $invoice->client->balance);
+        $this->assertEquals($invoice_ledger->balance, $this->client->balance);
         $this->assertEquals($invoice->client->paid_to_date, 0);
 
         /* Test adding another invoice */
@@ -203,10 +203,10 @@ class CompanyLedgerTest extends TestCase
         $invoice->service()->markSent()->save();
 
         //client balance should = 20
-        $this->assertEquals($invoice->client->balance, 20);
+        $this->assertEquals($this->client->fresh()->balance, 20);
         $invoice_ledger = $invoice->company_ledger->sortByDesc('id')->first();
 
-        $this->assertEquals($invoice_ledger->balance, $invoice->client->balance);
+        $this->assertEquals($invoice_ledger->balance, $this->client->fresh()->balance);
         $this->assertEquals($invoice->client->paid_to_date, 0);
 
         /* Test making a payment */
