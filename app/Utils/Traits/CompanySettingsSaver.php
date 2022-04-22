@@ -63,8 +63,19 @@ trait CompanySettingsSaver
         {
         //this pass will handle any null values that are in the translations
             foreach ($settings->translations as $key => $value) {
-                if (is_null($settings->translations[$key])) {
-                    $settings->translations[$key] = '';
+
+                if(is_array($settings->translations))
+                {
+                    if (is_null($settings->translations[$key])) {
+                        $settings->translations[$key] = '';
+                    }
+                }
+                elseif(is_object($settings->translations)){
+                    
+                    if (is_null($settings->translations->{$key})) {
+                        $settings->translations->{$key} = '';
+                    }
+                    
                 }
             }
 

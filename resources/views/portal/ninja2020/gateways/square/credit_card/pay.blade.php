@@ -22,6 +22,7 @@
         <input type="hidden" name="token">
         <input type="hidden" name="sourceId" id="sourceId">
         <input type="hidden" name="verificationToken" id="verificationToken">
+        <input type="hidden" name="idempotencyKey" value="{{ \Illuminate\Support\Str::uuid() }}">
     </form>
 
     <div class="alert alert-failure mb-4" hidden id="errors"></div>

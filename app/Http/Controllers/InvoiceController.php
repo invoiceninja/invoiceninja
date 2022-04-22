@@ -27,6 +27,7 @@ use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Http\Requests\Invoice\UpdateInvoiceRequest;
 use App\Http\Requests\Invoice\UploadInvoiceRequest;
 use App\Jobs\Entity\EmailEntity;
+use App\Jobs\Invoice\BulkInvoiceJob;
 use App\Jobs\Invoice\StoreInvoice;
 use App\Jobs\Invoice\ZipInvoices;
 use App\Jobs\Ninja\TransactionLog;
@@ -747,23 +748,14 @@ class InvoiceController extends BaseController
             case 'email':
                 //check query parameter for email_type and set the template else use calculateTemplate
 
+
                 if (request()->has('email_type') && property_exists($invoice->company->settings, request()->input('email_type'))) {
                     $this->reminder_template = $invoice->client->getSetting(request()->input('email_type'));
                 } else {
                     $this->reminder_template = $invoice->calculateTemplate('invoice');
                 }
 
-                //touch reminder1,2,3_sent + last_sent here if the email is a reminder.
-                //$invoice->service()->touchReminder($this->reminder_template)->deletePdf()->save();
-                $invoice->service()->touchReminder($this->reminder_template)->markSent()->save();
-
-                $invoice->invitations->load('contact.client.country', 'invoice.client.country', 'invoice.company')->each(function ($invitation) use ($invoice) {
-                    EmailEntity::dispatch($invitation, $invoice->company, $this->reminder_template)->delay(now()->addSeconds(30));
-                });
-
-                if ($invoice->invitations->count() >= 1) {
-                    $invoice->entityEmailEvent($invoice->invitations->first(), 'invoice', $this->reminder_template);
-                }
+                BulkInvoiceJob::dispatch($invoice, $this->reminder_template);
 
                 if (! $bulk) {
                     return response()->json(['message' => 'email sent'], 200);
