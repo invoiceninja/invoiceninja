@@ -164,13 +164,13 @@ class AuthorizePaymentMethod
         if ($contact) {
             // Create the Bill To info for new payment type
             $billto = new CustomerAddressType();
-            $billto->setFirstName(substr(0,50,$contact->present()->first_name()));
-            $billto->setLastName(substr(0,50,$contact->present()->last_name()));
-            $billto->setCompany(substr(0,50,$this->authorize->client->present()->name()));
-            $billto->setAddress(substr(0,60,$this->authorize->client->address1));
-            $billto->setCity(substr(0,40,$this->authorize->client->city));
-            $billto->setState(substr(0,40,$this->authorize->client->state));
-            $billto->setZip(substr(0,20,$this->authorize->client->postal_code));
+            $billto->setFirstName(substr($contact->present()->first_name(),0,50));
+            $billto->setLastName(substr($contact->present()->last_name(),0,50));
+            $billto->setCompany(substr($this->authorize->client->present()->name(),0,50));
+            $billto->setAddress(substr($this->authorize->client->address1,0,60));
+            $billto->setCity(substr($this->authorize->client->city,0,40));
+            $billto->setState(substr($this->authorize->client->state,0,40));
+            $billto->setZip(substr($this->authorize->client->postal_code,0,20));
 
             if ($this->authorize->client->country_id) {
                 $billto->setCountry($this->authorize->client->country->name);
