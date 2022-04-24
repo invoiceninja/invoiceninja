@@ -23,14 +23,13 @@ class ClientSettingsParseForTypes extends Migration
         if(Ninja::isSelfHost())
         {
 
-            Client::cursor()->each( function ($client) {
+            Client::withTrashed()->cursor()->each( function ($client) {
                 $entity_settings = $this->checkSettingType($client->settings);
                 $entity_settings->md5 = md5(time());
                 $client->settings = $entity_settings;
                 $client->save();
                 
             });
-
 
         }
     }
