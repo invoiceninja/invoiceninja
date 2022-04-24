@@ -12,7 +12,9 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\FilePermissionsFailure;
+use App\Models\Client;
 use App\Utils\Ninja;
+use App\Utils\Traits\ClientGroupSettingsSaver;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
@@ -20,6 +22,7 @@ use Illuminate\Support\Facades\Storage;
 class SelfUpdateController extends BaseController
 {
     use DispatchesJobs;
+    use ClientGroupSettingsSaver;
 
     private array $purge_file_list = [
         'bootstrap/cache/compiled.php',
@@ -139,6 +142,20 @@ class SelfUpdateController extends BaseController
         return response()->json(['message' => 'Update completed'], 200);
 
 
+    }
+
+    private function postHookUpdate()
+    {
+        if(config('ninja.app_version') == '5.3.82')
+        {
+            Client::withTrashed()->cursor()->each( function ($client) {
+                $entity_settings = $this->checkSettingType($client->settings);
+                $entity_settings->md5 = md5(time());
+                $client->settings = $entity_settings;
+                $client->save();
+                
+            });
+        }
     }
 
     private function testWritable()

@@ -134,7 +134,7 @@ class TypeCheck extends Command
 
         $this->logMessage(date('Y-m-d h:i:s').' Checking all clients and companies.');
 
-        Client::cursor()->each( function ($client) {
+        Client::withTrashed()->cursor()->each( function ($client) {
             $this->logMessage("Checking client {$client->id}");
             $entity_settings = $this->checkSettingType($client->settings);
             $entity_settings->md5 = md5(time());
