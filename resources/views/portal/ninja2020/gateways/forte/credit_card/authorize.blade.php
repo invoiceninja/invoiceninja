@@ -108,7 +108,7 @@
             document.getElementById('expire_month').value=month;
             
             var data = {
-               api_login_id: 'D4A18FE6DC',
+               api_login_id: '{{$gateway->getConfigField("apiLoginId")}}',
                card_number: cc,
                expire_year: year, 
                expire_month: month,

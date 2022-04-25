@@ -18,6 +18,7 @@ class FortePaymentGateway extends Migration
     {
         $fields = new \stdClass;
         $fields->testMode = false;
+        $fields->apiLoginId = "";
         $fields->apiAccessId = "";
         $fields->secureKey = "";
         $fields->authOrganizationId = "";

@@ -117,7 +117,7 @@
             var routing_number=document.getElementById('routing-number').value;
 
             var data = {
-               api_login_id: 'D4A18FE6DC',
+               api_login_id: '{{$gateway->getConfigField("apiAccessId")}}',
                account_number: account_number,
                routing_number: routing_number, 
                account_type: "checking",
