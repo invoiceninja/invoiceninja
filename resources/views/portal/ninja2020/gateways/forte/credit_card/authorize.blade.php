@@ -1,16 +1,19 @@
 @extends('portal.ninja2020.layout.payments', ['gateway_title' => ctrans('texts.credit_card'), 'card_title' => ctrans('texts.credit_card')])
 
 @section('gateway_head')
-    {{-- <meta name="authorize-public-key" content="{{ $public_client_id }}">
-    <meta name="authorize-login-id" content="{{ $api_login_id }}"> --}}
     <meta name="year-invalid" content="{{ ctrans('texts.year_invalid') }}">
     <meta name="month-invalid" content="{{ ctrans('texts.month_invalid') }}">
     <meta name="credit-card-invalid" content="{{ ctrans('texts.credit_card_invalid') }}">
 
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-    <script src="{{ asset('js/clients/payments/card-js.min.js') }}"></script>
+    <script src="{{ asset('js/clients/payments/forte-card-js.min.js') }}"></script>
 
     <link href="{{ asset('css/card-js.min.css') }}" rel="stylesheet" type="text/css">
+    @if($gateway->getConfigField('testMode'))
+        <script type="text/javascript" src="https://sandbox.forte.net/api/js/v1"></script>
+    @else
+        <script type="text/javascript" src="https://api.forte.net/js/v1"></script>
+    @endif
 @endsection
 
 @section('gateway_content')
@@ -20,13 +23,11 @@
 
         {{-- <input type="hidden" name="company_gateway_id" value="{{ $gateway->company_gateway->id }}"> --}}
         <input type="hidden" name="payment_method_id" value="1">
-        <input type="hidden" name="gateway_response" id="gateway_response">
-        <input type="hidden" name="is_default" id="is_default">
-        <input type="hidden" name="dataValue" id="dataValue"/>
-        <input type="hidden" name="dataDescriptor" id="dataDescriptor"/>
-        <input type="hidden" name="expiry_month" id="expiration_month">
-        <input type="hidden" name="expiry_year" id="expiration_year">
+        <input type="hidden" name="one_time_token" id="one_time_token">
         <input type="hidden" name="card_type" id="card_type">
+        <input type="hidden" name="expire_year" id="expire_year">
+        <input type="hidden" name="expire_month" id="expire_month">
+        <input type="hidden" name="last_4" id="last_4">
 
         @if(!Request::isSecure())
             <p class="alert alert-failure">{{ ctrans('texts.https_required') }}</p>
@@ -36,6 +37,7 @@
         @if(Session::has('error'))
             <div class="alert alert-failure mb-4" id="errors">{{ Session::get('error') }}</div>
         @endif
+        <div id="forte_errors"></div>
         @if ($errors->any())
             <div class="alert alert-failure mb-4">
                 <ul>
@@ -66,21 +68,21 @@
         </div>
         
     </form>
-
-    {{-- @component('portal.ninja2020.gateways.includes.pay_now', ['id' => 'card_button'])
-        {{ ctrans('texts.add_payment_method') }}
-    @endcomponent --}}
 @endsection
 
 @section('gateway_footer')
-    {{-- @if($gateway->company_gateway->getConfigField('testMode'))
-        <script src="https://jstest.authorize.net/v1/Accept.js" charset="utf-8"></script>
-    @else
-        <script src="https://js.authorize.net/v1/Accept.js" charset="utf-8"></script>
-    @endif
-
-    <script src="{{ asset('js/clients/payment_methods/authorize-authorize-card.js') }}"></script> --}}
     <script>
+        function onTokenCreated(params) {
+            console.log(params);
+            document.getElementById('one_time_token').value=params.onetime_token;
+            document.getElementById('last_4').value=params.last_4;
+            let button = document.querySelector("#form_btn");
+            button.click();
+        }
+        function onTokenFailed(params) {
+            var errors = '<div class="alert alert-failure mb-4"><ul><li>'+ params.response_description +'</li></ul></div>';
+            document.getElementById("forte_errors").innerHTML = errors;
+        }
         function submitCard(){
             var doc = document.getElementsByClassName("card-number-wrapper");
             var cardType=doc[0].childNodes[1].classList[2];
@@ -99,10 +101,24 @@
             }
             var month=document.querySelector('input[name=expiry-month]').value;
             var year=document.querySelector('input[name=expiry-year]').value;
-            document.getElementById('expiration_month').value=month;
-            document.getElementById('expiration_year').value=year;
-            let button = document.querySelector("#form_btn");
-            button.click();
+            var cc=document.getElementById('card_number').value.replaceAll(' ','');
+            var cvv=document.getElementById('cvv').value;
+            
+            document.getElementById('expire_year').value=year;
+            document.getElementById('expire_month').value=month;
+            
+            var data = {
+               api_login_id: 'D4A18FE6DC',
+               card_number: cc,
+               expire_year: year, 
+               expire_month: month,
+               cvv: cvv,
+            }
+
+            forte.createToken(data)
+               .success(onTokenCreated)
+               .error(onTokenFailed);
+            return false;
         }
     </script>
 @endsection

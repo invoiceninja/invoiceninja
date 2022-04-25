@@ -1,12 +1,11 @@
 @extends('portal.ninja2020.layout.payments', ['gateway_title' => 'Bank Details', 'card_title' => 'Bank Details'])
 
 @section('gateway_head')
-    {{-- @if($gateway->company_gateway->getConfigField('account_id'))
-    <meta name="stripe-account-id" content="{{ $gateway->company_gateway->getConfigField('account_id') }}">
-    <meta name="stripe-publishable-key" content="{{ config('ninja.ninja_stripe_publishable_key') }}">
-    @else --}}
-    {{-- <meta name="stripe-publishable-key" content="{{ $gateway->company_gateway->getPublishableKey() }}"> --}}
-    {{-- @endif --}}
+    @if($gateway->getConfigField('testMode'))
+        <script type="text/javascript" src="https://sandbox.forte.net/api/js/v1"></script>
+    @else
+        <script type="text/javascript" src="https://api.forte.net/js/v1"></script>
+    @endif
 @endsection
 
 @section('gateway_content')
@@ -18,6 +17,7 @@
     @if(Session::has('error'))
         <div class="alert alert-failure mb-4" id="errors">{{ Session::get('error') }}</div>
     @endif
+    <div id="forte_errors"></div>
     @if ($errors->any())
         <div class="alert alert-failure mb-4">
             <ul>
@@ -31,10 +31,11 @@
     <form action="{{ route('client.payment_methods.store', ['method' => App\Models\GatewayType::BANK_TRANSFER]) }}" method="post" id="server_response">
         @csrf
 
-        {{-- <input type="hidden" name="company_gateway_id" value="{{ $gateway->company_gateway->id }}"> --}}
         <input type="hidden" name="gateway_type_id" value="2">
         <input type="hidden" name="gateway_response" id="gateway_response">
         <input type="hidden" name="is_default" id="is_default">
+        <input type="hidden" name="last_4" id="last_4">
+        <input type="hidden" name="one_time_token" id="one_time_token">
 
         <div class="alert alert-failure mb-4" hidden id="errors"></div>
 
@@ -70,11 +71,11 @@
         @endcomponent
 
         @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.routing_number')])
-            <input class="input w-full" id="routing-number" name="routing_number" type="text" required>
+            <input class="input w-full" id="routing-number" type="text" required>
         @endcomponent
 
         @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.account_number')])
-            <input class="input w-full" id="account-number" name="account_number" type="text" required>
+            <input class="input w-full" id="account-number" type="text" required>
         @endcomponent
 
         @component('portal.ninja2020.components.general.card-element-single')
@@ -100,9 +101,32 @@
 
 @section('gateway_footer')
     <script>
-        function submitACH(){
+        function onTokenCreated(params) {
+            console.log(params);
+            document.getElementById('one_time_token').value=params.onetime_token;
+            document.getElementById('last_4').value=params.last_4;
             let button = document.querySelector("#form_btn");
             button.click();
+        }
+        function onTokenFailed(params) {
+            var errors = '<div class="alert alert-failure mb-4"><ul><li>'+ params.response_description +'</li></ul></div>';
+            document.getElementById("forte_errors").innerHTML = errors;
+        }
+        function submitACH(){
+            var account_number=document.getElementById('account-number').value;
+            var routing_number=document.getElementById('routing-number').value;
+
+            var data = {
+               api_login_id: 'D4A18FE6DC',
+               account_number: account_number,
+               routing_number: routing_number, 
+               account_type: "checking",
+            }
+
+            forte.createToken(data)
+               .success(onTokenCreated)
+               .error(onTokenFailed);
+            return false;
         }
     </script>
 @endsection

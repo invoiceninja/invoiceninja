@@ -2,7 +2,7 @@
      style="display: flex!important; justify-content: center!important;" id="authorize--credit-card-container">
     <div class="card-js" id="my-card" data-capture-name="true">
         <input class="name" id="cardholder_name" name="card_holders_name" placeholder="{{ ctrans('texts.name')}}">
-        <input class="card-number my-custom-class" id="card_number" name="card_number">
+        <input class="card-number my-custom-class" id="card_number">
         <input type="hidden" name="expiry_month" id="expiration_month">
         <input type="hidden" name="expiry_year" id="expiration_year">
         <input class="cvc" name="cvc" id="cvv">
