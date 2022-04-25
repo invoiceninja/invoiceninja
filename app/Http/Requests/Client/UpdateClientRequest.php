@@ -158,7 +158,11 @@ class UpdateClientRequest extends Request
                 unset($settings->{$key});
             }
 
-            if($key == 'default_task_rate'){
+            //26-04-2022 - In case settings are returned as array instead of object
+            if($key == 'default_task_rate' && is_array($settings)){
+                $settings['default_task_rate'] = floatval($value);
+            }
+            elseif($key == 'default_task_rate' && is_object($settings)) {
                 $settings->default_task_rate = floatval($value);
             }
         }
