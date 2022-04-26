@@ -309,6 +309,10 @@ class BaseImport
 					);
 				}
 			} catch (\Exception $ex) {
+				
+				if(\DB::connection(config('database.default'))->transactionLevel() > 0)
+					\DB::connection(config('database.default'))->rollBack();
+
 				if ($ex instanceof ImportException) {
 					$message = $ex->getMessage();
 				} else {
