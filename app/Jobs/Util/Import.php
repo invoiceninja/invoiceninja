@@ -948,6 +948,11 @@ class Import implements ShouldQueue
                 RecurringInvoiceFactory::create($this->company->id, $modified['user_id'])
             );
 
+            if($invoice->status_id == 4 && $invoice->remaining_cycles == -1){
+                $invoice->status_id =2;
+                $invoice->save();
+            }
+
             $key = "recurring_invoices_{$resource['id']}";
 
             $this->ids['recurring_invoices'][$key] = [
