@@ -21,7 +21,6 @@
           method="post" id="server_response">
         @csrf
 
-        {{-- <input type="hidden" name="company_gateway_id" value="{{ $gateway->company_gateway->id }}"> --}}
         <input type="hidden" name="payment_method_id" value="1">
         <input type="hidden" name="one_time_token" id="one_time_token">
         <input type="hidden" name="card_type" id="card_type">
@@ -73,7 +72,6 @@
 @section('gateway_footer')
     <script>
         function onTokenCreated(params) {
-            console.log(params);
             document.getElementById('one_time_token').value=params.onetime_token;
             document.getElementById('last_4').value=params.last_4;
             let button = document.querySelector("#form_btn");

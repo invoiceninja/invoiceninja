@@ -102,7 +102,6 @@
 @section('gateway_footer')
     <script>
         function onTokenCreated(params) {
-            console.log(params);
             document.getElementById('one_time_token').value=params.onetime_token;
             document.getElementById('last_4').value=params.last_4;
             let button = document.querySelector("#form_btn");
