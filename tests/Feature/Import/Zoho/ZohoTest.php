@@ -22,6 +22,7 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Tests\MockAccountData;
 use Tests\TestCase;
@@ -34,11 +35,13 @@ class ZohoTest extends TestCase
 {
     use MakesHash;
     use MockAccountData;
-    use DatabaseTransactions;
+    // use DatabaseTransactions;
 
     public function setUp(): void
     {
         parent::setUp();
+
+        Session::start();
 
         $this->withoutMiddleware(ThrottleRequests::class);
 
@@ -120,7 +123,7 @@ class ZohoTest extends TestCase
         Cache::put($hash . '-client', base64_encode($csv), 360);
 
         $csv_importer = new Zoho($data, $this->company);
-
+        
         $count = $csv_importer->import('client');
 
         $base_transformer = new BaseTransformer($this->company);

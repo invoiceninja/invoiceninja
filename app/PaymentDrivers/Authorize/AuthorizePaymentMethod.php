@@ -176,7 +176,7 @@ class AuthorizePaymentMethod
                 $billto->setCountry($this->authorize->client->country->name);
             }
 
-            $billto->setPhoneNumber($this->authorize->client->phone);
+            $billto->setPhoneNumber(substr($this->authorize->client->phone,0,20));
         }
 
         // Create a new Customer Payment Profile object

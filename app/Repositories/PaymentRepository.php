@@ -186,7 +186,7 @@ class PaymentRepository extends BaseRepository {
 
         TransactionLog::dispatch(TransactionEvent::PAYMENT_MADE, $transaction, $payment->company->db);
 
-        return $payment->fresh();
+        return $payment->refresh();
     }
 
     /**

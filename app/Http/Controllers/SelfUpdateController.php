@@ -111,6 +111,7 @@ class SelfUpdateController extends BaseController
         }
 
         $this->testWritable();
+        $this->clearCacheDir();
 
         copy($this->getDownloadUrl(), storage_path('app/invoiceninja.zip'));
 
@@ -156,6 +157,19 @@ class SelfUpdateController extends BaseController
                 
             });
         }
+    }
+
+    private function clearCacheDir()
+    {
+        
+        $directoryIterator = new \RecursiveDirectoryIterator(base_path('bootstrap/cache'), \RecursiveDirectoryIterator::SKIP_DOTS);
+
+        foreach (new \RecursiveIteratorIterator($directoryIterator) as $file) {
+
+            unlink(base_path('bootstrap/cache/').$file->getFileName());
+
+        }
+
     }
 
     private function testWritable()

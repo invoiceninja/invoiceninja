@@ -119,6 +119,8 @@ class InvoiceController extends BaseController
      */
     public function index(InvoiceFilters $filters)
     {
+        set_time_limit(45);
+
         $invoices = Invoice::filter($filters);
 
         return $this->listResponse($invoices);
