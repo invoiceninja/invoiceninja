@@ -107,6 +107,8 @@ class ClientController extends BaseController
      */
     public function index(ClientFilters $filters)
     {
+        set_time_limit(45);
+
         $clients = Client::filter($filters);
 
         return $this->listResponse($clients);

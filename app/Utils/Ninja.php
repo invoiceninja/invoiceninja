@@ -48,7 +48,8 @@ class Ninja
             'White Label: '.'\\n'. // TODO: Implement white label with hasFeature.
             'Server OS: '.php_uname('s').' '.php_uname('r').'\\n'.
             'PHP Version: '.phpversion().'\\n'.
-            'MySQL Version: '.$mysql_version;
+            'MySQL Version: '.$mysql_version.'\\n'.
+            'Version: '. request()->has('version') ? request()->input('version') : 'No Version Supplied.';
 
         return $info;
     }

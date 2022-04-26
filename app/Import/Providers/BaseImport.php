@@ -569,8 +569,6 @@ class BaseImport
 			'company' => $this->company,
 		];
 
-nlog($this->company->company_users);
-
 		$nmo = new NinjaMailerObject;
 		$nmo->mailable = new ImportCompleted($this->company, $data);
 		$nmo->company = $this->company;
