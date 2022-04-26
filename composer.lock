@@ -471,16 +471,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.218.4",
+            "version": "3.219.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "db59241a678720d50deb166d7bfe332100898964"
+                "reference": "7e8da5b45d545ca3129a14e972001698212b1a00"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/db59241a678720d50deb166d7bfe332100898964",
-                "reference": "db59241a678720d50deb166d7bfe332100898964",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/7e8da5b45d545ca3129a14e972001698212b1a00",
+                "reference": "7e8da5b45d545ca3129a14e972001698212b1a00",
                 "shasum": ""
             },
             "require": {
@@ -488,9 +488,9 @@
                 "ext-json": "*",
                 "ext-pcre": "*",
                 "ext-simplexml": "*",
-                "guzzlehttp/guzzle": "^5.3.3|^6.2.1|^7.0",
+                "guzzlehttp/guzzle": "^5.3.3 || ^6.2.1 || ^7.0",
                 "guzzlehttp/promises": "^1.4.0",
-                "guzzlehttp/psr7": "^1.7.0|^2.0",
+                "guzzlehttp/psr7": "^1.7.0 || ^2.1.1",
                 "mtdowling/jmespath.php": "^2.6",
                 "php": ">=5.5"
             },
@@ -505,7 +505,7 @@
                 "ext-sockets": "*",
                 "nette/neon": "^2.3",
                 "paragonie/random_compat": ">= 2",
-                "phpunit/phpunit": "^4.8.35|^5.4.3",
+                "phpunit/phpunit": "^4.8.35 || ^5.6.3",
                 "psr/cache": "^1.0",
                 "psr/simple-cache": "^1.0",
                 "sebastian/comparator": "^1.2.3"
@@ -556,9 +556,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.218.4"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.219.5"
             },
-            "time": "2022-04-06T18:16:53+00:00"
+            "time": "2022-04-15T18:16:29+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -3565,23 +3565,23 @@
         },
         {
             "name": "firebase/php-jwt",
-            "version": "v5.5.1",
+            "version": "v6.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/firebase/php-jwt.git",
-                "reference": "83b609028194aa042ea33b5af2d41a7427de80e6"
+                "reference": "e67638d067a537731e3f9c03e097c7c1b1f31fe8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/firebase/php-jwt/zipball/83b609028194aa042ea33b5af2d41a7427de80e6",
-                "reference": "83b609028194aa042ea33b5af2d41a7427de80e6",
+                "url": "https://api.github.com/repos/firebase/php-jwt/zipball/e67638d067a537731e3f9c03e097c7c1b1f31fe8",
+                "reference": "e67638d067a537731e3f9c03e097c7c1b1f31fe8",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.0"
+                "php": "^7.1||^8.0"
             },
             "require-dev": {
-                "phpunit/phpunit": ">=4.8 <=9"
+                "phpunit/phpunit": "^7.5||9.5"
             },
             "suggest": {
                 "paragonie/sodium_compat": "Support EdDSA (Ed25519) signatures when libsodium is not present"
@@ -3616,9 +3616,9 @@
             ],
             "support": {
                 "issues": "https://github.com/firebase/php-jwt/issues",
-                "source": "https://github.com/firebase/php-jwt/tree/v5.5.1"
+                "source": "https://github.com/firebase/php-jwt/tree/v6.1.1"
             },
-            "time": "2021-11-08T20:18:51+00:00"
+            "time": "2022-04-13T23:27:14+00:00"
         },
         {
             "name": "fotografde/omnipay-checkoutcom",
@@ -3850,16 +3850,16 @@
         },
         {
             "name": "google/apiclient",
-            "version": "v2.12.2",
+            "version": "v2.12.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-api-php-client.git",
-                "reference": "a18b0e1ef5618523c607c01a41ec137c7f9af3b1"
+                "reference": "506c488cb22c960022adf515bf0acc1d266e81db"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-api-php-client/zipball/a18b0e1ef5618523c607c01a41ec137c7f9af3b1",
-                "reference": "a18b0e1ef5618523c607c01a41ec137c7f9af3b1",
+                "url": "https://api.github.com/repos/googleapis/google-api-php-client/zipball/506c488cb22c960022adf515bf0acc1d266e81db",
+                "reference": "506c488cb22c960022adf515bf0acc1d266e81db",
                 "shasum": ""
             },
             "require": {
@@ -3915,22 +3915,22 @@
             ],
             "support": {
                 "issues": "https://github.com/googleapis/google-api-php-client/issues",
-                "source": "https://github.com/googleapis/google-api-php-client/tree/v2.12.2"
+                "source": "https://github.com/googleapis/google-api-php-client/tree/v2.12.3"
             },
-            "time": "2022-04-05T16:19:05+00:00"
+            "time": "2022-04-18T16:01:04+00:00"
         },
         {
             "name": "google/apiclient-services",
-            "version": "v0.242.0",
+            "version": "v0.244.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-api-php-client-services.git",
-                "reference": "73d4c0ed4b241e7396699e0ee1d1cdebabac25e8"
+                "reference": "e938c389a3e89bf7a9147b897b9e8bb2ae7bceba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/73d4c0ed4b241e7396699e0ee1d1cdebabac25e8",
-                "reference": "73d4c0ed4b241e7396699e0ee1d1cdebabac25e8",
+                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/e938c389a3e89bf7a9147b897b9e8bb2ae7bceba",
+                "reference": "e938c389a3e89bf7a9147b897b9e8bb2ae7bceba",
                 "shasum": ""
             },
             "require": {
@@ -3959,30 +3959,30 @@
             ],
             "support": {
                 "issues": "https://github.com/googleapis/google-api-php-client-services/issues",
-                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.242.0"
+                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.244.0"
             },
-            "time": "2022-04-03T01:24:10+00:00"
+            "time": "2022-04-18T00:58:38+00:00"
         },
         {
             "name": "google/auth",
-            "version": "v1.19.0",
+            "version": "v1.21.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-auth-library-php.git",
-                "reference": "31e5d24d5fa0eaf6adc7e596292dc4732f4b60c5"
+                "reference": "73392bad2eb6852eea9084b6bbdec752515cb849"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-auth-library-php/zipball/31e5d24d5fa0eaf6adc7e596292dc4732f4b60c5",
-                "reference": "31e5d24d5fa0eaf6adc7e596292dc4732f4b60c5",
+                "url": "https://api.github.com/repos/googleapis/google-auth-library-php/zipball/73392bad2eb6852eea9084b6bbdec752515cb849",
+                "reference": "73392bad2eb6852eea9084b6bbdec752515cb849",
                 "shasum": ""
             },
             "require": {
-                "firebase/php-jwt": "~5.0",
+                "firebase/php-jwt": "^5.5||^6.0",
                 "guzzlehttp/guzzle": "^6.2.1|^7.0",
                 "guzzlehttp/psr7": "^1.7|^2.0",
-                "php": ">=5.6",
-                "psr/cache": "^1.0|^2.0",
+                "php": "^7.1||^8.0",
+                "psr/cache": "^1.0|^2.0|^3.0",
                 "psr/http-message": "^1.0"
             },
             "require-dev": {
@@ -3990,7 +3990,7 @@
                 "kelvinmo/simplejwt": "^0.2.5|^0.5.1",
                 "phpseclib/phpseclib": "^2.0.31",
                 "phpspec/prophecy-phpunit": "^1.1",
-                "phpunit/phpunit": "^5.7||^8.5.13",
+                "phpunit/phpunit": "^7.5||^8.5",
                 "sebastian/comparator": ">=1.2.3",
                 "squizlabs/php_codesniffer": "^3.5"
             },
@@ -4017,9 +4017,9 @@
             "support": {
                 "docs": "https://googleapis.github.io/google-auth-library-php/main/",
                 "issues": "https://github.com/googleapis/google-auth-library-php/issues",
-                "source": "https://github.com/googleapis/google-auth-library-php/tree/v1.19.0"
+                "source": "https://github.com/googleapis/google-auth-library-php/tree/v1.21.0"
             },
-            "time": "2022-03-24T21:22:45+00:00"
+            "time": "2022-04-13T20:35:52+00:00"
         },
         {
             "name": "google/cloud-core",
@@ -5209,16 +5209,16 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/laracasts/Presenter.git",
-                "reference": "65fd3a79ef4caafa3db2fb35f2b7c6a4ffa13f6e"
+                "reference": "d9b9050abf0af1d75465284a62b537c3f4ac7d1f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laracasts/Presenter/zipball/65fd3a79ef4caafa3db2fb35f2b7c6a4ffa13f6e",
-                "reference": "65fd3a79ef4caafa3db2fb35f2b7c6a4ffa13f6e",
+                "url": "https://api.github.com/repos/laracasts/Presenter/zipball/d9b9050abf0af1d75465284a62b537c3f4ac7d1f",
+                "reference": "d9b9050abf0af1d75465284a62b537c3f4ac7d1f",
                 "shasum": ""
             },
             "require": {
-                "illuminate/support": "~5.0|~6.0|~7.0|~8.0",
+                "illuminate/support": "~5.0|~6.0|~7.0|~8.0|^9.0",
                 "php": ">=5.4.0"
             },
             "require-dev": {
@@ -5250,9 +5250,9 @@
             ],
             "support": {
                 "issues": "https://github.com/laracasts/Presenter/issues",
-                "source": "https://github.com/laracasts/Presenter/tree/master"
+                "source": "https://github.com/laracasts/Presenter/tree/0.2.5"
             },
-            "time": "2020-09-07T13:30:46+00:00"
+            "time": "2022-04-12T18:22:42+00:00"
         },
         {
             "name": "laravel/framework",
@@ -6216,16 +6216,16 @@
         },
         {
             "name": "league/mime-type-detection",
-            "version": "1.9.0",
+            "version": "1.11.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/mime-type-detection.git",
-                "reference": "aa70e813a6ad3d1558fc927863d47309b4c23e69"
+                "reference": "ff6248ea87a9f116e78edd6002e39e5128a0d4dd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/mime-type-detection/zipball/aa70e813a6ad3d1558fc927863d47309b4c23e69",
-                "reference": "aa70e813a6ad3d1558fc927863d47309b4c23e69",
+                "url": "https://api.github.com/repos/thephpleague/mime-type-detection/zipball/ff6248ea87a9f116e78edd6002e39e5128a0d4dd",
+                "reference": "ff6248ea87a9f116e78edd6002e39e5128a0d4dd",
                 "shasum": ""
             },
             "require": {
@@ -6256,7 +6256,7 @@
             "description": "Mime-type detection for Flysystem",
             "support": {
                 "issues": "https://github.com/thephpleague/mime-type-detection/issues",
-                "source": "https://github.com/thephpleague/mime-type-detection/tree/1.9.0"
+                "source": "https://github.com/thephpleague/mime-type-detection/tree/1.11.0"
             },
             "funding": [
                 {
@@ -6268,20 +6268,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-11-21T11:48:40+00:00"
+            "time": "2022-04-17T13:12:02+00:00"
         },
         {
             "name": "league/oauth1-client",
-            "version": "v1.10.0",
+            "version": "v1.10.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/oauth1-client.git",
-                "reference": "88dd16b0cff68eb9167bfc849707d2c40ad91ddc"
+                "reference": "d6365b901b5c287dd41f143033315e2f777e1167"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/oauth1-client/zipball/88dd16b0cff68eb9167bfc849707d2c40ad91ddc",
-                "reference": "88dd16b0cff68eb9167bfc849707d2c40ad91ddc",
+                "url": "https://api.github.com/repos/thephpleague/oauth1-client/zipball/d6365b901b5c287dd41f143033315e2f777e1167",
+                "reference": "d6365b901b5c287dd41f143033315e2f777e1167",
                 "shasum": ""
             },
             "require": {
@@ -6342,9 +6342,9 @@
             ],
             "support": {
                 "issues": "https://github.com/thephpleague/oauth1-client/issues",
-                "source": "https://github.com/thephpleague/oauth1-client/tree/v1.10.0"
+                "source": "https://github.com/thephpleague/oauth1-client/tree/v1.10.1"
             },
-            "time": "2021-08-15T23:05:49+00:00"
+            "time": "2022-04-15T14:02:14+00:00"
         },
         {
             "name": "league/url",
@@ -6839,16 +6839,16 @@
         },
         {
             "name": "monolog/monolog",
-            "version": "2.4.0",
+            "version": "2.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/monolog.git",
-                "reference": "d7fd7450628561ba697b7097d86db72662f54aef"
+                "reference": "4192345e260f1d51b365536199744b987e160edc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/d7fd7450628561ba697b7097d86db72662f54aef",
-                "reference": "d7fd7450628561ba697b7097d86db72662f54aef",
+                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/4192345e260f1d51b365536199744b987e160edc",
+                "reference": "4192345e260f1d51b365536199744b987e160edc",
                 "shasum": ""
             },
             "require": {
@@ -6922,7 +6922,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Seldaek/monolog/issues",
-                "source": "https://github.com/Seldaek/monolog/tree/2.4.0"
+                "source": "https://github.com/Seldaek/monolog/tree/2.5.0"
             },
             "funding": [
                 {
@@ -6934,20 +6934,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-03-14T12:44:37+00:00"
+            "time": "2022-04-08T15:43:54+00:00"
         },
         {
             "name": "mpdf/mpdf",
-            "version": "v8.0.17",
+            "version": "v8.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mpdf/mpdf.git",
-                "reference": "5f64118317c8145c0abc606b310aa0a66808398a"
+                "reference": "e511e89a66bdb066e3fbf352f00f4734d5064cbf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mpdf/mpdf/zipball/5f64118317c8145c0abc606b310aa0a66808398a",
-                "reference": "5f64118317c8145c0abc606b310aa0a66808398a",
+                "url": "https://api.github.com/repos/mpdf/mpdf/zipball/e511e89a66bdb066e3fbf352f00f4734d5064cbf",
+                "reference": "e511e89a66bdb066e3fbf352f00f4734d5064cbf",
                 "shasum": ""
             },
             "require": {
@@ -6956,6 +6956,8 @@
                 "myclabs/deep-copy": "^1.7",
                 "paragonie/random_compat": "^1.4|^2.0|^9.99.99",
                 "php": "^5.6 || ^7.0 || ~8.0.0 || ~8.1.0",
+                "php-http/message-factory": "^1.0",
+                "psr/http-message": "^1.0",
                 "psr/log": "^1.0 || ^2.0",
                 "setasign/fpdi": "^2.1"
             },
@@ -7009,7 +7011,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2022-01-20T10:51:40+00:00"
+            "time": "2022-04-18T11:50:28+00:00"
         },
         {
             "name": "mtdowling/jmespath.php",
@@ -9634,6 +9636,60 @@
             "time": "2022-03-07T12:52:04+00:00"
         },
         {
+            "name": "php-http/message-factory",
+            "version": "v1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-http/message-factory.git",
+                "reference": "a478cb11f66a6ac48d8954216cfed9aa06a501a1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-http/message-factory/zipball/a478cb11f66a6ac48d8954216cfed9aa06a501a1",
+                "reference": "a478cb11f66a6ac48d8954216cfed9aa06a501a1",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4",
+                "psr/http-message": "^1.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Http\\Message\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Márk Sági-Kazár",
+                    "email": "mark.sagikazar@gmail.com"
+                }
+            ],
+            "description": "Factory interfaces for PSR-7 HTTP Message",
+            "homepage": "http://php-http.org",
+            "keywords": [
+                "factory",
+                "http",
+                "message",
+                "stream",
+                "uri"
+            ],
+            "support": {
+                "issues": "https://github.com/php-http/message-factory/issues",
+                "source": "https://github.com/php-http/message-factory/tree/master"
+            },
+            "time": "2015-12-19T14:08:53+00:00"
+        },
+        {
             "name": "phpdocumentor/reflection-common",
             "version": "2.2.0",
             "source": {
@@ -11342,16 +11398,16 @@
         },
         {
             "name": "stripe/stripe-php",
-            "version": "v7.121.0",
+            "version": "v7.124.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stripe/stripe-php.git",
-                "reference": "e36e7afb71ae5511aae23b52dca712a0ef06d981"
+                "reference": "548e8ef08a86c6c621446082393dc6a1af51076c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/e36e7afb71ae5511aae23b52dca712a0ef06d981",
-                "reference": "e36e7afb71ae5511aae23b52dca712a0ef06d981",
+                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/548e8ef08a86c6c621446082393dc6a1af51076c",
+                "reference": "548e8ef08a86c6c621446082393dc6a1af51076c",
                 "shasum": ""
             },
             "require": {
@@ -11396,9 +11452,9 @@
             ],
             "support": {
                 "issues": "https://github.com/stripe/stripe-php/issues",
-                "source": "https://github.com/stripe/stripe-php/tree/v7.121.0"
+                "source": "https://github.com/stripe/stripe-php/tree/v7.124.0"
             },
-            "time": "2022-03-30T15:51:23+00:00"
+            "time": "2022-04-18T23:07:08+00:00"
         },
         {
             "name": "superbalist/flysystem-google-storage",
@@ -15444,16 +15500,16 @@
         },
         {
             "name": "zircote/swagger-php",
-            "version": "4.2.14",
+            "version": "4.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zircote/swagger-php.git",
-                "reference": "975c598084a1f8e7acccaa68aed12c803cebbd6a"
+                "reference": "24b23371ee962ac201fac33292034ae099c8d4a0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zircote/swagger-php/zipball/975c598084a1f8e7acccaa68aed12c803cebbd6a",
-                "reference": "975c598084a1f8e7acccaa68aed12c803cebbd6a",
+                "url": "https://api.github.com/repos/zircote/swagger-php/zipball/24b23371ee962ac201fac33292034ae099c8d4a0",
+                "reference": "24b23371ee962ac201fac33292034ae099c8d4a0",
                 "shasum": ""
             },
             "require": {
@@ -15513,9 +15569,9 @@
             ],
             "support": {
                 "issues": "https://github.com/zircote/swagger-php/issues",
-                "source": "https://github.com/zircote/swagger-php/tree/4.2.14"
+                "source": "https://github.com/zircote/swagger-php/tree/4.3.0"
             },
-            "time": "2022-04-01T08:53:53+00:00"
+            "time": "2022-04-17T01:42:30+00:00"
         }
     ],
     "packages-dev": [

@@ -70,7 +70,7 @@ class AuthService
 
             $message_body = json_decode($response->getBody(), true);
 
-            info(print_r($message_body,1));
+            //info(print_r($message_body,1));
 
             $this->isSuccessful = true;
             $this->token = $message_body['data'][0]['token']['token'];

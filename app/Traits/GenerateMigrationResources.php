@@ -531,12 +531,12 @@ trait GenerateMigrationResources
                 'first_name' => $user->first_name ?: '',
                 'last_name' => $user->last_name ?: '',
                 'phone' => $user->phone ?: '',
-                'email' => $user->username,
+                'email' => str_contains($user->username, "@") ? $user->username : $user->email,
                 'confirmation_code' => $user->confirmation_code,
                 'failed_logins' => $user->failed_logins,
                 'referral_code' => $user->referral_code,
-                'oauth_user_id' => $user->oauth_user_id,
-                'oauth_provider_id' => $user->oauth_provider_id,
+                // 'oauth_user_id' => $user->oauth_user_id,
+                // 'oauth_provider_id' => $user->oauth_provider_id,
                 'google_2fa_secret' => '',
                 'accepted_terms_version' => $user->accepted_terms_version,
                 'password' => $user->password,
@@ -1015,7 +1015,7 @@ trait GenerateMigrationResources
         if($invoice->is_public == 0)
             return 1;
 
-        if($invoice->end_date < now())
+        if($invoice->end_date && $invoice->end_date < now())
             return 4;
 
         return 1;
