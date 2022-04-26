@@ -81,7 +81,29 @@ class SystemHealth
             'pdf_engine' => (string) self::getPdfEngine(),
             'queue' => (string) config('queue.default'),
             'trailing_slash' => (bool) self::checkUrlState(),
+            'file_permissions' => (string) self::checkFileSystem()
         ];
+    }
+
+    public static function checkFileSystem()
+    {
+
+        $directoryIterator = new \RecursiveDirectoryIterator(base_path(), \RecursiveDirectoryIterator::SKIP_DOTS);
+
+        foreach (new \RecursiveIteratorIterator($directoryIterator) as $file) {
+
+            if(strpos($file->getPathname(), '.git') !== false)
+                continue;
+
+            //nlog($file->getPathname());
+
+            if ($file->isFile() && ! $file->isWritable()) {
+                return "{$file->getFileName()} is not writable";
+            }
+        }
+
+        return 'Ok';
+
     }
 
     public static function checkUrlState()

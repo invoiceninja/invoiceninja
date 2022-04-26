@@ -181,6 +181,65 @@ class BaseImport
 
 			} catch (\Exception $ex) {
 
+				if(\DB::connection(config('database.default'))->transactionLevel() > 0)
+					\DB::connection(config('database.default'))->rollBack();
+
+				if ($ex instanceof ImportException) {
+					$message = $ex->getMessage();
+				} else {
+					report($ex);
+					$message = 'Unknown error';
+				}
+
+				$this->error_array[$entity_type][] = [
+					$entity_type => $record,
+					'error' => $message,
+				];
+			}
+
+		}
+
+		return $count;
+	}
+
+	public function ingestProducts($data, $entity_type)
+	{
+		$count = 0;
+
+		foreach ($data as $key => $record) {
+
+			try {
+
+				$entity = $this->transformer->transform($record);
+				$validator = $this->request_name::runFormRequest($entity);
+
+				if ($validator->fails()) {
+					$this->error_array[$entity_type][] = [
+						$entity_type => $record,
+						'error' => $validator->errors()->all(),
+					];
+				} else {
+
+					if($this->transformer->hasProduct($entity['product_key'])) 
+						$product = $this->transformer->getProduct($entity['product_key']);
+					else
+						$product = $this->factory_name::create($this->company->id,$this->getUserIDForRecord($entity));
+
+					$entity = $this->repository->save(
+						array_diff_key($entity, ['user_id' => false]),
+						$product
+					);
+
+					$entity->saveQuietly();
+					$count++;
+
+				}
+
+			} catch (\Exception $ex) {
+
+				if(\DB::connection(config('database.default'))->transactionLevel() > 0)
+					\DB::connection(config('database.default'))->rollBack();
+				
 				if ($ex instanceof ImportException) {
 					$message = $ex->getMessage();
 				} else {
@@ -309,6 +368,10 @@ class BaseImport
 					);
 				}
 			} catch (\Exception $ex) {
+				
+				if(\DB::connection(config('database.default'))->transactionLevel() > 0)
+					\DB::connection(config('database.default'))->rollBack();
+
 				if ($ex instanceof ImportException) {
 					$message = $ex->getMessage();
 				} else {
@@ -505,6 +568,8 @@ class BaseImport
 			'errors'  => $this->error_array,
 			'company' => $this->company,
 		];
+
+nlog($this->company->company_users);
 
 		$nmo = new NinjaMailerObject;
 		$nmo->mailable = new ImportCompleted($this->company, $data);
