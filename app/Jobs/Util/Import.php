@@ -241,7 +241,6 @@ class Import implements ShouldQueue
             $this->company->account->companies()->update(['is_large' => true]);
         }
 
-
         $this->company->client_registration_fields = \App\DataMapper\ClientRegistrationFields::generate();
         $this->company->save();
 
