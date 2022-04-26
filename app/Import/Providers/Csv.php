@@ -116,7 +116,7 @@ class Csv extends BaseImport implements ImportInterface
 
         $this->transformer = new ProductTransformer($this->company);
 
-        $product_count = $this->ingest($data, $entity_type);
+        $product_count = $this->ingestProducts($data, $entity_type);
 
         $this->entity_count['products'] = $product_count;
     }

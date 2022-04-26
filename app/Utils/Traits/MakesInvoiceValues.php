@@ -301,17 +301,29 @@ trait MakesInvoiceValues
             $data[$key][$table_type . ".{$_table_type}2"] = $helpers->formatCustomFieldValue($this->client->company->custom_fields, "{$_table_type}2", $item->custom_value2, $this->client);
             $data[$key][$table_type . ".{$_table_type}3"] = $helpers->formatCustomFieldValue($this->client->company->custom_fields, "{$_table_type}3", $item->custom_value3, $this->client);
             $data[$key][$table_type . ".{$_table_type}4"] = $helpers->formatCustomFieldValue($this->client->company->custom_fields, "{$_table_type}4", $item->custom_value4, $this->client);
-
-            // 08-02-2022 - fix for regression below
-            // $data[$key][$table_type.'.quantity'] = Number::formatValue($item->quantity, $this->client->currency());
             
-            $data[$key][$table_type.'.quantity'] = ($item->quantity == 0) ? '' : Number::formatValueNoTrailingZeroes($item->quantity, $this->client->currency());
-            
-            $data[$key][$table_type.'.unit_cost'] = ($item->cost == 0) ? '' : Number::formatMoneyNoRounding($item->cost, $this->client);
+            if($item->quantity > 0 || $item->cost > 0){
 
-            $data[$key][$table_type.'.cost'] = ($item->cost == 0) ? '' : Number::formatMoney($item->cost, $this->client);
+                $data[$key][$table_type.'.quantity'] = Number::formatValueNoTrailingZeroes($item->quantity, $this->client->currency());
+                
+                $data[$key][$table_type.'.unit_cost'] = Number::formatMoneyNoRounding($item->cost, $this->client);
 
-            $data[$key][$table_type.'.line_total'] =  ($item->line_total == 0) ? '' :Number::formatMoney($item->line_total, $this->client);
+                $data[$key][$table_type.'.cost'] = Number::formatMoney($item->cost, $this->client);
+
+                $data[$key][$table_type.'.line_total'] =  Number::formatMoney($item->line_total, $this->client);
+
+            }
+            else {
+
+                $data[$key][$table_type.'.quantity'] = '';
+                
+                $data[$key][$table_type.'.unit_cost'] = '';
+
+                $data[$key][$table_type.'.cost'] = '';
+
+                $data[$key][$table_type.'.line_total'] =  '';
+                
+            }
 
             if(property_exists($item, 'gross_line_total'))
                 $data[$key][$table_type.'.gross_line_total'] =  ($item->gross_line_total == 0) ? '' :Number::formatMoney($item->gross_line_total, $this->client);
