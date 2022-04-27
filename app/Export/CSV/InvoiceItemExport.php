@@ -30,7 +30,7 @@ class InvoiceItemExport extends BaseExport
 
     protected string $date_key = 'date';
 
-    private array $entity_keys = [
+    protected array $entity_keys = [
         'amount' => 'amount',
         'balance' => 'balance',
         'client' => 'client_id',
@@ -127,17 +127,6 @@ class InvoiceItemExport extends BaseExport
 
         return $this->csv->toString(); 
 
-    }
-
-    private function buildHeader() :array
-    {
-
-        $header = [];
-
-        foreach(array_keys($this->input['report_keys']) as $key)
-            $header[] = ctrans("texts.{$key}");
-
-        return $header;
     }
 
     private function iterateItems(Invoice $invoice)

@@ -40,7 +40,7 @@ class ClientReportController extends BaseController
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\RequestBody(
      *          required=true,
-     *          @OA\JsonContent(ref="#/components/schemas/ClientReportSchema")
+     *          @OA\JsonContent(ref="#/components/schemas/GenericReportSchema")
      *      ),
      *      @OA\Response(
      *          response=200,

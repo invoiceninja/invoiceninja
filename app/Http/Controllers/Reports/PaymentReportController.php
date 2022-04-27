@@ -11,17 +11,18 @@
 
 namespace App\Http\Controllers\Reports;
 
-use App\Export\CSV\ContactExport;
+use App\Export\CSV\PaymentExport;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\Report\GenericReportRequest;
+use App\Models\Client;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Response;
 
-class ClientContactReportController extends BaseController
+class PaymentReportController extends BaseController
 {
     use MakesHash;
 
-    private string $filename = 'contacts.csv';
+    private string $filename = 'payments.csv';
 
     public function __construct()
     {
@@ -30,11 +31,11 @@ class ClientContactReportController extends BaseController
 
     /**
      * @OA\Post(
-     *      path="/api/v1/reports/contacts",
-     *      operationId="getContactReport",
+     *      path="/api/v1/reports/payments",
+     *      operationId="getPaymentReport",
      *      tags={"reports"},
-     *      summary="Contact reports",
-     *      description="Export contact reports",
+     *      summary="Payment reports",
+     *      description="Export payment reports",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\RequestBody(
@@ -64,7 +65,7 @@ class ClientContactReportController extends BaseController
     {
         // expect a list of visible fields, or use the default
 
-        $export = new ContactExport(auth()->user()->company(), $request->all());
+        $export = new PaymentExport(auth()->user()->company(), $request->all());
 
         $csv = $export->run();
 

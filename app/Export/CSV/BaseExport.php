@@ -64,4 +64,17 @@ class BaseExport
 
     }
 
+    protected function buildHeader() :array
+    {
+
+        $header = [];
+
+        foreach($this->input['report_keys'] as $value){
+            $key = array_search ($value, $this->entity_keys);
+            
+            $header[] = ctrans("texts.{$key}");
+        }
+
+        return $header;
+    }
 }

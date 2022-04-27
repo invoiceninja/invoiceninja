@@ -31,7 +31,7 @@ class DocumentExport extends BaseExport
 
     protected $date_key = 'created_at';
 
-    private array $entity_keys = [
+    protected array $entity_keys = [
         'record_type' => 'record_type',
         'record_name' => 'record_name',
         'name' => 'name',
@@ -78,17 +78,6 @@ class DocumentExport extends BaseExport
 
         return $this->csv->toString(); 
 
-    }
-
-    private function buildHeader() :array
-    {
-
-        $header = [];
-
-        foreach(array_keys($this->input['report_keys']) as $key)
-            $header[] = ctrans("texts.{$key}");
-
-        return $header;
     }
 
     private function buildRow(Document $document) :array

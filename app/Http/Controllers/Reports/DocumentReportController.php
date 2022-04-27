@@ -13,7 +13,7 @@ namespace App\Http\Controllers\Reports;
 
 use App\Export\CSV\DocumentExport;
 use App\Http\Controllers\BaseController;
-use App\Http\Requests\Report\ClientContactReportRequest;
+use App\Http\Requests\Report\GenericReportRequest;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Response;
 
@@ -60,7 +60,7 @@ class DocumentReportController extends BaseController
      *       ),
      *     )
      */
-    public function __invoke(ClientContactReportRequest $request)
+    public function __invoke(GenericReportRequest $request)
     {
         // expect a list of visible fields, or use the default
 

@@ -37,7 +37,7 @@ class ClientExport extends BaseExport
 
     protected string $date_key = 'created_at';
 
-    private array $entity_keys = [
+    protected array $entity_keys = [
         'address1' => 'client.address1',
         'address2' => 'client.address2',
         'balance' => 'client.balance',
@@ -123,17 +123,6 @@ class ClientExport extends BaseExport
 
         return $this->csv->toString(); 
 
-    }
-
-    private function buildHeader() :array
-    {
-
-        $header = [];
-
-        foreach(array_keys($this->input['report_keys']) as $key)
-            $header[] = ctrans("texts.{$key}");
-
-        return $header;
     }
 
     private function buildRow(Client $client) :array
