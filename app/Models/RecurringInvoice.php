@@ -347,6 +347,31 @@ class RecurringInvoice extends BaseModel
         }
     }
 
+    public static function stringStatus(int $status)
+    {
+        switch ($status) {
+            case self::STATUS_DRAFT:
+                return ctrans('texts.draft');
+                break;
+            case self::STATUS_PENDING:
+                return ctrans('texts.pending');
+                break;
+            case self::STATUS_ACTIVE:
+                return ctrans('texts.active');
+                break;
+            case self::STATUS_COMPLETED:
+                return ctrans('texts.status_completed');
+                break;
+            case self::STATUS_PAUSED:
+                return ctrans('texts.paused');
+                break;
+            default:
+                // code...
+                break;
+        }
+    }
+
+
     public static function frequencyForKey(int $frequency_id) :string
     {
         switch ($frequency_id) {
