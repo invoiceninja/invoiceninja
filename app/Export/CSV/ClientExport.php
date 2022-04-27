@@ -109,6 +109,7 @@ class ClientExport extends BaseExport
         $this->csv->insertOne($this->buildHeader());
 
         $query = Client::query()->with('contacts')
+                                ->withTrashed()
                                 ->where('company_id', $this->company->id)
                                 ->where('is_deleted',0);
     

@@ -11,17 +11,17 @@
 
 namespace App\Http\Controllers\Reports;
 
-use App\Export\CSV\CreditExport;
+use App\Export\CSV\InvoiceItemExport;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\Report\GenericReportRequest;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Response;
 
-class CreditReportController extends BaseController
+class InvoiceItemReportController extends BaseController
 {
     use MakesHash;
 
-    private string $filename = 'credits.csv';
+    private string $filename = 'invoice_items.csv';
 
     public function __construct()
     {
@@ -30,11 +30,11 @@ class CreditReportController extends BaseController
 
     /**
      * @OA\Post(
-     *      path="/api/v1/reports/clients",
-     *      operationId="getClientReport",
+     *      path="/api/v1/reports/invoices",
+     *      operationId="getInvoiceReport",
      *      tags={"reports"},
-     *      summary="Client reports",
-     *      description="Export client reports",
+     *      summary="Invoice reports",
+     *      description="Export invoice reports",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\RequestBody(
@@ -64,7 +64,7 @@ class CreditReportController extends BaseController
     {
         // expect a list of visible fields, or use the default
 
-        $export = new CreditExport(auth()->user()->company(), $request->all());
+        $export = new InvoiceItemExport(auth()->user()->company(), $request->all());
 
         $csv = $export->run();
 

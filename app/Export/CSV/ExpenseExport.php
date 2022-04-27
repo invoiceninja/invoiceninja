@@ -97,6 +97,7 @@ class ExpenseExport extends BaseExport
 
         $query = Expense::query()
                         ->with('client')
+                        ->withTrashed()
                         ->where('company_id', $this->company->id)
                         ->where('is_deleted',0);
 

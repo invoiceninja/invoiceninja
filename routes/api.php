@@ -159,6 +159,8 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
     Route::post('reports/credits', 'Reports\CreditReportController');
     Route::post('reports/documents', 'Reports\DocumentReportController');
     Route::post('reports/expenses', 'Reports\ExpenseReportController');
+    Route::post('reports/invoices', 'Reports\InvoiceReportController');
+    Route::post('reports/invoice_items', 'Reports\InvoiceItemReportController');
 
 
     Route::get('scheduler', 'SchedulerController@index');
