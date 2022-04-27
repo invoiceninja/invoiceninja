@@ -19,16 +19,23 @@ use App\Transformers\ClientTransformer;
 use App\Utils\Ninja;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
+use Illuminate\Support\Carbon;
 
 class ClientExport
 {
     private $company;
 
-    private $report_keys;
+    private $input;
 
     private $client_transformer;
 
     private $contact_transformer;
+
+    private string $start_date;
+
+    private string $end_date;
+
+    private string $date_key = 'created_at';
 
     private array $entity_keys = [
         'address1' => 'client.address1',
@@ -78,10 +85,10 @@ class ClientExport
         'client.industry',
     ];
 
-    public function __construct(Company $company, array $report_keys)
+    public function __construct(Company $company, array $input)
     {
         $this->company = $company;
-        $this->report_keys = $report_keys;
+        $this->input = $input;
         $this->client_transformer = new ClientTransformer();
         $this->contact_transformer = new ClientContactTransformer();
     }
@@ -101,14 +108,16 @@ class ClientExport
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-        Client::with('contacts')->where('company_id', $this->company->id)
-                                ->where('is_deleted',0)
-                                ->cursor()
-                                ->each(function ($client){
+        $query = Client::query()->with('contacts')
+                                ->where('company_id', $this->company->id)
+                                ->where('is_deleted',0);
+    
+        $query = $this->addDateRange($query);
 
-                                    $this->csv->insertOne($this->buildRow($client)); 
-
-                                });
+        $query->cursor()
+              ->each(function ($client){
+                        $this->csv->insertOne($this->buildRow($client)); 
+                    });
 
 
         return $this->csv->toString(); 
@@ -120,7 +129,7 @@ class ClientExport
 
         $header = [];
 
-        foreach(array_keys($this->report_keys) as $key)
+        foreach(array_keys($this->input['report_keys']) as $key)
             $header[] = ctrans("texts.{$key}");
 
         return $header;
@@ -139,7 +148,7 @@ class ClientExport
 
         $entity = [];
 
-        foreach(array_values($this->report_keys) as $key){
+        foreach(array_values($this->input['report_keys']) as $key){
 
             $parts = explode(".",$key);
             $entity[$parts[1]] = "";

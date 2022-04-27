@@ -60,7 +60,13 @@ class ClientReportController extends BaseController
         // expect a list of visible fields, or use the default
 
         // return response()->json(['message' => 'Processing'], 200);
-        $export = new ClientExport(auth()->user()->company(), $request->input('keys'));
+
+        // [
+        //     'report_keys',
+        //     'date_range',
+        // ]
+        
+        $export = new ClientExport(auth()->user()->company(), $request->all());
 
         $csv = $export->run();
     }
