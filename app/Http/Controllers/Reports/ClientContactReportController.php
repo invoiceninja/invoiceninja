@@ -13,7 +13,7 @@ namespace App\Http\Controllers\Reports;
 
 use App\Export\CSV\ContactExport;
 use App\Http\Controllers\BaseController;
-use App\Http\Requests\Report\ClientContactReportRequest;
+use App\Http\Requests\Report\GenericReportSchema;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Response;
 
@@ -30,16 +30,16 @@ class ClientContactReportController extends BaseController
 
     /**
      * @OA\Post(
-     *      path="/api/v1/reports/clients",
-     *      operationId="getClientReport",
+     *      path="/api/v1/reports/contacts",
+     *      operationId="getContactReport",
      *      tags={"reports"},
-     *      summary="Client reports",
-     *      description="Export client reports",
+     *      summary="Contact reports",
+     *      description="Export contact reports",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\RequestBody(
      *          required=true,
-     *          @OA\JsonContent(ref="#/components/schemas/ClientReportSchema")
+     *          @OA\JsonContent(ref="#/components/schemas/GenericReportSchema")
      *      ),
      *      @OA\Response(
      *          response=200,
@@ -60,7 +60,7 @@ class ClientContactReportController extends BaseController
      *       ),
      *     )
      */
-    public function __invoke(ClientContactReportRequest $request)
+    public function __invoke(GenericReportSchema $request)
     {
         // expect a list of visible fields, or use the default
 

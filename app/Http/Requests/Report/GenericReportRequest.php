@@ -13,7 +13,7 @@ namespace App\Http\Requests\Report;
 
 use App\Http\Requests\Request;
 
-class ClientReportRequest extends Request
+class GenericReportRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.

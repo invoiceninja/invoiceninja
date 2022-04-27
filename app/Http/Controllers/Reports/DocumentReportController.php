@@ -11,18 +11,17 @@
 
 namespace App\Http\Controllers\Reports;
 
-use App\Export\CSV\ClientExport;
+use App\Export\CSV\DocumentExport;
 use App\Http\Controllers\BaseController;
-use App\Http\Requests\Report\GenericReportRequest;
-use App\Models\Client;
+use App\Http\Requests\Report\ClientContactReportRequest;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Response;
 
-class ClientReportController extends BaseController
+class DocumentReportController extends BaseController
 {
     use MakesHash;
 
-    private string $filename = 'clients.csv';
+    private string $filename = 'documents.csv';
 
     public function __construct()
     {
@@ -31,16 +30,16 @@ class ClientReportController extends BaseController
 
     /**
      * @OA\Post(
-     *      path="/api/v1/reports/clients",
-     *      operationId="getClientReport",
+     *      path="/api/v1/reports/documents",
+     *      operationId="getDocumentReport",
      *      tags={"reports"},
-     *      summary="Client reports",
-     *      description="Export client reports",
+     *      summary="Document reports",
+     *      description="Export document reports",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\RequestBody(
      *          required=true,
-     *          @OA\JsonContent(ref="#/components/schemas/ClientReportSchema")
+     *          @OA\JsonContent(ref="#/components/schemas/GenericReportSchema")
      *      ),
      *      @OA\Response(
      *          response=200,
@@ -61,11 +60,11 @@ class ClientReportController extends BaseController
      *       ),
      *     )
      */
-    public function __invoke(GenericReportRequest $request)
+    public function __invoke(ClientContactReportRequest $request)
     {
         // expect a list of visible fields, or use the default
 
-        $export = new ClientExport(auth()->user()->company(), $request->all());
+        $export = new DocumentExport(auth()->user()->company(), $request->all());
 
         $csv = $export->run();
 
