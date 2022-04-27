@@ -188,7 +188,7 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function activities()
     {
-        return $this->hasMany(Activity::class)->orderBy('id', 'desc');
+        return $this->hasMany(Activity::class)->take(50)->orderBy('id', 'desc');
     }
 
     public function contacts()
