@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -21,7 +21,7 @@ class BaseExport
 
         $date_range = $this->input['date_range'];
 
-        if(array_key_exists('date_key', $this->input))
+        if(array_key_exists('date_key', $this->input) && strlen($this->input['date_key']) > 1)
             $this->date_key = $this->input['date_key'];
         
         try{
@@ -42,23 +42,23 @@ class BaseExport
             case 'all':
                 return $query;
             case 'last7':
-                return $query->whereBetween($this->date_key, [now()->subDays(7), now()]);
+                return $query->whereBetween($this->date_key, [now()->subDays(7), now()])->orderBy($this->date_key, 'ASC');
             case 'last30':
-                return $query->whereBetween($this->date_key, [now()->subDays(30), now()]);
+                return $query->whereBetween($this->date_key, [now()->subDays(30), now()])->orderBy($this->date_key, 'ASC');
             case 'this_month':
-                return $query->whereBetween($this->date_key, [now()->startOfMonth(), now()]);
+                return $query->whereBetween($this->date_key, [now()->startOfMonth(), now()])->orderBy($this->date_key, 'ASC');
             case 'last_month':
-                return $query->whereBetween($this->date_key, [now()->startOfMonth()->subMonth(), now()->startOfMonth()->subMonth()->endOfMonth()]);
+                return $query->whereBetween($this->date_key, [now()->startOfMonth()->subMonth(), now()->startOfMonth()->subMonth()->endOfMonth()])->orderBy($this->date_key, 'ASC');
             case 'this_quarter':
-                return $query->whereBetween($this->date_key, [(new \Carbon\Carbon('-3 months'))->firstOfQuarter(), (new \Carbon\Carbon('-3 months'))->lastOfQuarter()]);
+                return $query->whereBetween($this->date_key, [(new \Carbon\Carbon('-3 months'))->firstOfQuarter(), (new \Carbon\Carbon('-3 months'))->lastOfQuarter()])->orderBy($this->date_key, 'ASC');
             case 'last_quarter':
-                return $query->whereBetween($this->date_key, [(new \Carbon\Carbon('-6 months'))->firstOfQuarter(), (new \Carbon\Carbon('-6 months'))->lastOfQuarter()]);
+                return $query->whereBetween($this->date_key, [(new \Carbon\Carbon('-6 months'))->firstOfQuarter(), (new \Carbon\Carbon('-6 months'))->lastOfQuarter()])->orderBy($this->date_key, 'ASC');
             case 'this_year':
-                return $query->whereBetween($this->date_key, [now()->startOfYear(), now()]);
+                return $query->whereBetween($this->date_key, [now()->startOfYear(), now()])->orderBy($this->date_key, 'ASC');
             case 'custom':
-                return $query->whereBetween($this->date_key, [$custom_start_date, $custom_end_date]);
+                return $query->whereBetween($this->date_key, [$custom_start_date, $custom_end_date])->orderBy($this->date_key, 'ASC');
             default:
-                return $query->whereBetween($this->date_key, [now()->startOfYear(), now()]);
+                return $query->whereBetween($this->date_key, [now()->startOfYear(), now()])->orderBy($this->date_key, 'ASC');
 
         }
 

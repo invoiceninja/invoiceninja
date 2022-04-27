@@ -4,7 +4,7 @@
  *
  * @link https://github.com/expenseninja/expenseninja source repository
  *
- * @copyright Copyright (c) 2021. Expense Ninja LLC (https://expenseninja.com)
+ * @copyright Copyright (c) 2022. Expense Ninja LLC (https://expenseninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */

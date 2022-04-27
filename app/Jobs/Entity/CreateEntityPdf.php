@@ -5,7 +5,7 @@
  *
  * @link https://github.com/entityninja/entityninja source repository
  *
- * @copyright Copyright (c) 2021. Entity Ninja LLC (https://entityninja.com)
+ * @copyright Copyright (c) 2022. Entity Ninja LLC (https://entityninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
