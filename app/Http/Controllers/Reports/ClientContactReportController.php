@@ -11,16 +11,17 @@
 
 namespace App\Http\Controllers\Reports;
 
-use App\Export\CSV\ClientExport;
+use App\Export\CSV\ContactExport;
 use App\Http\Controllers\BaseController;
-use App\Http\Requests\Report\ClientReportRequest;
-use App\Models\Client;
+use App\Http\Requests\Report\ClientContactReportRequest;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Response;
 
-class ClientReportController extends BaseController
+class ClientContactReportController extends BaseController
 {
     use MakesHash;
+
+    private string $filename = 'contacts.csv';
 
     public function __construct()
     {
@@ -59,11 +60,11 @@ class ClientReportController extends BaseController
      *       ),
      *     )
      */
-    public function __invoke(ClientReportRequest $request)
+    public function __invoke(ClientContactReportRequest $request)
     {
         // expect a list of visible fields, or use the default
 
-        $export = new ClientExport(auth()->user()->company(), $request->all());
+        $export = new ContactExport(auth()->user()->company(), $request->all());
 
         $csv = $export->run();
 
@@ -74,7 +75,7 @@ class ClientReportController extends BaseController
 
         return response()->streamDownload(function () use ($csv) {
             echo $csv;
-        }, 'clients.csv', $headers);
+        }, $this->filename, $headers);
         
     }
 

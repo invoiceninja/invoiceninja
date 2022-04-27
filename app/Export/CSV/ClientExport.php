@@ -21,11 +21,11 @@ use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 use Illuminate\Support\Carbon;
 
-class ClientExport
+class ClientExport extends BaseExport
 {
     private $company;
 
-    private $input;
+    protected $input;
 
     private $client_transformer;
 
@@ -35,7 +35,7 @@ class ClientExport
 
     private string $end_date;
 
-    private string $date_key = 'created_at';
+    protected string $date_key = 'created_at';
 
     private array $entity_keys = [
         'address1' => 'client.address1',

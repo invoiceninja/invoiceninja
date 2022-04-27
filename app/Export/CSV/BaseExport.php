@@ -16,7 +16,7 @@ use Illuminate\Support\Carbon;
 class BaseExport
 {
 
-    private function addDateRange($query)
+    protected function addDateRange($query)
     {
 
         $date_range = $this->input['date_range'];
