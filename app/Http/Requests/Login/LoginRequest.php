@@ -13,6 +13,8 @@
 namespace App\Http\Requests\Login;
 
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\Account\BlackListRule;
+use App\Utils\Ninja;
 
 class LoginRequest extends Request
 {
@@ -34,21 +36,27 @@ class LoginRequest extends Request
      */
     public function rules()
     {
+
+        if(Ninja::isHosted())
+            $email_rules = ['required', new BlackListRule];
+        else
+            $email_rules = 'required';
+
         return [
-            'email' => 'required',
+            'email' => $email_rules,
             'password' => 'required|max:1000',
         ];
     }
 
-    protected function prepareForValidation()
-    {
-        $input = $this->all();
+    // protected function prepareForValidation()
+    // {
+    //     $input = $this->all();
 
-        // if(base64_decode(base64_encode($input['password'])) === $input['password'])
-        //     $input['password'] = base64_decode($input['password']);
+    //     // if(base64_decode(base64_encode($input['password'])) === $input['password'])
+    //     //     $input['password'] = base64_decode($input['password']);
 
-        // nlog($input['password']);
+    //     // nlog($input['password']);
         
-        $this->replace($input);
-    }
+    //     $this->replace($input);
+    // }
 }
