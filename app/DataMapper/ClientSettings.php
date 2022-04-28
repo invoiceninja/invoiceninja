@@ -37,6 +37,15 @@ class ClientSettings extends BaseSettings
         'size_id' => 'string',
     ];
 
+    public static $property_casts = [
+        'language_id' => 'string',
+        'currency_id' => 'string',
+        'payment_terms' => 'string',
+        'valid_until' => 'string',
+        'default_task_rate' => 'float',
+        'send_reminders' => 'bool',
+    ];
+
     /**
      * Cast object values and return entire class
      * prevents missing properties from not being returned

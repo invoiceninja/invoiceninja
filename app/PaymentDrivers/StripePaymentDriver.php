@@ -445,7 +445,7 @@ class StripePaymentDriver extends BaseDriver
 
         if(count($searchResults) == 1){
             $customer = $searchResults->data[0];
-            $this->updateStripeCustomer($customer);
+           // $this->updateStripeCustomer($customer);
             return $customer; 
         }
 

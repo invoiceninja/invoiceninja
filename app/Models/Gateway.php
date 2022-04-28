@@ -159,7 +159,7 @@ class Gateway extends StaticModel
                 break;
             case 52:
                 return [
-                    GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => [' ']], // GoCardless
+                    GatewayType::BANK_TRANSFER => ['refund' => false, 'token_billing' => true, 'webhooks' => [' ']], // GoCardless
                     GatewayType::DIRECT_DEBIT => ['refund' => false, 'token_billing' => true, 'webhooks' => [' ']],
                     GatewayType::SEPA => ['refund' => false, 'token_billing' => true, 'webhooks' => [' ']],
                     GatewayType::INSTANT_BANK_PAY => ['refund' => false, 'token_billing' => true, 'webhooks' => [' ']],

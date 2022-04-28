@@ -199,20 +199,16 @@ class BaseTransformer
      *
      * @return string
      */
-    public function getProduct($data, $key, $field, $default = false)
+    public function getProduct($key)
     {
         $product = $this->company
             ->products()
             ->whereRaw("LOWER(REPLACE(`product_key`, ' ' ,''))  = ?", [
-                strtolower(str_replace(' ', '', $data->{$key})),
+                strtolower(str_replace(' ', '', $key)),
             ])
             ->first();
 
-        if ($product) {
-            return $product->{$field} ?: $default;
-        }
-
-        return $default;
+        return $product;
     }
 
     /**

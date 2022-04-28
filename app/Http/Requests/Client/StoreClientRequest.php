@@ -37,6 +37,7 @@ class StoreClientRequest extends Request
 
     public function rules()
     {
+        
         if ($this->input('documents') && is_array($this->input('documents'))) {
             $documents = count($this->input('documents'));
 
@@ -95,6 +96,10 @@ class StoreClientRequest extends Request
 
         if (array_key_exists('settings', $input) && ! empty($input['settings'])) {
             foreach ($input['settings'] as $key => $value) {
+
+                if($key == 'default_task_rate')
+                    $value = floatval($value);
+                
                 $settings->{$key} = $value;
             }
         }

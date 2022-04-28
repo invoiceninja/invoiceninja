@@ -11,6 +11,7 @@
 
 namespace App\Utils\Traits;
 
+use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use stdClass;
 
@@ -63,15 +64,6 @@ trait ClientGroupSettingsSaver
             $entity_settings->{$key} = $value;
         }
 
-        //this pass will handle any null values that are in the translations
-        // foreach ($settings->translations as $key => $value) {
-        //     if (is_null($settings->translations[$key])) {
-        //         $settings->translations[$key] = '';
-        //     }
-        // }
-
-        // $entity_settings->translations = $settings->translations;
-
         $entity->settings = $entity_settings;
         $entity->save();
 
@@ -121,8 +113,12 @@ trait ClientGroupSettingsSaver
                 continue;
             }
             /*Separate loop if it is a _id field which is an integer cast as a string*/
-            elseif (substr($key, -3) == '_id' || substr($key, -14) == 'number_counter') {
-                $value = 'integer';
+            elseif (substr($key, -3) == '_id' || 
+                substr($key, -14) == 'number_counter' || 
+                ($key == 'payment_terms' && property_exists($settings, 'payment_terms') && strlen($settings->{$key}) >= 1) || 
+                ($key == 'valid_until' && property_exists($settings, 'valid_until') && strlen($settings->{$key}) >= 1)) {  
+                    
+                    $value = 'integer';
 
                 if (! property_exists($settings, $key)) {
                     continue;
@@ -170,13 +166,19 @@ trait ClientGroupSettingsSaver
             }
             
             /*Separate loop if it is a _id field which is an integer cast as a string*/
-            if (substr($key, -3) == '_id' || substr($key, -14) == 'number_counter') {
+            if (substr($key, -3) == '_id' || 
+                substr($key, -14) == 'number_counter' || 
+                ($key == 'payment_terms' && property_exists($settings, 'payment_terms') && strlen($settings->{$key}) >= 1) || 
+                ($key == 'valid_until' && property_exists($settings, 'valid_until') && strlen($settings->{$key}) >= 1)) {    
+
                 $value = 'integer';
 
                 if (! property_exists($settings, $key)) {
                     continue;
                 } elseif ($this->checkAttribute($value, $settings->{$key})) {
-                    if (substr($key, -3) == '_id') {
+                    if (substr($key, -3) == '_id'|| 
+                        ($key == 'payment_terms' && property_exists($settings, 'payment_terms') && strlen($settings->{$key}) >= 1) || 
+                        ($key == 'valid_until' && property_exists($settings, 'valid_until') && strlen($settings->{$key}) >= 1)) {
                         settype($settings->{$key}, 'string');
                     } else {
                         settype($settings->{$key}, $value);
@@ -219,8 +221,7 @@ trait ClientGroupSettingsSaver
         switch ($key) {
             case 'int':
             case 'integer':
-                // return ctype_digit(strval(abs($value)));
-                return ctype_digit(strval($value));
+                return is_numeric($value) && ctype_digit(strval(abs($value)));
             case 'real':
             case 'float':
             case 'double':

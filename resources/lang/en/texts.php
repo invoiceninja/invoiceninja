@@ -4567,6 +4567,11 @@ $LANG = array(
     'approved_quotes' => 'Successfully :value approved quotes',
     'client_website' => 'Client Website',
     'invalid_time' => 'Invalid Time',
+    'signed_in_as' => 'Signed in as',
+    'total_results' => 'Total results',
+    'restore_company_gateway' => 'Restore payment gateway',
+    'archive_company_gateway' => 'Archive payment gateway',
+    'delete_company_gateway' => 'Delete payment gateway',
 );
 
 return $LANG;

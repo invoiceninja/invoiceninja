@@ -19,20 +19,14 @@ use App\Models\Client;
 use App\Models\Design;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\Product;
 use App\Services\PdfMaker\Design as PdfMakerDesign;
 use App\Services\PdfMaker\PdfMaker;
 use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\HtmlEngine;
-use App\Utils\Ninja;
 use App\Utils\Number;
 use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\Pdf\PdfMaker as PdfMakerTrait;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\LazyCollection;
 
 class Statement
 {
@@ -231,7 +225,7 @@ class Statement
             ->where('client_id', $this->client->id)
             ->whereIn('status_id', $this->invoiceStatuses())
             ->whereBetween('date', [Carbon::parse($this->options['start_date']), Carbon::parse($this->options['end_date'])])
-            ->orderBy('date', 'ASC')
+            ->orderBy('due_date', 'ASC')
             ->cursor();
     }
 
