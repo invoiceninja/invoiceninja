@@ -431,29 +431,6 @@ class Client extends BaseModel implements HasLocalePreference
      */
     public function getCreditCardGateway() :?CompanyGateway
     {
-        // $company_gateways = $this->getSetting('company_gateway_ids');
-
-        // /* It is very important to respect the order of the company_gateway_ids as they are ordered by priority*/
-        // if (strlen($company_gateways) >= 1) {
-        //     $transformed_ids = $this->transformKeys(explode(',', $company_gateways));
-        //     $gateways = $this->company
-        //                      ->company_gateways
-        //                      ->whereIn('id', $transformed_ids)
-        //                      ->sortby(function ($model) use ($transformed_ids) {
-        //                          return array_search($model->id, $transformed_ids);
-        //                      });
-        // } else {
-        //     $gateways = $this->company->company_gateways;
-        // }
-
-        // foreach ($gateways as $gateway) {
-        //     if (in_array(GatewayType::CREDIT_CARD, $gateway->driver($this)->gatewayTypeEnabled($gateway, GatewayType::CREDIT_CARD))) {
-        //         return $gateway;
-        //     }
-        // }
-
-        // return null;
-        // 
 
         $pms = $this->service()->getPaymentMethods(0);
 
@@ -479,7 +456,6 @@ class Client extends BaseModel implements HasLocalePreference
             }
 
             return null;
-
 
     }
 
