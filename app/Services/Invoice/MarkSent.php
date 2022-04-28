@@ -67,7 +67,7 @@ class MarkSent extends AbstractService
         \DB::connection(config('database.default'))->transaction(function () use($adjustment){
 
         /* Get the last record for the client and set the current balance*/
-            $client = Client::where('id', $this->client->id)->lockForUpdate()->first();
+            $client = Client::withTrashed()->where('id', $this->client->id)->lockForUpdate()->first();
             $client->balance += $adjustment;
             $client->save();
 

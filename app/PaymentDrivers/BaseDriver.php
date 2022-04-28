@@ -502,8 +502,8 @@ class BaseDriver extends AbstractPaymentDriver
     /*Generic Global unsuccessful transaction method when the client is present*/
     public function processUnsuccessfulTransaction($response, $client_present = true)
     {
-        $error = $response['error'];
-        $error_code = $response['error_code'];
+        $error = array_key_exists('error', $response) ? $response['error'] : 'Undefined Error';
+        $error_code = array_key_exists('error_code', $response) ? $response['error_code'] : 'Undefined Error Code';
 
         $this->unWindGatewayFees($this->payment_hash);
 

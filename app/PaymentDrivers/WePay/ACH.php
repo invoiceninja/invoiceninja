@@ -22,6 +22,7 @@ use App\PaymentDrivers\WePayPaymentDriver;
 use App\PaymentDrivers\WePay\WePayCommon;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Support\Str;
 
 class ACH
@@ -85,6 +86,12 @@ class ACH
                 $this->wepay_payment_driver->client,
                 $this->wepay_payment_driver->client->company,
             );
+
+            (new SlackMessage)
+                ->success()
+                ->from(ctrans('texts.notification_bot'))
+                ->image('https://app.invoiceninja.com/favicon.png')
+                ->content("New WePay ACH Failure from Company ID: ". $this->wepay_payment_driver->company_gateway->company->id);
 
             throw new PaymentFailed($e->getMessage(), 400);
         }

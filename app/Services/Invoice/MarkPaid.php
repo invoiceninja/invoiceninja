@@ -103,7 +103,7 @@ class MarkPaid extends AbstractService
         \DB::connection(config('database.default'))->transaction(function () use($payment){
 
         /* Get the last record for the client and set the current balance*/
-            $client = Client::where('id', $this->invoice->client_id)->lockForUpdate()->first();
+            $client = Client::withTrashed()->where('id', $this->invoice->client_id)->lockForUpdate()->first();
             $client->paid_to_date += $payment->amount;
             $client->balance -= $payment->amount;
             $client->save();

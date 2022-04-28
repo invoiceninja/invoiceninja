@@ -28,7 +28,6 @@ class PaymentNotification implements ShouldQueue
 
     public $delay = 5;
 
-    
     /**
      * Create the event listener.
      *
