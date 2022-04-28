@@ -11,17 +11,17 @@
 
 namespace App\Http\Controllers\Reports;
 
-use App\Export\CSV\QuoteExport;
+use App\Export\CSV\TaskExport;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\Report\GenericReportRequest;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Response;
 
-class QuoteReportController extends BaseController
+class TaskReportController extends BaseController
 {
     use MakesHash;
 
-    private string $filename = 'quotes.csv';
+    private string $filename = 'tasks.csv';
 
     public function __construct()
     {
@@ -30,11 +30,11 @@ class QuoteReportController extends BaseController
 
     /**
      * @OA\Post(
-     *      path="/api/v1/reports/quotes",
-     *      operationId="getQuoteReport",
+     *      path="/api/v1/reports/tasks",
+     *      operationId="getTaskReport",
      *      tags={"reports"},
-     *      summary="Quote reports",
-     *      description="Export quote reports",
+     *      summary="Task reports",
+     *      description="Export task reports",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\RequestBody(
@@ -64,7 +64,7 @@ class QuoteReportController extends BaseController
     {
         // expect a list of visible fields, or use the default
 
-        $export = new QuoteExport(auth()->user()->company(), $request->all());
+        $export = new TaskExport(auth()->user()->company(), $request->all());
 
         $csv = $export->run();
 
