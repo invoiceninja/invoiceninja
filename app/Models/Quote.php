@@ -283,6 +283,30 @@ class Quote extends BaseModel
         }
     }
 
+    public static function stringStatus(int $status)
+    {
+        switch ($status) {
+            case self::STATUS_DRAFT:
+                return ctrans('texts.draft');
+                break;
+            case self::STATUS_SENT:
+                return ctrans('texts.pending');
+                break;
+            case self::STATUS_APPROVED:
+                return ctrans('texts.approved');
+                break;
+            case self::STATUS_EXPIRED:
+                return ctrans('texts.expired');
+                break;
+            case self::STATUS_CONVERTED:
+                return ctrans('texts.converted');
+                break;
+            default:
+                // code...
+                break;
+        }
+    }
+
     /**
      * Check if the quote has been approved.
      *

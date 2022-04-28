@@ -162,6 +162,7 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
     Route::post('reports/invoices', 'Reports\InvoiceReportController');
     Route::post('reports/invoice_items', 'Reports\InvoiceItemReportController');
     Route::post('reports/quotes', 'Reports\QuoteReportController');
+    Route::post('reports/quote_items', 'Reports\QuoteItemReportController');
     Route::post('reports/recurring_invoices', 'Reports\RecurringInvoiceReportController');
     Route::post('reports/payments', 'Reports\PaymentReportController');
     Route::post('reports/products', 'Reports\ProductReportController');
