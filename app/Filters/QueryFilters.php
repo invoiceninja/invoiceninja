@@ -168,7 +168,7 @@ abstract class QueryFilters
 
     public function created_at($value)
     {
-        $created_at = $value ? $value : 0;
+        $created_at = $value ? (int)$value : 0;
 
         $created_at = date('Y-m-d H:i:s', $value);
 

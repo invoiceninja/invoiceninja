@@ -70,9 +70,12 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             let toggleWithToken = document.querySelector('.toggle-payment-with-token');
+            let toggleWithCard = document.querySelector('#toggle-payment-with-credit-card');
 
             if (toggleWithToken) {
                 toggleWithToken.click();
+            } else if (toggleWithCard) {
+                toggleWithCard.click();
             }
         });
     </script>

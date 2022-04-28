@@ -12,7 +12,9 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\FilePermissionsFailure;
+use App\Models\Client;
 use App\Utils\Ninja;
+use App\Utils\Traits\ClientGroupSettingsSaver;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
@@ -20,6 +22,16 @@ use Illuminate\Support\Facades\Storage;
 class SelfUpdateController extends BaseController
 {
     use DispatchesJobs;
+    use ClientGroupSettingsSaver;
+
+    private array $purge_file_list = [
+        'bootstrap/cache/compiled.php',
+        'bootstrap/cache/config.php',
+        'bootstrap/cache/packages.php',
+        'bootstrap/cache/services.php',
+        'bootstrap/cache/routes-v7.php',
+        'bootstrap/cache/livewire-components.php',
+    ];
 
     public function __construct()
     {
@@ -99,11 +111,9 @@ class SelfUpdateController extends BaseController
         }
 
         $this->testWritable();
+        $this->clearCacheDir();
 
         copy($this->getDownloadUrl(), storage_path('app/invoiceninja.zip'));
-
-        // $contents = file_get_contents($this->getDownloadUrl());
-        // Storage::disk('local')->put('invoiceninja.zip', $contents);
 
         $file = Storage::disk('local')->path('invoiceninja.zip');
 
@@ -117,10 +127,12 @@ class SelfUpdateController extends BaseController
 
         unlink($file);
 
-        $cacheCompiled = base_path('bootstrap/cache/compiled.php');
-        if (file_exists($cacheCompiled)) { unlink ($cacheCompiled); }
-        $cacheServices = base_path('bootstrap/cache/services.php');
-        if (file_exists($cacheServices)) { unlink ($cacheServices); }
+        foreach($this->purge_file_list as $purge_file_path)
+        {
+            $purge_file = base_path($purge_file_path);
+            if (file_exists($purge_file)) { unlink ($purge_file); }
+
+        }
 
         Artisan::call('clear-compiled');
         Artisan::call('route:clear');
@@ -130,6 +142,33 @@ class SelfUpdateController extends BaseController
 
         return response()->json(['message' => 'Update completed'], 200);
 
+
+    }
+
+    private function postHookUpdate()
+    {
+        if(config('ninja.app_version') == '5.3.82')
+        {
+            Client::withTrashed()->cursor()->each( function ($client) {
+                $entity_settings = $this->checkSettingType($client->settings);
+                $entity_settings->md5 = md5(time());
+                $client->settings = $entity_settings;
+                $client->save();
+                
+            });
+        }
+    }
+
+    private function clearCacheDir()
+    {
+        
+        $directoryIterator = new \RecursiveDirectoryIterator(base_path('bootstrap/cache'), \RecursiveDirectoryIterator::SKIP_DOTS);
+
+        foreach (new \RecursiveIteratorIterator($directoryIterator) as $file) {
+
+            unlink(base_path('bootstrap/cache/').$file->getFileName());
+
+        }
 
     }
 

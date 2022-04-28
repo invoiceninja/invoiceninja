@@ -30,7 +30,8 @@ class SupportMessageSent extends Mailable
      */
     public function build()
     {
-        $system_info = null;
+        $system_info = request()->has('version') ? 'Version: '.request()->input('version') : 'Version: No Version Supplied.';
+
         $log_lines = [];
 
         /*

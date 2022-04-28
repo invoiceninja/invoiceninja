@@ -30,7 +30,7 @@ class NinjaPdf
         $response = $client->post($this->url,[
             RequestOptions::JSON => ['html' => $html]
         ]);
-
+    
         return $response->getBody();
     }
 

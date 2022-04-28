@@ -241,7 +241,6 @@ class Import implements ShouldQueue
             $this->company->account->companies()->update(['is_large' => true]);
         }
 
-
         $this->company->client_registration_fields = \App\DataMapper\ClientRegistrationFields::generate();
         $this->company->save();
 
@@ -947,6 +946,11 @@ class Import implements ShouldQueue
                 $modified,
                 RecurringInvoiceFactory::create($this->company->id, $modified['user_id'])
             );
+
+            if($invoice->status_id == 4 && $invoice->remaining_cycles == -1){
+                $invoice->status_id =2;
+                $invoice->save();
+            }
 
             $key = "recurring_invoices_{$resource['id']}";
 

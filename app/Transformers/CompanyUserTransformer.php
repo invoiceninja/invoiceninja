@@ -79,7 +79,7 @@ class CompanyUserTransformer extends EntityTransformer
 
     public function includeToken(CompanyUser $company_user)
     {
-        $token = $company_user->tokens->where('company_id', $company_user->company_id)->where('user_id', $company_user->user_id)->first();
+        $token = $company_user->tokens()->where('company_id', $company_user->company_id)->where('user_id', $company_user->user_id)->first();
 
         $transformer = new CompanyTokenTransformer($this->serializer);
 

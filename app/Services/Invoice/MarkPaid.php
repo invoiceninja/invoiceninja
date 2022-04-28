@@ -18,6 +18,7 @@ use App\Jobs\Invoice\InvoiceWorkflowSettings;
 use App\Jobs\Ninja\TransactionLog;
 use App\Jobs\Payment\EmailPayment;
 use App\Libraries\Currency\Conversion\CurrencyApi;
+use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\TransactionEvent;
@@ -99,10 +100,15 @@ class MarkPaid extends AbstractService
         $payment->ledger()
                 ->updatePaymentBalance($payment->amount * -1);
 
-        $this->invoice->client->fresh();
-        $this->invoice->client->paid_to_date += $payment->amount;
-        $this->invoice->client->balance += $payment->amount * -1;
-        $this->invoice->client->push();
+        \DB::connection(config('database.default'))->transaction(function () use($payment){
+
+        /* Get the last record for the client and set the current balance*/
+            $client = Client::where('id', $this->invoice->client_id)->lockForUpdate()->first();
+            $client->paid_to_date += $payment->amount;
+            $client->balance -= $payment->amount;
+            $client->save();
+
+        }, 1);
 
         $this->invoice = $this->invoice
                              ->service()

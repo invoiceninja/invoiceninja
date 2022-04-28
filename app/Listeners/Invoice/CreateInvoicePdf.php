@@ -39,21 +39,21 @@ class CreateInvoicePdf implements ShouldQueue
         if(isset($event->invoice))
         {
             $event->invoice->invitations->each(function ($invitation) {
-                CreateEntityPdf::dispatch($invitation);
+                CreateEntityPdf::dispatch($invitation->load("invoice", "contact.client.company"));
             });
         }
 
         if(isset($event->quote))
         {
             $event->quote->invitations->each(function ($invitation) {
-                CreateEntityPdf::dispatch($invitation);
+                CreateEntityPdf::dispatch($invitation->load("quote", "contact.client.company"));
             });
         }
 
         if(isset($event->credit))
         {
             $event->credit->invitations->each(function ($invitation) {
-                CreateEntityPdf::dispatch($invitation);
+                CreateEntityPdf::dispatch($invitation->load("credit", "contact.client.company"));
             });
         }
 

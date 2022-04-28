@@ -242,7 +242,7 @@ class InvoiceService
 
     public function triggeredActions($request)
     {
-        $this->invoice = (new TriggeredActions($this->invoice, $request))->run();
+        $this->invoice = (new TriggeredActions($this->invoice->load('invitations'), $request))->run();
 
         return $this;
     }
@@ -536,6 +536,19 @@ class InvoiceService
     {
 
         if ($this->invoice->status_id == Invoice::STATUS_PAID && $this->invoice->client->getSetting('auto_archive_invoice')) {
+            /* Throws: Payment amount xxx does not match invoice totals. */
+
+            if ($this->invoice->trashed()) 
+                return $this;
+
+            $this->invoice->delete();
+
+            event(new InvoiceWasArchived($this->invoice, $this->invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+        
+
+        }
+
+        if ($this->invoice->status_id == Invoice::STATUS_CANCELLED && $this->invoice->client->getSetting('auto_archive_invoice_cancelled')) {
             /* Throws: Payment amount xxx does not match invoice totals. */
 
             if ($this->invoice->trashed()) 

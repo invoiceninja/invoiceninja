@@ -58,7 +58,7 @@ class HtmlEngine
 
         $this->company = $invitation->company;
 
-        $this->contact = $invitation->contact;
+        $this->contact = $invitation->contact->load('client');
         
         $this->client = $this->contact->client->load('company','country');
         
@@ -122,6 +122,9 @@ class HtmlEngine
         $data['$invoice.date'] = &$data['$date'];
         $data['$invoiceDate'] = &$data['$date'];
         $data['$due_date'] = ['value' => $this->translateDate($this->entity->due_date, $this->client->date_format(), $this->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.'.$this->entity_string.'_due_date')];
+
+        $data['$partial_due_date'] = ['value' => $this->translateDate($this->entity->partial_due_date, $this->client->date_format(), $this->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.'.$this->entity_string.'_due_date')];
+        
         $data['$dueDate'] = &$data['$due_date'];
 
         $data['$payment_due'] = ['value' => $this->translateDate($this->entity->due_date, $this->client->date_format(), $this->client->locale()) ?: '&nbsp;', 'label' => ctrans('texts.payment_due')];
@@ -210,9 +213,9 @@ class HtmlEngine
         $data['$gross_subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getGrossSubTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.subtotal')];
 
         if($this->entity->uses_inclusive_taxes)
-            $data['$net_subtotal'] = ['value' => Number::formatMoney(($this->entity_calc->getSubTotal() - $this->entity->total_taxes), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.net_subtotal')];
+            $data['$net_subtotal'] = ['value' => Number::formatMoney(($this->entity_calc->getSubTotal() - $this->entity->total_taxes - $this->entity_calc->getTotalDiscount()), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.net_subtotal')];
         else
-            $data['$net_subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getSubTotal(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.net_subtotal')];
+            $data['$net_subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getSubTotal() - $this->entity_calc->getTotalDiscount(), $this->client) ?: '&nbsp;', 'label' => ctrans('texts.net_subtotal')];
 
         $data['$invoice.subtotal'] = &$data['$subtotal'];
 

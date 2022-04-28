@@ -50,8 +50,6 @@ class CompanySettingsTest extends TestCase
 
         $this->company->saveSettings($settings, $this->company);
 
-        //$this->withoutExceptionHandling();
-
         $response = false;
 
         try {

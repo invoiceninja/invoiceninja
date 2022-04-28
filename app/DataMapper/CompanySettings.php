@@ -271,8 +271,10 @@ class CompanySettings extends BaseSettings
     public $use_credits_payment = 'off'; //always, option, off //@implemented
     public $hide_empty_columns_on_pdf = false;
     public $email_from_name = '';
+    public $auto_archive_invoice_cancelled = false;
 
     public static $casts = [
+        'auto_archive_invoice_cancelled'     => 'bool',
         'email_from_name'                    => 'string',
         'show_all_tasks_client_portal'       => 'string',
         'entity_send_time'                   => 'int',
@@ -503,6 +505,7 @@ class CompanySettings extends BaseSettings
         'language_id'                        => 'string',
         'show_currency_code'                 => 'bool',
         'website'                            => 'string',
+        'default_task_rate'                  => 'float',
     ];
 
     /**

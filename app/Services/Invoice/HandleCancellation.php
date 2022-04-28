@@ -52,6 +52,8 @@ class HandleCancellation extends AbstractService
         //adjust client balance
         $this->invoice->client->service()->updateBalance($adjustment)->save();
 
+        $this->invoice->service()->workFlow()->save();
+        
         event(new InvoiceWasCancelled($this->invoice, $this->invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         $transaction = [

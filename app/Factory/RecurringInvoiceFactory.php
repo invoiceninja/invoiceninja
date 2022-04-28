@@ -50,6 +50,8 @@ class RecurringInvoiceFactory
         $invoice->next_send_date = null;
         $invoice->remaining_cycles = -1;
         $invoice->paid_to_date = 0;
+        $invoice->auto_bill_enabled = false;
+        $invoice->auto_bill = 'off';
 
         return $invoice;
     }

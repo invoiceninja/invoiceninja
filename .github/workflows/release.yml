@@ -35,7 +35,6 @@ jobs:
           php artisan key:generate
           php artisan optimize
           php artisan storage:link
-          php artisan livewire:publish
           sudo php artisan cache:clear
           sudo find ./vendor/bin/ -type f -exec chmod +x {} \;
           sudo find ./ -type d -exec chmod 755 {} \;

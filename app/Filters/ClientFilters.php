@@ -57,10 +57,13 @@ class ClientFilters extends QueryFilters
     {
         $parts = explode(':', $balance);
 
+        if(!is_array($parts))
+            return $this->builder;
+
         return $this->builder->whereBetween('balance', [$parts[0], $parts[1]]);
     }
 
-    public function email(string $email):Builder
+    public function email(string $email = ''):Builder
     {
         return
 
