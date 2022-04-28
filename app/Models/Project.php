@@ -63,6 +63,16 @@ class Project extends BaseModel
         return $this->belongsTo(Client::class)->withTrashed();
     }
 
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class)->withTrashed();
+    }
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class)->withTrashed();
+    }
+
     public function documents()
     {
         return $this->morphMany(Document::class, 'documentable');
