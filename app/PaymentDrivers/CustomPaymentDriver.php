@@ -17,6 +17,7 @@ use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Utils\HtmlEngine;
+use App\Utils\Number;
 use App\Utils\Traits\MakesHash;
 
 /**
@@ -66,6 +67,9 @@ class CustomPaymentDriver extends BaseDriver
             $variables = (new HtmlEngine($invoice->invitations->first()))->generateLabelsAndValues();
         }
 
+        $variables['values']['$invoices'] = collect($this->payment_hash->invoices())->pluck('invoice_number')->implode(',');
+        $variables['labels']['$invoices_label'] = ctrans('texts.invoice_number_short'); 
+        
         $data['title'] = $this->company_gateway->getConfigField('name');
         $data['instructions'] = strtr($this->company_gateway->getConfigField('text'), $variables['values']);
 
