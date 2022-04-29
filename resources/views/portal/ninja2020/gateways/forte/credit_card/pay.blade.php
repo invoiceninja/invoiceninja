@@ -33,7 +33,7 @@
 
         @include('portal.ninja2020.gateways.includes.payment_details')
 
-        @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
+        @component('portal.ninja2020.components.general.card-element', ['title' => 'Pay with Credit Card'])
             <input type="hidden" name="card_brand" id="card_brand">
             <input type="hidden" name="payment_token" id="payment_token">
             @include('portal.ninja2020.gateways.forte.includes.credit_card')

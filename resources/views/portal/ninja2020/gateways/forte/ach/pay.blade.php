@@ -28,20 +28,16 @@
 
         @include('portal.ninja2020.gateways.includes.payment_details')
 
-        @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
+        @component('portal.ninja2020.components.general.card-element', ['title' => 'Pay with Bank Transfer'])
             <input type="hidden" name="payment_token" id="payment_token">
-            @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.routing_number')])
-                <input class="input w-full" id="routing-number" type="text" required>
-            @endcomponent
-    
-            @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.account_number')])
-                <input class="input w-full" id="account-number" type="text" required>
-            @endcomponent
-    
-            @component('portal.ninja2020.components.general.card-element-single')
-                <input type="checkbox" class="form-checkbox mr-1" name="accept_terms" id="accept-terms" required>
-                <label for="accept-terms" class="cursor-pointer">{{ ctrans('texts.ach_authorization', ['company' => auth()->user()->company->present()->name, 'email' => auth('contact')->user()->client->company->settings->email]) }}</label>
-            @endcomponent
+            <div class="bg-white px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"
+                style="display: flex!important; justify-content: center!important;">
+                <input class="input w-full" id="routing-number" type="text" placeholder="{{ctrans('texts.routing_number')}}" required>
+            </div>
+            <div class="bg-white px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"
+                style="display: flex!important; justify-content: center!important;">
+                <input class="input w-full" id="account-number" type="text" placeholder="{{ctrans('texts.account_number')}}" required>
+            </div>
         @endcomponent
         <div class="bg-white px-4 py-5 flex justify-end">
             <button type="button"
