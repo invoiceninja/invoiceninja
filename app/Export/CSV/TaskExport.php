@@ -92,13 +92,39 @@ class TaskExport extends BaseExport
         $query->cursor()
               ->each(function ($entity){
 
-                $this->iterateItems($entity);
+                $this->buildRow($entity); 
 
         });
 
         return $this->csv->toString(); 
 
     }
+
+    private function buildRow(Task $task) 
+    {
+
+        $entity = [];
+        $transformed_entity = $this->entity_transformer->transform($task);
+
+        if(is_null($task->time_log)){
+
+            foreach(array_values($this->input['report_keys']) as $key){
+
+                if(array_key_exists($key, $transformed_entity))
+                    $entity[$key] = $transformed_entity[$key];
+                else
+                    $entity[$key] = '';            
+            }
+
+            $entity = $this->decorateAdvancedFields($task, $entity);
+
+            return $this->csv->insertOne($entity);
+        }
+
+        return $entity;
+
+    }
+
 
     private function iterateItems(Task $task)
     {
@@ -114,10 +140,9 @@ class TaskExport extends BaseExport
         {
             foreach(array_values($this->input['report_keys']) as $key)
             {
-                $key = str_replace("item.", "", $key);
 
                 if(array_key_exists($key, $transformed_task))
-                $entity[$key] = $transformed_task[$key];
+                    $entity[$key] = $transformed_task[$key];
             }
 
             $this->csv->insertOne($entity); 
@@ -140,16 +165,16 @@ class TaskExport extends BaseExport
 
                 if(array_key_exists("start_date",$this->input['report_keys'])){
                     $entity['start_date'] = Carbon::createFromTimeStamp($item[0])->format($this->date_format);
-                    $entity = array_merge($entity, $transformed_task);
+                    // $entity = array_merge($entity, $transformed_task);
                 }
 
                 if(array_key_exists("end_date",$this->input['report_keys']) && $item[1] > 0){
                     $entity['end_date'] = Carbon::createFromTimeStamp($item[1])->format($this->date_format);
-                    $entity = array_merge($entity, $transformed_task);
+                    // $entity = array_merge($entity, $transformed_task);
                 }
                 elseif(array_key_exists('end_date', $this->input['report_keys'])){
                     $entity['end_date'] = ctrans('texts.is_running');
-                    $entity = array_merge($entity, $transformed_task);
+                    // $entity = array_merge($entity, $transformed_task);
                 }
 
 
@@ -162,23 +187,6 @@ class TaskExport extends BaseExport
 
 
 
-    private function buildRow(Task $task) :array
-    {
-
-        $transformed_entity = $this->entity_transformer->transform($task);
-
-        $entity = [];
-
-        foreach(array_values($this->input['report_keys']) as $key){
-
-            if(array_key_exists($key, $transformed_entity))
-                $entity[$key] = $transformed_entity[$key];
-        
-        }
-
-        return $this->decorateAdvancedFields($task, $entity);
-
-    }
 
     private function decorateAdvancedFields(Task $task, array $entity) :array
     {
