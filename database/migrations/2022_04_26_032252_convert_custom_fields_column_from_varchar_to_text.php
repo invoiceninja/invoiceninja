@@ -16,171 +16,168 @@ class ConvertCustomFieldsColumnFromVarcharToText extends Migration
     {
         set_time_limit(0);
 
+        Schema::table('credits', function (Blueprint $table) {
 
-        if(Ninja::isSelfHost())
-        {
-            Schema::table('credits', function (Blueprint $table) {
+            $table->text('custom_value1')->change();
+            $table->text('custom_value2')->change();
+            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
-                $table->text('custom_value1')->change();
-                $table->text('custom_value2')->change();
-                $table->text('custom_value3')->change();
-                $table->text('custom_value3')->change();
+        });
 
-            });
+        Schema::table('client_contacts', function (Blueprint $table) {
 
-            Schema::table('client_contacts', function (Blueprint $table) {
+            $table->text('custom_value1')->change();
+            $table->text('custom_value2')->change();
+            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
-                $table->text('custom_value1')->change();
-                $table->text('custom_value2')->change();
-                $table->text('custom_value3')->change();
-                $table->text('custom_value3')->change();
+        });
 
-            });
+        Schema::table('clients', function (Blueprint $table) {
 
-            Schema::table('clients', function (Blueprint $table) {
+            $table->text('custom_value1')->change();
+            $table->text('custom_value2')->change();
+            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
-                $table->text('custom_value1')->change();
-                $table->text('custom_value2')->change();
-                $table->text('custom_value3')->change();
-                $table->text('custom_value3')->change();
+        });
 
-            });
+        Schema::table('clients', function (Blueprint $table) {
 
-            Schema::table('clients', function (Blueprint $table) {
+            $table->text('custom_value1')->change();
+            $table->text('custom_value2')->change();
+            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
-                $table->text('custom_value1')->change();
-                $table->text('custom_value2')->change();
-                $table->text('custom_value3')->change();
-                $table->text('custom_value3')->change();
+        });
 
-            });
+        Schema::table('documents', function (Blueprint $table) {
 
-            Schema::table('documents', function (Blueprint $table) {
+            $table->text('custom_value1')->change();
+            $table->text('custom_value2')->change();
+            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
-                $table->text('custom_value1')->change();
-                $table->text('custom_value2')->change();
-                $table->text('custom_value3')->change();
-                $table->text('custom_value3')->change();
+        });
 
-            });
+        Schema::table('expenses', function (Blueprint $table) {
 
-            Schema::table('expenses', function (Blueprint $table) {
+            $table->text('custom_value1')->change();
+            $table->text('custom_value2')->change();
+            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
-                $table->text('custom_value1')->change();
-                $table->text('custom_value2')->change();
-                $table->text('custom_value3')->change();
-                $table->text('custom_value3')->change();
+        });
 
-            });
+        Schema::table('invoices', function (Blueprint $table) {
 
-            Schema::table('invoices', function (Blueprint $table) {
+            $table->text('custom_value1')->change();
+            $table->text('custom_value2')->change();
+            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
-                $table->text('custom_value1')->change();
-                $table->text('custom_value2')->change();
-                $table->text('custom_value3')->change();
-                $table->text('custom_value3')->change();
+        });
 
-            });
+        Schema::table('payments', function (Blueprint $table) {
 
-            Schema::table('payments', function (Blueprint $table) {
+            $table->text('custom_value1')->change();
+            $table->text('custom_value2')->change();
+            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
-                $table->text('custom_value1')->change();
-                $table->text('custom_value2')->change();
-                $table->text('custom_value3')->change();
-                $table->text('custom_value3')->change();
+        });
 
-            });
+        Schema::table('products', function (Blueprint $table) {
 
-            Schema::table('products', function (Blueprint $table) {
+            $table->text('custom_value1')->change();
+            $table->text('custom_value2')->change();
+            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
-                $table->text('custom_value1')->change();
-                $table->text('custom_value2')->change();
-                $table->text('custom_value3')->change();
-                $table->text('custom_value3')->change();
+        });
 
-            });
+        Schema::table('projects', function (Blueprint $table) {
 
-            Schema::table('projects', function (Blueprint $table) {
+            $table->text('custom_value1')->change();
+            $table->text('custom_value2')->change();
+            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
-                $table->text('custom_value1')->change();
-                $table->text('custom_value2')->change();
-                $table->text('custom_value3')->change();
-                $table->text('custom_value3')->change();
+        });
 
-            });
+        Schema::table('quotes', function (Blueprint $table) {
 
-            Schema::table('quotes', function (Blueprint $table) {
+            $table->text('custom_value1')->change();
+            $table->text('custom_value2')->change();
+            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
-                $table->text('custom_value1')->change();
-                $table->text('custom_value2')->change();
-                $table->text('custom_value3')->change();
-                $table->text('custom_value3')->change();
+        });
 
-            });
+        Schema::table('recurring_invoices', function (Blueprint $table) {
 
-            Schema::table('recurring_invoices', function (Blueprint $table) {
+            $table->text('custom_value1')->change();
+            $table->text('custom_value2')->change();
+            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
-                $table->text('custom_value1')->change();
-                $table->text('custom_value2')->change();
-                $table->text('custom_value3')->change();
-                $table->text('custom_value3')->change();
+        });
 
-            });
+        Schema::table('recurring_quotes', function (Blueprint $table) {
 
-            Schema::table('recurring_quotes', function (Blueprint $table) {
+            $table->text('custom_value1')->change();
+            $table->text('custom_value2')->change();
+            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
-                $table->text('custom_value1')->change();
-                $table->text('custom_value2')->change();
-                $table->text('custom_value3')->change();
-                $table->text('custom_value3')->change();
+        });
 
-            });
+        Schema::table('recurring_expenses', function (Blueprint $table) {
 
-            Schema::table('recurring_expenses', function (Blueprint $table) {
+            $table->text('custom_value1')->change();
+            $table->text('custom_value2')->change();
+            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
-                $table->text('custom_value1')->change();
-                $table->text('custom_value2')->change();
-                $table->text('custom_value3')->change();
-                $table->text('custom_value3')->change();
+        });
 
-            });
+        Schema::table('tasks', function (Blueprint $table) {
 
-            Schema::table('tasks', function (Blueprint $table) {
+            $table->text('custom_value1')->change();
+            $table->text('custom_value2')->change();
+            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
-                $table->text('custom_value1')->change();
-                $table->text('custom_value2')->change();
-                $table->text('custom_value3')->change();
-                $table->text('custom_value3')->change();
+        });
 
-            });
+        Schema::table('users', function (Blueprint $table) {
 
-            Schema::table('users', function (Blueprint $table) {
+            $table->text('custom_value1')->change();
+            $table->text('custom_value2')->change();
+            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
-                $table->text('custom_value1')->change();
-                $table->text('custom_value2')->change();
-                $table->text('custom_value3')->change();
-                $table->text('custom_value3')->change();
+        });
 
-            });
+        Schema::table('vendors', function (Blueprint $table) {
 
-            Schema::table('vendors', function (Blueprint $table) {
+            $table->text('custom_value1')->change();
+            $table->text('custom_value2')->change();
+            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
-                $table->text('custom_value1')->change();
-                $table->text('custom_value2')->change();
-                $table->text('custom_value3')->change();
-                $table->text('custom_value3')->change();
+        });
 
-            });
+        Schema::table('vendor_contacts', function (Blueprint $table) {
 
-            Schema::table('vendor_contacts', function (Blueprint $table) {
+            $table->text('custom_value1')->change();
+            $table->text('custom_value2')->change();
+            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
-                $table->text('custom_value1')->change();
-                $table->text('custom_value2')->change();
-                $table->text('custom_value3')->change();
-                $table->text('custom_value3')->change();
-
-            });
-        }
+        });
+        
         
     }
 
