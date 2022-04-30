@@ -4,7 +4,7 @@
  *
  * @link https://github.com/clientninja/clientninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://clientninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://clientninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */

@@ -4,7 +4,7 @@
  *
  * @link https://github.com/quoteninja/quoteninja source repository
  *
- * @copyright Copyright (c) 2021. Quote Ninja LLC (https://quoteninja.com)
+ * @copyright Copyright (c) 2022. Quote Ninja LLC (https://quoteninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -20,15 +20,17 @@ use App\Utils\Ninja;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
-class QuoteExport
+class QuoteExport extends BaseExport
 {
-    private $company;
+    private Company $company;
 
-    private $report_keys;
+    protected array $input;
 
     private $quote_transformer;
 
-    private array $entity_keys = [
+    protected string $date_key = 'date';
+
+    protected array $entity_keys = [
         'amount' => 'amount',
         'balance' => 'balance',
         'client' => 'client_id',
@@ -71,10 +73,10 @@ class QuoteExport
         'invoice'
     ];
 
-    public function __construct(Company $company, array $report_keys)
+    public function __construct(Company $company, array $input)
     {
         $this->company = $company;
-        $this->report_keys = $report_keys;
+        $this->input = $input;
         $this->quote_transformer = new QuoteTransformer();
     }
 
@@ -93,29 +95,22 @@ class QuoteExport
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-        Quote::with('client')->where('company_id', $this->company->id)
-                            ->where('is_deleted',0)
-                            ->cursor()
-                            ->each(function ($quote){
+        $query = Quote::query()
+                        ->with('client')->where('company_id', $this->company->id)
+                        ->where('is_deleted',0);
 
-                                $this->csv->insertOne($this->buildRow($quote)); 
+        $query = $this->addDateRange($query);
 
-                            });
+        $query->cursor()
+            ->each(function ($quote){
+
+                $this->csv->insertOne($this->buildRow($quote)); 
+
+        });
 
 
         return $this->csv->toString(); 
 
-    }
-
-    private function buildHeader() :array
-    {
-
-        $header = [];
-
-        foreach(array_keys($this->report_keys) as $key)
-            $header[] = ctrans("texts.{$key}");
-
-        return $header;
     }
 
     private function buildRow(Quote $quote) :array
@@ -125,7 +120,7 @@ class QuoteExport
 
         $entity = [];
 
-        foreach(array_values($this->report_keys) as $key){
+        foreach(array_values($this->input['report_keys']) as $key){
 
                 $entity[$key] = $transformed_quote[$key];
         }

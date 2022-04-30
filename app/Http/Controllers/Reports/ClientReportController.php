@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,7 +13,7 @@ namespace App\Http\Controllers\Reports;
 
 use App\Export\CSV\ClientExport;
 use App\Http\Controllers\BaseController;
-use App\Http\Requests\Report\ClientReportRequest;
+use App\Http\Requests\Report\GenericReportRequest;
 use App\Models\Client;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Response;
@@ -21,6 +21,8 @@ use Illuminate\Http\Response;
 class ClientReportController extends BaseController
 {
     use MakesHash;
+
+    private string $filename = 'clients.csv';
 
     public function __construct()
     {
@@ -36,6 +38,10 @@ class ClientReportController extends BaseController
      *      description="Export client reports",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(ref="#/components/schemas/GenericReportSchema")
+     *      ),
      *      @OA\Response(
      *          response=200,
      *          description="success",
@@ -55,14 +61,23 @@ class ClientReportController extends BaseController
      *       ),
      *     )
      */
-    public function __invoke(ClientReportRequest $request)
+    public function __invoke(GenericReportRequest $request)
     {
         // expect a list of visible fields, or use the default
 
-        // return response()->json(['message' => 'Processing'], 200);
-        $export = new ClientExport(auth()->user()->company(), $request->input('keys'));
+        $export = new ClientExport(auth()->user()->company(), $request->all());
 
         $csv = $export->run();
+
+        $headers = array(
+            'Content-Disposition' => 'attachment',
+            'Content-Type' => 'text/csv',
+        );
+
+        return response()->streamDownload(function () use ($csv) {
+            echo $csv;
+        }, $this->filename, $headers);
+        
     }
 
 

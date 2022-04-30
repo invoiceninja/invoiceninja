@@ -4,7 +4,7 @@
  *
  * @link https://github.com/expenseninja/expenseninja source repository
  *
- * @copyright Copyright (c) 2021. Expense Ninja LLC (https://expenseninja.com)
+ * @copyright Copyright (c) 2022. Expense Ninja LLC (https://expenseninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -20,15 +20,17 @@ use App\Utils\Ninja;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
-class ExpenseExport
+class ExpenseExport extends BaseExport
 {
-    private $company;
+    private Company $company;
 
-    private $report_keys;
+    protected array $input;
 
     private $expense_transformer;
 
-    private array $entity_keys = [
+    protected $date_key = 'date';
+
+    protected array $entity_keys = [
         'amount' => 'amount',
         'category' => 'category_id',
         'client' => 'client_id',
@@ -71,10 +73,10 @@ class ExpenseExport
         'payment_type_id',
     ];
 
-    public function __construct(Company $company, array $report_keys)
+    public function __construct(Company $company, array $input)
     {
         $this->company = $company;
-        $this->report_keys = $report_keys;
+        $this->input = $input;
         $this->expense_transformer = new ExpenseTransformer();
     }
 
@@ -93,29 +95,24 @@ class ExpenseExport
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-        Expense::with('client')->where('company_id', $this->company->id)
-                            ->where('is_deleted',0)
-                            ->cursor()
-                            ->each(function ($expense){
+        $query = Expense::query()
+                        ->with('client')
+                        ->withTrashed()
+                        ->where('company_id', $this->company->id)
+                        ->where('is_deleted',0);
 
-                                $this->csv->insertOne($this->buildRow($expense)); 
+        $query = $this->addDateRange($query);
 
-                            });
+        $query->cursor()
+                ->each(function ($expense){
+
+                    $this->csv->insertOne($this->buildRow($expense)); 
+
+        });
 
 
         return $this->csv->toString(); 
 
-    }
-
-    private function buildHeader() :array
-    {
-
-        $header = [];
-
-        foreach(array_keys($this->report_keys) as $key)
-            $header[] = ctrans("texts.{$key}");
-
-        return $header;
     }
 
     private function buildRow(Expense $expense) :array
@@ -125,7 +122,7 @@ class ExpenseExport
 
         $entity = [];
 
-        foreach(array_values($this->report_keys) as $key){
+        foreach(array_values($this->input['report_keys']) as $key){
 
                 $entity[$key] = $transformed_expense[$key];
         }

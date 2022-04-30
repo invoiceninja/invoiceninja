@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -346,6 +346,31 @@ class RecurringInvoice extends BaseModel
                 break;
         }
     }
+
+    public static function stringStatus(int $status)
+    {
+        switch ($status) {
+            case self::STATUS_DRAFT:
+                return ctrans('texts.draft');
+                break;
+            case self::STATUS_PENDING:
+                return ctrans('texts.pending');
+                break;
+            case self::STATUS_ACTIVE:
+                return ctrans('texts.active');
+                break;
+            case self::STATUS_COMPLETED:
+                return ctrans('texts.status_completed');
+                break;
+            case self::STATUS_PAUSED:
+                return ctrans('texts.paused');
+                break;
+            default:
+                // code...
+                break;
+        }
+    }
+
 
     public static function frequencyForKey(int $frequency_id) :string
     {

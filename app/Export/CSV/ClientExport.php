@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -19,18 +19,25 @@ use App\Transformers\ClientTransformer;
 use App\Utils\Ninja;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
+use Illuminate\Support\Carbon;
 
-class ClientExport
+class ClientExport extends BaseExport
 {
     private $company;
 
-    private $report_keys;
+    protected $input;
 
     private $client_transformer;
 
     private $contact_transformer;
 
-    private array $entity_keys = [
+    private string $start_date;
+
+    private string $end_date;
+
+    protected string $date_key = 'created_at';
+
+    protected array $entity_keys = [
         'address1' => 'client.address1',
         'address2' => 'client.address2',
         'balance' => 'client.balance',
@@ -78,10 +85,10 @@ class ClientExport
         'client.industry',
     ];
 
-    public function __construct(Company $company, array $report_keys)
+    public function __construct(Company $company, array $input)
     {
         $this->company = $company;
-        $this->report_keys = $report_keys;
+        $this->input = $input;
         $this->client_transformer = new ClientTransformer();
         $this->contact_transformer = new ClientContactTransformer();
     }
@@ -101,29 +108,21 @@ class ClientExport
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-        Client::with('contacts')->where('company_id', $this->company->id)
-                                ->where('is_deleted',0)
-                                ->cursor()
-                                ->each(function ($client){
+        $query = Client::query()->with('contacts')
+                                ->withTrashed()
+                                ->where('company_id', $this->company->id)
+                                ->where('is_deleted',0);
+    
+        $query = $this->addDateRange($query);
 
-                                    $this->csv->insertOne($this->buildRow($client)); 
-
-                                });
+        $query->cursor()
+              ->each(function ($client){
+                        $this->csv->insertOne($this->buildRow($client)); 
+                    });
 
 
         return $this->csv->toString(); 
 
-    }
-
-    private function buildHeader() :array
-    {
-
-        $header = [];
-
-        foreach(array_keys($this->report_keys) as $key)
-            $header[] = ctrans("texts.{$key}");
-
-        return $header;
     }
 
     private function buildRow(Client $client) :array
@@ -139,7 +138,7 @@ class ClientExport
 
         $entity = [];
 
-        foreach(array_values($this->report_keys) as $key){
+        foreach(array_values($this->input['report_keys']) as $key){
 
             $parts = explode(".",$key);
             $entity[$parts[1]] = "";

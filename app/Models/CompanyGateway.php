@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -85,6 +85,9 @@ class CompanyGateway extends BaseModel
         '8fdeed552015b3c7b44ed6c8ebd9e992' => 309,
         'd6814fc83f45d2935e7777071e629ef9' => 310,
         'bbd736b3254b0aabed6ad7fda1298c88' => 311,
+        '65faab2ab6e3223dbe848b1686490baz' => 320,
+        'b9886f9257f0c6ee7c302f1c74475f6c' => 321,
+        'hxd6gwg3ekb9tb3v9lptgx1mqyg69zu9' => 322,
     ];
 
     protected $touches = [];

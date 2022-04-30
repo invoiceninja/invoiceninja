@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -18,10 +18,12 @@ use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\SystemLog;
+use App\Notifications\Ninja\WePayFailureNotification;
 use App\PaymentDrivers\WePayPaymentDriver;
 use App\PaymentDrivers\WePay\WePayCommon;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\Messages\SlackMessage;
 use Illuminate\Support\Str;
 
 class ACH
@@ -85,6 +87,9 @@ class ACH
                 $this->wepay_payment_driver->client,
                 $this->wepay_payment_driver->client->company,
             );
+
+        if(config('ninja.notification.slack'))
+            $this->wepay_payment_driver->company_gateway->company->notification(new WePayFailureNotification($this->wepay_payment_driver->company_gateway->company))->ninja();
 
             throw new PaymentFailed($e->getMessage(), 400);
         }
