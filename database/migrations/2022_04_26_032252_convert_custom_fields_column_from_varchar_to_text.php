@@ -43,15 +43,6 @@ class ConvertCustomFieldsColumnFromVarcharToText extends Migration
 
         });
 
-        Schema::table('clients', function (Blueprint $table) {
-
-            $table->text('custom_value1')->change();
-            $table->text('custom_value2')->change();
-            $table->text('custom_value3')->change();
-            $table->text('custom_value4')->change();
-
-        });
-
         Schema::table('documents', function (Blueprint $table) {
 
             $table->text('custom_value1')->change();
@@ -177,7 +168,6 @@ class ConvertCustomFieldsColumnFromVarcharToText extends Migration
             $table->text('custom_value4')->change();
 
         });
-        
         
     }
 
