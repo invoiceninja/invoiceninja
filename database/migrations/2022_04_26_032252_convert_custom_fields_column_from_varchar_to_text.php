@@ -1,5 +1,6 @@
 <?php
 
+use App\Utils\Ninja;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -20,7 +21,7 @@ class ConvertCustomFieldsColumnFromVarcharToText extends Migration
             $table->text('custom_value1')->change();
             $table->text('custom_value2')->change();
             $table->text('custom_value3')->change();
-            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
         });
 
@@ -29,7 +30,7 @@ class ConvertCustomFieldsColumnFromVarcharToText extends Migration
             $table->text('custom_value1')->change();
             $table->text('custom_value2')->change();
             $table->text('custom_value3')->change();
-            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
         });
 
@@ -38,16 +39,7 @@ class ConvertCustomFieldsColumnFromVarcharToText extends Migration
             $table->text('custom_value1')->change();
             $table->text('custom_value2')->change();
             $table->text('custom_value3')->change();
-            $table->text('custom_value3')->change();
-
-        });
-
-        Schema::table('clients', function (Blueprint $table) {
-
-            $table->text('custom_value1')->change();
-            $table->text('custom_value2')->change();
-            $table->text('custom_value3')->change();
-            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
         });
 
@@ -56,7 +48,7 @@ class ConvertCustomFieldsColumnFromVarcharToText extends Migration
             $table->text('custom_value1')->change();
             $table->text('custom_value2')->change();
             $table->text('custom_value3')->change();
-            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
         });
 
@@ -65,7 +57,7 @@ class ConvertCustomFieldsColumnFromVarcharToText extends Migration
             $table->text('custom_value1')->change();
             $table->text('custom_value2')->change();
             $table->text('custom_value3')->change();
-            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
         });
 
@@ -74,7 +66,7 @@ class ConvertCustomFieldsColumnFromVarcharToText extends Migration
             $table->text('custom_value1')->change();
             $table->text('custom_value2')->change();
             $table->text('custom_value3')->change();
-            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
         });
 
@@ -83,7 +75,7 @@ class ConvertCustomFieldsColumnFromVarcharToText extends Migration
             $table->text('custom_value1')->change();
             $table->text('custom_value2')->change();
             $table->text('custom_value3')->change();
-            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
         });
 
@@ -92,7 +84,7 @@ class ConvertCustomFieldsColumnFromVarcharToText extends Migration
             $table->text('custom_value1')->change();
             $table->text('custom_value2')->change();
             $table->text('custom_value3')->change();
-            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
         });
 
@@ -101,7 +93,7 @@ class ConvertCustomFieldsColumnFromVarcharToText extends Migration
             $table->text('custom_value1')->change();
             $table->text('custom_value2')->change();
             $table->text('custom_value3')->change();
-            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
         });
 
@@ -110,7 +102,7 @@ class ConvertCustomFieldsColumnFromVarcharToText extends Migration
             $table->text('custom_value1')->change();
             $table->text('custom_value2')->change();
             $table->text('custom_value3')->change();
-            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
         });
 
@@ -119,7 +111,7 @@ class ConvertCustomFieldsColumnFromVarcharToText extends Migration
             $table->text('custom_value1')->change();
             $table->text('custom_value2')->change();
             $table->text('custom_value3')->change();
-            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
         });
 
@@ -128,7 +120,7 @@ class ConvertCustomFieldsColumnFromVarcharToText extends Migration
             $table->text('custom_value1')->change();
             $table->text('custom_value2')->change();
             $table->text('custom_value3')->change();
-            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
         });
 
@@ -137,7 +129,7 @@ class ConvertCustomFieldsColumnFromVarcharToText extends Migration
             $table->text('custom_value1')->change();
             $table->text('custom_value2')->change();
             $table->text('custom_value3')->change();
-            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
         });
 
@@ -146,7 +138,7 @@ class ConvertCustomFieldsColumnFromVarcharToText extends Migration
             $table->text('custom_value1')->change();
             $table->text('custom_value2')->change();
             $table->text('custom_value3')->change();
-            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
         });
 
@@ -155,7 +147,7 @@ class ConvertCustomFieldsColumnFromVarcharToText extends Migration
             $table->text('custom_value1')->change();
             $table->text('custom_value2')->change();
             $table->text('custom_value3')->change();
-            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
         });
 
@@ -164,7 +156,7 @@ class ConvertCustomFieldsColumnFromVarcharToText extends Migration
             $table->text('custom_value1')->change();
             $table->text('custom_value2')->change();
             $table->text('custom_value3')->change();
-            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
         });
 
@@ -173,10 +165,10 @@ class ConvertCustomFieldsColumnFromVarcharToText extends Migration
             $table->text('custom_value1')->change();
             $table->text('custom_value2')->change();
             $table->text('custom_value3')->change();
-            $table->text('custom_value3')->change();
+            $table->text('custom_value4')->change();
 
         });
-
+        
     }
 
     /**

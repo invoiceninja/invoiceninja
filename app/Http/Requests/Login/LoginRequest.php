@@ -14,6 +14,7 @@ namespace App\Http\Requests\Login;
 
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\Account\BlackListRule;
+use App\Http\ValidationRules\Account\EmailBlackListRule;
 use App\Utils\Ninja;
 
 class LoginRequest extends Request
@@ -38,7 +39,7 @@ class LoginRequest extends Request
     {
 
         if(Ninja::isHosted())
-            $email_rules = ['required', new BlackListRule];
+            $email_rules = ['required', new BlackListRule, new EmailBlackListRule];
         else
             $email_rules = 'required';
 

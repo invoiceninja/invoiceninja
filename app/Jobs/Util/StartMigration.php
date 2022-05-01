@@ -132,7 +132,6 @@ class StartMigration implements ShouldQueue
             $this->company->update_products = $update_product_flag;
             $this->company->save();
 
-
             if(Ninja::isHosted())
                 app('sentry')->captureException($e);
             

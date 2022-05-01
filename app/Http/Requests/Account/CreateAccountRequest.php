@@ -12,7 +12,10 @@
 namespace App\Http\Requests\Account;
 
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\Account\BlackListRule;
+use App\Http\ValidationRules\Account\EmailBlackListRule;
 use App\Http\ValidationRules\NewUniqueUserRule;
+use App\Utils\Ninja;
 
 class CreateAccountRequest extends Request
 {
@@ -33,13 +36,18 @@ class CreateAccountRequest extends Request
      */
     public function rules()
     {
+
+        if(Ninja::isHosted())
+            $email_rules = ['required', 'email:rfc,dns', new NewUniqueUserRule, new BlackListRule, new EmailBlackListRule];
+        else
+            $email_rules = ['required', 'email:rfc,dns', new NewUniqueUserRule];
+
+
         return [
             'first_name'        => 'string|max:100',
             'last_name'         =>  'string:max:100',
             'password'          => 'required|string|min:6|max:1000',
-            // 'email'             => 'bail|required|email:rfc,dns',
-            // 'email'             => new NewUniqueUserRule(),
-            'email'             =>  ['required', 'email:rfc,dns', new NewUniqueUserRule],
+            'email'             =>  $email_rules,
             'privacy_policy'    => 'required|boolean',
             'terms_of_service'  => 'required|boolean',
         ];
