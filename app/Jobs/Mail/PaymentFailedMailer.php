@@ -111,7 +111,7 @@ class PaymentFailedMailer implements ShouldQueue
 
         //add client payment failures here.
         //
-        if($contact = $this->client->primary_contact()->first() && $this->payment_hash)
+        if($contact = $this->client->contacts()->first() && $this->payment_hash)
         {
         
             $mail_obj = (new ClientPaymentFailureObject($this->client, $this->error, $this->company, $this->payment_hash))->build();
