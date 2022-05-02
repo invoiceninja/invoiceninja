@@ -428,10 +428,13 @@ class Account extends BaseModel
 
     public function gmailCredentialNotification() :bool
     {
+        nlog("checking if gmail credential notification has already been sent");
 
         if(is_null(Cache::get($this->key)))
             return false;
 
+        nlog("Sending notification");
+        
         try {
 
             if(is_null(Cache::get("gmail_credentials_notified:{$this->key}"))) {
