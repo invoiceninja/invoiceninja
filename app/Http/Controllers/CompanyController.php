@@ -232,7 +232,7 @@ class CompanyController extends BaseController
             'notifications' => CompanySettings::notificationDefaults(),
         ]);
 
-        if(auth()->user()->company()->account->companies()->where('is_large', 1)->exists())
+        if($company->account->companies()->where('is_large', 1)->exists())
         {
             $company->account->companies()->update(['is_large' => true]);
         }
