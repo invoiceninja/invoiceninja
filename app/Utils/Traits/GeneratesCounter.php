@@ -642,9 +642,12 @@ trait GeneratesCounter
             return $counter;
         }
 
-        $search = ['{$year}'];
-        $replace = [Carbon::now($entity->company->timezone()->name)->format('Y')];
-
+        $search = [];
+        $replace = [];
+        
+        // $search = ['{$year}'];
+        //$replace = [Carbon::now($entity->company->timezone()->name)->format('Y')];
+        
         $search[] = '{$counter}';
         $replace[] = $counter;
 
@@ -658,7 +661,7 @@ trait GeneratesCounter
         $replace[] = $counter;
 
         $search[] = '{$year}';
-        $replace = [Carbon::now($entity->company->timezone()->name)->format('Y')];
+        $replace[] = [Carbon::now($entity->company->timezone()->name)->format('Y')];
         
         if (strstr($pattern, '{$user_id}') || strstr($pattern, '{$userId}')) {
             $user_id = $entity->user_id ? $entity->user_id : 0;
