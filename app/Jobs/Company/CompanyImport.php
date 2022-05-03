@@ -490,7 +490,8 @@ class CompanyImport implements ShouldQueue
 
         foreach($this->company_properties as $value){
 
-            $this->company->{$value} = $tmp_company->{$value};    
+            if(property_exists($tmp_company, $value))
+                $this->company->{$value} = $tmp_company->{$value};    
 
         }
         
