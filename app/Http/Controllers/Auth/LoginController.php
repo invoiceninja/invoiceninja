@@ -217,6 +217,9 @@ class LoginController extends BaseController
             $cu = CompanyUser::query()
                   ->where('user_id', auth()->user()->id);
 
+            if($cu->count() == 0)
+                return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
+
             $truth = app()->make(TruthSource::class);
 
             $truth->setCompanyUser($cu->first());
@@ -320,6 +323,9 @@ class LoginController extends BaseController
         $cu = CompanyUser::query()
                           ->where('user_id', $company_token->user_id);
 
+        if($cu->count() == 0)
+            return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
+
         $cu->first()->account->companies->each(function ($company) use($cu, $request){
 
             if($company->tokens()->where('is_system', true)->count() == 0)
@@ -390,6 +396,8 @@ class LoginController extends BaseController
                 $cu = CompanyUser::query()
                                   ->where('user_id', auth()->user()->id);
 
+                if($cu->count() == 0)
+                    return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
 
                     $truth = app()->make(TruthSource::class);
                     $truth->setCompanyUser($cu->first());
@@ -440,6 +448,9 @@ class LoginController extends BaseController
             
                 $cu = CompanyUser::query()
                                   ->where('user_id', auth()->user()->id);
+
+                if($cu->count() == 0)
+                    return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
 
                     $truth = app()->make(TruthSource::class);
                     $truth->setCompanyUser($cu->first());
@@ -495,6 +506,9 @@ class LoginController extends BaseController
             
                 $cu = CompanyUser::query()
                                   ->where('user_id', auth()->user()->id);
+
+                if($cu->count() == 0)
+                    return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
 
                 $truth = app()->make(TruthSource::class);
                 $truth->setCompanyUser($cu->first());
@@ -555,6 +569,8 @@ class LoginController extends BaseController
 
             $cu = CompanyUser::whereUserId(auth()->user()->id);
 
+            if($cu->count() == 0)
+                return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
 
                 $truth = app()->make(TruthSource::class);
                 $truth->setCompanyUser($cu->first());
