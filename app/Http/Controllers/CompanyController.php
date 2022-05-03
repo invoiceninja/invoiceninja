@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -232,7 +232,7 @@ class CompanyController extends BaseController
             'notifications' => CompanySettings::notificationDefaults(),
         ]);
 
-        if(auth()->user()->company()->account->companies()->where('is_large', 1)->exists())
+        if($company->account->companies()->where('is_large', 1)->exists())
         {
             $company->account->companies()->update(['is_large' => true]);
         }

@@ -34,8 +34,6 @@ class ExportCsvTest extends TestCase
             ThrottleRequests::class
         );
 
-        // $this->faker = \Faker\Factory::create();
-
         $this->makeTestData();
 
         $this->withoutExceptionHandling();
@@ -61,7 +59,6 @@ class ExportCsvTest extends TestCase
         // nlog(print_r($merged_keys, 1));
         // nlog(print_r($merged_values, 1));
 
-
         foreach ($merged_keys as &$key) {
             $key = ctrans('texts.'.$key);
         }
@@ -76,7 +73,7 @@ class ExportCsvTest extends TestCase
             }
         }
 
-        //Storage::put(base_path('invy.csv'), $csv->getContent());
+        // Storage::put('invy.csv', $csv->getContent());
 
         $this->markTestSkipped();
     }

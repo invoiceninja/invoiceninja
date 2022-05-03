@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -156,45 +156,6 @@ class CreateAccount
         return $sp794f3f;
     }
 
-    // private function processSettings($settings)
-    // {
-    //     if(Ninja::isHosted() && Cache::get('currencies'))
-    //     {
-
-    //         $currency = Cache::get('currencies')->filter(function ($item) use ($currency_code) {
-    //             return strtolower($item->code) == $currency_code;
-    //         })->first();
-
-    //         if ($currency) {
-    //             $settings->currency_id = (string)$currency->id;
-    //         }
-
-    //         $country = Cache::get('countries')->filter(function ($item) use ($country_code) {
-    //             return strtolower($item->iso_3166_2) == $country_code || strtolower($item->iso_3166_3) == $country_code;
-    //         })->first();
-
-    //         if ($country) {
-    //             $settings->country_id = (string)$country->id;
-    //         }
-            
-    //         $language = Cache::get('languages')->filter(function ($item) use ($currency_code) {
-    //             return strtolower($item->locale) == $currency_code;
-    //         })->first();
-
-    //         if ($language) {
-    //             $settings->language_id = (string)$language->id;
-    //         }
-
-    //         if($timezone) {
-    //             $settings->timezone_id = (string)$timezone->id;
-    //         }
-
-    //         return $settings;
-    //     }
-
-
-    //     return $settings;
-    // }
 }
 
 

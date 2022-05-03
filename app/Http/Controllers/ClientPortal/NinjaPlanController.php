@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -92,7 +92,6 @@ class NinjaPlanController extends Controller
         ]);
 
         $data['intent'] = $setupIntent;
-        // $data['account'] = $account;
         $data['client'] =  Auth::guard('contact')->user()->client;
 
         return $this->render('plan.trial', $data);
@@ -139,6 +138,8 @@ class NinjaPlanController extends Controller
             $account = Account::where('key', auth()->guard('contact')->user()->client->custom_value2)->first();
             $account->trial_started = now();
             $account->trial_plan = 'pro';
+            $account->plan = 'pro';
+            $account->plan_expires = now()->addDays(14);
             $account->save();
         }
 

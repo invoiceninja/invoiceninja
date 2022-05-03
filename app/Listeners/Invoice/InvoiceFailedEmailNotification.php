@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -54,8 +54,6 @@ class InvoiceFailedEmailNotification
         foreach ($event->invitation->company->company_users as $company_user) {
             $user = $company_user->user;
 
-            // $notification = new EntitySentNotification($event->invitation, 'invoice');
-
             $methods = $this->findUserNotificationTypes($event->invitation, $company_user, 'invoice', ['all_notifications', 'invoice_sent', 'invoice_sent_all']);
 
             if (($key = array_search('mail', $methods)) !== false) {
@@ -68,9 +66,7 @@ class InvoiceFailedEmailNotification
                 $first_notification_sent = false;
             }
 
-            // $notification->method = $methods;
 
-            // $user->notify($notification);
         }
     }
 }

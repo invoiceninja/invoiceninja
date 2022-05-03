@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -185,7 +185,7 @@ class PayPalExpressPaymentDriver extends BaseDriver
             'currency' => $this->client->getCurrencyCode(),
             'transactionType' => 'Purchase',
             'clientIp' => request()->getClientIp(),
-            'amount' => $data['total']['amount_with_fee'] + $this->fee,
+            'amount' => round(($data['total']['amount_with_fee'] + $this->fee),2),
             'returnUrl' => route('client.payments.response', [
                 'company_gateway_id' => $this->company_gateway->id,
                 'payment_hash' => $this->payment_hash->hash,

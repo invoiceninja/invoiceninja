@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -20,15 +20,17 @@ use App\Utils\Ninja;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
-class CreditExport
+class CreditExport extends BaseExport
 {
-    private $company;
+    private Company $company;
 
-    private $report_keys;
+    protected array $input;
 
-    private $credit_transformer;
+    private CreditTransformer $credit_transformer;
 
-    private array $entity_keys = [
+    protected string $date_key = 'created_at';
+
+    protected array $entity_keys = [
         'amount' => 'amount',
         'balance' => 'balance',
         'client' => 'client_id',
@@ -73,10 +75,10 @@ class CreditExport
         'currency',
     ];
 
-    public function __construct(Company $company, array $report_keys)
+    public function __construct(Company $company, array $input)
     {
         $this->company = $company;
-        $this->report_keys = $report_keys;
+        $this->input = $input;
         $this->credit_transformer = new CreditTransformer();
     }
 
@@ -95,29 +97,22 @@ class CreditExport
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-        Credit::with('client')->where('company_id', $this->company->id)
-                            ->where('is_deleted',0)
-                            ->cursor()
-                            ->each(function ($credit){
+        $query = Credit::query()
+                        ->withTrashed()
+                        ->with('client')->where('company_id', $this->company->id)
+                        ->where('is_deleted',0);
 
-                                $this->csv->insertOne($this->buildRow($credit)); 
+        $query = $this->addDateRange($query);
 
-                            });
+        $query->cursor()
+            ->each(function ($credit){
 
+                $this->csv->insertOne($this->buildRow($credit)); 
+
+        });
 
         return $this->csv->toString(); 
 
-    }
-
-    private function buildHeader() :array
-    {
-
-        $header = [];
-
-        foreach(array_keys($this->report_keys) as $key)
-            $header[] = ctrans("texts.{$key}");
-
-        return $header;
     }
 
     private function buildRow(Credit $credit) :array
@@ -127,7 +122,7 @@ class CreditExport
 
         $entity = [];
 
-        foreach(array_values($this->report_keys) as $key){
+        foreach(array_values($this->input['report_keys']) as $key){
 
                 $entity[$key] = $transformed_credit[$key];
         }

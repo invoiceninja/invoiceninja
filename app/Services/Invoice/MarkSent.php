@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -67,7 +67,7 @@ class MarkSent extends AbstractService
         \DB::connection(config('database.default'))->transaction(function () use($adjustment){
 
         /* Get the last record for the client and set the current balance*/
-            $client = Client::where('id', $this->client->id)->lockForUpdate()->first();
+            $client = Client::withTrashed()->where('id', $this->client->id)->lockForUpdate()->first();
             $client->balance += $adjustment;
             $client->save();
 

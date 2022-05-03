@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -20,15 +20,17 @@ use App\Utils\Ninja;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
-class InvoiceExport
+class InvoiceExport extends BaseExport
 {
-    private $company;
+    private Company $company;
 
-    private $report_keys;
+    protected array $input;
 
     private $invoice_transformer;
 
-    private array $entity_keys = [
+    protected string $date_key = 'date';
+
+    protected array $entity_keys = [
         'amount' => 'amount',
         'balance' => 'balance',
         'client' => 'client_id',
@@ -71,10 +73,10 @@ class InvoiceExport
         'status',
     ];
 
-    public function __construct(Company $company, array $report_keys)
+    public function __construct(Company $company, array $input)
     {
         $this->company = $company;
-        $this->report_keys = $report_keys;
+        $this->input = $input;
         $this->invoice_transformer = new InvoiceTransformer();
     }
 
@@ -93,29 +95,22 @@ class InvoiceExport
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-        Invoice::with('client')->where('company_id', $this->company->id)
-                            ->where('is_deleted',0)
-                            ->cursor()
-                            ->each(function ($invoice){
+        $query = Invoice::query()
+                        ->withTrashed()
+                        ->with('client')->where('company_id', $this->company->id)
+                        ->where('is_deleted',0);
 
-                                $this->csv->insertOne($this->buildRow($invoice)); 
+        $query = $this->addDateRange($query);
 
-                            });
+        $query->cursor()
+            ->each(function ($invoice){
 
+                $this->csv->insertOne($this->buildRow($invoice)); 
+
+        });
 
         return $this->csv->toString(); 
 
-    }
-
-    private function buildHeader() :array
-    {
-
-        $header = [];
-
-        foreach(array_keys($this->report_keys) as $key)
-            $header[] = ctrans("texts.{$key}");
-
-        return $header;
     }
 
     private function buildRow(Invoice $invoice) :array
@@ -125,7 +120,7 @@ class InvoiceExport
 
         $entity = [];
 
-        foreach(array_values($this->report_keys) as $key){
+        foreach(array_values($this->input['report_keys']) as $key){
 
                 $entity[$key] = $transformed_invoice[$key];
         }

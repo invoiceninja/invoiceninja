@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -21,17 +21,19 @@ use App\Utils\Ninja;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
-class ContactExport
+class ContactExport extends BaseExport
 {
-    private $company;
+    private Company $company;
 
-    private $report_keys;
+    protected array $input;
 
-    private $client_transformer;
+    private ClientTransformer $client_transformer;
 
-    private $contact_transformer;
+    private ClientContactTransformer $contact_transformer;
 
-    private array $entity_keys = [
+    protected string $date_key = 'created_at';
+
+    protected array $entity_keys = [
         'address1' => 'client.address1',
         'address2' => 'client.address2',
         'balance' => 'client.balance',
@@ -79,10 +81,10 @@ class ContactExport
         'client.industry',
     ];
 
-    public function __construct(Company $company, array $report_keys)
+    public function __construct(Company $company, array $input)
     {
         $this->company = $company;
-        $this->report_keys = $report_keys;
+        $this->input = $input;
         $this->client_transformer = new ClientTransformer();
         $this->contact_transformer = new ClientContactTransformer();
     }
@@ -102,28 +104,20 @@ class ContactExport
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-        ClientContact::where('company_id', $this->company->id)
-                        ->cursor()
-                        ->each(function ($contact){
+        $query = ClientContact::query()
+                        ->where('company_id', $this->company->id);
 
-                            $this->csv->insertOne($this->buildRow($contact)); 
+        $query = $this->addDateRange($query);
 
-                        });
+        $query->cursor()->each(function ($contact){
+
+            $this->csv->insertOne($this->buildRow($contact)); 
+
+        });
 
 
         return $this->csv->toString(); 
 
-    }
-
-    private function buildHeader() :array
-    {
-
-        $header = [];
-
-        foreach(array_keys($this->report_keys) as $key)
-            $header[] = ctrans("texts.{$key}");
-
-        return $header;
     }
 
     private function buildRow(ClientContact $contact) :array
@@ -136,7 +130,7 @@ class ContactExport
 
         $entity = [];
 
-        foreach(array_values($this->report_keys) as $key){
+        foreach(array_values($this->input['report_keys']) as $key){
 
             $parts = explode(".",$key);
             $entity[$parts[1]] = "";

@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -150,6 +150,26 @@ class Payment extends BaseModel
         return $this->belongsTo(PaymentType::class);
     }
 
+    public function currency()
+    {
+        return $this->belongsTo(Currency::class);
+    }
+
+    public function exchange_currency()
+    {
+        return $this->belongsTo(Currency::class, 'exchange_currency_id', 'id');
+    }
+
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class);
+    }
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
+    }
+
     public function translatedType()
     {
         if(!$this->type)
@@ -211,6 +231,34 @@ class Payment extends BaseModel
                 break;
         }
     }
+
+    public static function stringStatus(int $status)
+    {
+        switch ($status) {
+            case self::STATUS_PENDING:
+                return ctrans('texts.payment_status_1');
+                break;
+            case self::STATUS_CANCELLED:
+                return ctrans('texts.payment_status_2');
+                break;
+            case self::STATUS_FAILED:
+                return ctrans('texts.payment_status_3');
+                break;
+            case self::STATUS_COMPLETED:
+                return ctrans('texts.payment_status_4');
+                break;
+            case self::STATUS_PARTIALLY_REFUNDED:
+                return ctrans('texts.payment_status_5');
+                break;
+            case self::STATUS_REFUNDED:
+                return ctrans('texts.payment_status_6');
+                break;
+            default:
+                return '';
+                break;
+        }
+    }
+
 
     public function ledger()
     {
