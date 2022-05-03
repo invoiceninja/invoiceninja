@@ -217,6 +217,9 @@ class LoginController extends BaseController
             $cu = CompanyUser::query()
                   ->where('user_id', auth()->user()->id);
 
+            if($cu->count() == 0)
+                return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
+
             $truth = app()->make(TruthSource::class);
 
             $truth->setCompanyUser($cu->first());
