@@ -1120,11 +1120,17 @@ class CompanyImport implements ShouldQueue
             unset($cu_array['id']);
             unset($cu_array['company_id']);
             unset($cu_array['user_id']);
+            unset($cu_array['user']);
+            unset($cu_array['account']);
+
+            // $cu_array['settings'] = json_encode($cu_array['settings']);
+            // $cu_array['notifications'] = json_encode($cu_array['notifications']);
+            // $cu_array['permissions'] = json_encode($cu_array['permissions']);
 
             $new_cu = CompanyUser::withTrashed()->firstOrNew(
-                        ['user_id' => $user_id, 'company_id' => $this->company->id],
-                        $cu_array,
-                    );
+                ['user_id' => $user_id, 'company_id' => $this->company->id],
+                $cu_array,
+            );
 
             $new_cu->account_id = $this->account->id;
             $new_cu->save(['timestamps' => false]);
