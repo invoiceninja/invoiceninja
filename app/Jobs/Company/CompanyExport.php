@@ -149,7 +149,7 @@ class CompanyExport implements ShouldQueue
 
         $this->export_data['client_gateway_tokens'] = $this->company->client_gateway_tokens->map(function ($client_gateway_token){
 
-            $client_gateway_token = $this->transformArrayOfKeys($client_gateway_token, ['company_id', 'client_id']);
+            $client_gateway_token = $this->transformArrayOfKeys($client_gateway_token, ['company_id', 'client_id', 'company_gateway_id']);
 
             return $client_gateway_token->makeVisible(['id']);
 

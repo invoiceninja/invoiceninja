@@ -688,7 +688,7 @@ class CompanyImport implements ShouldQueue
 
         $this->genericNewClassImport(ClientGatewayToken::class, 
             ['company_id', 'id', 'hashed_id','client_id'], 
-            [['clients' => 'client_id']], 
+            [['clients' => 'client_id', 'company_gateways' => 'company_gateway_id']], 
             'client_gateway_tokens');
 
         return $this;        
@@ -1235,7 +1235,6 @@ class CompanyImport implements ShouldQueue
 
         $class::unguard();
 
-        // foreach($this->backup_file->{$object_property} as $obj)
         foreach((object)$this->getObject($object_property) as $obj)
         {
             /* Remove unwanted keys*/
@@ -1270,7 +1269,7 @@ class CompanyImport implements ShouldQueue
                         $activity_invitation_key = 'invoice_invitations';
                     elseif(isset($obj->quote_id))
                         $activity_invitation_key = 'quote_invitations';
-                    elseif($isset($obj->credit_id))
+                    elseif(isset($obj->credit_id))
                         $activity_invitation_key  = 'credit_invitations';
 
                 }
