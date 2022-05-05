@@ -372,28 +372,25 @@ class LoginController extends BaseController
     private function hydrateCompanyUser() :Builder
     {
 
-        $cu = CompanyUser::query()
-                          ->where('user_id', auth()->user()->id)
-                          ->where('company_id', auth()->user()->account->default_company_id);
+        $cu = CompanyUser::query()->where('user_id', auth()->user()->id);
 
-        if($cu->exists())
+        if(CompanyUser::query()->where('user_id', auth()->user()->id)->where('company_id', auth()->user()->account->default_company_id)->exists())
             $set_company = auth()->user()->account->default_company;
         else{
-            $cu = CompanyUser::query()->where('user_id', auth()->user()->id);
-            $set_company = $cu->company;
+            $set_company = $cu->first()->company;
         }
 
         auth()->user()->setCompany($set_company);
 
         $this->setLoginCache(auth()->user());
 
-        if($cu->count() == 0)
-            return $cu;
-
         $truth = app()->make(TruthSource::class);
         $truth->setCompanyUser($cu->first());
         $truth->setUser(auth()->user());
         $truth->setCompany($set_company);
+
+        if($cu->count() == 0)
+            return $cu;
 
         if(auth()->user()->company_users()->count() != auth()->user()->tokens()->count())
         {
