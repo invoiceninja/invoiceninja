@@ -36,11 +36,9 @@ class SendEmailRequest extends Request
     public function rules()
     {
         return [
-            'template' => 'required',
-            'entity' => 'required',
-            'entity_id' => 'required',
-            // 'subject' => 'required',
-            // 'body' => 'required',
+            'template' => 'bail|required',
+            'entity' => 'bail|required',
+            'entity_id' => 'bail|required',
         ];
     }
 
@@ -58,8 +56,11 @@ class SendEmailRequest extends Request
             unset($input['template']);
         }
 
-        $input['entity_id'] = $this->decodePrimaryKey($input['entity_id']);
-        $input['entity'] = "App\Models\\".ucfirst($input['entity']);
+        if(array_key_exists('entity_id', $input))
+            $input['entity_id'] = $this->decodePrimaryKey($input['entity_id']);
+        
+        if(array_key_exists('entity', $input))
+            $input['entity'] = "App\Models\\".ucfirst($input['entity']);
 
         $this->replace($input);
     }
