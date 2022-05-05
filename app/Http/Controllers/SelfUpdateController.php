@@ -111,7 +111,7 @@ class SelfUpdateController extends BaseController
         }
 
         $this->testWritable();
-        $this->clearCacheDir();
+        // $this->clearCacheDir();
 
         copy($this->getDownloadUrl(), storage_path('app/invoiceninja.zip'));
 
