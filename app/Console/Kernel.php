@@ -15,6 +15,7 @@ use App\Jobs\Cron\AutoBillCron;
 use App\Jobs\Cron\RecurringExpensesCron;
 use App\Jobs\Cron\RecurringInvoicesCron;
 use App\Jobs\Cron\SubscriptionCron;
+use App\Jobs\Ledger\LedgerBalanceUpdate;
 use App\Jobs\Ninja\AdjustEmailQuota;
 use App\Jobs\Ninja\CompanySizeCheck;
 use App\Jobs\Util\DiskCleanup;
@@ -53,6 +54,8 @@ class Kernel extends ConsoleKernel
         $schedule->job(new DiskCleanup)->daily()->withoutOverlapping();
 
         $schedule->job(new ReminderJob)->hourly()->withoutOverlapping();
+
+        $schedule->job(new LedgerBalanceUpdate)->everyFiveMinutes()->withoutOverlapping();
 
         $schedule->job(new CompanySizeCheck)->daily()->withoutOverlapping();
 

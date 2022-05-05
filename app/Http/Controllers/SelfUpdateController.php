@@ -110,12 +110,23 @@ class SelfUpdateController extends BaseController
             return response()->json(['message' => ctrans('texts.self_update_not_available')], 403);
         }
 
+        nlog("Test filesystem is writable");
+
         $this->testWritable();
-        // $this->clearCacheDir();
+        
+        nlog("Clear cache directory");
+
+        $this->clearCacheDir();
+
+        nlog("copying release file");
 
         copy($this->getDownloadUrl(), storage_path('app/invoiceninja.zip'));
 
+        nlog("Finished copying");
+
         $file = Storage::disk('local')->path('invoiceninja.zip');
+
+        nlog("Extracting zip");
 
         $zipFile = new \PhpZip\ZipFile();
 
@@ -125,7 +136,11 @@ class SelfUpdateController extends BaseController
 
         $zipFile->close();
 
+        nlog("Finished extracting files");
+
         unlink($file);
+
+        nlog("Deleted release zip file");
 
         foreach($this->purge_file_list as $purge_file_path)
         {
@@ -134,11 +149,15 @@ class SelfUpdateController extends BaseController
 
         }
 
+        nlog("Removing cache files");
+
         Artisan::call('clear-compiled');
         Artisan::call('route:clear');
         Artisan::call('view:clear');
         Artisan::call('migrate', ['--force' => true]);
         Artisan::call('optimize');
+
+        nlog("Called Artisan commands");
 
         return response()->json(['message' => 'Update completed'], 200);
 
