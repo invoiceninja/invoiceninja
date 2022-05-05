@@ -44,11 +44,7 @@
                             </div>
                             @endif
 
-
-
                     </div>
-
-
 
                                 @if($quote->invoice()->exists())
                                     <div class="mt-5 sm:mt-0 sm:ml-6 flex justify-end">
