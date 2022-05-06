@@ -226,9 +226,9 @@ class NinjaMailerJob implements ShouldQueue
 
         if(!$user->oauth_user_token) {
             $this->company->account->gmailCredentialNotification();
-            return;
+            $this->nmo->settings->email_sending_method = 'default';
+            return $this->setMailDriver();
         }
-
 
         /*
          *  Now that our token is refreshed and valid we can boot the
@@ -237,6 +237,12 @@ class NinjaMailerJob implements ShouldQueue
         */
 
         $token = $user->oauth_user_token->access_token;
+
+        if(!$token) {
+            $this->company->account->gmailCredentialNotification();
+            $this->nmo->settings->email_sending_method = 'default';
+            return $this->setMailDriver();
+        }
 
         $this->nmo
              ->mailable
