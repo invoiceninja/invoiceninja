@@ -85,6 +85,61 @@ class InvoiceItemExport extends BaseExport
         'invoice4' => 'item.custom_value4',
     ];
 
+    protected array $all_keys = [
+        'amount',
+        'balance',
+        'client_id',
+        'custom_surcharge1',
+        'custom_surcharge2',
+        'custom_surcharge3',
+        'custom_surcharge4',
+        'custom_value1',
+        'custom_value2',
+        'custom_value3',
+        'custom_value4',
+        'date',
+        'discount',
+        'due_date',
+        'exchange_rate',
+        'footer',
+        'number',
+        'paid_to_date',
+        'partial',
+        'partial_due_date',
+        'po_number',
+        'private_notes',
+        'public_notes',
+        'status_id',
+        'tax_name1',
+        'tax_name2',
+        'tax_name3',
+        'tax_rate1',
+        'tax_rate2',
+        'tax_rate3',
+        'terms',
+        'total_taxes',
+        // 'currency_id',
+        'item.quantity',
+        'item.cost',
+        'item.product_key',
+        'item.product_cost',
+        'item.notes',
+        'item.discount',
+        'item.is_amount_discount',
+        'item.tax_rate1',
+        'item.tax_rate2',
+        'item.tax_rate3',
+        'item.tax_name1',
+        'item.tax_name2',
+        'item.tax_name3',
+        'item.line_total',
+        'item.gross_line_total',
+        'item.custom_value1',
+        'item.custom_value2',
+        'item.custom_value3',
+        'item.custom_value4',
+    ];
+
     private array $decorate_keys = [
         'client',
         'currency',
@@ -108,6 +163,9 @@ class InvoiceItemExport extends BaseExport
 
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
+
+        if(count($this->input['report_keys']) == 0)
+            $this->input['report_keys'] = ksort($this->all_keys);
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());

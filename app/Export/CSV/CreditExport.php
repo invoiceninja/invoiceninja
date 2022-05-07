@@ -68,6 +68,45 @@ class CreditExport extends BaseExport
         'currency' => 'currency'
     ];
 
+    protected array $all_keys = [
+        'amount',
+        'balance',
+        'client_id',
+        'custom_surcharge1',
+        'custom_surcharge2',
+        'custom_surcharge3',
+        'custom_surcharge4',
+        'country_id',
+        'custom_value1',
+        'custom_value2',
+        'custom_value3',
+        'custom_value4',
+        'date',
+        'discount',
+        'due_date',
+        'exchange_rate',
+        'footer',
+        'invoice_id',
+        'number',
+        'paid_to_date',
+        'partial',
+        'partial_due_date',
+        'po_number',
+        'private_notes',
+        'public_notes',
+        'status_id',
+        'tax_name1',
+        'tax_name2',
+        'tax_name3',
+        'tax_rate1',
+        'tax_rate2',
+        'tax_rate3',
+        'terms',
+        'total_taxes',
+        'currency'
+    ];
+
+
     private array $decorate_keys = [
         'country',
         'client',
@@ -97,6 +136,9 @@ class CreditExport extends BaseExport
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
+        if(count($this->input['report_keys']) == 0)
+            $this->input['report_keys'] = $this->all_keys;
+        
         $query = Credit::query()
                         ->withTrashed()
                         ->with('client')->where('company_id', $this->company->id)

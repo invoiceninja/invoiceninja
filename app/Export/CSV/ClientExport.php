@@ -78,6 +78,46 @@ class ClientExport extends BaseExport
         'email' => 'contact.email',
     ];
 
+    protected array $all_keys = [
+         'client.address1',
+         'client.address2',
+         'client.balance',
+         'client.city',
+         'client.country_id',
+         'client.credit_balance',
+         'client.custom_value1',
+         'client.custom_value2',
+         'client.custom_value3',
+         'client.custom_value4',
+         'client.id_number',
+         'client.industry_id',
+         'client.last_login',
+         'client.name',
+         'client.number',
+         'client.paid_to_date',
+         'client.phone',
+         'client.postal_code',
+         'client.private_notes',
+         'client.public_notes',
+         'client.shipping_address1',
+         'client.shipping_address2',
+         'client.shipping_city',
+         'client.shipping_country_id',
+         'client.shipping_postal_code',
+         'client.shipping_state',
+         'client.state',
+         'client.vat_number',
+         'client.website',
+         // 'client.currency',
+         'contact.first_name',
+         'contact.last_name',
+         'contact.phone',
+         'contact.custom_value1',
+         'contact.custom_value2',
+         'contact.custom_value3',
+         'contact.custom_value4',
+         'contact.email',
+    ];
     private array $decorate_keys = [
         'client.country_id',
         'client.shipping_country_id',
@@ -104,6 +144,9 @@ class ClientExport extends BaseExport
 
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
+
+        if(count($this->input['report_keys']) == 0)
+            $this->input['report_keys'] = $this->all_keys;
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());
