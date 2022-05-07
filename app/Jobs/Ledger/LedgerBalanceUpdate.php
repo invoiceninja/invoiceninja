@@ -64,6 +64,9 @@ class LedgerBalanceUpdate implements ShouldQueue
                             ->orderBy('id', 'DESC')
                             ->first();
 
+            if(!$last_record)
+                return;
+
             $company_ledger->balance = $last_record->balance + $company_ledger->adjustment;
             $company_ledger->save();
 
