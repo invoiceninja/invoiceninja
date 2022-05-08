@@ -229,6 +229,10 @@ class Design extends BaseDesign
             $s_date = $this->translateDate($this->options['end_date'], $this->client->date_format(), $this->client->locale());
             
             return [
+                ['element' => 'tr', 'properties' => ['data-ref' => 'statement-label'], 'elements' => [
+                    ['element' => 'th', 'properties' => [], 'content' => ""],
+                    ['element' => 'th', 'properties' => [], 'content' => "<h2>".ctrans('texts.statement')."</h2>"],
+                ]],
                 ['element' => 'tr', 'properties' => [], 'elements' => [
                     ['element' => 'th', 'properties' => [], 'content' => ctrans('texts.statement_date')],
                     ['element' => 'th', 'properties' => [], 'content' => $s_date ?? ''],
