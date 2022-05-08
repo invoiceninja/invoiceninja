@@ -84,6 +84,9 @@ class Charge
                 ],
             ];
 
+            if($cgt->gateway_type_id == GatewayType::SEPA)
+                $data['payment_method_types'] = ['sepa_debit'];
+
             $response = $this->stripe->createPaymentIntent($data, $this->stripe->stripe_connect_auth);
             
             SystemLogger::dispatch($response, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->stripe->client, $this->stripe->client->company);
