@@ -191,4 +191,41 @@ class ExpenseApiTest extends TestCase
 
         $this->assertTrue($arr['data'][0]['is_deleted']);
     }
+
+    public function testAddingExpense()
+    {
+
+        $data = [
+            'name' => $this->faker->firstName,
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/expense_categories', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+        $category_id = $arr['data']['id'];
+
+        $data = 
+        [
+            "vendor_id" => $this->vendor->hashed_id,
+            "category_id" => $category_id,
+            "amount" => 10,
+            "date" => "2021-10-01"
+        ];
+
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/expenses', $data);
+
+        $arr = $response->json();
+        $response->assertStatus(200);
+
+
+    }
 }
