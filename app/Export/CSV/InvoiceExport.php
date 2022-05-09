@@ -63,7 +63,7 @@ class InvoiceExport extends BaseExport
         'tax_rate3' => 'tax_rate3',
         'terms' => 'terms',
         'total_taxes' => 'total_taxes',
-        'currency' => 'client_id'
+        'currency_id' => 'currency_id'
     ];
 
 
@@ -100,13 +100,13 @@ class InvoiceExport extends BaseExport
         'tax_rate3',
         'terms',
         'total_taxes',
-        'client_id'
+        'currency_id',
     ];
 
     private array $decorate_keys = [
         'country',
         'client',
-        'currency',
+        'currency_id',
         'status',
     ];
 
@@ -162,7 +162,8 @@ class InvoiceExport extends BaseExport
 
         foreach(array_values($this->input['report_keys']) as $key){
 
-                $entity[$key] = $transformed_invoice[$key];
+                if(array_key_exists($key, $transformed_invoice))
+                    $entity[$key] = $transformed_invoice[$key];
         }
 
         return $this->decorateAdvancedFields($invoice, $entity);
@@ -171,13 +172,13 @@ class InvoiceExport extends BaseExport
 
     private function decorateAdvancedFields(Invoice $invoice, array $entity) :array
     {
-        if(array_key_exists('currency', $entity))
-            $entity['currency'] = $invoice->client->currency()->code;
+        if(in_array('currency_id',$this->input['report_keys']))
+            $entity['currency_id'] = $invoice->client->currency()->code ?: $invoice->company->currency()->code;
 
-        if(array_key_exists('client_id', $entity))
+        if(in_array('client_id',$this->input['report_keys']))
             $entity['client_id'] = $invoice->client->present()->name();
 
-        if(array_key_exists('status_id', $entity))
+        if(in_array('status_id',$this->input['report_keys']))
             $entity['status_id'] = $invoice->stringStatus($invoice->status_id);
 
         return $entity;
