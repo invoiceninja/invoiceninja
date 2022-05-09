@@ -108,7 +108,7 @@ class ClientExport extends BaseExport
          'client.state',
          'client.vat_number',
          'client.website',
-         // 'client.currency',
+         'client.currency',
          'contact.first_name',
          'contact.last_name',
          'contact.phone',
@@ -186,10 +186,10 @@ class ClientExport extends BaseExport
             $parts = explode(".",$key);
             $entity[$parts[1]] = "";
 
-            if($parts[0] == 'client') {
+            if($parts[0] == 'client' && array_key_exists($parts[1], $transformed_client)) {
                 $entity[$parts[1]] = $transformed_client[$parts[1]];
             }
-            elseif($parts[0] == 'contact') {
+            elseif($parts[0] == 'contact' && array_key_exists($parts[1], $transformed_client)) {
                 $entity[$parts[1]] = $transformed_contact[$parts[1]];
             }
 
@@ -202,16 +202,16 @@ class ClientExport extends BaseExport
     private function decorateAdvancedFields(Client $client, array $entity) :array
     {
 
-        if(array_key_exists('country_id', $entity))
+        if(in_array('country_id', $this->input['report_keys']))
             $entity['country_id'] = $client->country ? ctrans("texts.country_{$client->country->name}") : ""; 
 
-        if(array_key_exists('shipping_country_id', $entity))
+        if(in_array('shipping_country_id', $this->input['report_keys']))
             $entity['shipping_country_id'] = $client->shipping_country ? ctrans("texts.country_{$client->shipping_country->name}") : ""; 
 
-        if(array_key_exists('currency', $entity))
-            $entity['currency'] = $client->currency()->code;
+        if(in_array('currency', $this->input['report_keys']))
+            $entity['currency_id'] = $client->currency() ? $client->currency()->code : $client->company->currency()->code;
 
-        if(array_key_exists('industry_id', $entity))
+        if(in_array('industry_id', $this->input['report_keys']))
             $entity['industry_id'] = $client->industry ? ctrans("texts.industry_{$client->industry->name}") : ""; 
 
         return $entity;
