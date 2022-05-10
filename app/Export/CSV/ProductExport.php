@@ -52,26 +52,6 @@ class ProductExport extends BaseExport
         'tax_name3' => 'tax_name3',
     ];
 
-    protected array $all_keys = [
-        'project_id',
-        'vendor_id',
-        'custom_value1',
-        'custom_value2',
-        'custom_value3',
-        'custom_value4',
-        'product_key',
-        'notes',
-        'cost',
-        'price',
-        'quantity',
-        'tax_rate1',
-        'tax_rate2',
-        'tax_rate3',
-        'tax_name1',
-        'tax_name2',
-        'tax_name3',
-    ];
-
     private array $decorate_keys = [
         'vendor',
         'project',
@@ -97,7 +77,7 @@ class ProductExport extends BaseExport
         $this->csv = Writer::createFromString();
 
         if(count($this->input['report_keys']) == 0)
-            $this->input['report_keys'] = $this->all_keys;
+            $this->input['report_keys'] = array_values($this->entity_keys);
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());
@@ -126,7 +106,13 @@ class ProductExport extends BaseExport
 
         foreach(array_values($this->input['report_keys']) as $key){
 
-            $entity[$key] = $transformed_entity[$key];
+            $keyval = array_search($key, $this->entity_keys);
+
+            if(array_key_exists($key, $transformed_entity))
+                $entity[$keyval] = $transformed_entity[$key];
+            else
+                $entity[$keyval] = '';
+        
         
         }
 
@@ -137,11 +123,11 @@ class ProductExport extends BaseExport
     private function decorateAdvancedFields(Product $product, array $entity) :array
     {
 
-        if(array_key_exists('vendor_id', $entity))
-            $entity['vendor_id'] = $product->vendor()->exists() ? $product->vendor->name : '';
+        if(in_array('vendor_id', $this->input['report_keys']))
+            $entity['vendor'] = $product->vendor()->exists() ? $product->vendor->name : '';
 
-        if(array_key_exists('project_id', $entity))
-            $entity['project_id'] = $product->project()->exists() ? $product->project->name : '';
+        if(array_key_exists('project_id', $this->input['report_keys']))
+            $entity['project'] = $product->project()->exists() ? $product->project->name : '';
 
         return $entity;
     }
