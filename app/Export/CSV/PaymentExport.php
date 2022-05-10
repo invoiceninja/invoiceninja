@@ -54,6 +54,28 @@ class PaymentExport extends BaseExport
         'vendor' => 'vendor_id',
     ];
 
+    protected array $all_keys = [
+        'amount',
+        'applied',
+        'client_id',
+        'currency_id',
+        'custom_value1',
+        'custom_value2',
+        'custom_value3',
+        'custom_value4',
+        'date',
+        'exchange_currency_id',
+        'gateway_type_id',
+        'number',
+        'private_notes',
+        'project_id',
+        'refunded',
+        'status_id',
+        'transaction_reference',
+        'type_id',
+        'vendor_id',
+    ];
+
     private array $decorate_keys = [
         'vendor',
         'status',
@@ -82,6 +104,9 @@ class PaymentExport extends BaseExport
 
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
+
+        if(count($this->input['report_keys']) == 0)
+            $this->input['report_keys'] = $this->all_keys;
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());

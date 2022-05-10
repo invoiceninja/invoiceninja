@@ -69,6 +69,8 @@ class CSVIngest implements ShouldQueue {
 
         MultiDB::setDb( $this->company->db );
 
+        set_time_limit(0);
+
         $engine = $this->bootEngine($this->import_type);
 
         foreach ( [ 'client', 'product', 'invoice', 'payment', 'vendor', 'expense' ] as $entity ) {

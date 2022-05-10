@@ -165,6 +165,8 @@ class InvitationController extends Controller
     public function routerForDownload(string $entity, string $invitation_key)
     {
 
+        set_time_limit(45);
+        
         if(Ninja::isHosted())
             return $this->returnRawPdf($entity, $invitation_key);
 

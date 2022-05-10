@@ -63,6 +63,40 @@ class ExpenseExport extends BaseExport
         'invoice' => 'invoice_id',
     ];
 
+    protected array $all_keys = [
+        'amount',
+        'category_id',
+        'client_id',
+        'custom_value1',
+        'custom_value2',
+        'custom_value3',
+        'custom_value4',
+        'currency_id',
+        'date',
+        'exchange_rate',
+        'foreign_amount',
+        'invoice_currency_id',
+        'payment_date',
+        'number',
+        'payment_type_id',
+        'private_notes',
+        'project_id',
+        'public_notes',
+        'tax_amount1',
+        'tax_amount2',
+        'tax_amount3',
+        'tax_name1',
+        'tax_name2',
+        'tax_name3',
+        'tax_rate1',
+        'tax_rate2',
+        'tax_rate3',
+        'transaction_reference',
+        'vendor_id',
+        'invoice_id',
+    ];
+
+
     private array $decorate_keys = [
         'client',
         'currency',
@@ -91,6 +125,9 @@ class ExpenseExport extends BaseExport
 
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
+
+        if(count($this->input['report_keys']) == 0)
+            $this->input['report_keys'] = $this->all_keys;
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());

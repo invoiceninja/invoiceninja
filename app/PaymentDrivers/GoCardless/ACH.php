@@ -190,7 +190,7 @@ class ACH implements MethodInterface
 
 
             if ($payment->status === 'pending_submission') {
-                return $this->processPendingPayment($payment, ['token' => $token->hashed_id]);
+                return $this->processPendingPayment($payment);
             }
 
             return $this->processUnsuccessfulPayment($payment);

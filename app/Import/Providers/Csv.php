@@ -43,6 +43,7 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 
 class Csv extends BaseImport implements ImportInterface
 {
+
     public array $entity_count = [];
 
     public function import(string $entity)
