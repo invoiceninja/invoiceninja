@@ -131,8 +131,6 @@ class TaskExport extends BaseExport
 
             $entity = $this->decorateAdvancedFields($task, $entity);
 
-            nlog("no time logs");
-            nlog($entity);
             ksort($entity);
             $this->csv->insertOne($entity);
 
@@ -200,9 +198,6 @@ class TaskExport extends BaseExport
                 $entity['end_date'] = "";
 
             $entity = $this->decorateAdvancedFields($task, $entity);
-
-            nlog("with time logs");
-            nlog($entity);
             
             ksort($entity);
             $this->csv->insertOne($entity);
