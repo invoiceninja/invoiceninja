@@ -100,7 +100,8 @@ class InvoiceExport extends BaseExport
 
         $query = Invoice::query()
                         ->withTrashed()
-                        ->with('client')->where('company_id', $this->company->id)
+                        ->with('client')
+                        ->where('company_id', $this->company->id)
                         ->where('is_deleted',0);
 
         $query = $this->addDateRange($query);
