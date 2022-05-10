@@ -54,7 +54,7 @@ class ClientExport extends BaseExport
         'name' => 'client.name',
         'number' => 'client.number',
         'paid_to_date' => 'client.paid_to_date',
-        'phone' => 'client.phone',
+        'client_phone' => 'client.phone',
         'postal_code' => 'client.postal_code',
         'private_notes' => 'client.private_notes',
         'public_notes' => 'client.public_notes',
@@ -70,7 +70,7 @@ class ClientExport extends BaseExport
         'currency' => 'client.currency',
         'first_name' => 'contact.first_name',
         'last_name' => 'contact.last_name',
-        'phone' => 'contact.phone',
+        'contact_phone' => 'contact.phone',
         'contact_custom_value1' => 'contact.custom_value1',
         'contact_custom_value2' => 'contact.custom_value2',
         'contact_custom_value3' => 'contact.custom_value3',
@@ -78,46 +78,6 @@ class ClientExport extends BaseExport
         'email' => 'contact.email',
     ];
 
-    protected array $all_keys = [
-         'client.address1',
-         'client.address2',
-         'client.balance',
-         'client.city',
-         'client.country_id',
-         'client.credit_balance',
-         'client.custom_value1',
-         'client.custom_value2',
-         'client.custom_value3',
-         'client.custom_value4',
-         'client.id_number',
-         'client.industry_id',
-         'client.last_login',
-         'client.name',
-         'client.number',
-         'client.paid_to_date',
-         'client.phone',
-         'client.postal_code',
-         'client.private_notes',
-         'client.public_notes',
-         'client.shipping_address1',
-         'client.shipping_address2',
-         'client.shipping_city',
-         'client.shipping_country_id',
-         'client.shipping_postal_code',
-         'client.shipping_state',
-         'client.state',
-         'client.vat_number',
-         'client.website',
-         'client.currency',
-         'contact.first_name',
-         'contact.last_name',
-         'contact.phone',
-         'contact.custom_value1',
-         'contact.custom_value2',
-         'contact.custom_value3',
-         'contact.custom_value4',
-         'contact.email',
-    ];
     private array $decorate_keys = [
         'client.country_id',
         'client.shipping_country_id',
@@ -146,7 +106,7 @@ class ClientExport extends BaseExport
         $this->csv = Writer::createFromString();
 
         if(count($this->input['report_keys']) == 0)
-            $this->input['report_keys'] = $this->all_keys;
+            $this->input['report_keys'] = array_values($this->entity_keys);
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());
@@ -178,22 +138,27 @@ class ClientExport extends BaseExport
         if($contact = $client->contacts()->first())
             $transformed_contact = $this->contact_transformer->transform($contact);
 
-
         $entity = [];
 
         foreach(array_values($this->input['report_keys']) as $key){
 
             $parts = explode(".",$key);
-            $entity[$parts[1]] = "";
+            
+            $keyval = array_search ($key, $this->entity_keys);
+
 
             if($parts[0] == 'client' && array_key_exists($parts[1], $transformed_client)) {
-                $entity[$parts[1]] = $transformed_client[$parts[1]];
+                $entity[$keyval] = $transformed_client[$parts[1]];
             }
-            elseif($parts[0] == 'contact' && array_key_exists($parts[1], $transformed_client)) {
-                $entity[$parts[1]] = $transformed_contact[$parts[1]];
+            elseif($parts[0] == 'contact' && array_key_exists($parts[1], $transformed_contact)) {
+                $entity[$keyval] = $transformed_contact[$parts[1]];
             }
+            else 
+                $entity[$keyval] = "";
 
         }
+
+        nlog($this->decorateAdvancedFields($client, $entity));
 
         return $this->decorateAdvancedFields($client, $entity);
 
@@ -202,16 +167,16 @@ class ClientExport extends BaseExport
     private function decorateAdvancedFields(Client $client, array $entity) :array
     {
 
-        if(in_array('country_id', $this->input['report_keys']))
-            $entity['country_id'] = $client->country ? ctrans("texts.country_{$client->country->name}") : ""; 
+        if(in_array('client.country_id', $this->input['report_keys']))
+            $entity['country'] = $client->country ? ctrans("texts.country_{$client->country->name}") : ""; 
 
-        if(in_array('shipping_country_id', $this->input['report_keys']))
-            $entity['shipping_country_id'] = $client->shipping_country ? ctrans("texts.country_{$client->shipping_country->name}") : ""; 
+        if(in_array('client.shipping_country_id', $this->input['report_keys']))
+            $entity['shipping_country'] = $client->shipping_country ? ctrans("texts.country_{$client->shipping_country->name}") : ""; 
 
-        if(in_array('currency', $this->input['report_keys']))
-            $entity['currency_id'] = $client->currency() ? $client->currency()->code : $client->company->currency()->code;
+        if(in_array('client.currency', $this->input['report_keys']))
+            $entity['currency'] = $client->currency() ? $client->currency()->code : $client->company->currency()->code;
 
-        if(in_array('industry_id', $this->input['report_keys']))
+        if(in_array('client.industry_id', $this->input['report_keys']))
             $entity['industry_id'] = $client->industry ? ctrans("texts.industry_{$client->industry->name}") : ""; 
 
         return $entity;
