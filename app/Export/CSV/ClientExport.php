@@ -144,8 +144,7 @@ class ClientExport extends BaseExport
 
             $parts = explode(".",$key);
             
-            $keyval = array_search ($key, $this->entity_keys);
-
+            $keyval = array_search($key, $this->entity_keys);
 
             if($parts[0] == 'client' && array_key_exists($parts[1], $transformed_client)) {
                 $entity[$keyval] = $transformed_client[$parts[1]];
@@ -157,8 +156,6 @@ class ClientExport extends BaseExport
                 $entity[$keyval] = "";
 
         }
-
-        nlog($this->decorateAdvancedFields($client, $entity));
 
         return $this->decorateAdvancedFields($client, $entity);
 
