@@ -146,8 +146,8 @@ class CreditExport extends BaseExport
         if(in_array('country_id', $this->input['report_keys']))
             $entity['country'] = $credit->client->country ? ctrans("texts.country_{$credit->client->country->name}") : ""; 
 
-        if(in_array('currency', $this->input['report_keys']))
-            $entity['currency'] = $credit->client->currency()->code;
+        if(in_array('currency_id', $this->input['report_keys']))
+            $entity['currency_id'] = $credit->client->currency() ? $credit->client->currency()->code : $invoice->company->currency()->code;;
 
         if(in_array('invoice_id', $this->input['report_keys']))
             $entity['invoice'] = $credit->invoice ? $credit->invoice->number : "";
