@@ -33,18 +33,10 @@ class DocumentExport extends BaseExport
 
     protected array $entity_keys = [
         'record_type' => 'record_type',
-        'record_name' => 'record_name',
+        // 'record_name' => 'record_name',
         'name' => 'name',
         'type' => 'type',
         'created_at' => 'created_at',
-    ];
-
-    protected array $all_keys = [
-        'record_type',
-        'record_name',
-        'name',
-        'type',
-        'created_at',
     ];
 
     private array $decorate_keys = [
@@ -71,7 +63,7 @@ class DocumentExport extends BaseExport
         $this->csv = Writer::createFromString();
 
         if(count($this->input['report_keys']) == 0)
-            $this->input['report_keys'] = $this->all_keys;
+            $this->input['report_keys'] = array_values($this->entity_keys);
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());
@@ -100,8 +92,12 @@ class DocumentExport extends BaseExport
 
         foreach(array_values($this->input['report_keys']) as $key){
 
-            $entity[$key] = $transformed_entity[$key];
-        
+            $keyval = array_search($key, $this->entity_keys);
+
+            if(array_key_exists($key, $transformed_entity))
+                $entity[$keyval] = $transformed_entity[$key];
+            else
+                $entity[$keyval] = '';        
         }
 
         return $this->decorateAdvancedFields($document, $entity);
@@ -111,11 +107,11 @@ class DocumentExport extends BaseExport
     private function decorateAdvancedFields(Document $document, array $entity) :array
     {
 
-        if(array_key_exists('record_type', $entity))
+        if(in_array('record_type', $this->input['report_keys']))
             $entity['record_type'] = class_basename($document->documentable);
 
-        if(array_key_exists('record_name', $entity))
-            $entity['record_name'] = $document->hashed_id;
+        // if(in_array('record_name', $this->input['report_keys']))
+        //     $entity['record_name'] = $document->hashed_id;
 
         return $entity;
     }
