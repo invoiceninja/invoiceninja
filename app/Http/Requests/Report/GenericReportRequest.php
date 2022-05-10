@@ -32,7 +32,7 @@ class GenericReportRequest extends Request
             'end_date' => 'string|date',
             'date_key' => 'string',
             'date_range' => 'string',
-            'report_keys' => 'sometimes|array'
+            'report_keys' => 'present|array'
         ];
     }
 }
