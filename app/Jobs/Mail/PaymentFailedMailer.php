@@ -123,6 +123,7 @@ class PaymentFailedMailer implements ShouldQueue
             $nmo->settings = $settings;
 
             NinjaMailerJob::dispatch($nmo);
+            
         }
         
     }

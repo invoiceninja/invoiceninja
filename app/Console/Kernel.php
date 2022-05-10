@@ -15,6 +15,7 @@ use App\Jobs\Cron\AutoBillCron;
 use App\Jobs\Cron\RecurringExpensesCron;
 use App\Jobs\Cron\RecurringInvoicesCron;
 use App\Jobs\Cron\SubscriptionCron;
+use App\Jobs\Ledger\LedgerBalanceUpdate;
 use App\Jobs\Ninja\AdjustEmailQuota;
 use App\Jobs\Ninja\CompanySizeCheck;
 use App\Jobs\Util\DiskCleanup;
@@ -54,6 +55,8 @@ class Kernel extends ConsoleKernel
 
         $schedule->job(new ReminderJob)->hourly()->withoutOverlapping();
 
+        $schedule->job(new LedgerBalanceUpdate)->everyFiveMinutes()->withoutOverlapping();
+
         $schedule->job(new CompanySizeCheck)->daily()->withoutOverlapping();
 
         $schedule->job(new UpdateExchangeRates)->daily()->withoutOverlapping();
@@ -84,9 +87,9 @@ class Kernel extends ConsoleKernel
 
             $schedule->job(new SendFailedEmails)->daily()->withoutOverlapping();
 
-            $schedule->command('ninja:check-data --database=db-ninja-01')->daily('00:50')->withoutOverlapping();
+            $schedule->command('ninja:check-data --database=db-ninja-01')->daily('01:00')->withoutOverlapping();
 
-            $schedule->command('ninja:check-data --database=db-ninja-02')->dailyAt('00:55')->withoutOverlapping();
+            $schedule->command('ninja:check-data --database=db-ninja-02')->dailyAt('01:05')->withoutOverlapping();
 
             $schedule->command('ninja:s3-cleanup')->dailyAt('23:15')->withoutOverlapping();
 

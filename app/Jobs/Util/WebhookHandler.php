@@ -88,6 +88,8 @@ class WebhookHandler implements ShouldQueue
 
     private function process($subscription)
     {
+        $this->entity->refresh();
+        
         // generate JSON data
         $manager = new Manager();
         $manager->setSerializer(new ArraySerializer());

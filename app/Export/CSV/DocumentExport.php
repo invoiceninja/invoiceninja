@@ -39,6 +39,14 @@ class DocumentExport extends BaseExport
         'created_at' => 'created_at',
     ];
 
+    protected array $all_keys = [
+        'record_type',
+        'record_name',
+        'name',
+        'type',
+        'created_at',
+    ];
+
     private array $decorate_keys = [
 
     ];
@@ -61,6 +69,9 @@ class DocumentExport extends BaseExport
 
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
+
+        if(count($this->input['report_keys']) == 0)
+            $this->input['report_keys'] = $this->all_keys;
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());

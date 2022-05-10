@@ -97,7 +97,7 @@ class InvoiceTransformer extends BaseTransformer {
 					'quantity' => 1,
 				];
 
-				if($record['Invoice Paid'] > 0){
+				if(array_key_exists('Invoice Paid', $record) && $record['Invoice Paid'] > 0){
 					$payments[] = [
 						'date'   => date( 'Y-m-d', strtotime( $record['Last Payment Date'] ) ),
 						'amount' => $this->getFloat( $record, 'Invoice Paid' ),

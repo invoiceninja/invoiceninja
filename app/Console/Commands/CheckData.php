@@ -699,7 +699,7 @@ ORDER BY clients.id;
         invoices ON 
         clients.id=invoices.client_id 
         WHERE invoices.is_deleted = false 
-        AND invoices.status_id > 1 
+        AND invoices.status_id IN (2,3,4) 
         GROUP BY clients.id
         HAVING invoice_balance != clients.balance
         ORDER BY clients.id;
@@ -722,21 +722,16 @@ ORDER BY clients.id;
         {
             $client = (array)$client;
             
-            // $credit_balance = Credit::withTrashed()->where('is_deleted', 0)
-            //                                        ->where('client_id', $client['client_id'])
-            //                                        ->where('status_id', '>', 1)->sum('balance');
-
-            // $invoice_balance = $client['invoice_balance'] - $credit_balance;
             $invoice_balance = $client['invoice_balance'];
 
-            $ledger = CompanyLedger::where('client_id', $client['client_id'])->orderBy('id', 'DESC')->first();
+            // $ledger = CompanyLedger::where('client_id', $client['client_id'])->orderBy('id', 'DESC')->first();
 
-            if ($ledger && (string) $invoice_balance != (string) $client['client_balance']) {
+            if ((string) $invoice_balance != (string) $client['client_balance']) {
                 $this->wrong_paid_to_dates++;
 
                 $client_object = Client::withTrashed()->find($client['client_id']);
 
-                $this->logMessage($client_object->present()->name.' - '.$client_object->id." - calculated client balances do not match Invoice Balances = {$invoice_balance} - Client Balance = ".rtrim($client['client_balance'], '0'). " Ledger balance = {$ledger->balance}");
+                $this->logMessage($client_object->present()->name.' - '.$client_object->id." - calculated client balances do not match Invoice Balances = {$invoice_balance} - Client Balance = ".rtrim($client['client_balance'], '0'));
  
      
                 if($this->option('ledger_balance')){
@@ -745,10 +740,10 @@ ORDER BY clients.id;
                     $client_object->balance = $invoice_balance;
                     $client_object->save();
 
-                    $ledger->adjustment = $invoice_balance;
-                    $ledger->balance = $invoice_balance;
-                    $ledger->notes = 'Ledger Adjustment';
-                    $ledger->save();
+                    // $ledger->adjustment = $invoice_balance;
+                    // $ledger->balance = $invoice_balance;
+                    // $ledger->notes = 'Ledger Adjustment';
+                    // $ledger->save();
                 }
 
 
@@ -799,7 +794,7 @@ ORDER BY clients.id;
         ON invoices.client_id = clients.id
         WHERE invoices.is_deleted = 0
         AND clients.is_deleted = 0
-        AND invoices.status_id != 1
+        AND invoices.status_id IN (2,3,4)
         GROUP BY clients.id
         HAVING(invoices_balance != clients.balance)
         ORDER BY clients.id;
@@ -819,7 +814,7 @@ ORDER BY clients.id;
         {
             $client = Client::withTrashed()->find($_client->id);
 
-            $invoice_balance = $client->invoices()->where('is_deleted', false)->where('status_id', '>', 1)->sum('balance');
+            $invoice_balance = $client->invoices()->where('is_deleted', false)->whereIn('status_id', [2,3,4])->sum('balance');
 
             $ledger = CompanyLedger::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
 
@@ -855,7 +850,7 @@ ORDER BY clients.id;
         $this->wrong_paid_to_dates = 0;
 
         foreach (Client::where('is_deleted', 0)->where('clients.updated_at', '>', now()->subDays(2))->cursor() as $client) {
-            $invoice_balance = $client->invoices()->where('is_deleted', false)->where('status_id', '>', 1)->sum('balance');
+            $invoice_balance = $client->invoices()->where('is_deleted', false)->whereIn('status_id', [2,3,4])->sum('balance');
             $ledger = CompanyLedger::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
 
             if ($ledger && number_format($ledger->balance, 4) != number_format($client->balance, 4)) {

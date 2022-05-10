@@ -185,7 +185,8 @@ class PayPalExpressPaymentDriver extends BaseDriver
             'currency' => $this->client->getCurrencyCode(),
             'transactionType' => 'Purchase',
             'clientIp' => request()->getClientIp(),
-            'amount' => round(($data['total']['amount_with_fee'] + $this->fee),2),
+            // 'amount' => round(($data['total']['amount_with_fee'] + $this->fee),2),
+            'amount' => round($data['total']['amount_with_fee'],2),
             'returnUrl' => route('client.payments.response', [
                 'company_gateway_id' => $this->company_gateway->id,
                 'payment_hash' => $this->payment_hash->hash,
@@ -218,17 +219,16 @@ class PayPalExpressPaymentDriver extends BaseDriver
             ]);
 
 
-        if($this->fee > 0.1){
+        // if($this->fee > 0.1){
 
-            $items[] = new Item([
-                'name' => " ",
-                'description' => ctrans('texts.gateway_fee_description'),
-                'price' => $this->fee,
-                'quantity' => 1,
-            ]);
+        //     $items[] = new Item([
+        //         'name' => " ",
+        //         'description' => ctrans('texts.gateway_fee_description'),
+        //         'price' => $this->fee,
+        //         'quantity' => 1,
+        //     ]);
 
-
-        }
+        // }
 
         return $items;
 

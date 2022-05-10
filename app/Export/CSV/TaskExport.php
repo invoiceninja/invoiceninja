@@ -52,6 +52,23 @@ class TaskExport extends BaseExport
         'client' => 'client_id',
     ];
 
+    protected array $all_keys = [
+        'start_date',
+        'end_date',
+        'duration',
+        'rate',
+        'number',
+        'description',
+        'custom_value1',
+        'custom_value2',
+        'custom_value3',
+        'custom_value4',
+        'status_id',
+        'project_id',
+        'invoice_id',
+        'client_id',
+    ];
+
     private array $decorate_keys = [
         'status',
         'project',
@@ -82,6 +99,10 @@ class TaskExport extends BaseExport
     
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
+
+
+        if(count($this->input['report_keys']) == 0)
+            $this->input['report_keys'] = $this->all_keys;
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());
