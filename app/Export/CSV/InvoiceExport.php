@@ -71,6 +71,8 @@ class InvoiceExport extends BaseExport
         'client',
         'currency_id',
         'status',
+        'vendor',
+        'project',
     ];
 
     public function __construct(Company $company, array $input)
