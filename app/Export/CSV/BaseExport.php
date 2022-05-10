@@ -81,8 +81,6 @@ class BaseExport
             $header[] = ctrans("texts.{$key}");
         }
 
-nlog($header);
-
         return $header;
     }
 }
