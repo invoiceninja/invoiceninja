@@ -192,13 +192,13 @@ class ProfitLoss
         foreach($expenses as $expense)
         {
             $total += $expense->amount;
-            $total += $this->getConvertedTotal($expense);
+            $converted_total += $this->getConvertedTotal($expense);
         }
     }
 
     private function getConvertedTotal($expense)
     {
-
+        return round($expense->amount * $expense->exchange_rate,2);
     }
 
     private function expenseCalcWithTax()
