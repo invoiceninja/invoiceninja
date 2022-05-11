@@ -11,7 +11,9 @@
 
 namespace App\Services\Report;
 
+use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Models\Company;
+use App\Models\Expense;
 use Illuminate\Support\Carbon;
 
 class ProfitLoss
@@ -25,6 +27,8 @@ class ProfitLoss
     private $start_date;
 
     private $end_date;
+
+    protected CurrencyApi $currency_api;
 
    /*
         payload variables.
@@ -51,8 +55,9 @@ class ProfitLoss
 
     protected Company $company;
 
-    public function __construct(Company $company, array $payload)
+    public function __construct(Company $company, array $payload, CurrencyApi $currency_api)
     {
+        $this->currency_api = $currency_api;
 
         $this->company = $company;
 
@@ -148,6 +153,55 @@ class ProfitLoss
     }
 
     private function expenseCalc()
+    {
+
+        $expenses = Expense::where('company_id', $this->company->id)
+                           ->where('is_deleted', 0)
+                           ->withTrashed()
+                           ->whereBetween('date', [$this->start_date, $this->end_date])
+                           ->cursor();
+
+
+        if($this->is_tax_included) 
+            return $this->calculateExpensesWithTaxes($expenses);
+        
+        return $this->calculateExpensesWithoutTaxes($expenses);
+
+    }
+
+    private function calculateExpensesWithTaxes($expenses)
+    {
+
+        foreach($expenses as $expense)
+        {
+
+            if(!$expense->calculate_tax_by_amount && !$expense->uses_inclusive_taxes)
+            {
+
+            }
+
+        }
+
+    }
+
+    private function calculateExpensesWithoutTaxes($expenses)
+    {
+        $total = 0;
+        $converted_total = 0;
+
+        foreach($expenses as $expense)
+        {
+            $total += $expense->amount;
+            $total += $this->getConvertedTotal($expense);
+        }
+    }
+
+    private function getConvertedTotal($expense)
+    {
+
+    }
+
+    private function expenseCalcWithTax()
     {
 
       return \DB::select( \DB::raw("
