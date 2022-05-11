@@ -1450,6 +1450,20 @@ class CompanyImport implements ShouldQueue
                 $new_obj->save(['timestamps' => false]);
                 $new_obj->number = $this->getNextRecurringExpenseNumber($new_obj);   
             }
+            elseif($class == 'App\Models\Project' && is_null($obj->{$match_key})){
+                $new_obj = new Project();
+                $new_obj->company_id = $this->company->id;
+                $new_obj->fill($obj_array);
+                $new_obj->save(['timestamps' => false]);
+                $new_obj->number = $this->getNextProjectNumber($new_obj);   
+            }
+            elseif($class == 'App\Models\Task' && is_null($obj->{$match_key})){
+                $new_obj = new Task();
+                $new_obj->company_id = $this->company->id;
+                $new_obj->fill($obj_array);
+                $new_obj->save(['timestamps' => false]);
+                $new_obj->number = $this->getNextTaskNumber($new_obj);   
+            }
             elseif($class == 'App\Models\CompanyLedger'){
                 $new_obj = $class::firstOrNew(
                         [$match_key => $obj->{$match_key}, 'company_id' => $this->company->id],

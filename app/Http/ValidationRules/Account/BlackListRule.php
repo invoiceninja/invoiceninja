@@ -22,6 +22,7 @@ class BlackListRule implements Rule
     private array $blacklist = [
         'candassociates.com',
         'vusra.com',
+        'fourthgenet.com',
     ];
 
     /**
