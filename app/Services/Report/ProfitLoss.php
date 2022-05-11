@@ -162,43 +162,48 @@ class ProfitLoss
                            ->cursor();
 
 
-        if($this->is_tax_included) 
-            return $this->calculateExpensesWithTaxes($expenses);
+        return $this->calculateExpenses($expenses);
         
-        return $this->calculateExpensesWithoutTaxes($expenses);
-
     }
 
-    private function calculateExpensesWithTaxes($expenses)
-    {
-
-        foreach($expenses as $expense)
-        {
-
-            if(!$expense->calculate_tax_by_amount && !$expense->uses_inclusive_taxes)
-            {
-
-            }
-
-        }
-
-    }
 
     private function calculateExpensesWithoutTaxes($expenses)
     {
-        $total = 0;
-        $converted_total = 0;
+
+        $data = [];
+
 
         foreach($expenses as $expense)
         {
-            $total += $expense->amount;
-            $converted_total += $this->getConvertedTotal($expense);
+            $data[] = [
+                'total' => $expense->amount,
+                'converted_total' => $this->getConvertedTotal($expense->amount, $expense->exchange_rate),
+                'tax' => $this->getTax($expense),
+            ];
+
         }
+
     }
 
-    private function getConvertedTotal($expense)
+    private function getTax($expense)
     {
-        return round($expense->amount * $expense->exchange_rate,2);
+        $amount = $expense->amount;
+
+        //is amount tax
+
+        if($expense->calculate_tax_by_amount)
+        {
+            $total_tax = $expense->tax_amount1 + $expense->tax_amount2 + $expense->tax_amount3;
+        }
+
+
+        return ($amount - ($amount / (1 + ($tax_rate / 100))));
+
+    }
+
+    private function getConvertedTotal($amount, $exchange_rate)
+    {
+        return round($amount * $exchange_rate,2);
     }
 
     private function expenseCalcWithTax()

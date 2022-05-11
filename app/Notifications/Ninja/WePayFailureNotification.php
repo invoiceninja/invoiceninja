@@ -72,11 +72,15 @@ class WePayFailureNotification extends Notification
 
     public function toSlack($notifiable)
     {
+        $ip = "";
+ 
+        if(request())
+            $ip = request()->getClientIp();
 
        return  (new SlackMessage)
                 ->success()
                 ->from(ctrans('texts.notification_bot'))
                 ->image('https://app.invoiceninja.com/favicon.png')
-                ->content("New WePay ACH Failure from Company ID: ". $this->company_id);
+                ->content("New WePay ACH Failure from Company ID: {$this->company_id} IP: {$ip}" );
     }
 }

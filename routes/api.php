@@ -19,11 +19,11 @@ Route::group(['middleware' => ['throttle:300,1', 'api_secret_check']], function 
 });
 
 Route::group(['middleware' => ['throttle:10,1','api_secret_check','email_db']], function () {
-    Route::post('api/v1/login', 'Auth\LoginController@apiLogin')->name('login.submit');
+    Route::post('api/v1/login', 'Auth\LoginController@apiLogin')->name('login.submit')->middleware('throttle:20,1');;
     Route::post('api/v1/reset_password', 'Auth\ForgotPasswordController@sendResetLinkEmail');
 });
 
-Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale'], 'prefix' => 'api/v1', 'as' => 'api.'], function () {
+Route::group(['middleware' => ['throttle:100,1', 'api_db', 'token_auth', 'locale'], 'prefix' => 'api/v1', 'as' => 'api.'], function () {
     Route::post('check_subdomain', 'SubdomainController@index')->name('check_subdomain');
     Route::get('ping', 'PingController@index')->name('ping');
     Route::get('health_check', 'PingController@health')->name('health_check');
@@ -152,7 +152,7 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
     Route::post('recurring_quotes/bulk', 'RecurringQuoteController@bulk')->name('recurring_quotes.bulk');
     Route::put('recurring_quotes/{recurring_quote}/upload', 'RecurringQuoteController@upload');
 
-    Route::post('refresh', 'Auth\LoginController@refresh');
+    Route::post('refresh', 'Auth\LoginController@refresh')->middleware('throttle:20,1');
 
     Route::post('reports/clients', 'Reports\ClientReportController');
     Route::post('reports/contacts', 'Reports\ClientContactReportController');
