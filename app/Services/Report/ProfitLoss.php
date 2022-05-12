@@ -131,6 +131,24 @@ class ProfitLoss
 
     }
 
+    private function filterInvoicePaymentIncome()
+    {
+
+        $invoices = $this->invoicePaymentIncome();
+
+        $this->income = 0;
+        $this->income_taxes = 0;
+        $this->income_map = $invoices;
+
+        foreach($invoices as $invoice){
+            $this->income += $invoice->net_amount;
+            $this->income_taxes += $invoice->net_converted_taxes;
+        }
+
+        return $this;
+        
+    }
+
     private function filterPaymentIncome()
     {
         $payments = $this->paymentIncome();
@@ -186,14 +204,49 @@ class ProfitLoss
             GROUP BY currency_id
         "), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $this->start_date, 'end_date' => $this->end_date]  );
 
-
-        //
-        // $total = array_reduce( commissionsArray, function ($sum, $entry) {
-        //   $sum += $entry->commission;
-        //   return $sum;
-        // }, 0);
     }
 
+
+    /**
+     => [
+     {#2047
+       +"amount": "110.000000",
+       +"total_taxes": "10.0000000000000000",
+       +"net_converted_amount": "110.0000000000",
+       +"net_converted_taxes": "10.00000000000000000000",
+       +"currency_id": ""1"",
+     },
+     {#2444
+       +"amount": "50.000000",
+       +"total_taxes": "4.5454545454545455",
+       +"net_converted_amount": "61.1682150381",
+       +"net_converted_taxes": "5.56074682164393914741",
+       +"currency_id": ""2"",
+     },
+   ]
+   */
+
+    private function invoicePaymentIncome()
+    {
+        return \DB::select( \DB::raw("
+            SELECT
+            sum(invoices.amount - invoices.balance) as amount,
+            sum(invoices.total_taxes) * ((sum(invoices.amount - invoices.balance)/invoices.amount)) as total_taxes,
+            (sum(invoices.amount - invoices.balance) / IFNULL(invoices.exchange_rate, 1)) AS net_converted_amount,
+            (sum(invoices.total_taxes) * ((sum(invoices.amount - invoices.balance)/invoices.amount)) / IFNULL(invoices.exchange_rate, 1)) AS net_converted_taxes,
+            IFNULL(JSON_EXTRACT( settings, '$.currency_id' ), :company_currency) AS currency_id
+            FROM clients
+            JOIN invoices
+            on invoices.client_id = clients.id
+            WHERE invoices.status_id IN (3,4)
+            AND invoices.company_id = :company_id
+            AND invoices.amount > 0
+            AND clients.is_deleted = 0
+            AND invoices.is_deleted = 0
+            AND (invoices.date BETWEEN :start_date AND :end_date)
+            GROUP BY currency_id
+        "), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $this->start_date, 'end_date' => $this->end_date]  );
+    }
 
     /**
        +"payments": "12260.870000",
