@@ -118,9 +118,7 @@ class Company extends BaseModel
         'client_registration_fields' => 'array',
     ];
 
-    protected $with = [
-   //     'tokens'
-    ];
+    protected $with = [];
 
     public static $modules = [
         self::ENTITY_RECURRING_INVOICE => 1,
