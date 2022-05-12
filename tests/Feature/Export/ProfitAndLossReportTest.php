@@ -40,7 +40,13 @@ class ProfitAndLossReportTest extends TestCase
         $this->makeTestData();
 
         $this->withoutExceptionHandling();
+
+        $this->buildData();
     }
+
+    public $company;
+
+    public $payload;
 
 /**
  *
@@ -61,13 +67,14 @@ class ProfitAndLossReportTest extends TestCase
         include_tax - true tax_included || false - tax_excluded
 
 */
-    public function testProfitLossInstance()
+
+    private function buildData()
     {
-        $company = Company::factory()->create([
+        $this->company = Company::factory()->create([
                 'account_id' => $this->account->id,
             ]);
 
-        $payload = [
+        $this->payload = [
             'start_date' => '2000-01-01',
             'end_date' => '2030-01-11',
             'date_range' => 'custom',
@@ -75,7 +82,12 @@ class ProfitAndLossReportTest extends TestCase
             'include_tax' => false
         ];
 
-        $pl = new ProfitLoss($company, $payload);
+    }
+
+    public function testProfitLossInstance()
+    {
+ 
+        $pl = new ProfitLoss($this->company, $this->payload);
 
         $this->assertInstanceOf(ProfitLoss::class, $pl);
 
