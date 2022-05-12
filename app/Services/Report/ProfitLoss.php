@@ -85,8 +85,8 @@ class ProfitLoss
 
         }else {
             
-            $this->filterPaymentIncome();
-
+            //$this->filterPaymentIncome();
+            $this->filterInvoicePaymentIncome();
         }
 
         $this->expenseData();
@@ -141,7 +141,7 @@ class ProfitLoss
         $this->income_map = $invoices;
 
         foreach($invoices as $invoice){
-            $this->income += $invoice->net_amount;
+            $this->income += $invoice->net_converted_amount;
             $this->income_taxes += $invoice->net_converted_taxes;
         }
 

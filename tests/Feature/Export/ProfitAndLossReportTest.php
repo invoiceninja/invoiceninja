@@ -244,4 +244,58 @@ class ProfitAndLossReportTest extends TestCase
     }
 
 
+    public function testSimpleInvoicePaymentIncome()
+    {
+        $this->buildData();
+
+        $this->payload = [
+            'start_date' => '2000-01-01',
+            'end_date' => '2030-01-11',
+            'date_range' => 'custom',
+            'is_income_billed' => false,
+            'include_tax' => false
+        ];
+
+
+        $settings = ClientSettings::defaults();
+        $settings->currency_id = "1";
+
+        $client = Client::factory()->create([
+                'user_id' => $this->user->id,
+                'company_id' => $this->company->id,
+                'is_deleted' => 0,
+                'settings' => $settings,
+            ]);
+
+        $i = Invoice::factory()->create([
+            'client_id' => $client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'amount' => 10,
+            'balance' => 10,
+            'status_id' => 2,
+            'total_taxes' => 0,
+            'date' => '2022-01-01',
+            'terms' => 'nada',
+            'discount' => 0,
+            'tax_rate1' => 0,
+            'tax_rate2' => 0,
+            'tax_rate3' => 0,
+            'tax_name1' => "",
+            'tax_name2' => '',
+            'tax_name3' => '',
+            'uses_inclusive_taxes' => true,
+            'exchange_rate' => 1
+        ]);
+
+        $i->service()->markPaid()->save();
+
+        $pl = new ProfitLoss($this->company, $this->payload);
+        $pl->build();
+
+        $this->assertEquals(10.0, $pl->getIncome());
+        
+        $this->account->delete();
+    }
+
 }
