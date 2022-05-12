@@ -55,9 +55,9 @@ class ProfitLoss
 
     protected Company $company;
 
-    public function __construct(Company $company, array $payload, CurrencyApi $currency_api)
+    public function __construct(Company $company, array $payload)
     {
-        $this->currency_api = $currency_api;
+        $this->currency_api = new CurrencyApi();
 
         $this->company = $company;
 
@@ -167,7 +167,7 @@ class ProfitLoss
     }
 
 
-    private function calculateExpensesWithoutTaxes($expenses)
+    private function calculateExpenses($expenses)
     {
 
         $data = [];
@@ -177,8 +177,11 @@ class ProfitLoss
         {
             $data[] = [
                 'total' => $expense->amount,
-                'converted_total' => $this->getConvertedTotal($expense->amount, $expense->exchange_rate),
-                'tax' => $this->getTax($expense),
+                'converted_total' => $converted_total = $this->getConvertedTotal($expense->amount, $expense->exchange_rate),
+                'tax' => $tax = $this->getTax($expense),
+                'net_converted_total' => $expense->uses_inclusive_taxes ? ( $converted_total - $tax ) : $converted_total,
+                'category_id' => $expense->category_id,
+                'category_name' => $expense->category ? $expense->category->name : "No Category Defined",
             ];
 
         }
@@ -193,17 +196,37 @@ class ProfitLoss
 
         if($expense->calculate_tax_by_amount)
         {
-            $total_tax = $expense->tax_amount1 + $expense->tax_amount2 + $expense->tax_amount3;
+            return $expense->tax_amount1 + $expense->tax_amount2 + $expense->tax_amount3;
         }
 
 
-        return ($amount - ($amount / (1 + ($tax_rate / 100))));
+        if($expense->uses_inclusive_taxes){
+
+            $inclusive = 0;
+
+            $inclusive += ($amount - ($amount / (1 + ($expense->tax_rate1 / 100))));
+            $inclusive += ($amount - ($amount / (1 + ($expense->tax_rate2 / 100))));
+            $inclusive += ($amount - ($amount / (1 + ($expense->tax_rate3 / 100))));
+
+            return round($inclusive,2);
+
+        }
+
+
+        $exclusive = 0;
+
+        $exclusive += $amount * ($expense->tax_rate1 / 100);
+        $exclusive += $amount * ($expense->tax_rate2 / 100);
+        $exclusive += $amount * ($expense->tax_rate3 / 100);
+
+
+        return $exclusive;
 
     }
 
-    private function getConvertedTotal($amount, $exchange_rate)
+    private function getConvertedTotal($amount, $exchange_rate = 1)
     {
-        return round($amount * $exchange_rate,2);
+        return round(($amount * $exchange_rate) ,2);
     }
 
     private function expenseCalcWithTax()
@@ -231,7 +254,7 @@ class ProfitLoss
             $this->is_expense_billed = boolval($this->payload['expense_billed']);
 
         if(array_key_exists('include_tax', $this->payload))
-            $this->is_tax_included = boolval($this->payload['is_tax_included']);
+            $this->is_tax_included = boolval($this->payload['include_tax']);
 
         return $this;
 
