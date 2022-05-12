@@ -165,7 +165,7 @@ class ProfitLoss
        ]
    */
     private function invoiceIncome()
-    { nlog(['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $this->start_date, 'end_date' => $this->end_date] );
+    { 
         return \DB::select( \DB::raw("
             SELECT
             sum(invoices.amount) as amount,
