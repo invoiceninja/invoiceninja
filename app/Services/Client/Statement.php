@@ -226,6 +226,7 @@ class Statement
             ->whereIn('status_id', $this->invoiceStatuses())
             ->whereBetween('date', [Carbon::parse($this->options['start_date']), Carbon::parse($this->options['end_date'])])
             ->orderBy('due_date', 'ASC')
+            ->orderBy('date', 'ASC')
             ->cursor();
     }
 
