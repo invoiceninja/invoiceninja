@@ -167,6 +167,7 @@ Route::group(['middleware' => ['throttle:100,1', 'api_db', 'token_auth', 'locale
     Route::post('reports/payments', 'Reports\PaymentReportController');
     Route::post('reports/products', 'Reports\ProductReportController');
     Route::post('reports/tasks', 'Reports\TaskReportController');
+    Route::post('reports/profitloss', 'Reports\ProfitAndLossController');
 
     Route::get('scheduler', 'SchedulerController@index');
     Route::post('support/messages/send', 'Support\Messages\SendingController');
