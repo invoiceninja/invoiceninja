@@ -5,66 +5,66 @@
 
         <p><b>If your logo imported correctly it will display below. If it didn't import, you'll need to reupload your logo</b></p>
 
-        <p><img src="{{ $company->present()->logo() }}"></p>
+        <p><img src="{{ $logo }}"></p>
 
-        @if(isset($company) && $company->clients->count() >=1)
-            <p><b>{{ ctrans('texts.clients') }}:</b> {{ $company->clients->count() }} </p>
+        @if(isset($company))
+            <p><b>{{ ctrans('texts.clients') }}:</b> {{ $client_count }} </p>
         @endif
 
-        @if(isset($company) && count($company->products) >=1)
-            <p><b>{{ ctrans('texts.products') }}:</b> {{ count($company->products) }} </p>
+        @if(isset($company))
+            <p><b>{{ ctrans('texts.products') }}:</b> {{ $product_count }} </p>
         @endif
 
-        @if(isset($company) && count($company->invoices) >=1)
-            <p><b>{{ ctrans('texts.invoices') }}:</b> {{ count($company->invoices) }} </p>
+        @if(isset($company))
+            <p><b>{{ ctrans('texts.invoices') }}:</b> {{ $invoice_count }} </p>
         @endif
 
-        @if(isset($company) && count($company->payments) >=1)
-            <p><b>{{ ctrans('texts.payments') }}:</b> {{ count($company->payments) }} </p>
+        @if(isset($company))
+            <p><b>{{ ctrans('texts.payments') }}:</b> {{ $payment_count }} </p>
         @endif
 
-        @if(isset($company) && count($company->recurring_invoices) >=1)
-            <p><b>{{ ctrans('texts.recurring_invoices') }}:</b> {{ count($company->recurring_invoices) }} </p>
+        @if(isset($company))
+            <p><b>{{ ctrans('texts.recurring_invoices') }}:</b> {{ $recurring_invoice_count }} </p>
         @endif
 
-        @if(isset($company) && count($company->quotes) >=1)
-            <p><b>{{ ctrans('texts.quotes') }}:</b> {{ count($company->quotes) }} </p>
+        @if(isset($company))
+            <p><b>{{ ctrans('texts.quotes') }}:</b> {{ $quote_count }} </p>
         @endif
 
-        @if(isset($company) && count($company->credits) >=1)
-            <p><b>{{ ctrans('texts.credits') }}:</b> {{ count($company->credits) }} </p>
+        @if(isset($company))
+            <p><b>{{ ctrans('texts.credits') }}:</b> {{ $credit_count }} </p>
         @endif
 
-        @if(isset($company) && count($company->projects) >=1)
-            <p><b>{{ ctrans('texts.projects') }}:</b> {{ count($company->projects) }} </p>
+        @if(isset($company))
+            <p><b>{{ ctrans('texts.projects') }}:</b> {{ $project_count }} </p>
         @endif
 
-        @if(isset($company) && count($company->tasks) >=1)
-            <p><b>{{ ctrans('texts.tasks') }}:</b> {{ count($company->tasks) }} </p>
+        @if(isset($company))
+            <p><b>{{ ctrans('texts.tasks') }}:</b> {{ $task_count }} </p>
         @endif
 
-        @if(isset($company) && count($company->vendors) >=1)
-            <p><b>{{ ctrans('texts.vendors') }}:</b> {{ count($company->vendors) }} </p>
+        @if(isset($company))
+            <p><b>{{ ctrans('texts.vendors') }}:</b> {{ $vendor_count }} </p>
         @endif
 
-        @if(isset($company) && count($company->expenses) >=1)
-            <p><b>{{ ctrans('texts.expenses') }}:</b> {{ count($company->expenses) }} </p>
+        @if(isset($company))
+            <p><b>{{ ctrans('texts.expenses') }}:</b> {{ $expense_count }} </p>
         @endif
 
-        @if(isset($company) && count($company->company_gateways) >=1)
-            <p><b>{{ ctrans('texts.gateways') }}:</b> {{ count($company->company_gateways) }} </p>
+        @if(isset($company))
+            <p><b>{{ ctrans('texts.gateways') }}:</b> {{ $company_gateway_count }} </p>
         @endif
 
-        @if(isset($company) && count($company->client_gateway_tokens) >=1)
-            <p><b>{{ ctrans('texts.tokens') }}:</b> {{ count($company->client_gateway_tokens) }} </p>
+        @if(isset($company))
+            <p><b>{{ ctrans('texts.tokens') }}:</b> {{ $client_gateway_token_count }} </p>
         @endif
 
-        @if(isset($company) && count($company->tax_rates) >=1)
-            <p><b>{{ ctrans('texts.tax_rates') }}:</b> {{ count($company->tax_rates) }} </p>
+        @if(isset($company))
+            <p><b>{{ ctrans('texts.tax_rates') }}:</b> {{ $tax_rate_count }} </p>
         @endif
 
-        @if(isset($company) && count($company->documents) >=1)
-            <p><b>{{ ctrans('texts.documents') }}:</b> {{ count($company->documents) }} </p>
+        @if(isset($company))
+            <p><b>{{ ctrans('texts.documents') }}:</b> {{ $document_count }} </p>
         @endif
 
         @if(isset($check_data))

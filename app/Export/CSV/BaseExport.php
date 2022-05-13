@@ -70,13 +70,13 @@ class BaseExport
         $header = [];
 
         foreach($this->input['report_keys'] as $value){
+
             $key = array_search ($value, $this->entity_keys);
             
             $key = str_replace("item.", "", $key);
             $key = str_replace("invoice.", "", $key);
             $key = str_replace("client.", "", $key);
             $key = str_replace("contact.", "", $key);
-
 
             $header[] = ctrans("texts.{$key}");
         }

@@ -4574,6 +4574,14 @@ $LANG = array(
     'update_project' => 'Update Project',
     'auto_archive_invoice_cancelled' => 'Auto Archive Cancelled Invoice',
     'auto_archive_invoice_cancelled_help' => 'Automatically archive invoices when they are cancelled',
+    'no_invoices_found' => 'No invoices found',
+    'created_record' => 'Successfully created record',
+    'auto_archive_paid_invoices' => 'Auto Archive Paid',
+    'auto_archive_paid_invoices_help' => 'Automatically archive invoices when they are paid.',
+    'auto_archive_cancelled_invoices' => 'Auto Archive Cancelled',
+    'auto_archive_cancelled_invoices_help' => 'Automatically archive invoices when they are cancelled.',
+    'alternate_pdf_viewer' => 'Alternate PDF Viewer',
+    'alternate_pdf_viewer_help' => 'Improve scrolling over the PDF preview [BETA]',
     
 );
 

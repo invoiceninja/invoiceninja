@@ -33,6 +33,7 @@ class PaymentFactory
         $payment->transaction_reference = null;
         $payment->payer_id = null;
         $payment->status_id = Payment::STATUS_PENDING;
+        $payment->exchange_rate = 1;
 
         return $payment;
     }

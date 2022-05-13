@@ -30,6 +30,11 @@ class PaymentMethodController extends Controller
 {
     use MakesDates;
 
+    public function __construct()
+    {
+        $this->middleware('throttle:10,1')->only('store');
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -92,7 +97,6 @@ class PaymentMethodController extends Controller
 
     public function verify(ClientGatewayToken $payment_method)
     {
-//        $gateway = $this->getClientGateway();
 
         return $payment_method->gateway
             ->driver(auth()->user()->client)

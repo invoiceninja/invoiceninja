@@ -319,4 +319,25 @@ class Credit extends BaseModel
     {
         return ctrans('texts.credit');
     }
+
+    public static function stringStatus(int $status)
+    {
+        switch ($status) {
+            case self::STATUS_DRAFT:
+                return ctrans('texts.draft');
+                break;
+            case self::STATUS_SENT:
+                return ctrans('texts.sent');
+                break;
+            case self::STATUS_PARTIAL:
+                return ctrans('texts.partial');
+                break;
+            case self::STATUS_APPLIED:
+                return ctrans('texts.applied');
+                break;
+            default:
+                return "";
+                break;
+        }
+    }
 }

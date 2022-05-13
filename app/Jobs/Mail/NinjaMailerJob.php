@@ -131,7 +131,7 @@ class NinjaMailerJob implements ShouldQueue
                 $response = $e->getResponse();
                 $message_body = json_decode($response->getBody()->getContents());
                 
-                if(property_exists($message_body, 'Message')){
+                if($message_body && property_exists($message_body, 'Message')){
                     $message = $message_body->Message;
                     nlog($message);
                 }
@@ -268,9 +268,10 @@ class NinjaMailerJob implements ShouldQueue
             return false;
 
         /* On the hosted platform, if the user is over the email quotas, we do not send the email. */
-        if(Ninja::isHosted() && $this->company->account->emailQuotaExceeded())
+        if(Ninja::isHosted() && $this->company->account && $this->company->account->emailQuotaExceeded())
             return true;
 
+        /* Ensure the user has a valid email address */
         if(!str_contains($this->nmo->to_user->email, "@"))
             return true;
         

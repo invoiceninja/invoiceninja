@@ -61,7 +61,7 @@ class MarkPaid extends AbstractService
         $payment->transaction_reference = ctrans('texts.manual_entry');
         $payment->currency_id = $this->invoice->client->getSetting('currency_id');
         $payment->is_manual = true;
-        
+
         if($this->invoice->company->timezone())
             $payment->date = now()->addSeconds($this->invoice->company->timezone()->utc_offset)->format('Y-m-d');
 
@@ -149,7 +149,7 @@ class MarkPaid extends AbstractService
             //$payment->exchange_currency_id = $client_currency; // 23/06/2021
             $payment->exchange_currency_id = $company_currency;
         
-            $payment->save();
+            $payment->saveQuietly();
 
         }
 

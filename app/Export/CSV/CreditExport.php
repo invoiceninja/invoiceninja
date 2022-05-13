@@ -68,45 +68,6 @@ class CreditExport extends BaseExport
         'currency' => 'currency'
     ];
 
-    protected array $all_keys = [
-        'amount',
-        'balance',
-        'client_id',
-        'custom_surcharge1',
-        'custom_surcharge2',
-        'custom_surcharge3',
-        'custom_surcharge4',
-        'country_id',
-        'custom_value1',
-        'custom_value2',
-        'custom_value3',
-        'custom_value4',
-        'date',
-        'discount',
-        'due_date',
-        'exchange_rate',
-        'footer',
-        'invoice_id',
-        'number',
-        'paid_to_date',
-        'partial',
-        'partial_due_date',
-        'po_number',
-        'private_notes',
-        'public_notes',
-        'status_id',
-        'tax_name1',
-        'tax_name2',
-        'tax_name3',
-        'tax_rate1',
-        'tax_rate2',
-        'tax_rate3',
-        'terms',
-        'total_taxes',
-        'currency'
-    ];
-
-
     private array $decorate_keys = [
         'country',
         'client',
@@ -133,12 +94,12 @@ class CreditExport extends BaseExport
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
 
+        if(count($this->input['report_keys']) == 0)
+            $this->input['report_keys'] = array_values($this->entity_keys);
+        
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-        if(count($this->input['report_keys']) == 0)
-            $this->input['report_keys'] = $this->all_keys;
-        
         $query = Credit::query()
                         ->withTrashed()
                         ->with('client')->where('company_id', $this->company->id)
@@ -166,7 +127,13 @@ class CreditExport extends BaseExport
 
         foreach(array_values($this->input['report_keys']) as $key){
 
-                $entity[$key] = $transformed_credit[$key];
+            $keyval = array_search($key, $this->entity_keys);
+
+            if(array_key_exists($key, $transformed_credit))
+                $entity[$keyval] = $transformed_credit[$key];
+            else
+                $entity[$keyval] = '';
+
         }
 
         return $this->decorateAdvancedFields($credit, $entity);
@@ -176,17 +143,20 @@ class CreditExport extends BaseExport
     private function decorateAdvancedFields(Credit $credit, array $entity) :array
     {
 
-        if(array_key_exists('country_id', $entity))
-            $entity['country_id'] = $credit->client->country ? ctrans("texts.country_{$credit->client->country->name}") : ""; 
+        if(in_array('country_id', $this->input['report_keys']))
+            $entity['country'] = $credit->client->country ? ctrans("texts.country_{$credit->client->country->name}") : ""; 
 
-        if(array_key_exists('currency', $entity))
-            $entity['currency'] = $credit->client->currency()->code;
+        if(in_array('currency_id', $this->input['report_keys']))
+            $entity['currency_id'] = $credit->client->currency() ? $credit->client->currency()->code : $invoice->company->currency()->code;;
 
-        if(array_key_exists('invoice_id', $entity))
-            $entity['invoice_id'] = $credit->invoice ? $credit->invoice->number : "";
+        if(in_array('invoice_id', $this->input['report_keys']))
+            $entity['invoice'] = $credit->invoice ? $credit->invoice->number : "";
 
-        if(array_key_exists('client_id', $entity))
-            $entity['client_id'] = $credit->client->present()->name();
+        if(in_array('client_id', $this->input['report_keys']))
+            $entity['client'] = $credit->client->present()->name();
+
+        if(in_array('status_id',$this->input['report_keys']))
+            $entity['status'] = $credit->stringStatus($credit->status_id);
 
         return $entity;
     }

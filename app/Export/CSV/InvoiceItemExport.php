@@ -64,7 +64,7 @@ class InvoiceItemExport extends BaseExport
         'terms' => 'terms',
         'total_taxes' => 'total_taxes',
         'currency' => 'currency_id',
-        'qty' => 'item.quantity',
+        'quantity' => 'item.quantity',
         'unit_cost' => 'item.cost',
         'product_key' => 'item.product_key',
         'cost' => 'item.product_cost',
@@ -85,64 +85,9 @@ class InvoiceItemExport extends BaseExport
         'invoice4' => 'item.custom_value4',
     ];
 
-    protected array $all_keys = [
-        'amount',
-        'balance',
-        'client_id',
-        'custom_surcharge1',
-        'custom_surcharge2',
-        'custom_surcharge3',
-        'custom_surcharge4',
-        'custom_value1',
-        'custom_value2',
-        'custom_value3',
-        'custom_value4',
-        'date',
-        'discount',
-        'due_date',
-        'exchange_rate',
-        'footer',
-        'number',
-        'paid_to_date',
-        'partial',
-        'partial_due_date',
-        'po_number',
-        'private_notes',
-        'public_notes',
-        'status_id',
-        'tax_name1',
-        'tax_name2',
-        'tax_name3',
-        'tax_rate1',
-        'tax_rate2',
-        'tax_rate3',
-        'terms',
-        'total_taxes',
-        // 'currency_id',
-        'item.quantity',
-        'item.cost',
-        'item.product_key',
-        'item.product_cost',
-        'item.notes',
-        'item.discount',
-        'item.is_amount_discount',
-        'item.tax_rate1',
-        'item.tax_rate2',
-        'item.tax_rate3',
-        'item.tax_name1',
-        'item.tax_name2',
-        'item.tax_name3',
-        'item.line_total',
-        'item.gross_line_total',
-        'item.custom_value1',
-        'item.custom_value2',
-        'item.custom_value3',
-        'item.custom_value4',
-    ];
-
     private array $decorate_keys = [
         'client',
-        'currency',
+        'currency_id',
     ];
 
     public function __construct(Company $company, array $input)
@@ -165,7 +110,7 @@ class InvoiceItemExport extends BaseExport
         $this->csv = Writer::createFromString();
 
         if(count($this->input['report_keys']) == 0)
-            $this->input['report_keys'] = ksort($this->all_keys);
+            $this->input['report_keys'] = array_values($this->entity_keys);
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());
@@ -209,15 +154,19 @@ class InvoiceItemExport extends BaseExport
 
             $entity = [];
 
-            $transformed_items = array_merge($transformed_invoice, $item_array);
-
-            $transformed_items = $this->decorateAdvancedFields($invoice, $transformed_items);
-
             foreach(array_values($this->input['report_keys']) as $key)
             {
-                $key = str_replace("item.", "", $key);
-                $entity[$key] = $transformed_items[$key];
+                $keyval = array_search($key, $this->entity_keys);
+
+                if(array_key_exists($key, $transformed_items))
+                    $entity[$keyval] = $transformed_items[$key];
+                else 
+                    $entity[$keyval] = "";
+
             }
+
+            $transformed_items = array_merge($transformed_invoice, $item_array);
+            $entity = $this->decorateAdvancedFields($invoice, $transformed_items);
 
             $this->csv->insertOne($entity); 
 
@@ -234,8 +183,12 @@ class InvoiceItemExport extends BaseExport
 
         foreach(array_values($this->input['report_keys']) as $key){
 
-            if(!str_contains($key, "item."))    
-                $entity[$key] = $transformed_invoice[$key];
+            $keyval = array_search($key, $this->entity_keys);
+
+            if(array_key_exists($key, $transformed_invoice))
+                $entity[$keyval] = $transformed_invoice[$key];
+            else
+                $entity[$keyval] = "";
 
         }
 
@@ -245,14 +198,14 @@ class InvoiceItemExport extends BaseExport
 
     private function decorateAdvancedFields(Invoice $invoice, array $entity) :array
     {
-        if(array_key_exists('currency_id', $entity))
-            $entity['currency_id'] = $invoice->client->currency()->code;
+        if(in_array('currency_id', $this->input['report_keys']))
+            $entity['currency'] = $invoice->client->currency() ? $invoice->client->currency()->code : $invoice->company->currency()->code;
 
-        if(array_key_exists('client_id', $entity))
-            $entity['client_id'] = $invoice->client->present()->name();
+        if(in_array('client_id', $this->input['report_keys']))
+            $entity['client'] = $invoice->client->present()->name();
 
-        if(array_key_exists('status_id', $entity))
-            $entity['status_id'] = $invoice->stringStatus($invoice->status_id);
+        if(in_array('status_id', $this->input['report_keys']))
+            $entity['status'] = $invoice->stringStatus($invoice->status_id);
 
         return $entity;
     }
