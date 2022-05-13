@@ -15,11 +15,14 @@ use App\DataMapper\CompanySettings;
 use App\Factory\InvoiceFactory;
 use App\Models\Account;
 use App\Models\Client;
+use App\Models\ClientContact;
 use App\Models\Company;
+use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\User;
 use App\Services\Report\ProfitLoss;
 use App\Utils\Traits\MakesHash;
+use Database\Factories\ClientContactFactory;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Storage;
 use League\Csv\Writer;
@@ -273,6 +276,10 @@ class ProfitAndLossReportTest extends TestCase
                 'settings' => $settings,
             ]);
 
+        $contact = ClientContact::factory()->create([
+            'client_id' => $client->id
+        ]);
+
         $i = Invoice::factory()->create([
             'client_id' => $client->id,
             'user_id' => $this->user->id,
@@ -303,5 +310,58 @@ class ProfitAndLossReportTest extends TestCase
         
         $this->account->delete();
     }
+
+
+    public function testSimpleExpense()
+    {
+        $this->buildData();
+
+        $e = Expense::factory()->create([
+            'amount' => 10,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'date' => '2022-01-01',
+        ]);
+
+        $pl = new ProfitLoss($this->company, $this->payload);
+        $pl->build();
+
+        $expenses = $pl->getExpenses();
+
+        $expense = $expenses[0];
+
+        $this->assertEquals(10, $expense->total);
+
+        $this->account->delete();
+
+
+    }
+
+    public function testSimpleExpenseBreakdown()
+    {
+        $this->buildData();
+
+        $e = Expense::factory()->create([
+            'amount' => 10,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'date' => '2022-01-01',
+            'exchange_rate' => 1,
+            'currency_id' => $this->company->settings->currency_id
+        ]);
+
+        $pl = new ProfitLoss($this->company, $this->payload);
+        $pl->build();
+
+        $expenses = $pl->getExpenses();
+
+        $bd = $pl->getExpenseBreakDown();
+
+        $this->assertEquals(array_sum(array_column($bd,'total')), 10);
+
+        $this->account->delete();
+
+    }
+
 
 }

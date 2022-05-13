@@ -36,9 +36,15 @@ class ProfitLoss
 
     private float $credit = 0;
 
+    private float $credit_invoice = 0;
+
     private float $credit_taxes = 0;
 
-    private array $expenses;
+    private array $invoice_payment_map = [];
+
+    private array $expenses = [];
+
+    private array $expense_break_down = [];
 
     private array $income_map;
 
@@ -94,7 +100,7 @@ class ProfitLoss
             $this->filterInvoicePaymentIncome();
         }
 
-        $this->expenseData();
+        $this->expenseData()->buildExpenseBreakDown();
 
         return $this;
     }
@@ -119,6 +125,11 @@ class ProfitLoss
         return $this->expenses;
     }
 
+    public function getExpenseBreakDown() :array
+    {
+        return $this->expense_break_down;
+    }
+
     private function filterIncome()
     {
         $invoices = $this->invoiceIncome();
@@ -139,16 +150,26 @@ class ProfitLoss
     private function filterInvoicePaymentIncome()
     {
 
-        $invoices = $this->invoicePaymentIncome();
+        $this->paymentEloquentIncome();
 
-        $this->income = 0;
-        $this->income_taxes = 0;
-        $this->income_map = $invoices;
+        foreach($this->invoice_payment_map as $map) {
+            $this->income += $map->amount_payment_paid_converted - $map->tax_amount_converted;
+            $this->income_taxes += $map->tax_amount_converted;
 
-        foreach($invoices as $invoice){
-            $this->income += $invoice->net_converted_amount;
-            $this->income_taxes += $invoice->net_converted_taxes;
+            $this->credit += $map->amount_credit_paid_converted - $map->tax_amount_credit_converted;
+            $this->credit_taxes += $map->tax_amount_credit_converted;
         }
+
+        // $invoices = $this->invoicePaymentIncome();
+
+        // $this->income = 0;
+        // $this->income_taxes = 0;
+        // $this->income_map = $invoices;
+
+        // foreach($invoices as $invoice){
+        //     $this->income += $invoice->net_converted_amount;
+        //     $this->income_taxes += $invoice->net_converted_taxes;
+        // }
 
         return $this;
         
@@ -214,8 +235,7 @@ class ProfitLoss
     private function paymentEloquentIncome()
     {
 
-        $amount_payment_paid = 0;
-        $amount_credit_paid = 0;
+        $this->invoice_payment_map = [];
 
         Payment::where('company_id', $this->company->id)
                         ->whereIn('status_id', [1,4,5])
@@ -226,32 +246,65 @@ class ProfitLoss
                         })
                         ->with(['company','client'])
                         ->cursor()
-                        ->each(function ($payment) use($amount_payment_paid, $amount_credit_paid){
+                        ->each(function ($payment){
 
                             $company = $payment->company;
                             $client = $payment->client;
-                            
+
+                            $map = new \stdClass;
+                            $amount_payment_paid = 0;
+                            $amount_credit_paid = 0;
+                            $amount_payment_paid_converted = 0;
+                            $amount_credit_paid_converted = 0;
+                            $tax_amount = 0;
+                            $tax_amount_converted = 0;
+                            $tax_amount_credit = 0;
+                            $tax_amount_credit_converted = $tax_amount_credit_converted = 0;
+
                             foreach($payment->paymentables as $pivot)
                             {
 
                                 if($pivot->paymentable instanceOf \App\Models\Invoice){
 
+                                    $invoice = $pivot->paymentable;
+
                                     $amount_payment_paid += $pivot->amount - $pivot->refunded;
-                                    //calc tax amount - pro rata if necessary
+                                    $amount_payment_paid_converted += $amount_payment_paid / ($payment->exchange_rate ?: 1);
+
+                                    $tax_amount += ($amount_payment_paid / $invoice->amount) * $invoice->total_taxes;
+                                    $tax_amount_converted += (($amount_payment_paid / $invoice->amount) * $invoice->total_taxes) / $payment->exchange_rate;
+
                                 }
 
 
                                 if($pivot->paymentable instanceOf \App\Models\Credit){
 
                                     $amount_credit_paid += $pivot->amount - $pivot->refunded;
+                                    $amount_credit_paid_converted += $amount_payment_paid / ($payment->exchange_rate ?: 1);
 
+                                    $tax_amount_credit += ($amount_payment_paid / $invoice->amount) * $invoice->total_taxes;
+                                    $tax_amount_credit_converted += (($amount_payment_paid / $invoice->amount) * $invoice->total_taxes) / $payment->exchange_rate;
                                 }
 
                             }
 
-                        });
-    }
+                            $map->amount_payment_paid = $amount_payment_paid;
+                            $map->amount_payment_paid_converted = $amount_payment_paid_converted;
+                            $map->tax_amount = $tax_amount;
+                            $map->tax_amount_converted = $tax_amount_converted;
+                            $map->amount_credit_paid = $amount_credit_paid;
+                            $map->amount_credit_paid_converted = $amount_credit_paid_converted;
+                            $map->tax_amount_credit = $tax_amount_credit;
+                            $map->tax_amount_credit_converted = $tax_amount_credit_converted;
+                            $map->currency_id = $payment->currency_id;
 
+                            $this->invoice_payment_map[] = $map;
+
+                        });
+
+        return $this;
+
+    }
 
     /**
      => [
@@ -271,6 +324,7 @@ class ProfitLoss
      },
    ]
    */
+
 
     private function invoicePaymentIncome()
     {
@@ -332,31 +386,52 @@ class ProfitLoss
                            ->cursor();
 
 
-        return $this->calculateExpenses($expenses);
-        
-    }
-
-
-    private function calculateExpenses($expenses)
-    {
-
-        $data = [];
-
+        $this->expenses = [];
 
         foreach($expenses as $expense)
         {
-            $data[] = [
-                'total' => $expense->amount,
-                'converted_total' => $converted_total = $this->getConvertedTotal($expense->amount, $expense->exchange_rate),
-                'tax' => $tax = $this->getTax($expense),
-                'net_converted_total' => $expense->uses_inclusive_taxes ? ( $converted_total - $tax ) : $converted_total,
-                'category_id' => $expense->category_id,
-                'category_name' => $expense->category ? $expense->category->name : "No Category Defined",
-            ];
+            $map = new \stdClass;
+
+            $map->total = $expense->amount;
+            $map->converted_total = $converted_total = $this->getConvertedTotal($expense->amount, $expense->exchange_rate);
+            $map->tax = $tax = $this->getTax($expense);
+            $map->net_converted_total = $expense->uses_inclusive_taxes ? ( $converted_total - $tax ) : $converted_total;
+            $map->category_id = $expense->category_id;
+            $map->category_name = $expense->category ? $expense->category->name : "No Category Defined";
+            $map->currency_id = $expense->currency_id ?: $expense->company->settings->currency_id;
+
+                $this->expenses[] = $map;
 
         }
 
-        $this->expenses = $data;
+        
+        return $this;        
+    }
+
+    private function buildExpenseBreakDown()
+    {
+        $data = [];
+
+        foreach($this->expenses as $expense)
+        {
+            if(!array_key_exists($expense->category_id, $data))
+                $data[$expense->category_id] = [];
+
+            if(!array_key_exists('total', $data[$expense->category_id]))
+                $data[$expense->category_id]['total'] = 0;
+            
+            if(!array_key_exists('tax', $data[$expense->category_id]))
+                $data[$expense->category_id]['tax'] = 0;
+            
+            $data[$expense->category_id]['total'] = $data[$expense->category_id]['total'] + $expense->net_converted_total;
+            $data[$expense->category_id]['category_name'] = $expense->category_name;
+            $data[$expense->category_id]['tax'] = $data[$expense->category_id]['tax'] + $expense->tax;
+
+        }
+
+        $this->expense_break_down = $data;
+
+        return $this;
 
     }
 
