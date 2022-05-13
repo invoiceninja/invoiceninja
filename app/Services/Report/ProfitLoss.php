@@ -14,6 +14,7 @@ namespace App\Services\Report;
 use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Libraries\MultiDB;
 use App\Models\Company;
+use App\Models\Currency;
 use App\Models\Expense;
 use App\Models\Payment;
 use App\Utils\Ninja;
@@ -21,6 +22,7 @@ use App\Utils\Number;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
+use Illuminate\Support\Str;
 
 class ProfitLoss
 {
@@ -51,6 +53,8 @@ class ProfitLoss
     private array $expense_break_down = [];
 
     private array $income_map;
+
+    private array $foreign_income = [];
 
     protected CurrencyApi $currency_api;
 
@@ -140,6 +144,8 @@ class ProfitLoss
     {
         $invoices = $this->invoiceIncome();
 
+        $this->foreign_income = [];
+
         $this->income = 0;
         $this->income_taxes = 0;
         $this->income_map = $invoices;
@@ -147,6 +153,12 @@ class ProfitLoss
         foreach($invoices as $invoice){
             $this->income += $invoice->net_converted_amount;
             $this->income_taxes += $invoice->net_converted_taxes;
+
+
+            $currency = Currency::find(intval(str_replace('"','',$invoice->currency_id)));
+            $currency->name = ctrans('texts.currency_'.Str::slug($currency->name, '_'));
+
+            $this->foreign_income[] = ['currency' => $currency->name, 'amount' => $invoice->amount, 'total_taxes' => $invoice->total_taxes];
         }
 
         return $this;
@@ -179,6 +191,11 @@ class ProfitLoss
 
         return $this;
         
+    }
+
+    private function getForeignIncome() :array
+    {
+        return $this->foreign_income;
     }
 
     private function filterPaymentIncome()
@@ -238,6 +255,19 @@ class ProfitLoss
 
     }
 
+    /**
+     * The income calculation is based on the total payments received during
+     * the selected time period.
+     * 
+     * Once we have the payments we iterate through the attached invoices and
+     * we also determine the total taxes paid as our
+     * Profit and loss statement should be net of all taxes
+     * 
+     * This calculation also considers partial payments and pro rata's any taxes.
+     * 
+     * This calculation also considers exchange rates and we convert (based on the payment exchange rate)
+     * to the native company currency.
+     */
     private function paymentEloquentIncome()
     {
 
@@ -375,6 +405,16 @@ class ProfitLoss
         $csv->insertOne([ctrans('texts.total_profit'), Number::formatMoney($this->income - array_sum(array_column($this->expense_break_down, 'total')), $this->company)]);
 
         //net profit
+
+        $csv->insertOne(['--------------------']);
+        $csv->insertOne(['']);
+        $csv->insertOne(['']);
+
+        $csv->insertOne([ctrans('texts.currency'), ctrans('texts.amount'), ctrans('texts.total_taxes')]);
+        foreach($this->foreign_income as $foreign_income)
+        {
+            $csv->insertOne([$foreign_income['currency'], ($foreign_income['amount'] - $foreign_income['total_taxes']), $foreign_income['total_taxes']]);
+        }
 
         return  $csv->toString(); 
 
