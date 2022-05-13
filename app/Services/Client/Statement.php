@@ -241,10 +241,10 @@ class Statement
                 return [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID];
                 break;
             case 'paid':
-                return [Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID];
+                return [Invoice::STATUS_PAID];
                 break;
             case 'unpaid':
-                return [Invoice::STATUS_SENT];
+                return [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL];
                 break;
             
             default:
