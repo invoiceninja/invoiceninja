@@ -15,6 +15,7 @@ use App\DataMapper\EmailTemplateDefaults;
 use App\Jobs\Entity\CreateEntityPdf;
 use App\Models\Account;
 use App\Models\Expense;
+use App\Models\Task;
 use App\Utils\HtmlEngine;
 use App\Utils\Ninja;
 use App\Utils\Number;
@@ -162,6 +163,7 @@ class InvoiceEmailEngine extends BaseEmailEngine
                 }
 
                 if(count($expense_ids) > 0){
+
                     $expenses = Expense::whereIn('id', $this->transformKeys($expense_ids))
                                        ->where('invoice_documents', 1)
                                        ->cursor()
@@ -174,6 +176,27 @@ class InvoiceEmailEngine extends BaseEmailEngine
 
                                        });
                 }
+
+                if(property_exists($item, 'task_id'))
+                {
+                    $task_ids[] = $item->task_id;
+                }
+
+                if(count($task_ids) > 0){
+                    
+                    $tasks = Task::whereIn('id', $this->transformKeys($task_ids))
+                                       ->where('invoice_documents', 1)
+                                       ->cursor()
+                                       ->each(function ($task){
+
+                                            foreach($task->documents as $document)
+                                            {
+                                                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => $document->type]]);
+                                            }
+
+                                       });
+                }
+
             }
 
 
