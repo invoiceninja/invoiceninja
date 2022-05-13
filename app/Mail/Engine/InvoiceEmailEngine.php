@@ -14,14 +14,18 @@ namespace App\Mail\Engine;
 use App\DataMapper\EmailTemplateDefaults;
 use App\Jobs\Entity\CreateEntityPdf;
 use App\Models\Account;
+use App\Models\Expense;
 use App\Utils\HtmlEngine;
 use App\Utils\Ninja;
 use App\Utils\Number;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Lang;
 
 class InvoiceEmailEngine extends BaseEmailEngine
 {
+    use MakesHash;
+
     public $invitation;
 
     public $client;
@@ -144,6 +148,32 @@ class InvoiceEmailEngine extends BaseEmailEngine
 
             foreach($this->invoice->company->documents as $document){
                 $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => $document->type]]);
+            }
+
+            $line_items = $this->invoice->line_items;
+            
+            $expense_ids = [];
+
+            foreach($line_items as $item)
+            {
+                if(property_exists($item, 'expense_id'))
+                {
+                    $expense_ids[] = $item->expense_id;
+                }
+
+                if(count($expense_ids) > 0){
+                    $expenses = Expense::whereIn('id', $this->transformKeys($expense_ids))
+                                       ->where('invoice_documents', 1)
+                                       ->cursor()
+                                       ->each(function ($expense){
+
+                                            foreach($expense->documents as $document)
+                                            {
+                                                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => $document->type]]);
+                                            }
+
+                                       });
+                }
             }
 
 
