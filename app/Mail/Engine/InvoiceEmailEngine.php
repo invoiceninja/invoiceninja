@@ -182,10 +182,9 @@ class InvoiceEmailEngine extends BaseEmailEngine
                     $task_ids[] = $item->task_id;
                 }
 
-                if(count($task_ids) > 0){
+                if(count($task_ids) > 0 && $this->invoice->company->invoice_task_documents){
                     
                     $tasks = Task::whereIn('id', $this->transformKeys($task_ids))
-                                       ->where('invoice_documents', 1)
                                        ->cursor()
                                        ->each(function ($task){
 
