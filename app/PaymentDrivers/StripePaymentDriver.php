@@ -601,9 +601,14 @@ class StripePaymentDriver extends BaseDriver
             }
 
         } elseif ($request->type === 'source.chargeable') {
+            
             $this->init();
 
             foreach ($request->data as $transaction) {
+
+                if(!$request->data['object']['amount'] || empty($request->data['object']['amount']))
+                    continue;
+
                 $charge = \Stripe\Charge::create([
                     'amount' => $request->data['object']['amount'],
                     'currency' => $request->data['object']['currency'],
@@ -619,6 +624,7 @@ class StripePaymentDriver extends BaseDriver
                                   ->orWhere('transaction_reference', $transaction['id']);
                                 })
                         ->first();
+
                     if ($payment) {
                         $payment->status_id = Payment::STATUS_COMPLETED;
                         $payment->save();

@@ -118,9 +118,7 @@ class Company extends BaseModel
         'client_registration_fields' => 'array',
     ];
 
-    protected $with = [
-   //     'tokens'
-    ];
+    protected $with = [];
 
     public static $modules = [
         self::ENTITY_RECURRING_INVOICE => 1,
@@ -553,4 +551,17 @@ class Company extends BaseModel
     {
         return ctrans('texts.company');
     }
+
+    public function date_format()
+    {
+        $date_formats = Cache::get('date_formats');
+
+        if(!$date_formats)
+            $this->buildCache(true);
+        
+        return $date_formats->filter(function ($item) {
+            return $item->id == $this->getSetting('date_format_id');
+        })->first()->format;
+    }
+
 }

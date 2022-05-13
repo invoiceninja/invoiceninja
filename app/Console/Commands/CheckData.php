@@ -102,16 +102,8 @@ class CheckData extends Command
             config(['database.default' => $database]);
         }
 
-        $this->checkInvoiceBalances();
-        $this->checkInvoiceBalancesNew();
-        //$this->checkInvoicePayments();
-        
-        //$this->checkPaidToDates();
-
+        $this->checkInvoiceBalances();        
         $this->checkPaidToDatesNew();
-
-        // $this->checkPaidToCompanyDates();
-        $this->checkClientBalances();
 
         $this->checkContacts();
         $this->checkVendorContacts();
@@ -123,7 +115,6 @@ class CheckData extends Command
 
         if (! $this->option('client_id')) {
             $this->checkOAuth();
-            //$this->checkFailedJobs();
         }
 
         $this->logMessage('Done: '.strtoupper($this->isValid ? Account::RESULT_SUCCESS : Account::RESULT_FAILURE));
@@ -359,7 +350,6 @@ class CheckData extends Command
         }
     }
 
-
     private function checkEntityInvitations()
     {
     
@@ -420,35 +410,6 @@ class CheckData extends Command
 
     }
 
-    // private function checkPaidToCompanyDates()
-    // {
-    //     Company::cursor()->each(function ($company){
-
-    //     $payments = Payment::where('is_deleted', 0)
-    //                        ->where('company_id', $company->id)
-    //                        ->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED])
-    //                        ->pluck('id');
-
-    //     $unapplied = Payment::where('is_deleted', 0)
-    //                         ->where('company_id', $company->id)
-    //                         ->whereIn('status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])
-    //                         ->sum(\DB::Raw('amount - applied'));
-
-    //     $paymentables = Paymentable::whereIn('payment_id', $payments)->sum(\DB::Raw('amount - refunded'));
-
-    //     $client_paid_to_date = Client::where('company_id', $company->id)->where('is_deleted', 0)->withTrashed()->sum('paid_to_date');
-
-    //     $total_payments = $paymentables + $unapplied;
-
-    //      if (round($total_payments, 2) != round($client_paid_to_date, 2)) {
-    //             $this->wrong_paid_to_dates++;
-
-    //             $this->logMessage($company->present()->name.' id = # '.$company->id." - Paid to date does not match Client Paid To Date = {$client_paid_to_date} - Invoice Payments = {$total_payments}");
-    //         }
-
-    //     });
-
-    // }
     private function clientPaidToDateQuery()
     {
         $results = \DB::select( \DB::raw("
@@ -528,13 +489,10 @@ class CheckData extends Command
 
     }
 
-
-
     private function checkPaidToDates()
     {
         $this->wrong_paid_to_dates = 0;
         $credit_total_applied = 0;
-
 
         $clients = DB::table('clients')
                     ->leftJoin('payments', function($join) {
@@ -605,29 +563,6 @@ class CheckData extends Command
         $this->logMessage("{$this->wrong_paid_to_dates} clients with incorrect paid to dates");
     }
 
-/*
-SELECT 
-SUM(payments.applied) as payments_applied,
-SUM(invoices.amount - invoices.balance) as invoices_paid_amount,
-SUM(credits.amount - credits.balance) as credits_balance,
-SUM(invoices.balance) as invoices_balance,
-clients.id
-FROM payments
-JOIN clients
-ON clients.id = payments.client_id
-JOIN credits
-ON credits.client_id = clients.id
-JOIN invoices
-ON invoices.client_id = payments.client_id
-WHERE payments.is_deleted = 0
-AND payments.status_id IN (1,4,5,6)
-AND invoices.is_deleted = 0
-AND invoices.status_id != 1
-GROUP BY clients.id
-HAVING (payments_applied - credits_balance - invoices_balance) != invoices_paid_amount
-ORDER BY clients.id;
-*/
-
     private function checkInvoicePayments()
     {
         $this->wrong_balances = 0;
@@ -660,33 +595,6 @@ ORDER BY clients.id;
         $this->logMessage("{$this->wrong_balances} clients with incorrect invoice balances");
     }
 
-
-
-        // $clients = DB::table('clients')
-        //             ->leftJoin('invoices', function($join){
-        //                 $join->on('invoices.client_id', '=', 'clients.id')
-        //                      ->where('invoices.is_deleted',0)
-        //                      ->where('invoices.status_id', '>', 1);
-        //             })
-        //             ->leftJoin('credits', function($join){
-        //                 $join->on('credits.client_id', '=', 'clients.id')
-        //                      ->where('credits.is_deleted',0)
-        //                      ->where('credits.status_id', '>', 1);
-        //             })
-        //             ->leftJoin('payments', function($join) {
-        //                 $join->on('payments.client_id', '=', 'clients.id')
-        //                     ->where('payments.is_deleted', 0)
-        //                     ->whereIn('payments.status_id', [Payment::STATUS_COMPLETED, Payment:: STATUS_PENDING, Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED]);
-        //             })
-        //             ->where('clients.is_deleted',0)
-        //             //->where('clients.updated_at', '>', now()->subDays(2))
-        //             ->groupBy('clients.id')
-        //             ->havingRaw('sum(coalesce(invoices.amount - invoices.balance - credits.amount)) != sum(coalesce(payments.amount - payments.refunded, 0))')
-        //             ->get(['clients.id', DB::raw('sum(coalesce(invoices.amount - invoices.balance - credits.amount)) as invoice_amount'), DB::raw('sum(coalesce(payments.amount - payments.refunded, 0)) as payment_amount')]);
-
-
-
-
     private function clientBalanceQuery()
     {
         $results = \DB::select( \DB::raw("
@@ -708,9 +616,6 @@ ORDER BY clients.id;
         return $results;
     }
 
-
-
-
     private function checkClientBalances()
     {
         $this->wrong_balances = 0;
@@ -722,30 +627,20 @@ ORDER BY clients.id;
         {
             $client = (array)$client;
             
-            $invoice_balance = $client['invoice_balance'];
-
-            // $ledger = CompanyLedger::where('client_id', $client['client_id'])->orderBy('id', 'DESC')->first();
-
-            if ((string) $invoice_balance != (string) $client['client_balance']) {
+            if ((string) $client['invoice_balance'] != (string) $client['client_balance']) {
                 $this->wrong_paid_to_dates++;
 
                 $client_object = Client::withTrashed()->find($client['client_id']);
 
-                $this->logMessage($client_object->present()->name.' - '.$client_object->id." - calculated client balances do not match Invoice Balances = {$invoice_balance} - Client Balance = ".rtrim($client['client_balance'], '0'));
+                $this->logMessage($client_object->present()->name.' - '.$client_object->id." - calculated client balances do not match Invoice Balances = ". $client['invoice_balance'] ." - Client Balance = ".rtrim($client['client_balance'], '0'));
  
-     
-                if($this->option('ledger_balance')){
+                if($this->option('client_balance')){
                     
-                    $this->logMessage("# {$client_object->id} " . $client_object->present()->name.' - '.$client_object->number." Fixing {$client_object->balance} to {$invoice_balance}");
-                    $client_object->balance = $invoice_balance;
+                    $this->logMessage("# {$client_object->id} " . $client_object->present()->name.' - '.$client_object->number." Fixing {$client_object->balance} to " . $client['invoice_balance']);
+                    $client_object->balance = $client['invoice_balance'];
                     $client_object->save();
 
-                    // $ledger->adjustment = $invoice_balance;
-                    // $ledger->balance = $invoice_balance;
-                    // $ledger->notes = 'Ledger Adjustment';
-                    // $ledger->save();
                 }
-
 
             $this->isValid = false;
             
@@ -753,34 +648,8 @@ ORDER BY clients.id;
 
         }
 
-        // foreach (Client::cursor()->where('is_deleted', 0)->where('clients.updated_at', '>', now()->subDays(2)) as $client) {
-
-        //     $invoice_balance = Invoice::where('client_id', $client->id)->where('is_deleted', false)->where('status_id', '>', 1)->withTrashed()->sum('balance');
-        //     $credit_balance = Credit::where('client_id', $client->id)->where('is_deleted', false)->withTrashed()->sum('balance');
-
-        //     if($client->balance != $invoice_balance)
-        //         $invoice_balance -= $credit_balance;
-
-        //     $ledger = CompanyLedger::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
-
-        //     if ($ledger && (string) $invoice_balance != (string) $client->balance) {
-        //         $this->wrong_paid_to_dates++;
-        //         $this->logMessage($client->present()->name.' - '.$client->id." - calculated client balances do not match Invoice Balances = {$invoice_balance} - Client Balance = ".rtrim($client->balance, '0'). " Ledger balance = {$ledger->balance}");
-
-        //         $this->isValid = false;
-
-        //     }
-        // }
-
         $this->logMessage("{$this->wrong_paid_to_dates} clients with incorrect client balances");
     }
-
-    //fix for client balances = 
-    //$adjustment = ($invoice_balance-$client->balance)
-    //$client->balance += $adjustment;
-
-    //$ledger_adjustment = $ledger->balance - $client->balance;
-    //$ledger->balance += $ledger_adjustment
 
     private function invoiceBalanceQuery()
     {
@@ -803,7 +672,7 @@ ORDER BY clients.id;
         return $results;
     }
 
-    private function checkInvoiceBalancesNew()
+    private function checkInvoiceBalances()
     {
         $this->wrong_balances = 0;
         $this->wrong_paid_to_dates = 0;
@@ -818,12 +687,13 @@ ORDER BY clients.id;
 
             $ledger = CompanyLedger::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
 
-            if ($ledger && number_format($invoice_balance, 4) != number_format($client->balance, 4)) {
+            if (number_format($invoice_balance, 4) != number_format($client->balance, 4)) {
                 $this->wrong_balances++;
-                $this->logMessage("# {$client->id} " . $client->present()->name.' - '.$client->number." - Balance Failure - Invoice Balances = {$invoice_balance} Client Balance = {$client->balance} Ledger Balance = {$ledger->balance}");
+                $ledger_balance = $ledger ? $ledger->balance : 0;
+
+                $this->logMessage("# {$client->id} " . $client->present()->name.' - '.$client->number." - Balance Failure - Invoice Balances = {$invoice_balance} Client Balance = {$client->balance} Ledger Balance = {$ledger_balance}");
 
                 $this->isValid = false;
-
 
                 if($this->option('client_balance')){
                     
@@ -831,12 +701,16 @@ ORDER BY clients.id;
                     $client->balance = $invoice_balance;
                     $client->save();
 
+                }
+
+                if($ledger && (number_format($invoice_balance, 4) != number_format($ledger->balance, 4)))
+                {
                     $ledger->adjustment = $invoice_balance;
                     $ledger->balance = $invoice_balance;
                     $ledger->notes = 'Ledger Adjustment';
                     $ledger->save();
                 }
-                
+                                
             }
         }
 
@@ -844,7 +718,7 @@ ORDER BY clients.id;
 
     }
 
-    private function checkInvoiceBalances()
+    private function checkLedgerBalances()
     {
         $this->wrong_balances = 0;
         $this->wrong_paid_to_dates = 0;
@@ -880,26 +754,6 @@ ORDER BY clients.id;
 
     private function checkLogoFiles()
     {
-        // $accounts = DB::table('accounts')
-        //             ->where('logo', '!=', '')
-        //             ->orderBy('id')
-        //             ->get(['logo']);
-
-        // $countMissing = 0;
-
-        // foreach ($accounts as $account) {
-        //     $path = public_path('logo/' . $account->logo);
-        //     if (! file_exists($path)) {
-        //         $this->logMessage('Missing file: ' . $account->logo);
-        //         $countMissing++;
-        //     }
-        // }
-
-        // if ($countMissing > 0) {
-        //     $this->isValid = false;
-        // }
-
-        // $this->logMessage($countMissing . ' missing logo files');
     }
 
     /**
@@ -985,60 +839,21 @@ ORDER BY clients.id;
     {
         Account::where('plan_expires', '<=', now()->subDays(2))->cursor()->each(function ($account){
 
-        $client = Client::on('db-ninja-01')->where('company_id', config('ninja.ninja_default_company_id'))->where('custom_value2', $account->key)->first();
-          
-        if($client){  
-            $payment = Payment::on('db-ninja-01')
-                          ->where('company_id', config('ninja.ninja_default_company_id'))
-                          ->where('client_id', $client->id)
-                          ->where('date', '>=', now()->subDays(2))
-                          ->exists();
-          
-          if($payment)
-                $this->logMessage("I found a payment for {$account->key}");
+            $client = Client::on('db-ninja-01')->where('company_id', config('ninja.ninja_default_company_id'))->where('custom_value2', $account->key)->first();
+              
+            if($client){  
+                $payment = Payment::on('db-ninja-01')
+                              ->where('company_id', config('ninja.ninja_default_company_id'))
+                              ->where('client_id', $client->id)
+                              ->where('date', '>=', now()->subDays(2))
+                              ->exists();
+              
+              if($payment)
+                    $this->logMessage("I found a payment for {$account->key}");
 
-
-        }
-          
+            }
           
         });
     }
 
 }
-
-
-/* //used to set a company owner on the company_users table
-
-$c = Company::whereDoesntHave('company_users', function ($query){
-  $query->where('is_owner', true)->withTrashed();
-})->cursor()->each(function ($company){
-  
-    if(!$company->company_users()->exists()){
-        echo "No company users AT ALL {$company->id}\n";
-       
-    }
-    else{
-
-      $cu = $company->company_users()->orderBy('id', 'ASC')->orderBy('is_admin', 'ASC')->first();
-        echo "{$company->id} - {$cu->id} \n";
-        $cu->is_owner=true;
-        $cu->save();
-      
-    }
-});
-*/
-
-/* query if we want to company company ledger to client balance
-        $results = \DB::select( \DB::raw("
-         SELECT 
-         clients.id as client_id, 
-         clients.balance as client_balance
-         from clients,
-         (select max(company_ledgers.id) as cid, company_ledgers.client_id as client_id, company_ledgers.balance as balance
-         FROM company_ledgers) ledger
-         where clients.id=ledger.client_id 
-         AND clients.balance != ledger.balance
-         GROUP BY clients.id
-         ORDER BY clients.id;
-        ") );
-        */

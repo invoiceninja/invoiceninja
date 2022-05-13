@@ -114,7 +114,7 @@ class Expense extends BaseModel
 
     public function category()
     {
-        return $this->belongsTo(ExpenseCategory::class);
+        return $this->belongsTo(ExpenseCategory::class)->withTrashed();
     }
 
     public function payment_type()

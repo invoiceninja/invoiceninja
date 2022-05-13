@@ -230,13 +230,10 @@ class GoCardlessPaymentDriver extends BaseDriver
     public function processWebhookRequest(PaymentWebhookRequest $request)
     {
         // Allow app to catch up with webhook request.
-        sleep(2);
-
         $this->init();
 
         nlog("GoCardless Event");
         nlog($request->all());
-
 
         if(!is_array($request->events) || !is_object($request->events)){
 
@@ -245,19 +242,24 @@ class GoCardlessPaymentDriver extends BaseDriver
 
         }
 
+        sleep(1);
+
         foreach ($request->events as $event) {
             if ($event['action'] === 'confirmed') {
+
+                nlog("Searching for transaction reference");
+                
                 $payment = Payment::query()
                     ->where('transaction_reference', $event['links']['payment'])
-                    ->where('company_id', $request->getCompany()->id)
+                    // ->where('company_id', $request->getCompany()->id)
                     ->first();
 
                 if ($payment) {
                     $payment->status_id = Payment::STATUS_COMPLETED;
                     $payment->save();
                 }
-
-
+                else
+                    nlog("I was unable to find the payment for this reference");
                 //finalize payments on invoices here.
 
             }
@@ -266,7 +268,7 @@ class GoCardlessPaymentDriver extends BaseDriver
 
                 $payment = Payment::query()
                     ->where('transaction_reference', $event['links']['payment'])
-                    ->where('company_id', $request->getCompany()->id)
+                    // ->where('company_id', $request->getCompany()->id)
                     ->first();
 
                 if ($payment) {

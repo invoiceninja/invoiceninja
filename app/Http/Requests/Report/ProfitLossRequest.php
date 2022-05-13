@@ -13,7 +13,7 @@ namespace App\Http\Requests\Report;
 
 use App\Http\Requests\Request;
 
-class GenericReportRequest extends Request
+class ProfitLossRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -30,9 +30,10 @@ class GenericReportRequest extends Request
         return [
             'start_date' => 'string|date',
             'end_date' => 'string|date',
-            'date_key' => 'string',
-            'date_range' => 'string',
-            'report_keys' => 'present|array'
+            'is_income_billed' => 'required|bail|bool',
+            'is_expense_billed' => 'required|bail|bool',
+            'include_tax' => 'required|bail|bool',
+            'date_range' => 'required|bail|string'
         ];
     }
 }

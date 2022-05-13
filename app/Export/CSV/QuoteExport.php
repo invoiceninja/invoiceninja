@@ -63,47 +63,9 @@ class QuoteExport extends BaseExport
         'tax_rate3' => 'tax_rate3',
         'terms' => 'terms',
         'total_taxes' => 'total_taxes',
-        'currency' => 'client_id',
+        'currency' => 'currency_id',
         'invoice' => 'invoice_id',
     ];
-
-    protected array $all_keys = [
-        'amount',
-        'balance',
-        'client_id',
-        'custom_surcharge1',
-        'custom_surcharge2',
-        'custom_surcharge3',
-        'custom_surcharge4',
-        'custom_value1',
-        'custom_value2',
-        'custom_value3',
-        'custom_value4',
-        'date',
-        'discount',
-        'due_date',
-        'exchange_rate',
-        'footer',
-        'number',
-        'paid_to_date',
-        'partial',
-        'partial_due_date',
-        'po_number',
-        'private_notes',
-        'public_notes',
-        'status_id',
-        'tax_name1',
-        'tax_name2',
-        'tax_name3',
-        'tax_rate1',
-        'tax_rate2',
-        'tax_rate3',
-        'terms',
-        'total_taxes',
-        'client_id',
-        'invoice_id',
-    ];
-
 
     private array $decorate_keys = [
         'client',
@@ -131,13 +93,14 @@ class QuoteExport extends BaseExport
         $this->csv = Writer::createFromString();
 
         if(count($this->input['report_keys']) == 0)
-            $this->input['report_keys'] = $this->all_keys;
+            $this->input['report_keys'] = array_values($this->entity_keys);
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
         $query = Quote::query()
-                        ->with('client')->where('company_id', $this->company->id)
+                        ->with('client')
+                        ->where('company_id', $this->company->id)
                         ->where('is_deleted',0);
 
         $query = $this->addDateRange($query);
@@ -163,7 +126,12 @@ class QuoteExport extends BaseExport
 
         foreach(array_values($this->input['report_keys']) as $key){
 
-                $entity[$key] = $transformed_quote[$key];
+            $keyval = array_search($key, $this->entity_keys);
+
+            if(array_key_exists($key, $transformed_quote))
+                $entity[$keyval] = $transformed_quote[$key];
+            else
+                $entity[$keyval] = '';
         }
 
         return $this->decorateAdvancedFields($quote, $entity);
@@ -172,13 +140,16 @@ class QuoteExport extends BaseExport
 
     private function decorateAdvancedFields(Quote $quote, array $entity) :array
     {
-        if(array_key_exists('currency', $entity))
+        if(in_array('currency_id', $this->input['report_keys']))
             $entity['currency'] = $quote->client->currency()->code;
 
-        if(array_key_exists('client_id', $entity))
-            $entity['client_id'] = $quote->client->present()->name();
+        if(in_array('client_id', $this->input['report_keys']))
+            $entity['client'] = $quote->client->present()->name();
 
-        if(array_key_exists('invoice', $entity))
+        if(in_array('status_id',$this->input['report_keys']))
+            $entity['status'] = $quote->stringStatus($quote->status_id);
+
+        if(in_array('invoice_id', $this->input['report_keys']))
             $entity['invoice'] = $quote->invoice ? $quote->invoice->number : "";
 
         return $entity;

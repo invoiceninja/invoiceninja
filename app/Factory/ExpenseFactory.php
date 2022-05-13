@@ -39,6 +39,9 @@ class ExpenseFactory
         $expense->custom_value2 = '';
         $expense->custom_value3 = '';
         $expense->custom_value4 = '';
+        $expense->tax_amount1 = 0;
+        $expense->tax_amount2 = 0;
+        $expense->tax_amount3 = 0;
         
         return $expense;
     }

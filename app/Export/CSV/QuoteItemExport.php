@@ -79,66 +79,12 @@ class QuoteItemExport extends BaseExport
         'tax_name3' => 'item.tax_name3',
         'line_total' => 'item.line_total',
         'gross_line_total' => 'item.gross_line_total',
-        'invoice1' => 'item.custom_value1',
-        'invoice2' => 'item.custom_value2',
-        'invoice3' => 'item.custom_value3',
-        'invoice4' => 'item.custom_value4',
+        'custom_value1' => 'item.custom_value1',
+        'custom_value2' => 'item.custom_value2',
+        'custom_value3' => 'item.custom_value3',
+        'custom_value4' => 'item.custom_value4',
     ];
 
-    protected array $all_keys = [
-        'amount',
-        'balance',
-        'client_id',
-        'custom_surcharge1',
-        'custom_surcharge2',
-        'custom_surcharge3',
-        'custom_surcharge4',
-        'custom_value1',
-        'custom_value2',
-        'custom_value3',
-        'custom_value4',
-        'date',
-        'discount',
-        'due_date',
-        'exchange_rate',
-        'footer',
-        'number',
-        'paid_to_date',
-        'partial',
-        'partial_due_date',
-        'po_number',
-        'private_notes',
-        'public_notes',
-        'status_id',
-        'tax_name1',
-        'tax_name2',
-        'tax_name3',
-        'tax_rate1',
-        'tax_rate2',
-        'tax_rate3',
-        'terms',
-        'total_taxes',
-        'currency_id',
-        'item.quantity',
-        'item.cost',
-        'item.product_key',
-        'item.product_cost',
-        'item.notes',
-        'item.discount',
-        'item.is_amount_discount',
-        'item.tax_rate1',
-        'item.tax_rate2',
-        'item.tax_rate3',
-        'item.tax_name1',
-        'item.tax_name2',
-        'item.tax_name3',
-        'item.line_total',
-        'item.gross_line_total',
-        'item.custom_value1',
-        'item.custom_value2',
-        'item.custom_value3',
-        'item.custom_value4',
-    ];
 
     private array $decorate_keys = [
         'client',
@@ -165,7 +111,8 @@ class QuoteItemExport extends BaseExport
         $this->csv = Writer::createFromString();
 
         if(count($this->input['report_keys']) == 0)
-            $this->input['report_keys'] = $this->all_keys;
+            $this->input['report_keys'] = array_values($this->entity_keys);
+
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());
@@ -209,15 +156,19 @@ class QuoteItemExport extends BaseExport
 
             $entity = [];
 
-            $transformed_items = array_merge($transformed_quote, $item_array);
-
-            $transformed_items = $this->decorateAdvancedFields($quote, $transformed_items);
-
             foreach(array_values($this->input['report_keys']) as $key)
             {
-                $key = str_replace("item.", "", $key);
-                $entity[$key] = $transformed_items[$key];
+                $keyval = array_search($key, $this->entity_keys);
+
+                if(array_key_exists($key, $transformed_items))
+                    $entity[$keyval] = $transformed_items[$key];
+                else 
+                    $entity[$keyval] = "";
             }
+
+
+            $transformed_items = array_merge($transformed_quote, $item_array);
+            $entity = $this->decorateAdvancedFields($quote, $transformed_items);
 
             $this->csv->insertOne($entity); 
 
@@ -234,8 +185,12 @@ class QuoteItemExport extends BaseExport
 
         foreach(array_values($this->input['report_keys']) as $key){
 
-            if(!str_contains($key, "item."))    
-                $entity[$key] = $transformed_quote[$key];
+            $keyval = array_search($key, $this->entity_keys);
+
+            if(array_key_exists($key, $transformed_quote))
+                $entity[$keyval] = $transformed_quote[$key];
+            else
+                $entity[$keyval] = "";
 
         }
 
@@ -245,14 +200,14 @@ class QuoteItemExport extends BaseExport
 
     private function decorateAdvancedFields(Quote $quote, array $entity) :array
     {
-        if(array_key_exists('currency_id', $entity))
-            $entity['currency_id'] = $quote->client->currency()->code;
+        if(in_array('currency_id', $this->input['report_keys']))
+            $entity['currency'] = $quote->client->currency() ? $quote->client->currency()->code : $quote->company->currency()->code;
 
-        if(array_key_exists('client_id', $entity))
-            $entity['client_id'] = $quote->client->present()->name();
+        if(in_array('client_id', $this->input['report_keys']))
+            $entity['client'] = $quote->client->present()->name();
 
-        if(array_key_exists('status_id', $entity))
-            $entity['status_id'] = $quote->stringStatus($quote->status_id);
+        if(in_array('status_id', $this->input['report_keys']))
+            $entity['status'] = $quote->stringStatus($quote->status_id);
 
         return $entity;
     }

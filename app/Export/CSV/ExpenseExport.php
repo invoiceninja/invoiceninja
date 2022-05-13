@@ -63,40 +63,6 @@ class ExpenseExport extends BaseExport
         'invoice' => 'invoice_id',
     ];
 
-    protected array $all_keys = [
-        'amount',
-        'category_id',
-        'client_id',
-        'custom_value1',
-        'custom_value2',
-        'custom_value3',
-        'custom_value4',
-        'currency_id',
-        'date',
-        'exchange_rate',
-        'foreign_amount',
-        'invoice_currency_id',
-        'payment_date',
-        'number',
-        'payment_type_id',
-        'private_notes',
-        'project_id',
-        'public_notes',
-        'tax_amount1',
-        'tax_amount2',
-        'tax_amount3',
-        'tax_name1',
-        'tax_name2',
-        'tax_name3',
-        'tax_rate1',
-        'tax_rate2',
-        'tax_rate3',
-        'transaction_reference',
-        'vendor_id',
-        'invoice_id',
-    ];
-
-
     private array $decorate_keys = [
         'client',
         'currency',
@@ -127,7 +93,7 @@ class ExpenseExport extends BaseExport
         $this->csv = Writer::createFromString();
 
         if(count($this->input['report_keys']) == 0)
-            $this->input['report_keys'] = $this->all_keys;
+            $this->input['report_keys'] = array_values($this->entity_keys);
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());
@@ -161,7 +127,13 @@ class ExpenseExport extends BaseExport
 
         foreach(array_values($this->input['report_keys']) as $key){
 
-                $entity[$key] = $transformed_expense[$key];
+            $keyval = array_search($key, $this->entity_keys);
+
+            if(array_key_exists($key, $transformed_expense))
+                $entity[$keyval] = $transformed_expense[$key];
+            else
+                $entity[$keyval] = '';
+
         }
 
         return $this->decorateAdvancedFields($expense, $entity);
@@ -170,26 +142,26 @@ class ExpenseExport extends BaseExport
 
     private function decorateAdvancedFields(Expense $expense, array $entity) :array
     {
-        if(array_key_exists('currency_id', $entity))
-            $entity['currency_id'] = $expense->currency ? $expense->currency->code : "";
+        if(in_array('currency_id', $this->input['report_keys']))
+            $entity['currency'] = $expense->currency ? $expense->currency->code : "";
 
-        if(array_key_exists('client_id', $entity))
-            $entity['client_id'] = $expense->client ? $expense->client->present()->name() : "";
+        if(in_array('client_id', $this->input['report_keys']))
+            $entity['client'] = $expense->client ? $expense->client->present()->name() : "";
 
-        if(array_key_exists('invoice_id', $entity))
-            $entity['invoice_id'] = $expense->invoice ? $expense->invoice->number : "";
+        if(in_array('invoice_id', $this->input['report_keys']))
+            $entity['invoice'] = $expense->invoice ? $expense->invoice->number : "";
 
-        if(array_key_exists('category_id', $entity))
-            $entity['category_id'] = $expense->category ? $expense->category->name : "";
+        if(in_array('category_id', $this->input['report_keys']))
+            $entity['category'] = $expense->category ? $expense->category->name : "";
 
-        if(array_key_exists('vendor_id', $entity))
-            $entity['vendor_id'] = $expense->vendor ? $expense->vendor->name : "";
+        if(in_array('vendor_id', $this->input['report_keys']))
+            $entity['vendor'] = $expense->vendor ? $expense->vendor->name : "";
 
-        if(array_key_exists('payment_type_id', $entity))
-            $entity['payment_type_id'] = $expense->payment_type ? $expense->payment_type->name : "";
+        if(in_array('payment_type_id', $this->input['report_keys']))
+            $entity['payment_type'] = $expense->payment_type ? $expense->payment_type->name : "";
 
-        if(array_key_exists('project_id', $entity))
-            $entity['project_id'] = $expense->project ? $expense->project->name : "";
+        if(in_array('project_id', $this->input['report_keys']))
+            $entity['project'] = $expense->project ? $expense->project->name : "";
 
 
         return $entity;

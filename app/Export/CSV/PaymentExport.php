@@ -43,7 +43,7 @@ class PaymentExport extends BaseExport
         'custom_value4' => 'custom_value4',
         'date' => 'date',
         'exchange_currency' => 'exchange_currency_id',
-        'gateway_type' => 'gateway_type_id',
+        'gateway' => 'gateway_type_id',
         'number' => 'number',
         'private_notes' => 'private_notes',
         'project' => 'project_id',
@@ -52,28 +52,6 @@ class PaymentExport extends BaseExport
         'transaction_reference' => 'transaction_reference',
         'type' => 'type_id',
         'vendor' => 'vendor_id',
-    ];
-
-    protected array $all_keys = [
-        'amount',
-        'applied',
-        'client_id',
-        'currency_id',
-        'custom_value1',
-        'custom_value2',
-        'custom_value3',
-        'custom_value4',
-        'date',
-        'exchange_currency_id',
-        'gateway_type_id',
-        'number',
-        'private_notes',
-        'project_id',
-        'refunded',
-        'status_id',
-        'transaction_reference',
-        'type_id',
-        'vendor_id',
     ];
 
     private array $decorate_keys = [
@@ -106,7 +84,7 @@ class PaymentExport extends BaseExport
         $this->csv = Writer::createFromString();
 
         if(count($this->input['report_keys']) == 0)
-            $this->input['report_keys'] = $this->all_keys;
+            $this->input['report_keys'] = array_values($this->entity_keys);
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());
@@ -135,7 +113,12 @@ class PaymentExport extends BaseExport
 
         foreach(array_values($this->input['report_keys']) as $key){
 
-            $entity[$key] = $transformed_entity[$key];
+            $keyval = array_search($key, $this->entity_keys);
+
+            if(array_key_exists($key, $transformed_entity))
+                $entity[$keyval] = $transformed_entity[$key];
+            else
+                $entity[$keyval] = '';
         
         }
 
@@ -146,26 +129,29 @@ class PaymentExport extends BaseExport
     private function decorateAdvancedFields(Payment $payment, array $entity) :array
     {
 
-        if(array_key_exists('status_id', $entity))
-            $entity['status_id'] = $payment->stringStatus($payment->status_id);
+        if(in_array('status_id', $this->input['report_keys']))
+            $entity['status'] = $payment->stringStatus($payment->status_id);
 
-        if(array_key_exists('vendor_id', $entity))
-            $entity['vendor_id'] = $payment->vendor()->exists() ? $payment->vendor->name : '';
+        if(in_array('vendor_id', $this->input['report_keys']))
+            $entity['vendor'] = $payment->vendor()->exists() ? $payment->vendor->name : '';
 
-        if(array_key_exists('project_id', $entity))
-            $entity['project_id'] = $payment->project()->exists() ? $payment->project->name : '';
+        if(in_array('project_id', $this->input['report_keys']))
+            $entity['project'] = $payment->project()->exists() ? $payment->project->name : '';
 
-        if(array_key_exists('currency_id', $entity))
-            $entity['currency_id'] = $payment->currency()->exists() ? $payment->currency->code : '';
+        if(in_array('currency_id', $this->input['report_keys']))
+            $entity['currency'] = $payment->currency()->exists() ? $payment->currency->code : '';
 
-        if(array_key_exists('exchange_currency_id', $entity))
-            $entity['exchange_currency_id'] = $payment->exchange_currency()->exists() ? $payment->exchange_currency->code : '';
+        if(in_array('exchange_currency_id', $this->input['report_keys']))
+            $entity['exchange_currency'] = $payment->exchange_currency()->exists() ? $payment->exchange_currency->code : '';
 
-        if(array_key_exists('client_id', $entity))
-            $entity['client_id'] = $payment->client->present()->name();
+        if(in_array('client_id', $this->input['report_keys']))
+            $entity['client'] = $payment->client->present()->name();
 
-        if(array_key_exists('type_id', $entity))
-            $entity['type_id'] = $payment->translatedType();
+        if(in_array('type_id', $this->input['report_keys']))
+            $entity['type'] = $payment->translatedType();
+
+        if(in_array('gateway_type_id', $this->input['report_keys']))
+            $entity['gateway'] = $payment->gateway_type ? $payment->gateway_type->name : "Unknown Type";
 
         return $entity;
     }
