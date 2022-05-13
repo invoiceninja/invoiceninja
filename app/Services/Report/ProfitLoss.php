@@ -16,7 +16,11 @@ use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\Expense;
 use App\Models\Payment;
+use App\Utils\Ninja;
+use App\Utils\Number;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\App;
+use League\Csv\Writer;
 
 class ProfitLoss
 {
@@ -126,7 +130,9 @@ class ProfitLoss
     }
 
     public function getExpenseBreakDown() :array
-    {
+    {   
+        ksort($this->expense_break_down);
+
         return $this->expense_break_down;
     }
 
@@ -325,6 +331,54 @@ class ProfitLoss
    ]
    */
 
+    public function getCsv()
+    {
+
+        MultiDB::setDb($this->company->db);
+        App::forgetInstance('translator');
+        App::setLocale($this->company->locale());
+        $t = app('translator');
+        $t->replace(Ninja::transformTranslations($this->company->settings));
+
+        $csv = Writer::createFromString();
+
+        $csv->insertOne([ctrans('texts.profit_and_loss')]);
+        $csv->insertOne([ctrans('texts.company_name'), $this->company->present()->name()]);
+        $csv->insertOne([ctrans('texts.date_range'), Carbon::parse($this->start_date)->format($this->company->date_format()), Carbon::parse($this->end_date)->format($this->company->date_format())]);
+
+        //gross sales ex tax
+
+        $csv->insertOne(['--------------------']);
+
+        $csv->insertOne([ctrans('texts.total_revenue'), Number::formatMoney($this->income, $this->company)]);
+
+        //total taxes
+
+        $csv->insertOne([ctrans('texts.total_taxes'), Number::formatMoney($this->income_taxes, $this->company)]);
+
+        //expense
+
+        $csv->insertOne(['--------------------']);
+        foreach($this->expense_break_down as $expense_breakdown)
+        {
+            $csv->insertOne([$expense_breakdown['category_name'], Number::formatMoney($expense_breakdown['total'], $this->company)]);
+        }
+        //total expense taxes
+
+        $csv->insertOne(['--------------------']);
+        $csv->insertOne([ctrans('texts.total_expenses'), Number::formatMoney(array_sum(array_column($this->expense_break_down, 'total')), $this->company)]);
+
+        $csv->insertOne([ctrans('texts.total_taxes'), Number::formatMoney(array_sum(array_column($this->expense_break_down, 'tax')), $this->company)]);
+
+
+        $csv->insertOne(['--------------------']);
+        $csv->insertOne([ctrans('texts.total_profit'), Number::formatMoney($this->income - array_sum(array_column($this->expense_break_down, 'total')), $this->company)]);
+
+        //net profit
+
+        return  $csv->toString(); 
+
+    }
 
     private function invoicePaymentIncome()
     {
@@ -392,6 +446,8 @@ class ProfitLoss
         {
             $map = new \stdClass;
 
+            $amount = $expense->amount;
+
             $map->total = $expense->amount;
             $map->converted_total = $converted_total = $this->getConvertedTotal($expense->amount, $expense->exchange_rate);
             $map->tax = $tax = $this->getTax($expense);
@@ -438,11 +494,14 @@ class ProfitLoss
     private function getTax($expense)
     {
         $amount = $expense->amount;
-
         //is amount tax
 
         if($expense->calculate_tax_by_amount)
         {
+            nlog($expense->tax_amount1);
+            nlog($expense->tax_amount2);
+            nlog($expense->tax_amount3);
+
             return $expense->tax_amount1 + $expense->tax_amount2 + $expense->tax_amount3;
         }
 
@@ -458,7 +517,6 @@ class ProfitLoss
             return round($inclusive,2);
 
         }
-
 
         $exclusive = 0;
 
