@@ -11,6 +11,7 @@
 namespace Tests\Feature\Export;
 
 use App\DataMapper\ClientSettings;
+use App\DataMapper\CompanySettings;
 use App\Factory\InvoiceFactory;
 use App\Models\Account;
 use App\Models\Client;
@@ -93,8 +94,13 @@ class ProfitAndLossReportTest extends TestCase
             'email' => $this->faker->unique()->safeEmail,
         ]);
 
+        $settings = CompanySettings::defaults();
+        $settings->client_online_payment_notification = false; 
+        $settings->client_manual_payment_notification = false; 
+
         $this->company = Company::factory()->create([
                 'account_id' => $this->account->id,
+                'settings' => $settings
             ]);
 
         $this->payload = [

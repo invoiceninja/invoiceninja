@@ -15,6 +15,7 @@ use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\Expense;
+use App\Models\Payment;
 use Illuminate\Support\Carbon;
 
 class ProfitLoss
@@ -32,6 +33,10 @@ class ProfitLoss
     private float $income = 0;
 
     private float $income_taxes = 0;
+
+    private float $credit = 0;
+
+    private float $credit_taxes = 0;
 
     private array $expenses;
 
@@ -204,6 +209,47 @@ class ProfitLoss
             GROUP BY currency_id
         "), ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $this->start_date, 'end_date' => $this->end_date]  );
 
+    }
+
+    private function paymentEloquentIncome()
+    {
+
+        $amount_payment_paid = 0;
+        $amount_credit_paid = 0;
+
+        Payment::where('company_id', $this->company->id)
+                        ->whereIn('status_id', [1,4,5])
+                        ->where('is_deleted', 0)
+                        ->whereBetween('date', [$this->start_date, $this->end_date])
+                        ->whereHas('client', function ($query) {
+                             $query->where('is_deleted',0);
+                        })
+                        ->with(['company','client'])
+                        ->cursor()
+                        ->each(function ($payment) use($amount_payment_paid, $amount_credit_paid){
+
+                            $company = $payment->company;
+                            $client = $payment->client;
+                            
+                            foreach($payment->paymentables as $pivot)
+                            {
+
+                                if($pivot->paymentable instanceOf \App\Models\Invoice){
+
+                                    $amount_payment_paid += $pivot->amount - $pivot->refunded;
+                                    //calc tax amount - pro rata if necessary
+                                }
+
+
+                                if($pivot->paymentable instanceOf \App\Models\Credit){
+
+                                    $amount_credit_paid += $pivot->amount - $pivot->refunded;
+
+                                }
+
+                            }
+
+                        });
     }
 
 
