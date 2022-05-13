@@ -555,8 +555,6 @@ class ProfitAndLossReportTest extends TestCase
         $pl = new ProfitLoss($this->company, $this->payload);
         $pl->build();
 
-echo($pl->getCsv());
-
         $this->assertNotNull($pl->getCsv());
 
         $this->account->delete();
