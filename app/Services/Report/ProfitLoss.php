@@ -423,9 +423,9 @@ class ProfitLoss
             if(!array_key_exists('tax', $data[$expense->category_id]))
                 $data[$expense->category_id]['tax'] = 0;
             
-            $data[$expense->category_id]['total'] = $data[$expense->category_id]['total'] + $expense->net_converted_total;
+            $data[$expense->category_id]['total'] += $expense->net_converted_total;
             $data[$expense->category_id]['category_name'] = $expense->category_name;
-            $data[$expense->category_id]['tax'] = $data[$expense->category_id]['tax'] + $expense->tax;
+            $data[$expense->category_id]['tax'] += $expense->tax;
 
         }
 

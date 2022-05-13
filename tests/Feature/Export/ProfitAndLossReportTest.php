@@ -12,12 +12,14 @@ namespace Tests\Feature\Export;
 
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
+use App\Factory\ExpenseCategoryFactory;
 use App\Factory\InvoiceFactory;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\Expense;
+use App\Models\ExpenseCategory;
 use App\Models\Invoice;
 use App\Models\User;
 use App\Services\Report\ProfitLoss;
@@ -363,5 +365,55 @@ class ProfitAndLossReportTest extends TestCase
 
     }
 
+
+    public function testSimpleExpenseCategoriesBreakdown()
+    {
+        $this->buildData();
+
+        $ec = ExpenseCategoryFactory::create($this->company->id, $this->user->id);
+        $ec->name = 'Accounting';
+        $ec->save();
+
+        $e = Expense::factory()->create([
+            'category_id' => $ec->id,
+            'amount' => 10,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'date' => '2022-01-01',
+            'exchange_rate' => 1,
+            'currency_id' => $this->company->settings->currency_id
+        ]);
+
+
+        $ec = ExpenseCategoryFactory::create($this->company->id, $this->user->id);
+        $ec->name = 'Fuel';
+        $ec->save();
+        
+        $e = Expense::factory(2)->create([
+            'category_id' => $ec->id,
+            'amount' => 10,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'date' => '2022-01-01',
+            'exchange_rate' => 1,
+            'currency_id' => $this->company->settings->currency_id
+        ]);
+
+
+        $pl = new ProfitLoss($this->company, $this->payload);
+        $pl->build();
+
+        $expenses = $pl->getExpenses();
+
+        $bd = $pl->getExpenseBreakDown();
+
+
+nlog($bd);
+
+        $this->assertEquals(array_sum(array_column($bd,'total')), 30);
+
+        $this->account->delete();
+
+    }
 
 }
