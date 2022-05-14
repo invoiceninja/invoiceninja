@@ -120,7 +120,11 @@ class SelfUpdateController extends BaseController
 
         nlog("copying release file");
 
-        copy($this->getDownloadUrl(), storage_path('app/invoiceninja.zip'));
+        if(copy($this->getDownloadUrl(), storage_path('app/invoiceninja.zip'))){
+            nlog("Copied file from URL");
+        }
+        else
+            return response()->json(['message' => 'Download not yet available. Please try again shortly.'], 410);
 
         nlog("Finished copying");
 
