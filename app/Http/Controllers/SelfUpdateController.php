@@ -14,6 +14,7 @@ namespace App\Http\Controllers;
 use App\Exceptions\FilePermissionsFailure;
 use App\Models\Client;
 use App\Utils\Ninja;
+use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\ClientGroupSettingsSaver;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Artisan;
@@ -23,6 +24,7 @@ class SelfUpdateController extends BaseController
 {
     use DispatchesJobs;
     use ClientGroupSettingsSaver;
+    use AppSetup;
 
     private array $purge_file_list = [
         'bootstrap/cache/compiled.php',
@@ -161,6 +163,8 @@ class SelfUpdateController extends BaseController
         Artisan::call('migrate', ['--force' => true]);
         Artisan::call('optimize');
 
+        $this->buildCache(true);
+        
         nlog("Called Artisan commands");
 
         return response()->json(['message' => 'Update completed'], 200);
