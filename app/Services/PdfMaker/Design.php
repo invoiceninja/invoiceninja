@@ -226,7 +226,7 @@ class Design extends BaseDesign
     {
         if ($this->type === 'statement') {
 
-            $s_date = $this->translateDate(now()->format($client->company->date_format()), $this->client->date_format(), $this->client->locale());
+            $s_date = $this->translateDate(now()->format($this->client->company->date_format()), $this->client->date_format(), $this->client->locale());
             
             return [
                 ['element' => 'tr', 'properties' => ['data-ref' => 'statement-label'], 'elements' => [
