@@ -4582,6 +4582,7 @@ $LANG = array(
     'auto_archive_cancelled_invoices_help' => 'Automatically archive invoices when they are cancelled.',
     'alternate_pdf_viewer' => 'Alternate PDF Viewer',
     'alternate_pdf_viewer_help' => 'Improve scrolling over the PDF preview [BETA]',
+    'currency_cayman_island_dollar' => 'Cayman Island Dollar',
     
 );
 
