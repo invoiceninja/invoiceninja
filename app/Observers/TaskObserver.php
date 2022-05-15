@@ -30,7 +30,7 @@ class TaskObserver
                         ->exists();
 
         if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_CREATE_TASK, $task, $task->company);
+            WebhookHandler::dispatch(Webhook::EVENT_CREATE_TASK, $task, $task->company)->delay(now()->addSeconds(2));
         }
     }
 
@@ -47,7 +47,7 @@ class TaskObserver
                         ->exists();
 
         if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_UPDATE_TASK, $task, $task->company);
+            WebhookHandler::dispatch(Webhook::EVENT_UPDATE_TASK, $task, $task->company)->delay(now()->addSeconds(2));
         }
     }
 
@@ -64,7 +64,7 @@ class TaskObserver
                         ->exists();
 
         if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_DELETE_TASK, $task, $task->company);
+            WebhookHandler::dispatch(Webhook::EVENT_DELETE_TASK, $task, $task->company)->delay(now()->addSeconds(2));
         }
     }
 

@@ -37,7 +37,7 @@ class LedgerService
 
         $this->entity->company_ledger()->save($company_ledger);
         
-        ClientLedgerBalanceUpdate::dispatch($this->entity->company, $this->entity->client)->delay(300);
+        ClientLedgerBalanceUpdate::dispatch($this->entity->company, $this->entity->client)->delay(now()->addSeconds(300));
 
         return $this;
     }
@@ -54,7 +54,7 @@ class LedgerService
 
         $this->entity->company_ledger()->save($company_ledger);
 
-        ClientLedgerBalanceUpdate::dispatch($this->entity->company, $this->entity->client)->delay(300);
+        ClientLedgerBalanceUpdate::dispatch($this->entity->company, $this->entity->client)->delay(now()->addSeconds(300));
 
         return $this;
     }
@@ -71,7 +71,7 @@ class LedgerService
 
         $this->entity->company_ledger()->save($company_ledger);
 
-        ClientLedgerBalanceUpdate::dispatch($this->entity->company, $this->entity->client)->delay(300);
+        ClientLedgerBalanceUpdate::dispatch($this->entity->company, $this->entity->client)->delay(now()->addSeconds(300));
 
         return $this;
     }

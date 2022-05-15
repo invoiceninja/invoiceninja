@@ -177,6 +177,8 @@ class InvoiceEmailEngine extends BaseEmailEngine
                                        });
                 }
 
+                $task_ids = [];
+                
                 if(property_exists($item, 'task_id'))
                 {
                     $task_ids[] = $item->task_id;
