@@ -12,6 +12,7 @@
 namespace App\Jobs\Ledger;
 
 use App\Libraries\MultiDB;
+use App\Models\Client;
 use App\Models\Company;
 use App\Models\CompanyLedger;
 use Illuminate\Bus\Queueable;
@@ -20,14 +21,22 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class LedgerBalanceUpdate implements ShouldQueue
+class ClientLedgerBalanceUpdate implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $tries = 1;
 
-    public function __construct()
+    public $company;
+
+    public $client;
+
+
+    public function __construct(Company $company, Client $client)
     {
+    
+        $this->company = $company;
+        $this->client = $client;
     }
 
     /**
@@ -40,27 +49,9 @@ class LedgerBalanceUpdate implements ShouldQueue
     {
         nlog("Updating company ledgers");
 
-        if (! config('ninja.db.multi_db_enabled')) {
-            $this->checkLedger();
-        } else {
-            //multiDB environment, need to
-            foreach (MultiDB::$dbs as $db) {
-                MultiDB::setDB($db);
-
-                $this->checkLedger();
-            }
-        }
-
-        nlog("Finished checking company ledgers");
-
-    }
-
-    public function checkLedger()
-    {
-
-        nlog("Checking ledgers....");
-
-        CompanyLedger::where('balance', 0)->cursor()->each(function ($company_ledger){
+        MultiDB::setDb($this->company->db);
+        
+        CompanyLedger::where('balance', 0)->where('client_id', $this->client->id)->cursor()->each(function ($company_ledger){
 
             if($company_ledger->balance > 0)
                 return;
@@ -80,6 +71,14 @@ class LedgerBalanceUpdate implements ShouldQueue
             $company_ledger->save();
 
         });
+
+        nlog("Finished checking company ledgers");
+
+    }
+
+    public function checkLedger()
+    {
+
 
     }
 

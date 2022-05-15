@@ -38,6 +38,8 @@ class SubscriptionCron
     public function handle() : void
     {
 
+        nlog("Subscription Cron");
+
         if (! config('ninja.db.multi_db_enabled')) {
 
             $this->loopSubscriptions();
