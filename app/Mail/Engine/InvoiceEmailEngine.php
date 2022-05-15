@@ -153,10 +153,12 @@ class InvoiceEmailEngine extends BaseEmailEngine
 
             $line_items = $this->invoice->line_items;
             
-            $expense_ids = [];
 
             foreach($line_items as $item)
             {
+
+                $expense_ids = [];
+
                 if(property_exists($item, 'expense_id'))
                 {
                     $expense_ids[] = $item->expense_id;
@@ -178,7 +180,7 @@ class InvoiceEmailEngine extends BaseEmailEngine
                 }
 
                 $task_ids = [];
-                
+
                 if(property_exists($item, 'task_id'))
                 {
                     $task_ids[] = $item->task_id;
