@@ -78,7 +78,7 @@ class CheckData extends Command
         $this->checkContacts();
 
         if (! $this->option('client_id')) {
-            $this->checkBlankInvoiceHistory();
+            //$this->checkBlankInvoiceHistory();
             $this->checkPaidToDate();
             $this->checkDraftSentInvoices();
         }
@@ -92,7 +92,7 @@ class CheckData extends Command
         if (! $this->option('client_id')) {
             $this->checkOAuth();
             //$this->checkInvitations();
-            $this->checkAccountData();
+            //$this->checkAccountData();
             $this->checkLookupData();
             $this->checkFailedJobs();
         }
@@ -160,6 +160,7 @@ class CheckData extends Command
         $invoices = Invoice::whereInvoiceStatusId(INVOICE_STATUS_SENT)
                         ->whereIsPublic(false)
                         ->withTrashed()
+                        ->where('updated_at', '>', '2022-01-01')
                         ->get();
 
         $this->logMessage($invoices->count() . ' draft sent invoices');
@@ -638,7 +639,7 @@ class CheckData extends Command
                             ->where('payments.payment_status_id', '!=', 3)
                             ->where('payments.is_deleted', '=', 0);
                     })
-                    ->where('invoices.updated_at', '>', '2017-10-01')
+                    ->where('invoices.updated_at', '>', '2022-01-01')
                     ->groupBy('invoices.id')
                     ->havingRaw('(invoices.amount - invoices.balance) != coalesce(sum(payments.amount - payments.refunded), 0)')
                     ->get(['invoices.id', 'invoices.amount', 'invoices.balance', DB::raw('coalesce(sum(payments.amount - payments.refunded), 0)')]);
@@ -662,6 +663,7 @@ class CheckData extends Command
                     ->where('invoices.is_public', '=', 1)
                     ->where('invoices.invoice_type_id', '=', INVOICE_TYPE_STANDARD)
                     ->where('invoices.is_recurring', '=', 0)
+                    ->where('clients.updated_at', '>', '2022-01-01')
                     ->havingRaw('abs(clients.balance - sum(invoices.balance)) > .01 and clients.balance != 999999999.9999');
 
         if ($this->option('client_id')) {
