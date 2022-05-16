@@ -60,7 +60,7 @@ class LedgerBalanceUpdate implements ShouldQueue
 
         nlog("Checking ledgers....");
 
-        CompanyLedger::where('balance', 0)->cursor()->each(function ($company_ledger){
+        CompanyLedger::where('balance', 0)->where('adjustment', '!=', 0)->cursor()->each(function ($company_ledger){
 
             if($company_ledger->balance > 0)
                 return;

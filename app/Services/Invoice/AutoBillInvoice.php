@@ -117,6 +117,9 @@ class AutoBillInvoice extends AbstractService
 
         $payment = false;
 
+        //TODO check retries is not past threshold > 3. //return
+        // if threshold exceeded. set invoices.auto_bill_enabled = false.
+
         try{
         $payment = $gateway_token->gateway
                                  ->driver($this->client)
@@ -125,7 +128,9 @@ class AutoBillInvoice extends AbstractService
          }
          catch(\Exception $e){
             nlog("payment NOT captured for ". $this->invoice->number . " with error " . $e->getMessage());
-         //   $this->invoice->service()->removeUnpaidGatewayFees();
+            //   $this->invoice->service()->removeUnpaidGatewayFees();
+
+            //@TODO increment auto_bill_tries here
          }
 
         if($payment){
