@@ -38,7 +38,7 @@ class AutoBillInvoice extends AbstractService
     public function __construct(Invoice $invoice, $db)
     {
         $this->invoice = $invoice;
-    
+
         $this->db = $db;
     }
 
@@ -52,7 +52,7 @@ class AutoBillInvoice extends AbstractService
         $is_partial = false;
 
         /* Is the invoice payable? */
-        if (! $this->invoice->isPayable()) 
+        if (! $this->invoice->isPayable())
             return $this->invoice;
 
         /* Mark the invoice as sent */
@@ -117,19 +117,28 @@ class AutoBillInvoice extends AbstractService
 
         $payment = false;
 
-        try{
-        $payment = $gateway_token->gateway
-                                 ->driver($this->client)
-                                 ->setPaymentHash($payment_hash)
-                                 ->tokenBilling($gateway_token, $payment_hash);
-         }
-         catch(\Exception $e){
-            nlog("payment NOT captured for ". $this->invoice->number . " with error " . $e->getMessage());
-         //   $this->invoice->service()->removeUnpaidGatewayFees();
-         }
+        $number_of_retries = $this->invoice->auto_bill_tries;
 
-        if($payment){
-            info("Auto Bill payment captured for ".$this->invoice->number);
+        try {
+            $payment = $gateway_token->gateway
+                ->driver($this->client)
+                ->setPaymentHash($payment_hash)
+                ->tokenBilling($gateway_token, $payment_hash);
+        } catch (\Exception $e) {
+            //increase the counter
+            $this->invoice->auto_bill_tries = $number_of_retries + 1;
+            $this->invoice->save();
+            //disable auto bill if limit of 3 is reached
+            if ($this->invoice->auto_bill_tries == 3) {
+                $this->invoice->auto_bill_enabled = false;
+                $this->invoice->save();
+            }
+            nlog("payment NOT captured for " . $this->invoice->number . " with error " . $e->getMessage());
+            //   $this->invoice->service()->removeUnpaidGatewayFees();
+        }
+
+        if ($payment) {
+            info("Auto Bill payment captured for " . $this->invoice->number);
         }
 
         // return $this->invoice->fresh();
