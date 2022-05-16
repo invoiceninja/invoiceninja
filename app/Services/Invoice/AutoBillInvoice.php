@@ -114,7 +114,7 @@ class AutoBillInvoice extends AbstractService
         ]);
 
         nlog("Payment hash created => {$payment_hash->id}");
-
+      
         $payment = false;
 
         $number_of_retries = $this->invoice->auto_bill_tries;

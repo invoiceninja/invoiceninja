@@ -607,7 +607,7 @@ class CheckData extends Command
         invoices ON 
         clients.id=invoices.client_id 
         WHERE invoices.is_deleted = false 
-        AND invoices.status_id IN (2,3,4) 
+        AND invoices.status_id IN (2,3) 
         GROUP BY clients.id
         HAVING invoice_balance != clients.balance
         ORDER BY clients.id;
@@ -663,7 +663,7 @@ class CheckData extends Command
         ON invoices.client_id = clients.id
         WHERE invoices.is_deleted = 0
         AND clients.is_deleted = 0
-        AND invoices.status_id IN (2,3,4)
+        AND invoices.status_id IN (2,3)
         GROUP BY clients.id
         HAVING(invoices_balance != clients.balance)
         ORDER BY clients.id;
@@ -683,7 +683,7 @@ class CheckData extends Command
         {
             $client = Client::withTrashed()->find($_client->id);
 
-            $invoice_balance = $client->invoices()->where('is_deleted', false)->whereIn('status_id', [2,3,4])->sum('balance');
+            $invoice_balance = $client->invoices()->where('is_deleted', false)->whereIn('status_id', [2,3])->sum('balance');
 
             $ledger = CompanyLedger::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
 
@@ -724,7 +724,7 @@ class CheckData extends Command
         $this->wrong_paid_to_dates = 0;
 
         foreach (Client::where('is_deleted', 0)->where('clients.updated_at', '>', now()->subDays(2))->cursor() as $client) {
-            $invoice_balance = $client->invoices()->where('is_deleted', false)->whereIn('status_id', [2,3,4])->sum('balance');
+            $invoice_balance = $client->invoices()->where('is_deleted', false)->whereIn('status_id', [2,3])->sum('balance');
             $ledger = CompanyLedger::where('client_id', $client->id)->orderBy('id', 'DESC')->first();
 
             if ($ledger && number_format($ledger->balance, 4) != number_format($client->balance, 4)) {

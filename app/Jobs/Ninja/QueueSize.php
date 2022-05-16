@@ -9,24 +9,30 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Jobs\Util;
+namespace App\Jobs\Ninja;
 
-use App\Jobs\Util\UnlinkFile;
-use App\Models\Account;
-use App\Utils\Ninja;
+use App\DataMapper\Analytics\QueueSize as QueueSizeAnalytic;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Queue;
+use Turbo124\Beacon\Facades\LightLogs;
+use Turbo124\Beacon\Jobs\Database\MySQL\DbStatus;
 
-class DiskCleanup implements ShouldQueue
+class QueueSize implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    /**
+     * Create a new job instance.
+     *
+     * @return void
+     */
     public function __construct()
     {
+        //
     }
 
     /**
@@ -36,11 +42,7 @@ class DiskCleanup implements ShouldQueue
      */
     public function handle()
     {
-        nlog("Cleaning Storage");
-
-        // Get all files in a directory
-        $files = Storage::allFiles(config('filesystems.default'), 'backups/');
-        Storage::delete($files);
-
+        LightLogs::create(new QueueSizeAnalytic(Queue::size()))
+         ->queue();        
     }
 }
