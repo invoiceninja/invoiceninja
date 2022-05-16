@@ -12,6 +12,7 @@
 namespace App\Services\Ledger;
 
 use App\Factory\CompanyLedgerFactory;
+use App\Jobs\Ledger\ClientLedgerBalanceUpdate;
 use App\Models\Activity;
 use App\Models\CompanyLedger;
 
@@ -36,6 +37,7 @@ class LedgerService
 
         $this->entity->company_ledger()->save($company_ledger);
         
+        ClientLedgerBalanceUpdate::dispatch($this->entity->company, $this->entity->client)->delay(now()->addSeconds(300));
 
         return $this;
     }
@@ -52,6 +54,8 @@ class LedgerService
 
         $this->entity->company_ledger()->save($company_ledger);
 
+        ClientLedgerBalanceUpdate::dispatch($this->entity->company, $this->entity->client)->delay(now()->addSeconds(300));
+
         return $this;
     }
 
@@ -66,6 +70,8 @@ class LedgerService
         $company_ledger->save();
 
         $this->entity->company_ledger()->save($company_ledger);
+
+        ClientLedgerBalanceUpdate::dispatch($this->entity->company, $this->entity->client)->delay(now()->addSeconds(300));
 
         return $this;
     }
