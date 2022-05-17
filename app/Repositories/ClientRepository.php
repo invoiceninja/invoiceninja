@@ -17,6 +17,7 @@ use App\Models\Company;
 use App\Utils\Traits\ClientGroupSettingsSaver;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\SavesDocuments;
+use Illuminate\Database\QueryException;
 
 /**
  * ClientRepository.
@@ -25,6 +26,8 @@ class ClientRepository extends BaseRepository
 {
     use GeneratesCounter;
     use SavesDocuments;
+
+    private bool $completed = true;
 
     /**
      * @var ClientContactRepository
@@ -76,8 +79,35 @@ class ClientRepository extends BaseRepository
 
         
         if (!isset($client->number) || empty($client->number) || strlen($client->number) == 0) {
-            $client->number = $this->getNextClientNumber($client);
-            $client->save();
+            // $client->number = $this->getNextClientNumber($client);
+            // $client->save();
+
+                $x=1;
+
+                do{
+
+                    try{
+
+                        $client->number = $this->getNextClientNumber($client);
+                        $client->saveQuietly();
+
+                        $this->completed = false;
+                        
+
+                    }
+                    catch(QueryException $e){
+
+                        $x++;
+
+                        if($x>10)
+                            $this->completed = false;
+                    }
+                
+                }
+                while($this->completed);
+
+    
+
         }
 
         if (empty($data['name'])) {
