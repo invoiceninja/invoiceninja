@@ -32,7 +32,11 @@ trait UserNotifies
         $notifiable_methods = [];
         $notifications = $company_user->notifications;
 
-        if ($invitation->company->is_disabled && is_array($notifications->email) || $company_user->trashed() || $company_user->user->trashed()) {
+        if ($invitation->company->is_disabled && 
+            is_array($notifications->email) || 
+            $company_user->trashed() ||
+            !$company_user->user || 
+            $company_user->user->trashed()) {
             return [];
         }
         
@@ -56,7 +60,11 @@ trait UserNotifies
         $notifiable_methods = [];
         $notifications = $company_user->notifications;
 
-        if ($entity->company->is_disabled || ! $notifications || $company_user->trashed() || $company_user->user->trashed()) {
+        if ($entity->company->is_disabled || 
+            ! $notifications || 
+            $company_user->trashed() ||
+            ! $company_user->user || 
+            $company_user->user->trashed()) {
             return [];
         }
 
@@ -125,7 +133,10 @@ trait UserNotifies
     public function findCompanyUserNotificationType($company_user, $required_permissions) :array
     {
 
-        if ($company_user->company->is_disabled || $company_user->trashed() || $company_user->user->trashed()) {
+        if ($company_user->company->is_disabled || 
+            $company_user->trashed() || 
+            !$company_user->user ||
+            $company_user->user->trashed()) {
             return [];
         }
 

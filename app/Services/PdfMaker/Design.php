@@ -226,7 +226,7 @@ class Design extends BaseDesign
     {
         if ($this->type === 'statement') {
 
-            $s_date = $this->translateDate(now()->format($this->client->company->date_format()), $this->client->date_format(), $this->client->locale());
+            $s_date = $this->translateDate(now(), $this->client->date_format(), $this->client->locale());
             
             return [
                 ['element' => 'tr', 'properties' => ['data-ref' => 'statement-label'], 'elements' => [
@@ -391,10 +391,10 @@ class Design extends BaseDesign
             $element = ['element' => 'tr', 'elements' => []];
 
             $element['elements'][] = ['element' => 'td', 'content' => $invoice->number];
-            $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($invoice->date, $this->client->date_format(), $this->client->locale()) ?: '&nbsp;'];
-            $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($invoice->due_date, $this->client->date_format(), $this->client->locale()) ?: '&nbsp;'];
-            $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($invoice->amount, $this->client) ?: '&nbsp;'];
-            $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($invoice->balance, $this->client) ?: '&nbsp;'];
+            $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($invoice->date, $this->client->date_format(), $this->client->locale()) ?: ' '];
+            $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($invoice->due_date, $this->client->date_format(), $this->client->locale()) ?: ' '];
+            $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($invoice->amount, $this->client) ?: ' '];
+            $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($invoice->balance, $this->client) ?: ' '];
 
             $tbody[] = $element;
         }
@@ -452,6 +452,9 @@ class Design extends BaseDesign
         //24-03-2022 show payments per invoice
         foreach ($this->invoices as $invoice) {
             foreach ($invoice->payments as $payment) {
+
+                if($payment->is_deleted)
+                    continue;
 
                 $element = ['element' => 'tr', 'elements' => []];
 

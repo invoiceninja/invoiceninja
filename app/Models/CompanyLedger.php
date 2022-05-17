@@ -48,4 +48,9 @@ class CompanyLedger extends Model
     {
         return $this->morphTo();
     }
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
+    }
 }

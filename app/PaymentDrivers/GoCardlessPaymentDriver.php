@@ -245,7 +245,7 @@ class GoCardlessPaymentDriver extends BaseDriver
         sleep(1);
 
         foreach ($request->events as $event) {
-            if ($event['action'] === 'confirmed') {
+            if ($event['action'] === 'confirmed' || $event['action'] === 'paid_out') {
 
                 nlog("Searching for transaction reference");
                 

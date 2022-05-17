@@ -34,6 +34,7 @@ class SubdomainController extends BaseController
         'stage',
         'html',
         'lb',
+        'shopify',
     ];
 
     public function __construct()
