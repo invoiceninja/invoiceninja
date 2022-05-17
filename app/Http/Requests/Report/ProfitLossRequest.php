@@ -33,7 +33,8 @@ class ProfitLossRequest extends Request
             'is_income_billed' => 'required|bail|bool',
             'is_expense_billed' => 'required|bail|bool',
             'include_tax' => 'required|bail|bool',
-            'date_range' => 'required|bail|string'
+            'date_range' => 'required|bail|string',
+            'send_email' => 'bool',
         ];
     }
 }
