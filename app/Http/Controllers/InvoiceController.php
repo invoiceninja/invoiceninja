@@ -25,10 +25,12 @@ use App\Http\Requests\Invoice\EditInvoiceRequest;
 use App\Http\Requests\Invoice\ShowInvoiceRequest;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Http\Requests\Invoice\UpdateInvoiceRequest;
+use App\Http\Requests\Invoice\UpdateReminderRequest;
 use App\Http\Requests\Invoice\UploadInvoiceRequest;
 use App\Jobs\Entity\EmailEntity;
 use App\Jobs\Invoice\BulkInvoiceJob;
 use App\Jobs\Invoice\StoreInvoice;
+use App\Jobs\Invoice\UpdateReminders;
 use App\Jobs\Invoice\ZipInvoices;
 use App\Jobs\Ninja\TransactionLog;
 use App\Jobs\Util\UnlinkFile;
@@ -957,4 +959,12 @@ class InvoiceController extends BaseController
         return $this->itemResponse($invoice->fresh());
 
     }    
+
+    public function update_reminders(UpdateReminderRequest $request)
+    {
+
+        UpdateReminders::dispatch(auth()->user()->company());
+
+        return response()->json(["message" => "Updating reminders"], 200);
+    }
 }

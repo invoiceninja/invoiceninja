@@ -24,6 +24,8 @@ class LedgerBalanceUpdate implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public $tries = 1;
+
     public function __construct()
     {
     }
@@ -34,26 +36,31 @@ class LedgerBalanceUpdate implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle() :void
     {
+        nlog("Updating company ledgers");
 
         if (! config('ninja.db.multi_db_enabled')) {
-            $this->check();
+            $this->checkLedger();
         } else {
             //multiDB environment, need to
             foreach (MultiDB::$dbs as $db) {
                 MultiDB::setDB($db);
 
-                $this->check();
+                $this->checkLedger();
             }
         }
 
+        nlog("Finished checking company ledgers");
+
     }
 
-    public function check()
+    public function checkLedger()
     {
 
-        CompanyLedger::where('balance', 0)->cursor()->each(function ($company_ledger){
+        nlog("Checking ledgers....");
+
+        CompanyLedger::where('balance', 0)->where('adjustment', '!=', 0)->cursor()->each(function ($company_ledger){
 
             if($company_ledger->balance > 0)
                 return;
@@ -67,6 +74,8 @@ class LedgerBalanceUpdate implements ShouldQueue
             if(!$last_record)
                 return;
 
+            nlog("Updating Balance NOW");
+            
             $company_ledger->balance = $last_record->balance + $company_ledger->adjustment;
             $company_ledger->save();
 

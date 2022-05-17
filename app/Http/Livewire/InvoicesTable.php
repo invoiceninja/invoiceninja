@@ -83,7 +83,7 @@ class InvoicesTable extends Component
 
         return render('components.livewire.invoices-table', [
             'invoices' => $query,
-            'gateway_available' => !empty(auth()->user()->client->service()->getPaymentMethods(0)),
+            'gateway_available' => !empty(auth()->user()->client->service()->getPaymentMethods(-1)),
         ]);
     }
 }

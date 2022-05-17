@@ -36,7 +36,7 @@ class DiskCleanup implements ShouldQueue
      */
     public function handle()
     {
-
+        nlog("Cleaning Storage");
 
         // Get all files in a directory
         $files = Storage::allFiles(config('filesystems.default'), 'backups/');

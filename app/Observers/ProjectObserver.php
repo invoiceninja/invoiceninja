@@ -32,7 +32,7 @@ class ProjectObserver
 
         if ($subscriptions) {
     
-            WebhookHandler::dispatch(Webhook::EVENT_PROJECT_CREATE, $project, $project->company, 'client');
+            WebhookHandler::dispatch(Webhook::EVENT_PROJECT_CREATE, $project, $project->company, 'client')->delay(now()->addSeconds(2));
         }
     }
 
@@ -50,7 +50,7 @@ class ProjectObserver
 
         if ($subscriptions) {
     
-            WebhookHandler::dispatch(Webhook::EVENT_PROJECT_UPDATE, $project, $project->company, 'client');
+            WebhookHandler::dispatch(Webhook::EVENT_PROJECT_UPDATE, $project, $project->company, 'client')->delay(now()->addSeconds(2));
         }
     }
 

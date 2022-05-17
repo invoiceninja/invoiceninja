@@ -100,6 +100,9 @@ class Company extends BaseModel
         'client_registration_fields',
         'convert_rate_to_client',
         'markdown_email_enabled',
+        'stop_on_unpaid_recurring',
+        'use_quote_terms_on_conversion',
+        'show_production_description_dropdown',
     ];
 
     protected $hidden = [
