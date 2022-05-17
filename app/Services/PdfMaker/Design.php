@@ -453,6 +453,9 @@ class Design extends BaseDesign
         foreach ($this->invoices as $invoice) {
             foreach ($invoice->payments as $payment) {
 
+                if($payment->is_deleted)
+                    continue;
+
                 $element = ['element' => 'tr', 'elements' => []];
 
                 $element['elements'][] = ['element' => 'td', 'content' => $invoice->number];

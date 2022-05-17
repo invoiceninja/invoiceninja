@@ -20,6 +20,7 @@ class AddAutoBillTriesToInvoicesTable extends Migration
         Schema::table('companies', function (Blueprint $table) {
             $table->boolean('stop_on_unpaid_recurring')->default(0);
             $table->boolean('use_quote_terms_on_conversion')->default(0);
+            $table->boolean('show_production_description_dropdown')->default(0);
         });
     }
 
