@@ -38,7 +38,7 @@ const RESOURCES = {
 "assets/assets/images/logo_light.png": "e5f46d5a78e226e7a9553d4ca6f69219",
 "assets/assets/images/logo_dark.png": "a233ed1d4d0f7414bf97a9a10f11fb0a",
 "flutter.js": "0816e65a103ba8ba51b174eeeeb2cb67",
-"/": "4da6241df001dc38bb3006c1b1fda776",
+"/": "c5a77c2f94ea66daf0ca5ea33147985d",
 "manifest.json": "ef43d90e57aa7682d7e2cfba2f484a40"
 };
 
