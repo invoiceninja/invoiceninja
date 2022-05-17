@@ -227,11 +227,20 @@ class RecurringInvoice extends BaseModel
         if (!$this->next_send_date) {
             return null;
         }
-        
-        nlog("frequency = $this->frequency_id");
-        nlog("frequency = $this->next_send_date");
 
         $offset = $this->client->timezone_offset();
+
+        /* If this setting is enabled, the recurring invoice may be set in the past */
+            
+            if($this->company->stop_on_unpaid_recurring) {
+
+                /* Lets set the next send date to now so we increment from today, rather than in the past*/
+                if(Carbon::parse($this->next_send_date)->lt(now()->subDays(3)))
+                    $this->next_send_date = now()->format('Y-m-d');
+
+            }
+        
+
 
         /* 
         As we are firing at UTC+0 if our offset is negative it is technically firing the day before so we always need
