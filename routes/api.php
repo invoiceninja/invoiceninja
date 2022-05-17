@@ -105,7 +105,8 @@ Route::group(['middleware' => ['throttle:100,1', 'api_db', 'token_auth', 'locale
     Route::put('invoices/{invoice}/upload', 'InvoiceController@upload')->name('invoices.upload');
     Route::get('invoice/{invitation_key}/download', 'InvoiceController@downloadPdf')->name('invoices.downloadPdf');
     Route::post('invoices/bulk', 'InvoiceController@bulk')->name('invoices.bulk');
-    
+    Route::post('invoices/update_reminders', 'InvoiceController@update_reminders')->name('invoices.update_reminders');
+
     Route::post('logout', 'LogoutController@index')->name('logout');
 
     Route::post('migrate', 'MigrationController@index')->name('migrate.start');

@@ -82,31 +82,30 @@ class ClientRepository extends BaseRepository
             // $client->number = $this->getNextClientNumber($client);
             // $client->save();
 
-                $x=1;
+            $x=1;
 
-                do{
+            do{
 
-                    try{
+                try{
 
-                        $client->number = $this->getNextClientNumber($client);
-                        $client->saveQuietly();
+                    $client->number = $this->getNextClientNumber($client);
+                    $client->saveQuietly();
 
-                        $this->completed = false;
-                        
+                    $this->completed = false;
+                    
 
-                    }
-                    catch(QueryException $e){
-
-                        $x++;
-
-                        if($x>10)
-                            $this->completed = false;
-                    }
-                
                 }
-                while($this->completed);
+                catch(QueryException $e){
 
-    
+                    $x++;
+
+                    if($x>10)
+                        $this->completed = false;
+                    
+                }
+            
+            }
+            while($this->completed);    
 
         }
 
