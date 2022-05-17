@@ -22,7 +22,7 @@ class CreatePaymentMethodRequest extends FormRequest
 
         $available_methods = [];
 
-        collect($client->service()->getPaymentMethods(1))
+        collect($client->service()->getPaymentMethods(-1))
             ->filter(function ($method) use (&$available_methods) {
                 $available_methods[] = $method['gateway_type_id'];
             });
