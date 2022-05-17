@@ -168,6 +168,7 @@ class CompanyTransformer extends EntityTransformer
             'client_registration_fields' => (array) $company->client_registration_fields,
             'convert_rate_to_client' => (bool) $company->convert_rate_to_client,
             'markdown_email_enabled' => (bool) $company->markdown_email_enabled,
+            'stop_on_unpaid_recurring' => (bool) $company->stop_on_unpaid_recurring,
         ];
     }
 

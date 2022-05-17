@@ -117,31 +117,26 @@ class AutoBillInvoice extends AbstractService
       
         $payment = false;
 
-        $number_of_retries = $this->invoice->auto_bill_tries;
-
         try {
             $payment = $gateway_token->gateway
                 ->driver($this->client)
                 ->setPaymentHash($payment_hash)
                 ->tokenBilling($gateway_token, $payment_hash);
         } catch (\Exception $e) {
-            //increase the counter
             $this->invoice->auto_bill_tries = $number_of_retries + 1;
-            $this->invoice->save();
-            //disable auto bill if limit of 3 is reached
+
             if ($this->invoice->auto_bill_tries == 3) {
                 $this->invoice->auto_bill_enabled = false;
+                $this->invoice->auto_bill_tries = 0; //reset the counter here in case auto billing is turned on again in the future.
                 $this->invoice->save();
             }
             nlog("payment NOT captured for " . $this->invoice->number . " with error " . $e->getMessage());
-            //   $this->invoice->service()->removeUnpaidGatewayFees();
         }
 
         if ($payment) {
             info("Auto Bill payment captured for " . $this->invoice->number);
         }
 
-        // return $this->invoice->fresh();
     }
 
     /**
