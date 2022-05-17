@@ -143,7 +143,21 @@ class ACH
         $data['customer'] = $this->stripe->findOrCreateCustomer();
         $data['amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency());
 
-        return render('gateways.stripe.ach.pay', $data);
+        $intent = 
+        $this->stripe->createPaymentIntent([
+            'amount' => $data['amount'],
+            'currency' => $data['currency'],
+            'setup_future_usage' => 'off_session',
+            'customer' => $data['customer']->id,
+            'payment_method_types' => ['us_bank_account'],
+          ]
+        );
+
+        $data['client_secret'] = $intent->client_secret;
+
+
+        return render('gateways.stripe.ach.pay_instant_verification', $data);
+        // return render('gateways.stripe.ach.pay', $data);
     }
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
