@@ -53,6 +53,7 @@ class AutoBillCron
             $auto_bill_partial_invoices = Invoice::whereDate('partial_due_date', '<=', now())
                                         ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                         ->where('auto_bill_enabled', true)
+                                        ->where('auto_bill_tries', '<', 3)
                                         ->where('balance', '>', 0)
                                         ->where('is_deleted', false)
                                         ->whereHas('company', function ($query) {
@@ -70,6 +71,7 @@ class AutoBillCron
             $auto_bill_invoices = Invoice::whereDate('due_date', '<=', now())
                                         ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                         ->where('auto_bill_enabled', true)
+                                        ->where('auto_bill_tries', '<', 3)
                                         ->where('balance', '>', 0)
                                         ->where('is_deleted', false)
                                         ->whereHas('company', function ($query) {
@@ -94,6 +96,7 @@ class AutoBillCron
                 $auto_bill_partial_invoices = Invoice::whereDate('partial_due_date', '<=', now())
                                             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                             ->where('auto_bill_enabled', true)
+                                            ->where('auto_bill_tries', '<', 3)
                                             ->where('balance', '>', 0)
                                             ->where('is_deleted', false)
                                             ->whereHas('company', function ($query) {
@@ -111,6 +114,7 @@ class AutoBillCron
                 $auto_bill_invoices = Invoice::whereDate('due_date', '<=', now())
                                             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                             ->where('auto_bill_enabled', true)
+                                            ->where('auto_bill_tries', '<', 3)
                                             ->where('balance', '>', 0)
                                             ->where('is_deleted', false)
                                             ->whereHas('company', function ($query) {
