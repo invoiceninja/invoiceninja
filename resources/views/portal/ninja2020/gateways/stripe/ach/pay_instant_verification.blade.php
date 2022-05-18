@@ -33,16 +33,18 @@
             @endisset
         @endcomponent
 
-    @else
-        @component('portal.ninja2020.components.general.card-element-single', ['title' => 'ACH', 'show_title' => false])
-            <span>{{ ctrans('texts.bank_account_not_linked') }}</span>
-            <a class="button button-link text-primary"
-               href="{{ route('client.payment_methods.index') }}">{{ ctrans('texts.add_payment_method') }}</a>
-
-        @endcomponent
-    @endif
-
     @include('portal.ninja2020.gateways.includes.pay_now')
+
+    @else
+
+    @component('portal.ninja2020.components.general.card-element-single', ['title' => 'ACH', 'show_title' => false])
+        <span>Pay with a new bank account.</span>
+        <button type="button" class="button button-primary bg-primary" id="new-bank">{{ ctrans('texts.new_bank_account') }}</button>
+
+    @endcomponent
+
+    @endif    
+
 @endsection
 
 @push('footer')

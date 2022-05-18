@@ -143,21 +143,24 @@ class ACH
         $data['customer'] = $this->stripe->findOrCreateCustomer();
         $data['amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency());
 
-        $intent = 
-        $this->stripe->createPaymentIntent([
-            'amount' => $data['amount'],
-            'currency' => $data['currency'],
-            'setup_future_usage' => 'off_session',
-            'customer' => $data['customer']->id,
-            'payment_method_types' => ['us_bank_account'],
-          ]
-        );
+        $intent = false;
 
-        $data['client_secret'] = $intent->client_secret;
+        if(count($data['tokens']) == 0)
+        {
+            $intent = 
+            $this->stripe->createPaymentIntent([
+                'amount' => $data['amount'],
+                'currency' => $data['currency'],
+                'setup_future_usage' => 'off_session',
+                'customer' => $data['customer']->id,
+                'payment_method_types' => ['us_bank_account'],
+              ]
+            );
+        }
 
+        $data['client_secret'] = $intent ? $intent->client_secret : false;
 
-        return render('gateways.stripe.ach.pay_instant_verification', $data);
-        // return render('gateways.stripe.ach.pay', $data);
+        return render('gateways.stripe.ach.pay', $data);
     }
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
@@ -217,10 +220,20 @@ class ACH
 
     }
 
+    public function handlePaymentIntentResponse($request)
+    {
+        nlog($request->all());
+        dd($request->all());
+    }
+
     public function paymentResponse($request)
     {
 
         $this->stripe->init();
+
+        //it may be a payment intent here.
+        if($request->input('client_secret'))
+            $this->handlePaymentIntentResponse($request);
 
         $source = ClientGatewayToken::query()
             ->where('id', $this->decodePrimaryKey($request->source))
