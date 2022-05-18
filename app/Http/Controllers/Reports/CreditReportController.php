@@ -14,6 +14,7 @@ namespace App\Http\Controllers\Reports;
 use App\Export\CSV\CreditExport;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\Report\GenericReportRequest;
+use App\Jobs\Report\SendToAdmin;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Response;
 
@@ -62,6 +63,10 @@ class CreditReportController extends BaseController
      */
     public function __invoke(GenericReportRequest $request)
     {
+        if ($request->has('send_email') && $request->get('send_email')) {
+            SendToAdmin::dispatch(auth()->user()->company(),$request->all(),CreditExport::class,$this->filename);
+            return response([], 200);
+        }
         // expect a list of visible fields, or use the default
 
         $export = new CreditExport(auth()->user()->company(), $request->all());
@@ -76,7 +81,7 @@ class CreditReportController extends BaseController
         return response()->streamDownload(function () use ($csv) {
             echo $csv;
         }, $this->filename, $headers);
-        
+
     }
 
 
