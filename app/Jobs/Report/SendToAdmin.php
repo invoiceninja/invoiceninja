@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 
 namespace App\Jobs\Report;
 
@@ -7,6 +15,7 @@ namespace App\Jobs\Report;
 use App\Http\Requests\Report\GenericReportRequest;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
+use App\Libraries\MultiDB;
 use App\Mail\DownloadReport;
 use App\Models\Company;
 use Illuminate\Bus\Queueable;
@@ -39,6 +48,7 @@ class SendToAdmin implements ShouldQueue
 
     public function handle()
     {
+        MultiDB::setDb($this->company->db);
         $export = new $this->report_class($this->company, $this->request);
         $csv = $export->run();
 
