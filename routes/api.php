@@ -45,8 +45,8 @@ Route::group(['middleware' => ['throttle:100,1', 'api_db', 'token_auth', 'locale
 
     Route::post('filters/{entity}', 'FilterController@index')->name('filters');
 
-    Route::resource('client_gateway_tokens', 'ClientGatewayTokenController'); 
-    
+    Route::resource('client_gateway_tokens', 'ClientGatewayTokenController');
+
     Route::post('connected_account', 'ConnectedAccountController@index');
     Route::post('connected_account/gmail', 'ConnectedAccountController@handleGmailOauth');
 
@@ -54,9 +54,9 @@ Route::group(['middleware' => ['throttle:100,1', 'api_db', 'token_auth', 'locale
 
     Route::post('companies/purge/{company}', 'MigrationController@purgeCompany')->middleware('password_protected');
     Route::post('companies/purge_save_settings/{company}', 'MigrationController@purgeCompanySaveSettings')->middleware('password_protected');
-    
+
     Route::resource('companies', 'CompanyController'); // name = (companies. index / create / show / update / destroy / edit
-    
+
     Route::put('companies/{company}/upload', 'CompanyController@upload');
     Route::post('companies/{company}/default', 'CompanyController@default');
 
@@ -169,6 +169,10 @@ Route::group(['middleware' => ['throttle:100,1', 'api_db', 'token_auth', 'locale
     Route::post('reports/products', 'Reports\ProductReportController');
     Route::post('reports/tasks', 'Reports\TaskReportController');
     Route::post('reports/profitloss', 'Reports\ProfitAndLossController');
+
+
+    Route::post('task_scheduler', 'TaskSchedulerController@store');
+
 
     Route::get('scheduler', 'SchedulerController@index');
     Route::post('support/messages/send', 'Support\Messages\SendingController');
