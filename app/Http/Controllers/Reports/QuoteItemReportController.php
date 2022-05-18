@@ -65,7 +65,7 @@ class QuoteItemReportController extends BaseController
     {
         if ($request->has('send_email') && $request->get('send_email')) {
             SendToAdmin::dispatch(auth()->user()->company(),$request->all(),QuoteItemExport::class,$this->filename);
-            return response([], 200);
+            return response()->json(['message' => 'working...'], 200);
         }
         // expect a list of visible fields, or use the default
 
