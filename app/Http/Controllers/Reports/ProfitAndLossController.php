@@ -14,6 +14,7 @@ namespace App\Http\Controllers\Reports;
 use App\Export\CSV\PaymentExport;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\Report\ProfitLossRequest;
+use App\Jobs\Report\SendToAdmin;
 use App\Models\Client;
 use App\Services\Report\ProfitLoss;
 use App\Utils\Traits\MakesHash;
@@ -64,13 +65,17 @@ class ProfitAndLossController extends BaseController
      */
     public function __invoke(ProfitLossRequest $request)
     {
+        if ($request->has('send_email') && $request->get('send_email')) {
+            SendToAdmin::dispatch(auth()->user()->company(),$request->all(),ProfitLoss::class,$this->filename);
+            return response()->json(['message' => 'working...'], 200);
+        }
         // expect a list of visible fields, or use the default
 
         $pnl = new ProfitLoss(auth()->user()->company(), $request->all());
         $pnl->build();
 
         $csv = $pnl->getCsv();
-        
+
         $headers = array(
             'Content-Disposition' => 'attachment',
             'Content-Type' => 'text/csv',
@@ -79,7 +84,7 @@ class ProfitAndLossController extends BaseController
         return response()->streamDownload(function () use ($csv) {
             echo $csv;
         }, $this->filename, $headers);
-        
+
     }
 
 
