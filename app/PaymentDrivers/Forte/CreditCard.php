@@ -105,8 +105,8 @@ class CreditCard
                      "authorization_amount":'.$payment_hash->data->total->amount_with_fee.',
                      "service_fee_amount":'.$payment_hash->data->total->fee_total.',
                      "billing_address":{
-                        "first_name":"'.auth()->user()->client->name.'",
-                        "last_name":"'.auth()->user()->client->name.'"
+                        "first_name":"'.$this->forte->client->name.'",
+                        "last_name":"'.$this->forte->client->name.'"
                      },
                      "card":{
                         "one_time_token":"'.$request->payment_token.'"

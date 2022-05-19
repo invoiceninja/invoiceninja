@@ -105,8 +105,8 @@ class ACH
                     "sec_code":"PPD",
                 },
                 "billing_address":{
-                    "first_name": "'.auth()->user()->client->name.'",
-                    "last_name": "'.auth()->user()->client->name.'"
+                    "first_name": "'.$this->forte->client->name.'",
+                    "last_name": "'.$this->forte->client->name.'"
                 },
                 "echeck":{
                    "one_time_token":"'.$request->payment_token.'"
