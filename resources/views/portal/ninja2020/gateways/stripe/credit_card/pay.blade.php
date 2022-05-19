@@ -11,7 +11,6 @@
     
 @endphp
 
-
 @section('gateway_head')
     @if($gateway->company_gateway->getConfigField('account_id'))
         <meta name="stripe-account-id" content="{{ $gateway->company_gateway->getConfigField('account_id') }}">
@@ -48,32 +47,40 @@
     @include('portal.ninja2020.gateways.includes.payment_details')
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
+        <ul class="list-none hover:list-disc">
         @if(count($tokens) > 0)
             @foreach($tokens as $token)
+            <li class="py-2 hover:text-blue hover:bg-blue-600">
                 <label class="mr-4">
                     <input
                         type="radio"
                         data-token="{{ $token->token }}"
                         name="payment-type"
-                        class="form-radio cursor-pointer toggle-payment-with-token"/>
+                        class="form-check-input text-indigo-600 rounded-full cursor-pointer toggle-payment-with-token toggle-payment-with-token"/>
                     <span class="ml-1 cursor-pointer">**** {{ optional($token->meta)->last4 }}</span>
                 </label>
+            </li>
             @endforeach
         @endisset
 
-        <label>
-            <input
-                type="radio"
-                id="toggle-payment-with-credit-card"
-                class="form-radio cursor-pointer"
-                name="payment-type"
-                checked/>
-            <span class="ml-1 cursor-pointer">{{ __('texts.new_card') }}</span>
-        </label>
+            <li class="py-2 hover:text-blue hover:bg-blue-600">
+                <label>
+                    <input
+                        type="radio"
+                        id="toggle-payment-with-credit-card"
+                        class="form-check-input text-indigo-600 rounded-full cursor-pointer"
+                        name="payment-type"
+                        checked/>
+                    <span class="ml-1 cursor-pointer">{{ __('texts.new_card') }}</span>
+                </label>
+            </li>    
+        </ul>
+        
     @endcomponent
 
     @include('portal.ninja2020.gateways.stripe.includes.card_widget')
     @include('portal.ninja2020.gateways.includes.pay_now')
+    
 @endsection
 
 @section('gateway_footer')
