@@ -237,7 +237,6 @@ class Import implements ShouldQueue
 
         //company size check
         if ($this->company->invoices()->count() > 500 || $this->company->products()->count() > 500 || $this->company->clients()->count() > 500) {
-            // $this->company->is_large = true;
             $this->company->account->companies()->update(['is_large' => true]);
         }
 
