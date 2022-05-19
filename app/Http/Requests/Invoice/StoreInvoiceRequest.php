@@ -79,7 +79,9 @@ class StoreInvoiceRequest extends Request
 
         $input = $this->decodePrimaryKeys($input);
 
-        $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
+        if (isset($input['line_items']) && is_array($input['line_items'])) 
+            $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
+        
         $input['amount'] = 0;
         $input['balance'] = 0;
         

@@ -47,7 +47,7 @@ class ClientLedgerBalanceUpdate implements ShouldQueue
      */
     public function handle() :void
     {
-        nlog("Updating company ledgers");
+        nlog("Updating company ledger for client ". $this->client->id);
 
         MultiDB::setDb($this->company->db);
         
@@ -62,8 +62,14 @@ class ClientLedgerBalanceUpdate implements ShouldQueue
                             ->orderBy('id', 'DESC')
                             ->first();
 
-            if(!$last_record)
-                return;
+            if(!$last_record){
+
+                $last_record =  CompanyLedger::where('client_id', $company_ledger->client_id)
+                ->where('company_id', $company_ledger->company_id)
+                ->orderBy('id', 'DESC')
+                ->first();
+
+            }
 
             nlog("Updating Balance NOW");
             
@@ -72,13 +78,7 @@ class ClientLedgerBalanceUpdate implements ShouldQueue
 
         });
 
-        nlog("Finished checking company ledgers");
-
-    }
-
-    public function checkLedger()
-    {
-
+        nlog("Updating company ledger for client ". $this->client->id);
 
     }
 
