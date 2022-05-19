@@ -155,6 +155,10 @@ return [
     'designs' => [
         'base_path' => resource_path('views/pdf-designs/'),
     ],
+    'maintenance' => [
+        'delete_pdfs' => env('DELETE_PDF_DAYS', 0),
+        'delete_backups' => env('DELETE_BACKUP_DAYS', 0),
+    ],
     'log_pdf_html' => env('LOG_PDF_HTML', false),
     'expanded_logging' => env('EXPANDED_LOGGING', false),
     'snappdf_chromium_path' => env('SNAPPDF_CHROMIUM_PATH', false),
