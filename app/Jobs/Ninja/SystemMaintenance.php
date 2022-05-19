@@ -122,7 +122,7 @@ class SystemMaintenance implements ShouldQueue
                     nlog("deleting {$backup->filename}");
 
                     if($backup->filename)
-                        Storage::disk(config('filesystems.default'))->delete($backup->filename);
+                        $backup->deleteFile();
                     
                     $backup->delete();
 

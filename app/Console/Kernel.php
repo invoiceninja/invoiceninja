@@ -57,7 +57,6 @@ class Kernel extends ConsoleKernel
 
         $schedule->job(new ReminderJob)->hourly()->withoutOverlapping();
 
-        // $schedule->job(new LedgerBalanceUpdate)->everyFiveMinutes()->withoutOverlapping();
         $schedule->job(new QueueSize)->everyFiveMinutes()->withoutOverlapping();
 
         $schedule->job(new CompanySizeCheck)->daily()->withoutOverlapping();
