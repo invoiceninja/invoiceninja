@@ -451,6 +451,12 @@ trait GenerateMigrationResources
         $agts = AccountGatewayToken::where('client_id', $ninja_client->id)->get();
         $is_default = true;
 
+        if(count($agts) == 0) {
+            $transformed[] = [
+                'client' => $ninja_client
+            ];
+        }
+
         foreach($agts as $agt) {
 
             $payment_method = $agt->default_payment_method;
