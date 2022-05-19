@@ -108,6 +108,7 @@
                 payNowButton.querySelector('span').classList.add('hidden');
         document.getElementById('server-response').submit();
         });
+        
     }
 
     document.getElementById('new-bank').addEventListener('click', (ev) => {

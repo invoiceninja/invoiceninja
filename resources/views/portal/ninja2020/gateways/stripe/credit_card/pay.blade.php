@@ -11,7 +11,6 @@
     
 @endphp
 
-
 @section('gateway_head')
     @if($gateway->company_gateway->getConfigField('account_id'))
         <meta name="stripe-account-id" content="{{ $gateway->company_gateway->getConfigField('account_id') }}">
@@ -81,6 +80,7 @@
 
     @include('portal.ninja2020.gateways.stripe.includes.card_widget')
     @include('portal.ninja2020.gateways.includes.pay_now')
+    
 @endsection
 
 @section('gateway_footer')
