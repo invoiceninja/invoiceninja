@@ -392,7 +392,7 @@ class LoginController extends BaseController
         if($cu->count() == 0)
             return $cu;
 
-        if(auth()->user()->company_users()->count() != auth()->user()->tokens()->count())
+        if(auth()->user()->company_users()->count() != auth()->user()->tokens()->distinct('company_id')->count())
         {
           
           auth()->user()->companies->each(function($company){
