@@ -1,5 +1,5 @@
 <div
-    class="h-screen flex overflow-hidden bg-gray-100"
+    class="main_layout h-screen flex overflow-hidden bg-gray-100"
     x-data="{ sidebarOpen: false }"
     @keydown.window.escape="sidebarOpen = false"
     id="main-sidebar">

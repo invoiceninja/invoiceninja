@@ -1,0 +1,11 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 598 450" width="598" height="450">
+	<title>Vector 1580-svg</title>
+	<defs>
+		<image width="595" height="450" id="img1" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTk1IiBoZWlnaHQ9IjQ1MCIgdmlld0JveD0iMCAwIDU5NSA0NTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIG9wYWNpdHk9IjAuMiIgZD0iTTQ3NC45NDIgMTUzLjQ4N0M1MzguMDc2IDEzMS4wMzQgNjAzLjE3IDEwLjk1MTMgNTkyLjgyMyAtNDFMLTcyLjE5NzYgLTIuMzY2NzRMLTkzIDU0NS40MzNDLTUxLjUwNSA1MzYuMDc3IDE5LjczNDMgNTMxLjU2NSA3MS4xMDg3IDQ2OS40ODdDMTU1LjgyMiAzNjcuMTI2IDIzOS4xOCA0MzEuODQ1IDI4NS4wNzggMzg2LjkzOEMzMzAuOTc1IDM0Mi4wMzEgMzE1LjEyNiAyOTkuNzY1IDMzMC42NDUgMjQ0Ljk1MkMzNDYuMTY0IDE5MC4xMzkgMzk2LjAyNSAxODEuNTU0IDQ3NC45NDIgMTUzLjQ4N1oiIHN0cm9rZT0id2hpdGUiLz4KPC9zdmc+Cg=="/>
+	</defs>
+	<style>
+		.s0 { opacity: .1;fill: #ffffff;stroke: #ffffff;stroke-width: 7 } 
+	</style>
+	<path id="Layer" class="s0" d="m330.5 241c-15.5 54.9 0.4 97.1-45.5 142-45.9 44.9-129.3-19.8-214 82.6-51.4 62.1-122.6 66.6-164.1 75.9l20.8-547.8 665-38.6c10.4 51.9-54.7 172-117.9 194.5-78.9 28-128.8 36.6-144.3 91.4z"/>
+	<use id="Vector 1581" href="#img1" transform="matrix(1,0,0,1,0,0)"/>
+</svg>
