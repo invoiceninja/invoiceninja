@@ -435,48 +435,10 @@ class LoginController extends BaseController
 
                 Auth::login($existing_user, true);
 
-                // $cu = CompanyUser::query()
-                //                   ->where('user_id', auth()->user()->id)
-                //                   ->where('company_id', $existing_user->account->default_company_id);
-
-                // if($cu->exists())
-                //     $set_company = $existing_user->account->default_company;
-                // else{
-                //     $cu = CompanyUser::query()->where('user_id', auth()->user()->id);
-                //     $set_company = $cu->company;
-                // }
-
-                // $existing_user->setCompany($set_company);
-
-                // $this->setLoginCache($existing_user);
-
                 $cu = $this->hydrateCompanyUser();
 
                 if($cu->count() == 0)
                     return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
-
-                // $truth = app()->make(TruthSource::class);
-                // $truth->setCompanyUser($cu->first());
-                // $truth->setUser($existing_user);
-                // $truth->setCompany($set_company);
-        
-                // if($existing_user->company_users()->count() != $existing_user->tokens()->count())
-                // {
-                  
-                //   $existing_user->companies->each(function($company) use($existing_user){
-                  
-                //     if(!CompanyToken::where('user_id', $existing_user->id)->where('company_id', $company->id)->exists()){
-                    
-                //       CreateCompanyToken::dispatchNow($company, $existing_user, "Google_O_Auth");
-                      
-                //     }
-                  
-                //   });
-                  
-                // }
-
-                // $truth->setCompanyToken(CompanyToken::where('user_id', $existing_user->id)->where('company_id', $set_company->id)->first());
-
 
                 if(Ninja::isHosted() && !$cu->first()->is_owner && !$existing_user->account->isEnterpriseClient())
                     return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
@@ -493,9 +455,6 @@ class LoginController extends BaseController
 
                 Auth::login($existing_login_user, true);
 
-                // $existing_login_user->setCompany($existing_login_user->account->default_company);
-                // $this->setLoginCache($existing_login_user);
-
                 auth()->user()->update([
                     'oauth_user_id' => $google->harvestSubField($user),
                     'oauth_provider_id'=> 'google',
@@ -503,34 +462,8 @@ class LoginController extends BaseController
 
                 $cu = $this->hydrateCompanyUser();
 
-                // $cu = CompanyUser::query()
-                //                   ->where('user_id', auth()->user()->id);
-
                 if($cu->count() == 0)
                     return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
-
-                // $truth = app()->make(TruthSource::class);
-                // $truth->setCompanyUser($cu->first());
-                // $truth->setUser($existing_login_user);
-                // $truth->setCompany($existing_login_user->account->default_company);
-
-
-                // if($existing_login_user->company_users()->count() != $existing_login_user->tokens()->count())
-                // {
-                  
-                //   $existing_login_user->companies->each(function($company) use($existing_login_user){
-                  
-                //     if(!CompanyToken::where('user_id', $existing_login_user->id)->where('company_id', $company->id)->exists()){
-                    
-                //       CreateCompanyToken::dispatchNow($company, $existing_login_user, "Google_O_Auth");
-                      
-                //     }
-                  
-                //   });
-                  
-                // }
-
-                // $truth->setCompanyToken(CompanyToken::where('user_id', $existing_login_user->id)->where('company_id', $existing_login_user->account->default_company->id)->first());
 
                 if(Ninja::isHosted() && !$cu->first()->is_owner && !$existing_login_user->account->isEnterpriseClient())
                     return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
@@ -551,9 +484,6 @@ class LoginController extends BaseController
                 
                 Auth::login($existing_login_user, true);
 
-                // $existing_login_user->setCompany($existing_login_user->account->default_company);
-                // $this->setLoginCache($existing_login_user);
-
                 auth()->user()->update([
                     'oauth_user_id' => $google->harvestSubField($user),
                     'oauth_provider_id'=> 'google',
@@ -566,29 +496,6 @@ class LoginController extends BaseController
 
                 if($cu->count() == 0)
                     return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
-
-                // $truth = app()->make(TruthSource::class);
-                // $truth->setCompanyUser($cu->first());
-                // $truth->setUser($existing_login_user);
-                // $truth->setCompany($existing_login_user->account->default_company);
-
-
-                //     if($existing_login_user->company_users()->count() != $existing_login_user->tokens()->count())
-                //     {
-                      
-                //       $existing_login_user->companies->each(function($company) use($existing_login_user){
-                      
-                //         if(!CompanyToken::where('user_id', $existing_login_user->id)->where('company_id', $company->id)->exists()){
-                        
-                //           CreateCompanyToken::dispatchNow($company, $existing_login_user, "Google_O_Auth");
-                          
-                //         }
-                      
-                //       });
-                      
-                //     }
-
-                // $truth->setCompanyToken(CompanyToken::where('user_id', $existing_login_user->id)->where('company_id', $existing_login_user->account->default_company->id)->first());
 
                 if(Ninja::isHosted() && !$cu->first()->is_owner && !$existing_login_user->account->isEnterpriseClient())
                     return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
@@ -617,37 +524,10 @@ class LoginController extends BaseController
             auth()->user()->email_verified_at = now();
             auth()->user()->save();
 
-            // auth()->user()->setCompany(auth()->user()->account->default_company);
-            // $this->setLoginCache(auth()->user());
-            // $cu = CompanyUser::whereUserId(auth()->user()->id);
-
             $cu = $this->hydrateCompanyUser();
 
             if($cu->count() == 0)
                 return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
-
-            // $truth = app()->make(TruthSource::class);
-            // $truth->setCompanyUser($cu->first());
-            // $truth->setUser(auth()->user());
-            // $truth->setCompany(auth()->user()->account->default_company);
-
-            //    if(auth()->user()->company_users()->count() != auth()->user()->tokens()->count())
-            //     {
-                  
-            //       auth()->user()->companies->each(function($company) {
-                  
-            //         if(!CompanyToken::where('user_id', auth()->user()->id)->where('company_id', $company->id)->exists()){
-                    
-            //           CreateCompanyToken::dispatchNow($company, auth()->user(), "Google_O_Auth");
-                      
-            //         }
-                  
-            //       });
-                  
-            //     }
-
-            // $truth->setCompanyToken(CompanyToken::where('user_id', auth()->user()->id)->where('company_id', auth()->user()->account->default_company->id)->first());
-
 
             if(Ninja::isHosted() && !$cu->first()->is_owner && !auth()->user()->account->isEnterpriseClient())
                 return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
