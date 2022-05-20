@@ -27,6 +27,10 @@
 
     <div class="alert alert-failure mb-4" hidden id="errors"></div>
 
+    <div class="alert alert-warning mb-4">
+        <h2>Adding a bank account here requires verification, which may take several days. In order to use Instant Verification please pay an invoice first, this process will automatically verify your bank account.</h2>
+    </div>
+
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.account_holder_type')])
         <span class="flex items-center mr-4">
             <input class="form-radio mr-2" type="radio" value="individual" name="account-holder-type" checked>
@@ -39,14 +43,18 @@
     @endcomponent
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.account_holder_name')])
-        <input class="input w-full" id="account-holder-name" type="text" placeholder="{{ ctrans('texts.name') }}" required>
+        <input class="input w-full" id="account-holder-name" type="text" placeholder="{{ ctrans('texts.name') }}" required value="{{ auth()->guard('contact')->user()->client->present()->name() }}">
     @endcomponent
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.country')])
         <select name="countries" id="country" class="form-select input w-full">
             <option disabled selected></option>
             @foreach($countries as $country)
+                @if($country->iso_3166_2 == 'US')
+                <option value="{{ $country->iso_3166_2 }}" selected>{{ $country->iso_3166_2 }} ({{ $country->name }})</option>
+                @else
                 <option value="{{ $country->iso_3166_2 }}">{{ $country->iso_3166_2 }} ({{ $country->name }})</option>
+                @endif
             @endforeach
         </select>
     @endcomponent
@@ -55,7 +63,11 @@
         <select name="currencies" id="currency" class="form-select input w-full">
             <option disabled selected></option>
             @foreach($currencies as $currency)
-                <option value="{{ $currency->code }}">{{ $currency->code }} ({{ $currency->name }})</option>
+                @if($currency->code == 'USD')
+                    <option value="{{ $currency->code }}" selected>{{ $currency->code }} ({{ $currency->name }})</option>
+                @else
+                    <option value="{{ $currency->code }}">{{ $currency->code }} ({{ $currency->name }})</option>
+                @endif
             @endforeach
         </select>
     @endcomponent

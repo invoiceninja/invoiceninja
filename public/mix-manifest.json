@@ -2,7 +2,7 @@
     "/js/app.js": "/js/app.js?id=0e3959ab851d3350364d",
     "/js/clients/payment_methods/authorize-authorize-card.js": "/js/clients/payment_methods/authorize-authorize-card.js?id=de4468c682d6861847de",
     "/js/clients/payments/authorize-credit-card-payment.js": "/js/clients/payments/authorize-credit-card-payment.js?id=cfe5de1cf87a0b01568d",
-    "/js/clients/payments/stripe-ach.js": "/js/clients/payments/stripe-ach.js?id=a5f14c885c3aeef6c744",
+    "/js/clients/payments/stripe-ach.js": "/js/clients/payments/stripe-ach.js?id=50d964c4a3ffa7f2f99f",
     "/js/clients/invoices/action-selectors.js": "/js/clients/invoices/action-selectors.js?id=6b79265cbb8c963eef19",
     "/js/clients/invoices/payment.js": "/js/clients/invoices/payment.js?id=2cccf9e51b60a0ab17b8",
     "/js/clients/payments/stripe-sofort.js": "/js/clients/payments/stripe-sofort.js?id=22fc06e698dea2c3bdf3",

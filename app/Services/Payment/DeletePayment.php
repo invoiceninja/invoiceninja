@@ -46,14 +46,6 @@ class DeletePayment
             ->save();
     }
 
-    //reverse paymentables->invoices
-
-    //reverse paymentables->credits
-
-    //set refunded to amount
-
-    //set applied amount to 0
-
     private function cleanupPayment()
     {
         $this->payment->is_deleted = true;
