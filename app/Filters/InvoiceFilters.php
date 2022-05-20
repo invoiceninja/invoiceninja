@@ -138,6 +138,27 @@ class InvoiceFilters extends QueryFilters
         });
     }
 
+    public function upcoming()
+    {
+        return $this->builder
+                    ->where(function ($query) {
+                        $query->whereNull('due_date')
+                              ->orWhere('due_date', '>', now());
+                    })
+                    ->orderBy('due_date', 'ASC');
+    }
+
+    public function overdue()
+    {
+        $this->builder->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                ->where('is_deleted', 0)
+                ->where(function ($query) {
+                        $query->where('due_date', '<', now())
+                        ->orWhere('partial_due_date', '<', now());
+                })
+                ->orderBy('due_date', 'ASC');
+    }
+
     public function payable(string $client_id)
     {
         if (strlen($client_id) == 0) {
