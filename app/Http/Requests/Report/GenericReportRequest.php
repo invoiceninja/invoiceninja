@@ -31,9 +31,9 @@ class GenericReportRequest extends Request
             'start_date' => 'string|date',
             'end_date' => 'string|date',
             'date_key' => 'string',
-            'date_range' => 'string',
+            'date_range' => 'required|string',
             'report_keys' => 'present|array',
-            'send_email' => 'bool',
+            'send_email' => 'required|bool',
         ];
     }
 }
