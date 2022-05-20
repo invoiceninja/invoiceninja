@@ -14,6 +14,7 @@ namespace App\Http\Controllers\Reports;
 use App\Export\CSV\InvoiceExport;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\Report\GenericReportRequest;
+use App\Jobs\Report\SendToAdmin;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Response;
 
@@ -62,6 +63,10 @@ class InvoiceReportController extends BaseController
      */
     public function __invoke(GenericReportRequest $request)
     {
+        if ($request->has('send_email') && $request->get('send_email')) {
+            SendToAdmin::dispatch(auth()->user()->company(),$request->all(),InvoiceExport::class,$this->filename);
+            return response()->json(['message' => 'working...'], 200);
+        }
         // expect a list of visible fields, or use the default
 
         $export = new InvoiceExport(auth()->user()->company(), $request->all());
@@ -76,9 +81,8 @@ class InvoiceReportController extends BaseController
         return response()->streamDownload(function () use ($csv) {
             echo $csv;
         }, $this->filename, $headers);
-        
-    }
 
+    }
 
 
 }
