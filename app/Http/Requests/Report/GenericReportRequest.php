@@ -36,4 +36,15 @@ class GenericReportRequest extends Request
             'send_email' => 'required|bool',
         ];
     }
+
+    public function prepareForValidation()
+    {
+        $input = $this->all();
+
+
+        if(!array_key_exists('report_keys', $input))
+            $input['report_keys'] = [];
+
+        $this->replace($input);
+    }
 }
