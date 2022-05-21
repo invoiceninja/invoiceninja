@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property array parameters
  * @property string action_name
  * @property integer scheduler_id
+ * @property integer company_id
  */
 class ScheduledJob extends Model
 {
@@ -40,9 +41,8 @@ class ScheduledJob extends Model
     const CREATE_TASK_REPORT = 'create_task_report';
 
 
-    protected $fillable = ['action_class', 'action_name', 'parameters', 'scheduler_id'];
+    protected $fillable = ['action_class', 'action_name', 'parameters', 'scheduler_id','company_id'];
     protected $casts = [
-        'required_parameters' => 'array',
         'scheduled_run' => 'date',
         'parameters' => 'array'
     ];

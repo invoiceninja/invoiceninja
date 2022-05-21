@@ -13,6 +13,7 @@ namespace App\Jobs\Ninja;
 
 
 use App\Jobs\Report\SendToAdmin;
+use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\ScheduledJob;
 use App\Models\Scheduler;
@@ -45,6 +46,7 @@ class TaskScheduler implements ShouldQueue
      */
     public function handle()
     {
+
         $pending_schedulers = $this->fetchJobs();
         foreach ($pending_schedulers as $scheduler) {
             $this->doJob($scheduler);
@@ -54,11 +56,15 @@ class TaskScheduler implements ShouldQueue
     private function doJob(Scheduler $scheduler)
     {
         $job = $scheduler->job;
-        $parameters = $job->parameters;
-        $company = Company::where('company_key', $parameters['company']['company_key'])->first();
-        if (!$job) {
+
+        $company = Company::find($job->company_id);
+        if (!$job || !$company) {
             return;
         }
+        MultiDB::setDb($company->db);
+        $parameters = $job->parameters;
+
+
         switch ($job->action_name) {
             case ScheduledJob::CREATE_CLIENT_REPORT:
                 SendToAdmin::dispatch($company, $parameters, $job->action_class, 'contacts.csv');
@@ -106,6 +112,30 @@ class TaskScheduler implements ShouldQueue
         }
 
         //setup new scheduled_run
+        $amount_of_days_until_next_run = $this->getAmountOfDays($scheduler->repeat_every);
+        $scheduler->scheduled_run = Carbon::now()->addDays($amount_of_days_until_next_run);
+        $scheduler->save();
+    }
+
+    private function getAmountOfDays(string $repeat_every): int
+    {
+        switch ($repeat_every) {
+            case Scheduler::DAILY:
+                return 1;
+                break;
+            case Scheduler::MONTHLY:
+                return 30;
+                break;
+            case Scheduler::WEEKLY:
+                return 7;
+                break;
+            case Scheduler::QUARTERLY:
+                return 90;
+                break;
+            case Scheduler::ANNUALLY:
+                return 365;
+                break;
+        }
     }
 
     private function fetchJobs()

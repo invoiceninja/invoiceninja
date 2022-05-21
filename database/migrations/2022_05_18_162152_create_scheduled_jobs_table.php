@@ -27,6 +27,7 @@ class CreateScheduledJobsTable extends Migration
             $table->string('action_name');
             $table->string('action_class');
             $table->json('parameters')->nullable();
+            $table->foreignIdFor(\App\Models\Company::class);
             $table->foreignIdFor(\App\Models\Scheduler::class);
             $table->timestamps();
         });

@@ -51,6 +51,8 @@ class TaskSchedulerController extends BaseController
         switch ($request->job) {
             case 'client_report':
                 $rules = (new GenericReportRequest)->rules();
+                //custom rules for example here we require date_range but in genericRequest class we don't
+                $rules['date_range'] = 'string|required';
                 $validated = $request->validate($rules);
                 $job->action_name = ScheduledJob::CREATE_CLIENT_REPORT;
                 $job->action_class = $this->getClassPath(ClientExport::class);
@@ -150,6 +152,7 @@ class TaskSchedulerController extends BaseController
 
         }
         $job->scheduler_id = $scheduler->id;
+        $job->company_id = auth()->user()->company()->id;
         return $job->save();
 
     }
@@ -167,7 +170,6 @@ class TaskSchedulerController extends BaseController
                 $parameters[$rule] = $request->{$rule};
             }
         }
-        $parameters['company'] = auth()->user()->company();
         return $parameters;
     }
 
