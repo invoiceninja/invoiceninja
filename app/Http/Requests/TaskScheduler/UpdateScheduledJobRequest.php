@@ -6,8 +6,9 @@ namespace App\Http\Requests\TaskScheduler;
 
 use App\Http\Requests\Request;
 
-class CreateScheduledTaskRequest extends Request
+class UpdateScheduledJobRequest extends Request
 {
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -18,14 +19,10 @@ class CreateScheduledTaskRequest extends Request
         return auth()->user()->isAdmin();
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
-            'paused' => 'sometimes|bool',
-            'archived' => 'sometimes|bool',
-            'repeat_every' => 'required|string|in:DAY,WEEK,MONTH,3MONTHS,YEAR',
-            'start_from' => 'sometimes|string',
-            'job' => 'required',
+            'action_name' => 'sometimes|string',
         ];
     }
 }
