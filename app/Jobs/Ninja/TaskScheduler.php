@@ -111,7 +111,6 @@ class TaskScheduler implements ShouldQueue
 
         }
 
-        //setup new scheduled_run
         $amount_of_days_until_next_run = $this->getAmountOfDays($scheduler->repeat_every);
         $scheduler->scheduled_run = Carbon::now()->addDays($amount_of_days_until_next_run);
         $scheduler->save();
