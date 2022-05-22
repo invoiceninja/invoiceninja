@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Services\TaskScheduler\TaskSchedulerService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -32,11 +33,26 @@ class Scheduler extends Model
         'repeat_every',
         'scheduled_run',
     ];
+    protected $appends = ['linked_job'];
+
     const DAILY = 'DAY';
     const WEEKLY = 'WEEK';
     const MONTHLY = 'MONTH';
     const QUARTERLY = '3MONTHS';
     const ANNUALLY = 'YEAR';
+
+    public function getLinkedJobAttribute()
+    {
+        return $this->job ?? [];
+    }
+
+    /**
+     * Service entry points.
+     */
+    public function service(): TaskSchedulerService
+    {
+        return new TaskSchedulerService($this);
+    }
 
     public function job(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
