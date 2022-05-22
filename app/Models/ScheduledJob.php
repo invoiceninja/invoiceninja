@@ -35,13 +35,13 @@ class ScheduledJob extends Model
     const CREATE_PAYMENT_REPORT = 'create_payment_report';
     const CREATE_PRODUCT_REPORT = 'create_product_report';
     const CREATE_PROFIT_AND_LOSS_REPORT = 'create_profit_and_loss_report';
-    const CREATE_QUOTE_ITEM_REPORT ='create_quote_item_report';
+    const CREATE_QUOTE_ITEM_REPORT = 'create_quote_item_report';
     const CREATE_QUOTE_REPORT = 'create_quote_report';
     const CREATE_RECURRING_INVOICE_REPORT = 'create_recurring_invoice_report';
     const CREATE_TASK_REPORT = 'create_task_report';
 
 
-    protected $fillable = ['action_class', 'action_name', 'parameters', 'scheduler_id','company_id'];
+    protected $fillable = ['action_class', 'action_name', 'parameters', 'scheduler_id', 'company_id'];
     protected $casts = [
         'scheduled_run' => 'date',
         'parameters' => 'array'
