@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Carbon\Carbon|mixed start_from
  * @property string repeat_every
  * @property \Carbon\Carbon|mixed scheduled_run
+ * @property mixed job
  */
 class Scheduler extends Model
 {
