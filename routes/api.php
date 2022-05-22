@@ -171,8 +171,8 @@ Route::group(['middleware' => ['throttle:100,1', 'api_db', 'token_auth', 'locale
     Route::post('reports/profitloss', 'Reports\ProfitAndLossController');
 
 
-    Route::post('task_scheduler', 'TaskSchedulerController@store');
-
+    Route::resource('task_scheduler', 'TaskSchedulerController')->except('edit')->parameters(['task_scheduler' => 'scheduler']);
+    Route::put('task_scheduler/{scheduler}/update_job','TaskSchedulerController@updateJob');
 
     Route::get('scheduler', 'SchedulerController@index');
     Route::post('support/messages/send', 'Support\Messages\SendingController');
