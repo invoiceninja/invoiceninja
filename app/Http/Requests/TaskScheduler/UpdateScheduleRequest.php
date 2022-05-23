@@ -35,7 +35,6 @@ class UpdateScheduleRequest extends Request
             'archived' => 'sometimes|bool',
             'repeat_every' => 'sometimes|string|in:DAY,WEEK,MONTH,3MONTHS,YEAR',
             'start_from' => 'sometimes|string',
-            'job' => 'sometimes|string',
         ];
     }
 }
