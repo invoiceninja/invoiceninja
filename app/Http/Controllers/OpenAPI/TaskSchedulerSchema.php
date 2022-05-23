@@ -44,7 +44,7 @@
  * @OA\Schema(
  *   schema="UpdateJobForASchedulerSchema",
  *   type="object",
- *     @OA\Property(property="action_name",type="string",example="create_client_report",description="Set action name, action names can be found in ScheduledJob Model"),
+ *     @OA\Property(property="job",type="string",example="create_client_report",description="Set action name, action names can be found in ScheduledJob Model"),
  *
  * )
  */
