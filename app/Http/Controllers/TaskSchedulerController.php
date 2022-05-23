@@ -49,7 +49,7 @@ class TaskSchedulerController extends BaseController
 
     public function index()
     {
-        return Scheduler::all();
+        return Scheduler::where('company_id', auth()->user()->company()->id)->cursor();
     }
 
     /**
@@ -157,6 +157,7 @@ class TaskSchedulerController extends BaseController
     {
         return $scheduler->service()->update($scheduler, $request);
     }
+
     /**
      * @OA\PUT(
      *      path="/api/v1/task_scheduler/{scheduler}/update_job/",
@@ -192,7 +193,6 @@ class TaskSchedulerController extends BaseController
     public function updateJob(Scheduler $scheduler, UpdateScheduledJobRequest $request)
     {
         return $scheduler->service()->updateJob($scheduler, $request);
-
     }
 
     /**

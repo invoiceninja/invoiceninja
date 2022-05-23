@@ -29,6 +29,7 @@ class CreateSchedulersTable extends Migration
             $table->string('repeat_every');
             $table->timestamp('start_from');
             $table->timestamp('scheduled_run');
+            $table->foreignIdFor(\App\Models\Company::class);
             $table->timestamps();
         });
     }

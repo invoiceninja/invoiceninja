@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string repeat_every
  * @property \Carbon\Carbon|mixed scheduled_run
  * @property mixed job
+ * @property integer company_id
  */
 class Scheduler extends Model
 {
@@ -33,6 +34,7 @@ class Scheduler extends Model
         'archived',
         'repeat_every',
         'scheduled_run',
+        'company_id'
     ];
     protected $appends = ['linked_job'];
 
