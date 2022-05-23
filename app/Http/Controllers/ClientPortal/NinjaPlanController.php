@@ -59,13 +59,6 @@ class NinjaPlanController extends Controller
             
             Auth::guard('contact')->loginUsingId($client_contact->id,true);
 
-            // /* Current paid users get pushed straight to subscription overview page*/
-            // if($account->isPaidHostedClient())
-            //     return redirect('/client/dashboard');
-
-            // /* Users that are not paid get pushed to a custom purchase page */
-            // return $this->render('subscriptions.ninja_plan', ['settings' => $client_contact->company->settings]);
-
             return $this->plan();
             
         }

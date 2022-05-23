@@ -117,7 +117,7 @@ trait ChartQueries
             GROUP BY invoices.date
             HAVING currency_id = :currency_id
         "), [
-            'company_currency' => $this->company->settings->currency_id,
+            'company_currency' => (int)$this->company->settings->currency_id,
             'currency_id' => $currency_id,
             'company_id' => $this->company->id, 
             'start_date' => $start_date, 

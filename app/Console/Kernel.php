@@ -19,6 +19,7 @@ use App\Jobs\Ledger\LedgerBalanceUpdate;
 use App\Jobs\Ninja\AdjustEmailQuota;
 use App\Jobs\Ninja\CompanySizeCheck;
 use App\Jobs\Ninja\QueueSize;
+use App\Jobs\Ninja\SystemMaintenance;
 use App\Jobs\Ninja\TaskScheduler;
 use App\Jobs\Util\DiskCleanup;
 use App\Jobs\Util\ReminderJob;
@@ -57,7 +58,6 @@ class Kernel extends ConsoleKernel
 
         $schedule->job(new ReminderJob)->hourly()->withoutOverlapping();
 
-        // $schedule->job(new LedgerBalanceUpdate)->everyFiveMinutes()->withoutOverlapping();
         $schedule->job(new QueueSize)->everyFiveMinutes()->withoutOverlapping();
 
         $schedule->job(new CompanySizeCheck)->daily()->withoutOverlapping();
@@ -77,6 +77,10 @@ class Kernel extends ConsoleKernel
         $schedule->job(new TaskScheduler())->daily()->withoutOverlapping();
 
         if (Ninja::isSelfHost()) {
+        $schedule->job(new SystemMaintenance)->weekly()->withoutOverlapping();
+        if(Ninja::isSelfHost())
+        {
+
 
             $schedule->call(function () {
                 Account::whereNotNull('id')->update(['is_scheduler_running' => true]);
