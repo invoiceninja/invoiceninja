@@ -62,7 +62,7 @@ class TaskSchedulerService
         }
         $update = $this->scheduler->update($data);
         if ($update) {
-            return response(['successfully_updated_scheduler']);
+            return response(['successfully_updated_scheduler'],200);
         }
         return response(['failed_to_update_scheduler'], 400);
     }
@@ -209,7 +209,7 @@ class TaskSchedulerService
         $job = $this->setJobParameters($job, $request);
         $job->save();
 
-        return response('job_successfully_updated');
+        return response(['job_successfully_updated'],200);
 
 
     }
