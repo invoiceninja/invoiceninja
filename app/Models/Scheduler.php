@@ -14,6 +14,7 @@ namespace App\Models;
 use App\Services\TaskScheduler\TaskSchedulerService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * @property boolean paused
@@ -60,5 +61,30 @@ class Scheduler extends Model
     public function job(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(ScheduledJob::class, 'scheduler_id', 'id');
+    }
+
+    public function nextScheduledDate() :?Carbon
+    {
+
+        /*
+        As we are firing at UTC+0 if our offset is negative it is technically firing the day before so we always need
+        to add ON a day - a day = 86400 seconds
+        */
+            $offset = 86400;
+
+        switch ($this->repeat_every) {
+            case self::DAILY:
+                return Carbon::parse($this->scheduled_run)->startOfDay()->addDay()->addSeconds($offset);
+            case self::WEEKLY:
+                return Carbon::parse($this->scheduled_run)->startOfDay()->addWeek()->addSeconds($offset);
+            case self::MONTHLY:
+                return Carbon::parse($this->scheduled_run)->startOfDay()->addMonth()->addSeconds($offset);
+            case self::QUARTERLY:
+                return Carbon::parse($this->scheduled_run)->startOfDay()->addMonths(3)->addSeconds($offset);
+            case self::ANNUALLY:
+                return Carbon::parse($this->scheduled_run)->startOfDay()->addYear()->addSeconds($offset);
+            default:
+                return null;
+        }
     }
 }

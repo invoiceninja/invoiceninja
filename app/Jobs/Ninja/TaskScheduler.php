@@ -111,31 +111,10 @@ class TaskScheduler implements ShouldQueue
 
         }
 
-        $amount_of_days_until_next_run = $this->getAmountOfDays($scheduler->repeat_every);
-        $scheduler->scheduled_run = Carbon::now()->addDays($amount_of_days_until_next_run);
+        $scheduler->scheduled_run = $scheduler->nextScheduledDate();
         $scheduler->save();
     }
 
-    private function getAmountOfDays(string $repeat_every): int
-    {
-        switch ($repeat_every) {
-            case Scheduler::DAILY:
-                return 1;
-                break;
-            case Scheduler::MONTHLY:
-                return 30;
-                break;
-            case Scheduler::WEEKLY:
-                return 7;
-                break;
-            case Scheduler::QUARTERLY:
-                return 90;
-                break;
-            case Scheduler::ANNUALLY:
-                return 365;
-                break;
-        }
-    }
 
     private function fetchJobs()
     {
