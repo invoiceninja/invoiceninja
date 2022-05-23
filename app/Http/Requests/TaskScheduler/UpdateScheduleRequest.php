@@ -14,6 +14,7 @@ namespace App\Http\Requests\TaskScheduler;
 
 use App\Http\Requests\Request;
 use App\Models\ScheduledJob;
+use Carbon\Carbon;
 use Illuminate\Validation\Rule;
 
 class UpdateScheduleRequest extends Request
@@ -34,7 +35,20 @@ class UpdateScheduleRequest extends Request
             'paused' => 'sometimes|bool',
             'archived' => 'sometimes|bool',
             'repeat_every' => 'sometimes|string|in:DAY,WEEK,MONTH,3MONTHS,YEAR',
-            'start_from' => 'sometimes|string',
+            'start_from' => 'sometimes',
+            'scheduled_run'=>'sometimes'
         ];
+    }
+
+    public function prepareForValidation()
+    {
+        $request = $this->all();
+
+        if (isset($request['start_from'])) {
+            $request['scheduled_run'] = Carbon::parse((int)$request['start_from']);
+            $request['start_from'] = Carbon::parse((int)$request['start_from']);
+        }
+
+        $this->replace($request);
     }
 }

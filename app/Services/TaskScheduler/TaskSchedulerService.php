@@ -45,6 +45,7 @@ class TaskSchedulerService
         $scheduler->start_from = $request->get('start_from') ? Carbon::parse((int)$request->get('start_from')) : Carbon::now();
         $scheduler->repeat_every = $request->get('repeat_every');
         $scheduler->scheduled_run = $request->get('start_from') ? Carbon::parse((int)$request->get('start_from')) : Carbon::now();;
+        $scheduler->company_id = auth()->user()->company()->id;
         $scheduler->save();
 
         if ($this->createJob($request, $scheduler)) {
@@ -55,14 +56,12 @@ class TaskSchedulerService
 
     public function update(Scheduler $scheduler, UpdateScheduleRequest $request)
     {
+
         $data = $request->validated();
-        if ($request->has('start_from')) {
-            $data['start_from'] = Carbon::parse((int)$request->get('start_from'));
-            $data['scheduled_run'] = Carbon::parse((int)$request->get('start_from'));
-        }
+
         $update = $this->scheduler->update($data);
         if ($update) {
-            return response(['successfully_updated_scheduler'],200);
+            return response(['successfully_updated_scheduler'], 200);
         }
         return response(['failed_to_update_scheduler'], 400);
     }
@@ -209,7 +208,7 @@ class TaskSchedulerService
         $job = $this->setJobParameters($job, $request);
         $job->save();
 
-        return response(['job_successfully_updated'],200);
+        return response(['job_successfully_updated'], 200);
 
 
     }
