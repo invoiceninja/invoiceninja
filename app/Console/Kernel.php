@@ -76,7 +76,6 @@ class Kernel extends ConsoleKernel
 
         $schedule->job(new TaskScheduler())->daily()->withoutOverlapping();
 
-        if (Ninja::isSelfHost()) {
         $schedule->job(new SystemMaintenance)->weekly()->withoutOverlapping();
         if(Ninja::isSelfHost())
         {
