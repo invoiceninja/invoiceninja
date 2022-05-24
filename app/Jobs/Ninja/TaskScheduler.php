@@ -46,10 +46,13 @@ class TaskScheduler implements ShouldQueue
      */
     public function handle()
     {
+        foreach (MultiDB::$dbs as $db) {
 
-        $pending_schedulers = $this->fetchJobs();
-        foreach ($pending_schedulers as $scheduler) {
-            $this->doJob($scheduler);
+            MultiDB::setDB($db);
+            $pending_schedulers = $this->fetchJobs();
+            foreach ($pending_schedulers as $scheduler) {
+                $this->doJob($scheduler);
+            }
         }
     }
 
@@ -61,7 +64,6 @@ class TaskScheduler implements ShouldQueue
         if (!$job || !$company) {
             return;
         }
-        MultiDB::setDb($company->db);
         $parameters = $job->parameters;
 
 

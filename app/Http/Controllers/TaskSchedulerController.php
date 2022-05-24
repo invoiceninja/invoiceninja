@@ -14,15 +14,20 @@ namespace App\Http\Controllers;
 use App\Http\Requests\TaskScheduler\CreateScheduledTaskRequest;
 use App\Http\Requests\TaskScheduler\UpdateScheduledJobRequest;
 use App\Http\Requests\TaskScheduler\UpdateScheduleRequest;
+use App\Jobs\Ninja\TaskScheduler;
 use App\Jobs\Report\ProfitAndLoss;
 use App\Models\ScheduledJob;
 use App\Models\Scheduler;
+use App\Transformers\TaskSchedulerTransformer;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Symfony\Component\HttpFoundation\Request;
 
 class TaskSchedulerController extends BaseController
 {
+    protected $entity_type = TaskScheduler::class;
+    protected $entity_transformer = TaskSchedulerTransformer::class;
+
     /**
      * @OA\GET(
      *      path="/api/v1/task_scheduler/",
@@ -49,7 +54,12 @@ class TaskSchedulerController extends BaseController
 
     public function index()
     {
-        return Scheduler::where('company_id', auth()->user()->company()->id)->cursor();
+        set_time_limit(45);
+
+        $schedulers = Scheduler::where('company_id', auth()->user()->company()->id);
+
+        return $this->listResponse($schedulers);
+
     }
 
     /**
@@ -116,9 +126,9 @@ class TaskSchedulerController extends BaseController
      *     )
      */
 
-    public function show(Scheduler $scheduler): Scheduler
+    public function show(Scheduler $scheduler)
     {
-        return $scheduler;
+        return $this->itemResponse($scheduler);
     }
 
     /**
