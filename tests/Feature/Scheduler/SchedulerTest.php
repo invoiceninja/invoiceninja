@@ -91,8 +91,7 @@ class SchedulerTest extends TestCase
         ])->get('/api/v1/task_scheduler/' . $scheduler->id);
 
         $arr = $response->json();
-
-        $this->assertEquals('create_client_report', $arr['linked_job']['action_name']);
+        $this->assertEquals('create_client_report', $arr['data']['job']['action_name']);
 
 
     }
