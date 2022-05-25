@@ -13,6 +13,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * @property mixed|string action_class
@@ -21,9 +22,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property integer scheduler_id
  * @property integer company_id
  */
-class ScheduledJob extends Model
+class ScheduledJob extends BaseModel
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     const CREATE_CLIENT_REPORT = 'create_client_report';
     const CREATE_CLIENT_CONTACT_REPORT = 'create_client_contact_report';
@@ -43,7 +44,6 @@ class ScheduledJob extends Model
 
     protected $fillable = ['action_class', 'action_name', 'parameters', 'scheduler_id', 'company_id'];
     protected $casts = [
-        'scheduled_run' => 'date',
         'parameters' => 'array'
     ];
 }
