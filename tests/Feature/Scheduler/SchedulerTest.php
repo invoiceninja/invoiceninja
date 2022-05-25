@@ -72,7 +72,7 @@ class SchedulerTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/task_scheduler/' . $scheduler->id, $updateData);
+        ])->put('/api/v1/task_scheduler/' . $this->encodePrimaryKey($scheduler->id), $updateData);
 
         $responseData = $response->json();
         $this->assertEquals(['successfully_updated_scheduler'], $responseData);
@@ -88,7 +88,7 @@ class SchedulerTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->get('/api/v1/task_scheduler/' . $scheduler->id);
+        ])->get('/api/v1/task_scheduler/' . $this->encodePrimaryKey($scheduler->id));
 
         $arr = $response->json();
         $this->assertEquals('create_client_report', $arr['data']['job']['action_name']);
@@ -104,7 +104,7 @@ class SchedulerTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->delete('/api/v1/task_scheduler/' . $scheduler->id);
+        ])->delete('/api/v1/task_scheduler/' . $this->encodePrimaryKey($scheduler->id));
 
         $this->assertEquals(0, Scheduler::count());
 
@@ -126,7 +126,7 @@ class SchedulerTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/task_scheduler/' . $scheduler->id . '/update_job', $updateData);
+        ])->put('/api/v1/task_scheduler/' . $this->encodePrimaryKey($scheduler->id) . '/update_job', $updateData);
 
         $updatedSchedulerJob = Scheduler::first()->job->action_name;
         $this->assertSame('create_credit_report', $updatedSchedulerJob);
