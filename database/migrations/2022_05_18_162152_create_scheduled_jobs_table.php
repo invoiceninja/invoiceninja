@@ -30,6 +30,7 @@ class CreateScheduledJobsTable extends Migration
             $table->foreignIdFor(\App\Models\Company::class);
             $table->foreignIdFor(\App\Models\Scheduler::class);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
