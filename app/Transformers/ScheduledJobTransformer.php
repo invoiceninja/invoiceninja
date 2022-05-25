@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 
 namespace App\Transformers;
 
@@ -15,8 +23,8 @@ class ScheduledJobTransformer extends EntityTransformer
     {
         return [
             'id' => $this->encodePrimaryKey($job->id),
-            'action_name' => $job->action_name,
-            'parameters' => $job->parameters
+            'action_name' => (string)$job->action_name,
+            'parameters' => (array)$job->parameters
         ];
     }
 }
