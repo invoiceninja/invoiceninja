@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\DataMapper\CompanySettings;
 use App\Models\Language;
 use App\Models\Presenters\CompanyPresenter;
 use App\Models\User;
@@ -400,6 +401,12 @@ class Company extends BaseModel
     {
         if (property_exists($this->settings, $setting) != false) {
             return $this->settings->{$setting};
+        }
+
+        $cs = CompanySettings::defaults();
+
+        if (property_exists($cs, $setting) != false) {
+            return $cs->{$setting};
         }
 
         return null;

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -11,37 +10,43 @@
  */
 
 namespace App\Utils\Traits\Pdf;
-
 use App\Utils\Traits\Pdf\PDF;
 use setasign\Fpdi\PdfParser\StreamReader;
 
 trait PageNumbering
 {
-
-	public function pageNumbers($pdf_data_object)
-	{
-
-       // initiate PDF
-        $pdf = new PDF();
+    private function pageNumbering($pdf_data_object, $company)
+    {
  
-        // set the source file
-        $pageCount = $pdf->setSourceFile(StreamReader::createByString($pdf_data_object));
+        try
+        {
+            $pdf = new PDF();
 
-        $pdf->AliasNbPages();
-        for ($i=1; $i <= $pageCount; $i++) { 
-            //import a page then get the id and will be used in the template
-            $tplId = $pdf->importPage($i);
+            $pdf->setAlignment($company->getSetting('page_numbering_alignment'));
 
-            //create a page        
-            $templateSize = $pdf->getTemplateSize($tplId);
-            $pdf->AddPage('', [$templateSize['width'], $templateSize['height']]);
+            $pageCount = $pdf->setSourceFile(StreamReader::createByString($pdf_data_object));
 
-            $pdf->useTemplate($tplId);
-        }
- 
- 
-        return $pdf->Output();
+            $pdf->AliasNbPages();
 
-	}
+            for ($i=1; $i <= $pageCount; $i++) { 
+                //import a page then get the id and will be used in the template
+                $tplId = $pdf->importPage($i);
 
+                //create a page        
+                $templateSize = $pdf->getTemplateSize($tplId);
+
+                $pdf->AddPage($templateSize['orientation'], [$templateSize['width'], $templateSize['height']]);
+
+                $pdf->useTemplate($tplId);
+            }
+
+             ob_end_flush();
+             return $pdf->Output();
+
+         }
+         catch(\Exception $e) {
+            nlog($e->getMessage());
+
+         }
+    }
 }
