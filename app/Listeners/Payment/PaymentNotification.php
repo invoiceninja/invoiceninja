@@ -124,6 +124,8 @@ class PaymentNotification implements ShouldQueue
      */
     private function sendAnalytics($data)
     {
+        nlog($data);
+        
         $data = utf8_encode($data);
         $curl = curl_init();
 

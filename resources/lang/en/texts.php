@@ -4583,7 +4583,9 @@ $LANG = array(
     'alternate_pdf_viewer' => 'Alternate PDF Viewer',
     'alternate_pdf_viewer_help' => 'Improve scrolling over the PDF preview [BETA]',
     'currency_cayman_island_dollar' => 'Cayman Island Dollar',
-    
+    'download_report_description' => 'Please see attached file to check your report.'
+
+
 );
 
 return $LANG;

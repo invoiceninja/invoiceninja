@@ -72,7 +72,6 @@ class PaymentFailedMailer implements ShouldQueue
      */
     public function handle()
     {
-
         //Set DB
         MultiDB::setDb($this->company->db);
         App::setLocale($this->client->locale());

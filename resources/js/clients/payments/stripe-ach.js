@@ -70,6 +70,13 @@ class AuthorizeACH {
     };
 
     handleSubmit = (e) => {
+
+        if (!document.getElementById('accept-terms').checked) {
+                errors.textContent = "You must accept the mandate terms prior to making payment.";
+                errors.hidden = false;
+                return;
+        }
+
         document.getElementById('save-button').disabled = true;
         document.querySelector('#save-button > svg').classList.remove('hidden');
         document.querySelector('#save-button > span').classList.add('hidden');

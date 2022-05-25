@@ -14,8 +14,8 @@ return [
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', 'invoicing.co'),
-    'app_version' => '5.3.89',
-    'app_tag' => '5.3.89',
+    'app_version' => '5.3.91',
+    'app_tag' => '5.3.91',
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', ''),
@@ -154,6 +154,10 @@ return [
     ],
     'designs' => [
         'base_path' => resource_path('views/pdf-designs/'),
+    ],
+    'maintenance' => [
+        'delete_pdfs' => env('DELETE_PDF_DAYS', 0),
+        'delete_backups' => env('DELETE_BACKUP_DAYS', 0),
     ],
     'log_pdf_html' => env('LOG_PDF_HTML', false),
     'expanded_logging' => env('EXPANDED_LOGGING', false),

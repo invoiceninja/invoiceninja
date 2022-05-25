@@ -47,4 +47,22 @@ class Backup extends BaseModel
         }
 
     }
+
+    public function deleteFile()
+    {
+
+        nlog("deleting => ". $this->filename);
+        
+        try{
+
+            Storage::disk(config('filesystems.default'))->delete($this->filename);
+        
+        }
+        catch(\Exception $e){
+
+            nlog("BACKUPEXCEPTION deleting backup file with error ". $e->getMessage());
+
+        }
+    }
+
 }
