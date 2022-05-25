@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 
 namespace App\Transformers;
 
@@ -27,12 +35,13 @@ class TaskSchedulerTransformer extends EntityTransformer
     {
         return [
             'id' => $this->encodePrimaryKey($scheduler->id),
-            'company_id' => $this->encodePrimaryKey($scheduler->user_id),
-            'paused' => $scheduler->paused,
-            'archived' => $scheduler->archived,
-            'repeat_every' => $scheduler->repeat_every,
-            'start_from' => $scheduler->start_from,
-            'scheduled_run' => $scheduler->scheduled_run,
+            'paused' => (bool)$scheduler->paused,
+            'archived' => (bool)$scheduler->archived,
+            'repeat_every' => (string)$scheduler->repeat_every,
+            'start_from' => (int)$scheduler->start_from,
+            'scheduled_run' => (int)$scheduler->scheduled_run,
+            'updated_at' => (int)$scheduler->updated_at,
+            'created_at' => (int)$scheduler->created_at,
         ];
     }
 
