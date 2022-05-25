@@ -92,6 +92,9 @@ class PaymentNotification implements ShouldQueue
 
         $analytics_id = $company->google_analytics_key;
 
+        if(!strlen($analytics_id) > 2)
+            return;
+        
         $client = $payment->client;
         $amount = $payment->amount;
 

@@ -49,8 +49,11 @@ class PreviewPdf implements ShouldQueue
     {
         $pdf = $this->makePdf(null, null, $this->design_string);
 
-        $pdf = $this->pageNumbering($pdf, $this->company);
+        $numbered_pdf = $this->pageNumbering($pdf, $this->company);
 
+        if($numbered_pdf)
+            $pdf = $numbered_pdf;
+        
         return $pdf;
     }
 }

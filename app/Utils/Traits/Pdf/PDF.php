@@ -20,14 +20,11 @@ class PDF extends FPDI
 
     function Footer()
     {
-
         $this->SetXY(0, -5);
-
         $this->SetFont('Arial','I', 9);
         $this->SetTextColor(135,135,135);
 
         $trans = ctrans('texts.pdf_page_info', ['current' => $this->PageNo(), 'total' => '{nb}']);
-
         $this->Cell(0,5, $trans ,0,0, $this->text_alignment);
 
     }

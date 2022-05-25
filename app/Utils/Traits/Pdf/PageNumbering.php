@@ -17,7 +17,10 @@ trait PageNumbering
 {
     private function pageNumbering($pdf_data_object, $company)
     {
- 
+
+        // if(!$company->settings->page_numbering)
+        //     return $pdf_data_object;
+
         try
         {
             $pdf = new PDF();
@@ -39,9 +42,8 @@ trait PageNumbering
 
                 $pdf->useTemplate($tplId);
             }
-
-             ob_end_flush();
-             return $pdf->Output();
+             
+             return $pdf->Output('S');
 
          }
          catch(\Exception $e) {
