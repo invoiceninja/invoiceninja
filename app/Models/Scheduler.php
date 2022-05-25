@@ -13,7 +13,7 @@ namespace App\Models;
 
 use App\Services\TaskScheduler\TaskSchedulerService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
 /**
@@ -24,10 +24,13 @@ use Illuminate\Support\Carbon;
  * @property \Carbon\Carbon|mixed scheduled_run
  * @property mixed job
  * @property integer company_id
+ * @property integer updated_at
+ * @property integer created_at
+ * @property integer deleted_at
  */
-class Scheduler extends Model
+class Scheduler extends BaseModel
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'start_from',
@@ -36,6 +39,15 @@ class Scheduler extends Model
         'repeat_every',
         'scheduled_run',
         'company_id'
+    ];
+    protected $casts = [
+        'start_from' => 'timestamp',
+        'scheduled_run' => 'timestamp',
+        'created_at'=> 'timestamp',
+        'updated_at'=> 'timestamp',
+        'deleted_at'=> 'timestamp',
+        'paused' => 'boolean',
+        'archived' => 'boolean',
     ];
     protected $appends = ['linked_job'];
 
@@ -63,14 +75,33 @@ class Scheduler extends Model
         return $this->hasOne(ScheduledJob::class, 'scheduler_id', 'id');
     }
 
-    public function nextScheduledDate() :?Carbon
+    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
+        return $this->belongsTo(Company::class);
+    }
+
+
+    public function nextScheduledDate(): ?Carbon
+    {
+
+        $offset = 0;
+
+        $entity_send_time = $this->company->settings->entity_send_time;
+
+        if ($entity_send_time != 0) {
+            $timezone = $this->company->timezone();
+
+            $offset -= $timezone->utc_offset;
+            $offset += ($entity_send_time * 3600);
+        }
 
         /*
         As we are firing at UTC+0 if our offset is negative it is technically firing the day before so we always need
         to add ON a day - a day = 86400 seconds
         */
-            $offset = 86400;
+
+        if ($offset < 0)
+            $offset += 86400;
 
         switch ($this->repeat_every) {
             case self::DAILY:
