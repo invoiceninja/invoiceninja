@@ -1,11 +1,14 @@
 <?php
 
+use App\Utils\Traits\AppSetup;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 class DropRedundantColumnShowProductionDescriptionDropdown extends Migration
 {
+    use AppSetup;
+
     /**
      * Run the migrations.
      *
@@ -16,6 +19,9 @@ class DropRedundantColumnShowProductionDescriptionDropdown extends Migration
         Schema::table('companies', function (Blueprint $table) {
             $table->dropColumn('show_production_description_dropdown');
         });
+
+        $this->buildCache(true);
+        
     }
 
     /**
