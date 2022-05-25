@@ -353,6 +353,10 @@ class MolliePaymentDriver extends BaseDriver
             $response = SystemLog::EVENT_GATEWAY_FAILURE;
 
             if($record){
+
+                if(in_array($payment->status, ['canceled','expired','failed']))
+                    $record->service()->deletePayment();
+
                 $record->status_id = $codes[$payment->status];
                 $record->save();
                 $response = SystemLog::EVENT_GATEWAY_SUCCESS;
