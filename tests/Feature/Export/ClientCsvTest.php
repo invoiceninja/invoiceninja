@@ -45,6 +45,7 @@ class ClientCsvTest extends TestCase
         $data = [
             "date_range" => "this_year",
             "report_keys" => [],
+            "send_email" => false
         ];
 
         $response = $this->withHeaders([
@@ -62,6 +63,7 @@ class ClientCsvTest extends TestCase
         $data = [
             "date_range" => "this_year",
             "report_keys" => [],
+            "send_email" => false
         ];
 
         $response = $this->withHeaders([
