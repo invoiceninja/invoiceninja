@@ -277,6 +277,7 @@ class CompanySettings extends BaseSettings
     public $auto_archive_invoice_cancelled = false;
 
     public static $casts = [
+        'page_numbering_alignment'           => 'string',
         'page_numbering'                     => 'bool',
         'auto_archive_invoice_cancelled'     => 'bool',
         'email_from_name'                    => 'string',

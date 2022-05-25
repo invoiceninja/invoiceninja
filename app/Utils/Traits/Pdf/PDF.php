@@ -23,7 +23,8 @@ class PDF extends FPDI
 
         $this->SetXY(0, -5);
 
-        $this->SetFont('Arial','I',9);
+        $this->SetFont('Arial','I', 9);
+        $this->SetTextColor(135,135,135);
 
         $trans = ctrans('texts.pdf_page_info', ['current' => $this->PageNo(), 'total' => '{nb}']);
 
@@ -33,7 +34,8 @@ class PDF extends FPDI
 
     public function setAlignment($alignment)
     {
-        $this->text_alignment = $alignment;
+        if(in_array($alignment, ['C','L','R']))
+            $this->text_alignment = $alignment;
 
         return $this;
     }

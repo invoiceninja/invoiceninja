@@ -190,6 +190,7 @@ class CreateEntityPdf implements ShouldQueue
 
             if(config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja'){
                 $pdf = (new NinjaPdf())->build($maker->getCompiledHTML(true));
+                
                 $pdf = $this->pageNumbering($pdf, $this->company);
 
             }
