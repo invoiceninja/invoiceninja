@@ -74,6 +74,8 @@
         "predis/predis": "^1.1",
         "razorpay/razorpay": "2.*",
         "sentry/sentry-laravel": "^2",
+        "setasign/fpdf": "^1.8",
+        "setasign/fpdi": "^2.3",
         "square/square": "13.0.0.20210721",
         "stripe/stripe-php": "^7.50",
         "symfony/http-client": "^5.2",

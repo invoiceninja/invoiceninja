@@ -14,6 +14,7 @@ namespace App\Utils\Traits\Pdf;
 
 use App\Exceptions\InternalPDFFailure;
 use Beganovich\Snappdf\Snappdf;
+use setasign\Fpdi\PdfParser\StreamReader;
 
 trait PdfMaker
 {
@@ -42,6 +43,32 @@ trait PdfMaker
         $generated  = $pdf
                         ->setHtml($html)
                         ->generate();
+
+
+       // initiate PDF
+        $pdf = new PDF();
+ 
+        // set the source file
+        // $pageCount = $pdf->setSourceFile("file-1.pdf");
+        $pageCount = $pdf->setSourceFile(StreamReader::createByString($generated));
+
+        $pdf->AliasNbPages();
+        for ($i=1; $i <= $pageCount; $i++) { 
+            //import a page then get the id and will be used in the template
+            $tplId = $pdf->importPage($i);
+            //create a page
+        
+            $templateSize = $pdf->getTemplateSize($tplId);
+            $pdf->AddPage('', [$templateSize['width'], $templateSize['height']]);
+
+            // $pdf->AddPage();
+            //use the template of the imporated page
+            $pdf->useTemplate($tplId);
+        }
+ 
+ 
+        $generated = $pdf->Output();
+
 
         if($generated)
             return $generated;
