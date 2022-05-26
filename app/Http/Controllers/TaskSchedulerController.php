@@ -18,6 +18,7 @@ use App\Jobs\Ninja\TaskScheduler;
 use App\Jobs\Report\ProfitAndLoss;
 use App\Models\ScheduledJob;
 use App\Models\Scheduler;
+use App\Repositories\SchedulerRepository;
 use App\Transformers\TaskSchedulerTransformer;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
@@ -27,6 +28,14 @@ class TaskSchedulerController extends BaseController
 {
     protected $entity_type = TaskScheduler::class;
     protected $entity_transformer = TaskSchedulerTransformer::class;
+    protected SchedulerRepository $scheduler_repository;
+
+    public function __construct(SchedulerRepository $scheduler_repository)
+    {
+        parent::__construct();
+
+        $this->scheduler_repository = $scheduler_repository;
+    }
 
     /**
      * @OA\GET(
@@ -99,7 +108,8 @@ class TaskSchedulerController extends BaseController
     public function store(CreateScheduledTaskRequest $request)
     {
         $scheduler = new Scheduler();
-        return $scheduler->service()->store($scheduler, $request);
+        $scheduler->service()->store($scheduler, $request);
+        return $this->itemResponse($scheduler);
     }
 
     /**
@@ -165,7 +175,8 @@ class TaskSchedulerController extends BaseController
      */
     public function update(Scheduler $scheduler, UpdateScheduleRequest $request)
     {
-        return $scheduler->service()->update($scheduler, $request);
+        $scheduler->service()->update($scheduler, $request);
+        return $this->itemResponse($scheduler);
     }
 
     /**
@@ -202,7 +213,8 @@ class TaskSchedulerController extends BaseController
      */
     public function updateJob(Scheduler $scheduler, UpdateScheduledJobRequest $request)
     {
-        return $scheduler->service()->updateJob($scheduler, $request);
+        $scheduler->service()->updateJob($scheduler, $request);
+        return $this->itemResponse($scheduler);
     }
 
     /**
@@ -230,7 +242,8 @@ class TaskSchedulerController extends BaseController
      */
     public function destroy(Scheduler $scheduler)
     {
-        return $scheduler->service()->destroy($scheduler);
+        $this->scheduler_repository->delete($scheduler);
+        return $this->itemResponse($scheduler->fresh());
     }
 
 
