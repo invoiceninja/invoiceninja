@@ -25,7 +25,7 @@ class CreateSchedulersTable extends Migration
         Schema::create('schedulers', function (Blueprint $table) {
             $table->id();
             $table->boolean('paused')->default(false);
-            $table->boolean('archived')->default(false);
+            $table->boolean('is_deleted')->default(false);
             $table->string('repeat_every');
             $table->timestamp('start_from');
             $table->timestamp('scheduled_run');
