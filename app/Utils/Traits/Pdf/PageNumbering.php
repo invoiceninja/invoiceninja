@@ -18,8 +18,8 @@ trait PageNumbering
     private function pageNumbering($pdf_data_object, $company)
     {
 
-        // if(!$company->settings->page_numbering)
-        //     return $pdf_data_object;
+        if(!$company->settings->page_numbering)
+            return $pdf_data_object;
 
         try
         {
