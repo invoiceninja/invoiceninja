@@ -18,7 +18,7 @@ use App\Jobs\Ninja\TaskScheduler;
 use App\Jobs\Report\ProfitAndLoss;
 use App\Models\ScheduledJob;
 use App\Models\Scheduler;
-use App\Repositories\SchedulerRepository;
+use App\Repositories\TaskSchedulerRepository;
 use App\Transformers\TaskSchedulerTransformer;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
@@ -28,9 +28,9 @@ class TaskSchedulerController extends BaseController
 {
     protected $entity_type = TaskScheduler::class;
     protected $entity_transformer = TaskSchedulerTransformer::class;
-    protected SchedulerRepository $scheduler_repository;
+    protected TaskSchedulerRepository $scheduler_repository;
 
-    public function __construct(SchedulerRepository $scheduler_repository)
+    public function __construct(TaskSchedulerRepository $scheduler_repository)
     {
         parent::__construct();
 
