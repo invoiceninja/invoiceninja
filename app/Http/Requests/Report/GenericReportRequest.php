@@ -31,7 +31,7 @@ class GenericReportRequest extends Request
             'start_date' => 'string|date',
             'end_date' => 'string|date',
             'date_key' => 'string',
-            'date_range' => 'required|string',
+            'date_range' => 'sometimes|string',
             'report_keys' => 'present|array',
             'send_email' => 'required|bool',
         ];
@@ -41,6 +41,8 @@ class GenericReportRequest extends Request
     {
         $input = $this->all();
 
+        if(!array_key_exists('date_range', $input))
+            $input['date_range'] = 'all';
 
         if(!array_key_exists('report_keys', $input))
             $input['report_keys'] = [];
