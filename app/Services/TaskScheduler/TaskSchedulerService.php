@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 
 namespace App\Services\TaskScheduler;
 
@@ -23,8 +31,10 @@ use App\Http\Requests\TaskScheduler\CreateScheduledTaskRequest;
 use App\Http\Requests\TaskScheduler\UpdateScheduledJobRequest;
 use App\Http\Requests\TaskScheduler\UpdateScheduleRequest;
 use App\Jobs\Report\ProfitAndLoss;
+use App\Models\Company;
 use App\Models\ScheduledJob;
 use App\Models\Scheduler;
+use App\Utils\Ninja;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,17 +51,13 @@ class TaskSchedulerService
     public function store(Scheduler $scheduler, CreateScheduledTaskRequest $request)
     {
         $scheduler->paused = $request->get('paused', false);
-        $scheduler->archived = (bool)$request->get('archived', false);
         $scheduler->start_from = $request->get('start_from') ? Carbon::parse((int)$request->get('start_from')) : Carbon::now();
         $scheduler->repeat_every = $request->get('repeat_every');
         $scheduler->scheduled_run = $request->get('start_from') ? Carbon::parse((int)$request->get('start_from')) : Carbon::now();;
         $scheduler->company_id = auth()->user()->company()->id;
         $scheduler->save();
+        $this->createJob($request, $scheduler);
 
-        if ($this->createJob($request, $scheduler)) {
-            return response(['job_has_been_created'], 200);
-        }
-        return response(['failed_to_create_job'], 400);
     }
 
     public function update(Scheduler $scheduler, UpdateScheduleRequest $request)
@@ -189,15 +195,6 @@ class TaskSchedulerService
         return $class = is_object($class) ? get_class($class) : $class;
     }
 
-    public function destroy(Scheduler $scheduler)
-    {
-        $job = $scheduler->job;
-        if ($job) {
-            $job->delete();
-        }
-        $scheduler->delete();
-        return response(['successfully_deleted_scheduler_and_job_associated_to_him']);
-    }
 
     public function updateJob(Scheduler $scheduler, UpdateScheduledJobRequest $request)
     {
@@ -207,9 +204,6 @@ class TaskSchedulerService
         }
         $job = $this->setJobParameters($job, $request);
         $job->save();
-
-        return response(['job_successfully_updated'], 200);
-
 
     }
 }
