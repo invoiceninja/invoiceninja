@@ -4,9 +4,9 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://opensource.org/licenses/AAL
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Models;
@@ -18,7 +18,7 @@ use Illuminate\Support\Carbon;
 
 /**
  * @property boolean paused
- * @property boolean archived
+ * @property boolean is_deleted
  * @property \Carbon\Carbon|mixed start_from
  * @property string repeat_every
  * @property \Carbon\Carbon|mixed scheduled_run
@@ -35,7 +35,6 @@ class Scheduler extends BaseModel
     protected $fillable = [
         'start_from',
         'paused',
-        'archived',
         'repeat_every',
         'scheduled_run',
         'company_id'
@@ -47,7 +46,7 @@ class Scheduler extends BaseModel
         'updated_at'=> 'timestamp',
         'deleted_at'=> 'timestamp',
         'paused' => 'boolean',
-        'archived' => 'boolean',
+        'is_deleted' => 'boolean',
     ];
     protected $appends = ['linked_job'];
 
