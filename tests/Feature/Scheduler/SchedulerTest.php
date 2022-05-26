@@ -75,7 +75,7 @@ class SchedulerTest extends TestCase
         ])->put('/api/v1/task_scheduler/' . $this->encodePrimaryKey($scheduler->id), $updateData);
 
         $responseData = $response->json();
-        $this->assertEquals(['successfully_updated_scheduler'], $responseData);
+        $this->assertEquals($updateData['start_from'], $responseData['data']['start_from']);
     }
 
     public function testSchedulerCanBeSeen()
@@ -129,7 +129,8 @@ class SchedulerTest extends TestCase
         ])->put('/api/v1/task_scheduler/' . $this->encodePrimaryKey($scheduler->id) . '/update_job', $updateData);
 
         $updatedSchedulerJob = Scheduler::first()->job->action_name;
-        $this->assertSame('create_credit_report', $updatedSchedulerJob);
+        $arr = $response->json();
+        $this->assertSame('create_credit_report', $arr['data']['job']['action_name']);
     }
 
     public function testSchedulerCanBeCreated()
