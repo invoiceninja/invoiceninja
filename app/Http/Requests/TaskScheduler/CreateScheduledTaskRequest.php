@@ -22,7 +22,6 @@ class CreateScheduledTaskRequest extends Request
     {
         return [
             'paused' => 'sometimes|bool',
-            'archived' => 'sometimes|bool',
             'repeat_every' => 'required|string|in:DAY,WEEK,MONTH,3MONTHS,YEAR',
             'start_from' => 'sometimes|string',
             'job' => 'required',

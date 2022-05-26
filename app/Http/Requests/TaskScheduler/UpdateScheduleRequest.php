@@ -33,7 +33,6 @@ class UpdateScheduleRequest extends Request
     {
         return [
             'paused' => 'sometimes|bool',
-            'archived' => 'sometimes|bool',
             'repeat_every' => 'sometimes|string|in:DAY,WEEK,MONTH,3MONTHS,YEAR',
             'start_from' => 'sometimes',
             'scheduled_run'=>'sometimes'
