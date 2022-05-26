@@ -77,12 +77,26 @@ class SystemHealth
             'open_basedir' => (bool)self::checkOpenBaseDir(),
             'mail_mailer' => (string)self::checkMailMailer(),
             'flutter_renderer' => (string)config('ninja.flutter_canvas_kit'),
-            'jobs_pending' => (int) Queue::size(),
+            'jobs_pending' => (int) self::checkQueueSize(),
             'pdf_engine' => (string) self::getPdfEngine(),
             'queue' => (string) config('queue.default'),
             'trailing_slash' => (bool) self::checkUrlState(),
             'file_permissions' => (string) self::checkFileSystem()
         ];
+    }
+
+    private static function checkQueueSize()
+    {
+        $count = 0;
+
+        try{
+            $count = Queue::size();
+        }
+        catch(\Exception $e){
+
+        }
+
+        return $count;
     }
 
     public static function checkFileSystem()
