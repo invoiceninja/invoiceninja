@@ -17,6 +17,7 @@ use App\Transformers\ActivityTransformer;
 use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\Ninja;
 use App\Utils\PhantomJS\Phantom;
+use App\Utils\Traits\Pdf\PageNumbering;
 use App\Utils\Traits\Pdf\PdfMaker;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -27,7 +28,7 @@ use stdClass;
 
 class ActivityController extends BaseController
 {
-    use PdfMaker;
+    use PdfMaker, PageNumbering;
 
     protected $entity_type = Activity::class;
 
@@ -164,12 +165,35 @@ class ActivityController extends BaseController
 
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
             $pdf = (new Phantom)->convertHtmlToPdf($html_backup);
+
+            $numbered_pdf = $this->pageNumbering($pdf, $activity->company);
+
+                if($numbered_pdf)
+                    $pdf = $numbered_pdf;
+                
+
         }
         elseif(config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja'){
             $pdf = (new NinjaPdf())->build($html_backup);
+
+                $numbered_pdf = $this->pageNumbering($pdf, $activity->company);
+
+                if($numbered_pdf)
+                    $pdf = $numbered_pdf;
+                
+
+
         }
         else {
             $pdf = $this->makePdf(null, null, $html_backup);
+
+                $numbered_pdf = $this->pageNumbering($pdf, $activity->company);
+
+                if($numbered_pdf)
+                    $pdf = $numbered_pdf;
+                
+
+
         }
 
         if (isset($activity->invoice_id)) {

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Entity Ninja (https://entityninja.com).
  *
@@ -34,6 +33,7 @@ use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
 use App\Utils\Traits\NumberFormatter;
+use App\Utils\Traits\Pdf\PageNumbering;
 use App\Utils\Traits\Pdf\PdfMaker;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -46,7 +46,7 @@ use Illuminate\Support\Facades\Storage;
 
 class CreateRawPdf implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, NumberFormatter, MakesInvoiceHtml, PdfMaker, MakesHash;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, NumberFormatter, MakesInvoiceHtml, PdfMaker, MakesHash, PageNumbering;
 
     public $entity;
 
@@ -177,11 +177,22 @@ class CreateRawPdf implements ShouldQueue
                 if($finfo->buffer($pdf) != 'application/pdf; charset=binary')
                 {
                     $pdf = $this->makePdf(null, null, $maker->getCompiledHTML(true));
+
+                    $numbered_pdf = $this->pageNumbering($pdf, $this->company);
+
+                        if($numbered_pdf)
+                            $pdf = $numbered_pdf;
+
                 }
 
             }
             else {
                 $pdf = $this->makePdf(null, null, $maker->getCompiledHTML(true));
+                    
+                    $numbered_pdf = $this->pageNumbering($pdf, $this->company);
+
+                        if($numbered_pdf)
+                            $pdf = $numbered_pdf;
             }
 
         } catch (\Exception $e) {

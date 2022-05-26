@@ -134,13 +134,21 @@ class SelfUpdateController extends BaseController
 
         nlog("Extracting zip");
 
-        $zipFile = new \PhpZip\ZipFile();
+        // $zipFile = new \PhpZip\ZipFile();
 
-        $zipFile->openFile($file);
+        // $zipFile->openFile($file);
 
-        $zipFile->extractTo(base_path());
+        // $zipFile->extractTo(base_path());
 
-        $zipFile->close();
+        // $zipFile->close();
+
+        $zip = new \ZipArchive;
+        
+        $res = $zip->open($file);
+        if ($res === TRUE) {
+            $zip->extractTo(base_path());
+            $zip->close();
+        } 
 
         nlog("Finished extracting files");
 

@@ -249,6 +249,9 @@ class CompanySettings extends BaseSettings
     public $primary_color = '#298AAB';
     public $secondary_color = '#7081e0';
 
+    public $page_numbering = false;
+    public $page_numbering_alignment = 'C';  //C,R,L
+
     public $hide_paid_to_date = false; //@TODO where?
     public $embed_documents = false; //@TODO where?
     public $all_pages_header = false; //@deprecated 31-05-2021
@@ -274,6 +277,8 @@ class CompanySettings extends BaseSettings
     public $auto_archive_invoice_cancelled = false;
 
     public static $casts = [
+        'page_numbering_alignment'           => 'string',
+        'page_numbering'                     => 'bool',
         'auto_archive_invoice_cancelled'     => 'bool',
         'email_from_name'                    => 'string',
         'show_all_tasks_client_portal'       => 'string',
