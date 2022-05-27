@@ -121,7 +121,7 @@ class TaskScheduler implements ShouldQueue
     private function fetchJobs()
     {
         return Scheduler::where('paused', false)
-            ->where('archived', false)
+            ->where('is_deleted', false)
             ->whereDate('scheduled_run', '<=', Carbon::now())
             ->cursor();
     }
