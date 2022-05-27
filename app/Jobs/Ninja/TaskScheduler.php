@@ -56,9 +56,10 @@ class TaskScheduler implements ShouldQueue
             Scheduler::with('company','job')
                 ->where('paused', false)
                 ->where('is_deleted', false)
-                ->whereDate('scheduled_run', '<=', Carbon::now())
+                ->where('scheduled_run', '<', now())
                 ->cursor()
                 ->each(function ($scheduler){
+
                     $this->doJob($scheduler);
 
                 });
@@ -69,6 +70,8 @@ class TaskScheduler implements ShouldQueue
 
     private function doJob(Scheduler $scheduler)
     {
+        nlog("Doing job {$scheduler->id}");
+        
         $job = $scheduler->job;
         $company = $scheduler->company;
 

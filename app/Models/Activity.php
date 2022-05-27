@@ -70,6 +70,7 @@ class Activity extends StaticModel
     const ARCHIVE_USER = 50; 
     const DELETE_USER = 51; 
     const RESTORE_USER = 52; 
+    
     const MARK_SENT_INVOICE = 53; // not needed?
     const PAID_INVOICE = 54; //
     const EMAIL_INVOICE_FAILED = 57;
@@ -138,12 +139,10 @@ class Activity extends StaticModel
         return $this->hasOne(Backup::class);
     }
 
-
     public function history()
     {
         return $this->hasOne(Backup::class);
     }
-
 
     /**
      * @return mixed
@@ -177,6 +176,14 @@ class Activity extends StaticModel
         return $this->belongsTo(Invoice::class)->withTrashed();
     }
 
+    /**
+     * @return mixed
+     */
+    public function recurring_invoice()
+    {
+        return $this->belongsTo(RecurringInvoice::class)->withTrashed();
+    }
+
     public function credit()
     {
         return $this->belongsTo(Credit::class)->withTrashed();
@@ -198,15 +205,16 @@ class Activity extends StaticModel
         return $this->belongsTo(Payment::class)->withTrashed();
     }
 
-    // public function task()
-    // {
-    //     return $this->belongsTo(Task::class)->withTrashed();
-    // }
+    public function expense()
+    {
+        return $this->belongsTo(Expense::class)->withTrashed();
+    }
 
-    // public function expense()
-    // {
-    //     return $this->belongsTo(Expense::class)->withTrashed();
-    // }
+    public function task()
+    {
+        return $this->belongsTo(Task::class)->withTrashed();
+    }
+
 
     public function company()
     {
