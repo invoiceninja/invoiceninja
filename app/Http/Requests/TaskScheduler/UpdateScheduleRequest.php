@@ -41,13 +41,13 @@ class UpdateScheduleRequest extends Request
 
     public function prepareForValidation()
     {
-        $request = $this->all();
+        $input = $this->all();
 
-        if (isset($request['start_from'])) {
-            $request['scheduled_run'] = Carbon::parse((int)$request['start_from']);
-            $request['start_from'] = Carbon::parse((int)$request['start_from']);
+        if (isset($input['start_from'])) {
+            $input['scheduled_run'] = Carbon::parse((int)$input['start_from']);
+            $input['start_from'] = Carbon::parse((int)$input['start_from']);
         }
 
-        $this->replace($request);
+        $this->replace($input);
     }
 }
