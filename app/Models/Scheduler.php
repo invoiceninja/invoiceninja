@@ -37,8 +37,8 @@ class Scheduler extends BaseModel
         'paused',
         'repeat_every',
         'scheduled_run',
-        'company_id'
     ];
+
     protected $casts = [
         'start_from' => 'timestamp',
         'scheduled_run' => 'timestamp',

@@ -63,7 +63,6 @@ class TaskSchedulerController extends BaseController
 
     public function index()
     {
-        set_time_limit(45);
 
         $schedulers = Scheduler::where('company_id', auth()->user()->company()->id);
 

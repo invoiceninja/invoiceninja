@@ -56,6 +56,7 @@ class TaskSchedulerService
         $scheduler->scheduled_run = $request->get('start_from') ? Carbon::parse((int)$request->get('start_from')) : Carbon::now();;
         $scheduler->company_id = auth()->user()->company()->id;
         $scheduler->save();
+        
         $this->createJob($request, $scheduler);
 
     }
