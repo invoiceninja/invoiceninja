@@ -42,9 +42,9 @@ class Scheduler extends BaseModel
     protected $casts = [
         'start_from' => 'timestamp',
         'scheduled_run' => 'timestamp',
-        'created_at'=> 'timestamp',
-        'updated_at'=> 'timestamp',
-        'deleted_at'=> 'timestamp',
+        'created_at' => 'timestamp',
+        'updated_at' => 'timestamp',
+        'deleted_at' => 'timestamp',
         'paused' => 'boolean',
         'is_deleted' => 'boolean',
     ];
@@ -52,6 +52,7 @@ class Scheduler extends BaseModel
 
     const DAILY = 'DAY';
     const WEEKLY = 'WEEK';
+    const BIWEEKLY = 'BIWEEKLY';
     const MONTHLY = 'MONTH';
     const QUARTERLY = '3MONTHS';
     const ANNUALLY = 'YEAR';
@@ -107,12 +108,14 @@ class Scheduler extends BaseModel
                 return Carbon::parse($this->scheduled_run)->startOfDay()->addDay()->addSeconds($offset);
             case self::WEEKLY:
                 return Carbon::parse($this->scheduled_run)->startOfDay()->addWeek()->addSeconds($offset);
+            case self::BIWEEKLY:
+                return Carbon::parse($this->scheduled_run)->startOfDay()->addWeeks(2)->addSeconds($offset);
             case self::MONTHLY:
-                return Carbon::parse($this->scheduled_run)->startOfDay()->addMonth()->addSeconds($offset);
+                return Carbon::parse($this->scheduled_run)->startOfDay()->addMonthNoOverflow()->addSeconds($offset);
             case self::QUARTERLY:
-                return Carbon::parse($this->scheduled_run)->startOfDay()->addMonths(3)->addSeconds($offset);
+                return Carbon::parse($this->scheduled_run)->startOfDay()->addMonthsNoOverflow(3)->addSeconds($offset);
             case self::ANNUALLY:
-                return Carbon::parse($this->scheduled_run)->startOfDay()->addYear()->addSeconds($offset);
+                return Carbon::parse($this->scheduled_run)->startOfDay()->addYearNoOverflow()->addSeconds($offset);
             default:
                 return null;
         }
