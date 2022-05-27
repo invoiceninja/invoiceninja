@@ -7,7 +7,7 @@
  *   type="object",
  *
  *
- *     @OA\Property(property="paused",type="bool",example="false",description="The scheduler paused state"),
+ *     @OA\Property(property="paused",type="boolean",example="false",description="The scheduler paused state"),
  *     @OA\Property(property="repeat_every",type="string",example="DAY",description="Accepted values (DAY,WEEK,MONTH,3MONTHS,YEAR)"),
  *     @OA\Property(property="start_from",type="integer",example="1652898504",description="Timestamp when we should start the scheduler, default is today"),
  *       @OA\Property(property="date_range", type="string", example="last7", description="The string representation of the date range of data to be returned"),
@@ -33,7 +33,7 @@
  *   schema="UpdateTaskSchedulerSchema",
  *   type="object",
  *
- *      @OA\Property(property="paused",type="bool",example="false",description="The scheduler paused state"),
+ *      @OA\Property(property="paused",type="boolean",example="false",description="The scheduler paused state"),
  *     *     @OA\Property(property="repeat_every",type="string",example="DAY",description="Accepted values (DAY,WEEK,MONTH,3MONTHS,YEAR)"),
  *     @OA\Property(property="start_from",type="integer",example="1652898504",description="Timestamp when we should start the scheduler, default is today"),
  *

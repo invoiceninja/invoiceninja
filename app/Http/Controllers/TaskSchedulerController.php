@@ -114,13 +114,24 @@ class TaskSchedulerController extends BaseController
 
     /**
      * @OA\GET(
-     *      path="/api/v1/task_scheduler/{scheduler}",
+     *      path="/api/v1/task_scheduler/{id}",
      *      operationId="showTaskScheduler",
      *      tags={"task_scheduler"},
      *      summary="Show given scheduler",
      *      description="Get scheduler with associated job",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Scheduler Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
      *      @OA\Response(
      *          response=200,
      *          description="success",
@@ -143,14 +154,24 @@ class TaskSchedulerController extends BaseController
 
     /**
      * @OA\PUT(
-     *      path="/api/v1/task_scheduler/{scheduler}",
+     *      path="/api/v1/task_scheduler/{id}",
      *      operationId="updateTaskScheduler",
      *      tags={"task_scheduler"},
      *      summary="Update task scheduler ",
      *      description="Update task scheduler",
      * @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      * @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     * @OA\RequestBody(
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Scheduler Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),     * @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(ref="#/components/schemas/UpdateTaskSchedulerSchema")
      *      ),
@@ -181,13 +202,24 @@ class TaskSchedulerController extends BaseController
 
     /**
      * @OA\PUT(
-     *      path="/api/v1/task_scheduler/{scheduler}/update_job/",
+     *      path="/api/v1/task_scheduler/{id}/update_job/",
      *      operationId="updateTaskSchedulerJob",
      *      tags={"task_scheduler"},
      *      summary="Update job for a task scheduler ",
      *      description="Update job for a task scheduler | if we are changing action for a job, we should send the request for a new job same as we are creating new scheduler",
      * @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      * @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Scheduler Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
      * @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(ref="#/components/schemas/UpdateJobForASchedulerSchema")
@@ -219,13 +251,24 @@ class TaskSchedulerController extends BaseController
 
     /**
      * @OA\DELETE(
-     *      path="/api/v1/task_scheduler/{scheduler}",
+     *      path="/api/v1/task_scheduler/{id}",
      *      operationId="destroyTaskScheduler",
      *      tags={"task_scheduler"},
      *      summary="Destroy Task Scheduler",
      *      description="Destroy task scheduler and its associated job",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The Scheduler Hashed ID",
+     *          example="D2J234DFA",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string",
+     *              format="string",
+     *          ),
+     *      ),
      *      @OA\Response(
      *          response=200,
      *          description="success",
