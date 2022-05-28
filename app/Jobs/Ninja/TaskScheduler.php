@@ -46,24 +46,38 @@ class TaskScheduler implements ShouldQueue
      */
     public function handle()
     {
-        foreach (MultiDB::$dbs as $db) {
+        foreach (MultiDB::$dbs as $db) 
+        {
 
             MultiDB::setDB($db);
+
             $pending_schedulers = $this->fetchJobs();
-            foreach ($pending_schedulers as $scheduler) {
-                $this->doJob($scheduler);
-            }
+
+            Scheduler::with('company','job')
+                ->where('paused', false)
+                ->where('is_deleted', false)
+                ->where('scheduled_run', '<', now())
+                ->cursor()
+                ->each(function ($scheduler){
+
+                    $this->doJob($scheduler);
+
+                });
+
         }
+
     }
 
     private function doJob(Scheduler $scheduler)
     {
+        nlog("Doing job {$scheduler->id}");
+        
         $job = $scheduler->job;
+        $company = $scheduler->company;
 
-        $company = Company::find($job->company_id);
-        if (!$job || !$company) {
+        if (!$job)
             return;
-        }
+        
         $parameters = $job->parameters;
 
 
@@ -120,10 +134,7 @@ class TaskScheduler implements ShouldQueue
 
     private function fetchJobs()
     {
-        return Scheduler::where('paused', false)
-            ->where('is_deleted', false)
-            ->whereDate('scheduled_run', '<=', Carbon::now())
-            ->cursor();
+        return ;
     }
 
 }

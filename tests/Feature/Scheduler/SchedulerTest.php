@@ -15,6 +15,7 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Session;
 use Tests\MockUnitData;
 use Tests\TestCase;
+use Illuminate\Validation\ValidationException;
 
 class SchedulerTest extends TestCase
 {
@@ -35,10 +36,12 @@ class SchedulerTest extends TestCase
 
         $this->makeTestData();
 
-
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
+
+        // $this->withoutExceptionHandling();
+
     }
 
     public function testSchedulerCantBeCreatedWithWrongData()
@@ -48,13 +51,23 @@ class SchedulerTest extends TestCase
             'job' => ScheduledJob::CREATE_CLIENT_REPORT,
             'date_key' => '123',
             'report_keys' => ['test'],
-            // 'date_range' => 'all',
+            'date_range' => 'all',
+            // 'start_from' => '2022-01-01'
         ];
 
+        $response = false;
+
+    // try {
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/task_scheduler/', $data);
+    // } catch (ValidationException $e) {
+    //              $message = json_decode($e->validator->getMessageBag(), 1);
+    //              nlog($message);
+    // }
+            // $response->assertStatus(200);
+
 
         $response->assertSessionHasErrors();
 
@@ -62,10 +75,14 @@ class SchedulerTest extends TestCase
 
     public function testSchedulerCanBeUpdated()
     {
-       $this->createScheduler();
+        $response = $this->createScheduler();
 
+        nlog($response);
+        $arr = $response->json();
+        $id = $arr['data']['id'];
 
-        $scheduler = Scheduler::first();
+        $scheduler = Scheduler::find($this->decodePrimaryKey($id));
+
         $updateData = [
             'start_from' => 1655934741
         ];
@@ -80,10 +97,12 @@ class SchedulerTest extends TestCase
 
     public function testSchedulerCanBeSeen()
     {
-        $this->createScheduler();
+        $response = $this->createScheduler();
 
+        $arr = $response->json();
+        $id = $arr['data']['id'];
 
-        $scheduler = Scheduler::first();
+        $scheduler = Scheduler::find($this->decodePrimaryKey($id));
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
@@ -98,9 +117,13 @@ class SchedulerTest extends TestCase
 
     public function testSchedulerCanBeDeleted()
     {
-        $this->createScheduler();
+        $response = $this->createScheduler();
 
-        $scheduler = Scheduler::first();
+        $arr = $response->json();
+        $id = $arr['data']['id'];
+
+        $scheduler = Scheduler::find($this->decodePrimaryKey($id));
+
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
@@ -112,9 +135,13 @@ class SchedulerTest extends TestCase
 
     public function testSchedulerJobCanBeUpdated()
     {
-        $this->createScheduler();
+        $response = $this->createScheduler();
 
-        $scheduler = Scheduler::first();
+        $arr = $response->json();
+        $id = $arr['data']['id'];
+
+        $scheduler = Scheduler::find($this->decodePrimaryKey($id));
+
         $this->assertSame('create_client_report', $scheduler->job->action_name);
 
         $updateData = [
@@ -130,12 +157,18 @@ class SchedulerTest extends TestCase
 
         $updatedSchedulerJob = Scheduler::first()->job->action_name;
         $arr = $response->json();
+
         $this->assertSame('create_credit_report', $arr['data']['job']['action_name']);
     }
 
     public function testSchedulerCanBeCreated()
     {
         $response = $this->createScheduler();
+
+        $arr = $response->json();
+        $id = $arr['data']['id'];
+
+        $scheduler = Scheduler::find($this->decodePrimaryKey($id));
 
         $all_schedulers = Scheduler::count();
 
@@ -153,6 +186,7 @@ class SchedulerTest extends TestCase
             'date_key' => '123',
             'report_keys' => ['test'],
             'date_range' => 'all',
+            'start_from' => '2022-01-01'
         ];
 
         return $response = $this->withHeaders([

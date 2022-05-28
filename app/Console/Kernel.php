@@ -77,10 +77,9 @@ class Kernel extends ConsoleKernel
         $schedule->job(new TaskScheduler())->daily()->withoutOverlapping();
 
         $schedule->job(new SystemMaintenance)->weekly()->withoutOverlapping();
+
         if(Ninja::isSelfHost())
         {
-
-
             $schedule->call(function () {
                 Account::whereNotNull('id')->update(['is_scheduler_running' => true]);
             })->everyFiveMinutes();

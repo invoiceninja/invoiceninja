@@ -27,4 +27,14 @@ class CreateScheduledTaskRequest extends Request
             'job' => 'required',
         ];
     }
+
+    public function prepareForValidation()
+    {
+        $input = $this->all();
+
+        if(!array_key_exists('start_from', $input))
+            $input['start_from'] = now();
+
+        $this->replace($input);
+    }
 }

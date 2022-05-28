@@ -187,7 +187,7 @@ return [
     'ninja_apple_api_key' => env('APPLE_API_KEY', false),
     'ninja_apple_private_key' => env('APPLE_PRIVATE_KEY', false),
     'ninja_apple_bundle_id' => env('APPLE_BUNDLE_ID', false),
-    'ninja_apple_issuer_id' => env('APPLE_ISSUER_ID', false)
-      
+    'ninja_apple_issuer_id' => env('APPLE_ISSUER_ID', false),
+    'react_app_enabled' => env('REACT_APP_ENABLED', false),
 ];
 

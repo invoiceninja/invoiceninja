@@ -81,7 +81,7 @@ abstract class QueryFilters
                 continue;
             }
 
-            if (strlen($value)) {
+            if (is_string($value) && strlen($value)) {
                 $this->$name($value);
             } else {
                 $this->$name();

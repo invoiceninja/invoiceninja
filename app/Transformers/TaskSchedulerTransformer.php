@@ -35,6 +35,7 @@ class TaskSchedulerTransformer extends EntityTransformer
     {
         return [
             'id' => $this->encodePrimaryKey($scheduler->id),
+            'is_deleted' => (bool)$scheduler->is_deleted,
             'paused' => (bool)$scheduler->paused,
             'repeat_every' => (string)$scheduler->repeat_every,
             'start_from' => (int)$scheduler->start_from,
