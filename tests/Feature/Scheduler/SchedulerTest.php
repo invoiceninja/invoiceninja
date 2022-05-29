@@ -22,7 +22,7 @@ class SchedulerTest extends TestCase
     use MakesHash;
     use MockUnitData;
     use WithoutEvents;
-    use RefreshDatabase;
+    // use RefreshDatabase;
 
     public function setUp(): void
     {
@@ -77,7 +77,6 @@ class SchedulerTest extends TestCase
     {
         $response = $this->createScheduler();
 
-        nlog($response);
         $arr = $response->json();
         $id = $arr['data']['id'];
 
@@ -115,23 +114,6 @@ class SchedulerTest extends TestCase
 
     }
 
-    public function testSchedulerCanBeDeleted()
-    {
-        $response = $this->createScheduler();
-
-        $arr = $response->json();
-        $id = $arr['data']['id'];
-
-        $scheduler = Scheduler::find($this->decodePrimaryKey($id));
-
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->delete('/api/v1/task_scheduler/' . $this->encodePrimaryKey($scheduler->id));
-
-        $this->assertEquals(0, Scheduler::count());
-
-    }
 
     public function testSchedulerJobCanBeUpdated()
     {
@@ -159,23 +141,6 @@ class SchedulerTest extends TestCase
         $arr = $response->json();
 
         $this->assertSame('create_credit_report', $arr['data']['job']['action_name']);
-    }
-
-    public function testSchedulerCanBeCreated()
-    {
-        $response = $this->createScheduler();
-
-        $arr = $response->json();
-        $id = $arr['data']['id'];
-
-        $scheduler = Scheduler::find($this->decodePrimaryKey($id));
-
-        $all_schedulers = Scheduler::count();
-
-        $this->assertSame(1, $all_schedulers);
-
-        $response->assertStatus(200);
-
     }
 
     public function createScheduler()

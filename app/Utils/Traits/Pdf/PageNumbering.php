@@ -18,7 +18,7 @@ trait PageNumbering
     private function pageNumbering($pdf_data_object, $company)
     {
 
-        if(!$company->settings->page_numbering)
+        if(!property_exists($company->settings, 'page_numbering') || !$company->settings->page_numbering)
             return $pdf_data_object;
 
         try
