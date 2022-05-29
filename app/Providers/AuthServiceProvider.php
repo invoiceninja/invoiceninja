@@ -27,6 +27,7 @@ use App\Models\Payment;
 use App\Models\PaymentTerm;
 use App\Models\Product;
 use App\Models\Project;
+use App\Models\PurchaseOrder;
 use App\Models\Quote;
 use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
@@ -54,6 +55,7 @@ use App\Policies\PaymentPolicy;
 use App\Policies\PaymentTermPolicy;
 use App\Policies\ProductPolicy;
 use App\Policies\ProjectPolicy;
+use App\Policies\PurchaseOrderPolicy;
 use App\Policies\QuotePolicy;
 use App\Policies\RecurringExpensePolicy;
 use App\Policies\RecurringInvoicePolicy;
@@ -103,6 +105,7 @@ class AuthServiceProvider extends ServiceProvider
         TaxRate::class => TaxRatePolicy::class,
         User::class => UserPolicy::class,
         Vendor::class => VendorPolicy::class,
+        PurchaseOrder::class => PurchaseOrderPolicy::class,
     ];
 
     /**
