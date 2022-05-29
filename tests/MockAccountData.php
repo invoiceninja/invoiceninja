@@ -20,6 +20,7 @@ use App\Factory\InvoiceFactory;
 use App\Factory\InvoiceInvitationFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Factory\InvoiceToRecurringInvoiceFactory;
+use App\Factory\PurchaseOrderFactory;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Jobs\Company\CreateCompanyTaskStatuses;
 use App\Models\Account;
@@ -181,10 +182,10 @@ trait MockAccountData
             'hosted_client_count' => 1000,
             'hosted_company_count' => 1000
         ]);
-        
+
         $this->account->num_users = 3;
         $this->account->save();
-        
+
         $this->company = Company::factory()->create([
                 'account_id' => $this->account->id,
             ]);
@@ -212,7 +213,7 @@ trait MockAccountData
         $settings->use_credits_payment = 'always';
         $settings->timezone_id = '1';
         $settings->entity_send_time = 0;
-        
+
         $this->company->settings = $settings;
         $this->company->save();
 
@@ -387,7 +388,7 @@ trait MockAccountData
         $this->invoice->setRelation('company', $this->company);
 
         $this->invoice->save();
-        
+
         $this->invoice->load("client");
 
         InvoiceInvitation::factory()->create([
@@ -447,13 +448,43 @@ trait MockAccountData
 
         $this->quote->save();
 
+
+
+
+
+
+
+
+        $this->purchase_order = PurchaseOrderFactory::create($this->company->id, $user_id);
+        $this->purchase_order->client_id = $this->client->id;
+
+
+        $this->purchase_order->amount = 10;
+        $this->purchase_order->balance = 10;
+
+        // $this->credit->due_date = now()->addDays(200);
+
+        $this->purchase_order->tax_name1 = '';
+        $this->purchase_order->tax_name2 = '';
+        $this->purchase_order->tax_name3 = '';
+
+        $this->purchase_order->tax_rate1 = 0;
+        $this->purchase_order->tax_rate2 = 0;
+        $this->purchase_order->tax_rate3 = 0;
+
+        $this->purchase_order->uses_inclusive_taxes = false;
+        $this->purchase_order->save();
+
+
+
+
         $this->credit = CreditFactory::create($this->company->id, $user_id);
         $this->credit->client_id = $this->client->id;
 
         $this->credit->line_items = $this->buildLineItems();
         $this->credit->amount = 10;
         $this->credit->balance = 10;
-        
+
         // $this->credit->due_date = now()->addDays(200);
 
         $this->credit->tax_name1 = '';
