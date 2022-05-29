@@ -37,6 +37,7 @@ use App\Models\Scheduler;
 use App\Utils\Ninja;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Request;
 
 class TaskSchedulerService
@@ -83,110 +84,91 @@ class TaskSchedulerService
 
     }
 
+    private function runValidation($form_request, $data)
+    {
+          $_syn_request_class = new $form_request();
+          $_syn_request_class->setContainer(app());
+          $_syn_request_class->initialize($data);
+          $_syn_request_class->prepareForValidation();
+          $_syn_request_class->setValidator(Validator::make($_syn_request_class->all(), $_syn_request_class->rules()));
+
+          return $_syn_request_class->validated();
+    }
+
     public function setJobParameters(ScheduledJob $job, $request): ScheduledJob
     {
         switch ($request->job) {
             case ScheduledJob::CREATE_CLIENT_REPORT:
-                $rules = (new GenericReportRequest)->rules();
-                //custom rules for example here we require date_range but in genericRequest class we don't
-                $rules['date_range'] = 'string|required';
-
-                $validator = GenericReportRequest::runFormRequest($request->all());
-                $validatedJobData = $validator->validate();
                 $job->action_name = ScheduledJob::CREATE_CLIENT_REPORT;
                 $job->action_class = $this->getClassPath(ClientExport::class);
-                $job->parameters = $validatedJobData;
+                $job->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
                 break;
             case ScheduledJob::CREATE_CLIENT_CONTACT_REPORT:
-                $validator = GenericReportRequest::runFormRequest($request->all());
-                $validatedJobData = $validator->validate();
+
                 $job->action_name = ScheduledJob::CREATE_CLIENT_CONTACT_REPORT;
                 $job->action_class = $this->getClassPath(ContactExport::class);
-                $job->parameters = $validatedJobData;
+                $job->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
                 break;
             case ScheduledJob::CREATE_CREDIT_REPORT:
-                $validator = GenericReportRequest::runFormRequest($request->all());
-                $validatedJobData = $validator->validate();
+
                 $job->action_name = ScheduledJob::CREATE_CREDIT_REPORT;
                 $job->action_class = $this->getClassPath(CreditExport::class);
-                $job->parameters = $validatedJobData;
+                $job->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
                 break;
             case ScheduledJob::CREATE_DOCUMENT_REPORT:
-                $validator = GenericReportRequest::runFormRequest($request->all());
-                $validatedJobData = $validator->validate();
                 $job->action_name = ScheduledJob::CREATE_DOCUMENT_REPORT;
                 $job->action_class = $this->getClassPath(DocumentExport::class);
-                $job->parameters = $validatedJobData;
+                $job->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
                 break;
             case ScheduledJob::CREATE_EXPENSE_REPORT:
-                $validator = GenericReportRequest::runFormRequest($request->all());
-                $validatedJobData = $validator->validate();
                 $job->action_name = ScheduledJob::CREATE_EXPENSE_REPORT;
                 $job->action_class = $this->getClassPath(ExpenseExport::class);
-                $job->parameters = $validatedJobData;
+                $job->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
                 break;
             case ScheduledJob::CREATE_INVOICE_ITEM_REPORT:
-                $validator = GenericReportRequest::runFormRequest($request->all());
-                $validatedJobData = $validator->validate();
                 $job->action_name = ScheduledJob::CREATE_INVOICE_ITEM_REPORT;
                 $job->action_class = $this->getClassPath(InvoiceItemExport::class);
-                $job->parameters = $validatedJobData;
+                $job->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
                 break;
             case ScheduledJob::CREATE_INVOICE_REPORT:
-                $validator = GenericReportRequest::runFormRequest($request->all());
-                $validatedJobData = $validator->validate();
                 $job->action_name = ScheduledJob::CREATE_INVOICE_REPORT;
                 $job->action_class = $this->getClassPath(InvoiceExport::class);
-                $job->parameters = $validatedJobData;
+                $job->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
                 break;
             case ScheduledJob::CREATE_PAYMENT_REPORT:
-                $validator = GenericReportRequest::runFormRequest($request->all());
-                $validatedJobData = $validator->validate();
                 $job->action_name = ScheduledJob::CREATE_PAYMENT_REPORT;
                 $job->action_class = $this->getClassPath(PaymentExport::class);
-                $job->parameters = $validatedJobData;
+                $job->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
                 break;
             case ScheduledJob::CREATE_PRODUCT_REPORT:
-                $validator = GenericReportRequest::runFormRequest($request->all());
-                $validatedJobData = $validator->validate();
                 $job->action_name = ScheduledJob::CREATE_PRODUCT_REPORT;
                 $job->action_class = $this->getClassPath(ProductExport::class);
-                $job->parameters = $validatedJobData;
+                $job->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
                 break;
             case ScheduledJob::CREATE_PROFIT_AND_LOSS_REPORT:
-                $validator = GenericReportRequest::runFormRequest($request->all());
-                $validatedJobData = $validator->validate();
                 $job->action_name = ScheduledJob::CREATE_PROFIT_AND_LOSS_REPORT;
                 $job->action_class = $this->getClassPath(ProfitAndLoss::class);
-                $job->parameters = $validatedJobData;
+                $job->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
                 break;
             case ScheduledJob::CREATE_QUOTE_ITEM_REPORT:
-                $validator = GenericReportRequest::runFormRequest($request->all());
-                $validatedJobData = $validator->validate();
                 $job->action_name = ScheduledJob::CREATE_QUOTE_ITEM_REPORT;
                 $job->action_class = $this->getClassPath(QuoteItemExport::class);
-                $job->parameters = $validatedJobData;
+                $job->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
                 break;
             case ScheduledJob::CREATE_QUOTE_REPORT:
-                $validator = GenericReportRequest::runFormRequest($request->all());
-                $validatedJobData = $validator->validate();
                 $job->action_name = ScheduledJob::CREATE_QUOTE_REPORT;
                 $job->action_class = $this->getClassPath(QuoteExport::class);
-                $job->parameters = $validatedJobData;
+                $job->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
                 break;
             case ScheduledJob::CREATE_RECURRING_INVOICE_REPORT:
-                $validator = GenericReportRequest::runFormRequest($request->all());
-                $validatedJobData = $validator->validate();
                 $job->action_name = ScheduledJob::CREATE_RECURRING_INVOICE_REPORT;
                 $job->action_class = $this->getClassPath(RecurringInvoiceExport::class);
-                $job->parameters = $validatedJobData;
+                $job->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
                 break;
             case ScheduledJob::CREATE_TASK_REPORT:
-                $validator = GenericReportRequest::runFormRequest($request->all());
-                $validatedJobData = $validator->validate();
                 $job->action_name = ScheduledJob::CREATE_TASK_REPORT;
                 $job->action_class = $this->getClassPath(TaskExport::class);
-                $job->parameters = $validatedJobData;
+                $job->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
                 break;
 
         }
