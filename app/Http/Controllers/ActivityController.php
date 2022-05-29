@@ -97,18 +97,20 @@ class ActivityController extends BaseController
 
             $data = $activities->cursor()->map(function ($activity) use($system){
 
-                return ctrans('texts.activity_'.$activity->activity_type_id,[
-                      'client' => $activity->client ? $activity->client->present()->name() : $system,
-                      'contact' => $activity->contact ? $activity->contact->first_name . " " .$activity->contact->last_name : $system,
-                      'quote' => $activity->quote ? $activity->quote->number : $system,
-                      'user' => $activity->user ? $activity->user->present()->name() : $system,
-                      'expense' => $activity->expense ? $activity->expense->number : $system,
-                      'invoice' => $activity->invoice ? $activity->invoice->number : $system,
-                      'recurring_invoice' => $activity->recurring_invoice ? $activity->recurring_invoice->number : $system,
-                      'payment' => $activity->payment ? $activity->payment->number : $system,
-                      'credit' => $activity->credit ? $activity->credit->number : $system,
-                      'task' => $activity->task ? $activity->task->number : $system,
+                $arr['string'] = ctrans('texts.activity_'.$activity->activity_type_id,[
+                      'client' => $activity->client ? $activity->client : '',
+                      'contact' => $activity->contact ? $activity->contact : '',
+                      'quote' => $activity->quote ? $activity->quote : '',
+                      'user' => $activity->user ? $activity->user : '',
+                      'expense' => $activity->expense ? $activity->expense : '',
+                      'invoice' => $activity->invoice ? $activity->invoice : '',
+                      'recurring_invoice' => $activity->recurring_invoice ? $activity->recurring_invoice : '',
+                      'payment' => $activity->payment ? $activity->payment : '',
+                      'credit' => $activity->credit ? $activity->credit : '',
+                      'task' => $activity->task ? $activity->task : '',
                 ]);
+
+                return array_merge($arr, $activity->toArray());
 
             });
 
