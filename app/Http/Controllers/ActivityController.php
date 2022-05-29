@@ -97,7 +97,8 @@ class ActivityController extends BaseController
 
             $data = $activities->cursor()->map(function ($activity) use($system){
 
-                $arr['string'] = ctrans('texts.activity_'.$activity->activity_type_id,[
+                $arr=
+                [
                       'client' => $activity->client ? $activity->client : '',
                       'contact' => $activity->contact ? $activity->contact : '',
                       'quote' => $activity->quote ? $activity->quote : '',
@@ -108,7 +109,7 @@ class ActivityController extends BaseController
                       'payment' => $activity->payment ? $activity->payment : '',
                       'credit' => $activity->credit ? $activity->credit : '',
                       'task' => $activity->task ? $activity->task : '',
-                ]);
+                ];
 
                 return array_merge($arr, $activity->toArray());
 
