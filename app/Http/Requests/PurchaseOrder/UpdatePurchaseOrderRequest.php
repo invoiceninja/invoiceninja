@@ -41,7 +41,7 @@ class UpdatePurchaseOrderRequest extends Request
         $rules = [];
 
         if($this->number)
-            $rules['number'] = Rule::unique('purchase_orders')->where('company_id', auth()->user()->company()->id)->ignore($this->purchaseOrder->id);
+            $rules['number'] = Rule::unique('purchase_orders')->where('company_id', auth()->user()->company()->id)->ignore($this->purchase_order->id);
 
         $rules['line_items'] = 'array';
         $rules['discount']  = 'sometimes|numeric';
