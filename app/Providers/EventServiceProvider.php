@@ -215,6 +215,7 @@ use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Project;
 use App\Models\Proposal;
+use App\Models\PurchaseOrder;
 use App\Models\Quote;
 use App\Models\Subscription;
 use App\Models\Task;
@@ -231,6 +232,7 @@ use App\Observers\PaymentObserver;
 use App\Observers\ProductObserver;
 use App\Observers\ProjectObserver;
 use App\Observers\ProposalObserver;
+use App\Observers\PurchaseOrderObserver;
 use App\Observers\QuoteObserver;
 use App\Observers\SubscriptionObserver;
 use App\Observers\TaskObserver;
@@ -593,5 +595,6 @@ class EventServiceProvider extends ServiceProvider
         Quote::observe(QuoteObserver::class);
         Task::observe(TaskObserver::class);
         User::observe(UserObserver::class);
+        PurchaseOrder::observe(PurchaseOrderObserver::class);
     }
 }
