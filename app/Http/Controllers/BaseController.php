@@ -780,7 +780,10 @@ class BaseController extends Controller
 
             $this->buildCache();
 
-            return response()->view('index.index', $data)->header('X-Frame-Options', 'SAMEORIGIN', false);
+            if(config('ninja.react_app_enabled'))
+                return response()->view('react.index', $data)->header('X-Frame-Options', 'SAMEORIGIN', false);
+            else
+                return response()->view('index.index', $data)->header('X-Frame-Options', 'SAMEORIGIN', false);
 
         }
 
