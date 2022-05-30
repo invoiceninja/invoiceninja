@@ -13,6 +13,7 @@ namespace App\Services\PurchaseOrder;
 
 use App\Factory\ClientContactFactory;
 use App\Factory\PurchaseOrderInvitationFactory;
+use App\Factory\VendorContactFactory;
 use App\Models\Invoice;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderInvitation;
@@ -97,6 +98,7 @@ class CreateInvitations extends AbstractService
         $new_contact->vendor_id = $this->purchase_order->vendor_id;
         $new_contact->contact_key = Str::random(40);
         $new_contact->is_primary = true;
+        $new_contact->send_email = true;
         $new_contact->save();
 
         return $new_contact;
