@@ -206,6 +206,8 @@ Route::group(['middleware' => ['throttle:100,1', 'api_db', 'token_auth', 'locale
     Route::post('vendors/bulk', 'VendorController@bulk')->name('vendors.bulk');
     Route::put('vendors/{vendor}/upload', 'VendorController@upload');
 
+    Route::resource('purchase_orders', 'PurchaseOrderController');
+
     Route::get('users', 'UserController@index');
     Route::get('users/{user}', 'UserController@show')->middleware('password_protected');
     Route::put('users/{user}', 'UserController@update')->middleware('password_protected');
