@@ -32,7 +32,6 @@ use App\Http\Requests\TaskScheduler\UpdateScheduledJobRequest;
 use App\Http\Requests\TaskScheduler\UpdateScheduleRequest;
 use App\Jobs\Report\ProfitAndLoss;
 use App\Models\Company;
-use App\Models\ScheduledJob;
 use App\Models\Scheduler;
 use App\Utils\Ninja;
 use Carbon\Carbon;
@@ -51,128 +50,116 @@ class TaskSchedulerService
 
     public function store(Scheduler $scheduler, CreateScheduledTaskRequest $request)
     {
+        $scheduler->action_name = $request->job;
         $scheduler->paused = $request->get('paused', false);
         $scheduler->start_from = $request->get('start_from') ? Carbon::parse((int)$request->get('start_from')) : Carbon::now();
         $scheduler->repeat_every = $request->get('repeat_every');
         $scheduler->scheduled_run = $request->get('start_from') ? Carbon::parse((int)$request->get('start_from')) : Carbon::now();;
         $scheduler->company_id = auth()->user()->company()->id;
+        $scheduler = $this->setJobParameters($scheduler, $request);
         $scheduler->save();
-        
-        $this->createJob($request, $scheduler);
 
     }
 
     public function update(Scheduler $scheduler, UpdateScheduleRequest $request)
     {
-
-        $data = $request->validated();
-
-        $update = $this->scheduler->update($data);
-        if ($update) {
-            return response(['successfully_updated_scheduler'], 200);
+        if (array_key_exists('job', $request->all())) {
+            $scheduler->action_name = $request->get('job');
+            $scheduler = $this->setJobParameters($scheduler, $request);
         }
-        return response(['failed_to_update_scheduler'], 400);
-    }
-
-    public function createJob(CreateScheduledTaskRequest $request, Scheduler $scheduler): bool
-    {
-        $job = new ScheduledJob();
-        $job = $this->setJobParameters($job, $request);
-        $job->scheduler_id = $scheduler->id;
-        $job->company_id = auth()->user()->company()->id;
-        return $job->save();
-
+        $data = $request->validated();
+        $update = $this->scheduler->update($data);
     }
 
     private function runValidation($form_request, $data)
     {
-          $_syn_request_class = new $form_request();
-          $_syn_request_class->setContainer(app());
-          $_syn_request_class->initialize($data);
-          $_syn_request_class->prepareForValidation();
-          $_syn_request_class->setValidator(Validator::make($_syn_request_class->all(), $_syn_request_class->rules()));
+        $_syn_request_class = new $form_request();
+        $_syn_request_class->setContainer(app());
+        $_syn_request_class->initialize($data);
+        $_syn_request_class->prepareForValidation();
+        $_syn_request_class->setValidator(Validator::make($_syn_request_class->all(), $_syn_request_class->rules()));
 
-          return $_syn_request_class->validated();
+        return $_syn_request_class->validated();
     }
 
-    public function setJobParameters(ScheduledJob $job, $request): ScheduledJob
+    public function setJobParameters(Scheduler $scheduler, $request)
     {
-        switch ($request->job) {
-            case ScheduledJob::CREATE_CLIENT_REPORT:
-                $job->action_name = ScheduledJob::CREATE_CLIENT_REPORT;
-                $job->action_class = $this->getClassPath(ClientExport::class);
-                $job->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
+        switch ($scheduler->action_name) {
+            case Scheduler::CREATE_CLIENT_REPORT:
+                $scheduler->action_name = Scheduler::CREATE_CLIENT_REPORT;
+                $scheduler->action_class = $this->getClassPath(ClientExport::class);
+                $scheduler->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
                 break;
-            case ScheduledJob::CREATE_CLIENT_CONTACT_REPORT:
+            case Scheduler::CREATE_CLIENT_CONTACT_REPORT:
+                $scheduler->action_name = Scheduler::CREATE_CLIENT_CONTACT_REPORT;
+                $scheduler->action_class = $this->getClassPath(ContactExport::class);
+                $scheduler->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
+                break;
+            case Scheduler::CREATE_CREDIT_REPORT:
 
-                $job->action_name = ScheduledJob::CREATE_CLIENT_CONTACT_REPORT;
-                $job->action_class = $this->getClassPath(ContactExport::class);
-                $job->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
+                $scheduler->action_name = Scheduler::CREATE_CREDIT_REPORT;
+                $scheduler->action_class = $this->getClassPath(CreditExport::class);
+                $scheduler->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
                 break;
-            case ScheduledJob::CREATE_CREDIT_REPORT:
-
-                $job->action_name = ScheduledJob::CREATE_CREDIT_REPORT;
-                $job->action_class = $this->getClassPath(CreditExport::class);
-                $job->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
+            case Scheduler::CREATE_DOCUMENT_REPORT:
+                $scheduler->action_name = Scheduler::CREATE_DOCUMENT_REPORT;
+                $scheduler->action_class = $this->getClassPath(DocumentExport::class);
+                $scheduler->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
                 break;
-            case ScheduledJob::CREATE_DOCUMENT_REPORT:
-                $job->action_name = ScheduledJob::CREATE_DOCUMENT_REPORT;
-                $job->action_class = $this->getClassPath(DocumentExport::class);
-                $job->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
+            case Scheduler::CREATE_EXPENSE_REPORT:
+                $scheduler->action_name = Scheduler::CREATE_EXPENSE_REPORT;
+                $scheduler->action_class = $this->getClassPath(ExpenseExport::class);
+                $scheduler->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
                 break;
-            case ScheduledJob::CREATE_EXPENSE_REPORT:
-                $job->action_name = ScheduledJob::CREATE_EXPENSE_REPORT;
-                $job->action_class = $this->getClassPath(ExpenseExport::class);
-                $job->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
+            case Scheduler::CREATE_INVOICE_ITEM_REPORT:
+                $scheduler->action_name = Scheduler::CREATE_INVOICE_ITEM_REPORT;
+                $scheduler->action_class = $this->getClassPath(InvoiceItemExport::class);
+                $scheduler->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
                 break;
-            case ScheduledJob::CREATE_INVOICE_ITEM_REPORT:
-                $job->action_name = ScheduledJob::CREATE_INVOICE_ITEM_REPORT;
-                $job->action_class = $this->getClassPath(InvoiceItemExport::class);
-                $job->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
+            case Scheduler::CREATE_INVOICE_REPORT:
+                $scheduler->action_name = Scheduler::CREATE_INVOICE_REPORT;
+                $scheduler->action_class = $this->getClassPath(InvoiceExport::class);
+                $scheduler->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
                 break;
-            case ScheduledJob::CREATE_INVOICE_REPORT:
-                $job->action_name = ScheduledJob::CREATE_INVOICE_REPORT;
-                $job->action_class = $this->getClassPath(InvoiceExport::class);
-                $job->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
+            case Scheduler::CREATE_PAYMENT_REPORT:
+                $scheduler->action_name = Scheduler::CREATE_PAYMENT_REPORT;
+                $scheduler->action_class = $this->getClassPath(PaymentExport::class);
+                $scheduler->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
                 break;
-            case ScheduledJob::CREATE_PAYMENT_REPORT:
-                $job->action_name = ScheduledJob::CREATE_PAYMENT_REPORT;
-                $job->action_class = $this->getClassPath(PaymentExport::class);
-                $job->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
+            case Scheduler::CREATE_PRODUCT_REPORT:
+                $scheduler->action_name = Scheduler::CREATE_PRODUCT_REPORT;
+                $scheduler->action_class = $this->getClassPath(ProductExport::class);
+                $scheduler->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
                 break;
-            case ScheduledJob::CREATE_PRODUCT_REPORT:
-                $job->action_name = ScheduledJob::CREATE_PRODUCT_REPORT;
-                $job->action_class = $this->getClassPath(ProductExport::class);
-                $job->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
+            case Scheduler::CREATE_PROFIT_AND_LOSS_REPORT:
+                $scheduler->action_name = Scheduler::CREATE_PROFIT_AND_LOSS_REPORT;
+                $scheduler->action_class = $this->getClassPath(ProfitAndLoss::class);
+                $scheduler->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
                 break;
-            case ScheduledJob::CREATE_PROFIT_AND_LOSS_REPORT:
-                $job->action_name = ScheduledJob::CREATE_PROFIT_AND_LOSS_REPORT;
-                $job->action_class = $this->getClassPath(ProfitAndLoss::class);
-                $job->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
+            case Scheduler::CREATE_QUOTE_ITEM_REPORT:
+                $scheduler->action_name = Scheduler::CREATE_QUOTE_ITEM_REPORT;
+                $scheduler->action_class = $this->getClassPath(QuoteItemExport::class);
+                $scheduler->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
                 break;
-            case ScheduledJob::CREATE_QUOTE_ITEM_REPORT:
-                $job->action_name = ScheduledJob::CREATE_QUOTE_ITEM_REPORT;
-                $job->action_class = $this->getClassPath(QuoteItemExport::class);
-                $job->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
+            case Scheduler::CREATE_QUOTE_REPORT:
+                $scheduler->action_name = Scheduler::CREATE_QUOTE_REPORT;
+                $scheduler->action_class = $this->getClassPath(QuoteExport::class);
+                $scheduler->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
                 break;
-            case ScheduledJob::CREATE_QUOTE_REPORT:
-                $job->action_name = ScheduledJob::CREATE_QUOTE_REPORT;
-                $job->action_class = $this->getClassPath(QuoteExport::class);
-                $job->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
+            case Scheduler::CREATE_RECURRING_INVOICE_REPORT:
+                $scheduler->action_name = Scheduler::CREATE_RECURRING_INVOICE_REPORT;
+                $scheduler->action_class = $this->getClassPath(RecurringInvoiceExport::class);
+                $scheduler->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
                 break;
-            case ScheduledJob::CREATE_RECURRING_INVOICE_REPORT:
-                $job->action_name = ScheduledJob::CREATE_RECURRING_INVOICE_REPORT;
-                $job->action_class = $this->getClassPath(RecurringInvoiceExport::class);
-                $job->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
-                break;
-            case ScheduledJob::CREATE_TASK_REPORT:
-                $job->action_name = ScheduledJob::CREATE_TASK_REPORT;
-                $job->action_class = $this->getClassPath(TaskExport::class);
-                $job->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
+            case Scheduler::CREATE_TASK_REPORT:
+                $scheduler->action_name = Scheduler::CREATE_TASK_REPORT;
+                $scheduler->action_class = $this->getClassPath(TaskExport::class);
+                $scheduler->parameters = $this->runValidation(GenericReportRequest::class, $request->all());
                 break;
 
         }
-        return $job;
+
+        return $scheduler;
     }
 
     public function getClassPath($class): string
@@ -180,15 +167,9 @@ class TaskSchedulerService
         return $class = is_object($class) ? get_class($class) : $class;
     }
 
-
     public function updateJob(Scheduler $scheduler, UpdateScheduledJobRequest $request)
     {
-        $job = $scheduler->job;
-        if (!$job) {
-            return abort(404);
-        }
-        $job = $this->setJobParameters($job, $request);
-        $job->save();
-
+        $scheduler = $this->setJobParameters($scheduler, $request);
+        $scheduler->save();
     }
 }
