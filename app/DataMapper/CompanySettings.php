@@ -280,6 +280,8 @@ class CompanySettings extends BaseSettings
     public $auto_archive_invoice_cancelled = false;
 
     public static $casts = [
+        'purchase_order_number_pattern'      => 'purchase_order_number_pattern',
+        'purchase_order_number_counter'      => 'int',
         'page_numbering_alignment'           => 'string',
         'page_numbering'                     => 'bool',
         'auto_archive_invoice_cancelled'     => 'bool',
