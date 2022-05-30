@@ -12,6 +12,8 @@
 namespace App\Models;
 
 
+use App\Helpers\Invoice\InvoiceSum;
+use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Services\PurchaseOrder\PurchaseOrderService;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -92,8 +94,9 @@ class PurchaseOrder extends BaseModel
 
     const STATUS_DRAFT = 1;
     const STATUS_SENT = 2;
-    const STATUS_PARTIAL = 3;
-    const STATUS_APPLIED = 4;
+    const STATUS_APPROVED = 3;
+    const STATUS_CONVERTED = 4;
+    const STATUS_EXPIRED = -1;
 
     public function assigned_user()
     {
@@ -130,7 +133,6 @@ class PurchaseOrder extends BaseModel
         return $this->belongsTo(Client::class)->withTrashed();
     }
 
-
     public function invitations()
     {
         return $this->hasMany(CreditInvitation::class);
@@ -164,6 +166,19 @@ class PurchaseOrder extends BaseModel
     public function documents()
     {
         return $this->morphMany(Document::class, 'documentable');
+    }
+
+    public function calc()
+    {
+        $credit_calc = null;
+
+        if ($this->uses_inclusive_taxes) {
+            $credit_calc = new InvoiceSumInclusive($this);
+        } else {
+            $credit_calc = new InvoiceSum($this);
+        }
+
+        return $credit_calc->build();
     }
 
 }

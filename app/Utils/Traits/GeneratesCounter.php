@@ -18,6 +18,7 @@ use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Project;
+use App\Models\PurchaseOrder;
 use App\Models\Quote;
 use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
@@ -152,6 +153,10 @@ trait GeneratesCounter
                 break;
             case Project::class:
                 return 'project_number_counter';
+                break;
+
+            case PurchaseOrder::class:
+                return 'purchase_order_number_counter';
                 break;
 
             default:
@@ -344,6 +349,23 @@ trait GeneratesCounter
         return $this->replaceUserVars($expense, $entity_number);
 
     }
+
+    public function getNextPurchaseOrderNumber(PurchaseOrder $purchase_order) :string
+    {
+        $this->resetCompanyCounters($purchase_order->company);
+
+        $counter = $purchase_order->company->settings->purchase_order_number_counter;
+        $setting_entity = $purchase_order->company->settings->purchase_order_number_counter;
+
+        $purchase_order_number = $this->checkEntityNumber(PurchaseOrder::class, $purchase_order, $counter, $purchase_order->company->settings->counter_padding, $purchase_order->company->settings->purchase_order_number_pattern);
+
+        $this->incrementCounter($purchase_order->company, 'purchase_order_number_pattern');
+
+        $entity_number = $purchase_order_number;
+
+        return $this->replaceUserVars($purchase_order, $entity_number);
+
+    }   
 
     /**
      * Gets the next expense number.

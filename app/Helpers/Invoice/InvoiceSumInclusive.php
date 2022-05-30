@@ -229,6 +229,15 @@ class InvoiceSumInclusive
         return $this->invoice;
     }
 
+    public function getPurchaseOrder()
+    {
+        //Build invoice values here and return Invoice
+        $this->setCalculatedAttributes();
+        $this->invoice->saveQuietly();
+
+        return $this->invoice;
+    }
+
     /**
      * Build $this->invoice variables after
      * calculations have been performed.

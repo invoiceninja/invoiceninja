@@ -224,6 +224,14 @@ class InvoiceSum
         return $this->invoice;
     }
 
+    public function getPurchaseOrder()
+    {
+        $this->setCalculatedAttributes();
+        $this->invoice->saveQuietly();
+
+        return $this->invoice;
+    }
+
     public function getRecurringInvoice()
     {
         $this->invoice->amount = $this->formatValue($this->getTotal(), $this->invoice->client->currency()->precision);

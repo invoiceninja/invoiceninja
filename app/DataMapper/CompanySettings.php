@@ -116,6 +116,9 @@ class CompanySettings extends BaseSettings
     public $project_number_pattern = ''; //@implemented
     public $project_number_counter = 1; //@implemented
 
+    public $purchase_order_number_pattern = ''; //@implemented
+    public $purchase_order_number_counter = 1; //@implemented
+
     public $shared_invoice_quote_counter = false; //@implemented
     public $shared_invoice_credit_counter = false; //@implemented
     public $recurring_number_prefix = ''; //@implemented

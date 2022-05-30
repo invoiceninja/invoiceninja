@@ -174,8 +174,6 @@ class PurchaseOrderController extends BaseController
     public function store(StorePurchaseOrderRequest $request)
     {
 
-        $client = Client::find($request->get('client_id'));
-
         $purchase_order = $this->purchase_order_repository->save($request->all(), PurchaseOrderFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
         $purchase_order = $purchase_order->service()
