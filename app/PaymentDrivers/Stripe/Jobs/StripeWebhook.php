@@ -81,6 +81,7 @@ class StripeWebhook implements ShouldQueue
                 \Stripe\WebhookEndpoint::update($endpoint->id, ['enabled_events' => $this->events], $stripe->stripe_connect_auth);
 
                 $this->url_found = true;
+                
             }
 
         }
