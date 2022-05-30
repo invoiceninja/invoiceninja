@@ -41,6 +41,8 @@ class StripeWebhook implements ShouldQueue
 
     public string $company_key;
 
+    private bool $url_found = false;
+
     private array $events = [
         'source.chargeable',
         'charge.succeeded',
@@ -64,9 +66,7 @@ class StripeWebhook implements ShouldQueue
 
         $company_gateway = CompanyGateway::find($this->company_gateway_id);
 
-        $driver = $company_gateway->driver();
-
-        $stripe = $driver->init();
+        $stripe = $company_gateway->driver()->init();
 
         $endpoints = \Stripe\WebhookEndpoint::all([], $stripe->stripe_connect_auth);
 
@@ -77,19 +77,23 @@ class StripeWebhook implements ShouldQueue
 
             if($endpoint->url === $webhook_url)
             {
-                \Stripe\WebhookEndpoint::update($endpoint->id, $this->events, $stripe->stripe_connect_auth);
+
+                \Stripe\WebhookEndpoint::update($endpoint->id, ['enabled_events' => $this->events], $stripe->stripe_connect_auth);
+
+                $this->url_found = true;
+                
             }
 
         }
 
         /* Add new webhook */
-        if(count($endpoints['data'] == 0)
+        if(!$this->url_found)
         {
 
             \Stripe\WebhookEndpoint::create([
                 'url' => $webhook_url,
                 'enabled_events' => $this->events,
-            ], $stripe->stripe_connect_auth)
+            ], $stripe->stripe_connect_auth);
 
         }
     }
