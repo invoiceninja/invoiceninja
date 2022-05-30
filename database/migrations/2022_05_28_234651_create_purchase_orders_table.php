@@ -104,6 +104,11 @@ class CreatePurchaseOrdersTable extends Migration
 
             $table->datetime('last_viewed')->nullable();
 
+            $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
+            $table->index(['company_id', 'deleted_at']);
+
             $table->softDeletes();
             $table->timestamps();
 
