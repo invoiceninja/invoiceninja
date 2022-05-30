@@ -22,11 +22,14 @@ use Illuminate\Support\Carbon;
  * @property \Carbon\Carbon|mixed start_from
  * @property string repeat_every
  * @property \Carbon\Carbon|mixed scheduled_run
- * @property mixed job
  * @property integer company_id
  * @property integer updated_at
  * @property integer created_at
  * @property integer deleted_at
+ * @property string action_name
+ * @property mixed company
+ * @property array parameters
+ * @property string action_class
  */
 class Scheduler extends BaseModel
 {
@@ -37,6 +40,10 @@ class Scheduler extends BaseModel
         'paused',
         'repeat_every',
         'scheduled_run',
+        'action_class',
+        'action_name',
+        'parameters',
+        'company_id'
     ];
 
     protected $casts = [
@@ -47,8 +54,9 @@ class Scheduler extends BaseModel
         'deleted_at' => 'timestamp',
         'paused' => 'boolean',
         'is_deleted' => 'boolean',
+        'parameters' => 'array',
     ];
-    protected $appends = ['linked_job'];
+
 
     const DAILY = 'DAY';
     const WEEKLY = 'WEEK';
@@ -57,10 +65,21 @@ class Scheduler extends BaseModel
     const QUARTERLY = '3MONTHS';
     const ANNUALLY = 'YEAR';
 
-    public function getLinkedJobAttribute()
-    {
-        return $this->job ?? [];
-    }
+    const CREATE_CLIENT_REPORT = 'create_client_report';
+    const CREATE_CLIENT_CONTACT_REPORT = 'create_client_contact_report';
+    const CREATE_CREDIT_REPORT = 'create_credit_report';
+    const CREATE_DOCUMENT_REPORT = 'create_document_report';
+    const CREATE_EXPENSE_REPORT = 'create_expense_report';
+    const CREATE_INVOICE_ITEM_REPORT = 'create_invoice_item_report';
+    const CREATE_INVOICE_REPORT = 'create_invoice_report';
+    const CREATE_PAYMENT_REPORT = 'create_payment_report';
+    const CREATE_PRODUCT_REPORT = 'create_product_report';
+    const CREATE_PROFIT_AND_LOSS_REPORT = 'create_profit_and_loss_report';
+    const CREATE_QUOTE_ITEM_REPORT = 'create_quote_item_report';
+    const CREATE_QUOTE_REPORT = 'create_quote_report';
+    const CREATE_RECURRING_INVOICE_REPORT = 'create_recurring_invoice_report';
+    const CREATE_TASK_REPORT = 'create_task_report';
+
 
     /**
      * Service entry points.
@@ -70,10 +89,6 @@ class Scheduler extends BaseModel
         return new TaskSchedulerService($this);
     }
 
-    public function job(): \Illuminate\Database\Eloquent\Relations\HasOne
-    {
-        return $this->hasOne(ScheduledJob::class, 'scheduler_id', 'id');
-    }
 
     public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
