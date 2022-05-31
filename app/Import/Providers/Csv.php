@@ -60,10 +60,7 @@ class Csv extends BaseImport implements ImportInterface
         ) {
             $this->{$entity}();
         }
-
-        //collate any errors
-
-        $this->finalizeImport();
+        
     }
 
     public function client()
