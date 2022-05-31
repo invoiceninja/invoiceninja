@@ -562,7 +562,7 @@ class BaseImport
 		}
 	}
 
-	protected function finalizeImport()
+	public function finalizeImport()
 	{
 		$data = [
 			'errors'  => $this->error_array,
