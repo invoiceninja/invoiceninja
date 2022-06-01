@@ -35,8 +35,6 @@ class AddJobRelatedFieldsToSchedulersTable extends Migration
      */
     public function down()
     {
-        Schema::table('schedulers', function (Blueprint $table) {
-            //
-        });
+
     }
 }
