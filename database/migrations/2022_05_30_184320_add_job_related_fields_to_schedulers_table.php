@@ -8,12 +8,11 @@
  *
  * @license https://opensource.org/licenses/AAL
  */
-
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateSchedulersTable extends Migration
+class AddJobRelatedFieldsToSchedulersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -22,16 +21,10 @@ class CreateSchedulersTable extends Migration
      */
     public function up()
     {
-        Schema::create('schedulers', function (Blueprint $table) {
-            $table->id();
-            $table->boolean('paused')->default(false);
-            $table->boolean('is_deleted')->default(false);
-            $table->string('repeat_every');
-            $table->timestamp('start_from');
-            $table->timestamp('scheduled_run');
-            $table->foreignIdFor(\App\Models\Company::class);
-            $table->timestamps();
-            $table->softDeletes();
+        Schema::table('schedulers', function (Blueprint $table) {
+            $table->string('action_name')->index();
+            $table->string('action_class');
+            $table->json('parameters')->nullable();
         });
     }
 
@@ -42,6 +35,8 @@ class CreateSchedulersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('schedulers');
+        Schema::table('schedulers', function (Blueprint $table) {
+            //
+        });
     }
 }
