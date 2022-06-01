@@ -240,8 +240,6 @@ class RecurringInvoice extends BaseModel
 
             }
         
-
-
         /* 
         As we are firing at UTC+0 if our offset is negative it is technically firing the day before so we always need
         to add ON a day - a day = 86400 seconds
