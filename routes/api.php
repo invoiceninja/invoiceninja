@@ -172,7 +172,7 @@ Route::group(['middleware' => ['throttle:100,1', 'api_db', 'token_auth', 'locale
 
 
     Route::resource('task_scheduler', 'TaskSchedulerController')->except('edit')->parameters(['task_scheduler' => 'scheduler']);
-    Route::put('task_scheduler/{scheduler}/update_job','TaskSchedulerController@updateJob');
+
 
     Route::get('scheduler', 'SchedulerController@index');
     Route::post('support/messages/send', 'Support\Messages\SendingController');
@@ -205,6 +205,8 @@ Route::group(['middleware' => ['throttle:100,1', 'api_db', 'token_auth', 'locale
     Route::resource('vendors', 'VendorController'); // name = (vendors. index / create / show / update / destroy / edit
     Route::post('vendors/bulk', 'VendorController@bulk')->name('vendors.bulk');
     Route::put('vendors/{vendor}/upload', 'VendorController@upload');
+
+    Route::resource('purchase_orders', 'PurchaseOrderController');
 
     Route::get('users', 'UserController@index');
     Route::get('users/{user}', 'UserController@show')->middleware('password_protected');

@@ -4,7 +4,6 @@
 namespace Tests\Feature\Scheduler;
 
 use App\Export\CSV\ClientExport;
-use App\Models\ScheduledJob;
 use App\Models\Scheduler;
 use App\Utils\Traits\MakesHash;
 use Carbon\Carbon;
@@ -40,7 +39,7 @@ class SchedulerTest extends TestCase
             ThrottleRequests::class
         );
 
-        // $this->withoutExceptionHandling();
+      //   $this->withoutExceptionHandling();
 
     }
 
@@ -48,7 +47,7 @@ class SchedulerTest extends TestCase
     {
         $data = [
             'repeat_every' => Scheduler::DAILY,
-            'job' => ScheduledJob::CREATE_CLIENT_REPORT,
+            'job' => Scheduler::CREATE_CLIENT_REPORT,
             'date_key' => '123',
             'report_keys' => ['test'],
             'date_range' => 'all',
@@ -57,16 +56,10 @@ class SchedulerTest extends TestCase
 
         $response = false;
 
-    // try {
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/task_scheduler/', $data);
-    // } catch (ValidationException $e) {
-    //              $message = json_decode($e->validator->getMessageBag(), 1);
-    //              nlog($message);
-    // }
-            // $response->assertStatus(200);
 
 
         $response->assertSessionHasErrors();
@@ -109,10 +102,12 @@ class SchedulerTest extends TestCase
         ])->get('/api/v1/task_scheduler/' . $this->encodePrimaryKey($scheduler->id));
 
         $arr = $response->json();
-        $this->assertEquals('create_client_report', $arr['data']['job']['action_name']);
+        $this->assertEquals('create_client_report', $arr['data']['action_name']);
 
 
     }
+
+
 
 
     public function testSchedulerJobCanBeUpdated()
@@ -124,10 +119,10 @@ class SchedulerTest extends TestCase
 
         $scheduler = Scheduler::find($this->decodePrimaryKey($id));
 
-        $this->assertSame('create_client_report', $scheduler->job->action_name);
+        $this->assertSame('create_client_report', $scheduler->action_name);
 
         $updateData = [
-            'job' => ScheduledJob::CREATE_CREDIT_REPORT,
+            'job' => Scheduler::CREATE_CREDIT_REPORT,
             'date_range' => 'all',
             'report_keys' => ['test1']
         ];
@@ -135,19 +130,19 @@ class SchedulerTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/task_scheduler/' . $this->encodePrimaryKey($scheduler->id) . '/update_job', $updateData);
+        ])->put('/api/v1/task_scheduler/' . $this->encodePrimaryKey($scheduler->id), $updateData);
 
-        $updatedSchedulerJob = Scheduler::first()->job->action_name;
+        $updatedSchedulerJob = Scheduler::first()->action_name;
         $arr = $response->json();
 
-        $this->assertSame('create_credit_report', $arr['data']['job']['action_name']);
+        $this->assertSame('create_credit_report', $arr['data']['action_name']);
     }
 
     public function createScheduler()
     {
         $data = [
             'repeat_every' => Scheduler::DAILY,
-            'job' => ScheduledJob::CREATE_CLIENT_REPORT,
+            'job' => Scheduler::CREATE_CLIENT_REPORT,
             'date_key' => '123',
             'report_keys' => ['test'],
             'date_range' => 'all',

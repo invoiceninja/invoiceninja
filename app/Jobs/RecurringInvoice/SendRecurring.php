@@ -105,6 +105,7 @@ class SendRecurring implements ShouldQueue
         nlog("updating recurring invoice dates");
         /* Set next date here to prevent a recurring loop forming */
         $this->recurring_invoice->next_send_date = $this->recurring_invoice->nextSendDate();
+        $this->recurring_invoice->next_send_date_client = $this->recurring_invoice->nextSendDateClient();
         $this->recurring_invoice->remaining_cycles = $this->recurring_invoice->remainingCycles();
         $this->recurring_invoice->last_sent_date = now();
 

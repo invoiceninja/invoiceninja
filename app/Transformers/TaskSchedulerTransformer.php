@@ -11,8 +11,6 @@
 
 namespace App\Transformers;
 
-
-use App\Models\ScheduledJob;
 use App\Models\Scheduler;
 use App\Utils\Traits\MakesHash;
 
@@ -20,16 +18,6 @@ class TaskSchedulerTransformer extends EntityTransformer
 {
     use MakesHash;
 
-    protected $defaultIncludes = [
-        'job'
-    ];
-
-    public function includeJob(Scheduler $scheduler)
-    {
-        $transformer = new ScheduledJobTransformer($this->serializer);
-
-        return $this->item($scheduler->job, $transformer, ScheduledJob::class);
-    }
 
     public function transform(Scheduler $scheduler)
     {
@@ -43,6 +31,9 @@ class TaskSchedulerTransformer extends EntityTransformer
             'updated_at' => (int)$scheduler->updated_at,
             'created_at' => (int)$scheduler->created_at,
             'archived_at' => (int) $scheduler->deleted_at,
+            'action_name' => (string) $scheduler->action_name,
+            'action_class' => (string) $scheduler->action_class,
+            'parameters'=> (array)$scheduler->parameters,
         ];
     }
 

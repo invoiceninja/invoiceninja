@@ -12,11 +12,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\TaskScheduler\CreateScheduledTaskRequest;
-use App\Http\Requests\TaskScheduler\UpdateScheduledJobRequest;
 use App\Http\Requests\TaskScheduler\UpdateScheduleRequest;
 use App\Jobs\Ninja\TaskScheduler;
 use App\Jobs\Report\ProfitAndLoss;
-use App\Models\ScheduledJob;
 use App\Models\Scheduler;
 use App\Repositories\TaskSchedulerRepository;
 use App\Transformers\TaskSchedulerTransformer;
@@ -26,7 +24,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class TaskSchedulerController extends BaseController
 {
-    protected $entity_type = TaskScheduler::class;
+    protected $entity_type = Scheduler::class;
     protected $entity_transformer = TaskSchedulerTransformer::class;
     protected TaskSchedulerRepository $scheduler_repository;
 
@@ -199,54 +197,7 @@ class TaskSchedulerController extends BaseController
         return $this->itemResponse($scheduler);
     }
 
-    /**
-     * @OA\PUT(
-     *      path="/api/v1/task_scheduler/{id}/update_job/",
-     *      operationId="updateTaskSchedulerJob",
-     *      tags={"task_scheduler"},
-     *      summary="Update job for a task scheduler ",
-     *      description="Update job for a task scheduler | if we are changing action for a job, we should send the request for a new job same as we are creating new scheduler",
-     * @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
-     * @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(
-     *          name="id",
-     *          in="path",
-     *          description="The Scheduler Hashed ID",
-     *          example="D2J234DFA",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string",
-     *              format="string",
-     *          ),
-     *      ),
-     * @OA\RequestBody(
-     *          required=true,
-     *          @OA\JsonContent(ref="#/components/schemas/UpdateJobForASchedulerSchema")
-     *      ),
-     * @OA\Response(
-     *          response=200,
-     *          description="success",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *       ),
-     * @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *       ),
-     * @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
-     */
-    public function updateJob(Scheduler $scheduler, UpdateScheduledJobRequest $request)
-    {
-        $scheduler->service()->updateJob($scheduler, $request);
-        return $this->itemResponse($scheduler);
-    }
+
 
     /**
      * @OA\DELETE(
