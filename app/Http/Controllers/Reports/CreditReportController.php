@@ -31,11 +31,11 @@ class CreditReportController extends BaseController
 
     /**
      * @OA\Post(
-     *      path="/api/v1/reports/clients",
-     *      operationId="getClientReport",
+     *      path="/api/v1/reports/credit",
+     *      operationId="getCreditReport",
      *      tags={"reports"},
-     *      summary="Client reports",
-     *      description="Export client reports",
+     *      summary="Credit reports",
+     *      description="Export credit reports",
      *      @OA\Parameter(ref="#/components/parameters/X-Api-Secret"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
      *      @OA\RequestBody(

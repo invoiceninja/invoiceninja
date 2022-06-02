@@ -47,6 +47,9 @@ class GenericReportRequest extends Request
         if(!array_key_exists('report_keys', $input))
             $input['report_keys'] = [];
 
+        if(!array_key_exists('send_email', $input))
+            $input['send_email'] = true;
+
         $this->replace($input);
     }
 }

@@ -91,6 +91,33 @@ class ActivityController extends BaseController
         $activities = Activity::orderBy('created_at', 'DESC')->company()
                                 ->take($default_activities);
 
+        if($request->has('react')){
+
+            $system = ctrans('texts.system');
+
+            $data = $activities->cursor()->map(function ($activity) use($system){
+
+                $arr=
+                [
+                      'client' => $activity->client ? $activity->client : '',
+                      'contact' => $activity->contact ? $activity->contact : '',
+                      'quote' => $activity->quote ? $activity->quote : '',
+                      'user' => $activity->user ? $activity->user : '',
+                      'expense' => $activity->expense ? $activity->expense : '',
+                      'invoice' => $activity->invoice ? $activity->invoice : '',
+                      'recurring_invoice' => $activity->recurring_invoice ? $activity->recurring_invoice : '',
+                      'payment' => $activity->payment ? $activity->payment : '',
+                      'credit' => $activity->credit ? $activity->credit : '',
+                      'task' => $activity->task ? $activity->task : '',
+                ];
+
+                return array_merge($arr, $activity->toArray());
+
+            });
+
+            return response()->json(['data' => $data->toArray()], 200);
+        }
+
         return $this->listResponse($activities);
     }
 
