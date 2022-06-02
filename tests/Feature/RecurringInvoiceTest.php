@@ -50,46 +50,6 @@ class RecurringInvoiceTest extends TestCase
         $this->makeTestData();
     }
 
-    public function testTimezoneNextSendDateCalculations()
-    {
-
-        $settings = $this->company->settings;
-        $settings->timezone_id = '112';
-        $this->company->settings = $settings;
-        $this->company->save();
-
-        $data = [
-            'frequency_id' => 1,
-            'status_id' => 1,
-            'discount' => 0,
-            'is_amount_discount' => 1,
-            'po_number' => '3434343',
-            'public_notes' => 'notes',
-            'next_send_date' => now()->addDay()->format('Y-m-d'),
-            'is_deleted' => 0,
-            'custom_value1' => 0,
-            'custom_value2' => 0,
-            'custom_value3' => 0,
-            'custom_value4' => 0,
-            'status' => 1,
-            'client_id' => $this->encodePrimaryKey($this->client->id),
-            'line_items' => $this->buildLineItems(),
-            'remaining_cycles' => -1,
-        ];
-
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/recurring_invoices?start=true', $data)
-            ->assertStatus(200);
-
-            $arr = $response->json();
-
-            $this->assertEquals(RecurringInvoice::STATUS_ACTIVE, $arr['data']['status_id']);
-
-            $this->assertEquals(now()->addDay()->format('Y-m-d'), $arr['data']['next_send_date']);
-    }
-
     public function testPostRecurringInvoice()
     {
         $data = [
