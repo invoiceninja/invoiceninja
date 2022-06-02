@@ -51,6 +51,7 @@ class RecurringInvoiceFactory extends Factory
             'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
             'last_sent_date' => now()->subMonth(),
             'next_send_date' => now()->addMonthNoOverflow(),
+            'next_send_date_client' => now()->addMonthNoOverflow(),
             'remaining_cycles' => $this->faker->numberBetween(1, 10),
             'amount' => $this->faker->randomFloat(2, $min = 1, $max = 1000), // 48.8932
 
