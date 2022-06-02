@@ -135,30 +135,30 @@ class SelfUpdateController extends BaseController
 
         nlog("Extracting zip");
 
-        try{
-            $s = new Snappdf;
-            $s->getChromiumPath();
-            chmod($this->generatePlatformExecutable($s->getChromiumPath()), 0755);
-        }
-        catch(\Exception $e){
-            nlog("I could not set the file permissions for chrome");
-        }
+        // try{
+        //     $s = new Snappdf;
+        //     $s->getChromiumPath();
+        //     chmod($this->generatePlatformExecutable($s->getChromiumPath()), 0755);
+        // }
+        // catch(\Exception $e){
+        //     nlog("I could not set the file permissions for chrome");
+        // }
 
-        // $zipFile = new \PhpZip\ZipFile();
+        $zipFile = new \PhpZip\ZipFile();
 
-        // $zipFile->openFile($file);
+        $zipFile->openFile($file);
 
-        // $zipFile->extractTo(base_path());
+        $zipFile->extractTo(base_path());
 
-        // $zipFile->close();
+        $zipFile->close();
 
-        $zip = new \ZipArchive;
+        // $zip = new \ZipArchive;
         
-        $res = $zip->open($file);
-        if ($res === TRUE) {
-            $zip->extractTo(base_path());
-            $zip->close();
-        } 
+        // $res = $zip->open($file);
+        // if ($res === TRUE) {
+        //     $zip->extractTo(base_path());
+        //     $zip->close();
+        // } 
 
         nlog("Finished extracting files");
 
