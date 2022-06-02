@@ -76,7 +76,7 @@ class ChargePaymentProfile
         
         $tax = new ExtendedAmountType();
         $tax->setName('tax');
-        $tax->setAmount($taxAmount);
+        $tax->setAmount((float) $taxAmount);
 
         $transactionRequestType = new TransactionRequestType();
         $transactionRequestType->setTransactionType('authCaptureTransaction');
