@@ -93,7 +93,7 @@
                 <tr>
                     <div style="text-align: center;margin-top: 25px; margin-bottom: 10px;"></div>
                 </tr>
-                <tr >
+                <tr>
                     <td align="center" cellpadding="20">
                         <div
                             style="border: 1px solid #c2c2c2; border-bottom: none; padding-bottom: 10px; border-top-left-radius: 3px; border-top-right-radius: 3px;">
@@ -131,10 +131,12 @@
                                 </div>
                            </div>
                     </td>
+                </tr>  
+                
+                <tr>
+                  <td height="20" align="center" valign="middle" style="margin: 0; font-size: 0px; line-height: 0px;">  </td>
                 </tr>
-                
-                <tr><td cellpadding="20"><table cellpadding="0" style="border-collapse: collapse;" class="dark-bg-base"><tr><td><div><p> </p></div></td></tr></table></td></tr>
-                
+
                 <tr>
                     <td cellpadding="20" bgcolor="#f9f9f9">
                         <div class="dark-bg dark-text-white"
