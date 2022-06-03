@@ -132,9 +132,9 @@
                            </div>
                     </td>
                 </tr>
-
-                <tr><td cellpadding="20">                            </td></tr>
-                
+                <table cellpadding="20">
+                <tr><td cellpadding="20"><div><p> </p></div></td></tr>
+                </table>
                 <tr>
                     <td cellpadding="20" bgcolor="#f9f9f9">
                         <div class="dark-bg dark-text-white"
