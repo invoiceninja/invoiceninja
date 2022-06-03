@@ -117,7 +117,7 @@
                     </div>
                 </tr>
                 <tr>
-                    <td>
+                    <td align="center">
                         <div class="dark-bg"
                              style="background-color:#f9f9f9; border: 1px solid #c2c2c2; border-bottom: none; padding-bottom: 20px; border-top-left-radius: 3px; border-top-right-radius: 3px;">
                             <img class="logo-light"
