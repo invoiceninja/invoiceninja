@@ -98,12 +98,6 @@
                         <div
                             style="border: 1px solid #c2c2c2; border-bottom: none; padding-bottom: 10px; border-top-left-radius: 3px; border-top-right-radius: 3px;">
 
-{{--                             <img
-                                style="margin-top: 40px; height: 40px; display: block; margin-left: auto; margin-right: auto;"
-                                alt=""
-                                src="{{ $logo ?? '' }}"/>
- --}}
-
                             <!--[if gte mso 9]>
                             <img src="{{ $logo ?? '' }}" alt="" width="400" border="0" align="middle" style="display:block;" />
                             <div style="mso-hide:all;">
