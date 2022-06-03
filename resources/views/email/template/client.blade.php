@@ -94,7 +94,7 @@
                     <div style="text-align: center;margin-top: 25px; margin-bottom: 10px;"></div>
                 </tr>
                 <tr>
-                    <td>
+                    <td align="center">
                         <div
                             style="border: 1px solid #c2c2c2; border-bottom: none; padding-bottom: 10px; border-top-left-radius: 3px; border-top-right-radius: 3px;">
 
@@ -156,7 +156,7 @@
                 </tr>
 
                 <tr>
-                    <td>
+                    <td height="50">
                         <div class="dark-bg-base"
                              style="padding-top: 10px;padding-bottom: 10px; background-color: #242424; border: 1px solid #c2c2c2; border-top-color: #242424; border-bottom-color: #242424;">
                             @if(isset($company))
