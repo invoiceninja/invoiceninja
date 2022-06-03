@@ -666,8 +666,6 @@ class Client extends BaseModel implements HasLocalePreference
 
         $offset -= $timezone->utc_offset;
         $offset += ($entity_send_time * 3600);
-
-        nlog("offset = {$offset}");
         
         return $offset;
     }
