@@ -93,7 +93,7 @@
                 <tr>
                     <div style="text-align: center;margin-top: 25px; margin-bottom: 10px;"></div>
                 </tr>
-                <tr>
+                <tr cellpadding="20">
                     <td align="center">
                         <div
                             style="border: 1px solid #c2c2c2; border-bottom: none; padding-bottom: 10px; border-top-left-radius: 3px; border-top-right-radius: 3px;">
@@ -116,7 +116,7 @@
                         </div>
                     </td>
                 </tr>
-                <tr>
+                <tr cellpadding="20">
                     <td>
                         <div style="border: 1px solid #c2c2c2; border-top: none; border-bottom: none; padding: 20px; text-align: center" id="content">
                                 <div style="padding-top: 10px;"></div>
@@ -133,7 +133,7 @@
                     </td>
                 </tr>
 
-                <tr>
+                <tr cellpadding="20">
                     <td>
                         <div class="dark-bg dark-text-white"
                              style="text-align: center; padding-top: 10px; padding-bottom: 25px; background-color: #f9f9f9; border: 1px solid #c2c2c2; border-top: none; border-bottom-color: #f9f9f9;">
@@ -155,8 +155,8 @@
                     </td>
                 </tr>
 
-                <tr>
-                    <td height="50">
+                <tr cellpadding="20">
+                    <td>
                         <div class="dark-bg-base"
                              style="padding-top: 10px;padding-bottom: 10px; background-color: #242424; border: 1px solid #c2c2c2; border-top-color: #242424; border-bottom-color: #242424;">
                             @if(isset($company))
