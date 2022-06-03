@@ -133,7 +133,7 @@
                     </td>
                 </tr>
                 
-                <tr><td cellpadding="20"><table cellpadding="20"><tr><td><div><p> </p></div></td></tr></table></td></tr>
+                <tr><td cellpadding="20"><table cellpadding="0" style="border-collapse: collapse;" class="dark-bg-base"><tr><td><div><p> </p></div></td></tr></table></td></tr>
                 
                 <tr>
                     <td cellpadding="20" bgcolor="#f9f9f9">
