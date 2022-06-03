@@ -18,13 +18,14 @@ class InventoryManagementSchema extends Migration
         Schema::table('companies', function (Blueprint $table) {
             $table->boolean('enable_applying_payments')->default(0);
             $table->boolean('track_inventory')->default(0);
-            $table->integer('inventory_notification_threshold')->nullable();
-
+            $table->integer('inventory_notification_threshold')->default(0);
+            $table->boolean('stock_notification')->default(1);
         });
 
         Schema::table('products', function (Blueprint $table){
-            $table->integer('in_stock_quantity')->nullable();
-            $table->integer('stock_notification_threshold')->nullable();
+            $table->integer('in_stock_quantity')->default(0);
+            $table->boolean('stock_notification')->default(1);
+            $table->integer('stock_notification_threshold')->default(0);
         });
 
 

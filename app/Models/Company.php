@@ -106,6 +106,7 @@ class Company extends BaseModel
         'enable_applying_payments',
         'track_inventory',
         'inventory_notification_threshold',
+        'stock_notification'
     ];
 
     protected $hidden = [

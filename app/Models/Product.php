@@ -38,6 +38,7 @@ class Product extends BaseModel
         'tax_rate3',
         'in_stock_quantity',
         'stock_notification_threshold',
+        'stock_notification',
     ];
 
     protected $touches = [];
