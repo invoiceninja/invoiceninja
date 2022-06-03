@@ -105,7 +105,7 @@
  --}}
 
                             <!--[if gte mso 9]>
-                            <img src="{{ $logo ?? '' }}" alt="" width="400" border="0" style="display:block;" />
+                            <img src="{{ $logo ?? '' }}" alt="" width="400" border="0" align="middle" style="display:block;" />
                             <div style="margin-top: 40px; height: 40px; display: block; margin-left: auto; margin-right: auto; mso-hide:all;">
                             <![endif]-->
                             <img src="{{ $logo ?? '' }}" alt="" style="margin-top: 40px; height: 40px; display: block; margin-left: auto; margin-right: auto;"/>
