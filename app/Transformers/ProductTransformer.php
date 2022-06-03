@@ -92,7 +92,7 @@ class ProductTransformer extends EntityTransformer
             'is_deleted' => (bool) $product->is_deleted,
             'in_stock_quantity' => (int) $product->in_stock_quantity ?: 0,
             'stock_notification' => (bool) $product->stock_notification,
-            'stock_notification_threshold' => (bool) $product->stock_notification_threshold,
+            'stock_notification_threshold' => (int) $product->stock_notification_threshold,
         ];
     }
 }
