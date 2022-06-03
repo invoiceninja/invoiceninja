@@ -134,7 +134,7 @@
                 </tr>  
                 
                 <tr>
-                  <td cellpadding="20">
+                  <td height="20">
                    <div style="border: 1px solid #c2c2c2; border-top: none; border-bottom: none; padding: 20px; text-align: center" id="content"> </div>
                  </td>
                 </tr>
