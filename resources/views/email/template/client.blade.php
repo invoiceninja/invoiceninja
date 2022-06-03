@@ -134,7 +134,7 @@
                 </tr>
 
                 <tr>
-                    <td cellpadding="20">
+                    <td cellpadding="20" bgcolor="#f9f9f9">
                         <div class="dark-bg dark-text-white"
                              style="text-align: center; padding-top: 10px; padding-bottom: 25px; background-color: #f9f9f9; border: 1px solid #c2c2c2; border-top: none; border-bottom-color: #f9f9f9;">
                             @isset($signature)
