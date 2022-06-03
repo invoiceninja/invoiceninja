@@ -98,10 +98,21 @@
                         <div
                             style="border: 1px solid #c2c2c2; border-bottom: none; padding-bottom: 10px; border-top-left-radius: 3px; border-top-right-radius: 3px;">
 
-                            <img
+{{--                             <img
                                 style="margin-top: 40px; height: 40px; display: block; margin-left: auto; margin-right: auto;"
                                 alt=""
                                 src="{{ $logo ?? '' }}"/>
+ --}}
+
+                            <!--[if gte mso 9]>
+                            <img src="{{ $logo ?? '' }}" alt="" width="570" border="0" style="display:block;" />
+                            <div style="width:0px; height:0px; max-height:0; max-width:0; overflow:hidden; display:none; visibility:hidden; mso-hide:all;">
+                            <![endif]-->
+                            <img src="{{ $logo ?? '' }}" alt="" width="100%" border="0" style="display:block;" />
+                            <!--[if gte mso 9]>
+                            </div>
+                            <![endif]-->
+
                         </div>
                     </td>
                 </tr>
