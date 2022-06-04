@@ -13,6 +13,7 @@ namespace App\Services\Invoice;
 
 use App\Events\Invoice\InvoiceWasArchived;
 use App\Jobs\Entity\CreateEntityPdf;
+use App\Jobs\Inventory\AdjustProductInventory;
 use App\Jobs\Invoice\InvoiceWorkflowSettings;
 use App\Jobs\Util\UnlinkFile;
 use App\Libraries\Currency\Conversion\CurrencyApi;
@@ -560,6 +561,14 @@ class InvoiceService
         
 
         }
+
+        return $this;
+    }
+
+    public function adjustInventory()
+    {
+        if($this->invoice->company->track_inventory)
+            AdjustProductInventory::dispatch($this->invoice->company, $this->invoice, null);
 
         return $this;
     }

@@ -170,6 +170,10 @@ class CompanyTransformer extends EntityTransformer
             'markdown_email_enabled' => (bool) $company->markdown_email_enabled,
             'stop_on_unpaid_recurring' => (bool) $company->stop_on_unpaid_recurring,
             'use_quote_terms_on_conversion' => (bool) $company->use_quote_terms_on_conversion,
+            'stock_notification' => (bool) $company->stock_notification,
+            'inventory_notification_threshold' => (int) $company->inventory_notification_threshold,
+            'track_inventory' => (bool) $company->track_inventory,
+            'enable_applying_payments' => (bool) $company->enable_applying_payments,
         ];
     }
 
