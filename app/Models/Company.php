@@ -103,6 +103,10 @@ class Company extends BaseModel
         'markdown_email_enabled',
         'stop_on_unpaid_recurring',
         'use_quote_terms_on_conversion',
+        'enable_applying_payments',
+        'track_inventory',
+        'inventory_notification_threshold',
+        'stock_notification'
     ];
 
     protected $hidden = [
