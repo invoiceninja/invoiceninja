@@ -36,6 +36,8 @@ use App\Models\GroupSetting;
 use App\Models\InvoiceInvitation;
 use App\Models\Product;
 use App\Models\Project;
+use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderInvitation;
 use App\Models\Quote;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringExpense;
@@ -476,6 +478,26 @@ trait MockAccountData
         $this->purchase_order->save();
 
 
+        PurchaseOrderInvitation::factory()->create([
+            'user_id' => $user_id,
+            'company_id' => $this->company->id,
+            'vendor_contact_id' => $vendor_contact->id,
+            'purchase_order_id' => $this->purchase_order->id,
+        ]);
+
+
+
+        $purchase_order_invitations = PurchaseOrderInvitation::whereCompanyId($this->purchase_order->company_id)
+            ->wherePurchaseOrderId($this->purchase_order->id);
+
+        $this->purchase_order->setRelation('invitations', $purchase_order_invitations);
+
+        $this->purchase_order->service()->markSent();
+
+        $this->purchase_order->setRelation('client', $this->client);
+        $this->purchase_order->setRelation('company', $this->company);
+
+        $this->purchase_order->save();
 
 
         $this->credit = CreditFactory::create($this->company->id, $user_id);

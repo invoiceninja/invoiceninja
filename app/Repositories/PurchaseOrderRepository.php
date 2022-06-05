@@ -13,6 +13,7 @@ namespace App\Repositories;
 
 
 use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderInvitation;
 use App\Utils\Traits\MakesHash;
 
 class PurchaseOrderRepository extends BaseRepository
@@ -29,6 +30,10 @@ class PurchaseOrderRepository extends BaseRepository
         $purchase_order->save();
 
         return $purchase_order;
+    }
+    public function getInvitationByKey($key) :?PurchaseOrderInvitation
+    {
+        return PurchaseOrderInvitation::where('key', $key)->first();
     }
 
 }

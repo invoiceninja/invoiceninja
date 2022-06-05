@@ -54,4 +54,28 @@ class PurchaseOrderService
 
         return $this;
     }
+
+    public function setStatus($status)
+    {
+        $this->purchase_order->status_id = $status;
+
+        return $this;
+    }
+
+    public function markSent()
+    {
+        $this->purchase_order = (new MarkSent($this->purchase_order->client, $this->purchase_order))->run();
+
+        return $this;
+    }
+    /**
+     * Applies the purchase order  number.
+     * @return $this PurchaseOrderService object
+     */
+    public function applyNumber()
+    {
+        $this->purchase_order = (new ApplyNumber($this->purchase_order->client, $this->purchase_order))->run();
+
+        return $this;
+    }
 }
