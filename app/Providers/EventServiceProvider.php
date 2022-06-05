@@ -60,6 +60,7 @@ use App\Events\Payment\PaymentWasRefunded;
 use App\Events\Payment\PaymentWasRestored;
 use App\Events\Payment\PaymentWasUpdated;
 use App\Events\Payment\PaymentWasVoided;
+use App\Events\PurchaseOrder\PurchaseOrderWasMarkedSent;
 use App\Events\Quote\QuoteWasApproved;
 use App\Events\Quote\QuoteWasArchived;
 use App\Events\Quote\QuoteWasCreated;
@@ -557,6 +558,8 @@ class EventServiceProvider extends ServiceProvider
         ],
         VendorWasUpdated::class => [
             VendorUpdatedActivity::class,
+        ],
+        PurchaseOrderWasMarkedSent::class => [
         ],
 
     ];

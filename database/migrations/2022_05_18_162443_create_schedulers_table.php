@@ -30,9 +30,6 @@ class CreateSchedulersTable extends Migration
             $table->timestamp('start_from');
             $table->timestamp('scheduled_run');
             $table->foreignIdFor(\App\Models\Company::class);
-            $table->string('action_name')->index();
-            $table->string('action_class');
-            $table->json('parameters')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

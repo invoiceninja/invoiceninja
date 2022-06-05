@@ -1,20 +1,10 @@
 <?php
-/**
- * Invoice Ninja (https://invoiceninja.com).
- *
- * @link https://github.com/invoiceninja/invoiceninja source repository
- *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
- *
- * @license https://www.elastic.co/licensing/elastic-license
- */
+
 
 namespace App\Services\PurchaseOrder;
 
-use App\Factory\ClientContactFactory;
+
 use App\Factory\PurchaseOrderInvitationFactory;
-use App\Factory\VendorContactFactory;
-use App\Models\Invoice;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderInvitation;
 use App\Services\AbstractService;
@@ -24,18 +14,24 @@ use Illuminate\Support\Str;
 class CreateInvitations extends AbstractService
 {
     use MakesHash;
-    
-    private $purchase_order;
+
+    public PurchaseOrder $purchase_order;
 
     public function __construct(PurchaseOrder $purchase_order)
     {
         $this->purchase_order = $purchase_order;
     }
-
+    private function createBlankContact()
+    {
+        $new_contact = PurchaseOrderInvitationFactory::create($this->purchase_order->company_id, $this->purchase_order->user_id);
+        $new_contact->client_id = $this->purchase_order->client_id;
+        $new_contact->contact_key = Str::random(40);
+        $new_contact->is_primary = true;
+        $new_contact->save();
+    }
     public function run()
     {
-
-        $contacts = $this->purchase_order->vendor->contacts()->where('send_email', true)->get();
+        $contacts = $this->purchase_order->vendor->contacts;
 
         if($contacts->count() == 0){
             $this->createBlankContact();
@@ -45,62 +41,51 @@ class CreateInvitations extends AbstractService
         }
 
         $contacts->each(function ($contact) {
-            $invitation = PurchaseOrderInvitation::where('company_id', $this->purchase_order->company_id)
-                                        ->where('vendor_contact_id', $contact->id)
-                                        ->where('purchase_order_id', $this->purchase_order->id)
-                                        ->withTrashed()
-                                        ->first();
+            $invitation = PurchaseOrderInvitation::whereCompanyId($this->purchase_order->company_id)
+                ->whereClientContactId($contact->id)
+                ->whereCreditId($this->purchase_order->id)
+                ->withTrashed()
+                ->first();
 
-            if (! $invitation && $contact->send_email) {
-                $ii = PurchaseOrderInvitationFactory::create($this->purchase_order->company_id, $this->purchase_order->user_id);
+            if (! $invitation) {
+                $ii = PurchaseOrderInvitation::create($this->purchase_order->company_id, $this->purchase_order->user_id);
                 $ii->key = $this->createDbHash($this->purchase_order->company->db);
                 $ii->purchase_order_id = $this->purchase_order->id;
                 $ii->vendor_contact_id = $contact->id;
                 $ii->save();
-            } elseif ($invitation && ! $contact->send_email) {
+            } elseif (! $contact->send_email) {
                 $invitation->delete();
             }
         });
 
         if($this->purchase_order->invitations()->count() == 0) {
-            
+
             if($contacts->count() == 0){
                 $contact = $this->createBlankContact();
             }
             else{
                 $contact = $contacts->first();
 
-                            $invitation = PurchaseOrderInvitation::where('company_id', $this->purchase_order->company_id)
-                                        ->where('vendor_contact_id', $contact->id)
-                                        ->where('purchase_order_id', $this->purchase_order->id)
-                                        ->withTrashed()
-                                        ->first();
+                $invitation = PurchaseOrder::where('company_id', $this->purchase_order->company_id)
+                    ->where('vendor_contact_id', $contact->id)
+                    ->where('purchase_order_id', $this->purchase_order->id)
+                    ->withTrashed()
+                    ->first();
 
-                            if($invitation){
-                                $invitation->restore();
-                                return $this->purchase_order;
-                            }
+                if($invitation){
+                    $invitation->restore();
+                    return $this->purchase_order;
+                }
             }
 
-                $ii = PurchaseOrderInvitationFactory::create($this->purchase_order->company_id, $this->purchase_order->user_id);
-                $ii->key = $this->createDbHash($this->purchase_order->company->db);
-                $ii->purchase_order_id = $this->purchase_order->id;
-                $ii->vendor_contact_id = $contact->id;
-                $ii->save();
+            $ii = PurchaseOrderInvitation::create($this->purchase_order->company_id, $this->purchase_order->user_id);
+            $ii->key = $this->createDbHash($this->purchase_order->company->db);
+            $ii->purchase_order_id = $this->purchase_order->id;
+            $ii->vendor_contact_id = $contact->id;
+            $ii->save();
         }
 
+
         return $this->purchase_order;
-    }
-
-    private function createBlankContact()
-    {
-        $new_contact = VendorContactFactory::create($this->purchase_order->company_id, $this->purchase_order->user_id);
-        $new_contact->vendor_id = $this->purchase_order->vendor_id;
-        $new_contact->contact_key = Str::random(40);
-        $new_contact->is_primary = true;
-        $new_contact->send_email = true;
-        $new_contact->save();
-
-        return $new_contact;
     }
 }

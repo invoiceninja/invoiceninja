@@ -12,10 +12,12 @@
 namespace App\Models;
 
 
-use App\Helpers\Invoice\InvoiceSum;
-use App\Helpers\Invoice\InvoiceSumInclusive;
+use App\Jobs\Entity\CreateEntityPdf;
 use App\Services\PurchaseOrder\PurchaseOrderService;
+use App\Utils\Ninja;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class PurchaseOrder extends BaseModel
 {
@@ -94,9 +96,8 @@ class PurchaseOrder extends BaseModel
 
     const STATUS_DRAFT = 1;
     const STATUS_SENT = 2;
-    const STATUS_APPROVED = 3;
-    const STATUS_CONVERTED = 4;
-    const STATUS_EXPIRED = -1;
+    const STATUS_PARTIAL = 3;
+    const STATUS_APPLIED = 4;
 
     public function assigned_user()
     {
@@ -132,10 +133,52 @@ class PurchaseOrder extends BaseModel
     {
         return $this->belongsTo(Client::class)->withTrashed();
     }
+    public function markInvitationsSent()
+    {
+        $this->invitations->each(function ($invitation) {
+            if (! isset($invitation->sent_date)) {
+                $invitation->sent_date = Carbon::now();
+                $invitation->save();
+            }
+        });
+    }
+
+    public function pdf_file_path($invitation = null, string $type = 'path', bool $portal = false)
+    {
+        if (! $invitation) {
+
+            if($this->invitations()->exists())
+                $invitation = $this->invitations()->first();
+            else{
+                $this->service()->createInvitations();
+                $invitation = $this->invitations()->first();
+            }
+
+        }
+
+        if(!$invitation)
+            throw new \Exception('Hard fail, could not create an invitation - is there a valid contact?');
+
+        $file_path = $this->client->credit_filepath($invitation).$this->numberFormatter().'.pdf';
+
+        if(Ninja::isHosted() && $portal && Storage::disk(config('filesystems.default'))->exists($file_path)){
+            return Storage::disk(config('filesystems.default'))->{$type}($file_path);
+        }
+        elseif(Ninja::isHosted() && $portal){
+            $file_path = CreateEntityPdf::dispatchNow($invitation,config('filesystems.default'));
+            return Storage::disk(config('filesystems.default'))->{$type}($file_path);
+        }
+
+        if(Storage::disk('public')->exists($file_path))
+            return Storage::disk('public')->{$type}($file_path);
+
+        $file_path = CreateEntityPdf::dispatchNow($invitation);
+        return Storage::disk('public')->{$type}($file_path);
+    }
 
     public function invitations()
     {
-        return $this->hasMany(CreditInvitation::class);
+        return $this->hasMany(PurchaseOrderInvitation::class);
     }
 
     public function project()
@@ -166,19 +209,6 @@ class PurchaseOrder extends BaseModel
     public function documents()
     {
         return $this->morphMany(Document::class, 'documentable');
-    }
-
-    public function calc()
-    {
-        $credit_calc = null;
-
-        if ($this->uses_inclusive_taxes) {
-            $credit_calc = new InvoiceSumInclusive($this);
-        } else {
-            $credit_calc = new InvoiceSum($this);
-        }
-
-        return $credit_calc->build();
     }
 
 }

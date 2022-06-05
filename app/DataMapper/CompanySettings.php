@@ -98,11 +98,11 @@ class CompanySettings extends BaseSettings
     public $expense_number_pattern = ''; //@implemented
     public $expense_number_counter = 1; //@implemented
 
-    public $recurring_expense_number_pattern = ''; 
-    public $recurring_expense_number_counter = 1; 
+    public $recurring_expense_number_pattern = '';
+    public $recurring_expense_number_counter = 1;
 
-    public $recurring_quote_number_pattern = ''; 
-    public $recurring_quote_number_counter = 1; 
+    public $recurring_quote_number_pattern = '';
+    public $recurring_quote_number_counter = 1;
 
     public $vendor_number_pattern = ''; //@implemented
     public $vendor_number_counter = 1; //@implemented
@@ -278,6 +278,9 @@ class CompanySettings extends BaseSettings
     public $hide_empty_columns_on_pdf = false;
     public $email_from_name = '';
     public $auto_archive_invoice_cancelled = false;
+
+
+    public $purchase_order_number_counter = 1; //TODO
 
     public static $casts = [
         'purchase_order_number_pattern'      => 'purchase_order_number_pattern',
@@ -479,6 +482,7 @@ class CompanySettings extends BaseSettings
         'portal_custom_footer'               => 'string',
         'portal_custom_js'                   => 'string',
         'client_portal_enable_uploads'       => 'bool',
+        'purchase_order_number_counter'      => 'integer',
     ];
 
     public static $free_plan_casts = [

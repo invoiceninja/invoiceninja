@@ -71,4 +71,19 @@ class PurchaseOrderService
 
         return $this;
     }
+
+    public function setStatus($status)
+    {
+        $this->purchase_order->status_id = $status;
+
+        return $this;
+    }
+
+    public function markSent()
+    {
+        $this->purchase_order = (new MarkSent($this->purchase_order->vendor, $this->purchase_order))->run();
+
+        return $this;
+    }
+
 }

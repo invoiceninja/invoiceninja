@@ -106,6 +106,12 @@ class RecurringService
             $this->stop();
         }
         
+        if(isset($this->recurring_entity->client))
+        {
+            $offset = $this->recurring_entity->client->timezone_offset();
+            $this->recurring_entity->next_send_date = Carbon::parse($this->recurring_entity->next_send_date_client)->startOfDay()->addSeconds($offset);
+        }
+
         return $this;
     }
 

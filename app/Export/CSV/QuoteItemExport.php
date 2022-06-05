@@ -78,7 +78,7 @@ class QuoteItemExport extends BaseExport
         'tax_name2' => 'item.tax_name2',
         'tax_name3' => 'item.tax_name3',
         'line_total' => 'item.line_total',
-        'gross_line_total' => 'item.gross_line_total',
+        // 'gross_line_total' => 'item.gross_line_total',
         'custom_value1' => 'item.custom_value1',
         'custom_value2' => 'item.custom_value2',
         'custom_value3' => 'item.custom_value3',

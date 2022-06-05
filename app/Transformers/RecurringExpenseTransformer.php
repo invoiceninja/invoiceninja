@@ -100,7 +100,8 @@ class RecurringExpenseTransformer extends EntityTransformer
             'frequency_id' => (string) $recurring_expense->frequency_id,
             'remaining_cycles' => (int) $recurring_expense->remaining_cycles,
             'last_sent_date' => $recurring_expense->last_sent_date ?: '',
-            'next_send_date' => $recurring_expense->next_send_date ?: '',
+            // 'next_send_date' => $recurring_expense->next_send_date ?: '',
+            'next_send_date' => $recurring_expense->next_send_date_client ?: '',
             'recurring_dates' => (array) [],
         ];
 

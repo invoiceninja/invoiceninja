@@ -39,7 +39,7 @@ class Invoice2Go extends BaseImport
 
         //collate any errors
 
-        $this->finalizeImport();
+        // $this->finalizeImport();
     }
 
 

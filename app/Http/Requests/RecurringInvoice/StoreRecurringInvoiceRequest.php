@@ -67,6 +67,10 @@ class StoreRecurringInvoiceRequest extends Request
     {
         $input = $this->all();
 
+        if (array_key_exists('next_send_date', $input) && is_string($input['next_send_date'])) {
+            $input['next_send_date_client'] = $input['next_send_date'];
+        }        
+
         if (array_key_exists('design_id', $input) && is_string($input['design_id'])) {
             $input['design_id'] = $this->decodePrimaryKey($input['design_id']);
         }
