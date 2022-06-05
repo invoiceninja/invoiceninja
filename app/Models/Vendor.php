@@ -146,4 +146,10 @@ class Vendor extends BaseModel
 
         return '';
     }
+
+    public function purchase_order_filepath($invitation)
+    {   
+        $contact_key = $invitation->contact->contact_key;
+        return $this->company->company_key.'/'.$this->vendor_hash.'/'.$contact_key.'/purchase_orders/';
+    }
 }
