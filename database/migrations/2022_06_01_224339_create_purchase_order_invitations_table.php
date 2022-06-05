@@ -44,6 +44,21 @@ class CreatePurchaseOrderInvitationsTable extends Migration
             $table->unsignedInteger('client_id')->nullable()->change();
         });
 
+
+        Company::cursor()->each(function ($company){
+
+            $settings = $company->settings;
+
+            $settings->purchase_order_design_id = 'Wpmbk5ezJn';
+            $settings->purchase_order_footer = ''; //@implemented
+            $settings->purchase_order_terms = ''; //@implemented
+            $settings->purchase_order_public_notes = ''; //@implemented
+            $settings->purchase_order_number_pattern = ''; //@implemented
+            $settings->purchase_order_number_counter = 1; //@implemented
+
+            $company->settings = $settings;
+            $company->save();
+        })
     }
 
     /**
@@ -53,6 +68,5 @@ class CreatePurchaseOrderInvitationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('purchase_order_invitations');
     }
 }

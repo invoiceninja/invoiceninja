@@ -709,7 +709,6 @@ class InvoiceController extends BaseController
                         echo Storage::get($file);
                 },  basename($file), ['Content-Type' => 'application/pdf']);
 
-
                 break;
             case 'restore':
                 $this->invoice_repo->restore($invoice);

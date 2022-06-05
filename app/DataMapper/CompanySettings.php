@@ -136,6 +136,13 @@ class CompanySettings extends BaseSettings
     public $invoice_design_id = 'Wpmbk5ezJn'; //@implemented
     public $quote_design_id = 'Wpmbk5ezJn'; //@implemented
     public $credit_design_id = 'Wpmbk5ezJn'; //@implemented
+
+    public $purchase_order_design_id = 'Wpmbk5ezJn';
+    public $purchase_order_footer = ''; //@implemented
+    public $purchase_order_terms = ''; //@implemented
+    public $purchase_order_public_notes = ''; //@implemented
+    public $require_purchase_order_signature = false;  //@TODO ben to confirm
+    
     public $invoice_footer = ''; //@implemented
     public $credit_footer = ''; //@implemented
     public $credit_terms = ''; //@implemented
@@ -280,6 +287,11 @@ class CompanySettings extends BaseSettings
     public $auto_archive_invoice_cancelled = false;
 
     public static $casts = [
+        'require_purchase_order_signature'   => 'bool',
+        'purchase_order_public_notes'        => 'string',
+        'purchase_order_terms'               => 'string',
+        'purchase_order_design_id'           => 'string',
+        'purchase_order_footer'              => 'string',
         'purchase_order_number_pattern'      => 'string',
         'purchase_order_number_counter'      => 'int',
         'page_numbering_alignment'           => 'string',
