@@ -15,10 +15,10 @@ class CreatePurchaseOrderInvitationsTable extends Migration
     {
         Schema::create('purchase_order_invitations', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('company_id');
+            $table->unsignedInteger('company_id')->index();
             $table->unsignedInteger('user_id');
-            $table->unsignedInteger('vendor_contact_id');
-            $table->unsignedInteger('purchase_order_id')->index();
+            $table->unsignedInteger('vendor_contact_id')->unique();
+            $table->unsignedBigInteger('purchase_order_id')->index()->unique();
             $table->string('key')->index();
             $table->string('transaction_reference')->nullable();
             $table->string('message_id')->nullable()->index();
@@ -38,8 +38,6 @@ class CreatePurchaseOrderInvitationsTable extends Migration
             $table->timestamps(6);
             $table->softDeletes('deleted_at', 6);
 
-            $table->index(['deleted_at', 'purchase_order_id', 'company_id']);
-            $table->unique(['vendor_contact_id', 'purchase_order_id']);
         });
     }
 
