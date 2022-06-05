@@ -103,7 +103,7 @@ class Kernel extends ConsoleKernel
 
         if (config('queue.default') == 'database' && Ninja::isSelfHost() && config('ninja.internal_queue_enabled') && !config('ninja.is_docker')) {
 
-            $schedule->command('queue:work database --stop-when-empty')->everyMinute()->withoutOverlapping();
+            $schedule->command('queue:work database --stop-when-empty --memory=256')->everyMinute()->withoutOverlapping();
 
             $schedule->command('queue:restart')->everyFiveMinutes()->withoutOverlapping();
 
