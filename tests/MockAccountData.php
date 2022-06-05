@@ -450,21 +450,11 @@ trait MockAccountData
 
         $this->quote->save();
 
-
-
-
-
-
-
-
         $this->purchase_order = PurchaseOrderFactory::create($this->company->id, $user_id);
-        $this->purchase_order->client_id = $this->client->id;
-
+        $this->purchase_order->vendor_id = $this->vendor->id;
 
         $this->purchase_order->amount = 10;
         $this->purchase_order->balance = 10;
-
-        // $this->credit->due_date = now()->addDays(200);
 
         $this->purchase_order->tax_name1 = '';
         $this->purchase_order->tax_name2 = '';

@@ -279,11 +279,8 @@ class CompanySettings extends BaseSettings
     public $email_from_name = '';
     public $auto_archive_invoice_cancelled = false;
 
-
-    public $purchase_order_number_counter = 1; //TODO
-
     public static $casts = [
-        'purchase_order_number_pattern'      => 'purchase_order_number_pattern',
+        'purchase_order_number_pattern'      => 'string',
         'purchase_order_number_counter'      => 'int',
         'page_numbering_alignment'           => 'string',
         'page_numbering'                     => 'bool',

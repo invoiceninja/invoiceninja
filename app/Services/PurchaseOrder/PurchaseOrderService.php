@@ -28,17 +28,6 @@ class PurchaseOrderService
         $this->purchase_order = $purchase_order;
     }
 
-    /**
-     * Saves the purchase order.
-     * @return \App\Models\PurchaseOrder object
-     */
-    public function save(): ?PurchaseOrder
-    {
-        $this->purchase_order->saveQuietly();
-
-        return $this->purchase_order;
-    }
-
     public function createInvitations()
     {
 
@@ -84,6 +73,17 @@ class PurchaseOrderService
         $this->purchase_order = (new MarkSent($this->purchase_order->vendor, $this->purchase_order))->run();
 
         return $this;
+    }
+
+    /**
+     * Saves the purchase order.
+     * @return \App\Models\PurchaseOrder object
+     */
+    public function save(): ?PurchaseOrder
+    {
+        $this->purchase_order->saveQuietly();
+
+        return $this->purchase_order;
     }
 
 }

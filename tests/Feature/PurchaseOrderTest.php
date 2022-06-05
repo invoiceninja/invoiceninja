@@ -83,7 +83,7 @@ class PurchaseOrderTest extends TestCase
             'custom_value3' => 0,
             'custom_value4' => 0,
             'status' => 1,
-            'client_id' => $this->encodePrimaryKey($this->client->id),
+            'vendor_id' => $this->encodePrimaryKey($this->vendor->id),
         ];
 
         $response = $this->withHeaders([
@@ -117,7 +117,7 @@ class PurchaseOrderTest extends TestCase
             'custom_value3' => 0,
             'custom_value4' => 0,
             'status' => 1,
-            'client_id' => $this->encodePrimaryKey($this->client->id),
+            'vendor_id' => $this->encodePrimaryKey($this->vendor->id),
         ];
 
         $response = $this->withHeaders([

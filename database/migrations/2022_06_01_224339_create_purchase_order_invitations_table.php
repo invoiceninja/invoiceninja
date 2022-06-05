@@ -39,6 +39,11 @@ class CreatePurchaseOrderInvitationsTable extends Migration
             $table->softDeletes('deleted_at', 6);
 
         });
+
+        Schema::table('purchase_orders', function (Blueprint $table) {
+            $table->unsignedInteger('client_id')->nullable()->change();
+        });
+
     }
 
     /**
