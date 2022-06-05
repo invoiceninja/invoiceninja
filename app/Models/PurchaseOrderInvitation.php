@@ -17,7 +17,7 @@ class PurchaseOrderInvitation extends BaseModel
 
     protected $fillable = [
         'id',
-        'client_contact_id',
+        'vendor_contact_id',
     ];
 
     protected $with = [
