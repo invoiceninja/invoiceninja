@@ -33,9 +33,10 @@ use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
 use App\Utils\Traits\NumberFormatter;
-use App\Utils\Traits\Pdf\PageNumbering;
 use App\Utils\Traits\Pdf\PDF;
+use App\Utils\Traits\Pdf\PageNumbering;
 use App\Utils\Traits\Pdf\PdfMaker;
+use App\Utils\VendorHtmlEngine;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -120,7 +121,7 @@ class CreatePurchaseOrderPdf implements ShouldQueue
         if(!$design)
             $design = Design::find(2);
 
-        $html = new HtmlEngine($this->invitation);
+        $html = new VendorHtmlEngine($this->invitation);
 
         if ($design->is_custom) {
             $options = [

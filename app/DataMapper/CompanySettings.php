@@ -643,6 +643,17 @@ class CompanySettings extends BaseSettings
                 '$client.phone',
                 '$contact.email',
             ],
+            'vendor_details' => [
+                '$vendor.name',
+                '$vendor.number',
+                '$vendor.vat_number',
+                '$vendor.address1',
+                '$vendor.address2',
+                '$vendor.city_state_postal',
+                '$vendor.country',
+                '$vendor.phone',
+                '$contact.email',
+            ],
             'company_details' => [
                 '$company.name',
                 '$company.id_number',

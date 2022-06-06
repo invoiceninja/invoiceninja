@@ -13,9 +13,11 @@ namespace App\Models;
 
 use App\DataMapper\CompanySettings;
 use App\Models\Presenters\VendorPresenter;
+use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
+use Illuminate\Support\Facades\Cache;
 
 class Vendor extends BaseModel
 {
@@ -23,7 +25,8 @@ class Vendor extends BaseModel
     use Filterable;
     use GeneratesCounter;
     use PresentableTrait;
-
+    use AppSetup;
+    
     protected $fillable = [
         'name',
         'assigned_user_id',
@@ -95,6 +98,19 @@ class Vendor extends BaseModel
     {
         return $this->hasMany(Activity::class);
     }
+
+    public function currency()
+    {
+        $currencies = Cache::get('currencies');
+
+        if(!$currencies)
+            $this->buildCache(true);
+
+        return $currencies->filter(function ($item) {
+            return $item->id == $this->currency_id;
+        })->first();
+    }
+
 
     public function company()
     {

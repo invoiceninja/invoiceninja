@@ -104,15 +104,15 @@ class Helpers
      * Process reserved keywords on PDF.
      *  
      * @param string $value 
-     * @param Client $client 
+     * @param Client|Company $entity
      * @return null|string 
      */
-    public static function processReservedKeywords(?string $value, Client $client): ?string
+    public static function processReservedKeywords(?string $value, $entity): ?string
     {
         if(!$value)
             return '';
         
-        Carbon::setLocale($client->locale());
+        Carbon::setLocale($entity->locale());
 
         $replacements = [
             'literal' => [
@@ -121,21 +121,21 @@ class Helpers
                 ':QUARTER' => 'Q' . now()->quarter,
                 ':WEEK_BEFORE' => \sprintf(
                     '%s %s %s',
-                    Carbon::now()->subDays(7)->translatedFormat($client->date_format()),
+                    Carbon::now()->subDays(7)->translatedFormat($entity->date_format()),
                     ctrans('texts.to'),
-                    Carbon::now()->translatedFormat($client->date_format())
+                    Carbon::now()->translatedFormat($entity->date_format())
                 ),
                 ':WEEK_AHEAD' => \sprintf(
                     '%s %s %s',
-                    Carbon::now()->addDays(7)->translatedFormat($client->date_format()),
+                    Carbon::now()->addDays(7)->translatedFormat($entity->date_format()),
                     ctrans('texts.to'),
-                    Carbon::now()->addDays(14)->translatedFormat($client->date_format())
+                    Carbon::now()->addDays(14)->translatedFormat($entity->date_format())
                 ),
                 ':WEEK' => \sprintf(
                     '%s %s %s', 
-                    Carbon::now()->translatedFormat($client->date_format()), 
+                    Carbon::now()->translatedFormat($entity->date_format()), 
                     ctrans('texts.to'), 
-                    Carbon::now()->addDays(7)->translatedFormat($client->date_format())
+                    Carbon::now()->addDays(7)->translatedFormat($entity->date_format())
                 ),
             ],
             'raw' => [

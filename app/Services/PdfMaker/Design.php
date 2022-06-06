@@ -69,6 +69,8 @@ class Design extends BaseDesign
 
     const DELIVERY_NOTE = 'delivery_note';
     const STATEMENT = 'statement';
+    const PURCHASE_ORDER = 'purchase_order';
+
 
     public function __construct(string $design = null, array $options = [])
     {
@@ -112,6 +114,10 @@ class Design extends BaseDesign
             'client-details' => [
                 'id' => 'client-details',
                 'elements' => $this->clientDetails(),
+            ],
+            'vendor-details' => [
+                'id' => 'vendor-details',
+                'elements' => $this->vendorDetails(),
             ],
             'entity-details' => [
                 'id' => 'entity-details',
@@ -183,6 +189,19 @@ class Design extends BaseDesign
 
         foreach ($variables as $variable) {
             $elements[] = ['element' => 'p', 'content' => $variable, 'show_empty' => false, 'properties' => ['data-ref' => 'company_address-' . substr($variable, 1)]];
+        }
+
+        return $elements;
+    }
+
+    public function vendorDetails(): array
+    {
+        $elements = [];
+
+        $variables = $this->context['pdf_variables']['vendor_details'];
+
+        foreach ($variables as $variable) {
+            $elements[] = ['element' => 'p', 'content' => $variable, 'show_empty' => false, 'properties' => ['data-ref' => 'vendor_details-' . substr($variable, 1)]];
         }
 
         return $elements;

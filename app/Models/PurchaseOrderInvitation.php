@@ -4,6 +4,7 @@
 namespace App\Models;
 
 
+use App\Utils\Ninja;
 use App\Utils\Traits\Inviteable;
 use App\Utils\Traits\MakesDates;
 use Carbon\Carbon;
@@ -77,5 +78,30 @@ class PurchaseOrderInvitation extends BaseModel
         $this->save();
     }
 
+    public function getPortalLink() :string
+    {
+
+        if(Ninja::isHosted())
+            $domain = $this->company->domain();
+        else
+            $domain = config('ninja.app_url');
+
+        switch ($this->company->portal_mode) {
+            case 'subdomain':
+                return $domain.'/vendor/';
+                break;
+            case 'iframe':
+                return $domain.'/vendor/';
+                break;
+            case 'domain':
+                return $domain.'/vendor/';
+                break;
+
+            default:
+                return '';
+                break;
+        }
+
+    }
 
 }
