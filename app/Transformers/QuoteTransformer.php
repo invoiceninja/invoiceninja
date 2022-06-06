@@ -78,11 +78,11 @@ class QuoteTransformer extends EntityTransformer
         return $this->includeCollection($quote->documents, $transformer, Document::class);
     }
 
-    public function includeClient(Quote $invoice): Item
+    public function includeClient(Quote $quote): Item
     {
         $transformer = new ClientTransformer($this->serializer);
 
-        return $this->includeItem($invoice->client, $transformer, Client::class);
+        return $this->includeItem($quote->client, $transformer, Client::class);
     }
 
     public function transform(Quote $quote)
