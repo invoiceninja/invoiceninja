@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -20,15 +20,17 @@ use App\Utils\Ninja;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
-class InvoiceItemExport
+class InvoiceItemExport extends BaseExport
 {
-    private $company;
+    private Company $company;
 
-    private $report_keys;
+    protected array $input;
 
     private $invoice_transformer;
 
-    private array $entity_keys = [
+    protected string $date_key = 'date';
+
+    protected array $entity_keys = [
         'amount' => 'amount',
         'balance' => 'balance',
         'client' => 'client_id',
@@ -62,7 +64,7 @@ class InvoiceItemExport
         'terms' => 'terms',
         'total_taxes' => 'total_taxes',
         'currency' => 'currency_id',
-        'qty' => 'item.quantity',
+        'quantity' => 'item.quantity',
         'unit_cost' => 'item.cost',
         'product_key' => 'item.product_key',
         'cost' => 'item.product_cost',
@@ -85,13 +87,13 @@ class InvoiceItemExport
 
     private array $decorate_keys = [
         'client',
-        'currency',
+        'currency_id',
     ];
 
-    public function __construct(Company $company, array $report_keys)
+    public function __construct(Company $company, array $input)
     {
         $this->company = $company;
-        $this->report_keys = $report_keys;
+        $this->input = $input;
         $this->invoice_transformer = new InvoiceTransformer();
     }
 
@@ -107,31 +109,27 @@ class InvoiceItemExport
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
 
+        if(count($this->input['report_keys']) == 0)
+            $this->input['report_keys'] = array_values($this->entity_keys);
+
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-        Invoice::with('client')->where('company_id', $this->company->id)
-                            ->where('is_deleted',0)
-                            ->cursor()
-                            ->each(function ($invoice){
+        $query = Invoice::query()
+                        ->with('client')->where('company_id', $this->company->id)
+                        ->where('is_deleted',0);
 
-                                $this->iterateItems($invoice);
+        $query = $this->addDateRange($query);
 
-                            });
+        $query->cursor()
+            ->each(function ($invoice){
+
+                $this->iterateItems($invoice);
+
+        });
 
         return $this->csv->toString(); 
 
-    }
-
-    private function buildHeader() :array
-    {
-
-        $header = [];
-
-        foreach(array_keys($this->report_keys) as $key)
-            $header[] = ctrans("texts.{$key}");
-
-        return $header;
     }
 
     private function iterateItems(Invoice $invoice)
@@ -144,7 +142,7 @@ class InvoiceItemExport
         {
             $item_array = [];
 
-            foreach(array_values($this->report_keys) as $key){
+            foreach(array_values($this->input['report_keys']) as $key){
             
                 if(str_contains($key, "item.")){
 
@@ -156,15 +154,19 @@ class InvoiceItemExport
 
             $entity = [];
 
-            $transformed_items = array_merge($transformed_invoice, $item_array);
-
-            $transformed_items = $this->decorateAdvancedFields($invoice, $transformed_items);
-
-            foreach(array_values($this->report_keys) as $key)
+            foreach(array_values($this->input['report_keys']) as $key)
             {
-                $key = str_replace("item.", "", $key);
-                $entity[$key] = $transformed_items[$key];
+                $keyval = array_search($key, $this->entity_keys);
+
+                if(array_key_exists($key, $transformed_items))
+                    $entity[$keyval] = $transformed_items[$key];
+                else 
+                    $entity[$keyval] = "";
+
             }
+
+            $transformed_items = array_merge($transformed_invoice, $item_array);
+            $entity = $this->decorateAdvancedFields($invoice, $transformed_items);
 
             $this->csv->insertOne($entity); 
 
@@ -179,10 +181,14 @@ class InvoiceItemExport
 
         $entity = [];
 
-        foreach(array_values($this->report_keys) as $key){
+        foreach(array_values($this->input['report_keys']) as $key){
 
-            if(!str_contains($key, "item."))    
-                $entity[$key] = $transformed_invoice[$key];
+            $keyval = array_search($key, $this->entity_keys);
+
+            if(array_key_exists($key, $transformed_invoice))
+                $entity[$keyval] = $transformed_invoice[$key];
+            else
+                $entity[$keyval] = "";
 
         }
 
@@ -192,14 +198,14 @@ class InvoiceItemExport
 
     private function decorateAdvancedFields(Invoice $invoice, array $entity) :array
     {
-        if(array_key_exists('currency_id', $entity))
-            $entity['currency_id'] = $invoice->client->currency()->code;
+        if(in_array('currency_id', $this->input['report_keys']))
+            $entity['currency'] = $invoice->client->currency() ? $invoice->client->currency()->code : $invoice->company->currency()->code;
 
-        if(array_key_exists('client_id', $entity))
-            $entity['client_id'] = $invoice->client->present()->name();
+        if(in_array('client_id', $this->input['report_keys']))
+            $entity['client'] = $invoice->client->present()->name();
 
-        if(array_key_exists('status_id', $entity))
-            $entity['status_id'] = $invoice->stringStatus($invoice->status_id);
+        if(in_array('status_id', $this->input['report_keys']))
+            $entity['status'] = $invoice->stringStatus($invoice->status_id);
 
         return $entity;
     }

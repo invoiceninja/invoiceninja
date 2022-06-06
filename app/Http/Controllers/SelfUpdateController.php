@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -14,7 +14,9 @@ namespace App\Http\Controllers;
 use App\Exceptions\FilePermissionsFailure;
 use App\Models\Client;
 use App\Utils\Ninja;
+use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\ClientGroupSettingsSaver;
+use Beganovich\Snappdf\Snappdf;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
@@ -23,6 +25,7 @@ class SelfUpdateController extends BaseController
 {
     use DispatchesJobs;
     use ClientGroupSettingsSaver;
+    use AppSetup;
 
     private array $purge_file_list = [
         'bootstrap/cache/compiled.php',
@@ -110,12 +113,36 @@ class SelfUpdateController extends BaseController
             return response()->json(['message' => ctrans('texts.self_update_not_available')], 403);
         }
 
+        nlog("Test filesystem is writable");
+
         $this->testWritable();
+        
+        nlog("Clear cache directory");
+
         $this->clearCacheDir();
 
-        copy($this->getDownloadUrl(), storage_path('app/invoiceninja.zip'));
+        nlog("copying release file");
+
+        if(copy($this->getDownloadUrl(), storage_path('app/invoiceninja.zip'))){
+            nlog("Copied file from URL");
+        }
+        else
+            return response()->json(['message' => 'Download not yet available. Please try again shortly.'], 410);
+
+        nlog("Finished copying");
 
         $file = Storage::disk('local')->path('invoiceninja.zip');
+
+        nlog("Extracting zip");
+
+        // try{
+        //     $s = new Snappdf;
+        //     $s->getChromiumPath();
+        //     chmod($this->generatePlatformExecutable($s->getChromiumPath()), 0755);
+        // }
+        // catch(\Exception $e){
+        //     nlog("I could not set the file permissions for chrome");
+        // }
 
         $zipFile = new \PhpZip\ZipFile();
 
@@ -125,7 +152,19 @@ class SelfUpdateController extends BaseController
 
         $zipFile->close();
 
+        // $zip = new \ZipArchive;
+        
+        // $res = $zip->open($file);
+        // if ($res === TRUE) {
+        //     $zip->extractTo(base_path());
+        //     $zip->close();
+        // } 
+
+        nlog("Finished extracting files");
+
         unlink($file);
+
+        nlog("Deleted release zip file");
 
         foreach($this->purge_file_list as $purge_file_path)
         {
@@ -134,11 +173,17 @@ class SelfUpdateController extends BaseController
 
         }
 
+        nlog("Removing cache files");
+
         Artisan::call('clear-compiled');
         Artisan::call('route:clear');
         Artisan::call('view:clear');
         Artisan::call('migrate', ['--force' => true]);
         Artisan::call('optimize');
+
+        $this->buildCache(true);
+        
+        nlog("Called Artisan commands");
 
         return response()->json(['message' => 'Update completed'], 200);
 

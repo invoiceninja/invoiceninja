@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -45,7 +45,7 @@ class CompanyFactory
         
         $company->enabled_modules = config('ninja.enabled_modules'); //32767;//8191; //4095
         $company->default_password_timeout = 1800000;
-        $company->markdown_email_enabled = true;
+        $company->markdown_email_enabled = false;
 
         return $company;
     }

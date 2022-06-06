@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -51,6 +51,7 @@ class HandleCancellation extends AbstractService
 
         //adjust client balance
         $this->invoice->client->service()->updateBalance($adjustment)->save();
+        $this->invoice->fresh();
 
         $this->invoice->service()->workFlow()->save();
         
@@ -78,7 +79,8 @@ class HandleCancellation extends AbstractService
         $adjustment = $cancellation->adjustment * -1;
 
         $this->invoice->ledger()->updateInvoiceBalance($adjustment, "Invoice {$this->invoice->number} reversal");
-
+        $this->invoice->fresh();
+        
         /* Reverse the invoice status and balance */
         $this->invoice->balance += $adjustment;
         $this->invoice->status_id = $cancellation->status_id;
@@ -90,7 +92,8 @@ class HandleCancellation extends AbstractService
         unset($backup->cancellation);
         $this->invoice->backup = $backup;
         $this->invoice->saveQuietly();
-
+        $this->invoice->fresh();
+        
         return $this->invoice;
     }
 

@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -94,6 +94,8 @@ class RecurringExpensesCron
         $expense->save();
 
         $recurring_expense->next_send_date = $recurring_expense->nextSendDate();
+        $recurring_expense->next_send_date_client = $recurring_expense->next_send_date;
+
         $recurring_expense->remaining_cycles = $recurring_expense->remainingCycles();
         $recurring_expense->save();
     }

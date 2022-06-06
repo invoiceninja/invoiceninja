@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -168,6 +168,12 @@ class CompanyTransformer extends EntityTransformer
             'client_registration_fields' => (array) $company->client_registration_fields,
             'convert_rate_to_client' => (bool) $company->convert_rate_to_client,
             'markdown_email_enabled' => (bool) $company->markdown_email_enabled,
+            'stop_on_unpaid_recurring' => (bool) $company->stop_on_unpaid_recurring,
+            'use_quote_terms_on_conversion' => (bool) $company->use_quote_terms_on_conversion,
+            'stock_notification' => (bool) $company->stock_notification,
+            'inventory_notification_threshold' => (int) $company->inventory_notification_threshold,
+            'track_inventory' => (bool) $company->track_inventory,
+            'enable_applying_payments' => (bool) $company->enable_applying_payments,
         ];
     }
 

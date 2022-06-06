@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -38,7 +38,7 @@ class AutoBillInvoice extends AbstractService
     public function __construct(Invoice $invoice, $db)
     {
         $this->invoice = $invoice;
-    
+
         $this->db = $db;
     }
 
@@ -52,7 +52,7 @@ class AutoBillInvoice extends AbstractService
         $is_partial = false;
 
         /* Is the invoice payable? */
-        if (! $this->invoice->isPayable()) 
+        if (! $this->invoice->isPayable())
             return $this->invoice;
 
         /* Mark the invoice as sent */
@@ -114,25 +114,30 @@ class AutoBillInvoice extends AbstractService
         ]);
 
         nlog("Payment hash created => {$payment_hash->id}");
-
+      
         $payment = false;
 
-        try{
-        $payment = $gateway_token->gateway
-                                 ->driver($this->client)
-                                 ->setPaymentHash($payment_hash)
-                                 ->tokenBilling($gateway_token, $payment_hash);
-         }
-         catch(\Exception $e){
-            nlog("payment NOT captured for ". $this->invoice->number . " with error " . $e->getMessage());
-         //   $this->invoice->service()->removeUnpaidGatewayFees();
-         }
+        try {
+            $payment = $gateway_token->gateway
+                ->driver($this->client)
+                ->setPaymentHash($payment_hash)
+                ->tokenBilling($gateway_token, $payment_hash);
+        } catch (\Exception $e) {
+            $this->invoice->auto_bill_tries += 1;
 
-        if($payment){
-            info("Auto Bill payment captured for ".$this->invoice->number);
+            if ($this->invoice->auto_bill_tries == 3) {
+                $this->invoice->auto_bill_enabled = false;
+                $this->invoice->auto_bill_tries = 0; //reset the counter here in case auto billing is turned on again in the future.
+                $this->invoice->save();
+            }
+            
+            nlog("payment NOT captured for " . $this->invoice->number . " with error " . $e->getMessage());
         }
 
-        // return $this->invoice->fresh();
+        if ($payment) {
+            info("Auto Bill payment captured for " . $this->invoice->number);
+        }
+
     }
 
     /**

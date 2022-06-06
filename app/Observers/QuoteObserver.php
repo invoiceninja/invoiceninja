@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -33,7 +33,7 @@ class QuoteObserver
 
         if ($subscriptions) {
             $quote->load('client');
-            WebhookHandler::dispatch(Webhook::EVENT_CREATE_QUOTE, $quote, $quote->company, 'client');
+            WebhookHandler::dispatch(Webhook::EVENT_CREATE_QUOTE, $quote, $quote->company, 'client')->delay(now()->addSeconds(2));
         }
     }
 
@@ -53,7 +53,7 @@ class QuoteObserver
 
         if ($subscriptions) {
             $quote->load('client');
-            WebhookHandler::dispatch(Webhook::EVENT_UPDATE_QUOTE, $quote, $quote->company, 'client');
+            WebhookHandler::dispatch(Webhook::EVENT_UPDATE_QUOTE, $quote, $quote->company, 'client')->delay(now()->addSeconds(2));
         }
 
     }
@@ -72,7 +72,7 @@ class QuoteObserver
 
         if ($subscriptions) {
             $quote->load('client');
-            WebhookHandler::dispatch(Webhook::EVENT_DELETE_QUOTE, $quote, $quote->company, 'client');
+            WebhookHandler::dispatch(Webhook::EVENT_DELETE_QUOTE, $quote, $quote->company, 'client')->delay(now()->addSeconds(2));
         }
     }
 

@@ -19,11 +19,11 @@ Route::group(['middleware' => ['throttle:300,1', 'api_secret_check']], function 
 });
 
 Route::group(['middleware' => ['throttle:10,1','api_secret_check','email_db']], function () {
-    Route::post('api/v1/login', 'Auth\LoginController@apiLogin')->name('login.submit');
+    Route::post('api/v1/login', 'Auth\LoginController@apiLogin')->name('login.submit')->middleware('throttle:20,1');;
     Route::post('api/v1/reset_password', 'Auth\ForgotPasswordController@sendResetLinkEmail');
 });
 
-Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale'], 'prefix' => 'api/v1', 'as' => 'api.'], function () {
+Route::group(['middleware' => ['throttle:100,1', 'api_db', 'token_auth', 'locale'], 'prefix' => 'api/v1', 'as' => 'api.'], function () {
     Route::post('check_subdomain', 'SubdomainController@index')->name('check_subdomain');
     Route::get('ping', 'PingController@index')->name('ping');
     Route::get('health_check', 'PingController@health')->name('health_check');
@@ -45,8 +45,8 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
 
     Route::post('filters/{entity}', 'FilterController@index')->name('filters');
 
-    Route::resource('client_gateway_tokens', 'ClientGatewayTokenController'); 
-    
+    Route::resource('client_gateway_tokens', 'ClientGatewayTokenController');
+
     Route::post('connected_account', 'ConnectedAccountController@index');
     Route::post('connected_account/gmail', 'ConnectedAccountController@handleGmailOauth');
 
@@ -54,9 +54,9 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
 
     Route::post('companies/purge/{company}', 'MigrationController@purgeCompany')->middleware('password_protected');
     Route::post('companies/purge_save_settings/{company}', 'MigrationController@purgeCompanySaveSettings')->middleware('password_protected');
-    
+
     Route::resource('companies', 'CompanyController'); // name = (companies. index / create / show / update / destroy / edit
-    
+
     Route::put('companies/{company}/upload', 'CompanyController@upload');
     Route::post('companies/{company}/default', 'CompanyController@default');
 
@@ -105,7 +105,8 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
     Route::put('invoices/{invoice}/upload', 'InvoiceController@upload')->name('invoices.upload');
     Route::get('invoice/{invitation_key}/download', 'InvoiceController@downloadPdf')->name('invoices.downloadPdf');
     Route::post('invoices/bulk', 'InvoiceController@bulk')->name('invoices.bulk');
-    
+    Route::post('invoices/update_reminders', 'InvoiceController@update_reminders')->name('invoices.update_reminders');
+
     Route::post('logout', 'LogoutController@index')->name('logout');
 
     Route::post('migrate', 'MigrationController@index')->name('migrate.start');
@@ -152,9 +153,25 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
     Route::post('recurring_quotes/bulk', 'RecurringQuoteController@bulk')->name('recurring_quotes.bulk');
     Route::put('recurring_quotes/{recurring_quote}/upload', 'RecurringQuoteController@upload');
 
-    Route::post('refresh', 'Auth\LoginController@refresh');
+    Route::post('refresh', 'Auth\LoginController@refresh')->middleware('throttle:50,1');
 
     Route::post('reports/clients', 'Reports\ClientReportController');
+    Route::post('reports/contacts', 'Reports\ClientContactReportController');
+    Route::post('reports/credits', 'Reports\CreditReportController');
+    Route::post('reports/documents', 'Reports\DocumentReportController');
+    Route::post('reports/expenses', 'Reports\ExpenseReportController');
+    Route::post('reports/invoices', 'Reports\InvoiceReportController');
+    Route::post('reports/invoice_items', 'Reports\InvoiceItemReportController');
+    Route::post('reports/quotes', 'Reports\QuoteReportController');
+    Route::post('reports/quote_items', 'Reports\QuoteItemReportController');
+    Route::post('reports/recurring_invoices', 'Reports\RecurringInvoiceReportController');
+    Route::post('reports/payments', 'Reports\PaymentReportController');
+    Route::post('reports/products', 'Reports\ProductReportController');
+    Route::post('reports/tasks', 'Reports\TaskReportController');
+    Route::post('reports/profitloss', 'Reports\ProfitAndLossController');
+
+
+    Route::resource('task_scheduler', 'TaskSchedulerController')->except('edit')->parameters(['task_scheduler' => 'scheduler']);
 
 
     Route::get('scheduler', 'SchedulerController@index');
@@ -188,6 +205,8 @@ Route::group(['middleware' => ['throttle:300,1', 'api_db', 'token_auth', 'locale
     Route::resource('vendors', 'VendorController'); // name = (vendors. index / create / show / update / destroy / edit
     Route::post('vendors/bulk', 'VendorController@bulk')->name('vendors.bulk');
     Route::put('vendors/{vendor}/upload', 'VendorController@upload');
+
+    Route::resource('purchase_orders', 'PurchaseOrderController');
 
     Route::get('users', 'UserController@index');
     Route::get('users/{user}', 'UserController@show')->middleware('password_protected');

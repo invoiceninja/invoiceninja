@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,6 +13,9 @@
 namespace App\Http\Requests\Login;
 
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\Account\BlackListRule;
+use App\Http\ValidationRules\Account\EmailBlackListRule;
+use App\Utils\Ninja;
 
 class LoginRequest extends Request
 {
@@ -34,21 +37,27 @@ class LoginRequest extends Request
      */
     public function rules()
     {
+
+        if(Ninja::isHosted())
+            $email_rules = ['required', new BlackListRule, new EmailBlackListRule];
+        else
+            $email_rules = 'required';
+
         return [
-            'email' => 'required',
+            'email' => $email_rules,
             'password' => 'required|max:1000',
         ];
     }
 
-    protected function prepareForValidation()
-    {
-        $input = $this->all();
+    // protected function prepareForValidation()
+    // {
+    //     $input = $this->all();
 
-        // if(base64_decode(base64_encode($input['password'])) === $input['password'])
-        //     $input['password'] = base64_decode($input['password']);
+    //     // if(base64_decode(base64_encode($input['password'])) === $input['password'])
+    //     //     $input['password'] = base64_decode($input['password']);
 
-        // nlog($input['password']);
+    //     // nlog($input['password']);
         
-        $this->replace($input);
-    }
+    //     $this->replace($input);
+    // }
 }

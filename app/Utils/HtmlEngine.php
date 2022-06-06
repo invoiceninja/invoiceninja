@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -332,6 +332,10 @@ class HtmlEngine
         $data['$country'] = ['value' => isset($this->client->country->name) ? ctrans('texts.country_' . $this->client->country->name) : '', 'label' => ctrans('texts.country')];
         $data['$country_2'] = ['value' => isset($this->client->country) ? $this->client->country->iso_3166_2 : '', 'label' => ctrans('texts.country')];
         $data['$email'] = ['value' => isset($this->contact) ? $this->contact->email : 'no contact email on record', 'label' => ctrans('texts.email')];
+        
+        if(str_contains($data['$email']['value'], 'example.com'))
+            $data['$email'] = ['value' => '', 'label' => ctrans('texts.email')];
+
         $data['$client_name'] = ['value' => $this->entity->present()->clientName() ?: '&nbsp;', 'label' => ctrans('texts.client_name')];
         $data['$client.name'] = &$data['$client_name'];
         $data['$client'] = &$data['$client_name'];
@@ -382,7 +386,7 @@ class HtmlEngine
         $data['$contact.full_name'] = ['value' => $this->contact->present()->name(), 'label' => ctrans('texts.name')];
         $data['$contact'] = &$data['$contact.full_name'];
 
-        $data['$contact.email'] = ['value' => $this->contact->email, 'label' => ctrans('texts.email')];
+        $data['$contact.email'] = &$data['$email'];
         $data['$contact.phone'] = ['value' => $this->contact->phone, 'label' => ctrans('texts.phone')];
 
         $data['$contact.name'] = ['value' => isset($this->contact) ? $this->contact->present()->name() : $this->client->present()->name(), 'label' => ctrans('texts.contact_name')];

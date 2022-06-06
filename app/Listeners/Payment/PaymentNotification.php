@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -28,7 +28,6 @@ class PaymentNotification implements ShouldQueue
 
     public $delay = 5;
 
-    
     /**
      * Create the event listener.
      *
@@ -93,6 +92,9 @@ class PaymentNotification implements ShouldQueue
 
         $analytics_id = $company->google_analytics_key;
 
+        if(!strlen($analytics_id) > 2)
+            return;
+        
         $client = $payment->client;
         $amount = $payment->amount;
 
@@ -125,6 +127,8 @@ class PaymentNotification implements ShouldQueue
      */
     private function sendAnalytics($data)
     {
+        nlog($data);
+        
         $data = utf8_encode($data);
         $curl = curl_init();
 

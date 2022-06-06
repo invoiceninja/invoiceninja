@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -353,6 +353,10 @@ class MolliePaymentDriver extends BaseDriver
             $response = SystemLog::EVENT_GATEWAY_FAILURE;
 
             if($record){
+
+                if(in_array($payment->status, ['canceled','expired','failed']))
+                    $record->service()->deletePayment();
+
                 $record->status_id = $codes[$payment->status];
                 $record->save();
                 $response = SystemLog::EVENT_GATEWAY_SUCCESS;

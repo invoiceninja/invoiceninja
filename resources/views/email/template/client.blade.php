@@ -94,19 +94,24 @@
                     <div style="text-align: center;margin-top: 25px; margin-bottom: 10px;"></div>
                 </tr>
                 <tr>
-                    <td>
+                    <td align="center" cellpadding="20">
                         <div
                             style="border: 1px solid #c2c2c2; border-bottom: none; padding-bottom: 10px; border-top-left-radius: 3px; border-top-right-radius: 3px;">
 
-                            <img
-                                style="margin-top: 40px; height: 40px; display: block; margin-left: auto; margin-right: auto;"
-                                alt=""
-                                src="{{ $logo ?? '' }}"/>
+                            <!--[if gte mso 9]>
+                            <img src="{{ $logo ?? '' }}" alt="" width="400" border="0" align="middle" style="display:block;" />
+                            <div style="mso-hide:all;">
+                            <![endif]-->
+                            <img src="{{ $logo ?? '' }}" alt="" style="margin-top: 40px; max-width: 155px; display: block; margin-left: auto; margin-right: auto;"/>
+                            <!--[if gte mso 9]>
+                            </div>
+                            <![endif]-->
+
                         </div>
                     </td>
                 </tr>
                 <tr>
-                    <td>
+                    <td cellpadding="20">
                         <div style="border: 1px solid #c2c2c2; border-top: none; border-bottom: none; padding: 20px; text-align: center" id="content">
                                 <div style="padding-top: 10px;"></div>
 
@@ -120,10 +125,16 @@
                                 </div>
                            </div>
                     </td>
+                </tr>  
+                
+                <tr>
+                  <td height="20">
+                   <div style="border: 1px solid #c2c2c2; border-top: none; border-bottom: none; padding: 20px; text-align: center" id="content"> </div>
+                 </td>
                 </tr>
 
                 <tr>
-                    <td>
+                    <td cellpadding="20" bgcolor="#f9f9f9">
                         <div class="dark-bg dark-text-white"
                              style="text-align: center; padding-top: 10px; padding-bottom: 25px; background-color: #f9f9f9; border: 1px solid #c2c2c2; border-top: none; border-bottom-color: #f9f9f9;">
                             @isset($signature)
@@ -145,7 +156,7 @@
                 </tr>
 
                 <tr>
-                    <td>
+                    <td bgcolor="#242424"  cellpadding="20">
                         <div class="dark-bg-base"
                              style="padding-top: 10px;padding-bottom: 10px; background-color: #242424; border: 1px solid #c2c2c2; border-top-color: #242424; border-bottom-color: #242424;">
                             @if(isset($company))

@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -98,21 +98,6 @@ class CompanyUser extends Pivot
     public function token()
     {
         return $this->hasMany(CompanyToken::class, 'user_id', 'user_id');
-
-        //return $this->hasMany(CompanyToken::class);
-        //return $this->hasOne(CompanyToken::class, 'user_id', 'user_id','company_id', 'company_id');
-
-
-       //return $this->belongsTo(CompanyToken::class, 'user_id', 'user_id');
-
-        // return $this->hasOneThrough(
-        //     CompanyToken::class,
-        //     CompanyUser::class,
-        //     'user_id', // Foreign key on CompanyUser table...
-        //     'company_id', // Foreign key on CompanyToken table...
-        //     'user_id', // Local key on CompanyToken table...
-        //     'company_id' // Local key on CompanyUser table...
-        // );
     }
 
     public function tokens()

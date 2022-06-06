@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -642,9 +642,9 @@ trait GeneratesCounter
             return $counter;
         }
 
-        $search = ['{$year}'];
-        $replace = [date('Y')];
-
+        $search = [];
+        $replace = [];
+        
         $search[] = '{$counter}';
         $replace[] = $counter;
 
@@ -658,7 +658,7 @@ trait GeneratesCounter
         $replace[] = $counter;
 
         $search[] = '{$year}';
-        $replace[] = date('Y');
+        $replace[] = Carbon::now($entity->company->timezone()->name)->format('Y');
         
         if (strstr($pattern, '{$user_id}') || strstr($pattern, '{$userId}')) {
             $user_id = $entity->user_id ? $entity->user_id : 0;

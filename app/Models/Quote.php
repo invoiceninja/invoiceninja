@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -276,6 +276,30 @@ class Quote extends BaseModel
                 break;
             case self::STATUS_CONVERTED:
                 return '<h5><span class="badge badge-light">'.ctrans('texts.converted').'</span></h5>';
+                break;
+            default:
+                // code...
+                break;
+        }
+    }
+
+    public static function stringStatus(int $status)
+    {
+        switch ($status) {
+            case self::STATUS_DRAFT:
+                return ctrans('texts.draft');
+                break;
+            case self::STATUS_SENT:
+                return ctrans('texts.pending');
+                break;
+            case self::STATUS_APPROVED:
+                return ctrans('texts.approved');
+                break;
+            case self::STATUS_EXPIRED:
+                return ctrans('texts.expired');
+                break;
+            case self::STATUS_CONVERTED:
+                return ctrans('texts.converted');
                 break;
             default:
                 // code...

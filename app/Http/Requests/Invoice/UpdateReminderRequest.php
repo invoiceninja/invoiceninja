@@ -4,16 +4,16 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Http\Requests\Report;
+namespace App\Http\Requests\Invoice;
 
 use App\Http\Requests\Request;
 
-class ClientReportRequest extends Request
+class UpdateReminderRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,5 +23,10 @@ class ClientReportRequest extends Request
     public function authorize() : bool
     {
         return auth()->user()->isAdmin();
+    }
+
+    public function rules()
+    {
+        return [];
     }
 }

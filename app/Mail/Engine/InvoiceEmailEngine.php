@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -14,14 +14,19 @@ namespace App\Mail\Engine;
 use App\DataMapper\EmailTemplateDefaults;
 use App\Jobs\Entity\CreateEntityPdf;
 use App\Models\Account;
+use App\Models\Expense;
+use App\Models\Task;
 use App\Utils\HtmlEngine;
 use App\Utils\Ninja;
 use App\Utils\Number;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Lang;
 
 class InvoiceEmailEngine extends BaseEmailEngine
 {
+    use MakesHash;
+
     public $invitation;
 
     public $client;
@@ -144,6 +149,57 @@ class InvoiceEmailEngine extends BaseEmailEngine
 
             foreach($this->invoice->company->documents as $document){
                 $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => $document->type]]);
+            }
+
+            $line_items = $this->invoice->line_items;
+            
+
+            foreach($line_items as $item)
+            {
+
+                $expense_ids = [];
+
+                if(property_exists($item, 'expense_id'))
+                {
+                    $expense_ids[] = $item->expense_id;
+                }
+
+                if(count($expense_ids) > 0){
+
+                    $expenses = Expense::whereIn('id', $this->transformKeys($expense_ids))
+                                       ->where('invoice_documents', 1)
+                                       ->cursor()
+                                       ->each(function ($expense){
+
+                                            foreach($expense->documents as $document)
+                                            {
+                                                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => $document->type]]);
+                                            }
+
+                                       });
+                }
+
+                $task_ids = [];
+
+                if(property_exists($item, 'task_id'))
+                {
+                    $task_ids[] = $item->task_id;
+                }
+
+                if(count($task_ids) > 0 && $this->invoice->company->invoice_task_documents){
+                    
+                    $tasks = Task::whereIn('id', $this->transformKeys($task_ids))
+                                       ->cursor()
+                                       ->each(function ($task){
+
+                                            foreach($task->documents as $document)
+                                            {
+                                                $this->setAttachments([['path' => $document->filePath(), 'name' => $document->name, 'mime' => $document->type]]);
+                                            }
+
+                                       });
+                }
+
             }
 
 

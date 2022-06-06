@@ -39,6 +39,19 @@ jobs:
           sudo find ./vendor/bin/ -type f -exec chmod +x {} \;
           sudo find ./ -type d -exec chmod 755 {} \;
           
+      - name: Prepare React FrontEnd
+        run: |
+          mkdir public/react
+          git clone https://${{secrets.commit_secret}}@github.com/invoiceninja/ui.git
+          cd ui
+          git checkout main
+          npm i
+          npm run build
+          cp -r dist/react/* ../public/react
+          cd ..
+          rm -rf ui
+          php artisan ninja:react
+
       - name: Prepare JS/CSS assets
         run: |
           npm i

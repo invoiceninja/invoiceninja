@@ -4,13 +4,14 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Models;
 
+use App\DataMapper\CompanySettings;
 use App\Models\Language;
 use App\Models\Presenters\CompanyPresenter;
 use App\Models\User;
@@ -100,6 +101,12 @@ class Company extends BaseModel
         'client_registration_fields',
         'convert_rate_to_client',
         'markdown_email_enabled',
+        'stop_on_unpaid_recurring',
+        'use_quote_terms_on_conversion',
+        'enable_applying_payments',
+        'track_inventory',
+        'inventory_notification_threshold',
+        'stock_notification'
     ];
 
     protected $hidden = [
@@ -118,9 +125,7 @@ class Company extends BaseModel
         'client_registration_fields' => 'array',
     ];
 
-    protected $with = [
-   //     'tokens'
-    ];
+    protected $with = [];
 
     public static $modules = [
         self::ENTITY_RECURRING_INVOICE => 1,
@@ -402,6 +407,12 @@ class Company extends BaseModel
             return $this->settings->{$setting};
         }
 
+        $cs = CompanySettings::defaults();
+
+        if (property_exists($cs, $setting) != false) {
+            return $cs->{$setting};
+        }
+
         return null;
     }
 
@@ -553,4 +564,17 @@ class Company extends BaseModel
     {
         return ctrans('texts.company');
     }
+
+    public function date_format()
+    {
+        $date_formats = Cache::get('date_formats');
+
+        if(!$date_formats)
+            $this->buildCache(true);
+        
+        return $date_formats->filter(function ($item) {
+            return $item->id == $this->getSetting('date_format_id');
+        })->first()->format;
+    }
+
 }

@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -33,6 +33,7 @@ class PaymentFactory
         $payment->transaction_reference = null;
         $payment->payer_id = null;
         $payment->status_id = Payment::STATUS_PENDING;
+        $payment->exchange_rate = 1;
 
         return $payment;
     }

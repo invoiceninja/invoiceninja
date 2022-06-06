@@ -4,7 +4,7 @@
  *
  * @link https://github.com/paymentninja/paymentninja source repository
  *
- * @copyright Copyright (c) 2021. Quote Ninja LLC (https://paymentninja.com)
+ * @copyright Copyright (c) 2022. Quote Ninja LLC (https://paymentninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */

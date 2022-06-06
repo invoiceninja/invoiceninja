@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -45,14 +45,6 @@ class DeletePayment
             ->cleanupPayment()
             ->save();
     }
-
-    //reverse paymentables->invoices
-
-    //reverse paymentables->credits
-
-    //set refunded to amount
-
-    //set applied amount to 0
 
     private function cleanupPayment()
     {

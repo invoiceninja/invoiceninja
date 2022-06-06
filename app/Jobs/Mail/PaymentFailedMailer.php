@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -72,7 +72,6 @@ class PaymentFailedMailer implements ShouldQueue
      */
     public function handle()
     {
-
         //Set DB
         MultiDB::setDb($this->company->db);
         App::setLocale($this->client->locale());
@@ -111,9 +110,10 @@ class PaymentFailedMailer implements ShouldQueue
 
         //add client payment failures here.
         //
-        if($contact = $this->client->primary_contact()->first())
+        if($this->client->contacts()->whereNotNull('email')->exists() && $this->payment_hash)
         {
-        
+            $contact = $this->client->contacts()->whereNotNull('email')->first();
+            
             $mail_obj = (new ClientPaymentFailureObject($this->client, $this->error, $this->company, $this->payment_hash))->build();
 
             $nmo = new NinjaMailerObject;
@@ -123,6 +123,7 @@ class PaymentFailedMailer implements ShouldQueue
             $nmo->settings = $settings;
 
             NinjaMailerJob::dispatch($nmo);
+            
         }
         
     }

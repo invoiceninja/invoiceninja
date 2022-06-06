@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -21,17 +21,19 @@ use App\Utils\Ninja;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
 
-class DocumentExport
+class DocumentExport extends BaseExport
 {
-    private $company;
+    private Company $company;
 
-    private $report_keys;
+    protected array $input;
 
     private $entity_transformer;
 
-    private array $entity_keys = [
+    protected $date_key = 'created_at';
+
+    protected array $entity_keys = [
         'record_type' => 'record_type',
-        'record_name' => 'record_name',
+        // 'record_name' => 'record_name',
         'name' => 'name',
         'type' => 'type',
         'created_at' => 'created_at',
@@ -41,10 +43,10 @@ class DocumentExport
 
     ];
 
-    public function __construct(Company $company, array $report_keys)
+    public function __construct(Company $company, array $input)
     {
         $this->company = $company;
-        $this->report_keys = $report_keys;
+        $this->input = $input;
         $this->entity_transformer = new DocumentTransformer();
     }
 
@@ -60,31 +62,25 @@ class DocumentExport
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
 
+        if(count($this->input['report_keys']) == 0)
+            $this->input['report_keys'] = array_values($this->entity_keys);
+
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
-        Document::where('company_id', $this->company->id)
-                ->cursor()
-                ->each(function ($entity){
+        $query = Document::query()->where('company_id', $this->company->id);
 
-                    $this->csv->insertOne($this->buildRow($entity)); 
+        $query = $this->addDateRange($query);
 
-                });
+        $query->cursor()
+              ->each(function ($entity){
 
+            $this->csv->insertOne($this->buildRow($entity)); 
+
+        });
 
         return $this->csv->toString(); 
 
-    }
-
-    private function buildHeader() :array
-    {
-
-        $header = [];
-
-        foreach(array_keys($this->report_keys) as $key)
-            $header[] = ctrans("texts.{$key}");
-
-        return $header;
     }
 
     private function buildRow(Document $document) :array
@@ -94,10 +90,14 @@ class DocumentExport
 
         $entity = [];
 
-        foreach(array_values($this->report_keys) as $key){
+        foreach(array_values($this->input['report_keys']) as $key){
 
-            $entity[$key] = $transformed_entity[$key];
-        
+            $keyval = array_search($key, $this->entity_keys);
+
+            if(array_key_exists($key, $transformed_entity))
+                $entity[$keyval] = $transformed_entity[$key];
+            else
+                $entity[$keyval] = '';        
         }
 
         return $this->decorateAdvancedFields($document, $entity);
@@ -107,11 +107,11 @@ class DocumentExport
     private function decorateAdvancedFields(Document $document, array $entity) :array
     {
 
-        if(array_key_exists('record_type', $entity))
+        if(in_array('record_type', $this->input['report_keys']))
             $entity['record_type'] = class_basename($document->documentable);
 
-        if(array_key_exists('record_name', $entity))
-            $entity['record_name'] = $document->hashed_id;
+        // if(in_array('record_name', $this->input['report_keys']))
+        //     $entity['record_name'] = $document->hashed_id;
 
         return $entity;
     }

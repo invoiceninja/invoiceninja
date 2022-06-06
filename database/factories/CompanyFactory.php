@@ -40,18 +40,6 @@ class CompanyFactory extends Factory
             'default_password_timeout' => 30*60000,
             'enabled_modules' => config('ninja.enabled_modules'),
             'custom_fields' => (object) [
-                //'invoice1' => 'Custom Date|date',
-                // 'invoice2' => '2|switch',
-                // 'invoice3' => '3|',
-                // 'invoice4' => '4',
-                // 'client1'=>'1',
-                // 'client2'=>'2',
-                // 'client3'=>'3|date',
-                // 'client4'=>'4|switch',
-                // 'company1'=>'1|date',
-                // 'company2'=>'2|switch',
-                // 'company3'=>'3',
-                // 'company4'=>'4',
             ],
         ];
     }

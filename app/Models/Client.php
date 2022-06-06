@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -188,7 +188,7 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function activities()
     {
-        return $this->hasMany(Activity::class)->orderBy('id', 'desc');
+        return $this->hasMany(Activity::class)->take(50)->orderBy('id', 'desc');
     }
 
     public function contacts()
@@ -253,7 +253,7 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function system_logs()
     {
-        return $this->hasMany(SystemLog::class)->orderBy('id', 'desc');
+        return $this->hasMany(SystemLog::class)->take(50)->orderBy('id', 'desc');
     }
 
     public function timezone()
@@ -431,31 +431,8 @@ class Client extends BaseModel implements HasLocalePreference
      */
     public function getCreditCardGateway() :?CompanyGateway
     {
-        // $company_gateways = $this->getSetting('company_gateway_ids');
 
-        // /* It is very important to respect the order of the company_gateway_ids as they are ordered by priority*/
-        // if (strlen($company_gateways) >= 1) {
-        //     $transformed_ids = $this->transformKeys(explode(',', $company_gateways));
-        //     $gateways = $this->company
-        //                      ->company_gateways
-        //                      ->whereIn('id', $transformed_ids)
-        //                      ->sortby(function ($model) use ($transformed_ids) {
-        //                          return array_search($model->id, $transformed_ids);
-        //                      });
-        // } else {
-        //     $gateways = $this->company->company_gateways;
-        // }
-
-        // foreach ($gateways as $gateway) {
-        //     if (in_array(GatewayType::CREDIT_CARD, $gateway->driver($this)->gatewayTypeEnabled($gateway, GatewayType::CREDIT_CARD))) {
-        //         return $gateway;
-        //     }
-        // }
-
-        // return null;
-        // 
-
-        $pms = $this->service()->getPaymentMethods(0);
+        $pms = $this->service()->getPaymentMethods(-1);
 
             foreach($pms as $pm)
             {
@@ -480,13 +457,12 @@ class Client extends BaseModel implements HasLocalePreference
 
             return null;
 
-
     }
 
     //todo refactor this  - it is only searching for existing tokens
     public function getBankTransferGateway() :?CompanyGateway
     {
-        $pms = $this->service()->getPaymentMethods(0);
+        $pms = $this->service()->getPaymentMethods(-1);
 
         if($this->currency()->code == 'USD' && in_array(GatewayType::BANK_TRANSFER, array_column($pms, 'gateway_type_id'))){
 
@@ -690,7 +666,7 @@ class Client extends BaseModel implements HasLocalePreference
 
         $offset -= $timezone->utc_offset;
         $offset += ($entity_send_time * 3600);
-
+        
         return $offset;
     }
 

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -226,9 +226,13 @@ class Design extends BaseDesign
     {
         if ($this->type === 'statement') {
 
-            $s_date = $this->translateDate($this->options['end_date'], $this->client->date_format(), $this->client->locale());
+            $s_date = $this->translateDate(now(), $this->client->date_format(), $this->client->locale());
             
             return [
+                ['element' => 'tr', 'properties' => ['data-ref' => 'statement-label'], 'elements' => [
+                    ['element' => 'th', 'properties' => [], 'content' => ""],
+                    ['element' => 'th', 'properties' => [], 'content' => "<h2>".ctrans('texts.statement')."</h2>"],
+                ]],
                 ['element' => 'tr', 'properties' => [], 'elements' => [
                     ['element' => 'th', 'properties' => [], 'content' => ctrans('texts.statement_date')],
                     ['element' => 'th', 'properties' => [], 'content' => $s_date ?? ''],
@@ -387,10 +391,10 @@ class Design extends BaseDesign
             $element = ['element' => 'tr', 'elements' => []];
 
             $element['elements'][] = ['element' => 'td', 'content' => $invoice->number];
-            $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($invoice->date, $this->client->date_format(), $this->client->locale()) ?: '&nbsp;'];
-            $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($invoice->due_date, $this->client->date_format(), $this->client->locale()) ?: '&nbsp;'];
-            $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($invoice->amount, $this->client) ?: '&nbsp;'];
-            $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($invoice->balance, $this->client) ?: '&nbsp;'];
+            $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($invoice->date, $this->client->date_format(), $this->client->locale()) ?: ' '];
+            $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($invoice->due_date, $this->client->date_format(), $this->client->locale()) ?: ' '];
+            $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($invoice->amount, $this->client) ?: ' '];
+            $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($invoice->balance, $this->client) ?: ' '];
 
             $tbody[] = $element;
         }
@@ -448,6 +452,9 @@ class Design extends BaseDesign
         //24-03-2022 show payments per invoice
         foreach ($this->invoices as $invoice) {
             foreach ($invoice->payments as $payment) {
+
+                if($payment->is_deleted)
+                    continue;
 
                 $element = ['element' => 'tr', 'elements' => []];
 

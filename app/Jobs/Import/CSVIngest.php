@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -69,6 +69,8 @@ class CSVIngest implements ShouldQueue {
 
         MultiDB::setDb( $this->company->db );
 
+        set_time_limit(0);
+
         $engine = $this->bootEngine($this->import_type);
 
         foreach ( [ 'client', 'product', 'invoice', 'payment', 'vendor', 'expense' ] as $entity ) {
@@ -77,6 +79,8 @@ class CSVIngest implements ShouldQueue {
 
         }
 
+        $engine->finalizeImport();
+        
         $this->checkContacts();
     }
 

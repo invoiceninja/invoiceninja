@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -43,6 +43,7 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 
 class Csv extends BaseImport implements ImportInterface
 {
+
     public array $entity_count = [];
 
     public function import(string $entity)
@@ -59,10 +60,7 @@ class Csv extends BaseImport implements ImportInterface
         ) {
             $this->{$entity}();
         }
-
-        //collate any errors
-
-        $this->finalizeImport();
+        
     }
 
     public function client()

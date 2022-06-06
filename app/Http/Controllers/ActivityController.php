@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -17,6 +17,7 @@ use App\Transformers\ActivityTransformer;
 use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\Ninja;
 use App\Utils\PhantomJS\Phantom;
+use App\Utils\Traits\Pdf\PageNumbering;
 use App\Utils\Traits\Pdf\PdfMaker;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -27,7 +28,7 @@ use stdClass;
 
 class ActivityController extends BaseController
 {
-    use PdfMaker;
+    use PdfMaker, PageNumbering;
 
     protected $entity_type = Activity::class;
 
@@ -89,6 +90,33 @@ class ActivityController extends BaseController
 
         $activities = Activity::orderBy('created_at', 'DESC')->company()
                                 ->take($default_activities);
+
+        if($request->has('react')){
+
+            $system = ctrans('texts.system');
+
+            $data = $activities->cursor()->map(function ($activity) use($system){
+
+                $arr=
+                [
+                      'client' => $activity->client ? $activity->client : '',
+                      'contact' => $activity->contact ? $activity->contact : '',
+                      'quote' => $activity->quote ? $activity->quote : '',
+                      'user' => $activity->user ? $activity->user : '',
+                      'expense' => $activity->expense ? $activity->expense : '',
+                      'invoice' => $activity->invoice ? $activity->invoice : '',
+                      'recurring_invoice' => $activity->recurring_invoice ? $activity->recurring_invoice : '',
+                      'payment' => $activity->payment ? $activity->payment : '',
+                      'credit' => $activity->credit ? $activity->credit : '',
+                      'task' => $activity->task ? $activity->task : '',
+                ];
+
+                return array_merge($arr, $activity->toArray());
+
+            });
+
+            return response()->json(['data' => $data->toArray()], 200);
+        }
 
         return $this->listResponse($activities);
     }
@@ -164,12 +192,35 @@ class ActivityController extends BaseController
 
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
             $pdf = (new Phantom)->convertHtmlToPdf($html_backup);
+
+            $numbered_pdf = $this->pageNumbering($pdf, $activity->company);
+
+                if($numbered_pdf)
+                    $pdf = $numbered_pdf;
+                
+
         }
         elseif(config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja'){
             $pdf = (new NinjaPdf())->build($html_backup);
+
+                $numbered_pdf = $this->pageNumbering($pdf, $activity->company);
+
+                if($numbered_pdf)
+                    $pdf = $numbered_pdf;
+                
+
+
         }
         else {
             $pdf = $this->makePdf(null, null, $html_backup);
+
+                $numbered_pdf = $this->pageNumbering($pdf, $activity->company);
+
+                if($numbered_pdf)
+                    $pdf = $numbered_pdf;
+                
+
+
         }
 
         if (isset($activity->invoice_id)) {

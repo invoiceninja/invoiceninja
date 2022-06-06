@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -55,6 +55,10 @@ class StoreRecurringExpenseRequest extends Request
 
         $input = $this->decodePrimaryKeys($input);
 
+        if (array_key_exists('next_send_date', $input) && is_string($input['next_send_date'])) {
+            $input['next_send_date_client'] = $input['next_send_date'];
+        }   
+        
         if (array_key_exists('category_id', $input) && is_string($input['category_id'])) {
             $input['category_id'] = $this->decodePrimaryKey($input['category_id']);
         }

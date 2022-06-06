@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -36,6 +36,9 @@ class Product extends BaseModel
         'tax_rate1',
         'tax_rate2',
         'tax_rate3',
+        'in_stock_quantity',
+        'stock_notification_threshold',
+        'stock_notification',
     ];
 
     protected $touches = [];
@@ -53,6 +56,11 @@ class Product extends BaseModel
     public function user()
     {
         return $this->belongsTo(User::class)->withTrashed();
+    }
+
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class)->withTrashed();
     }
 
     public function assigned_user()

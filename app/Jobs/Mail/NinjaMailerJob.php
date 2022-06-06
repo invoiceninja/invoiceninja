@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -131,7 +131,7 @@ class NinjaMailerJob implements ShouldQueue
                 $response = $e->getResponse();
                 $message_body = json_decode($response->getBody()->getContents());
                 
-                if(property_exists($message_body, 'Message')){
+                if($message_body && property_exists($message_body, 'Message')){
                     $message = $message_body->Message;
                     nlog($message);
                 }
@@ -226,9 +226,9 @@ class NinjaMailerJob implements ShouldQueue
 
         if(!$user->oauth_user_token) {
             $this->company->account->gmailCredentialNotification();
-            return;
+            $this->nmo->settings->email_sending_method = 'default';
+            return $this->setMailDriver();
         }
-
 
         /*
          *  Now that our token is refreshed and valid we can boot the
@@ -237,6 +237,12 @@ class NinjaMailerJob implements ShouldQueue
         */
 
         $token = $user->oauth_user_token->access_token;
+
+        if(!$token) {
+            $this->company->account->gmailCredentialNotification();
+            $this->nmo->settings->email_sending_method = 'default';
+            return $this->setMailDriver();
+        }
 
         $this->nmo
              ->mailable
@@ -262,9 +268,10 @@ class NinjaMailerJob implements ShouldQueue
             return false;
 
         /* On the hosted platform, if the user is over the email quotas, we do not send the email. */
-        if(Ninja::isHosted() && $this->company->account->emailQuotaExceeded())
+        if(Ninja::isHosted() && $this->company->account && $this->company->account->emailQuotaExceeded())
             return true;
 
+        /* Ensure the user has a valid email address */
         if(!str_contains($this->nmo->to_user->email, "@"))
             return true;
         

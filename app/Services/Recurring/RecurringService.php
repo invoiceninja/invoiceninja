@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -106,6 +106,12 @@ class RecurringService
             $this->stop();
         }
         
+        if(isset($this->recurring_entity->client))
+        {
+            $offset = $this->recurring_entity->client->timezone_offset();
+            $this->recurring_entity->next_send_date = Carbon::parse($this->recurring_entity->next_send_date_client)->startOfDay()->addSeconds($offset);
+        }
+
         return $this;
     }
 

@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -61,7 +61,7 @@ class MarkPaid extends AbstractService
         $payment->transaction_reference = ctrans('texts.manual_entry');
         $payment->currency_id = $this->invoice->client->getSetting('currency_id');
         $payment->is_manual = true;
-        
+
         if($this->invoice->company->timezone())
             $payment->date = now()->addSeconds($this->invoice->company->timezone()->utc_offset)->format('Y-m-d');
 
@@ -103,7 +103,7 @@ class MarkPaid extends AbstractService
         \DB::connection(config('database.default'))->transaction(function () use($payment){
 
         /* Get the last record for the client and set the current balance*/
-            $client = Client::where('id', $this->invoice->client_id)->lockForUpdate()->first();
+            $client = Client::withTrashed()->where('id', $this->invoice->client_id)->lockForUpdate()->first();
             $client->paid_to_date += $payment->amount;
             $client->balance -= $payment->amount;
             $client->save();
@@ -149,7 +149,7 @@ class MarkPaid extends AbstractService
             //$payment->exchange_currency_id = $client_currency; // 23/06/2021
             $payment->exchange_currency_id = $company_currency;
         
-            $payment->save();
+            $payment->saveQuietly();
 
         }
 

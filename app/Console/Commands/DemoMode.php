@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -131,6 +131,7 @@ class DemoMode extends Command
             'enabled_modules' => 32767,
             'company_key' => 'KEY',
             'enable_shop_api' => true,
+            'markdown_email_enabled' => false,
         ]);
 
         $settings = $company->settings;

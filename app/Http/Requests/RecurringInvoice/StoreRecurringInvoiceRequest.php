@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -66,6 +66,10 @@ class StoreRecurringInvoiceRequest extends Request
     protected function prepareForValidation()
     {
         $input = $this->all();
+
+        if (array_key_exists('next_send_date', $input) && is_string($input['next_send_date'])) {
+            $input['next_send_date_client'] = $input['next_send_date'];
+        }        
 
         if (array_key_exists('design_id', $input) && is_string($input['design_id'])) {
             $input['design_id'] = $this->decodePrimaryKey($input['design_id']);

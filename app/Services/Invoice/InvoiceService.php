@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,6 +13,7 @@ namespace App\Services\Invoice;
 
 use App\Events\Invoice\InvoiceWasArchived;
 use App\Jobs\Entity\CreateEntityPdf;
+use App\Jobs\Inventory\AdjustProductInventory;
 use App\Jobs\Invoice\InvoiceWorkflowSettings;
 use App\Jobs\Util\UnlinkFile;
 use App\Libraries\Currency\Conversion\CurrencyApi;
@@ -560,6 +561,14 @@ class InvoiceService
         
 
         }
+
+        return $this;
+    }
+
+    public function adjustInventory()
+    {
+        if($this->invoice->company->track_inventory)
+            AdjustProductInventory::dispatch($this->invoice->company, $this->invoice, null);
 
         return $this;
     }

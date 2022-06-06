@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -15,8 +15,12 @@ use App\Jobs\Cron\AutoBillCron;
 use App\Jobs\Cron\RecurringExpensesCron;
 use App\Jobs\Cron\RecurringInvoicesCron;
 use App\Jobs\Cron\SubscriptionCron;
+use App\Jobs\Ledger\LedgerBalanceUpdate;
 use App\Jobs\Ninja\AdjustEmailQuota;
 use App\Jobs\Ninja\CompanySizeCheck;
+use App\Jobs\Ninja\QueueSize;
+use App\Jobs\Ninja\SystemMaintenance;
+use App\Jobs\Ninja\TaskScheduler;
 use App\Jobs\Util\DiskCleanup;
 use App\Jobs\Util\ReminderJob;
 use App\Jobs\Util\SchedulerCheck;
@@ -54,6 +58,8 @@ class Kernel extends ConsoleKernel
 
         $schedule->job(new ReminderJob)->hourly()->withoutOverlapping();
 
+        $schedule->job(new QueueSize)->everyFiveMinutes()->withoutOverlapping();
+
         $schedule->job(new CompanySizeCheck)->daily()->withoutOverlapping();
 
         $schedule->job(new UpdateExchangeRates)->daily()->withoutOverlapping();
@@ -64,17 +70,20 @@ class Kernel extends ConsoleKernel
 
         $schedule->job(new RecurringExpensesCron)->dailyAt('00:10')->withoutOverlapping();
 
-        $schedule->job(new AutoBillCron)->dailyAt('06:00')->withoutOverlapping();        
+        $schedule->job(new AutoBillCron)->dailyAt('06:00')->withoutOverlapping();
 
         $schedule->job(new SchedulerCheck)->daily()->withoutOverlapping();
 
+        $schedule->job(new TaskScheduler())->daily()->withoutOverlapping();
+
+        $schedule->job(new SystemMaintenance)->weekly()->withoutOverlapping();
+
         if(Ninja::isSelfHost())
         {
-
             $schedule->call(function () {
                 Account::whereNotNull('id')->update(['is_scheduler_running' => true]);
-            })->everyFiveMinutes(); 
-            
+            })->everyFiveMinutes();
+
         }
 
         /* Run hosted specific jobs */
@@ -84,20 +93,20 @@ class Kernel extends ConsoleKernel
 
             $schedule->job(new SendFailedEmails)->daily()->withoutOverlapping();
 
-            $schedule->command('ninja:check-data --database=db-ninja-01')->daily('00:50')->withoutOverlapping();
+            $schedule->command('ninja:check-data --database=db-ninja-01')->daily('02:00')->withoutOverlapping();
 
-            $schedule->command('ninja:check-data --database=db-ninja-02')->dailyAt('00:55')->withoutOverlapping();
+            $schedule->command('ninja:check-data --database=db-ninja-02')->dailyAt('02:05')->withoutOverlapping();
 
             $schedule->command('ninja:s3-cleanup')->dailyAt('23:15')->withoutOverlapping();
 
         }
 
-        if(config('queue.default') == 'database' && Ninja::isSelfHost() && config('ninja.internal_queue_enabled') && !config('ninja.is_docker')) {
+        if (config('queue.default') == 'database' && Ninja::isSelfHost() && config('ninja.internal_queue_enabled') && !config('ninja.is_docker')) {
 
             $schedule->command('queue:work database --stop-when-empty')->everyMinute()->withoutOverlapping();
 
-            $schedule->command('queue:restart')->everyFiveMinutes()->withoutOverlapping(); 
-            
+            $schedule->command('queue:restart')->everyFiveMinutes()->withoutOverlapping();
+
         }
 
     }
@@ -109,7 +118,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands()
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }

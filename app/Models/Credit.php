@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -318,5 +318,26 @@ class Credit extends BaseModel
     public function translate_entity()
     {
         return ctrans('texts.credit');
+    }
+
+    public static function stringStatus(int $status)
+    {
+        switch ($status) {
+            case self::STATUS_DRAFT:
+                return ctrans('texts.draft');
+                break;
+            case self::STATUS_SENT:
+                return ctrans('texts.sent');
+                break;
+            case self::STATUS_PARTIAL:
+                return ctrans('texts.partial');
+                break;
+            case self::STATUS_APPLIED:
+                return ctrans('texts.applied');
+                break;
+            default:
+                return "";
+                break;
+        }
     }
 }

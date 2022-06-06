@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -23,6 +23,7 @@ use App\Http\Requests\CompanyGateway\UpdateCompanyGatewayRequest;
 use App\Jobs\Util\ApplePayDomain;
 use App\Models\Client;
 use App\Models\CompanyGateway;
+use App\PaymentDrivers\Stripe\Jobs\StripeWebhook;
 use App\Repositories\CompanyRepository;
 use App\Transformers\CompanyGatewayTransformer;
 use App\Utils\Traits\MakesHash;
@@ -211,6 +212,11 @@ class CompanyGatewayController extends BaseController
         }
 
         ApplePayDomain::dispatch($company_gateway, $company_gateway->company->db);
+
+        if(in_array($company_gateway->gateway_key, $this->stripe_keys))
+        {
+            StripeWebhook::dispatch($company_gateway->company->company_key, $company_gateway->id);
+        }
 
         return $this->itemResponse($company_gateway);
     }

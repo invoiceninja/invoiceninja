@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -204,9 +204,9 @@ class RecurringInvoiceController extends BaseController
     {
         $recurring_invoice = $this->recurring_invoice_repo->save($request->all(), RecurringInvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id));
 
-        $offset = $recurring_invoice->client->timezone_offset();
-        $recurring_invoice->next_send_date = Carbon::parse($recurring_invoice->next_send_date)->startOfDay()->addSeconds($offset);
-        $recurring_invoice->saveQuietly();
+        // $offset = $recurring_invoice->client->timezone_offset();
+        // $recurring_invoice->next_send_date = Carbon::parse($recurring_invoice->next_send_date)->startOfDay()->addSeconds($offset);
+        // $recurring_invoice->saveQuietly();
 
         $recurring_invoice->service()
                           ->triggeredActions($request)

@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -64,7 +64,7 @@ class CreateCompany
         $company->custom_fields = new \stdClass;
         $company->default_password_timeout = 1800000;
         $company->client_registration_fields = ClientRegistrationFields::generate();
-        $company->markdown_email_enabled = true;
+        $company->markdown_email_enabled = false;
         
         if(Ninja::isHosted())
             $company->subdomain = MultiDB::randomSubdomainGenerator();

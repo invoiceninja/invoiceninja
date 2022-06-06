@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -41,6 +41,7 @@ use App\Utils\Ninja;
 use App\Utils\PhantomJS\Phantom;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
+use App\Utils\Traits\Pdf\PageNumbering;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
@@ -51,6 +52,8 @@ class PreviewController extends BaseController
 {
     use MakesHash;
     use MakesInvoiceHtml;
+    use PageNumbering;
+
 
     public function __construct()
     {
@@ -157,7 +160,15 @@ class PreviewController extends BaseController
             }
             
             if(config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja'){
-                return (new NinjaPdf())->build($maker->getCompiledHTML(true));
+                $pdf = (new NinjaPdf())->build($maker->getCompiledHTML(true));
+
+                $numbered_pdf = $this->pageNumbering($pdf, auth()->user()->company());
+
+                if($numbered_pdf)
+                    $pdf = $numbered_pdf;
+
+                return $pdf;
+
             }
 
             //else
@@ -285,7 +296,14 @@ class PreviewController extends BaseController
             }
             
             if(config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja'){
-                return (new NinjaPdf())->build($maker->getCompiledHTML(true));
+                $pdf = (new NinjaPdf())->build($maker->getCompiledHTML(true));
+
+                $numbered_pdf = $this->pageNumbering($pdf, auth()->user()->company());
+
+                if($numbered_pdf)
+                    $pdf = $numbered_pdf;
+
+                return $pdf;
             }
 
             $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), $company);
@@ -354,7 +372,14 @@ class PreviewController extends BaseController
         }
 
         if(config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja'){
-            return (new NinjaPdf())->build($maker->getCompiledHTML(true));
+            $pdf =  (new NinjaPdf())->build($maker->getCompiledHTML(true));
+
+            $numbered_pdf = $this->pageNumbering($pdf, auth()->user()->company());
+
+                if($numbered_pdf)
+                    $pdf = $numbered_pdf;
+
+                return $pdf;
         }
             
         $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), auth()->user()->company());
@@ -443,7 +468,14 @@ class PreviewController extends BaseController
         }
 
         if(config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja'){
-            return (new NinjaPdf())->build($maker->getCompiledHTML(true));
+            $pdf = (new NinjaPdf())->build($maker->getCompiledHTML(true));
+
+            $numbered_pdf = $this->pageNumbering($pdf, auth()->user()->company());
+
+                if($numbered_pdf)
+                    $pdf = $numbered_pdf;
+
+                return $pdf;
         }
             
         $file_path = PreviewPdf::dispatchNow($maker->getCompiledHTML(true), auth()->user()->company());

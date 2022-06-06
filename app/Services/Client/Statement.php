@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -226,6 +226,7 @@ class Statement
             ->whereIn('status_id', $this->invoiceStatuses())
             ->whereBetween('date', [Carbon::parse($this->options['start_date']), Carbon::parse($this->options['end_date'])])
             ->orderBy('due_date', 'ASC')
+            ->orderBy('date', 'ASC')
             ->cursor();
     }
 
@@ -241,10 +242,10 @@ class Statement
                 return [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID];
                 break;
             case 'paid':
-                return [Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID];
+                return [Invoice::STATUS_PAID];
                 break;
             case 'unpaid':
-                return [Invoice::STATUS_SENT];
+                return [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL];
                 break;
             
             default:

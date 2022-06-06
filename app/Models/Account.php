@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -428,10 +428,13 @@ class Account extends BaseModel
 
     public function gmailCredentialNotification() :bool
     {
+        nlog("checking if gmail credential notification has already been sent");
 
         if(is_null(Cache::get($this->key)))
             return false;
 
+        nlog("Sending notification");
+        
         try {
 
             if(is_null(Cache::get("gmail_credentials_notified:{$this->key}"))) {

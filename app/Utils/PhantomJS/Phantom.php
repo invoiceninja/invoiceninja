@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -25,6 +25,7 @@ use App\Services\PdfMaker\PdfMaker as PdfMakerService;
 use App\Utils\CurlUtils;
 use App\Utils\HtmlEngine;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\Pdf\PageNumbering;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
@@ -33,7 +34,7 @@ use Illuminate\Support\Str;
 
 class Phantom
 {
-    use MakesHash;
+    use MakesHash, PageNumbering;
 
     /**
      * Generate a PDF from the
@@ -99,6 +100,12 @@ class Phantom
 
         $this->checkMime($pdf, $invitation, $entity);
         
+            $numbered_pdf = $this->pageNumbering($pdf, $invitation->company);
+
+                if($numbered_pdf)
+                    $pdf = $numbered_pdf;
+                
+
         if(!Storage::disk(config('filesystems.default'))->exists($path))
             Storage::disk(config('filesystems.default'))->makeDirectory($path, 0775);
                 

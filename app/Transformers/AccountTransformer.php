@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -85,6 +85,7 @@ class AccountTransformer extends EntityTransformer
             'is_migrated' => (bool) $account->is_migrated,
             'hosted_client_count' => (int) $account->hosted_client_count,
             'hosted_company_count' => (int) $account->hosted_company_count,
+            'is_hosted' => (bool) Ninja::isHosted(),
         ];
     }
 

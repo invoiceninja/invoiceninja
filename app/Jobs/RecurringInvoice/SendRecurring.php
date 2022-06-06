@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -105,6 +105,7 @@ class SendRecurring implements ShouldQueue
         nlog("updating recurring invoice dates");
         /* Set next date here to prevent a recurring loop forming */
         $this->recurring_invoice->next_send_date = $this->recurring_invoice->nextSendDate();
+        $this->recurring_invoice->next_send_date_client = $this->recurring_invoice->nextSendDateClient();
         $this->recurring_invoice->remaining_cycles = $this->recurring_invoice->remainingCycles();
         $this->recurring_invoice->last_sent_date = now();
 

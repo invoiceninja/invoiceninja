@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -253,7 +253,7 @@ class AuthorizeCreditCard
         $response = $data['response'];
         $amount = array_key_exists('amount_with_fee', $data) ? $data['amount_with_fee'] : 0;
 
-        $code = "Error";
+        $code = 1;
         $description = "There was an error processing the payment";
 
         if ($response && $response->getErrors() != null) {

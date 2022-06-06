@@ -5,18 +5,21 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\PaymentDrivers\Authorize;
 
+use App\Models\Invoice;
 use App\PaymentDrivers\AuthorizePaymentDriver;
+use App\Utils\Traits\MakesHash;
 use net\authorize\api\contract\v1\CreateTransactionRequest;
 use net\authorize\api\contract\v1\CustomerProfilePaymentType;
 use net\authorize\api\contract\v1\OrderType;
 use net\authorize\api\contract\v1\PaymentProfileType;
+use net\authorize\api\contract\v1\ExtendedAmountType;
 use net\authorize\api\contract\v1\TransactionRequestType;
 use net\authorize\api\controller\CreateTransactionController;
 
@@ -25,6 +28,8 @@ use net\authorize\api\controller\CreateTransactionController;
  */
 class ChargePaymentProfile
 {
+    use MakesHash;
+    
     public function __construct(AuthorizePaymentDriver $authorize)
     {
         $this->authorize = $authorize;
@@ -44,19 +49,40 @@ class ChargePaymentProfile
         $profileToCharge->setPaymentProfile($paymentProfile);
 
         $invoice_numbers = '';
+        $taxAmount = 0;
+        $invoiceTotal = 0;
+        $invoiceTaxes = 0;
 
-        if($this->authorize->payment_hash->data)
-            $invoice_numbers =  collect($this->authorize->payment_hash->data->invoices)->pluck('invoice_number')->implode(',');
+        if($this->authorize->payment_hash->data) {
+            $invoice_numbers =  collect($this->authorize->payment_hash->data->invoices)->pluck('invoice_number')->implode(",");
+            $invObj = Invoice::whereIn('id', $this->transformKeys(array_column($this->authorize->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
+            
+            $invoiceTotal = round($invObj->pluck('amount')->sum(), 2);
+            $invoiceTaxes = round($invObj->pluck('total_taxes')->sum(), 2);
+            
+            if ($invoiceTotal != $amount) {
+                $taxRatio = $amount/$invoiceTotal;
+                $taxAmount = round($invoiceTaxes*$taxRatio, 2);
+            } else {
+                $taxAmount = $invoiceTaxes;
+            }
+        }
         
         $description = "Invoices: {$invoice_numbers} for {$amount} for client {$this->authorize->client->present()->name()}";
 
         $order = new OrderType();
         $order->setInvoiceNumber(substr($invoice_numbers,0,19));
         $order->setDescription(substr($description,0,255));
+        
+        $tax = new ExtendedAmountType();
+        $tax->setName('tax');
+        $tax->setAmount($taxAmount);
 
         $transactionRequestType = new TransactionRequestType();
         $transactionRequestType->setTransactionType('authCaptureTransaction');
         $transactionRequestType->setAmount($amount);
+        $transactionRequestType->setTax($tax);
+        $transactionRequestType->setTaxExempt(empty($taxAmount));
         $transactionRequestType->setOrder($order);
         $transactionRequestType->setProfile($profileToCharge);
         $transactionRequestType->setCurrencyCode($this->authorize->client->currency()->code);

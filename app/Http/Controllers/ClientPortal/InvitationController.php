@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -165,6 +165,8 @@ class InvitationController extends Controller
     public function routerForDownload(string $entity, string $invitation_key)
     {
 
+        set_time_limit(45);
+        
         if(Ninja::isHosted())
             return $this->returnRawPdf($entity, $invitation_key);
 
@@ -189,7 +191,6 @@ class InvitationController extends Controller
             return response()->json(["message" => "no record found"], 400);
 
         $file_name = $invitation->{$entity}->numberFormatter().'.pdf';
-        nlog($file_name);
 
         $file = CreateRawPdf::dispatchNow($invitation, $invitation->company->db);
 

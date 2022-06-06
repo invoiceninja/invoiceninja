@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -53,11 +53,7 @@ class PaymentIntentWebhook implements ShouldQueue
 
     public function handle()
     {
-        // nlog($this->stripe_request);
-        // nlog(optional($this->stripe_request['object']['charges']['data'][0]['metadata'])['gateway_type_id']);
-        // nlog(optional($this->stripe_request['object']['charges']['data'][0]['metadata'])['payment_hash']);
-        // nlog(optional($this->stripe_request['object']['charges']['data'][0]['payment_method_details']['card'])['brand']);
-
+        
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
 
         $company = Company::where('company_key', $this->company_key)->first();

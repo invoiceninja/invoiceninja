@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -780,7 +780,10 @@ class BaseController extends Controller
 
             $this->buildCache();
 
-            return response()->view('index.index', $data)->header('X-Frame-Options', 'SAMEORIGIN', false);
+            if(config('ninja.react_app_enabled'))
+                return response()->view('react.index', $data)->header('X-Frame-Options', 'SAMEORIGIN', false);
+            else
+                return response()->view('index.index', $data)->header('X-Frame-Options', 'SAMEORIGIN', false);
 
         }
 

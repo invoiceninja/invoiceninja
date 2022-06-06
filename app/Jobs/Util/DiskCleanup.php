@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -36,7 +36,7 @@ class DiskCleanup implements ShouldQueue
      */
     public function handle()
     {
-
+        nlog("Cleaning Storage");
 
         // Get all files in a directory
         $files = Storage::allFiles(config('filesystems.default'), 'backups/');

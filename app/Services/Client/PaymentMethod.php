@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -132,8 +132,7 @@ class PaymentMethod
 
     private function getMethods()
     {
-        // we should prefilter $gateway->driver($this)->gatewayTypes() 
-        // and only include the enabled payment methods on the gateway
+        
         $this->payment_methods = [];
 
         foreach ($this->gateways as $gateway) {
@@ -148,13 +147,12 @@ class PaymentMethod
 
                     if ($this->validGatewayForAmount($gateway->fees_and_limits->{$type}, $this->amount) && $gateway->fees_and_limits->{$type}->is_enabled) {
                     
-                        // if($type == GatewayType::BANK_TRANSFER);
-
                         $this->payment_methods[] = [$gateway->id => $type];
+        
                     }
 
                 } else {
-                    //$this->payment_methods[] = [$gateway->id => $type];
+        
                 }
             }
         }
@@ -243,11 +241,11 @@ class PaymentMethod
             return true;
         }
 
-        if ((property_exists($fees_and_limits, 'min_limit')) && $fees_and_limits->min_limit !== null && $fees_and_limits->min_limit != -1 && $this->amount < $fees_and_limits->min_limit) {
+        if ((property_exists($fees_and_limits, 'min_limit')) && $fees_and_limits->min_limit !== null && $fees_and_limits->min_limit != -1 && ($this->amount < $fees_and_limits->min_limit && $this->amount != -1)) {
             return false;
         }
 
-        if ((property_exists($fees_and_limits, 'max_limit')) && $fees_and_limits->max_limit !== null && $fees_and_limits->max_limit != -1 && $this->amount > $fees_and_limits->max_limit) {
+        if ((property_exists($fees_and_limits, 'max_limit')) && $fees_and_limits->max_limit !== null && $fees_and_limits->max_limit != -1 && ($this->amount > $fees_and_limits->max_limit && $this->amount != -1)) {
             return false;
         }
 

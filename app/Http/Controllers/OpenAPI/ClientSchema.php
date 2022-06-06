@@ -10,7 +10,6 @@
  *       	property="contacts",
  *        	type="array",
  *        	@OA\Items(
- *
  *           	ref="#/components/schemas/ClientContact",
  *          ),
  *       ),

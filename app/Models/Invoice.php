@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -90,7 +90,7 @@ class Invoice extends BaseModel
         'subscription_id',
         'auto_bill_enabled',
         'uses_inclusive_taxes',
-        'vendor_id',
+        'vendor_id'
     ];
 
     protected $casts = [
@@ -445,14 +445,14 @@ class Invoice extends BaseModel
             $file_path = CreateEntityPdf::dispatchNow($invitation, config('filesystems.default'));
             return Storage::disk(config('filesystems.default'))->{$type}($file_path);
         }
-        
+
         try{
             $file_exists = Storage::disk('public')->exists($file_path);
         }
         catch(\Exception $e){
 
             nlog($e->getMessage());
-            
+
         }
 
         if($file_exists)
@@ -553,10 +553,10 @@ class Invoice extends BaseModel
         $invoice = $this->fresh();
 
         return [
-            'invoice_id' => $invoice->id, 
-            'invoice_amount' => $invoice->amount ?: 0, 
-            'invoice_partial' => $invoice->partial ?: 0, 
-            'invoice_balance' => $invoice->balance ?: 0, 
+            'invoice_id' => $invoice->id,
+            'invoice_amount' => $invoice->amount ?: 0,
+            'invoice_partial' => $invoice->partial ?: 0,
+            'invoice_balance' => $invoice->balance ?: 0,
             'invoice_paid_to_date' => $invoice->paid_to_date ?: 0,
             'invoice_status' => $invoice->status_id ?: 1,
         ];

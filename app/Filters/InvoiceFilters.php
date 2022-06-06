@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -136,6 +136,27 @@ class InvoiceFilters extends QueryFilters
                 $query->orWhere($table.'.is_deleted', '=', 1);
             }
         });
+    }
+
+    public function upcoming()
+    {
+        return $this->builder
+                    ->where(function ($query) {
+                        $query->whereNull('due_date')
+                              ->orWhere('due_date', '>', now());
+                    })
+                    ->orderBy('due_date', 'ASC');
+    }
+
+    public function overdue()
+    {
+        $this->builder->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                ->where('is_deleted', 0)
+                ->where(function ($query) {
+                        $query->where('due_date', '<', now())
+                        ->orWhere('partial_due_date', '<', now());
+                })
+                ->orderBy('due_date', 'ASC');
     }
 
     public function payable(string $client_id)

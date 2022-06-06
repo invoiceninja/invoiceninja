@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -80,9 +80,12 @@ class Charge
               'description' => $description,
               'metadata' => [
                 'payment_hash' => $payment_hash->hash,
-                'gateway_type_id' => GatewayType::CREDIT_CARD,
+                'gateway_type_id' => $cgt->gateway_type_id,
                 ],
             ];
+
+            if($cgt->gateway_type_id == GatewayType::SEPA)
+                $data['payment_method_types'] = ['sepa_debit'];
 
             $response = $this->stripe->createPaymentIntent($data, $this->stripe->stripe_connect_auth);
             
@@ -132,7 +135,10 @@ class Charge
             return false;
         }
 
-        $payment_method_type = $response->charges->data[0]->payment_method_details->card->brand;
+        if($cgt->gateway_type_id == GatewayType::SEPA)
+            $payment_method_type = PaymentType::SEPA;
+        else
+            $payment_method_type = $response->charges->data[0]->payment_method_details->card->brand;
 
         $data = [
             'gateway_type_id' => $cgt->gateway_type_id,
@@ -174,6 +180,8 @@ class Charge
             case 'mastercard':
                 return PaymentType::MASTERCARD;
                 break;
+            case PaymentType::SEPA:
+                return PaymentType::SEPA;
             default:
                 return PaymentType::CREDIT_CARD_OTHER;
                 break;

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -38,6 +38,7 @@ use App\PaymentDrivers\Stripe\EPS;
 use App\PaymentDrivers\Stripe\FPX;
 use App\PaymentDrivers\Stripe\GIROPAY;
 use App\PaymentDrivers\Stripe\ImportCustomers;
+use App\PaymentDrivers\Stripe\Jobs\PaymentIntentFailureWebhook;
 use App\PaymentDrivers\Stripe\Jobs\PaymentIntentWebhook;
 use App\PaymentDrivers\Stripe\PRZELEWY24;
 use App\PaymentDrivers\Stripe\SEPA;
@@ -47,6 +48,7 @@ use App\PaymentDrivers\Stripe\Utilities;
 use App\PaymentDrivers\Stripe\iDeal;
 use App\Utils\Traits\MakesHash;
 use Exception;
+use Google\Service\ServiceConsumerManagement\CustomError;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Carbon;
 use Laracasts\Presenter\Exceptions\PresenterException;
@@ -409,6 +411,16 @@ class StripePaymentDriver extends BaseDriver
         return $this->company_gateway->getPublishableKey();
     }
 
+    public function getCustomer($customer_id) :?Customer 
+    {
+        $customer = Customer::retrieve($customer_id, $this->stripe_connect_auth);
+
+        if($customer)
+            return $customer;
+
+        return false;
+    }
+
     /**
      * Finds or creates a Stripe Customer object.
      *
@@ -568,18 +580,24 @@ class StripePaymentDriver extends BaseDriver
 
         //payment_intent.succeeded - this will confirm or cancel the payment
         if($request->type === 'payment_intent.succeeded'){
-            PaymentIntentWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id)->delay(10);
+            PaymentIntentWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id)->delay(now()->addSeconds(rand(2,10)));
             return response()->json([], 200);
         }
+
+        if(in_array($request->type, ['payment_intent.payment_failed','charge.failed'])){
+            PaymentIntentFailureWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id)->delay(now()->addSeconds(rand(2,10)));
+            return response()->json([], 200);
+        }
+
 
         if ($request->type === 'charge.succeeded') {
 
             foreach ($request->data as $transaction) {
 
-                if(array_key_exists('payment_intent', $transaction))
+                if(array_key_exists('payment_intent', $transaction) && $transaction['payment_intent'])
                 {
                     $payment = Payment::query()
-                        ->where('company_id', $request->getCompany()->id)
+                        // ->where('company_id', $request->getCompany()->id)
                         ->where(function ($query) use ($transaction) {
                             $query->where('transaction_reference', $transaction['payment_intent'])
                                   ->orWhere('transaction_reference', $transaction['id']);
@@ -589,7 +607,7 @@ class StripePaymentDriver extends BaseDriver
                 else
                 {
                      $payment = Payment::query()
-                        ->where('company_id', $request->getCompany()->id)
+                        // ->where('company_id', $request->getCompany()->id)
                         ->where('transaction_reference', $transaction['id'])
                         ->first();
                 }
@@ -601,9 +619,14 @@ class StripePaymentDriver extends BaseDriver
             }
 
         } elseif ($request->type === 'source.chargeable') {
+            
             $this->init();
 
             foreach ($request->data as $transaction) {
+
+                if(!$request->data['object']['amount'] || empty($request->data['object']['amount']))
+                    continue;
+
                 $charge = \Stripe\Charge::create([
                     'amount' => $request->data['object']['amount'],
                     'currency' => $request->data['object']['currency'],
@@ -619,6 +642,7 @@ class StripePaymentDriver extends BaseDriver
                                   ->orWhere('transaction_reference', $transaction['id']);
                                 })
                         ->first();
+
                     if ($payment) {
                         $payment->status_id = Payment::STATUS_COMPLETED;
                         $payment->save();

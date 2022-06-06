@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -100,7 +100,8 @@ class RecurringExpenseTransformer extends EntityTransformer
             'frequency_id' => (string) $recurring_expense->frequency_id,
             'remaining_cycles' => (int) $recurring_expense->remaining_cycles,
             'last_sent_date' => $recurring_expense->last_sent_date ?: '',
-            'next_send_date' => $recurring_expense->next_send_date ?: '',
+            // 'next_send_date' => $recurring_expense->next_send_date ?: '',
+            'next_send_date' => $recurring_expense->next_send_date_client ?: '',
             'recurring_dates' => (array) [],
         ];
 

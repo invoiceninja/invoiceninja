@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -149,7 +149,7 @@ class CompanyExport implements ShouldQueue
 
         $this->export_data['client_gateway_tokens'] = $this->company->client_gateway_tokens->map(function ($client_gateway_token){
 
-            $client_gateway_token = $this->transformArrayOfKeys($client_gateway_token, ['company_id', 'client_id']);
+            $client_gateway_token = $this->transformArrayOfKeys($client_gateway_token, ['company_id', 'client_id', 'company_gateway_id']);
 
             return $client_gateway_token->makeVisible(['id']);
 
@@ -192,7 +192,7 @@ class CompanyExport implements ShouldQueue
 
         })->all();
 
-        $this->export_data['company_users'] = $this->company->company_users->map(function ($company_user){
+        $this->export_data['company_users'] = $this->company->company_users()->without(['user','account'])->cursor()->map(function ($company_user){
 
             $company_user = $this->transformArrayOfKeys($company_user, ['company_id', 'account_id', 'user_id']);
 

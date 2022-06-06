@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -77,12 +77,26 @@ class SystemHealth
             'open_basedir' => (bool)self::checkOpenBaseDir(),
             'mail_mailer' => (string)self::checkMailMailer(),
             'flutter_renderer' => (string)config('ninja.flutter_canvas_kit'),
-            'jobs_pending' => (int) Queue::size(),
+            'jobs_pending' => (int) self::checkQueueSize(),
             'pdf_engine' => (string) self::getPdfEngine(),
             'queue' => (string) config('queue.default'),
             'trailing_slash' => (bool) self::checkUrlState(),
             'file_permissions' => (string) self::checkFileSystem()
         ];
+    }
+
+    private static function checkQueueSize()
+    {
+        $count = 0;
+
+        try{
+            $count = Queue::size();
+        }
+        catch(\Exception $e){
+
+        }
+
+        return $count;
     }
 
     public static function checkFileSystem()

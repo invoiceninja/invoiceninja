@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -67,11 +67,23 @@ class RecurringInvoicesCron
 
                 nlog("Trying to send {$recurring_invoice->number}");
                 
+                /* Special check if we should generate another invoice is the previous one is yet to be paid */
+                if($recurring_invoice->company->stop_on_unpaid_recurring && $recurring_invoice->invoices()->whereIn('status_id', [2,3])->where('is_deleted', 0)->where('balance', '>', 0)->exists()) {
+
+                    nlog("Existing invoice exists, skipping");
+                    return;
+
+                }
+
                 try{
+
                     SendRecurring::dispatchNow($recurring_invoice, $recurring_invoice->company->db);
+
                 }
                 catch(\Exception $e){
+
                     nlog("Unable to sending recurring invoice {$recurring_invoice->id} ". $e->getMessage());
+                    
                 }
                 
             });
@@ -103,6 +115,13 @@ class RecurringInvoicesCron
 
                         nlog("Trying to send {$recurring_invoice->number}");
                     
+                        if($recurring_invoice->company->stop_on_unpaid_recurring) {
+
+                            if($recurring_invoice->invoices()->whereIn('status_id', [2,3])->where('is_deleted', 0)->where('balance', '>', 0)->exists())
+                                return;
+
+                        }
+
                         try{
                             SendRecurring::dispatchNow($recurring_invoice, $recurring_invoice->company->db);
                         }

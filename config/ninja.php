@@ -14,8 +14,8 @@ return [
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', 'invoicing.co'),
-    'app_version' => '5.3.84',
-    'app_tag' => '5.3.84',
+    'app_version' => '5.3.96',
+    'app_tag' => '5.3.96',
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', ''),
@@ -155,6 +155,10 @@ return [
     'designs' => [
         'base_path' => resource_path('views/pdf-designs/'),
     ],
+    'maintenance' => [
+        'delete_pdfs' => env('DELETE_PDF_DAYS', 0),
+        'delete_backups' => env('DELETE_BACKUP_DAYS', 0),
+    ],
     'log_pdf_html' => env('LOG_PDF_HTML', false),
     'expanded_logging' => env('EXPANDED_LOGGING', false),
     'snappdf_chromium_path' => env('SNAPPDF_CHROMIUM_PATH', false),
@@ -183,7 +187,7 @@ return [
     'ninja_apple_api_key' => env('APPLE_API_KEY', false),
     'ninja_apple_private_key' => env('APPLE_PRIVATE_KEY', false),
     'ninja_apple_bundle_id' => env('APPLE_BUNDLE_ID', false),
-    'ninja_apple_issuer_id' => env('APPLE_ISSUER_ID', false)
-      
+    'ninja_apple_issuer_id' => env('APPLE_ISSUER_ID', false),
+    'react_app_enabled' => env('REACT_APP_ENABLED', false),
 ];
 
