@@ -58,7 +58,8 @@ class CreatePurchaseOrderInvitationsTable extends Migration
             $settings->purchase_order_public_notes = ''; //@implemented
             $settings->purchase_order_number_pattern = ''; //@implemented
             $settings->purchase_order_number_counter = 1; //@implemented
-
+            $settings->email_subject_purchase_order = '';
+            $settings->email_template_purchase_order = '';
             $company->settings = $settings;
             $company->save();
         });

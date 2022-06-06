@@ -180,6 +180,8 @@ class CompanySettings extends BaseSettings
     public $email_subject_payment = ''; //@implemented
     public $email_subject_payment_partial = ''; //@implemented
     public $email_subject_statement = ''; //@implemented
+    public $email_subject_purchase_order = ''; //@implemented
+    public $email_template_purchase_order = ''; //@implemented
     public $email_template_invoice = ''; //@implemented
     public $email_template_credit = ''; //@implemented
     public $email_template_quote = ''; //@implemented
