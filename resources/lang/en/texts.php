@@ -4607,7 +4607,9 @@ $LANG = array(
     'enable_tooltips_help' => 'Show tooltips when hovering the mouse',
     'multiple_client_error' => 'Error: records belong to more than one client',
     'login_label' => 'Login to an existing account',
-
+    'purchase_order' => 'Purchase Order',
+    'purchase_order_number' => 'Purchase Order Number',
+    'purchase_order_number_short' => 'Purchase Order #',
 );
 
 return $LANG;
