@@ -39,9 +39,12 @@ class CreateInvitations extends AbstractService
         $new_contact->is_primary = true;
         $new_contact->save();
     }
+
     public function run()
     {
         $contacts = $this->purchase_order->vendor->contacts()->where('send_email', true)->get();
+
+nlog("a");
 
         if($contacts->count() == 0){
             $this->createBlankContact();
@@ -49,6 +52,9 @@ class CreateInvitations extends AbstractService
             $this->purchase_order->refresh();
             $contacts = $this->purchase_order->vendor->contacts;
         }
+
+nlog("b");
+nlog($contacts->count());
 
         $contacts->each(function ($contact) {
             $invitation = PurchaseOrderInvitation::where('company_id', $this->purchase_order->company_id)
@@ -58,15 +64,23 @@ class CreateInvitations extends AbstractService
                 ->first();
 
             if (! $invitation) {
+                try{
                 $ii = PurchaseOrderInvitationFactory::create($this->purchase_order->company_id, $this->purchase_order->user_id);
                 $ii->key = $this->createDbHash($this->purchase_order->company->db);
                 $ii->purchase_order_id = $this->purchase_order->id;
                 $ii->vendor_contact_id = $contact->id;
                 $ii->save();
+                }
+                catch(\Exception $e){
+                    nlog($e->getMessage());
+                }
             } elseif (! $contact->send_email) {
                 $invitation->delete();
             }
         });
+
+nlog("c");
+
 
         if($this->purchase_order->invitations()->count() == 0) {
 
@@ -76,7 +90,7 @@ class CreateInvitations extends AbstractService
             else{
                 $contact = $contacts->first();
 
-                $invitation = PurchaseOrder::where('company_id', $this->purchase_order->company_id)
+                $invitation = PurchaseOrderInvitation::where('company_id', $this->purchase_order->company_id)
                     ->where('vendor_contact_id', $contact->id)
                     ->where('purchase_order_id', $this->purchase_order->id)
                     ->withTrashed()
@@ -88,6 +102,9 @@ class CreateInvitations extends AbstractService
                 }
             }
 
+nlog("d");
+
+
             $ii = PurchaseOrderInvitationFactory::create($this->purchase_order->company_id, $this->purchase_order->user_id);
             $ii->key = $this->createDbHash($this->purchase_order->company->db);
             $ii->purchase_order_id = $this->purchase_order->id;
@@ -95,6 +112,7 @@ class CreateInvitations extends AbstractService
             $ii->save();
         }
 
+nlog("e");
 
         return $this->purchase_order;
     }

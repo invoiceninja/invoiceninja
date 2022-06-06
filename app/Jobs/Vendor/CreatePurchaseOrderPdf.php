@@ -73,7 +73,8 @@ class CreatePurchaseOrderPdf implements ShouldQueue
     public function __construct($invitation, $disk = 'public')
     {
         $this->invitation = $invitation;
-
+        $this->company = $invitation->company;
+        
         $this->entity = $invitation->purchase_order;
         $this->entity_string = 'purchase_order';
 

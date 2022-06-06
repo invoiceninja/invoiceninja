@@ -52,7 +52,7 @@ class Helpers
      *
      * @return null|string
      */
-    public function formatCustomFieldValue($custom_fields, $field, $value, Client $client = null): ?string
+    public function formatCustomFieldValue($custom_fields, $field, $value, $entity = null): ?string
     {
         $custom_field = '';
 
@@ -67,7 +67,7 @@ class Helpers
 
         switch ($custom_field) {
             case 'date':
-                return is_null($client) ? $value : $this->translateDate($value, $client->date_format(), $client->locale());
+                return is_null($entity) ? $value : $this->translateDate($value, $entity->date_format(), $entity->locale());
                 break;
 
             case 'switch':

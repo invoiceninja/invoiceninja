@@ -15,9 +15,10 @@ use App\DataMapper\CompanySettings;
 use App\Models\Presenters\VendorPresenter;
 use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\GeneratesCounter;
+use App\Utils\Traits\NumberFormatter;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laracasts\Presenter\PresentableTrait;
 use Illuminate\Support\Facades\Cache;
+use Laracasts\Presenter\PresentableTrait;
 
 class Vendor extends BaseModel
 {
@@ -26,7 +27,7 @@ class Vendor extends BaseModel
     use GeneratesCounter;
     use PresentableTrait;
     use AppSetup;
-    
+
     protected $fillable = [
         'name',
         'assigned_user_id',
@@ -166,6 +167,14 @@ class Vendor extends BaseModel
     public function purchase_order_filepath($invitation)
     {   
         $contact_key = $invitation->contact->contact_key;
+        
         return $this->company->company_key.'/'.$this->vendor_hash.'/'.$contact_key.'/purchase_orders/';
     }
+
+    public function country()
+    {
+        return $this->belongsTo(Country::class);
+    }
+
+
 }

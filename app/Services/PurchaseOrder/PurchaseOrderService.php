@@ -15,6 +15,7 @@ namespace App\Services\PurchaseOrder;
 use App\Models\PurchaseOrder;
 use App\Services\PurchaseOrder\ApplyNumber;
 use App\Services\PurchaseOrder\CreateInvitations;
+use App\Services\PurchaseOrder\GetPurchaseOrderPdf;
 use App\Utils\Traits\MakesHash;
 
 class PurchaseOrderService
@@ -23,7 +24,7 @@ class PurchaseOrderService
 
     public PurchaseOrder $purchase_order;
 
-    public function __construct($purchase_order)
+    public function __construct(PurchaseOrder $purchase_order)
     {
         $this->purchase_order = $purchase_order;
     }
@@ -59,6 +60,11 @@ class PurchaseOrderService
 
 
         return $this;
+    }
+
+    public function getPurchaseOrderPdf($contact = null)
+    {
+        return (new GetPurchaseOrderPdf($this->purchase_order, $contact))->run();
     }
 
     public function setStatus($status)

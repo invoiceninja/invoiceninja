@@ -35,6 +35,9 @@ class Design extends BaseDesign
     /** @var App\Models\Client */
     public $client;
 
+    /** @var App\Models\Vendor */
+    public $vendor;
+
     /** Global state of the design, @var array */
     public $context;
 
@@ -198,6 +201,9 @@ class Design extends BaseDesign
     {
         $elements = [];
 
+        if(!$this->vendor)
+            return $elements;
+
         $variables = $this->context['pdf_variables']['vendor_details'];
 
         foreach ($variables as $variable) {
@@ -210,6 +216,9 @@ class Design extends BaseDesign
     public function clientDetails(): array
     {
         $elements = [];
+
+        if(!$this->client)
+            return $elements;
 
         if ($this->type == self::DELIVERY_NOTE) {
             $elements = [

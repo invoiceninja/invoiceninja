@@ -294,6 +294,7 @@ trait MockAccountData
         $this->vendor = Vendor::factory()->create([
             'user_id' => $user_id,
             'company_id' => $this->company->id,
+            'currency_id' => 1
         ]);
 
 

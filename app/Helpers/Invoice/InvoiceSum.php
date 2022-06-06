@@ -44,6 +44,8 @@ class InvoiceSum
 
     private $gross_sub_total;
 
+    private $precision;
+
     /**
      * Constructs the object with Invoice and Settings object.
      *
@@ -53,8 +55,10 @@ class InvoiceSum
     {
         $this->invoice = $invoice;
 
-        // if(!$this->invoice->relationLoaded('client'))
-        //     $this->invoice->load('client');
+        if($this->invoice->vendor)
+            $this->precision = $this->invoice->vendor->currency()->precision;
+        else
+            $this->precision = $this->invoice->client->currency()->precision;
 
         $this->tax_map = new Collection;
     }
@@ -234,9 +238,9 @@ class InvoiceSum
 
     public function getRecurringInvoice()
     {
-        $this->invoice->amount = $this->formatValue($this->getTotal(), $this->invoice->client->currency()->precision);
+        $this->invoice->amount = $this->formatValue($this->getTotal(), $this->precision);
         $this->invoice->total_taxes = $this->getTotalTaxes();
-        $this->invoice->balance = $this->formatValue($this->getTotal(), $this->invoice->client->currency()->precision);
+        $this->invoice->balance = $this->formatValue($this->getTotal(), $this->precision);
 
         $this->invoice->saveQuietly();
 
@@ -255,13 +259,13 @@ class InvoiceSum
             if ($this->invoice->amount != $this->invoice->balance) {
                 $paid_to_date = $this->invoice->amount - $this->invoice->balance;
 
-                $this->invoice->balance = $this->formatValue($this->getTotal(), $this->invoice->client->currency()->precision) - $paid_to_date;
+                $this->invoice->balance = $this->formatValue($this->getTotal(), $this->precision) - $paid_to_date;
             } else {
-                $this->invoice->balance = $this->formatValue($this->getTotal(), $this->invoice->client->currency()->precision);
+                $this->invoice->balance = $this->formatValue($this->getTotal(), $this->precision);
             }
         }
         /* Set new calculated total */
-        $this->invoice->amount = $this->formatValue($this->getTotal(), $this->invoice->client->currency()->precision);
+        $this->invoice->amount = $this->formatValue($this->getTotal(), $this->precision);
 
         $this->invoice->total_taxes = $this->getTotalTaxes();
 

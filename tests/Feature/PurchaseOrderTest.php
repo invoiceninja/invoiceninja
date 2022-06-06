@@ -40,6 +40,39 @@ class PurchaseOrderTest extends TestCase
 
     }
 
+    public function testPostNewPurchaseOrderPdf()
+    {
+        $purchase_order = [
+            'status_id' => 1,
+            'discount' => 0,
+            'is_amount_discount' => 1,
+            'number' => '34343xx43',
+            'public_notes' => 'notes',
+            'is_deleted' => 0,
+            'custom_value1' => 0,
+            'custom_value2' => 0,
+            'custom_value3' => 0,
+            'custom_value4' => 0,
+            'status' => 1,
+            'vendor_id' => $this->encodePrimaryKey($this->vendor->id),
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/purchase_orders/', $purchase_order)
+            ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $purchase_order = PurchaseOrder::find($this->decodePrimaryKey($arr['data']['id']));
+
+        $this->assertNotNull($purchase_order);
+
+        $purchase_order->service()->markSent()->getPurchaseOrderPdf();
+
+    }    
+
     public function testPurchaseOrderRest()
     {
         $response = $this->withHeaders([

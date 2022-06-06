@@ -130,7 +130,8 @@ class VendorHtmlEngine
         $data['$dueDate'] = &$data['$due_date'];
 
         $data['$payment_due'] = ['value' => $this->translateDate($this->entity->due_date, $this->company->date_format(), $this->company->locale()) ?: '&nbsp;', 'label' => ctrans('texts.payment_due')];
-        $data['$poNumber'] = &$data['$invoice.po_number'];
+        $data['$poNumber'] = ['value' => $this->entity->po_number, 'label' => ctrans('texts.po_number')];
+
         $data['$entity.datetime'] = ['value' => $this->formatDatetime($this->entity->created_at, $this->company->date_format(), $this->company->locale()), 'label' => ctrans('texts.date')];
 
         $data['$payment_button'] = ['value' => '<a class="button" href="'.$this->invitation->getPaymentLink().'">'.ctrans('texts.pay_now').'</a>', 'label' => ctrans('texts.pay_now')];
@@ -156,7 +157,7 @@ class VendorHtmlEngine
         $data['$portal_url'] = ['value' => $this->invitation->getPortalLink(), 'label' =>''];
 
         $data['$entity_number'] = &$data['$number'];
-        $data['$discount'] = &$data['$invoice.discount'];
+        $data['$discount'] = ['value' => $this->entity->discount, 'label' => ctrans('texts.discount')];
         $data['$subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getSubTotal(), $this->vendor) ?: '&nbsp;', 'label' => ctrans('texts.subtotal')];
         $data['$gross_subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getGrossSubTotal(), $this->vendor) ?: '&nbsp;', 'label' => ctrans('texts.subtotal')];
 
@@ -164,8 +165,6 @@ class VendorHtmlEngine
             $data['$net_subtotal'] = ['value' => Number::formatMoney(($this->entity_calc->getSubTotal() - $this->entity->total_taxes - $this->entity_calc->getTotalDiscount()), $this->vendor) ?: '&nbsp;', 'label' => ctrans('texts.net_subtotal')];
         else
             $data['$net_subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getSubTotal() - $this->entity_calc->getTotalDiscount(), $this->vendor) ?: '&nbsp;', 'label' => ctrans('texts.net_subtotal')];
-
-        $data['$invoice.subtotal'] = &$data['$subtotal'];
 
         if ($this->entity->partial > 0) {
             $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->partial, $this->vendor) ?: '&nbsp;', 'label' => ctrans('texts.partial_due')];
@@ -205,19 +204,19 @@ class VendorHtmlEngine
         $data['$created_by_user'] = &$data['$user.name'];
         $data['$assigned_to_user'] = ['value' => $this->entity->assigned_user ? $this->entity->assigned_user->present()->name() : '', 'label' => ctrans('texts.name')];
 
-        $data['$entity.public_notes'] = &$data['$invoice.public_notes'];
-        $data['$public_notes'] = &$data['$invoice.public_notes'];
+        $data['$public_notes'] = ['value' => $this->entity->public_notes, 'label' => ctrans("texts.public_notes")];
+        $data['$entity.public_notes'] = &$data['$public_notes'];
         $data['$notes'] = &$data['$public_notes'];
 
-        $data['$purchase_order.custom1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'purchase_order1', $this->entity->custom_value1, $this->vendor) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'purchase_order1')];
-        $data['$purchase_order.custom2'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'purchase_order2', $this->entity->custom_value2, $this->vendor) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'purchase_order2')];
-        $data['$purchase_order.custom3'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'purchase_order3', $this->entity->custom_value3, $this->vendor) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'purchase_order3')];
-        $data['$purchase_order.custom4'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'purchase_order4', $this->entity->custom_value4, $this->vendor) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'purchase_order4')];
+        $data['$purchase_order.custom1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'purchase_order1', $this->entity->custom_value1, $this->company) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'purchase_order1')];
+        $data['$purchase_order.custom2'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'purchase_order2', $this->entity->custom_value2, $this->company) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'purchase_order2')];
+        $data['$purchase_order.custom3'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'purchase_order3', $this->entity->custom_value3, $this->company) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'purchase_order3')];
+        $data['$purchase_order.custom4'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'purchase_order4', $this->entity->custom_value4, $this->company) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'purchase_order4')];
 
-        $data['$vendor1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'vendor1', $this->vendor->custom_value1, $this->vendor) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'vendor1')];
-        $data['$vendor2'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'vendor2', $this->vendor->custom_value2, $this->vendor) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'vendor2')];
-        $data['$vendor3'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'vendor3', $this->vendor->custom_value3, $this->vendor) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'vendor3')];
-        $data['$vendor4'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'vendor4', $this->vendor->custom_value4, $this->vendor) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'vendor4')];
+        $data['$vendor1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'vendor1', $this->vendor->custom_value1, $this->company) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'vendor1')];
+        $data['$vendor2'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'vendor2', $this->vendor->custom_value2, $this->company) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'vendor2')];
+        $data['$vendor3'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'vendor3', $this->vendor->custom_value3, $this->company) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'vendor3')];
+        $data['$vendor4'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'vendor4', $this->vendor->custom_value4, $this->company) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'vendor4')];
         $data['$vendor.custom1'] = &$data['$vendor1'];
         $data['$vendor.custom2'] = &$data['$vendor2'];
         $data['$vendor.custom3'] = &$data['$vendor3'];
@@ -430,6 +429,8 @@ class VendorHtmlEngine
         $values = $this->buildEntityDataArray();
 
         foreach ($values as $key => $value) {
+            nlog($key);
+            nlog($value);
             $data['values'][$key] = $value['value'];
             $data['labels'][$key.'_label'] = $value['label'];
         }

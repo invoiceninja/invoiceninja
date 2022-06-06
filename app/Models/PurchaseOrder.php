@@ -12,7 +12,10 @@
 namespace App\Models;
 
 
+use App\Helpers\Invoice\InvoiceSum;
+use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Jobs\Entity\CreateEntityPdf;
+use App\Jobs\Vendor\CreatePurchaseOrderPdf;
 use App\Services\PurchaseOrder\PurchaseOrderService;
 use App\Utils\Ninja;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -165,14 +168,14 @@ class PurchaseOrder extends BaseModel
             return Storage::disk(config('filesystems.default'))->{$type}($file_path);
         }
         elseif(Ninja::isHosted() && $portal){
-            $file_path = CreateEntityPdf::dispatchNow($invitation,config('filesystems.default'));
+            $file_path = CreatePurchaseOrderPdf::dispatchNow($invitation,config('filesystems.default'));
             return Storage::disk(config('filesystems.default'))->{$type}($file_path);
         }
 
         if(Storage::disk('public')->exists($file_path))
             return Storage::disk('public')->{$type}($file_path);
 
-        $file_path = CreateEntityPdf::dispatchNow($invitation);
+        $file_path = CreatePurchaseOrderPdf::dispatchNow($invitation);
         return Storage::disk('public')->{$type}($file_path);
     }
 
@@ -193,7 +196,7 @@ class PurchaseOrder extends BaseModel
 
     public function service()
     {
-        return new  PurchaseOrderService($this);
+        return new PurchaseOrderService($this);
     }
 
     public function invoices()
@@ -209,6 +212,19 @@ class PurchaseOrder extends BaseModel
     public function documents()
     {
         return $this->morphMany(Document::class, 'documentable');
+    }
+
+    public function calc()
+    {
+        $purchase_order_calc = null;
+
+        if ($this->uses_inclusive_taxes) {
+            $purchase_order_calc = new InvoiceSumInclusive($this);
+        } else {
+            $purchase_order_calc = new InvoiceSum($this);
+        }
+
+        return $purchase_order_calc->build();
     }
 
 }
