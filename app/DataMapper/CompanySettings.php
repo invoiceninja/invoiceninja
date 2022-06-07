@@ -289,6 +289,8 @@ class CompanySettings extends BaseSettings
     public $auto_archive_invoice_cancelled = false;
 
     public static $casts = [
+        'email_subject_purchase_order'       => 'string',
+        'email_template_purchase_order'      => 'string',
         'require_purchase_order_signature'   => 'bool',
         'purchase_order_public_notes'        => 'string',
         'purchase_order_terms'               => 'string',
@@ -547,6 +549,7 @@ class CompanySettings extends BaseSettings
         'invoice_design_id',
         'quote_design_id',
         'credit_design_id',
+        'purchase_order_design_id',
     ];
 
     /**

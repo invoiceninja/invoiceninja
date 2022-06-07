@@ -179,7 +179,7 @@ class InvoiceService
         $this->invoice = (new MarkSent($this->invoice->client, $this->invoice))->run();
 
         $this->setExchangeRate();
-
+        
         return $this;
     }
 
