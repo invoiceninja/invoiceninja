@@ -44,8 +44,6 @@ class CreateInvitations extends AbstractService
     {
         $contacts = $this->purchase_order->vendor->contacts()->where('send_email', true)->get();
 
-nlog("a");
-
         if($contacts->count() == 0){
             $this->createBlankContact();
 
@@ -53,8 +51,6 @@ nlog("a");
             $contacts = $this->purchase_order->vendor->contacts;
         }
 
-nlog("b");
-nlog($contacts->count());
 
         $contacts->each(function ($contact) {
             $invitation = PurchaseOrderInvitation::where('company_id', $this->purchase_order->company_id)
@@ -79,9 +75,6 @@ nlog($contacts->count());
             }
         });
 
-nlog("c");
-
-
         if($this->purchase_order->invitations()->count() == 0) {
 
             if($contacts->count() == 0){
@@ -102,17 +95,12 @@ nlog("c");
                 }
             }
 
-nlog("d");
-
-
             $ii = PurchaseOrderInvitationFactory::create($this->purchase_order->company_id, $this->purchase_order->user_id);
             $ii->key = $this->createDbHash($this->purchase_order->company->db);
             $ii->purchase_order_id = $this->purchase_order->id;
             $ii->vendor_contact_id = $contact->id;
             $ii->save();
         }
-
-nlog("e");
 
         return $this->purchase_order;
     }

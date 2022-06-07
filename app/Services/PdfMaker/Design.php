@@ -252,6 +252,8 @@ class Design extends BaseDesign
 
     public function entityDetails(): array
     {
+
+
         if ($this->type === 'statement') {
 
             $s_date = $this->translateDate(now(), $this->client->date_format(), $this->client->locale());
@@ -284,6 +286,12 @@ class Design extends BaseDesign
 
         if ($this->entity instanceof Credit) {
             $variables = $this->context['pdf_variables']['credit_details'];
+        }
+
+        if($this->vendor){
+
+            $variables = $this->context['pdf_variables']['purchase_order_details'];
+
         }
 
         $elements = [];

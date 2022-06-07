@@ -656,6 +656,14 @@ class CompanySettings extends BaseSettings
                 '$vendor.phone',
                 '$contact.email',
             ],
+            'purchase_order_details' => [
+                '$purchase_order.number',
+                '$purchase_order.po_number',
+                '$purchase_order.date',
+                '$purchase_order.due_date',
+                '$purchase_order.total',
+                '$purchase_order.balance_due',
+            ],
             'company_details' => [
                 '$company.name',
                 '$company.id_number',

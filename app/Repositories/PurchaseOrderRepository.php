@@ -83,8 +83,6 @@ class PurchaseOrderRepository extends BaseRepository
         /* If no invitations have been created, this is our fail safe to maintain state*/
         if ($purchase_order->invitations()->count() == 0) 
             $purchase_order->service()->createInvitations();
-
-nlog("4");
         
         /* Recalculate invoice amounts */
         $purchase_order = $purchase_order->calc()->getPurchaseOrder();

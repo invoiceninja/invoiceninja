@@ -19,6 +19,7 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 
 class PurchaseOrderTest extends TestCase
 {
@@ -46,7 +47,12 @@ class PurchaseOrderTest extends TestCase
             'status_id' => 1,
             'discount' => 0,
             'is_amount_discount' => 1,
-            'number' => '34343xx43',
+            'number' => Str::random(10),
+            'po_number' => Str::random(5),
+            'due_date' => '2022-01-01',
+            'date' => '2022-01-01',
+            'balance' => 100,
+            'amount' => 100,
             'public_notes' => 'notes',
             'is_deleted' => 0,
             'custom_value1' => 0,
@@ -69,8 +75,9 @@ class PurchaseOrderTest extends TestCase
 
         $this->assertNotNull($purchase_order);
 
-        $purchase_order->service()->markSent()->getPurchaseOrderPdf();
+        $x = $purchase_order->service()->markSent()->getPurchaseOrderPdf();
 
+        nlog($x);
     }    
 
     public function testPurchaseOrderRest()

@@ -149,10 +149,12 @@ class VendorHtmlEngine
         $data['$view_button'] = &$data['$view_link'];
         $data['$paymentButton'] = &$data['$payment_button'];
         $data['$view_url'] = ['value' => $this->invitation->getLink(), 'label' => ctrans('texts.view_invoice')];
-        $data['$date'] = ['value' => $this->translateDate($this->entity->date, $this->company->date_format(), $this->company->locale()) ?: '&nbsp;', 'label' => ctrans('texts.invoice_date')];
+        $data['$date'] = ['value' => $this->translateDate($this->entity->date, $this->company->date_format(), $this->company->locale()) ?: '&nbsp;', 'label' => ctrans('texts.date')];
 
-
-        
+        $data['$purchase_order.number'] = &$data['$number'];
+        $data['$purchase_order.date'] = &$data['$date'];
+        $data['$purchase_order.po_number'] = &$data['$poNumber'];
+        $data['$purchase_order.due_date'] = &$data['$due_date'];
 
         $data['$portal_url'] = ['value' => $this->invitation->getPortalLink(), 'label' =>''];
 
@@ -192,6 +194,9 @@ class VendorHtmlEngine
         $data['$partial'] = &$data['$partial_due'];
 
         $data['$total'] = ['value' => Number::formatMoney($this->entity_calc->getTotal(), $this->vendor) ?: '&nbsp;', 'label' => ctrans('texts.total')];
+
+        $data['$purchase_order.total'] = &$data['$total'];
+
         $data['$amount'] = &$data['$total'];
         $data['$amount_due'] = ['value' => &$data['$total']['value'], 'label' => ctrans('texts.amount_due')];
         $data['$balance'] = ['value' => Number::formatMoney($this->entity_calc->getBalance(), $this->vendor) ?: '&nbsp;', 'label' => ctrans('texts.balance')];
@@ -429,8 +434,6 @@ class VendorHtmlEngine
         $values = $this->buildEntityDataArray();
 
         foreach ($values as $key => $value) {
-            nlog($key);
-            nlog($value);
             $data['values'][$key] = $value['value'];
             $data['labels'][$key.'_label'] = $value['label'];
         }
