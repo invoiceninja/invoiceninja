@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\Models\Presenters\VendorContactPresenter;
 use App\Notifications\ClientContactResetPassword;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Contracts\Translation\HasLocalePreference;
@@ -34,6 +35,8 @@ class VendorContact extends Authenticatable implements HasLocalePreference
     protected $guard = 'vendor';
 
     protected $touches = ['vendor'];
+
+    protected $presenter = VendorContactPresenter::class;
 
     /* Allow microtime timestamps */
     protected $dateFormat = 'Y-m-d H:i:s.u';

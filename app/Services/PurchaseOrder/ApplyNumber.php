@@ -1,11 +1,18 @@
 <?php
-
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 
 namespace App\Services\PurchaseOrder;
 
 
-use App\Models\Client;
-use App\Models\Credit;
+use App\Models\Vendor;
 use App\Models\PurchaseOrder;
 use App\Services\AbstractService;
 use App\Utils\Traits\GeneratesCounter;
@@ -15,15 +22,15 @@ class ApplyNumber extends AbstractService
 {
     use GeneratesCounter;
 
-    private Client $client;
+    public Vendor $vendor;
 
     private PurchaseOrder $purchase_order;
 
     private bool $completed = true;
 
-    public function __construct(Client $client, PurchaseOrder $purchase_order)
+    public function __construct(Vendor $vendor, PurchaseOrder $purchase_order)
     {
-        $this->client = $client;
+        $this->vendor = $vendor;
 
         $this->purchase_order = $purchase_order;
     }
@@ -43,7 +50,7 @@ class ApplyNumber extends AbstractService
         $x=1;
         do{
             try{
-                $this->purchase_order->number = $this->getNextPurchaseOrderNumber($this->client, $this->purchase_order);
+                $this->purchase_order->number = $this->getNextPurchaseOrderNumber($this->purchase_order);
                 $this->purchase_order->saveQuietly();
                 $this->completed = false;
             }

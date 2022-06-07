@@ -116,6 +116,9 @@ class CompanySettings extends BaseSettings
     public $project_number_pattern = ''; //@implemented
     public $project_number_counter = 1; //@implemented
 
+    public $purchase_order_number_pattern = ''; //@implemented
+    public $purchase_order_number_counter = 1; //@implemented
+
     public $shared_invoice_quote_counter = false; //@implemented
     public $shared_invoice_credit_counter = false; //@implemented
     public $recurring_number_prefix = ''; //@implemented
@@ -133,6 +136,13 @@ class CompanySettings extends BaseSettings
     public $invoice_design_id = 'Wpmbk5ezJn'; //@implemented
     public $quote_design_id = 'Wpmbk5ezJn'; //@implemented
     public $credit_design_id = 'Wpmbk5ezJn'; //@implemented
+
+    public $purchase_order_design_id = 'Wpmbk5ezJn';
+    public $purchase_order_footer = ''; //@implemented
+    public $purchase_order_terms = ''; //@implemented
+    public $purchase_order_public_notes = ''; //@implemented
+    public $require_purchase_order_signature = false;  //@TODO ben to confirm
+    
     public $invoice_footer = ''; //@implemented
     public $credit_footer = ''; //@implemented
     public $credit_terms = ''; //@implemented
@@ -170,6 +180,8 @@ class CompanySettings extends BaseSettings
     public $email_subject_payment = ''; //@implemented
     public $email_subject_payment_partial = ''; //@implemented
     public $email_subject_statement = ''; //@implemented
+    public $email_subject_purchase_order = ''; //@implemented
+    public $email_template_purchase_order = ''; //@implemented
     public $email_template_invoice = ''; //@implemented
     public $email_template_credit = ''; //@implemented
     public $email_template_quote = ''; //@implemented
@@ -276,10 +288,16 @@ class CompanySettings extends BaseSettings
     public $email_from_name = '';
     public $auto_archive_invoice_cancelled = false;
 
-
-    public $purchase_order_number_counter = 1; //TODO
-
     public static $casts = [
+        'email_subject_purchase_order'       => 'string',
+        'email_template_purchase_order'      => 'string',
+        'require_purchase_order_signature'   => 'bool',
+        'purchase_order_public_notes'        => 'string',
+        'purchase_order_terms'               => 'string',
+        'purchase_order_design_id'           => 'string',
+        'purchase_order_footer'              => 'string',
+        'purchase_order_number_pattern'      => 'string',
+        'purchase_order_number_counter'      => 'int',
         'page_numbering_alignment'           => 'string',
         'page_numbering'                     => 'bool',
         'auto_archive_invoice_cancelled'     => 'bool',
@@ -531,6 +549,7 @@ class CompanySettings extends BaseSettings
         'invoice_design_id',
         'quote_design_id',
         'credit_design_id',
+        'purchase_order_design_id',
     ];
 
     /**
@@ -628,6 +647,25 @@ class CompanySettings extends BaseSettings
                 '$client.country',
                 '$client.phone',
                 '$contact.email',
+            ],
+            'vendor_details' => [
+                '$vendor.name',
+                '$vendor.number',
+                '$vendor.vat_number',
+                '$vendor.address1',
+                '$vendor.address2',
+                '$vendor.city_state_postal',
+                '$vendor.country',
+                '$vendor.phone',
+                '$contact.email',
+            ],
+            'purchase_order_details' => [
+                '$purchase_order.number',
+                '$purchase_order.po_number',
+                '$purchase_order.date',
+                '$purchase_order.due_date',
+                '$purchase_order.total',
+                '$purchase_order.balance_due',
             ],
             'company_details' => [
                 '$company.name',

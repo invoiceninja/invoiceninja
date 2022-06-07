@@ -35,6 +35,9 @@ class Design extends BaseDesign
     /** @var App\Models\Client */
     public $client;
 
+    /** @var App\Models\Vendor */
+    public $vendor;
+
     /** Global state of the design, @var array */
     public $context;
 
@@ -69,6 +72,8 @@ class Design extends BaseDesign
 
     const DELIVERY_NOTE = 'delivery_note';
     const STATEMENT = 'statement';
+    const PURCHASE_ORDER = 'purchase_order';
+
 
     public function __construct(string $design = null, array $options = [])
     {
@@ -112,6 +117,10 @@ class Design extends BaseDesign
             'client-details' => [
                 'id' => 'client-details',
                 'elements' => $this->clientDetails(),
+            ],
+            'vendor-details' => [
+                'id' => 'vendor-details',
+                'elements' => $this->vendorDetails(),
             ],
             'entity-details' => [
                 'id' => 'entity-details',
@@ -188,9 +197,28 @@ class Design extends BaseDesign
         return $elements;
     }
 
+    public function vendorDetails(): array
+    {
+        $elements = [];
+
+        if(!$this->vendor)
+            return $elements;
+
+        $variables = $this->context['pdf_variables']['vendor_details'];
+
+        foreach ($variables as $variable) {
+            $elements[] = ['element' => 'p', 'content' => $variable, 'show_empty' => false, 'properties' => ['data-ref' => 'vendor_details-' . substr($variable, 1)]];
+        }
+
+        return $elements;
+    }
+
     public function clientDetails(): array
     {
         $elements = [];
+
+        if(!$this->client)
+            return $elements;
 
         if ($this->type == self::DELIVERY_NOTE) {
             $elements = [
@@ -224,6 +252,8 @@ class Design extends BaseDesign
 
     public function entityDetails(): array
     {
+
+
         if ($this->type === 'statement') {
 
             $s_date = $this->translateDate(now(), $this->client->date_format(), $this->client->locale());
@@ -256,6 +286,12 @@ class Design extends BaseDesign
 
         if ($this->entity instanceof Credit) {
             $variables = $this->context['pdf_variables']['credit_details'];
+        }
+
+        if($this->vendor){
+
+            $variables = $this->context['pdf_variables']['purchase_order_details'];
+
         }
 
         $elements = [];

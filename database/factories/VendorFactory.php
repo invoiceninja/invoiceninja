@@ -12,6 +12,7 @@ namespace Database\Factories;
 
 use App\Models\Vendor;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 class VendorFactory extends Factory
 {
@@ -45,6 +46,8 @@ class VendorFactory extends Factory
             'state' => $this->faker->state,
             'postal_code' => $this->faker->postcode,
             'country_id' => 4,
+            'vendor_hash' => Str::random(40),
+
         ];
     }
 }

@@ -158,6 +158,10 @@ trait GeneratesCounter
                 return 'purchase_order_number_counter';
                 break;
 
+            case PurchaseOrder::class:
+                return 'purchase_order_number_counter';
+                break;
+
             default:
                 return 'default_number_counter';
                 break;
@@ -191,20 +195,6 @@ trait GeneratesCounter
         $entity_number = $this->getNextEntityNumber(Credit::class, $client);
 
         return $this->replaceUserVars($credit, $entity_number);
-
-    }
-    /**
-     * Gets the next purchase order number.
-     *
-     * @param PurchaseOrder $purchase_order  The purchase order
-     *
-     * @return     string              The next purchase order number.
-     */
-    public function getNextPurchaseOrderNumber(Client $client, ?PurchaseOrder $purchase_order) :string
-    {
-        $entity_number = $this->getNextEntityNumber(PurchaseOrder::class, $client);
-
-        return $this->replaceUserVars($purchase_order, $entity_number);
 
     }
 
@@ -362,6 +352,23 @@ trait GeneratesCounter
         return $this->replaceUserVars($expense, $entity_number);
 
     }
+
+    public function getNextPurchaseOrderNumber(PurchaseOrder $purchase_order) :string
+    {
+        $this->resetCompanyCounters($purchase_order->company);
+
+        $counter = $purchase_order->company->settings->purchase_order_number_counter;
+        $setting_entity = $purchase_order->company->settings->purchase_order_number_counter;
+
+        $purchase_order_number = $this->checkEntityNumber(PurchaseOrder::class, $purchase_order, $counter, $purchase_order->company->settings->counter_padding, $purchase_order->company->settings->purchase_order_number_pattern);
+
+        $this->incrementCounter($purchase_order->company, 'purchase_order_number_counter');
+
+        $entity_number = $purchase_order_number;
+
+        return $this->replaceUserVars($purchase_order, $entity_number);
+
+    }   
 
     /**
      * Gets the next expense number.

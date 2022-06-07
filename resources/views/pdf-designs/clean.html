@@ -295,6 +295,7 @@
                      <table id="entity-details" cellspacing="0" dir="$dir"></table>
                   </div>
                   <div id="client-details"></div>
+                  <div id="vendor-details"></div>
                </div>
                <table id="product-table" cellspacing="0" data-ref="table"></table>
                <table id="task-table" cellspacing="0" data-ref="table"></table>
@@ -333,7 +334,8 @@ $entity_images
                 let tables = [
                     'product-table', 'task-table', 'delivery-note-table',
                     'statement-invoice-table', 'statement-payment-table', 'statement-aging-table-totals',
-                    'statement-invoice-table-totals', 'statement-payment-table-totals', 'statement-aging-table'
+                    'statement-invoice-table-totals', 'statement-payment-table-totals', 'statement-aging-table',
+                    'client-details','vendor-details'
                 ];
 
                 tables.forEach((tableIdentifier) => {

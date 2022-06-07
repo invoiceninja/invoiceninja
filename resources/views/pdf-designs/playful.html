@@ -349,6 +349,7 @@
                   <div class="contact-wrapper-right-side">
                      <p class="contact-label">$to_label:</p>
                      <div id="client-details"></div>
+                     <div id="vendor-details"></div>
                   </div>
                </div>
                <table id="product-table" cellspacing="0" data-ref="table"></table>
@@ -409,7 +410,8 @@ $entity_images
                 let tables = [
                     'product-table', 'task-table', 'delivery-note-table',
                     'statement-invoice-table', 'statement-payment-table', 'statement-aging-table-totals',
-                    'statement-invoice-table-totals', 'statement-payment-table-totals', 'statement-aging-table'
+                    'statement-invoice-table-totals', 'statement-payment-table-totals', 'statement-aging-table',
+                    'client-details','vendor-details'
                 ];
 
                 tables.forEach((tableIdentifier) => {
