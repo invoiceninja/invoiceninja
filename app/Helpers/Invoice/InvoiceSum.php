@@ -55,10 +55,10 @@ class InvoiceSum
     {
         $this->invoice = $invoice;
 
-        if($this->invoice->vendor)
-            $this->precision = $this->invoice->vendor->currency()->precision;
-        else
+        if($this->invoice->client)
             $this->precision = $this->invoice->client->currency()->precision;
+        else
+            $this->precision = $this->invoice->vendor->currency()->precision;
 
         $this->tax_map = new Collection;
     }

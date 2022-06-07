@@ -52,10 +52,10 @@ class InvoiceItemSum
 
         $this->invoice = $invoice;
 
-        if($this->invoice->vendor)
-            $this->currency = $this->invoice->vendor->currency();
-        else
+        if($this->invoice->client)
             $this->currency = $this->invoice->client->currency();
+        else
+            $this->currency = $this->invoice->vendor->currency();
 
         $this->line_items = [];
     }

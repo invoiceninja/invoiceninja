@@ -107,6 +107,9 @@ class Vendor extends BaseModel
         if(!$currencies)
             $this->buildCache(true);
 
+        if(!$this->currency_id)
+            $this->currency_id = 1;
+
         return $currencies->filter(function ($item) {
             return $item->id == $this->currency_id;
         })->first();
