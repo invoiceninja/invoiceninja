@@ -33,7 +33,7 @@ class InventoryNotificationObject
 
     public function __construct(Product $product, string $notification_level)
     {
-        $this->payment = $product;
+        $this->product = $product;
         $this->company = $product->company;
         $this->settings = $this->company->settings;
     }

@@ -217,6 +217,7 @@ trait MockAccountData
         $settings->timezone_id = '1';
         $settings->entity_send_time = 0;
 
+        $this->company->track_inventory = true;
         $this->company->settings = $settings;
         $this->company->save();
 

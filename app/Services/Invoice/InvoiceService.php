@@ -565,10 +565,11 @@ class InvoiceService
         return $this;
     }
 
-    public function adjustInventory()
+    public function adjustInventory($old_invoice = [])
     {
+
         if($this->invoice->company->track_inventory)
-            AdjustProductInventory::dispatch($this->invoice->company, $this->invoice, null)->delay(rand(1,2));
+            AdjustProductInventory::dispatchNow($this->invoice->company, $this->invoice, $old_invoice);
 
         return $this;
     }

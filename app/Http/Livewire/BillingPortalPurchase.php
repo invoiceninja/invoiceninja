@@ -362,6 +362,7 @@ class BillingPortalPurchase extends Component
             ->service()
             ->markSent()
             ->fillDefaults()
+            ->adjustInventory()
             ->save();
 
         Cache::put($this->hash, [

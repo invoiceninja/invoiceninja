@@ -37,9 +37,8 @@ class AdjustProductInventory implements ShouldQueue
 
     public array $old_invoice;
 
-    public function __construct(Company $company, Invoice $invoice, array $old_invoice = [])
+    public function __construct(Company $company, Invoice $invoice, ?array $old_invoice = [])
     {
-
         $this->company = $company;
         $this->invoice = $invoice;
         $this->old_invoice = $old_invoice;
@@ -55,8 +54,10 @@ class AdjustProductInventory implements ShouldQueue
     {
         MultiDB::setDb($this->company->db);
 
+nlog("old invoice count = " . count($this->old_invoice));
+
         if(count($this->old_invoice) > 0)
-            return $this->existingInventoryAdjustment();
+            $this->existingInventoryAdjustment();
 
         return $this->newInventoryAdjustment();
 
@@ -73,6 +74,8 @@ class AdjustProductInventory implements ShouldQueue
         
         $line_items = $this->invoice->line_items;
 
+nlog($line_items);
+
         foreach($line_items as $item)
         {
 
@@ -81,10 +84,14 @@ class AdjustProductInventory implements ShouldQueue
             if(!$p)
                 continue;
 
-            $p->in_stock_quantity -= $item->quantity;
-            $p->save();
 
-            //check thresholds and notify user
+nlog("subtracting back " . $item->quantity);
+
+            $p->in_stock_quantity -= $item->quantity;
+            $p->saveQuietly();
+
+nlog($p->toArray());
+
 
             if($p->stock_notification_threshold && $p->in_stock_quantity <= $p->stock_notification_threshold)
                 $this->notifyStockLevels($p, 'product');
@@ -98,16 +105,18 @@ class AdjustProductInventory implements ShouldQueue
     private function existingInventoryAdjustment()
     {
 
-        foreach($this->old_invoice['line_items'] as $item)
+        foreach($this->old_invoice as $item)
         {
-            $p = Product::where('product_key', $item->product_key)->where('company_id', $this->company->id)->where('in_stock_quantity', '>', 0)->first();
+            $p = Product::where('product_key', $item->product_key)->where('company_id', $this->company->id)->first();
 
             if(!$p)
                 continue;
 
-            $p->in_stock_quantity += $item->quantity;
-            $p->save();
+nlog("adding back " . $item->quantity);
 
+            $p->in_stock_quantity += $item->quantity;
+            $p->saveQuietly();
+nlog($p->toArray());
         }
 
     }
