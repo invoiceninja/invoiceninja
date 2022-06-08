@@ -22,6 +22,8 @@ class CreatePurchaseOrderInvitationsTable extends Migration
      */
     public function up()
     {
+        set_time_limit(0);
+    
         Schema::create('purchase_order_invitations', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('company_id');
@@ -68,6 +70,8 @@ class CreatePurchaseOrderInvitationsTable extends Migration
             $settings->purchase_order_number_counter = 1; //@implemented
             $settings->email_subject_purchase_order = '';
             $settings->email_template_purchase_order = '';
+            $settings->require_purchase_order_signature = false;
+
             $company->settings = $settings;
             $company->save();
         });
@@ -82,4 +86,5 @@ class CreatePurchaseOrderInvitationsTable extends Migration
     public function down()
     {
     }
+
 }

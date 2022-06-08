@@ -17,12 +17,16 @@ use Illuminate\Support\Facades\Schema;
 
 class SetRecurringClientTimestamp extends Migration
 {
+
     /**
      * Run the migrations.
      *
      */
     public function up()
     {
+    
+        set_time_limit(0);
+    
         Schema::table('recurring_invoices', function (Blueprint $table) {
             $table->datetime('next_send_date_client')->nullable();
         });
