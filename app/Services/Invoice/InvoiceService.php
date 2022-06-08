@@ -568,7 +568,7 @@ class InvoiceService
     public function adjustInventory()
     {
         if($this->invoice->company->track_inventory)
-            AdjustProductInventory::dispatch($this->invoice->company, $this->invoice, null);
+            AdjustProductInventory::dispatch($this->invoice->company, $this->invoice, null)->delay(rand(1,2));
 
         return $this;
     }
