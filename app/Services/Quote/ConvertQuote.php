@@ -70,6 +70,7 @@ class ConvertQuote
 
         $invoice->service()
                 ->fillDefaults()
+                ->adjustInventory()
                 ->save();
 
         $quote->invoice_id = $invoice->id;

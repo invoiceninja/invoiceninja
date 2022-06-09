@@ -71,6 +71,7 @@ class BaseTransformer
 
             $client_id_search = $this->company
                 ->clients()
+                ->where('is_deleted', false)
                 ->where('id_number', $client_name);
 
             if ($client_id_search->count() >= 1) {
@@ -79,6 +80,7 @@ class BaseTransformer
 
             $client_name_search = $this->company
                 ->clients()
+                ->where('is_deleted', false)
                 ->where('name', $client_name);
 
             if ($client_name_search->count() >= 1) {
@@ -86,10 +88,11 @@ class BaseTransformer
             }
         }
         if (!empty($client_email)) {
-            $contacts = ClientContact::where(
-                'company_id',
-                $this->company->id
-            )->where('email', $client_email);
+            $contacts = ClientContact::whereHas('client', function($query){
+                $query->where('is_deleted', false);
+            })
+            ->where('company_id', $this->company->id)
+            ->where('email', $client_email);
 
             if ($contacts->count() >= 1) {
                 return $contacts->first()->client_id;
@@ -109,6 +112,7 @@ class BaseTransformer
     {
         return $this->company
             ->clients()
+            ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $name)),
             ])
@@ -124,6 +128,7 @@ class BaseTransformer
     {
         return $this->company
             ->vendors()
+            ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $name)),
             ])
@@ -139,6 +144,7 @@ class BaseTransformer
     {
         return $this->company
             ->projects()
+            ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $name)),
             ])
@@ -154,6 +160,7 @@ class BaseTransformer
     {
         return $this->company
             ->products()
+            ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`product_key`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $key)),
             ])
@@ -186,6 +193,7 @@ class BaseTransformer
     {
         $client = $this->company
             ->clients()
+            ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $name)),
             ])
@@ -203,6 +211,7 @@ class BaseTransformer
     {
         $product = $this->company
             ->products()
+            ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`product_key`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $key)),
             ])
@@ -273,6 +282,7 @@ class BaseTransformer
 
         $tax_rate = $this->company
             ->tax_rates()
+            ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $name)),
             ])
@@ -292,6 +302,7 @@ class BaseTransformer
 
         $tax_rate = $this->company
             ->tax_rates()
+            ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $name)),
             ])
@@ -341,6 +352,7 @@ class BaseTransformer
     {
         $invoice = $this->company
             ->invoices()
+            ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`number`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $invoice_number)),
             ])
@@ -358,6 +370,7 @@ class BaseTransformer
     {
         return $this->company
             ->invoices()
+            ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`number`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $invoice_number)),
             ])
@@ -371,6 +384,7 @@ class BaseTransformer
     {
         return $this->company
             ->expenses()
+            ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`number`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $expense_number)),
             ])
@@ -386,6 +400,7 @@ class BaseTransformer
     {
         return $this->company
             ->quotes()
+            ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`number`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $quote_number)),
             ])
@@ -401,6 +416,7 @@ class BaseTransformer
     {
         $invoice = $this->company
             ->invoices()
+            ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`number`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $invoice_number)),
             ])
@@ -418,6 +434,7 @@ class BaseTransformer
     {
         $vendor = $this->company
             ->vendors()
+            ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $name)),
             ])
@@ -452,6 +469,7 @@ class BaseTransformer
     {
         $ec = $this->company
             ->expense_categories()
+            ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $name)),
             ])
@@ -486,6 +504,7 @@ class BaseTransformer
     {
         $project = $this->company
             ->projects()
+            ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [
                 strtolower(str_replace(' ', '', $name)),
             ])

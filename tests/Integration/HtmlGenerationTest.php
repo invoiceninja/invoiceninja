@@ -6,13 +6,14 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://opensource.org/licenses/AAL
+ * @license https://www.elastic.co/licensing/elastic-license 
  */
 namespace Tests\Integration;
 
 use App\Models\Credit;
 use App\Models\Design;
 use App\Models\Invoice;
+use App\Models\PurchaseOrder;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use App\Services\PdfMaker\Design as PdfDesignModel;
@@ -57,6 +58,8 @@ class HtmlGenerationTest extends TestCase
             $entity_design_id = 'quote_design_id';
         } elseif ($entity instanceof Credit) {
             $entity_design_id = 'credit_design_id';
+        } elseif ($entity instanceof PurchaseOrder) {
+            $entity_design_id = 'purchase_order_design_id';
         }
 
         $entity_design_id = $entity->design_id ? $entity->design_id : $this->decodePrimaryKey($entity->client->getSetting($entity_design_id));

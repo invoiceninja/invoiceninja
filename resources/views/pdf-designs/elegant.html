@@ -279,6 +279,7 @@
                      <div class="text-with-client">
                         <h2 class="wrapper-info-text">$to_label</h2>
                         <div id="client-details"></div>
+                        <div id="vendor-details"></div>
                      </div>
                      <div class="company-info">
                         <h2 class="wrapper-info-text">$from_label</h2>
@@ -328,7 +329,8 @@ $entity_images
                 let tables = [
                     'product-table', 'task-table', 'delivery-note-table',
                     'statement-invoice-table', 'statement-payment-table', 'statement-aging-table-totals',
-                    'statement-invoice-table-totals', 'statement-payment-table-totals', 'statement-aging-table'
+                    'statement-invoice-table-totals', 'statement-payment-table-totals', 'statement-aging-table',
+                    'client-details','vendor-details'
                 ];
 
                 tables.forEach((tableIdentifier) => {

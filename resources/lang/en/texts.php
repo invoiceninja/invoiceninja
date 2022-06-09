@@ -4607,7 +4607,20 @@ $LANG = array(
     'enable_tooltips_help' => 'Show tooltips when hovering the mouse',
     'multiple_client_error' => 'Error: records belong to more than one client',
     'login_label' => 'Login to an existing account',
-
+    'purchase_order' => 'Purchase Order',
+    'purchase_order_number' => 'Purchase Order Number',
+    'purchase_order_number_short' => 'Purchase Order #',
+    'inventory_notification_subject' => 'Inventory threshold notification for product: :product',
+    'inventory_notification_body' => 'Threshold of :amount has been reach for product: :product',
+    'activity_130' => ':user created purchase order :purchase_order',
+    'activity_131' => ':user updated purchase order :purchase_order',
+    'activity_132' => ':user archived purchase order :purchase_order',
+    'activity_133' => ':user deleted purchase order :purchase_order',
+    'activity_134' => ':user restored purchase order :purchase_order',
+    'activity_135' => ':user emailed purchase order :purchase_order',
+    'activity_136' => ':contact viewed purchase order :purchase_order',
+    'purchase_order_subject' => '',
+    'purchase_order_message' => '',
 );
 
 return $LANG;

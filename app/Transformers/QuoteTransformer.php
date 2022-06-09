@@ -18,6 +18,7 @@ use App\Models\Quote;
 use App\Models\QuoteInvitation;
 use App\Transformers\ActivityTransformer;
 use App\Utils\Traits\MakesHash;
+use League\Fractal\Resource\Item;
 
 class QuoteTransformer extends EntityTransformer
 {
@@ -30,6 +31,7 @@ class QuoteTransformer extends EntityTransformer
 
     protected $availableIncludes = [
         'activities',
+        'client',
     ];
 
     public function includeActivities(Quote $quote)
@@ -61,13 +63,6 @@ class QuoteTransformer extends EntityTransformer
             return $this->includeCollection($quote->payments, $transformer, ENTITY_PAYMENT);
         }
 
-        public function includeClient(quote $quote)
-        {
-            $transformer = new ClientTransformer($this->account, $this->serializer);
-
-            return $this->includeItem($quote->client, $transformer, ENTITY_CLIENT);
-        }
-
         public function includeExpenses(quote $quote)
         {
             $transformer = new ExpenseTransformer($this->account, $this->serializer);
@@ -81,6 +76,13 @@ class QuoteTransformer extends EntityTransformer
         $transformer = new DocumentTransformer($this->serializer);
 
         return $this->includeCollection($quote->documents, $transformer, Document::class);
+    }
+
+    public function includeClient(Quote $quote): Item
+    {
+        $transformer = new ClientTransformer($this->serializer);
+
+        return $this->includeItem($quote->client, $transformer, Client::class);
     }
 
     public function transform(Quote $quote)

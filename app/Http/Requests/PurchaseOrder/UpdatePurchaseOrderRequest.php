@@ -55,7 +55,6 @@ class UpdatePurchaseOrderRequest extends Request
 
         $input = $this->decodePrimaryKeys($input);
 
-
         $input['id'] = $this->purchase_order->id;
 
         $this->replace($input);

@@ -6,16 +6,18 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://opensource.org/licenses/AAL
+ * @license https://www.elastic.co/licensing/elastic-license 
  */
 namespace Database\Factories;
 
 use App\DataMapper\CompanySettings;
 use App\Models\Company;
+use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class CompanyFactory extends Factory
 {
+    use MakesHash;
     /**
      * The name of the factory's corresponding model.
      *
@@ -41,6 +43,7 @@ class CompanyFactory extends Factory
             'enabled_modules' => config('ninja.enabled_modules'),
             'custom_fields' => (object) [
             ],
+            'company_key' => $this->createHash(),
         ];
     }
 }
