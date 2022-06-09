@@ -108,6 +108,7 @@ class CreateSingleAccount extends Command
             'default_password_timeout' => 30*60000,
             'portal_mode' => 'domain',
             'portal_domain' => 'http://ninja.test:8000',
+            'track_inventory' => true
         ]);
 
         $settings = $company->settings;

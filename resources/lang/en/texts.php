@@ -4610,6 +4610,8 @@ $LANG = array(
     'purchase_order' => 'Purchase Order',
     'purchase_order_number' => 'Purchase Order Number',
     'purchase_order_number_short' => 'Purchase Order #',
+    'inventory_notification_subject' => 'Inventory threshold notification for product: :product',
+    'inventory_notification_body' => 'Threshold of :amount has been reach for product: :product',
 );
 
 return $LANG;
